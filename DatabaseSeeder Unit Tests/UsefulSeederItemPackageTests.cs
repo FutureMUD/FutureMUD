@@ -491,6 +491,9 @@ public class UsefulSeederItemPackageTests
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Container_Bookcase_Shelves"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("TimePiece_Antiquity_Sundial"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("SealStamp_Antiquity_BronzeSignet"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Tool_Blacksmithing_General"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Tool_Jewellery_General"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Tool_Printing_Woodblock_General"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Medieval_Parchment_Sheet_Surface"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Medieval_Wax_Tablet_Surface"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Medieval_Quill_Pen"));
@@ -514,6 +517,52 @@ public class UsefulSeederItemPackageTests
 		context.SaveChanges();
 
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyItemPackagePresence(context));
+	}
+
+	[TestMethod]
+	public void SeedMedievalIndustryToolComponentsForTesting_CreatesSharedHandToolProfiles()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		UsefulSeeder seeder = new();
+
+		seeder.SeedMedievalIndustryToolComponentsForTesting(context);
+		seeder.SeedMedievalIndustryToolComponentsForTesting(context);
+
+		string[] expectedNames =
+		[
+			"Tool_Blacksmithing_General",
+			"Tool_Armouring_General",
+			"Tool_Weaponsmithing_General",
+			"Tool_Woodcrafting_General",
+			"Tool_Coopering_General",
+			"Tool_Textilecraft_General",
+			"Tool_Dyeing_Fulling_General",
+			"Tool_Leatherworking_General",
+			"Tool_Parchmentmaking_General",
+			"Tool_Papermaking_General",
+			"Tool_Bookbinding_General",
+			"Tool_Pottery_General",
+			"Tool_Masonry_General",
+			"Tool_Glassblowing_General",
+			"Tool_Lapidary_General",
+			"Tool_Jewellery_General",
+			"Tool_Apothecary_General",
+			"Tool_Medical_General",
+			"Tool_Printing_Woodblock_General"
+		];
+
+		foreach (string name in expectedNames)
+		{
+			GameItemComponentProto component = context.GameItemComponentProtos.Single(x => x.Name == name);
+			Assert.AreEqual("HandTool", component.Type);
+			XElement definition = XElement.Parse(component.Definition);
+			Assert.AreEqual(1.5, (double)definition.Element("BaseMultiplier")!);
+			Assert.AreEqual(0.1, (double)definition.Element("MultiplierReductionPerQuality")!);
+			Assert.AreEqual("(1+quality) * 3600", (string)definition.Element("ToolDurabilitySecondsExpression")!);
+		}
+
+		Assert.AreEqual(expectedNames.Length, context.GameItemComponentProtos.Count(x => expectedNames.Contains(x.Name)));
 	}
 
 	[TestMethod]

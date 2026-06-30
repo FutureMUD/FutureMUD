@@ -93,7 +93,26 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "IncenseBurner_Antiquity_BronzeCenser",
         "OfferingReceiver_Antiquity_HouseholdAltar",
         "Repair_Glass",
-        "Repair_Composite_Bow"
+        "Repair_Composite_Bow",
+        "Tool_Blacksmithing_General",
+        "Tool_Armouring_General",
+        "Tool_Weaponsmithing_General",
+        "Tool_Woodcrafting_General",
+        "Tool_Coopering_General",
+        "Tool_Textilecraft_General",
+        "Tool_Dyeing_Fulling_General",
+        "Tool_Leatherworking_General",
+        "Tool_Parchmentmaking_General",
+        "Tool_Papermaking_General",
+        "Tool_Bookbinding_General",
+        "Tool_Pottery_General",
+        "Tool_Masonry_General",
+        "Tool_Glassblowing_General",
+        "Tool_Lapidary_General",
+        "Tool_Jewellery_General",
+        "Tool_Apothecary_General",
+        "Tool_Medical_General",
+        "Tool_Printing_Woodblock_General"
     ];
 
     private static readonly string[] StockModernItemMarkers =

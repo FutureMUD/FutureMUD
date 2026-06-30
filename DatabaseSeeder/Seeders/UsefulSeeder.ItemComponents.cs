@@ -221,6 +221,17 @@ public partial class UsefulSeeder
         context.SaveChanges();
     }
 
+    internal void SeedMedievalIndustryToolComponentsForTesting(FuturemudDatabaseContext context)
+    {
+        _context = context;
+        PrepareItemProtoCache(context);
+        DateTime now = DateTime.UtcNow;
+        Account dbaccount = context.Accounts.First();
+        long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+        SeedMedievalIndustryToolComponents(context, now, dbaccount, ref nextId);
+        context.SaveChanges();
+    }
+
     internal void SeedAntiquityComponentGapCoverageForTesting(FuturemudDatabaseContext context)
     {
         _context = context;
@@ -6603,10 +6614,73 @@ public partial class UsefulSeeder
         SeedLighting(context, now, dbaccount, ref nextId);
         SeedWaterSources(context, now, dbaccount, ref nextId);
         SeedRepairKits(context, now, dbaccount, ref nextId);
+        SeedMedievalIndustryToolComponents(context, now, dbaccount, ref nextId);
         SeedAdditionalBuilderExamples(context, now, dbaccount, ref nextId);
         SeedSealAndMeasurementComponents(context, now, dbaccount, ref nextId);
         SeedOfferingAndIncenseComponents(context, now, dbaccount, ref nextId);
         SeedSmokeables(context, now, dbaccount, ref nextId);
+    }
+
+    private void SeedMedievalIndustryToolComponents(FuturemudDatabaseContext context, DateTime now, Account dbaccount,
+        ref long nextId)
+    {
+        long currentId = nextId;
+
+        XElement HandToolDefinition(double baseMultiplier = 1.5, double multiplierReductionPerQuality = 0.1,
+            string durabilityExpression = "(1+quality) * 3600")
+        {
+            return new XElement("Definition",
+                new XElement("MultiplierReductionPerQuality", multiplierReductionPerQuality),
+                new XElement("BaseMultiplier", baseMultiplier),
+                new XElement("ToolDurabilitySecondsExpression", durabilityExpression));
+        }
+
+        void AddToolComponent(string name, string description)
+        {
+            UpsertComponent(context, ref currentId, dbaccount, now, "HandTool", name, description,
+                HandToolDefinition().ToString());
+        }
+
+        AddToolComponent("Tool_Blacksmithing_General",
+            "Turns an item into a general hand-tool component for medieval blacksmithing and ordinary forge work.");
+        AddToolComponent("Tool_Armouring_General",
+            "Turns an item into a general hand-tool component for medieval armour shaping, forming and fitting.");
+        AddToolComponent("Tool_Weaponsmithing_General",
+            "Turns an item into a general hand-tool component for medieval weapon shaping, grinding and fitting.");
+        AddToolComponent("Tool_Woodcrafting_General",
+            "Turns an item into a general hand-tool component for medieval carpentry, joinery and wood shaping.");
+        AddToolComponent("Tool_Coopering_General",
+            "Turns an item into a general hand-tool component for medieval coopering and stave-vessel work.");
+        AddToolComponent("Tool_Textilecraft_General",
+            "Turns an item into a general hand-tool component for medieval spinning, weaving and textile preparation.");
+        AddToolComponent("Tool_Dyeing_Fulling_General",
+            "Turns an item into a general hand-tool component for medieval dyeing, fulling and cloth finishing.");
+        AddToolComponent("Tool_Leatherworking_General",
+            "Turns an item into a general hand-tool component for medieval leatherworking, tanning and hide preparation.");
+        AddToolComponent("Tool_Parchmentmaking_General",
+            "Turns an item into a general hand-tool component for medieval parchment scraping and stretching.");
+        AddToolComponent("Tool_Papermaking_General",
+            "Turns an item into a general hand-tool component for medieval papermaking and sheet forming.");
+        AddToolComponent("Tool_Bookbinding_General",
+            "Turns an item into a general hand-tool component for medieval bookbinding and codex assembly.");
+        AddToolComponent("Tool_Pottery_General",
+            "Turns an item into a general hand-tool component for medieval pottery shaping, trimming and finishing.");
+        AddToolComponent("Tool_Masonry_General",
+            "Turns an item into a general hand-tool component for medieval masonry, plastering and stone finishing.");
+        AddToolComponent("Tool_Glassblowing_General",
+            "Turns an item into a general hand-tool component for medieval glassblowing and hot-glass shaping.");
+        AddToolComponent("Tool_Lapidary_General",
+            "Turns an item into a general hand-tool component for medieval lapidary sawing, drilling and polishing.");
+        AddToolComponent("Tool_Jewellery_General",
+            "Turns an item into a general hand-tool component for medieval jewellery forming, setting and burnishing.");
+        AddToolComponent("Tool_Apothecary_General",
+            "Turns an item into a general hand-tool component for medieval apothecary preparation and dosing.");
+        AddToolComponent("Tool_Medical_General",
+            "Turns an item into a general hand-tool component for medieval medical and surgical tool use.");
+        AddToolComponent("Tool_Printing_Woodblock_General",
+            "Turns an item into a general hand-tool component for medieval woodblock carving, inking and impression work.");
+
+        nextId = currentId;
     }
 
     private void SeedLighting(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)

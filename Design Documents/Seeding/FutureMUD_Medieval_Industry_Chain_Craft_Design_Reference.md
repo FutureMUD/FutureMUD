@@ -128,7 +128,7 @@ Most medieval craft tools can be ordinary item prototypes with:
 - a market tool tag such as `Market / Professional Tools / Standard Tools`;
 - one or more exact functional tool tags under `Functions / Tools / ...`.
 
-The current component inventory has a `HandTool` component type but no broad catalogue of ordinary `HandTool_*` prototypes. Until tool-item components are expanded, tool matching should continue to rely on tag-based craft tool requirements. Locksmith tool kits are the current exception because exact locksmithing tool components exist.
+The current component inventory has a `HandTool` component type and now includes shared ordinary medieval `Tool_*_General` prototypes for common industry families. Tool matching should still rely on exact functional tags in craft requirements; the shared component prototypes supply runtime tool-duration and craft-speed behaviour for physical tool items that carry those tags. Locksmith tool kits remain the more specialised exception because exact locksmithing tool components exist.
 
 ### Workstations and fixtures
 
@@ -800,7 +800,7 @@ A craft-complete catalogue needs tests and a machine-readable audit. Recommended
 Suggested audit output shape:
 
 ```text
-stable_reference | item_source_file | craft_name | craft_method | immediate_inputs | missing_input_crafts | required_tools | missing_tool_items | terminal_inputs
+stable_reference | item_source_file | craft_name | craft_method | immediate_inputs | missing_input_crafts | terminal_inputs | terminal_source_class | terminal_source_owner | missing_terminal_source | required_tools | missing_tool_items | missing_tool_components | missing_tool_tags | missing_component_types | missing_component_prototypes | missing_materials | missing_tags | required_skill | missing_skill_package_entry | owning_resolution_pass | resolution_status
 ```
 
 This audit can live as a generated markdown or CSV artifact during development. It does not need to be checked in unless it becomes a maintained source of truth.
@@ -814,7 +814,7 @@ The current tag hierarchy already contains many exact tool tags for the first cr
 Important implementation notes:
 
 - Glass tool tags are under `Functions / Tools / Glassblowing Tools`, not `Glassworking Tools`.
-- Broad jewellery/gemcraft tool tags appear incomplete compared with the desired craft closure. Current support includes jewellery material-function stock and crimping-related joining tags, but the tool catalogue likely needs new exact tags for lapidary and jeweller's tools unless broad `Functions / Tools` tags are accepted temporarily.
+- Lapidary, jewellery, and apothecary tool tag branches are now present in `UsefulSeeder.Tags.cs` and the maintained tag export. Craft requirements should use those exact branches instead of broad `Functions / Tools` matches where the tool role matters.
 - Locksmithing is unusually well-supported by exact component prototypes. Prefer proper locksmithing tool kits for lock and key fabrication instead of plain inert props.
 - Some tag paths include modern tools or later technology, such as chain saws, sewing machines, Hollander beaters, surgical staplers, and modern medical diagnostic devices. The medieval pass must not use those even when the tags exist.
 - The shared historic foundation items already seed enough basic workshop apparatus to support early craft prototypes, but they do not cover the full medieval catalogue.
@@ -839,8 +839,7 @@ A thin first craft PR that only creates finished clothing, weapons, or furniture
 
 - Decide whether broad intermediate stock should be represented mainly by commodity products, item prototypes, or both.
 - Decide whether high-throughput fixtures should remain `Holdable` like the current moveable catalogue or gain separate non-portable installed variants.
-- Decide whether to add broad `HandTool_*` components or continue using tag-only tool matching for ordinary tools.
-- Decide whether jewellery/lapidary tool tags should be added before the jewellery craft pass.
+- Decide which physical tool and workstation item prototypes should attach each shared `Tool_*_General` `HandTool` component, while keeping exact craft matching on the functional tag paths.
 - Decide how strongly to model regional production differences for East Asian paper, South Asian palm leaf, steppe composite bows, Japanese lamellar armour, and Islamicate paper/qalam/calligraphy goods.
 - Decide whether all food and beverage items should become actual edible/drinkable component-bearing goods before their crafts are authored, or whether food-service vessel crafts remain separate from edible food production.
 - Decide whether active liquid contents such as ink, medicinal liquids, oils, and beverages should be seeded as craft products, default-loaded container contents, or both.

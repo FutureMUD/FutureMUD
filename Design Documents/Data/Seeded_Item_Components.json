@@ -7134,4 +7134,99 @@
         "Component Name":  "Repair_Composite_Bow_Good",
         "Component Description":  "Turns an item into a good-quality repair kit that repairs composite bows",
         "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Tool_Blacksmithing_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval blacksmithing and ordinary forge work.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Armouring_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval armour shaping, forming and fitting.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Weaponsmithing_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval weapon shaping, grinding and fitting.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Woodcrafting_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval carpentry, joinery and wood shaping.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Coopering_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval coopering and stave-vessel work.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Textilecraft_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval spinning, weaving and textile preparation.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Dyeing_Fulling_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval dyeing, fulling and cloth finishing.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Leatherworking_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval leatherworking, tanning and hide preparation.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Parchmentmaking_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval parchment scraping and stretching.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Papermaking_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval papermaking and sheet forming.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Bookbinding_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval bookbinding and codex assembly.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Pottery_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval pottery shaping, trimming and finishing.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Masonry_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval masonry, plastering and stone finishing.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Glassblowing_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval glassblowing and hot-glass shaping.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Lapidary_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval lapidary sawing, drilling and polishing.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Jewellery_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval jewellery forming, setting and burnishing.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Apothecary_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval apothecary preparation and dosing.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Medical_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval medical and surgical tool use.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Printing_Woodblock_General",
+        "Component Description":  "Turns an item into a general hand-tool component for medieval woodblock carving, inking and impression work.",
+        "Component Type":  "HandTool"
     }]

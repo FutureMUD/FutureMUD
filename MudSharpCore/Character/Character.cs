@@ -604,6 +604,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         dbchar.RoomBrief = BriefRoomDescs;
         dbchar.CombatBrief = BriefCombatMode;
         dbchar.NoMercy = NoMercy;
+        dbchar.CustomAlertEmote = CustomAlertEmote;
+        dbchar.CustomDistantAlertEmote = CustomDistantAlertEmote;
 
         if (NamesChanged)
         {
@@ -1442,7 +1444,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             PositionModifier = (int)PositionModifier.None,
             PositionEmote = string.Empty,
             EffectData = SaveEffects().ToString(),
-            CurrentCombatSettingId = CombatSettings?.Id
+            CurrentCombatSettingId = CombatSettings?.Id,
+            CustomAlertEmote = CustomAlertEmote,
+            CustomDistantAlertEmote = CustomDistantAlertEmote
         };
 
         InsertInitialForms(dbitem);
@@ -1607,6 +1611,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         _state |= CharacterState.Stasis;
         _status = (CharacterStatus)character.Status;
         _noMercy = character.NoMercy;
+        _customAlertEmote = character.CustomAlertEmote;
+        _customDistantAlertEmote = character.CustomDistantAlertEmote;
         BriefRoomDescs = character.RoomBrief;
         BriefCombatMode = character.CombatBrief;
         LoadNames(character);
@@ -1848,6 +1854,26 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         set
         {
             _noMercy = value;
+            Changed = true;
+        }
+    }
+
+    public string? CustomAlertEmote
+    {
+        get => _customAlertEmote;
+        set
+        {
+            _customAlertEmote = value;
+            Changed = true;
+        }
+    }
+
+    public string? CustomDistantAlertEmote
+    {
+        get => _customDistantAlertEmote;
+        set
+        {
+            _customDistantAlertEmote = value;
             Changed = true;
         }
     }
@@ -3793,6 +3819,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     private bool _outfitsChanged;
     private bool _noMercy;
+    private string? _customAlertEmote;
+    private string? _customDistantAlertEmote;
 
     public bool OutfitsChanged
     {

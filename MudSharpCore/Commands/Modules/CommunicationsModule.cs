@@ -1,6 +1,7 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Character.Name;
+using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Community.Boards;
 using MudSharp.Database;
@@ -986,6 +987,135 @@ The syntax is:
         }
 
         actor.Body.Shout(target, message, emote);
+    }
+
+    [PlayerCommand("Alert", "alert")]
+    [HelpInfo("alert",
+        @"The #3alert#0 command sends a loud non-language alert, like a shout, whistle, howl or other urgent vocalisation, to nearby rooms. NPC AIs can react to hearing alerts.
+
+The syntax is:
+
+	#3alert#0 - uses your stored alert emote or the race/global default
+	#3alert <emote>#0 - sends a one-time alert emote
+	#3alert show#0 - shows your current alert settings
+	#3alert set <emote>#0 - stores your default in-room alert emote
+	#3alert setdistant <emote>#0 - stores your nearby-room alert echo; use #6{0}#0 for the direction
+	#3alert clear#0 - clears your in-room alert emote
+	#3alert cleardistant#0 - clears your nearby-room alert echo
+	#3alert clearall#0 - clears both stored alert emotes
+
+Your in-room emote uses normal emote syntax. If you omit the #6@#0 token, your short description is automatically inserted at the start.", AutoHelp.HelpArgOrNoArg)]
+    [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
+    [RequiredCharacterState(CharacterState.Conscious)]
+    protected static void Alert(ICharacter actor, string input)
+    {
+        var ss = new StringStack(input.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            AlertUtilities.DoAlert(actor);
+            return;
+        }
+
+        switch (ss.PeekSpeech().ToLowerInvariant())
+        {
+            case "show":
+                ss.PopSpeech();
+                AlertShow(actor);
+                return;
+            case "set":
+            case "setlocal":
+            case "setemote":
+                ss.PopSpeech();
+                AlertSet(actor, ss);
+                return;
+            case "setdistant":
+            case "setfar":
+            case "setremote":
+                ss.PopSpeech();
+                AlertSetDistant(actor, ss);
+                return;
+            case "clear":
+            case "clearlocal":
+                ss.PopSpeech();
+                actor.CustomAlertEmote = null;
+                actor.OutputHandler.Send("You clear your custom ALERT emote. You will now use your AI, race or global default.");
+                return;
+            case "cleardistant":
+            case "clearfar":
+            case "clearremote":
+                ss.PopSpeech();
+                actor.CustomDistantAlertEmote = null;
+                actor.OutputHandler.Send("You clear your custom distant ALERT echo. You will now use your AI, race or global default.");
+                return;
+            case "clearall":
+                ss.PopSpeech();
+                actor.CustomAlertEmote = null;
+                actor.CustomDistantAlertEmote = null;
+                actor.OutputHandler.Send("You clear both of your custom ALERT emotes. You will now use your AI, race or global defaults.");
+                return;
+        }
+
+        var emoteText = ss.SafeRemainingArgument;
+        if (!AlertUtilities.ValidateStoredAlertEmote(emoteText, actor, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        AlertUtilities.DoAlert(actor, emoteText);
+    }
+
+    private static void AlertShow(ICharacter actor)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("ALERT Emotes".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+        sb.AppendLine();
+        sb.AppendLine($"Custom Local: {actor.CustomAlertEmote?.ColourCommand() ?? "None".ColourError()}");
+        sb.AppendLine($"Custom Distant: {actor.CustomDistantAlertEmote?.ColourCommand() ?? "None".ColourError()}");
+        sb.AppendLine($"Race Local: {actor.Race.DefaultAlertEmote?.ColourCommand() ?? "None".ColourError()}");
+        sb.AppendLine($"Race Distant: {actor.Race.DefaultDistantAlertEmote?.ColourCommand() ?? "None".ColourError()}");
+        sb.AppendLine();
+        sb.AppendLine($"Effective Local: {AlertUtilities.ResolveAlertEmote(actor).ColourCommand()}");
+        sb.AppendLine($"Effective Distant: {AlertUtilities.ResolveDistantAlertEmote(actor).ColourCommand()}");
+        actor.OutputHandler.Send(sb.ToString());
+    }
+
+    private static void AlertSet(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("What emote do you want to use for your default ALERT?");
+            return;
+        }
+
+        var emoteText = ss.SafeRemainingArgument;
+        if (!AlertUtilities.ValidateAlertEmote(emoteText, actor, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        actor.CustomAlertEmote = emoteText;
+        actor.OutputHandler.Send($"Your default ALERT emote is now {actor.CustomAlertEmote.ColourCommand()}.");
+    }
+
+    private static void AlertSetDistant(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("What distant echo do you want people in nearby rooms to receive? Use #6{0}#0 for the direction text.".SubstituteANSIColour());
+            return;
+        }
+
+        var emoteText = ss.SafeRemainingArgument;
+        if (!AlertUtilities.ValidateStoredDistantAlertEmote(emoteText, actor, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        actor.CustomDistantAlertEmote = emoteText;
+        actor.OutputHandler.Send($"Your distant ALERT echo is now {actor.CustomDistantAlertEmote.ColourCommand()}.");
     }
 
     [PlayerCommand("LoudSay", "loudsay", "loudtell")]

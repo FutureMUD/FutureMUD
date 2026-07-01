@@ -170,6 +170,21 @@ The report also checks the common legal-system stock failures:
 
 Trial coverage diagnostics flag missing Judge, Sheriff, or Prosecutor patrol routes when the authority has a conviction-capable enforcement authority. Execution coverage diagnostics flag missing execution patrol routes when at least one law can produce an execution sentence.
 
+## Alerts and Enforcer Response
+
+The `ALERT` command sends a loud non-language emote in the origin room and a direction-aware audible echo to nearby rooms. The distant echo must include `{0}`, which is replaced with relative direction and distance text such as "to the east" or "far away to the north". Alert delivery is gated by ordinary hearing checks, including local audio difficulty, listener hearing, deafness, and other hearing-profile effects. Characters receive `CharacterAlertHeard` only when they actually hear the alert.
+
+Alert emotes resolve in this order:
+
+- a character's stored custom alert emote
+- an NPC AI override from `IOverrideAlertEmote`
+- a race-level default alert emote
+- the global static setting default
+
+The same order applies independently to the distant alert echo. Race and AI defaults are nullable overrides; clearing them falls back to the next layer.
+
+On-duty NPC enforcers, meaning enforcers with an active `PatrolMemberEffect`, respond to heard alerts by pathing toward the alert origin when they are generally able to move, not already in combat, and not already pursuing an active enforcement target. If they arrive at a room where another enforcer from the same legal authority is already fighting, they attempt to engage that enforcer's current combat target. Enforcers also emit their own `ALERT` when they enter combat, allowing nearby on-duty enforcers who hear the alert to converge.
+
 ## Crime-Driven Patrol Dispatch
 
 Most patrol routes are scheduled from their route readiness, time-of-day, priority, and enforcer-number requirements. Crime-driven patrol strategies use the same route and enforcer configuration, but the patrol controller only dispatches them when a matching reported crime exists. These patrols are not launched as ordinary scheduled patrols.

@@ -47,6 +47,7 @@ public partial class Character
             case EventType.CharacterGotItemContainerWitness:
             case EventType.CharacterGotItemWitness:
             case EventType.CharacterHidesWitness:
+            case EventType.CharacterAlertHeard:
             case EventType.CharacterIncapacitatedWitness:
             case EventType.CharacterLeaveCellWitness:
             case EventType.CharacterMountedWitness:

@@ -52,6 +52,8 @@ namespace MudSharp.Models
         public int SizeProne { get; set; }
         public int SizeSitting { get; set; }
         public string CommunicationStrategyType { get; set; }
+        public string DefaultAlertEmote { get; set; }
+        public string DefaultDistantAlertEmote { get; set; }
         public int DefaultHandedness { get; set; }
         public string HandednessOptions { get; set; }
         public string MaximumDragWeightExpression { get; set; }

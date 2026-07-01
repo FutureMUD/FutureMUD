@@ -483,6 +483,8 @@ namespace MudSharp.Character
 
         void ConvertGrapplesToDrags();
         bool NoMercy { get; set; }
+        string? CustomAlertEmote { get; set; }
+        string? CustomDistantAlertEmote { get; set; }
         IEnumerable<INameCulture> NameCultures { get; }
         INameCulture NameCultureForGender(Gender gender);
         Difficulty IlluminationSightDifficulty();

@@ -1,4 +1,5 @@
 ﻿using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
@@ -15,7 +16,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 
-public class AwaitingSentencing : Effect, IEffect
+public class AwaitingSentencing : Effect, IEffect, IScoreAddendumEffect
 {
     #region Static Initialisation
 
@@ -71,6 +72,13 @@ public class AwaitingSentencing : Effect, IEffect
     }
 
     public override bool SavingEffect => true;
+
+    public bool ShowInScore => true;
+
+    public bool ShowInHealth => false;
+
+    public string ScoreAddendum =>
+        $"You are on remand in the {LegalAuthority.Name.ColourName()} jurisdiction since {ArrestTime.ToString(TimeAndDate.Date.CalendarDisplayMode.Short, TimeAndDate.Time.TimeDisplayTypes.Short).ColourValue()}.";
 
     public override bool Applies(object target)
     {

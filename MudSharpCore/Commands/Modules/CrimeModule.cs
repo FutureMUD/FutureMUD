@@ -2668,6 +2668,207 @@ The syntax is as follows:
             flags: OutputFlags.SuppressSource));
     }
 
+    private static string DescribeTrialPlea(OnTrial trial, ICrime crime)
+    {
+        if (trial.ManualTrial)
+        {
+            return "N/A".Colour(Telnet.Yellow);
+        }
+
+        if (!trial.HasPleaBeenEntered(crime))
+        {
+            return trial.CurrentPleaCrime == crime ? "Awaiting Plea".ColourCommand() : "Pending".Colour(Telnet.Yellow);
+        }
+
+        return trial.Pleas[crime] ? "Guilty".Colour(Telnet.Red) : "Not Guilty".Colour(Telnet.Green);
+    }
+
+    private static string DescribeTrialArgumentQuality(OnTrial trial, ICrime crime, bool defense)
+    {
+        if (trial.ManualTrial)
+        {
+            return "Roleplayed".ColourName();
+        }
+
+        CheckOutcome result = defense
+            ? trial.GetResultDefense(crime)[crime.DefenseDifficulty]
+            : trial.GetResultProsecution(crime)[crime.ProsecutionDifficulty];
+
+        if (result.Outcome == Outcome.NotTested)
+        {
+            return "Pending".Colour(Telnet.Yellow);
+        }
+
+        return result.IsAbjectFailure ? "Abject Failure".Colour(Telnet.BoldMagenta) : result.Outcome.DescribeColour();
+    }
+
+    private static string DescribeTrialVerdict(OnTrial trial, ICrime crime)
+    {
+        if (!trial.HasVerdictBeenAnnounced(crime))
+        {
+            return "Pending".Colour(Telnet.Yellow);
+        }
+
+        return (trial.ManualTrial ? crime.HasBeenConvicted : trial.Punishments.ContainsKey(crime))
+            ? "Guilty".Colour(Telnet.Red)
+            : "Not Guilty".Colour(Telnet.Green);
+    }
+
+    private static string DescribeTrialSentence(OnTrial trial, ICrime crime, ICharacter actor)
+    {
+        if (!trial.HasVerdictBeenAnnounced(crime))
+        {
+            return "Pending".Colour(Telnet.Yellow);
+        }
+
+        if (trial.ManualTrial)
+        {
+            return crime.HasBeenConvicted ? crime.DescribePunishment(actor) : "None".Colour(Telnet.Green);
+        }
+
+        if (!trial.Punishments.TryGetValue(crime, out PunishmentResult punishment))
+        {
+            return "None".Colour(Telnet.Green);
+        }
+
+        if (!trial.HasSentenceBeenAnnounced(crime))
+        {
+            return "Pending".Colour(Telnet.Yellow);
+        }
+
+        string description = punishment.Describe(actor, trial.LegalAuthority);
+        return string.IsNullOrWhiteSpace(description.StripANSIColour()) ? "No punishment".Colour(Telnet.Green) : description;
+    }
+
+    private static PunishmentResult ManualCrimePunishmentResult(ICrime crime)
+    {
+        return new PunishmentResult
+        {
+            Execution = crime.ExecutionPunishment,
+            Fine = crime.FineRecorded,
+            CustodialSentence = crime.CustodialSentenceLength,
+            GoodBehaviourBondLength = crime.GoodBehaviourBond
+        };
+    }
+
+    private static IEnumerable<PunishmentResult> RevealedTrialPunishments(OnTrial trial)
+    {
+        if (trial.ManualTrial)
+        {
+            return trial.Crimes
+                        .Where(x => x.HasBeenFinalised && x.HasBeenConvicted)
+                        .Select(ManualCrimePunishmentResult);
+        }
+
+        return trial.Punishments
+                    .Where(x => trial.HasSentenceBeenAnnounced(x.Key))
+                    .Select(x => x.Value);
+    }
+
+    private static bool HasPendingTrialSentences(OnTrial trial)
+    {
+        if (trial.ManualTrial)
+        {
+            return trial.Crimes.Any(x => !x.HasBeenFinalised);
+        }
+
+        return trial.Punishments.Any(x => !trial.HasSentenceBeenAnnounced(x.Key));
+    }
+
+    private static void AppendTrialProgressTable(StringBuilder sb, ICharacter actor, OnTrial trial)
+    {
+        List<string> headers = ["#", "Charge"];
+        bool showPlea = trial.ManualTrial || trial.Phase >= TrialPhase.Plea;
+        bool showArguments = trial.ManualTrial || trial.Phase >= TrialPhase.Case;
+        bool showVerdict = trial.ManualTrial || trial.Phase >= TrialPhase.Verdict;
+        bool showSentence = trial.ManualTrial || trial.Phase >= TrialPhase.Sentencing;
+
+        if (showPlea)
+        {
+            headers.Add("Plea");
+        }
+
+        if (showArguments)
+        {
+            headers.Add("Prosecution");
+            headers.Add("Defense");
+        }
+
+        if (showVerdict)
+        {
+            headers.Add("Verdict");
+        }
+
+        if (showSentence)
+        {
+            headers.Add("Sentence");
+        }
+
+        List<List<string>> rows = new();
+        foreach (ICrime crime in trial.Crimes)
+        {
+            List<string> row =
+            [
+                trial.ChargeNumber(crime).ToStringN0(actor),
+                crime.Name.ColourName()
+            ];
+
+            if (showPlea)
+            {
+                row.Add(DescribeTrialPlea(trial, crime));
+            }
+
+            if (showArguments)
+            {
+                row.Add(DescribeTrialArgumentQuality(trial, crime, false));
+                row.Add(DescribeTrialArgumentQuality(trial, crime, true));
+            }
+
+            if (showVerdict)
+            {
+                row.Add(DescribeTrialVerdict(trial, crime));
+            }
+
+            if (showSentence)
+            {
+                row.Add(DescribeTrialSentence(trial, crime, actor));
+            }
+
+            rows.Add(row);
+        }
+
+        sb.AppendLine(StringUtilities.GetTextTable(rows, headers, actor, Telnet.BoldOrange, truncatableColumnIndex: 1));
+    }
+
+    private static void AppendTrialConsolidatedSentence(StringBuilder sb, ICharacter actor, OnTrial trial)
+    {
+        if (!trial.ManualTrial && trial.Phase < TrialPhase.Sentencing)
+        {
+            return;
+        }
+
+        List<PunishmentResult> punishments = RevealedTrialPunishments(trial).ToList();
+        bool pending = HasPendingTrialSentences(trial);
+
+        sb.AppendLine();
+        if (punishments.Count == 0)
+        {
+            sb.AppendLine(pending
+                ? "Consolidated Sentence: no sentences have been announced yet.".Colour(Telnet.Yellow)
+                : "Consolidated Sentence: no sentence.".Colour(Telnet.Green));
+            return;
+        }
+
+        PunishmentResult result = punishments.Aggregate(new PunishmentResult(), (current, punishment) => current + punishment);
+        string description = result.Describe(actor, trial.LegalAuthority);
+        if (string.IsNullOrWhiteSpace(description.StripANSIColour()))
+        {
+            description = "no punishment".Colour(Telnet.Green);
+        }
+
+        sb.AppendLine($"Consolidated Sentence{(pending ? " So Far" : "")}: {description}");
+    }
+
     [PlayerCommand("Trial", "trial")]
     [RequiredCharacterState(CharacterState.Able)]
     [HelpInfo("trial", @"The #3trial#0 command will show you details about any trial currently taking place in your location. Judges can also view the trial docket for their jurisdictions and summon remand prisoners to court for PC-held trials.
@@ -2722,6 +2923,9 @@ The syntax is as follows:
         sb.AppendLine($"Prosecutor: {trial.Prosecutor?.HowSeen(actor) ?? "Unknown".ColourError()}");
         sb.AppendLine($"Defense Lawyer: {trial.Defender?.HowSeen(actor) ?? "Unknown".ColourError()}");
         sb.AppendLine($"Trial Phase: {trial.Phase.DescribeEnum(true).ColourValue()}");
+        sb.AppendLine();
+        AppendTrialProgressTable(sb, actor, trial);
+        AppendTrialConsolidatedSentence(sb, actor, trial);
         actor.OutputHandler.Send(sb.ToString());
     }
 }

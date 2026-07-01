@@ -214,6 +214,7 @@ public class Calendar : SaveableItem, ICalendar
 
         LoadDayBoundary(root.Element("dayboundary"));
         _algorithm = CalendarAlgorithmFactory.LoadFromXml(root.Element("algorithm"), AuthorityLocation);
+        LoadRegnalPeriods(root.Element("regnalperiods"));
     }
 
     public XElement SaveToXml()
@@ -244,6 +245,12 @@ public class Calendar : SaveableItem, ICalendar
                 {
                     from ic in _intercalaries
                     select ic.SaveToXml()
+                }
+            ), new XElement("regnalperiods",
+                new object[]
+                {
+                    from period in _regnalPeriods
+                    select period.SaveToXml()
                 }
             ), Algorithm.SaveToXml(), SaveDayBoundaryToXml());
     }
@@ -297,6 +304,119 @@ public class Calendar : SaveableItem, ICalendar
         }
 
         return element;
+    }
+
+    private void LoadRegnalPeriods(XElement element)
+    {
+        _regnalPeriods.Clear();
+        if (element?.HasElements != true)
+        {
+            return;
+        }
+
+        foreach (var subElement in element.Elements("regnalperiod"))
+        {
+            _regnalPeriods.Add(new RegnalPeriod(this, subElement));
+        }
+
+        if (!TryValidateRegnalPeriods(_regnalPeriods, out var error))
+        {
+            throw new XmlException($"Invalid regnal period configuration: {error}");
+        }
+
+        _regnalPeriods = SortRegnalPeriods(_regnalPeriods).ToList();
+    }
+
+    private static IEnumerable<RegnalPeriod> SortRegnalPeriods(IEnumerable<RegnalPeriod> periods)
+    {
+        return periods.OrderBy(x => x.StartDate.Year)
+                      .ThenBy(x => x.StartDate.Month.TrueOrder)
+                      .ThenBy(x => x.StartDate.Day);
+    }
+
+    private bool TryValidateRegnalPeriods(IEnumerable<RegnalPeriod> periods, out string error)
+    {
+        var ordered = SortRegnalPeriods(periods).ToList();
+        error = string.Empty;
+        if (!ordered.Any())
+        {
+            return true;
+        }
+
+        if (ordered.Any(x => string.IsNullOrWhiteSpace(x.Key)))
+        {
+            error = "All regnal periods must have a key.";
+            return false;
+        }
+
+        var badKey = ordered.FirstOrDefault(x => !RegnalKeyRegex.IsMatch(x.Key));
+        if (badKey is not null)
+        {
+            error = $"The regnal period key {badKey.Key.ColourCommand()} is invalid. Keys must use only letters, numbers and hyphens.";
+            return false;
+        }
+
+        var duplicateKey = ordered.GroupBy(x => x.Key, StringComparer.InvariantCultureIgnoreCase)
+                                  .FirstOrDefault(x => x.Count() > 1);
+        if (duplicateKey is not null)
+        {
+            error = $"The regnal period key {duplicateKey.Key.ColourCommand()} is used more than once.";
+            return false;
+        }
+
+        var missingName = ordered.FirstOrDefault(x => string.IsNullOrWhiteSpace(x.ShortName) || string.IsNullOrWhiteSpace(x.FullName));
+        if (missingName is not null)
+        {
+            error = $"The regnal period {missingName.Key.ColourCommand()} must have both short and full names.";
+            return false;
+        }
+
+        foreach (var period in ordered)
+        {
+            if (period.EndDate is not null && period.EndDate < period.StartDate)
+            {
+                error = $"The regnal period {period.Key.ColourCommand()} ends before it starts.";
+                return false;
+            }
+        }
+
+        for (var i = 0; i < ordered.Count; i++)
+        {
+            var period = ordered[i];
+            if (period.EndDate is null && i != ordered.Count - 1)
+            {
+                error = $"The open-ended regnal period {period.Key.ColourCommand()} must be the last period.";
+                return false;
+            }
+
+            if (i == 0)
+            {
+                continue;
+            }
+
+            var previous = ordered[i - 1];
+            if (previous.EndDate is null)
+            {
+                error = $"The open-ended regnal period {previous.Key.ColourCommand()} must be the last period.";
+                return false;
+            }
+
+            var expectedStart = new MudDate(previous.EndDate);
+            expectedStart.AdvanceDays(1);
+            if (period.StartDate < expectedStart)
+            {
+                error = $"The regnal period {period.Key.ColourCommand()} overlaps {previous.Key.ColourCommand()}.";
+                return false;
+            }
+
+            if (period.StartDate > expectedStart)
+            {
+                error = $"There is a gap between {previous.Key.ColourCommand()} and {period.Key.ColourCommand()}.";
+                return false;
+            }
+        }
+
+        return true;
     }
 
     #region Overrides of FrameworkItem
@@ -669,6 +789,10 @@ public class Calendar : SaveableItem, ICalendar
         protected set => _intercalaries = value;
     }
 
+    protected List<RegnalPeriod> _regnalPeriods = new();
+
+    public IReadOnlyList<IRegnalPeriod> RegnalPeriods => _regnalPeriods;
+
     #endregion
 
     #region Constructors
@@ -1038,6 +1162,245 @@ public class Calendar : SaveableItem, ICalendar
         return new MudDateTime(date, MudTime.FromLocalTime(0, 0, 0, timezone, FeedClock), timezone);
     }
 
+    public IRegnalPeriod GetRegnalPeriod(MudDate date)
+    {
+        return date is null ? null : _regnalPeriods.FirstOrDefault(x => x.Contains(date));
+    }
+
+    public RegnalDateInfo GetRegnalDate(MudDate date)
+    {
+        if (GetRegnalPeriod(date) is not RegnalPeriod period)
+        {
+            return null;
+        }
+
+        var regnalYear = Math.Max(1, date.Year - period.StartDate.Year + 1);
+        var regnalYearStart = GetRegnalYearStart(period, regnalYear);
+        while (regnalYear > 1 && date < regnalYearStart)
+        {
+            regnalYear--;
+            regnalYearStart = GetRegnalYearStart(period, regnalYear);
+        }
+
+        while (true)
+        {
+            var nextStart = GetRegnalYearStart(period, regnalYear + 1);
+            if (date < nextStart)
+            {
+                break;
+            }
+
+            regnalYear++;
+            regnalYearStart = nextStart;
+        }
+
+        return new RegnalDateInfo(period, regnalYear, date, regnalYearStart);
+    }
+
+    private MudDate GetRegnalYearStart(RegnalPeriod period, int regnalYear)
+    {
+        var date = new MudDate(period.StartDate);
+        date.AdvanceYears(regnalYear - 1, true);
+        return date;
+    }
+
+    public bool TryGetDateFromRegnalDate(string regnalPeriodKey, int regnalYear, int day, string month,
+        bool allowProjected, out MudDate date, out string error)
+    {
+        date = null;
+        error = string.Empty;
+        if (string.IsNullOrWhiteSpace(regnalPeriodKey))
+        {
+            error = "You must specify a regnal period key.";
+            return false;
+        }
+
+        var period = GetRegnalPeriodByKey(regnalPeriodKey.TrimStart('@'));
+        if (period is null)
+        {
+            error = $"There is no regnal period with the key {regnalPeriodKey.ColourCommand()}.";
+            return false;
+        }
+
+        if (regnalYear < 1)
+        {
+            error = "Regnal years begin at year 1.";
+            return false;
+        }
+
+        if (day < 1)
+        {
+            error = "The day must be a positive integer.";
+            return false;
+        }
+
+        var yearStart = GetRegnalYearStart(period, regnalYear);
+        var nextYearStart = GetRegnalYearStart(period, regnalYear + 1);
+        var possibleYears = yearStart.Year == nextYearStart.Year
+            ? new[] { yearStart.Year }
+            : new[] { yearStart.Year, nextYearStart.Year };
+
+        foreach (var year in possibleYears)
+        {
+            if (!TryGetOrdinaryDateInYear(day, month, year, out var candidate, out _))
+            {
+                continue;
+            }
+
+            if (candidate < yearStart || candidate >= nextYearStart)
+            {
+                continue;
+            }
+
+            if (!allowProjected && !period.Contains(candidate))
+            {
+                error = $"That date does not fall within the regnal period {period.FullName.ColourName()}.";
+                return false;
+            }
+
+            date = candidate;
+            return true;
+        }
+
+        error = $"There is no {day.ToOrdinal().ColourValue()} day of {month.ColourCommand()} in regnal year {regnalYear.ToStringN0Colour(System.Globalization.CultureInfo.InvariantCulture)} of {period.FullName.ColourName()}.";
+        return false;
+    }
+
+    private RegnalPeriod GetRegnalPeriodByKey(string key)
+    {
+        return _regnalPeriods.FirstOrDefault(x => x.Key.EqualTo(key));
+    }
+
+    private bool TryGetOrdinaryDateInYear(int day, string monthText, int year, out MudDate date, out string error)
+    {
+        date = null;
+        if (day < 1)
+        {
+            error = "The day must be a positive integer.";
+            return false;
+        }
+
+        var newYear = CreateYear(year);
+        var newMonth =
+            newYear.Months.FirstOrDefault(x => x.Alias.Equals(monthText, StringComparison.InvariantCultureIgnoreCase)) ??
+            newYear.Months.FirstOrDefault(x => x.FullName.Equals(monthText, StringComparison.InvariantCultureIgnoreCase)) ??
+            newYear.Months.FirstOrDefault(x => x.ShortName.Equals(monthText, StringComparison.InvariantCultureIgnoreCase));
+
+        if (newMonth is null)
+        {
+            if (!int.TryParse(monthText, out var monthNumber))
+            {
+                error = $"There will be no month with an alias of {monthText.ColourCommand()} in the year {year:N0}.";
+                return false;
+            }
+
+            newMonth = newYear.Months.FirstOrDefault(x => x.TrueOrder == monthNumber);
+            if (newMonth is null)
+            {
+                error = $"There is no {monthNumber.ToOrdinal().ColourValue()} month in the year {year:N0}.";
+                return false;
+            }
+        }
+
+        if (newMonth.Days < day)
+        {
+            error = $"The month of {newMonth.FullName.ColourName()} in the year {year:N0} does not have {day:N0} days.";
+            return false;
+        }
+
+        error = string.Empty;
+        date = new MudDate(this, day, year, newMonth, newYear, false);
+        return true;
+    }
+
+    private bool TryGetDateFromRegnalText(string dateString, bool allowProjected, out MudDate date, out string error)
+    {
+        date = null;
+        error = string.Empty;
+        var structured = StructuredRegnalDateRegex.Match(dateString);
+        if (structured.Success)
+        {
+            var day = structured.Groups["day"].Value.GetIntFromOrdinal() ?? 0;
+            return TryGetDateFromRegnalDate(structured.Groups["key"].Value,
+                int.Parse(structured.Groups["year"].Value), day, structured.Groups["month"].Value,
+                allowProjected, out date, out error);
+        }
+
+        var canonical = CanonicalRegnalDateRegex.Match(dateString);
+        if (canonical.Success)
+        {
+            if (!TryGetDayMonthFromParts(canonical.Groups["first"].Value, canonical.Groups["second"].Value,
+                    out var day, out var month))
+            {
+                error = "The day must be a number.";
+                return false;
+            }
+
+            return TryGetDateFromRegnalDate(canonical.Groups["key"].Value,
+                int.Parse(canonical.Groups["year"].Value), day, month,
+                allowProjected, out date, out error);
+        }
+
+        var natural = NaturalRegnalDateRegex.Match(dateString);
+        if (!natural.Success)
+        {
+            return false;
+        }
+
+        if (!TryGetDayMonthFromParts(natural.Groups["first"].Value, natural.Groups["second"].Value,
+                out var naturalDay, out var naturalMonth))
+        {
+            error = "The day must be a number.";
+            return false;
+        }
+
+        var periodText = natural.Groups["period"].Value;
+        var periods = _regnalPeriods.Where(x =>
+                                    x.Key.EqualTo(periodText) ||
+                                    x.ShortName.EqualTo(periodText) ||
+                                    x.FullName.EqualTo(periodText))
+                                .ToList();
+        if (periods.Count != 1)
+        {
+            error = periods.Count == 0
+                ? $"There is no regnal period called {periodText.ColourCommand()}."
+                : $"The regnal period name {periodText.ColourCommand()} is ambiguous. Use the @key form instead.";
+            return false;
+        }
+
+        return TryGetDateFromRegnalDate(periods[0].Key,
+            natural.Groups["year"].Value.GetIntFromOrdinal() ?? 0, naturalDay, naturalMonth,
+            allowProjected, out date, out error);
+    }
+
+    private static bool TryGetDayMonthFromParts(string first, string second, out int day, out string month)
+    {
+        if (first.GetIntFromOrdinal() is { } firstDay)
+        {
+            day = firstDay;
+            month = second;
+            return true;
+        }
+
+        if (second.GetIntFromOrdinal() is { } secondDay)
+        {
+            day = secondDay;
+            month = first;
+            return true;
+        }
+
+        day = 0;
+        month = string.Empty;
+        return false;
+    }
+
+    private static bool LooksLikeRegnalDateText(string text)
+    {
+        return text.StartsWith("regnal:", StringComparison.InvariantCultureIgnoreCase) ||
+               CanonicalRegnalDateRegex.IsMatch(text) ||
+               NaturalRegnalDateRegex.IsMatch(text);
+    }
+
     /// <summary>
     ///     Creates a new Date based on a date string. Throws an exception if it runs into an error.
     /// </summary>
@@ -1049,6 +1412,16 @@ public class Calendar : SaveableItem, ICalendar
     /// <returns>A new object of class Date containing the date information for the specified date in this calendar</returns>
     public MudDate GetDate(string dateString)
     {
+        if (TryGetDateFromRegnalText(dateString, true, out var regnalDate, out var regnalError))
+        {
+            return regnalDate;
+        }
+
+        if (LooksLikeRegnalDateText(dateString))
+        {
+            throw new MUDDateException(regnalError);
+        }
+
         // TODO - possibly make a culture specific version of this
         char[] splitOptions = { '-', '/', ' ' };
         List<string> dateStringSplit = dateString.Split('/').ToList();
@@ -1142,6 +1515,17 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
 
     public bool TryGetDate(string dateString, IFormatProvider format, out MudDate date, out string error)
     {
+        if (TryGetDateFromRegnalText(dateString, true, out date, out error))
+        {
+            return true;
+        }
+
+        if (LooksLikeRegnalDateText(dateString))
+        {
+            date = new MudDate(CurrentDate);
+            return false;
+        }
+
         char[] splitOptions = { '-', '/', ' ' };
         List<string> dateStringSplit = dateString.Split('/').ToList();
         if (dateStringSplit.Count != 3)
@@ -1295,6 +1679,17 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
 
     public bool TryGetDate(string dateString, out MudDate date, out string error)
     {
+        if (TryGetDateFromRegnalText(dateString, true, out date, out error))
+        {
+            return true;
+        }
+
+        if (LooksLikeRegnalDateText(dateString))
+        {
+            date = new MudDate(CurrentDate);
+            return false;
+        }
+
         // TODO - possibly make a culture specific version of this
         char[] splitOptions = { '-', '/', ' ' };
         List<string> dateStringSplit = dateString.Split('/').ToList();
@@ -1411,11 +1806,20 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
                     : WordyString);
     }
 
+    private static readonly Regex RegnalKeyRegex = new(@"^[a-z0-9][a-z0-9-]*$", RegexOptions.IgnoreCase);
+    private static readonly Regex StructuredRegnalDateRegex =
+        new(@"^regnal:(?<key>[a-z0-9][a-z0-9-]*):(?<year>\d+):(?<month>[^:]+):(?<day>\d+(?:st|nd|rd|th)?)$", RegexOptions.IgnoreCase);
+    private static readonly Regex CanonicalRegnalDateRegex =
+        new(@"^(?<first>[^\s]+)\s+(?<second>[^\s]+)\s+RY(?<year>\d+)\s+@(?<key>[a-z0-9][a-z0-9-]*)$", RegexOptions.IgnoreCase);
+    private static readonly Regex NaturalRegnalDateRegex =
+        new(@"^(?<first>[^\s]+)\s+(?<second>[^\s]+)\s+(?<year>\d+(?:st|nd|rd|th)?)\s+(?<period>.+)$", RegexOptions.IgnoreCase);
     private static readonly Regex DateRegex = new(@"\$(?<code>[a-z]{2,2})", RegexOptions.IgnoreCase);
 
     public string DisplayDate(MudDate theDate, string mask)
     {
-        return DateRegex.Replace(mask, m =>
+        var regnalDate = GetRegnalDate(theDate);
+        var expandedMask = ExpandRegnalConditionals(mask, regnalDate is not null);
+        return DateRegex.Replace(expandedMask, m =>
                         {
                             switch (m.Groups["code"].Value)
                             {
@@ -1507,11 +1911,79 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
                                     return theDate.Year < 1 ? AncientEraShortString : ModernEraShortString;
                                 case "EE":
                                     return theDate.Year < 1 ? AncientEraLongString : ModernEraLongString;
+                                case "rk":
+                                    return regnalDate is null ? "" : $"@{regnalDate.Period.Key}";
+                                case "rs":
+                                    return regnalDate?.Period.ShortName ?? "";
+                                case "rf":
+                                    return regnalDate?.Period.FullName ?? "";
+                                case "rn":
+                                    return regnalDate?.RegnalYear.ToString() ?? "";
+                                case "rN":
+                                    return regnalDate?.RegnalYear.ToWordyNumber() ?? "";
+                                case "rt":
+                                    return regnalDate?.RegnalYear.ToOrdinal() ?? "";
+                                case "rT":
+                                    return regnalDate?.RegnalYear.ToWordyOrdinal() ?? "";
+                                case "rq":
+                                    return regnalDate?.CanonicalYearText ??
+                                           $"{(theDate.Year < 1 ? (theDate.Year * -1 + 1).ToString() : theDate.Year.ToString())} {(theDate.Year < 1 ? AncientEraShortString : ModernEraShortString)}";
+                                case "rp":
+                                    return regnalDate is null
+                                        ? $"{(theDate.Year < 1 ? (theDate.Year * -1 + 1).ToOrdinal() : theDate.Year.ToOrdinal())} {(theDate.Year < 1 ? AncientEraLongString : ModernEraLongString)}"
+                                        : $"{regnalDate.RegnalYear.ToOrdinal()} year of {regnalDate.Period.FullName}";
                             }
 
                             return m.Value;
                         })
                         .NormaliseSpacing();
+    }
+
+    private static string ExpandRegnalConditionals(string mask, bool hasRegnalDate)
+    {
+        const string token = "$ir";
+        var sb = new StringBuilder(mask.Length);
+        var index = 0;
+        while (index < mask.Length)
+        {
+            var tokenIndex = mask.IndexOf(token, index, StringComparison.InvariantCultureIgnoreCase);
+            if (tokenIndex < 0)
+            {
+                sb.Append(mask, index, mask.Length - index);
+                break;
+            }
+
+            sb.Append(mask, index, tokenIndex - index);
+            var firstOpen = tokenIndex + token.Length;
+            if (firstOpen >= mask.Length || mask[firstOpen] != '{')
+            {
+                sb.Append(token);
+                index = firstOpen;
+                continue;
+            }
+
+            var firstClose = mask.IndexOf('}', firstOpen + 1);
+            if (firstClose < 0 || firstClose + 1 >= mask.Length || mask[firstClose + 1] != '{')
+            {
+                sb.Append(mask, tokenIndex, mask.Length - tokenIndex);
+                break;
+            }
+
+            var secondOpen = firstClose + 1;
+            var secondClose = mask.IndexOf('}', secondOpen + 1);
+            if (secondClose < 0)
+            {
+                sb.Append(mask, tokenIndex, mask.Length - tokenIndex);
+                break;
+            }
+
+            var regnalBranch = mask.Substring(firstOpen + 1, firstClose - firstOpen - 1);
+            var fallbackBranch = mask.Substring(secondOpen + 1, secondClose - secondOpen - 1);
+            sb.Append(hasRegnalDate ? regnalBranch : fallbackBranch);
+            index = secondClose + 1;
+        }
+
+        return sb.ToString();
     }
 
     #endregion
@@ -1662,6 +2134,7 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
 	#3epoch <year> <weekday>#0 - sets the epoch year and first weekday
 	#3short|long|wordy <mask>#0 - changes display masks
 	#3era <ancient|modern> <short|long> <text>#0 - changes era text
+	#3regnal list|add|close|name|start|end|remove|preview ...#0 - edits regnal period metadata
 	#3weekday add|rename|remove ...#0 - edits weekdays
 	#3month add|rename|alias|short|days|order|remove|nonweekday|special ...#0 - edits months
 	#3intercalary day|month ...#0 - edits intercalary day and month rules
@@ -1710,6 +2183,10 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
                 return BuildingCommandWordyMask(actor, command);
             case "era":
                 return BuildingCommandEra(actor, command);
+            case "regnal":
+            case "regnalperiod":
+            case "regnalperiods":
+                return BuildingCommandRegnal(actor, command);
             case "weekday":
             case "weekdays":
                 return BuildingCommandWeekday(actor, command);
@@ -2085,6 +2562,298 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
         Changed = true;
         actor.OutputHandler.Send("Era text set.");
         return true;
+    }
+
+    private bool BuildingCommandRegnal(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "list":
+            case "":
+                return BuildingCommandRegnalList(actor);
+            case "add":
+            case "new":
+                return BuildingCommandRegnalAdd(actor, command);
+            case "close":
+                return BuildingCommandRegnalClose(actor, command);
+            case "name":
+                return BuildingCommandRegnalName(actor, command);
+            case "start":
+                return BuildingCommandRegnalStart(actor, command);
+            case "end":
+                return BuildingCommandRegnalEnd(actor, command);
+            case "remove":
+            case "delete":
+            case "del":
+                return BuildingCommandRegnalRemove(actor, command);
+            case "preview":
+                return BuildingCommandRegnalPreview(actor, command);
+            default:
+                actor.OutputHandler.Send("Syntax: regnal list|add|close|name|start|end|remove|preview ...");
+                return false;
+        }
+    }
+
+    private bool BuildingCommandRegnalList(ICharacter actor)
+    {
+        if (!_regnalPeriods.Any())
+        {
+            actor.OutputHandler.Send("This calendar does not define any regnal periods.");
+            return false;
+        }
+
+        var rows = SortRegnalPeriods(_regnalPeriods)
+                   .Select(period => new[]
+                   {
+                       period.Key,
+                       period.ShortName,
+                       period.FullName,
+                       DisplayDate(period.StartDate, CalendarDisplayMode.Short),
+                       period.EndDate is null ? "Open" : DisplayDate(period.EndDate, CalendarDisplayMode.Short)
+                   });
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(rows,
+            new[] { "Key", "Short", "Full", "Start", "End" }, actor, Telnet.Cyan));
+        return false;
+    }
+
+    private bool BuildingCommandRegnalAdd(ICharacter actor, StringStack command)
+    {
+        var key = command.PopSpeech();
+        var shortName = command.PopSpeech();
+        var fullName = command.PopSpeech();
+        var startText = command.PopSpeech();
+        if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(shortName) || string.IsNullOrEmpty(fullName) ||
+            string.IsNullOrEmpty(startText))
+        {
+            actor.OutputHandler.Send("Syntax: regnal add <key> \"<short>\" \"<full>\" <start> [<end>|open]");
+            return false;
+        }
+
+        if (_regnalPeriods.Any(x => x.Key.EqualTo(key)))
+        {
+            actor.OutputHandler.Send($"There is already a regnal period with the key {key.ColourCommand()}.");
+            return false;
+        }
+
+        if (!TryGetDate(startText, actor, out var startDate, out var startError))
+        {
+            actor.OutputHandler.Send(startError);
+            return false;
+        }
+
+        MudDate endDate = null;
+        if (!command.IsFinished)
+        {
+            var endText = command.SafeRemainingArgument;
+            if (!endText.EqualTo("open"))
+            {
+                if (!TryGetDate(endText, actor, out endDate, out var endError))
+                {
+                    actor.OutputHandler.Send(endError);
+                    return false;
+                }
+            }
+        }
+
+        var proposed = CopyRegnalPeriods();
+        proposed.Add(new RegnalPeriod(key.ToLowerInvariant(), shortName, fullName, startDate, endDate));
+        return ApplyRegnalPeriodChange(actor, $"add regnal period {key}",
+            proposed, $"You add regnal period {fullName.ColourName()} with key {key.ColourCommand()}.");
+    }
+
+    private bool BuildingCommandRegnalClose(ICharacter actor, StringStack command)
+    {
+        var key = command.PopSpeech();
+        if (string.IsNullOrEmpty(key) || command.IsFinished)
+        {
+            actor.OutputHandler.Send("Syntax: regnal close <key> <end>");
+            return false;
+        }
+
+        if (!TryGetDate(command.SafeRemainingArgument, actor, out var endDate, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        var proposed = CopyRegnalPeriods();
+        var period = proposed.FirstOrDefault(x => x.Key.EqualTo(key));
+        if (period is null)
+        {
+            actor.OutputHandler.Send($"There is no regnal period with the key {key.ColourCommand()}.");
+            return false;
+        }
+
+        period.EndDate = endDate;
+        return ApplyRegnalPeriodChange(actor, $"close regnal period {key}",
+            proposed, $"You close regnal period {period.FullName.ColourName()} on {DisplayDate(endDate, CalendarDisplayMode.Long).ColourValue()}.");
+    }
+
+    private bool BuildingCommandRegnalName(ICharacter actor, StringStack command)
+    {
+        var key = command.PopSpeech();
+        var which = command.PopForSwitch();
+        if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(which) || command.IsFinished)
+        {
+            actor.OutputHandler.Send("Syntax: regnal name <key> short|full <text>");
+            return false;
+        }
+
+        var proposed = CopyRegnalPeriods();
+        var period = proposed.FirstOrDefault(x => x.Key.EqualTo(key));
+        if (period is null)
+        {
+            actor.OutputHandler.Send($"There is no regnal period with the key {key.ColourCommand()}.");
+            return false;
+        }
+
+        switch (which)
+        {
+            case "short":
+                period.ShortName = command.SafeRemainingArgument;
+                break;
+            case "full":
+                period.FullName = command.SafeRemainingArgument;
+                break;
+            default:
+                actor.OutputHandler.Send("You must specify short or full.");
+                return false;
+        }
+
+        return ApplyRegnalPeriodChange(actor, $"rename regnal period {key}",
+            proposed, $"You update the {which.ColourCommand()} name for regnal period {key.ColourCommand()}.");
+    }
+
+    private bool BuildingCommandRegnalStart(ICharacter actor, StringStack command)
+    {
+        var key = command.PopSpeech();
+        if (string.IsNullOrEmpty(key) || command.IsFinished)
+        {
+            actor.OutputHandler.Send("Syntax: regnal start <key> <date>");
+            return false;
+        }
+
+        if (!TryGetDate(command.SafeRemainingArgument, actor, out var startDate, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        var proposed = CopyRegnalPeriods();
+        var period = proposed.FirstOrDefault(x => x.Key.EqualTo(key));
+        if (period is null)
+        {
+            actor.OutputHandler.Send($"There is no regnal period with the key {key.ColourCommand()}.");
+            return false;
+        }
+
+        period.StartDate = startDate;
+        return ApplyRegnalPeriodChange(actor, $"change start of regnal period {key}",
+            proposed, $"You change the start date for {period.FullName.ColourName()} to {DisplayDate(startDate, CalendarDisplayMode.Long).ColourValue()}.");
+    }
+
+    private bool BuildingCommandRegnalEnd(ICharacter actor, StringStack command)
+    {
+        var key = command.PopSpeech();
+        if (string.IsNullOrEmpty(key) || command.IsFinished)
+        {
+            actor.OutputHandler.Send("Syntax: regnal end <key> <date|open>");
+            return false;
+        }
+
+        var endText = command.SafeRemainingArgument;
+        MudDate endDate = null;
+        if (!endText.EqualTo("open"))
+        {
+            if (!TryGetDate(endText, actor, out endDate, out var error))
+            {
+                actor.OutputHandler.Send(error);
+                return false;
+            }
+        }
+
+        var proposed = CopyRegnalPeriods();
+        var period = proposed.FirstOrDefault(x => x.Key.EqualTo(key));
+        if (period is null)
+        {
+            actor.OutputHandler.Send($"There is no regnal period with the key {key.ColourCommand()}.");
+            return false;
+        }
+
+        period.EndDate = endDate;
+        return ApplyRegnalPeriodChange(actor, $"change end of regnal period {key}",
+            proposed, endDate is null
+                ? $"You make {period.FullName.ColourName()} the open-ended regnal period."
+                : $"You change the end date for {period.FullName.ColourName()} to {DisplayDate(endDate, CalendarDisplayMode.Long).ColourValue()}.");
+    }
+
+    private bool BuildingCommandRegnalRemove(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Syntax: regnal remove <key>");
+            return false;
+        }
+
+        var key = command.SafeRemainingArgument;
+        var proposed = CopyRegnalPeriods();
+        var period = proposed.FirstOrDefault(x => x.Key.EqualTo(key));
+        if (period is null)
+        {
+            actor.OutputHandler.Send($"There is no regnal period with the key {key.ColourCommand()}.");
+            return false;
+        }
+
+        proposed.Remove(period);
+        return ApplyRegnalPeriodChange(actor, $"remove regnal period {key}",
+            proposed, $"You remove regnal period {period.FullName.ColourName()}.");
+    }
+
+    private bool BuildingCommandRegnalPreview(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Syntax: regnal preview <date>");
+            return false;
+        }
+
+        if (!TryGetDate(command.SafeRemainingArgument, actor, out var date, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        if (GetRegnalDate(date) is not { } regnalDate)
+        {
+            actor.OutputHandler.Send($"{DisplayDate(date, CalendarDisplayMode.Long).ColourValue()} is not inside a regnal period.");
+            return false;
+        }
+
+        actor.OutputHandler.Send($"{DisplayDate(date, CalendarDisplayMode.Long).ColourValue()} is {regnalDate.CanonicalYearText.ColourCommand()} ({regnalDate.RegnalYear.ToOrdinal().ColourValue()} year of {regnalDate.Period.FullName.ColourName()}).");
+        return false;
+    }
+
+    private List<RegnalPeriod> CopyRegnalPeriods()
+    {
+        return _regnalPeriods.Select(x => x.Clone()).ToList();
+    }
+
+    private bool ApplyRegnalPeriodChange(ICharacter actor, string description, IEnumerable<RegnalPeriod> proposed,
+        string successMessage)
+    {
+        var proposedList = proposed.ToList();
+        if (!TryValidateRegnalPeriods(proposedList, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        return ConfirmStructuralChange(actor, description, () =>
+        {
+            _regnalPeriods = SortRegnalPeriods(proposedList).ToList();
+            Changed = true;
+            actor.OutputHandler.Send(successMessage);
+        });
     }
 
     private bool BuildingCommandWeekday(ICharacter actor, StringStack command)
@@ -2721,6 +3490,11 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
         sb.AppendLine($"Wordy Mask: {WordyString.ColourCommand()}");
         sb.AppendLine($"Ancient Era: {AncientEraShortString.ColourValue()} / {AncientEraLongString.ColourValue()}");
         sb.AppendLine($"Modern Era: {ModernEraShortString.ColourValue()} / {ModernEraLongString.ColourValue()}");
+        sb.AppendLine($"Regnal Periods: {_regnalPeriods.Count.ToStringN0(actor).ColourValue()}");
+        foreach (var period in SortRegnalPeriods(_regnalPeriods))
+        {
+            sb.AppendLine($"\t{period.Key.ColourCommand()} - {period.ShortName.ColourName()} / {period.FullName.ColourName()} ({DisplayDate(period.StartDate, CalendarDisplayMode.Short).ColourValue()} to {(period.EndDate is null ? "Open".ColourValue() : DisplayDate(period.EndDate, CalendarDisplayMode.Short).ColourValue())})");
+        }
         sb.AppendLine($"Weekdays: {Weekdays.Select((x, i) => $"{(i + 1).ToStringN0(actor)}. {x.ColourValue()}").ListToString()}");
         sb.AppendLine("Months:");
         foreach (var month in Months.OrderBy(x => x.NominalOrder))

@@ -146,6 +146,10 @@ public class MudDate : IComparable
         get => _isPrimaryDate; set => _isPrimaryDate = value;
     }
 
+    public IRegnalPeriod RegnalPeriod => Calendar.GetRegnalPeriod(this);
+
+    public RegnalDateInfo RegnalDate => Calendar.GetRegnalDate(this);
+
     public bool IsIntercalaryDay()
     {
         return false; // TODO

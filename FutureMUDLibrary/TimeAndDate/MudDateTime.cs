@@ -20,7 +20,7 @@ namespace MudSharp.TimeAndDate
     {
         private static readonly Regex PlayerParseRegex = new(@"^(?<date>\d+[/-][a-z]+[/-]\d+) (?:(?<timezone>\w+)\s+){0,1}(?<time>\d+:\d+:\d+(?:\s*\w+)*)$", RegexOptions.IgnoreCase);
 
-        private static readonly Regex AlternatePlayerParseRegex = new(@"(?<date>(?<date1>[a-z0-9]+)[ /-](?<date2>[a-z0-9]+)[ /-](?<date3>[0-9]+)) (?<time>(?<hour>\d+):(?<minute>\d+):*(?<second>\d+)*(?<period>[a-z]+)*\s*(?<timezone>[a-z]+)*)", RegexOptions.IgnoreCase);
+        private static readonly Regex AlternatePlayerParseRegex = new(@"^(?<date>(?<date1>[a-z0-9]+)[ /-](?<date2>[a-z0-9]+)[ /-](?<date3>[0-9]+)) (?<time>.+)$", RegexOptions.IgnoreCase);
 
         private static readonly Regex ParseRegex =
             new(@"^(?<calendar>\d+)_(?<date>[^_]+)_(?<clock>\d+)_(?<time>(?<timezone>[^ ]+) .+)$");
@@ -57,6 +57,8 @@ You can enter dates in one of several formats:
 If you use all numbers, your input will be interpreted using the settings of your account culture - this may mean that it is read as #3day/month/year#0 (e.g. UK/Europe), #3month/day/year#0 (e.g. US) or #3year/month/day#0 (e.g. East Asia).
 
 You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date.
+
+Calendars with regnal periods also accept forms like #3May 3rd RY20 @charles-iii#0 and #3regnal:charles-iii:20:may:3#0.
 
 #6Times#0
 
@@ -134,48 +136,19 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 return true;
             }
 
-            Match regexMatch = AlternatePlayerParseRegex.Match(text);
-            if (!regexMatch.Success)
+            if (TryParseFlexiblePlayerDateTime(text, calendar, clock, actor, out var date, out var time, out var tz,
+                    out error))
+            {
+                dt = new MudDateTime(date, time, tz);
+                return true;
+            }
+
+            if (string.IsNullOrEmpty(error))
             {
                 error = TryParseHelpText(actor, calendar, clock);
-                return false;
             }
 
-            if (!calendar.TryGetDate(regexMatch.Groups["date"].Value, actor, out MudDate date, out error))
-            {
-                return false;
-            }
-
-            int hour = int.Parse(regexMatch.Groups["hour"].Value);
-            int minute = int.Parse(regexMatch.Groups["minute"].Value);
-            int second = regexMatch.Groups["second"].Length > 0 ? int.Parse(regexMatch.Groups["second"].Value) : 0;
-            IMudTimeZone tz = regexMatch.Groups["timezone"].Length > 0
-                ? clock.Timezones.GetByIdOrName(regexMatch.Groups["timezone"].Value)
-                : clock.PrimaryTimezone;
-            if (tz == null)
-            {
-                error = $"The timezone \"{regexMatch.Groups["timezone"].Value}\" is not valid.";
-                return false;
-            }
-
-            if (regexMatch.Groups["period"].Length > 0)
-            {
-                int hourInterval = clock.HourIntervalNames.FindIndex(
-                    x => x.Equals(regexMatch.Groups["period"].Value, StringComparison.InvariantCultureIgnoreCase));
-                if (hourInterval < 0)
-                {
-                    error = $"The hour period \"{regexMatch.Groups["period"].Value}\" is not valid.";
-                    return false;
-                }
-
-                hour +=
-                    hourInterval *
-                    (clock.HoursPerDay / clock.NumberOfHourIntervals);
-            }
-
-            MudTime time = MudTime.FromLocalTime(second, minute, hour, tz, clock);
-            dt = new MudDateTime(date, time, tz);
-            return true;
+            return false;
         }
 
         /// <summary>
@@ -213,29 +186,83 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
             }
 
             Match match = PlayerParseRegex.Match(text);
-            if (!match.Success)
+            if (match.Success)
             {
-                return false;
-            }
-            try
-            {
-                MudDate date = calendar.GetDate(match.Groups["date"].Value);
-                IMudTimeZone timezone = match.Groups["timezone"].Length > 0
-                ? clock.Timezones.GetByIdOrName(match.Groups["timezone"].Value)
-                : clock.PrimaryTimezone;
-                if (timezone == null)
+                try
+                {
+                    var date = calendar.GetDate(match.Groups["date"].Value);
+                    var timeText = match.Groups["timezone"].Length > 0
+                        ? $"{match.Groups["timezone"].Value} {match.Groups["time"].Value}"
+                        : match.Groups["time"].Value;
+                    if (!MudTime.TryParseLocalTime(timeText, clock, out var time, out _))
+                    {
+                        return false;
+                    }
+
+                    dt = new MudDateTime(date, time, time.Timezone);
+                    return true;
+                }
+                catch
                 {
                     return false;
                 }
-                MudTime time = clock.GetTime($"{timezone.Alias} {match.Groups["time"].Value}");
-                dt = new MudDateTime(date, time, timezone);
+            }
+
+            if (TryParseFlexiblePlayerDateTime(text, calendar, clock, null, out var flexibleDate, out var flexibleTime,
+                    out var flexibleTimezone, out _))
+            {
+                dt = new MudDateTime(flexibleDate, flexibleTime, flexibleTimezone);
                 return true;
             }
-            catch
-            {
-                return false;
-            }
+
+            return false;
         }
+
+        private static bool TryParseFlexiblePlayerDateTime(string text, ICalendar calendar, IClock clock,
+            IFormatProvider format, out MudDate date, out MudTime time, out IMudTimeZone timezone, out string error)
+        {
+            date = null;
+            time = null;
+            timezone = null;
+            error = string.Empty;
+
+            var match = AlternatePlayerParseRegex.Match(text);
+            if (match.Success)
+            {
+                if (calendar.TryGetDate(match.Groups["date"].Value, format, out date, out error) &&
+                    MudTime.TryParseLocalTime(match.Groups["time"].Value, clock, out time, out error))
+                {
+                    timezone = time.Timezone;
+                    return true;
+                }
+            }
+
+            var tokens = text.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            for (var splitIndex = tokens.Length - 1; splitIndex > 0; splitIndex--)
+            {
+                var timeText = string.Join(" ", tokens.Skip(splitIndex));
+                if (!MudTime.TryParseLocalTime(timeText, clock, out var parsedTime, out var timeError))
+                {
+                    error = timeError;
+                    continue;
+                }
+
+                var dateText = string.Join(" ", tokens.Take(splitIndex));
+                if (!calendar.TryGetDate(dateText, format, out var parsedDate, out var dateError))
+                {
+                    error = dateError;
+                    continue;
+                }
+
+                date = parsedDate;
+                time = parsedTime;
+                timezone = parsedTime.Timezone;
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool TryParse(string text, IFuturemud gameworld, out MudDateTime dt)
         {
             dt = null;

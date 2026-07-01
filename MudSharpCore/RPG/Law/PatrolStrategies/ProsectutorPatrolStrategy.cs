@@ -1,4 +1,5 @@
 ﻿using MudSharp.Construction.Boundary;
+using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using System;
@@ -92,14 +93,28 @@ public class ProsectutorPatrolStrategy : PatrolStrategyBase
 
         // Argue in the trials
         OnTrial trial = patrol.PatrolLeader.Location.Characters.SelectNotNull(x => x.EffectsOfType<OnTrial>().FirstOrDefault()).FirstOrDefault();
-        if (trial is null)
-        {
-            return;
-        }
+		if (trial is null)
+		{
+			return;
+		}
 
-        if (trial.Phase.In(TrialPhase.Case, TrialPhase.ClosingArguments) && Dice.Roll(1, 3) == 1)
-        {
-            trial.HandleArgueCommand(patrol.PatrolLeader, false);
+		if (trial.Prosecutor is null ||
+		    trial.Prosecutor.Location != patrol.LegalAuthority.CourtLocation ||
+		    !trial.Prosecutor.CombinedEffectsOfType<PatrolMemberEffect>().Any(x =>
+			    x.Patrol?.LegalAuthority == patrol.LegalAuthority &&
+			    x.Patrol.PatrolStrategy.Name == "Prosecutor"))
+		{
+			trial.Prosecutor = patrol.PatrolLeader;
+		}
+
+		if (!CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(trial.Prosecutor, patrol.PatrolLeader))
+		{
+			return;
+		}
+
+		if (trial.Phase.In(TrialPhase.Case, TrialPhase.ClosingArguments) && Dice.Roll(1, 3) == 1)
+		{
+			trial.HandleArgueCommand(patrol.PatrolLeader, false);
         }
     }
 }

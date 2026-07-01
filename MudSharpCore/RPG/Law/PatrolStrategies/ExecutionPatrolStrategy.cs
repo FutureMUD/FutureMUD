@@ -148,6 +148,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	public string DrugEmote { get; private set; } = "@ administer|administers the execution drug to $1.";
 	public string FiringSquadEmote { get; private set; } = "@ give|gives the order to fire on $1.";
 	public string CompletionEmote { get; private set; } = "@ confirm|confirms that $1's sentence has been carried out.";
+	public string FailureEmote { get; private set; } = "@ signal|signals that $1's execution cannot be completed and must be rescheduled.";
 	private readonly List<string> _executionScript = new()
 	{
 		"@ announce|announces, \"%condemned% has been sentenced to death by lawful authority.\"",
@@ -167,7 +168,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	#3scriptdelay <seconds>#0 - sets the delay between script steps
 	#3confirmdelay <seconds>#0 - sets how long to wait between execution attempts
 	#3attempts <number>#0 - sets the maximum execution attempts before aborting
-	#3emote retrieve|resist|arrival|restrain|lastwords|drug|firing|complete <emote>#0 - sets a custom emote
+	#3emote retrieve|resist|arrival|restrain|lastwords|drug|firing|complete|failure <emote>#0 - sets a custom emote
 	#3script add <emote>#0 - adds a scripted execution step
 	#3script delete <##>#0 - deletes a scripted execution step
 	#3script swap <##> <##>#0 - swaps two scripted execution steps
@@ -435,6 +436,17 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		if (equipment is null)
 		{
 			AbortExecution(patrol);
+			return;
+		}
+
+		if (patrol.PatrolLeader.Location != equipment)
+		{
+			MoveCharacterTo(patrol.PatrolLeader, equipment, 25);
+			if (DateTime.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
+			{
+				AbortExecution(patrol);
+			}
+
 			return;
 		}
 
@@ -995,7 +1007,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 		if (_executionAttempts >= MaximumExecutionAttempts)
 		{
-			AbortExecution(patrol);
+			HandleFailedExecutionAttempts(patrol);
 			return;
 		}
 
@@ -1171,6 +1183,36 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 		ResetRuntimeState();
 		patrol.AbortPatrol();
+	}
+
+	private void HandleFailedExecutionAttempts(IPatrol patrol)
+	{
+		if (_condemned is not null)
+		{
+			DoEmote(patrol.PatrolLeader, FailureEmote, _condemned);
+			ReleaseCondemnedFromPatrolDrag(patrol);
+			_condemned.RemoveAllEffects<ExecutionPatrolNoQuit>(x => x.Patrol == patrol, fireRemovalAction: true);
+			DelayAwaitingExecution(patrol.LegalAuthority);
+			patrol.LegalAuthority.SendCharacterToHoldingCell(_condemned);
+		}
+
+		ResetRuntimeState();
+		patrol.AbortPatrol();
+	}
+
+	private void DelayAwaitingExecution(ILegalAuthority authority)
+	{
+		MudDateTime retryDate = CurrentLegalTime(authority) + MudTimeSpan.FromDays(1);
+		foreach (AwaitingExecution effect in _condemned.EffectsOfType<AwaitingExecution>(x => x.LegalAuthority == authority).ToList())
+		{
+			if (effect.ExecutionDate < retryDate)
+			{
+				effect.ExtendSentence(retryDate - effect.ExecutionDate);
+				continue;
+			}
+
+			effect.ExtendSentence(MudTimeSpan.FromDays(1));
+		}
 	}
 
 	private void ReleaseCondemnedFromPatrolDrag(IPatrol patrol)
@@ -1470,7 +1512,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("Which emote do you want to set: retrieve, resist, arrival, restrain, lastwords, drug, firing or complete?");
+			actor.OutputHandler.Send("Which emote do you want to set: retrieve, resist, arrival, restrain, lastwords, drug, firing, complete or failure?");
 			return false;
 		}
 
@@ -1519,6 +1561,10 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			case "complete":
 			case "completion":
 				CompletionEmote = emote;
+				break;
+			case "failure":
+			case "fail":
+				FailureEmote = emote;
 				break;
 			default:
 				actor.OutputHandler.Send("That is not a valid execution patrol emote.");
@@ -1653,7 +1699,8 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 				new XElement("LastWords", new XCData(LastWordsEmote)),
 				new XElement("Drug", new XCData(DrugEmote)),
 				new XElement("FiringSquad", new XCData(FiringSquadEmote)),
-				new XElement("Completion", new XCData(CompletionEmote))
+				new XElement("Completion", new XCData(CompletionEmote)),
+				new XElement("Failure", new XCData(FailureEmote))
 			),
 			new XElement("Script", _executionScript.Select(x => new XElement("Step", new XCData(x))))
 		).ToString();
@@ -1751,6 +1798,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			DrugEmote = emotes.Element("Drug")?.Value ?? DrugEmote;
 			FiringSquadEmote = emotes.Element("FiringSquad")?.Value ?? FiringSquadEmote;
 			CompletionEmote = emotes.Element("Completion")?.Value ?? CompletionEmote;
+			FailureEmote = emotes.Element("Failure")?.Value ?? FailureEmote;
 		}
 
 		XElement script = root.Element("Script");

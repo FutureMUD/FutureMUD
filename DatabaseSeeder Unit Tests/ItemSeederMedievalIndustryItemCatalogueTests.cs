@@ -90,17 +90,20 @@ public class ItemSeederMedievalIndustryItemCatalogueTests
 		}
 	}
 
-	private static string ReadDatabaseSeederSource(params string[] segments)
+	private static string ReadDatabaseSeederSource(params string[] parts)
 	{
-		return File.ReadAllText(Path.GetFullPath(Path.Combine(
-			new[]
-			{
-				AppContext.BaseDirectory,
-				"..",
-				"..",
-				"..",
-				"..",
-				"DatabaseSeeder"
-			}.Concat(segments).ToArray())));
+		return File.ReadAllText(Path.Combine(new[] { SourceRoot() }.Concat(parts).ToArray()));
+	}
+
+	private static string SourceRoot()
+	{
+		var directory = new DirectoryInfo(AppContext.BaseDirectory);
+		while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "MudSharp.sln")))
+		{
+			directory = directory.Parent;
+		}
+
+		Assert.IsNotNull(directory, "Could not locate repository root from test output path.");
+		return directory.FullName;
 	}
 }

@@ -22,9 +22,11 @@ public class LegalPatrolStrategyTests
 	{
 		CollectionAssert.Contains(PatrolStrategyFactory.Strategies.ToList(), "ReactivePatrol");
 		CollectionAssert.Contains(PatrolStrategyFactory.Strategies.ToList(), "InvestigationPatrol");
+		CollectionAssert.Contains(PatrolStrategyFactory.Strategies.ToList(), "DoorDuties");
 
 		Assert.IsTrue(PatrolStrategyFactory.Strategies.Contains("ReactivePatrol"));
 		Assert.IsTrue(PatrolStrategyFactory.Strategies.Contains("InvestigationPatrol"));
+		Assert.IsTrue(PatrolStrategyFactory.Strategies.Contains("DoorDuties"));
 	}
 
 	[TestMethod]
@@ -142,6 +144,56 @@ public class LegalPatrolStrategyTests
 	}
 
 	[TestMethod]
+	public void DoorDutiesPatrolStrategy_ShouldPrepareKeysAndEnableDoorGuardMode()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "DoorDutiesPatrolStrategy.cs"));
+		string effectSource = File.ReadAllText(GetCoreSourcePath("Effects", "Concrete", "PatrolDoorguardMode.cs"));
+		string factorySource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategyFactory.cs"));
+		string patrolSource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "Patrol.cs"));
+		string movementSource = File.ReadAllText(GetCoreSourcePath("NPC", "AI", "Strategies", "MovementStrategyFactory.cs"));
+
+		StringAssert.Contains(factorySource, "\"DoorDuties\"");
+		StringAssert.Contains(factorySource, "case \"door duties\":");
+		StringAssert.Contains(source, "public override string Name => \"DoorDuties\";");
+		StringAssert.Contains(source, "PrepareKeysForCells(member, dutyCells);");
+		StringAssert.Contains(source, "member == patrol.PatrolLeader");
+		StringAssert.Contains(source, "HasKeysForCells(patrol.PatrolLeader, dutyCells)");
+		StringAssert.Contains(source, "new PatrolDoorguardMode(member)");
+		StringAssert.Contains(source, "RemoveAllEffects<PatrolDoorguardMode>(fireRemovalAction: true)");
+		StringAssert.Contains(source, "public override void HandlePatrolCompleted(IPatrol patrol)");
+		StringAssert.Contains(source, "public override void HandlePatrolAborted(IPatrol patrol)");
+		StringAssert.Contains(patrolSource, "HandlePatrolCompleted(this)");
+		StringAssert.Contains(patrolSource, "HandlePatrolAborted(this)");
+		StringAssert.Contains(movementSource, "AffectedBy<IDoorguardModeEffect>()");
+		Assert.IsFalse(movementSource.Contains("AffectedBy<DoorguardMode>()", StringComparison.Ordinal));
+		StringAssert.Contains(source, "PathSearch.PathIncludeUnlockableDoors");
+		StringAssert.Contains(source, "UseKeys = true");
+		StringAssert.Contains(source, "OpenDoors = true");
+		StringAssert.Contains(source, "DisableDoorGuardMode(patrol);");
+		StringAssert.Contains(effectSource, "IDoorguardModeEffect");
+		Assert.IsFalse(effectSource.Contains("SavingEffect => true", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
+	public void PatrolStrategies_ShouldShareKeyPreparationArchitecture()
+	{
+		string baseSource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "PatrolStrategyBase.cs"));
+		string executionSource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "ExecutionPatrolStrategy.cs"));
+
+		StringAssert.Contains(baseSource, "protected static IEnumerable<IKey> AccessibleKeys(ICharacter member)");
+		StringAssert.Contains(baseSource, "protected static bool PrepareKeysForLocks(ICharacter member, IEnumerable<ILock> locks)");
+		StringAssert.Contains(baseSource, "new InventoryPlanActionHold(member.Gameworld, 0, 0,");
+		StringAssert.Contains(baseSource, "protected static bool PrepareKeysForCells(ICharacter member, IEnumerable<ICell> cells)");
+		StringAssert.Contains(baseSource, "protected static void PrepareInventoryPlan(ICharacter member, IInventoryPlanTemplate template)");
+		StringAssert.Contains(executionSource, "public bool RequireKeysForRetrieval { get; private set; }");
+		StringAssert.Contains(executionSource, "#3keys [on|off]#0");
+		StringAssert.Contains(executionSource, "PrepareRetrievalKeys(member);");
+		StringAssert.Contains(executionSource, "private bool RetrievalKeysReady(IPatrol patrol)");
+		StringAssert.Contains(executionSource, "new XAttribute(\"keys\", RequireKeysForRetrieval)");
+		StringAssert.Contains(executionSource, "bool.TryParse(root.Attribute(\"keys\")?.Value, out bool keys)");
+	}
+
+	[TestMethod]
 	public void CorpseReporting_ShouldUseSharedLocalAuthorityMechanism()
 	{
 		string legalAuthoritySource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "LegalAuthority.CorpseRecovery.cs"));
@@ -168,6 +220,35 @@ public class LegalPatrolStrategyTests
 		StringAssert.Contains(source, "MudSharp.RPG.Law.LegalAuthority.ReportCorpseToLocalAuthority(Gameworld, corpseItem, enforcer, out _) != null");
 		StringAssert.Contains(source, "new Emote(\"@ report|reports a corpse to the authorities.\",");
 		StringAssert.Contains(source, "ReportVisibleCorpses(enforcer);");
+	}
+
+	[TestMethod]
+	public void LegalStatus_ShouldSurfaceLegalSetupAndEquipmentIssues()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("Commands", "Modules", "LegalModule.cs"));
+
+		Assert.IsTrue(source.Contains("[PlayerCommand(\"LegalStatus\", \"legalstatus\", \"lawstatus\")]", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("case \"status\":", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("private sealed record LegalSetupIssue", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("BuildLegalStatusReport(actor, authorities, actor.IsAdministrator())", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("GetLegalAuthoritiesForLegalStatus", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("x.GetEnforcementAuthority(actor) is not null", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("WhyCannotStaffPatrolRoute", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("route.PatrolStrategy.SelectEnforcers(route, pool, requirement.Value)", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("No Judge patrol route is configured", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("No Prosecutor patrol route is configured", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("No Sheriff patrol route is configured", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("no ExecutionPatrol route is configured", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("IsExecutionMeleeWeapon", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("ComponentsInCell<IInject>(equipment, actor)", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("ComponentsInCell<IRestraint>(equipment, actor).Concat(ComponentsInCell<IRestraint>(executionLocation, actor))", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("strategy.DrugId <= 0 || actor.Gameworld.Drugs.Get(strategy.DrugId) is null", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("ExecutionRetrievalKeyIssues", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("DoorDutyKeyIssues", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("LocksMissingKeys", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("AccessibleStockItems", StringComparison.Ordinal));
+		Assert.IsFalse(source.Contains("SelectMany(x => x.DeepItems)", StringComparison.Ordinal));
+		Assert.IsTrue(source.Contains("legalstatus <legal authority>", StringComparison.Ordinal));
 	}
 
 	[TestMethod]

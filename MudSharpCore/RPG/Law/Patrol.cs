@@ -148,6 +148,7 @@ public class Patrol : SaveableItem, IPatrol
 
     public void ConcludePatrol()
     {
+        (PatrolStrategy as PatrolStrategyBase)?.HandlePatrolCompleted(this);
         foreach (ICharacter member in PatrolMembers.ToList())
         {
             member.RemoveAllEffects<PatrolMemberEffect>(fireRemovalAction: true);
@@ -186,6 +187,7 @@ public class Patrol : SaveableItem, IPatrol
 
     public void AbortPatrol()
     {
+        (PatrolStrategy as PatrolStrategyBase)?.HandlePatrolAborted(this);
         foreach (ICharacter member in PatrolMembers.ToList())
         {
             member.RemoveAllEffects<PatrolMemberEffect>(fireRemovalAction: true);
@@ -198,6 +200,7 @@ public class Patrol : SaveableItem, IPatrol
 
     public void CompletePatrol()
     {
+        (PatrolStrategy as PatrolStrategyBase)?.HandlePatrolCompleted(this);
         PatrolPhase = PatrolPhase.Return;
         LastMajorNode = NextMajorNode;
         NextMajorNode = null;

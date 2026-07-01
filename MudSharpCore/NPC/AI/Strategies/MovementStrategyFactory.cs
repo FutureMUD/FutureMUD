@@ -3,6 +3,7 @@ using MudSharp.Character;
 using MudSharp.Commands.Socials;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
@@ -289,7 +290,7 @@ public class MovementStrategyFactory
                 {
                     bool result = false;
                     foreach (ICharacter tch in ch.Location.Characters.Where(x =>
-                                 x.AffectedBy<DoorguardMode>() && !x.AffectedBy<DoorguardOpeningDoor>()))
+                                 x.AffectedBy<IDoorguardModeEffect>() && !x.AffectedBy<DoorguardOpeningDoor>()))
                     {
                         result = CheckDoorGuard(ch, tch, exit);
                         if (result)
@@ -301,7 +302,7 @@ public class MovementStrategyFactory
                     if (!result)
                     {
                         foreach (ICharacter tch in exit.Destination.Characters.Where(x =>
-                                     x.AffectedBy<DoorguardMode>() && !x.AffectedBy<DoorguardOpeningDoor>()))
+                                     x.AffectedBy<IDoorguardModeEffect>() && !x.AffectedBy<DoorguardOpeningDoor>()))
                         {
                             result = CheckDoorGuard(ch, tch, exit);
                             if (result)
@@ -353,7 +354,7 @@ public class MovementStrategyFactory
                 {
                     bool result = false;
                     foreach (ICharacter tch in ch.Location.Characters.Where(x =>
-                                 x.AffectedBy<DoorguardMode>() && !x.AffectedBy<DoorguardOpeningDoor>()))
+                                 x.AffectedBy<IDoorguardModeEffect>() && !x.AffectedBy<DoorguardOpeningDoor>()))
                     {
                         result = CheckDoorGuard(ch, tch, exit);
                         if (result)
@@ -365,7 +366,7 @@ public class MovementStrategyFactory
                     if (!result)
                     {
                         foreach (ICharacter tch in exit.Destination.Characters.Where(x =>
-                                     x.AffectedBy<DoorguardMode>() && !x.AffectedBy<DoorguardOpeningDoor>()))
+                                     x.AffectedBy<IDoorguardModeEffect>() && !x.AffectedBy<DoorguardOpeningDoor>()))
                         {
                             result = CheckDoorGuard(ch, tch, exit);
                             if (result)
@@ -408,7 +409,7 @@ public class MovementStrategyFactory
             {
                 bool result = false;
                 foreach (ICharacter tch in ch.Location.Characters.Where(x =>
-                             x.AffectedBy<DoorguardMode>() && !x.AffectedBy<DoorguardOpeningDoor>()))
+                             x.AffectedBy<IDoorguardModeEffect>() && !x.AffectedBy<DoorguardOpeningDoor>()))
                 {
                     result = CheckDoorGuard(ch, tch, exit);
                     if (result)
@@ -420,7 +421,7 @@ public class MovementStrategyFactory
                 if (!result)
                 {
                     foreach (ICharacter tch in exit.Destination.Characters.Where(x =>
-                                 x.AffectedBy<DoorguardMode>() && !x.AffectedBy<DoorguardOpeningDoor>()))
+                                 x.AffectedBy<IDoorguardModeEffect>() && !x.AffectedBy<DoorguardOpeningDoor>()))
                     {
                         result = CheckDoorGuard(ch, tch, exit);
                         if (result)

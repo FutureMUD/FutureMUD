@@ -15,6 +15,7 @@ public static class PatrolStrategyFactory
         "InvestigationPatrol",
         "CorpseRecovery",
         "StationEnforcer",
+        "DoorDuties",
         "Judge",
         "Sheriff",
         "Prosecutor",
@@ -46,6 +47,11 @@ public static class PatrolStrategyFactory
                 return new CorpseRecoveryPatrolStrategy(gameworld);
             case "stationenforcer":
                 return new StationEnforcerPatrolStrategy(gameworld);
+            case "doorduties":
+            case "door duties":
+            case "doorduty":
+            case "door duty":
+                return new DoorDutiesPatrolStrategy(gameworld);
             case "judge":
                 return new JudgePatrolStrategy(gameworld);
             case "sheriff":

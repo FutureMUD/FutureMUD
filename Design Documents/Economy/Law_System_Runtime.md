@@ -46,6 +46,14 @@ Execution patrols require:
 
 The primary executioner is the patrol leader. Other selected patrol members act as supporting guards. Guards help retrieve equipment, subdue resistance, drag the prisoner, and participate in firing squads when that method is used.
 
+## Door Duties Patrols
+
+The `DoorDuties` patrol strategy is a stationary enforcer strategy for locations where doors are expected to be locked and unlocked by posted guards, such as prison entrances, jail foyers, cell blocks, or secure checkpoints.
+
+The first node on the patrol route is the duty location. During preparation, patrol members travel to the legal authority preparation room and the patrol leader tries to retrieve the patrol's required key set for the locks on doors attached to that duty location. Key matching uses the same lock/key checks as ordinary character movement, so builders must provide compatible key items in the preparation room or on the patrol leader. If all selected enforcers are already at the duty location and the leader already has the required keys, the patrol can begin there without returning to preparation.
+
+While stationed at the duty location, patrol members who have the relevant duty-door keys receive a patrol-managed door-guard mode effect. This makes them eligible for the normal `DoorguardAI` door-opening and door-closing behavior without relying on a builder to manually toggle the NPC-only `doorguard` command. The patrol-managed effect is removed when the patrol leaves door duty, completes, aborts, or switches into active enforcement. Manually configured `DoorguardMode` effects are left alone.
+
 ## Builder Configuration
 
 Strategy-specific settings are edited through the patrol route `config` command after selecting the execution strategy.
@@ -54,6 +62,7 @@ Core options:
 
 - `method cdg|drug|firing`: selects coup de grace with a weapon, administered drug, or firing squad.
 - `equipment here|<room>|none`: sets the room used to collect tools. `none` falls back to the legal authority preparation room.
+- `keys [on|off]`: controls whether the execution patrol must collect keys for the condemned prisoner's retrieval route before leaving the equipment room.
 - `drug <id|name>`: selects the drug used by the administered-drug method.
 - `dose <grams>`: sets the administered amount per attempt.
 - `vector injected|ingested|inhaled|touched`: sets the drug delivery vector.
@@ -84,7 +93,7 @@ The execution patrol progresses through these stages:
 
 1. Select a due condemned character and apply `ExecutionPatrolNoQuit`.
 2. Move patrol members to the equipment room.
-3. Collect restraints and method-specific tools.
+3. Collect restraints, method-specific tools, and, when configured, keys for the prisoner's retrieval route.
 4. Move the leader to the prisoner and send the retrieval emote.
 5. Give the prisoner the configured compliance window to use `HELPLESS` or submit to the guards.
 6. If the prisoner resists, guards switch to control-oriented combat settings where available and attempt to subdue them.
@@ -96,7 +105,7 @@ The execution patrol progresses through these stages:
 12. Confirm death, retrying up to the configured attempt limit if necessary.
 13. Mark execution-punishment crimes as served, remove `AwaitingExecution`, remove the no-quit effect, report any final corpse to the corpse-recovery queue when a morgue is configured, and complete the patrol.
 
-If required rooms, tools, paths, or targets become unavailable for too long, the patrol aborts and removes only the execution-specific no-quit effect. The `AwaitingExecution` effect remains so a later patrol can try again.
+If required rooms, tools, keys, paths, or targets become unavailable for too long, the patrol aborts and removes only the execution-specific no-quit effect. The `AwaitingExecution` effect remains so a later patrol can try again.
 
 ## Trials and PC Judges
 
@@ -143,6 +152,23 @@ Inactive patrol-route output reports both whether the route should begin and, wh
 The `showenforcers [authority|zone]` admin command reports the enforcer roster for a legal authority or any authority that enforces a specified zone. It includes on-duty state, patrol-pool eligibility, enforcement-authority match, current location, active patrol assignment, and the first reason a listed enforcer cannot be selected for patrol dispatch. The patrol pool requires an NPC with an `EnforcerAI`, an active `EnforcerEffect` for that legal authority, a currently matching enforcement authority, and no active patrol assignment.
 
 On-duty enforcers also report visible final-character-death corpses through the same local-authority corpse-report mechanism used by the player `REPORT CORPSE` command. The report is only queued when the corpse is visible, belongs to a zone with a responding legal authority, has an economic-zone morgue configured, and does not already have a pending or assigned recovery report.
+
+## Legal Status Diagnostics
+
+The `legal status [authority]` admin command and the player-facing `legalstatus [authority]` / `lawstatus [authority]` command report legal-system setup health. Administrators can view every legal authority, or their currently edited authority when using `legal status` with an editor open. PC enforcers can view only authorities for which they currently have an enforcement authority.
+
+The status report separates setup issues from ordinary runtime waiting. For example, a patrol route waiting for a crime trigger, corpse report, due condemned prisoner, active-patrol slot, or allowed time of day is not treated as broken setup. Missing route nodes, unready routes, missing required enforcers, missing enforcement zones, incomplete strategy configuration, and failed strategy-specific enforcer selection are reported as setup problems.
+
+The report also checks the common legal-system stock failures:
+
+- execution patrols using coup de grace need a suitable melee weapon in the equipment room
+- execution patrols using administered drugs need a valid configured drug and an injector item
+- firing-squad patrols need ranged weapons in the equipment room
+- execution routes warn when no restraint items are stocked in either the equipment room or execution room
+- execution routes with retrieval keys enabled check stocked keys against locked prison, jail, and prisoner-route doors
+- door-duty routes check accessible stocked preparation-room keys against locked doors at the duty location, requiring one compatible key set per patrol rather than duplicate keys for every assigned enforcer
+
+Trial coverage diagnostics flag missing Judge, Sheriff, or Prosecutor patrol routes when the authority has a conviction-capable enforcement authority. Execution coverage diagnostics flag missing execution patrol routes when at least one law can produce an execution sentence.
 
 ## Crime-Driven Patrol Dispatch
 

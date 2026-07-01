@@ -500,6 +500,134 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         // Do nothing
     }
 
+    public virtual void HandlePatrolCompleted(IPatrol patrol)
+    {
+        // Do nothing
+    }
+
+    public virtual void HandlePatrolAborted(IPatrol patrol)
+    {
+        // Do nothing
+    }
+
+    protected static void PrepareInventoryPlan(ICharacter member, IInventoryPlanTemplate template)
+    {
+        IInventoryPlan plan = template.CreatePlan(member);
+        if (plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+        {
+            plan.ExecuteWholePlan();
+        }
+
+        plan.FinalisePlanNoRestore();
+    }
+
+    protected static IEnumerable<IKey> AccessibleKeys(ICharacter member)
+    {
+        return member.Body.ExternalItems
+                     .SelectMany(x => x.ShallowAccessibleItems(member))
+                     .SelectNotNull(x => x.GetItemType<IKey>());
+    }
+
+    protected static bool KeyWorksForLock(ICharacter member, ILock theLock, IKey key)
+    {
+        return theLock.CanUnlock(member, key) || theLock.CanLock(member, key);
+    }
+
+    protected static bool HasKeyForLock(ICharacter member, ILock theLock)
+    {
+        return AccessibleKeys(member).Any(x => KeyWorksForLock(member, theLock, x));
+    }
+
+    protected static IEnumerable<ILock> DoorLocksForExits(IEnumerable<ICellExit> exits)
+    {
+        return exits
+               .SelectNotNull(x => x.Exit.Door)
+               .SelectMany(x => x.Locks)
+               .Distinct();
+    }
+
+    protected static IEnumerable<ICellExit> DoorExitsForCells(ICharacter member, IEnumerable<ICell> cells)
+    {
+        return cells
+               .SelectMany(x => x.ExitsFor(member, true))
+               .Where(x => x.Exit.Door?.Locks.Any() == true)
+               .DistinctBy(x => x.Exit);
+    }
+
+    protected static bool HasKeysForLocks(ICharacter member, IEnumerable<ILock> locks)
+    {
+        return locks.Distinct().All(x => HasKeyForLock(member, x));
+    }
+
+    protected static bool HasKeysForExits(ICharacter member, IEnumerable<ICellExit> exits)
+    {
+        return HasKeysForLocks(member, DoorLocksForExits(exits));
+    }
+
+    protected static bool HasKeysForCells(ICharacter member, IEnumerable<ICell> cells)
+    {
+        return HasKeysForExits(member, DoorExitsForCells(member, cells));
+    }
+
+    protected static bool PrepareKeysForLocks(ICharacter member, IEnumerable<ILock> locks)
+    {
+        List<ILock> requiredLocks = locks.Distinct().ToList();
+        foreach (ILock theLock in requiredLocks)
+        {
+            if (HasKeyForLock(member, theLock))
+            {
+                continue;
+            }
+
+            IInventoryPlanTemplate template = new InventoryPlanTemplate(member.Gameworld,
+                new InventoryPlanActionHold(member.Gameworld, 0, 0,
+                    item => item.GetItemType<IKey>() is IKey key && KeyWorksForLock(member, theLock, key),
+                    null,
+                    1)
+                {
+                    ItemsAlreadyInPlaceMultiplier = 10.0
+                });
+            PrepareInventoryPlan(member, template);
+        }
+
+        return HasKeysForLocks(member, requiredLocks);
+    }
+
+    protected static bool PrepareKeysForExits(ICharacter member, IEnumerable<ICellExit> exits)
+    {
+        return PrepareKeysForLocks(member, DoorLocksForExits(exits));
+    }
+
+    protected static bool PrepareKeysForCells(ICharacter member, IEnumerable<ICell> cells)
+    {
+        return PrepareKeysForExits(member, DoorExitsForCells(member, cells));
+    }
+
+    protected static void FormParty(IPatrol patrol)
+    {
+        if (patrol.PatrolLeader.Party != null)
+        {
+            patrol.PatrolLeader.LeaveParty();
+        }
+
+        Party party = new(patrol.PatrolLeader);
+        patrol.PatrolLeader.JoinParty(party);
+        foreach (ICharacter member in patrol.PatrolMembers.Where(x => x.ColocatedWith(patrol.PatrolLeader)).ToList())
+        {
+            if (member == patrol.PatrolLeader)
+            {
+                continue;
+            }
+
+            if (member.Party != null)
+            {
+                member.LeaveParty();
+            }
+
+            member.JoinParty(party);
+        }
+    }
+
     protected virtual void PatrolTickPreparationPhase(IPatrol patrol)
     {
         foreach (ICharacter member in patrol.PatrolMembers)
@@ -524,27 +652,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 
         if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(1))
         {
-            if (patrol.PatrolLeader.Party != null)
-            {
-                patrol.PatrolLeader.LeaveParty();
-            }
-
-            Party party = new(patrol.PatrolLeader);
-            patrol.PatrolLeader.JoinParty(party);
-            foreach (ICharacter member in patrol.PatrolMembers.Where(x => x.ColocatedWith(patrol.PatrolLeader)).ToList())
-            {
-                if (member == patrol.PatrolLeader)
-                {
-                    continue;
-                }
-
-                if (member.Party != null)
-                {
-                    member.LeaveParty();
-                    member.JoinParty(party);
-                }
-            }
-
+            FormParty(patrol);
             patrol.PatrolPhase = PatrolPhase.Deployment;
             patrol.LastArrivedTime = DateTime.UtcNow;
             patrol.LastMajorNode = patrol.PatrolLeader.Location;

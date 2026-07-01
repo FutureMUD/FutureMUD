@@ -93,6 +93,84 @@ public class LegalPatrolStrategyTests
 	}
 
 	[TestMethod]
+	public void PatrolTickActiveEnforcement_HelplessTarget_ShouldDragBeforeCombatBranch()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "PatrolStrategyBase.cs"));
+		int helplessCheck = source.IndexOf("TryStartDraggingHelplessCriminal(patrol, criminal)", StringComparison.Ordinal);
+		int combatCheck = source.IndexOf("// Is criminal in combat with enforcers?", StringComparison.Ordinal);
+
+		Assert.IsTrue(helplessCheck >= 0, "The active-enforcement loop should explicitly handle helpless criminals.");
+		Assert.IsTrue(combatCheck > helplessCheck, "Helpless arrest targets must be dragged before the combat branch can re-engage them.");
+		StringAssert.Contains(source, "private bool TryStartDraggingHelplessCriminal(IPatrol patrol, ICharacter criminal)");
+		StringAssert.Contains(source, "LeaveCombatIfAble(member);");
+		StringAssert.Contains(source, "criminal.Combat?.Combatants.OfType<ICharacter>().Any(x => patrol.PatrolMembers.ContainsPhysicalInstance(x)) == true");
+	}
+
+	[TestMethod]
+	public void ExecutionPatrolStrategy_ShouldAcceptHelplessOrSubmittedCondemnedAsSecured()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "ExecutionPatrolStrategy.cs"));
+
+		StringAssert.Contains(source, "private bool CondemnedIsSecuredForExecution(IPatrol patrol)");
+		StringAssert.Contains(source, "AllLimbsIneffectiveFromRestraint();");
+		StringAssert.Contains(source, "Where(x => x.Reason == LimbIneffectiveReason.Restrained)");
+		StringAssert.Contains(source, "SetStage(ExecutionPatrolStage.SubduingPrisoner);");
+		StringAssert.Contains(source, "ReleaseCondemnedFromPatrolDrag(patrol);");
+		Assert.IsFalse(source.Contains("if (_condemned.Body.EffectsOfType<RestraintEffect>().Any())", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
+	public void ExecutionPatrolStrategy_ShouldSupportSpokenNamePlaceholders()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "ExecutionPatrolStrategy.cs"));
+
+		StringAssert.Contains(source, "\"@ announce|announces, \\\"%condemned% has been sentenced to death by lawful authority.\\\"\"");
+		StringAssert.Contains(source, "Use normal emote targets outside speech: $0 is the executioner and $1 is the condemned.");
+		StringAssert.Contains(source, "private static string ExpandExecutionEmotePlaceholders");
+		StringAssert.Contains(source, ".Replace(CondemnedPlaceholder, condemnedName, StringComparison.OrdinalIgnoreCase)");
+		StringAssert.Contains(source, ".Replace(ExecutionerPlaceholder, executionerName, StringComparison.OrdinalIgnoreCase)");
+	}
+
+	[TestMethod]
+	public void ExecutionPatrolStrategy_ShouldReportFinalCorpseForRecovery()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "ExecutionPatrolStrategy.cs"));
+
+		StringAssert.Contains(source, "private void ReportExecutionCorpseForRecovery(IPatrol patrol)");
+		StringAssert.Contains(source, "LegalAuthority.ReportCorpseToLocalAuthority(Gameworld, corpseItem, patrol.PatrolLeader, out _);");
+		StringAssert.Contains(source, "ReportExecutionCorpseForRecovery(patrol);");
+	}
+
+	[TestMethod]
+	public void CorpseReporting_ShouldUseSharedLocalAuthorityMechanism()
+	{
+		string legalAuthoritySource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "LegalAuthority.CorpseRecovery.cs"));
+		string crimeModuleSource = File.ReadAllText(GetCoreSourcePath("Commands", "Modules", "CrimeModule.cs"));
+
+		StringAssert.Contains(legalAuthoritySource, "public static ICorpseRecoveryReport ReportCorpseToLocalAuthority(IFuturemud gameworld, IGameItem corpse,");
+		StringAssert.Contains(legalAuthoritySource, "corpse?.GetItemType<ICorpse>()");
+		StringAssert.Contains(legalAuthoritySource, "corpseComponent.RepresentsFinalCharacterDeath");
+		StringAssert.Contains(legalAuthoritySource, "gameworld.LegalAuthorities.FirstOrDefault(x => x.EnforcementZones.Contains(sourceCell.Zone))");
+		StringAssert.Contains(legalAuthoritySource, "Estate.DetermineZone(gameworld, sourceCell)");
+		StringAssert.Contains(legalAuthoritySource, "authority.ActiveCorpseRecoveryReport(corpse) != null");
+		StringAssert.Contains(crimeModuleSource, "LegalAuthority.ReportCorpseToLocalAuthority(actor.Gameworld, corpseItem, actor, out string errorMessage)");
+	}
+
+	[TestMethod]
+	public void EnforcerAI_ShouldAutomaticallyReportVisibleCorpsesWhileOnDuty()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("NPC", "AI", "EnforcerAI.cs"));
+
+		StringAssert.Contains(source, "private void ReportVisibleCorpses(ICharacter enforcer)");
+		StringAssert.Contains(source, "enforcer.Location.LayerGameItems(enforcer.RoomLayer)");
+		StringAssert.Contains(source, ".Where(x => enforcer.CanSee(x))");
+		StringAssert.Contains(source, "x.GetItemType<ICorpse>() is { RepresentsFinalCharacterDeath: true }");
+		StringAssert.Contains(source, "MudSharp.RPG.Law.LegalAuthority.ReportCorpseToLocalAuthority(Gameworld, corpseItem, enforcer, out _) != null");
+		StringAssert.Contains(source, "new Emote(\"@ report|reports a corpse to the authorities.\",");
+		StringAssert.Contains(source, "ReportVisibleCorpses(enforcer);");
+	}
+
+	[TestMethod]
 	public void PatrolRouteDiagnostics_ShouldExposeReasonWhenInactiveRouteCannotBegin()
 	{
 		string routeInterfaceSource = File.ReadAllText(GetLibrarySourcePath("RPG", "Law", "IPatrolRoute.cs"));

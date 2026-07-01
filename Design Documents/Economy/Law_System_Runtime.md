@@ -76,7 +76,7 @@ Custom emotes:
 
 Script steps are ordered emotes run after the last-words window and before the killing method. Builders can use `script add`, `script delete`, `script swap`, and `script clear`.
 
-Execution emotes use the executioner as `$0` and the condemned prisoner as `$1`.
+Execution emotes use the executioner as `$0` and the condemned prisoner as `$1` outside quoted speech. Quoted speech is parsed before ordinary emote targets, so execution patrols also support named spoken placeholders: `%condemned%`, `%prisoner%`, and `%target%` for the condemned person's visible name, and `%executioner%` for the executioner.
 
 ## Runtime Flow
 
@@ -89,12 +89,12 @@ The execution patrol progresses through these stages:
 5. Give the prisoner the configured compliance window to use `HELPLESS` or submit to the guards.
 6. If the prisoner resists, guards switch to control-oriented combat settings where available and attempt to subdue them.
 7. Drag the helpless or submitted prisoner to the execution location.
-8. Restrain the prisoner with locally available restraints.
+8. Secure the prisoner for execution. A prisoner is secured if they are already helpless, remain submitted as the patrol's drag target, are under enough grapple or restraint control to be helpless, or can be made helpless by the guards. Ordinary partial restraints, such as hand bindings that do not actually make the target helpless, are not by themselves enough to proceed.
 9. Offer the configured last-words window.
 10. Play each configured execution script step.
 11. Carry out the configured execution method.
 12. Confirm death, retrying up to the configured attempt limit if necessary.
-13. Mark execution-punishment crimes as served, remove `AwaitingExecution`, remove the no-quit effect, and complete the patrol.
+13. Mark execution-punishment crimes as served, remove `AwaitingExecution`, remove the no-quit effect, report any final corpse to the corpse-recovery queue when a morgue is configured, and complete the patrol.
 
 If required rooms, tools, paths, or targets become unavailable for too long, the patrol aborts and removes only the execution-specific no-quit effect. The `AwaitingExecution` effect remains so a later patrol can try again.
 
@@ -141,6 +141,8 @@ Room `look` descriptions include yellow command hints when a character can surre
 Inactive patrol-route output reports both whether the route should begin and, when it should not, the first blocking reason. Reasons include routes not marked ready, missing patrol nodes, crime-targeted or corpse-recovery routes waiting for a trigger, strategy-specific configuration or target blockers, a false start prog, no required enforcers, no enforcement zones, or a current time of day outside the route schedule.
 
 The `showenforcers [authority|zone]` admin command reports the enforcer roster for a legal authority or any authority that enforces a specified zone. It includes on-duty state, patrol-pool eligibility, enforcement-authority match, current location, active patrol assignment, and the first reason a listed enforcer cannot be selected for patrol dispatch. The patrol pool requires an NPC with an `EnforcerAI`, an active `EnforcerEffect` for that legal authority, a currently matching enforcement authority, and no active patrol assignment.
+
+On-duty enforcers also report visible final-character-death corpses through the same local-authority corpse-report mechanism used by the player `REPORT CORPSE` command. The report is only queued when the corpse is visible, belongs to a zone with a responding legal authority, has an economic-zone morgue configured, and does not already have a pending or assigned recovery report.
 
 ## Crime-Driven Patrol Dispatch
 
@@ -194,7 +196,7 @@ For administered drugs, the configured drug is dosed directly into the condemned
 
 For firing squads, patrol members try to wield, load, ready, and fire ranged weapons. The method succeeds for the tick if at least one available shooter fires.
 
-Restraints are collected from the equipment room and then applied in the execution room. The patrol first prefers guards already holding valid restraints, but can also use restraint items available locally in the execution room.
+Restraints are collected from the equipment room and then applied in the execution room when useful. The patrol first prefers guards already holding valid restraints, but can also use restraint items available locally in the execution room. Restraints are treated as a securing aid rather than a magic execution flag: if the applied restraint does not actually make the condemned helpless, guards return to subduing or rely on an existing voluntary submission/drag state before the killing method proceeds.
 
 ## Player Constraint
 

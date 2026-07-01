@@ -5,6 +5,7 @@ using MudSharp.Combat.Moves;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
@@ -68,6 +69,11 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	private bool _arrivalEmoteSent;
 	private bool _restraintEmoteSent;
 	private bool _lastWordsEmoteSent;
+
+	private const string CondemnedPlaceholder = "%condemned%";
+	private const string PrisonerPlaceholder = "%prisoner%";
+	private const string TargetPlaceholder = "%target%";
+	private const string ExecutionerPlaceholder = "%executioner%";
 
 	public override string Name => "ExecutionPatrol";
 
@@ -143,7 +149,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	public string CompletionEmote { get; private set; } = "@ confirm|confirms that $1's sentence has been carried out.";
 	private readonly List<string> _executionScript = new()
 	{
-		"@ announce|announces, \"$1 has been sentenced to death by lawful authority.\"",
+		"@ announce|announces, \"%condemned% has been sentenced to death by lawful authority.\"",
 		"@ pause|pauses solemnly before the sentence is carried out."
 	};
 
@@ -163,7 +169,9 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	#3script add <emote>#0 - adds a scripted execution step
 	#3script delete <##>#0 - deletes a scripted execution step
 	#3script swap <##> <##>#0 - swaps two scripted execution steps
-	#3script clear#0 - clears the scripted execution steps";
+	#3script clear#0 - clears the scripted execution steps
+
+Use normal emote targets outside speech: $0 is the executioner and $1 is the condemned. Inside quoted speech, use %condemned% or %executioner% for spoken names.";
 
 	public bool ReadyToBegin(IPatrolRoute patrol)
 	{
@@ -668,6 +676,24 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 			return true;
 		}
 
+		foreach (ICharacter member in patrol.PatrolMembers.Where(x => x.ColocatedWith(_condemned)))
+		{
+			if (member.Combat?.CanFreelyLeaveCombat(member) == true)
+			{
+				member.Combat.LeaveCombat(member);
+			}
+		}
+
+		if (_condemned.Combat?.Combatants.OfType<ICharacter>().Any(x => patrol.PatrolMembers.ContainsPhysicalInstance(x)) == true)
+		{
+			return false;
+		}
+
+		if (_condemned.Combat is not null && _condemned.MeleeRange)
+		{
+			return false;
+		}
+
 		ICharacter dragger = patrol.PatrolMembers
 		                            .Where(x => x.ColocatedWith(_condemned))
 		                            .Where(x => x.State.IsAble())
@@ -727,12 +753,6 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 
 		if (patrol.PatrolLeader.Location == executionLocation && _condemned.Location == executionLocation)
 		{
-			_condemned.RemoveAllEffects<Dragging.DragTarget>(fireRemovalAction: true);
-			foreach (ICharacter member in patrol.PatrolMembers)
-			{
-				member.RemoveAllEffects<Dragging>(x => x.Target == _condemned, fireRemovalAction: true);
-			}
-
 			if (!_arrivalEmoteSent)
 			{
 				DoEmote(patrol.PatrolLeader, ArrivalEmote, _condemned);
@@ -761,7 +781,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 			return;
 		}
 
-		if (_condemned.Body.EffectsOfType<RestraintEffect>().Any())
+		if (CondemnedIsSecuredForExecution(patrol))
 		{
 			SetStage(ExecutionPatrolStage.LastWords);
 			return;
@@ -775,14 +795,17 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 				_restraintEmoteSent = true;
 			}
 
-			SetStage(ExecutionPatrolStage.LastWords);
+			if (CondemnedIsSecuredForExecution(patrol))
+			{
+				SetStage(ExecutionPatrolStage.LastWords);
+				return;
+			}
+
+			SetStage(ExecutionPatrolStage.SubduingPrisoner);
 			return;
 		}
 
-		if (DateTime.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
-		{
-			AbortExecution(patrol);
-		}
+		SetStage(ExecutionPatrolStage.SubduingPrisoner);
 	}
 
 	private bool TryRestrainCondemned(IPatrol patrol)
@@ -875,7 +898,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 			return false;
 		}
 
-		if (!_condemned.Body.EffectsOfType<RestraintEffect>().Any())
+		if (!CondemnedIsSecuredForExecution(patrol))
 		{
 			ResetCeremonyProgress();
 			SetStage(ExecutionPatrolStage.RestrainingPrisoner);
@@ -883,6 +906,23 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 		}
 
 		return true;
+	}
+
+	private bool CondemnedIsSecuredForExecution(IPatrol patrol)
+	{
+		return _condemned.IsHelpless ||
+		       IsBeingDraggedByPatrol(patrol) ||
+		       AllLimbsIneffectiveFromRestraint();
+	}
+
+	private bool AllLimbsIneffectiveFromRestraint()
+	{
+		List<ILimbIneffectiveEffect> restraintEffects = _condemned.Body
+		                                                  .EffectsOfType<ILimbIneffectiveEffect>()
+		                                                  .Where(x => x.Reason == LimbIneffectiveReason.Restrained)
+		                                                  .ToList();
+		return restraintEffects.Any() &&
+		       _condemned.Body.Limbs.All(limb => restraintEffects.Any(effect => effect.AppliesToLimb(limb)));
 	}
 
 	private void ResetCeremonyProgress()
@@ -1097,6 +1137,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	{
 		if (_condemned is not null)
 		{
+			ReleaseCondemnedFromPatrolDrag(patrol);
 			_condemned.RemoveAllEffects<ExecutionPatrolNoQuit>(x => x.Patrol == patrol, fireRemovalAction: true);
 			_condemned.RemoveAllEffects<AwaitingExecution>(x => x.LegalAuthority == patrol.LegalAuthority, fireRemovalAction: true);
 			foreach (ICrime crime in patrol.LegalAuthority.ResolvedCrimesForIndividual(_condemned)
@@ -1104,6 +1145,8 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 			{
 				crime.SentenceHasBeenServed = true;
 			}
+
+			ReportExecutionCorpseForRecovery(patrol);
 		}
 
 		ResetRuntimeState();
@@ -1114,11 +1157,27 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	{
 		if (_condemned is not null)
 		{
+			ReleaseCondemnedFromPatrolDrag(patrol);
 			_condemned.RemoveAllEffects<ExecutionPatrolNoQuit>(x => x.Patrol == patrol, fireRemovalAction: true);
 		}
 
 		ResetRuntimeState();
 		patrol.AbortPatrol();
+	}
+
+	private void ReleaseCondemnedFromPatrolDrag(IPatrol patrol)
+	{
+		_condemned.RemoveAllEffects<Dragging.DragTarget>(fireRemovalAction: true);
+		foreach (ICharacter member in patrol.PatrolMembers)
+		{
+			member.RemoveAllEffects<Dragging>(x => x.Target == _condemned, fireRemovalAction: true);
+		}
+	}
+
+	private void ReportExecutionCorpseForRecovery(IPatrol patrol)
+	{
+		IGameItem corpseItem = _condemned.Corpse?.Parent;
+		LegalAuthority.ReportCorpseToLocalAuthority(Gameworld, corpseItem, patrol.PatrolLeader, out _);
 	}
 
 	private void ResetRuntimeState()
@@ -1139,7 +1198,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 
 	private static void DoEmote(ICharacter actor, string emoteText, ICharacter condemned)
 	{
-		Emote emote = new(emoteText, actor, actor, condemned);
+		Emote emote = new(ExpandExecutionEmotePlaceholders(emoteText, actor, condemned), actor, actor, condemned);
 		if (!emote.Valid)
 		{
 			actor.OutputHandler.Send(emote.ErrorMessage);
@@ -1147,6 +1206,16 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 		}
 
 		actor.OutputHandler.Handle(new EmoteOutput(emote));
+	}
+
+	private static string ExpandExecutionEmotePlaceholders(string emoteText, ICharacter executioner, ICharacter condemned)
+	{
+		string condemnedName = condemned.HowSeen(executioner, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf);
+		string executionerName = executioner.HowSeen(executioner, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf);
+		return emoteText.Replace(CondemnedPlaceholder, condemnedName, StringComparison.OrdinalIgnoreCase)
+		                .Replace(PrisonerPlaceholder, condemnedName, StringComparison.OrdinalIgnoreCase)
+		                .Replace(TargetPlaceholder, condemnedName, StringComparison.OrdinalIgnoreCase)
+		                .Replace(ExecutionerPlaceholder, executionerName, StringComparison.OrdinalIgnoreCase);
 	}
 
 	public bool BuildingCommand(ICharacter actor, IPatrolRoute patrol, StringStack command)
@@ -1483,7 +1552,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 
 	private static bool ValidateEmote(ICharacter actor, string emote)
 	{
-		Emote test = new(emote, actor, actor, actor);
+		Emote test = new(ExpandExecutionEmotePlaceholders(emote, actor, actor), actor, actor, actor);
 		if (test.Valid)
 		{
 			return true;

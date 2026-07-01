@@ -1,6 +1,6 @@
 # Medieval ItemSeeder Rebuild Audit
 
-The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, military-goods prototypes, writing/book/document prototypes, treatment and repair prototypes, and decorative jewellery prototypes.
+The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, military-goods prototypes, writing/book/document prototypes, treatment and repair prototypes, decorative jewellery prototypes, and the first medieval industry tool and intermediate-stock item catalogue.
 
 ## Current Runtime State
 
@@ -17,7 +17,8 @@ The medieval `ItemSeeder.Rework` item and craft implementation was reset to laun
 - `SeedMedievalWritingAdministrationAndDocuments` contains the direct writing-surface, book, document, seal, container, scribal-tool, and writing-support `CreateItem(...)` calls.
 - `SeedMedievalMedicalAndApothecaryItems` contains the direct treatment, apothecary, drug-delivery, mobility, casualty-transport, and prosthetic `CreateItem(...)` calls.
 - `SeedMedievalRepairKits` contains the direct repair-kit and repair-supply `CreateItem(...)` calls.
-- `SeedMedievalHouseholdCraftTools` and `SeedMedievalComponentGapItems` are currently no-op launch points only.
+- `SeedMedievalHouseholdCraftTools` now seeds the first medieval industry tool and workshop-apparatus item catalogue.
+- `SeedMedievalComponentGapItems` now seeds the first medieval intermediate-stock item catalogue.
 - `ItemSeederCrafting.Medieval.cs` currently contains no-op medieval craft launch points only.
 - The old authored outfit catalogue, explicit culture catalogue, generated helper/data model, and medieval craft helper families have been removed.
 
@@ -51,6 +52,7 @@ resolution_status
 ```
 
 Use `owning_resolution_pass` to route missing prerequisites to the shared owner before finished medieval craft authoring consumes them, for example `UsefulSeeder item component pass`, `UsefulSeeder tag pass`, `Primary production seeder`, `Agriculture seeder`, `Butchery seeder`, `Forage seeder`, or `Skill package seeder`.
+
 ## Shared Prerequisite Data Sync
 
 The medieval industry prerequisite pass is reflected in the maintained data documents as follows:
@@ -59,6 +61,16 @@ The medieval industry prerequisite pass is reflected in the maintained data docu
 - `Design Documents/Data/SeededTagHierarchy.csv` includes the new `Functions / Tools / Apothecary Tools`, `Functions / Tools / Jewellery Tools`, and `Functions / Tools / Lapidary Tools` branches and their child paths.
 - `Item_Component_Types.json`, `Seeded_Materials.json`, `Seeded_Liquids.json`, and `Seeded_Gases.json` were checked and did not require changes for this pass because no new component type, material, liquid, or gas was introduced.
 - `SkillPackageSeeder.cs` now includes the repeated medieval industry prerequisite skills `Goldsmithing`, `Glassblowing`, `Lapidary`, `Fulling`, `Parchmentmaking`, `Papermaking`, `Bookbinding`, `Calligraphy`, `Scribing`, `Woodblock Printing`, and `Quarrying`; there is no separate maintained skill-package data export under `Design Documents/Data`.
+
+## Active Medieval Industry Tool and Stock Source
+
+The first medieval industry foundation item source is implemented as current item-catalogue content:
+
+- Tool and workshop-apparatus item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalHouseholdTools.cs`.
+- Intermediate stock item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalComponentGaps.cs`.
+- Catalogue metadata lives in `Design Documents/Seeding/FutureMUD_Medieval_Industry_Tools_And_Stock_Item_Catalogue.md`.
+- This item pass creates 168 tool/workshop prototypes and 50 intermediate stock prototypes.
+- Industry crafts are not rebuilt yet; `SeedMedievalProductionChainCrafts` and `SeedMedievalComponentGapCrafts` remain no-op craft launch points.
 
 ## Active Clothing Source
 

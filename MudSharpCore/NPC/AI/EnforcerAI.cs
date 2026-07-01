@@ -8,8 +8,13 @@ using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Statements.Manipulation;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 using MudSharp.Movement;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Law;
 using System;
 using System.Collections.Generic;
@@ -412,6 +417,26 @@ public class EnforcerAI : ArtificialIntelligenceBase
         return enforcer.EffectsOfType<EnforcerEffect>().FirstOrDefault();
     }
 
+    private void ReportVisibleCorpses(ICharacter enforcer)
+    {
+        bool reportedAny = false;
+        foreach (IGameItem corpseItem in enforcer.Location.LayerGameItems(enforcer.RoomLayer)
+                                             .Where(x => enforcer.CanSee(x))
+                                             .Where(x => x.GetItemType<ICorpse>() is { RepresentsFinalCharacterDeath: true }))
+        {
+            if (MudSharp.RPG.Law.LegalAuthority.ReportCorpseToLocalAuthority(Gameworld, corpseItem, enforcer, out _) != null)
+            {
+                reportedAny = true;
+            }
+        }
+
+        if (reportedAny)
+        {
+            enforcer.OutputHandler.Handle(new EmoteOutput(new Emote("@ report|reports a corpse to the authorities.",
+                enforcer)));
+        }
+    }
+
     private bool WitnessedCrime(ICharacter criminal, ICharacter victim, ICharacter enforcer, ICrime crime)
     {
         // Enforcers always report crimes whether they're on duty or off duty
@@ -509,6 +534,8 @@ public class EnforcerAI : ArtificialIntelligenceBase
         {
             return false;
         }
+
+        ReportVisibleCorpses(enforcer);
 
         if (HandleGeneral(enforcer))
         {

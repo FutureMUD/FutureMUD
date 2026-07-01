@@ -7,7 +7,6 @@ using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
-using MudSharp.Economy.Estates;
 using MudSharp.Economy.Payment;
 using MudSharp.Economy.Property;
 using MudSharp.Effects.Concrete;
@@ -435,47 +434,12 @@ The syntax for this command is as follows:
         }
 
         IGameItem corpseItem = actor.TargetItem(ss.SafeRemainingArgument);
-        ICorpse corpse = corpseItem?.GetItemType<ICorpse>();
-        if (corpse == null)
+        if (LegalAuthority.ReportCorpseToLocalAuthority(actor.Gameworld, corpseItem, actor, out string errorMessage) == null)
         {
-            actor.OutputHandler.Send("You do not see any such corpse here.");
+            actor.OutputHandler.Send(errorMessage);
             return;
         }
 
-        if (!corpse.RepresentsFinalCharacterDeath)
-        {
-            actor.OutputHandler.Send("Those are body remains rather than the final corpse of a dead character, and cannot be reported to the morgue.");
-            return;
-        }
-
-        ICell sourceCell = corpseItem.Location ?? corpseItem.TrueLocations.FirstOrDefault();
-        if (sourceCell == null)
-        {
-            actor.OutputHandler.Send("That corpse is not currently in a reportable location.");
-            return;
-        }
-
-        ILegalAuthority authority = actor.Gameworld.LegalAuthorities.FirstOrDefault(x => x.EnforcementZones.Contains(sourceCell.Zone));
-        if (authority == null)
-        {
-            actor.OutputHandler.Send("There is no local legal authority that can respond to this corpse.");
-            return;
-        }
-
-        IEconomicZone zone = Estate.DetermineZone(actor.Gameworld, sourceCell);
-        if (zone == null || zone.MorgueOfficeCell == null || zone.MorgueStorageCell == null)
-        {
-            actor.OutputHandler.Send("There is no configured morgue for the economic zone that covers this corpse.");
-            return;
-        }
-
-        if (authority.ActiveCorpseRecoveryReport(corpseItem) != null)
-        {
-            actor.OutputHandler.Send("That corpse has already been reported to the authorities.");
-            return;
-        }
-
-        authority.ReportCorpse(corpseItem, zone, actor);
         actor.OutputHandler.Handle(new EmoteOutput(
             new Emote("@ report|reports a corpse to the authorities.", actor)));
     }

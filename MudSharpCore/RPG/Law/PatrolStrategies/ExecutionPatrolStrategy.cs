@@ -5,6 +5,7 @@ using MudSharp.Combat.Moves;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
@@ -69,6 +70,11 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	private bool _restraintEmoteSent;
 	private bool _lastWordsEmoteSent;
 
+	private const string CondemnedPlaceholder = "%condemned%";
+	private const string PrisonerPlaceholder = "%prisoner%";
+	private const string TargetPlaceholder = "%target%";
+	private const string ExecutionerPlaceholder = "%executioner%";
+
 	public override string Name => "ExecutionPatrol";
 
 	public ExecutionPatrolStrategy(IFuturemud gameworld, string strategyData = null) : base(gameworld)
@@ -125,6 +131,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 
 	public ExecutionPatrolExecutionMethod Method { get; private set; } = ExecutionPatrolExecutionMethod.CoupDeGraceWithWeapon;
 	public long EquipmentLocationId { get; private set; }
+	public bool RequireKeysForRetrieval { get; private set; }
 	public long DrugId { get; private set; }
 	public double DrugGrams { get; private set; } = 1.0;
 	public DrugVector DrugVector { get; private set; } = DrugVector.Injected;
@@ -143,7 +150,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	public string CompletionEmote { get; private set; } = "@ confirm|confirms that $1's sentence has been carried out.";
 	private readonly List<string> _executionScript = new()
 	{
-		"@ announce|announces, \"$1 has been sentenced to death by lawful authority.\"",
+		"@ announce|announces, \"%condemned% has been sentenced to death by lawful authority.\"",
 		"@ pause|pauses solemnly before the sentence is carried out."
 	};
 
@@ -151,6 +158,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 
 	#3method cdg|drug|firing#0 - sets the execution method
 	#3equipment here|<room>|none#0 - sets the room used to retrieve tools, defaulting to the legal authority preparation room
+	#3keys [on|off]#0 - toggles whether the patrol must retrieve keys for the prisoner's location before departure
 	#3drug <id|name>#0 - sets the drug for the administer-drug method
 	#3dose <grams>#0 - sets the grams of drug administered per attempt
 	#3vector injected|ingested|inhaled|touched#0 - sets the drug vector
@@ -163,7 +171,9 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	#3script add <emote>#0 - adds a scripted execution step
 	#3script delete <##>#0 - deletes a scripted execution step
 	#3script swap <##> <##>#0 - swaps two scripted execution steps
-	#3script clear#0 - clears the scripted execution steps";
+	#3script clear#0 - clears the scripted execution steps
+
+Use normal emote targets outside speech: $0 is the executioner and $1 is the condemned. Inside quoted speech, use %condemned% or %executioner% for spoken names.";
 
 	public bool ReadyToBegin(IPatrolRoute patrol)
 	{
@@ -466,29 +476,13 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 		SetStage(ExecutionPatrolStage.RetrievingPrisoner);
 	}
 
-	private void FormParty(IPatrol patrol)
-	{
-		if (patrol.PatrolLeader.Party is not null)
-		{
-			patrol.PatrolLeader.LeaveParty();
-		}
-
-		Party party = new(patrol.PatrolLeader);
-		patrol.PatrolLeader.JoinParty(party);
-		foreach (ICharacter member in patrol.PatrolMembers.Where(x => x.ColocatedWith(patrol.PatrolLeader)).ToList())
-		{
-			if (member == patrol.PatrolLeader)
-			{
-				continue;
-			}
-
-			member.LeaveParty();
-			member.JoinParty(party);
-		}
-	}
-
 	private void DoPreparationRoomAction(ICharacter member, bool isLeader)
 	{
+		if (isLeader && RequireKeysForRetrieval)
+		{
+			PrepareRetrievalKeys(member);
+		}
+
 		PrepareRestraints(member);
 
 		switch (Method)
@@ -517,26 +511,48 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 		PrepareInventoryPlan(member, _restraintTemplate);
 	}
 
-	private static void PrepareInventoryPlan(ICharacter member, IInventoryPlanTemplate template)
+	private IEnumerable<ICellExit> RetrievalKeyExitsFor(ICharacter member)
 	{
-		IInventoryPlan plan = template.CreatePlan(member);
-		if (plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+		if (_condemned is null)
 		{
-			plan.ExecuteWholePlan();
+			return Enumerable.Empty<ICellExit>();
 		}
 
-		plan.FinalisePlanNoRestore();
+		List<ICellExit> path = member.PathBetween(_condemned, 50, PathSearch.IgnorePresenceOfDoors).ToList();
+		if (!path.Any() && _condemned.Location is not null)
+		{
+			path = member.PathBetween(_condemned.Location, 50, PathSearch.IgnorePresenceOfDoors).ToList();
+		}
+
+		return path
+		       .Concat(_condemned.Location?.ExitsFor(member, true) ?? Enumerable.Empty<ICellExit>())
+		       .Where(x => x.Exit.Door?.Locks.Any() == true)
+		       .DistinctBy(x => x.Exit)
+		       .ToList();
+	}
+
+	private bool PrepareRetrievalKeys(ICharacter member)
+	{
+		return PrepareKeysForExits(member, RetrievalKeyExitsFor(member));
+	}
+
+	private bool RetrievalKeysReady(IPatrol patrol)
+	{
+		return !RequireKeysForRetrieval ||
+		       HasKeysForExits(patrol.PatrolLeader, RetrievalKeyExitsFor(patrol.PatrolLeader));
 	}
 
 	private bool EquipmentReady(IPatrol patrol)
 	{
-		return Method switch
+		bool equipmentReady = Method switch
 		{
 			ExecutionPatrolExecutionMethod.CoupDeGraceWithWeapon => GetCoupDeGraceAttack(patrol.PatrolLeader) is not null,
 			ExecutionPatrolExecutionMethod.AdministerDrug => DrugId > 0,
 			ExecutionPatrolExecutionMethod.FiringSquad => patrol.PatrolMembers.Any(x => ReadyRangedWeapons(x)),
 			_ => false
 		};
+
+		return equipmentReady && RetrievalKeysReady(patrol);
 	}
 
 	private bool ReadyRangedWeapons(ICharacter shooter)
@@ -668,6 +684,24 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 			return true;
 		}
 
+		foreach (ICharacter member in patrol.PatrolMembers.Where(x => x.ColocatedWith(_condemned)))
+		{
+			if (member.Combat?.CanFreelyLeaveCombat(member) == true)
+			{
+				member.Combat.LeaveCombat(member);
+			}
+		}
+
+		if (_condemned.Combat?.Combatants.OfType<ICharacter>().Any(x => patrol.PatrolMembers.ContainsPhysicalInstance(x)) == true)
+		{
+			return false;
+		}
+
+		if (_condemned.Combat is not null && _condemned.MeleeRange)
+		{
+			return false;
+		}
+
 		ICharacter dragger = patrol.PatrolMembers
 		                            .Where(x => x.ColocatedWith(_condemned))
 		                            .Where(x => x.State.IsAble())
@@ -727,12 +761,6 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 
 		if (patrol.PatrolLeader.Location == executionLocation && _condemned.Location == executionLocation)
 		{
-			_condemned.RemoveAllEffects<Dragging.DragTarget>(fireRemovalAction: true);
-			foreach (ICharacter member in patrol.PatrolMembers)
-			{
-				member.RemoveAllEffects<Dragging>(x => x.Target == _condemned, fireRemovalAction: true);
-			}
-
 			if (!_arrivalEmoteSent)
 			{
 				DoEmote(patrol.PatrolLeader, ArrivalEmote, _condemned);
@@ -761,7 +789,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 			return;
 		}
 
-		if (_condemned.Body.EffectsOfType<RestraintEffect>().Any())
+		if (CondemnedIsSecuredForExecution(patrol))
 		{
 			SetStage(ExecutionPatrolStage.LastWords);
 			return;
@@ -775,14 +803,17 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 				_restraintEmoteSent = true;
 			}
 
-			SetStage(ExecutionPatrolStage.LastWords);
+			if (CondemnedIsSecuredForExecution(patrol))
+			{
+				SetStage(ExecutionPatrolStage.LastWords);
+				return;
+			}
+
+			SetStage(ExecutionPatrolStage.SubduingPrisoner);
 			return;
 		}
 
-		if (DateTime.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
-		{
-			AbortExecution(patrol);
-		}
+		SetStage(ExecutionPatrolStage.SubduingPrisoner);
 	}
 
 	private bool TryRestrainCondemned(IPatrol patrol)
@@ -875,7 +906,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 			return false;
 		}
 
-		if (!_condemned.Body.EffectsOfType<RestraintEffect>().Any())
+		if (!CondemnedIsSecuredForExecution(patrol))
 		{
 			ResetCeremonyProgress();
 			SetStage(ExecutionPatrolStage.RestrainingPrisoner);
@@ -883,6 +914,23 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 		}
 
 		return true;
+	}
+
+	private bool CondemnedIsSecuredForExecution(IPatrol patrol)
+	{
+		return _condemned.IsHelpless ||
+		       IsBeingDraggedByPatrol(patrol) ||
+		       AllLimbsIneffectiveFromRestraint();
+	}
+
+	private bool AllLimbsIneffectiveFromRestraint()
+	{
+		List<ILimbIneffectiveEffect> restraintEffects = _condemned.Body
+		                                                  .EffectsOfType<ILimbIneffectiveEffect>()
+		                                                  .Where(x => x.Reason == LimbIneffectiveReason.Restrained)
+		                                                  .ToList();
+		return restraintEffects.Any() &&
+		       _condemned.Body.Limbs.All(limb => restraintEffects.Any(effect => effect.AppliesToLimb(limb)));
 	}
 
 	private void ResetCeremonyProgress()
@@ -1097,6 +1145,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	{
 		if (_condemned is not null)
 		{
+			ReleaseCondemnedFromPatrolDrag(patrol);
 			_condemned.RemoveAllEffects<ExecutionPatrolNoQuit>(x => x.Patrol == patrol, fireRemovalAction: true);
 			_condemned.RemoveAllEffects<AwaitingExecution>(x => x.LegalAuthority == patrol.LegalAuthority, fireRemovalAction: true);
 			foreach (ICrime crime in patrol.LegalAuthority.ResolvedCrimesForIndividual(_condemned)
@@ -1104,6 +1153,8 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 			{
 				crime.SentenceHasBeenServed = true;
 			}
+
+			ReportExecutionCorpseForRecovery(patrol);
 		}
 
 		ResetRuntimeState();
@@ -1114,11 +1165,27 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	{
 		if (_condemned is not null)
 		{
+			ReleaseCondemnedFromPatrolDrag(patrol);
 			_condemned.RemoveAllEffects<ExecutionPatrolNoQuit>(x => x.Patrol == patrol, fireRemovalAction: true);
 		}
 
 		ResetRuntimeState();
 		patrol.AbortPatrol();
+	}
+
+	private void ReleaseCondemnedFromPatrolDrag(IPatrol patrol)
+	{
+		_condemned.RemoveAllEffects<Dragging.DragTarget>(fireRemovalAction: true);
+		foreach (ICharacter member in patrol.PatrolMembers)
+		{
+			member.RemoveAllEffects<Dragging>(x => x.Target == _condemned, fireRemovalAction: true);
+		}
+	}
+
+	private void ReportExecutionCorpseForRecovery(IPatrol patrol)
+	{
+		IGameItem corpseItem = _condemned.Corpse?.Parent;
+		LegalAuthority.ReportCorpseToLocalAuthority(Gameworld, corpseItem, patrol.PatrolLeader, out _);
 	}
 
 	private void ResetRuntimeState()
@@ -1139,7 +1206,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 
 	private static void DoEmote(ICharacter actor, string emoteText, ICharacter condemned)
 	{
-		Emote emote = new(emoteText, actor, actor, condemned);
+		Emote emote = new(ExpandExecutionEmotePlaceholders(emoteText, actor, condemned), actor, actor, condemned);
 		if (!emote.Valid)
 		{
 			actor.OutputHandler.Send(emote.ErrorMessage);
@@ -1147,6 +1214,16 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 		}
 
 		actor.OutputHandler.Handle(new EmoteOutput(emote));
+	}
+
+	private static string ExpandExecutionEmotePlaceholders(string emoteText, ICharacter executioner, ICharacter condemned)
+	{
+		string condemnedName = condemned.HowSeen(executioner, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf);
+		string executionerName = executioner.HowSeen(executioner, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf);
+		return emoteText.Replace(CondemnedPlaceholder, condemnedName, StringComparison.OrdinalIgnoreCase)
+		                .Replace(PrisonerPlaceholder, condemnedName, StringComparison.OrdinalIgnoreCase)
+		                .Replace(TargetPlaceholder, condemnedName, StringComparison.OrdinalIgnoreCase)
+		                .Replace(ExecutionerPlaceholder, executionerName, StringComparison.OrdinalIgnoreCase);
 	}
 
 	public bool BuildingCommand(ICharacter actor, IPatrolRoute patrol, StringStack command)
@@ -1159,6 +1236,9 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 			case "equip":
 			case "room":
 				return BuildingCommandEquipment(actor, command);
+			case "keys":
+			case "key":
+				return BuildingCommandKeys(actor, command);
 			case "drug":
 				return BuildingCommandDrug(actor, command);
 			case "dose":
@@ -1263,6 +1343,30 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 
 		EquipmentLocationId = location.Id;
 		actor.OutputHandler.Send($"This execution patrol will retrieve equipment from {location.HowSeen(actor)}.");
+		return true;
+	}
+
+	private bool BuildingCommandKeys(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			RequireKeysForRetrieval = !RequireKeysForRetrieval;
+		}
+		else if (command.SafeRemainingArgument.EqualToAny("on", "true", "yes", "require", "required"))
+		{
+			RequireKeysForRetrieval = true;
+		}
+		else if (command.SafeRemainingArgument.EqualToAny("off", "false", "no", "optional", "none"))
+		{
+			RequireKeysForRetrieval = false;
+		}
+		else
+		{
+			actor.OutputHandler.Send("Do you want this patrol to require retrieval keys: on or off?");
+			return false;
+		}
+
+		actor.OutputHandler.Send($"This execution patrol will {RequireKeysForRetrieval.NowNoLonger()} require keys for the prisoner's retrieval route.");
 		return true;
 	}
 
@@ -1483,7 +1587,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 
 	private static bool ValidateEmote(ICharacter actor, string emote)
 	{
-		Emote test = new(emote, actor, actor, actor);
+		Emote test = new(ExpandExecutionEmotePlaceholders(emote, actor, actor), actor, actor, actor);
 		if (test.Valid)
 		{
 			return true;
@@ -1503,6 +1607,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 		sb.AppendLine($"Execution Location: {execution?.GetFriendlyReference(actor) ?? "None".ColourError()}");
 		sb.AppendLine($"Equipment Location: {equipment?.GetFriendlyReference(actor) ?? "None".ColourError()}");
 		sb.AppendLine($"Method: {Method.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Require Retrieval Keys: {RequireKeysForRetrieval.ToColouredString()}");
 		sb.AppendLine($"Drug: {drug?.Name.ColourName() ?? "None".ColourError()}");
 		sb.AppendLine($"Drug Dose: {DrugGrams.ToString("N3", actor).ColourValue()} grams via {DrugVector.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Compliance Window: {ComplianceWindowSeconds.ToString("N0", actor).ColourValue()} seconds");
@@ -1531,6 +1636,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 		return new XElement("ExecutionPatrol",
 			new XAttribute("method", (int)Method),
 			new XAttribute("equipment", EquipmentLocationId),
+			new XAttribute("keys", RequireKeysForRetrieval),
 			new XAttribute("drug", DrugId),
 			new XAttribute("druggrams", DrugGrams.ToString(CultureInfo.InvariantCulture)),
 			new XAttribute("drugvector", (int)DrugVector),
@@ -1579,6 +1685,11 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 		if (long.TryParse(root.Attribute("equipment")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long equipment))
 		{
 			EquipmentLocationId = equipment;
+		}
+
+		if (bool.TryParse(root.Attribute("keys")?.Value, out bool keys))
+		{
+			RequireKeysForRetrieval = keys;
 		}
 
 		if (long.TryParse(root.Attribute("drug")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long drug))

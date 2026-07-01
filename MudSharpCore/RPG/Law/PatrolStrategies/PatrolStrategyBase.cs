@@ -215,6 +215,62 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         }
     }
 
+    private static bool IsBeingDraggedByPatrol(IPatrol patrol, ICharacter criminal)
+    {
+        return patrol.PatrolMembers.Any(x => x.CombinedEffectsOfType<Dragging>().Any(y => y.Target == criminal));
+    }
+
+    private bool TryStartDraggingHelplessCriminal(IPatrol patrol, ICharacter criminal)
+    {
+        if (!criminal.IsHelpless)
+        {
+            return false;
+        }
+
+        foreach (ICharacter member in patrol.PatrolMembers.Where(x => x.ColocatedWith(criminal)))
+        {
+            LeaveCombatIfAble(member);
+        }
+
+        if (criminal.Combat?.Combatants.OfType<ICharacter>().Any(x => patrol.PatrolMembers.ContainsPhysicalInstance(x)) == true)
+        {
+            return true;
+        }
+
+        if (criminal.Combat is not null && criminal.MeleeRange)
+        {
+            return true;
+        }
+
+        ICharacter random = patrol.PatrolMembers
+                                   .Where(x => x.ColocatedWith(criminal))
+                                   .Where(x => x.State.IsAble())
+                                   .FirstOrDefault(x => x.SamePhysicalInstance(patrol.PatrolLeader)) ??
+                            patrol.PatrolMembers
+                                  .Where(x => x.ColocatedWith(criminal))
+                                  .Where(x => x.State.IsAble())
+                                  .GetRandomElement();
+        if (random is null)
+        {
+            return true;
+        }
+
+        random.ExecuteCommand($"drag {random.BestKeywordFor(criminal)}");
+        if (random.CombinedEffectsOfType<Dragging>().Any(x => x.Target == criminal))
+        {
+            foreach (ICharacter other in patrol.PatrolMembers
+                                                .Where(x => !x.SamePhysicalInstance(random))
+                                                .Where(x => x.ColocatedWith(random)))
+            {
+                LeaveCombatIfAble(other);
+
+                other.ExecuteCommand($"drag help {other.BestKeywordFor(random)}");
+            }
+        }
+
+        return true;
+    }
+
     protected virtual void PatrolTickActiveEnforcement(IPatrol patrol)
     {
         ICharacter criminal = patrol.ActiveEnforcementTarget;
@@ -238,7 +294,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
             return;
         }
 
-        if (patrol.PatrolMembers.Any(x => x.CombinedEffectsOfType<Dragging>().Any(x => x.Target == criminal)))
+        if (IsBeingDraggedByPatrol(patrol, criminal))
         {
             criminal.RemoveAllEffects(x => x.IsEffectType<WarnedByEnforcer>(), true);
         }
@@ -250,7 +306,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         }
 
         // Is criminal detained by an enforcer?
-        if (patrol.PatrolMembers.Any(x => x.CombinedEffectsOfType<Dragging>().Any(x => x.Target == criminal)))
+        if (IsBeingDraggedByPatrol(patrol, criminal))
         {
             // Get rest of team to join drag
             foreach (ICharacter member in patrol.PatrolMembers)
@@ -309,6 +365,12 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
             return;
         }
 
+        // Is criminal incapacitated?
+        if (TryStartDraggingHelplessCriminal(patrol, criminal))
+        {
+            return;
+        }
+
         // Is criminal in combat with enforcers?
         if (criminal.Combat?.Combatants.OfType<ICharacter>().Any(x => patrol.PatrolMembers.ContainsPhysicalInstance(x)) == true)
         {
@@ -331,39 +393,6 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
             foreach (ICharacter enforcer in patrol.PatrolMembers.Where(x => !engagedPatrolMembers.ContainsPhysicalInstance(x)).ToArray())
             {
                 enforcer.ExecuteCommand($"support {enforcer.BestKeywordFor(engagedPatrolMembers.GetRandomElement())}");
-            }
-
-            return;
-        }
-
-        // Is criminal incapacitated?
-        if (criminal.IsHelpless)
-        {
-            // Grab the criminal
-            ICharacter random = patrol.PatrolMembers
-                                       .Where(x => x.ColocatedWith(criminal))
-                                       .Where(x => x.State.IsAble())
-                                       .FirstOrDefault(x => x.SamePhysicalInstance(leader)) ??
-                                patrol.PatrolMembers
-                                      .Where(x => x.ColocatedWith(criminal))
-                                      .Where(x => x.State.IsAble())
-                                      .GetRandomElement();
-            if (random is null)
-            {
-                return;
-            }
-
-            LeaveCombatIfAble(random);
-
-            random.ExecuteCommand($"drag {random.BestKeywordFor(criminal)}");
-            if (random.CombinedEffectsOfType<Dragging>().Any(x => x.Target == criminal))
-            {
-                foreach (ICharacter other in patrol.PatrolMembers.Where(x => !x.SamePhysicalInstance(random)))
-                {
-                    LeaveCombatIfAble(other);
-
-                    other.ExecuteCommand($"drag help {other.BestKeywordFor(random)}");
-                }
             }
 
             return;
@@ -471,6 +500,134 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         // Do nothing
     }
 
+    public virtual void HandlePatrolCompleted(IPatrol patrol)
+    {
+        // Do nothing
+    }
+
+    public virtual void HandlePatrolAborted(IPatrol patrol)
+    {
+        // Do nothing
+    }
+
+    protected static void PrepareInventoryPlan(ICharacter member, IInventoryPlanTemplate template)
+    {
+        IInventoryPlan plan = template.CreatePlan(member);
+        if (plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+        {
+            plan.ExecuteWholePlan();
+        }
+
+        plan.FinalisePlanNoRestore();
+    }
+
+    protected static IEnumerable<IKey> AccessibleKeys(ICharacter member)
+    {
+        return member.Body.ExternalItems
+                     .SelectMany(x => x.ShallowAccessibleItems(member))
+                     .SelectNotNull(x => x.GetItemType<IKey>());
+    }
+
+    protected static bool KeyWorksForLock(ICharacter member, ILock theLock, IKey key)
+    {
+        return theLock.CanUnlock(member, key) || theLock.CanLock(member, key);
+    }
+
+    protected static bool HasKeyForLock(ICharacter member, ILock theLock)
+    {
+        return AccessibleKeys(member).Any(x => KeyWorksForLock(member, theLock, x));
+    }
+
+    protected static IEnumerable<ILock> DoorLocksForExits(IEnumerable<ICellExit> exits)
+    {
+        return exits
+               .SelectNotNull(x => x.Exit.Door)
+               .SelectMany(x => x.Locks)
+               .Distinct();
+    }
+
+    protected static IEnumerable<ICellExit> DoorExitsForCells(ICharacter member, IEnumerable<ICell> cells)
+    {
+        return cells
+               .SelectMany(x => x.ExitsFor(member, true))
+               .Where(x => x.Exit.Door?.Locks.Any() == true)
+               .DistinctBy(x => x.Exit);
+    }
+
+    protected static bool HasKeysForLocks(ICharacter member, IEnumerable<ILock> locks)
+    {
+        return locks.Distinct().All(x => HasKeyForLock(member, x));
+    }
+
+    protected static bool HasKeysForExits(ICharacter member, IEnumerable<ICellExit> exits)
+    {
+        return HasKeysForLocks(member, DoorLocksForExits(exits));
+    }
+
+    protected static bool HasKeysForCells(ICharacter member, IEnumerable<ICell> cells)
+    {
+        return HasKeysForExits(member, DoorExitsForCells(member, cells));
+    }
+
+    protected static bool PrepareKeysForLocks(ICharacter member, IEnumerable<ILock> locks)
+    {
+        List<ILock> requiredLocks = locks.Distinct().ToList();
+        foreach (ILock theLock in requiredLocks)
+        {
+            if (HasKeyForLock(member, theLock))
+            {
+                continue;
+            }
+
+            IInventoryPlanTemplate template = new InventoryPlanTemplate(member.Gameworld,
+                new InventoryPlanActionHold(member.Gameworld, 0, 0,
+                    item => item.GetItemType<IKey>() is IKey key && KeyWorksForLock(member, theLock, key),
+                    null,
+                    1)
+                {
+                    ItemsAlreadyInPlaceMultiplier = 10.0
+                });
+            PrepareInventoryPlan(member, template);
+        }
+
+        return HasKeysForLocks(member, requiredLocks);
+    }
+
+    protected static bool PrepareKeysForExits(ICharacter member, IEnumerable<ICellExit> exits)
+    {
+        return PrepareKeysForLocks(member, DoorLocksForExits(exits));
+    }
+
+    protected static bool PrepareKeysForCells(ICharacter member, IEnumerable<ICell> cells)
+    {
+        return PrepareKeysForExits(member, DoorExitsForCells(member, cells));
+    }
+
+    protected static void FormParty(IPatrol patrol)
+    {
+        if (patrol.PatrolLeader.Party != null)
+        {
+            patrol.PatrolLeader.LeaveParty();
+        }
+
+        Party party = new(patrol.PatrolLeader);
+        patrol.PatrolLeader.JoinParty(party);
+        foreach (ICharacter member in patrol.PatrolMembers.Where(x => x.ColocatedWith(patrol.PatrolLeader)).ToList())
+        {
+            if (member == patrol.PatrolLeader)
+            {
+                continue;
+            }
+
+            if (member.Party != null)
+            {
+                member.LeaveParty();
+            }
+
+            member.JoinParty(party);
+        }
+    }
+
     protected virtual void PatrolTickPreparationPhase(IPatrol patrol)
     {
         foreach (ICharacter member in patrol.PatrolMembers)
@@ -495,27 +652,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 
         if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(1))
         {
-            if (patrol.PatrolLeader.Party != null)
-            {
-                patrol.PatrolLeader.LeaveParty();
-            }
-
-            Party party = new(patrol.PatrolLeader);
-            patrol.PatrolLeader.JoinParty(party);
-            foreach (ICharacter member in patrol.PatrolMembers.Where(x => x.ColocatedWith(patrol.PatrolLeader)).ToList())
-            {
-                if (member == patrol.PatrolLeader)
-                {
-                    continue;
-                }
-
-                if (member.Party != null)
-                {
-                    member.LeaveParty();
-                    member.JoinParty(party);
-                }
-            }
-
+            FormParty(patrol);
             patrol.PatrolPhase = PatrolPhase.Deployment;
             patrol.LastArrivedTime = DateTime.UtcNow;
             patrol.LastMajorNode = patrol.PatrolLeader.Location;

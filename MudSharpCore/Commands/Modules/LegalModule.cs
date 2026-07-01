@@ -3,13 +3,18 @@ using MudSharp.Accounts;
 using MudSharp.Celestial;
 using MudSharp.Character;
 using MudSharp.Character.Name;
+using MudSharp.Combat;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.RPG.Law;
+using MudSharp.RPG.Law.PatrolStrategies;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -43,6 +48,7 @@ public class LegalModule : Module<ICharacter>
 	#3legal classes [<legal authority>]#0 - shows all the classes
 	#3legal enforcements [<legal authority>]#0 - shows all enforcer authorities
 	#3legal roster [<legal authority>|<zone>]#0 - shows the enforcer roster and patrol eligibility
+	#3legal status [<legal authority>]#0 - diagnoses legal authority setup, patrol coverage and required equipment
 	#3legal patrols [<legal authority>]#0 - shows all patrol routes
 	#3legal cancelpatrol <legal authority> <patrol>#0 - cancels an active patrol
 
@@ -111,6 +117,9 @@ You can also use the following options to change the properties of an authority 
             case "enforcers":
                 LegalAuthorityEnforcerRoster(actor, ss);
                 return;
+            case "status":
+                LegalAuthorityStatus(actor, ss);
+                return;
             case "patrols":
                 LegalAuthorityPatrols(actor, ss);
                 return;
@@ -143,6 +152,578 @@ You can also use the following options to change the properties of an authority 
     {
         ILegalAuthority editing = actor.CombinedEffectsOfType<BuilderEditingEffect<ILegalAuthority>>().FirstOrDefault()?.EditingItem;
         ShowEnforcerRoster(actor, ss, editing);
+    }
+
+    private const string LegalStatusHelpText = @"The #3legalstatus#0 command shows setup diagnostics for legal authorities. Administrators can see all authorities and detailed room/route references. PC enforcers can see status for authorities they currently serve.
+
+The syntax is:
+
+	#3legalstatus#0 - shows your legal authorities, or all authorities if you are an admin
+	#3legalstatus <legal authority>#0 - shows one legal authority";
+
+    [PlayerCommand("LegalStatus", "legalstatus", "lawstatus")]
+    [HelpInfo("legalstatus", LegalStatusHelpText, AutoHelp.HelpArgOrNoArg)]
+    protected static void LegalStatus(ICharacter actor, string command)
+    {
+        LegalAuthorityStatus(actor, new StringStack(command.RemoveFirstWord()), null);
+    }
+
+    private sealed record LegalSetupIssue(string Severity, string Area, string Detail);
+
+    private static void LegalAuthorityStatus(ICharacter actor, StringStack ss)
+    {
+        ILegalAuthority editing = actor.CombinedEffectsOfType<BuilderEditingEffect<ILegalAuthority>>().FirstOrDefault()?.EditingItem;
+        LegalAuthorityStatus(actor, ss, editing);
+    }
+
+    private static void LegalAuthorityStatus(ICharacter actor, StringStack ss, ILegalAuthority defaultAuthority)
+    {
+        List<ILegalAuthority> authorities = GetLegalAuthoritiesForLegalStatus(actor, ss, defaultAuthority);
+        if (authorities is null)
+        {
+            return;
+        }
+
+        if (!authorities.Any())
+        {
+            actor.OutputHandler.Send(actor.IsAdministrator()
+                ? "There are no legal authorities configured."
+                : "You are not currently an enforcer for any legal authority.");
+            return;
+        }
+
+        actor.OutputHandler.Send(BuildLegalStatusReport(actor, authorities, actor.IsAdministrator()));
+    }
+
+    private static List<ILegalAuthority> GetLegalAuthoritiesForLegalStatus(ICharacter actor, StringStack ss,
+        ILegalAuthority defaultAuthority)
+    {
+        if (ss.IsFinished)
+        {
+            if (defaultAuthority is not null && actor.IsAdministrator())
+            {
+                return new List<ILegalAuthority> { defaultAuthority };
+            }
+
+            return actor.IsAdministrator()
+                ? actor.Gameworld.LegalAuthorities.ToList()
+                : actor.Gameworld.LegalAuthorities.Where(x => x.GetEnforcementAuthority(actor) is not null).ToList();
+        }
+
+        string targetText = ss.SafeRemainingArgument;
+        ILegalAuthority legal = actor.Gameworld.LegalAuthorities.GetByIdOrName(targetText);
+        if (legal is null)
+        {
+            actor.OutputHandler.Send($"There is no legal authority identified by {targetText.ColourCommand()}.");
+            return null;
+        }
+
+        if (!actor.IsAdministrator() && legal.GetEnforcementAuthority(actor) is null)
+        {
+            actor.OutputHandler.Send($"You are not an enforcer for {legal.Name.ColourName()}.");
+            return null;
+        }
+
+        return new List<ILegalAuthority> { legal };
+    }
+
+    private static string BuildLegalStatusReport(ICharacter actor, IEnumerable<ILegalAuthority> authorities,
+        bool detailed)
+    {
+        StringBuilder sb = new();
+        foreach (ILegalAuthority legal in authorities)
+        {
+            if (sb.Length > 0)
+            {
+                sb.AppendLine();
+            }
+
+            List<ICharacter> freeEnforcers = FreePatrolEnforcers(actor, legal);
+            CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts = FreeEnforcerCounts(legal, freeEnforcers);
+            List<LegalSetupIssue> issues = LegalSetupIssues(actor, legal, freeEnforcers, enforcerCounts, detailed).ToList();
+
+            sb.AppendLine($"Legal Status for {legal.Name} Authority".GetLineWithTitleInner(actor, Telnet.BoldBlue, Telnet.BoldWhite));
+            sb.AppendLine();
+            sb.AppendLine($"Overall: {(issues.Any(x => x.Severity == "Problem") ? "Problems Found".ColourError() : issues.Any() ? "Warnings Found".Colour(Telnet.Yellow) : "No Issues Detected".ColourValue())}");
+            sb.AppendLine($"Enforcement Zones: {legal.EnforcementZones.Count().ToStringN0Colour(actor)}");
+            sb.AppendLine($"Patrol Routes: {legal.PatrolRoutes.Count().ToStringN0Colour(actor)}");
+            sb.AppendLine($"Active Patrols: {legal.Patrols.Count().ToStringN0Colour(actor)}");
+            sb.AppendLine($"Free Patrol Enforcers: {freeEnforcers.Count.ToStringN0Colour(actor)}");
+            sb.AppendLine();
+
+            if (!issues.Any())
+            {
+                sb.AppendLine("No setup issues were detected for this legal authority.".ColourValue());
+                continue;
+            }
+
+            sb.AppendLine(StringUtilities.GetTextTable(
+                from issue in issues
+                select new List<string>
+                {
+                    FormatLegalStatusSeverity(issue.Severity),
+                    issue.Area.ColourName(),
+                    issue.Detail
+                },
+                new List<string>
+                {
+                    "Severity",
+                    "Area",
+                    "Issue"
+                },
+                actor,
+                Telnet.Magenta,
+                2,
+                true));
+        }
+
+        return sb.ToString();
+    }
+
+    private static string FormatLegalStatusSeverity(string severity)
+    {
+        return severity switch
+        {
+            "Problem" => severity.ColourError(),
+            "Warning" => severity.Colour(Telnet.Yellow),
+            _ => severity.ColourValue()
+        };
+    }
+
+    private static List<ICharacter> FreePatrolEnforcers(ICharacter actor, ILegalAuthority legal)
+    {
+        return actor.Gameworld.NPCs
+                    .Where(x => IsInPatrolPool(legal, x))
+                    .ToList();
+    }
+
+    private static CollectionDictionary<IEnforcementAuthority, ICharacter> FreeEnforcerCounts(ILegalAuthority legal,
+        IEnumerable<ICharacter> freeEnforcers)
+    {
+        CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts = new();
+        foreach (IGrouping<IEnforcementAuthority, ICharacter> group in freeEnforcers.GroupBy(x => legal.GetEnforcementAuthority(x)))
+        {
+            enforcerCounts.AddRange(group.Key, group);
+        }
+
+        return enforcerCounts;
+    }
+
+    private static IEnumerable<LegalSetupIssue> LegalSetupIssues(ICharacter actor, ILegalAuthority legal,
+        List<ICharacter> freeEnforcers, CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts,
+        bool detailed)
+    {
+        foreach (LegalSetupIssue issue in CoreLegalSetupIssues(actor, legal, freeEnforcers, detailed))
+        {
+            yield return issue;
+        }
+
+        foreach (LegalSetupIssue issue in PatrolCoverageIssues(actor, legal, enforcerCounts, detailed))
+        {
+            yield return issue;
+        }
+
+        foreach (LegalSetupIssue issue in ExecutionEquipmentIssues(actor, legal, detailed))
+        {
+            yield return issue;
+        }
+
+        foreach (LegalSetupIssue issue in DoorDutyKeyIssues(actor, legal, detailed))
+        {
+            yield return issue;
+        }
+    }
+
+    private static IEnumerable<LegalSetupIssue> CoreLegalSetupIssues(ICharacter actor, ILegalAuthority legal,
+        List<ICharacter> freeEnforcers, bool detailed)
+    {
+        if (!legal.EnforcementZones.Any())
+        {
+            yield return new LegalSetupIssue("Problem", "Core Setup", "No enforcement zones are configured.");
+        }
+
+        if (!legal.EnforcementAuthorities.Any())
+        {
+            yield return new LegalSetupIssue("Problem", "Core Setup", "No enforcement authorities are configured.");
+        }
+
+        if (!legal.LegalClasses.Any())
+        {
+            yield return new LegalSetupIssue("Warning", "Core Setup", "No legal classes are configured.");
+        }
+
+        if (!legal.Laws.Any())
+        {
+            yield return new LegalSetupIssue("Warning", "Core Setup", "No laws are configured.");
+        }
+
+        List<string> missingLocations = new();
+        if (legal.PreparingLocation is null)
+        {
+            missingLocations.Add("preparation room");
+        }
+
+        if (legal.MarshallingLocation is null)
+        {
+            missingLocations.Add("marshalling room");
+        }
+
+        if (legal.EnforcerStowingLocation is null)
+        {
+            missingLocations.Add("enforcer stow room");
+        }
+
+        if (legal.PrisonLocation is null)
+        {
+            missingLocations.Add("prison administration room");
+        }
+
+        if (legal.PrisonerBelongingsStorageLocation is null)
+        {
+            missingLocations.Add("prisoner belongings room");
+        }
+
+        if (legal.CourtLocation is null)
+        {
+            missingLocations.Add("courtroom");
+        }
+
+        if (!legal.CellLocations.Any())
+        {
+            missingLocations.Add("holding cells");
+        }
+
+        if (missingLocations.Any())
+        {
+            yield return new LegalSetupIssue("Problem", "Core Setup",
+                $"Missing {missingLocations.ListToString()}.");
+        }
+
+        if (!freeEnforcers.Any())
+        {
+            yield return new LegalSetupIssue("Problem", "Enforcers",
+                "No NPC enforcers are currently eligible for the patrol pool.");
+        }
+    }
+
+    private static IEnumerable<LegalSetupIssue> PatrolCoverageIssues(ICharacter actor, ILegalAuthority legal,
+        CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts, bool detailed)
+    {
+        if (!legal.PatrolRoutes.Any())
+        {
+            yield return new LegalSetupIssue("Problem", "Patrols", "No patrol routes are configured.");
+            yield break;
+        }
+
+        if (!legal.PatrolRoutes.Any(x => x.IsReady))
+        {
+            yield return new LegalSetupIssue("Problem", "Patrols", "No patrol routes are marked ready.");
+        }
+
+        bool hasConvictingAuthority = legal.EnforcementAuthorities.Any(x => x.CanConvict);
+        if (hasConvictingAuthority && !HasPatrolStrategy(legal, "Judge"))
+        {
+            yield return new LegalSetupIssue("Problem", "Trial Patrols",
+                "No Judge patrol route is configured, so NPC trials cannot be judged.");
+        }
+
+        if (hasConvictingAuthority && !HasPatrolStrategy(legal, "Sheriff"))
+        {
+            yield return new LegalSetupIssue("Warning", "Trial Patrols",
+                "No Sheriff patrol route is configured to fetch remand prisoners for trial.");
+        }
+
+        if (hasConvictingAuthority && !HasPatrolStrategy(legal, "Prosecutor"))
+        {
+            yield return new LegalSetupIssue("Warning", "Trial Patrols",
+                "No Prosecutor patrol route is configured for automated trial prosecution.");
+        }
+
+        if (LawsCanSentenceExecution(legal) && !HasPatrolStrategy(legal, "ExecutionPatrol"))
+        {
+            yield return new LegalSetupIssue("Problem", "Execution Patrols",
+                "At least one law can sentence execution, but no ExecutionPatrol route is configured.");
+        }
+
+        foreach (IPatrolRoute route in legal.PatrolRoutes)
+        {
+            string reason = route.WhyCannotBeginPatrol();
+            if (IsSetupBlockingPatrolReason(reason))
+            {
+                yield return new LegalSetupIssue("Problem", "Patrol Route",
+                    $"{RouteLabel(route, actor, detailed)} cannot begin: {reason}.");
+            }
+
+            string staffingReason = WhyCannotStaffPatrolRoute(route, enforcerCounts, actor, detailed);
+            if (!string.IsNullOrEmpty(staffingReason))
+            {
+                yield return new LegalSetupIssue("Problem", "Patrol Staffing", staffingReason);
+            }
+        }
+    }
+
+    private static bool HasPatrolStrategy(ILegalAuthority legal, string strategyName)
+    {
+        return legal.PatrolRoutes.Any(x => x.PatrolStrategy.Name.Equals(strategyName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool LawsCanSentenceExecution(ILegalAuthority legal)
+    {
+        return legal.Laws.Any(x => x.PunishmentStrategy.SaveResult().Contains("type=\"execute\"", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool IsSetupBlockingPatrolReason(string reason)
+    {
+        if (string.IsNullOrEmpty(reason))
+        {
+            return false;
+        }
+
+        return !reason.Contains("wait for", StringComparison.OrdinalIgnoreCase) &&
+               !reason.Contains("current time of day", StringComparison.OrdinalIgnoreCase) &&
+               !reason.Contains("no due condemned", StringComparison.OrdinalIgnoreCase) &&
+               !reason.Contains("already an active", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string WhyCannotStaffPatrolRoute(IPatrolRoute route,
+        CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts, ICharacter actor, bool detailed)
+    {
+        if (!route.IsReady || !route.PatrollerNumbers.Any())
+        {
+            return string.Empty;
+        }
+
+        foreach (KeyValuePair<IEnforcementAuthority, int> requirement in route.PatrollerNumbers)
+        {
+            List<ICharacter> pool = enforcerCounts[requirement.Key].ToList();
+            if (pool.Count < requirement.Value)
+            {
+                return $"{RouteLabel(route, actor, detailed)} requires {requirement.Value.ToStringN0(actor)} {requirement.Key.Name.Pluralise(requirement.Value != 1).ColourName()} enforcers, but only {pool.Count.ToStringN0Colour(actor)} are free.";
+            }
+
+            int selectable = route.PatrolStrategy.SelectEnforcers(route, pool, requirement.Value).Count();
+            if (selectable < requirement.Value)
+            {
+                return $"{RouteLabel(route, actor, detailed)} requires {requirement.Value.ToStringN0(actor)} selectable {requirement.Key.Name.Pluralise(requirement.Value != 1).ColourName()} enforcers for the {route.PatrolStrategy.Name.ColourName()} strategy, but only {selectable.ToStringN0Colour(actor)} match the strategy selection rules.";
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static string RouteLabel(IPatrolRoute route, ICharacter actor, bool detailed)
+    {
+        return detailed
+            ? $"{route.Name.ColourName()} (#{route.Id.ToStringN0(actor)})"
+            : route.Name.ColourName();
+    }
+
+    private static IEnumerable<LegalSetupIssue> ExecutionEquipmentIssues(ICharacter actor, ILegalAuthority legal,
+        bool detailed)
+    {
+        foreach (IPatrolRoute route in legal.PatrolRoutes.Where(x => x.PatrolStrategy is ExecutionPatrolStrategy))
+        {
+            ExecutionPatrolStrategy strategy = (ExecutionPatrolStrategy)route.PatrolStrategy;
+            ICell equipment = strategy.EquipmentLocationId > 0
+                ? actor.Gameworld.Cells.Get(strategy.EquipmentLocationId)
+                : legal.PreparingLocation;
+            ICell executionLocation = route.PatrolNodes.FirstOrDefault();
+            string routeLabel = RouteLabel(route, actor, detailed);
+
+            if (equipment is null)
+            {
+                yield return new LegalSetupIssue("Problem", "Execution Equipment",
+                    $"{routeLabel} has no valid equipment/preparation room.");
+                continue;
+            }
+
+            switch (strategy.Method)
+            {
+                case ExecutionPatrolExecutionMethod.CoupDeGraceWithWeapon:
+                    if (!ItemsInCell(equipment, actor).Any(IsExecutionMeleeWeapon))
+                    {
+                        yield return new LegalSetupIssue("Problem", "Execution Equipment",
+                            $"{routeLabel} uses coup de grace but no suitable melee execution weapon is stocked{LocationSuffix(equipment, actor, detailed)}.");
+                    }
+
+                    break;
+                case ExecutionPatrolExecutionMethod.AdministerDrug:
+                    if (strategy.DrugId <= 0 || actor.Gameworld.Drugs.Get(strategy.DrugId) is null)
+                    {
+                        yield return new LegalSetupIssue("Problem", "Execution Equipment",
+                            $"{routeLabel} uses administered drugs but has no valid drug configured.");
+                    }
+
+                    if (!ComponentsInCell<IInject>(equipment, actor).Any())
+                    {
+                        yield return new LegalSetupIssue("Problem", "Execution Equipment",
+                            $"{routeLabel} uses administered drugs but no injector item is stocked{LocationSuffix(equipment, actor, detailed)}.");
+                    }
+
+                    break;
+                case ExecutionPatrolExecutionMethod.FiringSquad:
+                    if (!ComponentsInCell<IRangedWeapon>(equipment, actor).Any())
+                    {
+                        yield return new LegalSetupIssue("Problem", "Execution Equipment",
+                            $"{routeLabel} uses firing squad but no ranged weapons are stocked{LocationSuffix(equipment, actor, detailed)}.");
+                    }
+
+                    break;
+            }
+
+            if (!ComponentsInCell<IRestraint>(equipment, actor).Concat(ComponentsInCell<IRestraint>(executionLocation, actor)).Any())
+            {
+                yield return new LegalSetupIssue("Warning", "Execution Equipment",
+                    $"{routeLabel} has no restraint items stocked in the equipment or execution room; guards will need a helpless or submitted prisoner to proceed.");
+            }
+
+            if (strategy.RequireKeysForRetrieval)
+            {
+                foreach (LegalSetupIssue issue in ExecutionRetrievalKeyIssues(actor, legal, route, equipment, detailed))
+                {
+                    yield return issue;
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<LegalSetupIssue> ExecutionRetrievalKeyIssues(ICharacter actor, ILegalAuthority legal,
+        IPatrolRoute route, ICell equipment, bool detailed)
+    {
+        List<ICell> prisonerCells = legal.CellLocations.Concat(legal.JailLocations).Distinct().ToList();
+        if (!prisonerCells.Any())
+        {
+            yield return new LegalSetupIssue("Problem", "Execution Keys",
+                $"{RouteLabel(route, actor, detailed)} requires retrieval keys but no prisoner cell or jail locations are configured.");
+            yield break;
+        }
+
+        List<ILock> locks = DoorLocksForCells(prisonerCells)
+                           .Concat(DoorLocksForPaths(equipment, prisonerCells))
+                           .Distinct()
+                           .ToList();
+        if (!locks.Any())
+        {
+            yield break;
+        }
+
+        List<ILock> missingLocks = LocksMissingKeys(locks, KeysInCell(equipment, actor)).ToList();
+        if (missingLocks.Any())
+        {
+            yield return new LegalSetupIssue("Problem", "Execution Keys",
+                $"{RouteLabel(route, actor, detailed)} requires retrieval keys, but {missingLocks.Count.ToStringN0Colour(actor)} prison-route lock{(missingLocks.Count == 1 ? "" : "s")} lack stocked matching keys{LocationSuffix(equipment, actor, detailed)}.");
+        }
+    }
+
+    private static IEnumerable<LegalSetupIssue> DoorDutyKeyIssues(ICharacter actor, ILegalAuthority legal,
+        bool detailed)
+    {
+        foreach (IPatrolRoute route in legal.PatrolRoutes.Where(x => x.PatrolStrategy.Name.Equals("DoorDuties", StringComparison.OrdinalIgnoreCase)))
+        {
+            ICell dutyLocation = route.PatrolNodes.FirstOrDefault();
+            if (dutyLocation is null || legal.PreparingLocation is null)
+            {
+                continue;
+            }
+
+            List<ILock> locks = DoorLocksForCells(new[] { dutyLocation }).ToList();
+            if (!locks.Any())
+            {
+                yield return new LegalSetupIssue("Info", "Door Duties",
+                    $"{RouteLabel(route, actor, detailed)} is configured for door duties, but the duty location has no doors with locks.");
+                continue;
+            }
+
+            List<ILock> missingLocks = LocksMissingKeys(locks, KeysInCell(legal.PreparingLocation, actor)).ToList();
+            if (missingLocks.Any())
+            {
+                yield return new LegalSetupIssue("Problem", "Door Duties",
+                    $"{RouteLabel(route, actor, detailed)} needs keys for {missingLocks.Count.ToStringN0Colour(actor)} duty-door lock{(missingLocks.Count == 1 ? "" : "s")} that are not stocked in the preparation room.");
+            }
+        }
+    }
+
+    private static IEnumerable<IGameItem> ItemsInCell(ICell cell, ICharacter accessor)
+    {
+        return cell?.GameItems.SelectMany(x => AccessibleStockItems(x, accessor)).Distinct() ??
+               Enumerable.Empty<IGameItem>();
+    }
+
+    private static IEnumerable<IGameItem> AccessibleStockItems(IGameItem item, ICharacter accessor)
+    {
+        yield return item;
+
+        IContainer container = item.GetItemType<IContainer>();
+        if (container is null)
+        {
+            yield break;
+        }
+
+        IOpenable openable = item.GetItemType<IOpenable>();
+        if (openable is not null && !openable.IsOpen && (accessor is null || !openable.CanOpen(accessor.Body)))
+        {
+            yield break;
+        }
+
+        foreach (IGameItem contained in container.Contents.SelectMany(x => AccessibleStockItems(x, accessor)))
+        {
+            yield return contained;
+        }
+    }
+
+    private static IEnumerable<T> ComponentsInCell<T>(ICell cell, ICharacter accessor) where T : class, IGameItemComponent
+    {
+        return ItemsInCell(cell, accessor).SelectNotNull(x => x.GetItemType<T>());
+    }
+
+    private static IEnumerable<IKey> KeysInCell(ICell cell, ICharacter accessor)
+    {
+        return ComponentsInCell<IKey>(cell, accessor);
+    }
+
+    private static bool IsExecutionMeleeWeapon(IGameItem item)
+    {
+        return item.GetItemType<IMeleeWeapon>()?.WeaponType.Attacks.OfType<IFixedBodypartWeaponAttack>().Any() == true;
+    }
+
+    private static IEnumerable<ILock> DoorLocksForCells(IEnumerable<ICell> cells)
+    {
+        return cells
+               .Where(x => x is not null)
+               .SelectMany(x => x.ExitsFor(null, true))
+               .Where(x => x.Exit.Door?.Locks.Any() == true)
+               .DistinctBy(x => x.Exit)
+               .SelectMany(x => x.Exit.Door.Locks)
+               .Distinct();
+    }
+
+    private static IEnumerable<ILock> DoorLocksForPaths(ICell origin, IEnumerable<ICell> destinations)
+    {
+        if (origin is null)
+        {
+            return Enumerable.Empty<ILock>();
+        }
+
+        return destinations
+               .Where(x => x is not null)
+               .SelectMany(x => origin.PathBetween(x, 50, PathSearch.IgnorePresenceOfDoors))
+               .Where(x => x.Exit.Door?.Locks.Any() == true)
+               .DistinctBy(x => x.Exit)
+               .SelectMany(x => x.Exit.Door.Locks)
+               .Distinct();
+    }
+
+    private static IEnumerable<ILock> LocksMissingKeys(IEnumerable<ILock> locks, IEnumerable<IKey> keys)
+    {
+        List<IKey> keyList = keys.ToList();
+        return locks.Where(x => keyList.All(y => !y.Unlocks(x.LockType, x.Pattern)));
+    }
+
+    private static string LocationSuffix(ICell location, ICharacter actor, bool detailed)
+    {
+        return detailed && location is not null
+            ? $" in {location.GetFriendlyReference(actor)}"
+            : string.Empty;
     }
 
     private static List<ILegalAuthority> GetLegalAuthoritiesForEnforcerRoster(ICharacter actor, StringStack ss,

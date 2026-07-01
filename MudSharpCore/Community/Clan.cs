@@ -3,6 +3,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy;
+using MudSharp.Economy.Employment;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -78,7 +79,21 @@ public partial class Clan : SaveableItem, IClan
             _administrationCells.Add(gameCell);
         }
 
+        foreach (ClanHallCell cell in clan.ClansHallCells)
+        {
+            ICell gameCell = gameworld.Cells.Get(cell.CellId);
+            gameCell.CellRequestsDeletion -= ClanHallCellRequestsDeletion;
+            gameCell.CellRequestsDeletion += ClanHallCellRequestsDeletion;
+            _clanHallCells.Add(gameCell);
+        }
+
         DiscordChannelId = clan.DiscordChannelId;
+    }
+
+    private void ClanHallCellRequestsDeletion(object sender, EventArgs e)
+    {
+        _clanHallCells.Remove((ICell)sender);
+        Changed = true;
     }
 
     private void AdminCellRequestsDeletion(object sender, EventArgs e)
@@ -124,6 +139,12 @@ public partial class Clan : SaveableItem, IClan
             foreach (ICell cell in AdministrationCells)
             {
                 clan.ClansAdministrationCells.Add(new Models.ClanAdministrationCell { Clan = clan, CellId = cell.Id });
+            }
+
+            FMDB.Context.ClansHallCells.RemoveRange(clan.ClansHallCells);
+            foreach (ICell cell in ClanHallCells)
+            {
+                clan.ClansHallCells.Add(new Models.ClanHallCell { Clan = clan, CellId = cell.Id });
             }
 
             FMDB.Context.ClansTreasuryCells.RemoveRange(clan.ClansTreasuryCells);
@@ -278,6 +299,9 @@ public partial class Clan : SaveableItem, IClan
     private readonly List<ICell> _administrationCells = new();
     public IEnumerable<ICell> AdministrationCells => _administrationCells;
 
+    private readonly List<ICell> _clanHallCells = new();
+    public IEnumerable<ICell> ClanHallCells => _clanHallCells;
+
     public void AddTreasuryCell(ICell cell)
     {
         _treasuryCells.Add(cell);
@@ -298,6 +322,31 @@ public partial class Clan : SaveableItem, IClan
         _administrationCells.Remove(cell);
         Changed = true;
     }
+    public void AddClanHallCell(ICell cell)
+    {
+        if (_clanHallCells.Contains(cell))
+        {
+            return;
+        }
+
+        cell.CellRequestsDeletion -= ClanHallCellRequestsDeletion;
+        cell.CellRequestsDeletion += ClanHallCellRequestsDeletion;
+        _clanHallCells.Add(cell);
+        Changed = true;
+    }
+    public void RemoveClanHallCell(ICell cell)
+    {
+        if (_clanHallCells.Remove(cell))
+        {
+            cell.CellRequestsDeletion -= ClanHallCellRequestsDeletion;
+            Changed = true;
+        }
+    }
+
+    private IEmploymentHostState _employment;
+    public IEmploymentHostState Employment => _employment ??= EmploymentPersistenceStore.LoadOrCreate(this);
+    public EmploymentHostType EmploymentHostType => MudSharp.Economy.Employment.EmploymentHostType.Clan;
+    public IMarket Market => null;
 
     private long? _clanBankAccountId;
     private IBankAccount _clanBankAccount;

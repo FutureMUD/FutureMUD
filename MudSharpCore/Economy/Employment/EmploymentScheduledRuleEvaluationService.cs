@@ -75,38 +75,6 @@ public static class EmploymentScheduledRuleEvaluationService
 
 	private static IEnumerable<IEmploymentHost> EmploymentHosts(IFuturemud gameworld)
 	{
-		foreach (var shop in gameworld.Shops)
-		{
-			yield return shop;
-		}
-
-		foreach (var auction in gameworld.AuctionHouses)
-		{
-			yield return auction;
-		}
-
-		foreach (var arena in gameworld.CombatArenas.OfType<ICombatArena>())
-		{
-			yield return arena;
-		}
-
-		foreach (var bank in gameworld.Banks)
-		{
-			yield return bank;
-		}
-
-		foreach (var stable in gameworld.Stables.OfType<IStable>())
-		{
-			yield return stable;
-		}
-
-		foreach (var hotel in gameworld.Properties
-		                             .OfType<MudSharp.Economy.Property.Property>()
-		                             .Select(x => x.ExistingHotel)
-		                             .Where(x => x is not null)
-		                             .Cast<IHotel>())
-		{
-			yield return hotel;
-		}
+		return EmploymentHostDiscovery.LoadedHosts(gameworld);
 	}
 }

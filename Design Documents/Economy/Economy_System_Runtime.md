@@ -361,12 +361,12 @@ Unified employment is the newer host-facing employment and operations layer. It 
 
 Verified runtime parts include:
 
-- `IEmploymentHost` and host-state shells for shops, auction houses, combat arenas, banks, stables, and durable hotel roots
+- `IEmploymentHost` and host-state shells for shops, auction houses, combat arenas, banks, stables, durable hotel roots, and clans
 - persisted employment host state keyed by host type and host id
 - persisted staff `IBoard` references for host communication, separate from task routing
 - employment contracts, job openings, runtime opening revision/application profile guards, applications, compensation terms, payment methods, delegated authority, payroll liabilities, manager goals, scheduled rules, action plans, active tasks, step operational state, employment register rows, and employment ledger rows
 - `EmploymentWorkerAI` for NPC application, workplace travel, task claiming, action-step execution, payroll claiming, and arrears-driven resignation
-- shared `employment` command adapters plus local host aliases on `shop`, `stable`, `bank`, `auction`, `arena`, and `roomrent`
+- shared `employment` command adapters, including `employment clan <clan> ...`, plus local host aliases on `shop`, `stable`, `bank`, `auction`, `arena`, and `roomrent`
 - scheduled-rule authoring and condition catalogues for manual, time, stock, account, item, commodity, shop-account, register-float, tax, and weather conditions
 - action catalogues for retrieval, delivery, logistics, planning, authorisation/reservation, board posts, command steps, store-account payment, tax payment, bank/virtual-cash movement, shop/register float, physical task-custody cash, exact-stock shop purchases, and native craft start/resume/output custody
 
@@ -377,6 +377,8 @@ Current operational boundaries:
 - executable shop-purchase tasks must be completed at a supplier shop location; commodity merchandise stays on the weighted purchase path and is not eligible for count-priced merchandise or item-selector purchases
 - payroll accrual expires fixed-term contracts before evaluation, uses explicit schedule windows for hourly guaranteed-hours contracts, rejects unsupported paid cadences until explicit earning records exist, worker resignation uses employee-specific arrears, and settlement validates every accrued payable destination before funds move, debits backed employer funds before cash payables become claimable, and credits employee or specified bank-account payables through native bank transactions; hosts without a native finance adapter must explicitly expose a currency-backed finance surface
 - item movement uses inventory plans where possible, with narrow fallbacks for behaviours the inventory-plan API does not model cleanly; physical employment logistics are constrained to the host's work locations and physical cash steps only consume task-custody currency piles
+- clan employment work locations are all distinct cells in properties where the clan has any ownership share plus admin-managed clan hall cells for non-property workplaces
+- clan employment finance uses the clan bank account currency when present, otherwise an existing contract compensation currency where available; paid opening/task/payroll authoring that needs a host currency blocks if neither source exists, and supported clan cash movement uses `VirtualCashLedger` with the clan bank account as optional backing
 - worker AI does not autonomously retry active tasks once they enter `Blocked`; blocked logistics tasks preserve any task-item custody for manager review instead of producing repeated delivery attempts
 - proprietor contracts cannot be terminated by non-admin managers, and manager goals must require the combined authority of the declared goal, its conditions, and its action plan
 - durable hotel roots and hotel room/rental/furnishing/lost-property internals are persisted through normalized hotel tables
@@ -400,6 +402,8 @@ Budget drawdowns are persisted as `ClanBudgetTransaction` rows and also write vi
 Clan balance-sheet review is a reporting surface rather than a separate ledger. It aggregates currently loaded economy state from clan-owned bank accounts, virtual treasury balances, owned and leased properties, property lease revenue and commitments, shops tied to clan property or clan bank accounts, controlled economic-zone revenues, payroll commitments, budget commitments, and outstanding backpay.
 
 Clan payroll history is persisted separately from the employment/job subsystem. `ClanPayrollHistory` rows are written when clan payday processing accrues pay, when a character collects owed clan pay, and when authorised users make manual backpay adjustments. This gives clans an audit trail for their rank, appointment, and individual payroll activity without changing the broader `JobListingBase` / `OngoingJobListing` employment model.
+
+Unified clan employment is separate from this legacy clan payroll history. Clan-host contracts, openings, task boards, scheduled rules, manager goals, employment ledgers, and payroll liabilities live in the unified employment-host model; clan rank/appointment payroll remains the existing clan payday system.
 
 ### Estates
 Estates are now a live persisted subsystem.

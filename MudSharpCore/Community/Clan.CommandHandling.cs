@@ -1523,6 +1523,8 @@ public partial class Clan
 			sb.AppendLine();
 			sb.AppendLine($"Administration Cells:\n{AdministrationCells.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
 			sb.AppendLine();
+			sb.AppendLine($"Clan Hall Cells:\n{ClanHallCells.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
+			sb.AppendLine();
 		}
 
 		sb.AppendLine("Ranks:");

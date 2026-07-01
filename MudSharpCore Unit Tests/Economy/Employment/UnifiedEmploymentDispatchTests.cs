@@ -10,6 +10,7 @@ using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Character;
 using MudSharp.Character.Name;
+using MudSharp.Community;
 using MudSharp.Community.Boards;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -68,6 +69,26 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsTrue(typeof(IEmploymentHost).IsAssignableFrom(typeof(Stable)));
 		Assert.IsTrue(typeof(IEmploymentHost).IsAssignableFrom(typeof(IHotel)));
 		Assert.IsTrue(typeof(IEmploymentHost).IsAssignableFrom(typeof(Hotel)));
+		Assert.IsTrue(typeof(IEmploymentHost).IsAssignableFrom(typeof(IClan)));
+		Assert.IsTrue(typeof(IEmploymentHost).IsAssignableFrom(typeof(Clan)));
+		Assert.AreEqual(6, (int)EmploymentHostType.Other);
+		Assert.AreEqual(7, (int)EmploymentHostType.Clan);
+	}
+
+	[TestMethod]
+	public void ClanHallCellEntity_MapsToClanCellJoinTable()
+	{
+		using var context = BuildContext();
+
+		var entityType = context.Model.FindEntityType(typeof(MudSharp.Models.ClanHallCell));
+
+		Assert.IsNotNull(entityType);
+		Assert.AreEqual("Clans_HallCells", entityType!.GetTableName());
+		CollectionAssert.AreEqual(
+			new[] { "ClanId", "CellId" },
+			entityType.FindPrimaryKey()!.Properties.Select(x => x.Name).ToArray());
+		Assert.IsNotNull(entityType.FindNavigation(nameof(MudSharp.Models.ClanHallCell.Clan)));
+		Assert.IsNotNull(entityType.FindNavigation(nameof(MudSharp.Models.ClanHallCell.Cell)));
 	}
 
 	[TestMethod]
@@ -1298,8 +1319,19 @@ public class UnifiedEmploymentDispatchTests
 	{
 		var currency = Currency();
 		var (shop, state) = ShopHost(77, "Central Scheduler Shop", currency.Object, null);
+		var (clan, clanState) = ClanHost(78, "Central Scheduler Clan", currency.Object, null);
+		var (templateClan, templateClanState) = ClanHost(79, "Central Scheduler Clan Template", currency.Object, null);
+		templateClan.SetupGet(x => x.IsTemplate).Returns(true);
 		var manager = Character(77, "Manager").Object;
 		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.PostToHostBoard), null);
+		clanState.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.PostToHostBoard), null);
+		templateClanState.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
 			EmploymentAuthority.CreateScheduledRules |
 			EmploymentAuthority.AssignTasks |
 			EmploymentAuthority.PostToHostBoard), null);
@@ -1308,19 +1340,33 @@ public class UnifiedEmploymentDispatchTests
 			new EmploymentActionPlan([new BoardPostActionStep("Restock", "Please restock.")]),
 			TimeSpan.Zero,
 			manager);
+		clanState.TaskBoard.CreateScheduledRule("central clan report", "central-clan-report",
+			[],
+			new EmploymentActionPlan([new BoardPostActionStep("Clan", "Please inspect the hall.")]),
+			TimeSpan.Zero,
+			manager);
+		templateClanState.TaskBoard.CreateScheduledRule("central template report", "central-template-report",
+			[],
+			new EmploymentActionPlan([new BoardPostActionStep("Template", "Please inspect the template hall.")]),
+			TimeSpan.Zero,
+			manager);
 		var shops = new All<IShop> { shop.Object };
+		var clans = new All<IClan> { clan.Object, templateClan.Object };
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.Shops).Returns(shops);
 		gameworld.SetupGet(x => x.AuctionHouses).Returns(new All<IAuctionHouse>());
 		gameworld.SetupGet(x => x.CombatArenas).Returns(new All<ICombatArena>());
 		gameworld.SetupGet(x => x.Banks).Returns(new All<IBank>());
 		gameworld.SetupGet(x => x.Stables).Returns(new All<IStable>());
+		gameworld.SetupGet(x => x.Clans).Returns(clans);
 		gameworld.SetupGet(x => x.Properties).Returns(new All<IProperty>());
 
 		var spawned = EmploymentScheduledRuleEvaluationService.EvaluateAll(gameworld.Object);
 
-		Assert.AreEqual(1, spawned);
+		Assert.AreEqual(2, spawned);
 		Assert.AreEqual(1, state.TaskBoard.ActiveTasks.Count);
+		Assert.AreEqual(1, clanState.TaskBoard.ActiveTasks.Count);
+		Assert.AreEqual(0, templateClanState.TaskBoard.ActiveTasks.Count);
 	}
 
 	[TestMethod]
@@ -1984,6 +2030,118 @@ public class UnifiedEmploymentDispatchTests
 			x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded && x.CorrelationId == task.CorrelationId));
 		Assert.IsTrue(task.StepOperationalStates[2].TransactionReference?.Contains("Source Shop->Target Shop") == true);
 		Assert.IsTrue(task.StepOperationalStates[2].ReservationReference?.Contains("op=consume") == true);
+	}
+
+	[TestMethod]
+	public void EmploymentFinanceSteps_SettlesFundsToClanVirtualTreasury()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var clanBankAccount = BankAccount(currency.Object, 100.0M, id: 9101, accountNumber: 9101,
+			accountName: "clan operating");
+		var (sourceShop, sourceState) = ShopHost(246, "Source Shop", currency.Object, null);
+		var (targetClan, targetState) = ClanHost(247, "Merchant League", currency.Object, clanBankAccount.Object);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>(),
+			clansToAdd: [targetClan.Object]);
+		sourceShop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		targetClan.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var manager = Character(1, "Manager", gameworld: gameworld.Object).Object;
+		sourceState.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.SettleHostAccounts), null);
+		VirtualCashLedger.Credit(sourceShop.Object, currency.Object, 25.0M, null, null, "Seed", "Seed balance");
+		var task = sourceState.TaskBoard.CreateActiveTask("clan settlement",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "clan settlement", new MoneyAmount(currency.Object, 12.0M)),
+				new CataloguedActionShellStep("reserve", "clan settlement", new MoneyAmount(currency.Object, 12.0M)),
+				new HostSettlementActionStep("clan:Merchant League", new MoneyAmount(currency.Object, 12.0M),
+					"settlement-clan-1")
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(sourceShop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseBankAccount));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		while (task.Status is not EmploymentTaskStatus.Completed and not EmploymentTaskStatus.Failed)
+		{
+			if (task.AssignedEmployee is null)
+			{
+				Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out reason), reason);
+			}
+
+			var result = dispatcher.AdvanceTask(task, context);
+			Assert.IsTrue(result.Success, result.Message);
+		}
+
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		Assert.AreEqual(13.0M, VirtualCashLedger.Balance(sourceShop.Object, currency.Object));
+		Assert.AreEqual(12.0M, VirtualCashLedger.Balance(targetClan.Object, currency.Object));
+		Assert.AreEqual(100.0M, clanBankAccount.Object.CurrentBalance);
+		Assert.IsTrue(targetState.BusinessLedger.Entries.Any(x =>
+			x.EntryType == EmploymentLedgerEntryType.HostSettlement && x.CorrelationId == task.CorrelationId));
+		Assert.IsTrue(targetState.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded && x.CorrelationId == task.CorrelationId));
+		Assert.IsTrue(task.StepOperationalStates[2].TransactionReference?.Contains("Source Shop->Merchant League") == true);
+	}
+
+	[TestMethod]
+	public void EmploymentFinanceSteps_BlocksSettlementToTemplateClan()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var clanBankAccount = BankAccount(currency.Object, 100.0M, id: 9102, accountNumber: 9102,
+			accountName: "template operating");
+		var (sourceShop, sourceState) = ShopHost(248, "Source Template Shop", currency.Object, null);
+		var (templateClan, _) = ClanHost(249, "Template League", currency.Object, clanBankAccount.Object);
+		templateClan.SetupGet(x => x.IsTemplate).Returns(true);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>(),
+			clansToAdd: [templateClan.Object]);
+		sourceShop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var manager = Character(1, "Manager", gameworld: gameworld.Object).Object;
+		sourceState.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.SettleHostAccounts), null);
+		VirtualCashLedger.Credit(sourceShop.Object, currency.Object, 25.0M, null, null, "Seed", "Seed balance");
+		var task = sourceState.TaskBoard.CreateActiveTask("template clan settlement",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "template settlement", new MoneyAmount(currency.Object, 12.0M)),
+				new CataloguedActionShellStep("reserve", "template settlement", new MoneyAmount(currency.Object, 12.0M)),
+				new HostSettlementActionStep("clan:Template League", new MoneyAmount(currency.Object, 12.0M),
+					"settlement-template-clan-1")
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(sourceShop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseBankAccount));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		if (task.AssignedEmployee is null)
+		{
+			Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out reason), reason);
+		}
+
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		if (task.AssignedEmployee is null)
+		{
+			Assert.IsFalse(dispatcher.TryAssignTask(task, [profile], context, out reason));
+			StringAssert.Contains(reason, "Clan templates cannot be used as employment settlement targets");
+		}
+		else
+		{
+			var result = dispatcher.AdvanceTask(task, context);
+			Assert.IsFalse(result.Success);
+			StringAssert.Contains(result.Message, "Clan templates cannot be used as employment settlement targets");
+		}
+
+		Assert.AreEqual(0.0M, VirtualCashLedger.Balance(templateClan.Object, currency.Object));
 	}
 
 	[TestMethod]
@@ -3255,6 +3413,50 @@ public class UnifiedEmploymentDispatchTests
 		Assert.AreEqual(12.5M, hotel.CashBalance);
 		Assert.AreEqual(20.0M, hotel.AvailableFunds);
 		Assert.IsNotNull(typeof(IProperty).GetProperty(nameof(IProperty.Hotel)));
+	}
+
+	[TestMethod]
+	public void ClanEmploymentLocations_UseAnySharePropertyCellsAndHallCells()
+	{
+		var ownedCell = Cell(130, "guild office").Object;
+		var overlapCell = Cell(131, "shared guild hall").Object;
+		var hallCell = Cell(132, "field headquarters").Object;
+		var unrelatedCell = Cell(133, "private warehouse").Object;
+		var properties = new All<IProperty>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.Properties).Returns(properties);
+		var clan = new Mock<IClan>();
+		clan.SetupGet(x => x.Id).Returns(10);
+		clan.SetupGet(x => x.Name).Returns("merchant league");
+		clan.SetupGet(x => x.ClanHallCells).Returns([hallCell, overlapCell]);
+		clan.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var otherClan = new Mock<IClan>();
+		otherClan.SetupGet(x => x.Id).Returns(11);
+		var owner = new Mock<IPropertyOwner>();
+		owner.SetupGet(x => x.Owner).Returns(clan.Object);
+		owner.SetupGet(x => x.ShareOfOwnership).Returns(0.05M);
+		var otherOwner = new Mock<IPropertyOwner>();
+		otherOwner.SetupGet(x => x.Owner).Returns(otherClan.Object);
+		otherOwner.SetupGet(x => x.ShareOfOwnership).Returns(1.0M);
+		var ownedProperty = new Mock<IProperty>();
+		ownedProperty.SetupGet(x => x.Id).Returns(210);
+		ownedProperty.SetupGet(x => x.Name).Returns("guild office property");
+		ownedProperty.SetupGet(x => x.PropertyOwners).Returns([owner.Object]);
+		ownedProperty.SetupGet(x => x.PropertyLocations).Returns([ownedCell, overlapCell]);
+		var unrelatedProperty = new Mock<IProperty>();
+		unrelatedProperty.SetupGet(x => x.Id).Returns(211);
+		unrelatedProperty.SetupGet(x => x.Name).Returns("private warehouse property");
+		unrelatedProperty.SetupGet(x => x.PropertyOwners).Returns([otherOwner.Object]);
+		unrelatedProperty.SetupGet(x => x.PropertyLocations).Returns([unrelatedCell]);
+		properties.Add(ownedProperty.Object);
+		properties.Add(unrelatedProperty.Object);
+
+		var locations = clan.Object.EmploymentHostLocations();
+
+		CollectionAssert.AreEquivalent(
+			new[] { ownedCell.Id, overlapCell.Id, hallCell.Id },
+			locations.Select(x => x.Id).ToArray());
+		Assert.AreEqual(3, locations.Count);
 	}
 
 	[TestMethod]
@@ -5684,6 +5886,36 @@ public class UnifiedEmploymentDispatchTests
 		return (shop, state);
 	}
 
+	private static (Mock<IClan> Clan, IEmploymentHostState State) ClanHost(long id, string name, ICurrency currency,
+		IBankAccount? bankAccount)
+	{
+		var clan = new Mock<IClan>();
+		clan.SetupGet(x => x.Id).Returns(id);
+		clan.SetupGet(x => x.Name).Returns(name);
+		clan.SetupGet(x => x.FullName).Returns(name);
+		clan.SetupGet(x => x.Alias).Returns(name);
+		clan.SetupGet(x => x.Names).Returns([name]);
+		clan.SetupGet(x => x.IsTemplate).Returns(false);
+		clan.SetupGet(x => x.FrameworkItemType).Returns("Clan");
+		clan.SetupGet(x => x.EmploymentHostName).Returns(name);
+		clan.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Clan);
+		clan.SetupGet(x => x.Market).Returns((IMarket?)null);
+		clan.SetupGet(x => x.ClanBankAccount).Returns(() => bankAccount!);
+		clan.SetupGet(x => x.ClanHallCells).Returns([]);
+		var state = new EmploymentHostState(clan.Object);
+		clan.SetupGet(x => x.Employment).Returns(state);
+		clan.SetupGet(x => x.BusinessLedger).Returns(state.BusinessLedger);
+		clan.SetupGet(x => x.EmploymentRegister).Returns(state.EmploymentRegister);
+		clan.SetupGet(x => x.TaskBoard).Returns(state.TaskBoard);
+		clan.SetupGet(x => x.ManagerGoalBoard).Returns(state.ManagerGoalBoard);
+		clan.SetupGet(x => x.Payroll).Returns(state.Payroll);
+		clan.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
+		clan.SetupGet(x => x.JobOpenings).Returns(() => state.JobOpenings);
+		clan.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		    .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		return (clan, state);
+	}
+
 	private static (Mock<IBank> Bank, IEmploymentHostState State, List<string> Audit) BankHost(long id, string name,
 		ICurrency currency, DecimalCounter<ICurrency>? reserves = null, IEnumerable<IBankAccount>? accounts = null,
 		IEnumerable<ICell>? branches = null, IFuturemud? gameworld = null)
@@ -6146,7 +6378,8 @@ public class UnifiedEmploymentDispatchTests
 		IEnumerable<ICell>? cellsToAdd = null, IReadOnlyDictionary<long, IGameItem>? items = null,
 		IEnumerable<IBankAccount>? bankAccountsToAdd = null, IEnumerable<IShop>? shopsToAdd = null,
 		IEnumerable<ICombatArena>? combatArenasToAdd = null, IEnumerable<IBank>? banksToAdd = null,
-		IEnumerable<IStable>? stablesToAdd = null, IEnumerable<IProperty>? propertiesToAdd = null)
+		IEnumerable<IStable>? stablesToAdd = null, IEnumerable<IClan>? clansToAdd = null,
+		IEnumerable<IProperty>? propertiesToAdd = null)
 	{
 		var boards = new All<IBoard>();
 		var currencies = new All<ICurrency>();
@@ -6176,6 +6409,11 @@ public class UnifiedEmploymentDispatchTests
 		{
 			stables.Add(stable);
 		}
+		var clans = new All<IClan>();
+		foreach (var clan in clansToAdd ?? [])
+		{
+			clans.Add(clan);
+		}
 		var properties = new All<IProperty>();
 		foreach (var property in propertiesToAdd ?? [])
 		{
@@ -6196,6 +6434,7 @@ public class UnifiedEmploymentDispatchTests
 		gameworld.SetupGet(x => x.CombatArenas).Returns(combatArenas);
 		gameworld.SetupGet(x => x.Banks).Returns(banks);
 		gameworld.SetupGet(x => x.Stables).Returns(stables);
+		gameworld.SetupGet(x => x.Clans).Returns(clans);
 		gameworld.SetupGet(x => x.Properties).Returns(properties);
 		gameworld.SetupGet(x => x.Cells).Returns(cells);
 		gameworld.SetupGet(x => x.Calendars).Returns(calendars);

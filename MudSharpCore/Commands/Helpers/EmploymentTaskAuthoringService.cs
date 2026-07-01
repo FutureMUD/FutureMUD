@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using MudSharp.Arenas;
 using MudSharp.Character;
+using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
@@ -5461,9 +5462,17 @@ internal sealed class EmploymentTaskAuthoringService
 			IBank bank => bank.PrimaryCurrency,
 			IStable stable => stable.Currency,
 			IHotel hotel => hotel.Currency,
+			IClan clan => clan.ClanBankAccount?.Currency ?? ResolveContractCurrency(host),
 			_ => host.EmploymentContracts.Select(x => x.Compensation.FixedRate?.Currency ?? x.Compensation.MinimumEffectivePay?.Currency)
 			         .FirstOrDefault(x => x is not null)
 		};
+	}
+
+	private static ICurrency? ResolveContractCurrency(IEmploymentHost host)
+	{
+		return host.EmploymentContracts
+		           .Select(x => x.Compensation.FixedRate?.Currency ?? x.Compensation.MinimumEffectivePay?.Currency)
+		           .FirstOrDefault(x => x is not null);
 	}
 
 	private static string DescribeCapabilities(IReadOnlySet<EmploymentAICapability> capabilities)

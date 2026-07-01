@@ -1,8 +1,11 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using MudSharp.Arenas;
 using MudSharp.Character;
+using MudSharp.Community;
 using MudSharp.Economy.Property;
+using MudSharp.Framework;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
@@ -26,8 +29,31 @@ internal static class EmploymentClock
 			IBank bank => bank.EconomicZone,
 			IStable stable => stable.EconomicZone,
 			IHotel hotel => hotel.EconomicZone,
+			IClan clan => ResolveClanEconomicZone(clan),
 			_ => host.Market?.EconomicZone
 		};
+	}
+
+	private static IEconomicZone? ResolveClanEconomicZone(IClan clan)
+	{
+		if (clan is not IHaveFuturemud haveFuturemud)
+		{
+			return null;
+		}
+
+		var gameworld = haveFuturemud.Gameworld;
+		if (gameworld is null)
+		{
+			return null;
+		}
+
+		return (gameworld.EconomicZones ?? Enumerable.Empty<IEconomicZone>())
+		       .FirstOrDefault(x => x.ControllingClan == clan) ??
+		       (gameworld.Properties ?? Enumerable.Empty<IProperty>())
+		       .FirstOrDefault(x =>
+			       x.PropertyOwners.Any(y =>
+				       y.Owner is IClan ownerClan &&
+				       ownerClan.Id == clan.Id))?.EconomicZone;
 	}
 
 	public static DateTimeOffset CurrentInstant(IEmploymentHost host)
@@ -43,6 +69,11 @@ internal static class EmploymentClock
 
 	public static MudDateTime? CurrentDateTime(IEmploymentHost host)
 	{
+		if (host is IClan { Calendar: not null } clan)
+		{
+			return clan.Calendar.CurrentDateTime;
+		}
+
 		return EconomicZone(host)?.FinancialPeriodReferenceCalendar?.CurrentDateTime;
 	}
 
@@ -78,6 +109,21 @@ internal static class EmploymentClock
 
 	public static MudDateTime? ToMudDateTime(IEmploymentHost host, DateTimeOffset instant)
 	{
+		if (host is IClan { Calendar: not null } clan && IsEncodedInstant(instant))
+		{
+			var clock = clan.Calendar.FeedClock;
+			var seconds = Math.Max(0L, (instant.UtcDateTime.Ticks - EncodedEpoch.Ticks) / TimeSpan.TicksPerSecond);
+			return new MudInstant(
+					MudInstant.CurrentEpoch,
+					seconds,
+					clan.Calendar.Id,
+					clock.Id)
+				.ToMudDateTime(
+					clan.Calendar,
+					clock,
+					clock.PrimaryTimezone);
+		}
+
 		var zone = EconomicZone(host);
 		if (zone?.FinancialPeriodReferenceCalendar is null || zone.FinancialPeriodReferenceClock is null ||
 		    !IsEncodedInstant(instant))
@@ -85,10 +131,10 @@ internal static class EmploymentClock
 			return null;
 		}
 
-		var seconds = Math.Max(0L, (instant.UtcDateTime.Ticks - EncodedEpoch.Ticks) / TimeSpan.TicksPerSecond);
+		var zoneSeconds = Math.Max(0L, (instant.UtcDateTime.Ticks - EncodedEpoch.Ticks) / TimeSpan.TicksPerSecond);
 		return new MudInstant(
 				MudInstant.CurrentEpoch,
-				seconds,
+				zoneSeconds,
 				zone.FinancialPeriodReferenceCalendar.Id,
 				zone.FinancialPeriodReferenceClock.Id)
 			.ToMudDateTime(

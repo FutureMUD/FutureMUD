@@ -747,44 +747,7 @@ public class ImplementorModule : Module<ICharacter>
 
     private static IEnumerable<IEmploymentHost> DebugEmploymentHosts(IFuturemud gameworld)
     {
-        foreach (var shop in gameworld.Shops ?? Enumerable.Empty<IShop>())
-        {
-            yield return shop;
-        }
-
-        foreach (var auction in gameworld.AuctionHouses ?? Enumerable.Empty<IAuctionHouse>())
-        {
-            yield return auction;
-        }
-
-        foreach (var arena in gameworld.CombatArenas ?? Enumerable.Empty<ICombatArena>())
-        {
-            yield return arena;
-        }
-
-        foreach (var bank in gameworld.Banks ?? Enumerable.Empty<IBank>())
-        {
-            yield return bank;
-        }
-
-        foreach (var stable in gameworld.Stables ?? Enumerable.Empty<IStable>())
-        {
-            yield return stable;
-        }
-
-        foreach (var property in gameworld.Properties ?? Enumerable.Empty<IProperty>())
-        {
-            if (property is not MudSharp.Economy.Property.Property concreteProperty)
-            {
-                continue;
-            }
-
-            var hotel = concreteProperty.ExistingHotel;
-            if (hotel is not null)
-            {
-                yield return hotel;
-            }
-        }
+        return EmploymentHostDiscovery.LoadedHosts(gameworld);
     }
 
     private static void DebugUnfreezeTime(ICharacter actor)

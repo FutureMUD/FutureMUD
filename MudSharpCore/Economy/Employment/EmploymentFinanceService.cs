@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using MudSharp.Arenas;
 using MudSharp.Character;
+using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
@@ -1807,6 +1808,26 @@ internal static class EmploymentFinanceService
 
 		var hostType = parts[0].CollapseString().ToLowerInvariant();
 		var identifier = parts[1];
+		if (hostType is "clan" or "organisation" or "organization")
+		{
+			var clan = gameworld.Clans.GetByIdOrName(identifier);
+			if (clan?.IsTemplate == true)
+			{
+				reason = $"Clan templates cannot be used as employment settlement targets: {clan.FullName}.";
+				return false;
+			}
+
+			if (clan is null)
+			{
+				reason = $"There is no {parts[0]} employment host matching {identifier}.";
+				return false;
+			}
+
+			host = clan;
+			reason = string.Empty;
+			return true;
+		}
+
 		IEmploymentHost? resolved = hostType switch
 		{
 			"shop" or "store" => (IEmploymentHost?)gameworld.Shops.GetByIdOrName(identifier),
@@ -1904,6 +1925,20 @@ internal static class EmploymentFinanceService
 			case IBank bank:
 				finance = new FinanceHost(bank, bank.PrimaryCurrency, null);
 				break;
+			case IClan clan:
+				var clanCurrency = clan.ClanBankAccount?.Currency ?? amount?.Currency ?? ResolveContractCurrency(clan);
+				if (clanCurrency is null)
+				{
+					reason =
+						$"{host.EmploymentHostName} does not have a clan bank account or existing contract currency for employment finance.";
+					return false;
+				}
+
+				finance = new FinanceHost(
+					clan,
+					clanCurrency,
+					clan.ClanBankAccount?.Currency == clanCurrency ? clan.ClanBankAccount : null);
+				break;
 			case IHaveCurrency currencyHost:
 				finance = new FinanceHost(host, currencyHost.Currency, null);
 				break;
@@ -1921,6 +1956,13 @@ internal static class EmploymentFinanceService
 
 		reason = string.Empty;
 		return true;
+	}
+
+	private static ICurrency? ResolveContractCurrency(IEmploymentHost host)
+	{
+		return host.EmploymentContracts
+		           .Select(x => x.Compensation.FixedRate?.Currency ?? x.Compensation.MinimumEffectivePay?.Currency)
+		           .FirstOrDefault(x => x is not null);
 	}
 
 	private static decimal AvailableFunds(EmploymentTaskContext context, FinanceHost finance, ICurrency currency)

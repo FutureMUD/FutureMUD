@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Arenas;
 using MudSharp.Character;
+using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Economy;
+using MudSharp.Economy.Property;
 using MudSharp.Framework;
 
 #nullable enable
@@ -122,9 +124,28 @@ public static class EmploymentHostAccessExtensions
 			case IHotel hotel:
 				AddLocations(locations, hotel.Locations);
 				break;
+			case IClan clan:
+				AddClanLocations(locations, clan);
+				break;
 		}
 
 		return locations.DistinctBy(x => x.Id).ToList();
+	}
+
+	private static void AddClanLocations(List<ICell> locations, IClan clan)
+	{
+		if (clan is IHaveFuturemud { Gameworld: not null } haveFuturemud &&
+		    haveFuturemud.Gameworld.Properties is not null)
+		{
+			AddLocations(locations,
+				haveFuturemud.Gameworld.Properties
+				             .Where(x => x.PropertyOwners.Any(y =>
+					             y.Owner is IClan ownerClan &&
+					             ownerClan.Id == clan.Id))
+				             .SelectMany(x => x.PropertyLocations));
+		}
+
+		AddLocations(locations, clan.ClanHallCells);
 	}
 
 	public static IReadOnlyCollection<ICharacter> PresentEmploymentObservers(this IEmploymentHost host)

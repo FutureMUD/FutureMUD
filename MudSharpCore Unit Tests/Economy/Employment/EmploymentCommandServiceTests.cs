@@ -14,6 +14,7 @@ using MudSharp.Character.Name;
 using MudSharp.Climate;
 using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Modules;
+using MudSharp.Community;
 using MudSharp.Community.Boards;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -102,6 +103,10 @@ public class EmploymentCommandServiceTests
 			Assert.IsFalse(help.Contains("tasks step gettag", StringComparison.OrdinalIgnoreCase),
 				$"{name} help should point to the action catalogue instead of inlining the action list.");
 		}
+
+		StringAssert.Contains(EmploymentCommandService.EmploymentHelp, "#3clan#0");
+		Assert.IsTrue(EmploymentCommandService.EmploymentHelp.Contains("clan hosts are resolved",
+			StringComparison.OrdinalIgnoreCase));
 	}
 
 	[TestMethod]
@@ -114,6 +119,16 @@ public class EmploymentCommandServiceTests
 		var bank = HostMock<IBank>(4, "coin vault");
 		var stable = HostMock<IStable>(5, "east stable");
 		var hotel = HostMock<IHotel>(6, "harbour rooms");
+		var clan = HostMock<IClan>(8, "merchant league");
+		clan.SetupGet(x => x.FullName).Returns("The Honourable Merchant League");
+		clan.SetupGet(x => x.Alias).Returns("tml");
+		clan.SetupGet(x => x.Names).Returns(["merchant league", "The Honourable Merchant League", "tml"]);
+		clan.SetupGet(x => x.IsTemplate).Returns(false);
+		var templateClan = HostMock<IClan>(9, "template league");
+		templateClan.SetupGet(x => x.FullName).Returns("Template League");
+		templateClan.SetupGet(x => x.Alias).Returns("template");
+		templateClan.SetupGet(x => x.Names).Returns(["template league", "Template League", "template"]);
+		templateClan.SetupGet(x => x.IsTemplate).Returns(true);
 		var property = new Mock<IProperty>();
 		property.SetupGet(x => x.Id).Returns(7);
 		property.SetupGet(x => x.Name).Returns("harbour house");
@@ -129,6 +144,9 @@ public class EmploymentCommandServiceTests
 		banks.Add(bank.Object);
 		var stables = new All<IStable>();
 		stables.Add(stable.Object);
+		var clans = new All<IClan>();
+		clans.Add(clan.Object);
+		clans.Add(templateClan.Object);
 		var properties = new All<IProperty>();
 		properties.Add(property.Object);
 		gameworld.SetupGet(x => x.Shops).Returns(shops);
@@ -136,6 +154,7 @@ public class EmploymentCommandServiceTests
 		gameworld.SetupGet(x => x.CombatArenas).Returns(arenas);
 		gameworld.SetupGet(x => x.Banks).Returns(banks);
 		gameworld.SetupGet(x => x.Stables).Returns(stables);
+		gameworld.SetupGet(x => x.Clans).Returns(clans);
 		gameworld.SetupGet(x => x.Properties).Returns(properties);
 
 		var resolver = new EmploymentHostResolver();
@@ -146,6 +165,11 @@ public class EmploymentCommandServiceTests
 		Assert.AreSame(bank.Object, resolver.Resolve(gameworld.Object, "bank", "coin vault", out _));
 		Assert.AreSame(stable.Object, resolver.Resolve(gameworld.Object, "stable", "east stable", out _));
 		Assert.AreSame(hotel.Object, resolver.Resolve(gameworld.Object, "hotel", "harbour house", out _));
+		Assert.AreSame(clan.Object, resolver.Resolve(gameworld.Object, "clan", "8", out _));
+		Assert.AreSame(clan.Object, resolver.Resolve(gameworld.Object, "clan", "merchant league", out _));
+		Assert.AreSame(clan.Object, resolver.Resolve(gameworld.Object, "organisation", "tml", out _));
+		Assert.IsNull(resolver.Resolve(gameworld.Object, "clan", "template", out var templateError));
+		StringAssert.Contains(templateError, "Clan templates cannot be used as employment hosts");
 	}
 
 	[TestMethod]
@@ -1017,7 +1041,20 @@ public class EmploymentCommandServiceTests
 		var employee = Character(62, "Employee").Object;
 		var shop = EmploymentHostMock<IShop>(63, "debug market", EmploymentHostType.Shop,
 			out var state);
+		var clan = EmploymentHostMock<IClan>(64, "debug guild", EmploymentHostType.Clan,
+			out var clanState);
+		clan.SetupGet(x => x.FullName).Returns("Debug Guild");
+		clan.SetupGet(x => x.Alias).Returns("dg");
+		clan.SetupGet(x => x.Names).Returns(["debug guild", "Debug Guild", "dg"]);
+		clan.SetupGet(x => x.ClanBankAccount).Returns((IBankAccount)null!);
 		var contract = state.Hire(employee, new EmploymentOffer(
+			EmploymentRole.Employee,
+			Pay(currency.Object),
+			new WorkSchedule("Day shift", TimeSpan.FromHours(9.0), TimeSpan.FromHours(17.0)),
+			EmploymentDuration.Indefinite,
+			new PaymentMethod(PaymentMethodKind.Cash),
+			EmploymentAuthoritySet.Empty), null);
+		clanState.Hire(employee, new EmploymentOffer(
 			EmploymentRole.Employee,
 			Pay(currency.Object),
 			new WorkSchedule("Day shift", TimeSpan.FromHours(9.0), TimeSpan.FromHours(17.0)),
@@ -1026,8 +1063,11 @@ public class EmploymentCommandServiceTests
 			EmploymentAuthoritySet.Empty), null);
 		var shops = new All<IShop>();
 		shops.Add(shop.Object);
+		var clans = new All<IClan>();
+		clans.Add(clan.Object);
 		var gameworld = Gameworld();
 		gameworld.SetupGet(x => x.Shops).Returns(shops);
+		gameworld.SetupGet(x => x.Clans).Returns(clans);
 
 		var output = ImplementorModule.DebugAdvanceEmploymentPayrolls(
 			gameworld.Object,
@@ -1038,8 +1078,14 @@ public class EmploymentCommandServiceTests
 		Assert.AreEqual(80.0M, state.Payroll.Payables.Single().Amount.Amount);
 		Assert.IsTrue(state.EmploymentRegister.Entries.Any(x =>
 			x.EntryType == EmploymentRegisterEntryType.WageAccrued));
+		Assert.AreEqual(1, clanState.Payroll.Payables.Count);
+		Assert.AreEqual(1, clanState.Payroll.OutstandingLiabilities.Count);
+		Assert.AreEqual(80.0M, clanState.Payroll.Payables.Single().Amount.Amount);
+		Assert.IsTrue(clanState.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.WageAccrued));
 		StringAssert.Contains(output, "Employment payroll debug run complete");
 		StringAssert.Contains(output, "debug market");
+		StringAssert.Contains(output, "debug guild");
 	}
 
 	[TestMethod]

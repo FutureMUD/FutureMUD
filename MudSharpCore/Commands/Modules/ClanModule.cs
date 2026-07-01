@@ -167,6 +167,7 @@ The following clan sub-commands are used to interact with clans:
 	#3clan treasury <clan> balance|ledger [count]#0 - reviews the clan's virtual treasury
 	#3clan treasury <clan> deposit|withdraw <amount>#0 - moves cash into or out of the clan's virtual treasury
 	#3clan admin <clan>#0 - sets your current location as an admin cell for a clan (ADMIN ONLY)
+	#3clan hall <clan>#0 - sets your current location as a clan hall cell for a clan (ADMIN ONLY)
 	#3clan vassal appoint <who> <clan> <position> [<liege clan>]#0 - appoints a person to a clan appointment in a vassal clan
 	#3clan vassal dismiss <who> <clan> <position> [<liege clan>]#0 - dismisses a person from a clan appointment in a vassal clan
 	#3clan vassal control <clan> <position> <liege appointment|none> [<liege clan>]#0 - sets which liege appointment controls a vassal appointment
@@ -338,6 +339,16 @@ All of the following commands must happen with an edited clan selected:
                 }
 
                 ClanAdministration(actor, ss);
+                return;
+            case "hall":
+            case "clanhall":
+            case "clan hall":
+                if (!actor.IsAdministrator())
+                {
+                    goto default;
+                }
+
+                ClanHall(actor, ss);
                 return;
             case "election":
                 ClanElection(actor, ss);
@@ -3002,6 +3013,9 @@ Your next payday is {3}.
             sb.AppendLine();
             sb.AppendLine(
                 $"Administration Cells:\n{clan.AdministrationCells.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
+            sb.AppendLine();
+            sb.AppendLine(
+                $"Clan Hall Cells:\n{clan.ClanHallCells.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
             sb.AppendLine();
         }
 
@@ -7603,6 +7617,36 @@ return 0",
         clan.Changed = true;
         actor.Send(
             $"Your current location is now a administration cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+    }
+
+    private static void ClanHall(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("For which clan do you want to toggle a clan hall cell?");
+            return;
+        }
+
+        IClan clan = GetTargetClan(actor, command.PopSpeech());
+        if (clan == null)
+        {
+            actor.OutputHandler.Send("There is no such clan.");
+            return;
+        }
+
+        if (clan.ClanHallCells.Contains(actor.Location))
+        {
+            clan.RemoveClanHallCell(actor.Location);
+            clan.Changed = true;
+            actor.Send(
+                $"Your current location is no longer a clan hall cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+            return;
+        }
+
+        clan.AddClanHallCell(actor.Location);
+        clan.Changed = true;
+        actor.Send(
+            $"Your current location is now a clan hall cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
     }
 
     private static void ClanMaxBackpay(ICharacter actor, StringStack command)

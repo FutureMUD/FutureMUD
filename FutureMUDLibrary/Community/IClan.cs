@@ -1,6 +1,7 @@
 ﻿using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy;
+using MudSharp.Economy.Employment;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -14,7 +15,7 @@ using System.Linq;
 
 namespace MudSharp.Community
 {
-    public interface IClan : IFrameworkItem, ISaveable, IProgVariable, IHaveMultipleNames
+    public interface IClan : IFrameworkItem, ISaveable, IProgVariable, IHaveMultipleNames, IEmploymentHost
     {
         bool IsTemplate { get; set; }
         string Alias { get; set; }
@@ -27,10 +28,13 @@ namespace MudSharp.Community
 
         IEnumerable<ICell> TreasuryCells { get; }
         IEnumerable<ICell> AdministrationCells { get; }
+        IEnumerable<ICell> ClanHallCells { get; }
         void AddTreasuryCell(ICell cell);
         void RemoveTreasuryCell(ICell cell);
         void AddAdministrationCell(ICell cell);
         void RemoveAdministrationCell(ICell cell);
+        void AddClanHallCell(ICell cell);
+        void RemoveClanHallCell(ICell cell);
 
         IBankAccount ClanBankAccount { get; set; }
 

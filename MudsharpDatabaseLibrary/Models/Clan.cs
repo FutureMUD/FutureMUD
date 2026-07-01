@@ -13,6 +13,7 @@ namespace MudSharp.Models
             ClanBudgets = new HashSet<ClanBudget>();
             ClanPayrollHistories = new HashSet<ClanPayrollHistory>();
             ClansAdministrationCells = new HashSet<ClanAdministrationCell>();
+            ClansHallCells = new HashSet<ClanHallCell>();
             ClansTreasuryCells = new HashSet<ClanTreasuryCell>();
             ExternalClanControlsLiegeClan = new HashSet<ExternalClanControl>();
             ExternalClanControlsVassalClan = new HashSet<ExternalClanControl>();
@@ -56,6 +57,7 @@ namespace MudSharp.Models
         public virtual ICollection<ChargenRolesClanMemberships> ChargenRolesClanMemberships { get; set; }
         public virtual ICollection<ClanMembership> ClanMemberships { get; set; }
         public virtual ICollection<ClanAdministrationCell> ClansAdministrationCells { get; set; }
+        public virtual ICollection<ClanHallCell> ClansHallCells { get; set; }
         public virtual ICollection<ClanTreasuryCell> ClansTreasuryCells { get; set; }
         public virtual ICollection<ExternalClanControl> ExternalClanControlsLiegeClan { get; set; }
         public virtual ICollection<ExternalClanControl> ExternalClanControlsVassalClan { get; set; }

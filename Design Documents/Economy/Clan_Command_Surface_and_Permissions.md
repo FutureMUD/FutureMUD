@@ -160,6 +160,12 @@ The balance sheet is gated by `CanViewTreasury`. It summarises clan-owned bank a
 
 Payroll history is gated by `CanViewTreasury`. It records payroll accruals from normal payday processing, manual backpay adjustments, and pay collection events. Review commands can filter by individual member, rank, or appointment, and show both summary totals and recent audit rows.
 
+### Clan hall cells
+
+`clan hall <clan>`
+
+Administrators can toggle their current cell as a clan hall cell. Hall cells are non-property workplaces for the unified clan employment host; clan-owned property cells are included automatically when the clan has any ownership share in the property. Clan hall cells are listed in administrator clan views alongside treasury and administration cells.
+
 ## External Control Permissions
 
 External clan control has two distinct authority models:

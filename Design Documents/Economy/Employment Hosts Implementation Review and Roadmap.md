@@ -35,7 +35,7 @@ The current system includes:
 - manager goals that create work through the task board;
 - `EmploymentWorkerAI` job search, application, host selection, task claiming, pathing, and execution;
 - native or partially native integrations for shop purchases, bank movements, store accounts, tax payments, physical and register float, crafting, merchandise repricing, and opening administration;
-- host adoption for shops, auction houses, combat arenas, banks, stables, and hotels;
+- host adoption for shops, auction houses, combat arenas, banks, stables, hotels, and clans;
 - normalized persistence for the common employment spine;
 - custody, host-location, authority-loss, and blocked-task protections added after the initial logistics implementation.
 
@@ -103,7 +103,7 @@ Priority is not useful if it is only persisted or displayed. Goal evaluation, ta
 
 ### 3.6 Ownership and employment are related but distinct
 
-A clan or organisation that owns a business is not automatically the same employment host as that business. Parent organisations and operating units require an explicit relationship and scoped authority model.
+A clan or organisation that owns a business is not automatically the same employment host as that business. Parent organisations and operating units require an explicit relationship and scoped authority model. A clan may also be its own `IEmploymentHost` for headquarters-style staff, but that host does not merge or replace the separate employment hosts for shops, hotels, stables, or other businesses the clan owns.
 
 ## 4. User-story walkthrough and findings
 
@@ -901,6 +901,8 @@ Clan membership and clan appointment are not automatically employment contracts.
 A clan appointment may grant organisational authority without wages. A paid officer should have both an appointment or scoped grant and an employment contract.
 
 Existing clan budgets and treasury facilities can provide spending ceilings, but an employment task should consume an explicit authorisation grant linked to the relevant appointment budget rather than receiving unrestricted treasury access.
+
+As of 2026-07-01, `IClan` / `Clan` is a first-class `IEmploymentHost` with `EmploymentHostType.Clan` for organisation-host employment. Clan employment locations are all distinct cells in properties where the clan has any ownership share, plus admin-managed clan hall cells toggled with `clan hall <clan>` for non-property workplaces. Clan employment finance uses the clan bank account currency when present, otherwise existing contract compensation currency where available; paid opening/task/payroll authoring that needs a host currency must fail closed if neither source exists. Supported clan finance movements use `VirtualCashLedger` with the clan bank account as optional backing.
 
 Example mappings:
 

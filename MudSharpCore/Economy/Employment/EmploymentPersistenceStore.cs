@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Arenas;
 using MudSharp.Character;
+using MudSharp.Community;
 using MudSharp.Community.Boards;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -1095,7 +1096,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 	private static long? ResolveCalendarId(IEmploymentHost host)
 	{
-		return ResolveEconomicZone(host)?.FinancialPeriodReferenceCalendar?.Id;
+		return host is IClan clan ? clan.Calendar?.Id : ResolveEconomicZone(host)?.FinancialPeriodReferenceCalendar?.Id;
 	}
 
 	private static IEconomicZone? ResolveEconomicZone(IEmploymentHost host)
@@ -1108,8 +1109,31 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			IBank bank => bank.EconomicZone,
 			IStable stable => stable.EconomicZone,
 			IHotel hotel => hotel.EconomicZone,
+			IClan clan => ResolveClanEconomicZone(clan),
 			_ => null
 		};
+	}
+
+	private static IEconomicZone? ResolveClanEconomicZone(IClan clan)
+	{
+		if (clan is not IHaveFuturemud haveFuturemud)
+		{
+			return null;
+		}
+
+		var gameworld = haveFuturemud.Gameworld;
+		if (gameworld is null)
+		{
+			return null;
+		}
+
+		return (gameworld.EconomicZones ?? Enumerable.Empty<IEconomicZone>())
+		       .FirstOrDefault(x => x.ControllingClan == clan) ??
+		       (gameworld.Properties ?? Enumerable.Empty<IProperty>())
+		       .FirstOrDefault(x =>
+			       x.PropertyOwners.Any(y =>
+				       y.Owner is IClan ownerClan &&
+				       ownerClan.Id == clan.Id))?.EconomicZone;
 	}
 
 	private static IBoard ResolveBoard(FuturemudDatabaseContext context, IFuturemud gameworld, DbHostState state)
@@ -1138,8 +1162,16 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			IBank bank => bank.PrimaryCurrency,
 			IStable stable => stable.Currency,
 			IHotel hotel => hotel.Currency,
+			IClan clan => clan.ClanBankAccount?.Currency ?? ResolveContractCurrency(host),
 			_ => null
 		};
+	}
+
+	private static ICurrency? ResolveContractCurrency(IEmploymentHost host)
+	{
+		return host.EmploymentContracts
+		           .Select(x => x.Compensation.FixedRate?.Currency ?? x.Compensation.MinimumEffectivePay?.Currency)
+		           .FirstOrDefault(x => x is not null);
 	}
 
 	private DbContract ToRecord(EmploymentContract contract)

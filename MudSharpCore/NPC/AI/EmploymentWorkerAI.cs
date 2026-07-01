@@ -1140,50 +1140,14 @@ public class EmploymentWorkerAI : PathingAIBase
 			IBank bank => bank.BranchLocations.FirstOrDefault(),
 			IStable stable => stable.Location,
 			IHotel hotel => hotel.Locations.FirstOrDefault(),
+			MudSharp.Community.IClan clan => clan.EmploymentHostLocations().FirstOrDefault(),
 			_ => null
 		};
 	}
 
 	private static IEnumerable<IEmploymentHost> EmploymentHosts(IFuturemud gameworld)
 	{
-		foreach (var shop in gameworld.Shops ?? Enumerable.Empty<IShop>())
-		{
-			yield return shop;
-		}
-
-		foreach (var auction in gameworld.AuctionHouses ?? Enumerable.Empty<IAuctionHouse>())
-		{
-			yield return auction;
-		}
-
-		foreach (var arena in gameworld.CombatArenas ?? Enumerable.Empty<ICombatArena>())
-		{
-			yield return arena;
-		}
-
-		foreach (var bank in gameworld.Banks ?? Enumerable.Empty<IBank>())
-		{
-			yield return bank;
-		}
-
-		foreach (var stable in gameworld.Stables ?? Enumerable.Empty<IStable>())
-		{
-			yield return stable;
-		}
-
-		foreach (var property in gameworld.Properties ?? Enumerable.Empty<MudSharp.Economy.Property.IProperty>())
-		{
-			if (property is not MudSharp.Economy.Property.Property concreteProperty)
-			{
-				continue;
-			}
-
-			var hotel = concreteProperty.ExistingHotel;
-			if (hotel is not null)
-			{
-				yield return hotel;
-			}
-		}
+		return EmploymentHostDiscovery.LoadedHosts(gameworld);
 	}
 
 	private static bool TryParseHostType(string text, out EmploymentHostType hostType)
@@ -1201,6 +1165,11 @@ public class EmploymentWorkerAI : PathingAIBase
 			case "arena":
 			case "combatarena":
 				hostType = EmploymentHostType.Arena;
+				return true;
+			case "clan":
+			case "organisation":
+			case "organization":
+				hostType = EmploymentHostType.Clan;
 				return true;
 		}
 

@@ -18,6 +18,7 @@ namespace MudSharp.Models
             Characters = new HashSet<Character>();
             CharacterInstances = new HashSet<CharacterInstance>();
             ClansAdministrationCells = new HashSet<ClanAdministrationCell>();
+            ClansHallCells = new HashSet<ClanHallCell>();
             ClansTreasuryCells = new HashSet<ClanTreasuryCell>();
             Crimes = new HashSet<Crime>();
             HooksPerceivables = new HashSet<HooksPerceivable>();
@@ -49,6 +50,7 @@ namespace MudSharp.Models
         public virtual ICollection<Character> Characters { get; set; }
         public virtual ICollection<CharacterInstance> CharacterInstances { get; set; }
         public virtual ICollection<ClanAdministrationCell> ClansAdministrationCells { get; set; }
+        public virtual ICollection<ClanHallCell> ClansHallCells { get; set; }
         public virtual ICollection<ClanTreasuryCell> ClansTreasuryCells { get; set; }
         public virtual ICollection<Crime> Crimes { get; set; }
         public virtual ICollection<HooksPerceivable> HooksPerceivables { get; set; }

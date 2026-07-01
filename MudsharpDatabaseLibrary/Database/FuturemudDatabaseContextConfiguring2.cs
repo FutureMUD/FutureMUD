@@ -382,6 +382,31 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_Clans_AdministrationCells_Clans");
             });
 
+            modelBuilder.Entity<ClanHallCell>(entity =>
+            {
+                entity.HasKey(e => new { e.ClanId, e.CellId })
+                    .HasName("PRIMARY");
+
+                entity.ToTable("Clans_HallCells");
+
+                entity.HasIndex(e => e.CellId)
+                    .HasDatabaseName("FK_Clans_HallCells_Cells_idx");
+
+                entity.Property(e => e.ClanId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+
+                entity.HasOne(d => d.Cell)
+                    .WithMany(p => p.ClansHallCells)
+                    .HasForeignKey(d => d.CellId)
+                    .HasConstraintName("FK_Clans_HallCells_Cells");
+
+                entity.HasOne(d => d.Clan)
+                    .WithMany(p => p.ClansHallCells)
+                    .HasForeignKey(d => d.ClanId)
+                    .HasConstraintName("FK_Clans_HallCells_Clans");
+            });
+
             modelBuilder.Entity<ClanTreasuryCell>(entity =>
             {
                 entity.HasKey(e => new { e.ClanId, e.CellId })

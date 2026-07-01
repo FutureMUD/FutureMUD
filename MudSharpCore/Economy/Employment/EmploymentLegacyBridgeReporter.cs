@@ -191,38 +191,6 @@ public static class EmploymentLegacyBridgeReporter
 
 	private static IEnumerable<IEmploymentHost> EmploymentHosts(IFuturemud gameworld)
 	{
-		foreach (var shop in gameworld.Shops ?? Enumerable.Empty<IShop>())
-		{
-			yield return shop;
-		}
-
-		foreach (var auction in gameworld.AuctionHouses ?? Enumerable.Empty<IAuctionHouse>())
-		{
-			yield return auction;
-		}
-
-		foreach (var arena in gameworld.CombatArenas ?? Enumerable.Empty<ICombatArena>())
-		{
-			yield return arena;
-		}
-
-		foreach (var bank in gameworld.Banks ?? Enumerable.Empty<IBank>())
-		{
-			yield return bank;
-		}
-
-		foreach (var stable in gameworld.Stables ?? Enumerable.Empty<IStable>())
-		{
-			yield return stable;
-		}
-
-		foreach (var hotel in (gameworld.Properties ?? Enumerable.Empty<IProperty>())
-		                  .OfType<MudSharp.Economy.Property.Property>()
-		                  .Select(x => x.ExistingHotel)
-		                  .Where(x => x is not null)
-		                  .Cast<IHotel>())
-		{
-			yield return hotel;
-		}
+		return EmploymentHostDiscovery.LoadedHosts(gameworld);
 	}
 }

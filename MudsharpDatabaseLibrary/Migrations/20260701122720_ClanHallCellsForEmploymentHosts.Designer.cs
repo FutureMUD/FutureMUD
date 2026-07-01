@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260701122720_ClanHallCellsForEmploymentHosts")]
+    partial class ClanHallCellsForEmploymentHosts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4618,18 +4621,6 @@ namespace MudSharp.Migrations
 
                     b.Property<long?>("CurrentWritingLanguageId")
                         .HasColumnType("bigint(20)");
-
-                    b.Property<string>("CustomAlertEmote")
-                        .HasColumnType("varchar(500)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CustomAlertEmote"), "utf8");
-
-                    b.Property<string>("CustomDistantAlertEmote")
-                        .HasColumnType("varchar(500)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CustomDistantAlertEmote"), "utf8");
 
                     b.Property<DateTime?>("DeathTime")
                         .HasColumnType("datetime");
@@ -17266,20 +17257,8 @@ namespace MudSharp.Migrations
                     b.Property<long>("CorpseModelId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<string>("DefaultAlertEmote")
-                        .HasColumnType("varchar(500)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("DefaultAlertEmote"), "utf8");
-
                     b.Property<long?>("DefaultCombatSettingId")
                         .HasColumnType("bigint(20)");
-
-                    b.Property<string>("DefaultDistantAlertEmote")
-                        .HasColumnType("varchar(500)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("DefaultDistantAlertEmote"), "utf8");
 
                     b.Property<int>("DefaultHandedness")
                         .ValueGeneratedOnAdd()

@@ -3753,6 +3753,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 #endif
         List<Clan> clans = (from clan in FMDB.Context.Clans
                                       .Include(x => x.ClansAdministrationCells)
+                                      .Include(x => x.ClansHallCells)
                                       .Include(x => x.ClansTreasuryCells)
                                       .Include(x => x.Ranks)
                                       .ThenInclude(x => x.RanksAbbreviations)

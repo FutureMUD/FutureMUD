@@ -2,7 +2,7 @@
 
 ## 1. Purpose
 
-The economy system currently has several independent concepts that are all variations of the same idea: a business or institution has proprietors, managers, employees, money, inventory, duties, operating policies, and recurring work. Shops, auction houses, arenas, banks, stables, and hotel businesses each expose some subset of these behaviours, but they do not share a common employment and task-dispatch model.
+The economy system currently has several independent concepts that are all variations of the same idea: a business or institution has proprietors, managers, employees, money, inventory, duties, operating policies, and recurring work. Shops, auction houses, arenas, banks, stables, hotel businesses, and clans each expose some subset of these behaviours, but they do not share a common employment and task-dispatch model.
 
 This design introduces a unified employment layer, a manager-goal layer, and a composable task-dispatch layer.
 
@@ -31,7 +31,7 @@ Terminology note: this document uses **employment opening** for the new host-lev
 ### In scope for the first production slice
 
 - A common employment-host interface named `IEmploymentHost`.
-- Host shells first: shops, auction houses, arenas, banks, stables, and hotels expose `IEmploymentHost` with contracts, authority, employment openings, a real host board reference, task board, manager-goal board, and operational register support before real dispatcher execution is required.
+- Host shells first: shops, auction houses, arenas, banks, stables, hotels, and clans expose `IEmploymentHost` with contracts, authority, employment openings, a real host board reference, task board, manager-goal board, and operational register support before real dispatcher execution is required.
 - Common domain objects for employment contracts, roles, manager authority, employment openings, applications, payment terms, working hours, and employment duration.
 - A simple employment status model with no probation concept.
 - Manager delegation: authorised managers can manage employees within their granted authority, including hiring, firing, creating employment openings, and eventually assigning or creating tasks.
@@ -86,7 +86,7 @@ This stance applies specifically to legacy employment-like data. It is not permi
 
 ## 6. Terminology
 
-- **Employment host / `IEmploymentHost`:** A shop, auction house, arena, bank, stable, hotel, or future organisation that can employ NPCs or player characters through the new employment model.
+- **Employment host / `IEmploymentHost`:** A shop, auction house, arena, bank, stable, hotel, clan, or future organisation that can employ NPCs or player characters through the new employment model.
 - **Hotel / `IHotel`:** A separate persisted economy host for hotel business state. A hotel links to property/cell data for ownership, location, and access control, but owns hotel rooms, rentals, patron balances, lost property, tax configuration, manager workflows, bank account, virtual reserve, and operational state.
 - **Employee agent:** A character, usually an NPC for this design, capable of accepting work and performing action steps.
 - **Employment contract:** The active or historical relationship between an employment host and an employee agent, including role, pay, schedule, duration, status, payment method, and authority.
@@ -942,7 +942,7 @@ Recommended integration scenario:
 
 Codex should update this section during implementation.
 
-Last reviewed against the implementation on 2026-06-19.
+Last reviewed against the implementation on 2026-07-01.
 
 ### Completed
 
@@ -950,7 +950,8 @@ Last reviewed against the implementation on 2026-06-19.
 - Added common in-engine host state services for hire/fire, active/simple employment status, delegated authority checks, job-opening creation, NPC candidate matching, reservation-wage rejection, payment-method selection, host `IBoard` access, employment register entries, and business ledger entries.
 - Added composable task-dispatch shells: manual, time-window, stock-threshold, and account-balance conditions; action plans; active task step state; scheduled task rules with idempotency/cooldown; dispatcher eligibility/blocking; and initial purchase, movement/delivery, craft-trigger, command, bank deposit, bank withdrawal, store-account payment, board-post, item retrieval, commodity retrieval, and item delivery action steps.
 - Added manager-goal board support with delegated-authority enforcement and task creation through the shared task board rather than bypassing host permissions.
-- Adopted the minimum host families as employment hosts: shops, auction houses, combat arenas, banks, stables, and hotels. Shops, auction houses, arenas, banks, and stables expose lazy host shells; hotels now have a separate `IHotel` / `Hotel` runtime entity linked to an `IProperty`.
+- Adopted the minimum host families as employment hosts: shops, auction houses, combat arenas, banks, stables, hotels, and clans. Shops, auction houses, arenas, banks, and stables expose lazy host shells; hotels now have a separate `IHotel` / `Hotel` runtime entity linked to an `IProperty`; clans use the clan entity itself as an organisation host for headquarters-style employment.
+- Added clan employment host support. Clan work locations are the distinct cells from any property where the clan holds any ownership share, plus the admin-managed `clan hall <clan>` cell list for non-property workplaces. Clan employment finance uses the clan bank account currency when present, otherwise an existing contract compensation currency where available; paid authoring flows that need a currency block if neither exists, and supported clan cash movement uses `VirtualCashLedger` with the clan bank account as optional backing.
 - Added normalized EF persistence for the employment spine: host state keyed by host type/id, persisted host-board reference, contracts, openings, opening requirements, applications, action plans, action steps, scheduled rules, task conditions, active tasks, step states, manager goals, operational register rows, and employment ledger rows. Existing hosts lazily create an empty persisted employment state and a staff `IBoard` on first access.
 - Wired shop, auction-house, arena, bank, stable, and hotel shells through the production employment persistence store while preserving the in-memory constructor path for isolated tests.
 - Added a persisted `Hotels` root table linked one-to-one to properties. `Property.Hotel` now lazily creates/loads the durable hotel entity.

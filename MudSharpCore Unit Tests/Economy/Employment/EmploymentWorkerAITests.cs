@@ -13,6 +13,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Commands.Modules;
+using MudSharp.Community;
 using MudSharp.Community.Boards;
 using MudSharp.Construction;
 using MudSharp.Economy;
@@ -99,6 +100,8 @@ public class EmploymentWorkerAITests
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("payment employeebankaccount")));
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("capability canusebankaccount")));
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("host stable")));
+		Assert.AreEqual(EmploymentHostType.Stable, ai.HostTypeFilter);
+		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("host organisation")));
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("range 12")));
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("cadence 2")));
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("arrears 4")));
@@ -108,7 +111,7 @@ public class EmploymentWorkerAITests
 		Assert.AreSame(currency.Object, ai.Currency);
 		Assert.IsTrue(ai.AcceptedPaymentMethods.Contains(PaymentMethodKind.EmployeeBankAccount));
 		Assert.IsTrue(ai.Capabilities.Contains(EmploymentAICapability.CanUseBankAccount));
-		Assert.AreEqual(EmploymentHostType.Stable, ai.HostTypeFilter);
+		Assert.AreEqual(EmploymentHostType.Clan, ai.HostTypeFilter);
 		Assert.AreEqual(12u, ai.MaxPathRange);
 		Assert.AreEqual(TimeSpan.FromMinutes(2), ai.SearchCadence);
 		Assert.AreEqual(4, ai.MaximumUnpaidOverdueDays);
@@ -155,6 +158,32 @@ public class EmploymentWorkerAITests
 			Times.AtLeastOnce);
 		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("applying to"))),
 			Times.AtLeastOnce);
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_UnemployedNpcAppliesForClanOpeningAtHallCell()
+	{
+		var currency = Currency();
+		var workplace = Cell(220, "guild hall");
+		var host = Clan(220, "merchant league", currency.Object, workplace.Object);
+		host.State.CreateJobOpening(Opening(currency.Object, 12.0M), null);
+		var gameworld = Gameworld(clans: [host.Clan.Object], currencies: [currency.Object]);
+		host.Clan.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var worker = Character(221, "Worker", gameworld.Object, workplace.Object).Object;
+		var ai = LoadAI(gameworld.Object, """
+		                                  <Definition>
+		                                    <ReservationWage>0</ReservationWage>
+		                                    <HostTypeFilter>Clan</HostTypeFilter>
+		                                    <AcceptedPaymentMethods><Method>Cash</Method></AcceptedPaymentMethods>
+		                                    <Capabilities><Capability>CanDeliverItems</Capability></Capabilities>
+		                                  </Definition>
+		                                  """);
+
+		var acted = ai.HandleMinuteTick(worker);
+
+		Assert.IsTrue(acted);
+		Assert.AreEqual(1, host.State.Applications.Count);
+		Assert.AreEqual(JobApplicationStatus.Pending, host.State.Applications.Single().Status);
 	}
 
 	[TestMethod]
@@ -912,8 +941,43 @@ public class EmploymentWorkerAITests
 		return (stable, state);
 	}
 
+	private static (Mock<IClan> Clan, EmploymentHostState State) Clan(long id, string name, ICurrency currency,
+		ICell workplace)
+	{
+		var clan = new Mock<IClan>();
+		var state = new EmploymentHostState(clan.Object);
+		clan.SetupGet(x => x.Id).Returns(id);
+		clan.SetupGet(x => x.Name).Returns(name);
+		clan.SetupGet(x => x.FullName).Returns(name);
+		clan.SetupGet(x => x.Alias).Returns(name);
+		clan.SetupGet(x => x.Names).Returns([name]);
+		clan.SetupGet(x => x.FrameworkItemType).Returns("Clan");
+		clan.SetupGet(x => x.ClanHallCells).Returns([workplace]);
+		clan.SetupGet(x => x.ClanBankAccount).Returns((IBankAccount)null!);
+		clan.SetupGet(x => x.EmploymentHostName).Returns(name);
+		clan.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Clan);
+		clan.SetupGet(x => x.Employment).Returns(state);
+		clan.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
+		clan.SetupGet(x => x.JobOpenings).Returns(() => state.JobOpenings);
+		clan.SetupGet(x => x.TaskBoard).Returns(() => state.TaskBoard);
+		clan.SetupGet(x => x.Payroll).Returns(() => state.Payroll);
+		clan.SetupGet(x => x.EmploymentRegister).Returns(() => state.EmploymentRegister);
+		clan.SetupGet(x => x.BusinessLedger).Returns(() => state.BusinessLedger);
+		clan.SetupGet(x => x.Board).Returns(() => state.Board);
+		clan.SetupGet(x => x.ManagerGoalBoard).Returns(() => state.ManagerGoalBoard);
+		clan.SetupGet(x => x.Market).Returns((IMarket?)null);
+		clan.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		    .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		clan.Setup(x => x.Fire(It.IsAny<IEmploymentContract>(), It.IsAny<EmploymentTerminationReason>(),
+			    It.IsAny<ICharacter?>()))
+		    .Callback<IEmploymentContract, EmploymentTerminationReason, ICharacter?>((contract, reason, authorisedBy) =>
+			    state.Fire(contract, reason, authorisedBy));
+		return (clan, state);
+	}
+
 	private static Mock<IFuturemud> Gameworld(IEnumerable<IShop>? shops = null, IEnumerable<IStable>? stables = null,
-		IEnumerable<IProperty>? properties = null, IEnumerable<ICurrency>? currencies = null)
+		IEnumerable<IClan>? clans = null, IEnumerable<IProperty>? properties = null,
+		IEnumerable<ICurrency>? currencies = null)
 	{
 		var gameworld = new Mock<IFuturemud>();
 		var shopCollection = new All<IShop>();
@@ -926,6 +990,12 @@ public class EmploymentWorkerAITests
 		foreach (var stable in stables ?? [])
 		{
 			stableCollection.Add(stable);
+		}
+
+		var clanCollection = new All<IClan>();
+		foreach (var clan in clans ?? [])
+		{
+			clanCollection.Add(clan);
 		}
 
 		var propertyCollection = new All<IProperty>();
@@ -947,6 +1017,7 @@ public class EmploymentWorkerAITests
 		gameworld.SetupGet(x => x.CombatArenas).Returns(new All<ICombatArena>());
 		gameworld.SetupGet(x => x.Banks).Returns(new All<IBank>());
 		gameworld.SetupGet(x => x.Stables).Returns(stableCollection);
+		gameworld.SetupGet(x => x.Clans).Returns(clanCollection);
 		gameworld.SetupGet(x => x.Properties).Returns(propertyCollection);
 		gameworld.SetupGet(x => x.Currencies).Returns(currencyCollection);
 		gameworld.SetupGet(x => x.Tags).Returns(new All<ITag>());

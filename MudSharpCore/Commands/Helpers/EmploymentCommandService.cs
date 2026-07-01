@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MudSharp.Arenas;
 using MudSharp.Character;
+using MudSharp.Community;
 using MudSharp.Community.Boards;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
@@ -38,7 +39,24 @@ internal sealed class EmploymentHostResolver : IEmploymentHostResolver
 			return null;
 		}
 
-		var host = hostType.CollapseString().ToLowerInvariant() switch
+		var hostTypeKey = hostType.CollapseString().ToLowerInvariant();
+		if (hostTypeKey is "clan" or "organisation" or "organization")
+		{
+			var clan = gameworld.Clans.GetByIdOrName(identifier);
+			if (clan?.IsTemplate == true)
+			{
+				error = $"Clan templates cannot be used as employment hosts: {clan.FullName.ColourName()}.";
+				return null;
+			}
+
+			if (clan is not null)
+			{
+				error = string.Empty;
+				return clan;
+			}
+		}
+
+		var host = hostTypeKey switch
 		{
 			"shop" or "store" => (IEmploymentHost?)gameworld.Shops.GetByIdOrName(identifier),
 			"auction" or "auctionhouse" => (IEmploymentHost?)gameworld.AuctionHouses.GetByIdOrName(identifier),
@@ -2316,9 +2334,16 @@ internal sealed class EmploymentCommandService
 			IBank bank => bank.PrimaryCurrency,
 			IStable stable => stable.Currency,
 			IHotel hotel => hotel.Currency,
-			_ => host.EmploymentContracts.Select(x => x.Compensation.FixedRate?.Currency ?? x.Compensation.MinimumEffectivePay?.Currency)
-			         .FirstOrDefault(x => x is not null)
+			IClan clan => clan.ClanBankAccount?.Currency ?? ResolveContractCurrency(host),
+			_ => ResolveContractCurrency(host)
 		};
+	}
+
+	private static ICurrency? ResolveContractCurrency(IEmploymentHost host)
+	{
+		return host.EmploymentContracts
+		           .Select(x => x.Compensation.FixedRate?.Currency ?? x.Compensation.MinimumEffectivePay?.Currency)
+		           .FirstOrDefault(x => x is not null);
 	}
 
 	private static EmploymentAuthoritySet DefaultOpeningAuthority(EmploymentRole role)
@@ -2874,6 +2899,6 @@ Communication and audit:
 	#3employment <host type> <host> employmentledger|empledger#0 - shows recent employment ledger entries
 	#3employment <host type> <host> board [read <##>|write <title>]#0 - uses the staff communication board
 
-Host types are #3shop#0, #3auction#0, #3arena#0, #3bank#0, #3stable#0, and #3hotel#0. Hotel hosts are resolved by property id or name.
+Host types are #3shop#0, #3auction#0, #3arena#0, #3bank#0, #3stable#0, #3hotel#0, and #3clan#0. Hotel hosts are resolved by property id or name; clan hosts are resolved by clan id, name, full name, or alias.
 Staff boards are only for employee communication; active tasks, scheduled tasks, and manager goals are routed through the employment task board. Use #3tasks actions#0 and #3tasks conditions#0 for the full action and condition catalogues. Item selectors use bare prototype ids, #3*item ids#0 for specific live items, #3&tag#0 for verified tags, and bare text for a visible keyword target. Scheduled-rule drafts can combine conditions with #3and#0, #3or#0, #3not#0, parentheses, numbered condition references such as #3#1#0, and named predicates such as #3@restock-window#0.";
 }

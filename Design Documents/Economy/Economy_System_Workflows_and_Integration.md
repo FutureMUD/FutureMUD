@@ -330,22 +330,23 @@ Job builders need:
 
 Unified employment builders additionally need:
 
-- a host that exposes `IEmploymentHost` such as a shop, stable, bank, auction house, arena, or approved durable hotel root
+- a host that exposes `IEmploymentHost` such as a shop, stable, bank, auction house, arena, approved durable hotel root, or clan
 - a manager or proprietor contract with delegated authority to create openings, accept applications, assign tasks, create scheduled rules, or approve finance as appropriate
 - an `EmploymentWorkerAI` definition with a currency-bound reservation wage, accepted payment methods, host filters, AI capabilities, path range, search cadence, and tasking/payroll settings
 - employment openings whose required AI capabilities line up with the tasks the worker is expected to perform
 - scheduled rules using `tasks conditions` and action plans using `tasks actions`, rather than long helpfile-embedded catalogues
 - explicit authorise/reserve/release steps before financial task steps that spend or move employer money
 - task item selectors using prototype id by default, `*<id>` for live item id, `&<id|name>` for verified tags, and visible keywords for room-targeted items
-- enough physical world layout for worker pathing, inventory plans, stockrooms, shopfronts, tills, containers, workstations, and delivery cells
+- enough physical world layout for worker pathing, inventory plans, stockrooms, shopfronts, tills, containers, workstations, delivery cells, and for clan hosts either clan-owned property cells or admin-managed clan hall cells
 
 Current unified-employment operating notes:
 
-- `employment <host type> <id|name> ...` is the explicit command surface; local host aliases such as `shop tasks ...`, `stable tasks ...`, `bank tasks ...`, `auction tasks ...`, `arena tasks ...`, and `roomrent tasks ...` resolve the current local host as shorthand.
+- `employment <host type> <id|name> ...` is the explicit command surface; `employment clan <clan> ...` resolves by clan id, name, full name, or alias. Local host aliases such as `shop tasks ...`, `stable tasks ...`, `bank tasks ...`, `auction tasks ...`, `arena tasks ...`, and `roomrent tasks ...` resolve the current local host as shorthand.
 - `tasks actions [all|category|action]` and `tasks conditions [all|category|condition]` are the canonical discovery surfaces for action and scheduled-rule syntax.
 - scheduled rules are AND-composed in this slice; OR expressions, reusable named predicates, and grouped expressions remain future work.
 - host staff boards are communication only. Scheduled rules, active tasks, and manager goals live on employment-host services and do not propagate through board posts.
 - hotels have durable root `Hotel` rows for employment ownership and finance, and hotel room/rental/furnishing/lost-property state is normalized into hotel-specific EF tables.
+- clan hosts use any-share clan-owned property cells plus `clan hall <clan>` cells as workplaces. A clan bank account supplies the preferred employment currency and optional backing account; otherwise existing contract compensation currency can supply the currency for continuing operations.
 
 ## Integration Guidance for Future Features
 This section is inferred implementation guidance based on current patterns.

@@ -17,7 +17,8 @@ public enum EmploymentHostType
 	Bank,
 	Stable,
 	Hotel,
-	Other
+	Other,
+	Clan = 7
 }
 
 public enum EmploymentRole

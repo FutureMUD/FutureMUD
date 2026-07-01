@@ -149,6 +149,9 @@ namespace MudSharp.Character.Heritage
 
         IBodyCommunicationStrategy CommunicationStrategy { get; }
 
+        string DefaultAlertEmote { get; }
+        string DefaultDistantAlertEmote { get; }
+
         Alignment DefaultHandedness { get; }
         IEnumerable<Alignment> HandednessOptions { get; }
 

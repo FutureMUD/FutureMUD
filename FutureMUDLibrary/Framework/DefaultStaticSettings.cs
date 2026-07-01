@@ -1166,6 +1166,8 @@ Your password will be used to access your account, and will be stored securely o
         {"GunshotHeardEcho", "A gun shot can be heard {0}."},
         {"ExplosionHeardEcho", "An explosion can be heard {0}."},
         {"LaserHeardEcho", "A laser blast can be heard {0}."},
+        {"DefaultAlertEmote", "@ whistle|whistles a sharp, loud alert."},
+        {"DefaultDistantAlertEmote", "A sharp, loud alert can be heard {0}."},
     };
 
     private static string GetDefaultScarGenerationChanceMatrix()

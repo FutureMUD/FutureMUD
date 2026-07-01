@@ -154,6 +154,8 @@ public partial class Race : SaveableItem, IRace
             RaceUsesStamina = ParentRace.RaceUsesStamina;
             _optInMaterialEdibility = ParentRace.OptInMaterialEdibility;
             EatCorpseEmoteText = ParentRace.EatCorpseEmoteText;
+            DefaultAlertEmote = ParentRace.DefaultAlertEmote;
+            DefaultDistantAlertEmote = ParentRace.DefaultDistantAlertEmote;
             CanEatCorpses = ParentRace.CanEatCorpses;
             BiteWeight = ParentRace.BiteWeight;
             TemperatureRangeCeiling = ParentRace.TemperatureRangeCeiling;
@@ -253,6 +255,8 @@ public partial class Race : SaveableItem, IRace
             RaceUsesStamina = true;
             _optInMaterialEdibility = false;
             EatCorpseEmoteText = "@ eat|eats {0}$1";
+            DefaultAlertEmote = null;
+            DefaultDistantAlertEmote = null;
             CanEatCorpses = false;
             BiteWeight = 1000;
             TemperatureRangeCeiling = 40;
@@ -322,6 +326,8 @@ public partial class Race : SaveableItem, IRace
                 CanEatCorpses = CanEatCorpses,
                 BiteWeight = BiteWeight,
                 EatCorpseEmoteText = EatCorpseEmoteText,
+                DefaultAlertEmote = DefaultAlertEmote,
+                DefaultDistantAlertEmote = DefaultDistantAlertEmote,
                 CanEatMaterialsOptIn = OptInMaterialEdibility,
                 TemperatureRangeFloor = TemperatureRangeFloor,
                 TemperatureRangeCeiling = TemperatureRangeCeiling,
@@ -575,6 +581,8 @@ public partial class Race : SaveableItem, IRace
         }
 
         EatCorpseEmoteText = race.EatCorpseEmoteText;
+        DefaultAlertEmote = race.DefaultAlertEmote;
+        DefaultDistantAlertEmote = race.DefaultDistantAlertEmote;
         CanEatCorpses = race.CanEatCorpses;
         BiteWeight = race.BiteWeight;
         TemperatureRangeCeiling = race.TemperatureRangeCeiling;
@@ -673,6 +681,8 @@ public partial class Race : SaveableItem, IRace
         RaceUsesStamina = rhs.RaceUsesStamina;
         _optInMaterialEdibility = rhs.OptInMaterialEdibility;
         EatCorpseEmoteText = rhs.EatCorpseEmoteText;
+        DefaultAlertEmote = rhs.DefaultAlertEmote;
+        DefaultDistantAlertEmote = rhs.DefaultDistantAlertEmote;
         CanEatCorpses = rhs.CanEatCorpses;
         BiteWeight = rhs.BiteWeight;
         TemperatureRangeCeiling = rhs.TemperatureRangeCeiling;
@@ -789,6 +799,8 @@ public partial class Race : SaveableItem, IRace
                 CanEatCorpses = CanEatCorpses,
                 BiteWeight = BiteWeight,
                 EatCorpseEmoteText = EatCorpseEmoteText,
+                DefaultAlertEmote = DefaultAlertEmote,
+                DefaultDistantAlertEmote = DefaultDistantAlertEmote,
                 CanEatMaterialsOptIn = OptInMaterialEdibility,
                 TemperatureRangeFloor = TemperatureRangeFloor,
                 TemperatureRangeCeiling = TemperatureRangeCeiling,
@@ -1220,6 +1232,8 @@ public partial class Race : SaveableItem, IRace
         dbitem.CanEatCorpses = CanEatCorpses;
         dbitem.BiteWeight = BiteWeight;
         dbitem.EatCorpseEmoteText = EatCorpseEmoteText;
+        dbitem.DefaultAlertEmote = DefaultAlertEmote;
+        dbitem.DefaultDistantAlertEmote = DefaultDistantAlertEmote;
         dbitem.CanEatMaterialsOptIn = OptInMaterialEdibility;
         dbitem.TemperatureRangeFloor = TemperatureRangeFloor;
         dbitem.TemperatureRangeCeiling = TemperatureRangeCeiling;
@@ -1896,6 +1910,8 @@ public partial class Race : SaveableItem, IRace
     }
 
     public IBodyCommunicationStrategy CommunicationStrategy { get; set; }
+    public string DefaultAlertEmote { get; set; }
+    public string DefaultDistantAlertEmote { get; set; }
 
     public IRaceButcheryProfile ButcheryProfile { get; set; }
 

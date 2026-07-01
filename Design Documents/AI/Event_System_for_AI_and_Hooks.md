@@ -427,10 +427,13 @@ These drive aggressive AI, combat-ending behavior, rescue behavior, and herd thr
 ### Crime and Law
 Current AI-relevant legal events include:
 
+- `CharacterAlertHeard`
 - `WitnessedCrime`
 - `VictimOfCrime`
 
 These are important for law-enforcement style behaviors and related content logic.
+
+`CharacterAlertHeard` is raised when a character actually hears the `ALERT` command after the alert's audible propagation and local hearing/listen checks. Its payload is `(alerter, witness, origin location, direction text, room range, emote text)`. The direction text is `"here"` for the origin room and a formatted relative direction such as "to the east" or "far away to the north" for nearby rooms. AIs should treat this as a heard signal, not as omniscient knowledge of the alerting character.
 
 ### Speech and Command Input
 Current speech/input events include:

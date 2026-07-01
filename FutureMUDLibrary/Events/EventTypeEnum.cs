@@ -699,6 +699,9 @@ namespace MudSharp.Events
         OfferingBurned = 127,
 
         [EventInfo("Fires on perceivables witnessing an offering focus burning an offering.", ["item", "character", "item", "perceivable"], ["focus", "actor", "offering", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable])]
-        OfferingBurnedWitness = 128
+        OfferingBurnedWitness = 128,
+
+        [EventInfo("Fires on a character when they hear an alert.", ["character", "perceivable", "location", "text", "number", "text"], ["alerter", "witness", "origin", "direction", "range", "emote"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        CharacterAlertHeard = 129
     }
 }

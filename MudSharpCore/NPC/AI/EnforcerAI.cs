@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
 using MudSharp.Body.Position;
 using MudSharp.Character;
+using MudSharp.Communication;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
@@ -26,7 +27,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.NPC.AI;
 
-public class EnforcerAI : ArtificialIntelligenceBase
+public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
 {
     public static void RegisterLoader()
     {
@@ -52,6 +53,8 @@ public class EnforcerAI : ArtificialIntelligenceBase
         ThrowInPrisonEchoProg = long.TryParse(root.Element("ThrowInPrisonEchoProg")?.Value ?? "0", out value)
             ? Gameworld.FutureProgs.Get(value)
             : Gameworld.FutureProgs.GetByName(root.Element("ThrowInPrisonEchoProg")!.Value);
+        AlertEmote = root.Element("AlertEmote")?.Value;
+        DistantAlertEmote = root.Element("DistantAlertEmote")?.Value;
     }
 
     protected EnforcerAI()
@@ -75,7 +78,9 @@ public class EnforcerAI : ArtificialIntelligenceBase
             new XElement("WarnEchoProg", WarnEchoProg?.Id ?? 0L),
             new XElement("WarnStartMoveEchoProg", WarnStartMoveEchoProg?.Id ?? 0L),
             new XElement("FailToComplyEchoProg", FailToComplyEchoProg?.Id ?? 0L),
-            new XElement("ThrowInPrisonEchoProg", ThrowInPrisonEchoProg?.Id ?? 0L)
+            new XElement("ThrowInPrisonEchoProg", ThrowInPrisonEchoProg?.Id ?? 0L),
+            new XElement("AlertEmote", AlertEmote ?? string.Empty),
+            new XElement("DistantAlertEmote", DistantAlertEmote ?? string.Empty)
         ).ToString();
     }
 
@@ -84,6 +89,8 @@ public class EnforcerAI : ArtificialIntelligenceBase
     public IFutureProg WarnStartMoveEchoProg { get; protected set; }
     public IFutureProg FailToComplyEchoProg { get; protected set; }
     public IFutureProg ThrowInPrisonEchoProg { get; protected set; }
+    public string AlertEmote { get; private set; }
+    public string DistantAlertEmote { get; private set; }
 
     /// <inheritdoc />
     public override string Show(ICharacter actor)
@@ -97,6 +104,8 @@ public class EnforcerAI : ArtificialIntelligenceBase
         sb.AppendLine($"Warn Start Move Prog: {WarnStartMoveEchoProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Warn Fail Comply Prog: {FailToComplyEchoProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Thrown In Prison Prog: {ThrowInPrisonEchoProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        sb.AppendLine($"Alert Emote: {AlertEmote?.ColourCommand() ?? "None".ColourError()}");
+        sb.AppendLine($"Distant Alert Emote: {DistantAlertEmote?.ColourCommand() ?? "None".ColourError()}");
         return sb.ToString();
     }
 
@@ -110,6 +119,8 @@ public class EnforcerAI : ArtificialIntelligenceBase
 	#3warncomply clear#0 - clears the warn comply prog
 	#3prison <prog>#0 - sets the prog executed when the enforcer throws someone in a jail cell
 	#3prison clear#0 - clears the prison prog
+	#3alertemote <emote|clear>#0 - sets an AI-specific ALERT emote
+	#3alertfar <emote|clear>#0 - sets an AI-specific distant ALERT echo; use {0} for the direction
 
 #BNote - all the progs with this AI return commands to be executed. Enter multiple commands separated by newlines in the text the prog returns. You can do additional things in the prog too - you can just return an empty text if you want the NPCs not to execute any commands but instead handle the logic in the prog some other way.#0";
 
@@ -135,8 +146,75 @@ public class EnforcerAI : ArtificialIntelligenceBase
             case "prison":
             case "prisonprog":
                 return BuildingCommandPrisonProg(actor, command);
+            case "alert":
+            case "alertemote":
+            case "alertlocal":
+                return BuildingCommandAlertEmote(actor, command);
+            case "alertfar":
+            case "alertdistant":
+            case "distantalert":
+            case "distantalertemote":
+                return BuildingCommandDistantAlertEmote(actor, command);
         }
         return base.BuildingCommand(actor, command.GetUndo());
+    }
+
+    private bool BuildingCommandAlertEmote(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What ALERT emote should this AI use, or #3clear#0 to clear it?".SubstituteANSIColour());
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("clear", "none", "delete", "remove"))
+        {
+            AlertEmote = null;
+            Changed = true;
+            actor.OutputHandler.Send("This AI will now use its race or global default ALERT emote.");
+            return true;
+        }
+
+        var emoteText = command.SafeRemainingArgument;
+        if (!AlertUtilities.ValidateAlertEmote(emoteText, actor, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        AlertEmote = emoteText;
+        Changed = true;
+        actor.OutputHandler.Send($"This AI's ALERT emote is now {AlertEmote.ColourCommand()}.");
+        return true;
+    }
+
+    private bool BuildingCommandDistantAlertEmote(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What distant ALERT echo should this AI use, or #3clear#0 to clear it? Use #6{0}#0 for the direction text.".SubstituteANSIColour());
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("clear", "none", "delete", "remove"))
+        {
+            DistantAlertEmote = null;
+            Changed = true;
+            actor.OutputHandler.Send("This AI will now use its race or global default distant ALERT echo.");
+            return true;
+        }
+
+        var emoteText = command.SafeRemainingArgument;
+        if (!AlertUtilities.ValidateDistantAlertEmote(emoteText, actor, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        DistantAlertEmote = emoteText;
+        Changed = true;
+        actor.OutputHandler.Send($"This AI's distant ALERT echo is now {DistantAlertEmote.ColourCommand()}.");
+        return true;
     }
 
     private bool BuildingCommandPrisonProg(ICharacter actor, StringStack command)
@@ -367,6 +445,15 @@ public class EnforcerAI : ArtificialIntelligenceBase
             case EventType.WitnessedCrime:
                 ch = (ICharacter)arguments[2];
                 break;
+            case EventType.CharacterAlertHeard:
+                ch = (ICharacter)arguments[1];
+                break;
+            case EventType.EngageInCombat:
+                ch = (ICharacter)arguments[0];
+                break;
+            case EventType.EngagedInCombat:
+                ch = (ICharacter)arguments[1];
+                break;
         }
 
         if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
@@ -387,6 +474,11 @@ public class EnforcerAI : ArtificialIntelligenceBase
             case EventType.WitnessedCrime:
                 return WitnessedCrime((ICharacter)arguments[0], (ICharacter)arguments[1], ch,
                     (ICrime)arguments[3]);
+            case EventType.CharacterAlertHeard:
+                return CharacterAlertHeard((ICharacter)arguments[0], ch, (ICell)arguments[2]);
+            case EventType.EngageInCombat:
+            case EventType.EngagedInCombat:
+                return EnforcerEnteredCombat(ch);
             case EventType.FiveSecondTick:
                 return CharacterFiveSecondTick(ch);
         }
@@ -443,6 +535,75 @@ public class EnforcerAI : ArtificialIntelligenceBase
         crime.LegalAuthority.ReportCrime(crime, enforcer,
             IdentityIsKnownProg?.Execute<bool?>(enforcer, criminal) == true, 1.0);
         return false;
+    }
+
+    private bool EnforcerEnteredCombat(ICharacter enforcer)
+    {
+        if (EnforcerEffect(enforcer) == null)
+        {
+            return false;
+        }
+
+        return AlertUtilities.DoAlert(enforcer, echoFailure: false);
+    }
+
+    private bool CharacterAlertHeard(ICharacter alerter, ICharacter enforcer, ICell origin)
+    {
+        if (alerter == enforcer || origin is null || EnforcerEffect(enforcer) == null)
+        {
+            return false;
+        }
+
+        var patrolMember = enforcer.CombinedEffectsOfType<PatrolMemberEffect>().FirstOrDefault();
+        if (patrolMember is null || patrolMember.Patrol.ActiveEnforcementTarget is not null)
+        {
+            return false;
+        }
+
+        if (!IsGenerallyAble(enforcer, ignoreMovement: true) || enforcer.Combat is not null)
+        {
+            return false;
+        }
+
+        if (enforcer.Location == origin)
+        {
+            return AssistNearbyEnforcerInCombat(enforcer, EnforcerEffect(enforcer));
+        }
+
+        var path = enforcer.PathBetween(origin, 20, PathSearch.PathIncludeUnlockableDoors(enforcer)).ToList();
+        if (!path.Any())
+        {
+            return false;
+        }
+
+        enforcer.RemoveAllEffects<FollowingPath>(fireRemovalAction: true);
+        var fp = new FollowingPath(enforcer, path) { UseDoorguards = true, UseKeys = true, OpenDoors = true };
+        enforcer.AddEffect(fp);
+        fp.FollowPathAction();
+        return true;
+    }
+
+    private bool AssistNearbyEnforcerInCombat(ICharacter enforcer, EnforcerEffect enforcerEffect)
+    {
+        if (enforcerEffect is null || enforcer.Combat is not null)
+        {
+            return false;
+        }
+
+        var ally = enforcer.Location.Characters
+                           .Except(enforcer)
+                           .Where(x => x.Combat is not null)
+                           .FirstOrDefault(x =>
+                               x.EffectsOfType<EnforcerEffect>().Any(y => y.LegalAuthority == enforcerEffect.LegalAuthority) &&
+                               x.CombatTarget is not null &&
+                               x.CombatTarget != enforcer);
+        if (ally?.CombatTarget is null || !enforcer.CanEngage(ally.CombatTarget))
+        {
+            return false;
+        }
+
+        enforcer.Engage(ally.CombatTarget, false);
+        return true;
     }
 
     private bool HandleGeneral(ICharacter enforcer)
@@ -540,6 +701,11 @@ public class EnforcerAI : ArtificialIntelligenceBase
         if (HandleGeneral(enforcer))
         {
             return false;
+        }
+
+        if (AssistNearbyEnforcerInCombat(enforcer, effect))
+        {
+            return true;
         }
 
         IPatrol patrol = enforcer.CombinedEffectsOfType<PatrolMemberEffect>().FirstOrDefault()?.Patrol;
@@ -641,6 +807,9 @@ public class EnforcerAI : ArtificialIntelligenceBase
                 case EventType.TargetSlain:
                 case EventType.TruceOffered:
                 case EventType.WitnessedCrime:
+                case EventType.CharacterAlertHeard:
+                case EventType.EngageInCombat:
+                case EventType.EngagedInCombat:
                 case EventType.FiveSecondTick:
                     return true;
             }

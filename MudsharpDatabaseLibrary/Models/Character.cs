@@ -102,6 +102,8 @@ public partial class Character
     public string NameInfo { get; set; }
     public int RoomLayer { get; set; }
     public bool NoMercy { get; set; }
+    public string CustomAlertEmote { get; set; }
+    public string CustomDistantAlertEmote { get; set; }
     public long? EstateHeirId { get; set; }
     public string EstateHeirType { get; set; }
 

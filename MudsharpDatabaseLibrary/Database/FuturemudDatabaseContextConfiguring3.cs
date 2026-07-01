@@ -1964,6 +1964,16 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
+                entity.Property(e => e.DefaultAlertEmote)
+                    .HasColumnType("varchar(500)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.DefaultDistantAlertEmote)
+                    .HasColumnType("varchar(500)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
                 entity.Property(e => e.CorpseModelId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.DefaultHandedness)

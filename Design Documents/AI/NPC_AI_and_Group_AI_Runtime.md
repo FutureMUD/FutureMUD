@@ -468,7 +468,7 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 | `DenBuilderAI` | Yes | Craft-backed den or nest builder that claims a home cell and can defend it | Uses persisted per-NPC home/anchor state |
 | `DoorguardAI` | Yes | Manages NPCs who respond to knocks, open/close doors, and enforce door access rules | Strongly tied to doors and command timing |
 | `TollkeeperAI` | Yes | Uses the existing guard-exit effect to block the NPC's active `toll <direction>` exit, demands a FutureProg-priced toll for the prospective movement group, and grants temporary passage after payment | The shared AI stores pricing, emotes and deposit behaviour; per-NPC toll position is stored on the persisted `TollkeeperMode` effect, paid-passage state is stored on `TollExitPermit`, and the block can either add guard exemptions for the movers or move aside for the permit window |
-| `EnforcerAI` | Yes | Legal-authority AI that identifies and reacts to wanted criminals | Heavy legal-system integration |
+| `EnforcerAI` | Yes | Legal-authority AI that identifies and reacts to wanted criminals | Heavy legal-system integration; can override its default `ALERT` emotes and responds to heard alerts while on patrol |
 | `FlyingWanderer` | Yes | Movement AI for flying creatures that wander through valid rooms/layers | Movement-focused specialization |
 | `IdleEmoterAI` | Yes | Periodic idle-emote generator | Lightweight ambience AI |
 | `JudgeAI` | Yes | Courtroom/legal progression AI built on top of `EnforcerAI` | Specialized judicial behavior |

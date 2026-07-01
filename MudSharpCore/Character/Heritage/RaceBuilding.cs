@@ -4,6 +4,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Combat;
+using MudSharp.Communication;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
@@ -96,6 +97,8 @@ public partial class Race
 	#3blood none#0 - disables bleeding for this race
 	#3bloodmodel <model>#0 - sets the blood antigen typing model for this race
 	#3bloodmodel none#0 - clears a blood antigen typing model from this race
+	#3alertemote <emote|clear>#0 - sets or clears the default ALERT emote for this race
+	#3alertfar <emote|clear>#0 - sets or clears the default distant ALERT echo; use {0} for the direction
 	#3tempfloor <temperature>#0 - sets the base minimum tolerable temperature for this race
 	#3tempceiling <temperature>#0 - sets the base maximum tolerable temperature for this race
 	#3trackvisual <%>#0 - sets the intensity modifier of visual tracks left behind
@@ -214,6 +217,15 @@ public partial class Race
                 return BuildingCommandBlood(actor, command);
             case "bloodmodel":
                 return BuildingCommandBloodModel(actor, command);
+            case "alert":
+            case "alertemote":
+            case "alertlocal":
+                return BuildingCommandAlertEmote(actor, command);
+            case "alertfar":
+            case "alertdistant":
+            case "distantalert":
+            case "distantalertemote":
+                return BuildingCommandDistantAlertEmote(actor, command);
             case "temperaturefloor":
             case "tempfloor":
                 return BuildingCommandTemperatureFloor(actor, command);
@@ -1026,6 +1038,64 @@ public partial class Race
         EatCorpseEmoteText = emoteText;
         Changed = true;
         actor.OutputHandler.Send($"The emote when this race eats corpses is now {EatCorpseEmoteText.ColourCommand()}");
+        return true;
+    }
+
+    private bool BuildingCommandAlertEmote(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What should be the default ALERT emote for this race, or #3clear#0 to clear it?".SubstituteANSIColour());
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("clear", "none", "delete", "remove"))
+        {
+            DefaultAlertEmote = null;
+            Changed = true;
+            actor.OutputHandler.Send("This race will now use the global default ALERT emote.");
+            return true;
+        }
+
+        var emoteText = command.SafeRemainingArgument;
+        if (!AlertUtilities.ValidateStoredAlertEmote(emoteText, actor, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        DefaultAlertEmote = emoteText;
+        Changed = true;
+        actor.OutputHandler.Send($"The default ALERT emote for this race is now {DefaultAlertEmote.ColourCommand()}.");
+        return true;
+    }
+
+    private bool BuildingCommandDistantAlertEmote(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What should be the default distant ALERT echo for this race, or #3clear#0 to clear it? Use #6{0}#0 for the direction text.".SubstituteANSIColour());
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("clear", "none", "delete", "remove"))
+        {
+            DefaultDistantAlertEmote = null;
+            Changed = true;
+            actor.OutputHandler.Send("This race will now use the global default distant ALERT echo.");
+            return true;
+        }
+
+        var emoteText = command.SafeRemainingArgument;
+        if (!AlertUtilities.ValidateStoredDistantAlertEmote(emoteText, actor, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        DefaultDistantAlertEmote = emoteText;
+        Changed = true;
+        actor.OutputHandler.Send($"The default distant ALERT echo for this race is now {DefaultDistantAlertEmote.ColourCommand()}.");
         return true;
     }
 
@@ -2685,6 +2755,10 @@ public partial class Race
             $"Communication: {CommunicationStrategy.Name.ColourValue()}",
             $"Genders: {AllowedGenders.Select(x => Gendering.Get(x).GenderClass(true).Colour(Telnet.Cyan)).ListToString()}",
             $"Butchery: {ButcheryProfile?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}"
+        );
+        sb.AppendLineColumns((uint)actor.LineFormatLength, 2,
+            $"Alert Emote: {DefaultAlertEmote?.ColourCommand() ?? "None".ColourError()}",
+            $"Distant Alert: {DefaultDistantAlertEmote?.ColourCommand() ?? "None".ColourError()}"
         );
         sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
             $"Breathing: {BreathingStrategy.Name.ColourValue()}",

@@ -49,6 +49,7 @@ namespace MudSharp.TimeAndDate.Date
         List<string> Weekdays { get; }
         List<MonthDefinition> Months { get; }
         List<IntercalaryMonth> Intercalaries { get; }
+        IReadOnlyList<IRegnalPeriod> RegnalPeriods { get; }
         void UpdateDays();
         void UpdateMonths();
         void UpdateYears();
@@ -118,6 +119,10 @@ namespace MudSharp.TimeAndDate.Date
         MudDate GetDate(string dateString);
         bool TryGetDate(string dateString, out MudDate date, out string error);
         bool TryGetDate(string dateString, IFormatProvider format, out MudDate date, out string error);
+        IRegnalPeriod GetRegnalPeriod(MudDate date);
+        RegnalDateInfo GetRegnalDate(MudDate date);
+        bool TryGetDateFromRegnalDate(string regnalPeriodKey, int regnalYear, int day, string month, bool allowProjected,
+            out MudDate date, out string error);
 
         string DisplayDate(CalendarDisplayMode mode);
         string DisplayDate(string mask);

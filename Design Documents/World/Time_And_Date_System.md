@@ -172,8 +172,22 @@ A calendar definition includes:
 - ordered weekday names
 - base month definitions
 - intercalary month definitions
+- optional regnal period definitions
 
 The concrete `Calendar` creates generated `Year` instances as needed. Generated years are cached by year number. Calendar day counts, weekday counts, days-between-year counts, and first-weekday calculations are also cached.
+
+Regnal periods are calendar-local metadata layered on top of ordinary dates. They are persisted in optional calendar XML under `<regnalperiods>` with immutable keys, editable short/full display names, a required start date, and an optional end date. Missing XML loads as an empty regnal-period list so legacy calendars keep their existing behavior.
+
+A regnal period does not replace the calendar year. Dates are still stored and compared as ordinary `MudDate` values, and regnal display is recalculated from the base date each time. This lets a future projected regnal input such as `RY20 @charles-iii` convert to an ordinary date first, then later redisplay under a different current regnal period or as an ordinary year if later builder edits close the original period early.
+
+Regnal period XML uses this shape:
+
+```xml
+<regnalperiods>
+  <regnalperiod key="charles-iii" short="Charles III" full="King Charles III" start="15/march/1200" end="14/march/1208" />
+  <regnalperiod key="arthur" short="Arthur" full="King Arthur" start="15/march/1208" />
+</regnalperiods>
+```
 
 The first weekday of a year is computed from:
 
@@ -270,6 +284,7 @@ Primary dates update the owning calendar when advanced. Copied or parsed dates a
 - conversion to another calendar by day difference from each calendar's current date
 - date difference and year difference operations
 - round-trip parse text
+- lookup of the active regnal period and computed regnal year through the owning calendar
 - display through calendar masks
 
 `MudDate.AdvanceToNextWeekday` is exclusive of the current date. A positive occurrence count moves forward; a negative count moves backward; zero is a no-op.
@@ -302,11 +317,14 @@ The actor-facing parser accepts:
 - `now`
 - `soon`
 - dates in the supported calendar parse forms
+- regnal date forms such as `regnal:charles-iii:20:may:3`, `May 3rd RY20 @charles-iii`, and `3 May RY20 @charles-iii`
 - times such as `3:15pm`, `15:15:00`, and `15:15:00 UTC`
 - optional clock hour interval text
 - optional time-zone aliases
 
 When a time zone is specified, the parsed time is treated as local wall time in that time zone. Unknown time zones or meridian/period text are rejected cleanly.
+
+Regnal parsing accepts the canonical `RY<number> @key` form for unambiguous round-tripping. Natural period names may be accepted only when the text uniquely resolves to one configured period. Regnal parsing is allowed to project beyond a period's current end date so future-written text can still be converted to an ordinary date; display only uses a regnal period when the resulting base date falls within the period's actual bounds.
 
 `ToMudDateFunction` in FutureProg uses this parser and returns `MudDateTime.Never` for invalid text, missing calendars, missing clocks, or empty input.
 
@@ -492,7 +510,31 @@ Clock editing supports metadata, display masks, clock units, in-game speed, fixe
 
 Time-zone editing supports name/alias, description, and offset hours/minutes. Existing time zones cannot be moved between clocks; builders should clone to the target clock instead.
 
-Calendar editing supports metadata, display masks, feed clock, current date, epoch year and first weekday, era display text, weekday and month editing, normal special/non-weekday days, intercalary days/months, generated-year preview, validation, algorithm selection, day-boundary selection, and authority-location editing. Structural edits clear generated-year caches, normalize the current date, and mark the calendar changed.
+Calendar editing supports metadata, display masks, feed clock, current date, epoch year and first weekday, era display text, weekday and month editing, normal special/non-weekday days, intercalary days/months, generated-year preview, validation, algorithm selection, day-boundary selection, authority-location editing, and regnal-period editing. Structural edits clear generated-year caches, normalize the current date, and mark the calendar changed.
+
+Calendar display masks support ordinary date tokens plus regnal tokens:
+
+- `$rk`: regnal key with `@`, such as `@charles-iii`
+- `$rs`: regnal short name
+- `$rf`: regnal full name
+- `$rn`, `$rN`, `$rt`, `$rT`: numeric, wordy, ordinal, and wordy ordinal regnal year
+- `$rq`: canonical regnal reference, such as `RY20 @charles-iii`; outside a regnal period this falls back to ordinary year/era text
+- `$rp`: readable regnal phrase, such as `20th year of King Charles III`; outside a regnal period this falls back to ordinary ordinal year/era text
+
+Masks can branch on whether the displayed date is inside a regnal period with `$ir{<regnal text>}{<fallback text>}`. Branch contents may contain ordinary tokens, regnal tokens, and plain text, for example `$ir{$rt year of $rf}{$yo $EE}`. Nested conditionals are not supported; malformed blocks are left literal.
+
+Regnal period builder commands live under `calendar set regnal ...`:
+
+- `regnal list`
+- `regnal add <key> "<short>" "<full>" <start> [<end>|open]`
+- `regnal close <key> <end>`
+- `regnal name <key> short|full <text>`
+- `regnal start <key> <date>`
+- `regnal end <key> <date|open>`
+- `regnal remove <key>`
+- `regnal preview <date>`
+
+Period edits use the normal live-calendar structural confirmation path and validate the full period set before applying.
 
 Admin time displays now expose the current `MudInstant`, calendar algorithm type, day-boundary type, authority location when set, and celestial ephemeris support. Admins can preview deterministic astronomical events with:
 
@@ -572,6 +614,10 @@ These are important rules to preserve when changing the system:
 - Missing calendar algorithm/day-boundary XML must continue to load as fixed-month, clock-midnight calendars.
 - `MudInstant` must remain additive over existing calendar/clock state; existing persisted mud date/time strings stay valid and are not replaced in-place.
 - Calculated and astronomical calendar algorithms must produce deterministic generated years from authored metadata without storing generated years or observation ledgers.
+- Regnal period keys are immutable calendar-local identifiers. Display names can change without invalidating canonical `RY<number> @key` input.
+- Regnal periods may have no gaps or overlaps after the first regnal period starts. At most one period may be open-ended, and an open-ended period must be last.
+- Regnal year one begins on the period start date. Later regnal years begin on that same calendar month/day anniversary where the generated year supports it.
+- Regnal display must fall back to ordinary year display whenever a base date is outside every configured regnal period.
 
 ## Test Coverage
 The normal unit-test suites now include focused coverage for:
@@ -583,6 +629,7 @@ The normal unit-test suites now include focused coverage for:
 - clock, time-zone, and calendar builder command paths for high-value edits
 - `MudInstant` storage, ordering, conversion, and legacy backfill
 - legacy calendar XML loading without an algorithm element
+- regnal period XML loading/saving, legacy empty-period loading, display fallback, `$ir{}` branch behavior, canonical parser forms, future projection, and builder continuity validation
 - fixed, calculated, and astronomical calendar algorithm generation
 - astronomical event solver nth-next behavior and supported solar/lunar/visible-crescent events
 - FutureProg celestial event function registration with nth-next overloads

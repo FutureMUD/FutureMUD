@@ -202,6 +202,94 @@ public class MudDateTimeTests
     }
 
     [TestMethod]
+    public void Calendar_RegnalPeriods_LoadSaveDisplayAndParse()
+    {
+        var calendar = CreateRegnalCalendar();
+
+        Assert.AreEqual(2, calendar.RegnalPeriods.Count);
+        Assert.AreEqual(2, calendar.SaveToXml().Element("regnalperiods")!.Elements("regnalperiod").Count());
+
+        var charlesDate = calendar.GetDate("16/month3/1200");
+        Assert.AreEqual("RY1 @charles-iii", calendar.DisplayDate(charlesDate, "$rq"));
+        Assert.AreEqual("16/month3/1st year of King Charles III",
+            calendar.DisplayDate(charlesDate, "$dd/$mm/$ir{$rt year of $rf}{$yo $EE}"));
+
+        var ordinaryDate = calendar.GetDate("1/month1/1200");
+        Assert.AreEqual("1/month1/1200th after era",
+            calendar.DisplayDate(ordinaryDate, "$dd/$mm/$ir{$rt year of $rf}{$yo $EE}"));
+
+        Assert.IsTrue(calendar.TryGetDate("month5 3rd RY20 @charles-iii", out var canonical, out var canonicalError), canonicalError);
+        Assert.AreEqual("3/month5/1219", canonical.GetDateString());
+
+        Assert.IsTrue(calendar.TryGetDate("regnal:charles-iii:20:month5:3", out var structured, out var structuredError), structuredError);
+        Assert.AreEqual(canonical.GetDateString(), structured.GetDateString());
+
+        Assert.IsTrue(calendar.TryGetDate("3 month5 20 King Charles III", out var natural, out var naturalError), naturalError);
+        Assert.AreEqual(canonical.GetDateString(), natural.GetDateString());
+        Assert.AreEqual("RY12 @arthur", calendar.DisplayDate(canonical, "$rq"));
+    }
+
+    [TestMethod]
+    public void MudDateTime_TryParse_AcceptsRegnalDateInput()
+    {
+        var calendar = CreateRegnalCalendar();
+        var offsetTimezone = _testClock.Timezones.FirstOrDefault(x => x.Alias.EqualTo("O1"));
+        if (offsetTimezone is null)
+        {
+            offsetTimezone = new MudTimeZone(907, 1, 0, "Offset One", "O1", _testClock);
+            _testClock.AddTimezone(offsetTimezone);
+        }
+
+        Assert.IsTrue(MudDateTime.TryParse("month5 3rd RY20 @charles-iii 3:00:00 UTC", calendar, _testClock, null,
+            out var parsed, out var error), error);
+
+        Assert.AreEqual("3/month5/1219", parsed.Date.GetDateString());
+        Assert.AreEqual(3, parsed.Time.Hours);
+
+        Assert.IsTrue(MudDateTime.TryParse("month5 3rd RY20 @charles-iii 3:00:00 O1", calendar, _testClock, null,
+            out var parsedWithDigitTimezone, out var digitTimezoneError), digitTimezoneError);
+        Assert.AreEqual("3/month5/1219", parsedWithDigitTimezone.Date.GetDateString());
+        Assert.AreEqual(offsetTimezone, parsedWithDigitTimezone.TimeZone);
+
+        Assert.IsTrue(MudDateTime.TryParse("month5 3rd RY20 @charles-iii 3:00:00 O1", calendar, _testClock,
+            out var parsedWithoutActor));
+        Assert.AreEqual(offsetTimezone, parsedWithoutActor.TimeZone);
+
+        Assert.IsTrue(MudDateTime.TryParse("regnal:charles-iii:20:month5:3 3:00:00 O1", calendar, _testClock, null,
+            out var parsedStructuredWithDigitTimezone, out var structuredDigitTimezoneError), structuredDigitTimezoneError);
+        Assert.AreEqual("3/month5/1219", parsedStructuredWithDigitTimezone.Date.GetDateString());
+        Assert.AreEqual(offsetTimezone, parsedStructuredWithDigitTimezone.TimeZone);
+    }
+
+    [TestMethod]
+    public void CalendarBuilder_RegnalPeriods_ValidateContinuityAndOpenPeriod()
+    {
+        var actor = CreateBuilder();
+        var months = string.Join("", Enumerable.Range(1, 12).Select(x => MonthXml($"month{x}", x, 30)));
+        var calendar = new Calendar(XElement.Parse(BuildCalendarXml(string.Empty, months)), _gameworld)
+        {
+            Id = 526,
+            FeedClock = _testClock
+        };
+        calendar.SetDate("1/month1/1200");
+
+        Assert.IsTrue(calendar.BuildingCommand(actor.Object,
+            new StringStack("regnal add charles-iii \"Charles III\" \"King Charles III\" 15/month3/1200 14/month3/1208")));
+        Assert.IsFalse(calendar.BuildingCommand(actor.Object,
+            new StringStack("regnal add arthur Arthur \"King Arthur\" 16/month3/1208 open")));
+        Assert.IsTrue(calendar.BuildingCommand(actor.Object,
+            new StringStack("regnal add arthur Arthur \"King Arthur\" 15/month3/1208 open")));
+        Assert.IsFalse(calendar.BuildingCommand(actor.Object,
+            new StringStack("regnal add stephen Stephen \"King Stephen\" 15/month3/1210 open")));
+        Assert.IsTrue(calendar.BuildingCommand(actor.Object,
+            new StringStack("regnal end arthur 14/month3/1210")));
+        Assert.IsTrue(calendar.BuildingCommand(actor.Object,
+            new StringStack("regnal add stephen Stephen \"King Stephen\" 15/month3/1210 open")));
+        Assert.IsFalse(calendar.BuildingCommand(actor.Object,
+            new StringStack("regnal start stephen 16/month3/1210")));
+    }
+
+    [TestMethod]
     public void MudInstant_RoundTripsStorageOrderingAndLegacyBackfill()
     {
         _testCalendar.SetDate("27/jun/34");
@@ -303,6 +391,7 @@ public class MudDateTimeTests
     {
         Assert.AreEqual(CalendarAlgorithmType.FixedMonths, _testCalendar.AlgorithmType);
         Assert.AreEqual(CalendarDayBoundaryType.ClockMidnight, _testCalendar.DayBoundary);
+        Assert.AreEqual(0, _testCalendar.RegnalPeriods.Count);
         Assert.AreEqual(14, _testCalendar.CreateYear(34).Months.Count);
         Assert.AreEqual(365, _testCalendar.CountDaysInYear(34));
     }
@@ -367,7 +456,25 @@ public class MudDateTimeTests
         return actor;
     }
 
-    private static string BuildCalendarXml(string algorithmXml, string monthsXml, string dayBoundaryXml = @"<dayboundary type=""ClockMidnight"" />")
+    private static Calendar CreateRegnalCalendar()
+    {
+        var months = string.Join("", Enumerable.Range(1, 12).Select(x => MonthXml($"month{x}", x, 30)));
+        var regnalXml = @"<regnalperiods>
+  <regnalperiod key=""charles-iii"" short=""Charles III"" full=""King Charles III"" start=""15/month3/1200"" end=""14/month3/1208"" />
+  <regnalperiod key=""arthur"" short=""Arthur"" full=""King Arthur"" start=""15/month3/1208"" />
+</regnalperiods>";
+        var calendar = new Calendar(XElement.Parse(BuildCalendarXml(string.Empty, months,
+            @"<dayboundary type=""ClockMidnight"" />", regnalXml)), _gameworld)
+        {
+            Id = 906,
+            FeedClock = _testClock
+        };
+        calendar.SetDate("1/month1/1200");
+        return calendar;
+    }
+
+    private static string BuildCalendarXml(string algorithmXml, string monthsXml, string dayBoundaryXml = @"<dayboundary type=""ClockMidnight"" />",
+        string regnalXml = @"<regnalperiods />")
     {
         return $@"<calendar>
   <alias>test-calendar</alias>
@@ -396,6 +503,7 @@ public class MudDateTimeTests
   </weekdays>
   <months>{monthsXml}</months>
   <intercalarymonths />
+  {regnalXml}
   {algorithmXml}
   {dayBoundaryXml}
 </calendar>";

@@ -91,5 +91,5 @@ public class OnBail : Effect, IEffect, IScoreAddendumEffect
     public bool ShowInHealth => false;
 
     public string ScoreAddendum =>
-        $"You are on bail until {ReturnDueDate.ToString(TimeAndDate.Date.CalendarDisplayMode.Short, TimeAndDate.Time.TimeDisplayTypes.Short).ColourValue()}.";
+        $"You are on bail in the {LegalAuthority.Name.ColourName()} jurisdiction until {ReturnDueDate.ToString(TimeAndDate.Date.CalendarDisplayMode.Short, TimeAndDate.Time.TimeDisplayTypes.Short).ColourValue()}.";
 }

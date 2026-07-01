@@ -1,4 +1,5 @@
 ﻿using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.RPG.Law;
 using MudSharp.TimeAndDate;
@@ -7,7 +8,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 
-public class AwaitingExecution : Effect
+public class AwaitingExecution : Effect, IScoreAddendumEffect
 {
     #region Static Initialisation
 
@@ -62,6 +63,13 @@ public class AwaitingExecution : Effect
     }
 
     public override bool SavingEffect => true;
+
+    public bool ShowInScore => true;
+
+    public bool ShowInHealth => false;
+
+    public string ScoreAddendum =>
+        $"You are awaiting execution in the {LegalAuthority.Name.ColourName()} jurisdiction at {ExecutionDate.ToString(TimeAndDate.Date.CalendarDisplayMode.Short, TimeAndDate.Time.TimeDisplayTypes.Immortal).ColourValue()}.";
 
     public override bool Applies(object target)
     {

@@ -6,12 +6,15 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Law;
 using MudSharp.TimeAndDate;
+using MudSharp.TimeAndDate.Date;
+using MudSharp.TimeAndDate.Time;
 using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
@@ -60,6 +63,63 @@ public class LegalTrialFlowTests
 	}
 
 	[TestMethod]
+	public void OnTrial_LoadEffect_ShouldPreserveCrimeQueueAndPunishments()
+	{
+		Mock<ILegalAuthority> authority = new();
+		authority.SetupGet(x => x.Id).Returns(1L);
+		authority.SetupGet(x => x.Name).Returns("Test Authority");
+
+		Mock<ICrime> firstCrime = new();
+		firstCrime.SetupGet(x => x.Id).Returns(10L);
+
+		Mock<ICrime> secondCrime = new();
+		secondCrime.SetupGet(x => x.Id).Returns(11L);
+
+		All<ILegalAuthority> legalAuthorities = new();
+		legalAuthorities.Add(authority.Object);
+
+		All<ICrime> crimes = new();
+		crimes.Add(firstCrime.Object);
+		crimes.Add(secondCrime.Object);
+
+		Mock<IFuturemud> gameworld = new();
+		gameworld.SetupGet(x => x.LegalAuthorities).Returns(legalAuthorities);
+		gameworld.SetupGet(x => x.Crimes).Returns(crimes);
+		gameworld.SetupGet(x => x.FutureProgs).Returns(new All<IFutureProg>());
+
+		Mock<ICharacter> owner = new();
+		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+
+		OnTrial.InitialiseEffectType();
+		OnTrial trial = new(owner.Object, authority.Object, DateTime.UtcNow, [firstCrime.Object, secondCrime.Object])
+		{
+			Phase = TrialPhase.Sentencing
+		};
+		trial.Punishments[firstCrime.Object] = new PunishmentResult
+		{
+			Fine = 12.5M,
+			CustodialSentence = MudTimeSpan.FromDays(3.0),
+			GoodBehaviourBondLength = MudTimeSpan.FromDays(30.0),
+			Execution = true
+		};
+		trial.Punishments[secondCrime.Object] = new PunishmentResult();
+		Assert.AreSame(firstCrime.Object, trial.NextCrime());
+
+		OnTrial loaded = (OnTrial)Effect.LoadEffect(trial.SaveToXml(new Dictionary<IEffect, TimeSpan>()), owner.Object);
+
+		Assert.AreEqual(TrialPhase.Sentencing, loaded.Phase);
+		Assert.IsTrue(loaded.Punishments.ContainsKey(firstCrime.Object));
+		Assert.IsTrue(loaded.Punishments.ContainsKey(secondCrime.Object));
+		Assert.AreEqual(12.5M, loaded.Punishments[firstCrime.Object].Fine);
+		Assert.AreEqual(MudTimeSpan.FromDays(3.0), loaded.Punishments[firstCrime.Object].CustodialSentence);
+		Assert.AreEqual(MudTimeSpan.FromDays(30.0), loaded.Punishments[firstCrime.Object].GoodBehaviourBondLength);
+		Assert.IsTrue(loaded.Punishments[firstCrime.Object].Execution);
+		Assert.IsTrue(loaded.HasSentenceBeenAnnounced(firstCrime.Object));
+		Assert.IsFalse(loaded.HasSentenceBeenAnnounced(secondCrime.Object));
+		Assert.AreSame(secondCrime.Object, loaded.NextCrime());
+	}
+
+	[TestMethod]
 	public void OnTrial_Applies_ShouldFilterByLegalAuthority()
 	{
 		Mock<ILegalAuthority> authority = new();
@@ -79,6 +139,108 @@ public class LegalTrialFlowTests
 
 		Assert.IsTrue(trial.Applies(authority.Object));
 		Assert.IsFalse(trial.Applies(otherAuthority.Object));
+	}
+
+	[TestMethod]
+	public void OnTrial_HasPleaBeenEntered_ShouldFollowPleaQueue()
+	{
+		Mock<ILegalAuthority> authority = new();
+		authority.SetupGet(x => x.Id).Returns(1L);
+		authority.SetupGet(x => x.Name).Returns("Test Authority");
+
+		Mock<ICrime> firstCrime = new();
+		firstCrime.SetupGet(x => x.Id).Returns(10L);
+
+		Mock<ICrime> secondCrime = new();
+		secondCrime.SetupGet(x => x.Id).Returns(11L);
+
+		Mock<ICharacter> owner = new();
+		owner.Setup(x => x.EffectsOfType<ConsideringPlea>(It.IsAny<Predicate<ConsideringPlea>>()))
+		     .Returns(Array.Empty<ConsideringPlea>());
+
+		OnTrial trial = new(owner.Object, authority.Object, DateTime.UtcNow, [firstCrime.Object, secondCrime.Object])
+		{
+			Phase = TrialPhase.Plea
+		};
+
+		Assert.IsFalse(trial.HasPleaBeenEntered(firstCrime.Object));
+		Assert.IsFalse(trial.HasPleaBeenEntered(secondCrime.Object));
+
+		ICrime? askedCrime = trial.NextCrime();
+		trial.Pleas[askedCrime!] = false;
+
+		Assert.IsTrue(trial.HasPleaBeenEntered(firstCrime.Object));
+		Assert.IsFalse(trial.HasPleaBeenEntered(secondCrime.Object));
+	}
+
+	[TestMethod]
+	public void OnTrial_RevealState_ShouldNotRevealSentencesBeforeSentencingAnnouncement()
+	{
+		Mock<ILegalAuthority> authority = new();
+		authority.SetupGet(x => x.Id).Returns(1L);
+		authority.SetupGet(x => x.Name).Returns("Test Authority");
+
+		Mock<ICrime> firstCrime = new();
+		firstCrime.SetupGet(x => x.Id).Returns(10L);
+
+		Mock<ICrime> secondCrime = new();
+		secondCrime.SetupGet(x => x.Id).Returns(11L);
+
+		Mock<ICharacter> owner = new();
+		OnTrial trial = new(owner.Object, authority.Object, DateTime.UtcNow, [firstCrime.Object, secondCrime.Object])
+		{
+			Phase = TrialPhase.Verdict
+		};
+
+		Assert.IsFalse(trial.HasVerdictBeenAnnounced(firstCrime.Object));
+		Assert.IsFalse(trial.HasSentenceBeenAnnounced(firstCrime.Object));
+
+		ICrime? verdictCrime = trial.NextCrime();
+		trial.Punishments[verdictCrime!] = new PunishmentResult { Fine = 10.0M };
+
+		Assert.IsTrue(trial.HasVerdictBeenAnnounced(firstCrime.Object));
+		Assert.IsFalse(trial.HasSentenceBeenAnnounced(firstCrime.Object));
+		Assert.IsFalse(trial.HasVerdictBeenAnnounced(secondCrime.Object));
+
+		trial.ResetCrimeQueue();
+		trial.Phase = TrialPhase.Sentencing;
+
+		Assert.IsTrue(trial.HasVerdictBeenAnnounced(firstCrime.Object));
+		Assert.IsFalse(trial.HasSentenceBeenAnnounced(firstCrime.Object));
+
+		Assert.AreSame(firstCrime.Object, trial.NextCrime());
+		Assert.IsTrue(trial.HasSentenceBeenAnnounced(firstCrime.Object));
+	}
+
+	[TestMethod]
+	public void LegalCustodyEffects_ShouldShowInScore()
+	{
+		Mock<ILegalAuthority> authority = new();
+		authority.SetupGet(x => x.Id).Returns(1L);
+		authority.SetupGet(x => x.Name).Returns("Test Authority");
+
+		Mock<ICharacter> owner = new();
+
+		var effects = new IScoreAddendumEffect[]
+		{
+			new AwaitingSentencing(owner.Object, authority.Object, MudDateTime.Never),
+			new OnBail(owner.Object, authority.Object, MudDateTime.Never),
+			new ServingCustodialSentence(owner.Object, authority.Object, TimeSpan.FromDays(5.0), MudDateTime.Never),
+			new AwaitingExecution(owner.Object, authority.Object, MudDateTime.Never)
+		};
+
+		foreach (IScoreAddendumEffect effect in effects)
+		{
+			Assert.IsTrue(effect.ShowInScore);
+			Assert.IsFalse(effect.ShowInHealth);
+			StringAssert.Contains(effect.ScoreAddendum.StripANSIColour(), "Test Authority");
+		}
+
+		StringAssert.Contains(effects[0].ScoreAddendum.StripANSIColour(), "on remand");
+		StringAssert.Contains(effects[1].ScoreAddendum.StripANSIColour(), "on bail");
+		StringAssert.Contains(effects[2].ScoreAddendum.StripANSIColour(), "custodial sentence");
+		StringAssert.Contains(effects[3].ScoreAddendum.StripANSIColour(), "awaiting execution");
+		StringAssert.Contains(effects[3].ScoreAddendum.StripANSIColour(), MudDateTime.Never.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Immortal));
 	}
 
 	[TestMethod]

@@ -7,8 +7,10 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
+using MudSharp.TimeAndDate;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -167,6 +169,82 @@ public class OnTrial : Effect, IEffect
         return _crimes.IndexOf(crime) + 1;
     }
 
+    public ICrime? CurrentPleaCrime
+    {
+        get
+        {
+            ICharacter? defendant = Owner as ICharacter;
+            return defendant?.EffectsOfType<ConsideringPlea>(x => x.LegalAuthority == LegalAuthority)
+                             ?.FirstOrDefault()
+                             ?.Crime;
+        }
+    }
+
+    public bool HasPleaBeenEntered(ICrime crime)
+    {
+        if (ManualTrial || Phase < TrialPhase.Plea)
+        {
+            return false;
+        }
+
+        if (Phase > TrialPhase.Plea)
+        {
+            return true;
+        }
+
+        return !CrimeQueue.Contains(crime) && CurrentPleaCrime != crime;
+    }
+
+    public bool HasProsecutionArgumentBeenPresented(ICrime crime)
+    {
+        return GetResultProsecution(crime)[crime.ProsecutionDifficulty].Outcome != Outcome.NotTested;
+    }
+
+    public bool HasDefenseArgumentBeenPresented(ICrime crime)
+    {
+        return GetResultDefense(crime)[crime.DefenseDifficulty].Outcome != Outcome.NotTested;
+    }
+
+    public bool HasVerdictBeenAnnounced(ICrime crime)
+    {
+        if (ManualTrial)
+        {
+            return crime.HasBeenFinalised;
+        }
+
+        if (Phase < TrialPhase.Verdict)
+        {
+            return false;
+        }
+
+        if (Phase > TrialPhase.Verdict)
+        {
+            return true;
+        }
+
+        return !CrimeQueue.Contains(crime);
+    }
+
+    public bool HasSentenceBeenAnnounced(ICrime crime)
+    {
+        if (ManualTrial)
+        {
+            return crime.HasBeenFinalised;
+        }
+
+        if (!HasVerdictBeenAnnounced(crime) || Phase < TrialPhase.Sentencing)
+        {
+            return false;
+        }
+
+        if (!_punishments.ContainsKey(crime))
+        {
+            return true;
+        }
+
+        return !CrimeQueue.Contains(crime);
+    }
+
     public bool CasesFinishedArguing()
     {
         return NextDefenseCrime() is null && NextProsecutionCrime() is null;
@@ -274,8 +352,13 @@ public class OnTrial : Effect, IEffect
                 prosecutionOutcome[(Difficulty)int.Parse(result.Attribute("difficulty")!.Value)] = CheckOutcome.SimpleOutcome(CheckType.ProsecuteLegalCase, (Outcome)int.Parse(result.Attribute("outcome")!.Value));
             }
             _crimeProsecutionCases[crime] = prosecutionOutcome;
+            XElement? punishment = item.Element("Punishment");
+            if (punishment is not null)
+            {
+                _punishments[crime] = LoadPunishmentResult(punishment);
+            }
         }
-        ResetCrimeQueue();
+        LoadCrimeQueue(root.Element("CrimeQueue"));
         _phase = (TrialPhase)int.Parse(root.Element("Phase")?.Value ?? "0");
         _manualTrial = bool.Parse(root.Element("ManualTrial")?.Value ?? "false");
     }
@@ -284,6 +367,49 @@ public class OnTrial : Effect, IEffect
 
     #region Saving and Loading
 
+    private static XElement SavePunishmentResult(PunishmentResult result)
+    {
+        return new XElement("Punishment",
+            new XElement("Execution", result.Execution),
+            new XElement("Fine", result.Fine.ToString(CultureInfo.InvariantCulture)),
+            new XElement("CustodialSentence", new XCData(result.CustodialSentence.GetRoundTripParseText)),
+            new XElement("GoodBehaviourBond", new XCData(result.GoodBehaviourBondLength.GetRoundTripParseText))
+        );
+    }
+
+    private static PunishmentResult LoadPunishmentResult(XElement punishment)
+    {
+        return new PunishmentResult
+        {
+            Execution = bool.Parse(punishment.Element("Execution")?.Value ?? "false"),
+            Fine = decimal.Parse(punishment.Element("Fine")?.Value ?? "0.0", CultureInfo.InvariantCulture),
+            CustodialSentence = LoadMudTimeSpan(punishment.Element("CustodialSentence")?.Value),
+            GoodBehaviourBondLength = LoadMudTimeSpan(punishment.Element("GoodBehaviourBond")?.Value)
+        };
+    }
+
+    private static MudTimeSpan LoadMudTimeSpan(string? text)
+    {
+        return MudTimeSpan.TryParse(text ?? string.Empty, out MudTimeSpan result) ? result : MudTimeSpan.Zero;
+    }
+
+    private void LoadCrimeQueue(XElement? queueElement)
+    {
+        if (queueElement is null)
+        {
+            ResetCrimeQueue();
+            return;
+        }
+
+        var crimesById = _crimes.ToDictionary(x => x.Id);
+        CrimeQueue = new Queue<ICrime>(
+            queueElement
+                .Elements("Crime")
+                .Select(x => long.Parse(x.Attribute("id")?.Value ?? "0"))
+                .SelectNotNull(x => crimesById.GetValueOrDefault(x))
+        );
+    }
+
     protected override XElement SaveDefinition()
     {
         return new XElement("Effect",
@@ -291,6 +417,12 @@ public class OnTrial : Effect, IEffect
             new XElement("LastTrialAction", LastTrialAction.ToString("O")),
             new XElement("Phase", (int)Phase),
             new XElement("ManualTrial", ManualTrial),
+            new XElement("CrimeQueue",
+                from crime in CrimeQueue
+                select new XElement("Crime",
+                    new XAttribute("id", crime.Id)
+                )
+            ),
             new XElement("Crimes",
                 from crime in Crimes
                 select new XElement("Crime",
@@ -309,7 +441,8 @@ public class OnTrial : Effect, IEffect
                             new XAttribute("difficulty", (int)item.Key),
                             new XAttribute("outcome", (int)item.Value.Outcome)
                         )
-                    )
+                    ),
+                    _punishments.TryGetValue(crime, out PunishmentResult? punishment) ? SavePunishmentResult(punishment) : null
                 )
             )
         );

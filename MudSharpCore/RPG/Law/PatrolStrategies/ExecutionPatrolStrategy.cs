@@ -1218,8 +1218,8 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 	private static string ExpandExecutionEmotePlaceholders(string emoteText, ICharacter executioner, ICharacter condemned)
 	{
-		string condemnedName = condemned.HowSeen(executioner, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf);
-		string executionerName = executioner.HowSeen(executioner, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf);
+		string condemnedName = condemned.PersonalName.GetName(Character.Name.NameStyle.FullName);
+		string executionerName = executioner.PersonalName.GetName(Character.Name.NameStyle.FullName);
 		return emoteText.Replace(CondemnedPlaceholder, condemnedName, StringComparison.OrdinalIgnoreCase)
 		                .Replace(PrisonerPlaceholder, condemnedName, StringComparison.OrdinalIgnoreCase)
 		                .Replace(TargetPlaceholder, condemnedName, StringComparison.OrdinalIgnoreCase)

@@ -376,10 +376,10 @@ public class EnforcerAI : ArtificialIntelligenceBase
 
         switch (type)
         {
-            case EventType.CharacterIncapacitatedWitness:
-                return CharacterIncapacitatedWitness((ICharacter)arguments[0], ch);
-            case EventType.TargetIncapacitated:
-                return TargetIncapacitated(ch, (ICharacter)arguments[0]);
+			case EventType.CharacterIncapacitatedWitness:
+				return CharacterIncapacitatedWitness((ICharacter)arguments[0], ch);
+			case EventType.TargetIncapacitated:
+				return TargetIncapacitated((ICharacter)arguments[1], ch);
             case EventType.NoLongerEngagedInMelee:
             case EventType.TargetSlain:
             case EventType.TruceOffered:
@@ -394,19 +394,26 @@ public class EnforcerAI : ArtificialIntelligenceBase
         return false;
     }
 
-    private bool CharacterIncapacitatedWitness(ICharacter victim, ICharacter character)
-    {
-        return false;
-    }
+	private bool CharacterIncapacitatedWitness(ICharacter victim, ICharacter character)
+	{
+		EnforcerEffect effect = EnforcerEffect(character);
+		return effect is not null && TryBeginIndependentCustody(character, victim, effect);
+	}
 
-    private bool TargetIncapacitated(ICharacter victim, ICharacter character)
-    {
-        PatrolMemberEffect patrolMember = character.CombinedEffectsOfType<PatrolMemberEffect>().FirstOrDefault();
-        if (patrolMember == null || patrolMember.Patrol.ActiveEnforcementTarget != victim || patrolMember.Patrol
-                .ActiveEnforcementCrime?.Law.EnforcementStrategy.ShowMercyToIncapacitatedTarget() !=
-            false)
-        {
-            character.Combat?.TruceRequested(character);
+	private bool TargetIncapacitated(ICharacter victim, ICharacter character)
+	{
+		PatrolMemberEffect patrolMember = character.CombinedEffectsOfType<PatrolMemberEffect>().FirstOrDefault();
+		EnforcerEffect effect = EnforcerEffect(character);
+		if (patrolMember is null && effect is not null && TryBeginIndependentCustody(character, victim, effect))
+		{
+			return true;
+		}
+
+		if (patrolMember == null || patrolMember.Patrol.ActiveEnforcementTarget != victim || patrolMember.Patrol
+			    .ActiveEnforcementCrime?.Law.EnforcementStrategy.ShowMercyToIncapacitatedTarget() !=
+		    false)
+		{
+			character.Combat?.TruceRequested(character);
         }
 
         return false;
@@ -434,13 +441,170 @@ public class EnforcerAI : ArtificialIntelligenceBase
         {
             enforcer.OutputHandler.Handle(new EmoteOutput(new Emote("@ report|reports a corpse to the authorities.",
                 enforcer)));
-        }
-    }
+		}
+	}
 
-    private bool WitnessedCrime(ICharacter criminal, ICharacter victim, ICharacter enforcer, ICrime crime)
-    {
-        // Enforcers always report crimes whether they're on duty or off duty
-        crime.LegalAuthority.ReportCrime(crime, enforcer,
+	private bool TryHandleIndependentCustody(ICharacter enforcer, EnforcerEffect effect)
+	{
+		if (!CanActIndependently(enforcer, effect))
+		{
+			return false;
+		}
+
+		if (TryContinueIndependentCustody(enforcer, effect))
+		{
+			return true;
+		}
+
+		foreach (var criminal in enforcer.Location.LayerCharacters(enforcer.RoomLayer))
+		{
+			if (TryBeginIndependentCustody(enforcer, criminal, effect))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private bool TryBeginIndependentCustody(ICharacter enforcer, ICharacter criminal, EnforcerEffect effect)
+	{
+		if (!CanActIndependently(enforcer, effect))
+		{
+			return false;
+		}
+
+		if (!CanTakeIndependentCustody(enforcer, criminal, effect, out ICrime crime))
+		{
+			return false;
+		}
+
+		enforcer.RemoveAllEffects<FollowingPath>(fireRemovalAction: true);
+		if (EnforcementCustodyHelper.BeginDragging(enforcer, criminal, Enumerable.Empty<ICharacter>()) is null)
+		{
+			return false;
+		}
+
+		EnforcementCustodyHelper.ReleaseGrapplesAndCombatAgainst(criminal, new[] { enforcer });
+		criminal.RemoveAllEffects<WarnedByEnforcer>(x => x.WhichAuthority == effect.LegalAuthority, true);
+		return MoveIndependentCustodyToPrison(enforcer, effect, criminal, crime);
+	}
+
+	private bool TryContinueIndependentCustody(ICharacter enforcer, EnforcerEffect effect)
+	{
+		foreach (var drag in enforcer.CombinedEffectsOfType<Dragging>())
+		{
+			if (drag.Target is not ICharacter criminal)
+			{
+				continue;
+			}
+
+			ICrime crime = EnforcementCustodyHelper.SelectArrestableCrime(effect.LegalAuthority, criminal);
+			if (crime is null)
+			{
+				continue;
+			}
+
+			return MoveIndependentCustodyToPrison(enforcer, effect, criminal, crime);
+		}
+
+		return false;
+	}
+
+	private bool CanActIndependently(ICharacter enforcer, EnforcerEffect effect)
+	{
+		return enforcer.State.IsAble() &&
+		       !enforcer.CombinedEffectsOfType<PatrolMemberEffect>().Any() &&
+		       effect.LegalAuthority.GetEnforcementAuthority(enforcer) is not null;
+	}
+
+	private bool CanTakeIndependentCustody(ICharacter enforcer, ICharacter criminal, EnforcerEffect effect, out ICrime crime)
+	{
+		crime = null;
+		if (criminal is null ||
+		    CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(enforcer, criminal) ||
+		    !criminal.ColocatedWith(enforcer) ||
+		    !criminal.IsHelpless ||
+		    criminal.State.IsDead() ||
+		    criminal.State.IsInStatis() ||
+		    criminal.IdentityIsObscured ||
+		    criminal.AffectedBy<InCustodyOfEnforcer>(effect.LegalAuthority) ||
+		    criminal.AffectedBy<Dragging.DragTarget>(effect.LegalAuthority) ||
+		    criminal.AffectedBy<OnTrial>(effect.LegalAuthority))
+		{
+			return false;
+		}
+
+		if (criminal.Combat is not null &&
+		    criminal.MeleeRange &&
+		    criminal.Combat.Combatants
+		            .OfType<ICharacter>()
+		            .Any(x =>
+			            !CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(x, criminal) &&
+			            !CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(x, enforcer)))
+		{
+			return false;
+		}
+
+		crime = EnforcementCustodyHelper.SelectArrestableCrime(effect.LegalAuthority, criminal);
+		return crime is not null;
+	}
+
+	private bool MoveIndependentCustodyToPrison(ICharacter enforcer, EnforcerEffect effect, ICharacter criminal, ICrime crime)
+	{
+		var authority = effect.LegalAuthority;
+		if (enforcer.Location == authority.PrisonLocation)
+		{
+			criminal.RemoveAllEffects<Dragging.DragTarget>(fireRemovalAction: true);
+			foreach (string action in (ThrowInPrisonEchoProg?.Execute<string>(enforcer, criminal, crime) ??
+			                           string.Empty).Split('\n'))
+			{
+				enforcer.ExecuteCommand(action);
+			}
+
+			authority.IncarcerateCriminal(criminal);
+			authority.OnPrisonerImprisoned?.Execute(criminal);
+			return true;
+		}
+
+		FollowingPath fp = enforcer.CombinedEffectsOfType<FollowingPath>().FirstOrDefault();
+		if (fp is not null && fp.Exits.LastOrDefault()?.Destination != authority.PrisonLocation)
+		{
+			enforcer.RemoveEffect(fp, true);
+			fp = null;
+		}
+
+		if (fp is not null)
+		{
+			if (enforcer.CouldMove(false, null).Success)
+			{
+				fp.FollowPathAction();
+			}
+
+			return true;
+		}
+
+		var path = enforcer.PathBetween(authority.PrisonLocation, 50,
+			PathSearch.PathIncludeUnlockableDoors(enforcer)).ToList();
+		if (!path.Any())
+		{
+			return true;
+		}
+
+		fp = new FollowingPath(enforcer, path) { UseDoorguards = true, UseKeys = true, OpenDoors = true };
+		enforcer.AddEffect(fp);
+		if (enforcer.CouldMove(false, null).Success)
+		{
+			fp.FollowPathAction();
+		}
+
+		return true;
+	}
+
+	private bool WitnessedCrime(ICharacter criminal, ICharacter victim, ICharacter enforcer, ICrime crime)
+	{
+		// Enforcers always report crimes whether they're on duty or off duty
+		crime.LegalAuthority.ReportCrime(crime, enforcer,
             IdentityIsKnownProg?.Execute<bool?>(enforcer, criminal) == true, 1.0);
         return false;
     }
@@ -535,12 +699,17 @@ public class EnforcerAI : ArtificialIntelligenceBase
             return false;
         }
 
-        ReportVisibleCorpses(enforcer);
+		ReportVisibleCorpses(enforcer);
 
-        if (HandleGeneral(enforcer))
-        {
-            return false;
-        }
+		if (TryHandleIndependentCustody(enforcer, effect))
+		{
+			return true;
+		}
+
+		if (HandleGeneral(enforcer))
+		{
+			return false;
+		}
 
         IPatrol patrol = enforcer.CombinedEffectsOfType<PatrolMemberEffect>().FirstOrDefault()?.Patrol;
         FollowingPath fp = enforcer.CombinedEffectsOfType<FollowingPath>().FirstOrDefault();

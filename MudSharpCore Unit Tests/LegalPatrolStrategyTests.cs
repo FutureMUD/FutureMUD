@@ -105,7 +105,60 @@ public class LegalPatrolStrategyTests
 		Assert.IsTrue(combatCheck > helplessCheck, "Helpless arrest targets must be dragged before the combat branch can re-engage them.");
 		StringAssert.Contains(source, "private bool TryStartDraggingHelplessCriminal(IPatrol patrol, ICharacter criminal)");
 		StringAssert.Contains(source, "LeaveCombatIfAble(member);");
-		StringAssert.Contains(source, "criminal.Combat?.Combatants.OfType<ICharacter>().Any(x => patrol.PatrolMembers.ContainsPhysicalInstance(x)) == true");
+		StringAssert.Contains(source, "EnforcementCustodyHelper.BeginDragging(random, criminal");
+		StringAssert.Contains(source, "EnforcementCustodyHelper.ReleaseGrapplesAndCombatAgainst(criminal, localPatrolMembers);");
+		int helperStart = source.IndexOf("private bool TryStartDraggingHelplessCriminal(IPatrol patrol, ICharacter criminal)", StringComparison.Ordinal);
+		int helperEnd = source.IndexOf("protected virtual void PatrolTickActiveEnforcement(IPatrol patrol)", helperStart, StringComparison.Ordinal);
+		string helperBlock = source[helperStart..helperEnd];
+		Assert.IsFalse(helperBlock.Contains("criminal.Combat?.Combatants.OfType<ICharacter>().Any(x => patrol.PatrolMembers.ContainsPhysicalInstance(x)) == true", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
+	public void EnforcementCustodyHelper_ShouldConvertHelplessTargetsToDragCustody()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "EnforcementCustodyHelper.cs"));
+
+		StringAssert.Contains(source, "public static ICrime SelectArrestableCrime(ILegalAuthority authority, ICharacter criminal)");
+		StringAssert.Contains(source, ".Where(x => x.Law.EnforcementStrategy.IsArrestable())");
+		StringAssert.Contains(source, "public static Dragging BeginDragging(ICharacter dragger, ICharacter criminal, IEnumerable<ICharacter> helpers)");
+		StringAssert.Contains(source, "var drag = new Dragging(dragger, null, criminal);");
+		StringAssert.Contains(source, "public static void ReleaseGrapplesAndCombatAgainst(ICharacter criminal, IEnumerable<ICharacter> enforcers)");
+		StringAssert.Contains(source, "RemoveAllEffects<IGrappling>");
+		StringAssert.Contains(source, "RemoveAllEffects<ClinchEffect>");
+		StringAssert.Contains(source, "LeaveCombatIfAble(criminal);");
+	}
+
+	[TestMethod]
+	public void EnforcerAI_ShouldTakeIndependentCustodyOfHelplessCriminals()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("NPC", "AI", "EnforcerAI.cs"));
+
+		StringAssert.Contains(source, "return TargetIncapacitated((ICharacter)arguments[1], ch);");
+		StringAssert.Contains(source, "private bool TryHandleIndependentCustody(ICharacter enforcer, EnforcerEffect effect)");
+		StringAssert.Contains(source, "enforcer.CombinedEffectsOfType<PatrolMemberEffect>().Any()");
+		StringAssert.Contains(source, "TryBeginIndependentCustody(character, victim, effect)");
+		StringAssert.Contains(source, "EnforcementCustodyHelper.BeginDragging(enforcer, criminal, Enumerable.Empty<ICharacter>())");
+		StringAssert.Contains(source, "MoveIndependentCustodyToPrison(enforcer, effect, criminal, crime)");
+		StringAssert.Contains(source, "PathSearch.PathIncludeUnlockableDoors(enforcer)");
+		StringAssert.Contains(source, "TryHandleIndependentCustody(enforcer, effect)");
+	}
+
+	[TestMethod]
+	public void AutomatedTrials_ShouldKeepJudgeAndProsecutorRolesSeparate()
+	{
+		string judgeSource = File.ReadAllText(GetCoreSourcePath("NPC", "AI", "JudgeAI.cs"));
+		string prosecutorSource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "ProsectutorPatrolStrategy.cs"));
+
+		StringAssert.Contains(judgeSource, "EnsureAutomatedProsecutor(trialEffect);");
+		StringAssert.Contains(judgeSource, "private static bool IsAutomatedProsecutor(ICharacter character, ILegalAuthority authority)");
+		StringAssert.Contains(judgeSource, "x.Patrol.PatrolStrategy.Name == \"Prosecutor\"");
+		StringAssert.Contains(judgeSource, "trialEffect.Prosecutor ??= court.Characters.FirstOrDefault");
+		Assert.IsFalse(judgeSource.Contains("trialEffect.Prosecutor ??= enforcer;", StringComparison.Ordinal));
+		Assert.IsFalse(judgeSource.Contains("trialEffect.HandleArgueCommand(enforcer, false);", StringComparison.Ordinal));
+
+		StringAssert.Contains(prosecutorSource, "trial.Prosecutor = patrol.PatrolLeader;");
+		StringAssert.Contains(prosecutorSource, "CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(trial.Prosecutor, patrol.PatrolLeader)");
+		StringAssert.Contains(prosecutorSource, "trial.HandleArgueCommand(patrol.PatrolLeader, false);");
 	}
 
 	[TestMethod]
@@ -141,6 +194,40 @@ public class LegalPatrolStrategyTests
 		StringAssert.Contains(source, "private void ReportExecutionCorpseForRecovery(IPatrol patrol)");
 		StringAssert.Contains(source, "LegalAuthority.ReportCorpseToLocalAuthority(Gameworld, corpseItem, patrol.PatrolLeader, out _);");
 		StringAssert.Contains(source, "ReportExecutionCorpseForRecovery(patrol);");
+	}
+
+	[TestMethod]
+	public void ExecutionPatrolStrategy_ShouldRemandAndDelayAfterFailedExecutionAttempts()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "ExecutionPatrolStrategy.cs"));
+		int maxAttemptCheck = source.IndexOf("if (_executionAttempts >= MaximumExecutionAttempts)", StringComparison.Ordinal);
+		int killingAttempt = source.IndexOf("bool attempted = Method switch", maxAttemptCheck, StringComparison.Ordinal);
+
+		Assert.IsTrue(maxAttemptCheck >= 0, "The killing loop should still enforce a maximum attempts guard.");
+		Assert.IsTrue(killingAttempt > maxAttemptCheck, "The maximum attempts guard should run before another killing attempt.");
+		StringAssert.Contains(source[maxAttemptCheck..killingAttempt], "HandleFailedExecutionAttempts(patrol);");
+		StringAssert.Contains(source, "public string FailureEmote { get; private set; }");
+		StringAssert.Contains(source, "private void HandleFailedExecutionAttempts(IPatrol patrol)");
+		StringAssert.Contains(source, "DoEmote(patrol.PatrolLeader, FailureEmote, _condemned);");
+		StringAssert.Contains(source, "_condemned.RemoveAllEffects<ExecutionPatrolNoQuit>(x => x.Patrol == patrol, fireRemovalAction: true);");
+		StringAssert.Contains(source, "DelayAwaitingExecution(patrol.LegalAuthority);");
+		StringAssert.Contains(source, "patrol.LegalAuthority.SendCharacterToHoldingCell(_condemned);");
+		StringAssert.Contains(source, "private void DelayAwaitingExecution(ILegalAuthority authority)");
+		StringAssert.Contains(source, "MudDateTime retryDate = CurrentLegalTime(authority) + MudTimeSpan.FromDays(1);");
+		StringAssert.Contains(source, "effect.ExtendSentence(retryDate - effect.ExecutionDate);");
+	}
+
+	[TestMethod]
+	public void ExecutionPatrolStrategy_ShouldUseLeaderLedEquipmentPreparation()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "ExecutionPatrolStrategy.cs"));
+		int leaderMove = source.IndexOf("if (patrol.PatrolLeader.Location != equipment)", StringComparison.Ordinal);
+		int memberLoop = source.IndexOf("foreach (ICharacter member in patrol.PatrolMembers)", leaderMove, StringComparison.Ordinal);
+
+		Assert.IsTrue(leaderMove >= 0, "Execution preparation should move the leader to equipment first.");
+		Assert.IsTrue(memberLoop > leaderMove, "Member equipment orders should wait until the leader is at the equipment room.");
+		StringAssert.Contains(source[leaderMove..memberLoop], "MoveCharacterTo(patrol.PatrolLeader, equipment, 25);");
+		StringAssert.Contains(source[leaderMove..memberLoop], "return;");
 	}
 
 	[TestMethod]

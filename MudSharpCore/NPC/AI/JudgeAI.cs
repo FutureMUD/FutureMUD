@@ -1197,11 +1197,12 @@ With each of the emotes, you can use the following tokens:
         return DoTrialTick(enforcer, defendant, trialEffect);
     }
 
-    private bool DoTrialTick(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect)
-    {
-        Gendering gender = defendant.ApparentGender(enforcer);
-        string[] crimeNames = trialEffect.Crimes.Select(x => x.Law.CrimeType.DescribeEnum(true)).Distinct().ToArray();
-        switch (trialEffect.Phase)
+	private bool DoTrialTick(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect)
+	{
+		EnsureAutomatedProsecutor(trialEffect);
+		Gendering gender = defendant.ApparentGender(enforcer);
+		string[] crimeNames = trialEffect.Crimes.Select(x => x.Law.CrimeType.DescribeEnum(true)).Distinct().ToArray();
+		switch (trialEffect.Phase)
         {
             case TrialPhase.AwaitingLawyers:
                 return DoTrialTickAwaitingLawyers(enforcer, defendant, trialEffect, gender, crimeNames);
@@ -1221,21 +1222,42 @@ With each of the emotes, you can use the following tokens:
                 return DoTrialTickSentencing(enforcer, defendant, trialEffect, gender, crimeNames);
             default:
                 throw new ArgumentOutOfRangeException();
-        }
-    }
+		}
+	}
 
-    private bool DoTrialTickAwaitingLawyers(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
-    {
-        if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+	private static bool IsAutomatedProsecutor(ICharacter character, ILegalAuthority authority)
+	{
+		return character.CombinedEffectsOfType<PatrolMemberEffect>()
+		                .Any(x =>
+			                x.Patrol?.LegalAuthority == authority &&
+			                x.Patrol.PatrolStrategy.Name == "Prosecutor");
+	}
+
+	private static void EnsureAutomatedProsecutor(OnTrial trialEffect)
+	{
+		var court = trialEffect.LegalAuthority.CourtLocation;
+		if (trialEffect.Prosecutor is not null &&
+		    (trialEffect.Prosecutor.Location != court ||
+		     !IsAutomatedProsecutor(trialEffect.Prosecutor, trialEffect.LegalAuthority)))
+		{
+			trialEffect.Prosecutor = null;
+		}
+
+		trialEffect.Prosecutor ??= court.Characters.FirstOrDefault(x => IsAutomatedProsecutor(x, trialEffect.LegalAuthority));
+	}
+
+	private bool DoTrialTickAwaitingLawyers(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
+	{
+		if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
         {
             return false;
         }
 
-        Construction.ICell court = trialEffect.LegalAuthority.CourtLocation;
-        trialEffect.Prosecutor ??= enforcer;
+		Construction.ICell court = trialEffect.LegalAuthority.CourtLocation;
+		EnsureAutomatedProsecutor(trialEffect);
 
-        if (trialEffect.Defender is null)
-        {
+		if (trialEffect.Defender is null)
+		{
             HasLegalCounsel counselEffect = defendant.EffectsOfType<HasLegalCounsel>().FirstOrDefault();
             if (counselEffect is not null)
             {
@@ -1268,13 +1290,13 @@ With each of the emotes, you can use the following tokens:
                     lawyer.NPC.AddEffect(new Lawyering(lawyer.NPC, trialEffect.LegalAuthority));
                     defendant.OutputHandler.Send("#2[System Message]#0 You have a court-appointed lawyer, who is on their way.".SubstituteANSIColour());
                 }
-            }
-        }
+			}
+		}
 
-        if (trialEffect.Defender.Location == court && trialEffect.Prosecutor.Location == court)
-        {
-            trialEffect.Phase = TrialPhase.Introduction;
-            trialEffect.LastTrialAction = DateTime.UtcNow;
+		if (trialEffect.Defender?.Location == court && trialEffect.Prosecutor?.Location == court)
+		{
+			trialEffect.Phase = TrialPhase.Introduction;
+			trialEffect.LastTrialAction = DateTime.UtcNow;
             return true;
         }
 
@@ -1285,13 +1307,13 @@ With each of the emotes, you can use the following tokens:
             {
                 trialEffect.Defender.RemoveAllEffects(x => x.IsEffectType<Lawyering>());
                 trialEffect.Defender = null;
-                defendant.RemoveAllEffects(x => x.IsEffectType<HasLegalCounsel>());
-            }
+				defendant.RemoveAllEffects(x => x.IsEffectType<HasLegalCounsel>());
+			}
 
-            if (trialEffect.Prosecutor.Location != court)
-            {
-                trialEffect.Prosecutor = null;
-            }
+			if (trialEffect.Prosecutor?.Location != court)
+			{
+				trialEffect.Prosecutor = null;
+			}
         }
 
         return false;
@@ -1620,18 +1642,11 @@ With each of the emotes, you can use the following tokens:
         return true;
     }
 
-    private bool DoTrialTickCase(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
-    {
-        if (trialEffect.Prosecutor == enforcer && DateTime.UtcNow - trialEffect.LastTrialAction < TimeSpan.FromSeconds(5) && trialEffect.NextProsecutionCrime() is not null)
-        {
-            trialEffect.HandleArgueCommand(enforcer, false);
-            trialEffect.LastTrialAction = DateTime.UtcNow;
-            return false;
-        }
-
-        if (!trialEffect.CasesFinishedArguing() && DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
-        {
-            return false;
+	private bool DoTrialTickCase(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
+	{
+		if (!trialEffect.CasesFinishedArguing() && DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+		{
+			return false;
         }
 
         enforcer.OutputHandler.Handle(new EmoteOutput(new Emote(

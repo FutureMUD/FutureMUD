@@ -92,7 +92,7 @@ Execution emotes use the executioner as `$0` and the condemned prisoner as `$1` 
 The execution patrol progresses through these stages:
 
 1. Select a due condemned character and apply `ExecutionPatrolNoQuit`.
-2. Move patrol members to the equipment room.
+2. Move the patrol leader to the equipment room, with other members regrouping on the leader before preparing equipment.
 3. Collect restraints, method-specific tools, and, when configured, keys for the prisoner's retrieval route.
 4. Move the leader to the prisoner and send the retrieval emote.
 5. Give the prisoner the configured compliance window to use `HELPLESS` or submit to the guards.
@@ -107,11 +107,15 @@ The execution patrol progresses through these stages:
 
 If required rooms, tools, keys, paths, or targets become unavailable for too long, the patrol aborts and removes only the execution-specific no-quit effect. The `AwaitingExecution` effect remains so a later patrol can try again.
 
+If the patrol reaches the configured execution-attempt limit without killing the condemned prisoner, it announces the failed execution, releases any execution drag and no-quit state, delays the `AwaitingExecution` date by at least one in-game day from the current legal clock, sends the prisoner back to a holding cell, and then aborts the patrol. This keeps the sentence active but prevents an immediate silent relaunch loop.
+
 ## Trials and PC Judges
 
 Trials are represented by the `OnTrial` effect for the relevant legal authority. NPC judges drive ordinary `OnTrial` effects through the automated plea, argument, verdict, and sentencing phases. PC-held trials use the same effect as a court-session marker, but set the manual-trial flag so NPC judge AI will not advance or finalise the case.
 
 Automated trial effects persist their current phase, manual-trial flag, remaining per-charge queue, pleas, argument outcomes, and punishment results. If the game reboots mid-trial, the resumed `trial` view continues revealing only the charges, pleas, verdicts, and sentences that had actually been reached before the reboot.
+
+Automated trials use separate judge and prosecutor roles. The judge AI can read charges, collect pleas, move phases, announce verdicts, and sentence, but it does not argue the prosecution case. A prosecutor patrol member in the court claims the prosecution role and presents prosecution arguments; if no valid prosecutor patrol member is present, the trial waits rather than having the judge fill both roles.
 
 A PC judge is any enforcer whose enforcement authority has `CanConvict` for the jurisdiction and whose authority can judge the defendant's legal class.
 
@@ -152,6 +156,8 @@ Inactive patrol-route output reports both whether the route should begin and, wh
 The `showenforcers [authority|zone]` admin command reports the enforcer roster for a legal authority or any authority that enforces a specified zone. It includes on-duty state, patrol-pool eligibility, enforcement-authority match, current location, active patrol assignment, and the first reason a listed enforcer cannot be selected for patrol dispatch. The patrol pool requires an NPC with an `EnforcerAI`, an active `EnforcerEffect` for that legal authority, a currently matching enforcement authority, and no active patrol assignment.
 
 On-duty enforcers also report visible final-character-death corpses through the same local-authority corpse-report mechanism used by the player `REPORT CORPSE` command. The report is only queued when the corpse is visible, belongs to a zone with a responding legal authority, has an economic-zone morgue configured, and does not already have a pending or assigned recovery report.
+
+On-duty enforcers who are not currently assigned to a patrol can still take immediate custody of a helpless nearby criminal when the legal authority has a known, unfinalised, arrestable crime for that person. The enforcer begins dragging the criminal, clears any enforcer-side grapple or clinch state used to subdue them, paths to the authority prison location, and then uses the normal incarceration flow. This fallback is intentionally limited to arrestable detention cases; kill-on-sight enforcement and ordinary active fights remain patrol/combat behavior.
 
 ## Legal Status Diagnostics
 

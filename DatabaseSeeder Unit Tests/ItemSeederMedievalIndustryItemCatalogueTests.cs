@@ -57,7 +57,7 @@ public class ItemSeederMedievalIndustryItemCatalogueTests
 	[TestMethod]
 	public void MedievalIndustryItemSeeder_ShouldUseMergedPrerequisiteToolComponents()
 	{
-		var usefulSeederComponents = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "UsefulSeeder.ItemComponents.cs");
+		var usefulSeeder = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "UsefulSeeder.cs");
 		var toolSource = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalHouseholdTools.cs");
 
 		var requiredComponents = new[]
@@ -85,7 +85,7 @@ public class ItemSeederMedievalIndustryItemCatalogueTests
 
 		foreach (var component in requiredComponents)
 		{
-			StringAssert.Contains(usefulSeederComponents, component);
+			StringAssert.Contains(usefulSeeder, component);
 			StringAssert.Contains(toolSource, component);
 		}
 	}

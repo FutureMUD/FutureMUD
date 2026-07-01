@@ -17,6 +17,7 @@ using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using DbCrime = MudSharp.Models.Crime;
 
@@ -241,6 +242,100 @@ public class LegalTrialFlowTests
 		StringAssert.Contains(effects[2].ScoreAddendum.StripANSIColour(), "custodial sentence");
 		StringAssert.Contains(effects[3].ScoreAddendum.StripANSIColour(), "awaiting execution");
 		StringAssert.Contains(effects[3].ScoreAddendum.StripANSIColour(), MudDateTime.Never.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Immortal));
+	}
+
+	[TestMethod]
+	public void LegalSurrenderRoomDescriptionAddenda_ShouldPromptForReturnBailAtPrison()
+	{
+		Mock<ICell> prison = new();
+		Mock<ICell> elsewhere = new();
+
+		Mock<ILegalAuthority> authority = new();
+		authority.SetupGet(x => x.Name).Returns("Test Authority");
+		authority.SetupGet(x => x.PrisonLocation).Returns(prison.Object);
+
+		Mock<ICharacter> actor = new();
+		actor.SetupGet(x => x.Location).Returns(prison.Object);
+		OnBail bail = new(actor.Object, authority.Object, MudDateTime.Never);
+		OnBail[] bailEffects = [bail];
+		actor.Setup(x => x.EffectsOfType<OnBail>(It.IsAny<Predicate<OnBail>>()))
+		     .Returns((Predicate<OnBail>? predicate) => bailEffects.Where(x => predicate?.Invoke(x) ?? true));
+		actor.Setup(x => x.EffectsOfType<WarnedByEnforcer>(It.IsAny<Predicate<WarnedByEnforcer>>()))
+		     .Returns(Array.Empty<WarnedByEnforcer>());
+
+		List<string> prisonAddenda = Cell.LegalSurrenderRoomDescriptionAddenda(actor.Object, prison.Object)
+		                                  .Select(x => x.StripANSIColour())
+		                                  .ToList();
+		List<string> elsewhereAddenda = Cell.LegalSurrenderRoomDescriptionAddenda(actor.Object, elsewhere.Object)
+		                                      .Select(x => x.StripANSIColour())
+		                                      .ToList();
+
+		Assert.AreEqual(1, prisonAddenda.Count);
+		StringAssert.Contains(prisonAddenda[0], "on bail");
+		StringAssert.Contains(prisonAddenda[0], "RETURNBAIL");
+		StringAssert.Contains(prisonAddenda[0], "Test Authority");
+		Assert.AreEqual(0, elsewhereAddenda.Count);
+	}
+
+	[TestMethod]
+	public void LegalSurrenderRoomDescriptionAddenda_ShouldPromptForWantedSurrenderWhenEnforcersArePresent()
+	{
+		Mock<ICell> cell = new();
+
+		Mock<ILegalAuthority> authority = new();
+		authority.SetupGet(x => x.Name).Returns("Test Authority");
+
+		Mock<ICrime> crime = new();
+		Mock<ICharacter> actor = new();
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		Mock<ICharacter> enforcer = new();
+		enforcer.Setup(x => x.ColocatedWith(actor.Object)).Returns(true);
+
+		Mock<IPatrol> patrol = new();
+		patrol.SetupGet(x => x.PatrolMembers).Returns([enforcer.Object]);
+
+		WarnedByEnforcer warned = new(actor.Object, authority.Object, crime.Object, patrol.Object);
+		WarnedByEnforcer[] warningEffects = [warned];
+		actor.Setup(x => x.EffectsOfType<OnBail>(It.IsAny<Predicate<OnBail>>()))
+		     .Returns(Array.Empty<OnBail>());
+		actor.Setup(x => x.EffectsOfType<WarnedByEnforcer>(It.IsAny<Predicate<WarnedByEnforcer>>()))
+		     .Returns((Predicate<WarnedByEnforcer>? predicate) => warningEffects.Where(x => predicate?.Invoke(x) ?? true));
+
+		List<string> addenda = Cell.LegalSurrenderRoomDescriptionAddenda(actor.Object, cell.Object)
+		                           .Select(x => x.StripANSIColour())
+		                           .ToList();
+
+		Assert.AreEqual(1, addenda.Count);
+		StringAssert.Contains(addenda[0], "wanted");
+		StringAssert.Contains(addenda[0], "SURRENDER");
+		StringAssert.Contains(addenda[0], "Test Authority");
+	}
+
+	[TestMethod]
+	public void LegalSurrenderRoomDescriptionAddenda_ShouldNotPromptForWantedSurrenderWithoutPresentEnforcers()
+	{
+		Mock<ICell> cell = new();
+
+		Mock<ILegalAuthority> authority = new();
+		authority.SetupGet(x => x.Name).Returns("Test Authority");
+
+		Mock<ICrime> crime = new();
+		Mock<ICharacter> actor = new();
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		Mock<ICharacter> enforcer = new();
+		enforcer.Setup(x => x.ColocatedWith(actor.Object)).Returns(false);
+
+		Mock<IPatrol> patrol = new();
+		patrol.SetupGet(x => x.PatrolMembers).Returns([enforcer.Object]);
+
+		WarnedByEnforcer warned = new(actor.Object, authority.Object, crime.Object, patrol.Object);
+		WarnedByEnforcer[] warningEffects = [warned];
+		actor.Setup(x => x.EffectsOfType<OnBail>(It.IsAny<Predicate<OnBail>>()))
+		     .Returns(Array.Empty<OnBail>());
+		actor.Setup(x => x.EffectsOfType<WarnedByEnforcer>(It.IsAny<Predicate<WarnedByEnforcer>>()))
+		     .Returns((Predicate<WarnedByEnforcer>? predicate) => warningEffects.Where(x => predicate?.Invoke(x) ?? true));
+
+		Assert.AreEqual(0, Cell.LegalSurrenderRoomDescriptionAddenda(actor.Object, cell.Object).Count());
 	}
 
 	[TestMethod]

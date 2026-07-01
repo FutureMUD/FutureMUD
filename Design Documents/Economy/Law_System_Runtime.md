@@ -134,6 +134,8 @@ Prisoners can engage legal counsel while physically held in a remand cell, and a
 
 `score` includes legal status addenda for characters on remand, on bail, serving a custodial sentence, or awaiting execution. Execution status uses the more precise time display so condemned characters can see the scheduled execution time.
 
+Room `look` descriptions include yellow command hints when a character can surrender to legal authorities in that room. Characters on bail see a `RETURNBAIL` prompt at the jurisdiction's prison location, and characters warned by an enforcement patrol see a `SURRENDER` prompt while an accepting patrol member is present.
+
 ## Patrol Route Diagnostics
 
 Inactive patrol-route output reports both whether the route should begin and, when it should not, the first blocking reason. Reasons include routes not marked ready, missing patrol nodes, crime-targeted or corpse-recovery routes waiting for a trigger, strategy-specific configuration or target blockers, a false start prog, no required enforcers, no enforcement zones, or a current time of day outside the route schedule.

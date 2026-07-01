@@ -10,6 +10,7 @@ using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Magic;
 using MudSharp.Planes;
+using MudSharp.RPG.Law;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -658,6 +659,8 @@ public partial class Cell
             descSubSB.AppendLine($"You can use the MORGUE command here.".ColourIncludingReset(Telnet.Yellow));
         }
 
+        AppendLegalSurrenderRoomDescriptionAddenda(descSubSB, character, ref addedAdditionalLines);
+
         AppendPlaneRoomDescriptionAddendum(descSubSB, character, voyeur, flags, ref addedAdditionalLines);
 
         if (Characters.Any(x => x.AffectedBy<OnTrial>()))
@@ -667,6 +670,59 @@ public partial class Cell
 
         sb.Append(descSubSB.ToString().Wrap(character.Account.InnerLineFormatLength));
         return sb.ToString().Wrap(character?.Account.LineFormatLength ?? 120);
+    }
+
+    private void AppendLegalSurrenderRoomDescriptionAddenda(StringBuilder descSubSB, ICharacter character,
+        ref bool addedAdditionalLines)
+    {
+        if (character is null || !Gameworld.GetStaticBool("ShowShopInRoomDescription"))
+        {
+            return;
+        }
+
+        foreach (string addendum in LegalSurrenderRoomDescriptionAddenda(character, this))
+        {
+            if (!addedAdditionalLines)
+            {
+                addedAdditionalLines = true;
+                descSubSB.AppendLine();
+            }
+
+            if (character.Account.TabRoomDescriptions == true)
+            {
+                descSubSB.Append("\t");
+            }
+
+            descSubSB.AppendLine(addendum);
+        }
+    }
+
+    internal static IEnumerable<string> LegalSurrenderRoomDescriptionAddenda(ICharacter character, ICell cell)
+    {
+        if (character.Location != cell)
+        {
+            yield break;
+        }
+
+        foreach (ILegalAuthority authority in character.EffectsOfType<OnBail>()
+                                                       .Select(x => x.LegalAuthority)
+                                                       .Where(x => x.PrisonLocation == cell)
+                                                       .Distinct())
+        {
+            yield return
+                $"You are on bail in the {authority.Name.ColourName()} jurisdiction. Use the command RETURNBAIL here to surrender yourself back to custody."
+                    .ColourIncludingReset(Telnet.Yellow);
+        }
+
+        foreach (ILegalAuthority authority in character.EffectsOfType<WarnedByEnforcer>()
+                                                       .Where(x => x.WhichPatrol.PatrolMembers.Any(y => y.ColocatedWith(character)))
+                                                       .Select(x => x.WhichAuthority)
+                                                       .Distinct())
+        {
+            yield return
+                $"You are wanted by the {authority.Name.ColourName()} authorities, and officers are here to accept your surrender. Use the command SURRENDER here to submit to them."
+                    .ColourIncludingReset(Telnet.Yellow);
+        }
     }
 
     private string RoomNameForPlane(string baseRoomName, IPerceiver voyeur, PerceiveIgnoreFlags flags)

@@ -362,6 +362,8 @@ Grid creator items for power, liquid, and telecommunications are also responsibl
 - connector-aware components can also persist and restore linked items so that networks survive save/load cycles
 - hitch connector items can receive temporary no-get effects while reserved by active vehicle or mount hitch links
 
+Installed doors are exit-anchored items. Runtime command paths should treat the exit's door reference as authoritative for targeting by direction or non-cardinal exit keyword, and repair a missing door-to-exit back-reference when the visible exit still owns that door. This keeps `install`, `uninstall`, lock manipulation, and location checks consistent with what LOOK shows to players.
+
 This aggregation layer is why item code often looks simple at the call site even when item behaviour is complex.
 
 ## Prototypes, Revisions, and Live Items

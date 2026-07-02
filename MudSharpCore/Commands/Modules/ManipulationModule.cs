@@ -4390,13 +4390,26 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
         targetExit.Exit.Door.Knock(character, emote);
     }
 
-    [PlayerCommand("Install", "install")]
+	private const string InstallHelpText = @"The #3install#0 command is used to put compatible loose items into their working location. It can install a door into an exit, a loose lock into a lockable item or door, or a vehicle module into a compatible vehicle installation point. You must usually be holding the thing being installed, and ordinary characters take time to complete the work.
+
+Doors are installed into exits, which may be cardinal directions like #3north#0 or non-cardinal exit keywords like #3cell1#0. The exit must accept doors, must not already have one, and must be sized for the door. If you specify #3inwards#0 or #3outwards#0, that is from your current side of the exit.
+
+Locks must be loose installable lock items and must be unlocked before installation. Vehicle modules use the vehicle's own installation points and access checks. Any delayed installation can be interrupted if you move, lose the item, or the target stops being present.
+
+The syntax is as follows:
+
+	#3install <door> <exit> [inwards|outwards]#0 - installs a held door into an exit
+	#3install <lock> <door|container|exit>#0 - installs a held lock into a lockable target
+	#3install <module> <vehicle> [<point>]#0 - installs a held vehicle module into a vehicle";
+
+	[PlayerCommand("Install", "install")]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [CommandPermission(PermissionLevel.NPC)]
     [RequiredCharacterState(CharacterState.Able)]
     [NoHideCommand]
     [NoCombatCommand]
     [NoMovementCommand]
+	[HelpInfo("install", InstallHelpText, AutoHelp.HelpArgOrNoArg)]
     protected static void Install(ICharacter character, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -4513,6 +4526,64 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
                    x.Prototype.MountType.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
     }
 
+	private static IGameItem ResolveDoorItemFromExit(ICellExit exit)
+	{
+		if (exit?.Exit.Door == null)
+		{
+			return null;
+		}
+
+		RepairDoorExitBackReference(exit, exit.Exit.Door);
+		return exit.Exit.Door.Parent;
+	}
+
+	private static ICellExit ResolveDoorExit(ICharacter character, IDoor door, ICellExit exit = null)
+	{
+		if (exit?.Exit.Door == door)
+		{
+			RepairDoorExitBackReference(exit, door);
+			return exit;
+		}
+
+		var installedExit = door.InstalledExit?.CellExitFor(character.Location);
+		if (installedExit?.Exit.Door == door)
+		{
+			return installedExit;
+		}
+
+		var visibleExit = character.Location.ExitsFor(character).FirstOrDefault(x => x.Exit.Door == door);
+		if (visibleExit != null)
+		{
+			RepairDoorExitBackReference(visibleExit, door);
+		}
+
+		return visibleExit;
+	}
+
+	private static void RepairDoorExitBackReference(ICellExit exit, IDoor door)
+	{
+		if (exit?.Exit.Door != door || door.InstalledExit == exit.Exit || door.InstalledExit != null)
+		{
+			return;
+		}
+
+		door.InstalledExit = exit.Exit;
+		door.Changed = true;
+		exit.Exit.Changed = true;
+	}
+
+	private static bool TargetRemainsPresentForInstall(ICharacter character, IGameItem targetItem, ICellExit exit)
+	{
+		if (targetItem?.TrueLocations.Contains(character.Location) == true)
+		{
+			return true;
+		}
+
+		var targetAsDoor = targetItem?.GetItemType<IDoor>();
+		return targetAsDoor != null &&
+		       ResolveDoorExit(character, targetAsDoor, exit)?.Exit.Cells.Contains(character.Location) == true;
+	}
+
     private static void InstallLock(ICharacter character, StringStack ss, IGameItem lockItem, ILock theLock)
     {
         if (ss.IsFinished)
@@ -4531,7 +4602,7 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
         }
         else
         {
-            targetItem = exit.Exit.Door != null ? exit.Exit.Door.Parent : character.TargetItem(targetText);
+            targetItem = ResolveDoorItemFromExit(exit) ?? character.TargetItem(targetText);
         }
 
         if (targetItem == null)
@@ -4547,6 +4618,12 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
                 targetItem.HowSeen(character, true));
             return;
         }
+
+		if (!theLock.CanBeInstalled)
+		{
+			character.Send("{0} is not something that can be installed.", lockItem.HowSeen(character, true));
+			return;
+		}
 
         if (theLock.IsLocked)
         {
@@ -4571,7 +4648,7 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
                 return;
             }
 
-            if (targetItem == null || !targetItem.TrueLocations.Contains(character.Location))
+            if (targetItem == null || !TargetRemainsPresentForInstall(character, targetItem, exit))
             {
                 character.OutputHandler.Handle(new EmoteOutput(new Emote(
                     "@ stop|stops installing the lock as the target is no longer there.", character, character)));
@@ -4708,13 +4785,26 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
         }
     }
 
-    [PlayerCommand("Uninstall", "uninstall")]
+	private const string UninstallHelpText = @"The #3uninstall#0 command is used to remove installed things from their working location. It can remove a door from an exit, a lock from a lockable item or door, or a vehicle module from a vehicle installation point. Ordinary characters take time to complete most removals, while administrators complete them immediately.
+
+Doors are addressed either by the door item or by the exit keyword shown in LOOK, including non-cardinal exits like #3cell1#0. Removing a door may require the door to be player-removable, may be easier or harder from the hinge side, and may require a successful check with the appropriate trait.
+
+Locks must usually be unlocked first, and if the locked object can open it must be open before you remove its lock. Removed locks go to your hands if possible or are set down; removed doors are placed in the room. Delayed removals can be interrupted if the target disappears, closes, locks, or otherwise changes while you work.
+
+The syntax is as follows:
+
+	#3uninstall <door|exit>#0 - removes an installed door from an exit
+	#3uninstall <door|container|exit> [<lock>]#0 - removes a lock from a lockable target
+	#3uninstall <vehicle module>#0 - removes an installed vehicle module from its vehicle";
+
+	[PlayerCommand("Uninstall", "uninstall")]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [CommandPermission(PermissionLevel.NPC)]
     [RequiredCharacterState(CharacterState.Able)]
     [NoHideCommand]
     [NoCombatCommand]
     [NoMovementCommand]
+	[HelpInfo("uninstall", UninstallHelpText, AutoHelp.HelpArgOrNoArg)]
     protected static void Uninstall(ICharacter character, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -4733,7 +4823,7 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
         }
         else
         {
-            targetItem = exit.Exit.Door == null ? character.TargetItem(targetText) : exit.Exit.Door.Parent;
+            targetItem = ResolveDoorItemFromExit(exit) ?? character.TargetItem(targetText);
         }
 
         if (targetItem == null)
@@ -4752,7 +4842,14 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
             IDoor targetAsDoor = targetItem.GetItemType<IDoor>();
             if (targetAsDoor != null)
             {
-                UninstallDoor(character, targetItem, targetAsDoor, exit);
+				var doorExit = ResolveDoorExit(character, targetAsDoor, exit);
+				if (doorExit == null)
+				{
+					character.Send("{0} is not installed anywhere.", targetItem.HowSeen(character, true));
+					return;
+				}
+
+                UninstallDoor(character, targetItem, targetAsDoor, doorExit);
                 return;
             }
 
@@ -4918,6 +5015,13 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
 
     private static void UninstallDoor(ICharacter character, IGameItem doorItem, IDoor door, ICellExit exit)
     {
+		exit = ResolveDoorExit(character, door, exit);
+		if (exit == null || door.InstalledExit == null)
+		{
+			character.Send("{0} is not installed anywhere.", doorItem.HowSeen(character, true));
+			return;
+		}
+
         if (!character.IsAdministrator())
         {
             if (!door.CanPlayersUninstall)
@@ -4945,12 +5049,6 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
         if (character.Movement != null)
         {
             character.Send("You must stop moving first.");
-            return;
-        }
-
-        if (door.InstalledExit == null)
-        {
-            character.Send("{0} is not installed anywhere.", doorItem.HowSeen(character, true));
             return;
         }
 

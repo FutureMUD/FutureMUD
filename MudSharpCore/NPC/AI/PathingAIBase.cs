@@ -289,30 +289,9 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return;
         }
 
-        if (CloseDoorsBehind && exit.Exit.Door?.IsOpen == true)
+        if (CloseDoorsBehind)
         {
-            ch.Body.Close(exit.Exit.Door, null, null);
-            if (UseKeys)
-            {
-                List<IKey> keys =
-                    ch.Body.ExternalItems.SelectNotNull(y => y.GetItemType<IKey>())
-                      .Concat(
-                          ch.Body.ExternalItems
-                            .SelectNotNull(y => y.GetItemType<IContainer>())
-                            .Where(y => (y.Parent.GetItemType<IOpenable>()?.IsOpen ?? true) ||
-                                        y.Parent.GetItemType<IOpenable>().CanOpen(ch.Body))
-                            .SelectMany(y => y.Contents.SelectNotNull(z => z.GetItemType<IKey>()))
-                      ).ToList();
-                List<IKey> importantKeys = keys.Where(x => exit.Exit.Door.Locks.Any(y => !y.IsLocked && y.CanUnlock(ch, x)))
-                                        .ToList();
-                List<Tuple<IKey, IInventoryPlan>> usableKeys = importantKeys.Select(x => Tuple.Create(x, GetHoldPlanForItem(ch, x.Parent)))
-                                              .Where(x => x.Item2.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
-                                              .ToList();
-
-                LockDoor effect = new(ch, exit.Exit.Door, usableKeys);
-                ch.AddEffect(effect);
-                ch.RemoveEffect(effect, true);
-            }
+            FollowingPath.CloseDoorBehind(ch, exit, UseKeys);
         }
     }
 
@@ -633,6 +612,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         path.UseKeys = UseKeys;
         path.SmashLockedDoors = SmashLockedDoors;
         path.UseDoorguards = UseDoorguards;
+        path.CloseDoorsBehind = CloseDoorsBehind;
         path.FollowPathAction();
     }
 

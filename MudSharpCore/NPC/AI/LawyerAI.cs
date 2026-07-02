@@ -80,6 +80,21 @@ public class LawyerAI : PathingAIBase
     public IFutureProg? HomeBaseProg { get; private set; }
     public IFutureProg? BankAccountProg { get; private set; }
 
+    protected override bool WouldMove(ICharacter ch)
+    {
+        return !IsAssignedToPatrol(ch);
+    }
+
+    protected override bool IsPathingEnabled(ICharacter character)
+    {
+        return !IsAssignedToPatrol(character);
+    }
+
+    private static bool IsAssignedToPatrol(ICharacter character)
+    {
+        return character.CombinedEffectsOfType<PatrolMemberEffect>().Any(x => x.Patrol is not null);
+    }
+
     public bool AvailableToHire(ICharacter ch, ILegalAuthority authority, bool courtAppointed)
     {
         if (ch.AffectedBy<Lawyering>())

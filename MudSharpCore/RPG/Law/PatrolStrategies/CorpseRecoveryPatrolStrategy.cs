@@ -106,9 +106,7 @@ public class CorpseRecoveryPatrolStrategy : PatrolStrategyBase
             }
         }
 
-        FollowingPath fp = new(patrol.PatrolLeader, path) { UseDoorguards = true, UseKeys = true, OpenDoors = true };
-        patrol.PatrolLeader.AddEffect(fp);
-        fp.FollowPathAction();
+        BeginPatrolPath(patrol.PatrolLeader, path);
     }
 
     private void HandleRecovery(IPatrol patrol)

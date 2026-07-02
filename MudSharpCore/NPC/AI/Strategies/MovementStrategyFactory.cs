@@ -59,11 +59,18 @@ public class MovementStrategyFactory
 
     internal abstract class BaseStrategy : IMovementStrategy
     {
-        public bool CheckDoorGuard(ICharacter ch, ICharacter tch, ICellExit exit)
+        public bool DoorGuardIsOpeningDoor(ICellExit exit)
+        {
+            return exit.Origin.Characters
+                       .Concat(exit.Destination.Characters)
+                       .Any(x => x.AffectedBy<IDoorguardOpeningDoorEffect>(exit));
+        }
+
+        public MovementStrategyResult CheckDoorGuard(ICharacter ch, ICharacter tch, ICellExit exit)
         {
             if (tch is not INPC tchNPC)
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             List<DoorguardAI> doorguardAI = tchNPC.AIs.OfType<DoorguardAI>().ToList();
@@ -76,27 +83,27 @@ public class MovementStrategyFactory
                     {
                         case WouldOpenResponseType.WillOpenIfKnock:
                             exit.Exit.Door.Knock(ch);
-                            return true;
+                            return MovementStrategyResult.Waiting;
                         case WouldOpenResponseType.WillOpenIfMove:
-                            return true;
+                            return ch.Move(exit) ? MovementStrategyResult.Waiting : MovementStrategyResult.Failed;
                         case WouldOpenResponseType.WillOpenIfSocial:
                             ISocial social =
                                 ch.Gameworld.Socials.FirstOrDefault(x => x.Applies(ch, response.Social, false));
                             if (social == null)
                             {
-                                return false;
+                                return MovementStrategyResult.Failed;
                             }
 
                             social.Execute(ch,
                                 (response.DirectionRequired || !response.SocialTargetRequired
                                     ? Enumerable.Empty<IPerceivable>()
                                     : new[] { tch }).ToList(), response.DirectionRequired ? exit : null, null);
-                            return true;
+                            return MovementStrategyResult.Waiting;
                     }
                 }
             }
 
-            return true;
+            return MovementStrategyResult.Failed;
         }
 
         public IInventoryPlan GetHoldPlanForItem(ICharacter ch, IGameItem item)
@@ -137,62 +144,62 @@ public class MovementStrategyFactory
             return true;
         }
 
-        public abstract bool TryToMove(ICharacter ch, ICellExit exit);
+        public abstract MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit);
     }
 
     internal class MoveOnlyStrategy : BaseStrategy
     {
-        public override bool TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
-            return ch.Move(exit);
+            return ch.Move(exit) ? MovementStrategyResult.Moved : MovementStrategyResult.Failed;
         }
     }
 
     internal class OpenDoorsOnlyStrategy : BaseStrategy
     {
-        public override bool TryToMove(ICharacter character, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter character, ICellExit exit)
         {
             if (!CheckPosition(character) || character.Movement != null)
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!character.CanMove(exit))
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!(exit.Exit.Door?.IsOpen ?? true))
             {
                 if (!character.Body.CanOpen(exit.Exit.Door))
                 {
-                    return false;
+                    return MovementStrategyResult.Failed;
                 }
 
                 character.Body.Open(exit.Exit.Door, null, null);
             }
 
-            return character.Move(exit);
+            return character.Move(exit) ? MovementStrategyResult.Moved : MovementStrategyResult.Failed;
         }
     }
 
     internal class UseKeysStrategy : BaseStrategy
     {
-        public override bool TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!ch.CanMove(exit))
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!(exit.Exit.Door?.IsOpen ?? true))
@@ -204,31 +211,31 @@ public class MovementStrategyFactory
                         UnlockDoor effect = new(ch, exit.Exit.Door, exit);
                         ch.AddEffect(effect);
                         ch.RemoveEffect(effect, true); // Add and instantly remove to trigger the first action
-                        return false;
+                        return MovementStrategyResult.Waiting;
                     }
 
-                    return false;
+                    return MovementStrategyResult.Failed;
                 }
 
                 ch.Body.Open(exit.Exit.Door, null, null);
             }
 
-            return ch.Move(exit);
+            return ch.Move(exit) ? MovementStrategyResult.Moved : MovementStrategyResult.Failed;
         }
     }
 
     internal class BreakDownDoorsStrategy : BaseStrategy
     {
-        public override bool TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!ch.CanMove(exit))
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!(exit.Exit.Door?.IsOpen ?? true))
@@ -236,93 +243,101 @@ public class MovementStrategyFactory
                 if (!ch.Body.CanOpen(exit.Exit.Door))
                 {
                     ch.AddEffect(new BreakDownDoor(ch, exit));
-                    return false;
+                    return MovementStrategyResult.Waiting;
                 }
 
                 ch.Body.Open(exit.Exit.Door, null, null);
             }
 
-            return ch.Move(exit);
+            return ch.Move(exit) ? MovementStrategyResult.Moved : MovementStrategyResult.Failed;
         }
     }
 
     internal class BreakDownDoorsOnlyStrategy : BaseStrategy
     {
-        public override bool TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!ch.CanMove(exit))
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!(exit.Exit.Door?.IsOpen ?? true))
             {
                 ch.AddEffect(new BreakDownDoor(ch, exit));
-                return false;
+                return MovementStrategyResult.Waiting;
             }
 
-            return ch.Move(exit);
+            return ch.Move(exit) ? MovementStrategyResult.Moved : MovementStrategyResult.Failed;
         }
     }
 
     internal class FullFriendlyStrategy : BaseStrategy
     {
-        public override bool TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!ch.CanMove(exit))
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!(exit.Exit.Door?.IsOpen ?? true))
             {
                 if (!ch.Body.CanOpen(exit.Exit.Door))
                 {
-                    bool result = false;
+                    if (DoorGuardIsOpeningDoor(exit))
+                    {
+                        return MovementStrategyResult.Waiting;
+                    }
+
+                    MovementStrategyResult result = MovementStrategyResult.Failed;
                     foreach (ICharacter tch in ch.Location.Characters.Where(x =>
                                  x.AffectedBy<IDoorguardModeEffect>() && !x.AffectedBy<DoorguardOpeningDoor>()))
                     {
                         result = CheckDoorGuard(ch, tch, exit);
-                        if (result)
+                        if (result != MovementStrategyResult.Failed)
                         {
                             break;
                         }
                     }
 
-                    if (!result)
+                    if (result == MovementStrategyResult.Failed)
                     {
                         foreach (ICharacter tch in exit.Destination.Characters.Where(x =>
                                      x.AffectedBy<IDoorguardModeEffect>() && !x.AffectedBy<DoorguardOpeningDoor>()))
                         {
                             result = CheckDoorGuard(ch, tch, exit);
-                            if (result)
+                            if (result != MovementStrategyResult.Failed)
                             {
                                 break;
                             }
                         }
                     }
 
-                    if (!result)
+                    if (result == MovementStrategyResult.Failed)
                     {
                         if (exit.Exit.Door.Locks.Any(x => x.IsLocked))
                         {
                             UnlockDoor effect = new(ch, exit.Exit.Door, exit);
                             ch.AddEffect(effect);
                             ch.RemoveEffect(effect, true); // Add and instantly remove to trigger the first action
+                            return MovementStrategyResult.Waiting;
                         }
 
-                        return false;
+                        return MovementStrategyResult.Failed;
                     }
+
+                    return result;
                 }
                 else
                 {
@@ -330,56 +345,63 @@ public class MovementStrategyFactory
                 }
             }
 
-            return ch.Move(exit);
+            return ch.Move(exit) ? MovementStrategyResult.Moved : MovementStrategyResult.Failed;
         }
     }
 
     internal class OpenDoorsUseDoorguardsStrategy : BaseStrategy
     {
-        public override bool TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!ch.CanMove(exit))
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!(exit.Exit.Door?.IsOpen ?? true))
             {
                 if (!ch.Body.CanOpen(exit.Exit.Door))
                 {
-                    bool result = false;
+                    if (DoorGuardIsOpeningDoor(exit))
+                    {
+                        return MovementStrategyResult.Waiting;
+                    }
+
+                    MovementStrategyResult result = MovementStrategyResult.Failed;
                     foreach (ICharacter tch in ch.Location.Characters.Where(x =>
                                  x.AffectedBy<IDoorguardModeEffect>() && !x.AffectedBy<DoorguardOpeningDoor>()))
                     {
                         result = CheckDoorGuard(ch, tch, exit);
-                        if (result)
+                        if (result != MovementStrategyResult.Failed)
                         {
                             break;
                         }
                     }
 
-                    if (!result)
+                    if (result == MovementStrategyResult.Failed)
                     {
                         foreach (ICharacter tch in exit.Destination.Characters.Where(x =>
                                      x.AffectedBy<IDoorguardModeEffect>() && !x.AffectedBy<DoorguardOpeningDoor>()))
                         {
                             result = CheckDoorGuard(ch, tch, exit);
-                            if (result)
+                            if (result != MovementStrategyResult.Failed)
                             {
                                 break;
                             }
                         }
                     }
 
-                    if (!result)
+                    if (result == MovementStrategyResult.Failed)
                     {
-                        return false;
+                        return MovementStrategyResult.Failed;
                     }
+
+                    return result;
                 }
                 else
                 {
@@ -387,57 +409,64 @@ public class MovementStrategyFactory
                 }
             }
 
-            return ch.Move(exit);
+            return ch.Move(exit) ? MovementStrategyResult.Moved : MovementStrategyResult.Failed;
         }
     }
 
     internal class UseDoorguardsOnlyStrategy : BaseStrategy
     {
-        public override bool TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!ch.CanMove(exit))
             {
-                return false;
+                return MovementStrategyResult.Failed;
             }
 
             if (!(exit.Exit.Door?.IsOpen ?? true))
             {
-                bool result = false;
+                if (DoorGuardIsOpeningDoor(exit))
+                {
+                    return MovementStrategyResult.Waiting;
+                }
+
+                MovementStrategyResult result = MovementStrategyResult.Failed;
                 foreach (ICharacter tch in ch.Location.Characters.Where(x =>
                              x.AffectedBy<IDoorguardModeEffect>() && !x.AffectedBy<DoorguardOpeningDoor>()))
                 {
                     result = CheckDoorGuard(ch, tch, exit);
-                    if (result)
+                    if (result != MovementStrategyResult.Failed)
                     {
                         break;
                     }
                 }
 
-                if (!result)
+                if (result == MovementStrategyResult.Failed)
                 {
                     foreach (ICharacter tch in exit.Destination.Characters.Where(x =>
                                  x.AffectedBy<IDoorguardModeEffect>() && !x.AffectedBy<DoorguardOpeningDoor>()))
                     {
                         result = CheckDoorGuard(ch, tch, exit);
-                        if (result)
+                        if (result != MovementStrategyResult.Failed)
                         {
                             break;
                         }
                     }
                 }
 
-                if (!result)
+                if (result == MovementStrategyResult.Failed)
                 {
-                    return false;
+                    return MovementStrategyResult.Failed;
                 }
+
+                return result;
             }
 
-            return ch.Move(exit);
+            return ch.Move(exit) ? MovementStrategyResult.Moved : MovementStrategyResult.Failed;
         }
     }
 }

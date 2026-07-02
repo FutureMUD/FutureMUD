@@ -62,6 +62,25 @@ public class LegalCommandPresentationTests
 		Assert.IsTrue(patrolControllerSource.Contains("npc.AIs.Any(y => y is EnforcerAI)", StringComparison.Ordinal));
 	}
 
+	[TestMethod]
+	public void RequestExecution_ShouldBringForwardDeathSentenceAndLaunchExecutionPatrol()
+	{
+		string crimeModuleSource = File.ReadAllText(GetCoreSourcePath("Commands", "Modules", "CrimeModule.cs"));
+		string effectSource = File.ReadAllText(GetCoreSourcePath("Effects", "Concrete", "AwaitingExecution.cs"));
+		string controllerInterfaceSource = File.ReadAllText(GetLibrarySourcePath("RPG", "Law", "IPatrolController.cs"));
+		string controllerSource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolController.cs"));
+
+		StringAssert.Contains(crimeModuleSource, "[PlayerCommand(\"RequestExecution\", \"requestexecution\")]");
+		StringAssert.Contains(crimeModuleSource, "effect.BringForwardTo(now)");
+		StringAssert.Contains(crimeModuleSource, "jurisdiction.PatrolController.TryBeginPatrol(route)");
+		StringAssert.Contains(crimeModuleSource, "x.PatrolStrategy.Name == \"ExecutionPatrol\"");
+		StringAssert.Contains(effectSource, "public bool BringForwardTo(MudDateTime executionDate)");
+		StringAssert.Contains(controllerInterfaceSource, "bool TryBeginPatrol(IPatrolRoute route);");
+		StringAssert.Contains(controllerSource, "public bool TryBeginPatrol(IPatrolRoute route)");
+		StringAssert.Contains(controllerSource, "AvailableEnforcerPool()");
+		StringAssert.Contains(controllerSource, "PatrolLaunchPrerequisitesReady()");
+	}
+
 	private static string ExtractBlock(string source, string startMarker, string endMarker)
 	{
 		int start = source.IndexOf(startMarker, StringComparison.Ordinal);
@@ -84,6 +103,20 @@ public class LegalCommandPresentationTests
 				"..",
 				"..",
 				"MudSharpCore"
+			}.Concat(segments).ToArray()));
+	}
+
+	private static string GetLibrarySourcePath(params string[] segments)
+	{
+		return Path.GetFullPath(Path.Combine(
+			new[]
+			{
+				AppContext.BaseDirectory,
+				"..",
+				"..",
+				"..",
+				"..",
+				"FutureMUDLibrary"
 			}.Concat(segments).ToArray()));
 	}
 }

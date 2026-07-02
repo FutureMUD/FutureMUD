@@ -683,7 +683,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
 			return true;
 		}
 
-		fp = new FollowingPath(enforcer, path) { UseDoorguards = true, UseKeys = true, OpenDoors = true };
+		fp = FollowingPath.CreateFullFriendlyPath(enforcer, path, closeDoorsBehind: true);
 		enforcer.AddEffect(fp);
 		if (enforcer.CouldMove(false, null).Success)
 		{
@@ -741,7 +741,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
         }
 
         enforcer.RemoveAllEffects<FollowingPath>(fireRemovalAction: true);
-        var fp = new FollowingPath(enforcer, path) { UseDoorguards = true, UseKeys = true, OpenDoors = true };
+        var fp = FollowingPath.CreateFullFriendlyPath(enforcer, path, closeDoorsBehind: true);
         enforcer.AddEffect(fp);
         fp.FollowPathAction();
         return true;
@@ -835,7 +835,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
                                .ToList();
             if (path.Any())
             {
-                FollowingPath fp = new(enforcer, path) { UseDoorguards = true, UseKeys = true, OpenDoors = true };
+                FollowingPath fp = FollowingPath.CreateFullFriendlyPath(enforcer, path, closeDoorsBehind: true);
                 enforcer.AddEffect(fp);
                 fp.FollowPathAction();
                 return true;
@@ -925,7 +925,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
                 PathSearch.PathIncludeUnlockableDoors(enforcer)).ToList();
             if (path.Any())
             {
-                fp = new FollowingPath(enforcer, path) { UseDoorguards = true, UseKeys = true, OpenDoors = true };
+                fp = FollowingPath.CreateFullFriendlyPath(enforcer, path, closeDoorsBehind: true);
                 enforcer.AddEffect(fp);
                 fp.FollowPathAction();
             }

@@ -1593,6 +1593,11 @@ The syntax is either #3patrols#0 or #3patrols <jurisdiction>#0 if you are an enf
         return now + MudTimeSpan.FromSeconds(authority.AutomaticConvictionTime.TotalSeconds);
     }
 
+    private static MudDateTime CurrentLegalTime(ICharacter actor, ILegalAuthority authority)
+    {
+        return authority.EnforcementZones.FirstOrDefault()?.DateTime() ?? actor.Location.DateTime();
+    }
+
     [PlayerCommand("RequestTrial", "requesttrial")]
     [RequiredCharacterState(CharacterState.Able)]
     [HelpInfo("requesttrial", @"The #3requesttrial#0 command is used when you are being held in remand for crimes you have committed, and if possible, begins a trial for you so that you can answer for your crimes. In some cases a trial may commence after you've been waiting for a while regardless of whether you request one.
@@ -1677,6 +1682,84 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
         }
 
         actor.OutputHandler.Send($"You cannot have a trial right now because {errors.ListToString()}.");
+    }
+
+    [PlayerCommand("RequestExecution", "requestexecution")]
+    [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("requestexecution", @"The #3requestexecution#0 command is used when you are being held in remand while awaiting execution, and asks for your execution to be brought forward to the current time if an execution patrol can carry it out.
+
+You must be physically held in a remand cell, not already in an execution patrol, and the jurisdiction must have an execution patrol route available.
+
+The syntax for this command is simply #3requestexecution#0.", AutoHelp.HelpArg)]
+    protected static void RequestExecution(ICharacter actor, string input)
+    {
+        if (!actor.AffectedBy<AwaitingExecution>())
+        {
+            actor.OutputHandler.Send("You are not awaiting execution.");
+            return;
+        }
+
+        if (actor.AffectedBy<ExecutionPatrolNoQuit>())
+        {
+            actor.OutputHandler.Send("Your execution is already underway.");
+            return;
+        }
+
+        if (actor.AffectedBy<InCustodyOfEnforcer>())
+        {
+            actor.OutputHandler.Send("You cannot request execution while you are in the custody of an enforcer.");
+            return;
+        }
+
+        List<string> errors = new();
+        foreach (AwaitingExecution effect in actor.EffectsOfType<AwaitingExecution>())
+        {
+            ILegalAuthority jurisdiction = effect.LegalAuthority;
+            if (!jurisdiction.IsInRemandCell(actor))
+            {
+                errors.Add($"you are not being held in a {jurisdiction.Name.ColourName()} remand cell");
+                continue;
+            }
+
+            List<IPatrolRoute> routes = jurisdiction.PatrolRoutes
+                                                     .Where(x => x.PatrolStrategy.Name == "ExecutionPatrol")
+                                                     .OrderByDescending(x => x.Priority)
+                                                     .ToList();
+            if (!routes.Any())
+            {
+                errors.Add($"the {jurisdiction.Name.ColourName()} jurisdiction does not have any execution patrols configured");
+                continue;
+            }
+
+            MudDateTime now = CurrentLegalTime(actor, jurisdiction);
+            bool changedDate = effect.BringForwardTo(now);
+            IPatrolRoute route = routes.FirstOrDefault(x => string.IsNullOrEmpty(x.WhyCannotBeginPatrol()));
+            if (route is null)
+            {
+                string reasons = routes
+                                 .Select(x => x.WhyCannotBeginPatrol())
+                                 .Where(x => !string.IsNullOrEmpty(x))
+                                 .Distinct()
+                                 .ListToString();
+                actor.OutputHandler.Send($"You request that your execution be carried out immediately, but no execution patrol can be dispatched right now because {reasons}.");
+                return;
+            }
+
+            actor.OutputHandler.Send(changedDate
+                ? "You request that your execution be carried out immediately."
+                : "You repeat your request that your execution be carried out immediately.");
+
+            if (jurisdiction.PatrolController.TryBeginPatrol(route))
+            {
+                actor.OutputHandler.Send($"An execution patrol from the {jurisdiction.Name.ColourName()} jurisdiction has been dispatched.");
+                return;
+            }
+
+            actor.OutputHandler.Send($"No execution patrol from the {jurisdiction.Name.ColourName()} jurisdiction could be dispatched immediately, but your execution is now due and will be attempted when patrol resources and configuration allow.");
+            return;
+        }
+
+        actor.OutputHandler.Send($"You cannot request execution right now because {errors.ListToString()}.");
     }
 
     [PlayerCommand("BailOut", "bailout")]

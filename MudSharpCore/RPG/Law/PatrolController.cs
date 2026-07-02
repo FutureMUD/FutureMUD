@@ -40,34 +40,14 @@ public class PatrolController : IPatrolController
 
     public void PatrolOverwatchTick()
     {
-        if (
-            LegalAuthority.PrisonLocation is null ||
-            LegalAuthority.PrisonerBelongingsStorageLocation is null ||
-            LegalAuthority.MarshallingLocation is null ||
-            LegalAuthority.EnforcerStowingLocation is null ||
-            LegalAuthority.PreparingLocation is null ||
-            LegalAuthority.CourtLocation is null ||
-            !LegalAuthority.CellLocations.Any()
-        )
+        if (!PatrolLaunchPrerequisitesReady())
         {
             return;
         }
 
-        List<ICharacter> freeEnforcers =
-            LegalAuthority.Gameworld.NPCs
-                          .Where(x =>
-                              x.AffectedBy<EnforcerEffect>(LegalAuthority) &&
-                              x is INPC npc &&
-                              npc.AIs.Any(y => y is EnforcerAI) &&
-                              LegalAuthority.GetEnforcementAuthority(x) is not null &&
-                              LegalAuthority.Patrols.All(y => !y.PatrolMembers.ContainsPhysicalInstance(x))
-                          )
-                          .ToList();
-        CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts = new();
-        foreach (IGrouping<IEnforcementAuthority, ICharacter> group in freeEnforcers.GroupBy(x => LegalAuthority.GetEnforcementAuthority(x)))
-        {
-            enforcerCounts.AddRange(group.Key, group);
-        }
+        var pool = AvailableEnforcerPool();
+        List<ICharacter> freeEnforcers = pool.FreeEnforcers;
+        CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts = pool.EnforcerCounts;
 
         if (TryLaunchCorpseRecoveryPatrol(freeEnforcers, enforcerCounts))
         {
@@ -113,6 +93,52 @@ public class PatrolController : IPatrolController
                 break;
             }
         }
+    }
+
+    public bool TryBeginPatrol(IPatrolRoute route)
+    {
+        if (route.LegalAuthority != LegalAuthority ||
+            LegalAuthority.Patrols.Any(x => x.PatrolRoute == route) ||
+            !PatrolLaunchPrerequisitesReady() ||
+            !route.ShouldBeginPatrol())
+        {
+            return false;
+        }
+
+        var pool = AvailableEnforcerPool();
+        return TryLaunchPatrol(route, pool.FreeEnforcers, pool.EnforcerCounts, null, null);
+    }
+
+    private (List<ICharacter> FreeEnforcers, CollectionDictionary<IEnforcementAuthority, ICharacter> EnforcerCounts) AvailableEnforcerPool()
+    {
+        List<ICharacter> freeEnforcers =
+            LegalAuthority.Gameworld.NPCs
+                          .Where(x =>
+                              x.AffectedBy<EnforcerEffect>(LegalAuthority) &&
+                              x is INPC npc &&
+                              npc.AIs.Any(y => y is EnforcerAI) &&
+                              LegalAuthority.GetEnforcementAuthority(x) is not null &&
+                              LegalAuthority.Patrols.All(y => !y.PatrolMembers.ContainsPhysicalInstance(x))
+                          )
+                          .ToList();
+        CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts = new();
+        foreach (IGrouping<IEnforcementAuthority, ICharacter> group in freeEnforcers.GroupBy(x => LegalAuthority.GetEnforcementAuthority(x)))
+        {
+            enforcerCounts.AddRange(group.Key, group);
+        }
+
+        return (freeEnforcers, enforcerCounts);
+    }
+
+    private bool PatrolLaunchPrerequisitesReady()
+    {
+        return LegalAuthority.PrisonLocation is not null &&
+               LegalAuthority.PrisonerBelongingsStorageLocation is not null &&
+               LegalAuthority.MarshallingLocation is not null &&
+               LegalAuthority.EnforcerStowingLocation is not null &&
+               LegalAuthority.PreparingLocation is not null &&
+               LegalAuthority.CourtLocation is not null &&
+               LegalAuthority.CellLocations.Any();
     }
 
     private bool TryLaunchCorpseRecoveryPatrol(List<ICharacter> freeEnforcers,

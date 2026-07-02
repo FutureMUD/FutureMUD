@@ -380,14 +380,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			}
 		}
 
-		FollowingPath fp = new(character, path)
-		{
-			UseDoorguards = true,
-			UseKeys = true,
-			OpenDoors = true
-		};
-		character.AddEffect(fp);
-		fp.FollowPathAction();
+		BeginPatrolPath(character, path);
 		return false;
 	}
 
@@ -414,14 +407,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			}
 		}
 
-		FollowingPath fp = new(leader, path)
-		{
-			UseDoorguards = true,
-			UseKeys = true,
-			OpenDoors = true
-		};
-		leader.AddEffect(fp);
-		fp.FollowPathAction();
+		BeginPatrolPath(leader, path);
 		return false;
 	}
 

@@ -6,25 +6,37 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
+using System.Xml.Linq;
 
 namespace MudSharp.RPG.Law.PatrolStrategies;
 
-public class DoorDutiesPatrolStrategy : PatrolStrategyBase
+public class DoorDutiesPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolStrategy
 {
 	public override string Name => "DoorDuties";
 
-	public DoorDutiesPatrolStrategy(IFuturemud gameworld)
+	public DoorDutiesPatrolStrategy(IFuturemud gameworld, string strategyData = null)
 		: base(gameworld)
 	{
+		LoadStrategyData(strategyData);
 	}
+
+	public DoorguardAccessMode AccessMode { get; private set; } = DoorguardAccessMode.NormalRules;
+
+	public string HelpText => @"Door duties configuration:
+
+	#3access normal|enforcers|everyone#0 - sets who patrol-managed doorguards open for
+
+Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-brother checks. Enforcers opens for characters with enforcement authority for this legal authority. Everyone opens for anyone.";
 
 	private static ICell DutyLocation(IPatrol patrol)
 	{
 		return patrol.PatrolRoute.PatrolNodes.FirstOrDefault();
 	}
 
-	private static void EnableDoorGuardMode(IPatrol patrol)
+	private void EnableDoorGuardMode(IPatrol patrol)
 	{
 		ICell dutyLocation = DutyLocation(patrol);
 		if (dutyLocation is null)
@@ -37,7 +49,7 @@ public class DoorDutiesPatrolStrategy : PatrolStrategyBase
 		{
 			if (!member.AffectedBy<IDoorguardModeEffect>() && HasKeysForCells(member, dutyCells))
 			{
-				member.AddEffect(new PatrolDoorguardMode(member));
+				member.AddEffect(new PatrolDoorguardMode(member, patrol.LegalAuthority, AccessMode));
 			}
 		}
 	}
@@ -70,6 +82,121 @@ public class DoorDutiesPatrolStrategy : PatrolStrategyBase
 	public override void HandlePatrolAborted(IPatrol patrol)
 	{
 		DisableDoorGuardMode(patrol);
+	}
+
+	public bool ReadyToBegin(IPatrolRoute patrol)
+	{
+		return true;
+	}
+
+	public string SaveStrategyData()
+	{
+		return new XElement("DoorDuties",
+			new XAttribute("access", (int)AccessMode)
+		).ToString();
+	}
+
+	private void LoadStrategyData(string strategyData)
+	{
+		if (string.IsNullOrWhiteSpace(strategyData))
+		{
+			return;
+		}
+
+		XElement root;
+		try
+		{
+			root = XElement.Parse(strategyData);
+		}
+		catch
+		{
+			return;
+		}
+
+		if (int.TryParse(root.Attribute("access")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) &&
+		    Enum.IsDefined(typeof(DoorguardAccessMode), value))
+		{
+			AccessMode = (DoorguardAccessMode)value;
+			return;
+		}
+
+		if (Enum.TryParse(root.Attribute("access")?.Value, true, out DoorguardAccessMode mode))
+		{
+			AccessMode = mode;
+		}
+	}
+
+	public bool BuildingCommand(ICharacter actor, IPatrolRoute patrol, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "access":
+			case "mode":
+			case "open":
+				return BuildingCommandAccess(actor, command);
+		}
+
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+		return false;
+	}
+
+	private bool BuildingCommandAccess(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Should patrol-managed doorguards open using normal rules, for enforcers only, or for everyone?");
+			return false;
+		}
+
+		switch (command.SafeRemainingArgument.ToLowerInvariant())
+		{
+			case "normal":
+			case "rules":
+			case "normalrules":
+			case "clan":
+			case "clanbrother":
+			case "clan brother":
+				AccessMode = DoorguardAccessMode.NormalRules;
+				break;
+			case "enforcer":
+			case "enforcers":
+			case "enforcersonly":
+			case "enforcers only":
+			case "law":
+				AccessMode = DoorguardAccessMode.EnforcersOnly;
+				break;
+			case "everyone":
+			case "all":
+			case "anyone":
+			case "public":
+				AccessMode = DoorguardAccessMode.Everyone;
+				break;
+			default:
+				actor.OutputHandler.Send("That is not a valid access mode. Use normal, enforcers or everyone.");
+				return false;
+		}
+
+		actor.OutputHandler.Send($"Patrol-managed doorguards will now open for {DescribeAccessMode(actor)}.");
+		return true;
+	}
+
+	private string DescribeAccessMode(ICharacter actor)
+	{
+		return AccessMode switch
+		{
+			DoorguardAccessMode.NormalRules => "normal DoorguardAI rules".ColourValue(),
+			DoorguardAccessMode.EnforcersOnly => "enforcers for this legal authority".ColourValue(),
+			DoorguardAccessMode.Everyone => "everyone".ColourValue(),
+			_ => AccessMode.DescribeEnum().ColourValue()
+		};
+	}
+
+	public string ShowConfiguration(ICharacter actor, IPatrolRoute patrol)
+	{
+		StringBuilder sb = new();
+		sb.AppendLine("Door Duties Configuration".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Door Access: {DescribeAccessMode(actor)}");
+		return sb.ToString();
 	}
 
 	protected override void PatrolTickActiveEnforcement(IPatrol patrol)
@@ -109,14 +236,7 @@ public class DoorDutiesPatrolStrategy : PatrolStrategyBase
 						PathSearch.PathIncludeUnlockableDoors(member)).ToList();
 					if (path.Any())
 					{
-						FollowingPath fp = new(member, path)
-						{
-							UseDoorguards = true,
-							UseKeys = true,
-							OpenDoors = true
-						};
-						member.AddEffect(fp);
-						fp.FollowPathAction();
+						BeginPatrolPath(member, path);
 					}
 				}
 
@@ -220,14 +340,7 @@ public class DoorDutiesPatrolStrategy : PatrolStrategyBase
 				}
 			}
 
-			FollowingPath fp = new(patrol.PatrolLeader, path)
-			{
-				UseDoorguards = true,
-				UseKeys = true,
-				OpenDoors = true
-			};
-			patrol.PatrolLeader.AddEffect(fp);
-			fp.FollowPathAction();
+			BeginPatrolPath(patrol.PatrolLeader, path);
 		}
 	}
 

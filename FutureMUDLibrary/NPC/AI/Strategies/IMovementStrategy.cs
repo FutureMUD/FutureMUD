@@ -3,8 +3,15 @@ using MudSharp.Construction.Boundary;
 
 namespace MudSharp.NPC.AI.Strategies
 {
+	public enum MovementStrategyResult
+	{
+		Failed,
+		Waiting,
+		Moved
+	}
+
     public interface IMovementStrategy
     {
-        bool TryToMove(ICharacter character, ICellExit exit);
+        MovementStrategyResult TryToMove(ICharacter character, ICellExit exit);
     }
 }

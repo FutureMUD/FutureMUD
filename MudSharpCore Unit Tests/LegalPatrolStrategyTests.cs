@@ -162,6 +162,21 @@ public class LegalPatrolStrategyTests
 	}
 
 	[TestMethod]
+	public void ProsecutorPatrol_ShouldOverrideLawyerHomeBasePathing()
+	{
+		string lawyerSource = File.ReadAllText(GetCoreSourcePath("NPC", "AI", "LawyerAI.cs"));
+		string patrolSource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "Patrol.cs"));
+		string prosecutorSource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "ProsectutorPatrolStrategy.cs"));
+
+		StringAssert.Contains(lawyerSource, "protected override bool WouldMove(ICharacter ch)");
+		StringAssert.Contains(lawyerSource, "return !IsAssignedToPatrol(ch);");
+		StringAssert.Contains(lawyerSource, "protected override bool IsPathingEnabled(ICharacter character)");
+		StringAssert.Contains(lawyerSource, "CombinedEffectsOfType<PatrolMemberEffect>()");
+		StringAssert.Contains(patrolSource, "member.RemoveAllEffects<FollowingPath>(fireRemovalAction: true);");
+		StringAssert.Contains(prosecutorSource, "BeginPatrolPath(patrol.PatrolLeader, path);");
+	}
+
+	[TestMethod]
 	public void ExecutionPatrolStrategy_ShouldAcceptHelplessOrSubmittedCondemnedAsSecured()
 	{
 		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "ExecutionPatrolStrategy.cs"));
@@ -241,11 +256,17 @@ public class LegalPatrolStrategyTests
 
 		StringAssert.Contains(factorySource, "\"DoorDuties\"");
 		StringAssert.Contains(factorySource, "case \"door duties\":");
+		StringAssert.Contains(factorySource, "new DoorDutiesPatrolStrategy(gameworld, strategyData)");
 		StringAssert.Contains(source, "public override string Name => \"DoorDuties\";");
+		StringAssert.Contains(source, "IConfigurablePatrolStrategy");
+		StringAssert.Contains(source, "public DoorguardAccessMode AccessMode { get; private set; }");
 		StringAssert.Contains(source, "PrepareKeysForCells(member, dutyCells);");
 		StringAssert.Contains(source, "member == patrol.PatrolLeader");
 		StringAssert.Contains(source, "HasKeysForCells(patrol.PatrolLeader, dutyCells)");
-		StringAssert.Contains(source, "new PatrolDoorguardMode(member)");
+		StringAssert.Contains(source, "new PatrolDoorguardMode(member, patrol.LegalAuthority, AccessMode)");
+		StringAssert.Contains(source, "DoorguardAccessMode.EnforcersOnly");
+		StringAssert.Contains(source, "DoorguardAccessMode.Everyone");
+		StringAssert.Contains(source, "new XAttribute(\"access\", (int)AccessMode)");
 		StringAssert.Contains(source, "RemoveAllEffects<PatrolDoorguardMode>(fireRemovalAction: true)");
 		StringAssert.Contains(source, "public override void HandlePatrolCompleted(IPatrol patrol)");
 		StringAssert.Contains(source, "public override void HandlePatrolAborted(IPatrol patrol)");
@@ -254,10 +275,12 @@ public class LegalPatrolStrategyTests
 		StringAssert.Contains(movementSource, "AffectedBy<IDoorguardModeEffect>()");
 		Assert.IsFalse(movementSource.Contains("AffectedBy<DoorguardMode>()", StringComparison.Ordinal));
 		StringAssert.Contains(source, "PathSearch.PathIncludeUnlockableDoors");
-		StringAssert.Contains(source, "UseKeys = true");
-		StringAssert.Contains(source, "OpenDoors = true");
+		StringAssert.Contains(source, "BeginPatrolPath(member, path)");
+		StringAssert.Contains(source, "BeginPatrolPath(patrol.PatrolLeader, path)");
 		StringAssert.Contains(source, "DisableDoorGuardMode(patrol);");
 		StringAssert.Contains(effectSource, "IDoorguardModeEffect");
+		StringAssert.Contains(effectSource, "PermitsDoorOpening");
+		StringAssert.Contains(effectSource, "LegalAuthority?.GetEnforcementAuthority(target)");
 		Assert.IsFalse(effectSource.Contains("SavingEffect => true", StringComparison.Ordinal));
 	}
 
@@ -278,6 +301,33 @@ public class LegalPatrolStrategyTests
 		StringAssert.Contains(executionSource, "private bool RetrievalKeysReady(IPatrol patrol)");
 		StringAssert.Contains(executionSource, "new XAttribute(\"keys\", RequireKeysForRetrieval)");
 		StringAssert.Contains(executionSource, "bool.TryParse(root.Attribute(\"keys\")?.Value, out bool keys)");
+	}
+
+	[TestMethod]
+	public void EnforcementMovement_ShouldUseSharedFriendlyPathingForDoorsAndKeys()
+	{
+		string pathSource = File.ReadAllText(GetCoreSourcePath("Effects", "Concrete", "FollowingPath.cs"));
+		string movementSource = File.ReadAllText(GetCoreSourcePath("NPC", "AI", "Strategies", "MovementStrategyFactory.cs"));
+		string enforcerSource = File.ReadAllText(GetCoreSourcePath("NPC", "AI", "EnforcerAI.cs"));
+		string patrolBaseSource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "PatrolStrategyBase.cs"));
+		string unlockSource = File.ReadAllText(GetCoreSourcePath("Effects", "Concrete", "UnlockDoor.cs"));
+		string lockSource = File.ReadAllText(GetCoreSourcePath("Effects", "Concrete", "LockDoor.cs"));
+
+		StringAssert.Contains(pathSource, "CreateFullFriendlyPath");
+		StringAssert.Contains(pathSource, "CloseDoorsBehind = closeDoorsBehind");
+		StringAssert.Contains(pathSource, "exit.Destination == ch.Location");
+		StringAssert.Contains(pathSource, "MovementStrategyResult.Waiting");
+		StringAssert.Contains(pathSource, "CloseDoorBehind(ch, exit, UseKeys)");
+		StringAssert.Contains(pathSource, "ShallowAccessibleItems(ch)");
+		StringAssert.Contains(movementSource, "DoorGuardIsOpeningDoor(exit)");
+		StringAssert.Contains(movementSource, "WouldOpenResponseType.WillOpenIfKnock");
+		StringAssert.Contains(movementSource, "WouldOpenResponseType.WillOpenIfSocial");
+		StringAssert.Contains(movementSource, "return MovementStrategyResult.Waiting");
+		StringAssert.Contains(enforcerSource, "FollowingPath.CreateFullFriendlyPath(enforcer, path, closeDoorsBehind: true)");
+		StringAssert.Contains(patrolBaseSource, "FollowingPath.CreateFullFriendlyPath(member, path, closeDoorsBehind: true)");
+		StringAssert.Contains(unlockSource, "ShallowAccessibleItems(Character)");
+		Assert.IsFalse(unlockSource.Contains("Character.Move(Exit)", StringComparison.Ordinal));
+		StringAssert.Contains(lockSource, "new Queue<Tuple<IKey, IInventoryPlan>>(plans)");
 	}
 
 	[TestMethod]

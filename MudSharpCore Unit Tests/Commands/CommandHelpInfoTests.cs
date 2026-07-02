@@ -94,6 +94,24 @@ public class CommandHelpInfoTests
 		Assert.ThrowsException<ApplicationException>(() => new InvalidConditionalHelpTestModule());
 	}
 
+	[TestMethod]
+	public void ManipulationModule_InstallAndUninstallExposeBuiltInHelp()
+	{
+		var commands = ManipulationModule.Instance.Commands.TCommands;
+
+		var installHelp = commands["install"].HelpInfo;
+		Assert.IsNotNull(installHelp);
+		Assert.AreEqual(AutoHelp.HelpArgOrNoArg, installHelp.AutoHelpSetting);
+		StringAssert.Contains(installHelp.DefaultHelp, "#3install <door> <exit> [inwards|outwards]#0");
+		StringAssert.Contains(installHelp.DefaultHelp, "#3install <lock> <door|container|exit>#0");
+
+		var uninstallHelp = commands["uninstall"].HelpInfo;
+		Assert.IsNotNull(uninstallHelp);
+		Assert.AreEqual(AutoHelp.HelpArgOrNoArg, uninstallHelp.AutoHelpSetting);
+		StringAssert.Contains(uninstallHelp.DefaultHelp, "#3uninstall <door|exit>#0");
+		StringAssert.Contains(uninstallHelp.DefaultHelp, "#3uninstall <door|container|exit> [<lock>]#0");
+	}
+
 	private static Mock<ICharacter> Character(bool administrator)
 	{
 		var account = new Mock<IAccount>();

@@ -11,6 +11,16 @@ namespace MudSharp_Unit_Tests;
 public class LegalCommandPresentationTests
 {
 	[TestMethod]
+	public void CrimesCommand_ShouldBeAvailableWhileUnconscious()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("Commands", "Modules", "CrimeModule.cs"));
+		string block = ExtractBlock(source, "[PlayerCommand(\"Crimes\", \"crimes\")]", "protected static void Crimes");
+
+		StringAssert.Contains(block, "[RequiredCharacterState(CharacterState.UnconsciousOrBetter)]");
+		Assert.IsFalse(block.Contains("[RequiredCharacterState(CharacterState.Able)]", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
 	public void EngageLawyer_RemandsCellsAndSelfTarget_ShouldBeSupported()
 	{
 		string source = File.ReadAllText(GetCoreSourcePath("Commands", "Modules", "CrimeModule.cs"));

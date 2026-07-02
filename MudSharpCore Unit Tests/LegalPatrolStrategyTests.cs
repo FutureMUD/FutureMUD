@@ -107,10 +107,24 @@ public class LegalPatrolStrategyTests
 		StringAssert.Contains(source, "LeaveCombatIfAble(member);");
 		StringAssert.Contains(source, "EnforcementCustodyHelper.BeginDragging(random, criminal");
 		StringAssert.Contains(source, "EnforcementCustodyHelper.ReleaseGrapplesAndCombatAgainst(criminal, localPatrolMembers);");
+		StringAssert.Contains(source, "crime.Law.EnforcementStrategy.IsArrestable() && TryStartDraggingHelplessCriminal(patrol, criminal)");
 		int helperStart = source.IndexOf("private bool TryStartDraggingHelplessCriminal(IPatrol patrol, ICharacter criminal)", StringComparison.Ordinal);
 		int helperEnd = source.IndexOf("protected virtual void PatrolTickActiveEnforcement(IPatrol patrol)", helperStart, StringComparison.Ordinal);
 		string helperBlock = source[helperStart..helperEnd];
 		Assert.IsFalse(helperBlock.Contains("criminal.Combat?.Combatants.OfType<ICharacter>().Any(x => patrol.PatrolMembers.ContainsPhysicalInstance(x)) == true", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
+	public void PatrolTickGeneral_ShouldRecoverPatrolDraggedWantedTargets()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "PatrolStrategyBase.cs"));
+
+		StringAssert.Contains(source, "var beingDraggedByPatrol = IsBeingDraggedByPatrol(patrol, person);");
+		StringAssert.Contains(source, "person.AffectedBy<Dragging.DragTarget>(authority) && !beingDraggedByPatrol");
+		StringAssert.Contains(source, "x.Law.EnforcementStrategy.IsArrestable()");
+		StringAssert.Contains(source, "if (beingDraggedByPatrol)");
+		StringAssert.Contains(source, "patrol.ActiveEnforcementTarget = person;");
+		StringAssert.Contains(source, "patrol.ActiveEnforcementCrime = targetCrime;");
 	}
 
 	[TestMethod]
@@ -137,6 +151,8 @@ public class LegalPatrolStrategyTests
 		StringAssert.Contains(source, "private bool TryHandleIndependentCustody(ICharacter enforcer, EnforcerEffect effect)");
 		StringAssert.Contains(source, "enforcer.CombinedEffectsOfType<PatrolMemberEffect>().Any()");
 		StringAssert.Contains(source, "TryBeginIndependentCustody(character, victim, effect)");
+		StringAssert.Contains(source, "CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(victim, patrol.ActiveEnforcementTarget)");
+		StringAssert.Contains(source, "patrol.PatrolStrategy.HandlePatrolTick(patrol);");
 		StringAssert.Contains(source, "EnforcementCustodyHelper.BeginDragging(enforcer, criminal, Enumerable.Empty<ICharacter>())");
 		StringAssert.Contains(source, "MoveIndependentCustodyToPrison(enforcer, effect, criminal, crime)");
 		StringAssert.Contains(source, "PathSearch.PathIncludeUnlockableDoors(enforcer)");

@@ -59,7 +59,7 @@ internal class CrimeModule : Module<ICharacter>
     }
 
     [PlayerCommand("Crimes", "crimes")]
-    [RequiredCharacterState(CharacterState.Able)]
+    [RequiredCharacterState(CharacterState.UnconsciousOrBetter)]
     [HelpInfo("crimes", @"The #3crimes#0 command is used to view the crimes that you have committed or the crimes that you know someone else has committed. Enforcers can see all reported crimes of an individual even if they didn't witness them.
 
 In some jurisdictions you may not necessarily know that you have committed a crime but you otherwise generally know about all of your own crimes, even if the authorities don't.

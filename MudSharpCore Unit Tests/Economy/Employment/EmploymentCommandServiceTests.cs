@@ -2342,10 +2342,10 @@ public class EmploymentCommandServiceTests
 		var authoring = new EmploymentTaskAuthoringService();
 
 		Assert.IsTrue(authoring.TryStartDraft(manager, host, "Deferred", out var message), message);
-		Assert.IsFalse(authoring.TryAddStep(manager, host, new StringStack("transfer till bank 5"), out message));
+		Assert.IsFalse(authoring.TryAddStep(manager, host, new StringStack("marktask completed 1"), out message));
 
 		StringAssert.Contains(message, "deferred");
-		StringAssert.Contains(message, "transfer");
+		StringAssert.Contains(message, "marktask");
 	}
 
 	[TestMethod]
@@ -3098,7 +3098,8 @@ public class EmploymentCommandServiceTests
 				]),
 				[]),
 			1,
-			TimeSpan.FromSeconds(1)), manager);
+			TimeSpan.FromSeconds(1),
+			new ManagerGoalPolicy(null, new ManagerGoalRiskLimits(MaximumActiveTasks: 2))), manager);
 		var context = new EmploymentTaskContext(host);
 		var now = DateTimeOffset.UtcNow;
 

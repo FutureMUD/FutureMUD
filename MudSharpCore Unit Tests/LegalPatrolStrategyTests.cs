@@ -133,6 +133,19 @@ public class LegalPatrolStrategyTests
 	}
 
 	[TestMethod]
+	public void PatrolTickGeneral_ShouldRequireVisibilityWithoutIgnoringIdentityObscurement()
+	{
+		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "PatrolStrategyBase.cs"));
+		int generalStart = source.IndexOf("protected virtual bool PatrolTickGeneral(IPatrol patrol)", StringComparison.Ordinal);
+		int patrolPhaseStart = source.IndexOf("protected abstract void PatrolTickPatrolPhase(IPatrol patrol)", generalStart, StringComparison.Ordinal);
+		string generalBlock = source[generalStart..patrolPhaseStart];
+
+		StringAssert.Contains(generalBlock, "!patrol.PatrolLeader.CanSee(person)");
+		Assert.IsFalse(generalBlock.Contains("person.IdentityIsObscured", StringComparison.Ordinal));
+		StringAssert.Contains(generalBlock, "EnforcementCustodyHelper.CrimeAppliesToVisibleCriminal(x, person)");
+	}
+
+	[TestMethod]
 	public void EnforcementCustodyHelper_ShouldConvertHelplessTargetsToDragCustody()
 	{
 		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "EnforcementCustodyHelper.cs"));

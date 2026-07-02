@@ -98,7 +98,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
             }
 
             List<ICrime> crimes = authority.KnownCrimesForIndividual(person)
-                                           .Where(x => x.CriminalIdentityIsKnown)
+                                           .Where(x => EnforcementCustodyHelper.CrimeAppliesToVisibleCriminal(x, person))
                                            .Where(x => !x.HasBeenFinalised)
                                            .Where(x => !x.BailPosted)
                                            .Where(x => beingDraggedByPatrol

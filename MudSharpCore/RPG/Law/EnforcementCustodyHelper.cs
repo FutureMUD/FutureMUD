@@ -11,10 +11,16 @@ namespace MudSharp.RPG.Law;
 
 public static class EnforcementCustodyHelper
 {
+	public static bool CrimeAppliesToVisibleCriminal(ICrime crime, ICharacter criminal)
+	{
+		return crime.CriminalIdentityIsKnown ||
+		       CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(criminal, crime.Criminal);
+	}
+
 	public static ICrime SelectArrestableCrime(ILegalAuthority authority, ICharacter criminal)
 	{
 		var crimes = authority.KnownCrimesForIndividual(criminal)
-		                      .Where(x => x.CriminalIdentityIsKnown)
+		                      .Where(x => CrimeAppliesToVisibleCriminal(x, criminal))
 		                      .Where(x => !x.HasBeenFinalised)
 		                      .Where(x => !x.BailPosted)
 		                      .Where(x => x.Law.EnforcementStrategy.IsArrestable())

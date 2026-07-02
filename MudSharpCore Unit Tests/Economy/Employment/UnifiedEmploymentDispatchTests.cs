@@ -1915,7 +1915,7 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
 		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
 		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
-		var transfer = dispatcher.AdvanceTask(task, context);
+		var transfer = AdvanceTaskOrAssignmentFailure(dispatcher, task, context, profile);
 
 		Assert.IsFalse(transfer.Success);
 		StringAssert.Contains(transfer.Message, "foreign credits");
@@ -1968,7 +1968,7 @@ public class UnifiedEmploymentDispatchTests
 
 		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
 		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
-		var transfer = dispatcher.AdvanceTask(task, context);
+		var transfer = AdvanceTaskOrAssignmentFailure(dispatcher, task, context, profile);
 
 		Assert.IsFalse(transfer.Success);
 		StringAssert.Contains(transfer.Message, "requires an auditable payment authorisation");
@@ -2177,7 +2177,7 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
 		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
 		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
-		var settlement = dispatcher.AdvanceTask(task, context);
+		var settlement = AdvanceTaskOrAssignmentFailure(dispatcher, task, context, profile);
 
 		Assert.IsFalse(settlement.Success);
 		StringAssert.Contains(settlement.Message, "foreign credits");
@@ -2225,7 +2225,7 @@ public class UnifiedEmploymentDispatchTests
 
 		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
 		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
-		var settlement = dispatcher.AdvanceTask(task, context);
+		var settlement = AdvanceTaskOrAssignmentFailure(dispatcher, task, context, profile);
 
 		Assert.IsFalse(settlement.Success);
 		StringAssert.Contains(settlement.Message, "requires an auditable payment authorisation");
@@ -2479,7 +2479,7 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
 		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
 		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
-		var deposit = dispatcher.AdvanceTask(task, context);
+		var deposit = AdvanceTaskOrAssignmentFailure(dispatcher, task, context, profile);
 
 		Assert.IsFalse(deposit.Success);
 		StringAssert.Contains(deposit.Message, "requires an auditable payment authorisation");
@@ -2515,7 +2515,7 @@ public class UnifiedEmploymentDispatchTests
 
 		Assert.IsTrue(dispatcher.TryAssignTask(unsupportedTask, [profile], context, out var reason), reason);
 		Assert.IsTrue(dispatcher.AdvanceTask(unsupportedTask, context).Success);
-		var unsupportedReserve = dispatcher.AdvanceTask(unsupportedTask, context);
+		var unsupportedReserve = AdvanceTaskOrAssignmentFailure(dispatcher, unsupportedTask, context, profile);
 		Assert.IsFalse(unsupportedReserve.Success);
 		StringAssert.Contains(unsupportedReserve.Message, "finance adapter");
 
@@ -2535,7 +2535,7 @@ public class UnifiedEmploymentDispatchTests
 
 		Assert.IsTrue(dispatcher.TryAssignTask(unreservedTask, [profile], shopContext, out reason), reason);
 		Assert.IsTrue(dispatcher.AdvanceTask(unreservedTask, shopContext).Success);
-		var deposit = dispatcher.AdvanceTask(unreservedTask, shopContext);
+		var deposit = AdvanceTaskOrAssignmentFailure(dispatcher, unreservedTask, shopContext, profile);
 
 		Assert.IsFalse(deposit.Success);
 		StringAssert.Contains(deposit.Message, "reserved");
@@ -3759,7 +3759,7 @@ public class UnifiedEmploymentDispatchTests
 			Assert.AreEqual(0, reloadedTask.AuthorisationGrant.AmountLimits.Count);
 			Assert.IsTrue(dispatcher.TryAssignTask(reloadedTask, [profile], taskContext, out var reason), reason);
 			Assert.IsTrue(dispatcher.AdvanceTask(reloadedTask, taskContext).Success);
-			var deposit = dispatcher.AdvanceTask(reloadedTask, taskContext);
+			var deposit = AdvanceTaskOrAssignmentFailure(dispatcher, reloadedTask, taskContext, profile);
 
 			Assert.IsFalse(deposit.Success);
 			StringAssert.Contains(deposit.Message, "requires an auditable payment authorisation");
@@ -4980,7 +4980,7 @@ public class UnifiedEmploymentDispatchTests
 
 		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
 		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
-		var purchaseResult = dispatcher.AdvanceTask(task, context);
+		var purchaseResult = AdvanceTaskOrAssignmentFailure(dispatcher, task, context, profile);
 
 		Assert.IsTrue(purchaseResult.Success);
 		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
@@ -5031,7 +5031,7 @@ public class UnifiedEmploymentDispatchTests
 
 		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
 		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
-		var purchaseResult = dispatcher.AdvanceTask(task, context);
+		var purchaseResult = AdvanceTaskOrAssignmentFailure(dispatcher, task, context, profile);
 
 		Assert.IsFalse(purchaseResult.Success);
 		StringAssert.Contains(purchaseResult.Message, "requires an auditable payment authorisation");
@@ -6444,6 +6444,18 @@ public class UnifiedEmploymentDispatchTests
 		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
 		         .Returns((long id, bool _) => items is not null && items.TryGetValue(id, out var item) ? item : null!);
 		return gameworld;
+	}
+
+	private static EmploymentActionStepResult AdvanceTaskOrAssignmentFailure(EmploymentTaskDispatcher dispatcher,
+		IEmploymentActiveTask task, IEmploymentTaskContext context, params EmploymentCandidateProfile[] profiles)
+	{
+		if (task.AssignedEmployee is null &&
+		    !dispatcher.TryAssignTask(task, profiles, context, out var reason))
+		{
+			return EmploymentActionStepResult.Blocked(reason);
+		}
+
+		return dispatcher.AdvanceTask(task, context);
 	}
 
 	private sealed class TestEmploymentHost : FrameworkItem, IEmploymentHost

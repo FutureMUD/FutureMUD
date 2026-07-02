@@ -10213,4 +10213,52 @@ CREATE INDEX `FK_Bodies_DrugExposures_Drugs_idx` ON `Bodies_DrugExposures` (`Dru
 INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
 VALUES ('20260616135417_DrugExpansionDependenceExposures', '9.0.11');
 
+ALTER TABLE `EmploymentJobOpenings` ADD `RevisionNumber` int(11) NOT NULL DEFAULT 1;
+
+ALTER TABLE `EmploymentContracts` ADD `OriginApplicationId` bigint(20) NULL;
+
+ALTER TABLE `EmploymentContracts` ADD `OriginOpeningId` bigint(20) NULL;
+
+ALTER TABLE `EmploymentApplications` ADD `CandidateProfileJson` mediumtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+
+ALTER TABLE `EmploymentApplications` ADD `OfferedOpeningRevision` int(11) NOT NULL DEFAULT 1;
+
+INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+VALUES ('20260620054424_EmploymentApplicationSnapshots', '9.0.11');
+
+ALTER TABLE `VehicleTowPointProtos` ADD `TowStressDamageMultiplier` double NULL;
+
+ALTER TABLE `VehicleTowPointProtos` ADD `TowStressFailureStartRatio` double NULL;
+
+ALTER TABLE `VehicleTowPointProtos` ADD `TowStressMaximumFailureChance` double NULL;
+
+ALTER TABLE `VehicleTowPointProtos` ADD `TowStressWarningRatio` double NULL;
+
+INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+VALUES ('20260627000000_VehicleTowStressPolicy', '9.0.11');
+
+ALTER TABLE `Races` ADD `DefaultAlertEmote` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+
+ALTER TABLE `Races` ADD `DefaultDistantAlertEmote` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+
+ALTER TABLE `Characters` ADD `CustomAlertEmote` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+
+ALTER TABLE `Characters` ADD `CustomDistantAlertEmote` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+
+INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+VALUES ('20260701121756_AlertEmotes', '9.0.11');
+
+CREATE TABLE `Clans_HallCells` (
+    `ClanId` bigint(20) NOT NULL,
+    `CellId` bigint(20) NOT NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (`ClanId`, `CellId`),
+    CONSTRAINT `FK_Clans_HallCells_Cells` FOREIGN KEY (`CellId`) REFERENCES `Cells` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_Clans_HallCells_Clans` FOREIGN KEY (`ClanId`) REFERENCES `Clans` (`Id`) ON DELETE CASCADE
+) CHARACTER SET=utf8mb4;
+
+CREATE INDEX `FK_Clans_HallCells_Cells_idx` ON `Clans_HallCells` (`CellId`);
+
+INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+VALUES ('20260701122720_ClanHallCellsForEmploymentHosts', '9.0.11');
+
 COMMIT;

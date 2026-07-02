@@ -657,10 +657,16 @@ public class MagicPsionicTraceTests
 		var characterList = characters.ToArray();
 		var cellList = cells.ToArray();
 		var powerList = powers.ToArray();
+		var charactersByIdentity = characterList
+		                           .GroupBy(CharacterInstanceIdentityComparer.IdentityId)
+		                           .ToDictionary(x => x.Key, x => x.First());
 		gameworld.SetupGet(x => x.Characters).Returns(CreateCollectionMock(characterList).Object);
 		gameworld.SetupGet(x => x.Actors).Returns(CreateCollectionMock(characterList).Object);
 		gameworld.SetupGet(x => x.Cells).Returns(CreateCollectionMock(cellList).Object);
 		gameworld.SetupGet(x => x.MagicPowers).Returns(CreateCollectionMock(powerList).Object);
+		gameworld.Setup(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>()))
+		         .Returns<long, bool>((id, _) =>
+			         charactersByIdentity.TryGetValue(id, out var character) ? character : null!);
 	}
 
 	private static Mock<IUneditableAll<T>> CreateCollectionMock<T>(params T[] items) where T : class, IFrameworkItem

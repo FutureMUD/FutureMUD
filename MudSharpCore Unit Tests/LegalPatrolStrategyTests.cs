@@ -118,8 +118,13 @@ public class LegalPatrolStrategyTests
 	public void PatrolTickGeneral_ShouldRecoverPatrolDraggedWantedTargets()
 	{
 		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "PatrolStrategyBase.cs"));
+		int generalStart = source.IndexOf("protected virtual bool PatrolTickGeneral(IPatrol patrol)", StringComparison.Ordinal);
+		int patrolPhaseStart = source.IndexOf("protected abstract void PatrolTickPatrolPhase(IPatrol patrol)", generalStart, StringComparison.Ordinal);
+		string generalBlock = source[generalStart..patrolPhaseStart];
 
 		StringAssert.Contains(source, "var beingDraggedByPatrol = IsBeingDraggedByPatrol(patrol, person);");
+		StringAssert.Contains(generalBlock, "EnforcementCustodyHelper.CrimeAppliesToVisibleCriminal(x, person)");
+		Assert.IsFalse(generalBlock.Contains(".Where(x => x.CriminalIdentityIsKnown)", StringComparison.Ordinal));
 		StringAssert.Contains(source, "person.AffectedBy<Dragging.DragTarget>(authority) && !beingDraggedByPatrol");
 		StringAssert.Contains(source, "x.Law.EnforcementStrategy.IsArrestable()");
 		StringAssert.Contains(source, "if (beingDraggedByPatrol)");
@@ -132,7 +137,11 @@ public class LegalPatrolStrategyTests
 	{
 		string source = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "EnforcementCustodyHelper.cs"));
 
+		StringAssert.Contains(source, "public static bool CrimeAppliesToVisibleCriminal(ICrime crime, ICharacter criminal)");
+		StringAssert.Contains(source, "crime.CriminalIdentityIsKnown ||");
+		StringAssert.Contains(source, "CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(criminal, crime.Criminal)");
 		StringAssert.Contains(source, "public static ICrime SelectArrestableCrime(ILegalAuthority authority, ICharacter criminal)");
+		StringAssert.Contains(source, ".Where(x => CrimeAppliesToVisibleCriminal(x, criminal))");
 		StringAssert.Contains(source, ".Where(x => x.Law.EnforcementStrategy.IsArrestable())");
 		StringAssert.Contains(source, "public static Dragging BeginDragging(ICharacter dragger, ICharacter criminal, IEnumerable<ICharacter> helpers)");
 		StringAssert.Contains(source, "var drag = new Dragging(dragger, null, criminal);");

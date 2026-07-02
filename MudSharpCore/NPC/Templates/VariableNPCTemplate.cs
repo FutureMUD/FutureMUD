@@ -287,6 +287,7 @@ public class VariableNPCTemplate : NPCTemplateBase
                 new XElement("OnLoadProg", OnLoadProg?.Id ?? 0),
                 new XElement("HealthStrategy", HealthStrategy?.Id ?? 0L),
                 new XElement("DefaultCombatSetting", DefaultCombatSetting?.Id ?? 0L),
+                SaveTemplateLoadAdditions(),
                 new XElement("GenderChances", new object[]
                 {
                     from item in _genderChances
@@ -722,6 +723,8 @@ public class VariableNPCTemplate : NPCTemplateBase
         {
             sb.AppendLine($"AI #{ai.Id}: {ai.Name}");
         }
+
+        sb.Append(ShowTemplateLoadAdditions(actor));
 
         if (!CanSubmit())
         {

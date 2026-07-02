@@ -85,8 +85,9 @@ internal class LoadNpcFunction : BuiltInFunction
 
         ICharacter npc = proto.CreateNewCharacter(location);
         _gameworld.Add(npc, true);
-        proto.OnLoadProg?.Execute(npc);
         npc.RoomLayer = layer;
+        proto.ApplyTemplateLoadAdditions(npc);
+        proto.OnLoadProg?.Execute(npc);
         location.Login(npc);
         Result = npc;
         return StatementResult.Normal;

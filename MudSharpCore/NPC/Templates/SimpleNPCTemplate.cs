@@ -433,6 +433,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
                 }
             }
 
+            sb.Append(ShowTemplateLoadAdditions(actor));
 
             return sb.ToString();
         }
@@ -752,6 +753,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
                 new XElement("OnLoadProg", OnLoadProg?.Id ?? 0),
                 new XElement("HealthStrategy", HealthStrategy?.Id ?? 0L),
                 new XElement("DefaultCombatSetting", DefaultCombatSetting?.Id ?? 0L),
+                SaveTemplateLoadAdditions(),
                 new XElement("SelectedSdesc", new XCData(SelectedSdesc ?? "")),
                 new XElement("SelectedFullDesc", new XCData(SelectedFullDesc ?? "")),
                 new XElement("SelectedRace", SelectedRace?.Id ?? -1),

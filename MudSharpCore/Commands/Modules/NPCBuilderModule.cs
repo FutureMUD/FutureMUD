@@ -59,6 +59,13 @@ namespace MudSharp.Commands.Modules
             ICharacter newCharacter = template.CreateNewCharacter(character.Location);
             character.Gameworld.Add(newCharacter, true);
             newCharacter.RoomLayer = character.RoomLayer;
+            var warnings = template.ApplyTemplateLoadAdditions(newCharacter, false).ToList();
+            if (warnings.Any())
+            {
+                character.OutputHandler.Send(
+                    $"NPC template load warnings:\n{warnings.Select(x => $"\t{x.ColourError()}").ListToLines()}");
+            }
+
             template.OnLoadProg?.Execute(newCharacter);
 
             if (newCharacter.Location.IsSwimmingLayer(newCharacter.RoomLayer) && newCharacter.Race.CanSwim)

@@ -158,6 +158,8 @@ Current builder-facing bank work includes:
 - attaching open and close permission progs
 - tuning fees, interest, and payment-item limits
 
+NPC templates can create character-owned bank accounts as load-time additions for newly created NPCs. The template stores the account type, optional account name, and opening balance; the live account is created after the NPC has a registered character id. Account-type eligibility progs are checked at load time, and invalid or drifted account types are skipped with warnings. Opening balances are applied as fee-free account credits because they represent authored starting state rather than an in-world deposit transaction.
+
 ### Clan Finance
 Clan finance depends on the clan system plus the bank/property/economic-zone layers. Builders can create or select a clan-owned bank account with `clan set bankaccount <account>`, or clear it with `clan set bankaccount none` and operate from the clan's physical and virtual treasuries.
 

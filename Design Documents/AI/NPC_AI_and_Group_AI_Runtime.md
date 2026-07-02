@@ -142,6 +142,8 @@ NPC templates persist through `NPCTemplates` rows. In addition to the template `
 
 Blank unique names are treated as unset. Nonblank unique names are trimmed, cannot be entirely numeric, and must be unique case-insensitively among active template revisions: `Current`, `PendingRevision`, and `UnderDesign`. Historical `Rejected`, `Revised`, and `Obsolete` revisions may duplicate them.
 
+The same template `Definition` XML also owns load-time additions that apply only when a new NPC is created from the template. These additions are shared by simple and variable NPC templates and are not part of the general `ICharacterTemplate` contract. Current load-time additions include clan memberships, outfit templates, hooks, bank accounts, implants, and prosthetics.
+
 NPC-template and live-NPC attachment are separate:
 
 - template linkage: `NpcTemplatesArtificalIntelligences`
@@ -219,9 +221,19 @@ Group AI instances subscribe themselves directly on creation/load:
 - `npc set ai add <which>`
 - `npc set ai remove <which>`
 
+`NPCTemplateBase` also stores non-AI load additions that builders manage from the same template-editing surface:
+
+- `npc set clan ...` for clan memberships, paygrades, and appointments
+- `npc set outfit ...` for outfit templates to materialise on load
+- `npc set hook ...` for character/NPC-valid hooks
+- `npc set bank ...` for NPC-owned bank accounts and opening balances
+- `npc set implant ...` and `npc set prosthetic ...` for installed body equipment
+
 NPC-template lookup resolves numeric ids first, exact `UniqueName` second, then legacy name matching. This applies to normal builder surfaces such as `npc show`, `npc edit`, `npc clone`, `npc load`, spawners, magic effects, agriculture herd templates, and craft NPC products.
 
 When a new `NPC` is created from a template, the template's AI list is copied into the NPC's `_AIs` collection. The references still point at shared AI definitions.
+
+Load additions run during new NPC creation after the NPC is registered with the gameworld and before the template `OnLoadProg`, caller-specific on-load progs, and `NPCOnGameLoadFinished`. They do not reapply to already-persisted NPCs during server boot. Builder-time commands validate references where possible, but load-time validation is authoritative so drifted clans, appointments, hooks, outfit templates, account types, item prototypes, or body compatibility are skipped with warnings rather than preventing the NPC from loading.
 
 ### Live NPC Overrides
 Builders can also attach or remove AIs from an already spawned NPC with the `ai add` / `ai remove` builder flow in `NPCBuilderModule`.

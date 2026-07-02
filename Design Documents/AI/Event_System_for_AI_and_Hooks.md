@@ -259,12 +259,15 @@ Builders attach hooks to targets with:
 
 - `hook install <hook> <target>`
 - `hook remove <hook> <target>`
+- `npc set hook add <hook>` for hooks that should be installed on newly created NPCs from a template
 
 Targets are usually:
 
 - a room (`here`)
 - a character
 - an item
+
+NPC-template hook attachments are not default hooks. They are explicit template load additions and run only when a new NPC is created from that template. The NPC-template builder accepts hooks whose event type is character/NPC-facing, command-input-facing, heartbeat-facing, or `NPCOnGameLoadFinished`; the same check is repeated at load time so drifted or incompatible hooks are skipped with warnings.
 
 ### Default Hooks
 Builders manage installation rules with:

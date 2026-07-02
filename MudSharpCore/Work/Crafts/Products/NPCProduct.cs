@@ -58,6 +58,8 @@ internal class NPCProduct : BaseProduct
                 {
                     RoomLayer = layer
                 };
+                location.Gameworld.Add(newCharacter, true);
+                NPCTemplate.ApplyTemplateLoadAdditions(newCharacter);
                 NPCTemplate.OnLoadProg?.Execute(newCharacter);
                 OnLoadProg?.Execute(newCharacter);
                 if (newCharacter.Location.IsSwimmingLayer(newCharacter.RoomLayer) && newCharacter.Race.CanSwim)

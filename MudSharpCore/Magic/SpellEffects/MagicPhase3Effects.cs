@@ -1167,11 +1167,12 @@ public class CorpseSpawnEffect : IMagicSpellEffectTemplate
 		var cell = item.TrueLocations.FirstOrDefault() ?? caster.Location;
 		if (NPCPrototypeId > 0 && Gameworld.NpcTemplates.Get(NPCPrototypeId) is INPCTemplate template)
 		{
-			var ch = template.CreateNewCharacter(cell);
-			Gameworld.Add(ch, true);
-			ch.RoomLayer = item.RoomLayer;
-			template.OnLoadProg?.Execute(ch);
-			if (ch.Location.IsSwimmingLayer(ch.RoomLayer) && ch.Race.CanSwim)
+            var ch = template.CreateNewCharacter(cell);
+            Gameworld.Add(ch, true);
+            ch.RoomLayer = item.RoomLayer;
+            template.ApplyTemplateLoadAdditions(ch);
+            template.OnLoadProg?.Execute(ch);
+            if (ch.Location.IsSwimmingLayer(ch.RoomLayer) && ch.Race.CanSwim)
 			{
 				ch.PositionState = PositionSwimming.Instance;
 			}

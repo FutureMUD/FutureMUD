@@ -106,6 +106,7 @@ class CreateNPCEffect : IMagicSpellEffectTemplate
             newCharacter.RoomLayer = caster.RoomLayer;
         }
 
+        template.ApplyTemplateLoadAdditions(newCharacter);
         template.OnLoadProg?.Execute(newCharacter);
         _onLoadProg?.Execute(newCharacter, caster, Spell);
 

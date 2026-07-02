@@ -1141,12 +1141,13 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			return false;
 		}
 
-		for (var i = 0; i < count; i++)
-		{
-			var npc = definition.NpcTemplate.CreateNewCharacter(Cell);
-			Gameworld.Add(npc, true);
-			definition.NpcTemplate.OnLoadProg?.Execute(npc);
-			Cell.Login(npc);
+        for (var i = 0; i < count; i++)
+        {
+            var npc = definition.NpcTemplate.CreateNewCharacter(Cell);
+            Gameworld.Add(npc, true);
+            definition.NpcTemplate.ApplyTemplateLoadAdditions(npc);
+            definition.NpcTemplate.OnLoadProg?.Execute(npc);
+            Cell.Login(npc);
 			npc.HandleEvent(EventType.NPCOnGameLoadFinished, npc);
 		}
 

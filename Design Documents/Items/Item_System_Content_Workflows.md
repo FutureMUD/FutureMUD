@@ -194,6 +194,10 @@ Important setters:
 
 Template item keys are stable within the template and are used for container references. Prototypes must be current and manually loadable. Worn entries must use wearable prototypes and a valid wear profile. Container entries must point at another template item whose prototype has container capability, and container references must not be cyclic.
 
+NPC templates can reference outfit templates as load-time additions. When a new NPC is created from the template, the outfit template materialises before the NPC template `OnLoadProg`, so scripts and AI can see the created gear. The NPC template stores only the outfit template id and optional created outfit name; item prototype validation and safe placement remain owned by the outfit template materializer.
+
+NPC templates can also create installed implants and prosthetics as load-time body equipment. These entries store template-local keys, current item prototype references, optional target bodyparts, and optional implant power or neural-link keys. At load time the engine creates real item instances, verifies that the created item exposes the expected implant or prosthetic component and is compatible with the NPC body, installs it through the normal body methods, then applies any power or neural links that resolve to installed implants.
+
 ### Extra arguments
 The builder-facing load flow supports:
 - skin selection

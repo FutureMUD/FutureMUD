@@ -25,7 +25,7 @@ using EditableItem = MudSharp.Framework.Revision.EditableItem;
 
 namespace MudSharp.NPC.Templates;
 
-public abstract class NPCTemplateBase : EditableItem, INPCTemplate
+public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate
 {
     protected NPCTemplateBase(NpcTemplate template, IFuturemud gameworld) : base(template.EditableItem)
     {
@@ -53,6 +53,8 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
         {
             DefaultCombatSetting = gameworld.CharacterCombatSettings.Get(long.Parse(element.Value));
         }
+
+        LoadTemplateLoadAdditions(definition);
 
         foreach (NpcTemplatesArtificalIntelligences ai in template.NpctemplatesArtificalIntelligences)
         {
@@ -120,6 +122,20 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
             case "buildercomment":
             case "buildernotes":
                 return BuildingCommandBuilderNotes(actor, command);
+            case "clan":
+                return BuildingCommandClan(actor, command);
+            case "outfit":
+                return BuildingCommandOutfit(actor, command);
+            case "hook":
+                return BuildingCommandHook(actor, command);
+            case "bank":
+            case "account":
+            case "bankaccount":
+                return BuildingCommandBank(actor, command);
+            case "implant":
+                return BuildingCommandImplant(actor, command);
+            case "prosthetic":
+                return BuildingCommandProsthetic(actor, command);
             default:
                 actor.OutputHandler.Send($@"{HelpText}
 	#3unique <name>#0 - sets a unique lookup name for this NPC template
@@ -133,7 +149,23 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 	#3combatsetting <setting>#0 - sets the default combat setting for this NPC
 	#3combatsetting none#0 - clears the combat setting override
 	#3ai add <which>#0 - adds an AI routine to this NPC
-	#3ai remove <which>#0 - removes an AI routine from this NPC".SubstituteANSIColour());
+	#3ai remove <which>#0 - removes an AI routine from this NPC
+	#3clan add <clan> <rank> [paygrade <paygrade>]#0 - adds a load-time clan membership
+	#3clan remove <clan>#0 - removes a load-time clan membership
+	#3clan appointment add <clan> <appointment>#0 - adds a load-time clan appointment
+	#3clan appointment remove <clan> <appointment>#0 - removes a load-time clan appointment
+	#3outfit add <template> [name <name>]#0 - materialises an outfit template when loaded
+	#3outfit remove <template|#>#0 - removes a load-time outfit template
+	#3hook add <hook>#0 - installs a hook when loaded
+	#3hook remove <hook>#0 - removes a load-time hook
+	#3bank add <type> [balance <amount>] [name <name>]#0 - creates a bank account when loaded
+	#3bank remove <type|#>#0 - removes a load-time bank account
+	#3implant add <key> <proto> [bodypart <part>]#0 - installs an implant item when loaded
+	#3implant remove <key>#0 - removes a load-time implant
+	#3implant power <key> <power-key|none>#0 - configures implant power
+	#3implant neural <key> <neural-key|none>#0 - configures implant neural control
+	#3prosthetic add <key> <proto>#0 - installs a prosthetic item when loaded
+	#3prosthetic remove <key>#0 - removes a load-time prosthetic".SubstituteANSIColour());
                 return false;
         }
     }

@@ -10,13 +10,15 @@ internal sealed class LoadOutfitTemplate : BuiltInFunction
 	private readonly IFuturemud _gameworld;
 	private readonly bool _useName;
 	private readonly bool _useOverride;
+	private readonly bool _useLoadArguments;
 
-	private LoadOutfitTemplate(IList<IFunction> parameterFunctions, IFuturemud gameworld, bool useName, bool useOverride)
+	private LoadOutfitTemplate(IList<IFunction> parameterFunctions, IFuturemud gameworld, bool useName, bool useOverride, bool useLoadArguments)
 		: base(parameterFunctions)
 	{
 		_gameworld = gameworld;
 		_useName = useName;
 		_useOverride = useOverride;
+		_useLoadArguments = useLoadArguments;
 	}
 
 	public override ProgVariableTypes ReturnType
@@ -51,10 +53,13 @@ internal sealed class LoadOutfitTemplate : BuiltInFunction
 		var overrideName = _useOverride
 			? ParameterFunctions[2].Result.GetObject?.ToString()
 			: null;
+		var loadArguments = _useLoadArguments
+			? ParameterFunctions[3].Result.GetObject?.ToString()
+			: null;
 
 		try
 		{
-			Result = template.Materialise(target, overrideName);
+			Result = template.Materialise(target, overrideName, loadArguments);
 			return StatementResult.Normal;
 		}
 		catch (Exception ex)
@@ -69,7 +74,7 @@ internal sealed class LoadOutfitTemplate : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadoutfittemplate",
 			new[] { ProgVariableTypes.Number, ProgVariableTypes.Character },
-			(pars, gameworld) => new LoadOutfitTemplate(pars, gameworld, useName: false, useOverride: false),
+			(pars, gameworld) => new LoadOutfitTemplate(pars, gameworld, useName: false, useOverride: false, useLoadArguments: false),
 			new List<string> { "templateId", "target" },
 			new List<string>
 			{
@@ -84,7 +89,7 @@ internal sealed class LoadOutfitTemplate : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadoutfittemplate",
 			new[] { ProgVariableTypes.Text, ProgVariableTypes.Character },
-			(pars, gameworld) => new LoadOutfitTemplate(pars, gameworld, useName: true, useOverride: false),
+			(pars, gameworld) => new LoadOutfitTemplate(pars, gameworld, useName: true, useOverride: false, useLoadArguments: false),
 			new List<string> { "templateName", "target" },
 			new List<string>
 			{
@@ -99,7 +104,7 @@ internal sealed class LoadOutfitTemplate : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadoutfittemplate",
 			new[] { ProgVariableTypes.Number, ProgVariableTypes.Character, ProgVariableTypes.Text },
-			(pars, gameworld) => new LoadOutfitTemplate(pars, gameworld, useName: false, useOverride: true),
+			(pars, gameworld) => new LoadOutfitTemplate(pars, gameworld, useName: false, useOverride: true, useLoadArguments: false),
 			new List<string> { "templateId", "target", "outfitName" },
 			new List<string>
 			{
@@ -115,7 +120,7 @@ internal sealed class LoadOutfitTemplate : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadoutfittemplate",
 			new[] { ProgVariableTypes.Text, ProgVariableTypes.Character, ProgVariableTypes.Text },
-			(pars, gameworld) => new LoadOutfitTemplate(pars, gameworld, useName: true, useOverride: true),
+			(pars, gameworld) => new LoadOutfitTemplate(pars, gameworld, useName: true, useOverride: true, useLoadArguments: false),
 			new List<string> { "templateName", "target", "outfitName" },
 			new List<string>
 			{
@@ -124,6 +129,40 @@ internal sealed class LoadOutfitTemplate : BuiltInFunction
 				"The name to use for the created outfit"
 			},
 			"Loads all the items in an outfit template, places them around the target character according to the template, attaches a normal outfit to the target with the specified name, and returns that outfit.",
+			"Outfits",
+			ProgVariableTypes.Outfit
+		));
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"loadoutfittemplate",
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Text },
+			(pars, gameworld) => new LoadOutfitTemplate(pars, gameworld, useName: false, useOverride: true, useLoadArguments: true),
+			new List<string> { "templateId", "target", "outfitName", "loadArgs" },
+			new List<string>
+			{
+				"The ID of the outfit template to load",
+				"The character who should receive the created outfit and items",
+				"The name to use for the created outfit, or blank to use the template name",
+				"Additional item load arguments to apply to every created item"
+			},
+			"Loads all the items in an outfit template, applies the extra load arguments to every created item after any per-item arguments, places them around the target character according to the template, attaches a normal outfit to the target with the specified name, and returns that outfit.",
+			"Outfits",
+			ProgVariableTypes.Outfit
+		));
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"loadoutfittemplate",
+			new[] { ProgVariableTypes.Text, ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Text },
+			(pars, gameworld) => new LoadOutfitTemplate(pars, gameworld, useName: true, useOverride: true, useLoadArguments: true),
+			new List<string> { "templateName", "target", "outfitName", "loadArgs" },
+			new List<string>
+			{
+				"The name or ID of the outfit template to load",
+				"The character who should receive the created outfit and items",
+				"The name to use for the created outfit, or blank to use the template name",
+				"Additional item load arguments to apply to every created item"
+			},
+			"Loads all the items in an outfit template, applies the extra load arguments to every created item after any per-item arguments, places them around the target character according to the template, attaches a normal outfit to the target with the specified name, and returns that outfit.",
 			"Outfits",
 			ProgVariableTypes.Outfit
 		));

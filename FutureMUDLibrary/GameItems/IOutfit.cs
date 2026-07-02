@@ -26,7 +26,9 @@ namespace MudSharp.GameItems
         Worn,
         Inventory,
         Room,
-        Container
+        Container,
+        AttachedToBelt,
+        Sheathed
     }
 
     public interface IOutfit : IProgVariable
@@ -66,7 +68,7 @@ namespace MudSharp.GameItems
         IEnumerable<IOutfitTemplateItem> Items { get; }
         IEnumerable<string> ValidationWarnings { get; }
         IOutfitTemplate Clone(string newName);
-        IOutfit Materialise(ICharacter target, string outfitNameOverride = null);
+        IOutfit Materialise(ICharacter target, string outfitNameOverride = null, string loadArguments = null);
     }
 
     public interface IOutfitTemplateItem : IKeyworded

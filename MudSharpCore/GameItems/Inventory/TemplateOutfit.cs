@@ -230,11 +230,11 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 	#3name <name>#0 - renames this outfit template
 	#3description <description>#0 - sets the builder description
 	#3exclusivity none|below|all#0 - sets the created outfit exclusivity
-	#3item add <key> <prototype> [worn <profile>|inventory|room|container <key>] [args <load args>]#0 - adds an item
+	#3item add <key> <prototype> [worn [profile]|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]] [args <load args>]#0 - adds an item
 	#3item remove <key>#0 - removes an item
 	#3item key <old> <new>#0 - renames an item key
 	#3item proto <key> <prototype>#0 - changes an item prototype
-	#3item placement <key> worn <profile>|inventory|room|container <key>#0 - changes placement
+	#3item placement <key> worn [profile]|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]#0 - changes placement
 	#3item args <key> <load args|clear>#0 - changes load arguments
 	#3item swap <key1> <key2>#0 - swaps item order".SubstituteANSIColour());
 		return false;
@@ -577,21 +577,19 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			{
 				case "worn":
 				case "wear":
-					if (command.IsFinished)
-					{
-						actor.OutputHandler.Send("Which wear profile should this item use?");
-						return false;
-					}
-
-					var profile = Gameworld.WearProfiles.GetByIdOrName(command.PopSpeech());
-					if (profile is null)
-					{
-						actor.OutputHandler.Send("There is no such wear profile.");
-						return false;
-					}
 					item.Placement = OutfitTemplateItemPlacement.Worn;
-					item.DesiredProfile = profile;
+					item.DesiredProfile = null;
 					item.ContainerKey = null;
+					if (!command.IsFinished && !IsPlacementOrArgsKeyword(command.PeekSpeech()))
+					{
+						var profile = Gameworld.WearProfiles.GetByIdOrName(command.PopSpeech());
+						if (profile is null)
+						{
+							actor.OutputHandler.Send("There is no such wear profile.");
+							return Fail();
+						}
+						item.DesiredProfile = profile;
+					}
 					break;
 				case "inventory":
 				case "inv":
@@ -618,6 +616,29 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 					item.DesiredProfile = null;
 					item.ContainerKey = command.PopSpeech().ToLowerInvariant();
 					break;
+				case "attached":
+				case "attach":
+				case "belt":
+				case "belted":
+				case "attachedbelt":
+				case "attachedtobelt":
+					PopOptionalWords(command, "to", "belt");
+					item.Placement = OutfitTemplateItemPlacement.AttachedToBelt;
+					item.DesiredProfile = null;
+					item.ContainerKey = !command.IsFinished && !IsPlacementOrArgsKeyword(command.PeekSpeech())
+						? command.PopSpeech().ToLowerInvariant()
+						: null;
+					break;
+				case "sheathed":
+				case "sheathe":
+				case "sheath":
+					PopOptionalWords(command, "in", "to");
+					item.Placement = OutfitTemplateItemPlacement.Sheathed;
+					item.DesiredProfile = null;
+					item.ContainerKey = !command.IsFinished && !IsPlacementOrArgsKeyword(command.PeekSpeech())
+						? command.PopSpeech().ToLowerInvariant()
+						: null;
+					break;
 				case "args":
 					if (!allowArgs)
 					{
@@ -627,12 +648,44 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 					item.LoadArguments = command.SafeRemainingArgument;
 					return ValidateItemPlacement(actor, item) ? true : Fail();
 				default:
-					actor.OutputHandler.Send("Valid placements are worn <profile>, inventory, room or container <key>.");
+					actor.OutputHandler.Send("Valid placements are worn [profile], inventory, room, container <key>, attached [belt key] or sheathed [sheath key].");
 					return Fail();
 			}
 		}
 
 		return ValidateItemPlacement(actor, item) ? true : Fail();
+	}
+
+	private static bool IsPlacementOrArgsKeyword(string text)
+	{
+		return text.CollapseString().EqualToAny(
+			"worn",
+			"wear",
+			"inventory",
+			"inv",
+			"held",
+			"room",
+			"cell",
+			"container",
+			"in",
+			"attached",
+			"attach",
+			"belt",
+			"belted",
+			"attachedbelt",
+			"attachedtobelt",
+			"sheathed",
+			"sheathe",
+			"sheath",
+			"args");
+	}
+
+	private static void PopOptionalWords(StringStack command, params string[] words)
+	{
+		while (!command.IsFinished && command.PeekSpeech().CollapseString().EqualToAny(words))
+		{
+			command.PopSpeech();
+		}
 	}
 
 	private bool ValidateItemPlacement(ICharacter actor, IOutfitTemplateItem item)
@@ -724,11 +777,6 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 				{
 					yield return $"Template item {item.TemplateKey} is marked worn but its prototype is not wearable.";
 				}
-
-				if (item.DesiredProfile is null)
-				{
-					yield return $"Template item {item.TemplateKey} is marked worn but does not specify a wear profile.";
-				}
 				break;
 			case OutfitTemplateItemPlacement.Container:
 				if (string.IsNullOrWhiteSpace(item.ContainerKey))
@@ -754,6 +802,54 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 					yield return $"Template item {item.TemplateKey} refers to {item.ContainerKey} as a container, but that prototype is not a container.";
 				}
 				break;
+			case OutfitTemplateItemPlacement.AttachedToBelt:
+				if (!item.GameItemProto.IsItemType<IBeltablePrototype>())
+				{
+					yield return $"Template item {item.TemplateKey} is marked attached to belt but its prototype is not beltable.";
+				}
+
+				foreach (var warning in ValidateOptionalTargetReference(item, "belt", x => x.GameItemProto?.IsItemType<IBeltPrototype>() == true))
+				{
+					yield return warning;
+				}
+				break;
+			case OutfitTemplateItemPlacement.Sheathed:
+				if (!item.GameItemProto.IsItemType<IWieldablePrototype>())
+				{
+					yield return $"Template item {item.TemplateKey} is marked sheathed but its prototype is not wieldable.";
+				}
+
+				foreach (var warning in ValidateOptionalTargetReference(item, "sheath", x => x.GameItemProto?.IsItemType<ISheathPrototype>() == true))
+				{
+					yield return warning;
+				}
+				break;
+		}
+	}
+
+	private IEnumerable<string> ValidateOptionalTargetReference(IOutfitTemplateItem item, string targetType, Func<IOutfitTemplateItem, bool> predicate)
+	{
+		if (string.IsNullOrWhiteSpace(item.ContainerKey))
+		{
+			yield break;
+		}
+
+		var target = _items.FirstOrDefault(x => x.TemplateKey.EqualTo(item.ContainerKey));
+		if (target is null)
+		{
+			yield return $"Template item {item.TemplateKey} refers to missing {targetType} key {item.ContainerKey}.";
+			yield break;
+		}
+
+		if (ReferenceEquals(target, item))
+		{
+			yield return $"Template item {item.TemplateKey} cannot target itself as a {targetType}.";
+			yield break;
+		}
+
+		if (!predicate(target))
+		{
+			yield return $"Template item {item.TemplateKey} refers to {item.ContainerKey} as a {targetType}, but that prototype is not a {targetType}.";
 		}
 	}
 
@@ -791,15 +887,17 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 	{
 		return item.Placement switch
 		{
-			OutfitTemplateItemPlacement.Worn => $"worn as {item.DesiredProfile?.Name ?? "missing"}",
+			OutfitTemplateItemPlacement.Worn => $"worn as {item.DesiredProfile?.Name ?? "default"}",
 			OutfitTemplateItemPlacement.Inventory => "inventory",
 			OutfitTemplateItemPlacement.Room => "room",
 			OutfitTemplateItemPlacement.Container => $"in {item.ContainerKey}",
+			OutfitTemplateItemPlacement.AttachedToBelt => string.IsNullOrWhiteSpace(item.ContainerKey) ? "attached to belt" : $"attached to {item.ContainerKey}",
+			OutfitTemplateItemPlacement.Sheathed => string.IsNullOrWhiteSpace(item.ContainerKey) ? "sheathed" : $"sheathed in {item.ContainerKey}",
 			_ => "unknown"
 		};
 	}
 
-	public IOutfit Materialise(ICharacter target, string outfitNameOverride = null)
+	public IOutfit Materialise(ICharacter target, string outfitNameOverride = null, string loadArguments = null)
 	{
 		if (target is null)
 		{
@@ -820,7 +918,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 		var createdItems = new Dictionary<string, IGameItem>(StringComparer.InvariantCultureIgnoreCase);
 		foreach (var templateItem in _items.OrderBy(x => x.WearOrder))
 		{
-			var item = templateItem.GameItemProto.CreateNew(target, null, 1, templateItem.LoadArguments ?? string.Empty).First();
+			var item = templateItem.GameItemProto.CreateNew(target, null, 1, CombinedLoadArguments(templateItem.LoadArguments, loadArguments)).First();
 			Gameworld.Add(item);
 			item.RoomLayer = target.RoomLayer;
 			target.Location.Insert(item);
@@ -845,7 +943,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			}
 		}
 
-		foreach (var templateItem in _items.OrderBy(x => x.WearOrder).Where(x => x.Placement != OutfitTemplateItemPlacement.Container))
+		foreach (var templateItem in _items.OrderBy(x => x.WearOrder).Where(x => x.Placement is not OutfitTemplateItemPlacement.Container and not OutfitTemplateItemPlacement.AttachedToBelt and not OutfitTemplateItemPlacement.Sheathed))
 		{
 			if (!createdItems.TryGetValue(templateItem.TemplateKey, out var item))
 			{
@@ -855,9 +953,10 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			switch (templateItem.Placement)
 			{
 				case OutfitTemplateItemPlacement.Worn:
-					if (target.Body.CanWear(item, templateItem.DesiredProfile))
+					var profile = templateItem.DesiredProfile ?? item.GetItemType<IWearable>()?.DefaultProfile;
+					if (target.Body.CanWear(item, profile))
 					{
-						target.Body.Wear(item, templateItem.DesiredProfile, silent: true);
+						target.Body.Wear(item, profile, silent: true);
 					}
 					else if (target.Body.CanGet(item, 0))
 					{
@@ -875,6 +974,50 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			}
 		}
 
+		foreach (var templateItem in _items.OrderBy(x => x.WearOrder).Where(x => x.Placement == OutfitTemplateItemPlacement.AttachedToBelt))
+		{
+			if (!createdItems.TryGetValue(templateItem.TemplateKey, out var item))
+			{
+				continue;
+			}
+
+			var beltable = item.GetItemType<IBeltable>();
+			var belt = ResolveBelt(templateItem, createdItems, target, beltable);
+			if (belt?.CanAttachBeltable(beltable) == IBeltCanAttachBeltableResult.Success)
+			{
+				item.Get(null);
+				belt.AddConnectedItem(beltable);
+				target.Body.RecalculateItemHelpers();
+				continue;
+			}
+
+			if (target.Body.CanGet(item, 0))
+			{
+				target.Body.Get(item, silent: true);
+			}
+		}
+
+		foreach (var templateItem in _items.OrderBy(x => x.WearOrder).Where(x => x.Placement == OutfitTemplateItemPlacement.Sheathed))
+		{
+			if (!createdItems.TryGetValue(templateItem.TemplateKey, out var item))
+			{
+				continue;
+			}
+
+			var sheath = ResolveSheath(templateItem, createdItems, target, item);
+			if (target.Body.CanSheathe(item, sheath))
+			{
+				item.Get(null);
+				target.Body.Sheathe(item, sheath, silent: true);
+				continue;
+			}
+
+			if (target.Body.CanGet(item, 0))
+			{
+				target.Body.Get(item, silent: true);
+			}
+		}
+
 		var outfitName = UniqueOutfitName(target, string.IsNullOrWhiteSpace(outfitNameOverride) ? Name : outfitNameOverride);
 		var outfit = new Outfit(target, outfitName)
 		{
@@ -889,15 +1032,58 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 				continue;
 			}
 
-			var container = templateItem.Placement == OutfitTemplateItemPlacement.Container &&
-			                createdItems.TryGetValue(templateItem.ContainerKey ?? string.Empty, out var containerItem)
+			var relatedItem = templateItem.Placement is OutfitTemplateItemPlacement.Container or OutfitTemplateItemPlacement.AttachedToBelt or OutfitTemplateItemPlacement.Sheathed &&
+			                  createdItems.TryGetValue(templateItem.ContainerKey ?? string.Empty, out var containerItem)
 				? containerItem
 				: null;
-			outfit.AddItem(item, container, templateItem.DesiredProfile, templateItem.WearOrder);
+			outfit.AddItem(item, relatedItem, templateItem.DesiredProfile ?? item.GetItemType<IWearable>()?.DefaultProfile, templateItem.WearOrder);
 		}
 
 		target.AddOutfit(outfit);
 		return outfit;
+	}
+
+	private static string CombinedLoadArguments(string itemLoadArguments, string templateLoadArguments)
+	{
+		return string.Join(" ",
+			new[]
+			{
+				itemLoadArguments,
+				templateLoadArguments
+			}
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.Select(x => x.Trim()));
+	}
+
+	private static IBelt ResolveBelt(IOutfitTemplateItem templateItem, Dictionary<string, IGameItem> createdItems, ICharacter target, IBeltable beltable)
+	{
+		if (beltable is null)
+		{
+			return null;
+		}
+
+		if (!string.IsNullOrWhiteSpace(templateItem.ContainerKey) &&
+		    createdItems.TryGetValue(templateItem.ContainerKey, out var beltItem))
+		{
+			return beltItem.GetItemType<IBelt>();
+		}
+
+		return target.Body.ExternalItems
+		             .SelectNotNull(x => x.GetItemType<IBelt>())
+		             .FirstOrDefault(x => x.CanAttachBeltable(beltable) == IBeltCanAttachBeltableResult.Success);
+	}
+
+	private static IGameItem ResolveSheath(IOutfitTemplateItem templateItem, Dictionary<string, IGameItem> createdItems, ICharacter target, IGameItem item)
+	{
+		if (!string.IsNullOrWhiteSpace(templateItem.ContainerKey) &&
+		    createdItems.TryGetValue(templateItem.ContainerKey, out var sheathItem))
+		{
+			return sheathItem;
+		}
+
+		return target.Body.ExternalItems
+		             .Where(x => x.IsItemType<ISheath>())
+		             .FirstOrDefault(x => target.Body.CanSheathe(item, x));
 	}
 
 	private static string UniqueOutfitName(ICharacter target, string baseName)

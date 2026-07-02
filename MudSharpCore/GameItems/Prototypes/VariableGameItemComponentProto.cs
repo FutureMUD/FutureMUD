@@ -102,7 +102,7 @@ public class VariableGameItemComponentProto : GameItemComponentProto, IVariableP
                 continue;
             }
 
-            prePopulatedVariables.Add(definition, cvalue);
+            prePopulatedVariables[definition] = cvalue;
         }
 
         foreach (

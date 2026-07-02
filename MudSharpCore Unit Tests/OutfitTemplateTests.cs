@@ -149,6 +149,102 @@ public class OutfitTemplateTests
 	}
 
 	[TestMethod]
+	public void BuilderItemAddAllowsWornPlacementWithoutExplicitProfile()
+	{
+		var proto = Prototype(1, wearable: true);
+		var gameworld = GameworldForBuilder(new[] { proto });
+		var template = new TemplateOutfit(gameworld.Object, "Template", "Desc.", OutfitExclusivity.NonExclusive, System.Array.Empty<IOutfitTemplateItem>());
+		var actor = BuilderActor();
+
+		var result = template.BuildingCommand(actor.Object, new StringStack("item add cloak 1 worn"));
+
+		Assert.IsTrue(result);
+		Assert.AreEqual(OutfitTemplateItemPlacement.Worn, template.Items.Single().Placement);
+		Assert.IsNull(template.Items.Single().DesiredProfile);
+		Assert.IsFalse(template.ValidationWarnings.Any());
+	}
+
+	[TestMethod]
+	public void MaterialiseWornPlacementWithoutProfileUsesCreatedItemDefaultProfile()
+	{
+		var defaultProfile = WearProfile(10);
+		var wearable = new Mock<IWearable>();
+		wearable.SetupGet(x => x.DefaultProfile).Returns(defaultProfile);
+		var created = Item(100, Prototype(1), "a travel cloak", wearable: wearable.Object);
+		var proto = Prototype(1, created.Object, wearable: true);
+		var template = new TemplateOutfit(new Mock<IFuturemud>().Object, "Travel Kit", "Road gear.", OutfitExclusivity.NonExclusive,
+			new[] { TemplateItem("cloak", proto, OutfitTemplateItemPlacement.Worn) });
+		var target = Target(System.Array.Empty<IOutfit>(), out _, out var body, out _);
+		body.Setup(x => x.CanWear(created.Object, defaultProfile)).Returns(true);
+
+		template.Materialise(target.Object);
+
+		body.Verify(x => x.Wear(created.Object, defaultProfile, null, true), Times.Once);
+	}
+
+	[TestMethod]
+	public void MaterialiseAppliesWholeTemplateLoadArgumentsAfterItemArguments()
+	{
+		var created = Item(100, Prototype(1), "a cloak");
+		var proto = created.Object.Prototype;
+		string capturedLoadArguments = null;
+		Mock.Get(proto)
+		    .Setup(x => x.CreateNew(It.IsAny<ICharacter>(), null, 1, It.IsAny<string>()))
+		    .Callback<ICharacter, IGameItemSkin, int, string>((_, _, _, args) => capturedLoadArguments = args)
+		    .Returns(new[] { created.Object });
+		var template = new TemplateOutfit(new Mock<IFuturemud>().Object, "Travel Kit", "Road gear.", OutfitExclusivity.NonExclusive,
+			new[] { TemplateItem("cloak", proto, OutfitTemplateItemPlacement.Room, loadArguments: "shade=dark") });
+		var target = Target(System.Array.Empty<IOutfit>(), out _, out _, out _);
+
+		template.Materialise(target.Object, loadArguments: "colour=red");
+
+		Assert.AreEqual("shade=dark colour=red", capturedLoadArguments);
+	}
+
+	[TestMethod]
+	public void MaterialiseAttachedPlacementConnectsItemToAvailableBelt()
+	{
+		var beltable = new Mock<IBeltable>();
+		var item = Item(100, Prototype(1), "a knife", beltable: beltable.Object);
+		beltable.SetupGet(x => x.Parent).Returns(item.Object);
+		var proto = Prototype(1, item.Object, beltable: true);
+		var beltRuntime = new Mock<IBelt>();
+		beltRuntime.Setup(x => x.CanAttachBeltable(beltable.Object)).Returns(IBeltCanAttachBeltableResult.Success);
+		var belt = Item(200, Prototype(2, belt: true), "a belt", belt: beltRuntime.Object);
+		beltRuntime.SetupGet(x => x.Parent).Returns(belt.Object);
+		var template = new TemplateOutfit(new Mock<IFuturemud>().Object, "Knife Kit", "Belt knife.", OutfitExclusivity.NonExclusive,
+			new[] { TemplateItem("knife", proto, OutfitTemplateItemPlacement.AttachedToBelt) });
+		var target = Target(System.Array.Empty<IOutfit>(), out _, out var body, out _);
+		body.Setup(x => x.ExternalItems).Returns(new[] { belt.Object });
+
+		template.Materialise(target.Object);
+
+		item.Verify(x => x.Get(null), Times.Once);
+		beltRuntime.Verify(x => x.AddConnectedItem(beltable.Object), Times.Once);
+		body.Verify(x => x.RecalculateItemHelpers(), Times.Once);
+	}
+
+	[TestMethod]
+	public void MaterialiseSheathedPlacementUsesAvailableSheath()
+	{
+		var wieldable = new Mock<IWieldable>();
+		var item = Item(100, Prototype(1), "a sword", wieldable: wieldable.Object);
+		var proto = Prototype(1, item.Object, wieldable: true);
+		var sheathRuntime = new Mock<ISheath>();
+		var sheath = Item(200, Prototype(2, sheath: true), "a scabbard", sheath: sheathRuntime.Object);
+		var template = new TemplateOutfit(new Mock<IFuturemud>().Object, "Sword Kit", "Sword and scabbard.", OutfitExclusivity.NonExclusive,
+			new[] { TemplateItem("sword", proto, OutfitTemplateItemPlacement.Sheathed) });
+		var target = Target(System.Array.Empty<IOutfit>(), out _, out var body, out _);
+		body.Setup(x => x.ExternalItems).Returns(new[] { sheath.Object });
+		body.Setup(x => x.CanSheathe(item.Object, sheath.Object)).Returns(true);
+
+		template.Materialise(target.Object);
+
+		item.Verify(x => x.Get(null), Times.Once);
+		body.Verify(x => x.Sheathe(item.Object, sheath.Object, null, OutputFlags.Normal, true), Times.Once);
+	}
+
+	[TestMethod]
 	public void RejectedPrototypeEditRestoresPreviousPrototype()
 	{
 		var profile = WearProfile(10);
@@ -189,10 +285,12 @@ public class OutfitTemplateTests
 		                          .Where(x => x.FunctionName.EqualTo("loadoutfittemplate"))
 		                          .ToList();
 
-		Assert.AreEqual(4, overloads.Count);
+		Assert.AreEqual(6, overloads.Count);
 		Assert.IsTrue(overloads.All(x => x.ReturnType == ProgVariableTypes.Outfit));
 		Assert.IsTrue(overloads.All(x => x.Category.EqualTo("Outfits")));
 		Assert.IsTrue(overloads.All(x => x.FunctionHelp.Contains("outfit template")));
+		Assert.IsTrue(overloads.Any(x => x.Parameters.SequenceEqual(new[] { ProgVariableTypes.Number, ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Text })));
+		Assert.IsTrue(overloads.Any(x => x.Parameters.SequenceEqual(new[] { ProgVariableTypes.Text, ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Text })));
 	}
 
 	private static IOutfitTemplateItem TemplateItem(
@@ -201,7 +299,8 @@ public class OutfitTemplateTests
 		OutfitTemplateItemPlacement placement,
 		IWearProfile profile = null,
 		string containerKey = null,
-		int wearOrder = 0)
+		int wearOrder = 0,
+		string loadArguments = "")
 	{
 		return new TemplateOutfitItem
 		{
@@ -211,7 +310,7 @@ public class OutfitTemplateTests
 			DesiredProfile = profile,
 			ContainerKey = containerKey,
 			WearOrder = wearOrder,
-			LoadArguments = string.Empty
+			LoadArguments = loadArguments
 		};
 	}
 
@@ -220,6 +319,10 @@ public class OutfitTemplateTests
 		IGameItem createdItem = null,
 		bool wearable = false,
 		bool container = false,
+		bool beltable = false,
+		bool belt = false,
+		bool sheath = false,
+		bool wieldable = false,
 		bool preventManualLoad = false,
 		RevisionStatus status = RevisionStatus.Current)
 	{
@@ -232,6 +335,10 @@ public class OutfitTemplateTests
 		proto.Setup(x => x.Components).Returns(System.Array.Empty<IGameItemComponentProto>());
 		proto.Setup(x => x.IsItemType<IWearablePrototype>()).Returns(wearable);
 		proto.Setup(x => x.IsItemType<IContainerPrototype>()).Returns(container);
+		proto.Setup(x => x.IsItemType<IBeltablePrototype>()).Returns(beltable);
+		proto.Setup(x => x.IsItemType<IBeltPrototype>()).Returns(belt);
+		proto.Setup(x => x.IsItemType<ISheathPrototype>()).Returns(sheath);
+		proto.Setup(x => x.IsItemType<IWieldablePrototype>()).Returns(wieldable);
 		if (createdItem is not null)
 		{
 			proto.Setup(x => x.CreateNew(It.IsAny<ICharacter>(), null, 1, It.IsAny<string>()))
@@ -249,7 +356,16 @@ public class OutfitTemplateTests
 		return profile.Object;
 	}
 
-	private static Mock<IGameItem> Item(long id, IGameItemProto proto, string description, IContainer container = null)
+	private static Mock<IGameItem> Item(
+		long id,
+		IGameItemProto proto,
+		string description,
+		IContainer container = null,
+		IWearable wearable = null,
+		IBeltable beltable = null,
+		IBelt belt = null,
+		ISheath sheath = null,
+		IWieldable wieldable = null)
 	{
 		var item = new Mock<IGameItem>();
 		item.Setup(x => x.Id).Returns(id);
@@ -261,6 +377,16 @@ public class OutfitTemplateTests
 		item.SetupProperty(x => x.RoomLayer);
 		item.Setup(x => x.GetItemType<IContainer>()).Returns(container);
 		item.Setup(x => x.IsItemType<IContainer>()).Returns(container is not null);
+		item.Setup(x => x.GetItemType<IWearable>()).Returns(wearable);
+		item.Setup(x => x.IsItemType<IWearable>()).Returns(wearable is not null);
+		item.Setup(x => x.GetItemType<IBeltable>()).Returns(beltable);
+		item.Setup(x => x.IsItemType<IBeltable>()).Returns(beltable is not null);
+		item.Setup(x => x.GetItemType<IBelt>()).Returns(belt);
+		item.Setup(x => x.IsItemType<IBelt>()).Returns(belt is not null);
+		item.Setup(x => x.GetItemType<ISheath>()).Returns(sheath);
+		item.Setup(x => x.IsItemType<ISheath>()).Returns(sheath is not null);
+		item.Setup(x => x.GetItemType<IWieldable>()).Returns(wieldable);
+		item.Setup(x => x.IsItemType<IWieldable>()).Returns(wieldable is not null);
 		item.Setup(x => x.Get(null)).Returns(item.Object);
 		if (proto is Mock<IGameItemProto>)
 		{

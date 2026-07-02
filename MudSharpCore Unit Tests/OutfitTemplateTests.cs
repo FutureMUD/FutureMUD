@@ -183,6 +183,47 @@ public class OutfitTemplateTests
 	}
 
 	[TestMethod]
+	public void MaterialiseWornPlacementRemovesTemporaryRoomAnchor()
+	{
+		var profile = WearProfile(10);
+		var wearable = new Mock<IWearable>();
+		var created = Item(100, Prototype(1), "a helmet", wearable: wearable.Object);
+		var proto = Prototype(1, created.Object, wearable: true);
+		var template = new TemplateOutfit(new Mock<IFuturemud>().Object, "Guard Kit", "Guard gear.", OutfitExclusivity.NonExclusive,
+			new[] { TemplateItem("helmet", proto, OutfitTemplateItemPlacement.Worn, profile) });
+		var target = Target(System.Array.Empty<IOutfit>(), out var location, out var body, out _);
+		body.Setup(x => x.CanWear(created.Object, profile)).Returns(true);
+
+		template.Materialise(target.Object);
+
+		location.Verify(x => x.Insert(created.Object, false), Times.Once);
+		created.Verify(x => x.Get(null), Times.Once);
+		body.Verify(x => x.Wear(created.Object, profile, null, true), Times.Once);
+		body.Verify(x => x.Get(created.Object, 0, null, true, It.IsAny<ItemCanGetIgnore>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void MaterialiseFailedWornPlacementLeavesTemporaryRoomAnchorWhenNotHeld()
+	{
+		var profile = WearProfile(10);
+		var wearable = new Mock<IWearable>();
+		var created = Item(100, Prototype(1), "a helmet", wearable: wearable.Object);
+		var proto = Prototype(1, created.Object, wearable: true);
+		var template = new TemplateOutfit(new Mock<IFuturemud>().Object, "Guard Kit", "Guard gear.", OutfitExclusivity.NonExclusive,
+			new[] { TemplateItem("helmet", proto, OutfitTemplateItemPlacement.Worn, profile) });
+		var target = Target(System.Array.Empty<IOutfit>(), out var location, out var body, out _);
+		body.Setup(x => x.CanWear(created.Object, profile)).Returns(false);
+		body.Setup(x => x.CanGet(created.Object, 0, It.IsAny<ItemCanGetIgnore>())).Returns(false);
+
+		template.Materialise(target.Object);
+
+		location.Verify(x => x.Insert(created.Object, false), Times.Once);
+		created.Verify(x => x.Get(null), Times.Never);
+		body.Verify(x => x.Wear(created.Object, profile, null, true), Times.Never);
+		body.Verify(x => x.Get(created.Object, 0, null, true, It.IsAny<ItemCanGetIgnore>()), Times.Never);
+	}
+
+	[TestMethod]
 	public void MaterialiseAppliesWholeTemplateLoadArgumentsAfterItemArguments()
 	{
 		var created = Item(100, Prototype(1), "a cloak");

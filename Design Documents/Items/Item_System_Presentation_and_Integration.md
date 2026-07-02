@@ -83,6 +83,8 @@ Common examples:
 - `IImplant`
 - `IProsthetic`
 
+Inventory output treats belted attachments as part of the wearer's equipment, not loose room contents. If the belt is covered, attached items such as scabbards should still appear in inventory with the same covered or partially covered marker style used by worn items rather than disappearing from the list.
+
 Telecommunications components are a special case of connected location behaviour:
 - wired handsets may be physically present in a room or inventory while functionally depending on a connected telecom outlet
 - a connected outlet can own the number and grid-service state that the handset presents to players

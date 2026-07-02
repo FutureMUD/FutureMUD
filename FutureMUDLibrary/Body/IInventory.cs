@@ -587,13 +587,37 @@ namespace MudSharp.Body
                 IBeltable beltable = item.GetItemType<IBeltable>();
                 if (beltable?.ConnectedTo != null)
                 {
-                    if (
-                        inv.CoverInformation(beltable.ConnectedTo.Parent)
-                            .Any(x => x.Item1 != WearableItemCoverStatus.Covered))
+                    var attachedCover = inv.CoverInformation(beltable.ConnectedTo.Parent).ToList();
+                    var attachedDescription = $"<attached to {beltable.ConnectedTo.Parent.Name.ToLowerInvariant()}>";
+                    var inventoryDescription = $"{attachedDescription,-35}";
+                    if (ignoreCover ||
+                        !attachedCover.Any(x =>
+                            x.Item1 == WearableItemCoverStatus.Covered ||
+                            x.Item1 == WearableItemCoverStatus.TransparentlyCovered))
                     {
-                        sb.AppendLine(
-                            $"{string.Format($"<attached to {beltable.ConnectedTo.Parent.Name.ToLowerInvariant()}>", beltable.ConnectedTo.Parent.Name.ToLowerInvariant()),-35}" +
-                            item.HowSeen(perceiver));
+                        sb.AppendLine(inventoryDescription + item.HowSeen(perceiver));
+                    }
+                    else
+                    {
+                        var coveredlocs =
+                            attachedCover.Where(
+                                x =>
+                                    (x.Item1 == WearableItemCoverStatus.Covered) ||
+                                    (x.Item1 == WearableItemCoverStatus.TransparentlyCovered));
+                        var coveritems =
+                            coveredlocs.Select(x => x.Item2)
+                                       .Distinct()
+                                       .Select(x => x.HowSeen(perceiver, colour: false))
+                                       .ListToString();
+
+                        sb.AppendLineFormat("{0}{1} {2}", inventoryDescription,
+                            item.HowSeen(perceiver),
+                            attachedCover.All(
+                                x =>
+                                    (x.Item1 == WearableItemCoverStatus.Covered) ||
+                                    (x.Item1 == WearableItemCoverStatus.TransparentlyCovered))
+                                ? "(covered)".FluentTagMXP("send", $"href='look' hint='{coveritems}'")
+                                : "(partially covered)".FluentTagMXP("send", $"href='look' hint='{coveritems}'"));
                     }
 
                     continue;

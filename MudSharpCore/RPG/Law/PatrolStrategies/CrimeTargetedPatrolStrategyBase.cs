@@ -229,14 +229,7 @@ public abstract class CrimeTargetedPatrolStrategyBase : ArmedPatrolStrategy, ICr
 			}
 		}
 
-		FollowingPath fp = new(patrol.PatrolLeader, path)
-		{
-			UseDoorguards = true,
-			UseKeys = true,
-			OpenDoors = true
-		};
-		patrol.PatrolLeader.AddEffect(fp);
-		fp.FollowPathAction();
+		BeginPatrolPath(patrol.PatrolLeader, path);
 	}
 
 	protected virtual void HandleArrivedAtTargetNode(IPatrol patrol, ICell node)

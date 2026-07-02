@@ -51,7 +51,7 @@ public static class PatrolStrategyFactory
             case "door duties":
             case "doorduty":
             case "door duty":
-                return new DoorDutiesPatrolStrategy(gameworld);
+                return new DoorDutiesPatrolStrategy(gameworld, strategyData);
             case "judge":
                 return new JudgePatrolStrategy(gameworld);
             case "sheriff":

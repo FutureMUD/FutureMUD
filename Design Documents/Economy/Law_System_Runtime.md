@@ -28,7 +28,7 @@ Builder customisation remains data-driven: use legal authority enforcement zones
 
 Death sentences are represented by `PunishmentResult.Execution`. When multiple punishments are combined, the execution flag is preserved alongside fines, custodial sentences, and good-behaviour bonds.
 
-When a legal authority applies a result with `Execution = true`, the condemned character receives an `AwaitingExecution` effect for that authority. The existing sentencing path sets the execution date one in-game day after sentence application. Execution patrols only select loaded, living characters whose execution date has arrived.
+When a legal authority applies a result with `Execution = true`, the condemned character receives an `AwaitingExecution` effect for that authority. The existing sentencing path sets the execution date one in-game day after sentence application. Execution patrols only select loaded, living characters whose execution date has arrived. A condemned character who is physically held in a remand cell can use `requestexecution` to bring their execution date forward to the current legal time and request an immediate execution-patrol dispatch.
 
 ## Execution Patrols
 
@@ -52,13 +52,17 @@ The `DoorDuties` patrol strategy is a stationary enforcer strategy for locations
 
 The first node on the patrol route is the duty location. During preparation, patrol members travel to the legal authority preparation room and the patrol leader tries to retrieve the patrol's required key set for the locks on doors attached to that duty location. Key matching uses the same lock/key checks as ordinary character movement, so builders must provide compatible key items in the preparation room or on the patrol leader. If all selected enforcers are already at the duty location and the leader already has the required keys, the patrol can begin there without returning to preparation.
 
-While stationed at the duty location, patrol members who have the relevant duty-door keys receive a patrol-managed door-guard mode effect. This makes them eligible for the normal `DoorguardAI` door-opening and door-closing behavior without relying on a builder to manually toggle the NPC-only `doorguard` command. The patrol-managed effect is removed when the patrol leaves door duty, completes, aborts, or switches into active enforcement. Manually configured `DoorguardMode` effects are left alone.
+While stationed at the duty location, patrol members who have the relevant duty-door keys receive a patrol-managed door-guard mode effect. This makes them eligible for `DoorguardAI` door-opening and door-closing behavior without relying on a builder to manually toggle the NPC-only `doorguard` command. The patrol-managed effect is removed when the patrol leaves door duty, completes, aborts, or switches into active enforcement. Manually configured `DoorguardMode` effects are left alone.
+
+Door Duties has a strategy-specific access mode. `normal` preserves the assigned `DoorguardAI` will-open rules, such as a clan-brother check. `enforcers` opens for characters who have enforcement authority for the same legal authority as the patrol. `everyone` opens for anyone. All modes still require the posted guard to be able to perform the configured open/close behavior and to hold the duty-door keys required by the patrol effect.
+
+Legal-patrol and enforcer fallback movement use the shared full-friendly `FollowingPath` movement policy: open doors, use held or accessible keys, interact with eligible doorguards through movement, socials, or knocks, and close doors behind the moving enforcer when possible. Waiting on a key unlock or delayed doorguard response keeps the path alive so multi-room patrol routes can continue after the door interaction completes.
 
 ## Builder Configuration
 
 Strategy-specific settings are edited through the patrol route `config` command after selecting the execution strategy.
 
-Core options:
+Execution patrol options:
 
 - `method cdg|drug|firing`: selects coup de grace with a weapon, administered drug, or firing squad.
 - `equipment here|<room>|none`: sets the room used to collect tools. `none` falls back to the legal authority preparation room.
@@ -69,8 +73,12 @@ Core options:
 - `window <seconds>`: sets how long the prisoner has to use `HELPLESS` or surrender before guards begin subduing them.
 - `lastwordsdelay <seconds>`: sets the last-words window after the last-words emote.
 - `scriptdelay <seconds>`: sets the delay between scripted execution emotes.
-- `confirmdelay <seconds>`: sets the delay between execution attempts while confirming death.
+- `confirmdelay <seconds>`: sets how long to wait between execution attempts while confirming death.
 - `attempts <number>`: sets how many execution attempts are made before the patrol aborts.
+
+Door Duties options:
+
+- `access normal|enforcers|everyone`: selects whether patrol-managed doorguards use normal `DoorguardAI` access rules, open only for enforcers of the patrol legal authority, or open for everyone.
 
 Custom emotes:
 

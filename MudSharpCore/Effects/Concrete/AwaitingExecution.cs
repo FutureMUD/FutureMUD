@@ -88,4 +88,16 @@ public class AwaitingExecution : Effect, IScoreAddendumEffect
         ExecutionDate += extension;
         Changed = true;
     }
+
+    public bool BringForwardTo(MudDateTime executionDate)
+    {
+        if (ExecutionDate <= executionDate)
+        {
+            return false;
+        }
+
+        ExecutionDate = executionDate;
+        Changed = true;
+        return true;
+    }
 }

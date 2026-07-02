@@ -32,15 +32,10 @@ public class UnlockDoor : Effect, IEffectSubtype
 
     public override void RemovalEffect()
     {
-        IKey key =
-            Character.Body.ExternalItems.SelectNotNull(y => y.GetItemType<IKey>())
-                     .Concat(
-                         Character.Body.ExternalItems
-                                  .SelectNotNull(y => y.GetItemType<IContainer>())
-                                  .Where(y => (y.Parent.GetItemType<IOpenable>()?.IsOpen ?? true) ||
-                                              y.Parent.GetItemType<IOpenable>().CanOpen(Character.Body))
-                                  .SelectMany(y => y.Contents.SelectNotNull(z => z.GetItemType<IKey>()))
-                     ).FirstOrDefault(x => Door.Locks.Any(y => y.IsLocked && y.CanUnlock(Character, x)));
+        IKey key = Character.Body.ExternalItems
+                            .SelectMany(x => x.ShallowAccessibleItems(Character))
+                            .SelectNotNull(x => x.GetItemType<IKey>())
+                            .FirstOrDefault(x => Door.Locks.Any(y => y.IsLocked && y.CanUnlock(Character, x)));
 
         if (key != null)
         {
@@ -69,7 +64,6 @@ public class UnlockDoor : Effect, IEffectSubtype
             if (Door.CanOpen(Character.Body))
             {
                 Character.Body.Open(Door, null, null);
-                Character.Move(Exit);
                 return;
             }
 

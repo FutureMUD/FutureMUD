@@ -353,10 +353,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
                 }
             }
 
-            FollowingPath fp = new(patrol.PatrolLeader, path)
-            { UseDoorguards = true, UseKeys = true, OpenDoors = true };
-            patrol.PatrolLeader.AddEffect(fp);
-            fp.FollowPathAction();
+            BeginPatrolPath(patrol.PatrolLeader, path);
             return;
         }
 
@@ -416,7 +413,6 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
             return;
         }
 
-        FollowingPath fp;
         if (!patrol.PatrolLeader.AffectedBy<FollowingPath>())
         {
             IEnumerable<ICellExit> path = patrol.PatrolLeader.PathBetween(patrol.OriginLocation, 50,
@@ -426,10 +422,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
                 return;
             }
 
-            fp = new FollowingPath(patrol.PatrolLeader, path)
-            { UseDoorguards = true, UseKeys = true, OpenDoors = true };
-            patrol.PatrolLeader.AddEffect(fp);
-            fp.FollowPathAction();
+            BeginPatrolPath(patrol.PatrolLeader, path);
         }
     }
 
@@ -451,9 +444,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
                 PathSearch.PathIncludeUnlockableDoors(leader)).ToList();
             if (path.Count > 0)
             {
-                FollowingPath fp = new(leader, path) { UseDoorguards = true, UseKeys = true, OpenDoors = true };
-                leader.AddEffect(fp);
-                fp.FollowPathAction();
+                BeginPatrolPath(leader, path);
             }
 
             return;
@@ -483,10 +474,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
                 }
             }
 
-            FollowingPath fp = new(patrol.PatrolLeader, path)
-            { UseDoorguards = true, UseKeys = true, OpenDoors = true };
-            patrol.PatrolLeader.AddEffect(fp);
-            fp.FollowPathAction();
+            BeginPatrolPath(patrol.PatrolLeader, path);
         }
     }
 
@@ -623,6 +611,18 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         }
     }
 
+	protected static FollowingPath CreatePatrolPath(ICharacter member, IEnumerable<ICellExit> path)
+	{
+		return FollowingPath.CreateFullFriendlyPath(member, path, closeDoorsBehind: true);
+	}
+
+	protected static void BeginPatrolPath(ICharacter member, IEnumerable<ICellExit> path)
+	{
+		FollowingPath fp = CreatePatrolPath(member, path);
+		member.AddEffect(fp);
+		fp.FollowPathAction();
+	}
+
     protected virtual void PatrolTickPreparationPhase(IPatrol patrol)
     {
         foreach (ICharacter member in patrol.PatrolMembers)
@@ -634,9 +634,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
                     PathSearch.PathIncludeUnlockableDoors(member));
                 if (path != null)
                 {
-                    FollowingPath fp = new(member, path) { UseDoorguards = true, UseKeys = true, OpenDoors = true };
-                    member.AddEffect(fp);
-                    fp.FollowPathAction();
+                    BeginPatrolPath(member, path);
                 }
 
                 continue;

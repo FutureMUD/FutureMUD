@@ -70,7 +70,7 @@ public class JudgePatrolStrategy : PatrolStrategyBase
 
             List<ICellExit> path = patrol.PatrolLeader
                              .PathBetween(patrol.NextMajorNode, 50,
-                                 PathSearch.PathIncludeUnlockedDoors(patrol.PatrolLeader))
+                                 PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader))
                              .ToList();
             if (!path.Any())
             {
@@ -79,9 +79,7 @@ public class JudgePatrolStrategy : PatrolStrategyBase
                 return;
             }
 
-            FollowingPath fp = new(patrol.PatrolLeader, path);
-            patrol.PatrolLeader.AddEffect(fp);
-            fp.FollowPathAction();
+            BeginPatrolPath(patrol.PatrolLeader, path);
             return;
         }
     }

@@ -6,6 +6,10 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Movement;
 using MudSharp.NPC.AI.Strategies;
 using System;
@@ -45,6 +49,19 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
     public bool UseKeys { get; set; }
     public bool SmashLockedDoors { get; set; }
     public bool UseDoorguards { get; set; }
+	public bool CloseDoorsBehind { get; set; }
+
+	public static FollowingPath CreateFullFriendlyPath(ICharacter owner, IEnumerable<ICellExit> exits,
+		bool closeDoorsBehind = false)
+	{
+		return new FollowingPath(owner, exits)
+		{
+			UseDoorguards = true,
+			UseKeys = true,
+			OpenDoors = true,
+			CloseDoorsBehind = closeDoorsBehind
+		};
+	}
 
     public virtual void FollowPathAction()
     {
@@ -72,8 +89,24 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 
         if (exit.Origin != ch.Location)
         {
-            ch.RemoveEffect(this);
-            return;
+	        if (exit.Destination == ch.Location)
+	        {
+		        Exits.Dequeue();
+		        if (CloseDoorsBehind)
+		        {
+			        CloseDoorBehind(ch, exit, UseKeys);
+		        }
+
+		        if (Exits.Count == 0 && RemoveWhenExitsEmpty)
+		        {
+			        ch.RemoveEffect(this);
+		        }
+
+		        return;
+	        }
+
+	        ch.RemoveEffect(this);
+	        return;
         }
 
         if (!exit.WhichLayersExitAppears().Contains(ch.RoomLayer))
@@ -102,19 +135,94 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
         }
 
         IMovementStrategy strategy = MovementStrategyFactory.GetStrategy(OpenDoors, UseKeys, SmashLockedDoors, UseDoorguards);
-        if (strategy.TryToMove(ch, exit))
-        {
-            Exits.Dequeue();
-            if (Exits.Count == 0 && RemoveWhenExitsEmpty)
-            {
-                ch.RemoveEffect(this);
-            }
-        }
-        else
-        {
-            ch.RemoveEffect(this);
-        }
+		switch (strategy.TryToMove(ch, exit))
+		{
+			case MovementStrategyResult.Moved:
+				Exits.Dequeue();
+				CloseDoorBehindAfterMovement(ch, exit);
+				if (Exits.Count == 0 && RemoveWhenExitsEmpty)
+				{
+					ch.RemoveEffect(this);
+				}
+
+				return;
+			case MovementStrategyResult.Waiting:
+				return;
+			default:
+				ch.RemoveEffect(this);
+				return;
+		}
     }
+
+	private void CloseDoorBehindAfterMovement(ICharacter ch, ICellExit exit)
+	{
+		if (!CloseDoorsBehind)
+		{
+			return;
+		}
+
+		if (ch.Location == exit.Destination)
+		{
+			CloseDoorBehind(ch, exit, UseKeys);
+			return;
+		}
+
+		var movement = ch.Movement;
+		var delay = movement is null
+			? TimeSpan.FromSeconds(1)
+			: movement.Duration + TimeSpan.FromTicks(movement.Duration.Ticks / 5) + TimeSpan.FromMilliseconds(100);
+		ch.AddEffect(new DelayedAction(ch, _ =>
+		{
+			if (ch.Location == exit.Destination)
+			{
+				CloseDoorBehind(ch, exit, UseKeys);
+			}
+		}, "closing a door behind them"), delay);
+	}
+
+	public static void CloseDoorBehind(ICharacter ch, ICellExit exit, bool useKeys)
+	{
+		if (exit?.Exit.Door?.IsOpen != true)
+		{
+			return;
+		}
+
+		ch.Body.Close(exit.Exit.Door, null, null);
+		if (!useKeys)
+		{
+			return;
+		}
+
+		var keys = ch.Body.ExternalItems
+		             .SelectMany(x => x.ShallowAccessibleItems(ch))
+		             .SelectNotNull(x => x.GetItemType<IKey>())
+		             .ToList();
+		var usableKeys = keys
+		                 .Where(x => exit.Exit.Door.Locks.Any(y => !y.IsLocked && y.CanLock(ch, x)))
+		                 .Select(x => Tuple.Create(x, GetHoldPlanForItem(ch, x.Parent)))
+		                 .Where(x => x.Item2.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+		                 .ToList();
+		if (!usableKeys.Any())
+		{
+			return;
+		}
+
+		LockDoor effect = new(ch, exit.Exit.Door, usableKeys);
+		ch.AddEffect(effect);
+		ch.RemoveEffect(effect, true);
+	}
+
+	private static IInventoryPlan GetHoldPlanForItem(ICharacter ch, IGameItem item)
+	{
+		InventoryPlanTemplate template = new(ch.Gameworld, new[]
+		{
+			new InventoryPlanPhaseTemplate(1, new[]
+			{
+				new InventoryPlanActionHold(ch.Gameworld, 0, 0, x => x == item, null)
+			})
+		});
+		return template.CreatePlan(ch);
+	}
 
     public bool PathTowardsLayer(RoomLayer targetLayer)
     {

@@ -31,7 +31,7 @@ public class LockDoor : Effect, IEffectSubtype
     {
         Actor = actor;
         Door = door;
-        Plans = new Queue<Tuple<IKey, IInventoryPlan>>(Plans);
+        Plans = new Queue<Tuple<IKey, IInventoryPlan>>(plans);
     }
 
     protected override string SpecificEffectType => "LockDoor";
@@ -43,6 +43,11 @@ public class LockDoor : Effect, IEffectSubtype
 
     public override void RemovalEffect()
     {
+        if (!Plans.Any())
+        {
+            return;
+        }
+
         Tuple<IKey, IInventoryPlan> next = Plans.Dequeue();
         if (next.Item2.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
         {

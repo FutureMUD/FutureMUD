@@ -65,7 +65,7 @@ public class ProsectutorPatrolStrategy : PatrolStrategyBase
 
             List<ICellExit> path = patrol.PatrolLeader
                              .PathBetween(patrol.NextMajorNode, 20,
-                                 PathSearch.PathIncludeUnlockedDoors(patrol.PatrolLeader))
+                                 PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader))
                              .ToList();
             // If we can't find a path, try to get closer at least
             if (path.Count == 0)
@@ -85,9 +85,7 @@ public class ProsectutorPatrolStrategy : PatrolStrategyBase
                 }
             }
 
-            FollowingPath fp = new(patrol.PatrolLeader, path);
-            patrol.PatrolLeader.AddEffect(fp);
-            fp.FollowPathAction();
+            BeginPatrolPath(patrol.PatrolLeader, path);
             return;
         }
 

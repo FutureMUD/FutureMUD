@@ -65,6 +65,7 @@ public class Patrol : SaveableItem, IPatrol
         corpseRecoveryReport?.AssignPatrol(this);
         foreach (ICharacter member in members)
         {
+            member.RemoveAllEffects<FollowingPath>(fireRemovalAction: true);
             member.AddEffect(new PatrolMemberEffect(member, this));
         }
     }

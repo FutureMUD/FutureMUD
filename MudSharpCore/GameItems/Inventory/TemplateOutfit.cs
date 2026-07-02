@@ -956,6 +956,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 					var profile = templateItem.DesiredProfile ?? item.GetItemType<IWearable>()?.DefaultProfile;
 					if (target.Body.CanWear(item, profile))
 					{
+						item.Get(null);
 						target.Body.Wear(item, profile, silent: true);
 					}
 					else if (target.Body.CanGet(item, 0))

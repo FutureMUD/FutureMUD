@@ -1004,7 +1004,7 @@ The syntax is:
 	#3alert cleardistant#0 - clears your nearby-room alert echo
 	#3alert clearall#0 - clears both stored alert emotes
 
-Your in-room emote uses normal emote syntax. If you omit the #6@#0 token, your short description is automatically inserted at the start.", AutoHelp.HelpArgOrNoArg)]
+Your in-room emote uses normal emote syntax. If you omit the #6@#0 token, your short description is automatically inserted at the start.", AutoHelp.HelpArg)]
     [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
     [RequiredCharacterState(CharacterState.Conscious)]
     protected static void Alert(ICharacter actor, string input)

@@ -82,8 +82,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
                 patrol.PatrolMembers.ContainsPhysicalInstance(person) ||
                 person.State.IsDead() ||
                 person.State.IsInStatis() ||
-                person.IdentityIsObscured)
-            // TODO - how to see through this
+                !patrol.PatrolLeader.CanSee(person))
             {
                 continue;
             }

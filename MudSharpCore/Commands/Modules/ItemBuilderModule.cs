@@ -183,17 +183,18 @@ The valid subcommands and their syntaxes are as follows:
 	#3outfittemplate edit <id|name>#0 - opens a template for editing
 	#3outfittemplate close#0 - closes the currently edited template
 	#3outfittemplate set <field> <value>#0 - changes the currently edited template
+	#3outfittemplate load <template> <target> [<outfit name>] [args <load args>]#0 - loads a template onto a character
 
 The editable fields are:
 
 	#3set name <name>#0 - renames the template
 	#3set description <description>#0 - sets the builder description
 	#3set exclusivity none|below|all#0 - sets the exclusivity of created outfits
-	#3set item add <key> <prototype> [worn <profile>|inventory|room|container <key>] [args <load args>]#0 - adds a prototype entry
+	#3set item add <key> <prototype> [worn [profile]|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]] [args <load args>]#0 - adds a prototype entry
 	#3set item remove <key>#0 - removes an entry
 	#3set item key <old> <new>#0 - renames an entry key
 	#3set item proto <key> <prototype>#0 - changes an entry prototype
-	#3set item placement <key> worn <profile>|inventory|room|container <key>#0 - changes entry placement
+	#3set item placement <key> worn [profile]|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]#0 - changes entry placement
 	#3set item args <key> <load args|clear>#0 - changes entry load arguments
 	#3set item swap <key1> <key2>#0 - swaps entry order";
 
@@ -202,7 +203,125 @@ The editable fields are:
         [HelpInfo("outfittemplate", OutfitTemplateHelp, AutoHelp.HelpArgOrNoArg)]
         protected static void OutfitTemplate(ICharacter actor, string input)
         {
-            GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.OutfitTemplateHelper);
+            var command = new StringStack(input.RemoveFirstWord());
+            if (command.PeekSpeech().EqualTo("load"))
+            {
+                command.PopSpeech();
+                OutfitTemplateLoad(actor, command);
+                return;
+            }
+
+            GenericBuildingCommand(actor, command, EditableItemHelper.OutfitTemplateHelper);
+        }
+
+        private static void OutfitTemplateLoad(ICharacter actor, StringStack command)
+        {
+            if (command.IsFinished)
+            {
+                actor.OutputHandler.Send("Which outfit template do you want to load?");
+                return;
+            }
+
+            var templateText = command.PopSpeech();
+            var template = actor.Gameworld.OutfitTemplates.GetByIdOrName(templateText);
+            if (template is null)
+            {
+                actor.OutputHandler.Send($"There is no outfit template identified by {templateText.ColourCommand()}.");
+                return;
+            }
+
+            if (command.IsFinished)
+            {
+                actor.OutputHandler.Send("Who should receive this outfit template?");
+                return;
+            }
+
+            var targetText = command.PopSpeech();
+            var target = long.TryParse(targetText, out var targetId)
+                ? actor.Gameworld.TryGetCharacter(targetId, true)
+                : actor.TargetActor(targetText) ??
+                  actor.Gameworld.Characters.GetByIdOrName(targetText) ??
+                  actor.Gameworld.Characters.GetByPersonalName(targetText);
+            if (target is null)
+            {
+                actor.OutputHandler.Send($"There is no character identified by {targetText.ColourCommand()}.");
+                return;
+            }
+
+            string outfitName = null;
+            string loadArguments = null;
+            if (!TryParseOutfitTemplateLoadOptions(actor, command, ref outfitName, ref loadArguments))
+            {
+                return;
+            }
+
+            try
+            {
+                var outfit = template.Materialise(target, outfitName, loadArguments);
+                actor.OutputHandler.Send(
+                    $"You load outfit template {template.Name.ColourName()} onto {target.HowSeen(actor).ColourName()} as outfit {outfit.Name.ColourName()}.");
+            }
+            catch (Exception ex)
+            {
+                actor.OutputHandler.Send($"The outfit template could not be loaded: {ex.Message.ColourError()}");
+            }
+        }
+
+        private static bool TryParseOutfitTemplateLoadOptions(ICharacter actor, StringStack command, ref string outfitName, ref string loadArguments)
+        {
+            if (command.IsFinished)
+            {
+                return true;
+            }
+
+            var token = command.PopSpeech();
+            if (token.EqualToAny("args", "arg", "loadargs"))
+            {
+                if (command.IsFinished)
+                {
+                    actor.OutputHandler.Send("What load arguments should be applied to all created items?");
+                    return false;
+                }
+
+                loadArguments = command.SafeRemainingArgument;
+                return true;
+            }
+
+            if (token.EqualToAny("name", "outfit", "as"))
+            {
+                if (command.IsFinished)
+                {
+                    actor.OutputHandler.Send("What outfit name should be used?");
+                    return false;
+                }
+
+                outfitName = command.PopSpeech();
+            }
+            else
+            {
+                outfitName = token;
+            }
+
+            if (command.IsFinished)
+            {
+                return true;
+            }
+
+            var argsToken = command.PopForSwitch();
+            if (!argsToken.EqualToAny("args", "arg", "loadargs"))
+            {
+                actor.OutputHandler.Send("After the optional outfit name, the only valid extra option is args <load args>.");
+                return false;
+            }
+
+            if (command.IsFinished)
+            {
+                actor.OutputHandler.Send("What load arguments should be applied to all created items?");
+                return false;
+            }
+
+            loadArguments = command.SafeRemainingArgument;
+            return true;
         }
 
         #endregion

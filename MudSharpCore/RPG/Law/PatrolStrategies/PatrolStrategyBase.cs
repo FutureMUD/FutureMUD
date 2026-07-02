@@ -88,9 +88,10 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
                 continue;
             }
 
+            var beingDraggedByPatrol = IsBeingDraggedByPatrol(patrol, person);
             if (person.AffectedBy<InCustodyOfEnforcer>(patrol.LegalAuthority) ||
                 person.AffectedBy<WarnedByEnforcer>(authority) ||
-                person.AffectedBy<Dragging.DragTarget>(authority) ||
+                person.AffectedBy<Dragging.DragTarget>(authority) && !beingDraggedByPatrol ||
                 person.AffectedBy<OnTrial>(authority))
             {
                 continue;
@@ -99,19 +100,29 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
             List<ICrime> crimes = authority.KnownCrimesForIndividual(person)
                                            .Where(x => x.CriminalIdentityIsKnown)
                                            .Where(x => !x.HasBeenFinalised)
+                                           .Where(x => !x.BailPosted)
+                                           .Where(x => beingDraggedByPatrol
+                                               ? x.Law.EnforcementStrategy.IsArrestable()
+                                               : x.Law.EnforcementStrategy >= MinimumEnforcementStrategyToAct)
                                            .ToList();
-            if (!crimes.Any(x => !x.BailPosted && x.Law.EnforcementStrategy >= MinimumEnforcementStrategyToAct))
+            if (!crimes.Any())
             {
                 continue;
             }
 
             ICrime targetCrime = crimes
-                              .Where(x => !x.BailPosted)
                               .WhereMax(x => x.Law.EnforcementStrategy)
                               .OrderByDescending(x => x.Law.EnforcementPriority)
                               .First();
             patrol.ActiveEnforcementTarget = person;
             patrol.ActiveEnforcementCrime = targetCrime;
+            if (beingDraggedByPatrol)
+            {
+                person.RemoveAllEffects(x => x.IsEffectType<WarnedByEnforcer>(), true);
+                patrol.PatrolLeader.RemoveAllEffects<FollowingPath>(fireRemovalAction: true);
+                return true;
+            }
+
             patrol.WarnCriminal(person, targetCrime);
             patrol.PatrolLeader.RemoveAllEffects<FollowingPath>(fireRemovalAction: true);
             patrol.LegalAuthority.HandleDiscordNotificationOfEnforcement(targetCrime, patrol);
@@ -358,7 +369,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         }
 
         // Is criminal incapacitated?
-        if (TryStartDraggingHelplessCriminal(patrol, criminal))
+        if (crime.Law.EnforcementStrategy.IsArrestable() && TryStartDraggingHelplessCriminal(patrol, criminal))
         {
             return;
         }

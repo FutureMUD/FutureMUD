@@ -501,15 +501,24 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
 			return true;
 		}
 
-		if (patrolMember == null || patrolMember.Patrol.ActiveEnforcementTarget != victim || patrolMember.Patrol
-			    .ActiveEnforcementCrime?.Law.EnforcementStrategy.ShowMercyToIncapacitatedTarget() !=
-		    false)
+		IPatrol patrol = patrolMember?.Patrol;
+		if (patrol is not null &&
+		    CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(victim, patrol.ActiveEnforcementTarget))
 		{
-			character.Combat?.TruceRequested(character);
-        }
+			if (patrol.ActiveEnforcementCrime?.Law.EnforcementStrategy.ShowMercyToIncapacitatedTarget() == false)
+			{
+				return false;
+			}
 
-        return false;
-    }
+			character.Combat?.TruceRequested(character);
+			patrol.PatrolStrategy.HandlePatrolTick(patrol);
+			return true;
+		}
+
+		character.Combat?.TruceRequested(character);
+
+		return false;
+	}
 
     protected EnforcerEffect EnforcerEffect(ICharacter enforcer)
     {

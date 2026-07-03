@@ -28,6 +28,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Units;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
@@ -3839,7 +3840,7 @@ The syntax is as follows:
     [PlayerCommand("Writing", "writing")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
     [HelpInfo("writing",
-        "This command allows you to view and copy writings. You can use it in the following ways:\n\twriting show <id> - shows a particular writing\n\twriting copy <id> <newitem> - copies an existing writing to a new writable",
+        "This command allows you to view and copy writings. You can use it in the following ways:\n\twriting show <id> - shows a particular writing\n\twriting copy <id> <newitem> - references an existing immutable writing on a writable",
         AutoHelp.HelpArgOrNoArg)]
     protected static void Writing(ICharacter actor, string command)
     {
@@ -3907,8 +3908,8 @@ The syntax is as follows:
             return;
         }
 
-        targetAsWritable.AddWriting(writing.Copy());
-        actor.OutputHandler.Send($"You copy writing #{writing.Id:N0} to {target.HowSeen(actor)}.");
+        targetAsWritable.AddWriting(writing);
+        actor.OutputHandler.Send($"You add an immutable reference to writing #{writing.Id:N0} to {target.HowSeen(actor)}.");
     }
 
     private static void WritingShow(ICharacter actor, StringStack ss)
@@ -3953,6 +3954,577 @@ The syntax is as follows:
         actor.OutputHandler.Send(sb.ToString());
     }
 
+    private const string WritingCollectionHelp = @"This command manages immutable writing collections, which are page-ordered virtual books of writings and drawings.
+
+Syntax:
+	#3writingcollection list [filter]#0
+	#3writingcollection show <id|name>#0
+	#3writingcollection new <name>#0
+	#3writingcollection edit <id|name>#0
+	#3writingcollection close#0
+	#3writingcollection set name <name>#0
+	#3writingcollection set desc <description>#0
+	#3writingcollection set title <title|clear>#0
+	#3writingcollection add writing <page> <writing id>#0
+	#3writingcollection add drawing <page> <drawing id>#0
+	#3writingcollection remove <entry#>#0
+	#3writingcollection move <entry#> <page> [order]#0
+	#3writingcollection clear#0
+	#3writingcollection import markdown [collection] [append|replace]#0
+	#3writingcollection import json [collection] [append|replace]#0
+	#3writingcollection apply <collection> <book> [append|page <number>]#0";
+
+    [PlayerCommand("WritingCollection", "writingcollection", "wcollection", "wcoll")]
+    [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("writingcollection", WritingCollectionHelp, AutoHelp.HelpArgOrNoArg)]
+    protected static void WritingCollectionCommand(ICharacter actor, string command)
+    {
+        var ss = new StringStack(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send(WritingCollectionHelp.SubstituteANSIColour());
+            return;
+        }
+
+        switch (ss.PopSpeech().ToLowerInvariant())
+        {
+            case "list":
+                WritingCollectionList(actor, ss);
+                return;
+            case "show":
+            case "view":
+                WritingCollectionShow(actor, ss);
+                return;
+            case "new":
+                WritingCollectionNew(actor, ss);
+                return;
+            case "edit":
+                WritingCollectionEdit(actor, ss);
+                return;
+            case "close":
+                actor.RemoveAllEffects<BuilderEditingEffect<IWritingCollection>>();
+                actor.OutputHandler.Send("You are no longer editing any writing collection.");
+                return;
+            case "set":
+                WritingCollectionSet(actor, ss);
+                return;
+            case "add":
+                WritingCollectionAdd(actor, ss);
+                return;
+            case "remove":
+            case "delete":
+                WritingCollectionRemove(actor, ss);
+                return;
+            case "move":
+                WritingCollectionMove(actor, ss);
+                return;
+            case "clear":
+                WritingCollectionClear(actor);
+                return;
+            case "import":
+            case "upload":
+                WritingCollectionImport(actor, ss);
+                return;
+            case "apply":
+                WritingCollectionApply(actor, ss);
+                return;
+            default:
+                actor.OutputHandler.Send(WritingCollectionHelp.SubstituteANSIColour());
+                return;
+        }
+    }
+
+    private static MudSharp.Communication.WritingCollection GetEditingWritingCollection(ICharacter actor)
+    {
+        return actor.CombinedEffectsOfType<BuilderEditingEffect<IWritingCollection>>()
+                    .FirstOrDefault()?.EditingItem as MudSharp.Communication.WritingCollection;
+    }
+
+    private static MudSharp.Communication.WritingCollection ResolveWritingCollection(ICharacter actor, string text)
+    {
+        return actor.Gameworld.WritingCollections.GetByIdOrName(text) as MudSharp.Communication.WritingCollection;
+    }
+
+    private static void WritingCollectionList(ICharacter actor, StringStack ss)
+    {
+        var collections = actor.Gameworld.WritingCollections.AsEnumerable();
+        if (!ss.IsFinished)
+        {
+            var filter = ss.SafeRemainingArgument;
+            collections = collections.Where(x => x.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase) || x.Description.Contains(filter, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            from collection in collections.OrderBy(x => x.Id)
+            select new[]
+            {
+                collection.Id.ToString("N0", actor),
+                collection.Name,
+                collection.PageCount.ToString("N0", actor),
+                collection.Entries.Count().ToString("N0", actor),
+                collection.DefaultTitle,
+                collection.Description
+            },
+            new[] { "ID", "Name", "Pages", "Entries", "Title", "Description" },
+            actor.LineFormatLength,
+            colour: Telnet.Cyan,
+            unicodeTable: actor.Account.UseUnicode));
+    }
+
+    private static void WritingCollectionShow(ICharacter actor, StringStack ss)
+    {
+        var collection = ss.IsFinished ? GetEditingWritingCollection(actor) : ResolveWritingCollection(actor, ss.SafeRemainingArgument);
+        if (collection is null)
+        {
+            actor.OutputHandler.Send("Which writing collection do you want to show?");
+            return;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine($"Writing Collection #{collection.Id.ToString("N0", actor)} - {collection.Name.ColourName()}");
+        sb.AppendLine($"Title: {collection.DefaultTitle.IfNullOrWhiteSpace("None").ColourValue()}");
+        sb.AppendLine($"Description: {collection.Description.IfNullOrWhiteSpace("None")}");
+        sb.AppendLine($"Pages: {collection.PageCount.ToString("N0", actor).ColourValue()}  Entries: {collection.Entries.Count().ToString("N0", actor).ColourValue()}");
+        sb.AppendLine();
+        if (!collection.Entries.Any())
+        {
+            sb.AppendLine("This collection does not have any entries.");
+            actor.OutputHandler.Send(sb.ToString());
+            return;
+        }
+
+        sb.AppendLine(StringUtilities.GetTextTable(
+            from item in collection.Entries.Select((x, i) => (Entry: x, Index: i + 1))
+            select new[]
+            {
+                item.Index.ToString("N0", actor),
+                item.Entry.Page.ToString("N0", actor),
+                item.Entry.Order.ToString("N0", actor),
+                item.Entry.Readable is IDrawing ? "Drawing" : "Writing",
+                item.Entry.Readable.Id.ToString("N0", actor),
+                item.Entry.Readable.DocumentLength.ToString("N0", actor),
+                item.Entry.Readable.DescribeInLook(actor).RawText()
+            },
+            new[] { "#", "Page", "Order", "Kind", "ID", "Length", "Description" },
+            actor.LineFormatLength,
+            colour: Telnet.Cyan,
+            unicodeTable: actor.Account.UseUnicode));
+        actor.OutputHandler.Send(sb.ToString());
+    }
+
+    private static void WritingCollectionNew(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("What name do you want to give to the new writing collection?");
+            return;
+        }
+
+        var name = ss.SafeRemainingArgument;
+        if (actor.Gameworld.WritingCollections.Any(x => x.Name.EqualTo(name)))
+        {
+            actor.OutputHandler.Send($"There is already a writing collection named {name.ColourName()}.");
+            return;
+        }
+
+        var collection = new MudSharp.Communication.WritingCollection(name, actor.Gameworld);
+        actor.Gameworld.Add(collection);
+        actor.RemoveAllEffects<BuilderEditingEffect<IWritingCollection>>();
+        actor.AddEffect(new BuilderEditingEffect<IWritingCollection>(actor) { EditingItem = collection });
+        actor.OutputHandler.Send($"You create writing collection {name.ColourName()} and begin editing it.");
+    }
+
+    private static void WritingCollectionEdit(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which writing collection do you want to edit?");
+            return;
+        }
+
+        var collection = ResolveWritingCollection(actor, ss.SafeRemainingArgument);
+        if (collection is null)
+        {
+            actor.OutputHandler.Send("There is no such writing collection.");
+            return;
+        }
+
+        actor.RemoveAllEffects<BuilderEditingEffect<IWritingCollection>>();
+        actor.AddEffect(new BuilderEditingEffect<IWritingCollection>(actor) { EditingItem = collection });
+        actor.OutputHandler.Send($"You are now editing writing collection #{collection.Id.ToString("N0", actor)} ({collection.Name.ColourName()}).");
+    }
+
+    private static void WritingCollectionSet(ICharacter actor, StringStack ss)
+    {
+        var collection = GetEditingWritingCollection(actor);
+        if (collection is null)
+        {
+            actor.OutputHandler.Send("You are not editing any writing collection.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send(WritingCollectionHelp.SubstituteANSIColour());
+            return;
+        }
+
+        switch (ss.PopSpeech().ToLowerInvariant())
+        {
+            case "name":
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("What new name should this collection have?");
+                    return;
+                }
+                var name = ss.SafeRemainingArgument;
+                if (actor.Gameworld.WritingCollections.Any(x => !ReferenceEquals(x, collection) && x.Name.EqualTo(name)))
+                {
+                    actor.OutputHandler.Send($"There is already a writing collection named {name.ColourName()}.");
+                    return;
+                }
+
+                collection.Rename(name);
+                actor.OutputHandler.Send($"You rename the collection to {collection.Name.ColourName()}.");
+                return;
+            case "desc":
+            case "description":
+                collection.SetDescription(ss.SafeRemainingArgument);
+                actor.OutputHandler.Send("You update the collection description.");
+                return;
+            case "title":
+                if (ss.IsFinished || ss.PeekSpeech().EqualToAny("clear", "none"))
+                {
+                    collection.SetDefaultTitle(string.Empty);
+                    actor.OutputHandler.Send("This collection no longer has a default book title.");
+                    return;
+                }
+                collection.SetDefaultTitle(ss.SafeRemainingArgument);
+                actor.OutputHandler.Send($"This collection's default book title is now \"{collection.DefaultTitle.Colour(Telnet.BoldWhite)}\".");
+                return;
+            default:
+                actor.OutputHandler.Send(WritingCollectionHelp.SubstituteANSIColour());
+                return;
+        }
+    }
+
+    private static void WritingCollectionAdd(ICharacter actor, StringStack ss)
+    {
+        var collection = GetEditingWritingCollection(actor);
+        if (collection is null)
+        {
+            actor.OutputHandler.Send("You are not editing any writing collection.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Do you want to add a WRITING or a DRAWING?");
+            return;
+        }
+
+        var type = ss.PopSpeech();
+        if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var page) || page < 1)
+        {
+            actor.OutputHandler.Send("You must specify a valid page number.");
+            return;
+        }
+
+        if (ss.IsFinished || !long.TryParse(ss.PopSpeech(), out var id))
+        {
+            actor.OutputHandler.Send("You must specify a valid readable ID.");
+            return;
+        }
+
+        ICanBeRead readable;
+        if (type.EqualTo("writing"))
+        {
+            readable = actor.Gameworld.Writings.Get(id);
+        }
+        else if (type.EqualTo("drawing"))
+        {
+            readable = actor.Gameworld.Drawings.Get(id);
+        }
+        else
+        {
+            actor.OutputHandler.Send("You can only add WRITING or DRAWING entries.");
+            return;
+        }
+
+        if (readable is null)
+        {
+            actor.OutputHandler.Send($"There is no such {type.ToLowerInvariant()}.");
+            return;
+        }
+
+        var entry = collection.AddEntry(page, readable);
+        actor.OutputHandler.Send($"You add {type.ToLowerInvariant()} #{id.ToString("N0", actor)} to page {page.ToString("N0", actor)} at order {entry.Order.ToString("N0", actor)}.");
+    }
+
+    private static void WritingCollectionRemove(ICharacter actor, StringStack ss)
+    {
+        var collection = GetEditingWritingCollection(actor);
+        if (collection is null)
+        {
+            actor.OutputHandler.Send("You are not editing any writing collection.");
+            return;
+        }
+
+        if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var index))
+        {
+            actor.OutputHandler.Send("Which entry number do you want to remove?");
+            return;
+        }
+
+        if (!collection.RemoveEntry(index))
+        {
+            actor.OutputHandler.Send("There is no such entry.");
+            return;
+        }
+
+        actor.OutputHandler.Send("You remove that entry from the writing collection.");
+    }
+
+    private static void WritingCollectionMove(ICharacter actor, StringStack ss)
+    {
+        var collection = GetEditingWritingCollection(actor);
+        if (collection is null)
+        {
+            actor.OutputHandler.Send("You are not editing any writing collection.");
+            return;
+        }
+
+        if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var index))
+        {
+            actor.OutputHandler.Send("Which entry number do you want to move?");
+            return;
+        }
+
+        if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var page) || page < 1)
+        {
+            actor.OutputHandler.Send("Which valid page should that entry move to?");
+            return;
+        }
+
+        int? order = null;
+        if (!ss.IsFinished && int.TryParse(ss.PopSpeech(), out var orderValue) && orderValue > 0)
+        {
+            order = orderValue;
+        }
+
+        if (!collection.MoveEntry(index, page, order))
+        {
+            actor.OutputHandler.Send("There is no such entry, or the target page was invalid.");
+            return;
+        }
+
+        actor.OutputHandler.Send($"You move entry #{index.ToString("N0", actor)} to page {page.ToString("N0", actor)}.");
+    }
+
+    private static void WritingCollectionClear(ICharacter actor)
+    {
+        var collection = GetEditingWritingCollection(actor);
+        if (collection is null)
+        {
+            actor.OutputHandler.Send("You are not editing any writing collection.");
+            return;
+        }
+
+        collection.ClearEntries();
+        actor.OutputHandler.Send("You remove all entries from the writing collection.");
+    }
+
+    private static void WritingCollectionImport(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Do you want to import MARKDOWN or JSON?");
+            return;
+        }
+
+        var format = ss.PopSpeech();
+        if (!format.EqualToAny("markdown", "json"))
+        {
+            actor.OutputHandler.Send("Import format must be MARKDOWN or JSON.");
+            return;
+        }
+
+        var collection = GetEditingWritingCollection(actor);
+        var replace = false;
+        if (!ss.IsFinished && !ss.PeekSpeech().EqualToAny("append", "replace"))
+        {
+            collection = ResolveWritingCollection(actor, ss.PopSpeech());
+        }
+
+        if (collection is null)
+        {
+            actor.OutputHandler.Send("Which writing collection do you want to import into?");
+            return;
+        }
+
+        if (!ss.IsFinished)
+        {
+            var mode = ss.PopSpeech();
+            replace = mode.EqualTo("replace");
+            if (!replace && !mode.EqualTo("append"))
+            {
+                actor.OutputHandler.Send("Import mode must be APPEND or REPLACE.");
+                return;
+            }
+        }
+
+        actor.OutputHandler.Send($"Enter the {format.ToUpperInvariant().ColourCommand()} content for writing collection {collection.Name.ColourName()}.");
+        actor.EditorMode((text, handler, _) =>
+        {
+            var result = format.EqualTo("markdown")
+                ? MudSharp.Communication.WritingCollectionImport.ImportMarkdown(actor.Gameworld, actor, text)
+                : format.EqualTo("json")
+                    ? MudSharp.Communication.WritingCollectionImport.ImportJson(actor.Gameworld, actor, text)
+                    : new WritingCollectionImportResult(false, "Import format must be MARKDOWN or JSON.", Array.Empty<(int, ICanBeRead)>());
+            if (!result.Success)
+            {
+                handler.Send(result.Error);
+                return;
+            }
+
+            if (replace)
+            {
+                collection.ClearEntries();
+            }
+
+            foreach (var entry in result.Entries)
+            {
+                collection.AddEntry(entry.Page, entry.Readable);
+            }
+
+            if (!string.IsNullOrWhiteSpace(result.DefaultTitle))
+            {
+                collection.SetDefaultTitle(result.DefaultTitle);
+            }
+
+            if (!string.IsNullOrWhiteSpace(result.Description))
+            {
+                collection.SetDescription(result.Description);
+            }
+
+            handler.Send($"Imported {result.Entries.Count.ToString("N0", actor)} readable entries into writing collection {collection.Name.ColourName()}.");
+        }, (handler, _) => handler.Send("You decide not to import anything."), 1.0);
+    }
+
+    private static void WritingCollectionApply(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which writing collection do you want to apply?");
+            return;
+        }
+
+        var collection = ResolveWritingCollection(actor, ss.PopSpeech());
+        if (collection is null)
+        {
+            actor.OutputHandler.Send("There is no such writing collection.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which book do you want to apply it to?");
+            return;
+        }
+
+        var target = actor.TargetItem(ss.PopSpeech());
+        var book = target?.GetItemType<BookGameItemComponent>();
+        if (target is null || book is null)
+        {
+            actor.OutputHandler.Send("You don't see any such book.");
+            return;
+        }
+
+        var startPage = book.HighestWrittenPage + 1;
+        if (!ss.IsFinished)
+        {
+            var mode = ss.PopSpeech();
+            if (mode.EqualTo("page"))
+            {
+                if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out startPage) || startPage < 1)
+                {
+                    actor.OutputHandler.Send("You must specify a valid starting page.");
+                    return;
+                }
+            }
+            else if (!mode.EqualTo("append"))
+            {
+                actor.OutputHandler.Send("Use APPEND or PAGE <number> after the book.");
+                return;
+            }
+        }
+
+        if (!TryApplyCollectionToBook(collection, book, startPage, out var error, mutate: false))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        TryApplyCollectionToBook(collection, book, startPage, out _, mutate: true);
+        if (string.IsNullOrWhiteSpace(book.Title) && !string.IsNullOrWhiteSpace(collection.DefaultTitle))
+        {
+            book.Title = collection.DefaultTitle;
+            book.Changed = true;
+        }
+        actor.OutputHandler.Send($"You apply writing collection {collection.Name.ColourName()} to {target.HowSeen(actor)} starting at page {startPage.ToString("N0", actor)}.");
+    }
+
+    private static bool TryApplyCollectionToBook(IWritingCollection collection, BookGameItemComponent book, int startPage, out string error, bool mutate)
+    {
+        error = string.Empty;
+        if (!collection.Entries.Any())
+        {
+            error = "That writing collection does not have any entries.";
+            return false;
+        }
+
+        var firstPage = collection.Entries.Min(x => x.Page);
+        var mapped = collection.Entries
+                               .OrderBy(x => x.Page)
+                               .ThenBy(x => x.Order)
+                               .Select(x => (Page: startPage + x.Page - firstPage, x.Readable))
+                               .ToList();
+        var pageUsage = mapped.GroupBy(x => x.Page)
+                              .ToDictionary(x => x.Key, x => book.DocumentLengthUsedForPage(x.Key));
+        foreach (var entry in mapped)
+        {
+            if (entry.Page < 1)
+            {
+                error = "The target page must be positive.";
+                return false;
+            }
+
+            if (!book.CanAddReadable(entry.Readable, entry.Page))
+            {
+                error = book.WhyCannotAddReadable(entry.Readable, entry.Page);
+                return false;
+            }
+
+            pageUsage[entry.Page] += entry.Readable.DocumentLength;
+            if (pageUsage[entry.Page] > book.MaximumCharacterLengthOfText)
+            {
+                error = $"The collection would exceed the capacity of page {entry.Page:N0}.";
+                return false;
+            }
+        }
+
+        if (!mutate)
+        {
+            return true;
+        }
+
+        foreach (var entry in mapped)
+        {
+            book.AddReadable(entry.Readable, entry.Page);
+        }
+
+        return true;
+    }
     #region Scripted Events
     public const string ScriptedEventHelpText = @"Scripted events are things that you as a storyteller can program to happen to a character when they next log in. 
 

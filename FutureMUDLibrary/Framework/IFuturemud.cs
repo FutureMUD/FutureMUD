@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
@@ -170,6 +170,7 @@ namespace MudSharp.Framework
         IUneditableAll<IWeatherController> WeatherControllers { get; }
         IUneditableAll<IWeatherEvent> WeatherEvents { get; }
         IUneditableAll<IDrawing> Drawings { get; }
+        IUneditableAll<IWritingCollection> WritingCollections { get; }
         IUneditableAll<IClock> Clocks { get; }
         IUneditableAll<IColour> Colours { get; }
         IUneditableAll<ICorpseModel> CorpseModels { get; }
@@ -497,6 +498,7 @@ namespace MudSharp.Framework
         void Add(IRaceButcheryProfile profile);
         void Add(IButcheryProduct product);
         void Add(IWriting writing);
+        void Add(IWritingCollection collection);
         void Add(IScript script);
         void Add(ISurgicalProcedure procedure);
         void Add(IWearProfile profile);
@@ -713,6 +715,7 @@ namespace MudSharp.Framework
         void Destroy(IFutureProg prog);
         void Destroy(IClan clan);
         void Destroy(IWriting writing);
+        void Destroy(IWritingCollection collection);
         void Destroy(IScript script);
         void Destroy(IScriptedEvent item);
         void Destroy(INewPlayerHint hint);

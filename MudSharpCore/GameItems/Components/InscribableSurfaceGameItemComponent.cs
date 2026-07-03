@@ -1,9 +1,10 @@
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
@@ -67,14 +68,19 @@ public class InscribableSurfaceGameItemComponent : GameItemComponent, IWriteable
 		switch (readable)
 		{
 			case IWriting writing:
-				Gameworld.Add(writing);
+				if (writing is ILateInitialisingItem { IdHasBeenRegistered: false } || !Gameworld.Writings.Has(writing.Id))
+				{
+					Gameworld.Add(writing);
+				}
 				break;
 			case IDrawing drawing:
-				Gameworld.Add(drawing);
+				if (drawing is ILateInitialisingItem { IdHasBeenRegistered: false } || !Gameworld.Drawings.Has(drawing.Id))
+				{
+					Gameworld.Add(drawing);
+				}
 				break;
 		}
 	}
-
 	private void LoadFromXml(XElement root)
 	{
 		Title = root.Element("Title")?.Value ?? string.Empty;
@@ -151,7 +157,7 @@ public class InscribableSurfaceGameItemComponent : GameItemComponent, IWriteable
 		}
 
 		Readables.Add(newWriting);
-		Gameworld.Add(newWriting);
+		RegisterReadable(newWriting);
 		Changed = true;
 		return true;
 	}
@@ -231,7 +237,7 @@ public class InscribableSurfaceGameItemComponent : GameItemComponent, IWriteable
 
 		Readables.Add(writing);
 		implement?.Use(writing.DocumentLength);
-		Gameworld.Add(writing);
+		RegisterReadable(writing);
 		Changed = true;
 		return true;
 	}
@@ -267,7 +273,7 @@ public class InscribableSurfaceGameItemComponent : GameItemComponent, IWriteable
 		}
 
 		Readables.Add(drawing);
-		Gameworld.Add(drawing);
+		RegisterReadable(drawing);
 		Changed = true;
 		return true;
 	}
@@ -357,7 +363,7 @@ public class InscribableSurfaceGameItemComponent : GameItemComponent, IWriteable
 
 		Readables.Add(drawing);
 		implement?.Use(drawing.DocumentLength);
-		Gameworld.Add(drawing);
+		RegisterReadable(drawing);
 		Changed = true;
 		return true;
 	}

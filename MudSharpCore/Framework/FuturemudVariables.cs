@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
@@ -262,6 +262,7 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<IWeaponType> _weaponTypes = new();
     private readonly All<IWearableSize> _wearableSizes = new();
     private readonly All<IWriting> _writings = new();
+    private readonly All<IWritingCollection> _writingCollections = new();
     private readonly All<IDrawing> _drawings = new();
     private readonly All<IWeaponAttack> _weaponAttacks = new();
     private readonly All<IAuxiliaryCombatAction> _auxiliaryCombatActions = new();
@@ -402,6 +403,8 @@ public sealed partial class Futuremud : IDisposable
     public IUneditableAll<IWeatherEvent> WeatherEvents => _weatherEvents;
 
     public IUneditableAll<IDrawing> Drawings => _drawings;
+
+    public IUneditableAll<IWritingCollection> WritingCollections => _writingCollections;
 
     public IUneditableAll<IClock> Clocks => _clocks;
 

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
@@ -1111,6 +1111,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Add(IWriting writing)
     {
         _writings.Add(writing);
+    }
+
+    public void Add(IWritingCollection collection)
+    {
+        _writingCollections.Add(collection);
     }
 
     public void Add(IScript script)
@@ -2508,6 +2513,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(IWriting writing)
     {
         _writings.Remove(writing);
+    }
+
+    public void Destroy(IWritingCollection collection)
+    {
+        _writingCollections.Remove(collection);
     }
 
     public void Destroy(IScript script)

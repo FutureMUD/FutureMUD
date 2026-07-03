@@ -5,6 +5,7 @@ using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Components;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
@@ -185,6 +186,165 @@ For graffiti, see the #3look#0 command instead.", AutoHelp.HelpArgOrNoArg)]
         actor.OutputHandler.Send(sb.ToString());
     }
 
+    [PlayerCommand("CopyBook", "copybook")]
+    [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("CopyBook", @"The #3copybook#0 command copies all readable page content from one book into another book by appending it after the destination book's last written page.
+
+The command copies immutable references to the individual writings and drawings, preserving source page gaps and ordering. It does not overwrite existing destination pages.
+
+Syntax:
+	#3copybook <source book> to <destination book>#0", AutoHelp.HelpArgOrNoArg)]
+    protected static void CopyBook(ICharacter actor, string command)
+    {
+        var ss = new StringStack(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which book do you want to copy from?");
+            return;
+        }
+
+        var source = actor.TargetItem(ss.PopSpeech());
+        if (source is null)
+        {
+            actor.OutputHandler.Send("You don't see any such source book.");
+            return;
+        }
+
+        if (!ss.IsFinished && ss.PeekSpeech().EqualTo("to"))
+        {
+            ss.PopSpeech();
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which book do you want to copy into?");
+            return;
+        }
+
+        var destination = actor.TargetItem(ss.PopSpeech());
+        if (destination is null)
+        {
+            actor.OutputHandler.Send("You don't see any such destination book.");
+            return;
+        }
+
+        if (ReferenceEquals(source, destination))
+        {
+            actor.OutputHandler.Send("You cannot copy a book into itself.");
+            return;
+        }
+
+        var sourceBook = source.GetItemType<BookGameItemComponent>();
+        var destinationBook = destination.GetItemType<BookGameItemComponent>();
+        if (sourceBook is null)
+        {
+            actor.OutputHandler.Send($"{source.HowSeen(actor, true)} is not a book.");
+            return;
+        }
+
+        if (destinationBook is null)
+        {
+            actor.OutputHandler.Send($"{destination.HowSeen(actor, true)} is not a book.");
+            return;
+        }
+
+        if (!sourceBook.IsOpen)
+        {
+            actor.OutputHandler.Send($"{source.HowSeen(actor, true)} must first be opened before it can be copied.");
+            return;
+        }
+
+        if (!destinationBook.IsOpen)
+        {
+            actor.OutputHandler.Send($"{destination.HowSeen(actor, true)} must first be opened before it can be copied into.");
+            return;
+        }
+
+        var (truth, error) = actor.CanManipulateItem(source);
+        if (!truth)
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        (truth, error) = actor.CanManipulateItem(destination);
+        if (!truth)
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        if (!BreakSealForAccess(actor, source, "copied"))
+        {
+            return;
+        }
+
+        if (!BreakSealForAccess(actor, destination, "copied into"))
+        {
+            return;
+        }
+
+        if (!TryCopyBook(sourceBook, destinationBook, out error, mutate: false))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        TryCopyBook(sourceBook, destinationBook, out _, mutate: true);
+        if (string.IsNullOrWhiteSpace(destinationBook.Title) && !string.IsNullOrWhiteSpace(sourceBook.Title))
+        {
+            destinationBook.Title = sourceBook.Title;
+            destinationBook.Changed = true;
+        }
+
+        actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ copy|copies the contents of $0 into $1.", actor, source, destination)));
+    }
+
+    private static bool TryCopyBook(BookGameItemComponent source, BookGameItemComponent destination, out string error, bool mutate)
+    {
+        error = string.Empty;
+        var sourceEntries = source.PresentPagesAndReadables.ToList();
+        if (!sourceEntries.Any())
+        {
+            error = $"{source.Parent.HowSeen(null, true)} does not have any readable content to copy.";
+            return false;
+        }
+
+        var firstSourcePage = sourceEntries.Min(x => x.Page);
+        var startPage = destination.HighestWrittenPage + 1;
+        var mapped = sourceEntries
+            .Select(x => (Page: startPage + x.Page - firstSourcePage, x.Readable))
+            .ToList();
+        var pageUsage = mapped.GroupBy(x => x.Page)
+                              .ToDictionary(x => x.Key, x => destination.DocumentLengthUsedForPage(x.Key));
+        foreach (var entry in mapped)
+        {
+            if (!destination.CanAddReadable(entry.Readable, entry.Page))
+            {
+                error = destination.WhyCannotAddReadable(entry.Readable, entry.Page);
+                return false;
+            }
+
+            pageUsage[entry.Page] += entry.Readable.DocumentLength;
+            if (pageUsage[entry.Page] > destination.MaximumCharacterLengthOfText)
+            {
+                error = $"The copied book would exceed the capacity of page {entry.Page:N0} in {destination.Parent.HowSeen(null)}.";
+                return false;
+            }
+        }
+
+        if (!mutate)
+        {
+            return true;
+        }
+
+        foreach (var entry in mapped)
+        {
+            destination.AddReadable(entry.Readable, entry.Page);
+        }
+
+        return true;
+    }
     [PlayerCommand("Write", "write")]
     [RequiredCharacterState(CharacterState.Able)]
     [HelpInfo("Write", @"This command is used to write on things designed to have writing on them, like books or sheets of paper.

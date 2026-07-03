@@ -178,16 +178,20 @@ Use `OfferingReceiver` for altars, votive basins, funeral trays, and similar rit
 Books remain one component family rather than splitting blank books and published books into separate component types. `BookGameItemComponentProto` owns reusable authored defaults, while `BookGameItemComponent` owns live page state, torn pages, current page, title, and the actual readable rows attached to each loaded item.
 
 Builder-authored book defaults include:
-- `title <text>` for the default fresh-item title
-- `content list` for the printed starting contents
-- `content add <page> <language> <script> <provenance>` followed by editor text entry
-- `content copy <index> <page>` for duplicating an existing prototype page entry
-- `content edit <index>` for changing an authored entry's text
+- `title <text|clear>` for the default fresh-item title
+- `content list` for direct readable references and collection references
+- `content add <page> <language> <script> [provenance]` followed by editor text entry to create a new immutable printed writing
+- `content copy <page> <writing id>` to reference an existing immutable writing
+- `content drawing <page> <drawing id>` to reference an existing immutable drawing
+- `content collection <collection> [append|page <number>]` to expand a writing collection into each fresh book
+- `content edit <index>` to replace a direct writing reference with newly entered immutable printed text
 - `content remove <index>` and `content clear`
 
-Prototype contents are stored as page-scoped readable templates, not as live `Writing` ids. Freshly loaded books instantiate their own `PrintedWriting` rows from those templates, so two copies of the same manual or novel do not share mutable writing records. Because the live book component serializes readable ids, book and paper readable components initialise after their child readable rows have had a database hit; load paths also ignore missing readable ids so legacy corrupted XML cannot leave null readables in the live page list. The builder path validates page range and page capacity, and the runtime constructor repeats those checks defensively when loading prototype XML.
+Prototype contents are stored as page-scoped readable references, not mutable embedded text. Legacy embedded printed-content XML still loads for backwards compatibility, but it is converted into a `PrintedWriting` record and saved back as a readable reference. Freshly loaded books share immutable `Writing` and `Drawing` references from the prototype instead of cloning long books into duplicate rows. When a prototype references a writing collection, each new book expands the collection into ordinary page-level readable references; the live book does not remain linked to the collection as a virtual book, so later appends to one book page do not mutate the source collection or other books. Because the live book component serializes readable ids, book and paper readable components initialise after child readable rows have had a database hit; load paths also ignore missing readable ids so legacy corrupted XML cannot leave null readables in the live page list. The builder path validates page range and page capacity, and the runtime constructor repeats those checks defensively when loading prototype XML.
 
-Printed book content uses the `PrintedWriting` writing type with `WritingImplementType.Printed`. Printed writing has no character author; use its provenance text for publisher, source, anonymous, or generated-document attribution. V1 printed books remain writable: player handwriting can still be added to any non-torn page if the printed content leaves enough page capacity.
+Writing collections are admin-authored virtual books of immutable readables. Use `writingcollection new`, `edit`, `add writing`, `add drawing`, `move`, `remove`, `clear`, `import markdown|json`, and `apply <collection> <book> [append|page <number>]` to keep related writings together, upload long texts, and apply them wholesale to live books. Prototype `content collection` should be preferred when a reusable book definition needs a whole uploaded packet.
+
+Printed book content uses the `PrintedWriting` writing type with `WritingImplementType.Printed`. Printed writing has no character author; use its provenance text for publisher, source, anonymous, or generated-document attribution. V1 printed books remain writable: player handwriting can still be added to any non-torn page if the printed content leaves enough page capacity, and that action adds another immutable readable reference rather than mutating an existing row.
 
 ### Example: Container proto
 `ContainerGameItemComponentProto` is a good reference because it shows the common editable-proto pattern:

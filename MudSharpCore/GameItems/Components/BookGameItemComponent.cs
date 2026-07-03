@@ -43,16 +43,14 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
         Title = proto.DefaultTitle;
         if (!temporary)
         {
-            foreach (var item in proto.InitialReadables)
+            foreach (var item in proto.InitialReadableReferences)
             {
-                if (!CanAddTemplate(item))
+                if (!CanAddReadable(item.Readable, item.Page))
                 {
                     continue;
                 }
 
-                var readable = item.CreateReadable(Gameworld);
-                PagesAndReadables.Add((item.Page, item.Order, readable));
-                RegisterReadable(readable);
+                AddReadableReference(item.Readable, item.Page, false);
             }
         }
         CalculateWritings();
@@ -126,20 +124,24 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     #endregion
 
-    private bool CanAddTemplate(IPageReadableContentTemplate template)
+    public bool CanAddReadable(ICanBeRead readable, int page)
     {
-        if (template is BookPageContentTemplate bookTemplate &&
-            (bookTemplate.Language is null || bookTemplate.Script is null || bookTemplate.Colour is null))
+        if (readable is null)
         {
             return false;
         }
 
-        if (template.Page < 1 || template.Page > _prototype.PageCount)
+        if (page < 1 || page > _prototype.PageCount)
         {
             return false;
         }
 
-        if (template.DocumentLength > _prototype.MaximumCharacterLengthOfText - DocumentLengthUsedForPage(template.Page))
+        if (TornPages.Contains(page))
+        {
+            return false;
+        }
+
+        if (readable.DocumentLength > MaximumCharacterLengthOfText - DocumentLengthUsedForPage(page))
         {
             return false;
         }
@@ -147,15 +149,41 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
         return true;
     }
 
+    public string WhyCannotAddReadable(ICanBeRead readable, int page)
+    {
+        if (page < 1 || page > _prototype.PageCount)
+        {
+            return $"You can only add readable content to a page between 1 and {_prototype.PageCount:N0}.";
+        }
+
+        if (TornPages.Contains(page))
+        {
+            return $"The {page.ToOrdinal()} page has been torn out of {Parent.HowSeen(null)}.";
+        }
+
+        if (readable.DocumentLength > MaximumCharacterLengthOfText - DocumentLengthUsedForPage(page))
+        {
+            return $"There is not enough space left on page {page:N0} of {Parent.HowSeen(null)} to add that content.";
+        }
+
+        return "That readable content cannot be added to the book.";
+    }
+
     private void RegisterReadable(ICanBeRead readable)
     {
         switch (readable)
         {
             case IWriting writing:
-                Gameworld.Add(writing);
+                if (writing is ILateInitialisingItem { IdHasBeenRegistered: false } || !Gameworld.Writings.Has(writing.Id))
+                {
+                    Gameworld.Add(writing);
+                }
                 break;
             case IDrawing drawing:
-                Gameworld.Add(drawing);
+                if (drawing is ILateInitialisingItem { IdHasBeenRegistered: false } || !Gameworld.Drawings.Has(drawing.Id))
+                {
+                    Gameworld.Add(drawing);
+                }
                 break;
         }
     }
@@ -205,7 +233,9 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
                                      .ToList();
     }
 
-    public bool HasSpareRoom => DocumentLengthUsed < _prototype.MaximumCharacterLengthOfText;
+    public int MaximumCharacterLengthOfText => _prototype.MaximumCharacterLengthOfText;
+
+    public bool HasSpareRoom => DocumentLengthUsed < MaximumCharacterLengthOfText;
 
     public int DocumentLengthUsed => Readables.Sum(x => x.DocumentLength);
 
@@ -215,6 +245,45 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
                                 .Sum(x => x.Writing.DocumentLength);
     }
 
+    public IEnumerable<(int Page, int Order, ICanBeRead Readable)> AllPagesAndReadables =>
+        PagesAndReadables.Where(x => x.Writing is not null)
+                         .OrderBy(x => x.Page)
+                         .ThenBy(x => x.Order)
+                         .Select(x => (x.Page, x.Order, x.Writing));
+
+    public IEnumerable<(int Page, int Order, ICanBeRead Readable)> PresentPagesAndReadables =>
+        AllPagesAndReadables.Where(x => !TornPages.Contains(x.Page));
+
+    public int HighestWrittenPage => AllPagesAndReadables.Select(x => x.Page).DefaultIfEmpty(0).Max();
+
+    private int NextOrderForPage(int page)
+    {
+        return PagesAndReadables.Where(x => x.Page == page).Select(x => x.Order).DefaultIfEmpty(0).Max() + 1;
+    }
+
+    private bool AddReadableReference(ICanBeRead readable, int page, bool markChanged = true)
+    {
+        if (!CanAddReadable(readable, page))
+        {
+            return false;
+        }
+
+        PagesAndReadables.Add((page, NextOrderForPage(page), readable));
+        CalculateWritings();
+        RegisterReadable(readable);
+        if (markChanged)
+        {
+            Changed = true;
+        }
+
+        return true;
+    }
+
+    public bool AddReadable(ICanBeRead readable, int page)
+    {
+        return AddReadableReference(readable, page);
+    }
+
     public bool CanAddWriting(IWriting writing)
     {
         return CanAddWriting(writing, CurrentPage);
@@ -222,42 +291,12 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public bool CanAddWriting(IWriting writing, int page)
     {
-        if (page < 1 || page > _prototype.PageCount)
-        {
-            return false;
-        }
-
-        if (TornPages.Contains(page))
-        {
-            return false;
-        }
-
-        if (writing.DocumentLength > _prototype.MaximumCharacterLengthOfText - DocumentLengthUsedForPage(page))
-        {
-            return false;
-        }
-
-        return true;
+        return CanAddReadable(writing, page);
     }
 
     public string WhyCannotAddWriting(IWriting writing, int page)
     {
-        if (page < 1 || page > _prototype.PageCount)
-        {
-            return $"You can only add writing to a page between 1 and {_prototype.PageCount:N0}.";
-        }
-
-        if (TornPages.Contains(page))
-        {
-            return $"The {page.ToOrdinal()} page has been torn out of {Parent.HowSeen(null)}.";
-        }
-
-        if (writing.DocumentLength > _prototype.MaximumCharacterLengthOfText - DocumentLengthUsedForPage(page))
-        {
-            return $"There is not enough space left on page {page:N0} of {Parent.HowSeen(null)} to add that writing.";
-        }
-
-        return "That writing cannot be added to the book.";
+        return WhyCannotAddReadable(writing, page);
     }
 
     public bool AddWriting(IWriting newWriting)
@@ -267,16 +306,7 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public bool AddWriting(IWriting newWriting, int page)
     {
-        if (!CanAddWriting(newWriting, page))
-        {
-            return false;
-        }
-
-        PagesAndReadables.Add((page, PagesAndReadables.Count(x => x.Page == page) + 1, newWriting));
-        CalculateWritings();
-        Gameworld.Add(newWriting);
-        Changed = true;
-        return true;
+        return AddReadableReference(newWriting, page);
     }
 
     public string Title { get; set; }
@@ -305,7 +335,7 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
         }
 
         if (writing != null &&
-            writing.DocumentLength > _prototype.MaximumCharacterLengthOfText - DocumentLengthUsed)
+            writing.DocumentLength > MaximumCharacterLengthOfText - DocumentLengthUsed)
         {
             return false;
         }
@@ -337,7 +367,7 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
             }
         }
 
-        if (writing != null && writing.DocumentLength > _prototype.MaximumCharacterLengthOfText - DocumentLengthUsed)
+        if (writing != null && writing.DocumentLength > MaximumCharacterLengthOfText - DocumentLengthUsed)
         {
             return
                 $"There is not enough space left on the current page of {Parent.HowSeen(character)} to write all that.";
@@ -361,11 +391,8 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
             check.Check(character, difficulty);
         }
 
-        PagesAndReadables.Add((CurrentPage, Readables.Count() + 1, writing));
-        CalculateWritings();
+        AddReadableReference(writing, CurrentPage);
         implement?.Use(writing.DocumentLength);
-        Gameworld.Add(writing);
-        Changed = true;
         return true;
     }
 
@@ -389,26 +416,22 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public bool CanAddDrawing(IDrawing drawing)
     {
-        if (drawing.DocumentLength > _prototype.MaximumCharacterLengthOfText - DocumentLengthUsed)
-        {
-            return false;
-        }
+        return CanAddReadable(drawing, CurrentPage);
+    }
 
-        return true;
+    public bool CanAddDrawing(IDrawing drawing, int page)
+    {
+        return CanAddReadable(drawing, page);
     }
 
     public bool AddDrawing(IDrawing drawing)
     {
-        if (!CanAddDrawing(drawing))
-        {
-            return false;
-        }
+        return AddDrawing(drawing, CurrentPage);
+    }
 
-        PagesAndReadables.Add((CurrentPage, Readables.Count() + 1, drawing));
-        CalculateWritings();
-        Gameworld.Add(drawing);
-        Changed = true;
-        return true;
+    public bool AddDrawing(IDrawing drawing, int page)
+    {
+        return AddReadableReference(drawing, page);
     }
 
     /// <summary>
@@ -442,7 +465,7 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
         }
 
         if (drawing != null &&
-            drawing.DocumentLength > _prototype.MaximumCharacterLengthOfText - DocumentLengthUsed)
+            drawing.DocumentLength > MaximumCharacterLengthOfText - DocumentLengthUsed)
         {
             return false;
         }
@@ -474,7 +497,7 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
             }
         }
 
-        if (drawing != null && drawing.DocumentLength > _prototype.MaximumCharacterLengthOfText - DocumentLengthUsed)
+        if (drawing != null && drawing.DocumentLength > MaximumCharacterLengthOfText - DocumentLengthUsed)
         {
             return
                 $"There is not enough space left on the current page of {Parent.HowSeen(character)} to draw a picture of that size.";
@@ -517,11 +540,8 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
             check.Check(character, difficulty);
         }
 
-        PagesAndReadables.Add((CurrentPage, Readables.Count() + 1, drawing));
-        CalculateWritings();
+        AddReadableReference(drawing, CurrentPage);
         implement?.Use(drawing.DocumentLength);
-        Gameworld.Add(drawing);
-        Changed = true;
         return true;
     }
 
@@ -725,7 +745,7 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
                 $"This item is a book with a total of {_prototype.PageCount.ToString("N0", voyeur).ColourValue()} pages.".Colour(Telnet.Yellow));
             sb.AppendLine($"It is currently open to the {CurrentPage.ToOrdinal().ColourValue()} page.".Colour(Telnet.Yellow));
             sb.AppendLine(
-                $"Each page can contain {_prototype.MaximumCharacterLengthOfText.ToString("N0", voyeur).ColourValue()} characters of written text."
+                $"Each page can contain {MaximumCharacterLengthOfText.ToString("N0", voyeur).ColourValue()} characters of written text."
                     .Colour(Telnet.Yellow));
             sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as \"{Title.Colour(Telnet.BoldWhite)}\"")}."
                 .Colour(Telnet.Yellow));

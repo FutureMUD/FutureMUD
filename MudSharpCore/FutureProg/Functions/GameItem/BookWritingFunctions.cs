@@ -216,14 +216,7 @@ internal class CopyWritingToFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var copy = writing.Copy();
-		var result = book.AddWriting(copy, page);
-		if (!result)
-		{
-			copy.Gameworld.SaveManager.Abort(copy);
-		}
-
-		Result = new BooleanVariable(result);
+		Result = new BooleanVariable(book.AddWriting(writing, page));
 		return StatementResult.Normal;
 	}
 
@@ -236,11 +229,11 @@ internal class CopyWritingToFunction : BuiltInFunction
 			new List<string> { "item", "page", "writing" },
 			new List<string>
 			{
-				"The book item to receive the writing copy",
-				"The page number to copy to",
-				"The existing writing to copy"
+				"The book item to receive the writing reference",
+				"The page number to attach the writing to",
+				"The existing immutable writing to reference"
 			},
-			"Copies an existing writing onto a specific page of a book, returning false if the target is not a book, the page is invalid, or the writing will not fit.",
+			"Attaches an existing immutable writing reference to a specific page of a book, returning false if the target is not a book, the page is invalid, or the writing will not fit.",
 			"Items",
 			ProgVariableTypes.Boolean
 		));

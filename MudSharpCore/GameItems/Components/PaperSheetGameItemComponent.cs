@@ -74,14 +74,19 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
         switch (readable)
         {
             case IWriting writing:
-                Gameworld.Add(writing);
+                if (writing is ILateInitialisingItem { IdHasBeenRegistered: false } || !Gameworld.Writings.Has(writing.Id))
+                {
+                    Gameworld.Add(writing);
+                }
                 break;
             case IDrawing drawing:
-                Gameworld.Add(drawing);
+                if (drawing is ILateInitialisingItem { IdHasBeenRegistered: false } || !Gameworld.Drawings.Has(drawing.Id))
+                {
+                    Gameworld.Add(drawing);
+                }
                 break;
         }
     }
-
     protected void LoadFromXml(XElement root)
     {
         Title = root.Element("Title")?.Value;
@@ -169,7 +174,7 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
         }
 
         Readables.Add(newWriting);
-        Gameworld.Add(newWriting);
+        RegisterReadable(newWriting);
         Changed = true;
         return true;
     }
@@ -255,7 +260,7 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
 
         Readables.Add(writing);
         implement?.Use(writing.DocumentLength);
-        Gameworld.Add(writing);
+        RegisterReadable(writing);
         Changed = true;
         return true;
     }
@@ -296,7 +301,7 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
         }
 
         Readables.Add(drawing);
-        Gameworld.Add(drawing);
+        RegisterReadable(drawing);
         Changed = true;
         return true;
     }
@@ -408,7 +413,7 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
 
         Readables.Add(drawing);
         implement?.Use(drawing.DocumentLength);
-        Gameworld.Add(drawing);
+        RegisterReadable(drawing);
         Changed = true;
         return true;
     }

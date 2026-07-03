@@ -1,4 +1,4 @@
-﻿namespace MudSharp.Framework
+namespace MudSharp.Framework
 {
     public interface IFuturemudLoader
     {
@@ -36,6 +36,7 @@
         void LoadScripts();
         void LoadWritings();
         void LoadDrawings();
+        void LoadWritingCollections();
         void LoadLanguageDifficultyModels();
         void LoadEntityDescriptionPatterns();
         void LoadColours();

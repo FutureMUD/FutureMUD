@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Communication.Language;
@@ -43,12 +43,7 @@ namespace MudSharp.Communication
     {
         public static ICanBeRead CopyReadable(this ICanBeRead readable)
         {
-            return readable switch
-            {
-                IWriting writing => writing.Copy(),
-                IDrawing drawing => drawing.Copy(),
-                _ => throw new NotSupportedException($"Cannot copy readable type {readable.GetType().FullName}.")
-            };
+            return readable ?? throw new ArgumentNullException(nameof(readable));
         }
     }
 }

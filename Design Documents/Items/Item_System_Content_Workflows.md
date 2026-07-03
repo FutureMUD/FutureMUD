@@ -285,13 +285,17 @@ For the current signal-automation slice, also validate:
 - whether motion sensors ignore administrator movement when the mover is using `IImmwalkEffect`
 
 For readable book content, also validate:
-- whether `comp set title <text>` gives fresh books the expected default title
-- whether `comp set content add <page> <language> <script> <provenance>` creates printed prototype content that appears on newly loaded books
-- whether `content list`, `content copy`, `content edit`, `content remove`, and `content clear` round-trip cleanly through component save/load
+- whether `comp set title <text|clear>` gives fresh books the expected default title
+- whether `comp set content add <page> <language> <script> [provenance]` creates immutable printed content that appears on newly loaded books
+- whether `content list`, `content copy <page> <writing id>`, `content drawing <page> <drawing id>`, `content edit`, `content remove`, and `content clear` round-trip cleanly through component save/load
+- whether `writingcollection import markdown|json` can upload multi-page content and either append to or replace an editable collection without leaving partial imports on invalid input
+- whether `comp set content collection <collection> [append|page <number>]` causes fresh books to expand the collection into individual page-level readable references
+- whether `writingcollection apply <collection> <book> [append|page <number>]` can apply a collection wholesale to an existing live book while preserving page order and capacity checks
 - whether prototype content rejects invalid pages and text that exceeds the page capacity supplied by the selected paper prototype
-- whether two loaded copies of the same book have independent printed writing rows rather than shared mutable records
+- whether two loaded copies of the same book share immutable readable references for prototype content, but adding handwriting or other readables to one copy does not mutate the prototype, source collection, or another copy
 - whether fresh and copied books or paper sheets persist non-zero readable ids after a save/reload cycle
 - whether player handwriting can still be added after printed content when the page has spare capacity
+- whether `copybook <source> to <destination>` appends all readable page references to another book without tearing, retitling, or exceeding destination capacity
 - whether tearing a page preserves the normal book behaviour and does not create dangling readable rows in the remaining pages
 - whether on-load FutureProgs can use `addprintedwriting`, `copywritingto`, and `setbooktitle` for generated manuals, certificates, letters, or personalised documents
 

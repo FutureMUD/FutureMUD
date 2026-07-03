@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using MudSharp.Models;
 using System;
@@ -475,6 +475,8 @@ namespace MudSharp.Database
         public virtual DbSet<WitnessProfilesIgnoredCriminalClasses> WitnessProfilesIgnoredCriminalClasses { get; set; }
         public virtual DbSet<WitnessProfilesIgnoredVictimClasses> WitnessProfilesIgnoredVictimClasses { get; set; }
         public virtual DbSet<Wound> Wounds { get; set; }
+        public virtual DbSet<WritingCollection> WritingCollections { get; set; }
+        public virtual DbSet<WritingCollectionEntry> WritingCollectionEntries { get; set; }
         public virtual DbSet<Writing> Writings { get; set; }
         public virtual DbSet<Zone> Zones { get; set; }
         public virtual DbSet<ZonesTimezones> ZonesTimezones { get; set; }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
@@ -376,6 +376,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
             game.LoadNPCTemplates(); // Needs to come after LoadRoles, LoadAIs, LoadMerits and LoadHeightWeightModels
             game.LoadWritings(); // Needs to come after LoadScripts and before LoadWorldItems
             game.LoadDrawings(); // Needs to come before LoadWorldItems
+            game.LoadWritingCollections(); // Needs writings and drawings, and must come before LoadWorldItems
 
 
             game.LoadProjects(); // Needs to come before LoadNPCs
@@ -1863,6 +1864,28 @@ For information on the syntax to use in emotes (such as those included in bracke
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Writing" : "Writings");
     }
 
+    void IFuturemudLoader.LoadWritingCollections()
+    {
+        ConsoleUtilities.WriteLine("\nLoading #5Writing Collections#0...");
+#if DEBUG
+        Stopwatch sw = new();
+        sw.Start();
+#endif
+        List<Models.WritingCollection> collections = FMDB.Context.WritingCollections
+            .Include(x => x.WritingCollectionEntries)
+            .AsNoTracking()
+            .ToList();
+        foreach (Models.WritingCollection item in collections)
+        {
+            _writingCollections.Add(new MudSharp.Communication.WritingCollection(item, this));
+        }
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+        int count = collections.Count;
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Writing Collection" : "Writing Collections");
+    }
     void IFuturemudLoader.LoadCover()
     {
         ConsoleUtilities.WriteLine("\nLoading #5Ranged Cover#0...");

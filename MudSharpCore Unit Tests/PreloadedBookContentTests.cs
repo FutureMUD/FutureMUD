@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -79,7 +79,7 @@ public class PreloadedBookContentTests
 	}
 
 	[TestMethod]
-	public void BookPrototypeXml_CreatesDefaultTitleAndIndependentPrintedContent()
+	public void BookPrototypeXml_CreatesDefaultTitleAndSharedImmutablePrintedContent()
 	{
 		var language = CreateLanguage(LanguageId, "Common");
 		var script = CreateScript(ScriptId, "Latin", 1.0);
@@ -99,9 +99,45 @@ public class PreloadedBookContentTests
 		Assert.AreEqual("Apprentice Manual", firstBook.Title);
 		Assert.AreEqual(2, firstBook.PagesAndReadables.Count);
 		Assert.AreEqual(2, secondBook.PagesAndReadables.Count);
-		Assert.AreNotSame(firstBook.PagesAndReadables[0].Writing, secondBook.PagesAndReadables[0].Writing);
+		Assert.AreSame(firstBook.PagesAndReadables[0].Writing, secondBook.PagesAndReadables[0].Writing);
 		Assert.AreEqual("Read this first.", firstBook.PagesAndReadables[0].Writing.ParseFor(null));
 		Assert.AreEqual("Training Press", ((IWriting)firstBook.PagesAndReadables[0].Writing).GetProperty("provenance").GetObject);
+	}
+
+	[TestMethod]
+	public void BookPrototypeCollectionReferencesExpandIntoEachBookInstance()
+	{
+		var language = CreateLanguage(LanguageId, "Common");
+		var script = CreateScript(ScriptId, "Latin", 1.0);
+		var colour = CreateColour(ColourId, "black");
+		var firstWriting = CreateWriting(20, "First", 6, "First.");
+		var laterWriting = CreateWriting(21, "Later", 6, "Later.");
+		var collection = CreateWritingCollection(12, "Training Packet",
+			(5, 1, firstWriting),
+			(7, 1, laterWriting)
+		);
+		var gameworld = CreateGameworld(language, script, colour, 200, collection);
+		var proto = CreateBookProto(gameworld.Object, BookDefinition(
+			5,
+			"Collection Manual",
+			CollectionElement(collection.Id, 2)
+		));
+		var firstBook = (BookGameItemComponent)proto.CreateNew(CreateParent(gameworld.Object, 60));
+		var secondBook = (BookGameItemComponent)proto.CreateNew(CreateParent(gameworld.Object, 61));
+
+		Assert.AreEqual(2, firstBook.PagesAndReadables.Count);
+		Assert.AreEqual(2, secondBook.PagesAndReadables.Count);
+		Assert.AreEqual(2, firstBook.PagesAndReadables[0].Page);
+		Assert.AreEqual(4, firstBook.PagesAndReadables[1].Page);
+		Assert.AreSame(firstWriting, firstBook.PagesAndReadables[0].Writing);
+		Assert.AreSame(laterWriting, firstBook.PagesAndReadables[1].Writing);
+		Assert.AreSame(firstWriting, secondBook.PagesAndReadables[0].Writing);
+
+		var appendedWriting = CreateWriting(22, "Appendix", 6, "More.");
+		Assert.IsTrue(firstBook.AddWriting(appendedWriting, 2));
+		Assert.AreEqual(2, firstBook.PagesAndReadables.Count(x => x.Page == 2));
+		Assert.AreEqual(1, secondBook.PagesAndReadables.Count(x => x.Page == 2));
+		Assert.AreEqual(2, collection.Entries.Count());
 	}
 
 	[TestMethod]
@@ -245,7 +281,7 @@ public class PreloadedBookContentTests
 		Assert.AreEqual(StatementResult.Normal, copyWriting.Execute(null));
 		Assert.AreEqual(true, copyWriting.Result.GetObject);
 		var copied = (IWriting)book.PagesAndReadables.Single(x => x.Page == 2).Writing;
-		Assert.AreNotSame(printed, copied);
+		Assert.AreSame(printed, copied);
 		Assert.AreEqual("Keep dry.", copied.ParseFor(null));
 	}
 
@@ -326,14 +362,23 @@ public class PreloadedBookContentTests
 		                .Invoke(proto, Array.Empty<object>())!;
 	}
 
-	private static string BookDefinition(int pageCount, string title, params XElement[] writings)
+	private static string BookDefinition(int pageCount, string title, params XElement[] entries)
 	{
 		return new XElement("Definition",
 			new XElement("PaperProto", PaperProtoId),
 			new XElement("PageCount", pageCount),
 			new XElement("DefaultTitle", new XCData(title)),
-			new XElement("InitialReadables", writings)
+			new XElement("InitialReadables", entries.Where(x => !x.Name.LocalName.EqualTo("Collection"))),
+			new XElement("InitialCollections", entries.Where(x => x.Name.LocalName.EqualTo("Collection")))
 		).ToString();
+	}
+
+	private static XElement CollectionElement(long collectionId, int startPage)
+	{
+		return new XElement("Collection",
+			new XAttribute("Id", collectionId),
+			new XAttribute("StartPage", startPage)
+		);
 	}
 
 	private static XElement WritingElement(int page, int order, string text, string provenance)
@@ -355,10 +400,66 @@ public class PreloadedBookContentTests
 		);
 	}
 
-	private static Mock<IFuturemud> CreateGameworld(ILanguage language, IScript script, IColour colour, int pageCapacity)
+	private static IWriting CreateWriting(long id, string name, int length, string text)
+	{
+		var writing = new Mock<IWriting>();
+		writing.SetupGet(x => x.Id).Returns(id);
+		writing.SetupGet(x => x.Name).Returns(name);
+		writing.SetupGet(x => x.FrameworkItemType).Returns("Writing");
+		writing.SetupGet(x => x.DocumentLength).Returns(length);
+		writing.SetupGet(x => x.ImplementType).Returns(WritingImplementType.Printed);
+		writing.Setup(x => x.ParseFor(It.IsAny<ICharacter>())).Returns(text);
+		writing.Setup(x => x.DescribeInLook(It.IsAny<ICharacter>())).Returns(text);
+		return writing.Object;
+	}
+
+	private static IWritingCollection CreateWritingCollection(long id, string name, params (int Page, int Order, ICanBeRead Readable)[] entries)
+	{
+		var collectionEntries = entries.Select(x =>
+		{
+			var entry = new Mock<IWritingCollectionEntry>();
+			entry.SetupGet(y => y.Page).Returns(x.Page);
+			entry.SetupGet(y => y.Order).Returns(x.Order);
+			entry.SetupGet(y => y.Readable).Returns(x.Readable);
+			return entry.Object;
+		}).ToList();
+		var collection = new Mock<IWritingCollection>();
+		collection.SetupGet(x => x.Id).Returns(id);
+		collection.SetupGet(x => x.Name).Returns(name);
+		collection.SetupGet(x => x.FrameworkItemType).Returns("WritingCollection");
+		collection.SetupGet(x => x.Description).Returns(string.Empty);
+		collection.SetupGet(x => x.DefaultTitle).Returns(name);
+		collection.SetupGet(x => x.Entries).Returns(collectionEntries);
+		collection.SetupGet(x => x.PageCount).Returns(collectionEntries.Select(x => x.Page).DefaultIfEmpty(0).Max());
+		collection.Setup(x => x.DocumentLengthForPage(It.IsAny<int>()))
+		          .Returns<int>(page => collectionEntries.Where(x => x.Page == page).Sum(x => x.Readable.DocumentLength));
+		return collection.Object;
+	}
+
+	private static Mock<IFuturemud> CreateGameworld(ILanguage language, IScript script, IColour colour, int pageCapacity, params IWritingCollection[] writingCollections)
 	{
 		var saveManager = new Mock<ISaveManager>();
 		var gameworld = new Mock<IFuturemud>();
+		var writings = new List<IWriting>();
+		var drawings = new List<IDrawing>();
+		var nextReadableId = 1000L;
+		void InitialiseReadable(ILateInitialisingItem item)
+		{
+			switch (item)
+			{
+				case PrintedWriting:
+					item.SetIDFromDatabase(new DbWriting { Id = nextReadableId++ });
+					break;
+				case IDrawing:
+					item.SetIDFromDatabase(new MudSharp.Models.Drawing { Id = nextReadableId++ });
+					break;
+			}
+		}
+
+		saveManager.Setup(x => x.AddInitialisation(It.IsAny<ILateInitialisingItem>()))
+		           .Callback<ILateInitialisingItem>(InitialiseReadable);
+		saveManager.Setup(x => x.DirectInitialise(It.IsAny<ILateInitialisingItem>()))
+		           .Callback<ILateInitialisingItem>(InitialiseReadable);
 		var paperProto = CreatePaperProto(gameworld.Object, pageCapacity);
 		var paperItemProto = new Mock<IGameItemProto>();
 		paperItemProto.SetupGet(x => x.Id).Returns(PaperProtoId);
@@ -368,10 +469,27 @@ public class PreloadedBookContentTests
 		gameworld.SetupGet(x => x.Languages).Returns(Repository(language));
 		gameworld.SetupGet(x => x.Scripts).Returns(Repository(script));
 		gameworld.SetupGet(x => x.Colours).Returns(Repository(colour));
-		gameworld.SetupGet(x => x.Writings).Returns(Repository<IWriting>());
-		gameworld.SetupGet(x => x.Drawings).Returns(Repository<IDrawing>());
+		gameworld.SetupGet(x => x.Writings).Returns(RepositoryFromList(writings));
+		gameworld.SetupGet(x => x.Drawings).Returns(RepositoryFromList(drawings));
+		gameworld.SetupGet(x => x.WritingCollections).Returns(Repository(writingCollections));
 		gameworld.SetupGet(x => x.ItemProtos).Returns(RevisableRepository(paperItemProto.Object));
 		gameworld.Setup(x => x.GetStaticLong("DefaultWritingColourInText")).Returns(ColourId);
+		gameworld.Setup(x => x.Add(It.IsAny<IWriting>()))
+		         .Callback<IWriting>(writing =>
+		         {
+			         if (!writings.Contains(writing))
+			         {
+				         writings.Add(writing);
+			         }
+		         });
+		gameworld.Setup(x => x.Add(It.IsAny<IDrawing>()))
+		         .Callback<IDrawing>(drawing =>
+		         {
+			         if (!drawings.Contains(drawing))
+			         {
+				         drawings.Add(drawing);
+			         }
+		         });
 		return gameworld;
 	}
 
@@ -420,16 +538,32 @@ public class PreloadedBookContentTests
 
 	private static IUneditableAll<T> Repository<T>(params T[] items) where T : class, IFrameworkItem
 	{
+		return RepositoryFromList(items.ToList());
+	}
+
+	private static IUneditableAll<T> RepositoryFromList<T>(IList<T> items) where T : class, IFrameworkItem
+	{
 		var repository = new Mock<IUneditableAll<T>>();
+		repository.Setup(x => x.Has(It.IsAny<T>()))
+		          .Returns<T>(items.Contains);
+		repository.Setup(x => x.Has(It.IsAny<long>()))
+		          .Returns<long>(id => items.Any(x => x.Id == id));
+		repository.Setup(x => x.Has(It.IsAny<string>()))
+		          .Returns<string>(name => items.Any(x => x.Name.EqualTo(name)));
 		repository.Setup(x => x.Get(It.IsAny<long>()))
 		          .Returns<long>(id => items.FirstOrDefault(x => x.Id == id));
 		repository.Setup(x => x.GetByName(It.IsAny<string>()))
 		          .Returns<string>(name => items.FirstOrDefault(x => x.Name.EqualTo(name)));
+		repository.Setup(x => x.GetByIdOrName(It.IsAny<string>(), It.IsAny<bool>()))
+		          .Returns<string, bool>((value, permitAbbreviations) =>
+			          long.TryParse(value, out var id)
+				          ? items.FirstOrDefault(x => x.Id == id)
+				          : items.FirstOrDefault(x => x.Name.EqualTo(value)));
 		repository.Setup(x => x.Get(It.IsAny<string>()))
 		          .Returns<string>(name => items.Where(x => x.Name.EqualTo(name)).ToList());
 		repository.Setup(x => x.GetEnumerator())
-		          .Returns(() => ((IEnumerable<T>)items).GetEnumerator());
-		repository.SetupGet(x => x.Count).Returns(items.Length);
+		          .Returns(() => items.GetEnumerator());
+		repository.SetupGet(x => x.Count).Returns(() => items.Count);
 		return repository.Object;
 	}
 

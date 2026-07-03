@@ -24,7 +24,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Character Creation Runtime](./Characters/Character_Creation_Runtime.md)
 - [Character Creation Builder Workflows](./Characters/Character_Creation_Builder_Workflows.md)
 - [Character Creation Seeder](./Characters/Character_Creation_Seeder.md)
-- [Multiple Body Form System](./Characters/Multiple_Body_Form_System.md)
+- [Multiple Body Form System](./Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md)
 - [Multiple Body Forms and Instances Builder Guide](./Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md)
 - [Multiple Simultaneous Body Instances Design](./Characters/Multiple_Simultaneous_Body_Instances_Design.md)
 
@@ -51,6 +51,9 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Antiquity Medical Crafting Suite](./Seeding/Antiquity_Medical_Crafting_Suite.md)
 - [Antiquity Writing Implements and Documents Crafting Suite](./Seeding/Antiquity_Writing_Implements_Crafting_Suite.md)
 - [Medieval ItemSeeder Rebuild Audit](./Seeding/Medieval_Crafting_Audit.md)
+- [Medieval Industry Chain and Craft Dependency Design Reference](./Seeding/FutureMUD_Medieval_Industry_Chain_Craft_Design_Reference.md)
+- [Medieval Industry Tools and Intermediate Stock Item Catalogue](./Seeding/FutureMUD_Medieval_Industry_Tools_And_Stock_Item_Catalogue.md)
+- [Medieval Industry Tool Production Chain Second Pass](./Seeding/FutureMUD_Medieval_Industry_Tool_Production_Chain_Second_Pass.md)
 - [Medieval Clothing Seeder Design Reference](./Seeding/Medieval_Clothing_Seeder_Design_Reference.md)
 - [Medieval Military Seeder Design Reference](./Seeding/Medieval_Military_Seeder_Design_Reference.md)
 - [Medieval Household Goods and Furniture Seeder Design Reference](./Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md)
@@ -112,7 +115,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 ## Magic
 - [Magic System Overview](./Magic/Magic_System_Overview.md)
-- [Magic System Capabilities, Resources, and Generators](./Magic/Magic_System_Capabilities_Resources_and_Generators.md)
+- [Magic System Capabilities, Resources, and Generators](./Magic/Magic_System_Capabilities_Resources_And_Generators.md)
 - [Magic System Implemented Types](./Magic/Magic_System_Implemented_Types.md)
 - [Magic System Powers](./Magic/Magic_System_Powers.md)
 - [Magic System Spells](./Magic/Magic_System_Spells.md)

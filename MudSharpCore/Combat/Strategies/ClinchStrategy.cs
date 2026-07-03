@@ -305,7 +305,7 @@ public class ClinchStrategy : StandardMeleeStrategy
         return natAttacks.Any();
     }
 
-    private ICombatMove CheckClinching(ICharacter ch)
+    protected ICombatMove AttemptStartClinch(ICharacter ch, bool allowStandardMeleeFallback)
     {
         if (ch.PositionState.Upright &&
                 !ch.EffectsOfType<ClinchEffect>().Any() &&
@@ -315,7 +315,7 @@ public class ClinchStrategy : StandardMeleeStrategy
         {
             if (!StartClinchMove.CanClinchWhileMounted(ch, charTarget))
             {
-                if (ch.CombatStrategyMode == CombatStrategyMode.Clinch && HasViableMeleeAttack(ch))
+                if (allowStandardMeleeFallback && ch.CombatStrategyMode == CombatStrategyMode.Clinch && HasViableMeleeAttack(ch))
                 {
                     ch.Send($"You cannot reach {charTarget.HowSeen(ch)} well enough to clinch while you are mounted, so you fight normally.");
                     ch.CombatStrategyMode = CombatStrategyMode.StandardMelee;
@@ -329,6 +329,17 @@ public class ClinchStrategy : StandardMeleeStrategy
             {
                 return new StartClinchMove(charTarget) { Assailant = ch };
             }
+        }
+
+        return null;
+    }
+
+    private ICombatMove CheckClinching(ICharacter ch)
+    {
+        ICombatMove move;
+        if ((move = AttemptStartClinch(ch, true)) != null)
+        {
+            return move;
         }
 
         if (ch.EffectsOfType<ClinchEffect>().Any(x => x.Target == ch.CombatTarget))

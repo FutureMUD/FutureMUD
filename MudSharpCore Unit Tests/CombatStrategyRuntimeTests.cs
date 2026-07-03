@@ -18,7 +18,10 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
+using MudSharp.Health;
 using MudSharp.Magic.Powers;
+using MudSharp.Movement;
 using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
@@ -37,6 +40,8 @@ public class CombatStrategyRuntimeTests
 		Mock<IFuturemud> gameworld = new();
 		gameworld.Setup(x => x.GetStaticDouble("DodgeMoveStaminaCost")).Returns(10.0);
 		gameworld.Setup(x => x.GetStaticDouble("DodgeRangeMoveStaminaCost")).Returns(1.0);
+		gameworld.Setup(x => x.GetStaticDouble("StartClinchMoveStaminaCost")).Returns(1.0);
+		gameworld.SetupGet(x => x.ManualCombatCommands).Returns(new All<IManualCombatCommand>());
 
 		Mock<ICheck> check = new();
 		check.Setup(x => x.TargetNumber(
@@ -51,6 +56,9 @@ public class CombatStrategyRuntimeTests
 
 		typeof(CombatBase)
 			.GetProperty("GraceMoveStaminaCost", BindingFlags.Static | BindingFlags.NonPublic)!
+			.SetValue(null, new TraitExpression("1", gameworld.Object));
+		typeof(CombatBase)
+			.GetProperty("PowerMoveStaminaCost", BindingFlags.Static | BindingFlags.NonPublic)!
 			.SetValue(null, new TraitExpression("1", gameworld.Object));
 		typeof(StandardCheck)
 			.GetField("_bonusesPerDifficultyLevel", BindingFlags.Static | BindingFlags.NonPublic)!
@@ -198,14 +206,19 @@ public class CombatStrategyRuntimeTests
 		Assert.AreEqual("Drowner", CombatStrategyMode.Drowner.Describe());
 		Assert.AreEqual("Dropper", CombatStrategyMode.Dropper.Describe());
 		Assert.AreEqual("Physical Avoider", CombatStrategyMode.PhysicalAvoider.Describe());
+		Assert.AreEqual("Subdue", CombatStrategyMode.Subdue.Describe());
 
 		Assert.IsTrue(CombatStrategyMode.Drowner.IsMeleeStrategy());
 		Assert.IsTrue(CombatStrategyMode.Dropper.IsMeleeStrategy());
 		Assert.IsTrue(CombatStrategyMode.PhysicalAvoider.IsMeleeStrategy());
+		Assert.IsTrue(CombatStrategyMode.Subdue.IsMeleeStrategy());
 		Assert.IsTrue(CombatStrategyMode.PhysicalAvoider.IsRangedStrategy());
 		Assert.IsTrue(CombatStrategyMode.Drowner.IsMeleeDesiredStrategy());
 		Assert.IsTrue(CombatStrategyMode.Dropper.IsMeleeDesiredStrategy());
+		Assert.IsTrue(CombatStrategyMode.Subdue.IsMeleeDesiredStrategy());
+		Assert.IsFalse(CombatStrategyMode.Subdue.IsRangedStrategy());
 		Assert.IsTrue(CombatStrategyMode.PhysicalAvoider.IsRangedStartDesiringStrategy());
+		Assert.IsInstanceOfType(CombatStrategyFactory.GetStrategy(CombatStrategyMode.Subdue), typeof(SubdueStrategy));
 	}
 
 	[TestMethod]
@@ -527,6 +540,7 @@ public class CombatStrategyRuntimeTests
 		string melee = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "StandardMeleeStrategy.cs"));
 		string ranged = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "RangeBaseStrategy.cs"));
 		string avoider = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "PhysicalAvoiderStrategy.cs"));
+		string subdue = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "SubdueStrategy.cs"));
 		string clinch = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "ClinchStrategy.cs"));
 		string swooper = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "SwooperStrategy.cs"));
 
@@ -547,7 +561,7 @@ public class CombatStrategyRuntimeTests
 		StringAssert.Contains(melee, "combatant.CombatSettings.AuxiliaryPercentage");
 		StringAssert.Contains(ranged, "combatant.CombatSettings.AuxiliaryPercentage");
 
-		foreach (string source in new[] { strategyBase, melee, avoider, clinch, swooper })
+		foreach (string source in new[] { strategyBase, melee, avoider, subdue, clinch, swooper })
 		{
 			StringAssert.Contains(source, "ManualCombatCommandResolver.AiWeightMultiplier");
 			StringAssert.Contains(source, "GetWeightedRandom");
@@ -557,6 +571,260 @@ public class CombatStrategyRuntimeTests
 			"Manual combat commands should not add a separate strategy percentage bucket.");
 		Assert.IsFalse(settingsContract.Contains("ManualCombatPercentage", StringComparison.Ordinal),
 			"Manual combat commands should stay as multipliers over existing action categories.");
+	}
+
+	[TestMethod]
+	public void SubdueStrategySources_ControlAndGrapplePriorities_ArePresent()
+	{
+		string subdue = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "SubdueStrategy.cs"));
+
+		StringAssert.Contains(subdue, "CombatStrategyMode.Subdue");
+		StringAssert.Contains(subdue, "GrappleForControlStrategy.Instance.AttemptGrappleForControlOnly");
+		StringAssert.Contains(subdue, "IsSecondaryCombatant");
+		StringAssert.Contains(subdue, "IsTargetDisadvantaged");
+		StringAssert.Contains(subdue, "IsTargetInjured");
+		StringAssert.Contains(subdue, "BuiltInCombatMoveType.StaggeringBlow");
+		StringAssert.Contains(subdue, "BuiltInCombatMoveType.UnbalancingBlow");
+		StringAssert.Contains(subdue, "CombatMoveIntentions.Disarm");
+		StringAssert.Contains(subdue, "UsableAuxiliaryMoves");
+		Assert.IsFalse(subdue.Contains("GrappleForControlStrategy.Instance.ChooseMove", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
+	public void SubdueStrategy_ChooseMove_SecondaryTargetStartsClinchForControl()
+	{
+		var normalAttack = CreateWeaponAttack(BuiltInCombatMoveType.UseWeaponAttack, CombatMoveIntentions.None);
+		var scenario = CreateSubdueMoveSelectionScenario(new[] { normalAttack.Object }, 1.0, _ => true);
+
+		ICombatMove? move = SubdueStrategy.Instance.ChooseMove(scenario.Actor.Object);
+
+		Assert.IsInstanceOfType(move, typeof(StartClinchMove));
+	}
+
+	[TestMethod]
+	public void SubdueStrategy_ChooseMove_FailedControlUsesSubdualWeaponAttack()
+	{
+		var staggeringAttack = CreateWeaponAttack(BuiltInCombatMoveType.StaggeringBlow, CombatMoveIntentions.None);
+		var scenario = CreateSubdueMoveSelectionScenario(new[] { staggeringAttack.Object }, 1000.0, value => value < 100.0);
+
+		ICombatMove? move = SubdueStrategy.Instance.ChooseMove(scenario.Actor.Object);
+
+		Assert.IsInstanceOfType(move, typeof(StaggeringBlowMove));
+	}
+
+	[TestMethod]
+	public void SubdueStrategy_ChooseMove_FailedControlDoesNotFallBackToOrdinaryMelee()
+	{
+		var normalAttack = CreateWeaponAttack(BuiltInCombatMoveType.UseWeaponAttack, CombatMoveIntentions.None);
+		var scenario = CreateSubdueMoveSelectionScenario(new[] { normalAttack.Object }, 1000.0, value => value < 100.0);
+
+		ICombatMove? move = SubdueStrategy.Instance.ChooseMove(scenario.Actor.Object);
+
+		Assert.IsNull(move);
+	}
+
+	private static Mock<IWeaponAttack> CreateWeaponAttack(BuiltInCombatMoveType moveType,
+		CombatMoveIntentions intentions)
+	{
+		Mock<IWeaponAttack> attack = new();
+		attack.SetupGet(x => x.Id).Returns((long)moveType);
+		attack.SetupGet(x => x.MoveType).Returns(moveType);
+		attack.SetupGet(x => x.Intentions).Returns(intentions);
+		attack.SetupGet(x => x.StaminaCost).Returns(1.0);
+		attack.SetupGet(x => x.Weighting).Returns(1.0);
+		attack.SetupGet(x => x.BaseDelay).Returns(1.0);
+		attack.SetupGet(x => x.RecoveryDifficultyFailure).Returns(Difficulty.Normal);
+		attack.SetupGet(x => x.RecoveryDifficultySuccess).Returns(Difficulty.Easy);
+		attack.SetupGet(x => x.ExertionLevel).Returns(ExertionLevel.Normal);
+		return attack;
+	}
+
+	private static (Mock<ICharacter> Actor, Mock<ICharacter> Target) CreateSubdueMoveSelectionScenario(
+		IEnumerable<IWeaponAttack> weaponAttacks,
+		double startClinchCost,
+		Func<double, bool> canSpendStamina)
+	{
+		var attackList = weaponAttacks.ToList();
+		Mock<IFuturemud> gameworld = CreateGameworld();
+		gameworld.Setup(x => x.GetStaticDouble("StartClinchMoveStaminaCost")).Returns(startClinchCost);
+
+		Mock<ICombat> combat = new();
+		combat.SetupGet(x => x.Friendly).Returns(false);
+
+		Mock<ICharacterCombatSettings> settings = new();
+		settings.SetupGet(x => x.InventoryManagement).Returns(AutomaticInventorySettings.FullyManual);
+		settings.SetupGet(x => x.ManualPositionManagement).Returns(true);
+		settings.SetupGet(x => x.MinimumStaminaToAttack).Returns(0.0);
+		settings.SetupGet(x => x.AttackHelpless).Returns(true);
+		settings.SetupGet(x => x.AttackCriticallyInjured).Returns(true);
+		settings.SetupGet(x => x.AttackDisarmed).Returns(true);
+		settings.SetupGet(x => x.WeaponUsePercentage).Returns(1.0);
+		settings.SetupGet(x => x.NaturalWeaponPercentage).Returns(0.0);
+		settings.SetupGet(x => x.AuxiliaryPercentage).Returns(0.0);
+		settings.SetupGet(x => x.MagicUsePercentage).Returns(0.0);
+		settings.SetupGet(x => x.PsychicUsePercentage).Returns(0.0);
+		settings.SetupGet(x => x.FallbackToUnarmedIfNoWeapon).Returns(false);
+		settings.SetupGet(x => x.RequiredIntentions).Returns(CombatMoveIntentions.None);
+		settings.SetupGet(x => x.ForbiddenIntentions).Returns(CombatMoveIntentions.None);
+		settings.SetupGet(x => x.PreferredIntentions).Returns(CombatMoveIntentions.None);
+		settings.SetupGet(x => x.MeleeAttackOrderPreferences)
+		        .Returns(new List<MeleeAttackOrderPreference> { MeleeAttackOrderPreference.Weapon });
+		settings.Setup(x => x.ManualCombatCommandWeightMultiplier(It.IsAny<IManualCombatCommand>()))
+		        .Returns(1.0);
+
+		Mock<IRace> race = new();
+		race.SetupGet(x => x.CombatSettings).Returns(new RacialCombatSettings
+		{
+			CanAttack = true,
+			CanDefend = true,
+			CanUseWeapons = true
+		});
+		race.Setup(x => x.UsableAuxiliaryMoves(It.IsAny<ICharacter>(), It.IsAny<IPerceiver>(), false))
+		    .Returns(Array.Empty<IAuxiliaryCombatAction>());
+		race.Setup(x => x.UsableNaturalWeaponAttacks(It.IsAny<ICharacter>(), It.IsAny<IPerceiver>(), false,
+			      It.IsAny<BuiltInCombatMoveType[]>()))
+		    .Returns(Array.Empty<INaturalAttack>());
+
+		Mock<IGameItem> weaponItem = new();
+		Mock<IMeleeWeapon> weapon = new();
+		Mock<IWeaponType> weaponType = new();
+		weaponItem.Setup(x => x.GetItemType<IMeleeWeapon>()).Returns(weapon.Object);
+		weaponItem.Setup(x => x.IsItemType<IMeleeWeapon>()).Returns(true);
+		weapon.SetupGet(x => x.Parent).Returns(weaponItem.Object);
+		weapon.SetupGet(x => x.WeaponType).Returns(weaponType.Object);
+		weapon.SetupGet(x => x.Classification).Returns(WeaponClassification.NonLethal);
+		weaponType.Setup(x => x.UsableAttacks(
+				It.IsAny<IPerceiver>(),
+				It.IsAny<IGameItem>(),
+				It.IsAny<IPerceiver>(),
+				It.IsAny<AttackHandednessOptions>(),
+				false,
+				It.IsAny<BuiltInCombatMoveType[]>()))
+			.Returns((IPerceiver attacker, IGameItem item, IPerceiver attackTarget,
+				AttackHandednessOptions handedness, bool ignorePosition, BuiltInCombatMoveType[] types) =>
+				attackList.Where(x => types.Contains(x.MoveType)));
+
+		Mock<IBody> actorBody = new();
+		actorBody.SetupGet(x => x.WieldedItems).Returns(new[] { weaponItem.Object });
+		actorBody.SetupGet(x => x.HeldOrWieldedItems).Returns(new[] { weaponItem.Object });
+		actorBody.SetupGet(x => x.Implants).Returns(Array.Empty<IImplant>());
+		actorBody.SetupGet(x => x.Prosthetics).Returns(Array.Empty<IProsthetic>());
+		actorBody.Setup(x => x.WieldedHandCount(weaponItem.Object)).Returns(1);
+		actorBody.Setup(x => x.EffectsOfType<IPacifismEffect>(It.IsAny<Predicate<IPacifismEffect>>()))
+		         .Returns(Array.Empty<IPacifismEffect>());
+
+		Mock<IBody> targetBody = new();
+		targetBody.SetupGet(x => x.HeldOrWieldedItems).Returns(Array.Empty<IGameItem>());
+		targetBody.Setup(x => x.EffectsOfType<ILimbIneffectiveEffect>(It.IsAny<Predicate<ILimbIneffectiveEffect>>()))
+		          .Returns(Array.Empty<ILimbIneffectiveEffect>());
+
+		Mock<ICharacter> actor = new();
+		Mock<ICharacter> target = new();
+		Mock<ICharacter> ally = new();
+
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.Race).Returns(race.Object);
+		actor.SetupGet(x => x.Body).Returns(actorBody.Object);
+		actor.SetupProperty(x => x.CombatSettings, settings.Object);
+		actor.SetupProperty(x => x.State, CharacterState.Awake);
+		actor.SetupProperty(x => x.PositionState, PositionStanding.Instance);
+		actor.SetupProperty(x => x.CombatTarget, target.Object);
+		actor.SetupProperty(x => x.Combat, combat.Object);
+		actor.SetupProperty(x => x.MeleeRange, true);
+		actor.SetupGet(x => x.CurrentStamina).Returns(100.0);
+		actor.SetupGet(x => x.RidingMount).Returns((ICharacter?)null);
+		actor.SetupGet(x => x.Encumbrance).Returns(EncumbranceLevel.Unencumbered);
+		actor.SetupGet(x => x.EncumbrancePercentage).Returns(0.0);
+		actor.SetupGet(x => x.Effects).Returns(Array.Empty<IEffect>());
+		actor.Setup(x => x.CombinedEffectsOfType<IEffect>()).Returns(Array.Empty<IEffect>());
+		actor.Setup(x => x.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers)).Returns(CanMoveResponse.True);
+		actor.Setup(x => x.CanSpendStamina(It.IsAny<double>()))
+		     .Returns((double value) => canSpendStamina(value));
+		actor.Setup(x => x.ColocatedWith(target.Object)).Returns(true);
+		SetupEmptyCombatEffects(actor);
+
+		target.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		target.SetupGet(x => x.Race).Returns(race.Object);
+		target.SetupGet(x => x.Body).Returns(targetBody.Object);
+		target.SetupProperty(x => x.CombatSettings, settings.Object);
+		target.SetupProperty(x => x.State, CharacterState.Awake);
+		target.SetupProperty(x => x.PositionState, PositionStanding.Instance);
+		target.SetupProperty(x => x.CombatTarget, ally.Object);
+		target.SetupProperty(x => x.MeleeRange, true);
+		target.SetupGet(x => x.IsHelpless).Returns(false);
+		target.SetupGet(x => x.RidingMount).Returns((ICharacter?)null);
+		target.Setup(x => x.EffectsOfType<ClinchEffect>(It.IsAny<Predicate<ClinchEffect>>()))
+		      .Returns(Array.Empty<ClinchEffect>());
+
+		combat.SetupGet(x => x.Combatants).Returns(new IPerceiver[] { actor.Object, target.Object, ally.Object });
+		return (actor, target);
+	}
+
+	private static void SetupEmptyCombatEffects(Mock<ICharacter> character)
+	{
+		character.Setup(x => x.EffectsOfType<SelectedCombatAction>(It.IsAny<Predicate<SelectedCombatAction>>()))
+		         .Returns(Array.Empty<SelectedCombatAction>());
+		character.Setup(x => x.EffectsOfType<Rescue>(It.IsAny<Predicate<Rescue>>()))
+		         .Returns(Array.Empty<Rescue>());
+		character.Setup(x => x.EffectsOfType<IGuardCharacterEffect>(It.IsAny<Predicate<IGuardCharacterEffect>>()))
+		         .Returns(Array.Empty<IGuardCharacterEffect>());
+		character.Setup(x => x.EffectsOfType<ICombatGetItemEffect>(It.IsAny<Predicate<ICombatGetItemEffect>>()))
+		         .Returns(Array.Empty<ICombatGetItemEffect>());
+		character.Setup(x => x.EffectsOfType<ClinchEffect>(It.IsAny<Predicate<ClinchEffect>>()))
+		         .Returns(Array.Empty<ClinchEffect>());
+		character.Setup(x => x.EffectsOfType<ClinchCooldown>(It.IsAny<Predicate<ClinchCooldown>>()))
+		         .Returns(Array.Empty<ClinchCooldown>());
+		character.Setup(x => x.EffectsOfType<IGrappling>(It.IsAny<Predicate<IGrappling>>()))
+		         .Returns(Array.Empty<IGrappling>());
+		character.Setup(x => x.EffectsOfType<CombatCoupDeGrace>(It.IsAny<Predicate<CombatCoupDeGrace>>()))
+		         .Returns(Array.Empty<CombatCoupDeGrace>());
+		character.Setup(x => x.EffectsOfType<FixedCombatMoveType>(It.IsAny<Predicate<FixedCombatMoveType>>()))
+		         .Returns(Array.Empty<FixedCombatMoveType>());
+	}
+
+	[TestMethod]
+	public void SubdueStrategy_ShouldGrappleForControl_WhenTargetIsSecondaryDisadvantagedOrInjured()
+	{
+		Mock<ICharacter> actor = new();
+		actor.Setup(x => x.EffectsOfType<IGrappling>(It.IsAny<Predicate<IGrappling>>()))
+		     .Returns(Array.Empty<IGrappling>());
+
+		Mock<IBody> body = new();
+		body.Setup(x => x.EffectsOfType<ILimbIneffectiveEffect>(It.IsAny<Predicate<ILimbIneffectiveEffect>>()))
+		    .Returns(Array.Empty<ILimbIneffectiveEffect>());
+
+		Mock<IHealthStrategy> health = new();
+		IEnumerable<IWound> wounds = Array.Empty<IWound>();
+
+		Mock<ICharacter> target = new();
+		target.SetupGet(x => x.Body).Returns(body.Object);
+		target.SetupGet(x => x.HealthStrategy).Returns(health.Object);
+		target.SetupGet(x => x.Wounds).Returns(() => wounds);
+		target.SetupGet(x => x.IsHelpless).Returns(false);
+		target.SetupProperty(x => x.CombatTarget, actor.Object);
+		target.SetupProperty(x => x.State, CharacterState.Awake);
+		target.SetupProperty(x => x.PositionState, PositionStanding.Instance);
+		target.SetupProperty(x => x.DefensiveAdvantage, 0.0);
+		target.SetupProperty(x => x.OffensiveAdvantage, 0.0);
+		target.Setup(x => x.EffectsOfType<Staggered>(It.IsAny<Predicate<Staggered>>()))
+		      .Returns(Array.Empty<Staggered>());
+		health.Setup(x => x.IsCriticallyInjured(target.Object)).Returns(false);
+
+		Assert.IsFalse(SubdueStrategy.ShouldGrappleForControl(actor.Object, target.Object));
+
+		Mock<ICharacter> ally = new();
+		target.Object.CombatTarget = ally.Object;
+		Assert.IsTrue(SubdueStrategy.ShouldGrappleForControl(actor.Object, target.Object));
+
+		target.Object.CombatTarget = actor.Object;
+		target.Object.DefensiveAdvantage = -1.0;
+		Assert.IsTrue(SubdueStrategy.ShouldGrappleForControl(actor.Object, target.Object));
+
+		target.Object.DefensiveAdvantage = 0.0;
+		Mock<IWound> wound = new();
+		wound.SetupGet(x => x.CurrentDamage).Returns(1.0);
+		wounds = new[] { wound.Object };
+		Assert.IsTrue(SubdueStrategy.ShouldGrappleForControl(actor.Object, target.Object));
 	}
 
 	private static string GetSourcePath(params string[] segments)

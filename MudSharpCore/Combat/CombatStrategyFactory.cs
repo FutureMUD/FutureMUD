@@ -58,6 +58,8 @@ public class CombatStrategyFactory
                 return Strategies.DropperStrategy.Instance;
             case CombatStrategyMode.PhysicalAvoider:
                 return Strategies.PhysicalAvoiderStrategy.Instance;
+            case CombatStrategyMode.Subdue:
+                return Strategies.SubdueStrategy.Instance;
             default:
                 throw new NotImplementedException("Unknown CombatStrategyMode in CombatStrategyFactory.GetStrategy: " +
                                                   mode.Describe());

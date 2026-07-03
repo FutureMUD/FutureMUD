@@ -248,6 +248,18 @@ Syntax:
             return;
         }
 
+        if (!sourceBook.IsOpen)
+        {
+            actor.OutputHandler.Send($"{source.HowSeen(actor, true)} must first be opened before it can be copied.");
+            return;
+        }
+
+        if (!destinationBook.IsOpen)
+        {
+            actor.OutputHandler.Send($"{destination.HowSeen(actor, true)} must first be opened before it can be copied into.");
+            return;
+        }
+
         var (truth, error) = actor.CanManipulateItem(source);
         if (!truth)
         {
@@ -291,7 +303,7 @@ Syntax:
     private static bool TryCopyBook(BookGameItemComponent source, BookGameItemComponent destination, out string error, bool mutate)
     {
         error = string.Empty;
-        var sourceEntries = source.AllPagesAndReadables.ToList();
+        var sourceEntries = source.PresentPagesAndReadables.ToList();
         if (!sourceEntries.Any())
         {
             error = $"{source.Parent.HowSeen(null, true)} does not have any readable content to copy.";

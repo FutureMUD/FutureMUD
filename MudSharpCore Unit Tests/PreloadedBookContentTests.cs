@@ -141,6 +141,70 @@ public class PreloadedBookContentTests
 	}
 
 	[TestMethod]
+	public void BookPrototypeDirectReadableReferencesResolveLazilyAfterWritingsLoad()
+	{
+		var language = CreateLanguage(LanguageId, "Common");
+		var script = CreateScript(ScriptId, "Latin", 1.0);
+		var colour = CreateColour(ColourId, "black");
+		var gameworld = CreateGameworld(language, script, colour, 200);
+		var writing = CreateWriting(25, "Manual Page", 8, "Loaded later.");
+		var proto = CreateBookProto(gameworld.Object, BookDefinition(
+			2,
+			"Lazy Manual",
+			DirectWritingElement(1, 1, writing.Id)
+		));
+
+		var savedXml = InvokeSaveToXml(proto);
+		gameworld.Object.Add(writing);
+		var book = (BookGameItemComponent)proto.CreateNew(CreateParent(gameworld.Object, 70));
+
+		Assert.IsTrue(savedXml.Contains("Id=\"25\""));
+		Assert.AreEqual(1, book.PagesAndReadables.Count);
+		Assert.AreSame(writing, book.PagesAndReadables[0].Writing);
+	}
+
+	[TestMethod]
+	public void CopyBookSkipsTornSourcePages()
+	{
+		var language = CreateLanguage(LanguageId, "Common");
+		var script = CreateScript(ScriptId, "Latin", 1.0);
+		var colour = CreateColour(ColourId, "black");
+		var gameworld = CreateGameworld(language, script, colour, 200);
+		var proto = CreateBookProto(gameworld.Object, BookDefinition(4, "Copy Test"));
+		var source = (BookGameItemComponent)proto.CreateNew(CreateParent(gameworld.Object, 80));
+		var destination = (BookGameItemComponent)proto.CreateNew(CreateParent(gameworld.Object, 81));
+		var tornWriting = CreateWriting(30, "Torn", 6, "Gone.");
+		var presentWriting = CreateWriting(31, "Present", 6, "Here.");
+		source.AddWriting(tornWriting, 1);
+		source.AddWriting(presentWriting, 2);
+		source.TornPages.Add(1);
+
+		Assert.IsTrue(InvokeTryCopyBook(source, destination, mutate: true, out var error), error);
+
+		Assert.AreEqual(1, destination.PagesAndReadables.Count);
+		Assert.AreSame(presentWriting, destination.PagesAndReadables[0].Writing);
+		Assert.AreEqual(1, destination.PagesAndReadables[0].Page);
+	}
+
+	[TestMethod]
+	public void WritingCollectionMarkdownImportRejectsPageZeroBeforeCreatingReadables()
+	{
+		var language = CreateLanguage(LanguageId, "Common");
+		var script = CreateScript(ScriptId, "Latin", 1.0);
+		var colour = CreateColour(ColourId, "black");
+		var gameworld = CreateGameworld(language, script, colour, 200);
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.CurrentWritingLanguage).Returns(language);
+		actor.SetupGet(x => x.CurrentScript).Returns(script);
+
+		var result = WritingCollectionImport.ImportMarkdown(gameworld.Object, actor.Object, "--- page 0 ---\nThis should not import.");
+
+		Assert.IsFalse(result.Success);
+		Assert.AreEqual("Page numbers must be positive.", result.Error);
+		Assert.AreEqual(0, gameworld.Object.Writings.Count);
+	}
+	[TestMethod]
 	public void BookPrototypeContent_InvalidPagesAndOversizedTextAreSkippedOnFreshItems()
 	{
 		var language = CreateLanguage(LanguageId, "Common");
@@ -379,6 +443,25 @@ public class PreloadedBookContentTests
 			new XAttribute("Id", collectionId),
 			new XAttribute("StartPage", startPage)
 		);
+	}
+
+	private static XElement DirectWritingElement(int page, int order, long writingId)
+	{
+		return new XElement("Writing",
+			new XAttribute("Id", writingId),
+			new XAttribute("Page", page),
+			new XAttribute("Order", order)
+		);
+	}
+
+	private static bool InvokeTryCopyBook(BookGameItemComponent source, BookGameItemComponent destination, bool mutate, out string error)
+	{
+		var args = new object[] { source, destination, string.Empty, mutate };
+		var result = (bool)typeof(MudSharp.Commands.Modules.LiteracyModule)
+			.GetMethod("TryCopyBook", BindingFlags.Static | BindingFlags.NonPublic)!
+			.Invoke(null, args)!;
+		error = (string)args[2];
+		return result;
 	}
 
 	private static XElement WritingElement(int page, int order, string text, string provenance)

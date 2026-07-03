@@ -1,4 +1,4 @@
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Form.Colour;
 using MudSharp.Framework;
@@ -142,6 +142,20 @@ public static class WritingCollectionImport
 		if (specs.Count == 0)
 		{
 			return new WritingCollectionImportResult(false, "The import did not contain any readable entries.", Array.Empty<(int, ICanBeRead)>());
+		}
+
+		foreach (var spec in specs)
+		{
+			var page = spec switch
+			{
+				WritingSpec writingSpec => writingSpec.Page,
+				DrawingSpec drawingSpec => drawingSpec.Page,
+				_ => 0
+			};
+			if (page < 1)
+			{
+				return new WritingCollectionImportResult(false, "Page numbers must be positive.", Array.Empty<(int, ICanBeRead)>());
+			}
 		}
 
 		var preparedEntries = new List<(int Page, Func<ICanBeRead> CreateReadable)>();

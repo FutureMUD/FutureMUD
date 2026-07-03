@@ -1,4 +1,4 @@
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
@@ -250,6 +250,9 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
                          .OrderBy(x => x.Page)
                          .ThenBy(x => x.Order)
                          .Select(x => (x.Page, x.Order, x.Writing));
+
+    public IEnumerable<(int Page, int Order, ICanBeRead Readable)> PresentPagesAndReadables =>
+        AllPagesAndReadables.Where(x => !TornPages.Contains(x.Page));
 
     public int HighestWrittenPage => AllPagesAndReadables.Select(x => x.Page).DefaultIfEmpty(0).Max();
 

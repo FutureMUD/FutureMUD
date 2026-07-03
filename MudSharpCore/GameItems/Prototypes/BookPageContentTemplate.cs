@@ -13,13 +13,18 @@ namespace MudSharp.GameItems.Prototypes;
 internal sealed class BookPageContentTemplate : IPageReadableContentTemplate
 {
 	private readonly IFuturemud _gameworld;
+	private ICanBeRead? _readable;
+	private long? _readableId;
+	private bool _isDrawing;
 
 	public BookPageContentTemplate(IFuturemud gameworld, int page, int order, ICanBeRead readable)
 	{
 		_gameworld = gameworld;
 		Page = page;
 		Order = order;
-		Readable = readable;
+		_readable = readable;
+		_readableId = readable.Id;
+		_isDrawing = readable is IDrawing;
 		RegisterReadable(gameworld, readable);
 	}
 
@@ -30,25 +35,28 @@ internal sealed class BookPageContentTemplate : IPageReadableContentTemplate
 		Order = int.Parse(root.Attribute("Order")?.Value ?? "1");
 		if (long.TryParse(root.Attribute("Id")?.Value, out var id))
 		{
-			Readable = root.Name.LocalName.EqualTo("Drawing")
-				? gameworld.Drawings.Get(id)
-				: gameworld.Writings.Get(id);
+			_readableId = id;
+			_isDrawing = root.Name.LocalName.EqualTo("Drawing");
 			return;
 		}
 
 		WasLoadedFromLegacyXml = true;
-		Readable = CreateLegacyPrintedWriting(gameworld, root);
-		if (Readable is ILateInitialisingItem lateInitialisingItem)
+		_readable = CreateLegacyPrintedWriting(gameworld, root);
+		_readableId = _readable.Id;
+		_isDrawing = _readable is IDrawing;
+		if (_readable is ILateInitialisingItem lateInitialisingItem)
 		{
 			gameworld.SaveManager.DirectInitialise(lateInitialisingItem);
+			_readableId = _readable.Id;
 		}
 
-		RegisterReadable(gameworld, Readable);
+		RegisterReadable(gameworld, _readable);
 	}
 
 	public int Page { get; set; }
 	public int Order { get; set; }
-	public ICanBeRead? Readable { get; }
+	public ICanBeRead? Readable => _readable ??= ResolveReadable();
+	public bool HasReadableReference => _readable is not null || _readableId is not null;
 	public bool WasLoadedFromLegacyXml { get; }
 	public int DocumentLength => Readable?.DocumentLength ?? 0;
 
@@ -59,20 +67,28 @@ internal sealed class BookPageContentTemplate : IPageReadableContentTemplate
 
 	public XElement SaveToXml()
 	{
-		if (Readable is null)
+		var readable = Readable;
+		if (readable is not null)
+		{
+			_readableId = readable.Id;
+			_isDrawing = readable is IDrawing;
+		}
+
+		if (_readableId is null)
 		{
 			return new XElement("Missing", new XAttribute("Page", Page), new XAttribute("Order", Order));
 		}
 
-		return new XElement(Readable is IWriting ? "Writing" : "Drawing",
-			new XAttribute("Id", Readable.Id),
+		return new XElement(_isDrawing ? "Drawing" : "Writing",
+			new XAttribute("Id", _readableId.Value),
 			new XAttribute("Page", Page),
 			new XAttribute("Order", Order));
 	}
 
 	public BookPageContentTemplate CloneForPage(int page, int order)
 	{
-		return new BookPageContentTemplate(_gameworld, page, order, Readable!);
+		var readable = Readable ?? throw new InvalidOperationException("Cannot clone book content for a missing readable reference.");
+		return new BookPageContentTemplate(_gameworld, page, order, readable);
 	}
 
 	public static BookPageContentTemplate FromReadable(IFuturemud gameworld, int page, int order, ICanBeRead readable)
@@ -110,6 +126,18 @@ internal sealed class BookPageContentTemplate : IPageReadableContentTemplate
 			double.Parse(root.Element("LanguageSkill")?.Value ?? "100.0"),
 			double.Parse(root.Element("HandwritingSkill")?.Value ?? "100.0"),
 			double.Parse(root.Element("ForgerySkill")?.Value ?? "0.0"));
+	}
+
+	private ICanBeRead? ResolveReadable()
+	{
+		if (_readableId is null)
+		{
+			return null;
+		}
+
+		return _isDrawing
+			? _gameworld.Drawings.Get(_readableId.Value)
+			: _gameworld.Writings.Get(_readableId.Value);
 	}
 
 	private static void RegisterReadable(IFuturemud gameworld, ICanBeRead? readable)

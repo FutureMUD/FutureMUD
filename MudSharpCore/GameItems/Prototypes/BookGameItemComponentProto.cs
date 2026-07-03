@@ -94,7 +94,7 @@ public class BookGameItemComponentProto : GameItemComponentProto, IWriteableProt
 			}
 
 			var template = new BookPageContentTemplate(Gameworld, item);
-			if (template.Readable is null)
+			if (!template.HasReadableReference)
 			{
 				continue;
 			}
@@ -127,7 +127,7 @@ public class BookGameItemComponentProto : GameItemComponentProto, IWriteableProt
 			new XElement("DefaultTitle", new XCData(DefaultTitle ?? string.Empty)),
 			new XElement("InitialReadables",
 				from item in InitialReadables
-				where item.Readable is not null
+				where item.HasReadableReference
 				select item.SaveToXml()),
 			new XElement("InitialCollections",
 				from item in InitialCollections

@@ -24,7 +24,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Character Creation Runtime](./Characters/Character_Creation_Runtime.md)
 - [Character Creation Builder Workflows](./Characters/Character_Creation_Builder_Workflows.md)
 - [Character Creation Seeder](./Characters/Character_Creation_Seeder.md)
-- [Multiple Body Form System](./Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md)
+- [Multiple Body Form System](./Characters/Multiple_Body_Form_System.md)
 - [Multiple Body Forms and Instances Builder Guide](./Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md)
 - [Multiple Simultaneous Body Instances Design](./Characters/Multiple_Simultaneous_Body_Instances_Design.md)
 
@@ -115,7 +115,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 ## Magic
 - [Magic System Overview](./Magic/Magic_System_Overview.md)
-- [Magic System Capabilities, Resources, and Generators](./Magic/Magic_System_Capabilities_Resources_And_Generators.md)
+- [Magic System Capabilities, Resources, and Generators](./Magic/Magic_System_Capabilities_Resources_and_Generators.md)
 - [Magic System Implemented Types](./Magic/Magic_System_Implemented_Types.md)
 - [Magic System Powers](./Magic/Magic_System_Powers.md)
 - [Magic System Spells](./Magic/Magic_System_Spells.md)

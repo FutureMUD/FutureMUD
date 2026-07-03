@@ -408,6 +408,8 @@ public static class CombatExtensions
                 return "Dropper";
             case CombatStrategyMode.PhysicalAvoider:
                 return "Physical Avoider";
+            case CombatStrategyMode.Subdue:
+                return "Subdue";
             default:
                 throw new ApplicationException("Unknown CombatStrategyMode in Describe.");
         }
@@ -466,6 +468,8 @@ public static class CombatExtensions
                 return "grapple opponents, carry them upward while flying, and drop them";
             case CombatStrategyMode.PhysicalAvoider:
                 return "use trips, staggers and pushbacks to keep enemies out of melee range";
+            case CombatStrategyMode.Subdue:
+                return "use melee control attacks to stagger, trip or disarm opponents, then grapple them for control";
             default:
                 throw new ApplicationException("Unknown CombatStrategyMode in Describe.");
         }
@@ -496,6 +500,7 @@ public static class CombatExtensions
             case CombatStrategyMode.Drowner:
             case CombatStrategyMode.Dropper:
             case CombatStrategyMode.PhysicalAvoider:
+            case CombatStrategyMode.Subdue:
                 return true;
             default:
                 return false;
@@ -551,6 +556,7 @@ public static class CombatExtensions
             case CombatStrategyMode.MeleeShooter:
             case CombatStrategyMode.Drowner:
             case CombatStrategyMode.Dropper:
+            case CombatStrategyMode.Subdue:
                 return true;
             default:
                 return false;

@@ -181,7 +181,8 @@ namespace MudSharp.Combat
         Swooper,
         Drowner,
         Dropper,
-        PhysicalAvoider
+        PhysicalAvoider,
+        Subdue
     }
 
     public enum RangedWeaponType

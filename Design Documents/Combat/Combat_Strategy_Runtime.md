@@ -190,6 +190,14 @@ A melee-range avoidance strategy that tries to create distance without leaving t
 
 Expected active no-move cases: already safely out of melee, no viable pushback/trip/stagger attack, target can still oppose a withdrawal, or standard melee blockers.
 
+### Subdue
+
+A melee hostage-taking and arrest strategy. It keeps the standard melee defensive, inventory, fixed-action, and movement pipeline, but its active attack preference looks first for allowed weapon attacks that trip, stagger, stun, disarm, hinder, draw attention, or otherwise create advantage before falling back to ordinary melee selection while the target is still fully resisting. Combat setting percentages still gate the weapon, auxiliary, and natural channels. If authored auxiliary control actions are available, they are part of the same preference pool; natural control attacks are used as a fallback so unarmed or naturally armed creatures can still participate.
+
+Once the target is already grappled by the subduer, is focusing on another combatant, has negative offensive or defensive advantage, is helpless, is not upright, is staggered, is critically injured, has active wound pain/stun/shock/damage, or has pain/damage limb-ineffective effects, `Subdue` attempts only the clinch and grapple-control portion of `GrappleForControl`. If no control move is legal in that state, it falls back to the subdual-priority attack pool rather than ordinary melee. This lets secondary enforcers move straight to restraint and lets a primary subduer use weapon pressure until there is a realistic opening for control.
+
+Expected active no-move cases: standard melee blockers, no target, no legal attack or auxiliary control action, no legal grapple/clinch path and no subdual-priority attack when the target is ready for control, or combat policy refusing attacks.
+
 ## Movement and Layer Considerations
 
 The ranged advance strategies handle three spatial cases:

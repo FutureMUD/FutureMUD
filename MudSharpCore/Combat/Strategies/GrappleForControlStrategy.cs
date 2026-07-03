@@ -1,6 +1,7 @@
 ﻿using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Combat.Moves;
+using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using System;
@@ -24,6 +25,20 @@ public class GrappleForControlStrategy : ClinchStrategy
     protected override ICombatMove AttemptClinchAttack(ICharacter ch)
     {
         return AttemptGrapple(ch) ?? base.AttemptClinchAttack(ch);
+    }
+
+    public ICombatMove AttemptGrappleForControlOnly(ICharacter ch)
+    {
+        ICombatMove move;
+        if ((move = AttemptStartClinch(ch, false)) != null)
+        {
+            return move;
+        }
+
+        return ch.EffectsOfType<ClinchEffect>().Any(x => x.Target == ch.CombatTarget) ||
+               ch.EffectsOfType<IGrappling>().Any(x => x.Target == ch.CombatTarget)
+            ? AttemptGrapple(ch)
+            : null;
     }
 
     protected virtual ICombatMove AttemptGrappleInProgress(ICharacter ch, IGrappling grapple,

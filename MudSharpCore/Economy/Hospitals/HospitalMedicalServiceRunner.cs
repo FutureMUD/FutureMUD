@@ -87,6 +87,8 @@ public static class HospitalMedicalServiceRunner
 				BeginSurgicalProcedure(context, employee, patient, hospital, request),
 			HospitalServiceType.BloodDonation => PerformBloodDonation(context, employee, patient, request),
 			HospitalServiceType.BloodTransfusion => PerformBloodTransfusion(context, employee, patient, request),
+			HospitalServiceType.Stabilisation => PerformStabilisation(context, employee, patient, request),
+			HospitalServiceType.FullTreatment => PerformFullTreatment(context, employee, patient, request),
 			_ => new ServiceExecutionResult(false, "Unsupported hospital service type.", string.Empty)
 		};
 

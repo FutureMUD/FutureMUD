@@ -48,9 +48,10 @@ public static class HospitalServiceAvailability
 			return Unavailable(anesthesiaReason);
 		}
 
-		if (service.ServiceType == HospitalServiceType.BloodDonation && !HasDonationContainerStock(hospital, service))
+		if (service.ServiceType == HospitalServiceType.BloodDonation && !HasDonationContainerStock(hospital, service, patient,
+			out var donationReason))
 		{
-			return Unavailable("no empty blood container");
+			return Unavailable(donationReason);
 		}
 
 		if (service.ServiceType == HospitalServiceType.BloodTransfusion && !HasTransfusionStock(hospital, service, patient,
@@ -189,13 +190,47 @@ public static class HospitalServiceAvailability
 		return true;
 	}
 
-	private static bool HasDonationContainerStock(IHospital hospital, IHospitalService service)
+	private static bool HasDonationContainerStock(IHospital hospital, IHospitalService service, ICharacter? donor,
+		out string reason)
 	{
 		var amount = (service.BloodVolumeLitres > 0.0 ? service.BloodVolumeLitres : 0.5) /
 		             hospital.Gameworld.UnitManager.BaseFluidToLitres;
-		return HospitalStockItems(hospital)
-		       .Select(x => x.GetItemType<ILiquidContainer>()).Where(x => x is not null).Select(x => x!)
-		       .Any(x => x.LiquidCapacity - x.LiquidVolume >= amount);
+		var containers = HospitalStockItems(hospital)
+		                 .Select(x => x.GetItemType<ILiquidContainer>()).Where(x => x is not null).Select(x => x!)
+		                 .Where(x => x.LiquidCapacity - x.LiquidVolume >= amount)
+		                 .ToList();
+		if (!containers.Any())
+		{
+			reason = "no empty blood container";
+			return false;
+		}
+
+		if (donor is null)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		if (donor.Body.BloodLiquid is not { } bloodLiquid)
+		{
+			if (containers.Any(x => x.LiquidMixture is null || x.LiquidMixture.IsEmpty))
+			{
+				reason = string.Empty;
+				return true;
+			}
+
+			reason = "no empty blood container";
+			return false;
+		}
+
+		if (containers.Any(x => x.LiquidMixture is null || x.LiquidMixture.IsEmpty || x.LiquidMixture.CanMerge(bloodLiquid)))
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = "no empty or compatible blood container";
+		return false;
 	}
 
 	private static bool HasTransfusionStock(IHospital hospital, IHospitalService service, ICharacter? patient,

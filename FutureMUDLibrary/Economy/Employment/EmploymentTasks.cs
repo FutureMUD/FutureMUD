@@ -138,7 +138,10 @@ public enum EmploymentActionStepType
 	ManagerGoalAdministration,
 	BankAdministration,
 	StableAdministration,
-	HotelAdministration
+	HotelAdministration,
+	HospitalService,
+	HospitalSupplyPreparation,
+	HospitalAdministration
 }
 
 public enum EmploymentActionStepStatus
@@ -704,6 +707,15 @@ public enum HotelAdministrationActionKind
 	LostPropertyCheck,
 	LostPropertyAudit,
 	PatronBalanceAudit
+}
+
+public enum HospitalAdministrationActionKind
+{
+	ServiceAudit,
+	DebtAudit,
+	TheatrePreparation,
+	SupplyAudit,
+	RequestAudit
 }
 
 public enum JobOpeningAdministrationActionKind

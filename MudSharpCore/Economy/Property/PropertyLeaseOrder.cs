@@ -190,6 +190,7 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
             {
                 Property.ClaimShops(leaseholder);
                 Property.ClaimStables(leaseholder);
+                Property.ClaimHospitals(leaseholder);
             }
             return;
         }

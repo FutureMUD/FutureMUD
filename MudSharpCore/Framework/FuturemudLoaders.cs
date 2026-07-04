@@ -29,6 +29,7 @@ using MudSharp.Discord;
 using MudSharp.Economy;
 using MudSharp.Economy.Auctions;
 using MudSharp.Economy.Employment;
+using MudSharp.Economy.Hospitals;
 using MudSharp.Economy.Shoppers;
 using MudSharp.Economy.Stables;
 using MudSharp.Effects;
@@ -1182,6 +1183,29 @@ For information on the syntax to use in emotes (such as those included in bracke
         count = stables.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Stable" : "Stables");
 
+        ConsoleUtilities.WriteLine("\nLoading #5Hospitals#0...");
+#if DEBUG
+        sw.Restart();
+#endif
+        List<Models.Hospital> hospitals = FMDB.Context.Hospitals
+                        .Include(x => x.Locations)
+                        .Include(x => x.Services)
+                        .Include(x => x.PatientDebtAccounts)
+                        .Include(x => x.BloodStockPolicies)
+                        .Include(x => x.ServiceRequests)
+                        .AsSplitQuery()
+                        .AsNoTracking()
+                        .ToList();
+        foreach (Models.Hospital hospital in hospitals)
+        {
+            _hospitals.Add(new MudSharp.Economy.Hospitals.Hospital(hospital, this));
+        }
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+        count = hospitals.Count;
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Hospital" : "Hospitals");
         ConsoleUtilities.WriteLine("\nLoading #5Estates#0...");
 #if DEBUG
         sw.Restart();

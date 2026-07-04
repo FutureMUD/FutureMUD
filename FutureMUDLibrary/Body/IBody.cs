@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
@@ -120,6 +120,7 @@ namespace MudSharp.Body
         void RemoveInfection(IInfection infection);
         void Dose(IDrug drug, DrugVector vector, double grams);
         void Dose(IDrug drug, DrugVector vector, double grams, object originator);
+        void DoseImmediate(IDrug drug, DrugVector vector, double grams, object originator);
         void RemoveDrugDosages(Predicate<DrugDosage> predicate);
         void CheckDrugTick();
         void Sober();

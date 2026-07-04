@@ -18,7 +18,8 @@ public enum EmploymentHostType
 	Stable,
 	Hotel,
 	Other,
-	Clan = 7
+	Clan = 7,
+	Hospital = 8
 }
 
 public enum EmploymentRole
@@ -31,7 +32,9 @@ public enum EmploymentRole
 	Crafter,
 	StableHand,
 	BankTeller,
-	HotelWorker
+	HotelWorker,
+	MedicalWorker,
+	HospitalOrderly
 }
 
 public enum EmploymentStatus
@@ -69,7 +72,12 @@ public enum EmploymentAuthority
 	PostToHostBoard = 1 << 21,
 	ModerateHostBoard = 1 << 22,
 	ManagePayroll = 1 << 23,
-	SettleHostAccounts = 1 << 24
+	SettleHostAccounts = 1 << 24,
+	PerformMedicalServices = 1 << 25,
+	ManageMedicalServices = 1 << 26,
+	ManageHospitalAccounts = 1 << 27,
+	ManageHospitalFacilities = 1 << 28,
+	PrepareMedicalSupplies = 1 << 29
 }
 
 public readonly record struct EmploymentAuthoritySet(EmploymentAuthority Authorities)
@@ -100,7 +108,12 @@ public readonly record struct EmploymentAuthoritySet(EmploymentAuthority Authori
 		EmploymentAuthority.PostToHostBoard |
 		EmploymentAuthority.ModerateHostBoard |
 		EmploymentAuthority.ManagePayroll |
-		EmploymentAuthority.SettleHostAccounts);
+		EmploymentAuthority.SettleHostAccounts |
+		EmploymentAuthority.PerformMedicalServices |
+		EmploymentAuthority.ManageMedicalServices |
+		EmploymentAuthority.ManageHospitalAccounts |
+		EmploymentAuthority.ManageHospitalFacilities |
+		EmploymentAuthority.PrepareMedicalSupplies);
 
 	public bool Contains(EmploymentAuthority authority)
 	{
@@ -205,7 +218,9 @@ public enum EmploymentAICapability
 	CanManagePrices,
 	CanHandleCash,
 	CanManageStableAnimals,
-	CanManageHotelRooms
+	CanManageHotelRooms,
+	CanPerformMedicalServices,
+	CanPrepareHospitalSupplies
 }
 
 public sealed record MoneyAmount(ICurrency Currency, decimal Amount)

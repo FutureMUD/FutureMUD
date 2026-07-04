@@ -434,6 +434,12 @@ namespace MudSharp.Database
         public virtual DbSet<ShopperLog> ShopperLogs { get; set; }
         public virtual DbSet<ShopsStoreroomCell> ShopsStoreroomCells { get; set; }
         public virtual DbSet<ShopsTill> ShopsTills { get; set; }
+        public virtual DbSet<Hospital> Hospitals { get; set; }
+        public virtual DbSet<HospitalLocation> HospitalLocations { get; set; }
+        public virtual DbSet<HospitalService> HospitalServices { get; set; }
+        public virtual DbSet<HospitalServiceRequest> HospitalServiceRequests { get; set; }
+        public virtual DbSet<HospitalPatientDebtAccount> HospitalPatientDebtAccounts { get; set; }
+        public virtual DbSet<HospitalBloodStockPolicy> HospitalBloodStockPolicies { get; set; }
         public virtual DbSet<Stable> Stables { get; set; }
         public virtual DbSet<StableStay> StableStays { get; set; }
         public virtual DbSet<StableStayLedgerEntry> StableStayLedgerEntries { get; set; }

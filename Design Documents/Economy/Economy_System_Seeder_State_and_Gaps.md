@@ -100,6 +100,7 @@ The classifications below are conservative. "Easy" means the current implementat
 | Jobs tied to seeded employers or clans | Possible | Runtime support exists, but good stock jobs require seeded institutions, currencies, and reusable eligibility progs |
 | Auction houses | Possible | The runtime is ready and can operate bankless with a virtual reserve, but auction houses still depend on chosen cells and commercial geography |
 | Stables | Possible | The runtime is ready and can operate bankless with a virtual reserve, but useful stable examples depend on chosen cells, mounted-travel assumptions, and local fee/access policy |
+| Hospitals | Possible | The runtime is ready and can operate bankless or with a settlement account, but useful examples depend on chosen cells, local medical policy, stocked treatment items, procedure catalogues, and debt assumptions |
 | Shops | Poor candidate without more design work | The runtime exists, but meaningful shop content depends on cells, stockrooms, tills, merchandise selection, item prototypes, payment items, and world-specific retail design. The RPI Engine Worldfile Converter can now import archived, world-specific permanent shops because those legacy files supply shopfront, stockroom, and delivery data; that side-channel import does not make generic stock shop seeding materially easier. |
 | Properties | Poor candidate without more design work | Property is location-specific, owner-specific, and strongly coupled to the world's map and institutions |
 | Hotel-room rental setups | Poor candidate without more design work | Runtime support exists and bank accounts are optional, but useful hotel content depends on mapped property cells, keys, furnishings, auction houses, and local licensing policy |
@@ -225,6 +226,19 @@ Auction houses need:
 - a clear place in the world's commercial geography
 
 So they are practical only once the seeding workflow can reference world-specific cells safely. A bank account is no longer mandatory, but stock content still should not guess where an auction house physically belongs.
+
+### Hospitals
+Hospitals need:
+
+- real waiting-room cells, and optionally operating-theatre, recovery-room, and supply-area cells
+- a decision about whether income goes to a linked bank account or the hospital virtual reserve, plus starting reserve/debt policy if managers should use `hospital deposit`, `hospital withdraw`, or `hospital ledger`
+- service definitions that match the world's medical tech level and available treatment, IV anesthesia, surgical, combined-treatment, and implant content
+- equipment requirements that point at stocked treatment items, surgical tools, IV bags, or compatible liquid containers where the service needs them
+- blood-service policy, including donation and transfusion volume, compatible blood-product storage, per-blood-type stock targets, and paid-donation prices
+- medical-debt policy, including whether stock services allow debt and what default account ceiling should apply
+- employment openings or seeded NPC workers with `CanPerformMedicalServices` for doctors and `CanPrepareHospitalSupplies` for nurses or orderlies if automated treatment is expected; the existing `EmploymentWorkerAI` can be configured with `host hospital`, `capability doctor`, and `capability orderly|nurse|supplies` aliases
+
+So hospitals are seedable only once the seeding workflow can safely reference local medical facilities, stocked supplies, blood-product assumptions, anesthetic drug and cannulation choices, implant follow-up procedures, combined-service defaults, and procedure catalogues. Generic service templates may be useful later, but stock content should not guess which cells are public wards, theatres, recovery rooms, or supply areas.
 
 ## Poor Candidates Without More Design Work
 ### Shops

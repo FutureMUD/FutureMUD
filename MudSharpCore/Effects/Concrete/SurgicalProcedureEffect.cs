@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory.Plans;
@@ -10,6 +10,8 @@ using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+#nullable enable
 
 namespace MudSharp.Effects.Concrete;
 
@@ -42,6 +44,7 @@ public class SurgicalProcedureEffect : StagedCharacterActionWithTarget
     public ICharacter Surgeon { get; set; }
     public ICharacter Patient { get; set; }
     public object[] AdditionalArguments { get; set; }
+    public Action<SurgicalProcedureEffect, bool, CheckOutcome>? OnProcedureResolved { get; set; }
     public override bool CanBeStoppedByPlayer => true;
 
     public List<(IGameItem Item, DesiredItemState State)> AdditionalInventory { get; }
@@ -164,7 +167,8 @@ public class SurgicalProcedureEffect : StagedCharacterActionWithTarget
                                    Procedure.CheckTrait,
                                    Patient,
                                    Procedure.BaseCheckBonus);
-        if (CurrentCount == FireOnCount)
+        var completed = CurrentCount == FireOnCount;
+        if (completed)
         {
             Procedure.CompleteProcedure(Surgeon, Patient, outcome, AdditionalArguments);
         }
@@ -172,5 +176,7 @@ public class SurgicalProcedureEffect : StagedCharacterActionWithTarget
         {
             Procedure.AbortProcedure(Surgeon, Patient, outcome, AdditionalArguments);
         }
+
+        OnProcedureResolved?.Invoke(this, completed, outcome);
     }
 }

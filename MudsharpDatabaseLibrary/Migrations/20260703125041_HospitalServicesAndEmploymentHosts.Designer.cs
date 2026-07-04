@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260703125041_HospitalServicesAndEmploymentHosts")]
+    partial class HospitalServicesAndEmploymentHosts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -12748,42 +12751,6 @@ namespace MudSharp.Migrations
                     b.ToTable("Hospitals", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.HospitalBloodStockPolicy", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("BloodtypeId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("HospitalId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<decimal>("PricePerLitre")
-                        .HasColumnType("decimal(58,29)");
-
-                    b.Property<double>("TargetLitres")
-                        .HasColumnType("double");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("BloodtypeId")
-                        .HasDatabaseName("FK_HospitalBloodStockPolicies_Bloodtypes_idx");
-
-                    b.HasIndex("HospitalId")
-                        .HasDatabaseName("FK_HospitalBloodStockPolicies_Hospitals_idx");
-
-                    b.HasIndex("HospitalId", "BloodtypeId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_HospitalBloodStockPolicies_Hospital_Bloodtype");
-
-                    b.ToTable("HospitalBloodStockPolicies", (string)null);
-                });
-
             modelBuilder.Entity("MudSharp.Models.HospitalLocation", b =>
                 {
                     b.Property<long>("HospitalId")
@@ -12869,17 +12836,6 @@ namespace MudSharp.Migrations
                         .HasColumnType("bit(1)")
                         .HasDefaultValue(1ul);
 
-                    b.Property<long?>("AnesthesiaCannulationProcedureId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("AnesthesiaDrugId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<double>("AnesthesiaIntensity")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double")
-                        .HasDefaultValue(1.25);
-
                     b.Property<double>("BloodVolumeLitres")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("double")
@@ -12895,17 +12851,11 @@ namespace MudSharp.Migrations
                     b.Property<long>("HospitalId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long?>("ImplantInterfaceProcedureId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<long?>("ImplantItemPrototypeId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<int?>("ImplantItemPrototypeRevisionNumber")
                         .HasColumnType("int(11)");
-
-                    b.Property<long?>("ImplantPowerProcedureId")
-                        .HasColumnType("bigint(20)");
 
                     b.Property<ulong>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -12964,20 +12914,8 @@ namespace MudSharp.Migrations
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("AnesthesiaCannulationProcedureId")
-                        .HasDatabaseName("FK_HospitalServices_AnesthesiaCannulationProcedure_idx");
-
-                    b.HasIndex("AnesthesiaDrugId")
-                        .HasDatabaseName("FK_HospitalServices_Drugs_Anesthesia_idx");
-
                     b.HasIndex("HospitalId")
                         .HasDatabaseName("FK_HospitalServices_Hospitals_idx");
-
-                    b.HasIndex("ImplantInterfaceProcedureId")
-                        .HasDatabaseName("FK_HospitalServices_ImplantInterfaceProcedure_idx");
-
-                    b.HasIndex("ImplantPowerProcedureId")
-                        .HasDatabaseName("FK_HospitalServices_ImplantPowerProcedure_idx");
 
                     b.HasIndex("SurgicalProcedureId")
                         .HasDatabaseName("FK_HospitalServices_SurgicalProcedures_idx");
@@ -23046,86 +22984,6 @@ namespace MudSharp.Migrations
                     b.ToTable("Writings");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.WritingCollection", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("DefaultTitle")
-                        .IsRequired()
-                        .HasColumnType("varchar(500)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("DefaultTitle"), "utf8");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("mediumtext")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasDatabaseName("IX_WritingCollections_Name");
-
-                    b.ToTable("WritingCollections", (string)null);
-                });
-
-            modelBuilder.Entity("MudSharp.Models.WritingCollectionEntry", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int(11)");
-
-                    b.Property<long?>("DrawingId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<int>("PageNumber")
-                        .HasColumnType("int(11)");
-
-                    b.Property<long>("WritingCollectionId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("WritingId")
-                        .HasColumnType("bigint(20)");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("DrawingId")
-                        .HasDatabaseName("FK_WritingCollectionEntries_Drawings_idx");
-
-                    b.HasIndex("WritingCollectionId")
-                        .HasDatabaseName("FK_WritingCollectionEntries_Collections_idx");
-
-                    b.HasIndex("WritingId")
-                        .HasDatabaseName("FK_WritingCollectionEntries_Writings_idx");
-
-                    b.HasIndex("WritingCollectionId", "PageNumber", "DisplayOrder")
-                        .HasDatabaseName("IX_WritingCollectionEntries_Page_Order");
-
-                    b.ToTable("WritingCollectionEntries", (string)null);
-                });
-
             modelBuilder.Entity("MudSharp.Models.Zone", b =>
                 {
                     b.Property<long>("Id")
@@ -28492,27 +28350,6 @@ namespace MudSharp.Migrations
                     b.Navigation("EconomicZone");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.HospitalBloodStockPolicy", b =>
-                {
-                    b.HasOne("MudSharp.Models.Bloodtype", "Bloodtype")
-                        .WithMany()
-                        .HasForeignKey("BloodtypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_HospitalBloodStockPolicies_Bloodtypes");
-
-                    b.HasOne("MudSharp.Models.Hospital", "Hospital")
-                        .WithMany("BloodStockPolicies")
-                        .HasForeignKey("HospitalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_HospitalBloodStockPolicies_Hospitals");
-
-                    b.Navigation("Bloodtype");
-
-                    b.Navigation("Hospital");
-                });
-
             modelBuilder.Entity("MudSharp.Models.HospitalLocation", b =>
                 {
                     b.HasOne("MudSharp.Models.Cell", "Cell")
@@ -28557,36 +28394,12 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.HospitalService", b =>
                 {
-                    b.HasOne("MudSharp.Models.SurgicalProcedure", "AnesthesiaCannulationProcedure")
-                        .WithMany()
-                        .HasForeignKey("AnesthesiaCannulationProcedureId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_HospitalServices_AnesthesiaCannulationProcedure");
-
-                    b.HasOne("MudSharp.Models.Drug", "AnesthesiaDrug")
-                        .WithMany()
-                        .HasForeignKey("AnesthesiaDrugId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_HospitalServices_Drugs_Anesthesia");
-
                     b.HasOne("MudSharp.Models.Hospital", "Hospital")
                         .WithMany("Services")
                         .HasForeignKey("HospitalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_HospitalServices_Hospitals");
-
-                    b.HasOne("MudSharp.Models.SurgicalProcedure", "ImplantInterfaceProcedure")
-                        .WithMany()
-                        .HasForeignKey("ImplantInterfaceProcedureId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_HospitalServices_ImplantInterfaceProcedure");
-
-                    b.HasOne("MudSharp.Models.SurgicalProcedure", "ImplantPowerProcedure")
-                        .WithMany()
-                        .HasForeignKey("ImplantPowerProcedureId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_HospitalServices_ImplantPowerProcedure");
 
                     b.HasOne("MudSharp.Models.SurgicalProcedure", "SurgicalProcedure")
                         .WithMany()
@@ -28600,17 +28413,9 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_HospitalServices_GameItemProtos");
 
-                    b.Navigation("AnesthesiaCannulationProcedure");
-
-                    b.Navigation("AnesthesiaDrug");
-
                     b.Navigation("Hospital");
 
-                    b.Navigation("ImplantInterfaceProcedure");
-
                     b.Navigation("ImplantItemPrototype");
-
-                    b.Navigation("ImplantPowerProcedure");
 
                     b.Navigation("SurgicalProcedure");
                 });
@@ -33011,34 +32816,6 @@ namespace MudSharp.Migrations
                     b.Navigation("TrueAuthor");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.WritingCollectionEntry", b =>
-                {
-                    b.HasOne("MudSharp.Models.Drawing", "Drawing")
-                        .WithMany()
-                        .HasForeignKey("DrawingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_WritingCollectionEntries_Drawings");
-
-                    b.HasOne("MudSharp.Models.WritingCollection", "WritingCollection")
-                        .WithMany("WritingCollectionEntries")
-                        .HasForeignKey("WritingCollectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_WritingCollectionEntries_Collections");
-
-                    b.HasOne("MudSharp.Models.Writing", "Writing")
-                        .WithMany()
-                        .HasForeignKey("WritingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_WritingCollectionEntries_Writings");
-
-                    b.Navigation("Drawing");
-
-                    b.Navigation("Writing");
-
-                    b.Navigation("WritingCollection");
-                });
-
             modelBuilder.Entity("MudSharp.Models.Zone", b =>
                 {
                     b.HasOne("MudSharp.Models.Cell", "DefaultCell")
@@ -34320,8 +34097,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Hospital", b =>
                 {
-                    b.Navigation("BloodStockPolicies");
-
                     b.Navigation("Locations");
 
                     b.Navigation("PatientDebtAccounts");
@@ -35051,11 +34826,6 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.Wound", b =>
                 {
                     b.Navigation("Infections");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.WritingCollection", b =>
-                {
-                    b.Navigation("WritingCollectionEntries");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Zone", b =>

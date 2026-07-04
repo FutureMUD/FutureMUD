@@ -270,6 +270,7 @@ public sealed partial class Futuremud : IDisposable
 
     private readonly All<IShop> _shops = new();
     private readonly All<IStable> _stables = new();
+    private readonly All<IHospital> _hospitals = new();
     private readonly All<IEconomicZone> _economicZones = new();
 
     private readonly All<IGroupAITemplate> _groupAITemplates = new();
@@ -556,6 +557,7 @@ public sealed partial class Futuremud : IDisposable
     public IUneditableAll<IStackDecorator> StackDecorators => _stackDecorators;
 
     public IUneditableAll<IStable> Stables => _stables;
+    public IUneditableAll<IHospital> Hospitals => _hospitals;
 
     public IUneditableAll<ISurgicalProcedure> SurgicalProcedures => _surgicalProcedures;
 

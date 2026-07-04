@@ -66,7 +66,7 @@ The options you can use with this command are as follows:
 	#3property returnkey <keyitem>#0 - returns a key you are holding
 	#3property claimkeys <name>#0 - claims all returned keys associated with the specified property
 	#3property returnbond <name>#0 - returns any unclaimed bond on an expired lease
-	#3property claimshops <name>#0 - claims all shops and stables associated with the specified property
+	#3property claimshops <name>#0 - claims all shops, stables, and hospitals associated with the specified property
 	#3property revenue <name> [ledger|withdraw <amount>]#0 - reviews or withdraws your virtual property revenue
 
 The following commands are specific to those who own a property (or who are managing a clan-owned property):
@@ -129,7 +129,7 @@ The options you can use with this command are as follows:
 	#3property returnkey <keyitem>#0 - returns a key you are holding
 	#3property claimkeys <name>#0 - claims all returned keys associated with the specified property
 	#3property returnbond <name>#0 - returns any unclaimed bond on an expired lease
-	#3property claimshops <name>#0 - claims all shops and stables associated with the specified property
+	#3property claimshops <name>#0 - claims all shops, stables, and hospitals associated with the specified property
 	#3property revenue <name> [ledger|withdraw <amount>]#0 - reviews or withdraws your virtual property revenue
 
 The following commands are specific to those who own a property (or who are managing a clan-owned property):
@@ -410,7 +410,7 @@ The following commands are specific to those who own a property (or who are mana
         if (ss.IsFinished)
         {
             actor.OutputHandler.Send(
-                $"Which property do you want to claim the shops for? Please see the {"PROPERTIES".MXPSend("properties", "The properties command")} command for a list of available properties.");
+                $"Which property do you want to claim the businesses for? Please see the {"PROPERTIES".MXPSend("properties", "The properties command")} command for a list of available properties.");
             return;
         }
 
@@ -430,23 +430,25 @@ The following commands are specific to those who own a property (or who are mana
         if (!property.IsAuthorisedLeaseHolder(actor) && property.Lease is not null)
         {
             actor.OutputHandler.Send(
-                "You cannot claim the shops while there is a lease on the property. The leaseholder is the only one who can claim the shops.");
+                "You cannot claim the businesses while there is a lease on the property. The leaseholder is the only one who can claim the businesses.");
             return;
         }
 
         List<IPermanentShop> shops = property.PropertyLocations.SelectNotNull(x => x.Shop).Distinct().ToList();
         List<IStable> stables = actor.Gameworld.Stables.Where(x => property.PropertyLocations.Contains(x.Location)).Distinct().ToList();
-        if (!shops.Any() && !stables.Any())
+        List<IHospital> hospitals = property.PropertyHospitals.ToList();
+        if (!shops.Any() && !stables.Any() && !hospitals.Any())
         {
             actor.OutputHandler.Send(
-                $"The {property.Name.ColourName()} property does not have any shops or stables associated with it.");
+                $"The {property.Name.ColourName()} property does not have any shops, stables, or hospitals associated with it.");
             return;
         }
 
         property.ClaimShops(actor);
         property.ClaimStables(actor);
+        property.ClaimHospitals(actor);
         actor.OutputHandler.Send(
-            $"You claim ownership of {shops.Select(x => x.Name.ColourCommand()).Concat(stables.Select(x => x.Name.ColourCommand())).ListToString()} associated with the {property.Name.ColourName()} property.");
+            $"You claim ownership of {shops.Select(x => x.Name.ColourCommand()).Concat(stables.Select(x => x.Name.ColourCommand())).Concat(hospitals.Select(x => x.Name.ColourCommand())).ListToString()} associated with the {property.Name.ColourName()} property.");
     }
 
     private static void PropertyDivestOwnership(ICharacter actor, StringStack ss)
@@ -1880,6 +1882,7 @@ The following commands are specific to those who own a property (or who are mana
         property.Lease = property.LeaseOrder.CreateLease(actor, duration);
         property.ClaimShops(actor);
         property.ClaimStables(actor);
+        property.ClaimHospitals(actor);
         actor.OutputHandler.Handle(
             new EmoteOutput(new Emote($"@ lease|leases the property {property.Name.ColourName()}.", actor, actor)));
         if (property.PropertyKeys.Any())

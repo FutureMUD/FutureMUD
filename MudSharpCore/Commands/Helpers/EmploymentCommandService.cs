@@ -63,6 +63,7 @@ internal sealed class EmploymentHostResolver : IEmploymentHostResolver
 			"arena" or "combatarena" => (IEmploymentHost?)gameworld.CombatArenas.GetByIdOrName(identifier),
 			"bank" => (IEmploymentHost?)gameworld.Banks.GetByIdOrName(identifier),
 			"stable" => (IEmploymentHost?)gameworld.Stables.GetByIdOrName(identifier),
+			"hospital" or "clinic" or "infirmary" => (IEmploymentHost?)gameworld.Hospitals.GetByIdOrName(identifier),
 			"hotel" => gameworld.Properties.GetByIdOrName(identifier)?.Hotel,
 			_ => null
 		};
@@ -102,7 +103,12 @@ internal sealed class EmploymentCommandService
 		EmploymentAuthority.AdjustPrices |
 		EmploymentAuthority.PayTaxes |
 		EmploymentAuthority.ModerateHostBoard |
-		EmploymentAuthority.ManagePayroll;
+		EmploymentAuthority.ManagePayroll |
+		EmploymentAuthority.PerformMedicalServices |
+		EmploymentAuthority.ManageMedicalServices |
+		EmploymentAuthority.ManageHospitalAccounts |
+		EmploymentAuthority.ManageHospitalFacilities |
+		EmploymentAuthority.PrepareMedicalSupplies;
 
 	private readonly IEmploymentHostResolver _resolver;
 	private readonly EmploymentTaskAuthoringService _taskAuthoring;
@@ -2333,6 +2339,7 @@ internal sealed class EmploymentCommandService
 			ICombatArena arena => arena.Currency,
 			IBank bank => bank.PrimaryCurrency,
 			IStable stable => stable.Currency,
+			IHospital hospital => hospital.Currency,
 			IHotel hotel => hotel.Currency,
 			IClan clan => clan.ClanBankAccount?.Currency ?? ResolveContractCurrency(host),
 			_ => ResolveContractCurrency(host)
@@ -2367,6 +2374,12 @@ internal sealed class EmploymentCommandService
 			EmploymentRole.Courier or
 			EmploymentRole.StableHand or
 			EmploymentRole.HotelWorker => new EmploymentAuthoritySet(EmploymentAuthority.ManageDeliveryRoutes),
+			EmploymentRole.HospitalOrderly => new EmploymentAuthoritySet(
+				EmploymentAuthority.PrepareMedicalSupplies |
+				EmploymentAuthority.ManageDeliveryRoutes),
+			EmploymentRole.MedicalWorker => new EmploymentAuthoritySet(
+				EmploymentAuthority.PerformMedicalServices |
+				EmploymentAuthority.ManageDeliveryRoutes),
 			EmploymentRole.Crafter => new EmploymentAuthoritySet(
 				EmploymentAuthority.ManageCraftRules |
 				EmploymentAuthority.ManageDeliveryRoutes),
@@ -2396,7 +2409,14 @@ internal sealed class EmploymentCommandService
 			EmploymentAuthority.ManageCraftRules |
 			EmploymentAuthority.ManageDeliveryRoutes |
 			EmploymentAuthority.AdjustPrices |
+			EmploymentAuthority.DepositBusinessCash |
+			EmploymentAuthority.WithdrawBusinessCash |
 			EmploymentAuthority.ManagePayroll |
+			EmploymentAuthority.PerformMedicalServices |
+			EmploymentAuthority.ManageMedicalServices |
+			EmploymentAuthority.ManageHospitalAccounts |
+			EmploymentAuthority.ManageHospitalFacilities |
+			EmploymentAuthority.PrepareMedicalSupplies |
 			EmploymentAuthority.PostToHostBoard |
 			EmploymentAuthority.ModerateHostBoard);
 	}
@@ -2706,6 +2726,11 @@ internal sealed class EmploymentCommandService
 			"board" or "postboard" or "posttohostboard" => EmploymentAuthority.PostToHostBoard,
 			"moderateboard" or "moderatehostboard" => EmploymentAuthority.ModerateHostBoard,
 			"payroll" or "wages" or "managepayroll" => EmploymentAuthority.ManagePayroll,
+			"medical" or "doctor" or "performmedical" or "performmedicalservices" => EmploymentAuthority.PerformMedicalServices,
+			"managemedical" or "managemedicalservices" => EmploymentAuthority.ManageMedicalServices,
+			"hospitalaccounts" or "medicalaccounts" or "managehospitalaccounts" => EmploymentAuthority.ManageHospitalAccounts,
+			"hospitalfacilities" or "hospitalrooms" or "managehospitalfacilities" => EmploymentAuthority.ManageHospitalFacilities,
+			"medicalsupply" or "medicalsupplies" or "preparesupplies" or "preparemedicalsupplies" => EmploymentAuthority.PrepareMedicalSupplies,
 			_ => EmploymentAuthority.None
 		};
 
@@ -2899,6 +2924,6 @@ Communication and audit:
 	#3employment <host type> <host> employmentledger|empledger#0 - shows recent employment ledger entries
 	#3employment <host type> <host> board [read <##>|write <title>]#0 - uses the staff communication board
 
-Host types are #3shop#0, #3auction#0, #3arena#0, #3bank#0, #3stable#0, #3hotel#0, and #3clan#0. Hotel hosts are resolved by property id or name; clan hosts are resolved by clan id, name, full name, or alias.
+Host types are #3shop#0, #3auction#0, #3arena#0, #3bank#0, #3stable#0, #3hospital#0, #3hotel#0, and #3clan#0. Hospital hosts also resolve through #3clinic#0 and #3infirmary#0; hotel hosts are resolved by property id or name; clan hosts are resolved by clan id, name, full name, or alias.
 Staff boards are only for employee communication; active tasks, scheduled tasks, and manager goals are routed through the employment task board. Use #3tasks actions#0 and #3tasks conditions#0 for the full action and condition catalogues. Item selectors use bare prototype ids, #3*item ids#0 for specific live items, #3&tag#0 for verified tags, and bare text for a visible keyword target. Scheduled-rule drafts can combine conditions with #3and#0, #3or#0, #3not#0, parentheses, numbered condition references such as #3#1#0, and named predicates such as #3@restock-window#0.";
 }

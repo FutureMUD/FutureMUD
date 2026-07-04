@@ -982,6 +982,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         _stables.Add(stable);
     }
 
+    public void Add(IHospital hospital)
+    {
+        _hospitals.Add(hospital);
+    }
+
     public void Add(IEconomicZone zone)
     {
         _economicZones.Add(zone);
@@ -2023,6 +2028,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(IStable stable)
     {
         _stables.Remove(stable);
+    }
+
+    public void Destroy(IHospital hospital)
+    {
+        _hospitals.Remove(hospital);
     }
 
     public void Destroy(IEconomicZone zone)

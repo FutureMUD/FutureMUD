@@ -458,6 +458,12 @@ internal sealed class EmploymentTaskAuthoringService
 				TryParseStableAdministration(actor, host, input, out step, out message),
 			"hoteladmin" or "hotelroom" or "hotelreconcile" =>
 				TryParseHotelAdministration(actor, host, input, out step, out message),
+			"hospitalservice" or "medicalservice" or "treatpatient" or "hospitaltreat" =>
+				TryParseHospitalService(actor, host, input, out step, out message),
+			"hospitalsupply" or "medicalsupply" or "prepareprocedure" or "proceduresupply" =>
+				TryParseHospitalSupply(actor, host, input, out step, out message),
+			"hospitaladmin" or "hospitalaudit" or "medicaladmin" =>
+				TryParseHospitalAdministration(actor, host, input, out step, out message),
 			"load" or "loaditems" => TryParseLoad(actor, input, out step, out message),
 			"unload" or "unloaditems" => TryParseUnload(actor, input, out step, out message),
 			"return" or "returncontainer" => TryParseReturn(actor, input, out step, out message),
@@ -1672,6 +1678,150 @@ internal sealed class EmploymentTaskAuthoringService
 		}
 	}
 
+	private static bool TryParseHospitalService(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IHospital hospital)
+		{
+			message = "Hospital service steps can only be drafted for hospital employment hosts.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Hospital service steps use: {"hospitalservice <request id>".ColourCommand()}";
+			return false;
+		}
+
+		var selector = input.PopSpeech();
+		var request = hospital.RequestById(selector);
+		if (request is null)
+		{
+			message = $"There is no hospital service request matching {selector.ColourCommand()} at {hospital.Name.ColourName()}.";
+			return false;
+		}
+
+		if (request.Status is HospitalServiceRequestStatus.Completed or HospitalServiceRequestStatus.Cancelled or
+		    HospitalServiceRequestStatus.Declined or HospitalServiceRequestStatus.Failed)
+		{
+			message = $"Hospital service request #{request.Id.ToString("N0", actor)} is already {request.Status.DescribeEnum().ColourValue()}.";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new HospitalServiceActionStep(hospital, request);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseHospitalSupply(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IHospital hospital)
+		{
+			message = "Hospital supply steps can only be drafted for hospital employment hosts.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Hospital supply steps use: {"hospitalsupply <request id>".ColourCommand()}";
+			return false;
+		}
+
+		var selector = input.PopSpeech();
+		var request = hospital.RequestById(selector);
+		if (request is null)
+		{
+			message = $"There is no hospital service request matching {selector.ColourCommand()} at {hospital.Name.ColourName()}.";
+			return false;
+		}
+
+		if (!request.Service.RequiredEquipment.Any())
+		{
+			message = $"Hospital service {request.Service.Name.ColourName()} has no required equipment configured.";
+			return false;
+		}
+
+		if (request.Status is HospitalServiceRequestStatus.Completed or HospitalServiceRequestStatus.Cancelled or
+		    HospitalServiceRequestStatus.Declined or HospitalServiceRequestStatus.Failed)
+		{
+			message = $"Hospital service request #{request.Id.ToString("N0", actor)} is already {request.Status.DescribeEnum().ColourValue()}.";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new HospitalSupplyPreparationActionStep(hospital, request);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseHospitalAdministration(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IHospital hospital)
+		{
+			message = "Hospital administration steps can only be drafted for hospital employment hosts.";
+			return false;
+		}
+
+		if (input.IsFinished || !TryParseHospitalAdministrationKind(input.PopSpeech(), out var operation))
+		{
+			message = $"Hospital administration uses: {"hospitaladmin service|debt|theatre|supply|request <note>".ColourCommand()}";
+			return false;
+		}
+
+		var note = input.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(note))
+		{
+			message = "What hospital administration note should be recorded?";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new HospitalAdministrationActionStep(hospital, operation, note);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseHospitalAdministrationKind(string text, out HospitalAdministrationActionKind operation)
+	{
+		switch (text.ToLowerInvariant())
+		{
+			case "service":
+			case "services":
+			case "care":
+				operation = HospitalAdministrationActionKind.ServiceAudit;
+				return true;
+			case "debt":
+			case "account":
+			case "accounts":
+				operation = HospitalAdministrationActionKind.DebtAudit;
+				return true;
+			case "theatre":
+			case "theater":
+			case "room":
+			case "operating":
+				operation = HospitalAdministrationActionKind.TheatrePreparation;
+				return true;
+			case "supply":
+			case "supplies":
+			case "stock":
+				operation = HospitalAdministrationActionKind.SupplyAudit;
+				return true;
+			case "request":
+			case "queue":
+			case "triage":
+				operation = HospitalAdministrationActionKind.RequestAudit;
+				return true;
+		}
+
+		operation = HospitalAdministrationActionKind.RequestAudit;
+		return false;
+	}
 	private static bool TryParseHotelRoomKind(string text, out HotelAdministrationActionKind operation)
 	{
 		switch (text.ToLowerInvariant())
@@ -5158,6 +5308,11 @@ internal sealed class EmploymentTaskAuthoringService
 			"board" or "postboard" or "posttohostboard" => EmploymentAuthority.PostToHostBoard,
 			"moderateboard" or "moderatehostboard" => EmploymentAuthority.ModerateHostBoard,
 			"payroll" or "wages" or "managepayroll" => EmploymentAuthority.ManagePayroll,
+			"medical" or "doctor" or "performmedical" or "performmedicalservices" => EmploymentAuthority.PerformMedicalServices,
+			"managemedical" or "managemedicalservices" => EmploymentAuthority.ManageMedicalServices,
+			"hospitalaccounts" or "medicalaccounts" or "managehospitalaccounts" => EmploymentAuthority.ManageHospitalAccounts,
+			"hospitalfacilities" or "hospitalrooms" or "managehospitalfacilities" => EmploymentAuthority.ManageHospitalFacilities,
+			"medicalsupply" or "medicalsupplies" or "preparesupplies" or "preparemedicalsupplies" => EmploymentAuthority.PrepareMedicalSupplies,
 			_ => EmploymentAuthority.None
 		};
 
@@ -5187,6 +5342,11 @@ internal sealed class EmploymentTaskAuthoringService
 				EmploymentAuthority.ManageDeliveryRoutes |
 				EmploymentAuthority.AdjustPrices |
 				EmploymentAuthority.ManagePayroll |
+				EmploymentAuthority.PerformMedicalServices |
+				EmploymentAuthority.ManageMedicalServices |
+				EmploymentAuthority.ManageHospitalAccounts |
+				EmploymentAuthority.ManageHospitalFacilities |
+				EmploymentAuthority.PrepareMedicalSupplies |
 				EmploymentAuthority.PostToHostBoard |
 				EmploymentAuthority.ModerateHostBoard),
 			EmploymentRole.Employee or
@@ -5194,6 +5354,12 @@ internal sealed class EmploymentTaskAuthoringService
 			EmploymentRole.Courier or
 			EmploymentRole.StableHand or
 			EmploymentRole.HotelWorker => new EmploymentAuthoritySet(EmploymentAuthority.ManageDeliveryRoutes),
+			EmploymentRole.HospitalOrderly => new EmploymentAuthoritySet(
+				EmploymentAuthority.PrepareMedicalSupplies |
+				EmploymentAuthority.ManageDeliveryRoutes),
+			EmploymentRole.MedicalWorker => new EmploymentAuthoritySet(
+				EmploymentAuthority.PerformMedicalServices |
+				EmploymentAuthority.ManageDeliveryRoutes),
 			EmploymentRole.Crafter => new EmploymentAuthoritySet(
 				EmploymentAuthority.ManageCraftRules |
 				EmploymentAuthority.ManageDeliveryRoutes),
@@ -5560,6 +5726,12 @@ internal sealed class EmploymentTaskAuthoringService
 				DescribeStableAdministrationStep(stable),
 			HotelAdministrationActionStep hotel =>
 				DescribeHotelAdministrationStep(hotel),
+			HospitalServiceActionStep hospitalService =>
+				$"perform hospital service request #{hospitalService.Request.Id.ToString("N0", actor)} at {hospitalService.Hospital.Name.ColourName()}",
+			HospitalSupplyPreparationActionStep hospitalSupply =>
+				$"prepare supplies for hospital service request #{hospitalSupply.Request.Id.ToString("N0", actor)} at {hospitalSupply.Hospital.Name.ColourName()}",
+			HospitalAdministrationActionStep hospitalAdmin =>
+				DescribeHospitalAdministrationStep(hospitalAdmin),
 			BoardPostActionStep board =>
 				$"post {board.Title.ColourName()} to the host staff communication board",
 			CataloguedActionShellStep shell =>
@@ -5628,6 +5800,18 @@ internal sealed class EmploymentTaskAuthoringService
 			HotelAdministrationActionKind.LostPropertyAudit => $"record lost-property audit for {hotel.LostProperty?.Description.ColourName() ?? "?".ColourError()}",
 			HotelAdministrationActionKind.PatronBalanceAudit => $"record patron-balance audit for {hotel.PatronSelector?.ColourName() ?? hotel.PatronBalance?.PatronId.ToString("N0").ColourName() ?? "?".ColourError()}",
 			_ => "administer hotel operations"
+		};
+	}
+	private static string DescribeHospitalAdministrationStep(HospitalAdministrationActionStep hospital)
+	{
+		return hospital.Operation switch
+		{
+			HospitalAdministrationActionKind.ServiceAudit => $"record hospital service audit for {hospital.Hospital.Name.ColourName()}",
+			HospitalAdministrationActionKind.DebtAudit => $"record hospital debt audit for {hospital.Hospital.Name.ColourName()}",
+			HospitalAdministrationActionKind.TheatrePreparation => $"record hospital theatre preparation for {hospital.Hospital.Name.ColourName()}",
+			HospitalAdministrationActionKind.SupplyAudit => $"record hospital supply audit for {hospital.Hospital.Name.ColourName()}",
+			HospitalAdministrationActionKind.RequestAudit => $"record hospital request audit for {hospital.Hospital.Name.ColourName()}",
+			_ => "administer hospital operations"
 		};
 	}
 	private static string DescribeBankAdministrationStep(BankAdministrationActionStep bankAdmin, ICharacter actor)
@@ -5874,6 +6058,9 @@ internal sealed class EmploymentTaskAuthoringService
 			ManagerGoalAdministrationActionStep => EmploymentActionCatalog.Get("goal"),
 			StableAdministrationActionStep => EmploymentActionCatalog.Get("stableadmin"),
 			HotelAdministrationActionStep => EmploymentActionCatalog.Get("hoteladmin"),
+			HospitalServiceActionStep => EmploymentActionCatalog.Get("hospitalservice"),
+			HospitalSupplyPreparationActionStep => EmploymentActionCatalog.Get("hospitalsupply"),
+			HospitalAdministrationActionStep => EmploymentActionCatalog.Get("hospitaladmin"),
 			BoardPostActionStep => EmploymentActionCatalog.Get("board"),
 			GetItemsByIdActionStep => EmploymentActionCatalog.Get("getid"),
 			GetItemsByTagActionStep => EmploymentActionCatalog.Get("gettag"),

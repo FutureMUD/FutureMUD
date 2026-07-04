@@ -148,7 +148,7 @@ Several economy systems can now operate without a live settlement bank account b
 
 Every successful movement through the generic reserve helper writes a `VirtualCashLedgerEntry` with the real timestamp, optional MUD timestamp, actor, counterparty, currency, signed amount, balance after, source and destination kind, optional linked bank account, optional reference entity, and reason text. Bank-account ledgers remain authoritative for account activity; the virtual ledger records the domain reason and links back to the bank account where a movement used one.
 
-Current users of this shared reserve/ledger path include auction houses, stables, hotel rentals, property-owner revenues, clan virtual treasuries, legal-authority fine and bail revenue, economic-zone retained revenue, estate fallback liquidation, and job coffer/audit movements. Arenas keep their existing `VirtualBalance` column but now write virtual-cash ledger rows for arena cash and bank settlement movements.
+Current users of this shared reserve/ledger path include auction houses, stables, hospitals, hotel rentals, property-owner revenues, clan virtual treasuries, legal-authority fine and bail revenue, economic-zone retained revenue, estate fallback liquidation, and job coffer/audit movements. Arenas keep their existing `VirtualBalance` column but now write virtual-cash ledger rows for arena cash and bank settlement movements.
 
 Ledger review is intentionally bounded. Command surfaces can request fewer rows, but large requested counts are clamped before database materialisation and text-table generation.
 
@@ -312,7 +312,42 @@ Lodging a mount creates a `StableStay`, charges the lodge fee immediately, creat
 
 Redeeming requires a valid stable ticket component whose stored stay id, ticket item id, and token still match an active stay. The redeemer may differ from the original lodger, but outstanding fees must be settled first by cash, bank-payment item, or an authorised stable account. Cash receipts are credited to the stable reserve if there is no linked bank account. Manager release closes the stay, invalidates existing tickets by changing the token, and logs the mount back into the stable location. Managers can waive outstanding fees or leave debt in the stay history.
 
-Stable location and ownership integrate with property. A stable inside a property is claimed alongside shops when a lease or sale produces a single character controller; clan and multi-owner cases remain manual in the same way as shops.
+Stable and hospital location ownership integrate with property. A stable inside a property is claimed alongside shops when a lease or sale produces a single character controller. A hospital whose waiting, theatre, supply, or recovery cells belong to a property is also claimed by the leaseholder or sole character controller as proprietor; clinical staff contracts remain intact, while prior proprietor contracts are replaced. Clan and multi-owner cases remain manual in the same way as shops.
+
+### Hospitals and Medical Services
+Hospitals are persisted economy venues for paid medical work, rather than a shop subclass. They expose a shop-like player surface while creating unified employment tasks for NPC medical workers.
+
+Verified current hospital entities include:
+
+- `Hospital`
+- `HospitalLocation`
+- `HospitalService`
+- `HospitalServiceRequest`
+- `HospitalPatientDebtAccount`
+- `HospitalBloodStockPolicy`
+
+The current implementation ties each hospital to:
+
+- one economic zone and its currency
+- optional bank-account income routing, with the hospital virtual cash reserve used when no matching bank account is present
+- waiting-room, operating-theatre, supply-area, and recovery-room cell roles
+- active service definitions for binding, wound cleaning, wound closing, wound tending, bone relocation, bone setting, configured surgical procedures, implant procedures, blood donation, blood transfusion, stabilisation, and full treatment
+- per-service equipment requirements using the employment item-selector model, optional recovery routing, configurable blood volume, configured anesthesia drug, target intensity, and optional cannulation procedure for IV drip anesthesia, and optional implant power/interface follow-up procedures
+- per-blood-type target stock and paid-donation price policies
+- per-patient medical-debt accounts with a maximum debt ceiling; positive account balances are prepaid credit
+- shared unified-employment contracts, openings, task boards, scheduled rules, manager goals, staff boards, payroll, and ledgers
+
+Patients use `hospital services`, `hospital service <#|name>`, `hospital request <service> [for <target>] [cash|debt|with <payment item>]`, `hospital debt [person]`, and `hospital debt pay <amount> [for <target>] [cash|with <payment item>]`. Hospital managers and proprietors can also use `hospital cash`, `hospital deposit <amount>`, `hospital withdraw <amount>`, and `hospital ledger [count]` to review, fund, withdraw from, and audit the hospital virtual cash balance; withdrawals deliberately draw only from virtual cash, not the linked bank account. Service lists show a compact availability status; stocked-material failures appear as currently unavailable before any payment is taken. A service request can target the requester or another visible patient. Conscious third-party patients receive a consent proposal; unconscious or otherwise helpless patients are presumed to consent for emergency treatment. Payment can be immediate cash, a bank-payment item, waived by authorised hospital staff, or medical debt when the service allows debt and the patient's account limit permits the charge. Debt payments can also create prepaid hospital credit for later account-funded services.
+
+A successful request creates a hospital active employment task. Services with configured equipment insert a `HospitalSupplyPreparationActionStep` before the medical step. Supply workers need `PrepareMedicalSupplies` and `CanPrepareHospitalSupplies`; doctors with medical and supply authority are fallback candidates only when no active, reachable, unassigned non-medical supply worker can take the work. The supply step collects the configured items from one hospital supply room and delivers them to the reserved treatment theatre through the task-item custody APIs.
+
+The medical step needs `PerformMedicalServices` and `CanPerformMedicalServices`. Theatre-preferring services reserve an empty operating theatre; empty means no other active hospital request reserves it and no unrelated non-staff occupant is present. The patient and assigned medical worker are directly transferred into that theatre with source and destination echoes. If no empty theatre exists, the task blocks rather than falling back to an occupied room.
+
+The action runner uses existing health systems rather than a parallel treatment model. Bedside services invoke treatment or wound-care checks with suitable held `ITreatment` items, bone services invoke relocation or surgical-setting checks, and configured surgery or implant services start the selected `ISurgicalProcedure`. Combined stabilisation and full-treatment services repeat the ordinary wound, cleaning, tending, fracture, and blood-restoration operations until no matching treatable condition remains. Surgical services that need an unconscious patient can administer a configured injectable anesthesia drug at a calculated intensity before the procedure starts; if a cannulation procedure is configured, the hospital starts cannulation as a staged prep procedure, then connects a prepared IV liquid container through a drip to the installed cannula, primes a calculated anesthetic volume through the liquid injection path, sets the drip rate, and starts the bag in drip mode. Implant services can create a configured implant prototype, pass it into the install procedure, and then continue through configured implant power and interface procedures before completing the hospital request. Staged surgical requests remain in progress until `SurgicalProcedureEffect` completes or aborts, then the hospital request is completed or failed from the effect callback.
+
+Blood donation removes the configured volume from the donor while respecting a safe minimum blood percentage, then stores a `BloodLiquidInstance` in a supplied liquid container. If the hospital is below its target stock level for that donor blood type, the configured per-litre policy pays the donor from hospital cash reserves or the linked bank account up to the target-fill amount. Blood transfusion consumes compatible blood from a prepared, held, or in-room liquid container, rejects incompatible donor blood through `IBloodtype.IsCompatibleWithDonorBlood`, and caps restoration at the recipient's total blood volume.
+
+If a service requires recovery, post-treatment routing sends helpless patients to the first recovery room and tries to place them on a suitable bed-like item; conscious patients return to the first waiting room. If the configured destination is unavailable, the patient remains in place and the request records an audit note.
 
 ### Auctions
 Auctions are implemented through `AuctionHouse`.
@@ -361,14 +396,14 @@ Unified employment is the newer host-facing employment and operations layer. It 
 
 Verified runtime parts include:
 
-- `IEmploymentHost` and host-state shells for shops, auction houses, combat arenas, banks, stables, durable hotel roots, and clans
+- `IEmploymentHost` and host-state shells for shops, auction houses, combat arenas, banks, stables, hospitals, durable hotel roots, and clans
 - persisted employment host state keyed by host type and host id
 - persisted staff `IBoard` references for host communication, separate from task routing
 - employment contracts, job openings, runtime opening revision/application profile guards, applications, compensation terms, payment methods, delegated authority, payroll liabilities, manager goals, scheduled rules, action plans, active tasks, step operational state, employment register rows, and employment ledger rows
-- `EmploymentWorkerAI` for NPC application, workplace travel, task claiming, action-step execution, payroll claiming, and arrears-driven resignation
-- shared `employment` command adapters, including `employment clan <clan> ...`, plus local host aliases on `shop`, `stable`, `bank`, `auction`, `arena`, and `roomrent`
+- `EmploymentWorkerAI` for NPC application, workplace travel, task claiming, action-step execution, payroll claiming, and arrears-driven resignation. Hospital staff use the same AI: `host hospital|clinic|infirmary` narrows job searching, while `capability doctor|medical` maps to `CanPerformMedicalServices` and `capability orderly|nurse|supplies` maps to `CanPrepareHospitalSupplies`.
+- shared `employment` command adapters, including `employment clan <clan> ...`, plus local host aliases on `shop`, `stable`, `hospital`, `bank`, `auction`, `arena`, and `roomrent`
 - scheduled-rule authoring and condition catalogues for manual, time, stock, account, item, commodity, shop-account, register-float, tax, and weather conditions
-- action catalogues for retrieval, delivery, logistics, planning, authorisation/reservation, board posts, command steps, store-account payment, tax payment, bank/virtual-cash movement, shop/register float, physical task-custody cash, exact-stock shop purchases, and native craft start/resume/output custody
+- action catalogues for retrieval, delivery, logistics, planning, authorisation/reservation, board posts, command steps, store-account payment, tax payment, bank/virtual-cash movement, shop/register float, physical task-custody cash, exact-stock shop purchases, and native craft start/resume/output custody, and hospital service or hospital-administration actions
 
 Current operational boundaries:
 
@@ -381,7 +416,7 @@ Current operational boundaries:
 - clan employment finance uses the clan bank account currency when present, otherwise an existing contract compensation currency where available; paid opening/task/payroll authoring that needs a host currency blocks if neither source exists, and supported clan cash movement uses `VirtualCashLedger` with the clan bank account as optional backing
 - worker AI does not autonomously retry active tasks once they enter `Blocked`; blocked logistics tasks preserve any task-item custody for manager review instead of producing repeated delivery attempts
 - proprietor contracts cannot be terminated by non-admin managers, and manager goals must require the combined authority of the declared goal, its conditions, and its action plan
-- durable hotel roots and hotel room/rental/furnishing/lost-property internals are persisted through normalized hotel tables
+- durable hotel roots and hotel room/rental/furnishing/lost-property internals are persisted through normalized hotel tables; hospitals persist their own service, room-role, request, and patient-debt tables
 - central scheduled-rule evaluation runs once per minute and worker AI can also evaluate its current host before claiming work
 - legacy shop/stable employee XML, bank/arena manager lists, and the PC-facing job system are not migrated into the new contracts by default
 

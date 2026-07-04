@@ -118,6 +118,23 @@ public class EmploymentWorkerAITests
 	}
 
 	[TestMethod]
+	public void EmploymentWorkerAI_HospitalAliasesConfigureDoctorAndOrderlyWorkers()
+	{
+		var currency = Currency();
+		var gameworld = Gameworld(currencies: [currency.Object]);
+		var ai = LoadAI(gameworld.Object);
+		var actor = Character(118, "Builder", gameworld.Object, Cell(118, "clinic").Object).Object;
+
+		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("capability doctor")));
+		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("capability orderly")));
+		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("host clinic")));
+
+		Assert.IsTrue(ai.Capabilities.Contains(EmploymentAICapability.CanPerformMedicalServices));
+		Assert.IsTrue(ai.Capabilities.Contains(EmploymentAICapability.CanPrepareHospitalSupplies));
+		Assert.AreEqual(EmploymentHostType.Hospital, ai.HostTypeFilter);
+	}
+
+	[TestMethod]
 	public void EmploymentWorkerAI_NewBuilderDefaultsCurrencyAndClosesDoors()
 	{
 		var currency = Currency();

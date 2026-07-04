@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260703143217_HospitalAnesthesiaBloodStockPolicies")]
+    partial class HospitalAnesthesiaBloodStockPolicies
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -12869,9 +12872,6 @@ namespace MudSharp.Migrations
                         .HasColumnType("bit(1)")
                         .HasDefaultValue(1ul);
 
-                    b.Property<long?>("AnesthesiaCannulationProcedureId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<long?>("AnesthesiaDrugId")
                         .HasColumnType("bigint(20)");
 
@@ -12963,9 +12963,6 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id")
                         .HasName("PRIMARY");
-
-                    b.HasIndex("AnesthesiaCannulationProcedureId")
-                        .HasDatabaseName("FK_HospitalServices_AnesthesiaCannulationProcedure_idx");
 
                     b.HasIndex("AnesthesiaDrugId")
                         .HasDatabaseName("FK_HospitalServices_Drugs_Anesthesia_idx");
@@ -23046,86 +23043,6 @@ namespace MudSharp.Migrations
                     b.ToTable("Writings");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.WritingCollection", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("DefaultTitle")
-                        .IsRequired()
-                        .HasColumnType("varchar(500)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("DefaultTitle"), "utf8");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("mediumtext")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasDatabaseName("IX_WritingCollections_Name");
-
-                    b.ToTable("WritingCollections", (string)null);
-                });
-
-            modelBuilder.Entity("MudSharp.Models.WritingCollectionEntry", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int(11)");
-
-                    b.Property<long?>("DrawingId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<int>("PageNumber")
-                        .HasColumnType("int(11)");
-
-                    b.Property<long>("WritingCollectionId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("WritingId")
-                        .HasColumnType("bigint(20)");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("DrawingId")
-                        .HasDatabaseName("FK_WritingCollectionEntries_Drawings_idx");
-
-                    b.HasIndex("WritingCollectionId")
-                        .HasDatabaseName("FK_WritingCollectionEntries_Collections_idx");
-
-                    b.HasIndex("WritingId")
-                        .HasDatabaseName("FK_WritingCollectionEntries_Writings_idx");
-
-                    b.HasIndex("WritingCollectionId", "PageNumber", "DisplayOrder")
-                        .HasDatabaseName("IX_WritingCollectionEntries_Page_Order");
-
-                    b.ToTable("WritingCollectionEntries", (string)null);
-                });
-
             modelBuilder.Entity("MudSharp.Models.Zone", b =>
                 {
                     b.Property<long>("Id")
@@ -28557,12 +28474,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.HospitalService", b =>
                 {
-                    b.HasOne("MudSharp.Models.SurgicalProcedure", "AnesthesiaCannulationProcedure")
-                        .WithMany()
-                        .HasForeignKey("AnesthesiaCannulationProcedureId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_HospitalServices_AnesthesiaCannulationProcedure");
-
                     b.HasOne("MudSharp.Models.Drug", "AnesthesiaDrug")
                         .WithMany()
                         .HasForeignKey("AnesthesiaDrugId")
@@ -28599,8 +28510,6 @@ namespace MudSharp.Migrations
                         .HasForeignKey("ImplantItemPrototypeId", "ImplantItemPrototypeRevisionNumber")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_HospitalServices_GameItemProtos");
-
-                    b.Navigation("AnesthesiaCannulationProcedure");
 
                     b.Navigation("AnesthesiaDrug");
 
@@ -33011,34 +32920,6 @@ namespace MudSharp.Migrations
                     b.Navigation("TrueAuthor");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.WritingCollectionEntry", b =>
-                {
-                    b.HasOne("MudSharp.Models.Drawing", "Drawing")
-                        .WithMany()
-                        .HasForeignKey("DrawingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_WritingCollectionEntries_Drawings");
-
-                    b.HasOne("MudSharp.Models.WritingCollection", "WritingCollection")
-                        .WithMany("WritingCollectionEntries")
-                        .HasForeignKey("WritingCollectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_WritingCollectionEntries_Collections");
-
-                    b.HasOne("MudSharp.Models.Writing", "Writing")
-                        .WithMany()
-                        .HasForeignKey("WritingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_WritingCollectionEntries_Writings");
-
-                    b.Navigation("Drawing");
-
-                    b.Navigation("Writing");
-
-                    b.Navigation("WritingCollection");
-                });
-
             modelBuilder.Entity("MudSharp.Models.Zone", b =>
                 {
                     b.HasOne("MudSharp.Models.Cell", "DefaultCell")
@@ -35051,11 +34932,6 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.Wound", b =>
                 {
                     b.Navigation("Infections");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.WritingCollection", b =>
-                {
-                    b.Navigation("WritingCollectionEntries");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Zone", b =>

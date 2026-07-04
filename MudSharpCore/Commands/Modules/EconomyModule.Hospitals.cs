@@ -6,6 +6,7 @@ using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Trees;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Economy.Banking;
@@ -52,7 +53,7 @@ Hospital managers and proprietors standing in the hospital can use #3hospital he
 	#3hospital requestshow <##>#0 - shows a hospital service request
 	#3hospital open|close#0 - opens or closes the hospital
 	#3hospital maxdebt <amount>#0 - sets the default debt ceiling for new patients
-	#3hospital room add|remove <waiting|theatre|supply|recovery> [here]#0 - flags hospital rooms
+	#3hospital room add|remove <waiting|theatre|supply|recovery> [here|<direction>|<#>]#0 - flags hospital rooms
 	#3hospital service add <type> <price> <name>#0 - creates a service
 	#3hospital service set <service> price|active|debt|theatre|recovery|blood|equipment|procedure|implant|implantpower|implantinterface|anesthesia|cannulation|parameters|name|desc <value>#0 - edits a service
 	#3hospital bloodstock [show|set|clear] ...#0 - manages blood type target stock and donor prices
@@ -255,9 +256,9 @@ Administrators can also use:
 			return;
 		}
 
-		actor.OutputHandler.Send((hospital.IsManager(actor) || hospital.IsProprietor(actor) || actor.IsAdministrator()
+		actor.OutputHandler.Send(hospital.IsManager(actor) || hospital.IsProprietor(actor) || actor.IsAdministrator()
 			? hospital.Show(actor)
-			: hospital.ShowToNonEmployee(actor)).SubstituteANSIColour());
+			: hospital.ShowToNonEmployee(actor));
 	}
 
 	private static void HospitalServices(ICharacter actor)
@@ -323,7 +324,7 @@ Administrators can also use:
 			return;
 		}
 
-		actor.OutputHandler.Send(service.Show(actor).SubstituteANSIColour());
+		actor.OutputHandler.Send(service.Show(actor));
 	}
 
 	private static void HospitalServiceAdd(ICharacter actor, IHospital hospital, StringStack ss)
@@ -776,7 +777,7 @@ Administrators can also use:
 			}
 
 			var policy = hospital.BloodStockPolicyFor(bloodtype, false);
-			actor.OutputHandler.Send(policy?.Show(actor).SubstituteANSIColour() ??
+			actor.OutputHandler.Send(policy?.Show(actor) ??
 				$"{hospital.Name.ColourName()} has no blood stock policy for {bloodtype.Name.ColourName()}. Current stock is {HospitalMedicalServiceRunner.CurrentBloodStockLitres(hospital, bloodtype).ToString("N2", actor).ColourValue()}L.");
 			return;
 		}
@@ -1441,7 +1442,7 @@ Administrators can also use:
 		}
 
 		var account = hospital.DebtAccountFor(patient, false);
-		actor.OutputHandler.Send(account?.Show(actor).SubstituteANSIColour() ??
+		actor.OutputHandler.Send(account?.Show(actor) ??
 			$"{patient.HowSeen(actor, true)} has no debt account at {hospital.Name.ColourName()}.");
 	}
 
@@ -1571,7 +1572,7 @@ Administrators can also use:
 		}
 
 		var request = hospital.RequestById(ss.PopSpeech());
-		actor.OutputHandler.Send(request?.Show(actor).SubstituteANSIColour() ?? "There is no such hospital request.");
+		actor.OutputHandler.Send(request?.Show(actor) ?? "There is no such hospital request.");
 	}
 
 	private static void HospitalOpen(ICharacter actor)
@@ -1630,11 +1631,6 @@ Administrators can also use:
 
 	private static void HospitalRoom(ICharacter actor, StringStack ss)
 	{
-		if (!DoHospitalCommandFindHospital(actor, out var hospital) || !RequireHospitalManager(actor, hospital))
-		{
-			return;
-		}
-
 		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send("Do you want to add or remove a hospital room role?");
@@ -1644,7 +1640,7 @@ Administrators can also use:
 		var action = ss.PopSpeech().CollapseString().ToLowerInvariant();
 		if (!action.EqualToAny("add", "remove", "delete"))
 		{
-			actor.OutputHandler.Send("Hospital room syntax is room add|remove <waiting|theatre|supply|recovery> [here].");
+			actor.OutputHandler.Send("Hospital room syntax is room add|remove <waiting|theatre|supply|recovery> [here|<direction>|<#>].");
 			return;
 		}
 
@@ -1654,22 +1650,120 @@ Administrators can also use:
 			return;
 		}
 
-		var cell = actor.Location;
-		if (cell is null)
+		if (!TryResolveHospitalRoomTarget(actor, ss.SafeRemainingArgument, out var cell, out var error))
 		{
-			actor.OutputHandler.Send("You are nowhere.");
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		var hospital = CurrentHospital(actor);
+		var hospitalError = string.Empty;
+		hospital ??= FindHospitalForRoomTarget(actor, cell, out hospitalError);
+		if (hospital is null)
+		{
+			actor.OutputHandler.Send(hospitalError);
+			return;
+		}
+
+		if (!RequireHospitalManager(actor, hospital))
+		{
 			return;
 		}
 
 		if (action.EqualTo("add"))
 		{
 			hospital.AddLocation(cell, role);
-			actor.OutputHandler.Send($"You flag this location as a {role.DescribeEnum().ColourValue()} for {hospital.Name.ColourName()}.");
+			actor.OutputHandler.Send($"You flag {cell.GetFriendlyReference(actor).ColourName()} as a {role.DescribeEnum().ColourValue()} for {hospital.Name.ColourName()}.");
 			return;
 		}
 
 		hospital.RemoveLocation(cell, role);
-		actor.OutputHandler.Send($"You remove this location's {role.DescribeEnum().ColourValue()} role for {hospital.Name.ColourName()}.");
+		actor.OutputHandler.Send($"You remove {cell.GetFriendlyReference(actor).ColourName()}'s {role.DescribeEnum().ColourValue()} role for {hospital.Name.ColourName()}.");
+	}
+
+	private static IHospital? FindHospitalForRoomTarget(ICharacter actor, ICell targetCell, out string error)
+	{
+		error = string.Empty;
+		var hospitals = actor.Gameworld.Hospitals
+		                     .Where(x => x.Locations.Any(y => CellsAreSameOrAdjacent(y, targetCell)))
+		                     .GroupBy(x => x.Id)
+		                     .Select(x => x.First())
+		                     .ToList();
+		if (hospitals.Count == 1)
+		{
+			return hospitals[0];
+		}
+
+		if (hospitals.Count > 1)
+		{
+			error = $"The selected room is adjacent to multiple hospitals ({hospitals.Select(x => x.Name.ColourName()).ListToString()}). Stand in one of that hospital's existing rooms or pick a less ambiguous room.";
+			return null;
+		}
+
+		error = "You are not currently at a hospital, and the selected room is not adjacent to a hospital.";
+		return null;
+	}
+
+	private static bool CellsAreSameOrAdjacent(ICell first, ICell second)
+	{
+		return first.Id == second.Id ||
+		       first.Surrounds.Any(x => x.Id == second.Id) ||
+		       second.Surrounds.Any(x => x.Id == first.Id);
+	}
+
+	private static bool TryResolveHospitalRoomTarget(ICharacter actor, string target, out ICell cell, out string error)
+	{
+		cell = null!;
+		error = string.Empty;
+		var location = actor.Location;
+		var targetText = target.Trim();
+		if (string.IsNullOrWhiteSpace(targetText) || targetText.EqualTo("here"))
+		{
+			if (location is null)
+			{
+				error = "You are nowhere.";
+				return false;
+			}
+
+			cell = location;
+			return true;
+		}
+
+		if (location is not null)
+		{
+			var directionText = targetText.ToLowerInvariant();
+			if (Constants.CardinalDirectionStringToDirection.TryGetValue(directionText, out var direction) ||
+			    Constants.CardinalDirectionStringToDirection.TryGetValue(directionText.CollapseString(), out direction))
+			{
+				var exit = location.GetExit(direction, actor);
+				if (exit is null)
+				{
+					error = $"There is no visible exit {targetText.ColourCommand()} from here.";
+					return false;
+				}
+
+				cell = exit.Destination;
+				return true;
+			}
+
+			var keywordExit = location.GetExitKeyword(targetText, actor);
+			if (keywordExit is not null)
+			{
+				cell = keywordExit.Destination;
+				return true;
+			}
+		}
+
+		var idOrName = targetText.TrimStart('#');
+		var targetCell = actor.Gameworld.Cells.GetByIdOrName(idOrName);
+		if (targetCell is null)
+		{
+			error = $"There is no room matching {targetText.ColourCommand()}.";
+			return false;
+		}
+
+		cell = targetCell;
+		return true;
 	}
 
 	private static void HospitalCreate(ICharacter actor, StringStack ss)

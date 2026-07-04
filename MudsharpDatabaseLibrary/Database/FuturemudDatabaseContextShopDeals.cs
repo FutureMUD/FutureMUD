@@ -10,6 +10,7 @@ namespace MudSharp.Database
             ConfigureCharacterComputerWorkspace(modelBuilder);
             ConfigureComputerMail(modelBuilder);
             ConfigureStables(modelBuilder);
+            ConfigureHospitals(modelBuilder);
             ConfigureClanFinance(modelBuilder);
             ConfigureVirtualCash(modelBuilder);
 			ConfigureAgriculture(modelBuilder);

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260703143217_HospitalAnesthesiaBloodStockPolicies")]
+    partial class HospitalAnesthesiaBloodStockPolicies
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -12869,9 +12872,6 @@ namespace MudSharp.Migrations
                         .HasColumnType("bit(1)")
                         .HasDefaultValue(1ul);
 
-                    b.Property<long?>("AnesthesiaCannulationProcedureId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<long?>("AnesthesiaDrugId")
                         .HasColumnType("bigint(20)");
 
@@ -12963,9 +12963,6 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id")
                         .HasName("PRIMARY");
-
-                    b.HasIndex("AnesthesiaCannulationProcedureId")
-                        .HasDatabaseName("FK_HospitalServices_AnesthesiaCannulationProcedure_idx");
 
                     b.HasIndex("AnesthesiaDrugId")
                         .HasDatabaseName("FK_HospitalServices_Drugs_Anesthesia_idx");
@@ -28477,12 +28474,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.HospitalService", b =>
                 {
-                    b.HasOne("MudSharp.Models.SurgicalProcedure", "AnesthesiaCannulationProcedure")
-                        .WithMany()
-                        .HasForeignKey("AnesthesiaCannulationProcedureId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_HospitalServices_AnesthesiaCannulationProcedure");
-
                     b.HasOne("MudSharp.Models.Drug", "AnesthesiaDrug")
                         .WithMany()
                         .HasForeignKey("AnesthesiaDrugId")
@@ -28519,8 +28510,6 @@ namespace MudSharp.Migrations
                         .HasForeignKey("ImplantItemPrototypeId", "ImplantItemPrototypeRevisionNumber")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_HospitalServices_GameItemProtos");
-
-                    b.Navigation("AnesthesiaCannulationProcedure");
 
                     b.Navigation("AnesthesiaDrug");
 

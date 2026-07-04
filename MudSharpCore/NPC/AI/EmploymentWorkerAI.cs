@@ -196,8 +196,8 @@ public class EmploymentWorkerAI : PathingAIBase
 	#3currency <currency>#0 - sets the currency used to parse and display reservation wages
 	#3wage <amount>#0 - sets the minimum nominal pay this worker will accept
 	#3payment <method>#0 - toggles an accepted payment method
-	#3capability <capability>#0 - toggles an AI task capability
-	#3host <any|type>#0 - restricts this worker to a host type
+	#3capability <capability>#0 - toggles an AI task capability; doctor/medical and orderly/nurse/supplies are hospital shortcuts
+	#3host <any|type>#0 - restricts this worker to a host type, including hospital/clinic/infirmary
 	#3range <exits>#0 - sets maximum job/task path range
 	#3search#0 - toggles autonomous job searching
 	#3tasking#0 - toggles autonomous task claiming/execution
@@ -322,7 +322,7 @@ public class EmploymentWorkerAI : PathingAIBase
 
 	private bool BuildingCommandCapability(ICharacter actor, StringStack command)
 	{
-		if (command.IsFinished || !command.SafeRemainingArgument.TryParseEnum(out EmploymentAICapability capability))
+		if (command.IsFinished || !TryParseCapability(command.SafeRemainingArgument, out var capability))
 		{
 			actor.OutputHandler.Send($"Which AI capability should be toggled? The valid values are {Enum.GetValues<EmploymentAICapability>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
 			return false;
@@ -346,6 +346,36 @@ public class EmploymentWorkerAI : PathingAIBase
 		Changed = true;
 		actor.OutputHandler.Send($"This AI now has the {capability.DescribeEnum().ColourName()} capability.");
 		return true;
+	}
+
+	private static bool TryParseCapability(string text, out EmploymentAICapability capability)
+	{
+		switch (text.CollapseString().ToLowerInvariant())
+		{
+			case "doctor":
+			case "medical":
+			case "medic":
+			case "surgeon":
+			case "medicalworker":
+			case "medicalservices":
+			case "performmedical":
+			case "performmedicalservices":
+				capability = EmploymentAICapability.CanPerformMedicalServices;
+				return true;
+			case "orderly":
+			case "nurse":
+			case "supply":
+			case "supplies":
+			case "hospitalsupply":
+			case "hospitalsupplies":
+			case "medicalsupplies":
+			case "preparemedicalsupplies":
+			case "preparehospitalsupplies":
+				capability = EmploymentAICapability.CanPrepareHospitalSupplies;
+				return true;
+		}
+
+		return text.TryParseEnum(out capability);
 	}
 
 	private bool BuildingCommandHostType(ICharacter actor, StringStack command)
@@ -1139,6 +1169,7 @@ public class EmploymentWorkerAI : PathingAIBase
 			                      arena.ObservationCells.FirstOrDefault(),
 			IBank bank => bank.BranchLocations.FirstOrDefault(),
 			IStable stable => stable.Location,
+			IHospital hospital => hospital.WaitingRooms.FirstOrDefault() ?? hospital.OperatingTheatres.FirstOrDefault() ?? hospital.SupplyRooms.FirstOrDefault(),
 			IHotel hotel => hotel.Locations.FirstOrDefault(),
 			MudSharp.Community.IClan clan => clan.EmploymentHostLocations().FirstOrDefault(),
 			_ => null
@@ -1165,6 +1196,11 @@ public class EmploymentWorkerAI : PathingAIBase
 			case "arena":
 			case "combatarena":
 				hostType = EmploymentHostType.Arena;
+				return true;
+			case "hospital":
+			case "clinic":
+			case "infirmary":
+				hostType = EmploymentHostType.Hospital;
 				return true;
 			case "clan":
 			case "organisation":

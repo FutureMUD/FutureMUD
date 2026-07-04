@@ -21,6 +21,7 @@ using MudSharp.Economy.Auctions;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
+using MudSharp.Economy.Hospitals;
 using MudSharp.Economy.Hotels;
 using MudSharp.Economy.Property;
 using MudSharp.Economy.Shops;
@@ -50,6 +51,12 @@ public class UnifiedEmploymentDispatchTests
 
 	private sealed record PermanentShopFixture(Mock<IPermanentShop> Shop, EmploymentHostState State);
 
+	private sealed record HospitalSupplyTestFixture(
+		Mock<IHospital> Hospital,
+		Mock<IHospitalServiceRequest> Request,
+		EmploymentTaskContext Context,
+		ICharacter Doctor);
+
 	private delegate bool TryCollectTaskItemsCallback(ICharacter actor,
 		IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason);
 
@@ -71,10 +78,197 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsTrue(typeof(IEmploymentHost).IsAssignableFrom(typeof(Hotel)));
 		Assert.IsTrue(typeof(IEmploymentHost).IsAssignableFrom(typeof(IClan)));
 		Assert.IsTrue(typeof(IEmploymentHost).IsAssignableFrom(typeof(Clan)));
+		Assert.IsTrue(typeof(IEmploymentHost).IsAssignableFrom(typeof(IHospital)));
+		Assert.IsTrue(typeof(IEmploymentHost).IsAssignableFrom(typeof(Hospital)));
 		Assert.AreEqual(6, (int)EmploymentHostType.Other);
 		Assert.AreEqual(7, (int)EmploymentHostType.Clan);
+		Assert.AreEqual(8, (int)EmploymentHostType.Hospital);
 	}
 
+	[TestMethod]
+	public void HospitalActions_AreRegisteredForMedicalEmployment()
+	{
+		var service = EmploymentActionCatalog.Get("hospitalservice");
+
+		Assert.IsNotNull(service);
+		Assert.AreEqual(EmploymentActionCatalogStatus.Executable, service!.Status);
+		Assert.AreEqual(EmploymentActionStepType.HospitalService, service.StepType);
+		Assert.IsTrue(service.RequiredAuthority.Contains(EmploymentAuthority.PerformMedicalServices));
+		CollectionAssert.Contains(service.RequiredCapabilities.ToArray(), EmploymentAICapability.CanPerformMedicalServices);
+		Assert.AreSame(service, EmploymentActionCatalog.Get("medicalservice"));
+
+		var admin = EmploymentActionCatalog.Get("hospitaladmin");
+
+		Assert.IsNotNull(admin);
+		Assert.AreEqual(EmploymentActionCatalogStatus.Executable, admin!.Status);
+		Assert.AreEqual(EmploymentActionStepType.HospitalAdministration, admin.StepType);
+		Assert.IsTrue(admin.RequiredAuthority.Contains(EmploymentAuthority.ManageMedicalServices));
+		Assert.IsTrue(admin.RequiredAuthority.Contains(EmploymentAuthority.ManageHospitalAccounts));
+		Assert.IsTrue(admin.RequiredAuthority.Contains(EmploymentAuthority.ManageHospitalFacilities));
+		CollectionAssert.Contains(admin.RequiredCapabilities.ToArray(), EmploymentAICapability.CanPerformMedicalServices);
+		Assert.AreSame(admin, EmploymentActionCatalog.Get("medicaladmin"));
+
+		var supply = EmploymentActionCatalog.Get("hospitalsupply");
+
+		Assert.IsNotNull(supply);
+		Assert.AreEqual(EmploymentActionCatalogStatus.Executable, supply!.Status);
+		Assert.AreEqual(EmploymentActionStepType.HospitalSupplyPreparation, supply.StepType);
+		Assert.IsTrue(supply.RequiredAuthority.Contains(EmploymentAuthority.PrepareMedicalSupplies));
+		CollectionAssert.Contains(supply.RequiredCapabilities.ToArray(), EmploymentAICapability.CanPrepareHospitalSupplies);
+		Assert.AreSame(supply, EmploymentActionCatalog.Get("medicalsupply"));
+	}
+
+	[TestMethod]
+	public void HospitalSupplyPreparation_PrefersOrderlyOverDoctor()
+	{
+		var fixture = HospitalSupplyFixture(includeOrderly: true);
+		var step = new HospitalSupplyPreparationActionStep(fixture.Hospital.Object, fixture.Request.Object);
+
+		Assert.IsFalse(step.CanExecute(fixture.Context, fixture.Doctor, out var reason));
+		StringAssert.Contains(reason, "non-medical supply employee");
+	}
+
+	[TestMethod]
+	public void HospitalSupplyPreparation_AllowsDoctorFallbackWhenNoOrderlyIsAvailable()
+	{
+		var fixture = HospitalSupplyFixture(includeOrderly: false);
+		var step = new HospitalSupplyPreparationActionStep(fixture.Hospital.Object, fixture.Request.Object);
+
+		Assert.IsTrue(step.CanExecute(fixture.Context, fixture.Doctor, out var reason), reason);
+	}
+
+	[TestMethod]
+	public void HospitalSupplyPreparation_AllowsDoctorFallbackWhenOrderlyIsBusy()
+	{
+		var fixture = HospitalSupplyFixture(includeOrderly: true, orderlyBusy: true);
+		var step = new HospitalSupplyPreparationActionStep(fixture.Hospital.Object, fixture.Request.Object);
+
+		Assert.IsTrue(step.CanExecute(fixture.Context, fixture.Doctor, out var reason), reason);
+	}
+
+	[TestMethod]
+	public void HospitalServiceAvailability_BlocksServiceWhenRequiredEquipmentMissing()
+	{
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([Cell(703, "supply room").Object]);
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.Binding);
+		service.SetupGet(x => x.RequiredEquipment).Returns([
+			new HospitalServiceEquipmentRequirement(1, EmploymentItemSelector.ForPrototype(500))
+		]);
+
+		var result = HospitalServiceAvailability.Evaluate(hospital.Object, service.Object);
+
+		Assert.IsFalse(result.Available);
+		StringAssert.Contains(result.Reason, "required equipment");
+	}
+
+	[TestMethod]
+	public void HospitalServiceAvailability_AllowsServiceWhenRequiredEquipmentIsStocked()
+	{
+		var supplyItems = new List<IGameItem> { Item(9000, "bandage roll", prototypeId: 500).Object };
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([PhysicalCell(704, "supply room", supplyItems).Object]);
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.Binding);
+		service.SetupGet(x => x.RequiredEquipment).Returns([
+			new HospitalServiceEquipmentRequirement(1, EmploymentItemSelector.ForPrototype(500))
+		]);
+
+		var result = HospitalServiceAvailability.Evaluate(hospital.Object, service.Object);
+
+		Assert.IsTrue(result.Available, result.Reason);
+	}
+	[TestMethod]
+	public void HospitalPatientFlow_BlocksReservedAndOccupiedTheatres()
+	{
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		var theatre = Cell(702, "operating theatre");
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(1);
+		request.SetupGet(x => x.Patient).Returns((ICharacter?)null);
+
+		var other = new Mock<IHospitalServiceRequest>();
+		other.SetupGet(x => x.Id).Returns(2);
+		other.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([other.Object]);
+		theatre.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
+
+		Assert.IsFalse(HospitalPatientFlow.IsTheatreAvailable(hospital.Object, request.Object, theatre.Object, out var reason));
+		StringAssert.Contains(reason, "already reserved");
+
+		var visitor = Character(3, "Visitor");
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns(Array.Empty<IHospitalServiceRequest>());
+		hospital.Setup(x => x.IsEmployee(It.IsAny<ICharacter>())).Returns(false);
+		theatre.SetupGet(x => x.Characters).Returns([visitor.Object]);
+
+		Assert.IsFalse(HospitalPatientFlow.IsTheatreAvailable(hospital.Object, request.Object, theatre.Object, out reason));
+		StringAssert.Contains(reason, "occupied");
+
+		hospital.Setup(x => x.IsEmployee(It.IsAny<ICharacter>())).Returns(true);
+
+		Assert.IsTrue(HospitalPatientFlow.IsTheatreAvailable(hospital.Object, request.Object, theatre.Object, out reason), reason);
+	}
+
+	[TestMethod]
+	public void HospitalPatientFlow_RecordsAuditNoteWhenRecoveryRoomIsMissing()
+	{
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.RequiresRecovery).Returns(true);
+		var patient = Character(4, "Patient");
+		patient.SetupGet(x => x.IsHelpless).Returns(true);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Completed);
+		var notes = new List<string>();
+		request.Setup(x => x.MarkStatus(It.IsAny<HospitalServiceRequestStatus>(), It.IsAny<string>()))
+		       .Callback<HospitalServiceRequestStatus, string>((_, note) => notes.Add(note));
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.RecoveryRooms).Returns(Array.Empty<ICell>());
+		hospital.SetupGet(x => x.WaitingRooms).Returns(Array.Empty<ICell>());
+
+		HospitalPatientFlow.TransferAfterTreatment(hospital.Object, request.Object, null, "Hospital recovery routing");
+
+		Assert.AreEqual(1, notes.Count);
+		StringAssert.Contains(notes.Single(), "no recovery room");
+	}
+
+	[TestMethod]
+	public void HospitalPatientFlow_MovesHelplessPatientToRecoveryRoom()
+	{
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.RequiresRecovery).Returns(true);
+		var origin = Cell(710, "operating theatre");
+		var recovery = Cell(711, "recovery room");
+		recovery.SetupGet(x => x.GameItems).Returns(Array.Empty<IGameItem>());
+		var patient = Character(5, "Patient");
+		patient.SetupGet(x => x.IsHelpless).Returns(true);
+		patient.SetupGet(x => x.Location).Returns(origin.Object);
+		patient.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupProperty(x => x.RecoveryRoomCellId);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.RecoveryRooms).Returns([recovery.Object]);
+		hospital.SetupGet(x => x.WaitingRooms).Returns(Array.Empty<ICell>());
+
+		HospitalPatientFlow.TransferAfterTreatment(hospital.Object, request.Object, null, "Hospital recovery routing");
+
+		Assert.AreEqual(recovery.Object.Id, request.Object.RecoveryRoomCellId);
+		origin.Verify(x => x.Leave(patient.Object), Times.Once);
+		recovery.Verify(x => x.Enter(patient.Object, null, true, RoomLayer.GroundLevel), Times.Once);
+	}
 	[TestMethod]
 	public void ClanHallCellEntity_MapsToClanCellJoinTable()
 	{
@@ -3719,6 +3913,7 @@ public class UnifiedEmploymentDispatchTests
 			RestoreFMDBState(fmdbState);
 		}
 	}
+
 	[TestMethod]
 	public void EmploymentPersistence_LoadedTasksWithoutPersistedGrantFailClosedForFinancialAuthority()
 	{
@@ -5799,6 +5994,89 @@ public class UnifiedEmploymentDispatchTests
 		{
 			RestoreFMDBState(fmdbState);
 		}
+	}
+
+	private static HospitalSupplyTestFixture HospitalSupplyFixture(bool includeOrderly, bool orderlyBusy = false)
+	{
+		var currency = Currency();
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(77);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.FrameworkItemType).Returns("Hospital");
+		hospital.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Hospital);
+		hospital.SetupGet(x => x.Market).Returns((IMarket?)null);
+		hospital.SetupGet(x => x.Currency).Returns(currency.Object);
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+
+		var state = new EmploymentHostState(hospital.Object);
+		var activeTasks = new List<IEmploymentActiveTask>();
+		var taskBoard = new Mock<IEmploymentTaskBoard>();
+		taskBoard.SetupGet(x => x.ActiveTasks).Returns(activeTasks);
+		hospital.SetupGet(x => x.Employment).Returns(state);
+		hospital.SetupGet(x => x.TaskBoard).Returns(taskBoard.Object);
+		hospital.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
+		hospital.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		        .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		hospital.Setup(x => x.IsEmployee(It.IsAny<ICharacter>()))
+		        .Returns((ICharacter actor) => state.EmploymentContracts.Any(x =>
+			        x.Status == EmploymentStatus.Active && x.Employee.Id == actor.Id));
+
+		var source = Cell(701, "supply room");
+		var theatre = Cell(702, "operating theatre");
+		source.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
+		theatre.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
+		hospital.SetupGet(x => x.SupplyRooms).Returns([source.Object]);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.WaitingRooms).Returns(Array.Empty<ICell>());
+		hospital.SetupGet(x => x.RecoveryRooms).Returns(Array.Empty<ICell>());
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(88);
+		service.SetupGet(x => x.Name).Returns("implant preparation");
+		service.SetupGet(x => x.PreferOperatingTheatre).Returns(true);
+		service.SetupGet(x => x.RequiredEquipment).Returns([
+			new HospitalServiceEquipmentRequirement(1, EmploymentItemSelector.ForPrototype(500))
+		]);
+
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(900);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Queued);
+		request.SetupGet(x => x.Patient).Returns((ICharacter?)null);
+		request.SetupProperty(x => x.OperatingTheatreCellId);
+		request.SetupProperty(x => x.UsedInPlaceFallback);
+		request.SetupProperty(x => x.SupplyPrepared, false);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([request.Object]);
+
+		var doctorMock = Character(1, "Doctor");
+		doctorMock.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		doctorMock.SetupGet(x => x.Location).Returns(source.Object);
+		var doctor = doctorMock.Object;
+		state.Hire(doctor, Offer(currency.Object, EmploymentRole.Employee,
+			EmploymentAuthority.PerformMedicalServices | EmploymentAuthority.PrepareMedicalSupplies), null);
+		if (includeOrderly)
+		{
+			var orderlyMock = Character(2, "Orderly");
+			orderlyMock.SetupGet(x => x.State).Returns(CharacterState.Awake);
+			orderlyMock.SetupGet(x => x.Location).Returns(source.Object);
+			var orderly = orderlyMock.Object;
+			state.Hire(orderly, Offer(currency.Object, EmploymentRole.HospitalOrderly,
+				EmploymentAuthority.PrepareMedicalSupplies), null);
+
+			if (orderlyBusy)
+			{
+				var busyTask = new EmploymentActiveTask(hospital.Object, "already preparing supplies",
+					new EmploymentActionPlan([new HospitalSupplyPreparationActionStep(hospital.Object, request.Object)]),
+					Guid.NewGuid());
+				busyTask.Assign(orderly);
+				activeTasks.Add(busyTask);
+			}
+		}
+
+		var context = new EmploymentTaskContext(hospital.Object);
+		context.SetAvailableItems(source.Object, [Item(800, "surgical tray", prototypeId: 500).Object]);
+		return new HospitalSupplyTestFixture(hospital, request, context, doctor);
 	}
 
 	private static bool ContainsType(Type type, Type target)

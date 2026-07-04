@@ -9,6 +9,7 @@ This document covers the player-facing and builder-facing interaction surfaces a
 - surgery and surgical procedures
 - CPR and defibrillation
 - drugs, dosing, metabolism, and drug-driven effects
+- economy-mediated hospital service requests
 
 ## Command Surface
 The `HealthModule` command set is the main interaction layer for live medical play.
@@ -19,6 +20,7 @@ The `HealthModule` command set is the main interaction layer for live medical pl
 | Bedside wound care | `bind`, `cleanwounds`, `suture`, `tend`, `relocate`, `dislodge`, `repair` | Stabilize bleeding, clean or close wounds, tend healing, relocate bones, remove lodged objects, repair robot-like injuries |
 | Item-mediated drug delivery | `apply`, `inject` | Use held items such as creams and syringes to deliver drugs through targeted bodypart interactions |
 | Surgery and implants | `surgery` | Run formal procedures, robot maintenance procedures, and implant systems |
+| Economy-mediated service requests | `hospital` | Procure treatment through hospital employment tasks and paid medical-service requests |
 | Rescue medicine | `cpr`, `defibrillate` | Attempt to restore breathing or circulation when a patient is non-responsive |
 | Administrative or force tools | `infect`, `cure`, `sever`, `unsever`, `exsanguinate`, `installimplant`, `powerimplant`, `connectimplants`, `implants` | Directly manipulate health state for testing, administration, or special gameplay flows |
 
@@ -75,6 +77,15 @@ Common robot sequence:
 4. Escalate to robot surgery when the job requires exploratory access, chassis closure, limb detachment or reattachment, or organ extraction and replacement.
 
 That sequencing is one of the main gameplay-design choices in the subsystem.
+
+### Economy-mediated hospital requests
+The `hospital` command lives on the economy command surface, but it deliberately reuses the health runtime instead of defining a separate medical model. Hospital services can queue employment tasks for binding, wound cleaning, wound closing, tending, bone relocation, bone setting, configured surgical procedures, configured implant procedures, blood donation, blood transfusion, stabilisation, and full treatment.
+
+When a hospital worker executes a queued `hospitalservice` task, bedside services use the same treatment types and checks described above. Stabilisation and full-treatment services repeat those ordinary treatment operations across all matching wounds, fractures, and blood-loss needs rather than introducing a separate healing model. Surgery and implant services call the configured `ISurgicalProcedure`; surgery can administer a configured injectable anesthesia drug at a calculated intensity before starting procedures that need an unconscious patient. If a service has an anesthesia cannulation procedure, cannulation runs first as a staged surgical prep, then the anesthetic is primed from a prepared IV liquid container through a drip into the installed cannula before the main surgery begins. Implant services can create a configured implant item, pass it as a procedure argument, and then continue through configured implant power and interface follow-up procedures. Staged surgery requests remain open until `SurgicalProcedureEffect` completes or aborts, so hospital completion, failure, and recovery routing reflect the actual procedure outcome rather than the task-start moment.
+
+Blood donation and transfusion services use the ordinary blood and liquid-container runtime. Donation removes the configured volume from the donor above the safe minimum and stores `BloodLiquidInstance` in a supplied container; if the hospital is below its target stock for that blood type, configured per-litre blood-stock policy pays the donor from the hospital reserve or linked bank account. Transfusion consumes compatible blood from a prepared, held, or in-room container, rejects incompatible donor blood via `IBloodtype.IsCompatibleWithDonorBlood`, and caps restoration at the recipient's total blood volume.
+
+Hospital requests can target a visible patient brought to the hospital. Conscious third-party patients are asked to accept treatment, while unconscious or helpless patients are presumed to consent for emergency care. Payment, prepaid credit, and medical debt payoff are handled by the economy-side hospital records; the resulting clinical action still flows through the ordinary health system. Services that require recovery can route helpless patients to a recovery room and conscious patients back to the waiting room after completion.
 
 ## Surgical Procedures
 ### Runtime model

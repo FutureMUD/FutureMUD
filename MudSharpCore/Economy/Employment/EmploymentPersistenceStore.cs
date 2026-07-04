@@ -130,6 +130,12 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 	private sealed record HotelAdministrationStepPayload(string Operation, long PropertyId, long? RoomCellId = null,
 		long? LostPropertyBundleId = null, long? PatronId = null, string? PatronSelector = null, string? Note = null);
 
+	private sealed record HospitalServiceStepPayload(long HospitalId, long RequestId);
+
+	private sealed record HospitalSupplyPreparationStepPayload(long HospitalId, long RequestId);
+
+	private sealed record HospitalAdministrationStepPayload(string Operation, long HospitalId, string? Note = null);
+
 	private sealed record CataloguedActionShellPayload(string ActionKey, string Description, long? TargetLocationId,
 		long? AmountCurrencyId = null, decimal? Amount = null, IReadOnlyList<long>? RouteStopIds = null);
 
@@ -1650,6 +1656,12 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				ToStableAdministrationStep(record),
 			EmploymentActionStepType.HotelAdministration =>
 				ToHotelAdministrationStep(record),
+			EmploymentActionStepType.HospitalService =>
+				ToHospitalServiceStep(record),
+			EmploymentActionStepType.HospitalSupplyPreparation =>
+				ToHospitalSupplyPreparationStep(record),
+			EmploymentActionStepType.HospitalAdministration =>
+				ToHospitalAdministrationStep(record),
 			EmploymentActionStepType.LoadItems =>
 				ToLoadItemsStep(record),
 			EmploymentActionStepType.UnloadItems =>
@@ -2219,6 +2231,42 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		return new HotelAdministrationActionStep(hotel, operation, room, lost, balance, payload.PatronSelector,
 			payload.Note);
 	}
+	private HospitalServiceActionStep? ToHospitalServiceStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<HospitalServiceStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		var hospital = _gameworld.Hospitals.Get(payload.HospitalId);
+		var request = hospital?.RequestById(payload.RequestId.ToString(CultureInfo.InvariantCulture));
+		return hospital is null || request is null ? null : new HospitalServiceActionStep(hospital, request);
+	}
+
+	private HospitalSupplyPreparationActionStep? ToHospitalSupplyPreparationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<HospitalSupplyPreparationStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		var hospital = _gameworld.Hospitals.Get(payload.HospitalId);
+		var request = hospital?.RequestById(payload.RequestId.ToString(CultureInfo.InvariantCulture));
+		return hospital is null || request is null ? null : new HospitalSupplyPreparationActionStep(hospital, request);
+	}
+	private HospitalAdministrationActionStep? ToHospitalAdministrationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<HospitalAdministrationStepPayload>(record.BoardText);
+		if (payload is null || !payload.Operation.TryParseEnum<HospitalAdministrationActionKind>(out var operation))
+		{
+			return null;
+		}
+
+		var hospital = _gameworld.Hospitals.Get(payload.HospitalId);
+		return hospital is null ? null : new HospitalAdministrationActionStep(hospital, operation, payload.Note);
+	}
 	private EmploymentItemSelector? ToItemSelector(ItemSelectorPayload? payload, long? legacyItemId = null,
 		string? legacyTag = null)
 	{
@@ -2717,6 +2765,28 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					hotelAdmin.PatronBalance?.PatronId,
 					hotelAdmin.PatronSelector,
 					hotelAdmin.Note));
+				break;
+			case HospitalServiceActionStep hospitalService:
+				record.Description = $"service request #{hospitalService.Request.Id.ToString("N0", CultureInfo.InvariantCulture)} at {hospitalService.Hospital.Name}";
+				record.DestinationCellId = hospitalService.Request.OperatingTheatreCellId ?? hospitalService.Request.Patient?.Location?.Id;
+				record.BoardText = SerializeActionPayload(new HospitalServiceStepPayload(
+					hospitalService.Hospital.Id,
+					hospitalService.Request.Id));
+				break;
+			case HospitalSupplyPreparationActionStep hospitalSupply:
+				record.Description = $"prepare supplies for request #{hospitalSupply.Request.Id.ToString("N0", CultureInfo.InvariantCulture)} at {hospitalSupply.Hospital.Name}";
+				record.DestinationCellId = hospitalSupply.Request.OperatingTheatreCellId ?? hospitalSupply.Hospital.SupplyRooms.FirstOrDefault()?.Id;
+				record.BoardText = SerializeActionPayload(new HospitalSupplyPreparationStepPayload(
+					hospitalSupply.Hospital.Id,
+					hospitalSupply.Request.Id));
+				break;
+			case HospitalAdministrationActionStep hospitalAdmin:
+				record.Description = $"{hospitalAdmin.Operation} hospital administration";
+				record.DestinationCellId = hospitalAdmin.Hospital.WaitingRooms.Concat(hospitalAdmin.Hospital.OperatingTheatres).FirstOrDefault()?.Id;
+				record.BoardText = SerializeActionPayload(new HospitalAdministrationStepPayload(
+					hospitalAdmin.Operation.ToString(),
+					hospitalAdmin.Hospital.Id,
+					hospitalAdmin.Note));
 				break;
 			case CataloguedActionShellStep shell:
 				record.CommandName = shell.ActionKey;

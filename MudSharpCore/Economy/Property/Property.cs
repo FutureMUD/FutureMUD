@@ -7,6 +7,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems.Interfaces;
@@ -511,6 +512,10 @@ public partial class Property : SaveableItem, IProperty
 
     public IEnumerable<IShop> PropertyShops => PropertyLocations.SelectNotNull(x => x.Shop).Distinct().ToList();
     public IEnumerable<IStable> PropertyStables => Gameworld.Stables.Where(x => PropertyLocations.Contains(x.Location)).Distinct().ToList();
+    public IEnumerable<IHospital> PropertyHospitals => Gameworld.Hospitals
+        .Where(x => x.Locations.Any(location => PropertyLocations.Any(cell => cell.Id == location.Id)))
+        .Distinct()
+        .ToList();
     public IEnumerable<IPropertyLeaseOrder> ExpiredLeaseOrders => _expiredLeaseOrders;
     public IEnumerable<IPropertyLease> ExpiredLeases => _expiredLeases;
     public IEnumerable<IPropertyKey> PropertyKeys => _propertyKeys;
@@ -533,6 +538,59 @@ public partial class Property : SaveableItem, IProperty
             stable.AddEmployee(who);
             stable.SetProprietor(who, true);
             stable.SetManager(who, true);
+        }
+    }
+
+    public void ClaimHospitals(ICharacter who)
+    {
+        var whoId = CharacterInstanceIdentityComparer.IdentityId(who);
+        foreach (var hospital in PropertyHospitals)
+        {
+            foreach (var contract in hospital.EmploymentContracts
+                                         .Where(x => x.Role == EmploymentRole.Proprietor)
+                                         .Where(x => x.Status is EmploymentStatus.Active or EmploymentStatus.Suspended)
+                                         .Where(x => x.Employee.Id != whoId)
+                                         .ToList())
+            {
+                hospital.Fire(contract, EmploymentTerminationReason.Fired, null);
+            }
+
+            var existing = hospital.EmploymentContracts
+                                   .FirstOrDefault(x =>
+                                       x.Role == EmploymentRole.Proprietor &&
+                                       x.Employee.Id == whoId &&
+                                       x.Status is EmploymentStatus.Active or EmploymentStatus.Suspended);
+            if (existing?.Status == EmploymentStatus.Active)
+            {
+                continue;
+            }
+
+            if (existing is not null)
+            {
+                hospital.Fire(existing, EmploymentTerminationReason.Fired, null);
+            }
+
+            hospital.Hire(who, new EmploymentOffer(
+                EmploymentRole.Proprietor,
+                new CompensationTerms(null, null, PayCadence.Unpaid, null, PaymentSource.HostCash),
+                WorkSchedule.AnyTime,
+                EmploymentDuration.Indefinite,
+                new PaymentMethod(PaymentMethodKind.Cash),
+                EmploymentAuthoritySet.All), null);
+        }
+    }
+
+    private void ClearHospitalProprietors()
+    {
+        foreach (var hospital in PropertyHospitals)
+        {
+            foreach (var contract in hospital.EmploymentContracts
+                                         .Where(x => x.Role == EmploymentRole.Proprietor)
+                                         .Where(x => x.Status is EmploymentStatus.Active or EmploymentStatus.Suspended)
+                                         .ToList())
+            {
+                hospital.Fire(contract, EmploymentTerminationReason.Fired, null);
+            }
         }
     }
 
@@ -582,6 +640,15 @@ public partial class Property : SaveableItem, IProperty
             stable.AddEmployee(controller);
             stable.SetProprietor(controller, true);
             stable.SetManager(controller, true);
+        }
+
+        if (controller is null)
+        {
+            ClearHospitalProprietors();
+        }
+        else
+        {
+            ClaimHospitals(controller);
         }
     }
 
@@ -941,6 +1008,11 @@ public partial class Property : SaveableItem, IProperty
         foreach (IStable stable in PropertyStables)
         {
             sb.AppendLine($"It comes with the stable {stable.Name.ColourName()}.");
+        }
+
+        foreach (var hospital in PropertyHospitals)
+        {
+            sb.AppendLine($"It comes with the hospital {hospital.Name.ColourName()}.");
         }
 
         return sb.ToString();

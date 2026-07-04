@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
@@ -980,6 +980,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Add(IStable stable)
     {
         _stables.Add(stable);
+    }
+
+    public void Add(IHospital hospital)
+    {
+        _hospitals.Add(hospital);
     }
 
     public void Add(IEconomicZone zone)
@@ -2018,6 +2023,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(IStable stable)
     {
         _stables.Remove(stable);
+    }
+
+    public void Destroy(IHospital hospital)
+    {
+        _hospitals.Remove(hospital);
     }
 
     public void Destroy(IEconomicZone zone)

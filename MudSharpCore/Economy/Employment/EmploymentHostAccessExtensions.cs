@@ -121,6 +121,11 @@ public static class EmploymentHostAccessExtensions
 			case IStable stable:
 				AddLocation(locations, stable.Location);
 				break;
+			case IHospital hospital:
+				AddLocations(locations, hospital.WaitingRooms);
+				AddLocations(locations, hospital.OperatingTheatres);
+				AddLocations(locations, hospital.SupplyRooms);
+				break;
 			case IHotel hotel:
 				AddLocations(locations, hotel.Locations);
 				break;

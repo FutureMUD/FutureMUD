@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.Construction;
@@ -28,6 +28,7 @@ namespace MudSharp.Economy.Property
         IEconomicZone EconomicZone { get; }
         IEnumerable<IPropertyOwner> PropertyOwners { get; }
         IEnumerable<ICell> PropertyLocations { get; }
+        IEnumerable<IHospital> PropertyHospitals { get; }
         string DetailedDescription { get; }
         MudDateTime LastChangeOfOwnership { get; }
         decimal LastSaleValue { get; set; }
@@ -53,6 +54,7 @@ namespace MudSharp.Economy.Property
         bool HasUnclaimedBondPayments(ICharacter who);
         void ClaimShops(ICharacter who);
         void ClaimStables(ICharacter who);
+        void ClaimHospitals(ICharacter who);
         IHotel Hotel { get; }
         HotelLicenseStatus HotelLicenseStatus { get; set; }
         IBankAccount HotelBankAccount { get; set; }

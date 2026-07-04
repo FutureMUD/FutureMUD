@@ -1835,6 +1835,7 @@ internal static class EmploymentFinanceService
 			"arena" or "combatarena" => (IEmploymentHost?)gameworld.CombatArenas.GetByIdOrName(identifier),
 			"bank" => (IEmploymentHost?)gameworld.Banks.GetByIdOrName(identifier),
 			"stable" => (IEmploymentHost?)gameworld.Stables.GetByIdOrName(identifier),
+			"hospital" or "clinic" or "infirmary" => (IEmploymentHost?)gameworld.Hospitals.GetByIdOrName(identifier),
 			"hotel" => gameworld.Properties.GetByIdOrName(identifier)?.Hotel,
 			_ => null
 		};
@@ -1911,6 +1912,9 @@ internal static class EmploymentFinanceService
 				break;
 			case IStable stable:
 				finance = new FinanceHost(stable, stable.Currency, stable.BankAccount);
+				break;
+			case IHospital hospital:
+				finance = new FinanceHost(hospital, hospital.Currency, hospital.BankAccount);
 				break;
 			case IHotel hotel:
 				finance = new FinanceHost(hotel.Property, hotel.Currency, hotel.BankAccount);

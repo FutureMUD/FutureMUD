@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.PartProtos;
+using MudSharp.Body.PartProtos;
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
@@ -101,6 +101,28 @@ public partial class Body
         CheckDrugTick();
     }
 
+    public void DoseImmediate(IDrug drug, DrugVector vector, double grams, object originator)
+    {
+        if (grams <= 0.0)
+        {
+            return;
+        }
+
+        DrugsChanged = true;
+        DrugDosage active = _activeDrugDosages.FirstOrDefault(x =>
+            x.Drug == drug &&
+            Equals(x.Originator, originator));
+        if (active == null)
+        {
+            active = new DrugDosage { Drug = drug, OriginalVector = vector, Originator = originator };
+            _activeDrugDosages.Add(active);
+        }
+
+        active.Grams += grams;
+        ApplyDrugEffects();
+        CheckDrugTick();
+        CheckHealthStatus();
+    }
     public void RemoveDrugDosages(Predicate<DrugDosage> predicate)
     {
         int removed = _activeDrugDosages.RemoveAll(predicate);

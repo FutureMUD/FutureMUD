@@ -23,6 +23,7 @@ using MudSharp.Economy.Auctions;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
+using MudSharp.Economy.Hospitals;
 using MudSharp.Economy.Property;
 using MudSharp.Economy.Shops;
 using MudSharp.Economy.Stables;
@@ -59,6 +60,7 @@ public class EmploymentCommandServiceTests
 			("bank player", HelpConstant(typeof(EconomyModule), "BankPlayerHelpText")),
 			("auction player", HelpConstant(typeof(EconomyModule), "AuctionPlayerHelp")),
 			("arena player", HelpConstant(typeof(ArenaModule), "ArenaHelp")),
+			("hospital player", HelpConstant(typeof(EconomyModule), "HospitalPlayerHelp")),
 			("roomrent player", HelpConstant(typeof(PropertyModule), "RoomRentHelp"))
 		};
 
@@ -87,6 +89,7 @@ public class EmploymentCommandServiceTests
 			("auction", HelpConstant(typeof(EconomyModule), "AuctionHelp")),
 			("auction admin", HelpConstant(typeof(EconomyModule), "AuctionHelpAdmins")),
 			("arena manager", HelpConstant(typeof(ArenaModule), "ArenaManagerHelp")),
+			("hospital", HelpConstant(typeof(EconomyModule), "HospitalHelp")),
 			("roomrent", HelpConstant(typeof(PropertyModule), "RoomRentManagerHelp"))
 		};
 
@@ -118,6 +121,7 @@ public class EmploymentCommandServiceTests
 		var arena = HostMock<ICombatArena>(3, "red sands");
 		var bank = HostMock<IBank>(4, "coin vault");
 		var stable = HostMock<IStable>(5, "east stable");
+		var hospital = HostMock<IHospital>(10, "central clinic");
 		var hotel = HostMock<IHotel>(6, "harbour rooms");
 		var clan = HostMock<IClan>(8, "merchant league");
 		clan.SetupGet(x => x.FullName).Returns("The Honourable Merchant League");
@@ -144,6 +148,8 @@ public class EmploymentCommandServiceTests
 		banks.Add(bank.Object);
 		var stables = new All<IStable>();
 		stables.Add(stable.Object);
+		var hospitals = new All<IHospital>();
+		hospitals.Add(hospital.Object);
 		var clans = new All<IClan>();
 		clans.Add(clan.Object);
 		clans.Add(templateClan.Object);
@@ -154,6 +160,7 @@ public class EmploymentCommandServiceTests
 		gameworld.SetupGet(x => x.CombatArenas).Returns(arenas);
 		gameworld.SetupGet(x => x.Banks).Returns(banks);
 		gameworld.SetupGet(x => x.Stables).Returns(stables);
+		gameworld.SetupGet(x => x.Hospitals).Returns(hospitals);
 		gameworld.SetupGet(x => x.Clans).Returns(clans);
 		gameworld.SetupGet(x => x.Properties).Returns(properties);
 
@@ -164,6 +171,9 @@ public class EmploymentCommandServiceTests
 		Assert.AreSame(arena.Object, resolver.Resolve(gameworld.Object, "arena", "red sands", out _));
 		Assert.AreSame(bank.Object, resolver.Resolve(gameworld.Object, "bank", "coin vault", out _));
 		Assert.AreSame(stable.Object, resolver.Resolve(gameworld.Object, "stable", "east stable", out _));
+		Assert.AreSame(hospital.Object, resolver.Resolve(gameworld.Object, "hospital", "central clinic", out _));
+		Assert.AreSame(hospital.Object, resolver.Resolve(gameworld.Object, "clinic", "10", out _));
+		Assert.AreSame(hospital.Object, resolver.Resolve(gameworld.Object, "infirmary", "central clinic", out _));
 		Assert.AreSame(hotel.Object, resolver.Resolve(gameworld.Object, "hotel", "harbour house", out _));
 		Assert.AreSame(clan.Object, resolver.Resolve(gameworld.Object, "clan", "8", out _));
 		Assert.AreSame(clan.Object, resolver.Resolve(gameworld.Object, "clan", "merchant league", out _));
@@ -205,6 +215,22 @@ public class EmploymentCommandServiceTests
 		Assert.IsTrue(service.CanViewOperational(employee, host));
 		StringAssert.Contains(service.RenderStatus(employee, host), "Contracts");
 		StringAssert.Contains(service.RenderContracts(employee, host), "Employee");
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_DirectManagerHireIncludesBusinessCashAuthority()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(122, "clinic", currency.Object);
+		var admin = Character(122, "Admin", administrator: true).Object;
+		var manager = Character(123, "Manager").Object;
+		var service = new EmploymentCommandService();
+
+		Assert.IsTrue(service.TryHireDirectContract(admin, host, manager, EmploymentRole.Manager, out var contract, out var message), message);
+
+		Assert.IsNotNull(contract);
+		Assert.IsTrue(contract.Authority.Contains(EmploymentAuthority.DepositBusinessCash));
+		Assert.IsTrue(contract.Authority.Contains(EmploymentAuthority.WithdrawBusinessCash));
 	}
 
 	[TestMethod]
@@ -572,8 +598,8 @@ public class EmploymentCommandServiceTests
 		Assert.IsTrue(managerOpening.Authority.Contains(EmploymentAuthority.PostToHostBoard));
 		Assert.IsFalse(managerOpening.Authority.Contains(EmploymentAuthority.ApprovePurchases));
 		Assert.IsFalse(managerOpening.Authority.Contains(EmploymentAuthority.UseStoreAccount));
-		Assert.IsFalse(managerOpening.Authority.Contains(EmploymentAuthority.WithdrawBusinessCash));
-		Assert.IsFalse(managerOpening.Authority.Contains(EmploymentAuthority.DepositBusinessCash));
+		Assert.IsTrue(managerOpening.Authority.Contains(EmploymentAuthority.WithdrawBusinessCash));
+		Assert.IsTrue(managerOpening.Authority.Contains(EmploymentAuthority.DepositBusinessCash));
 		Assert.IsFalse(managerOpening.Authority.Contains(EmploymentAuthority.PayTaxes));
 
 		Assert.IsTrue(service.TryCreateOpening(admin, host, EmploymentRole.Proprietor, 10.0M, 1,

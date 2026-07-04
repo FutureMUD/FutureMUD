@@ -38,6 +38,11 @@ internal static class EmploymentHostDiscovery
 			yield return stable;
 		}
 
+		foreach (var hospital in gameworld.Hospitals ?? Enumerable.Empty<IHospital>())
+		{
+			yield return hospital;
+		}
+
 		foreach (var clan in (gameworld.Clans ?? Enumerable.Empty<IClan>())
 		         .Where(x => !x.IsTemplate))
 		{

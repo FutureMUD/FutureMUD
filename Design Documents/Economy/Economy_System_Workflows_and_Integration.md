@@ -89,7 +89,7 @@ Even with the existing abstractions, much of the economy remains world-authored 
 - property portfolios and location mapping
 - stables, stable fee policy, and stable access rules
 - hotel rooms, optional hotel bank accounts, furnishings, and lost-property retention rules
-- jobs, employers, and eligibility logic
+- jobs, employers, worker AI definitions, and eligibility logic
 
 ### Why hand-building still dominates
 The runtime is generic by design. Most of these systems depend on world-specific choices that the engine cannot safely assume:
@@ -259,7 +259,27 @@ Builders need:
 
 Player workflows are surfaced through `stable`, `stable quote`, `stable lodge`, `stable redeem`, `stable accountstatus`, and `stable payaccount`. Lodging issues a system-generated stable ticket item and removes the mount from the active world. Active stable stays also suppress their mount ids during NPC boot loading, so rebooted servers do not return lodged mounts to the stable room. Redeeming checks the ticket's stay id, item id, and token, then requires any outstanding fees to be settled before the mount is logged back into the stable cell.
 
-Manager workflows include active/history lists, stay inspection, ticketless release, fee setup, account setup, filtered account triage, employee management, bank-account assignment, open/close state, access-prog setup, and reserve `deposit`, `withdraw`, and `ledger` commands. `stable account list [<filters>]` accepts composable filters for routine account operations: `suspended`, `active`, `overlimit` or `over limit`, `owing`, `prepaid` or `credit`, `owner <text>`, `name <text>`, `user <text>`, and `search <text>`. A property sale or lease can claim stables in the property for the single character controller in the same operational style as property shops.
+Manager workflows include active/history lists, stay inspection, ticketless release, fee setup, account setup, filtered account triage, employee management, bank-account assignment, open/close state, access-prog setup, and reserve `deposit`, `withdraw`, and `ledger` commands. `stable account list [<filters>]` accepts composable filters for routine account operations: `suspended`, `active`, `overlimit` or `over limit`, `owing`, `prepaid` or `credit`, `owner <text>`, `name <text>`, `user <text>`, and `search <text>`. A property sale or lease can claim stables and hospitals in the property for the single character controller in the same operational style as property shops.
+
+### Hospitals and Medical Services
+Hospitals are cell-role economy venues for NPC-delivered medical services.
+
+Builders need:
+
+- one or more waiting-room cells where players can find and interact with the hospital
+- optional operating-theatre cells for theatre-preferring services, optional recovery-room cells for helpless patients after treatment, and optional supply-area cells for equipment preparation
+- an economic zone and optional bank account in the zone currency
+- service definitions with prices, debt policy, operating-theatre preference, optional recovery routing, optional equipment requirements, and, where relevant, a configured surgical procedure, implant prototype, implant power/interface follow-up procedure, anesthesia drug/intensity, and cannulation procedure for IV drip anesthesia
+- configured blood volume for blood donation or transfusion services, defaulting to 0.5L, plus per-blood-type stock targets and paid-donation prices
+- managers or proprietors if non-admin characters should configure services, debt ceilings, room roles, and employees
+- doctors whose delegated authority and AI capabilities include `PerformMedicalServices` and `CanPerformMedicalServices`
+- nurses or orderlies whose delegated authority and AI capabilities include `PrepareMedicalSupplies` and `CanPrepareHospitalSupplies` when services require stocked equipment
+
+Player workflows are surfaced through `hospital`, `hospital services`, `hospital service <#|name>`, `hospital request <service> [for <target>] [cash|debt|with <payment item>]`, `hospital debt [person]`, and `hospital debt pay <amount> [for <target>] [cash|with <payment item>]`. The hospital and service list views include a short availability column so missing stocked materials show as unavailable before purchase. Conscious third-party patients must accept the treatment proposal; unconscious or otherwise helpless patients are presumed to consent. Debt requests charge a per-patient hospital account only when the service allows debt and the account remains within its limit; debt payments can also create positive prepaid credit.
+
+Manager workflows include `hospital open|close`, `hospital maxdebt`, `hospital room add|remove <waiting|theatre|supply|recovery>`, `hospital service add`, `hospital service set recovery`, `hospital service set blood`, `hospital service set anesthesia`, `hospital service set cannulation`, `hospital service set implantpower|implantinterface`, `hospital service set equipment add|remove|clear|show`, `hospital bloodstock show|set|clear`, `hospital cash`, `hospital deposit`, `hospital withdraw`, `hospital ledger`, `hospital requests`, `hospital requestshow`, direct `doctor` and `orderly` employment shortcuts, and the shared `hospital tasks`, `hospital board`, `hospital register`, and `hospital employmentledger` surfaces. If a hospital sits inside a leased property, `property claimshops` also gives the leaseholder proprietor control of that hospital while preserving existing doctor and orderly contracts.
+
+Hospital service requests become active employment tasks. Services with equipment requirements receive a `hospitalsupply <request id>` step before `hospitalservice <request id>`. The supply step collects configured items from a hospital supply room and delivers them to the reserved theatre; doctors only do this fallback work when no active, reachable, unassigned non-medical supply employee is available. Theatre-preferring services reserve an empty theatre and directly transfer the patient and worker there with echoes. Surgical requests can administer configured injectable anesthesia before the procedure; when a cannulation procedure is configured, cannulation is a tracked prep stage and the anesthetic is delivered by a prepared IV container connected through a drip to the cannula. Implant services can continue through configured power/interface follow-up procedures before the hospital request completes. Requests that start staged surgery remain in progress until the surgical effect completes or aborts, after which recovery routing moves helpless patients to recovery rooms and conscious patients back to the waiting room where possible.
 
 ### Auctions
 Auction houses currently fit worlds that want formal auction spaces separate from ordinary shops.
@@ -332,10 +352,10 @@ Job builders need:
 
 Unified employment builders additionally need:
 
-- a host that exposes `IEmploymentHost` such as a shop, stable, bank, auction house, arena, approved durable hotel root, or clan
+- a host that exposes `IEmploymentHost` such as a shop, stable, hospital, bank, auction house, arena, approved durable hotel root, or clan
 - a manager or proprietor contract with delegated authority to create openings, accept applications, assign tasks, create scheduled rules, or approve finance as appropriate
 - an `EmploymentWorkerAI` definition with a currency-bound reservation wage, accepted payment methods, host filters, AI capabilities, path range, search cadence, and tasking/payroll settings
-- employment openings whose required AI capabilities line up with the tasks the worker is expected to perform
+- employment openings whose required AI capabilities line up with the tasks the worker is expected to perform; hospital doctors can use `EmploymentWorkerAI` with `host hospital` and `capability doctor`, while orderlies/nurses can use `capability orderly` or `capability supplies`
 - scheduled rules using `tasks conditions` and action plans using `tasks actions`, rather than long helpfile-embedded catalogues
 - explicit authorise/reserve/release steps before financial task steps that spend or move employer money
 - task item selectors using prototype id by default, `*<id>` for live item id, `&<id|name>` for verified tags, and visible keywords for room-targeted items
@@ -347,7 +367,7 @@ Current unified-employment operating notes:
 - `tasks actions [all|category|action]` and `tasks conditions [all|category|condition]` are the canonical discovery surfaces for action and scheduled-rule syntax.
 - scheduled rules are AND-composed in this slice; OR expressions, reusable named predicates, and grouped expressions remain future work.
 - host staff boards are communication only. Scheduled rules, active tasks, and manager goals live on employment-host services and do not propagate through board posts.
-- hotels have durable root `Hotel` rows for employment ownership and finance, and hotel room/rental/furnishing/lost-property state is normalized into hotel-specific EF tables.
+- hotels have durable root `Hotel` rows for employment ownership and finance, and hotel room/rental/furnishing/lost-property state is normalized into hotel-specific EF tables; hospitals have durable root `Hospital` rows plus service, request, room-role, and debt-account tables.
 - clan hosts use any-share clan-owned property cells plus `clan hall <clan>` cells as workplaces. A clan bank account supplies the preferred employment currency and optional backing account; otherwise existing contract compensation currency can supply the currency for continuing operations.
 
 ## Integration Guidance for Future Features

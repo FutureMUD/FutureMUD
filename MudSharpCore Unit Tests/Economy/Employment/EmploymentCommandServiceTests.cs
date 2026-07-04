@@ -17,6 +17,7 @@ using MudSharp.Commands.Modules;
 using MudSharp.Community;
 using MudSharp.Community.Boards;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Economy.Auctions;
@@ -180,6 +181,89 @@ public class EmploymentCommandServiceTests
 		Assert.AreSame(clan.Object, resolver.Resolve(gameworld.Object, "organisation", "tml", out _));
 		Assert.IsNull(resolver.Resolve(gameworld.Object, "clan", "template", out var templateError));
 		StringAssert.Contains(templateError, "Clan templates cannot be used as employment hosts");
+	}
+
+	[TestMethod]
+	public void HospitalCommand_InfoPreservesLiteralRoomIds()
+	{
+		var gameworld = Gameworld();
+		var foyer = Cell(370, "A Hospital Foyer").Object;
+		var hospital = HospitalHost(1, "Easy Street Hospital", [foyer]);
+		hospital.Setup(x => x.Show(It.IsAny<ICharacter>()))
+		        .Returns("Waiting Rooms: #370 A Hospital Foyer");
+		var hospitals = new All<IHospital>();
+		hospitals.Add(hospital.Object);
+		gameworld.SetupGet(x => x.Hospitals).Returns(hospitals);
+		var admin = Character(101, "Admin", administrator: true, gameworld: gameworld.Object, location: foyer).Object;
+
+		InvokeHospitalCommand(admin, "hospital");
+
+		Mock.Get(admin.OutputHandler).Verify(x => x.Send(
+			It.Is<string>(text => text.Contains("#370", StringComparison.Ordinal)),
+			It.IsAny<bool>(),
+			It.IsAny<bool>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void HospitalCommand_RoomAddUsesDirectionalTarget()
+	{
+		var gameworld = Gameworld();
+		var foyer = Cell(371, "A Hospital Foyer");
+		var theatre = Cell(372, "An Operating Theatre");
+		var exit = new Mock<ICellExit>();
+		exit.SetupGet(x => x.Destination).Returns(theatre.Object);
+		foyer.Setup(x => x.GetExit(CardinalDirection.East, It.IsAny<IPerceiver>())).Returns(exit.Object);
+		var hospital = HospitalHost(2, "Easy Street Hospital", [foyer.Object]);
+		var hospitals = new All<IHospital>();
+		hospitals.Add(hospital.Object);
+		gameworld.SetupGet(x => x.Hospitals).Returns(hospitals);
+		var admin = Character(102, "Admin", administrator: true, gameworld: gameworld.Object, location: foyer.Object).Object;
+
+		InvokeHospitalCommand(admin, "hospital room add theatre east");
+
+		hospital.Verify(x => x.AddLocation(theatre.Object, HospitalLocationRole.OperatingTheatre), Times.Once);
+		hospital.Verify(x => x.AddLocation(foyer.Object, HospitalLocationRole.OperatingTheatre), Times.Never);
+	}
+
+	[TestMethod]
+	public void HospitalCommand_RoomAddHereUsesAdjacentHospitalWhenOutsideExistingRooms()
+	{
+		var gameworld = Gameworld();
+		var foyer = Cell(375, "A Hospital Foyer");
+		var recovery = Cell(376, "A Recovery Room");
+		foyer.SetupGet(x => x.Surrounds).Returns([recovery.Object]);
+		recovery.SetupGet(x => x.Surrounds).Returns([foyer.Object]);
+		var hospital = HospitalHost(4, "Easy Street Hospital", [foyer.Object]);
+		var hospitals = new All<IHospital>();
+		hospitals.Add(hospital.Object);
+		gameworld.SetupGet(x => x.Hospitals).Returns(hospitals);
+		var admin = Character(104, "Admin", administrator: true, gameworld: gameworld.Object, location: recovery.Object).Object;
+
+		InvokeHospitalCommand(admin, "hospital room add recovery");
+
+		hospital.Verify(x => x.AddLocation(recovery.Object, HospitalLocationRole.RecoveryRoom), Times.Once);
+	}
+
+	[TestMethod]
+	public void HospitalCommand_RoomAddUsesExplicitCellIdTarget()
+	{
+		var gameworld = Gameworld();
+		var foyer = Cell(373, "A Hospital Foyer").Object;
+		var supply = Cell(374, "A Supply Room").Object;
+		var cells = new All<ICell>();
+		cells.Add(foyer);
+		cells.Add(supply);
+		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var hospital = HospitalHost(3, "Easy Street Hospital", [foyer]);
+		var hospitals = new All<IHospital>();
+		hospitals.Add(hospital.Object);
+		gameworld.SetupGet(x => x.Hospitals).Returns(hospitals);
+		var admin = Character(103, "Admin", administrator: true, gameworld: gameworld.Object, location: foyer).Object;
+
+		InvokeHospitalCommand(admin, "hospital room add supply #374");
+
+		hospital.Verify(x => x.AddLocation(supply, HospitalLocationRole.SupplyArea), Times.Once);
+		hospital.Verify(x => x.AddLocation(foyer, HospitalLocationRole.SupplyArea), Times.Never);
 	}
 
 	[TestMethod]
@@ -3456,6 +3540,23 @@ public class EmploymentCommandServiceTests
 		host.SetupGet(x => x.Id).Returns(id);
 		host.SetupGet(x => x.Name).Returns(name);
 		return host;
+	}
+
+	private static Mock<IHospital> HospitalHost(long id, string name, IEnumerable<ICell> locations)
+	{
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(id);
+		hospital.SetupGet(x => x.Name).Returns(name);
+		hospital.SetupGet(x => x.FrameworkItemType).Returns("Hospital");
+		hospital.SetupGet(x => x.Locations).Returns(locations.ToList());
+		return hospital;
+	}
+
+	private static void InvokeHospitalCommand(ICharacter actor, string command)
+	{
+		typeof(EconomyModule)
+			.GetMethod("Hospital", BindingFlags.Static | BindingFlags.NonPublic)!
+			.Invoke(null, [actor, command]);
 	}
 
 	private static Mock<T> EmploymentHostMock<T>(long id, string name, EmploymentHostType hostType,

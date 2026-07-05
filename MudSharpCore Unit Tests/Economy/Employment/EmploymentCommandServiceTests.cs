@@ -112,6 +112,11 @@ public class EmploymentCommandServiceTests
 		StringAssert.Contains(EmploymentCommandService.EmploymentHelp, "#3clan#0");
 		Assert.IsTrue(EmploymentCommandService.EmploymentHelp.Contains("clan hosts are resolved",
 			StringComparison.OrdinalIgnoreCase));
+		var hospitalHelp = HelpConstant(typeof(EconomyModule), "HospitalHelp");
+		Assert.IsTrue(hospitalHelp.Contains("hospital openings create", StringComparison.OrdinalIgnoreCase));
+		Assert.IsTrue(hospitalHelp.Contains("hospital applications accept|reject", StringComparison.OrdinalIgnoreCase));
+		Assert.IsTrue(hospitalHelp.Contains("hospital tasks diagnose", StringComparison.OrdinalIgnoreCase));
+		Assert.IsTrue(hospitalHelp.Contains("hospital operations", StringComparison.OrdinalIgnoreCase));
 	}
 
 	[TestMethod]
@@ -315,6 +320,98 @@ public class EmploymentCommandServiceTests
 
 		Assert.AreEqual(1.5, policyA.Object.TargetLitres);
 		Assert.AreEqual(1.5, policyO.Object.TargetLitres);
+	}
+
+	[TestMethod]
+	public void HospitalCommand_OperationsShowsTheatreRequestBlockersAndResources()
+	{
+		var gameworld = Gameworld();
+		var foyer = Cell(380, "A Hospital Foyer");
+		var waiting = Cell(381, "Waiting Ward");
+		var theatre = Cell(382, "Theatre One");
+		var supply = Cell(383, "Supply Store");
+		var staff = Cell(384, "Staff Room");
+		var patient = Character(201, "Patient", gameworld: gameworld.Object, location: waiting.Object);
+		var doctor = Character(202, "Doctor", gameworld: gameworld.Object, location: staff.Object);
+		waiting.SetupGet(x => x.Characters).Returns([patient.Object]);
+		theatre.SetupGet(x => x.Characters).Returns([]);
+		supply.SetupGet(x => x.Characters).Returns([]);
+		staff.SetupGet(x => x.Characters).Returns([doctor.Object]);
+		var supplyProto = ItemProto(301, "surgical kit").Object;
+		var supplyItem = Item(901, "surgical kit", supplyProto).Object;
+		supply.SetupGet(x => x.GameItems).Returns([supplyItem]);
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(401);
+		service.SetupGet(x => x.Name).Returns("Full Treatment");
+		service.SetupGet(x => x.PreferOperatingTheatre).Returns(true);
+		service.SetupGet(x => x.RequiredEquipment)
+		       .Returns([new HospitalServiceEquipmentRequirement(1, EmploymentItemSelector.ForTag("surgical-supply"))]);
+
+		Guid? taskId = null;
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(501);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupGet(x => x.PatientName).Returns("Patient");
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Assigned);
+		request.SetupGet(x => x.SupplyPrepared).Returns(false);
+		request.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		request.SetupGet(x => x.EmploymentTaskId).Returns(() => taskId);
+		request.SetupGet(x => x.AssignedEmployeeId).Returns(doctor.Object.Id);
+		request.SetupGet(x => x.CreatedAt).Returns(DateTimeOffset.UtcNow.AddMinutes(-5));
+
+		var locations = new[] { foyer.Object, waiting.Object, theatre.Object, supply.Object, staff.Object };
+		var hospital = HospitalHost(7, "Easy Street Hospital", locations);
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.WaitingRooms).Returns([waiting.Object]);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([supply.Object]);
+		hospital.SetupGet(x => x.RecoveryRooms).Returns([]);
+		hospital.SetupGet(x => x.StaffRooms).Returns([staff.Object]);
+		hospital.SetupGet(x => x.ServiceRequests).Returns([request.Object]);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([request.Object]);
+		hospital.Setup(x => x.IsEmployee(doctor.Object)).Returns(true);
+		hospital.Setup(x => x.IsEmployee(patient.Object)).Returns(false);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+
+		var task = new EmploymentActiveTask(
+			hospital.Object,
+			"treat Patient: Full Treatment",
+			new EmploymentActionPlan([new HospitalServiceActionStep(hospital.Object, request.Object)]),
+			Guid.NewGuid());
+		task.Assign(doctor.Object);
+		task.MarkStep(0, EmploymentActionStepStatus.Blocked,
+			new EmploymentActionStepOperationalState(
+				SelectedResources: "operation=collect;actor=202;items=901",
+				ReservationReference: "op=reserve;type=medical-supply;items=901",
+				FailureDiagnostic: "The required hospital supplies have not yet been prepared."));
+		task.Block("The required hospital supplies have not yet been prepared.");
+		taskId = task.Id;
+
+		var taskBoard = new Mock<IEmploymentTaskBoard>();
+		taskBoard.SetupGet(x => x.ActiveTasks).Returns([task]);
+		hospital.SetupGet(x => x.TaskBoard).Returns(taskBoard.Object);
+		var hospitals = new All<IHospital>();
+		hospitals.Add(hospital.Object);
+		gameworld.SetupGet(x => x.Hospitals).Returns(hospitals);
+		var admin = Character(203, "Admin", administrator: true, gameworld: gameworld.Object, location: foyer.Object).Object;
+
+		InvokeHospitalCommand(admin, "hospital operations");
+
+		Mock.Get(admin.OutputHandler).Verify(x => x.Send(
+			It.Is<string>(text =>
+				text.Contains("Hospital Operations", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("Operating Theatres", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("Theatre One", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("Reserved", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("Full Treatment", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("patient at Waiting Ward", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("The required hospital supplies have not yet been prepared", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("op=reserve;type=medical-supply;items=901", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("Supply Store", StringComparison.OrdinalIgnoreCase)),
+			It.IsAny<bool>(),
+			It.IsAny<bool>()), Times.Once);
 	}
 
 	[TestMethod]
@@ -2696,6 +2793,29 @@ public class EmploymentCommandServiceTests
 
 		StringAssert.Contains(rendered, "Deliver apples");
 		StringAssert.Contains(rendered, "Active Tasks");
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_TasksListShowsBlockedReason()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(65, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = host.TaskBoard.CreateActiveTask(
+			"Treat patient",
+			new EmploymentActionPlan([new DeliverItemsActionStep(manager.Location)]),
+			manager);
+		var concrete = (EmploymentActiveTask)task;
+		concrete.Assign(manager);
+		concrete.Block("The operating theatre is occupied.");
+		var service = new EmploymentCommandService();
+
+		var rendered = service.RenderTasks(manager, host);
+
+		StringAssert.Contains(rendered, "Treat patient");
+		StringAssert.Contains(rendered, "The operating theatre is occupied.");
 	}
 
 	[TestMethod]

@@ -134,7 +134,7 @@ public static class HospitalPatientFlow
 		}
 
 		var patient = request.Patient;
-		if (theatre.Characters.Any(x => !hospital.IsEmployee(x) && (patient is null || !CharacterInstanceIdentityComparer.SamePhysicalInstance(x, patient))))
+		if (theatre.Characters.Any(x => !x.IsAdministrator() && !hospital.IsEmployee(x) && (patient is null || !CharacterInstanceIdentityComparer.SamePhysicalInstance(x, patient))))
 		{
 			reason = $"Operating theatre {theatre.Name} is occupied by someone unrelated to this request.";
 			return false;

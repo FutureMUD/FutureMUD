@@ -1663,7 +1663,6 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
 
             List<ICrime> crimes = jurisdiction.KnownCrimesForIndividual(actor).ToList();
             actor.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == jurisdiction, true);
-            actor.AddEffect(new OnTrial(actor, jurisdiction, DateTime.UtcNow, crimes));
             actor.OutputHandler.Handle(new EmoteOutput(
                 new Emote(actor.Gameworld.GetStaticString("RequestTrialEmoteOrigin"), actor, actor),
                 flags: OutputFlags.SuppressSource));
@@ -1674,6 +1673,7 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
             actor.Location.Leave(actor);
             actor.RoomLayer = RoomLayer.GroundLevel;
             jurisdiction.CourtLocation.Enter(actor);
+            actor.AddEffect(new OnTrial(actor, jurisdiction, DateTime.UtcNow, crimes));
             actor.Body.Look(true);
             actor.OutputHandler.Handle(new EmoteOutput(
                 new Emote(actor.Gameworld.GetStaticString("RequestTrialEmoteCourt"), actor, actor),
@@ -2691,10 +2691,10 @@ The syntax is as follows:
 
         target.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == jurisdiction, true);
         target.RemoveAllEffects<InCustodyOfEnforcer>(x => x.LegalAuthority == jurisdiction, true);
-        target.AddEffect(new OnTrial(target, jurisdiction, DateTime.UtcNow, crimes, manualTrial: true));
 
         if (target.Location == jurisdiction.CourtLocation)
         {
+            target.AddEffect(new OnTrial(target, jurisdiction, DateTime.UtcNow, crimes, manualTrial: true));
             actor.OutputHandler.Handle(new QuickEmote("@ call|calls $1 before the court to answer the charges.", actor, actor, target));
             return;
         }
@@ -2709,6 +2709,7 @@ The syntax is as follows:
         target.Location.Leave(target);
         target.RoomLayer = RoomLayer.GroundLevel;
         jurisdiction.CourtLocation.Enter(target);
+        target.AddEffect(new OnTrial(target, jurisdiction, DateTime.UtcNow, crimes, manualTrial: true));
         target.Body.Look(true);
         target.OutputHandler.Handle(new EmoteOutput(
             new Emote(actor.Gameworld.GetStaticString("FetchCriminalForTrialEmoteCourt"), target, target),

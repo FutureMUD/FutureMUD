@@ -65,14 +65,21 @@ internal class StorytellerModule : Module<ICharacter>
     public static StorytellerModule Instance { get; } = new();
 
     public const string InstanceCommandHelp =
-        @"This command gives staff limited controls for secondary character instances.
+        @"The #3instance#0 command gives staff limited controls for secondary character instances belonging to a loaded character.
 
-Syntax:
-	#3instance list <character>#0
-	#3instance spawn <character> <form> [here|room <cell id>] [persistent|temporary] [passive|focusable|ai|npcai|scriptai] [cloneinventory]#0
-	#3instance move <instance id|target> here|room <cell id>#0
-	#3instance retire <instance id|target>#0
-	#3instance audit <character>|all#0";
+Use this command to inspect, spawn, move, retire and audit non-primary character instances. Instance owners and instances can generally be resolved by visible target, loaded character name or ID, while forms are resolved from the owner's known forms.
+
+The #3spawn#0 options after the form can be supplied in any order. #3ai#0 chooses NPC AI for NPC identities and script AI for other identities, while #3npcai#0 and #3scriptai#0 force a specific AI mode. #3cloneinventory#0 copies inventory to the new body where supported.
+Use #3audit all#0 for persisted instance row and global actor-cache diagnostics. Use #3audit <character>#0 for the loaded identity currently in memory.
+
+The syntax is as follows:
+	#3instance list <character>#0 - lists all loaded instances for a character
+	#3instance spawn <character> <form> [here|room <cell id>] [persistent|temporary] [passive|focusable|ai|npcai|scriptai] [cloneinventory]#0 - spawns a secondary instance
+	#3instance move <instance id|target> here|room <cell id>#0 - moves a secondary instance
+	#3instance retire <instance id|target>#0 - retires a secondary instance and removes temporary rows
+	#3instance despawn <instance id|target>#0 - alias for #3instance retire#0
+	#3instance audit <character>#0 - audits loaded instances for a character
+	#3instance audit all#0 - audits persisted instance rows and loaded actor caches";
 
     [PlayerCommand("Instance", "instance")]
     [CommandPermission(PermissionLevel.Admin)]
@@ -514,10 +521,23 @@ Syntax:
             $"Audited loaded instances for {target.HowSeen(actor, true)}.\n\n{CharacterInstanceDiagnostics.RenderDiagnosticsTable(diagnostics, actor.LineFormatLength, actor.Account.UseUnicode)}");
     }
 
+    private const string SpyHelp =
+        @"The #3spy#0 command toggles staff spying on one or more cells, causing you to receive output from those locations as if you were there.
+
+Use #3spy here#0 to toggle your current cell, #3spy <cell id>#0 for a specific cell, and #3spy list#0 to review active spy locations.
+
+Spying is stored as an effect on you. Toggling a cell you already spy on removes it, and #3spy clear#0 removes every spied cell at once.
+
+The syntax is as follows:
+	#3spy list#0 - lists all cells you are spying on
+	#3spy here#0 - toggles spying on your current cell
+	#3spy <cell id>#0 - toggles spying on a specific cell
+	#3spy clear#0 - clears all spied cells
+	#3spy none#0 - alias for #3spy clear#0
+	#3spy off#0 - alias for #3spy clear#0";
+
     [PlayerCommand("Spy", "spy")]
-    [HelpInfo("spy",
-        "This command allows you to toggle spying on a location, which means you'll see all output as if you were there.\r\n\r\nSyntax:\r\n\tSPY LIST - shows you where you're spying\r\n\tSPY HERE - toggles the current location's spy status\r\n\tSPY <ID> - toggles the specified cell ID's spy status",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("spy", SpyHelp, AutoHelp.HelpArgOrNoArg)]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
     protected static void Spy(ICharacter actor, string input)
     {
@@ -589,12 +609,19 @@ Syntax:
         actor.Send($"You are now spying on {targetCell.HowSeen(actor)} ({targetCell.Id})");
     }
 
+    private const string NewPlayerHelp =
+        @"The #3newplayer#0 command adds the New Player room-description marker to a visible character.
+
+Use this when a real new player accidentally loses their marker and asks for it back, or when staff deliberately want an NPC to present as a new player for a scene.
+
+The command refuses targets that already have the marker. The effect expires using the normal new-player effect duration.
+
+The syntax is as follows:
+	#3newplayer <target>#0 - adds the New Player marker to a visible character";
+
     [PlayerCommand("NewPlayer", "newplayer")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("newplayer",
-        @"This command allows you to add the ""New Player"" tag that accompanies the in-room description of new players for the first 48 hours of their play time. You can use this to add it to someone who accidentally removes it and requests that it be added back, and you can also use it on NPCs to 'fake' being a new player.
-
-The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("newplayer", NewPlayerHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void NewPlayer(ICharacter actor, string input)
     {
         ICharacter target = actor.TargetActor(input.RemoveFirstWord());
@@ -614,19 +641,24 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
         actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is now tagged as a new player.");
     }
 
+    private const string RecentSpeechHelp =
+        @"The #3recentspeech#0 command shows speech events remembered for your current room by the storyteller recent speech context system.
+
+Use it without arguments to show all retained speech context for the room, or add relative time filters to narrow the result.
+
+#3from#0 and #3since#0 set the older boundary, while #3to#0 and #3until#0 set the newer boundary. Timespans are relative to now and are parsed using your account culture, such as #301:00:00#0 for one hour ago. If both filters are used, the FROM value must be greater than or equal to the TO value.
+
+The syntax is as follows:
+	#3recentspeech#0 - shows all retained room speech context
+	#3recentspeech from <timespan>#0 - shows events since that relative time
+	#3recentspeech since <timespan>#0 - alias for #3from#0
+	#3recentspeech to <timespan>#0 - shows events up to that relative time
+	#3recentspeech until <timespan>#0 - alias for #3to#0
+	#3recentspeech from <timespan> to <timespan>#0 - shows events between two relative times";
+
     [PlayerCommand("RecentSpeech", "recentspeech")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("recentspeech",
-        @"This command shows speech events remembered for your current room by the storyteller recent speech context system.
-
-Syntax:
-	recentspeech
-	recentspeech from <timespan>
-	recentspeech to <timespan>
-	recentspeech from <timespan> to <timespan>
-
-The <timespan> values are relative to now (e.g. 01:00:00 = 1 hour ago).
-With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("recentspeech", RecentSpeechHelp, AutoHelp.HelpArg)]
     protected static void RecentSpeech(ICharacter actor, string input)
     {
         if (actor.Location is not ICell location)
@@ -770,8 +802,19 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
         return $"from {fromText} to {toText}";
     }
 
+    private const string FullAuditHelp =
+        @"The #3fullaudit#0 command audits a chargen resource across all accounts in the database.
+
+Use this to see every account's current amount and last award date for a specific chargen resource, ordered by amount and recency.
+
+The resource can be supplied by name or alias. This command queries accounts directly from the database, so it is broader than #3audit#0.
+
+The syntax is as follows:
+	#3fullaudit <resource>#0 - shows every account's amount and last award date for a chargen resource";
+
     [PlayerCommand("FullAudit", "fullaudit")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("fullaudit", FullAuditHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void FullAudit(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -810,8 +853,19 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
         }
     }
 
+    private const string AuditHelp =
+        @"The #3audit#0 command audits a chargen resource for currently loaded player characters.
+
+Use this to see which online or loaded characters' accounts currently hold a specific chargen resource, along with their last award date.
+
+The resource can be supplied by name or alias. For a database-wide account audit, use #3fullaudit#0 instead.
+
+The syntax is as follows:
+	#3audit <resource>#0 - shows loaded characters' account values for a chargen resource";
+
     [PlayerCommand("Audit", "audit")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("audit", AuditHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Audit(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -848,7 +902,18 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
         ));
     }
 
+    private const string ImmCommandsHelp =
+        @"The #3immcommands#0 command lists staff commands available between Junior Admin level and your current permission level.
+
+Use it as a quick staff command reference for your current command tree.
+
+This command takes no arguments and only reports commands visible to your current permission state.
+
+The syntax is as follows:
+	#3immcommands#0 - lists available staff commands";
+
     [PlayerCommand("ImmCommands", "immcommands")]
+    [HelpInfo("immcommands", ImmCommandsHelp, AutoHelp.HelpArg)]
     protected static void ImmCommands(ICharacter actor, string input)
     {
         actor.OutputHandler.Send(
@@ -927,9 +992,21 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
             $"You decide not to {(award ? "award" : "deduct")} {((IChargenResource)arguments[5]).PluralName} {(award ? "to" : "from")} {(string)arguments[4]}.");
     }
 
+    private const string AwardHelp =
+        @"The #3award#0 and #3deduct#0 commands add or remove chargen resources from an account and require a staff note explaining the change.
+
+Use #3award#0 to give an account a chargen resource, and #3deduct#0 to remove one. After validation, you are placed in the editor to enter the audit note text.
+
+If no amount is supplied, the command uses #31#0. Awarding respects the resource's per-award maximum, minimum time between awards, and permission requirements; deducting uses the same resource lookup but subtracts the amount.
+
+The syntax is as follows:
+	#3award <account> <resource> [amount]#0 - awards a chargen resource to an account
+	#3deduct <account> <resource> [amount]#0 - deducts a chargen resource from an account";
+
     [PlayerCommand("Award", "award", "deduct")]
     [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("award", AwardHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Award(ICharacter character, string input)
     {
         StringStack ss = new(input);
@@ -1028,11 +1105,25 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
         }
     }
 
+    private const string ForceHelp =
+        @"The #3force#0 command makes another character, or a filtered group of characters, execute a command.
+
+Use individual force for a visible local target, #3force here#0 for eligible visible characters in your room, and the wider game forms only for serious staff interventions.
+
+All staff see wiz-only output when this command is used. Targets with a NOFORCE effect are skipped or refused. Non-Implementors cannot force staff of equal or higher authority. The #3all#0, #3players#0 and #3npcs#0 forms require Senior Admin and require you to type #3ACCEPT#0 within the confirmation window.
+There is no #3force local#0 form; use #3force here#0 for the current room.
+
+The syntax is as follows:
+	#3force <target> <command>#0 - forces one visible target to execute a command
+	#3force here <command>#0 - forces eligible visible PCs and NPCs in your room
+	#3force npcshere <command>#0 - forces eligible NPCs in your room
+	#3force all <command>#0 - forces eligible PCs and NPCs in the game; Senior Admin only
+	#3force players <command>#0 - forces eligible PCs in the game; Senior Admin only
+	#3force npcs <command>#0 - forces eligible NPCs in the game; Senior Admin only";
+
     [PlayerCommand("Force", "force")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("force",
-        "This command allows you to force someone or a group of someones to do a specified command. All admins will see that you used this command. Non-Implementors cannot force admins of equal or higher authority; group forms skip those admins. There are a few different versions:\n\tforce <target> <command> - forces an individual target to do a command\n\tforce here <command> - forces all eligible visible characters (PC and NPC) in the room\n\tforce npchere <command> - same as here, but excludes all PCs\n\tforce all <command> - can only be used by senior admins and up - forces all eligible PCs and NPCs in the game\n\tforce players <command> - can only be used by senior admins and up - forces all eligible PCs in the game\n\tforce npcs <command> - can only be used by senior admins and up - forces all NPCs in the game\n\nThere is no FORCE LOCAL form; use FORCE HERE for the local room.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("force", ForceHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Force(ICharacter character, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1222,11 +1313,19 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
         target.ExecuteCommand(ss.RemainingArgument);
     }
 
+    private const string AsHelp =
+        @"The #3as#0 command briefly executes a command while controlling another visible character.
+
+Use this when you need a command to run from another character's context rather than forcing their normal controller to do it.
+
+Only Implementors may use #3as#0 on staff characters. Other admins may only use it on non-admin characters. The target must be visible in your current location, and your original controller is restored after the command runs.
+
+The syntax is as follows:
+	#3as <target> <command>#0 - executes a command as a visible target";
+
     [PlayerCommand("As", "as")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("as",
-        "This command allows you to briefly execute a command as another visible character. Only Implementors may use AS on another admin; non-Implementor admins may only AS non-admin characters.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("as", AsHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void As(ICharacter character, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1274,15 +1373,16 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
         }
     }
 
-    public const string LoadCurrencyHelp = @"This command is used to load an amount of currency into the world. Currency exists as a virtual currency pile object and so cannot be loaded directly using the normal methods.
+    public const string LoadCurrencyHelp = @"The #3loadcurrency#0 command creates a physical currency pile for your current staff currency.
 
-This command will assume you are referring to whatever currency is set as your current currency via #3set currency#0.
+Use normal currency text to load an amount, or use the #3coins#0 form to specify exact coin counts. The command uses the currency selected with #3set currency#0.
 
-The syntax to use this command is as follows:
+If the currency cannot make an exact pile for the requested amount, you receive a warning and the closest generated coin set is loaded. If your hands are full, the currency pile is placed on the ground. The exact-coin form cannot specify the same coin type twice.
 
-	#3loadcurrency <amounts>#0 - loads the specified currency amounts. You can specify multiple.
-	#3loadcurrency coins <##> <cointype>#0 - loads specific coins. You can specify multiple.
-	#3loadcurrency <##>#0 - loads the specified base value in coins";
+The syntax is as follows:
+	#3loadcurrency <amount>#0 - loads a pile worth the specified amount
+	#3loadcurrency <currency text>#0 - loads a pile using that currency's amount parser
+	#3loadcurrency coins <count> <coin> [<count> <coin>]...#0 - loads exact coin counts";
 
     [PlayerCommand("LoadCurrency", "loadcurrency")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -1387,11 +1487,22 @@ The syntax to use this command is as follows:
         }
     }
 
+    private const string LoadCommodityHelp =
+        @"The #3loadcommodity#0 command creates a commodity pile, which is a raw bulk quantity of a solid material.
+
+Specify a mass, a material, and optional commodity metadata. Materials can be supplied by ID or name, and weights are parsed using the game's unit manager.
+
+Use #3tag <tag>#0 for multi-word tags. The legacy bare tag form is still accepted, but the explicit #3tag#0 keyword is clearer when also adding characteristics. Repeating a characteristic definition replaces the previous value for that definition. If your hands are full, the commodity is placed on the ground.
+
+The syntax is as follows:
+	#3loadcommodity <weight> <material>#0 - loads a commodity pile
+	#3loadcommodity <weight> <material> tag <tag>#0 - loads a tagged commodity pile
+	#3loadcommodity <weight> <material> characteristic <definition> <value>#0 - loads a commodity with a characteristic
+	#3loadcommodity <weight> <material> tag <tag> characteristic <definition> <value> [characteristic <definition> <value>]...#0 - combines tag and characteristics";
+
     [PlayerCommand("LoadCommodity", "loadcommodity")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("loadcommodity",
-        "This command allows you to load commodities, which are raw quantities of bulk materials. The syntax is #3loadcommodity <weight> <material> [<tag>|tag <tag>] [characteristic <definition> <value>]...#0.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("loadcommodity", LoadCommodityHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void LoadCommodity(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1540,11 +1651,21 @@ The syntax to use this command is as follows:
         commodity.HandleEvent(EventType.ItemFinishedLoading, commodity);
     }
 
+    private const string LoadColourLiquidHelp =
+        @"The #3loadcolourliquid#0 command fills a liquid container with a special coloured liquid such as tattoo ink.
+
+Specify the colour-liquid type, colour, and target liquid container. You can target a container in the room or inventory, or a container held by another visible character.
+
+The currently supported colour-liquid type is #3tattoo_ink#0. The command fills the target's remaining liquid capacity and refuses non-liquid containers or containers that are already full. #3loadcolorliquid#0 is an accepted spelling alias.
+
+The syntax is as follows:
+	#3loadcolourliquid tattoo_ink <colour> <container>#0 - loads tattoo ink into a local container
+	#3loadcolourliquid tattoo_ink <colour> <holder> <container>#0 - loads tattoo ink into a container held by another character
+	#3loadcolorliquid tattoo_ink <colour> <container>#0 - spelling alias";
+
     [PlayerCommand("LoadColourLiquid", "loadcolourliquid", "loadcolorliquid")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("LoadColourLiquid",
-        @"The LoadColourLiquid command is used to load coloured liquids, such as tattoo ink. The syntax is #3loadcolourliquid <type> <colour> <target>#0.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("loadcolourliquid", LoadColourLiquidHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void LoadColourLiquid(ICharacter character, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1647,8 +1768,20 @@ The syntax to use this command is as follows:
         lqtarget.MergeLiquid(liquid, character, "loadliquid");
     }
 
+    private const string LoadBloodHelp =
+        @"The #3loadblood#0 command fills a liquid container with blood from a character.
+
+Specify the source character, then the target liquid container. The source can be a visible character keyword or a character ID.
+
+The command fills the target's remaining liquid capacity and refuses non-liquid containers or containers that are already full. You can target a container held by another visible character by supplying the holder before the container keyword.
+
+The syntax is as follows:
+	#3loadblood <character|id> <container>#0 - loads that character's blood into a local container
+	#3loadblood <character|id> <holder> <container>#0 - loads that character's blood into a held container";
+
     [PlayerCommand("LoadBlood", "loadblood")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("loadblood", LoadBloodHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void LoadBlood(ICharacter character, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1719,7 +1852,7 @@ The syntax to use this command is as follows:
         LiquidMixture liquid =
             new(
                 new List<LiquidInstance>
-                    { new BloodLiquidInstance(character, lqtarget.LiquidCapacity - lqtarget.LiquidVolume) },
+                    { new BloodLiquidInstance(targetCharacter, lqtarget.LiquidCapacity - lqtarget.LiquidVolume) },
                 character.Gameworld);
         character.OutputHandler.Handle(
             new EmoteOutput(new Emote($"@ load|loads $1's blood into $0.", character, target, targetCharacter),
@@ -1728,8 +1861,20 @@ The syntax to use this command is as follows:
         lqtarget.MergeLiquid(liquid, character, "loadliquid");
     }
 
+    private const string LoadLiquidHelp =
+        @"The #3loadliquid#0 command fills a liquid container with a standard liquid.
+
+Specify the liquid by ID or exact name, then the target liquid container. You can target a container in the room or inventory, or a container held by another visible character.
+
+The command fills the target's remaining liquid capacity and refuses non-liquid containers or containers that are already full.
+
+The syntax is as follows:
+	#3loadliquid <liquid|id> <container>#0 - loads a liquid into a local container
+	#3loadliquid <liquid|id> <holder> <container>#0 - loads a liquid into a held container";
+
     [PlayerCommand("LoadLiquid", "loadliquid")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("loadliquid", LoadLiquidHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void LoadLiquid(ICharacter character, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1808,8 +1953,20 @@ The syntax to use this command is as follows:
             "loadliquid");
     }
 
+    private const string LoadGasHelp =
+        @"The #3loadgas#0 command fills a gas container with a standard gas at its one-atmosphere capacity.
+
+Specify the gas by ID or exact name, then the target gas container. You can target a container in the room or inventory, or a container held by another visible character.
+
+Loading gas replaces the container's current gas and fills it to capacity at one atmosphere. The command refuses non-gas containers.
+
+The syntax is as follows:
+	#3loadgas <gas|id> <container>#0 - loads a gas into a local gas container
+	#3loadgas <gas|id> <holder> <container>#0 - loads a gas into a held gas container";
+
     [PlayerCommand("LoadGas", "loadgas")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("loadgas", LoadGasHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void LoadGas(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1879,8 +2036,19 @@ The syntax to use this command is as follows:
                 flags: OutputFlags.SuppressObscured));
     }
 
+    private const string NotesHelp =
+        @"The #3notes#0 command lists account notes for an account.
+
+Use this to review the note IDs, dates, authors and subjects recorded against an account.
+
+Journal entries appear in the same table and are marked in the Journal column. Use #3note read <id>#0 to read a note's full text.
+
+The syntax is as follows:
+	#3notes <account>#0 - lists notes for an account";
+
     [PlayerCommand("Notes", "notes")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("notes", NotesHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Notes(ICharacter character, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2021,8 +2189,20 @@ The syntax to use this command is as follows:
         }
     }
 
+    private const string NoteHelp =
+        @"The #3note#0 command reads or writes account notes.
+
+Use #3note read#0 with a note ID from #3notes#0, or #3note write#0 to create a new note and enter its body in the text editor.
+
+Written notes are account notes, not character journal entries. The subject is the rest of the command after the account name.
+
+The syntax is as follows:
+	#3note read <id>#0 - reads an account note
+	#3note write <account> <subject>#0 - opens the editor to write a new account note";
+
     [PlayerCommand("Note", "note")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("note", NoteHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Note(ICharacter character, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2040,8 +2220,19 @@ The syntax to use this command is as follows:
         }
     }
 
+    private const string MortalHelp =
+        @"The #3mortal#0 command removes your admin sight effect and returns you to mortal perception.
+
+Use this when you no longer want the enhanced staff perception granted by #3immortal#0.
+
+This command takes no arguments. If you are already mortal, it reports that no change is needed.
+
+The syntax is as follows:
+	#3mortal#0 - removes admin sight";
+
     [PlayerCommand("Mortal", "mortal")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("mortal", MortalHelp, AutoHelp.HelpArg)]
     protected static void Mortal(ICharacter actor, string input)
     {
         if (!actor.AffectedBy<IAdminSightEffect>())
@@ -2056,8 +2247,19 @@ The syntax to use this command is as follows:
         actor.Gameworld.GameStatistics.UpdateOnlinePlayers();
     }
 
+    private const string ImmWalkHelp =
+        @"The #3immwalk#0 command toggles Imm Walk on yourself for staff movement.
+
+Use this when staff movement needs to bypass normal movement restrictions handled by the Imm Walk effect.
+
+This command takes no arguments and toggles the effect on or off.
+
+The syntax is as follows:
+	#3immwalk#0 - toggles Imm Walk";
+
     [PlayerCommand("ImmWalk", "immwalk")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("immwalk", ImmWalkHelp, AutoHelp.HelpArg)]
     protected static void ImmWalk(ICharacter actor, string input)
     {
         if (actor.AffectedBy<IImmwalkEffect>())
@@ -2072,8 +2274,20 @@ The syntax to use this command is as follows:
         }
     }
 
+    private const string ImmortalHelp =
+        @"The #3immortal#0 command gives you admin sight.
+
+Use this to enable the enhanced staff perception associated with immortality. #3imm#0 is an alias.
+
+This command takes no arguments. If you already have admin sight, it reports that you are already immortal.
+
+The syntax is as follows:
+	#3immortal#0 - enables admin sight
+	#3imm#0 - alias for #3immortal#0";
+
     [PlayerCommand("Immortal", "immortal", "imm")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("immortal", ImmortalHelp, AutoHelp.HelpArg)]
     protected static void Immortal(ICharacter actor, string input)
     {
         if (actor.AffectedBy<IAdminSightEffect>())
@@ -2087,8 +2301,19 @@ The syntax to use this command is as follows:
             flags: OutputFlags.WizOnly));
     }
 
+    private const string TransferHelp =
+        @"The #3transfer#0 command teleports a loaded character to your current location and room layer.
+
+Use this to bring an online or loaded actor to you by name or keyword.
+
+The target is resolved from loaded actors, not offline character records. The command refuses targets already colocated with you.
+
+The syntax is as follows:
+	#3transfer <target>#0 - transfers a loaded actor to your location";
+
     [PlayerCommand("Transfer", "transfer")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("transfer", TransferHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Transfer(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2119,36 +2344,31 @@ The syntax to use this command is as follows:
     }
 
     public const string SkillCommandHelp =
-        @"This skill allows you to create and edit skills, as well as adding, removing, setting the level, pausing and unpausing skills for players.
+        @"The #3skill#0 command lets staff inspect skill definitions, manage character skill values, and edit skill definitions.
 
-This is the syntax for the storyteller portion of the command:
+Use #3skill add#0, #3skill remove#0 and #3skill level#0 for a character's skills. Use #3skill list#0, #3skill show#0 and the edit forms for the skill definitions themselves.
 
-	#3skill add <who> <skill> [<level>]#0 - adds a skill to a character
+Skill definition editing commands require Senior Admin or higher. Character targets can be visible targets, loaded character IDs, or personal names. #3pause#0 and #3unpause#0 are recognised by the parser but currently report that they are coming soon.
+When changing a skill cap formula, you will usually want #3traitexpression#0 to edit the existing expression rather than assigning a different expression.
+
+The syntax is as follows:
+	#3skill list [filter]#0 - lists skills
+	#3skill add <who> <skill> [level]#0 - adds a skill to a character
 	#3skill remove <who> <skill>#0 - removes a skill from a character
-	#3skill level <who> <skill> <level>#0 - sets a character's skill to the specified amount
-
-This is the syntax for editing skills:
-
-	#3skill edit <skill>#0 - begins editing a particular skill
-	#3skill edit#0 - synonymous with SKILL VIEW on your currently edited skill
-	#3skill edit new <name>#0 - creates a new skill
-	#3skill clone <cloned> <name>#0 - clones an existing skill
+	#3skill level <who> <skill> [level]#0 - adds or sets a character's skill level
+	#3skill pause <who> <skill>#0 - recognised but not yet implemented
+	#3skill unpause <who> <skill>#0 - recognised but not yet implemented
+	#3skill show <skill>#0 - shows details of a skill definition
+	#3skill view <skill>#0 - alias for #3skill show#0
+	#3skill edit <skill>#0 - begins editing a skill definition; Senior Admin only
+	#3skill edit#0 - shows the skill definition you are editing
+	#3skill edit new <name>#0 - creates and edits a new skill; Senior Admin only
 	#3skill edit close#0 - stops editing a skill
-	#3skill show <skill>#0 - shows details of a skill
-	#3skill set name <name>#0 - edits the name of a skill
-	#3skill set expression <expression>#0 - changes the cap expression for a skill(*)
-	#3skill set improver <which>#0 - sets the skill improver for a skill
-	#3skill set describer <which>#0 - sets the skill describer for a skill
-	#3skill set group <group>#0 - sets the skill group for a skill
-	#3skill set branch <multiplier%>#0 - sets the branch multiplier for a skill
-	#3skill set chargen <prog>#0 - sets a prog to determine chargen availability
-	#3skill set teachable <prog>#0 - sets a prog to determine teachability
-	#3skill set learnable <prog>#0 - sets a prog to determine learnability
-	#3skill set teach <difficulty>#0 - sets the difficulty of teaching the skill
-	#3skill set learn <difficulty>#0 - sets the difficulty of learning the skill
-	#3skill set hidden#0 - toggles this being a hidden skill
+	#3skill clone <cloned> <name>#0 - clones an existing skill to a new one; Senior Admin only
+	#3skill set <field> <value>#0 - sends a builder command to the skill you are editing; Senior Admin only
 
-Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit the existing trait expression rather than changing to a new one";
+Common #3skill set#0 fields:
+	#3name <name>#0, #3expression <expression>#0, #3improver <which>#0, #3describer <which>#0, #3group <group>#0, #3branch <multiplier%>#0, #3chargen <prog>#0, #3teachable <prog>#0, #3learnable <prog>#0, #3teach <difficulty>#0, #3learn <difficulty>#0, #3hidden#0";
 
     [PlayerCommand("Skill", "skill")]
     [CommandPermission(PermissionLevel.Admin)]
@@ -2515,11 +2735,19 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
         actor.OutputHandler.Send($"You are now editing the {skill.Name.TitleCase().ColourName()} skill.");
     }
 
+    private const string SetAttributeHelp =
+        @"The #3setattribute#0 command sets the numeric value of an attribute on a visible character.
+
+Use this for staff correction or testing when a character's attribute value needs to be set directly.
+
+The target must currently have the attribute. Attribute names are matched by prefix from the target's attributes, and the value must be a valid number.
+
+The syntax is as follows:
+	#3setattribute <target> <attribute> <value>#0 - sets a character's attribute value";
+
     [PlayerCommand("SetAttribute", "setattribute")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("setattribute",
-        "This command allows you to set the value of an attribute on a character. The syntax is SETATTRIBUTE <target> <attribute> <value>.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("setattribute", SetAttributeHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void SetAttribute(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2567,8 +2795,20 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
             $"You set the value of {target.HowSeen(actor, type: DescriptionType.Possessive)} {attribute.Name.ColourName()} attribute to {value.ToString("N2", actor).ColourValue()} ({attribute.Decorator.Decorate(value)})");
     }
 
+    private const string DecayHelp =
+        @"The #3decay#0 command adds decay points to all corpses and severed body parts in your current room layer.
+
+Use it without an amount to apply the default #31,000#0 decay points, or specify an amount for a stronger or weaker decay pass.
+
+Only corpse and severed body part components in your current room layer are affected.
+
+The syntax is as follows:
+	#3decay#0 - adds 1,000 decay points
+	#3decay <amount>#0 - adds a specified number of decay points";
+
     [PlayerCommand("Decay", "decay")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("decay", DecayHelp, AutoHelp.HelpArg)]
     protected static void Decay(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2597,8 +2837,19 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
         actor.Send("You add {0:N} decay points to all corpses in the room.", decay);
     }
 
+    private const string KillHelp =
+        @"The #3kill#0 command immediately kills a visible character.
+
+Use this only for direct staff intervention when a character should die immediately.
+
+You must type the full #3kill#0 command word and supply a visible target. The command refuses self-targeting and active admin avatars.
+
+The syntax is as follows:
+	#3kill <target>#0 - immediately kills a visible non-admin target";
+
     [PlayerCommand("Kill", "kill")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("kill", KillHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Kill(ICharacter actor, string input)
     {
         StringStack ss = new(input);
@@ -2637,8 +2888,20 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
         target.Die();
     }
 
+    private const string ResurrectHelp =
+        @"The #3resurrect#0 command restores a dead player character from their final corpse or from an offline character ID.
+
+Use the corpse form when the final corpse is present, or the #3*<id>#0 form when resurrecting an offline dead PC by character ID.
+
+The corpse must represent the final death of the character, not ordinary remains. The offline form deletes existing final-death corpses for that character after resurrection. Player characters are unloaded after resurrection so they can log in normally.
+
+The syntax is as follows:
+	#3resurrect <corpse>#0 - resurrects the dead character represented by a final corpse
+	#3resurrect *<character id>#0 - resurrects an offline dead player character by ID";
+
     [PlayerCommand("Resurrect", "resurrect")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("resurrect", ResurrectHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Resurrect(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2734,8 +2997,19 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
         }
     }
 
+    private const string PossessHelp =
+        @"The #3possess#0 command transfers your control into a visible NPC.
+
+Use this when you need to directly roleplay or operate an NPC. Use #3return#0 while possessing to return to your original body.
+
+You can only possess NPC targets, and only one staff member can possess an NPC at a time. You cannot start a new possession while already possessing. Admin telepathy, admin sight and admin spy effects are copied to the possessed NPC where relevant.
+
+The syntax is as follows:
+	#3possess <npc>#0 - takes control of a visible NPC";
+
     [PlayerCommand("Possess", "possess")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("possess", PossessHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Possess(ICharacter actor, string input)
     {
         if (actor.EffectsOfType<Switched>().Any())
@@ -2802,8 +3076,20 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
         actor.SetNoControllerTags(" (switched)");
     }
 
+    private const string GiveInvisHelp =
+        @"The #3giveinvis#0 command adds or removes a prog-controlled invisibility effect from a perceivable target.
+
+Use this for targeted storyteller invisibility where a FutureProg decides whether the invisibility applies to a perceiver and target.
+
+The prog must return boolean and accept two perceivable parameters. #3giveinvis clear#0 removes all basic invisibility effects from the target; it does not remove admin invisibility.
+
+The syntax is as follows:
+	#3giveinvis <target> <prog>#0 - adds prog-controlled invisibility to a target
+	#3giveinvis clear <target>#0 - removes basic invisibility effects from a target";
+
     [PlayerCommand("GiveInvis", "giveinvis")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("giveinvis", GiveInvisHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void GiveInvis(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2873,8 +3159,19 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
         target.AddEffect(new Invis(target, prog));
     }
 
+    private const string GiveEmpathyHelp =
+        @"The #3giveempathy#0 command grants a visible character the persistent empathy effect.
+
+Use this when staff need to give a character the ability to sense feelings in and around their current room.
+
+The command refuses targets who already have empathy. The effect is saving and remains on the target until removed by other staff tooling or effect cleanup.
+
+The syntax is as follows:
+	#3giveempathy <target>#0 - gives empathy to a visible character";
+
     [PlayerCommand("GiveEmpathy", "giveempathy")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("giveempathy", GiveEmpathyHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void GiveEmpathy(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2903,13 +3200,19 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
             $"You give {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)} the gift of empathy.");
     }
 
+    private const string MeritSearchHelp =
+        @"The #3meritsearch#0 command searches online player characters by merit and flaw.
+
+Specify one or more merits or flaws by ID or name. The result shows online characters who have every specified merit or flaw.
+
+Multiple arguments are combined as an AND search, not OR. The search checks currently loaded player characters.
+
+The syntax is as follows:
+	#3meritsearch <merit|flaw> [<merit|flaw>]...#0 - finds online characters with all specified merits or flaws";
+
     [PlayerCommand("MeritSearch", "meritsearch")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("meritsearch", @"The MeritSearch command is used to search for online character with particular merits or flaws. 
-
-The syntax is #3meritsearch <merit1> <merit2> ...#0. 
-
-If you specify multiple merits and flaws, it will search for only those characters who have ALL of them.", AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("meritsearch", MeritSearchHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void MeritSearch(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2948,11 +3251,19 @@ If you specify multiple merits and flaws, it will search for only those characte
         actor.Send(sb.ToString());
     }
 
+    private const string RoleSearchHelp =
+        @"The #3rolesearch#0 command searches online player characters by chargen role.
+
+Specify one or more roles by ID or name. The result shows online characters who have every specified role.
+
+Multiple arguments are combined as an AND search, not OR. The search checks currently loaded player characters.
+
+The syntax is as follows:
+	#3rolesearch <role> [<role>]...#0 - finds online characters with all specified roles";
+
     [PlayerCommand("RoleSearch", "rolesearch")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("rolesearch", @"The Rolesearch command is used to search for online character with particular roles. The syntax is #3rolesearch <role1> <role2> ...#0. 
-
-If you specify multiple roles, it will search for only those characters who have ALL of them.", AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("rolesearch", RoleSearchHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void RoleSearch(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2997,17 +3308,20 @@ If you specify multiple roles, it will search for only those characters who have
         actor.Send(sb.ToString());
     }
 
-    [PlayerCommand("LoadPC", "loadpc")]
-    [CommandPermission(PermissionLevel.SeniorAdmin)]
-    [HelpInfo("loadpc", @"This command is used to load a player character who is not online into the world. This can be useful to for example give them something for next time they log on.
+    private const string LoadPCHelp =
+        @"The #3loadpc#0 command loads an offline player character into the world at your location.
 
-Keep in mind that this actually loads them into the world for all intents and purposes; their health model will start, they will gain hunger and thirst, they will be able to be targeted by spells and other consequences. Once you are done, you can #3force#0 them to #3quit#0 to remove them from the world.
+Use this when staff need an offline PC present for maintenance, recovery, or setup work such as giving them an item before their next login.
+
+The character must be a non-guest player character and must not already be loaded. Loading them has real world effects: their health model runs, hunger and thirst can change, and they can be affected by spells or other systems. When finished, use #3force <target> quit#0 or another appropriate cleanup path to unload them.
+Use #3show account <account>#0 to find character IDs.
 
 The syntax is as follows:
+	#3loadpc <character id>#0 - loads an offline player character by ID";
 
-	#3loadpc <id>#0 - loads the PC with the specified ID
-
-#1Note: to find a character's ID consider using the #3show account <account>#0 #1command.#0", AutoHelp.HelpArgOrNoArg)]
+    [PlayerCommand("LoadPC", "loadpc")]
+    [CommandPermission(PermissionLevel.SeniorAdmin)]
+    [HelpInfo("loadpc", LoadPCHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void LoadPC(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -3050,11 +3364,21 @@ The syntax is as follows:
         actor.Location.Login(character);
     }
 
+    private const string OverrideDescHelp =
+        @"The #3overridedesc#0 command adds or clears a temporary storyteller description override on a perceivable target.
+
+Use #3sdesc#0 to override the short description, #3desc#0 to override the full description, or #3clear#0 to remove storyteller description overrides.
+
+For characters, the effect is applied to the body. Quote multi-word override text so it is consumed as one command argument.
+
+The syntax is as follows:
+	#3overridedesc <target> sdesc ""<description>""#0 - overrides the target's short description
+	#3overridedesc <target> desc ""<description>""#0 - overrides the target's full description
+	#3overridedesc <target> clear#0 - removes storyteller description overrides";
+
     [PlayerCommand("OverrideDesc", "overridedesc")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("overridedesc",
-        "This command allows you to set an override effect on a target that sets their sdesc or desc to something else. The syntax is OVERRIDEDESC <target> sdesc|desc|clear \"<description>\"",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("overridedesc", OverrideDescHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void OverrideDesc(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -3128,11 +3452,20 @@ The syntax is as follows:
         }
     }
 
+    private const string RenameHelp =
+        @"The #3rename#0 command changes a character's true personal name.
+
+Use a visible target or character ID, then provide the new name in the format required by that character's naming culture.
+
+The new name is parsed through the character's ethnicity name culture first, then their culture name culture. Invalid names for that culture are refused.
+
+The syntax is as follows:
+	#3rename <target> <new name>#0 - renames a visible character
+	#3rename <character id> <new name>#0 - renames a loaded or offline character by ID";
+
     [PlayerCommand("Rename", "rename")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("rename",
-        "This command allows you to override a character's true personal name. The syntax is RENAME <target>|<ID> <new name>",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("rename", RenameHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Rename(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -3172,11 +3505,19 @@ The syntax is as follows:
             $"You rename {target.HowSeen(actor)} to {newName.GetName(NameStyle.FullWithNickname)}.");
     }
 
+    private const string RedescHelp =
+        @"The #3redesc#0 command edits a character or corpse's full description in the text editor.
+
+Use it on a visible character or corpse, review the current description and description-pattern guidance, then enter the replacement text in the editor.
+
+The target must be visible as a character or corpse. The entered description replaces the current full description.
+
+The syntax is as follows:
+	#3redesc <target>#0 - edits a target's full description";
+
     [PlayerCommand("Redesc", "redesc")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("redesc",
-        "This command allows you to edit the description of a character. Simply use REDESC <Target>.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("redesc", RedescHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Redesc(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -3213,11 +3554,19 @@ The syntax is as follows:
         handler.Send($"You change the description of {target.HowSeen(actor)} to:\n\n{text.ColourCommand()}");
     }
 
+    private const string ResdescHelp =
+        @"The #3resdesc#0 command edits a character or corpse's short description in the text editor.
+
+Use it on a visible character or corpse, review the current short description and description-pattern guidance, then enter the replacement text in the editor.
+
+The target must be visible as a character or corpse. The entered description replaces the current short description.
+
+The syntax is as follows:
+	#3resdesc <target>#0 - edits a target's short description";
+
     [PlayerCommand("Resdesc", "resdesc")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("resdesc",
-        "This command allows you to edit the short description of a character. Simply use #3redesc <target>#0.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("resdesc", ResdescHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Resdesc(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -3255,21 +3604,23 @@ The syntax is as follows:
         handler.Send($"You change the short description of {old} to {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)}.");
     }
 
+    private const string SniffHelp =
+        @"The #3sniff#0 command shows debug information about world objects and locations.
+
+Use it to inspect effects, hooks, variable-register values and other diagnostic details for rooms, zones, shards, exits, characters and items.
+
+Use #3*<direction>#0 to inspect an exit from your current room, such as #3sniff *north#0. Character and item targets are resolved through normal targeting.
+
+The syntax is as follows:
+	#3sniff here#0 - sniffs your current cell
+	#3sniff zone#0 - sniffs your current zone
+	#3sniff shard#0 - sniffs your current shard
+	#3sniff *<direction>#0 - sniffs an exit
+	#3sniff <target>#0 - sniffs a character or item";
+
     [PlayerCommand("Sniff", "sniff")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("sniff",
-        @"This command allows you to see various debug info about characters, items, rooms, zones, shards and directions.
-
-For example, it will show you hooks, effects, prog register variables, and many other bits of information.
-
-The syntax is as follows: 
-
-	#3sniff here#0 - sniff your current room
-	#3sniff zone#0 - sniff your current zone
-	#3sniff shard#0 - sniff your current shard
-	#3sniff *dirn#0 - sniffs an exit
-	#3sniff <target>#0 - sniffs a character or item",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("sniff", SniffHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Sniff(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -3352,7 +3703,7 @@ The syntax is as follows:
         sb.AppendLine();
         sb.AppendLine("Variables:");
         sb.AppendLine();
-		foreach (Tuple<string, ProgVariableTypes> variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Shard))
+	foreach (Tuple<string, ProgVariableTypes> variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Shard))
         {
             IProgVariable value = actor.Gameworld.VariableRegister.GetValue(shard, variable.Item1);
             sb.AppendLine(
@@ -3663,11 +4014,24 @@ The syntax is as follows:
         actor.Send(sb.ToString());
     }
 
+    private const string DrawingsHelp =
+        @"The #3drawings#0 command lists immutable drawings in the game and can filter the result.
+
+Use it without filters to list all drawings, or combine filters after the command to narrow by author and text.
+
+Author filters can load character records and may be slow the first time they run. Prefer text filters first when you can reduce the set before filtering by author.
+
+The syntax is as follows:
+	#3drawings#0 - lists all drawings
+	#3drawings by <character id>#0 - lists drawings by a character ID
+	#3drawings by *<account>#0 - lists drawings by an account name
+	#3drawings by ""<full name>""#0 - lists drawings by a character's full name
+	#3drawings +<keyword>#0 - includes drawings whose short or full description contains a keyword
+	#3drawings -<keyword>#0 - excludes drawings whose short or full description contains a keyword";
+
     [PlayerCommand("Drawings", "drawings")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("drawings",
-        "This command allows you to see all drawings in the game and search through them. You can specify multiple search arguments after the DRAWINGS keyword. Keep in mind that anything that touches the author (whether their ID, Name or Account) will force all the drawings to load their characters, and this will make the command very slow the first time you do it. As such, if you can possibly filter by other things first then that would be advisable.\n\nThe options you can use are as follows:\n\tby <id> - shows drawings by a character with specified ID\n\tby *<accountname> - shows all drawings by a character with specified account name\n\tby \"full name\" - searches based on a character's full name\n\t+<keyword> - searches the text for a specified keyword\n\t-<keyword> - excludes drawings whose text includes the specified keyword",
-        AutoHelp.HelpArg)]
+    [HelpInfo("drawings", DrawingsHelp, AutoHelp.HelpArg)]
     protected static void Drawings(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -3678,13 +4042,13 @@ The syntax is as follows:
 
             if (text.EqualTo("by"))
             {
-                text = ss.PopSpeech();
                 if (ss.IsFinished)
                 {
-                    actor.OutputHandler.Send("Show writings by whom?");
+                    actor.OutputHandler.Send("Show drawings by whom?");
                     return;
                 }
 
+                text = ss.PopSpeech();
                 if (long.TryParse(text, out long value))
                 {
                     drawings = drawings.Where(x => x.Author.Id == value);
@@ -3743,11 +4107,26 @@ The syntax is as follows:
         );
     }
 
+    private const string WritingsHelp =
+        @"The #3writings#0 command lists immutable writings in the game and can filter the result.
+
+Use it without filters to list all writings, or combine filters after the command to narrow by author, text, language and script.
+
+Author filters can load character records and may be slow the first time they run. Prefer text, language or script filters first when you can reduce the set before filtering by author.
+
+The syntax is as follows:
+	#3writings#0 - lists all writings
+	#3writings by <character id>#0 - lists writings by a character ID
+	#3writings by *<account>#0 - lists writings by an account name
+	#3writings by ""<full name>""#0 - lists writings by a character's full name
+	#3writings +<keyword>#0 - includes writings whose parsed text contains a keyword
+	#3writings -<keyword>#0 - excludes writings whose parsed text contains a keyword
+	#3writings &<language>#0 - lists only writings in a language
+	#3writings $<script>#0 - lists only writings in a script";
+
     [PlayerCommand("Writings", "writings")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("writings",
-        "This command allows you to see all writings in the game and search through them. You can specify multiple search arguments after the WRITINGS keyword. Keep in mind that anything that touches the author (whether their ID, Name or Account) will force all the writings to load their characters, and this will make the command very slow the first time you do it. As such, if you can possibly filter by other things first then that would be advisable.\n\nThe options you can use are as follows:\n\tby <id> - shows writings by a character with specified ID\n\tby *<accountname> - shows all writings by a character with specified account name\n\tby \"full name\" - searches based on a character's full name\n\t+<keyword> - searches the text for a specified keyword\n\t-<keyword> - excludes writings whose text includes the specified keyword\n\t&<languagename> - shows only writings in the specified language\n\t$<script> - shows only writings in the specified script",
-        AutoHelp.HelpArg)]
+    [HelpInfo("writings", WritingsHelp, AutoHelp.HelpArg)]
     protected static void Writings(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -3758,13 +4137,13 @@ The syntax is as follows:
 
             if (text.EqualTo("by"))
             {
-                text = ss.PopSpeech();
                 if (ss.IsFinished)
                 {
                     actor.OutputHandler.Send("Show writings by whom?");
                     return;
                 }
 
+                text = ss.PopSpeech();
                 if (long.TryParse(text, out long value))
                 {
                     writings = writings.Where(x => x.Author?.Id == value);
@@ -3798,13 +4177,13 @@ The syntax is as follows:
             if (text[0] == '&' && text.Length > 1)
             {
                 string search = text[1..];
-                writings = writings.Where(x => !x.Language.Name.EqualTo(search));
+                writings = writings.Where(x => x.Language.Name.EqualTo(search));
             }
 
             if (text[0] == '$' && text.Length > 1)
             {
                 string search = text[1..];
-                writings = writings.Where(x => !x.Script.Name.EqualTo(search));
+                writings = writings.Where(x => x.Script.Name.EqualTo(search));
             }
         }
 
@@ -3837,11 +4216,21 @@ The syntax is as follows:
         );
     }
 
+    private const string WritingHelp =
+        @"The #3writing#0 command views immutable writing records and copies them onto writable items.
+
+Use #3writing show#0 to inspect a writing's metadata and parsed text, or #3writing copy#0 to add an immutable reference to a writable item's current writable section.
+
+Copying does not duplicate or edit the writing record; it references the existing immutable writing. The writable must have enough capacity in its current section.
+
+The syntax is as follows:
+	#3writing show <id>#0 - shows a writing record
+	#3writing view <id>#0 - alias for #3writing show#0
+	#3writing copy <id> <writable>#0 - adds an immutable writing reference to a writable item";
+
     [PlayerCommand("Writing", "writing")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("writing",
-        "This command allows you to view and copy writings. You can use it in the following ways:\n\twriting show <id> - shows a particular writing\n\twriting copy <id> <newitem> - references an existing immutable writing on a writable",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("writing", WritingHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Writing(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -3954,25 +4343,29 @@ The syntax is as follows:
         actor.OutputHandler.Send(sb.ToString());
     }
 
-    private const string WritingCollectionHelp = @"This command manages immutable writing collections, which are page-ordered virtual books of writings and drawings.
+    private const string WritingCollectionHelp = @"The #3writingcollection#0 command manages immutable writing collections, which are page-ordered virtual books of writings and drawings.
 
-Syntax:
-	#3writingcollection list [filter]#0
-	#3writingcollection show <id|name>#0
-	#3writingcollection new <name>#0
-	#3writingcollection edit <id|name>#0
-	#3writingcollection close#0
-	#3writingcollection set name <name>#0
-	#3writingcollection set desc <description>#0
-	#3writingcollection set title <title|clear>#0
-	#3writingcollection add writing <page> <writing id>#0
-	#3writingcollection add drawing <page> <drawing id>#0
-	#3writingcollection remove <entry#>#0
-	#3writingcollection move <entry#> <page> [order]#0
-	#3writingcollection clear#0
-	#3writingcollection import markdown [collection] [append|replace]#0
-	#3writingcollection import json [collection] [append|replace]#0
-	#3writingcollection apply <collection> <book> [append|page <number>]#0";
+Create or edit a collection, add writing and drawing records to pages, then apply the collection to a book item. #3wcollection#0 and #3wcoll#0 are aliases.
+
+Most #3set#0, #3add#0, #3remove#0, #3move#0 and #3clear#0 forms operate on the collection you are currently editing. Imports open the text editor and can append to or replace the target collection. Applying a collection preflights page capacity before changing the book.
+
+The syntax is as follows:
+	#3writingcollection list [filter]#0 - lists writing collections
+	#3writingcollection show [id|name]#0 - shows a collection, or your edited collection
+	#3writingcollection new <name>#0 - creates and edits a new collection
+	#3writingcollection edit <id|name>#0 - begins editing a collection
+	#3writingcollection close#0 - stops editing a collection
+	#3writingcollection set name <name>#0 - renames the edited collection
+	#3writingcollection set desc <description>#0 - sets the edited collection's description
+	#3writingcollection set title <title|clear>#0 - sets or clears the default book title
+	#3writingcollection add writing <page> <writing id>#0 - adds a writing record to a page
+	#3writingcollection add drawing <page> <drawing id>#0 - adds a drawing record to a page
+	#3writingcollection remove <entry#>#0 - removes an entry by table number
+	#3writingcollection move <entry#> <page> [order]#0 - moves an entry to a page and optional order
+	#3writingcollection clear#0 - removes all entries from the edited collection
+	#3writingcollection import markdown [collection] [append|replace]#0 - imports markdown into a collection
+	#3writingcollection import json [collection] [append|replace]#0 - imports JSON into a collection
+	#3writingcollection apply <collection> <book> [append|page <number>]#0 - applies a collection to a book";
 
     [PlayerCommand("WritingCollection", "writingcollection", "wcollection", "wcoll")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -4526,65 +4919,55 @@ Syntax:
         return true;
     }
     #region Scripted Events
-    public const string ScriptedEventHelpText = @"Scripted events are things that you as a storyteller can program to happen to a character when they next log in. 
+    public const string ScriptedEventHelpText = @"The #3scriptedevent#0 command manages scripted login events for player characters. #3sevent#0 is an alias.
 
-Essentially, when they try to log in next time they will instead go into a menu that presents them with a speil that you specify and then optionally poses them a series of questions.
+Scripted events interrupt a character's next eligible login with storyteller-authored text and optional questions. Responses are recorded on the event and saved to the character's journal. Create or edit an event, add questions, assign it to a character, and mark it ready.
 
-The results of their choices are recorded and also saved to their character journal. You can also have progs execute based on their choices.
+Templates cannot be marked ready directly. Clone or assign from a template to create character-specific events. #3scriptedevent set autoassign#0 only works on templates with a boolean character filter prog and at least one question, and it asks for confirmation before creating events.
+Ready events cannot have their questions edited. Multiple-choice answers can have a boolean character filter prog and a void character on-choice prog.
 
-The following syntax is used with this command:
+The syntax is as follows:
+	#3scriptedevent list [filters]#0 - lists scripted events
+	#3scriptedevent show [id|name]#0 - shows a scripted event, or the one you are editing
+	#3scriptedevent view [id|name]#0 - alias for #3show#0
+	#3scriptedevent edit <id|name>#0 - begins editing a scripted event
+	#3scriptedevent edit#0 - shows the scripted event you are editing
+	#3scriptedevent close#0 - stops editing a scripted event
+	#3scriptedevent new <name>#0 - creates and edits a new scripted event
+	#3scriptedevent clone <id|name>#0 - clones a scripted event and edits the clone
+	#3scriptedevent assign <character id>#0 - assigns the event you are editing to a player character
+	#3scriptedevent set name <name>#0 - renames the edited event
+	#3scriptedevent set earliest <date>#0 - sets the earliest time the event can fire
+	#3scriptedevent set character <name|id>#0 - assigns the edited event by character name or ID
+	#3scriptedevent set ready#0 - toggles readiness
+	#3scriptedevent set template#0 - toggles template status
+	#3scriptedevent set filter <prog>#0 - sets the template autoassign filter prog
+	#3scriptedevent set autoassign#0 - creates events for all matching PCs from an edited template
+	#3scriptedevent set addfree#0 - adds a free-text question through the editor
+	#3scriptedevent set addmulti#0 - adds a multiple-choice question through the editor
+	#3scriptedevent set remfree <number>#0 - removes a free-text question
+	#3scriptedevent set remmulti <number>#0 - removes a multiple-choice question
+	#3scriptedevent set text <number>#0 - shows a free-text question
+	#3scriptedevent set text <number> question#0 - edits a free-text question
+	#3scriptedevent set multi <number>#0 - shows a multiple-choice question
+	#3scriptedevent set multi <number> question#0 - edits a multiple-choice question
+	#3scriptedevent set multi <number> addanswer#0 - adds a multiple-choice answer
+	#3scriptedevent set multi <number> removeanswer <answer>#0 - removes an answer
+	#3scriptedevent set multi <number> answer <answer>#0 - shows an answer
+	#3scriptedevent set multi <number> answer <answer> before#0 - edits answer text shown before choice
+	#3scriptedevent set multi <number> answer <answer> after#0 - edits answer text shown after choice
+	#3scriptedevent set multi <number> answer <answer> filter <prog>#0 - edits an answer filter prog
+	#3scriptedevent set multi <number> answer <answer> choice <prog>#0 - edits an answer on-choice prog
 
-	#3scriptedevent list#0 - lists all scripted events. See below for filters.
-	#3scriptedevent show <which>#0 - shows all information about a scripted event
-	#3scriptedevent edit <which>#0 - begins editing a scripted event
-	#3scriptedevent edit#0 - an alias for #scriptedevent show <id>#0 on whichever event you're currently editing
-	#3scriptedevent close#0 - closes the scripted event you're editing
-	#3scriptedevent new <name>#0 - creates a new scripted event
-	#3scriptedevent clone <which>#0 - clones a scripted event to a new one
-	#3scriptedevent applyall <which> <date>#0 - takes a template and creates a scripted event for all eligible characters
-	#3scriptedevent assign <character>#0 - assigns the scripted event you're currently editing to a player
-	#3scriptedevent set name <name>#0 - renames a scripted event
-	#3scriptedevent set ready#0 - declares an event ready
-	#3scriptedevent set earliest <date>#0 - declares that the event can't start until the date
-	#3scriptedevent set template#0 - changes an event into an event template
-	#3scriptedevent set name <name>#0 - gives a name to this event
-	#3scriptedevent set earliest <date>#0 - sets the earliest time this event can fire
-	#3scriptedevent set character <name|id>#0 - sets this event as assigned to a character
-	#3scriptedevent set ready#0 - toggles this event being ready to be fire
-	#3scriptedevent set template#0 - toggles this event being a template for other events
-	#3scriptedevent set filter <prog>#0 - sets a prog as a filter for auto assigning
-	#3scriptedevent set autoassign#0 - automatically assigned clones of this event to all matching PCs
-	#3scriptedevent set addfree#0 - drops you into an editor to enter the text of a new free text question
-	#3scriptedevent set addmulti#0 - drops you into an editor to enter the text of a new multiple choice question
-	#3scriptedevent set remfree <##>#0 - removes a free text question
-	#3scriptedevent set remmulti <##>#0 - removes a multiple choice question
-	#3scriptedevent set free <##>#0 - shows detailed information about a free text question
-	#3scriptedevent set free <##> question#0 - edits the question text
-	#3scriptedevent set multi <##>#0 - shows detailed information about a multi choice question
-	#3scriptedevent set multi <##> question#0 - edits the question text
-	#3scriptedevent set multi <##> question <##> question#0 - edit the question text
-	#3scriptedevent set multi <##> question <##> addanswer#0 - adds a new answer
-	#3scriptedevent set multi <##> question <##> removeanswer <##>#0 - removes an answer
-	#3scriptedevent set multi <##> question <##> answer <##>#0 - shows detailed information about an answer
-	#3scriptedevent set multi <##> question <##> answer <##> before#0 - edits the before text of an answer
-	#3scriptedevent set multi <##> question <##> answer <##> after#0 - edits the after text of an answer
-	#3scriptedevent set multi <##> question <##> answer <##> filter <prog>#0 - edits the filter prog of an answer
-	#3scriptedevent set multi <##> question <##> answer <##> choice <prog>#0 - edits the on choice prog of an answer
-
-Filters for list:
-
-	#Bfinished#0 - only show finished events
-	#B!finished#0 - don't show finished events
-	#Bready#0 - only show ready events
-	#B!ready#0 - don't show ready events
-	#Btemplate#0 - only show template events
-	#B!template#0 - don't show template events
-	#Bassigned#0 - only show assigned events
-	#B!assigned#0 - don't show assigned events
-	#B+<keyword>#0 - events with name containing the keyword
-	#B-<keyword>#0 - events with name NOT containing the keyword
-	#B*<id>#0 - events assigned to character with specified id
-	#B*<name>#0 - events assigned to character with specified name";
+List Filters:
+	#3finished#0, #3!finished#0, #3notfinished#0, #3open#0
+	#3ready#0, #3!ready#0, #3notready#0, #3unready#0
+	#3template#0, #3!template#0, #3nottemplate#0
+	#3assigned#0, #3!assigned#0, #3notassigned#0, #3unassigned#0
+	#3+<keyword>#0 - events with a name containing the keyword
+	#3-<keyword>#0 - events with a name not containing the keyword
+	#3*<id>#0 - events assigned to a character ID
+	#3*<name>#0 - events assigned to a character whose name contains the text";
 
     [PlayerCommand("ScriptedEvent", "scriptedevent", "sevent")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]

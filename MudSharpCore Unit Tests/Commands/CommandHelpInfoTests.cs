@@ -112,6 +112,56 @@ public class CommandHelpInfoTests
 		StringAssert.Contains(uninstallHelp.DefaultHelp, "#3uninstall <door|container|exit> [<lock>]#0");
 	}
 
+	[TestMethod]
+	public void StorytellerModule_CommandsExposeDetailedBuiltInHelp()
+	{
+		var commands = StorytellerModule.Instance.Commands.TCommands;
+		var missingHelp = commands
+		                  .Where(x => x.Value.HelpInfo is null)
+		                  .Select(x => x.Key)
+		                  .OrderBy(x => x)
+		                  .ToList();
+		Assert.AreEqual(0, missingHelp.Count,
+			$"Storyteller commands without help: {string.Join(", ", missingHelp)}");
+
+		var helpTexts = commands.Values
+		                        .Select(x => x.HelpInfo)
+		                        .Where(x => x is not null)
+		                        .Distinct()
+		                        .ToList();
+		var helpWithoutSyntax = helpTexts
+		                        .Where(x => !x!.DefaultHelp.Contains("#3", StringComparison.Ordinal))
+		                        .Select(x => x!.HelpName)
+		                        .OrderBy(x => x)
+		                        .ToList();
+		Assert.AreEqual(0, helpWithoutSyntax.Count,
+			$"Storyteller help missing syntax examples: {string.Join(", ", helpWithoutSyntax)}");
+
+		var rigidHeadingHelp = helpTexts
+		                       .Where(x => x!.DefaultHelp.Contains("General Usage:", StringComparison.Ordinal) ||
+		                                   x.DefaultHelp.Contains("Edge Cases:", StringComparison.Ordinal) ||
+		                                   x.DefaultHelp.StartsWith("Syntax:", StringComparison.Ordinal) ||
+		                                   x.DefaultHelp.Contains("\nSyntax:", StringComparison.Ordinal))
+		                       .Select(x => x!.HelpName)
+		                       .OrderBy(x => x)
+		                       .ToList();
+		Assert.AreEqual(0, rigidHeadingHelp.Count,
+			$"Storyteller help should not use rigid section headings: {string.Join(", ", rigidHeadingHelp)}");
+
+		var forceHelp = commands["force"].HelpInfo!;
+		StringAssert.Contains(forceHelp.DefaultHelp, "#3force npcshere <command>#0");
+		Assert.IsFalse(forceHelp.DefaultHelp.Contains("npchere", StringComparison.OrdinalIgnoreCase));
+
+		Assert.AreEqual(AutoHelp.HelpArg, commands["recentspeech"].HelpInfo!.AutoHelpSetting);
+		Assert.AreEqual(AutoHelp.HelpArg, commands["drawings"].HelpInfo!.AutoHelpSetting);
+		Assert.AreEqual(AutoHelp.HelpArg, commands["writings"].HelpInfo!.AutoHelpSetting);
+		Assert.AreEqual(AutoHelp.HelpArg, commands["decay"].HelpInfo!.AutoHelpSetting);
+
+		var scriptedEventHelp = commands["scriptedevent"].HelpInfo!;
+		Assert.IsFalse(scriptedEventHelp.DefaultHelp.Contains("applyall", StringComparison.OrdinalIgnoreCase));
+		StringAssert.Contains(scriptedEventHelp.DefaultHelp, "#3scriptedevent set text <number>#0");
+	}
+
 	private static Mock<ICharacter> Character(bool administrator)
 	{
 		var account = new Mock<IAccount>();

@@ -127,7 +127,7 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 	public string PatientName { get; }
 	public HospitalServiceRequestStatus Status => _status;
 	public HospitalPaymentMethod PaymentMethod => _paymentMethod;
-	public decimal Price { get; }
+	public decimal Price { get; private set; }
 	public decimal AmountPaid => _amountPaid;
 	public decimal DebtCharged => _debtCharged;
 
@@ -257,8 +257,13 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 		Touch();
 	}
 
-	public void MarkCharged(decimal amountPaid, decimal debtCharged)
+	public void MarkCharged(decimal amountPaid, decimal debtCharged, decimal? finalPrice = null)
 	{
+		if (finalPrice is not null)
+		{
+			Price = Math.Max(0.0M, finalPrice.Value);
+		}
+
 		_amountPaid = amountPaid;
 		_debtCharged = debtCharged;
 		Touch();
@@ -283,6 +288,7 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 
 		dbitem.Status = (int)Status;
 		dbitem.PaymentMethod = (int)PaymentMethod;
+		dbitem.Price = Price;
 		dbitem.AmountPaid = AmountPaid;
 		dbitem.DebtCharged = DebtCharged;
 		dbitem.EmploymentTaskId = EmploymentTaskId?.ToString("D");

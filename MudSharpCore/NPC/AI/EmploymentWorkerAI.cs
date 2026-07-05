@@ -1169,7 +1169,8 @@ public class EmploymentWorkerAI : PathingAIBase
 			                      arena.ObservationCells.FirstOrDefault(),
 			IBank bank => bank.BranchLocations.FirstOrDefault(),
 			IStable stable => stable.Location,
-			IHospital hospital => hospital.WaitingRooms.FirstOrDefault() ?? hospital.OperatingTheatres.FirstOrDefault() ?? hospital.SupplyRooms.FirstOrDefault(),
+			IHospital hospital => hospital.StaffRooms.FirstOrDefault() ?? hospital.WaitingRooms.FirstOrDefault() ??
+			                      hospital.OperatingTheatres.FirstOrDefault() ?? hospital.SupplyRooms.FirstOrDefault(),
 			IHotel hotel => hotel.Locations.FirstOrDefault(),
 			MudSharp.Community.IClan clan => clan.EmploymentHostLocations().FirstOrDefault(),
 			_ => null

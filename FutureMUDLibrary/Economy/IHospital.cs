@@ -54,7 +54,8 @@ public enum HospitalLocationRole
 	WaitingRoom,
 	OperatingTheatre,
 	SupplyArea,
-	RecoveryRoom
+	RecoveryRoom,
+	StaffRoom
 }
 
 public sealed record HospitalServiceEquipmentRequirement(int Quantity, EmploymentItemSelector Selector);
@@ -142,7 +143,7 @@ public interface IHospitalServiceRequest : IFrameworkItem, ISaveable
 	ICharacter? Requester { get; }
 	ICharacter? Patient { get; }
 	void MarkStatus(HospitalServiceRequestStatus status, string note);
-	void MarkCharged(decimal amountPaid, decimal debtCharged);
+	void MarkCharged(decimal amountPaid, decimal debtCharged, decimal? finalPrice = null);
 	void MarkSuppliesPrepared(ICharacter employee, string note);
 	string Show(ICharacter actor);
 }
@@ -161,6 +162,7 @@ public interface IHospital : IFrameworkItem, ISaveable, IKeywordedItem, IEmploym
 	IEnumerable<ICell> OperatingTheatres { get; }
 	IEnumerable<ICell> SupplyRooms { get; }
 	IEnumerable<ICell> RecoveryRooms { get; }
+	IEnumerable<ICell> StaffRooms { get; }
 	IEnumerable<ICell> Locations { get; }
 	IEnumerable<IHospitalService> Services { get; }
 	IEnumerable<IHospitalService> ActiveServices { get; }

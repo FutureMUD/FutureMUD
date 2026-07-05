@@ -8,6 +8,8 @@ using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
+using MudSharp.NPC;
+using MudSharp.NPC.AI;
 
 #nullable enable
 
@@ -34,6 +36,11 @@ public static class HospitalServiceAvailability
 		if (!hospital.IsTrading)
 		{
 			return Unavailable("closed");
+		}
+
+		if (!HasAvailableMedicalEmployee(hospital, out var employeeReason))
+		{
+			return Unavailable(employeeReason);
 		}
 
 		if (!TryFindRequiredEquipmentBundle(hospital, service, actor, out var equipmentReason))
@@ -66,6 +73,57 @@ public static class HospitalServiceAvailability
 	private static HospitalServiceAvailabilityResult Unavailable(string reason)
 	{
 		return new HospitalServiceAvailabilityResult(false, reason);
+	}
+
+	private static bool HasAvailableMedicalEmployee(IHospital hospital, out string reason)
+	{
+		var contracts = hospital.EmploymentContracts ?? Array.Empty<IEmploymentContract>();
+		var activeTasks = hospital.TaskBoard?.ActiveTasks ?? Array.Empty<IEmploymentActiveTask>();
+		foreach (var contract in contracts.Where(x =>
+			         x.Status == EmploymentStatus.Active &&
+			         x.Authority.Contains(EmploymentAuthority.PerformMedicalServices)))
+		{
+			var employee = contract.Employee;
+			if (!CharacterState.Able.HasFlag(employee.State) || employee.Location is null)
+			{
+				continue;
+			}
+
+			if (!CanPerformAutomatedMedicalService(hospital, employee))
+			{
+				continue;
+			}
+
+			var employeeId = CharacterInstanceIdentityComparer.IdentityId(employee);
+			if (activeTasks.Any(x =>
+				    CharacterInstanceIdentityComparer.IdentityId(x.AssignedEmployee) == employeeId &&
+				    x.Status is EmploymentTaskStatus.Assigned or EmploymentTaskStatus.InProgress or
+					    EmploymentTaskStatus.Blocked))
+			{
+				continue;
+			}
+
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = "no medical employee available";
+		return false;
+	}
+
+	private static bool CanPerformAutomatedMedicalService(IHospital hospital, ICharacter employee)
+	{
+		if (employee is not INPC npc)
+		{
+			return false;
+		}
+
+		return npc.AIs
+		          .OfType<EmploymentWorkerAI>()
+		          .Any(x =>
+			          x.TaskingEnabled &&
+			          (x.HostTypeFilter is null || x.HostTypeFilter.Value == hospital.EmploymentHostType) &&
+			          x.Capabilities.Contains(EmploymentAICapability.CanPerformMedicalServices));
 	}
 
 	private static bool TryFindRequiredEquipmentBundle(IHospital hospital, IHospitalService service, ICharacter? actor,

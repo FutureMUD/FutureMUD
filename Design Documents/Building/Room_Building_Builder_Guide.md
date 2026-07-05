@@ -413,6 +413,7 @@ cell set door <exit> clear
 
 `cell set door` controls whether an exit accepts a door and, if so, what size. It does not by itself install a specific door item.
 Player `look` and `exits` output shows door-capable exits without an installed door in bold white; installed doors still show their door state and description directly on the exit.
+Cardinal exit arguments accept the whitelisted short and common forms: `n`, `north`, `nw`, `northwest`, `north-west`, and `north west` (and the equivalent forms for other directions). They do not use arbitrary prefixes, so `north` targets the north exit even if a north-west exit also exists.
 
 Climb and fall:
 

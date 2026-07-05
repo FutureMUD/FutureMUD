@@ -1716,8 +1716,34 @@ You can use the following subcommands:
 
     #region CellSet
 
+    internal const string CellSetHelpText = @"Valid options for #3cell set#0 are as follows:
+
+	#3cell set name <name>#0 - sets the name of the cell
+	#3cell set desc#0 - drops you into an editor to edit the cell description
+	#3cell set suggestdesc#0 - uses configured AI description generation to suggest a description
+	#3cell set terrain <id|name>#0 - sets the terrain of this cell
+	#3cell set hearing <id|name>#0 - sets the hearing/noise profile for this cell
+	#3cell set lightmultiplier <multiplier>#0 - sets the multiplier for natural light
+	#3cell set lightlevel <lux>#0 - sets the added light for the location to the specified lux level
+	#3cell set type outdoors|indoors|cave|windows|exposed#0 - sets the cell exposure type
+	#3cell set door <exit id|direction|keyword> clear#0 - clears the exit from accepting doors
+	#3cell set door <exit id|direction|keyword> <size>#0 - sets the exit to accept doors of the specified size
+	#3cell set forage clear#0 - clears an existing forage profile
+	#3cell set forage <id|name>#0 - sets the forage profile to the specified profile
+	#3cell set atmosphere liquid|gas <id|name>#0 - sets the atmosphere to the specified fluid
+	#3cell set atmosphere none#0 - sets the location to have no atmosphere
+	#3cell set safequit#0 - toggles whether the current room is a safe quit room
+	#3cell set register <varname> <value>#0 - sets the specified prog variable for the current cell
+	#3cell set register delete <varname>#0 - resets the specified prog variable to its default value";
+
     private static void CellSet(ICharacter actor, StringStack input)
     {
+        if (input.IsFinished || input.Peek().EqualTo("help") || input.Peek().EqualTo("?"))
+        {
+            actor.OutputHandler.Send(CellSetHelpText.SubstituteANSIColour());
+            return;
+        }
+
         if (input.Peek().EqualTo("exit"))
         {
             input.PopSpeech();
@@ -1809,8 +1835,7 @@ You can use the following subcommands:
                 CellSetSafeQuit(actor, input);
                 break;
             default:
-                actor.OutputHandler.Send("That is not a valid option for the " + "cell edit".Colour(Telnet.Cyan) +
-                                        " command.");
+                actor.OutputHandler.Send(CellSetHelpText.SubstituteANSIColour());
                 return;
         }
     }
@@ -2103,6 +2128,39 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
             whichVariable);
     }
 
+    internal static ICellExit GetCellExitForBuilderInput(IEnumerable<ICellExit> exits, StringStack input,
+        IPerceiver voyeur)
+    {
+        if (input.IsFinished)
+        {
+            return null;
+        }
+
+        var currentExits = exits.ToList();
+        var exitText = input.PopSpeech();
+        if (long.TryParse(exitText, out var id))
+        {
+            return currentExits.FirstOrDefault(x => x.Exit.Id == id);
+        }
+
+        if (!input.IsFinished)
+        {
+            var twoWordDirection = $"{exitText} {input.PeekSpeech()}";
+            if (Constants.CardinalDirectionStringToDirection.TryGetValue(twoWordDirection, out var direction))
+            {
+                input.PopSpeech();
+                return currentExits.FirstOrDefault(x => x.OutboundDirection == direction);
+            }
+        }
+
+        if (Constants.CardinalDirectionStringToDirection.TryGetValue(exitText, out var singleWordDirection))
+        {
+            return currentExits.FirstOrDefault(x => x.OutboundDirection == singleWordDirection);
+        }
+
+        return currentExits.GetFromItemListByKeyword(exitText, voyeur, abbreviated: false);
+    }
+
     private static void CellSetDoor(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
@@ -2112,9 +2170,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
         }
 
         IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor);
-        ICellExit exit = long.TryParse(input.PopSpeech(), out long id)
-            ? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
-            : currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
+        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2599,9 +2655,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
         }
 
         IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = long.TryParse(input.PopSpeech(), out long id)
-            ? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
-            : currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
+        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2657,9 +2711,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
         }
 
         IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = long.TryParse(input.PopSpeech(), out long id)
-            ? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
-            : currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
+        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2685,9 +2737,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
         }
 
         IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = long.TryParse(input.PopSpeech(), out long id)
-            ? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
-            : currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
+        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2722,9 +2772,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
         }
 
         IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = long.TryParse(input.PopSpeech(), out long id)
-            ? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
-            : currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
+        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2760,9 +2808,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
         }
 
         IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = long.TryParse(input.PopSpeech(), out long id)
-            ? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
-            : currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
+        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2815,9 +2861,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
         }
 
         IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = long.TryParse(input.PopSpeech(), out long id)
-            ? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
-            : currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
+        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2857,9 +2901,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
         }
 
         IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = long.TryParse(input.PopSpeech(), out long id)
-            ? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
-            : currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
+        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2906,9 +2948,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
         }
 
         IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = long.TryParse(input.PopSpeech(), out long id)
-            ? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
-            : currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
+        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");

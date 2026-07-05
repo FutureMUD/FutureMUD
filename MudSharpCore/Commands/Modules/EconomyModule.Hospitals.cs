@@ -51,6 +51,7 @@ Hospital managers and proprietors standing in the hospital can use #3hospital he
 	#3hospital debt pay <amount> [for <target>] [cash|with <payment item>]#0 - pays down debt or creates prepaid credit
 	#3hospital requests#0 - lists hospital service requests
 	#3hospital requestshow <##>#0 - shows a hospital service request
+	#3hospital operations#0 - shows room, theatre, procedure, staff, blocker, and reserved-resource status
 	#3hospital open|close#0 - opens or closes the hospital
 	#3hospital maxdebt <amount>#0 - sets the default debt ceiling for new patients
 	#3hospital room add|remove <waiting|theatre|supply|recovery|staff> [here|<direction>|<#>]#0 - flags hospital rooms
@@ -67,14 +68,19 @@ Hospital employment records:
 
 	#3hospital status#0 - shows employment status
 	#3hospital contracts#0 - lists employment contracts
+	#3hospital contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
 	#3hospital openings#0 - lists employment openings
+	#3hospital openings create <MedicalWorker|HospitalOrderly> <hourly rate> [positions]#0 - creates an NPC-facing staff opening
 	#3hospital applications#0 - lists employment applications
+	#3hospital applications accept|reject <##> [reason]#0 - accepts or rejects an NPC application
 	#3hospital payroll#0 - lists wage payables and overdue days
 
 Hospital employment tasks:
 
 	#3hospital tasks#0 - lists scheduled rules and active tasks
 	#3hospital tasks show <##|name>#0 - shows an active task
+	#3hospital tasks diagnose#0 - explains why active employees can or cannot auto-claim tasks
+	#3hospital tasks cancel <##|name> [reason]#0 - cancels a pending, assigned, in-progress, or blocked active task
 	#3hospital tasks rule show <##|name>#0 - shows a scheduled rule
 	#3hospital tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task
 	#3hospital tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
@@ -131,6 +137,10 @@ Administrators can also use:
 			case "requests":
 			case "queue":
 				HospitalRequests(actor, ss);
+				return;
+			case "operations":
+			case "ops":
+				HospitalOperations(actor);
 				return;
 			case "debt":
 			case "account":
@@ -1665,6 +1675,484 @@ Administrators can also use:
 			actor,
 			Telnet.Green,
 			2));
+	}
+
+	private static void HospitalOperations(ICharacter actor)
+	{
+		if (!DoHospitalCommandFindHospital(actor, out var hospital) || !RequireHospitalManager(actor, hospital))
+		{
+			return;
+		}
+
+		var requests = HospitalOperationalRequests(hospital).ToList();
+		var activeTasks = hospital.TaskBoard.ActiveTasks
+		                          .Where(x => x.Status is EmploymentTaskStatus.Pending or EmploymentTaskStatus.Assigned or
+			                          EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked or EmploymentTaskStatus.Failed)
+		                          .ToList();
+		var theatres = hospital.OperatingTheatres
+		                       .OrderBy(x => x.Id)
+		                       .ToList();
+		var rooms = HospitalOperationsRooms(hospital)
+		            .Where(x => theatres.All(y => y.Id != x.Id))
+		            .OrderBy(x => x.Id)
+		            .ToList();
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Hospital Operations - {hospital.Name.ColourName()}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Open: {hospital.IsTrading.ToColouredString()} | Active Requests: {requests.Count.ToString("N0", actor).ColourValue()} | Active Tasks: {activeTasks.Count.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine("Operating Theatres:");
+		if (!theatres.Any())
+		{
+			sb.AppendLine("\tNone configured.".ColourError());
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				theatres.Select(theatre =>
+				{
+					var theatreRequests = requests
+					                      .Where(x => x.OperatingTheatreCellId == theatre.Id)
+					                      .OrderBy(x => x.Id)
+					                      .ToList();
+					return new List<string>
+					{
+						theatre.GetFriendlyReference(actor),
+						DescribeHospitalTheatreState(hospital, theatre, theatreRequests),
+						DescribeHospitalTheatreRequests(actor, hospital, theatreRequests),
+						DescribeHospitalTheatrePatients(actor, hospital, theatre, theatreRequests),
+						DescribeHospitalTheatreStaff(actor, hospital, theatre, theatreRequests),
+						DescribeHospitalTheatreAction(actor, hospital, theatreRequests),
+						DescribeHospitalTheatreIssues(actor, hospital, theatre, theatreRequests)
+					};
+				}),
+				new List<string> { "Theatre", "State", "Requests", "Patients", "Staff", "Action", "Issues" },
+				actor,
+				Telnet.Green,
+				2));
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Other Hospital Rooms:");
+		if (!rooms.Any())
+		{
+			sb.AppendLine("\tNone configured.".ColourError());
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				rooms.Select(room => new List<string>
+				{
+					room.GetFriendlyReference(actor),
+					DescribeHospitalRoomRoles(hospital, room),
+					DescribeHospitalRoomStaff(actor, hospital, room),
+					DescribeHospitalRoomPatients(actor, requests, room),
+					DescribeHospitalRoomInventory(actor, room)
+				}),
+				new List<string> { "Room", "Roles", "Staff", "Patients/Requests", "Inventory" },
+				actor,
+				Telnet.Green,
+				2));
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Active Procedures:");
+		if (!requests.Any())
+		{
+			sb.AppendLine("\tNone.".ColourValue());
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				requests.OrderBy(x => x.CreatedAt)
+				        .Select(request =>
+				        {
+					        var task = HospitalTaskForRequest(hospital, request);
+					        return new List<string>
+					        {
+						        $"#{request.Id.ToString("N0", actor)}",
+						        request.Service.Name,
+						        request.Status.DescribeEnum(),
+						        DescribeHospitalRequestPatient(actor, request),
+						        DescribeHospitalRequestLocation(actor, hospital, request),
+						        DescribeHospitalTaskEmployee(actor, task, request),
+						        DescribeHospitalTaskAction(actor, task),
+						        DescribeHospitalTaskIssues(request, task),
+						        DescribeHospitalTaskResources(task)
+					        };
+				        }),
+				new List<string> { "Req", "Service", "Status", "Patient", "Location", "Staff", "Action", "Issues", "Reserved/Resources" },
+				actor,
+				Telnet.Green,
+				2));
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static IEnumerable<IHospitalServiceRequest> HospitalOperationalRequests(IHospital hospital)
+	{
+		return hospital.ServiceRequests
+		               .Where(x => x.Status is not (HospitalServiceRequestStatus.Completed or
+			               HospitalServiceRequestStatus.Failed or HospitalServiceRequestStatus.Cancelled or
+			               HospitalServiceRequestStatus.Declined));
+	}
+
+	private static IEnumerable<ICell> HospitalOperationsRooms(IHospital hospital)
+	{
+		return hospital.Locations
+		               .Concat(hospital.WaitingRooms)
+		               .Concat(hospital.OperatingTheatres)
+		               .Concat(hospital.SupplyRooms)
+		               .Concat(hospital.RecoveryRooms)
+		               .Concat(hospital.StaffRooms)
+		               .Where(x => x is not null)
+		               .DistinctBy(x => x.Id);
+	}
+
+	private static IEmploymentActiveTask? HospitalTaskForRequest(IHospital hospital, IHospitalServiceRequest request)
+	{
+		var tasks = hospital.TaskBoard.ActiveTasks;
+		if (request.EmploymentTaskId is { } taskId)
+		{
+			var task = tasks.FirstOrDefault(x => x.Id == taskId);
+			if (task is not null)
+			{
+				return task;
+			}
+		}
+
+		return tasks.FirstOrDefault(x => x.ActionPlan.Steps.Any(step => step switch
+		{
+			HospitalServiceActionStep hospitalService =>
+				hospitalService.Hospital.Id == hospital.Id && hospitalService.Request.Id == request.Id,
+			HospitalSupplyPreparationActionStep hospitalSupply =>
+				hospitalSupply.Hospital.Id == hospital.Id && hospitalSupply.Request.Id == request.Id,
+			_ => false
+		}));
+	}
+
+	private static string DescribeHospitalTheatreState(IHospital hospital, ICell theatre,
+		IReadOnlyCollection<IHospitalServiceRequest> requests)
+	{
+		if (requests.Any())
+		{
+			return "Reserved".ColourValue();
+		}
+
+		return HospitalRoomCharacters(theatre).Any(x => !hospital.IsEmployee(x))
+			? "Occupied".ColourCommand()
+			: "Available".ColourValue();
+	}
+
+	private static string DescribeHospitalTheatreRequests(ICharacter actor, IHospital hospital,
+		IReadOnlyCollection<IHospitalServiceRequest> requests)
+	{
+		if (!requests.Any())
+		{
+			return "none".ColourValue();
+		}
+
+		return requests
+		       .Select(x =>
+		       {
+			       var task = HospitalTaskForRequest(hospital, x);
+			       return $"#{x.Id.ToString("N0", actor)} {x.Service.Name} ({x.Status.DescribeEnum()}{(task is null ? string.Empty : $"/{task.Status.DescribeEnum()}")})";
+		       })
+		       .ListToString();
+	}
+
+	private static string DescribeHospitalTheatrePatients(ICharacter actor, IHospital hospital, ICell theatre,
+		IReadOnlyCollection<IHospitalServiceRequest> requests)
+	{
+		var patients = requests
+		               .Select(x => DescribeHospitalRequestPatient(actor, x))
+		               .Where(x => !string.IsNullOrWhiteSpace(x))
+		               .ToList();
+		var requestPatientIds = requests
+		                        .Select(x => x.Patient)
+		                        .Where(x => x is not null)
+		                        .Select(CharacterInstanceIdentityComparer.PhysicalInstanceKey)
+		                        .ToHashSet();
+		patients.AddRange(HospitalRoomCharacters(theatre)
+		                  .Where(x => !hospital.IsEmployee(x))
+		                  .Where(x => !requestPatientIds.Contains(CharacterInstanceIdentityComparer.PhysicalInstanceKey(x)))
+		                  .Select(x => x.HowSeen(actor, colour: false)));
+		return HospitalListToStringOrNone(patients.Distinct(StringComparer.InvariantCultureIgnoreCase));
+	}
+
+	private static string DescribeHospitalTheatreStaff(ICharacter actor, IHospital hospital, ICell theatre,
+		IReadOnlyCollection<IHospitalServiceRequest> requests)
+	{
+		var staff = HospitalRoomCharacters(theatre)
+		            .Where(hospital.IsEmployee)
+		            .Select(x => x.HowSeen(actor, colour: false))
+		            .ToList();
+		staff.AddRange(requests.Select(x => DescribeHospitalTaskEmployee(actor, HospitalTaskForRequest(hospital, x), x))
+		                       .Where(x => !string.IsNullOrWhiteSpace(x) && !x.EqualTo("none")));
+		return HospitalListToStringOrNone(staff.Distinct(StringComparer.InvariantCultureIgnoreCase));
+	}
+
+	private static string DescribeHospitalTheatreAction(ICharacter actor, IHospital hospital,
+		IReadOnlyCollection<IHospitalServiceRequest> requests)
+	{
+		var actions = requests
+		              .Select(x => DescribeHospitalTaskAction(actor, HospitalTaskForRequest(hospital, x)))
+		              .Where(x => !x.EqualTo("none"))
+		              .Distinct()
+		              .ToList();
+		return HospitalListToStringOrNone(actions);
+	}
+
+	private static string DescribeHospitalTheatreIssues(ICharacter actor, IHospital hospital, ICell theatre,
+		IReadOnlyCollection<IHospitalServiceRequest> requests)
+	{
+		var issues = new List<string>();
+		var requestPatientIds = requests
+		                        .Select(x => x.Patient)
+		                        .Where(x => x is not null)
+		                        .Select(CharacterInstanceIdentityComparer.PhysicalInstanceKey)
+		                        .ToHashSet();
+		var unrelatedOccupants = HospitalRoomCharacters(theatre)
+		                         .Where(x => !hospital.IsEmployee(x))
+		                         .Where(x => !requestPatientIds.Contains(CharacterInstanceIdentityComparer.PhysicalInstanceKey(x)))
+		                         .Select(x => x.HowSeen(actor, colour: false))
+		                         .ToList();
+		if (unrelatedOccupants.Any())
+		{
+			issues.Add($"unrelated occupant: {unrelatedOccupants.ListToString()}");
+		}
+
+		issues.AddRange(requests
+		                .Select(x => DescribeHospitalTaskIssues(x, HospitalTaskForRequest(hospital, x)))
+		                .Where(x => !x.EqualTo("none")));
+
+		return HospitalListToStringOrNone(issues.Distinct(StringComparer.InvariantCultureIgnoreCase));
+	}
+
+	private static string DescribeHospitalRoomRoles(IHospital hospital, ICell room)
+	{
+		var roles = new List<HospitalLocationRole>();
+		if (hospital.WaitingRooms.Any(x => x.Id == room.Id))
+		{
+			roles.Add(HospitalLocationRole.WaitingRoom);
+		}
+
+		if (hospital.SupplyRooms.Any(x => x.Id == room.Id))
+		{
+			roles.Add(HospitalLocationRole.SupplyArea);
+		}
+
+		if (hospital.RecoveryRooms.Any(x => x.Id == room.Id))
+		{
+			roles.Add(HospitalLocationRole.RecoveryRoom);
+		}
+
+		if (hospital.StaffRooms.Any(x => x.Id == room.Id))
+		{
+			roles.Add(HospitalLocationRole.StaffRoom);
+		}
+
+		if (hospital.OperatingTheatres.Any(x => x.Id == room.Id))
+		{
+			roles.Add(HospitalLocationRole.OperatingTheatre);
+		}
+
+		return roles.Any()
+			? roles.Select(x => x.DescribeEnum()).ListToString()
+			: "none".ColourError();
+	}
+
+	private static string DescribeHospitalRoomStaff(ICharacter actor, IHospital hospital, ICell room)
+	{
+		return HospitalListToStringOrNone(HospitalRoomCharacters(room)
+		                                  .Where(hospital.IsEmployee)
+		                                  .Select(x => x.HowSeen(actor, colour: false))
+		                                  .Distinct(StringComparer.InvariantCultureIgnoreCase));
+	}
+
+	private static string DescribeHospitalRoomPatients(ICharacter actor, IReadOnlyCollection<IHospitalServiceRequest> requests,
+		ICell room)
+	{
+		var patients = requests
+		               .Where(x => x.Patient?.Location?.Id == room.Id || x.OperatingTheatreCellId == room.Id)
+		               .Select(x => $"#{x.Id.ToString("N0", actor)} {DescribeHospitalRequestPatient(actor, x)}")
+		               .Distinct(StringComparer.InvariantCultureIgnoreCase)
+		               .ToList();
+		return HospitalListToStringOrNone(patients);
+	}
+
+	private static string DescribeHospitalRoomInventory(ICharacter actor, ICell room)
+	{
+		var itemCount = (room.GameItems ?? []).Count();
+		return itemCount == 0
+			? "none".ColourValue()
+			: $"{itemCount.ToString("N0", actor)} item{(itemCount == 1 ? string.Empty : "s")}".ColourValue();
+	}
+
+	private static string DescribeHospitalRequestPatient(ICharacter actor, IHospitalServiceRequest request)
+	{
+		return request.Patient?.HowSeen(actor, colour: false) ?? request.PatientName;
+	}
+
+	private static string DescribeHospitalRequestLocation(ICharacter actor, IHospital hospital,
+		IHospitalServiceRequest request)
+	{
+		if (request.OperatingTheatreCellId is { } theatreId)
+		{
+			var theatre = DescribeHospitalCellById(actor, hospital, theatreId);
+			return request.Patient?.Location is { } patientLocation && patientLocation.Id != theatreId
+				? $"{theatre} (patient at {patientLocation.GetFriendlyReference(actor)})"
+				: theatre;
+		}
+
+		if (request.UsedInPlaceFallback)
+		{
+			return "in-place fallback".ColourCommand();
+		}
+
+		return request.Patient?.Location is { } location
+			? location.GetFriendlyReference(actor)
+			: "unknown".ColourError();
+	}
+
+	private static string DescribeHospitalTaskEmployee(ICharacter actor, IEmploymentActiveTask? task,
+		IHospitalServiceRequest request)
+	{
+		if (task?.AssignedEmployee is not null)
+		{
+			return task.AssignedEmployee.HowSeen(actor, colour: false);
+		}
+
+		return request.AssignedEmployeeId is { } employeeId
+			? $"#{employeeId.ToString("N0", actor)}"
+			: "none";
+	}
+
+	private static string DescribeHospitalTaskAction(ICharacter actor, IEmploymentActiveTask? task)
+	{
+		if (task is null)
+		{
+			return "none";
+		}
+
+		var index = NextHospitalTaskStepIndex(task);
+		if (index < 0 || index >= task.ActionPlan.Steps.Count || index >= task.StepStates.Count)
+		{
+			return task.Status.DescribeEnum();
+		}
+
+		return $"#{(index + 1).ToString("N0", actor)} {task.StepStates[index].DescribeEnum()} - {EmploymentTaskAuthoringService.DescribeStep(task.ActionPlan.Steps[index], actor)}";
+	}
+
+	private static string DescribeHospitalTaskIssues(IHospitalServiceRequest request, IEmploymentActiveTask? task)
+	{
+		var issues = new List<string>();
+		if (request.Patient is null)
+		{
+			issues.Add("patient unavailable");
+		}
+
+		if (request.Service.RequiredEquipment.Any() && !request.SupplyPrepared)
+		{
+			issues.Add("supplies not prepared");
+		}
+
+		if (request.Service.PreferOperatingTheatre && request.Status is HospitalServiceRequestStatus.Assigned or HospitalServiceRequestStatus.InProgress &&
+		    request.OperatingTheatreCellId is null)
+		{
+			issues.Add("no theatre reserved");
+		}
+
+		if (task is null)
+		{
+			issues.Add("no employment task");
+		}
+		else
+		{
+			if (task.Status == EmploymentTaskStatus.Blocked)
+			{
+				issues.Add(string.IsNullOrWhiteSpace(task.BlockedReason) ? "task blocked" : task.BlockedReason);
+			}
+			else if (task.Status == EmploymentTaskStatus.Failed)
+			{
+				issues.Add("task failed");
+			}
+
+			issues.AddRange(task.StepOperationalStates
+			                    .Where(x => !string.IsNullOrWhiteSpace(x.FailureDiagnostic))
+			                    .Select(x => x.FailureDiagnostic!));
+		}
+
+		if (request.Status == HospitalServiceRequestStatus.PendingConsent)
+		{
+			issues.Add("awaiting patient consent");
+		}
+
+		return HospitalListToStringOrNone(issues.Distinct(StringComparer.InvariantCultureIgnoreCase));
+	}
+
+	private static string DescribeHospitalTaskResources(IEmploymentActiveTask? task)
+	{
+		if (task is null)
+		{
+			return "none";
+		}
+
+		var resources = new List<string>();
+		foreach (var state in task.StepOperationalStates.Where(x => !x.IsEmpty))
+		{
+			if (!string.IsNullOrWhiteSpace(state.ReservationReference))
+			{
+				resources.Add($"Reserved: {state.ReservationReference}");
+			}
+
+			if (!string.IsNullOrWhiteSpace(state.SelectedResources))
+			{
+				resources.Add($"Selection: {state.SelectedResources}");
+			}
+
+			if (!string.IsNullOrWhiteSpace(state.LoadedAssets))
+			{
+				resources.Add($"Loaded: {state.LoadedAssets}");
+			}
+		}
+
+		return HospitalListToStringOrNone(resources.Distinct(StringComparer.InvariantCultureIgnoreCase).Take(4));
+	}
+
+	private static int NextHospitalTaskStepIndex(IEmploymentActiveTask task)
+	{
+		for (var i = 0; i < task.StepStates.Count; i++)
+		{
+			if (task.StepStates[i] is EmploymentActionStepStatus.Pending or EmploymentActionStepStatus.InProgress or
+			    EmploymentActionStepStatus.Blocked or EmploymentActionStepStatus.Failed)
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	private static string DescribeHospitalCellById(ICharacter actor, IHospital hospital, long id)
+	{
+		var cell = HospitalOperationsRooms(hospital).FirstOrDefault(x => x.Id == id);
+		return cell?.GetFriendlyReference(actor) ?? $"#{id.ToString("N0", actor)}";
+	}
+
+	private static IEnumerable<ICharacter> HospitalRoomCharacters(ICell room)
+	{
+		return room.Characters ?? [];
+	}
+
+	private static string HospitalListToStringOrNone(IEnumerable<string> values)
+	{
+		var text = values
+		           .Where(x => !string.IsNullOrWhiteSpace(x))
+		           .ToList()
+		           .ListToString();
+		return string.IsNullOrWhiteSpace(text) ? "none" : text;
 	}
 
 	private static void HospitalShowRequest(ICharacter actor, StringStack ss)

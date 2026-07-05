@@ -4816,13 +4816,6 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 			return patient.Location is null ? [] : [patient.Location];
 		}
 
-		if (Request.Service.PreferOperatingTheatre &&
-		    HospitalPatientFlow.TryReserveTreatmentLocation(Hospital, Request, out var treatmentLocation, out _) &&
-		    treatmentLocation is not null)
-		{
-			return [treatmentLocation];
-		}
-
 		return patient.Location is null ? [] : [patient.Location];
 	}
 

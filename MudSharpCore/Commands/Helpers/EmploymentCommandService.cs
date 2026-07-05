@@ -942,7 +942,10 @@ internal sealed class EmploymentCommandService
 			var index = 1;
 			foreach (var task in host.TaskBoard.ActiveTasks.OrderBy(x => x.Name))
 			{
-				sb.AppendLine($"\t#{index++.ToString("N0", actor)} - {task.Name.ColourName()} - {task.Status.DescribeEnum().ColourValue()} - assigned to {task.AssignedEmployee?.HowSeen(actor, colour: false).ColourName() ?? "nobody".ColourError()} - next step {DescribeNextStep(task, actor)}");
+				var blockedReason = string.IsNullOrWhiteSpace(task.BlockedReason)
+					? string.Empty
+					: $" - blocked: {task.BlockedReason.ColourError()}";
+				sb.AppendLine($"\t#{index++.ToString("N0", actor)} - {task.Name.ColourName()} - {task.Status.DescribeEnum().ColourValue()} - assigned to {task.AssignedEmployee?.HowSeen(actor, colour: false).ColourName() ?? "nobody".ColourError()} - next step {DescribeNextStep(task, actor)}{blockedReason}");
 			}
 		}
 

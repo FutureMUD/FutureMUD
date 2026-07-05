@@ -57,7 +57,7 @@ public static class HospitalMedicalServiceRunner
 		if (request.Patient is not { } patient)
 		{
 			FailRequest(request, "The patient is no longer loaded or available for treatment.");
-			return EmploymentActionStepResult.Blocked("The hospital patient is no longer loaded or available for treatment.");
+			return EmploymentActionStepResult.Failed("The hospital patient is no longer loaded or available for treatment.");
 		}
 
 		if (!employee.ColocatedWith(patient))
@@ -102,7 +102,7 @@ public static class HospitalMedicalServiceRunner
 		if (!result.Success)
 		{
 			FailRequest(request, result.Message);
-			return EmploymentActionStepResult.Blocked(result.Message);
+			return EmploymentActionStepResult.Failed(result.Message);
 		}
 
 		if (!result.Completed)
@@ -116,7 +116,7 @@ public static class HospitalMedicalServiceRunner
 
 		if (!TryCompleteRequest(context, employee, hospital, request, result, out var completionMessage))
 		{
-			return EmploymentActionStepResult.Blocked(completionMessage);
+			return EmploymentActionStepResult.Failed(completionMessage);
 		}
 
 		return new EmploymentActionStepResult(true, completionMessage, true, OperationalState(hospital, request, result));

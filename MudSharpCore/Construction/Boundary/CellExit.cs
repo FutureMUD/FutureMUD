@@ -179,8 +179,8 @@ public class CellExit : ICellExit
 
     public virtual bool IsExit(string verb)
     {
-        return CardinalDirectionExtensions.CardinalExitStrings.ContainsKey(verb) &&
-               CardinalDirectionExtensions.CardinalExitStrings[verb] == OutboundDirection;
+        return CardinalDirectionExtensions.CardinalExitStrings.TryGetValue(verb, out var direction) &&
+               direction == OutboundDirection;
     }
 
     public virtual bool IsExitKeyword(string keyword)

@@ -81,6 +81,7 @@ namespace MudSharp.Framework
                 {"u", CardinalDirection.Up},
                 {"up", CardinalDirection.Up},
                 {"d", CardinalDirection.Down},
+                {"dn", CardinalDirection.Down},
                 {"down", CardinalDirection.Down}
             };
 

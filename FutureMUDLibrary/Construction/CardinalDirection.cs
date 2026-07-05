@@ -26,54 +26,8 @@ namespace MudSharp.Construction
 
     public static partial class CardinalDirectionExtensions
     {
-        public static IReadOnlyDictionary<string, CardinalDirection> CardinalExitStrings { get; } = new Dictionary<string, CardinalDirection>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "n", CardinalDirection.North },
-            { "no", CardinalDirection.North },
-            { "nor", CardinalDirection.North },
-            { "nort", CardinalDirection.North },
-            { "north", CardinalDirection.North },
-            { "e", CardinalDirection.East },
-            { "ea", CardinalDirection.East },
-            { "eas", CardinalDirection.East },
-            { "east", CardinalDirection.East },
-            { "s", CardinalDirection.South },
-            { "so", CardinalDirection.South },
-            { "sou", CardinalDirection.South },
-            { "sout", CardinalDirection.South },
-            { "south", CardinalDirection.South },
-            { "w", CardinalDirection.West },
-            { "we", CardinalDirection.West },
-            { "wes", CardinalDirection.West },
-            { "west", CardinalDirection.West },
-            { "ne", CardinalDirection.NorthEast },
-            { "northeast", CardinalDirection.NorthEast },
-            { "northe", CardinalDirection.NorthEast },
-            { "northea", CardinalDirection.NorthEast },
-            { "northes", CardinalDirection.NorthEast },
-            { "nw", CardinalDirection.NorthWest },
-            { "northwest", CardinalDirection.NorthWest },
-            { "northw", CardinalDirection.NorthWest },
-            { "northwe", CardinalDirection.NorthWest },
-            { "northwes", CardinalDirection.NorthWest },
-            { "se", CardinalDirection.SouthEast },
-            { "southeast", CardinalDirection.SouthEast },
-            { "southe", CardinalDirection.SouthEast },
-            { "southea", CardinalDirection.SouthEast },
-            { "southeas", CardinalDirection.SouthEast },
-            { "sw", CardinalDirection.SouthWest },
-            { "southwest", CardinalDirection.SouthWest },
-            { "southw", CardinalDirection.SouthWest },
-            { "southwe", CardinalDirection.SouthWest },
-            { "southwes", CardinalDirection.SouthWest },
-            { "u", CardinalDirection.Up },
-            { "up", CardinalDirection.Up },
-            { "d", CardinalDirection.Down },
-            { "do", CardinalDirection.Down },
-            { "dow", CardinalDirection.Down },
-            { "down", CardinalDirection.Down },
-            { "dn", CardinalDirection.Down },
-        };
+        public static IReadOnlyDictionary<string, CardinalDirection> CardinalExitStrings { get; } =
+            new Dictionary<string, CardinalDirection>(Constants.CardinalDirectionStringToDirection, StringComparer.OrdinalIgnoreCase);
         public static List<CardinalDirection> ContainedDirections(this (int Northness, int Southness, int Westness, int Eastness, int Upness, int Downness, int Unknownness) directions)
         {
             List<CardinalDirection> list = new();
@@ -456,7 +410,7 @@ namespace MudSharp.Construction
                 case CardinalDirection.NorthEast:
                     return "ne";
                 case CardinalDirection.NorthWest:
-                    return "se";
+                    return "nw";
                 case CardinalDirection.South:
                     return "s";
                 case CardinalDirection.SouthEast:

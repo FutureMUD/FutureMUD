@@ -1303,9 +1303,10 @@ With each of the emotes, you can use the following tokens:
         // After 10 minutes, fire the lawyers that aren't there
         if (DateTime.UtcNow - trialEffect.LastTrialAction > TimeSpan.FromMinutes(10))
         {
-            if (trialEffect.Defender.Location != court)
+			var defender = trialEffect.Defender;
+			if (defender is not null && defender.Location != court)
             {
-                trialEffect.Defender.RemoveAllEffects(x => x.IsEffectType<Lawyering>());
+                defender.RemoveAllEffects(x => x.IsEffectType<Lawyering>());
                 trialEffect.Defender = null;
 				defendant.RemoveAllEffects(x => x.IsEffectType<HasLegalCounsel>());
 			}
@@ -1644,6 +1645,16 @@ With each of the emotes, you can use the following tokens:
 
 	private bool DoTrialTickCase(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
 	{
+		if (!trialEffect.CasesFinishedArguing() && !TrialAdvocatesReady(defendant, trialEffect))
+		{
+			if (DateTime.UtcNow - trialEffect.LastTrialAction > TimeSpan.FromMinutes(10))
+			{
+				RecoverMissingTrialAdvocates(defendant, trialEffect);
+			}
+
+			return false;
+		}
+
 		if (!trialEffect.CasesFinishedArguing() && DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
 		{
 			return false;
@@ -1668,6 +1679,39 @@ With each of the emotes, you can use the following tokens:
         trialEffect.LastTrialAction = DateTime.UtcNow;
         return true;
     }
+
+	private static bool TrialAdvocatesReady(ICharacter defendant, OnTrial trialEffect)
+	{
+		var court = trialEffect.LegalAuthority.CourtLocation;
+		return (trialEffect.Defender?.Location == court ||
+		        CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(trialEffect.Defender, defendant)) &&
+		       trialEffect.Prosecutor?.Location == court;
+	}
+
+	private static void RecoverMissingTrialAdvocates(ICharacter defendant, OnTrial trialEffect)
+	{
+		var court = trialEffect.LegalAuthority.CourtLocation;
+		if (trialEffect.Defender is not null &&
+		    !CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(trialEffect.Defender, defendant) &&
+		    trialEffect.Defender.Location != court)
+		{
+			trialEffect.Defender.RemoveAllEffects(x => x.IsEffectType<Lawyering>());
+			trialEffect.Defender = defendant;
+			defendant.RemoveAllEffects(x => x.IsEffectType<HasLegalCounsel>());
+			defendant.OutputHandler.Send("#2[System Message]#0 Your lawyer is no longer present, so you are now defending yourself in this case.".SubstituteANSIColour());
+		}
+
+		if (trialEffect.Defender is null)
+		{
+			trialEffect.Defender = defendant;
+			defendant.OutputHandler.Send("#2[System Message]#0 You are defending yourself in this case.".SubstituteANSIColour());
+		}
+
+		if (trialEffect.Prosecutor?.Location != court)
+		{
+			trialEffect.Prosecutor = null;
+		}
+	}
 
     private bool DoTrialTickPlea(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
     {

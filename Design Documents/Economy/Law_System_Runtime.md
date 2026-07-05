@@ -105,7 +105,7 @@ The execution patrol progresses through these stages:
 4. Move the leader to the prisoner and send the retrieval emote.
 5. Give the prisoner the configured compliance window to use `HELPLESS` or submit to the guards.
 6. If the prisoner resists, guards switch to control-oriented combat settings where available and attempt to subdue them.
-7. Drag the helpless or submitted prisoner to the execution location.
+7. Drag the helpless or submitted prisoner to the execution location. If another character is already dragging the condemned prisoner, the execution patrol clears that conflicting drag state and takes over custody rather than bouncing indefinitely between subdual and transport.
 8. Secure the prisoner for execution. A prisoner is secured if they are already helpless, remain submitted as the patrol's drag target, are under enough grapple or restraint control to be helpless, or can be made helpless by the guards. Ordinary partial restraints, such as hand bindings that do not actually make the target helpless, are not by themselves enough to proceed.
 9. Offer the configured last-words window.
 10. Play each configured execution script step.
@@ -124,6 +124,8 @@ Trials are represented by the `OnTrial` effect for the relevant legal authority.
 Automated trial effects persist their current phase, manual-trial flag, remaining per-charge queue, pleas, argument outcomes, and punishment results. If the game reboots mid-trial, the resumed `trial` view continues revealing only the charges, pleas, verdicts, and sentences that had actually been reached before the reboot.
 
 Automated trials use separate judge and prosecutor roles. The judge AI can read charges, collect pleas, move phases, announce verdicts, and sentence, but it does not argue the prosecution case. A prosecutor patrol member in the court claims the prosecution role and presents prosecution arguments; if no valid prosecutor patrol member is present, the trial waits rather than having the judge fill both roles.
+
+While a defendant has an `OnTrial` effect, the trial is treated as courtroom custody: the defendant cannot voluntarily quit or walk out of the proceeding. Trial start paths apply the effect only after the defendant has arrived in court so automated remand-to-court transfers do not trip the movement blocker. If a lawyer or prosecutor disappears during automated case arguments, the judge waits instead of advancing with a missing role. After the grace period, a missing defender is cleared and the defendant falls back to self-defense; a missing prosecutor is cleared so the next valid prosecutor patrol member can reclaim the role.
 
 A PC judge is any enforcer whose enforcement authority has `CanConvict` for the jurisdiction and whose authority can judge the defendant's legal class.
 

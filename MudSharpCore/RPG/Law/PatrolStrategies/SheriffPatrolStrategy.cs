@@ -87,7 +87,6 @@ public class SheriffPatrolStrategy : PatrolStrategyBase
         // Fetch the criminal for trial
         List<ICrime> crimes = authority.KnownCrimesForIndividual(trialCandidate).ToList();
         trialCandidate.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == authority, true);
-        trialCandidate.AddEffect(new OnTrial(trialCandidate, authority, DateTime.UtcNow, crimes));
         trialCandidate.OutputHandler.Handle(new EmoteOutput(
             new Emote(Gameworld.GetStaticString("FetchCriminalForTrialEmoteCell"), trialCandidate, trialCandidate),
             flags: OutputFlags.SuppressSource));
@@ -98,6 +97,7 @@ public class SheriffPatrolStrategy : PatrolStrategyBase
         trialCandidate.Location.Leave(trialCandidate);
         trialCandidate.RoomLayer = RoomLayer.GroundLevel;
         authority.CourtLocation.Enter(trialCandidate);
+        trialCandidate.AddEffect(new OnTrial(trialCandidate, authority, DateTime.UtcNow, crimes));
         trialCandidate.Body.Look(true);
         trialCandidate.OutputHandler.Handle(new EmoteOutput(
             new Emote(Gameworld.GetStaticString("FetchCriminalForTrialEmoteCourt"), trialCandidate, trialCandidate),

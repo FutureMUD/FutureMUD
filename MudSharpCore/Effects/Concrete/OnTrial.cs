@@ -1,4 +1,5 @@
 ﻿using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Statements;
@@ -31,11 +32,31 @@ public enum TrialPhase
 }
 
 #nullable enable
-public class OnTrial : Effect, IEffect
+public class OnTrial : Effect, IEffect, INoQuitEffect
 {
     private DateTime _lastTrialAction;
 
     public ILegalAuthority LegalAuthority { get; set; } = null!;
+
+	public ICharacter CharacterOwner => (ICharacter)Owner;
+
+	public string NoQuitReason => "You cannot quit while you are on trial.";
+
+	private void SubscribeEvents()
+	{
+		CharacterOwner.OnWantsToMove += Owner_OnWantsToMove;
+	}
+
+	private void UnsubscribeEvents()
+	{
+		CharacterOwner.OnWantsToMove -= Owner_OnWantsToMove;
+	}
+
+	private void Owner_OnWantsToMove(IPerceivable owner, PerceivableRejectionResponse response)
+	{
+		response.Rejected = true;
+		response.Reason = "You cannot leave while your trial is in progress.";
+	}
 
     public DateTime LastTrialAction
     {
@@ -100,6 +121,7 @@ public class OnTrial : Effect, IEffect
         {
             _prosecutor = value;
             _prosecutorId = value?.Id;
+			Changed = true;
         }
     }
 
@@ -113,6 +135,7 @@ public class OnTrial : Effect, IEffect
         {
             _defender = value;
             _defenderId = value?.Id;
+			Changed = true;
         }
     }
 
@@ -322,6 +345,7 @@ public class OnTrial : Effect, IEffect
         }
         ResetCrimeQueue();
         _phase = TrialPhase.AwaitingLawyers;
+		SubscribeEvents();
     }
 
     protected OnTrial(XElement effect, IPerceivable owner) : base(effect, owner)
@@ -361,6 +385,21 @@ public class OnTrial : Effect, IEffect
         LoadCrimeQueue(root.Element("CrimeQueue"));
         _phase = (TrialPhase)int.Parse(root.Element("Phase")?.Value ?? "0");
         _manualTrial = bool.Parse(root.Element("ManualTrial")?.Value ?? "false");
+		if (long.TryParse(root.Element("Prosecutor")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture,
+			    out var prosecutorId) &&
+		    prosecutorId > 0)
+		{
+			_prosecutorId = prosecutorId;
+		}
+
+		if (long.TryParse(root.Element("Defender")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture,
+			    out var defenderId) &&
+		    defenderId > 0)
+		{
+			_defenderId = defenderId;
+		}
+
+		SubscribeEvents();
     }
 
     #endregion
@@ -417,6 +456,8 @@ public class OnTrial : Effect, IEffect
             new XElement("LastTrialAction", LastTrialAction.ToString("O")),
             new XElement("Phase", (int)Phase),
             new XElement("ManualTrial", ManualTrial),
+			new XElement("Prosecutor", _prosecutorId ?? _prosecutor?.Id ?? 0L),
+			new XElement("Defender", _defenderId ?? _defender?.Id ?? 0L),
             new XElement("CrimeQueue",
                 from crime in CrimeQueue
                 select new XElement("Crime",
@@ -460,6 +501,11 @@ public class OnTrial : Effect, IEffect
     }
 
     public override bool SavingEffect => true;
+
+	public override void RemovalEffect()
+	{
+		UnsubscribeEvents();
+	}
 
     public override bool Applies(object target)
     {

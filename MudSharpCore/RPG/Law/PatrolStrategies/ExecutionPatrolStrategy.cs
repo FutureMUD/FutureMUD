@@ -631,6 +631,21 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		return patrol.PatrolMembers.Any(x => x.CombinedEffectsOfType<Dragging>().Any(y => y.Target == _condemned));
 	}
 
+	private bool ReleaseConflictingDragCustody(IPatrol patrol)
+	{
+		List<Dragging.DragTarget> conflictingDrags = _condemned
+		                                             .EffectsOfType<Dragging.DragTarget>()
+		                                             .Where(x => !x.TheDrag.CharacterDraggers.Any(y =>
+			                                             patrol.PatrolMembers.ContainsPhysicalInstance(y)))
+		                                             .ToList();
+		foreach (Dragging.DragTarget drag in conflictingDrags)
+		{
+			_condemned.RemoveEffect(drag, true);
+		}
+
+		return conflictingDrags.Any();
+	}
+
 	private void HandleSubduingPrisoner(IPatrol patrol)
 	{
 		if (_condemned.IsHelpless || IsBeingDraggedByPatrol(patrol))
@@ -681,6 +696,8 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		{
 			return true;
 		}
+
+		ReleaseConflictingDragCustody(patrol);
 
 		foreach (ICharacter member in patrol.PatrolMembers.Where(x => x.ColocatedWith(_condemned)))
 		{

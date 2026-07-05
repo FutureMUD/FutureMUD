@@ -189,6 +189,11 @@ public class LegalPatrolStrategyTests
 
 		StringAssert.Contains(judgeSource, "EnsureAutomatedProsecutor(trialEffect);");
 		StringAssert.Contains(judgeSource, "private static bool IsAutomatedProsecutor(ICharacter character, ILegalAuthority authority)");
+		StringAssert.Contains(judgeSource, "private static bool TrialAdvocatesReady(ICharacter defendant, OnTrial trialEffect)");
+		StringAssert.Contains(judgeSource, "private static void RecoverMissingTrialAdvocates(ICharacter defendant, OnTrial trialEffect)");
+		StringAssert.Contains(judgeSource, "if (!trialEffect.CasesFinishedArguing() && !TrialAdvocatesReady(defendant, trialEffect))");
+		StringAssert.Contains(judgeSource, "trialEffect.Defender = defendant;");
+		StringAssert.Contains(judgeSource, "trialEffect.Prosecutor = null;");
 		StringAssert.Contains(judgeSource, "x.Patrol.PatrolStrategy.Name == \"Prosecutor\"");
 		StringAssert.Contains(judgeSource, "trialEffect.Prosecutor ??= court.Characters.FirstOrDefault");
 		Assert.IsFalse(judgeSource.Contains("trialEffect.Prosecutor ??= enforcer;", StringComparison.Ordinal));
@@ -197,6 +202,30 @@ public class LegalPatrolStrategyTests
 		StringAssert.Contains(prosecutorSource, "trial.Prosecutor = patrol.PatrolLeader;");
 		StringAssert.Contains(prosecutorSource, "CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(trial.Prosecutor, patrol.PatrolLeader)");
 		StringAssert.Contains(prosecutorSource, "trial.HandleArgueCommand(patrol.PatrolLeader, false);");
+	}
+
+	[TestMethod]
+	public void TrialCreation_ShouldApplyOnTrialAfterCourtTransfer()
+	{
+		string sheriffSource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "SheriffPatrolStrategy.cs"));
+		string crimeModuleSource = File.ReadAllText(GetCoreSourcePath("Commands", "Modules", "CrimeModule.cs"));
+
+		int sheriffEnter = sheriffSource.IndexOf("authority.CourtLocation.Enter(trialCandidate);", StringComparison.Ordinal);
+		int sheriffTrial = sheriffSource.IndexOf("trialCandidate.AddEffect(new OnTrial", StringComparison.Ordinal);
+		Assert.IsTrue(sheriffEnter >= 0);
+		Assert.IsTrue(sheriffTrial > sheriffEnter);
+
+		int requestTrial = crimeModuleSource.IndexOf("[PlayerCommand(\"RequestTrial\", \"requesttrial\")]", StringComparison.Ordinal);
+		int requestEnter = crimeModuleSource.IndexOf("jurisdiction.CourtLocation.Enter(actor);", requestTrial, StringComparison.Ordinal);
+		int requestEffect = crimeModuleSource.IndexOf("actor.AddEffect(new OnTrial", requestTrial, StringComparison.Ordinal);
+		Assert.IsTrue(requestTrial >= 0);
+		Assert.IsTrue(requestEffect > requestEnter);
+
+		int summon = crimeModuleSource.IndexOf("private static void TrialSummon(ICharacter actor, StringStack ss)", StringComparison.Ordinal);
+		int summonEnter = crimeModuleSource.IndexOf("jurisdiction.CourtLocation.Enter(target);", summon, StringComparison.Ordinal);
+		int summonEffect = crimeModuleSource.IndexOf("target.AddEffect(new OnTrial(target, jurisdiction, DateTime.UtcNow, crimes, manualTrial: true));", summonEnter, StringComparison.Ordinal);
+		Assert.IsTrue(summon >= 0);
+		Assert.IsTrue(summonEffect > summonEnter);
 	}
 
 	[TestMethod]
@@ -224,6 +253,11 @@ public class LegalPatrolStrategyTests
 		StringAssert.Contains(source, "Where(x => x.Reason == LimbIneffectiveReason.Restrained)");
 		StringAssert.Contains(source, "SetStage(ExecutionPatrolStage.SubduingPrisoner);");
 		StringAssert.Contains(source, "ReleaseCondemnedFromPatrolDrag(patrol);");
+		StringAssert.Contains(source, "private bool ReleaseConflictingDragCustody(IPatrol patrol)");
+		StringAssert.Contains(source, "EffectsOfType<Dragging.DragTarget>()");
+		StringAssert.Contains(source, "!x.TheDrag.CharacterDraggers.Any(y =>");
+		StringAssert.Contains(source, "patrol.PatrolMembers.ContainsPhysicalInstance(y)");
+		StringAssert.Contains(source, "ReleaseConflictingDragCustody(patrol);");
 		Assert.IsFalse(source.Contains("if (_condemned.Body.EffectsOfType<RestraintEffect>().Any())", StringComparison.Ordinal));
 	}
 

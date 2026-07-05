@@ -35,6 +35,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
@@ -264,6 +265,56 @@ public class EmploymentCommandServiceTests
 
 		hospital.Verify(x => x.AddLocation(supply, HospitalLocationRole.SupplyArea), Times.Once);
 		hospital.Verify(x => x.AddLocation(foyer, HospitalLocationRole.SupplyArea), Times.Never);
+	}
+
+	[TestMethod]
+	public void HospitalCommand_RoomAddSupportsStaffRoomRole()
+	{
+		var gameworld = Gameworld();
+		var foyer = Cell(377, "A Hospital Foyer").Object;
+		var staffRoom = Cell(378, "A Staff Room").Object;
+		var cells = new All<ICell>();
+		cells.Add(foyer);
+		cells.Add(staffRoom);
+		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var hospital = HospitalHost(5, "Easy Street Hospital", [foyer]);
+		var hospitals = new All<IHospital>();
+		hospitals.Add(hospital.Object);
+		gameworld.SetupGet(x => x.Hospitals).Returns(hospitals);
+		var admin = Character(105, "Admin", administrator: true, gameworld: gameworld.Object, location: foyer).Object;
+
+		InvokeHospitalCommand(admin, "hospital room add staff #378");
+
+		hospital.Verify(x => x.AddLocation(staffRoom, HospitalLocationRole.StaffRoom), Times.Once);
+	}
+
+	[TestMethod]
+	public void HospitalCommand_BloodstockSetAllTargetsEveryBloodtype()
+	{
+		var gameworld = Gameworld();
+		var foyer = Cell(379, "A Hospital Foyer").Object;
+		var hospital = HospitalHost(6, "Easy Street Hospital", [foyer]);
+		var hospitals = new All<IHospital>();
+		hospitals.Add(hospital.Object);
+		gameworld.SetupGet(x => x.Hospitals).Returns(hospitals);
+		var bloodA = Bloodtype(1, "A+");
+		var bloodO = Bloodtype(2, "O-");
+		var bloodtypes = new All<IBloodtype>();
+		bloodtypes.Add(bloodA.Object);
+		bloodtypes.Add(bloodO.Object);
+		gameworld.SetupGet(x => x.Bloodtypes).Returns(bloodtypes);
+		var policyA = new Mock<IHospitalBloodStockPolicy>();
+		policyA.SetupProperty(x => x.TargetLitres);
+		var policyO = new Mock<IHospitalBloodStockPolicy>();
+		policyO.SetupProperty(x => x.TargetLitres);
+		hospital.Setup(x => x.BloodStockPolicyFor(bloodA.Object, true)).Returns(policyA.Object);
+		hospital.Setup(x => x.BloodStockPolicyFor(bloodO.Object, true)).Returns(policyO.Object);
+		var admin = Character(106, "Admin", administrator: true, gameworld: gameworld.Object, location: foyer).Object;
+
+		InvokeHospitalCommand(admin, "hospital bloodstock set all target 1.5");
+
+		Assert.AreEqual(1.5, policyA.Object.TargetLitres);
+		Assert.AreEqual(1.5, policyO.Object.TargetLitres);
 	}
 
 	[TestMethod]
@@ -3652,6 +3703,14 @@ public class EmploymentCommandServiceTests
 		cell.SetupGet(x => x.GameItems).Returns(Array.Empty<IGameItem>());
 		cell.Setup(x => x.GetFriendlyReference(It.IsAny<IPerceiver>())).Returns(name);
 		return cell;
+	}
+
+	private static Mock<IBloodtype> Bloodtype(long id, string name)
+	{
+		var bloodtype = new Mock<IBloodtype>();
+		bloodtype.SetupGet(x => x.Id).Returns(id);
+		bloodtype.SetupGet(x => x.Name).Returns(name);
+		return bloodtype;
 	}
 
 	private static Mock<IGameItemProto> ItemProto(long id, string shortDescription)

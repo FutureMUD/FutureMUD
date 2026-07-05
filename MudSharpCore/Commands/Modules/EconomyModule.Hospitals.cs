@@ -53,7 +53,7 @@ Hospital managers and proprietors standing in the hospital can use #3hospital he
 	#3hospital requestshow <##>#0 - shows a hospital service request
 	#3hospital open|close#0 - opens or closes the hospital
 	#3hospital maxdebt <amount>#0 - sets the default debt ceiling for new patients
-	#3hospital room add|remove <waiting|theatre|supply|recovery> [here|<direction>|<#>]#0 - flags hospital rooms
+	#3hospital room add|remove <waiting|theatre|supply|recovery|staff> [here|<direction>|<#>]#0 - flags hospital rooms
 	#3hospital service add <type> <price> <name>#0 - creates a service
 	#3hospital service set <service> price|active|debt|theatre|recovery|blood|equipment|procedure|implant|implantpower|implantinterface|anesthesia|cannulation|parameters|name|desc <value>#0 - edits a service
 	#3hospital bloodstock [show|set|clear] ...#0 - manages blood type target stock and donor prices
@@ -281,7 +281,7 @@ Administrators can also use:
 				x.Id.ToString("N0", actor),
 				x.Name,
 				x.ServiceType.DescribeEnum(),
-				hospital.Currency.Describe(x.Price, CurrencyDescriptionPatternType.ShortDecimal),
+				HospitalServiceBilling.DescribePrice(hospital, x, actor),
 				x.AllowDebt.ToColouredString(),
 				HospitalServiceAvailability.Evaluate(hospital, x, actor).DescribeColoured()
 			}),
@@ -346,6 +346,12 @@ Administrators can also use:
 			return;
 		}
 
+		if (HospitalServiceBilling.IsUsageBilledServiceType(serviceType))
+		{
+			actor.OutputHandler.Send($"{serviceType.DescribeEnum().ColourName()} is automatically available and is billed from the individual treatments performed. Edit the automatic service rather than adding another one.");
+			return;
+		}
+
 		var name = ss.SafeRemainingArgument.TitleCase();
 		if (string.IsNullOrWhiteSpace(name))
 		{
@@ -387,6 +393,12 @@ Administrators can also use:
 		switch (ss.PopSpeech().CollapseString().ToLowerInvariant())
 		{
 			case "price":
+				if (HospitalServiceBilling.IsUsageBilledServiceType(service.ServiceType))
+				{
+					actor.OutputHandler.Send($"{service.Name.ColourName()} is usage-billed from the individual treatments performed; set the prices on those component services instead.");
+					return;
+				}
+
 				if (ss.IsFinished || !hospital.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out var price) || price < 0.0M)
 				{
 					actor.OutputHandler.Send("What non-negative price should this service have?");
@@ -403,6 +415,14 @@ Administrators can also use:
 				return;
 			case "debt":
 			case "allowdebt":
+				if (HospitalServiceBilling.IsUsageBilledServiceType(service.ServiceType))
+				{
+					service.AllowDebt = true;
+					service.Changed = true;
+					actor.OutputHandler.Send($"{service.Name.ColourName()} is usage-billed and must remain debt-capable.");
+					return;
+				}
+
 				service.AllowDebt = !service.AllowDebt;
 				service.Changed = true;
 				actor.OutputHandler.Send($"{service.Name.ColourName()} debt status is now {service.AllowDebt.ToColouredString()}.");
@@ -793,7 +813,7 @@ Administrators can also use:
 				HospitalBloodStockSet(actor, hospital, ss);
 				return;
 			default:
-				actor.OutputHandler.Send("Hospital bloodstock syntax is bloodstock show [bloodtype], bloodstock set <bloodtype> target <litres>, bloodstock set <bloodtype> price <amount>, or bloodstock clear <bloodtype>.");
+				actor.OutputHandler.Send("Hospital bloodstock syntax is bloodstock show [bloodtype], bloodstock set <bloodtype|all> target <litres>, bloodstock set <bloodtype|all> price <amount>, or bloodstock clear <bloodtype|all>.");
 				return;
 		}
 	}
@@ -820,9 +840,30 @@ Administrators can also use:
 
 	private static void HospitalBloodStockSet(ICharacter actor, IHospital hospital, StringStack ss)
 	{
-		if (ss.IsFinished || !TryGetHospitalBloodtype(actor, ss.PopSpeech(), out var bloodtype))
+		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send("Which blood type policy do you want to set?");
+			return;
+		}
+
+		var targetText = ss.PopSpeech();
+		var bloodtypes = new List<IBloodtype>();
+		if (targetText.EqualTo("all"))
+		{
+			bloodtypes.AddRange(actor.Gameworld.Bloodtypes);
+		}
+		else if (TryGetHospitalBloodtype(actor, targetText, out var bloodtype))
+		{
+			bloodtypes.Add(bloodtype);
+		}
+		else
+		{
+			return;
+		}
+
+		if (!bloodtypes.Any())
+		{
+			actor.OutputHandler.Send("There are no blood types configured.");
 			return;
 		}
 
@@ -832,7 +873,6 @@ Administrators can also use:
 			return;
 		}
 
-		var policy = hospital.BloodStockPolicyFor(bloodtype, true)!;
 		switch (ss.PopSpeech().CollapseString().ToLowerInvariant())
 		{
 			case "target":
@@ -844,8 +884,14 @@ Administrators can also use:
 					return;
 				}
 
-				policy.TargetLitres = litres;
-				actor.OutputHandler.Send($"{hospital.Name.ColourName()} will target {litres.ToString("N2", actor).ColourValue()}L of {bloodtype.Name.ColourName()} blood.");
+				foreach (var type in bloodtypes)
+				{
+					hospital.BloodStockPolicyFor(type, true)!.TargetLitres = litres;
+				}
+
+				actor.OutputHandler.Send(targetText.EqualTo("all")
+					? $"{hospital.Name.ColourName()} will target {litres.ToString("N2", actor).ColourValue()}L of every blood type."
+					: $"{hospital.Name.ColourName()} will target {litres.ToString("N2", actor).ColourValue()}L of {bloodtypes[0].Name.ColourName()} blood.");
 				return;
 			case "price":
 			case "pay":
@@ -856,8 +902,14 @@ Administrators can also use:
 					return;
 				}
 
-				policy.PricePerLitre = price;
-				actor.OutputHandler.Send($"{hospital.Name.ColourName()} will pay {hospital.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} per litre for {bloodtype.Name.ColourName()} blood while below target.");
+				foreach (var type in bloodtypes)
+				{
+					hospital.BloodStockPolicyFor(type, true)!.PricePerLitre = price;
+				}
+
+				actor.OutputHandler.Send(targetText.EqualTo("all")
+					? $"{hospital.Name.ColourName()} will pay {hospital.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} per litre for every blood type while below target."
+					: $"{hospital.Name.ColourName()} will pay {hospital.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} per litre for {bloodtypes[0].Name.ColourName()} blood while below target.");
 				return;
 			default:
 				actor.OutputHandler.Send("Do you want to set target or price?");
@@ -867,9 +919,27 @@ Administrators can also use:
 
 	private static void HospitalBloodStockClear(ICharacter actor, IHospital hospital, StringStack ss)
 	{
-		if (ss.IsFinished || !TryGetHospitalBloodtype(actor, ss.SafeRemainingArgument, out var bloodtype))
+		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send("Which blood type policy do you want to clear?");
+			return;
+		}
+
+		var targetText = ss.SafeRemainingArgument;
+		if (targetText.EqualTo("all"))
+		{
+			var policies = hospital.BloodStockPolicies.ToList();
+			foreach (var bloodPolicy in policies)
+			{
+				hospital.RemoveBloodStockPolicy(bloodPolicy);
+			}
+
+			actor.OutputHandler.Send($"You clear all blood stock policies at {hospital.Name.ColourName()}.");
+			return;
+		}
+
+		if (!TryGetHospitalBloodtype(actor, targetText, out var bloodtype))
+		{
 			return;
 		}
 
@@ -1073,6 +1143,11 @@ Administrators can also use:
 
 		var patient = actor;
 		var payment = new HospitalPaymentSelection { Method = HospitalPaymentMethod.Cash };
+		if (HospitalServiceBilling.IsUsageBilledServiceType(service.ServiceType))
+		{
+			payment = new HospitalPaymentSelection { Method = HospitalPaymentMethod.Debt };
+		}
+
 		while (!ss.IsFinished)
 		{
 			var token = ss.PopSpeech();
@@ -1139,6 +1214,12 @@ Administrators can also use:
 
 			actor.OutputHandler.Send($"Unknown hospital request option {token.ColourCommand()}.");
 			return;
+		}
+
+		if (HospitalServiceBilling.IsUsageBilledServiceType(service.ServiceType) &&
+		    payment.Method != HospitalPaymentMethod.Waived)
+		{
+			payment = new HospitalPaymentSelection { Method = HospitalPaymentMethod.Debt };
 		}
 
 		if (payment.Method == HospitalPaymentMethod.Debt && !service.AllowDebt)
@@ -1214,6 +1295,11 @@ Administrators can also use:
 		request.MarkStatus(HospitalServiceRequestStatus.Queued,
 			$"Queued as employment task {task.CorrelationId.ToString("D")}.");
 		message = $"You request {service.Name.ColourName()} for {patient.HowSeen(requester)} at {hospital.Name.ColourName()}. Request #{request.Id.ToString("N0", requester).ColourValue()} has been queued.";
+		if (HospitalServiceBilling.IsUsageBilledServiceType(service.ServiceType) && payment.Method != HospitalPaymentMethod.Waived)
+		{
+			message += " It will be charged to the patient's hospital debt account based on the treatments actually performed.";
+		}
+
 		return true;
 	}
 
@@ -1233,6 +1319,29 @@ Administrators can also use:
 		debtCharged = 0.0M;
 		error = string.Empty;
 		var amount = service.Price;
+		if (HospitalServiceBilling.IsUsageBilledServiceType(service.ServiceType))
+		{
+			if (payment.Method == HospitalPaymentMethod.Waived)
+			{
+				return true;
+			}
+
+			if (!service.AllowDebt)
+			{
+				error = $"{service.Name.ColourName()} is usage-billed and must allow medical debt.";
+				return false;
+			}
+
+			var account = hospital.DebtAccountFor(patient, true)!;
+			if (account.IsSuspended)
+			{
+				error = $"The hospital debt account for {account.PatientName.ColourName()} is suspended.";
+				return false;
+			}
+
+			return true;
+		}
+
 		if (amount <= 0.0M || payment.Method == HospitalPaymentMethod.Waived)
 		{
 			return true;
@@ -1640,13 +1749,13 @@ Administrators can also use:
 		var action = ss.PopSpeech().CollapseString().ToLowerInvariant();
 		if (!action.EqualToAny("add", "remove", "delete"))
 		{
-			actor.OutputHandler.Send("Hospital room syntax is room add|remove <waiting|theatre|supply|recovery> [here|<direction>|<#>].");
+			actor.OutputHandler.Send("Hospital room syntax is room add|remove <waiting|theatre|supply|recovery|staff> [here|<direction>|<#>].");
 			return;
 		}
 
 		if (ss.IsFinished || !TryParseHospitalLocationRole(ss.PopSpeech(), out var role))
 		{
-			actor.OutputHandler.Send("Which hospital room role? Valid roles are waiting, theatre, supply, and recovery.");
+			actor.OutputHandler.Send("Which hospital room role? Valid roles are waiting, theatre, supply, recovery, and staff.");
 			return;
 		}
 
@@ -2029,6 +2138,12 @@ Administrators can also use:
 			case "recoveryroom":
 			case "recover":
 				role = HospitalLocationRole.RecoveryRoom;
+				return true;
+			case "staff":
+			case "staffroom":
+			case "breakroom":
+			case "break":
+				role = HospitalLocationRole.StaffRoom;
 				return true;
 		}
 

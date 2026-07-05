@@ -424,7 +424,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 		sb.AppendLine($"Hospital Service #{Id.ToString("N0", actor)} - {Name.TitleCase().ColourName()}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine($"Hospital: {Hospital.Name.ColourName()}");
 		sb.AppendLine($"Type: {ServiceType.DescribeEnum().ColourName()}");
-		sb.AppendLine($"Price: {Hospital.Currency.Describe(Price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"Price: {HospitalServiceBilling.DescribePrice(Hospital, this, actor).ColourValue()}");
 		sb.AppendLine($"Active: {IsActive.ToColouredString()}");
 		var availability = HospitalServiceAvailability.Evaluate(Hospital, this, actor);
 		sb.AppendLine($"Current Availability: {availability.DescribeColoured()}");

@@ -58,6 +58,8 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 			FMDB.Context.SaveChanges();
 			_id = dbitem.Id;
 		}
+
+		EnsureAutomaticCombinedServices();
 	}
 
 	public Hospital(DbHospital hospital, IFuturemud gameworld)
@@ -110,6 +112,8 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 				_serviceRequests.Add(loaded);
 			}
 		}
+
+		EnsureAutomaticCombinedServices();
 	}
 
 	public override string FrameworkItemType => "Hospital";
@@ -199,6 +203,11 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 
 	public IEnumerable<ICell> RecoveryRooms => _locations
 		.Where(x => x.Role == HospitalLocationRole.RecoveryRoom)
+		.Select(x => x.Cell)
+		.DistinctBy(x => x.Id);
+
+	public IEnumerable<ICell> StaffRooms => _locations
+		.Where(x => x.Role == HospitalLocationRole.StaffRoom)
 		.Select(x => x.Cell)
 		.DistinctBy(x => x.Id);
 
@@ -398,10 +407,11 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 		sb.AppendLine($"Open: {IsTrading.ToColouredString()}");
 		sb.AppendLine($"Ready: {IsReadyToDoBusiness.ToColouredString()}");
 		sb.AppendLine($"Default Maximum Debt: {Currency.Describe(DefaultMaximumDebt, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
-		sb.AppendLine($"Waiting Rooms: {WaitingRooms.Select(x => $"#{x.Id.ToString("N0", actor)} {x.HowSeen(actor)}").DefaultIfEmpty("none".ColourError()).ListToString()}");
-		sb.AppendLine($"Operating Theatres: {OperatingTheatres.Select(x => $"#{x.Id.ToString("N0", actor)} {x.HowSeen(actor)}").DefaultIfEmpty("none".ColourError()).ListToString()}");
-		sb.AppendLine($"Supply Rooms: {SupplyRooms.Select(x => $"#{x.Id.ToString("N0", actor)} {x.HowSeen(actor)}").DefaultIfEmpty("none".ColourError()).ListToString()}");
-		sb.AppendLine($"Recovery Rooms: {RecoveryRooms.Select(x => $"#{x.Id.ToString("N0", actor)} {x.HowSeen(actor)}").DefaultIfEmpty("none".ColourError()).ListToString()}");
+		sb.AppendLine($"Waiting Rooms: {WaitingRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("none".ColourError()).ListToString()}");
+		sb.AppendLine($"Operating Theatres: {OperatingTheatres.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("none".ColourError()).ListToString()}");
+		sb.AppendLine($"Supply Rooms: {SupplyRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("none".ColourError()).ListToString()}");
+		sb.AppendLine($"Recovery Rooms: {RecoveryRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("none".ColourError()).ListToString()}");
+		sb.AppendLine($"Staff Rooms: {StaffRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("none".ColourError()).ListToString()}");
 		sb.AppendLine($"Services: {Services.Count().ToString("N0", actor).ColourValue()} ({ActiveServices.Count().ToString("N0", actor).ColourValue()} active)");
 		sb.AppendLine($"Active Requests: {ActiveServiceRequests.Count().ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Debt Accounts: {PatientDebtAccounts.Count().ToString("N0", actor).ColourValue()}");
@@ -428,7 +438,7 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 				service.Id.ToString("N0", actor),
 				service.Name,
 				service.ServiceType.DescribeEnum(),
-				Currency.Describe(service.Price, CurrencyDescriptionPatternType.ShortDecimal),
+				HospitalServiceBilling.DescribePrice(this, service, actor),
 				service.AllowDebt.ToColouredString(),
 				HospitalServiceAvailability.Evaluate(this, service, actor).DescribeColoured()
 			},
@@ -445,6 +455,35 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 		}
 
 		return sb.ToString();
+	}
+
+	private void EnsureAutomaticCombinedServices()
+	{
+		EnsureAutomaticCombinedService(
+			HospitalServiceType.Stabilisation,
+			"Stabilisation",
+			"Emergency stabilisation billed from the concrete treatments actually performed.");
+		EnsureAutomaticCombinedService(
+			HospitalServiceType.FullTreatment,
+			"Full Treatment",
+			"Comprehensive treatment billed from the concrete treatments actually performed.");
+	}
+
+	private void EnsureAutomaticCombinedService(HospitalServiceType serviceType, string name, string description)
+	{
+		if (_services.Any(x => x.ServiceType == serviceType))
+		{
+			return;
+		}
+
+		var service = new HospitalService(this, name, serviceType, 0.0M)
+		{
+			Description = description,
+			AllowDebt = true,
+			PreferOperatingTheatre = true,
+			RequiresRecovery = true
+		};
+		_services.Add(service);
 	}
 
 	public void Delete()

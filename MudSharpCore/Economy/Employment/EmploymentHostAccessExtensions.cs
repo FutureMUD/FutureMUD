@@ -125,6 +125,8 @@ public static class EmploymentHostAccessExtensions
 				AddLocations(locations, hospital.WaitingRooms);
 				AddLocations(locations, hospital.OperatingTheatres);
 				AddLocations(locations, hospital.SupplyRooms);
+				AddLocations(locations, hospital.RecoveryRooms);
+				AddLocations(locations, hospital.StaffRooms);
 				break;
 			case IHotel hotel:
 				AddLocations(locations, hotel.Locations);

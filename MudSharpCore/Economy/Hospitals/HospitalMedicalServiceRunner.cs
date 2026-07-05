@@ -25,7 +25,14 @@ namespace MudSharp.Economy.Hospitals;
 
 public static class HospitalMedicalServiceRunner
 {
-	private sealed record ServiceExecutionResult(bool Success, string Message, string Resource, bool Completed = true);
+	private sealed record UsageCharge(HospitalServiceType ServiceType, int Count);
+
+	private sealed record ServiceExecutionResult(
+		bool Success,
+		string Message,
+		string Resource,
+		bool Completed = true,
+		IReadOnlyList<UsageCharge>? UsageCharges = null);
 
 	private enum AnesthesiaPreparationResult
 	{
@@ -107,8 +114,12 @@ public static class HospitalMedicalServiceRunner
 				OperationalState(hospital, request, result));
 		}
 
-		CompleteRequest(context, employee, hospital, request, result.Message);
-		return new EmploymentActionStepResult(true, result.Message, true, OperationalState(hospital, request, result));
+		if (!TryCompleteRequest(context, employee, hospital, request, result, out var completionMessage))
+		{
+			return EmploymentActionStepResult.Blocked(completionMessage);
+		}
+
+		return new EmploymentActionStepResult(true, completionMessage, true, OperationalState(hospital, request, result));
 	}
 
 	private static EmploymentActionStepResult CompletedStep(IHospitalServiceRequest request, string message)
@@ -127,14 +138,87 @@ public static class HospitalMedicalServiceRunner
 			OperationalPayload: $"hospitalservice;hospital={hospital.Id.ToString("F0", CultureInfo.InvariantCulture)};request={request.Id.ToString("F0", CultureInfo.InvariantCulture)};type={request.Service.ServiceType};completed={result.Completed.ToString(CultureInfo.InvariantCulture)}");
 	}
 
-	private static void CompleteRequest(IEmploymentTaskContext context, ICharacter employee, IHospital hospital,
-		IHospitalServiceRequest request, string message)
+	private static bool TryCompleteRequest(IEmploymentTaskContext context, ICharacter employee, IHospital hospital,
+		IHospitalServiceRequest request, ServiceExecutionResult result, out string completionMessage)
 	{
-		request.MarkStatus(HospitalServiceRequestStatus.Completed, message);
+		if (!TryApplyUsageBilling(context, employee, hospital, request, result, out var billingMessage))
+		{
+			FailRequest(request, billingMessage);
+			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
+				$"Could not bill hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {billingMessage}",
+				CurrentCorrelationId(context));
+			completionMessage = billingMessage;
+			return false;
+		}
+
+		completionMessage = string.IsNullOrWhiteSpace(billingMessage)
+			? result.Message
+			: $"{result.Message}\n{billingMessage}";
+		request.MarkStatus(HospitalServiceRequestStatus.Completed, completionMessage);
 		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
-			$"Completed hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {message}",
+			$"Completed hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {completionMessage}",
 			CurrentCorrelationId(context));
 		HospitalPatientFlow.TransferAfterTreatment(hospital, request, employee, "Hospital recovery routing");
+		return true;
+	}
+
+	private static bool TryApplyUsageBilling(IEmploymentTaskContext context, ICharacter employee, IHospital hospital,
+		IHospitalServiceRequest request, ServiceExecutionResult result, out string message)
+	{
+		message = string.Empty;
+		if (!HospitalServiceBilling.IsUsageBilledServiceType(request.Service.ServiceType))
+		{
+			return true;
+		}
+
+		var charges = (result.UsageCharges ?? Array.Empty<UsageCharge>())
+		              .Where(x => x.Count > 0)
+		              .ToList();
+		var total = charges.Sum(x => HospitalServiceBilling.UnitPriceForServiceType(hospital, x.ServiceType) * x.Count);
+		request.MarkCharged(0.0M, 0.0M, total);
+		if (total <= 0.0M)
+		{
+			message = "No usage-billed hospital charge was due.";
+			return true;
+		}
+
+		if (request.PaymentMethod == HospitalPaymentMethod.Waived)
+		{
+			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
+				$"Waived {hospital.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal)} usage-billed hospital charge for request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}.",
+				CurrentCorrelationId(context));
+			message = $"Usage-billed hospital charge of {hospital.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal)} was waived.";
+			return true;
+		}
+
+		if (!request.Service.AllowDebt)
+		{
+			message = $"{request.Service.Name} is usage-billed but does not allow hospital debt.";
+			return false;
+		}
+
+		if (request.Patient is not { } patient)
+		{
+			message = "The patient is no longer available for usage-billed hospital charging.";
+			return false;
+		}
+
+		var account = hospital.DebtAccountFor(patient, true)!;
+		if (!account.CanCharge(total, out message))
+		{
+			message = $"The usage-billed hospital charge of {hospital.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal)} could not be charged: {message}";
+			return false;
+		}
+
+		account.Charge(total,
+			$"Usage-billed hospital service {request.Service.Name} for request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}");
+		request.MarkCharged(0.0M, total, total);
+		var details = charges.Select(x => HospitalServiceBilling.DescribeUsageLine(hospital, x.ServiceType, x.Count, employee)).ListToString();
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
+			$"Charged {hospital.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal)} to {account.PatientName} for usage-billed hospital request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)} ({details.StripANSIColour()}).",
+			CurrentCorrelationId(context));
+		message = $"Usage-billed hospital charge: {details}. Charged {hospital.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} to the patient's hospital debt account.";
+		return true;
 	}
 
 	private static ServiceExecutionResult TreatWorstWound(ICharacter employee,
@@ -252,12 +336,14 @@ public static class HospitalMedicalServiceRunner
 	{
 		var resources = new List<string>();
 		var summaries = new List<string>();
+		var charges = new List<UsageCharge>();
 		var bound = RepeatTreatment(() => TreatWorstWound(employee, patient, TreatmentType.Trauma,
 			CheckType.BindWoundCheck, wound => wound.BleedStatus == BleedStatus.Bleeding,
 			"bound bleeding trauma"), resources);
 		if (bound > 0)
 		{
 			summaries.Add($"{bound.ToString("N0", employee)} bleeding wound{(bound == 1 ? string.Empty : "s")} bound");
+			charges.Add(new UsageCharge(HospitalServiceType.Binding, bound));
 		}
 
 		var closed = RepeatTreatment(() => TreatWorstWound(employee, patient, TreatmentType.Close,
@@ -266,6 +352,7 @@ public static class HospitalMedicalServiceRunner
 		if (closed > 0)
 		{
 			summaries.Add($"{closed.ToString("N0", employee)} traumatic wound{(closed == 1 ? string.Empty : "s")} closed");
+			charges.Add(new UsageCharge(HospitalServiceType.WoundClosing, closed));
 		}
 
 		if (patient.Body.TotalBloodVolumeLitres > 0.0 &&
@@ -276,6 +363,7 @@ public static class HospitalMedicalServiceRunner
 			{
 				resources.Add(transfusion.Resource);
 				summaries.Add("blood volume restored");
+				charges.Add(new UsageCharge(HospitalServiceType.BloodTransfusion, 1));
 			}
 			else if (!summaries.Any())
 			{
@@ -292,7 +380,8 @@ public static class HospitalMedicalServiceRunner
 
 		return new ServiceExecutionResult(true,
 			$"{employee.HowSeen(employee, true)} stabilised {patient.HowSeen(employee)}: {summaries.ListToString()}.",
-			string.Join(';', resources.Where(x => !string.IsNullOrWhiteSpace(x))));
+			string.Join(';', resources.Where(x => !string.IsNullOrWhiteSpace(x))),
+			UsageCharges: charges);
 	}
 
 	private static ServiceExecutionResult PerformFullTreatment(IEmploymentTaskContext context, ICharacter employee,
@@ -300,20 +389,31 @@ public static class HospitalMedicalServiceRunner
 	{
 		var resources = new List<string>();
 		var summaries = new List<string>();
-		AddTreatmentSummary(summaries, "bleeding wound", RepeatTreatment(() => TreatWorstWound(employee, patient,
+		var charges = new List<UsageCharge>();
+		var bound = RepeatTreatment(() => TreatWorstWound(employee, patient,
 			TreatmentType.Trauma, CheckType.BindWoundCheck, wound => wound.BleedStatus == BleedStatus.Bleeding,
-			"bound bleeding trauma"), resources), "bound");
-		AddTreatmentSummary(summaries, "traumatic wound", RepeatTreatment(() => TreatWorstWound(employee, patient,
+			"bound bleeding trauma"), resources);
+		AddTreatmentSummary(summaries, "bleeding wound", bound, "bound");
+		AddUsageCharge(charges, HospitalServiceType.Binding, bound);
+		var closed = RepeatTreatment(() => TreatWorstWound(employee, patient,
 			TreatmentType.Close, CheckType.SutureWoundCheck, wound => wound.BleedStatus == BleedStatus.TraumaControlled,
-			"closed traumatic wounds"), resources), "closed");
-		AddTreatmentSummary(summaries, "wound", RepeatTreatment(() => CleanWorstWound(employee, patient), resources),
-			"cleaned");
-		AddTreatmentSummary(summaries, "wound", RepeatTreatment(() => TendWorstWound(employee, patient), resources),
-			"tended");
-		AddTreatmentSummary(summaries, "fracture", RepeatTreatment(() => TreatWorstBoneFracture(employee, patient,
-			TreatmentType.Relocation, CheckType.RelocateBoneCheck, "relocated a fracture"), resources), "relocated");
-		AddTreatmentSummary(summaries, "fracture", RepeatTreatment(() => TreatWorstBoneFracture(employee, patient,
-			TreatmentType.SurgicalSet, CheckType.SurgicalSetCheck, "surgically set a fracture"), resources), "set");
+			"closed traumatic wounds"), resources);
+		AddTreatmentSummary(summaries, "traumatic wound", closed, "closed");
+		AddUsageCharge(charges, HospitalServiceType.WoundClosing, closed);
+		var cleaned = RepeatTreatment(() => CleanWorstWound(employee, patient), resources);
+		AddTreatmentSummary(summaries, "wound", cleaned, "cleaned");
+		AddUsageCharge(charges, HospitalServiceType.WoundCleaning, cleaned);
+		var tended = RepeatTreatment(() => TendWorstWound(employee, patient), resources);
+		AddTreatmentSummary(summaries, "wound", tended, "tended");
+		AddUsageCharge(charges, HospitalServiceType.WoundTending, tended);
+		var relocated = RepeatTreatment(() => TreatWorstBoneFracture(employee, patient,
+			TreatmentType.Relocation, CheckType.RelocateBoneCheck, "relocated a fracture"), resources);
+		AddTreatmentSummary(summaries, "fracture", relocated, "relocated");
+		AddUsageCharge(charges, HospitalServiceType.BoneRelocation, relocated);
+		var set = RepeatTreatment(() => TreatWorstBoneFracture(employee, patient,
+			TreatmentType.SurgicalSet, CheckType.SurgicalSetCheck, "surgically set a fracture"), resources);
+		AddTreatmentSummary(summaries, "fracture", set, "set");
+		AddUsageCharge(charges, HospitalServiceType.BoneSetting, set);
 
 		if (patient.Body.TotalBloodVolumeLitres > 0.0 &&
 		    patient.Body.CurrentBloodVolumeLitres < patient.Body.TotalBloodVolumeLitres)
@@ -323,6 +423,7 @@ public static class HospitalMedicalServiceRunner
 			{
 				resources.Add(transfusion.Resource);
 				summaries.Add("blood volume restored");
+				charges.Add(new UsageCharge(HospitalServiceType.BloodTransfusion, 1));
 			}
 		}
 
@@ -335,7 +436,8 @@ public static class HospitalMedicalServiceRunner
 
 		return new ServiceExecutionResult(true,
 			$"{employee.HowSeen(employee, true)} completed full treatment for {patient.HowSeen(employee)}: {summaries.ListToString()}.",
-			string.Join(';', resources.Where(x => !string.IsNullOrWhiteSpace(x))));
+			string.Join(';', resources.Where(x => !string.IsNullOrWhiteSpace(x))),
+			UsageCharges: charges);
 	}
 
 	private static int RepeatTreatment(Func<ServiceExecutionResult> action, List<string> resources, int maximumAttempts = 50)
@@ -367,6 +469,14 @@ public static class HospitalMedicalServiceRunner
 		}
 
 		summaries.Add($"{count.ToString("N0", CultureInfo.InvariantCulture)} {singular}{(count == 1 ? string.Empty : "s")} {verb}");
+	}
+
+	private static void AddUsageCharge(ICollection<UsageCharge> charges, HospitalServiceType serviceType, int count)
+	{
+		if (count > 0)
+		{
+			charges.Add(new UsageCharge(serviceType, count));
+		}
 	}
 
 	private static ServiceExecutionResult BeginSurgicalProcedure(IEmploymentTaskContext context, ICharacter employee,

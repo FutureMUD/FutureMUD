@@ -3799,9 +3799,16 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			return true;
 		}
 
-		if (!activeContracts.Any(x => x.Authority.ContainsAll(task.ActionPlan.RequiredAuthority)))
+		var nextStepIndex = task.NextStepIndex;
+		if (nextStepIndex < 0 || nextStepIndex >= task.ActionPlan.Steps.Count)
 		{
-			reason = $"{employee.Name} no longer has the delegated authority required for this task.";
+			return false;
+		}
+
+		var currentStep = task.ActionPlan.Steps[nextStepIndex];
+		if (!activeContracts.Any(x => x.Authority.ContainsAll(currentStep.RequiredAuthority)))
+		{
+			reason = $"{employee.Name} no longer has the delegated authority required for this task step.";
 			return true;
 		}
 
@@ -3820,10 +3827,10 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		var usableAi = workerAis.Any(ai =>
 			ai.TaskingEnabled &&
 			(ai.HostTypeFilter is null || ai.HostTypeFilter.Value == _host.EmploymentHostType) &&
-			task.ActionPlan.RequiredCapabilities.All(x => ai.Capabilities.Contains(x)));
+			currentStep.RequiredCapabilities.All(x => ai.Capabilities.Contains(x)));
 		if (!usableAi)
 		{
-			reason = $"{employee.Name}'s EmploymentWorkerAI can no longer execute this task.";
+			reason = $"{employee.Name}'s EmploymentWorkerAI can no longer execute this task step.";
 			return true;
 		}
 

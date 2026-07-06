@@ -309,6 +309,7 @@ Administrators can also use:
 	private static void AppendHospitalBlock(StringBuilder sb, ICharacter actor, string title,
 		params (string Heading, string Content)[] fields)
 	{
+		sb.AppendLine();
 		sb.AppendLine(title.GetLineWithTitleInner(actor, Telnet.Green, Telnet.BoldWhite));
 		foreach (var (heading, content) in fields)
 		{
@@ -1523,7 +1524,7 @@ Administrators can also use:
 
 	private static IEnumerable<IEmploymentActionStep> ServiceRequestActionSteps(IHospital hospital, IHospitalServiceRequest request)
 	{
-		if (request.Service.RequiredEquipment.Any())
+		if (HospitalSupplyPreparationActionStep.HasPreparatorySupplyWork(hospital, request))
 		{
 			yield return new HospitalSupplyPreparationActionStep(hospital, request);
 		}

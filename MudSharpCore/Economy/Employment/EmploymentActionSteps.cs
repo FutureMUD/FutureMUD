@@ -4986,8 +4986,7 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 		                      .Concat(actor.Body?.ItemsInHands ?? Enumerable.Empty<IGameItem>())
 		                      .SelectMany(DeepItemsOrSelf)
 		                      .Concat(TreatmentLocationItems(context))
-		                      .Concat(actor.Location?.GameItems.SelectMany(x => x.DeepItems.Append(x)) ??
-		                              Enumerable.Empty<IGameItem>())
+		                      .Concat(CurrentTreatmentRoomItems(actor))
 		                      .DistinctBy(x => x.Id)
 		                      .Select(x => x.GetItemType<ITreatment>())
 		                      .Where(x => x is not null)
@@ -5013,6 +5012,19 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 			  .SelectMany(DeepItemsOrSelf);
 	}
 
+	private IEnumerable<IGameItem> CurrentTreatmentRoomItems(ICharacter actor)
+	{
+		if (actor.Location is null ||
+		    Request.Patient is null ||
+		    !actor.ColocatedWith(Request.Patient))
+		{
+			return [];
+		}
+
+		return (actor.Location.GameItems ?? Array.Empty<IGameItem>())
+		       .SelectMany(DeepItemsOrSelf);
+	}
+
 	private bool TryFindImplicitSupplyBundle(IEmploymentTaskContext context, ICharacter actor,
 		IReadOnlyCollection<TreatmentType> treatmentTypes, out ICell source,
 		out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
@@ -5022,7 +5034,7 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 		foreach (var room in Hospital.SupplyRooms ?? Array.Empty<ICell>())
 		{
 			var available = context.AvailableItems(room)
-			                       .SelectMany(x => x.DeepItems.Append(x))
+			                       .SelectMany(DeepItemsOrSelf)
 			                       .DistinctBy(x => x.Id)
 			                       .ToList();
 			var selected = new List<(IGameItem Item, ICell Source)>();

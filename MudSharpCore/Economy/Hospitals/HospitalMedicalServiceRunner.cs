@@ -1382,12 +1382,18 @@ public static class HospitalMedicalServiceRunner
 	private static IEnumerable<IGameItem> CandidateHospitalItems(IEmploymentTaskContext context,
 		ICharacter employee, IHospitalServiceRequest request)
 	{
-		var theatreItems = request.OperatingTheatreCellId is { } theatreId
-			? request.Hospital.OperatingTheatres.FirstOrDefault(x => x.Id == theatreId)?.GameItems.SelectMany(x => x.DeepItems.Append(x)) ?? Enumerable.Empty<IGameItem>()
-			: Enumerable.Empty<IGameItem>();
+		var theatre = request.OperatingTheatreCellId is { } theatreId
+			? request.Hospital.OperatingTheatres.FirstOrDefault(x => x.Id == theatreId)
+			: null;
+		var theatreItems = theatre is null
+			? Enumerable.Empty<IGameItem>()
+			: (context.AvailableItems(theatre) ?? Enumerable.Empty<IGameItem>())
+			  .Concat(theatre.GameItems ?? Enumerable.Empty<IGameItem>())
+			  .SelectMany(DeepItemsOrSelf);
 		var seed = context.CarriedTaskItems(employee)
 		                  .Concat(employee.Inventory)
 		                  .Concat(employee.Body.ItemsInHands)
+		                  .SelectMany(DeepItemsOrSelf)
 		                  .Concat(employee.Location?.GameItems.SelectMany(x => x.DeepItems.Append(x)) ?? Enumerable.Empty<IGameItem>())
 		                  .Concat(theatreItems)
 		                  .DistinctBy(x => x.Id)
@@ -1395,6 +1401,12 @@ public static class HospitalMedicalServiceRunner
 		var connected = seed.SelectMany(x => x.GetItemTypes<IConnectable>())
 		                    .SelectMany(x => x.ConnectedItems.Select(y => y.Item2.Parent));
 		return seed.Concat(connected).DistinctBy(x => x.Id);
+	}
+
+	private static IEnumerable<IGameItem> DeepItemsOrSelf(IGameItem item)
+	{
+		var deepItems = item.DeepItems?.ToList();
+		return deepItems?.Any() == true ? deepItems : [item];
 	}
 
 	private static bool TryBeginTrackedProcedure(IEmploymentTaskContext context, ICharacter employee, ICharacter patient,

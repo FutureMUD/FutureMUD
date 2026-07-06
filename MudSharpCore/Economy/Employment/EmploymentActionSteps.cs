@@ -4390,6 +4390,28 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 	public IHospital Hospital { get; }
 	public IHospitalServiceRequest Request { get; }
 
+	public static bool HasPreparatorySupplyWork(IHospital hospital, IHospitalServiceRequest request)
+	{
+		if (request.Service.RequiredEquipment.Any())
+		{
+			return true;
+		}
+
+		if (!HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(request.Service))
+		{
+			return false;
+		}
+
+		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(request.Service);
+		return treatmentTypes.Any() &&
+		       hospital.SupplyRooms.Any(room =>
+			       (room.GameItems ?? Enumerable.Empty<IGameItem>())
+			       .SelectMany(DeepItemsOrSelf)
+			       .DistinctBy(x => x.Id)
+			       .Any(item => item.GetItemType<ITreatment>() is { } treatment &&
+			                    treatmentTypes.Any(treatment.IsTreatmentType)));
+	}
+
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
 		if (!base.CanExecute(context, actor, out reason))
@@ -4422,9 +4444,10 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			return false;
 		}
 
-		if (!Request.Service.RequiredEquipment.Any())
+		if (!Request.Service.RequiredEquipment.Any() &&
+		    !HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(Request.Service))
 		{
-			reason = "This hospital service has no configured equipment requirements.";
+			reason = "This hospital service has no configured equipment or implicit treatment-supply requirements.";
 			return false;
 		}
 
@@ -4571,12 +4594,23 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 	private bool TryFindSupplyBundle(IEmploymentTaskContext context, ICharacter actor, out ICell source,
 		out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
 	{
+		if (!Request.Service.RequiredEquipment.Any())
+		{
+			return TryFindImplicitTreatmentSupplyBundle(context, out source, out items, out reason);
+		}
+
+		return TryFindConfiguredSupplyBundle(context, actor, out source, out items, out reason);
+	}
+
+	private bool TryFindConfiguredSupplyBundle(IEmploymentTaskContext context, ICharacter actor, out ICell source,
+		out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
+	{
 		source = null!;
 		items = [];
 		foreach (var room in Hospital.SupplyRooms)
 		{
 			var available = context.AvailableItems(room)
-			                       .SelectMany(x => x.DeepItems.Append(x))
+			                       .SelectMany(DeepItemsOrSelf)
 			                       .DistinctBy(x => x.Id)
 			                       .ToList();
 			var selected = new List<(IGameItem Item, ICell Source)>();
@@ -4614,6 +4648,56 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 		reason = "No single hospital supply room contains all required equipment for this service.";
 		return false;
+	}
+
+	private bool TryFindImplicitTreatmentSupplyBundle(IEmploymentTaskContext context, out ICell source,
+		out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
+	{
+		source = null!;
+		items = [];
+		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(Request.Service);
+		foreach (var room in Hospital.SupplyRooms)
+		{
+			var available = context.AvailableItems(room)
+			                       .SelectMany(DeepItemsOrSelf)
+			                       .DistinctBy(x => x.Id)
+			                       .ToList();
+			var selected = new List<(IGameItem Item, ICell Source)>();
+			var used = new HashSet<long>();
+			foreach (var treatmentType in treatmentTypes)
+			{
+				var item = available.FirstOrDefault(x =>
+					!used.Contains(x.Id) &&
+					x.GetItemType<ITreatment>() is { } treatment &&
+					treatment.IsTreatmentType(treatmentType));
+				if (item is null)
+				{
+					continue;
+				}
+
+				selected.Add((item, room));
+				used.Add(item.Id);
+			}
+
+			if (!selected.Any())
+			{
+				continue;
+			}
+
+			source = room;
+			items = selected;
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = "No hospital supply room has treatment supplies useful for this service.";
+		return false;
+	}
+
+	private static IEnumerable<IGameItem> DeepItemsOrSelf(IGameItem item)
+	{
+		var deepItems = item.DeepItems?.ToList();
+		return deepItems?.Any() == true ? deepItems : [item];
 	}
 
 	private static bool MatchesSelector(IEmploymentTaskContext context, ICharacter actor, IGameItem item,
@@ -4900,6 +4984,8 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 		var supplies = context.CarriedTaskItems(actor)
 		                      .Concat(actor.Inventory ?? Enumerable.Empty<IGameItem>())
 		                      .Concat(actor.Body?.ItemsInHands ?? Enumerable.Empty<IGameItem>())
+		                      .SelectMany(DeepItemsOrSelf)
+		                      .Concat(TreatmentLocationItems(context))
 		                      .Concat(actor.Location?.GameItems.SelectMany(x => x.DeepItems.Append(x)) ??
 		                              Enumerable.Empty<IGameItem>())
 		                      .DistinctBy(x => x.Id)
@@ -4910,6 +4996,21 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 		return treatmentTypes
 		       .Where(type => supplies.All(supply => !supply.IsTreatmentType(type)))
 		       .ToList();
+	}
+
+	private IEnumerable<IGameItem> TreatmentLocationItems(IEmploymentTaskContext context)
+	{
+		if (Request.OperatingTheatreCellId is not { } theatreId)
+		{
+			return [];
+		}
+
+		var theatre = Hospital.OperatingTheatres.FirstOrDefault(x => x.Id == theatreId);
+		return theatre is null
+			? []
+			: (context.AvailableItems(theatre) ?? Array.Empty<IGameItem>())
+			  .Concat(theatre.GameItems ?? Array.Empty<IGameItem>())
+			  .SelectMany(DeepItemsOrSelf);
 	}
 
 	private bool TryFindImplicitSupplyBundle(IEmploymentTaskContext context, ICharacter actor,
@@ -4954,6 +5055,12 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 
 		reason = "No hospital supply room has treatment supplies useful for this service.";
 		return false;
+	}
+
+	private static IEnumerable<IGameItem> DeepItemsOrSelf(IGameItem item)
+	{
+		var deepItems = item.DeepItems?.ToList();
+		return deepItems?.Any() == true ? deepItems : [item];
 	}
 
 	private static bool HospitalTreatmentCommandInProgress(IEmploymentTaskContext context)

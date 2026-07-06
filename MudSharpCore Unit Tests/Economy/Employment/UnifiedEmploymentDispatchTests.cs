@@ -598,6 +598,88 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void HospitalServiceActionStep_CollectsSuppliesWhenAlreadyInSupplyRoom()
+	{
+		var patientCell = Cell(930, "hospital foyer");
+		var supplyRoom = Cell(931, "hospital supply room");
+		var theatre = Cell(932, "operating theatre");
+		theatre.SetupGet(x => x.Characters).Returns([]);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(933);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.FrameworkItemType).Returns("Hospital");
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([supplyRoom.Object]);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([]);
+		hospital.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		        .Returns(true);
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(934);
+		service.SetupGet(x => x.Name).Returns("full treatment");
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.FullTreatment);
+		service.SetupGet(x => x.PreferOperatingTheatre).Returns(false);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+
+		var patient = Character(935, "Patient");
+		patient.SetupGet(x => x.Location).Returns(patientCell.Object);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(936);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Queued);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupProperty(x => x.OperatingTheatreCellId);
+		request.SetupProperty(x => x.UsedInPlaceFallback);
+
+		var doctorBody = new Mock<MudSharp.Body.IBody>();
+		doctorBody.SetupGet(x => x.ItemsInHands).Returns([]);
+		var doctor = Character(937, "Doctor");
+		doctor.SetupGet(x => x.Location).Returns(supplyRoom.Object);
+		doctor.SetupGet(x => x.Inventory).Returns([]);
+		doctor.SetupGet(x => x.Body).Returns(doctorBody.Object);
+		doctor.Setup(x => x.ColocatedWith(patient.Object)).Returns(false);
+
+		var treatment = new Mock<ITreatment>();
+		treatment.Setup(x => x.IsTreatmentType(It.IsAny<TreatmentType>())).Returns(true);
+		var treatmentItem = Item(938, "universal treatment supply");
+		treatmentItem.Setup(x => x.GetItemType<ITreatment>()).Returns(treatment.Object);
+		supplyRoom.SetupGet(x => x.GameItems).Returns([treatmentItem.Object]);
+
+		var context = new Mock<IEmploymentTaskContext>();
+		context.SetupGet(x => x.Employer).Returns(hospital.Object);
+		context.Setup(x => x.CarriedTaskItems(doctor.Object)).Returns([]);
+		context.Setup(x => x.AvailableItems(theatre.Object)).Returns([]);
+		context.Setup(x => x.AvailableItems(supplyRoom.Object)).Returns([treatmentItem.Object]);
+		context.Setup(x => x.CanPath(doctor.Object, It.IsAny<ICell>())).Returns(true);
+		var collected = false;
+		var collectReason = string.Empty;
+		context.Setup(x => x.TryCollectTaskItems(
+			       doctor.Object,
+			       It.IsAny<IReadOnlyCollection<(IGameItem Item, ICell Source)>>(),
+			       out collectReason))
+		       .Returns(new TryCollectTaskItemsCallback((ICharacter _, IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason) =>
+		       {
+			       collected = true;
+			       Assert.AreEqual(1, items.Count);
+			       Assert.AreSame(treatmentItem.Object, items.Single().Item);
+			       Assert.AreSame(supplyRoom.Object, items.Single().Source);
+			       reason = string.Empty;
+			       return true;
+		       }));
+
+		var step = new HospitalServiceActionStep(hospital.Object, request.Object);
+
+		var result = step.Execute(context.Object, doctor.Object);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.IsTrue(collected);
+		Assert.IsFalse(result.Completed);
+		StringAssert.Contains(result.Message, "Collected treatment supplies");
+	}
+
+	[TestMethod]
 	public void HospitalMedicalServiceRunner_FullTreatmentDoesNotRepeatCompletedTendingPhase()
 	{
 		var hospital = new Mock<IHospital>();

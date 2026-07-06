@@ -17,6 +17,9 @@ using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.Health;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.TimeAndDate;
 using MudSharp.Vehicles;
 
@@ -4745,10 +4748,21 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 			return false;
 		}
 
-		if (Request.Status != HospitalServiceRequestStatus.Completed && Request.Service.PreferOperatingTheatre &&
+		if (Request.Status != HospitalServiceRequestStatus.Completed &&
+		    HospitalMedicalServiceRunner.ShouldUseTreatmentTheatre(Request.Service) &&
 		    !HospitalPatientFlow.TryReserveTreatmentLocation(Hospital, Request, out _, out reason))
 		{
 			return false;
+		}
+
+		if (Request.Status != HospitalServiceRequestStatus.Completed &&
+		    ShouldCollectImplicitTreatmentSupplies(context, actor, out var source, out _, out reason))
+		{
+			if (!context.CanPath(actor, source))
+			{
+				reason = $"The assigned employee cannot path to the hospital supply room {source.Name}.";
+				return false;
+			}
 		}
 
 		if (!actor.ColocatedWith(patient) && patient.Location is not null && !context.CanPath(actor, patient.Location))
@@ -4774,6 +4788,32 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 		}
 
 		var patient = Request.Patient!;
+		if (Request.Status != HospitalServiceRequestStatus.Completed &&
+		    ShouldCollectImplicitTreatmentSupplies(context, actor, out var source, out var supplies, out reason))
+		{
+			if (actor.Location?.Id != source.Id)
+			{
+				return new EmploymentActionStepResult(true,
+					$"Hospital treatment supplies are available in {source.Name}.", false,
+					new EmploymentActionStepOperationalState(OperationalPayload:
+						$"hospitalservice:supplies;request={Request.Id.ToString("F0", CultureInfo.InvariantCulture)};source={source.Id.ToString("F0", CultureInfo.InvariantCulture)}"));
+			}
+
+			var previouslyCarried = context.CarriedTaskItems(actor).Select(x => x.Id).ToHashSet();
+			if (!context.TryCollectTaskItems(actor, supplies.Select(x => (x.Item, x.Source)).ToList(), out reason))
+			{
+				return EmploymentActionStepResult.Blocked(reason);
+			}
+
+			return new EmploymentActionStepResult(true,
+				$"Collected treatment supplies for hospital request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)}.",
+				false,
+				EmploymentActionStepOperationalStateBuilder.CollectedTaskItemCustody(context, actor,
+					supplies.Select(x => x.Item).ToList(), previouslyCarried).Merge(
+					new EmploymentActionStepOperationalState(OperationalPayload:
+						$"hospitalservice:supplies;request={Request.Id.ToString("F0", CultureInfo.InvariantCulture)};source={source.Id.ToString("F0", CultureInfo.InvariantCulture)};items={supplies.Select(x => x.Item.Id.ToString("F0", CultureInfo.InvariantCulture)).ListToCommaSeparatedValues()}")));
+		}
+
 		if (!actor.ColocatedWith(patient))
 		{
 			Request.MarkStatus(HospitalServiceRequestStatus.Assigned,
@@ -4782,7 +4822,7 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 				"The assigned employee must reach the patient before starting the hospital service.", false);
 		}
 
-		if (Request.Service.PreferOperatingTheatre)
+		if (HospitalMedicalServiceRunner.ShouldUseTreatmentTheatre(Request.Service))
 		{
 			if (!HospitalPatientFlow.TryReserveTreatmentLocation(Hospital, Request, out var treatmentLocation, out reason) ||
 			    treatmentLocation is null)
@@ -4798,7 +4838,13 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 		else
 		{
 			Request.OperatingTheatreCellId = patient.Location?.Id;
-			Request.UsedInPlaceFallback = false;
+			if (!Request.UsedInPlaceFallback)
+			{
+				actor.OutputHandler.Send(new EmoteOutput(new Emote(
+					"@ keep|keeps $0 here for hospital treatment rather than moving to an operating theatre.", actor,
+					patient)));
+				Request.UsedInPlaceFallback = true;
+			}
 		}
 
 		return HospitalMedicalServiceRunner.ExecuteServiceRequest(context, actor, Hospital, Request);
@@ -4811,12 +4857,111 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 			return [];
 		}
 
+		if (ShouldCollectImplicitTreatmentSupplies(context, actor, out var source, out _, out _) &&
+		    actor.Location?.Id != source.Id)
+		{
+			return [source];
+		}
+
 		if (!actor.ColocatedWith(patient))
 		{
 			return patient.Location is null ? [] : [patient.Location];
 		}
 
 		return patient.Location is null ? [] : [patient.Location];
+	}
+
+	private bool ShouldCollectImplicitTreatmentSupplies(IEmploymentTaskContext context, ICharacter actor,
+		out ICell source, out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
+	{
+		source = null!;
+		items = [];
+		reason = string.Empty;
+		if ((Request.Service.RequiredEquipment?.Any() ?? false) ||
+		    !HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(Request.Service) ||
+		    HospitalTreatmentCommandInProgress(context))
+		{
+			return false;
+		}
+
+		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(Request.Service);
+		var missingTreatmentTypes = MissingTreatmentSupplyTypes(context, actor, treatmentTypes);
+		if (!missingTreatmentTypes.Any())
+		{
+			return false;
+		}
+
+		return TryFindImplicitSupplyBundle(context, actor, missingTreatmentTypes, out source, out items, out reason);
+	}
+
+	private IReadOnlyCollection<TreatmentType> MissingTreatmentSupplyTypes(IEmploymentTaskContext context, ICharacter actor,
+		IReadOnlyCollection<TreatmentType> treatmentTypes)
+	{
+		var supplies = context.CarriedTaskItems(actor)
+		                      .Concat(actor.Inventory ?? Enumerable.Empty<IGameItem>())
+		                      .Concat(actor.Body?.ItemsInHands ?? Enumerable.Empty<IGameItem>())
+		                      .Concat(actor.Location?.GameItems.SelectMany(x => x.DeepItems.Append(x)) ??
+		                              Enumerable.Empty<IGameItem>())
+		                      .DistinctBy(x => x.Id)
+		                      .Select(x => x.GetItemType<ITreatment>())
+		                      .Where(x => x is not null)
+		                      .Cast<ITreatment>()
+		                      .ToList();
+		return treatmentTypes
+		       .Where(type => supplies.All(supply => !supply.IsTreatmentType(type)))
+		       .ToList();
+	}
+
+	private bool TryFindImplicitSupplyBundle(IEmploymentTaskContext context, ICharacter actor,
+		IReadOnlyCollection<TreatmentType> treatmentTypes, out ICell source,
+		out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
+	{
+		source = null!;
+		items = [];
+		foreach (var room in Hospital.SupplyRooms ?? Array.Empty<ICell>())
+		{
+			var available = context.AvailableItems(room)
+			                       .SelectMany(x => x.DeepItems.Append(x))
+			                       .DistinctBy(x => x.Id)
+			                       .ToList();
+			var selected = new List<(IGameItem Item, ICell Source)>();
+			var used = new HashSet<long>();
+			foreach (var treatmentType in treatmentTypes)
+			{
+				var item = available.FirstOrDefault(x =>
+					!used.Contains(x.Id) &&
+					x.GetItemType<ITreatment>() is { } treatment &&
+					treatment.IsTreatmentType(treatmentType));
+				if (item is null)
+				{
+					continue;
+				}
+
+				selected.Add((item, room));
+				used.Add(item.Id);
+			}
+
+			if (!selected.Any())
+			{
+				continue;
+			}
+
+			source = room;
+			items = selected;
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = "No hospital supply room has treatment supplies useful for this service.";
+		return false;
+	}
+
+	private static bool HospitalTreatmentCommandInProgress(IEmploymentTaskContext context)
+	{
+		return context is EmploymentTaskContext concrete &&
+		       concrete.CurrentTask is not null &&
+		       (concrete.CurrentTask.StepOperationalStates.ElementAtOrDefault(concrete.CurrentStepIndex)
+		                ?.OperationalPayload?.Contains(";active=", StringComparison.InvariantCultureIgnoreCase) ?? false);
 	}
 
 	private bool IsHospitalHost(IEmploymentTaskContext context)

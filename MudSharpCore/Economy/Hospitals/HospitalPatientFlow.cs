@@ -19,7 +19,7 @@ public static class HospitalPatientFlow
 		location = null;
 		reason = string.Empty;
 
-		if (!request.Service.PreferOperatingTheatre)
+		if (!HospitalMedicalServiceRunner.ShouldUseTreatmentTheatre(request.Service))
 		{
 			location = request.Patient?.Location ?? hospital.WaitingRooms.FirstOrDefault();
 			return location is not null;
@@ -27,7 +27,7 @@ public static class HospitalPatientFlow
 
 		if (request.OperatingTheatreCellId is { } theatreId)
 		{
-			var reserved = hospital.OperatingTheatres.FirstOrDefault(x => x.Id == theatreId);
+			var reserved = (hospital.OperatingTheatres ?? Array.Empty<ICell>()).FirstOrDefault(x => x.Id == theatreId);
 			if (reserved is null)
 			{
 				reason = "The reserved operating theatre is no longer configured for this hospital.";
@@ -43,7 +43,7 @@ public static class HospitalPatientFlow
 			return true;
 		}
 
-		foreach (var theatre in hospital.OperatingTheatres)
+		foreach (var theatre in hospital.OperatingTheatres ?? Array.Empty<ICell>())
 		{
 			if (!IsTheatreAvailable(hospital, request, theatre, out _))
 			{
@@ -127,7 +127,7 @@ public static class HospitalPatientFlow
 	public static bool IsTheatreAvailable(IHospital hospital, IHospitalServiceRequest request, ICell theatre,
 		out string reason)
 	{
-		var conflictingRequest = hospital.ActiveServiceRequests
+		var conflictingRequest = (hospital.ActiveServiceRequests ?? Array.Empty<IHospitalServiceRequest>())
 		                                 .FirstOrDefault(x =>
 			                                 !IsSameRequest(x, request) &&
 			                                 x.OperatingTheatreCellId == theatre.Id);
@@ -137,7 +137,7 @@ public static class HospitalPatientFlow
 			return false;
 		}
 
-		if (theatre.Characters.Any(x => !x.IsAdministrator() && !hospital.IsEmployee(x) && !IsRequestPatient(request, x)))
+		if ((theatre.Characters ?? Array.Empty<ICharacter>()).Any(x => !x.IsAdministrator() && !hospital.IsEmployee(x) && !IsRequestPatient(request, x)))
 		{
 			reason = $"Operating theatre {theatre.Name} is occupied by someone unrelated to this request.";
 			return false;

@@ -2763,7 +2763,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             State.HasFlag(CharacterState.Unconscious) ||
             State.HasFlag(CharacterState.Paralysed) ||
             State.HasFlag(CharacterState.Dead) ||
-            IsTrustedAlly(medic)
+            IsTrustedAlly(medic) ||
+            CombinedEffectsOfType<HospitalTreatmentPermissionEffect>().Any(x => x.Medic == medic)
             ;
     }
 

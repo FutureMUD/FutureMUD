@@ -127,14 +127,17 @@ public static class HospitalPatientFlow
 	public static bool IsTheatreAvailable(IHospital hospital, IHospitalServiceRequest request, ICell theatre,
 		out string reason)
 	{
-		if (hospital.ActiveServiceRequests.Any(x => x.Id != request.Id && x.OperatingTheatreCellId == theatre.Id))
+		var conflictingRequest = hospital.ActiveServiceRequests
+		                                 .FirstOrDefault(x =>
+			                                 !IsSameRequest(x, request) &&
+			                                 x.OperatingTheatreCellId == theatre.Id);
+		if (conflictingRequest is not null)
 		{
-			reason = $"Operating theatre {theatre.Name} is already reserved for another active hospital request.";
+			reason = $"Operating theatre {theatre.Name} is already reserved for active hospital request #{conflictingRequest.Id.ToString("N0")}.";
 			return false;
 		}
 
-		var patient = request.Patient;
-		if (theatre.Characters.Any(x => !x.IsAdministrator() && !hospital.IsEmployee(x) && (patient is null || !CharacterInstanceIdentityComparer.SamePhysicalInstance(x, patient))))
+		if (theatre.Characters.Any(x => !x.IsAdministrator() && !hospital.IsEmployee(x) && !IsRequestPatient(request, x)))
 		{
 			reason = $"Operating theatre {theatre.Name} is occupied by someone unrelated to this request.";
 			return false;
@@ -142,6 +145,31 @@ public static class HospitalPatientFlow
 
 		reason = string.Empty;
 		return true;
+	}
+
+	private static bool IsSameRequest(IHospitalServiceRequest request, IHospitalServiceRequest other)
+	{
+		if (request.Id != 0 && request.Id == other.Id)
+		{
+			return true;
+		}
+
+		return request.EmploymentTaskId is { } requestTaskId &&
+		       other.EmploymentTaskId is { } otherTaskId &&
+		       requestTaskId == otherTaskId;
+	}
+
+	private static bool IsRequestPatient(IHospitalServiceRequest request, ICharacter occupant)
+	{
+		if (request.Patient is { } patient &&
+		    (CharacterInstanceIdentityComparer.SamePhysicalInstance(occupant, patient) ||
+		     CharacterInstanceIdentityComparer.SameIdentity(occupant, patient)))
+		{
+			return true;
+		}
+
+		return request.PatientId > 0 &&
+		       CharacterInstanceIdentityComparer.IdentityId(occupant) == request.PatientId;
 	}
 
 	private static void MoveCharacter(ICharacter character, ICell destination)

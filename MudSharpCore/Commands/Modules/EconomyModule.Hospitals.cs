@@ -34,6 +34,7 @@ internal partial class EconomyModule
 	#3hospital services#0 - lists available medical services
 	#3hospital service <##|name>#0 - shows one medical service
 	#3hospital request <service> [for <target>] [cash|debt|with <payment item>]#0 - requests treatment and creates hospital task work
+	#3hospital cancel [<##>]#0 - cancels one of your active hospital service requests without refunding completed or partially completed work
 	#3hospital debt [person]#0 - shows medical debt or prepaid credit for yourself or a patient you can see
 	#3hospital debt pay <amount> [for <target>] [cash|with <payment item>]#0 - pays down debt or creates prepaid credit
 	#3hospital tasks actions [all|category|action]#0 - lists hospital task action catalogue entries
@@ -47,6 +48,7 @@ Hospital managers and proprietors standing in the hospital can use #3hospital he
 	#3hospital services#0 - lists available medical services
 	#3hospital service <##|name>#0 - shows one medical service
 	#3hospital request <service> [for <target>] [cash|debt|with <payment item>]#0 - requests treatment and creates hospital task work
+	#3hospital cancel [<##>]#0 - cancels an active hospital service request without refunding completed or partially completed work
 	#3hospital debt [person]#0 - shows medical debt or prepaid credit for yourself or a patient you can see
 	#3hospital debt pay <amount> [for <target>] [cash|with <payment item>]#0 - pays down debt or creates prepaid credit
 	#3hospital requests#0 - lists hospital service requests
@@ -129,6 +131,11 @@ Administrators can also use:
 			case "procure":
 			case "buy":
 				HospitalRequest(actor, ss);
+				return;
+			case "cancel":
+			case "cancelrequest":
+			case "requestcancel":
+				HospitalCancel(actor, ss);
 				return;
 			case "requestshow":
 			case "showrequest":
@@ -1317,6 +1324,162 @@ Administrators can also use:
 		}
 
 		CreateRequest();
+	}
+
+	private static void HospitalCancel(ICharacter actor, StringStack ss)
+	{
+		if (!DoHospitalCommandFindHospital(actor, out var hospital))
+		{
+			return;
+		}
+
+		string? selectorMessage = null;
+		var request = ss.IsFinished
+			? ActiveCancellableHospitalRequestFor(actor, hospital, out selectorMessage)
+			: hospital.RequestById(ss.PopSpeech());
+		if (request is null)
+		{
+			actor.OutputHandler.Send(selectorMessage ?? "There is no such hospital service request.");
+			return;
+		}
+
+		if (!CanCancelHospitalRequest(actor, hospital, request))
+		{
+			actor.OutputHandler.Send("Only the requester, patient, hospital managers, proprietors, and administrators can cancel that hospital service request.");
+			return;
+		}
+
+		if (request.Status is HospitalServiceRequestStatus.Completed or HospitalServiceRequestStatus.Cancelled or
+		    HospitalServiceRequestStatus.Declined or HospitalServiceRequestStatus.Failed)
+		{
+			actor.OutputHandler.Send($"Hospital request #{request.Id.ToString("N0", actor).ColourValue()} is already {request.Status.DescribeEnum().ColourName()}.");
+			return;
+		}
+
+		if (!TryCancelHospitalRequest(actor, hospital, request, out var message))
+		{
+			actor.OutputHandler.Send(message);
+			return;
+		}
+
+		actor.OutputHandler.Send(message);
+	}
+
+	private static IHospitalServiceRequest? ActiveCancellableHospitalRequestFor(ICharacter actor, IHospital hospital,
+		out string? message)
+	{
+		var actorId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var requests = hospital.ActiveServiceRequests
+		                       .Where(x => x.RequesterId == actorId || x.PatientId == actorId ||
+		                                   actor.IsAdministrator() || hospital.IsManager(actor) ||
+		                                   hospital.IsProprietor(actor))
+		                       .OrderBy(x => x.CreatedAt)
+		                       .ToList();
+		if (!requests.Any())
+		{
+			message = "You do not have any active hospital service requests here.";
+			return null;
+		}
+
+		if (requests.Count == 1)
+		{
+			message = null;
+			return requests.Single();
+		}
+
+		message = $"Which hospital service request do you want to cancel? Your active requests are {requests.Select(x => $"#{x.Id.ToString("N0", actor)} {x.Service.Name.ColourName()}").ListToString()}.";
+		return null;
+	}
+
+	private static bool CanCancelHospitalRequest(ICharacter actor, IHospital hospital, IHospitalServiceRequest request)
+	{
+		if (actor.IsAdministrator() || hospital.IsManager(actor) || hospital.IsProprietor(actor))
+		{
+			return true;
+		}
+
+		var actorId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		return request.RequesterId == actorId || request.PatientId == actorId;
+	}
+
+	private static bool TryCancelHospitalRequest(ICharacter actor, IHospital hospital, IHospitalServiceRequest request,
+		out string message)
+	{
+		var task = HospitalTaskForRequest(hospital, request);
+		var abortedProcedures = CancelHospitalSurgicalEffects(hospital, request, task);
+		var reason = $"Cancelled by {actor.HowSeen(actor, colour: false)}.";
+		request.MarkStatus(HospitalServiceRequestStatus.Cancelled,
+			$"{reason} Amounts already paid or charged remain on the request; cancellation does not refund completed or partially completed work.");
+
+		if (task is not null &&
+		    task.Status is not (EmploymentTaskStatus.Completed or EmploymentTaskStatus.Cancelled or EmploymentTaskStatus.Failed))
+		{
+			if (!hospital.TaskBoard.CancelActiveTask(task, null, reason))
+			{
+				message = $"Hospital request #{request.Id.ToString("N0", actor).ColourValue()} was cancelled, but its linked employment task could not be cancelled.";
+				return false;
+			}
+		}
+
+		message = $"You cancel hospital request #{request.Id.ToString("N0", actor).ColourValue()} ({request.Service.Name.ColourName()}). Any amounts already paid or charged remain owed; no refund is issued.";
+		if (abortedProcedures > 0)
+		{
+			message += $" {abortedProcedures.ToString("N0", actor).ColourValue()} staged surgical procedure{(abortedProcedures == 1 ? " was" : "s were")} aborted.";
+		}
+
+		return true;
+	}
+
+	private static int CancelHospitalSurgicalEffects(IHospital hospital, IHospitalServiceRequest request,
+		IEmploymentActiveTask? task)
+	{
+		var patient = request.Patient;
+		var employees = hospital.ActiveEmploymentContracts()
+		                        .Select(x => x.Employee)
+		                        .Concat(task?.AssignedEmployee is null ? [] : [task.AssignedEmployee])
+		                        .Where(x => x is not null)
+		                        .DistinctPhysicalInstances()
+		                        .ToList();
+		var procedures = HospitalServiceProcedures(request.Service).Select(x => x.Id).ToHashSet();
+		var count = 0;
+		foreach (var employee in employees)
+		{
+			var effects = (employee.CombinedEffectsOfType<SurgicalProcedureEffect>() ?? [])
+			              .Where(x => patient is null || CharacterInstanceIdentityComparer.SameIdentity(x.Patient, patient))
+			              .Where(x => !procedures.Any() || procedures.Contains(x.Procedure.Id))
+			              .ToList();
+			foreach (var effect in effects)
+			{
+				effect.OnProcedureResolved = null;
+				employee.RemoveEffect(effect, true);
+				count++;
+			}
+		}
+
+		return count;
+	}
+
+	private static IEnumerable<ISurgicalProcedure> HospitalServiceProcedures(IHospitalService service)
+	{
+		if (service.SurgicalProcedure is not null)
+		{
+			yield return service.SurgicalProcedure;
+		}
+
+		if (service.AnesthesiaCannulationProcedure is not null)
+		{
+			yield return service.AnesthesiaCannulationProcedure;
+		}
+
+		if (service.ImplantPowerProcedure is not null)
+		{
+			yield return service.ImplantPowerProcedure;
+		}
+
+		if (service.ImplantInterfaceProcedure is not null)
+		{
+			yield return service.ImplantInterfaceProcedure;
+		}
 	}
 
 	private static bool TryCreateHospitalRequest(ICharacter requester, IHospital hospital, IHospitalService service,

@@ -439,6 +439,32 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void HospitalPatientFlow_AllowsOwnReservedTheatreAndPatientIdentity()
+	{
+		var theatre = Cell(706, "operating theatre");
+		var actualPatient = Character(707, "Patient");
+		var requestPatient = Character(708, "Patient Record");
+		theatre.SetupGet(x => x.Characters).Returns([actualPatient.Object]);
+		var taskId = Guid.NewGuid();
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(10);
+		request.SetupGet(x => x.PatientId).Returns(actualPatient.Object.Id);
+		request.SetupGet(x => x.Patient).Returns(requestPatient.Object);
+		request.SetupGet(x => x.EmploymentTaskId).Returns(taskId);
+
+		var mirroredRequest = new Mock<IHospitalServiceRequest>();
+		mirroredRequest.SetupGet(x => x.Id).Returns(11);
+		mirroredRequest.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		mirroredRequest.SetupGet(x => x.EmploymentTaskId).Returns(taskId);
+
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([mirroredRequest.Object]);
+		hospital.Setup(x => x.IsEmployee(actualPatient.Object)).Returns(false);
+
+		Assert.IsTrue(HospitalPatientFlow.IsTheatreAvailable(hospital.Object, request.Object, theatre.Object, out var reason), reason);
+	}
+
+	[TestMethod]
 	public void HospitalPatientFlow_RecordsAuditNoteWhenRecoveryRoomIsMissing()
 	{
 		var service = new Mock<IHospitalService>();

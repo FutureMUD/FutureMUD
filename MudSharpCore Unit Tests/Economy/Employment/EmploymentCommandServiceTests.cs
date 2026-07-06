@@ -113,6 +113,7 @@ public class EmploymentCommandServiceTests
 		Assert.IsTrue(EmploymentCommandService.EmploymentHelp.Contains("clan hosts are resolved",
 			StringComparison.OrdinalIgnoreCase));
 		var hospitalHelp = HelpConstant(typeof(EconomyModule), "HospitalHelp");
+		Assert.IsTrue(hospitalHelp.Contains("hospital cancel", StringComparison.OrdinalIgnoreCase));
 		Assert.IsTrue(hospitalHelp.Contains("hospital openings create", StringComparison.OrdinalIgnoreCase));
 		Assert.IsTrue(hospitalHelp.Contains("hospital applications accept|reject", StringComparison.OrdinalIgnoreCase));
 		Assert.IsTrue(hospitalHelp.Contains("hospital tasks diagnose", StringComparison.OrdinalIgnoreCase));
@@ -410,6 +411,76 @@ public class EmploymentCommandServiceTests
 				text.Contains("The required hospital supplies have not yet been prepared", StringComparison.OrdinalIgnoreCase) &&
 				text.Contains("op=reserve;type=medical-supply;items=901", StringComparison.OrdinalIgnoreCase) &&
 				text.Contains("Supply Store", StringComparison.OrdinalIgnoreCase)),
+			It.IsAny<bool>(),
+			It.IsAny<bool>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void HospitalCommand_CancelCancelsOwnedRequestAndLinkedTaskWithoutRefund()
+	{
+		var gameworld = Gameworld();
+		var foyer = Cell(385, "A Hospital Foyer").Object;
+		var hospital = HospitalHost(8, "Easy Street Hospital", [foyer]);
+		hospital.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Hospital);
+		hospital.SetupGet(x => x.Market).Returns((IMarket?)null);
+		var state = new EmploymentHostState(hospital.Object);
+		hospital.SetupGet(x => x.Employment).Returns(state);
+		hospital.SetupGet(x => x.TaskBoard).Returns(state.TaskBoard);
+		hospital.SetupGet(x => x.EmploymentRegister).Returns(state.EmploymentRegister);
+		hospital.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
+		hospital.Setup(x => x.IsManager(It.IsAny<ICharacter>())).Returns(false);
+		hospital.Setup(x => x.IsProprietor(It.IsAny<ICharacter>())).Returns(false);
+		var hospitals = new All<IHospital>();
+		hospitals.Add(hospital.Object);
+		gameworld.SetupGet(x => x.Hospitals).Returns(hospitals);
+		var patient = Character(204, "Patient", gameworld: gameworld.Object, location: foyer).Object;
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(601);
+		service.SetupGet(x => x.Name).Returns("Appendectomy");
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		var status = HospitalServiceRequestStatus.InProgress;
+		var notes = new List<string>();
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(602);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.RequesterId).Returns(patient.Id);
+		request.SetupGet(x => x.PatientId).Returns(patient.Id);
+		request.SetupGet(x => x.PatientName).Returns("Patient");
+		request.SetupGet(x => x.Patient).Returns(patient);
+		request.SetupGet(x => x.Status).Returns(() => status);
+		request.SetupGet(x => x.CreatedAt).Returns(DateTimeOffset.UtcNow.AddMinutes(-10));
+		request.SetupProperty(x => x.EmploymentTaskId);
+		request.Setup(x => x.MarkStatus(It.IsAny<HospitalServiceRequestStatus>(), It.IsAny<string>()))
+		       .Callback<HospitalServiceRequestStatus, string>((newStatus, note) =>
+		       {
+			       status = newStatus;
+			       notes.Add(note);
+		       });
+		hospital.SetupGet(x => x.ServiceRequests).Returns([request.Object]);
+		hospital.SetupGet(x => x.ActiveServiceRequests)
+		        .Returns(() => status is HospitalServiceRequestStatus.Queued or HospitalServiceRequestStatus.Assigned or HospitalServiceRequestStatus.InProgress
+			        ? [request.Object]
+			        : []);
+		hospital.Setup(x => x.RequestById(It.IsAny<string>()))
+		        .Returns((string text) => text.TrimStart('#') == "602" ? request.Object : null);
+		var task = state.TaskBoard.CreateActiveTask(
+			"treat Patient: Appendectomy",
+			new EmploymentActionPlan([new HospitalServiceActionStep(hospital.Object, request.Object)]),
+			null);
+		request.Object.EmploymentTaskId = task.Id;
+
+		InvokeHospitalCommand(patient, "hospital cancel #602");
+
+		Assert.AreEqual(HospitalServiceRequestStatus.Cancelled, status);
+		Assert.AreEqual(EmploymentTaskStatus.Cancelled, task.Status);
+		Assert.IsTrue(notes.Any(x => x.Contains("does not refund", StringComparison.OrdinalIgnoreCase)));
+		Mock.Get(patient.OutputHandler).Verify(x => x.Send(
+			It.Is<string>(text =>
+				text.Contains("cancel", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("602", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("no refund", StringComparison.OrdinalIgnoreCase)),
 			It.IsAny<bool>(),
 			It.IsAny<bool>()), Times.Once);
 	}

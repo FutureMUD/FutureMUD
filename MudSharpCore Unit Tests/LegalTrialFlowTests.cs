@@ -143,6 +143,29 @@ public class LegalTrialFlowTests
 	}
 
 	[TestMethod]
+	public void OnTrial_ShouldPreventQuitAndVoluntaryMovement()
+	{
+		Mock<ILegalAuthority> authority = new();
+		authority.SetupGet(x => x.Id).Returns(1L);
+		authority.SetupGet(x => x.Name).Returns("Test Authority");
+
+		Mock<ICrime> crime = new();
+		crime.SetupGet(x => x.Id).Returns(10L);
+
+		Mock<ICharacter> owner = new();
+
+		OnTrial trial = new(owner.Object, authority.Object, DateTime.UtcNow, [crime.Object]);
+		Assert.IsInstanceOfType(trial, typeof(INoQuitEffect));
+		Assert.AreEqual("You cannot quit while you are on trial.", ((INoQuitEffect)trial).NoQuitReason);
+
+		PerceivableRejectionResponse response = new();
+		owner.Raise(x => x.OnWantsToMove += null, owner.Object, response);
+
+		Assert.IsTrue(response.Rejected);
+		StringAssert.Contains(response.Reason, "trial is in progress");
+	}
+
+	[TestMethod]
 	public void OnTrial_HasPleaBeenEntered_ShouldFollowPleaQueue()
 	{
 		Mock<ILegalAuthority> authority = new();

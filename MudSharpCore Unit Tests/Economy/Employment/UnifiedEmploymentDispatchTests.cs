@@ -310,19 +310,6 @@ public class UnifiedEmploymentDispatchTests
 	public void HospitalMedicalServiceRunner_ChargesUsageBilledServiceToDebt()
 	{
 		var currency = Currency();
-		var gameworld = new Mock<IFuturemud>();
-		var check = new Mock<ICheck>();
-		check.Setup(x => x.Check(
-			      It.IsAny<IPerceivableHaveTraits>(),
-			      It.IsAny<Difficulty>(),
-			      It.IsAny<IPerceivable>(),
-			      It.IsAny<IUseTrait>(),
-			      It.IsAny<double>(),
-			      It.IsAny<TraitUseType>(),
-			      It.IsAny<(string Parameter, object value)[]>()))
-		     .Returns(CheckOutcome.SimpleOutcome(CheckType.BindWoundCheck, Outcome.Pass));
-		gameworld.Setup(x => x.GetCheck(CheckType.BindWoundCheck)).Returns(check.Object);
-
 		var bindingService = new Mock<IHospitalService>();
 		bindingService.SetupGet(x => x.Id).Returns(9120);
 		bindingService.SetupGet(x => x.Name).Returns("Binding");
@@ -343,6 +330,7 @@ public class UnifiedEmploymentDispatchTests
 		hospital.SetupGet(x => x.Name).Returns("central clinic");
 		hospital.SetupGet(x => x.Currency).Returns(currency.Object);
 		hospital.SetupGet(x => x.Services).Returns([bindingService.Object, fullTreatment.Object]);
+		hospital.SetupGet(x => x.EmploymentRegister).Returns(new Mock<IEmploymentRegister>().Object);
 
 		var debtAccount = new Mock<IHospitalPatientDebtAccount>();
 		debtAccount.SetupGet(x => x.PatientName).Returns("Patient");
@@ -354,38 +342,16 @@ public class UnifiedEmploymentDispatchTests
 		           }));
 		hospital.Setup(x => x.DebtAccountFor(It.IsAny<ICharacter>(), true)).Returns(debtAccount.Object);
 
-		var employee = Character(9123, "Doctor", gameworld: gameworld.Object);
-		var patient = Character(9124, "Patient", gameworld: gameworld.Object);
+		var employee = Character(9123, "Doctor");
+		var patient = Character(9124, "Patient");
 		employee.Setup(x => x.ColocatedWith(patient.Object)).Returns(true);
 		var body = new Mock<MudSharp.Body.IBody>();
 		body.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
 		body.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(5.0);
 		patient.SetupGet(x => x.Body).Returns(body.Object);
-
-		var bleedStatus = BleedStatus.Bleeding;
-		var canTreat = true;
-		var wound = new Mock<IWound>();
-		wound.SetupGet(x => x.Id).Returns(9125L);
-		wound.SetupGet(x => x.Severity).Returns(WoundSeverity.Moderate);
-		wound.SetupGet(x => x.BleedStatus).Returns(() => bleedStatus);
-		wound.Setup(x => x.CanBeTreated(TreatmentType.Trauma))
-		     .Returns(() => canTreat ? Difficulty.Normal : Difficulty.Impossible);
-		wound.Setup(x => x.CanBeTreated(It.Is<TreatmentType>(type => type != TreatmentType.Trauma)))
-		     .Returns(Difficulty.Impossible);
-		wound.Setup(x => x.Treat(
-			      It.IsAny<IPerceiver>(),
-			      TreatmentType.Trauma,
-			      It.IsAny<ITreatment>(),
-			      It.IsAny<Outcome>(),
-			      false))
-		     .Callback(() =>
-		     {
-			     canTreat = false;
-			     bleedStatus = BleedStatus.TraumaControlled;
-		     });
 		patient.SetupGet(x => x.Wounds).Returns(Array.Empty<IWound>());
 		patient.Setup(x => x.VisibleWounds(It.IsAny<IPerceiver>(), WoundExaminationType.Examination))
-		       .Returns([wound.Object]);
+		       .Returns(Array.Empty<IWound>());
 
 		var request = new Mock<IHospitalServiceRequest>();
 		request.SetupGet(x => x.Id).Returns(9126);
@@ -395,9 +361,17 @@ public class UnifiedEmploymentDispatchTests
 		request.SetupGet(x => x.PaymentMethod).Returns(HospitalPaymentMethod.Debt);
 		request.SetupGet(x => x.PatientId).Returns(patient.Object.Id);
 		request.SetupGet(x => x.Patient).Returns(patient.Object);
-		var context = new Mock<IEmploymentTaskContext>();
+		var task = new EmploymentActiveTask(hospital.Object, "Treat patient",
+			new EmploymentActionPlan([new HospitalServiceActionStep(hospital.Object, request.Object)]), Guid.NewGuid());
+		task.Assign(employee.Object);
+		task.MarkStep(0, EmploymentActionStepStatus.InProgress,
+			new EmploymentActionStepOperationalState(
+				OperationalPayload:
+				"hospitalservice;hospital=9122;request=9126;type=FullTreatment;completed=False;done=bind;charges=Binding:1"));
+		var context = new EmploymentTaskContext(hospital.Object);
+		context.HydrateTaskState(task, 0);
 
-		var result = HospitalMedicalServiceRunner.ExecuteServiceRequest(context.Object, employee.Object, hospital.Object, request.Object);
+		var result = HospitalMedicalServiceRunner.ExecuteServiceRequest(context, employee.Object, hospital.Object, request.Object);
 
 		Assert.IsTrue(result.Success, result.Message);
 		debtAccount.Verify(x => x.Charge(12.5M, It.Is<string>(text => text.Contains("Full Treatment"))), Times.Once);
@@ -462,6 +436,99 @@ public class UnifiedEmploymentDispatchTests
 		hospital.Setup(x => x.IsEmployee(actualPatient.Object)).Returns(false);
 
 		Assert.IsTrue(HospitalPatientFlow.IsTheatreAvailable(hospital.Object, request.Object, theatre.Object, out var reason), reason);
+	}
+
+	[TestMethod]
+	public void HospitalPatientFlow_FullTreatmentUsesTheatreEvenWhenPreferenceDisabled()
+	{
+		var waitingRoom = Cell(760, "waiting room");
+		var theatre = Cell(761, "operating theatre");
+		theatre.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns(Array.Empty<IHospitalServiceRequest>());
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.FullTreatment);
+		service.SetupGet(x => x.PreferOperatingTheatre).Returns(false);
+		var patient = Character(762, "Patient");
+		patient.SetupGet(x => x.Location).Returns(waitingRoom.Object);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(763);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupGet(x => x.PatientId).Returns(patient.Object.Id);
+		request.SetupProperty(x => x.OperatingTheatreCellId);
+		request.SetupProperty(x => x.UsedInPlaceFallback);
+
+		var result = HospitalPatientFlow.TryReserveTreatmentLocation(hospital.Object, request.Object, out var location,
+			out var reason);
+
+		Assert.IsTrue(result, reason);
+		Assert.AreSame(theatre.Object, location);
+		Assert.AreEqual(theatre.Object.Id, request.Object.OperatingTheatreCellId);
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_FullTreatmentDoesNotRepeatCompletedTendingPhase()
+	{
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(764);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.Services).Returns(Array.Empty<IHospitalService>());
+		hospital.SetupGet(x => x.EmploymentRegister).Returns(new Mock<IEmploymentRegister>().Object);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(765);
+		service.SetupGet(x => x.Name).Returns("Full Treatment");
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.FullTreatment);
+		service.SetupGet(x => x.RequiredEquipment).Returns(Array.Empty<HospitalServiceEquipmentRequirement>());
+		service.SetupGet(x => x.RequiresRecovery).Returns(false);
+		var employee = Character(766, "Doctor");
+		var patient = Character(767, "Patient");
+		employee.Setup(x => x.ColocatedWith(patient.Object)).Returns(true);
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
+		body.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(5.0);
+		patient.SetupGet(x => x.Body).Returns(body.Object);
+		var wound = new Mock<IWound>();
+		wound.SetupGet(x => x.Severity).Returns(WoundSeverity.Moderate);
+		wound.Setup(x => x.CanBeTreated(TreatmentType.AntiInflammatory)).Returns(Difficulty.Normal);
+		wound.Setup(x => x.CanBeTreated(It.Is<TreatmentType>(type => type != TreatmentType.AntiInflammatory)))
+		     .Returns(Difficulty.Impossible);
+		patient.SetupGet(x => x.Wounds).Returns(Array.Empty<IWound>());
+		patient.Setup(x => x.VisibleWounds(It.IsAny<IPerceiver>(), WoundExaminationType.Examination))
+		       .Returns([wound.Object]);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(768);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.InProgress);
+		request.SetupGet(x => x.PaymentMethod).Returns(HospitalPaymentMethod.Waived);
+		request.SetupGet(x => x.PatientId).Returns(patient.Object.Id);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		var task = new EmploymentActiveTask(hospital.Object, "Treat patient",
+			new EmploymentActionPlan([new HospitalServiceActionStep(hospital.Object, request.Object)]), Guid.NewGuid());
+		task.Assign(employee.Object);
+		task.MarkStep(0, EmploymentActionStepStatus.InProgress,
+			new EmploymentActionStepOperationalState(
+				OperationalPayload:
+				"hospitalservice;hospital=764;request=768;type=FullTreatment;completed=False;done=tend"));
+		var context = new EmploymentTaskContext(hospital.Object);
+		context.HydrateTaskState(task, 0);
+
+		var result = HospitalMedicalServiceRunner.ExecuteServiceRequest(context, employee.Object, hospital.Object,
+			request.Object);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.IsTrue(result.Completed);
+		wound.Verify(x => x.Treat(
+			It.IsAny<IPerceiver>(),
+			It.IsAny<TreatmentType>(),
+			It.IsAny<ITreatment>(),
+			It.IsAny<Outcome>(),
+			It.IsAny<bool>()), Times.Never);
+		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Completed,
+			It.Is<string>(text => text.Contains("Full Treatment"))), Times.Once);
 	}
 
 	[TestMethod]
@@ -552,11 +619,17 @@ public class UnifiedEmploymentDispatchTests
 	[TestMethod]
 	public void HospitalServiceActionStep_FailedRequestFailsActiveTask()
 	{
+		var waitingRoom = Cell(729, "waiting room");
+		var theatre = Cell(728, "operating theatre");
+		theatre.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
 		var hospital = new Mock<IHospital>();
 		hospital.SetupGet(x => x.Id).Returns(730);
 		hospital.SetupGet(x => x.Name).Returns("central clinic");
 		hospital.SetupGet(x => x.FrameworkItemType).Returns("Hospital");
 		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns(Array.Empty<IHospitalServiceRequest>());
+		hospital.SetupGet(x => x.SupplyRooms).Returns(Array.Empty<ICell>());
 		hospital.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), EmploymentAuthority.PerformMedicalServices))
 		        .Returns(true);
 		hospital.SetupGet(x => x.EmploymentRegister).Returns(new Mock<IEmploymentRegister>().Object);
@@ -568,6 +641,8 @@ public class UnifiedEmploymentDispatchTests
 		service.SetupGet(x => x.PreferOperatingTheatre).Returns(false);
 		var doctor = Character(732, "Doctor");
 		var patient = Character(733, "Patient");
+		doctor.SetupGet(x => x.Location).Returns(waitingRoom.Object);
+		patient.SetupGet(x => x.Location).Returns(waitingRoom.Object);
 		doctor.Setup(x => x.ColocatedWith(patient.Object)).Returns(true);
 		var body = new Mock<MudSharp.Body.IBody>();
 		body.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);

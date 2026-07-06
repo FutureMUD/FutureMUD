@@ -6,6 +6,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
+using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
@@ -27,18 +28,176 @@ public static class HospitalMedicalServiceRunner
 {
 	private sealed record UsageCharge(HospitalServiceType ServiceType, int Count);
 
+	private sealed class HospitalTreatmentProgress
+	{
+		public string? ActivePhase { get; set; }
+		public int ActiveExpectedCount { get; set; }
+		public HashSet<string> CompletedPhases { get; } = new(StringComparer.InvariantCultureIgnoreCase);
+		public Dictionary<HospitalServiceType, int> Charges { get; } = new();
+
+		public IReadOnlyList<UsageCharge> UsageCharges =>
+			Charges.Select(x => new UsageCharge(x.Key, x.Value)).ToList();
+
+		public void CompleteActivePhase(HospitalServiceType serviceType)
+		{
+			if (string.IsNullOrWhiteSpace(ActivePhase))
+			{
+				return;
+			}
+
+			CompletedPhases.Add(ActivePhase);
+			if (ActiveExpectedCount > 0)
+			{
+				Charges[serviceType] = Charges.GetValueOrDefault(serviceType) + ActiveExpectedCount;
+			}
+
+			ActivePhase = null;
+			ActiveExpectedCount = 0;
+		}
+
+		public void AddCharge(HospitalServiceType serviceType, int count = 1)
+		{
+			if (count <= 0)
+			{
+				return;
+			}
+
+			Charges[serviceType] = Charges.GetValueOrDefault(serviceType) + count;
+		}
+
+		public string ToPayload(IHospital hospital, IHospitalServiceRequest request, bool completed)
+		{
+			var parts = new List<string>
+			{
+				"hospitalservice",
+				$"hospital={hospital.Id.ToString("F0", CultureInfo.InvariantCulture)}",
+				$"request={request.Id.ToString("F0", CultureInfo.InvariantCulture)}",
+				$"type={request.Service.ServiceType}",
+				$"completed={completed.ToString(CultureInfo.InvariantCulture)}"
+			};
+			if (!string.IsNullOrWhiteSpace(ActivePhase))
+			{
+				parts.Add($"active={ActivePhase}");
+				parts.Add($"activecount={ActiveExpectedCount.ToString("F0", CultureInfo.InvariantCulture)}");
+			}
+
+			if (CompletedPhases.Any())
+			{
+				parts.Add($"done={CompletedPhases.OrderBy(x => x).ListToCommaSeparatedValues()}");
+			}
+
+			if (Charges.Any())
+			{
+				parts.Add(
+					$"charges={Charges.Select(x => $"{x.Key}:{x.Value.ToString("F0", CultureInfo.InvariantCulture)}").ListToCommaSeparatedValues()}");
+			}
+
+			return string.Join(';', parts);
+		}
+
+		public static HospitalTreatmentProgress FromPayload(string? payload, IHospitalServiceRequest request)
+		{
+			var progress = new HospitalTreatmentProgress();
+			if (string.IsNullOrWhiteSpace(payload))
+			{
+				return progress;
+			}
+
+			var parts = ParsePayload(payload);
+			if (!parts.TryGetValue("request", out var requestText) ||
+			    !long.TryParse(requestText, NumberStyles.Any, CultureInfo.InvariantCulture, out var requestId) ||
+			    requestId != request.Id)
+			{
+				return progress;
+			}
+
+			if (parts.TryGetValue("active", out var active))
+			{
+				progress.ActivePhase = active;
+			}
+
+			if (parts.TryGetValue("activecount", out var activeCount) &&
+			    int.TryParse(activeCount, NumberStyles.Any, CultureInfo.InvariantCulture, out var count))
+			{
+				progress.ActiveExpectedCount = Math.Max(0, count);
+			}
+
+			if (parts.TryGetValue("done", out var done))
+			{
+				foreach (var phase in done.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+				{
+					progress.CompletedPhases.Add(phase);
+				}
+			}
+
+			if (parts.TryGetValue("charges", out var charges))
+			{
+				foreach (var chargeText in charges.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+				{
+					var pair = chargeText.Split(':', 2, StringSplitOptions.TrimEntries);
+					if (pair.Length != 2 ||
+					    !Enum.TryParse<HospitalServiceType>(pair[0], out var serviceType) ||
+					    !int.TryParse(pair[1], NumberStyles.Any, CultureInfo.InvariantCulture, out var chargeCount))
+					{
+						continue;
+					}
+
+					progress.Charges[serviceType] = Math.Max(0, chargeCount);
+				}
+			}
+
+			return progress;
+		}
+	}
+
 	private sealed record ServiceExecutionResult(
 		bool Success,
 		string Message,
 		string Resource,
 		bool Completed = true,
-		IReadOnlyList<UsageCharge>? UsageCharges = null);
+		IReadOnlyList<UsageCharge>? UsageCharges = null,
+		HospitalTreatmentProgress? Progress = null);
 
 	private enum AnesthesiaPreparationResult
 	{
 		Ready,
 		StartedCannulation,
 		Failed
+	}
+
+	public static bool ShouldUseTreatmentTheatre(IHospitalService service)
+	{
+		return service.PreferOperatingTheatre ||
+		       service.ServiceType is HospitalServiceType.Stabilisation or HospitalServiceType.FullTreatment;
+	}
+
+	public static bool UsesCommandRoutedWoundCare(IHospitalService service)
+	{
+		return service.ServiceType is HospitalServiceType.Binding or HospitalServiceType.WoundCleaning or
+			HospitalServiceType.WoundClosing or HospitalServiceType.WoundTending or HospitalServiceType.BoneRelocation or
+			HospitalServiceType.Stabilisation or HospitalServiceType.FullTreatment;
+	}
+
+	public static IReadOnlyCollection<TreatmentType> ImplicitTreatmentSupplyTypes(IHospitalService service)
+	{
+		return service.ServiceType switch
+		{
+			HospitalServiceType.Binding => [TreatmentType.Trauma],
+			HospitalServiceType.WoundCleaning => [TreatmentType.Clean, TreatmentType.Antiseptic],
+			HospitalServiceType.WoundClosing => [TreatmentType.Close],
+			HospitalServiceType.WoundTending => [TreatmentType.Tend, TreatmentType.AntiInflammatory],
+			HospitalServiceType.Stabilisation => [TreatmentType.Trauma, TreatmentType.Close],
+			HospitalServiceType.FullTreatment =>
+			[
+				TreatmentType.Trauma,
+				TreatmentType.Close,
+				TreatmentType.Clean,
+				TreatmentType.Antiseptic,
+				TreatmentType.Tend,
+				TreatmentType.AntiInflammatory
+			],
+			_ => []
+		};
 	}
 
 	public static EmploymentActionStepResult ExecuteServiceRequest(IEmploymentTaskContext context, ICharacter employee,
@@ -77,25 +236,20 @@ public static class HospitalMedicalServiceRunner
 				$"{employee.PersonalName.GetName(MudSharp.Character.Name.NameStyle.FullName)} began treatment.");
 		}
 
+		var progress = HospitalTreatmentProgress.FromPayload(CurrentOperationalPayload(context), request);
 		var result = request.Service.ServiceType switch
 		{
-			HospitalServiceType.Binding => TreatWorstWound(employee, patient, TreatmentType.Trauma, CheckType.BindWoundCheck,
-				wound => wound.BleedStatus == BleedStatus.Bleeding, "bound bleeding trauma"),
-			HospitalServiceType.WoundCleaning => CleanWorstWound(employee, patient),
-			HospitalServiceType.WoundClosing => TreatWorstWound(employee, patient, TreatmentType.Close,
-				CheckType.SutureWoundCheck, wound => wound.BleedStatus == BleedStatus.TraumaControlled,
-				"closed traumatic wounds"),
-			HospitalServiceType.WoundTending => TendWorstWound(employee, patient),
-			HospitalServiceType.BoneRelocation => TreatWorstBoneFracture(employee, patient, TreatmentType.Relocation,
-				CheckType.RelocateBoneCheck, "relocated a fracture"),
+			HospitalServiceType.Binding or HospitalServiceType.WoundCleaning or HospitalServiceType.WoundClosing or
+				HospitalServiceType.WoundTending or HospitalServiceType.BoneRelocation =>
+				PerformCommandRoutedWoundService(employee, patient, hospital, request, progress),
 			HospitalServiceType.BoneSetting => TreatWorstBoneFracture(employee, patient, TreatmentType.SurgicalSet,
 				CheckType.SurgicalSetCheck, "surgically set a fracture"),
 			HospitalServiceType.SurgicalProcedure or HospitalServiceType.ImplantProcedure =>
 				BeginSurgicalProcedure(context, employee, patient, hospital, request),
 			HospitalServiceType.BloodDonation => PerformBloodDonation(context, employee, patient, request),
 			HospitalServiceType.BloodTransfusion => PerformBloodTransfusion(context, employee, patient, request),
-			HospitalServiceType.Stabilisation => PerformStabilisation(context, employee, patient, request),
-			HospitalServiceType.FullTreatment => PerformFullTreatment(context, employee, patient, request),
+			HospitalServiceType.Stabilisation => PerformStabilisation(context, employee, patient, hospital, request, progress),
+			HospitalServiceType.FullTreatment => PerformFullTreatment(context, employee, patient, hospital, request, progress),
 			_ => new ServiceExecutionResult(false, "Unsupported hospital service type.", string.Empty)
 		};
 
@@ -135,7 +289,8 @@ public static class HospitalMedicalServiceRunner
 	{
 		return new EmploymentActionStepOperationalState(
 			SelectedResources: $"hospitalservice:request={request.Id.ToString("F0", CultureInfo.InvariantCulture)};patient={request.PatientId.ToString("F0", CultureInfo.InvariantCulture)};service={request.Service.Id.ToString("F0", CultureInfo.InvariantCulture)};resource={result.Resource}",
-			OperationalPayload: $"hospitalservice;hospital={hospital.Id.ToString("F0", CultureInfo.InvariantCulture)};request={request.Id.ToString("F0", CultureInfo.InvariantCulture)};type={request.Service.ServiceType};completed={result.Completed.ToString(CultureInfo.InvariantCulture)}");
+			OperationalPayload: result.Progress?.ToPayload(hospital, request, result.Completed) ??
+			                    $"hospitalservice;hospital={hospital.Id.ToString("F0", CultureInfo.InvariantCulture)};request={request.Id.ToString("F0", CultureInfo.InvariantCulture)};type={request.Service.ServiceType};completed={result.Completed.ToString(CultureInfo.InvariantCulture)}");
 	}
 
 	private static bool TryCompleteRequest(IEmploymentTaskContext context, ICharacter employee, IHospital hospital,
@@ -331,152 +486,448 @@ public static class HospitalMedicalServiceRunner
 			wound.Id.ToString("F0", CultureInfo.InvariantCulture));
 	}
 
-	private static ServiceExecutionResult PerformStabilisation(IEmploymentTaskContext context, ICharacter employee,
-		ICharacter patient, IHospitalServiceRequest request)
+	private static ServiceExecutionResult PerformCommandRoutedWoundService(ICharacter employee, ICharacter patient,
+		IHospital hospital, IHospitalServiceRequest request, HospitalTreatmentProgress progress)
 	{
-		var resources = new List<string>();
-		var summaries = new List<string>();
-		var charges = new List<UsageCharge>();
-		var bound = RepeatTreatment(() => TreatWorstWound(employee, patient, TreatmentType.Trauma,
-			CheckType.BindWoundCheck, wound => wound.BleedStatus == BleedStatus.Bleeding,
-			"bound bleeding trauma"), resources);
-		if (bound > 0)
+		if (CompleteFinishedCommandPhase(employee, patient, progress))
 		{
-			summaries.Add($"{bound.ToString("N0", employee)} bleeding wound{(bound == 1 ? string.Empty : "s")} bound");
-			charges.Add(new UsageCharge(HospitalServiceType.Binding, bound));
+			return CompleteCommandRoutedService(employee, patient, hospital, request, progress);
 		}
 
-		var closed = RepeatTreatment(() => TreatWorstWound(employee, patient, TreatmentType.Close,
-			CheckType.SutureWoundCheck, wound => wound.BleedStatus == BleedStatus.TraumaControlled,
-			"closed traumatic wounds"), resources);
-		if (closed > 0)
+		return request.Service.ServiceType switch
 		{
-			summaries.Add($"{closed.ToString("N0", employee)} traumatic wound{(closed == 1 ? string.Empty : "s")} closed");
-			charges.Add(new UsageCharge(HospitalServiceType.WoundClosing, closed));
+			HospitalServiceType.Binding => TryStartTreatmentPhase(employee, patient, hospital, request, progress,
+				"bind", HospitalServiceType.Binding),
+			HospitalServiceType.WoundCleaning => TryStartTreatmentPhase(employee, patient, hospital, request, progress,
+				"clean", HospitalServiceType.WoundCleaning),
+			HospitalServiceType.WoundClosing => TryStartTreatmentPhase(employee, patient, hospital, request, progress,
+				"suture", HospitalServiceType.WoundClosing),
+			HospitalServiceType.WoundTending => TryStartTreatmentPhase(employee, patient, hospital, request, progress,
+				"tend", HospitalServiceType.WoundTending),
+			HospitalServiceType.BoneRelocation => TryStartTreatmentPhase(employee, patient, hospital, request, progress,
+				"relocate", HospitalServiceType.BoneRelocation),
+			_ => new ServiceExecutionResult(false, "Unsupported command-routed hospital wound service.", string.Empty,
+				Progress: progress)
+		};
+	}
+
+	private static ServiceExecutionResult PerformStabilisation(IEmploymentTaskContext context, ICharacter employee,
+		ICharacter patient, IHospital hospital, IHospitalServiceRequest request, HospitalTreatmentProgress progress)
+	{
+		if (CompleteFinishedCommandPhase(employee, patient, progress))
+		{
+			return ContinueStabilisation(context, employee, patient, hospital, request, progress);
 		}
 
-		if (patient.Body.TotalBloodVolumeLitres > 0.0 &&
+		return ContinueStabilisation(context, employee, patient, hospital, request, progress);
+	}
+
+	private static ServiceExecutionResult ContinueStabilisation(IEmploymentTaskContext context, ICharacter employee,
+		ICharacter patient, IHospital hospital, IHospitalServiceRequest request, HospitalTreatmentProgress progress)
+	{
+		if (!progress.CompletedPhases.Contains("bind") && HasBindableWounds(employee, patient))
+		{
+			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "bind",
+				HospitalServiceType.Binding);
+		}
+
+		if (!progress.CompletedPhases.Contains("suture") && HasSuturableWounds(employee, patient))
+		{
+			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "suture",
+				HospitalServiceType.WoundClosing);
+		}
+
+		if (!progress.CompletedPhases.Contains("transfusion") &&
+		    patient.Body.TotalBloodVolumeLitres > 0.0 &&
 		    patient.Body.CurrentBloodVolumeLitres < patient.Body.TotalBloodVolumeLitres * 0.75)
 		{
 			var transfusion = PerformBloodTransfusion(context, employee, patient, request);
-			if (transfusion.Success)
+			if (!transfusion.Success)
 			{
-				resources.Add(transfusion.Resource);
-				summaries.Add("blood volume restored");
-				charges.Add(new UsageCharge(HospitalServiceType.BloodTransfusion, 1));
+				return progress.CompletedPhases.Any()
+					? CompleteCommandRoutedService(employee, patient, hospital, request, progress)
+					: transfusion with { Progress = progress };
 			}
-			else if (!summaries.Any())
-			{
-				return transfusion;
-			}
+
+			progress.CompletedPhases.Add("transfusion");
+			progress.AddCharge(HospitalServiceType.BloodTransfusion);
 		}
 
-		if (!summaries.Any())
+		if (!progress.CompletedPhases.Any())
 		{
 			return new ServiceExecutionResult(false,
 				$"{patient.HowSeen(employee, true)} has no visible immediately life-threatening wounds or blood loss that this service can stabilise.",
-				string.Empty);
+				string.Empty,
+				Progress: progress);
 		}
 
-		return new ServiceExecutionResult(true,
-			$"{employee.HowSeen(employee, true)} stabilised {patient.HowSeen(employee)}: {summaries.ListToString()}.",
-			string.Join(';', resources.Where(x => !string.IsNullOrWhiteSpace(x))),
-			UsageCharges: charges);
+		return CompleteCommandRoutedService(employee, patient, hospital, request, progress);
 	}
 
 	private static ServiceExecutionResult PerformFullTreatment(IEmploymentTaskContext context, ICharacter employee,
-		ICharacter patient, IHospitalServiceRequest request)
+		ICharacter patient, IHospital hospital, IHospitalServiceRequest request, HospitalTreatmentProgress progress)
 	{
-		var resources = new List<string>();
-		var summaries = new List<string>();
-		var charges = new List<UsageCharge>();
-		var bound = RepeatTreatment(() => TreatWorstWound(employee, patient,
-			TreatmentType.Trauma, CheckType.BindWoundCheck, wound => wound.BleedStatus == BleedStatus.Bleeding,
-			"bound bleeding trauma"), resources);
-		AddTreatmentSummary(summaries, "bleeding wound", bound, "bound");
-		AddUsageCharge(charges, HospitalServiceType.Binding, bound);
-		var closed = RepeatTreatment(() => TreatWorstWound(employee, patient,
-			TreatmentType.Close, CheckType.SutureWoundCheck, wound => wound.BleedStatus == BleedStatus.TraumaControlled,
-			"closed traumatic wounds"), resources);
-		AddTreatmentSummary(summaries, "traumatic wound", closed, "closed");
-		AddUsageCharge(charges, HospitalServiceType.WoundClosing, closed);
-		var cleaned = RepeatTreatment(() => CleanWorstWound(employee, patient), resources);
-		AddTreatmentSummary(summaries, "wound", cleaned, "cleaned");
-		AddUsageCharge(charges, HospitalServiceType.WoundCleaning, cleaned);
-		var tended = RepeatTreatment(() => TendWorstWound(employee, patient), resources);
-		AddTreatmentSummary(summaries, "wound", tended, "tended");
-		AddUsageCharge(charges, HospitalServiceType.WoundTending, tended);
-		var relocated = RepeatTreatment(() => TreatWorstBoneFracture(employee, patient,
-			TreatmentType.Relocation, CheckType.RelocateBoneCheck, "relocated a fracture"), resources);
-		AddTreatmentSummary(summaries, "fracture", relocated, "relocated");
-		AddUsageCharge(charges, HospitalServiceType.BoneRelocation, relocated);
-		var set = RepeatTreatment(() => TreatWorstBoneFracture(employee, patient,
-			TreatmentType.SurgicalSet, CheckType.SurgicalSetCheck, "surgically set a fracture"), resources);
-		AddTreatmentSummary(summaries, "fracture", set, "set");
-		AddUsageCharge(charges, HospitalServiceType.BoneSetting, set);
+		if (CompleteFinishedCommandPhase(employee, patient, progress))
+		{
+			return ContinueFullTreatment(context, employee, patient, hospital, request, progress);
+		}
 
-		if (patient.Body.TotalBloodVolumeLitres > 0.0 &&
+		return ContinueFullTreatment(context, employee, patient, hospital, request, progress);
+	}
+
+	private static ServiceExecutionResult ContinueFullTreatment(IEmploymentTaskContext context, ICharacter employee,
+		ICharacter patient, IHospital hospital, IHospitalServiceRequest request, HospitalTreatmentProgress progress)
+	{
+		if (!progress.CompletedPhases.Contains("bind") && HasBindableWounds(employee, patient))
+		{
+			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "bind",
+				HospitalServiceType.Binding);
+		}
+
+		if (!progress.CompletedPhases.Contains("suture") && HasSuturableWounds(employee, patient))
+		{
+			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "suture",
+				HospitalServiceType.WoundClosing);
+		}
+
+		if (!progress.CompletedPhases.Contains("clean") && HasCleanableWounds(employee, patient))
+		{
+			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "clean",
+				HospitalServiceType.WoundCleaning);
+		}
+
+		if (!progress.CompletedPhases.Contains("tend") && HasTendableWounds(employee, patient))
+		{
+			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "tend",
+				HospitalServiceType.WoundTending);
+		}
+
+		if (!progress.CompletedPhases.Contains("relocate") && HasRelocatableFractures(patient))
+		{
+			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "relocate",
+				HospitalServiceType.BoneRelocation);
+		}
+
+		if (!progress.CompletedPhases.Contains("transfusion") &&
+		    patient.Body.TotalBloodVolumeLitres > 0.0 &&
 		    patient.Body.CurrentBloodVolumeLitres < patient.Body.TotalBloodVolumeLitres)
 		{
 			var transfusion = PerformBloodTransfusion(context, employee, patient, request);
 			if (transfusion.Success)
 			{
-				resources.Add(transfusion.Resource);
-				summaries.Add("blood volume restored");
-				charges.Add(new UsageCharge(HospitalServiceType.BloodTransfusion, 1));
+				progress.CompletedPhases.Add("transfusion");
+				progress.AddCharge(HospitalServiceType.BloodTransfusion);
 			}
 		}
 
-		if (!summaries.Any())
+		if (!progress.CompletedPhases.Any())
 		{
 			return new ServiceExecutionResult(false,
 				$"{patient.HowSeen(employee, true)} has no visible wounds, fractures or blood loss that this service can treat.",
-				string.Empty);
+				string.Empty,
+				Progress: progress);
 		}
 
-		return new ServiceExecutionResult(true,
-			$"{employee.HowSeen(employee, true)} completed full treatment for {patient.HowSeen(employee)}: {summaries.ListToString()}.",
-			string.Join(';', resources.Where(x => !string.IsNullOrWhiteSpace(x))),
-			UsageCharges: charges);
+		return CompleteCommandRoutedService(employee, patient, hospital, request, progress);
 	}
 
-	private static int RepeatTreatment(Func<ServiceExecutionResult> action, List<string> resources, int maximumAttempts = 50)
+	private static ServiceExecutionResult TryStartTreatmentPhase(ICharacter employee, ICharacter patient,
+		IHospital hospital, IHospitalServiceRequest request, HospitalTreatmentProgress progress, string phase,
+		HospitalServiceType usageServiceType)
 	{
-		var count = 0;
-		for (var i = 0; i < maximumAttempts; i++)
+		if (!string.IsNullOrWhiteSpace(progress.ActivePhase))
 		{
-			var result = action();
-			if (!result.Success)
+			if (HasActiveCommandPhase(employee, patient, progress.ActivePhase))
 			{
-				break;
+				return new ServiceExecutionResult(true,
+					$"{employee.HowSeen(employee, true)} is still performing {DescribePhase(progress.ActivePhase)} for {patient.HowSeen(employee)}.",
+					progress.ActivePhase, false, Progress: progress);
 			}
 
-			count++;
-			if (!string.IsNullOrWhiteSpace(result.Resource))
-			{
-				resources.Add(result.Resource);
-			}
+			progress.CompleteActivePhase(UsageServiceTypeForPhase(progress.ActivePhase));
 		}
 
-		return count;
+		var expectedCount = ExpectedTreatmentCount(employee, patient, phase);
+		if (expectedCount <= 0)
+		{
+			return new ServiceExecutionResult(false, NoValidTreatmentMessage(employee, patient, usageServiceType),
+				string.Empty, Progress: progress);
+		}
+
+		if (!TryBuildTreatmentCommand(employee, patient, phase, out var command, out var reason))
+		{
+			return new ServiceExecutionResult(false, reason, string.Empty, Progress: progress);
+		}
+
+		EnsureHospitalTreatmentPermission(patient, employee, request);
+		var existingEffects = ActivePhaseEffects(employee, patient, phase).ToHashSet();
+		if (!employee.CommandTree.Commands.Execute(employee, command, employee.State, employee.PermissionLevel,
+			    employee.OutputHandler))
+		{
+			return new ServiceExecutionResult(false,
+				$"{employee.HowSeen(employee, true)} could not start {DescribePhase(phase)} for {patient.HowSeen(employee)}.",
+				string.Empty,
+				Progress: progress);
+		}
+
+		if (!ActivePhaseEffects(employee, patient, phase).Any(x => !existingEffects.Contains(x)))
+		{
+			return new ServiceExecutionResult(false,
+				$"{employee.HowSeen(employee, true)} could not start {DescribePhase(phase)} for {patient.HowSeen(employee)}.",
+				string.Empty,
+				Progress: progress);
+		}
+
+		progress.ActivePhase = phase;
+		progress.ActiveExpectedCount = expectedCount;
+		return new ServiceExecutionResult(true,
+			$"{employee.HowSeen(employee, true)} began {DescribePhase(phase)} for {patient.HowSeen(employee)}.",
+			phase,
+			false,
+			Progress: progress);
 	}
 
-	private static void AddTreatmentSummary(ICollection<string> summaries, string singular, int count, string verb)
+	private static ServiceExecutionResult CompleteCommandRoutedService(ICharacter employee, ICharacter patient,
+		IHospital hospital, IHospitalServiceRequest request, HospitalTreatmentProgress progress)
 	{
-		if (count <= 0)
+		var summaries = progress.Charges
+		                        .Where(x => x.Value > 0)
+		                        .Select(x => HospitalServiceBilling.DescribeUsageLine(hospital, x.Key, x.Value, employee).StripANSIColour())
+		                        .ToList();
+		var summary = summaries.Any()
+			? summaries.ListToString()
+			: progress.CompletedPhases.Select(DescribePhase).ListToString();
+		return new ServiceExecutionResult(true,
+			$"{employee.HowSeen(employee, true)} completed {request.Service.Name.ColourName()} for {patient.HowSeen(employee)}: {summary}.",
+			string.Join(';', progress.CompletedPhases),
+			UsageCharges: progress.UsageCharges,
+			Progress: progress);
+	}
+
+	private static bool CompleteFinishedCommandPhase(ICharacter employee, ICharacter patient,
+		HospitalTreatmentProgress progress)
+	{
+		if (string.IsNullOrWhiteSpace(progress.ActivePhase))
+		{
+			return false;
+		}
+
+		if (HasActiveCommandPhase(employee, patient, progress.ActivePhase))
+		{
+			return false;
+		}
+
+		progress.CompleteActivePhase(UsageServiceTypeForPhase(progress.ActivePhase));
+		return true;
+	}
+
+	private static bool HasActiveCommandPhase(ICharacter employee, ICharacter patient, string phase)
+	{
+		return ActivePhaseEffects(employee, patient, phase).Any();
+	}
+
+	private static IEnumerable<Effect> ActivePhaseEffects(ICharacter employee, ICharacter patient, string phase)
+	{
+		return phase.ToLowerInvariant() switch
+		{
+			"bind" => employee.EffectsOfType<Binding>()
+			                  .Where(x => SameHospitalPatient(x.TargetCharacter, patient))
+			                  .Cast<Effect>(),
+			"suture" => employee.EffectsOfType<Suturing>()
+			                    .Where(x => SameHospitalPatient(x.TargetCharacter, patient))
+			                    .Cast<Effect>(),
+			"clean" => employee.EffectsOfType<CleaningWounds>()
+			                  .Where(x => SameHospitalPatient(x.TargetCharacter, patient))
+			                  .Cast<Effect>(),
+			"tend" => employee.EffectsOfType<TendingWounds>()
+			                 .Where(x => SameHospitalPatient(x.TargetCharacter, patient))
+			                 .Cast<Effect>(),
+			"relocate" => employee.EffectsOfType<RelocatingBone>()
+			                     .Where(x => SameHospitalPatient(x.TargetCharacter, patient))
+			                     .Cast<Effect>(),
+			_ => []
+		};
+	}
+
+	private static void EnsureHospitalTreatmentPermission(ICharacter patient, ICharacter employee,
+		IHospitalServiceRequest request)
+	{
+		if (patient.EffectsOfType<HospitalTreatmentPermissionEffect>()
+		           .Any(x => CharacterInstanceIdentityComparer.SamePhysicalInstance(x.Medic, employee) &&
+		                     x.RequestId == request.Id))
 		{
 			return;
 		}
 
-		summaries.Add($"{count.ToString("N0", CultureInfo.InvariantCulture)} {singular}{(count == 1 ? string.Empty : "s")} {verb}");
+		patient.AddEffect(new HospitalTreatmentPermissionEffect(patient, employee, request), TimeSpan.FromMinutes(30));
 	}
 
-	private static void AddUsageCharge(ICollection<UsageCharge> charges, HospitalServiceType serviceType, int count)
+	private static bool TryBuildTreatmentCommand(ICharacter employee, ICharacter patient, string phase,
+		out string command, out string reason)
 	{
-		if (count > 0)
+		command = string.Empty;
+		reason = string.Empty;
+		if (!TryPatientCommandSelector(employee, patient, out var selector))
 		{
-			charges.Add(new UsageCharge(serviceType, count));
+			reason = $"{patient.HowSeen(employee, true)} is not visible to {employee.HowSeen(employee)} for treatment.";
+			return false;
 		}
+
+		command = phase.ToLowerInvariant() switch
+		{
+			"bind" => $"bind {selector}",
+			"suture" => $"suture {selector}",
+			"clean" => $"cleanwounds {selector}",
+			"tend" => $"tend {selector}",
+			"relocate" when RelocationBodypartToken(patient) is { } bodypart => $"relocate {selector} \"{bodypart}\"",
+			"relocate" => string.Empty,
+			_ => string.Empty
+		};
+
+		if (!string.IsNullOrWhiteSpace(command))
+		{
+			return true;
+		}
+
+		reason = phase.EqualTo("relocate")
+			? $"{patient.HowSeen(employee, true)} has no visible fracture that can be relocated."
+			: $"Unsupported hospital treatment phase {phase}.";
+		return false;
+	}
+
+	private static bool TryPatientCommandSelector(ICharacter employee, ICharacter patient, out string selector)
+	{
+		selector = "me";
+		if (CharacterInstanceIdentityComparer.SamePhysicalInstance(employee, patient))
+		{
+			return true;
+		}
+
+		var candidates = employee.Location?.LayerCharacters(employee.RoomLayer)
+		                         .Except(employee)
+		                         .Where(x => employee.CanSee(x))
+		                         .ToList() ?? [];
+		var index = candidates.FindIndex(x => SameHospitalPatient(x, patient));
+		if (index < 0)
+		{
+			return false;
+		}
+
+		selector = $"#{(index + 1).ToString("N0", CultureInfo.InvariantCulture)}";
+		return true;
+	}
+
+	private static bool SameHospitalPatient(ICharacter? candidate, ICharacter patient)
+	{
+		return candidate is not null &&
+		       (CharacterInstanceIdentityComparer.SamePhysicalInstance(candidate, patient) ||
+		        CharacterInstanceIdentityComparer.SameIdentity(candidate, patient));
+	}
+
+	private static string? RelocationBodypartToken(ICharacter patient)
+	{
+		return patient.Wounds
+		              .OfType<BoneFracture>()
+		              .Where(x => x.CanBeTreated(TreatmentType.Relocation) != Difficulty.Impossible)
+		              .OrderByDescending(x => x.Severity)
+		              .ThenBy(x => x.CanBeTreated(TreatmentType.Relocation))
+		              .Select(x => x.Bone.Name)
+		              .FirstOrDefault();
+	}
+
+	private static HospitalServiceType UsageServiceTypeForPhase(string? phase)
+	{
+		return phase?.ToLowerInvariant() switch
+		{
+			"bind" => HospitalServiceType.Binding,
+			"suture" => HospitalServiceType.WoundClosing,
+			"clean" => HospitalServiceType.WoundCleaning,
+			"tend" => HospitalServiceType.WoundTending,
+			"relocate" => HospitalServiceType.BoneRelocation,
+			"transfusion" => HospitalServiceType.BloodTransfusion,
+			_ => HospitalServiceType.FullTreatment
+		};
+	}
+
+	private static int ExpectedTreatmentCount(ICharacter employee, ICharacter patient, string phase)
+	{
+		return phase.ToLowerInvariant() switch
+		{
+			"bind" => patient.VisibleWounds(employee, WoundExaminationType.Examination)
+			                 .Count(x => x.BleedStatus == BleedStatus.Bleeding &&
+			                             x.CanBeTreated(TreatmentType.Trauma) != Difficulty.Impossible),
+			"suture" => patient.VisibleWounds(employee, WoundExaminationType.Examination)
+			                   .Count(x => x.BleedStatus == BleedStatus.TraumaControlled &&
+			                               x.CanBeTreated(TreatmentType.Close) != Difficulty.Impossible),
+			"clean" => patient.VisibleWounds(employee, WoundExaminationType.Examination)
+			                 .Sum(x => (x.CanBeTreated(TreatmentType.Clean) != Difficulty.Impossible ? 1 : 0) +
+			                           (x.CanBeTreated(TreatmentType.Antiseptic) != Difficulty.Impossible ? 1 : 0)),
+			"tend" => patient.VisibleWounds(employee, WoundExaminationType.Examination)
+			                .Sum(x => (x.CanBeTreated(TreatmentType.Tend) != Difficulty.Impossible ? 1 : 0) +
+			                          (x.CanBeTreated(TreatmentType.AntiInflammatory) != Difficulty.Impossible ? 1 : 0)),
+			"relocate" => HasRelocatableFractures(patient) ? 1 : 0,
+			_ => 0
+		};
+	}
+
+	private static bool HasBindableWounds(ICharacter employee, ICharacter patient)
+	{
+		return ExpectedTreatmentCount(employee, patient, "bind") > 0;
+	}
+
+	private static bool HasSuturableWounds(ICharacter employee, ICharacter patient)
+	{
+		return ExpectedTreatmentCount(employee, patient, "suture") > 0;
+	}
+
+	private static bool HasCleanableWounds(ICharacter employee, ICharacter patient)
+	{
+		return CleaningWounds.PeekCanClean(employee, patient, WoundSeverity.None, true).Success ||
+		       CleaningWounds.PeekCanClean(employee, patient, WoundSeverity.None, false).Success;
+	}
+
+	private static bool HasTendableWounds(ICharacter employee, ICharacter patient)
+	{
+		return ExpectedTreatmentCount(employee, patient, "tend") > 0;
+	}
+
+	private static bool HasRelocatableFractures(ICharacter patient)
+	{
+		return patient.Wounds
+		              .OfType<BoneFracture>()
+		              .Any(x => x.CanBeTreated(TreatmentType.Relocation) != Difficulty.Impossible);
+	}
+
+	private static string DescribePhase(string? phase)
+	{
+		return phase?.ToLowerInvariant() switch
+		{
+			"bind" => "binding bleeding wounds",
+			"suture" => "suturing traumatic wounds",
+			"clean" => "cleaning wounds",
+			"tend" => "tending wounds",
+			"relocate" => "relocating fractures",
+			"transfusion" => "blood transfusion",
+			_ => "hospital treatment"
+		};
+	}
+
+	private static string NoValidTreatmentMessage(ICharacter employee, ICharacter patient, HospitalServiceType serviceType)
+	{
+		return serviceType switch
+		{
+			HospitalServiceType.Binding =>
+				$"{patient.HowSeen(employee, true)} has no visible bleeding wounds that can be bound.",
+			HospitalServiceType.WoundClosing =>
+				$"{patient.HowSeen(employee, true)} has no visible traumatic wounds that can be sutured.",
+			HospitalServiceType.WoundCleaning =>
+				$"{patient.HowSeen(employee, true)} has no visible wounds that can benefit from cleaning.",
+			HospitalServiceType.WoundTending =>
+				$"{patient.HowSeen(employee, true)} has no visible wounds that can benefit from tending or anti-inflammatory care.",
+			HospitalServiceType.BoneRelocation =>
+				$"{patient.HowSeen(employee, true)} has no visible fractures that can be relocated.",
+			_ => $"{patient.HowSeen(employee, true)} has no visible injuries that this hospital service can treat."
+		};
 	}
 
 	private static ServiceExecutionResult BeginSurgicalProcedure(IEmploymentTaskContext context, ICharacter employee,
@@ -1462,6 +1913,30 @@ public static class HospitalMedicalServiceRunner
 		               .SelectNotNull(x => x!.GetItemType<ITreatment>())
 		               .Where(x => x.IsTreatmentType(treatment))
 		               .FirstMin(x => x.GetTreatmentDifficulty(difficulty));
+	}
+
+	private static string? CurrentOperationalPayload(IEmploymentTaskContext context)
+	{
+		return context is EmploymentTaskContext concrete && concrete.CurrentTask is not null
+			? concrete.CurrentTask.StepOperationalStates.ElementAtOrDefault(concrete.CurrentStepIndex)?.OperationalPayload
+			: null;
+	}
+
+	private static Dictionary<string, string> ParsePayload(string payload)
+	{
+		var result = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+		foreach (var part in payload.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+		{
+			var split = part.Split('=', 2, StringSplitOptions.TrimEntries);
+			if (split.Length != 2)
+			{
+				continue;
+			}
+
+			result[split[0]] = split[1];
+		}
+
+		return result;
 	}
 
 	private static void FailRequest(IHospitalServiceRequest request, string reason)

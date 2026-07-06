@@ -590,6 +590,8 @@ public partial class Cell
                 .ColourIncludingReset(Telnet.Yellow));
         }
 
+        AppendHospitalLobbyRoomDescriptionAddenda(descSubSB, character, ref addedAdditionalLines);
+
         if (Gameworld.EconomicZones.Any(x => x.ConveyancingCells.Contains(this)) &&
             Gameworld.GetStaticBool("ShowShopInRoomDescription"))
         {
@@ -695,6 +697,43 @@ public partial class Cell
 
             descSubSB.AppendLine(addendum);
         }
+    }
+
+    private void AppendHospitalLobbyRoomDescriptionAddenda(StringBuilder descSubSB, ICharacter character,
+        ref bool addedAdditionalLines)
+    {
+        if (!Gameworld.GetStaticBool("ShowShopInRoomDescription"))
+        {
+            return;
+        }
+
+        foreach (string addendum in HospitalLobbyRoomDescriptionAddenda(Gameworld.Hospitals, this))
+        {
+            if (!addedAdditionalLines)
+            {
+                addedAdditionalLines = true;
+                descSubSB.AppendLine();
+            }
+
+            if (character?.Account.TabRoomDescriptions == true)
+            {
+                descSubSB.Append("\t");
+            }
+
+            descSubSB.AppendLine(addendum);
+        }
+    }
+
+    internal static IEnumerable<string> HospitalLobbyRoomDescriptionAddenda(IEnumerable<IHospital> hospitals, ICell cell)
+    {
+        if (hospitals is null || !hospitals.Any(x => x.HasLocationRole(cell, HospitalLocationRole.WaitingRoom)))
+        {
+            yield break;
+        }
+
+        yield return
+            "You are in a hospital. You can use the HOSPITAL SERVICES command here to procure services."
+                .ColourIncludingReset(Telnet.Yellow);
     }
 
     internal static IEnumerable<string> LegalSurrenderRoomDescriptionAddenda(ICharacter character, ICell cell)

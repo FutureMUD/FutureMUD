@@ -36,7 +36,8 @@ public enum EmploymentTaskConditionType
 	TaxOwing,
 	MarketPrice,
 	PayrollLiability,
-	StaffingLevel
+	StaffingLevel,
+	HospitalSupplyStock
 }
 
 public enum EmploymentScheduledRuleStatus
@@ -766,7 +767,9 @@ public enum ManagerGoalType
 	MaintainMaximumPhysicalCashFloat,
 	KeepEmploymentPayrollCurrent,
 	MaintainMinimumBusinessFunds,
-	MaintainMaximumBusinessFunds
+	MaintainMaximumBusinessFunds,
+	MaintainHospitalConsumableStock,
+	MaintainHospitalReusableEquipmentStock
 }
 
 public enum ManagerGoalStatus

@@ -107,6 +107,30 @@ public static class EmploymentManagerGoalCatalog
 				"goals step getid|gettag|commodity ... from <here|cell ids...>",
 				"goals step deliver to <here|cell id>"),
 			Aliases("materials", "supplies", "buymaterials", "retrievematerials")),
+		Definition("hospitalconsumables", EmploymentManagerGoalCategory.Stock,
+			ManagerGoalType.MaintainHospitalConsumableStock,
+			"goals draft new hospitalconsumables <description>",
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageDeliveryRoutes,
+			"Maintains hospital supply-room consumables required by active services by purchasing deficits for a configured number of procedure repeats.",
+			Examples(
+				"goals condition hospitalstock consumables 30 [from <shop|any>] [max <amount>]"),
+			Examples(
+				"Generated automatically from active service consumable requirements"),
+			Aliases("medicalconsumables", "hospitalstock", "medstock", "procedurestock")),
+		Definition("hospitaltools", EmploymentManagerGoalCategory.Stock,
+			ManagerGoalType.MaintainHospitalReusableEquipmentStock,
+			"goals draft new hospitaltools <description>",
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageDeliveryRoutes,
+			"Maintains reusable hospital tools for configured service repeats, counting supply-room stock, theatre stock, and tools carried by medical staff.",
+			Examples(
+				"goals condition hospitalstock tools 5 [from <shop|any>] [max <amount>]"),
+			Examples(
+				"Generated automatically from active service reusable-tool requirements"),
+			Aliases("medicaltools", "hospitalreusables", "proceduretools")),
 		Definition("payroll", EmploymentManagerGoalCategory.Finance,
 			ManagerGoalType.KeepEmploymentPayrollCurrent,
 			"goals draft new payroll <description>",

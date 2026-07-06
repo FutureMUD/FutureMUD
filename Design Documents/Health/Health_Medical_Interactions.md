@@ -87,7 +87,7 @@ Blood donation and transfusion services use the ordinary blood and liquid-contai
 
 Hospital requests can target a visible patient brought to the hospital. Conscious third-party patients are asked to accept treatment, while unconscious or helpless patients are presumed to consent for emergency care. Payment, prepaid credit, usage billing, and medical debt payoff are handled by the economy-side hospital records; the resulting clinical action still flows through the ordinary health system. Services that require recovery can route helpless patients to a recovery room and conscious patients back to the waiting room after completion.
 
-Managers and proprietors use `hospital operations` as the live clinical status view for this flow. It ties room roles, theatre reservations, active service requests, assigned employment tasks, current task steps, patient locations, blocker diagnostics, and task-recorded resource reservations into a single hospital command output.
+Managers and proprietors use `hospital operations` as the live clinical status view for this flow. It ties room roles, theatre reservations, active service requests, assigned employment tasks, current task steps, patient locations, blocker diagnostics, and task-recorded resource reservations into a single hospital command output. Long operational views such as services, requests, ledger entries, and operations are presented as multi-line record blocks so clinical text, patient names, resource reservations, and diagnostics do not depend on very wide terminal tables.
 
 ## Surgical Procedures
 ### Runtime model

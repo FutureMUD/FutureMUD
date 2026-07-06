@@ -762,6 +762,10 @@ The manager monitors supported host cash, bank, or available-funds balances thro
 
 The manager reviews purchase costs, market prices, sales velocity, and configured margin targets. In the current implementation, `pricemargin` can create executable `price` action steps that set exact shop merchandise base prices and native `sale` action steps that create, modify, or cancel shop-owned `ShopDeal` sale or volume deals. Employment automation must not create or modify `MarketInfluence` rows; regional market policy remains a separate privileged market/government workflow rather than a shop employee action.
 
+### Maintain hospital procedure supplies
+
+The manager monitors active hospital service equipment requirements through `hospitalstock` conditions and creates generated purchase/delivery work when configured procedure-repeat targets are below stock. `hospitalconsumables` maintains consumable supply-room stock only. `hospitaltools` maintains reusable tools and counts matching items in supply rooms, operating theatres, and active medical staff inventories as available. These goals are native generated-plan goals: they carry conditions and policy, but the purchase, authorise, reserve, and delivery steps are produced at evaluation time from current service definitions and inventory.
+
 ### Maintain staffing levels
 
 The manager monitors active contracts, open positions, or combined coverage for configured roles. In the current hybrid implementation, `staffing` can create executable `jobopening` action steps to create, close, or modify openings through the same `JobOpeningDefinition` model used by normal employment host state.

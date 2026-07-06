@@ -56,7 +56,7 @@ Hospital managers and proprietors standing in the hospital can use #3hospital he
 	#3hospital maxdebt <amount>#0 - sets the default debt ceiling for new patients
 	#3hospital room add|remove <waiting|theatre|supply|recovery|staff> [here|<direction>|<#>]#0 - flags hospital rooms
 	#3hospital service add <type> <price> <name>#0 - creates a service
-	#3hospital service set <service> price|active|debt|theatre|recovery|blood|equipment|procedure|implant|implantpower|implantinterface|anesthesia|cannulation|parameters|name|desc <value>#0 - edits a service
+	#3hospital service set <service> price|active|debt|theatre|recovery|blood|equipment|procedure|implant|implantpower|implantinterface|anesthesia|cannulation|parameters|name|desc <value>#0 - edits a service; equipment add accepts optional consumable|reusable after quantity
 	#3hospital bloodstock [show|set|clear] ...#0 - manages blood type target stock and donor prices
 	#3hospital deposit <amount>#0 - deposits held cash into the hospital's virtual cash balance
 	#3hospital withdraw <amount>#0 - withdraws cash from the hospital's virtual cash balance
@@ -285,20 +285,28 @@ Administrators can also use:
 			return;
 		}
 
-		actor.OutputHandler.Send(StringUtilities.GetTextTable(
-			services.Select(x => new List<string>
-			{
-				x.Id.ToString("N0", actor),
-				x.Name,
-				x.ServiceType.DescribeEnum(),
-				HospitalServiceBilling.DescribePrice(hospital, x, actor),
-				x.AllowDebt.ToColouredString(),
-				HospitalServiceAvailability.Evaluate(hospital, x, actor).DescribeColoured()
-			}),
-			new List<string> { "Id", "Service", "Type", "Price", "Debt", "Status" },
-			actor,
-			Telnet.Green,
-			2));
+		var sb = new StringBuilder();
+		sb.AppendLine($"Hospital Services - {hospital.Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		foreach (var service in services)
+		{
+			AppendHospitalBlock(sb, actor, $"Service #{service.Id.ToString("N0", actor)} - {service.Name}",
+				("Type", service.ServiceType.DescribeEnum().ColourName()),
+				("Price", HospitalServiceBilling.DescribePrice(hospital, service, actor).ColourValue()),
+				("Debt", service.AllowDebt.ToColouredString()),
+				("Status", HospitalServiceAvailability.Evaluate(hospital, service, actor).DescribeColoured()));
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void AppendHospitalBlock(StringBuilder sb, ICharacter actor, string title,
+		params (string Heading, string Content)[] fields)
+	{
+		sb.AppendLine(title.GetLineWithTitleInner(actor, Telnet.Green, Telnet.BoldWhite));
+		foreach (var (heading, content) in fields)
+		{
+			sb.AppendLine($"\t{heading.ColourName()}: {(string.IsNullOrWhiteSpace(content) ? "none".ColourValue() : content)}");
+		}
 	}
 
 	private static void HospitalServiceCommand(ICharacter actor, StringStack ss)
@@ -570,17 +578,31 @@ Administrators can also use:
 					return;
 				}
 
+				var itemType = HospitalServiceSupplyItemType.ReusableTool;
+				if (!ss.IsFinished && TryParseHospitalServiceSupplyItemType(ss.PeekSpeech(), out var parsedItemType))
+				{
+					ss.PopSpeech();
+					itemType = parsedItemType;
+				}
+
 				if (!EmploymentTaskAuthoringService.TryParseItemSelector(actor, ss, "hospital service equipment", out var selector, out var message) || selector is null)
 				{
 					actor.OutputHandler.Send(message);
 					return;
 				}
 
-				service.AddRequiredEquipment(new HospitalServiceEquipmentRequirement(quantity, selector));
-				actor.OutputHandler.Send($"{service.Name.ColourName()} now requires {quantity.ToString("N0", actor).ColourValue()}x {EmploymentItemSelectorResolver.Describe(selector).ColourCommand()} to be prepared.");
+				if (itemType == HospitalServiceSupplyItemType.Consumable &&
+				    !HospitalSupplyStockGoalPlanner.IsGenericStockSelector(selector))
+				{
+					actor.OutputHandler.Send("Consumable stock requirements must use a reusable selector such as a prototype id or tag rather than one specific live item.");
+					return;
+				}
+
+				service.AddRequiredEquipment(new HospitalServiceEquipmentRequirement(quantity, selector, itemType));
+				actor.OutputHandler.Send($"{service.Name.ColourName()} now requires {quantity.ToString("N0", actor).ColourValue()}x {EmploymentItemSelectorResolver.Describe(selector).ColourCommand()} as {itemType.DescribeEnum().ColourName()} to be prepared.");
 				return;
 			default:
-				actor.OutputHandler.Send("Hospital service equipment syntax is equipment show|clear|remove <#>|add <quantity> <prototype id|*item id|&tag|keyword>.");
+				actor.OutputHandler.Send("Hospital service equipment syntax is equipment show|clear|remove <#>|add <quantity> [consumable|reusable] <prototype id|*item id|&tag|keyword>.");
 				return;
 		}
 	}
@@ -593,18 +615,41 @@ Administrators can also use:
 			return;
 		}
 
-		actor.OutputHandler.Send(StringUtilities.GetTextTable(
-			service.RequiredEquipment.Select((x, i) => new List<string>
-			{
-				(i + 1).ToString("N0", actor),
-				x.Quantity.ToString("N0", actor),
-				EmploymentItemSelectorResolver.Describe(x.Selector)
-			}),
-			new List<string> { "#", "Qty", "Selector" },
-			actor,
-			Telnet.Green,
-			2));
+		var sb = new StringBuilder();
+		sb.AppendLine($"{service.Name.TitleCase()} Required Supplies".GetLineWithTitleInner(actor, Telnet.Green, Telnet.BoldWhite));
+		for (var i = 0; i < service.RequiredEquipment.Count; i++)
+		{
+			var requirement = service.RequiredEquipment[i];
+			sb.AppendLine($"Requirement #{(i + 1).ToString("N0", actor)}".GetLineWithTitleInner(actor, Telnet.Green, Telnet.BoldWhite));
+			sb.AppendLine($"Quantity: {requirement.Quantity.ToString("N0", actor).ColourValue()}");
+			sb.AppendLine($"Type: {requirement.ItemType.DescribeEnum().ColourName()}");
+			sb.AppendLine($"Selector: {EmploymentItemSelectorResolver.Describe(requirement.Selector).ColourCommand()}");
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
 	}
+
+	private static bool TryParseHospitalServiceSupplyItemType(string text, out HospitalServiceSupplyItemType itemType)
+	{
+		switch (text.CollapseString().ToLowerInvariant())
+		{
+			case "consumable":
+			case "consumables":
+			case "disposable":
+			case "disposables":
+				itemType = HospitalServiceSupplyItemType.Consumable;
+				return true;
+			case "reusable":
+			case "reusables":
+			case "reuse":
+				itemType = HospitalServiceSupplyItemType.ReusableTool;
+				return true;
+			default:
+				itemType = HospitalServiceSupplyItemType.ReusableTool;
+				return false;
+		}
+	}
+
 	private static void HospitalServiceSetProcedure(ICharacter actor, IHospitalService service, StringStack ss)
 	{
 		if (ss.IsFinished || ss.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
@@ -1104,21 +1149,21 @@ Administrators can also use:
 			return;
 		}
 
-		actor.OutputHandler.Send(StringUtilities.GetTextTable(
-			entries.Select(x => new List<string>
-			{
-				x.RealDateTime.ToString("g", actor),
-				x.ActorName ?? string.Empty,
-				hospital.Currency.Describe(x.Amount, CurrencyDescriptionPatternType.ShortDecimal),
-				hospital.Currency.Describe(x.BalanceAfter, CurrencyDescriptionPatternType.ShortDecimal),
-				$"{x.SourceKind}->{x.DestinationKind}",
-				x.Reason
-			}),
-			new List<string> { "When", "Actor", "Amount", "Balance", "Route", "Reason" },
-			actor.LineFormatLength,
-			colour: Telnet.Green,
-			unicodeTable: actor.Account.UseUnicode));
+		var sb = new StringBuilder();
+		sb.AppendLine($"Hospital Cash Ledger - {hospital.Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		foreach (var entry in entries)
+		{
+			AppendHospitalBlock(sb, actor, entry.RealDateTime.ToString("g", actor),
+				("Actor", entry.ActorName ?? string.Empty),
+				("Amount", hospital.Currency.Describe(entry.Amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()),
+				("Balance", hospital.Currency.Describe(entry.BalanceAfter, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()),
+				("Route", $"{entry.SourceKind}->{entry.DestinationKind}".ColourCommand()),
+				("Reason", entry.Reason));
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
 	}
+
 	private sealed class HospitalPaymentSelection
 	{
 		public HospitalPaymentMethod Method { get; set; }
@@ -1661,20 +1706,19 @@ Administrators can also use:
 			return;
 		}
 
-		actor.OutputHandler.Send(StringUtilities.GetTextTable(
-			requests.Select(x => new List<string>
-			{
-				x.Id.ToString("N0", actor),
-				x.PatientName,
-				x.Service.Name,
-				x.Status.DescribeEnum(),
-				hospital.Currency.Describe(x.Price, CurrencyDescriptionPatternType.ShortDecimal),
-				x.CreatedAt.ToString("g", actor)
-			}),
-			new List<string> { "Id", "Patient", "Service", "Status", "Price", "Created" },
-			actor,
-			Telnet.Green,
-			2));
+		var sb = new StringBuilder();
+		sb.AppendLine($"Hospital Requests - {hospital.Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		foreach (var request in requests)
+		{
+			AppendHospitalBlock(sb, actor, $"Request #{request.Id.ToString("N0", actor)}",
+				("Patient", request.PatientName.ColourName()),
+				("Service", request.Service.Name.ColourName()),
+				("Status", request.Status.DescribeEnum().ColourName()),
+				("Price", hospital.Currency.Describe(request.Price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()),
+				("Created", request.CreatedAt.ToString("g", actor).ColourValue()));
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static void HospitalOperations(ICharacter actor)
@@ -1698,93 +1742,70 @@ Administrators can also use:
 		            .ToList();
 
 		var sb = new StringBuilder();
-		sb.AppendLine($"Hospital Operations - {hospital.Name.ColourName()}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Hospital Operations - {hospital.Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine($"Open: {hospital.IsTrading.ToColouredString()} | Active Requests: {requests.Count.ToString("N0", actor).ColourValue()} | Active Tasks: {activeTasks.Count.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine();
-		sb.AppendLine("Operating Theatres:");
+		sb.AppendLine("Operating Theatres".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		if (!theatres.Any())
 		{
 			sb.AppendLine("\tNone configured.".ColourError());
 		}
 		else
 		{
-			sb.AppendLine(StringUtilities.GetTextTable(
-				theatres.Select(theatre =>
-				{
-					var theatreRequests = requests
-					                      .Where(x => x.OperatingTheatreCellId == theatre.Id)
-					                      .OrderBy(x => x.Id)
-					                      .ToList();
-					return new List<string>
-					{
-						theatre.GetFriendlyReference(actor),
-						DescribeHospitalTheatreState(hospital, theatre, theatreRequests),
-						DescribeHospitalTheatreRequests(actor, hospital, theatreRequests),
-						DescribeHospitalTheatrePatients(actor, hospital, theatre, theatreRequests),
-						DescribeHospitalTheatreStaff(actor, hospital, theatre, theatreRequests),
-						DescribeHospitalTheatreAction(actor, hospital, theatreRequests),
-						DescribeHospitalTheatreIssues(actor, hospital, theatre, theatreRequests)
-					};
-				}),
-				new List<string> { "Theatre", "State", "Requests", "Patients", "Staff", "Action", "Issues" },
-				actor,
-				Telnet.Green,
-				2));
+			foreach (var theatre in theatres)
+			{
+				var theatreRequests = requests
+				                      .Where(x => x.OperatingTheatreCellId == theatre.Id)
+				                      .OrderBy(x => x.Id)
+				                      .ToList();
+				AppendHospitalBlock(sb, actor, $"Theatre - {theatre.GetFriendlyReference(actor)}",
+					("State", DescribeHospitalTheatreState(hospital, theatre, theatreRequests)),
+					("Requests", DescribeHospitalTheatreRequests(actor, hospital, theatreRequests)),
+					("Patients", DescribeHospitalTheatrePatients(actor, hospital, theatre, theatreRequests)),
+					("Staff", DescribeHospitalTheatreStaff(actor, hospital, theatre, theatreRequests)),
+					("Action", DescribeHospitalTheatreAction(actor, hospital, theatreRequests)),
+					("Issues", DescribeHospitalTheatreIssues(actor, hospital, theatre, theatreRequests)));
+			}
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Other Hospital Rooms:");
+		sb.AppendLine("Other Hospital Rooms".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		if (!rooms.Any())
 		{
 			sb.AppendLine("\tNone configured.".ColourError());
 		}
 		else
 		{
-			sb.AppendLine(StringUtilities.GetTextTable(
-				rooms.Select(room => new List<string>
-				{
-					room.GetFriendlyReference(actor),
-					DescribeHospitalRoomRoles(hospital, room),
-					DescribeHospitalRoomStaff(actor, hospital, room),
-					DescribeHospitalRoomPatients(actor, requests, room),
-					DescribeHospitalRoomInventory(actor, room)
-				}),
-				new List<string> { "Room", "Roles", "Staff", "Patients/Requests", "Inventory" },
-				actor,
-				Telnet.Green,
-				2));
+			foreach (var room in rooms)
+			{
+				AppendHospitalBlock(sb, actor, $"Room - {room.GetFriendlyReference(actor)}",
+					("Roles", DescribeHospitalRoomRoles(hospital, room)),
+					("Staff", DescribeHospitalRoomStaff(actor, hospital, room)),
+					("Patients/Requests", DescribeHospitalRoomPatients(actor, requests, room)),
+					("Inventory", DescribeHospitalRoomInventory(actor, room)));
+			}
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Active Procedures:");
+		sb.AppendLine("Active Procedures".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		if (!requests.Any())
 		{
 			sb.AppendLine("\tNone.".ColourValue());
 		}
 		else
 		{
-			sb.AppendLine(StringUtilities.GetTextTable(
-				requests.OrderBy(x => x.CreatedAt)
-				        .Select(request =>
-				        {
-					        var task = HospitalTaskForRequest(hospital, request);
-					        return new List<string>
-					        {
-						        $"#{request.Id.ToString("N0", actor)}",
-						        request.Service.Name,
-						        request.Status.DescribeEnum(),
-						        DescribeHospitalRequestPatient(actor, request),
-						        DescribeHospitalRequestLocation(actor, hospital, request),
-						        DescribeHospitalTaskEmployee(actor, task, request),
-						        DescribeHospitalTaskAction(actor, task),
-						        DescribeHospitalTaskIssues(request, task),
-						        DescribeHospitalTaskResources(task)
-					        };
-				        }),
-				new List<string> { "Req", "Service", "Status", "Patient", "Location", "Staff", "Action", "Issues", "Reserved/Resources" },
-				actor,
-				Telnet.Green,
-				2));
+			foreach (var request in requests.OrderBy(x => x.CreatedAt))
+			{
+				var task = HospitalTaskForRequest(hospital, request);
+				AppendHospitalBlock(sb, actor, $"Request #{request.Id.ToString("N0", actor)} - {request.Service.Name}",
+					("Status", request.Status.DescribeEnum().ColourName()),
+					("Patient", DescribeHospitalRequestPatient(actor, request)),
+					("Location", DescribeHospitalRequestLocation(actor, hospital, request)),
+					("Staff", DescribeHospitalTaskEmployee(actor, task, request)),
+					("Action", DescribeHospitalTaskAction(actor, task)),
+					("Issues", DescribeHospitalTaskIssues(request, task)),
+					("Reserved/Resources", DescribeHospitalTaskResources(task)));
+			}
 		}
 
 		actor.OutputHandler.Send(sb.ToString());

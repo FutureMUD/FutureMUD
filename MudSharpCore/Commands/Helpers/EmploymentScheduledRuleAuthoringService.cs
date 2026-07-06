@@ -1016,6 +1016,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 			"item" => TryParseItem(actor, input, out condition, out message),
 			"commodity" => TryParseCommodityThreshold(actor, input, out condition, out message),
 			"stock" => TryParseStock(host, input, out condition, out message),
+			"hospitalstock" => TryParseHospitalStock(host, input, out condition, out message),
 			"account" => TryParseAccount(host, input, out condition, out message),
 			"shopaccount" => TryParseShopAccount(actor, input, out condition, out message),
 			"float" => TryParseFloat(actor, host, input, out condition, out message),
@@ -1038,6 +1039,8 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 				$"host time from {FormatClock(time.EarliestTime).ColourValue()} to {FormatClock(time.LatestTime).ColourValue()}",
 			StockThresholdCondition stock =>
 				$"stock {DescribeStockKey(stock.StockKey, host).ColourName()} {(stock.BelowThreshold ? "below" : "at least").ColourCommand()} {stock.Threshold.ToString("N0", actor).ColourValue()}",
+			HospitalSupplyStockCondition hospitalStock =>
+				HospitalSupplyStockCondition.Describe(hospitalStock, actor).ColourName(),
 			AccountBalanceCondition account =>
 				$"account {DescribeAccountKey(account.AccountKey).ColourName()} {(account.BelowThreshold ? "below" : "at least").ColourCommand()} {account.Threshold.ToString("N2", actor).ColourValue()}",
 			ItemThresholdCondition item =>
@@ -1352,6 +1355,104 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		}
 
 		condition = new StockThresholdCondition(key, threshold, below);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseHospitalStock(IEmploymentHost host, StringStack input,
+		out IEmploymentTaskCondition condition, out string message)
+	{
+		condition = null!;
+		if (host is not IHospital)
+		{
+			message = $"{host.EmploymentHostName.ColourName()} is not a hospital and cannot use hospital stock conditions.";
+			return false;
+		}
+
+		if (input.IsFinished || !TryParseHospitalStockItemType(input.PopSpeech(), out var itemType))
+		{
+			message = $"Hospital stock conditions use the syntax: {"tasks rule condition hospitalstock consumables|tools <procedure-count> [from <shop id|name|any>] [max <amount>]".ColourCommand()}";
+			return false;
+		}
+
+		if (input.IsFinished || !int.TryParse(input.PopSpeech(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var procedureCount) || procedureCount < 1)
+		{
+			message = "What positive number of procedure repeats should this hospital stock condition maintain?";
+			return false;
+		}
+
+		var supplierSelector = "any";
+		decimal? maximumLineAmount = null;
+		while (!input.IsFinished)
+		{
+			var option = input.PopSpeech().CollapseString().ToLowerInvariant();
+			switch (option)
+			{
+				case "from":
+				case "supplier":
+				case "shop":
+					var supplierTokens = PopTokensUntil(input, "max", "maximum", "limit", "cap").ToList();
+					if (!supplierTokens.Any())
+					{
+						message = "Which supplier shop, or any, should this hospital stock condition use?";
+						return false;
+					}
+
+					supplierSelector = string.Join(" ", supplierTokens).Trim();
+					break;
+				case "max":
+				case "maximum":
+				case "limit":
+				case "cap":
+					var amountText = input.SafeRemainingArgument.Trim();
+					if (!TryParseConditionMoney(host, amountText, out var amount, out message))
+					{
+						return false;
+					}
+
+					maximumLineAmount = amount;
+					ConsumeRemaining(input);
+					break;
+				default:
+					message = $"Unknown hospital stock option {option.ColourCommand()}. Use {"from".ColourCommand()} or {"max".ColourCommand()}.";
+					return false;
+			}
+		}
+
+		condition = new HospitalSupplyStockCondition(itemType, procedureCount,
+			string.IsNullOrWhiteSpace(supplierSelector) ? "any" : supplierSelector, maximumLineAmount);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseHospitalStockItemType(string text, out HospitalServiceSupplyItemType itemType)
+	{
+		itemType = text.CollapseString().ToLowerInvariant() switch
+		{
+			"consumable" or "consume" or "consumables" or "disposable" or "stock" => HospitalServiceSupplyItemType.Consumable,
+			"reusable" or "tool" or "tools" or "equipment" or "reuse" => HospitalServiceSupplyItemType.ReusableTool,
+			_ => HospitalServiceSupplyItemType.ReusableTool
+		};
+
+		return text.CollapseString().ToLowerInvariant().EqualToAny("consumable", "consume", "consumables", "disposable", "stock", "reusable", "tool", "tools", "equipment", "reuse");
+	}
+
+	private static bool TryParseConditionMoney(IEmploymentHost host, string text, out decimal amount, out string message)
+	{
+		amount = 0.0M;
+		var currency = EmploymentTaskAuthoringService.ResolveHostCurrency(host);
+		if (currency is null)
+		{
+			message = $"{host.EmploymentHostName.ColourName()} does not expose a currency for hospital stock purchase limits.";
+			return false;
+		}
+
+		if (string.IsNullOrWhiteSpace(text) || !currency.TryGetBaseCurrency(text, out amount) || amount <= 0.0M)
+		{
+			message = $"Hospital stock max amounts use a positive amount in {currency.Name.ColourName()}.";
+			return false;
+		}
+
 		message = string.Empty;
 		return true;
 	}

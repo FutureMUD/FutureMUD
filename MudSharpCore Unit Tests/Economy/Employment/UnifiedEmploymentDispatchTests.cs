@@ -3882,6 +3882,188 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void ManagerGoals_HospitalConsumablesSpawnPurchaseTaskForServiceDeficits()
+	{
+		var currency = Currency();
+		var manager = Character(931, "Hospital Manager").Object;
+		var supplyItems = new List<IGameItem>
+		{
+			Item(9301, "bandage roll", prototypeId: 500).Object
+		};
+		var supplyRoom = PhysicalCell(9300, "clinic stockroom", supplyItems).Object;
+		var (hospital, state) = HospitalEmploymentHost(930, "central clinic", currency.Object,
+			[supplyRoom], [], 120.0M);
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageDeliveryRoutes), null);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(9302);
+		service.SetupGet(x => x.Name).Returns("wound binding");
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.RequiredEquipment).Returns([
+			new HospitalServiceEquipmentRequirement(2, EmploymentItemSelector.ForPrototype(500),
+				HospitalServiceSupplyItemType.Consumable)
+		]);
+		hospital.SetupGet(x => x.ActiveServices).Returns([service.Object]);
+		var goal = hospital.Object.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHospitalConsumableStock,
+			new EmploymentAuthoritySet(EmploymentAuthority.ManageStockRules |
+				EmploymentAuthority.ApprovePurchases |
+				EmploymentAuthority.ManageDeliveryRoutes),
+			new ManagerGoalConfiguration("replenish consumables", null,
+			[
+				new HospitalSupplyStockCondition(HospitalServiceSupplyItemType.Consumable, 3, "any", 10.0M)
+			]),
+			2,
+			TimeSpan.Zero), manager);
+		var context = new EmploymentTaskContext(hospital.Object);
+		context.SetAvailableItems(supplyRoom, supplyItems);
+
+		var tasks = hospital.Object.ManagerGoalBoard.EvaluateGoals(context, DateTimeOffset.UtcNow).ToList();
+
+		Assert.AreEqual(1, tasks.Count);
+		Assert.AreEqual(ManagerGoalStatus.Active, goal.Status);
+		Assert.AreEqual(4, tasks.Single().ActionPlan.Steps.Count);
+		Assert.IsInstanceOfType(tasks.Single().ActionPlan.Steps[0], typeof(CataloguedActionShellStep));
+		Assert.IsInstanceOfType(tasks.Single().ActionPlan.Steps[1], typeof(CataloguedActionShellStep));
+		Assert.IsInstanceOfType(tasks.Single().ActionPlan.Steps[2], typeof(PurchaseActionStep));
+		Assert.IsInstanceOfType(tasks.Single().ActionPlan.Steps[3], typeof(DeliverItemsActionStep));
+		var purchase = (PurchaseActionStep)tasks.Single().ActionPlan.Steps[2];
+		Assert.AreEqual(5, purchase.Quantity);
+		Assert.AreEqual(EmploymentPurchaseTargetKind.Item, purchase.TargetKind);
+		Assert.AreEqual(EmploymentItemSelectorKind.PrototypeId, purchase.ItemSelector!.Kind);
+		Assert.AreEqual(500, purchase.ItemSelector.Id);
+		Assert.AreEqual("any", purchase.SupplierSelector);
+		Assert.AreEqual(2, tasks.Single().Priority);
+	}
+
+	[TestMethod]
+	public void HospitalSupplyStockCondition_ReusableToolsCountTheatreAndMedicalStaffInventory()
+	{
+		var currency = Currency();
+		var supplyRoom = PhysicalCell(9400, "clinic stockroom", []).Object;
+		var theatreItems = new List<IGameItem>
+		{
+			Item(9401, "surgical clamp", prototypeId: 700).Object
+		};
+		var theatre = PhysicalCell(9402, "operating theatre", theatreItems).Object;
+		var (hospital, state) = HospitalEmploymentHost(940, "central clinic", currency.Object,
+			[supplyRoom], [theatre], 120.0M);
+		var carriedTool = Item(9403, "spare surgical clamp", prototypeId: 700).Object;
+		var doctor = Character(9404, "Doctor").Object;
+		Mock.Get(doctor).SetupGet(x => x.Inventory).Returns([carriedTool]);
+		state.Hire(doctor, Offer(currency.Object, EmploymentRole.MedicalWorker,
+			EmploymentAuthority.PerformMedicalServices), null);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(9405);
+		service.SetupGet(x => x.Name).Returns("minor surgery");
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.RequiredEquipment).Returns([
+			new HospitalServiceEquipmentRequirement(1, EmploymentItemSelector.ForPrototype(700),
+				HospitalServiceSupplyItemType.ReusableTool)
+		]);
+		hospital.SetupGet(x => x.ActiveServices).Returns([service.Object]);
+		var condition = new HospitalSupplyStockCondition(HospitalServiceSupplyItemType.ReusableTool, 2, "any", null);
+		var context = new EmploymentTaskContext(hospital.Object);
+		context.SetAvailableItems(supplyRoom, []);
+		context.SetAvailableItems(theatre, theatreItems);
+
+		var satisfied = condition.IsSatisfied(context, DateTimeOffset.UtcNow, out var reason);
+
+		Assert.IsFalse(satisfied);
+		StringAssert.Contains(reason, "already covers");
+	}
+
+	[TestMethod]
+	public void HospitalSupplyStockCondition_LiveKeywordSelectorsAreNotStockRequirements()
+	{
+		var currency = Currency();
+		var supplyRoom = PhysicalCell(9520, "clinic stockroom", []).Object;
+		var (hospital, _) = HospitalEmploymentHost(952, "central clinic", currency.Object, [supplyRoom], [], 120.0M);
+		var visibleItem = Item(9521, "visible bandage roll", prototypeId: 500).Object;
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(9522);
+		service.SetupGet(x => x.Name).Returns("wound binding");
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.RequiredEquipment).Returns([
+			new HospitalServiceEquipmentRequirement(1, EmploymentItemSelector.ForItem(visibleItem, "bandage"),
+				HospitalServiceSupplyItemType.Consumable)
+		]);
+		hospital.SetupGet(x => x.ActiveServices).Returns([service.Object]);
+		var condition = new HospitalSupplyStockCondition(HospitalServiceSupplyItemType.Consumable, 3, "any", null);
+		var context = new EmploymentTaskContext(hospital.Object);
+		context.SetAvailableItems(supplyRoom, []);
+
+		var satisfied = condition.IsSatisfied(context, DateTimeOffset.UtcNow, out var reason);
+
+		Assert.IsFalse(satisfied);
+		StringAssert.Contains(reason, "no active service");
+	}
+	[TestMethod]
+	public void HospitalSupplyStockCondition_NoSupplyRoomsDoesNotSatisfyCondition()
+	{
+		var currency = Currency();
+		var (hospital, _) = HospitalEmploymentHost(950, "central clinic", currency.Object, [], [], 120.0M);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(9501);
+		service.SetupGet(x => x.Name).Returns("wound binding");
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.RequiredEquipment).Returns([
+			new HospitalServiceEquipmentRequirement(1, EmploymentItemSelector.ForPrototype(500),
+				HospitalServiceSupplyItemType.Consumable)
+		]);
+		hospital.SetupGet(x => x.ActiveServices).Returns([service.Object]);
+		var condition = new HospitalSupplyStockCondition(HospitalServiceSupplyItemType.Consumable, 3, "any", null);
+		var context = new EmploymentTaskContext(hospital.Object);
+
+		var satisfied = condition.IsSatisfied(context, DateTimeOffset.UtcNow, out var reason);
+
+		Assert.IsFalse(satisfied);
+		StringAssert.Contains(reason, "no supply rooms");
+	}
+
+	[TestMethod]
+	public void ManagerGoals_HospitalConsumablesBlockWhenNoSupplyRoomConfigured()
+	{
+		var currency = Currency();
+		var manager = Character(951, "Hospital Manager").Object;
+		var (hospital, state) = HospitalEmploymentHost(9510, "central clinic", currency.Object, [], [], 120.0M);
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageDeliveryRoutes), null);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(9511);
+		service.SetupGet(x => x.Name).Returns("wound binding");
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.RequiredEquipment).Returns([
+			new HospitalServiceEquipmentRequirement(1, EmploymentItemSelector.ForPrototype(500),
+				HospitalServiceSupplyItemType.Consumable)
+		]);
+		hospital.SetupGet(x => x.ActiveServices).Returns([service.Object]);
+		var goal = hospital.Object.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHospitalConsumableStock,
+			new EmploymentAuthoritySet(EmploymentAuthority.ManageStockRules |
+				EmploymentAuthority.ApprovePurchases |
+				EmploymentAuthority.ManageDeliveryRoutes),
+			new ManagerGoalConfiguration("replenish consumables", null,
+			[
+				new HospitalSupplyStockCondition(HospitalServiceSupplyItemType.Consumable, 3, "any", 10.0M)
+			]),
+			2,
+			TimeSpan.Zero), manager);
+		var context = new EmploymentTaskContext(hospital.Object);
+
+		var tasks = hospital.Object.ManagerGoalBoard.EvaluateGoals(context, DateTimeOffset.UtcNow).ToList();
+
+		Assert.AreEqual(0, tasks.Count);
+		Assert.AreEqual(ManagerGoalStatus.Blocked, goal.Status);
+		StringAssert.Contains(goal.LastEvaluationResult, "no supply rooms");
+	}
+	[TestMethod]
 	public void ManagerGoals_AdministratorsCanCreateGoalsWithoutEmploymentContract()
 	{
 		var currency = Currency();
@@ -6316,6 +6498,48 @@ public class UnifiedEmploymentDispatchTests
 		{
 			RestoreFMDBState(fmdbState);
 		}
+	}
+
+	private static (Mock<IHospital> Hospital, IEmploymentHostState State) HospitalEmploymentHost(long id, string name,
+		ICurrency currency, IEnumerable<ICell> supplyRooms, IEnumerable<ICell> operatingTheatres, decimal availableFunds)
+	{
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(id);
+		hospital.SetupGet(x => x.Name).Returns(name);
+		hospital.SetupGet(x => x.FrameworkItemType).Returns("Hospital");
+		hospital.SetupGet(x => x.EmploymentHostName).Returns(name);
+		hospital.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Hospital);
+		hospital.SetupGet(x => x.Market).Returns((IMarket?)null);
+		hospital.SetupGet(x => x.Currency).Returns(currency);
+		hospital.SetupGet(x => x.BankAccount).Returns((IBankAccount?)null);
+		hospital.SetupGet(x => x.CashBalance).Returns(availableFunds);
+		hospital.SetupGet(x => x.AvailableFunds).Returns(availableFunds);
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.SupplyRooms).Returns(supplyRooms.ToList());
+		hospital.SetupGet(x => x.OperatingTheatres).Returns(operatingTheatres.ToList());
+		hospital.SetupGet(x => x.WaitingRooms).Returns([]);
+		hospital.SetupGet(x => x.RecoveryRooms).Returns([]);
+		hospital.SetupGet(x => x.StaffRooms).Returns([]);
+		hospital.SetupGet(x => x.Locations).Returns(supplyRooms.Concat(operatingTheatres).ToList());
+		hospital.SetupGet(x => x.Services).Returns([]);
+		hospital.SetupGet(x => x.ActiveServices).Returns([]);
+		hospital.SetupGet(x => x.ServiceRequests).Returns([]);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([]);
+		var state = new EmploymentHostState(hospital.Object);
+		hospital.SetupGet(x => x.Employment).Returns(state);
+		hospital.SetupGet(x => x.BusinessLedger).Returns(state.BusinessLedger);
+		hospital.SetupGet(x => x.EmploymentRegister).Returns(state.EmploymentRegister);
+		hospital.SetupGet(x => x.TaskBoard).Returns(state.TaskBoard);
+		hospital.SetupGet(x => x.ManagerGoalBoard).Returns(state.ManagerGoalBoard);
+		hospital.SetupGet(x => x.Payroll).Returns(state.Payroll);
+		hospital.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
+		hospital.SetupGet(x => x.JobOpenings).Returns(() => state.JobOpenings);
+		hospital.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		        .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		hospital.Setup(x => x.IsEmployee(It.IsAny<ICharacter>()))
+		        .Returns((ICharacter actor) => state.EmploymentContracts.Any(x =>
+			        x.Status == EmploymentStatus.Active && x.Employee.Id == actor.Id));
+		return (hospital, state);
 	}
 
 	private static HospitalSupplyTestFixture HospitalSupplyFixture(bool includeOrderly, bool orderlyBusy = false)

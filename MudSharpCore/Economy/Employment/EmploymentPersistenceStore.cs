@@ -3091,6 +3091,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			EmploymentTaskConditionType.StaffingLevel =>
 				new StaffingLevelCondition(record.Key ?? string.Empty, record.ThresholdInt ?? 0,
 					record.BoolValue ?? true),
+			EmploymentTaskConditionType.HospitalSupplyStock =>
+				HospitalSupplyStockCondition.FromRecord(record.Key ?? string.Empty, record.ThresholdInt ?? 30,
+					record.ThresholdDecimal),
 			_ => null
 		};
 	}
@@ -3172,6 +3175,11 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.Key = staffing.StaffingKey;
 				record.ThresholdInt = staffing.Threshold;
 				record.BoolValue = staffing.BelowThreshold;
+				break;
+			case HospitalSupplyStockCondition hospitalStock:
+				record.Key = hospitalStock.Key;
+				record.ThresholdInt = hospitalStock.ProcedureCount;
+				record.ThresholdDecimal = hospitalStock.MaximumLineAmount;
 				break;
 		}
 

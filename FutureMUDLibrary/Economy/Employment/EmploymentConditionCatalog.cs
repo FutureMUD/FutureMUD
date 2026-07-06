@@ -55,6 +55,13 @@ public static class EmploymentConditionCatalog
 			EmploymentAuthority.ManageStockRules,
 			"Satisfied from real shop merchandise stock levels, or from a key-backed test/manual stock counter.",
 			Aliases("merchandise", "stocklevel")),
+		Definition("hospitalstock", EmploymentConditionCategory.Stock, EmploymentTaskConditionType.HospitalSupplyStock,
+			"tasks rule condition hospitalstock consumables|tools <procedure-count> [from <shop id|name|any>] [max <amount>]",
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageDeliveryRoutes,
+			"Satisfied when active hospital service supply requirements are below the configured procedure-repeat target.",
+			Aliases("medicalstock", "proceduresupplies", "hospitaltools", "hospitalconsumables")),
 		Definition("account", EmploymentConditionCategory.Finance, EmploymentTaskConditionType.AccountBalance,
 			"tasks rule condition account cash|bank|available|key <key> below|atleast <amount>",
 			EmploymentAuthority.CreateScheduledRules,

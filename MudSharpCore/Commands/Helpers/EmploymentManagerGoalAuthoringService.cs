@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using MudSharp.Character;
+using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Effects.Concrete;
@@ -108,6 +109,11 @@ internal sealed class EmploymentManagerGoalDraft
 		_steps.Add(step);
 	}
 
+	public void ClearSteps()
+	{
+		_steps.Clear();
+	}
+
 	public bool RemoveCondition(int index)
 	{
 		if (index < 0 || index >= _conditions.Count)
@@ -118,6 +124,14 @@ internal sealed class EmploymentManagerGoalDraft
 		_conditions.RemoveAt(index);
 		ConditionExpression = null;
 		return true;
+	}
+
+	public void RemoveConditions(Func<IEmploymentTaskCondition, bool> predicate)
+	{
+		if (_conditions.RemoveAll(x => predicate(x)) > 0)
+		{
+			ConditionExpression = null;
+		}
 	}
 
 	public bool RemoveStep(int index)
@@ -231,8 +245,14 @@ internal sealed class EmploymentManagerGoalAuthoringService
 			return false;
 		}
 
+		if (!TryValidateGoalTypeForHost(host, definition, out message))
+		{
+			return false;
+		}
+
 		RemoveDraft(actor, host);
 		var draft = new EmploymentManagerGoalDraft(host, definition, description);
+		EnsureNativeHospitalStockDefaults(draft);
 		actor.AddEffect(new EmploymentManagerGoalDraftEffect(actor, draft));
 		message =
 			$"You begin a {definition.Key.ColourCommand()} manager goal draft named {draft.Description.ColourName()} for {host.EmploymentHostName.ColourName()}.";
@@ -256,6 +276,7 @@ internal sealed class EmploymentManagerGoalAuthoringService
 
 		RemoveDraft(actor, host);
 		var draft = new EmploymentManagerGoalDraft(host, goal, description);
+		EnsureNativeHospitalStockDefaults(draft);
 		actor.AddEffect(new EmploymentManagerGoalDraftEffect(actor, draft));
 		message =
 			$"You copy manager goal #{goal.Id.ToString("N0", actor).ColourValue()} into a draft named {draft.Description.ColourName()}. Finalise the draft and cancel the old goal when you are ready to replace it.";
@@ -283,7 +304,13 @@ internal sealed class EmploymentManagerGoalAuthoringService
 			return false;
 		}
 
+		if (!TryValidateGoalTypeForHost(host, definition, out message))
+		{
+			return false;
+		}
+
 		draft.SetGoalType(definition);
+		EnsureNativeHospitalStockDefaults(draft);
 		message = $"You set the manager goal draft type to {definition.Key.ColourCommand()}.";
 		return true;
 	}
@@ -579,6 +606,12 @@ internal sealed class EmploymentManagerGoalAuthoringService
 			return false;
 		}
 
+		if (IsNativeHospitalStockGoal(draft.GoalType))
+		{
+			message = "Hospital stock manager goals generate their purchase and delivery steps automatically from current service requirements and inventory.";
+			return false;
+		}
+
 		if (!_taskAuthoring.TryParseActionStep(actor, host, input, out var step, out message))
 		{
 			return false;
@@ -681,7 +714,13 @@ internal sealed class EmploymentManagerGoalAuthoringService
 			return false;
 		}
 
-		if (!draft.Steps.Any())
+		if (IsNativeHospitalStockGoal(draft.GoalType) && !HasMatchingHospitalStockCondition(draft))
+		{
+			message = "Hospital stock manager goals require a matching hospitalstock condition.";
+			return false;
+		}
+
+		if (!draft.Steps.Any() && !IsNativeHospitalStockGoal(draft.GoalType))
 		{
 			message = "You cannot finalise a manager goal draft with no action steps.";
 			return false;
@@ -853,6 +892,51 @@ internal sealed class EmploymentManagerGoalAuthoringService
 		sb.AppendLine($"Type: {goal.GoalType.DescribeEnum().ColourName()} | Priority: {goal.Priority.ToString("N0", actor).ColourValue()} | Cadence: {goal.EvaluationCadence.Describe(actor).ColourValue()}");
 		sb.AppendLine($"Budget Limits: {DescribeBudgetLimits(goal.Policy.BudgetLimits)} | Risk Limits: {DescribeRiskLimits(goal.Policy.RiskLimits)}");
 		return sb.ToString();
+	}
+
+	private static bool IsNativeHospitalStockGoal(ManagerGoalType goalType)
+	{
+		return HospitalSupplyStockGoalPlanner.IsHospitalStockGoal(goalType);
+	}
+
+	private static bool TryValidateGoalTypeForHost(IEmploymentHost host, EmploymentManagerGoalDefinition definition,
+		out string message)
+	{
+		if (IsNativeHospitalStockGoal(definition.GoalType) && host is not IHospital)
+		{
+			message = $"{definition.Key.ColourCommand()} manager goals can only be created for hospital employment hosts.";
+			return false;
+		}
+
+		message = string.Empty;
+		return true;
+	}
+
+	private static void EnsureNativeHospitalStockDefaults(EmploymentManagerGoalDraft draft)
+	{
+		if (!IsNativeHospitalStockGoal(draft.GoalType))
+		{
+			return;
+		}
+
+		var itemType = HospitalSupplyStockGoalPlanner.ItemTypeForGoal(draft.GoalType);
+		draft.ClearSteps();
+		draft.RemoveConditions(x => x is HospitalSupplyStockCondition stock && stock.ItemType != itemType);
+		if (!draft.Conditions.OfType<HospitalSupplyStockCondition>().Any(x => x.ItemType == itemType))
+		{
+			draft.AddCondition(new HospitalSupplyStockCondition(itemType, itemType == HospitalServiceSupplyItemType.Consumable ? 30 : 5, "any", null));
+		}
+	}
+
+	private static bool HasMatchingHospitalStockCondition(EmploymentManagerGoalDraft draft)
+	{
+		if (!IsNativeHospitalStockGoal(draft.GoalType))
+		{
+			return false;
+		}
+
+		var itemType = HospitalSupplyStockGoalPlanner.ItemTypeForGoal(draft.GoalType);
+		return draft.Conditions.OfType<HospitalSupplyStockCondition>().Any(x => x.ItemType == itemType);
 	}
 
 	private static bool TryRequireCreateGoals(ICharacter actor, IEmploymentHost host, out string message)

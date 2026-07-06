@@ -19,7 +19,7 @@ namespace MudSharp.Economy.Hospitals;
 
 public class HospitalService : SavableKeywordedItem, IHospitalService
 {
-	private sealed record EquipmentRequirementPayload(string Kind, long? Id, string? Text, int Quantity);
+	private sealed record EquipmentRequirementPayload(string Kind, long? Id, string? Text, int Quantity, string? ItemType = null);
 
 	private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
@@ -447,7 +447,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 			for (var i = 0; i < _requiredEquipment.Count; i++)
 			{
 				var requirement = _requiredEquipment[i];
-				sb.AppendLine($"\t{(i + 1).ToString("N0", actor).ColourValue()}. {requirement.Quantity.ToString("N0", actor).ColourValue()}x {EmploymentItemSelectorResolver.Describe(requirement.Selector).ColourCommand()}");
+				sb.AppendLine($"\t{(i + 1).ToString("N0", actor).ColourValue()}. {requirement.Quantity.ToString("N0", actor).ColourValue()}x {EmploymentItemSelectorResolver.Describe(requirement.Selector).ColourCommand()} ({requirement.ItemType.DescribeEnum().ColourName()})");
 			}
 		}
 		else
@@ -494,7 +494,8 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 			x.Selector.Kind.ToString(),
 			x.Selector.Id,
 			x.Selector.Text,
-			Math.Max(1, x.Quantity)));
+			Math.Max(1, x.Quantity),
+			x.ItemType.ToString()));
 		return JsonSerializer.Serialize(payload, JsonOptions);
 	}
 
@@ -532,6 +533,9 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 			EmploymentItemSelectorKind.Keyword when !string.IsNullOrWhiteSpace(payload.Text) => EmploymentItemSelector.ForKeyword(payload.Text),
 			_ => null
 		};
-		return selector is null ? null : new HospitalServiceEquipmentRequirement(Math.Max(1, payload.Quantity), selector);
+		var itemType = payload.ItemType?.TryParseEnum<HospitalServiceSupplyItemType>(out var parsedItemType) == true
+			? parsedItemType
+			: HospitalServiceSupplyItemType.ReusableTool;
+		return selector is null ? null : new HospitalServiceEquipmentRequirement(Math.Max(1, payload.Quantity), selector, itemType);
 	}
 }

@@ -58,7 +58,16 @@ public enum HospitalLocationRole
 	StaffRoom
 }
 
-public sealed record HospitalServiceEquipmentRequirement(int Quantity, EmploymentItemSelector Selector);
+public enum HospitalServiceSupplyItemType
+{
+	ReusableTool,
+	Consumable
+}
+
+public sealed record HospitalServiceEquipmentRequirement(
+	int Quantity,
+	EmploymentItemSelector Selector,
+	HospitalServiceSupplyItemType ItemType = HospitalServiceSupplyItemType.ReusableTool);
 
 public interface IHospitalService : IFrameworkItem, ISaveable, IKeywordedItem
 {

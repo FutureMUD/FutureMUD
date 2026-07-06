@@ -3274,6 +3274,68 @@ public class EmploymentCommandServiceTests
 	}
 
 	[TestMethod]
+	public void EmploymentCommandService_ManagerGoalDraftFinaliseCreatesHospitalStockGoalWithoutStaticSteps()
+	{
+		var currency = Currency();
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(10);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.FrameworkItemType).Returns("Hospital");
+		hospital.SetupGet(x => x.EmploymentHostName).Returns("central clinic");
+		hospital.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Hospital);
+		hospital.SetupGet(x => x.Market).Returns((IMarket?)null);
+		hospital.SetupGet(x => x.Currency).Returns(currency.Object);
+		hospital.SetupGet(x => x.BankAccount).Returns((IBankAccount?)null);
+		hospital.SetupGet(x => x.CashBalance).Returns(100.0M);
+		hospital.SetupGet(x => x.AvailableFunds).Returns(100.0M);
+		var state = new EmploymentHostState(hospital.Object);
+		hospital.SetupGet(x => x.Employment).Returns(state);
+		hospital.SetupGet(x => x.EmploymentRegister).Returns(state.EmploymentRegister);
+		hospital.SetupGet(x => x.TaskBoard).Returns(state.TaskBoard);
+		hospital.SetupGet(x => x.ManagerGoalBoard).Returns(state.ManagerGoalBoard);
+		hospital.SetupGet(x => x.Payroll).Returns(state.Payroll);
+		hospital.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
+		hospital.SetupGet(x => x.JobOpenings).Returns(() => state.JobOpenings);
+		hospital.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		        .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		var manager = Character(288, "Hospital Manager").Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageDeliveryRoutes |
+			EmploymentAuthority.PostToHostBoard), null);
+		var authoring = new EmploymentManagerGoalAuthoringService();
+
+		Assert.IsTrue(authoring.TryStartDraft(manager, hospital.Object, "hospitalconsumables",
+			"Maintain consumables", out var message), message);
+		Assert.IsTrue(authoring.TryAddCondition(manager, hospital.Object,
+			new StringStack("hospitalstock consumables 12 from any max 25"), out message), message);
+		Assert.IsFalse(authoring.TryAddStep(manager, hospital.Object,
+			new StringStack("board Stock = Buy supplies."), out message));
+		StringAssert.Contains(message, "automatically");
+		Assert.IsTrue(authoring.TryFinaliseDraft(manager, hospital.Object, out var goal, out message), message);
+
+		Assert.IsNotNull(goal);
+		Assert.AreEqual(ManagerGoalType.MaintainHospitalConsumableStock, goal!.GoalType);
+		Assert.IsNull(goal.Configuration.ActionPlan);
+		var custom = goal.Configuration.Conditions!.OfType<HospitalSupplyStockCondition>().Last();
+		Assert.AreEqual(HospitalServiceSupplyItemType.Consumable, custom.ItemType);
+		Assert.AreEqual(12, custom.ProcedureCount);
+		Assert.AreEqual(25.0M, custom.MaximumLineAmount);
+
+		Assert.IsTrue(authoring.TryStartDraft(manager, hospital.Object, "cashfloatlow",
+			"Retyped stock goal", out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, hospital.Object,
+			new StringStack("board Stock = Buy supplies."), out message), message);
+		Assert.IsTrue(authoring.TrySetDraftType(manager, hospital.Object, "hospitaltools", out message), message);
+		Assert.IsTrue(authoring.TryFinaliseDraft(manager, hospital.Object, out var retypedGoal, out message), message);
+		Assert.IsNotNull(retypedGoal);
+		Assert.AreEqual(ManagerGoalType.MaintainHospitalReusableEquipmentStock, retypedGoal!.GoalType);
+		Assert.IsNull(retypedGoal.Configuration.ActionPlan);
+	}
+
+	[TestMethod]
 	public void EmploymentCommandService_ManagerGoalDraftPolicyRejectsExceededBudgetAndStepLimit()
 	{
 		var currency = Currency();

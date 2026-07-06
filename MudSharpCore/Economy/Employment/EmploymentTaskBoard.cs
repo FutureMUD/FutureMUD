@@ -5086,6 +5086,11 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 			return [];
 		}
 
+		if (HospitalSupplyStockGoalPlanner.IsHospitalStockGoal(concrete.GoalType))
+		{
+			return EvaluateNativeHospitalStockGoal(concrete, context, now);
+		}
+
 		if (!GoalConditionsSatisfied(concrete, context, now, out var conditionReason))
 		{
 			concrete.MarkSatisfied(now, $"Goal is satisfied: {conditionReason}");
@@ -5159,6 +5164,92 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 		return [task];
 	}
 
+	private IReadOnlyCollection<IEmploymentActiveTask> EvaluateNativeHospitalStockGoal(ManagerGoal concrete,
+		IEmploymentTaskContext context, DateTimeOffset now)
+	{
+		if (!GoalConditionsSatisfied(concrete, context, now, out var conditionReason))
+		{
+			if (HospitalSupplyStockGoalPlanner.IsConfigurationBlocker(conditionReason))
+			{
+				concrete.Block(conditionReason);
+				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+					concrete.LastEvaluationResult!, concrete.CorrelationId);
+				_host.DebugEmployment($"Manager goal #{concrete.Id:N0} was blocked: {concrete.LastEvaluationResult}");
+				return [];
+			}
+
+			concrete.MarkSatisfied(now, $"Goal is satisfied: {conditionReason}");
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+				concrete.LastEvaluationResult!, concrete.CorrelationId);
+			_host.DebugEmployment($"Manager goal #{concrete.Id:N0} is satisfied: {concrete.LastEvaluationResult}");
+			return [];
+		}
+
+		if (concrete.Status == ManagerGoalStatus.Satisfied)
+		{
+			concrete.MarkActive(now, "Conditions now require work.");
+		}
+
+		if (!HospitalSupplyStockGoalPlanner.TryBuildActionPlan(concrete, context, out var actionPlan, out var planReason) ||
+		    actionPlan is null)
+		{
+			concrete.Block(planReason);
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+				concrete.LastEvaluationResult!, concrete.CorrelationId);
+			_host.DebugEmployment($"Manager goal #{concrete.Id:N0} was blocked: {concrete.LastEvaluationResult}");
+			return [];
+		}
+
+		if (!TryValidateGoalPolicy(actionPlan, concrete.Policy, out var policyReason))
+		{
+			concrete.Block(policyReason);
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+				concrete.LastEvaluationResult!, concrete.CorrelationId);
+			_host.DebugEmployment($"Manager goal #{concrete.Id:N0} was blocked: {concrete.LastEvaluationResult}");
+			return [];
+		}
+
+		if (concrete.Policy.RiskLimits.MaximumActiveTasks is { } maximumActiveTasks &&
+		    ActiveTaskCountFor(concrete) >= maximumActiveTasks)
+		{
+			concrete.MarkEvaluated(now,
+				$"Risk limit permits {maximumActiveTasks.ToString("N0", CultureInfo.InvariantCulture)} active task(s), and that limit is already reached.");
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+				concrete.LastEvaluationResult!, concrete.CorrelationId);
+			_host.DebugEmployment($"Manager goal #{concrete.Id:N0} did not create work: {concrete.LastEvaluationResult}");
+			return [];
+		}
+
+		var idempotencyKey = GoalIdempotencyKey(concrete);
+		if (_host.TaskBoard.HasBlockingActiveTask(idempotencyKey))
+		{
+			concrete.MarkEvaluated(now,
+				$"An active task for manager goal #{concrete.Id:N0} already exists.");
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+				concrete.LastEvaluationResult!, concrete.CorrelationId);
+			_host.DebugEmployment($"Manager goal #{concrete.Id:N0} did not create work: {concrete.LastEvaluationResult}");
+			return [];
+		}
+
+		var goalPrincipal = EmploymentPrincipal.ForManagerGoal(concrete);
+		var task = _host.TaskBoard.CreateActiveTask(concrete.Configuration.Description, actionPlan, null,
+			concrete.CorrelationId, idempotencyKey, concrete.Priority, provenance: EmploymentTaskBoard.CreateTaskProvenance(
+				_host,
+				actionPlan,
+				concrete.CorrelationId,
+				EmploymentTaskSourceKind.ManagerGoal,
+				goalPrincipal,
+				goalPrincipal,
+				concrete.Priority,
+				now,
+				sourceGoalId: concrete.Id));
+		concrete.MarkEvaluated(now, $"Created active task {task.Name}.");
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+			concrete.LastEvaluationResult!, concrete.CorrelationId);
+		_host.DebugEmployment($"Manager goal #{concrete.Id:N0} created active task {task.Name}.");
+		return [task];
+	}
+
 	private int ActiveTaskCountFor(IManagerGoal goal)
 	{
 		return _host.TaskBoard.ActiveTasks.Count(x =>
@@ -5201,7 +5292,6 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 		reason = result.Reason;
 		return result.Satisfied;
 	}
-
 
 	internal static bool TryValidateGoalPolicy(EmploymentActionPlan? actionPlan, ManagerGoalPolicy policy,
 		out string reason)

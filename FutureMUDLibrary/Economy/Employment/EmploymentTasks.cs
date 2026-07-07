@@ -142,7 +142,8 @@ public enum EmploymentActionStepType
 	HotelAdministration,
 	HospitalService,
 	HospitalSupplyPreparation,
-	HospitalAdministration
+	HospitalAdministration,
+	HospitalPatientPreparation
 }
 
 public enum EmploymentActionStepStatus

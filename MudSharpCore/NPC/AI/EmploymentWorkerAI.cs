@@ -542,10 +542,15 @@ public class EmploymentWorkerAI : PathingAIBase
 		return ResolvePathTarget(character) is not null;
 	}
 
+	private static bool SameCell(ICell? lhs, ICell? rhs)
+	{
+		return lhs is not null && rhs is not null && lhs.Id == rhs.Id;
+	}
+
 	protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
 		var target = ResolvePathTarget(ch);
-		if (target is null || ReferenceEquals(target, ch.Location))
+		if (target is null || SameCell(target, ch.Location))
 		{
 			return (null, Enumerable.Empty<ICellExit>());
 		}
@@ -684,7 +689,7 @@ public class EmploymentWorkerAI : PathingAIBase
 		}
 
 		var workplace = PrimaryWorkCell(host);
-		if (workplace is not null && !ReferenceEquals(workplace, worker.Location))
+		if (workplace is not null && !SameCell(workplace, worker.Location))
 		{
 			return EmploymentWorkerPayrollClaimResult.NoAction(
 				$"{worker.Name} is not at {host.EmploymentHostName}'s workplace.");
@@ -795,7 +800,7 @@ public class EmploymentWorkerAI : PathingAIBase
 			}
 
 			var hintedLocation = NextStepLocation(task, context, worker);
-			if (hintedLocation is not null && !ReferenceEquals(hintedLocation, worker.Location))
+			if (hintedLocation is not null && !SameCell(hintedLocation, worker.Location))
 			{
 				DebugWorker(worker,
 					$"pathing to {hintedLocation.GetFriendlyReference(worker)} for next step of task {task.Name}.");
@@ -1014,14 +1019,14 @@ public class EmploymentWorkerAI : PathingAIBase
 		{
 			var context = ContextFor(worker, host, task);
 			var target = NextStepLocation(task, context, worker);
-			if (target is not null && !ReferenceEquals(target, worker.Location))
+			if (target is not null && !SameCell(target, worker.Location))
 			{
 				return target;
 			}
 		}
 
 		var workplace = PrimaryWorkCell(host);
-		return workplace is not null && !ReferenceEquals(workplace, worker.Location) ? workplace : null;
+		return workplace is not null && !SameCell(workplace, worker.Location) ? workplace : null;
 	}
 
 	private ICell? NextStepLocation(IEmploymentActiveTask task, IEmploymentTaskContext context, ICharacter worker)
@@ -1044,8 +1049,8 @@ public class EmploymentWorkerAI : PathingAIBase
 
 		return hint.ExecutionLocationHints(context, worker)
 		           .Where(x => x is not null)
-		           .Where(x => ReferenceEquals(x, worker.Location) || CanReach(worker, x))
-		           .OrderBy(x => ReferenceEquals(x, worker.Location) ? 0 : 1)
+		           .Where(x => SameCell(x, worker.Location) || CanReach(worker, x))
+		           .OrderBy(x => SameCell(x, worker.Location) ? 0 : 1)
 		           .ThenBy(x => x.Id)
 		           .FirstOrDefault();
 	}
@@ -1138,7 +1143,7 @@ public class EmploymentWorkerAI : PathingAIBase
 
 	private int CommuteDistance(ICharacter worker, ICell? cell)
 	{
-		if (cell is null || ReferenceEquals(worker.Location, cell))
+		if (cell is null || SameCell(worker.Location, cell))
 		{
 			return 0;
 		}
@@ -1149,7 +1154,7 @@ public class EmploymentWorkerAI : PathingAIBase
 
 	private bool CanReach(ICharacter worker, ICell? cell)
 	{
-		if (cell is null || ReferenceEquals(worker.Location, cell))
+		if (cell is null || SameCell(worker.Location, cell))
 		{
 			return true;
 		}

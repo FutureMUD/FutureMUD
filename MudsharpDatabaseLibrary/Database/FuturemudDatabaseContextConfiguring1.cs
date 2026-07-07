@@ -305,6 +305,8 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.ProjectLabourRequirementsId).HasColumnType("bigint(20)");
 
+                entity.Property(e => e.PaymentPerHour).HasColumnType("decimal(58,29)");
+
                 entity.HasOne(d => d.ActiveProject)
                     .WithMany(p => p.ActiveProjectLabours)
                     .HasForeignKey(d => d.ActiveProjectId)
@@ -327,6 +329,8 @@ namespace MudSharp.Database
                 entity.Property(e => e.ActiveProjectId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.ProjectMaterialRequirementsId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.PaymentPerUnit).HasColumnType("decimal(58,29)");
 
                 entity.HasOne(d => d.ActiveProject)
                     .WithMany(p => p.ActiveProjectMaterials)
@@ -365,6 +369,8 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.ProjectRevisionNumber).HasColumnType("int(11)");
 
+                entity.Property(e => e.PaymentCurrencyId).HasColumnType("bigint(20)");
+
                 entity.HasOne(d => d.Cell)
                     .WithMany(p => p.ActiveProjects)
                     .HasForeignKey(d => d.CellId)
@@ -387,6 +393,66 @@ namespace MudSharp.Database
                     .HasForeignKey(d => new { d.ProjectId, d.ProjectRevisionNumber })
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ActiveProjects_Projects");
+
+                entity.HasOne(d => d.PaymentCurrency)
+                    .WithMany()
+                    .HasForeignKey(d => d.PaymentCurrencyId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK_ActiveProjects_PaymentCurrencies");
+            });
+
+            modelBuilder.Entity<ProjectPayable>(entity =>
+            {
+                entity.ToTable("ProjectPayables");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+                entity.HasIndex(e => new { e.CharacterId, e.ClaimedAt })
+                    .HasDatabaseName("IX_ProjectPayables_Character_Claimed");
+                entity.HasIndex(e => e.ActiveProjectId)
+                    .HasDatabaseName("IX_ProjectPayables_ActiveProjectId");
+                entity.HasIndex(e => e.CurrencyId)
+                    .HasDatabaseName("FK_ProjectPayables_Currencies_idx");
+                entity.HasIndex(e => e.ClaimedBankAccountId)
+                    .HasDatabaseName("FK_ProjectPayables_BankAccounts_idx");
+
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.ActiveProjectId).HasColumnType("bigint(20)");
+                entity.Property(e => e.ProjectDefinitionId).HasColumnType("bigint(20)");
+                entity.Property(e => e.ProjectRevisionNumber).HasColumnType("int(11)");
+                entity.Property(e => e.ProjectName)
+                    .IsRequired()
+                    .HasColumnType("varchar(500)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+                entity.Property(e => e.ProjectOwnerCharacterId).HasColumnType("bigint(20)");
+                entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
+                entity.Property(e => e.CurrencyId).HasColumnType("bigint(20)");
+                entity.Property(e => e.Amount).HasColumnType("decimal(58,29)");
+                entity.Property(e => e.PayableType).HasColumnType("int(11)");
+                entity.Property(e => e.ProjectLabourRequirementId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RequirementName)
+                    .HasColumnType("varchar(500)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+                entity.Property(e => e.Reason)
+                    .IsRequired()
+                    .HasColumnType("mediumtext")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+                entity.Property(e => e.EarnedAt).HasColumnType("datetime");
+                entity.Property(e => e.ClaimedAt).HasColumnType("datetime");
+                entity.Property(e => e.ClaimedBankAccountId).HasColumnType("bigint(20)");
+
+                entity.HasOne(d => d.Currency)
+                    .WithMany()
+                    .HasForeignKey(d => d.CurrencyId)
+                    .HasConstraintName("FK_ProjectPayables_Currencies");
+
+                entity.HasOne(d => d.ClaimedBankAccount)
+                    .WithMany()
+                    .HasForeignKey(d => d.ClaimedBankAccountId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK_ProjectPayables_BankAccounts");
             });
 
             modelBuilder.Entity<ProjectLabourQueue>(entity =>

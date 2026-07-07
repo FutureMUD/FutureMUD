@@ -76,7 +76,7 @@ public class ProjectLabourQueueEntry : IProjectLabourQueueEntry
 			return ProjectLabourQueueStatus.WaitingForQualification;
 		}
 
-		if (_project.ActiveLabour.Count(x => x.Labour == _labour) >= _labour.MaximumSimultaneousWorkers)
+		if (!_project.CanJoinLabour(character, _labour))
 		{
 			return ProjectLabourQueueStatus.WaitingForSlot;
 		}

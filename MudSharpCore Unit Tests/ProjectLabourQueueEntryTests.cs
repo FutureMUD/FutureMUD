@@ -34,6 +34,7 @@ public class ProjectLabourQueueEntryTests
 		project.SetupGet(x => x.CurrentPhase).Returns(phase.Object);
 		project.SetupGet(x => x.ActiveLabour)
 		       .Returns(Array.Empty<(ICharacter Character, IProjectLabourRequirement Labour)>());
+		project.Setup(x => x.CanJoinLabour(secondary.Object, labour.Object)).Returns(true);
 
 		var entry = new ProjectLabourQueueEntry(owner.Object, project.Object, labour.Object, 1);
 

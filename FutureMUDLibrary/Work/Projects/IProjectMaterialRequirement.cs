@@ -9,6 +9,7 @@ namespace MudSharp.Work.Projects
     {
         bool IsMandatoryForProjectCompletion { get; }
         bool ItemCounts(IGameItem item);
+        double QuantitySuppliedByItem(IGameItem item, IActiveProject project);
         double SupplyItem(ICharacter actor, IGameItem item, IActiveProject project);
         void PeekSupplyItem(ICharacter actor, IGameItem item, IActiveProject project);
         string DescribeQuantity(ICharacter actor);

@@ -58,6 +58,7 @@ Current behavior:
 - if exactly one labour requirement is joinable, it can be inferred
 - if multiple labour requirements are joinable, the command requires an explicit labour name
 - qualification and worker-cap checks are enforced
+- a qualified player can join a full labour role by displacing an NPC who is currently working that same role
 - joining a new project labour automatically leaves whatever `CurrentProject` labour you were already working on
 
 ### `project quit <project>`
@@ -71,9 +72,11 @@ Use `project details <project>` to inspect the live active project in its curren
 
 This is the command to use when you need to see:
 - current workers
+- whether a full NPC-worked labour is satisfied but joinable by the viewer
 - mandatory status
 - progress already accrued
 - current-phase material requirements
+- payment reserve and current-phase labour/material payment rates
 
 ### `project preview <project> <requirement>`
 Use `project preview` to see what item would be supplied if you used `project supply`.
@@ -89,7 +92,48 @@ With a requirement argument, it:
 1. builds the requirement's inventory plan
 2. finds a feasible item automatically
 3. consumes or splits that item
-4. adds the supplied quantity to the active project
+4. pays any funded per-unit material rate immediately
+5. adds the supplied quantity to the active project
+
+### `project fund <project> <amount>`
+Use `project fund` to move physical cash from your inventory into an active project's virtual payment reserve.
+
+Current behavior:
+- only the owner or an administrator can fund a project
+- the command parses the amount in the project's payment currency, falling back to the actor's currency before any payment currency has been set
+- funded money is no longer a physical pile; it is held as virtual project reserve cash and written to the shared virtual-cash ledger
+
+### `project withdraw <project> <amount>`
+Use `project withdraw` to take unspent virtual reserve cash back as physical currency.
+
+Current behavior:
+- the same owner-or-admin project-payment managers who can fund a project can withdraw from it
+- withdrawals only draw from the active project's virtual reserve
+- outstanding worker payables are not reversed by withdrawing later unspent funds
+
+### `project pay <project>`
+Use `project pay` with no extra arguments to review the payment currency, current reserve, and current-phase payment rates.
+
+Use these forms to configure current-phase requirement rates:
+- `project pay <project> currency <currency>`
+- `project pay <project> labour <requirement> <amount|none>`
+- `project pay <project> material <requirement> <amount|none>`
+
+Labour rates are hourly. With the default 15-minute project tick, a worker earns one quarter of the configured hourly rate per tick. Labour pay becomes an owed project payment that must later be claimed. Material rates are per contributed unit and are paid immediately when `project supply` succeeds.
+
+Increasing labour pay is immediate. Lowering or clearing a labour pay rate is also immediate if nobody is currently working that labour, but if active workers are present the command warns that they will be removed and requires `ACCEPT` before applying the lower rate.
+
+Paid work is pay-before-progress. If the reserve cannot cover a paid labour tick, that worker is removed from the active project before progress is recorded. If the reserve cannot cover a paid material contribution, `project supply` fails before consuming the item. Clear the rate with `none` if the requirement should accept unpaid volunteer contributions.
+
+Changing the payment currency requires an empty project reserve so existing virtual balances do not become ambiguous.
+
+### `project claim [account]`
+Use `project claim` to collect owed project payments.
+
+Current behavior:
+- with no account argument, project payments are claimed as physical cash
+- with an account argument, only payments in that account's currency are deposited into the selected active character-owned bank account
+- payables remain owed until the claim succeeds
 
 ### `project cancel <project>`
 Use `project cancel` to destroy an active project.
@@ -98,6 +142,7 @@ Current rules:
 - a personal project cannot be cancelled while an unfinished active job still depends on that exact active project instance
 - administrators bypass builder-authored cancellation progs, but not the active-job invariant
 - if no custom cancel progs are configured, both personal and local projects fall back to owner-only cancellation
+- unspent project reserve cash is returned to the project owner as a claimable project payment
 
 ### `project queue`
 Use `project queue` to manage what labour role you want to auto-join next.
@@ -112,6 +157,7 @@ Current behavior:
 - entries only target the active project's current phase
 - only the first queued entry is considered when you become idle
 - blocked entries remain queued and show statuses such as `Waiting For Slot`, `Waiting For Qualification`, or `Waiting For Location`
+- a player queue entry can become `Ready` when the only occupied slot is held by an NPC who can be displaced
 - stale entries are removed automatically when the project disappears or the queued labour is no longer part of the current phase
 
 ## Admin And Revision Workflow
@@ -348,6 +394,21 @@ This is intentionally not seeded as a generic stock project. Overlay package nam
 | Action | `prog`, `skilluse`, `agriculture`, `commodityoutput`, `resourcediscovery` |
 | Impact | `trait`, `healing`, `job`, `cap` |
 
+## Paid Project Worker AI
+Use the `projectworker` AI type for NPCs that should look for paid active project labour rather than ordinary employment host tasks.
+
+Important settings:
+- `pay <amount>` sets the minimum hourly project pay the worker will accept
+- `currency <currency>` sets the currency used for parsing and comparing that minimum
+- `range <cells>` sets the maximum path distance to a project
+- `search` toggles automatic paid-project search
+- `claim` toggles autonomous claiming of project payables
+- `deposit` toggles bank-account deposits instead of cash claims where possible
+- `account <account type|none>` optionally lets the AI open a character-owned account type for deposits
+- `cadence <timespan>` controls how often an idle worker retries the search after finding no qualifying project
+
+The AI only joins current-phase local project labour it qualifies for, where there is a free worker slot, the project reserve can cover at least one tick of pay, and the path is reachable. NPC workers do not displace other NPCs or players. If several projects qualify, it chooses the highest global-base-currency equivalent hourly rate.
+
 ## Troubleshooting
 ### A project will not submit
 Check these first:
@@ -374,6 +435,7 @@ Check:
 - qualification prog
 - worker cap
 - whether the named labour is part of the current phase
+- if the labour is full, whether at least one current worker is an NPC; qualified players can displace NPC workers, but NPCs cannot displace each other
 
 ### Personal-project cancellation fails
 Current behavior blocks cancellation when an unfinished active ongoing job depends on that exact active personal-project instance. If you have also configured `cancancel` / `whycancel`, those run only after this hard engine invariant.
@@ -402,6 +464,28 @@ Check:
 - for local projects, you are in the same cell when the queue entry reaches the front
 - the queued labour still has a free worker slot
 - you still qualify for that labour
+
+### Paid project labour is not paying
+Check:
+- the active project has a positive payment rate for that current-phase requirement
+- the active project has a payment currency and a funded reserve in that currency
+- the reserve can cover the tick payment or material payment being attempted
+- labour payments have been claimed with `project claim`; they are owed first, not paid as cash during the work tick
+
+If the project runs out of reserve cash:
+- paid labourers are removed from work before the next unpaid tick can create progress
+- paid material supply is rejected before the material is consumed
+- the project remains visible as an active project if its completion requirements are still incomplete
+- the owner can fund it, lower/clear rates, or cancel it
+
+### A project-worker NPC will not pick up a project
+Check:
+- the project is a live local project with a reachable location
+- the current-phase labour still has a free worker slot
+- the NPC satisfies the labour qualification rules
+- the configured hourly pay meets the AI's minimum after currency conversion
+- the project reserve can cover at least one tick of pay
+- the AI's `search` toggle is enabled and its search cooldown has expired
 
 ### Multiple requirements are behaving differently than expected
 Current completion rules are:

@@ -69,6 +69,8 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
                 CurrentPhase = nextPhase;
                 _labourProgress.Clear();
                 _materialProgress.Clear();
+                _labourPaymentRates.Clear();
+                _materialPaymentRates.Clear();
                 ClearWorkersFromProject();
                 Changed = true;
                 Location.Handle(
@@ -156,6 +158,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
 
     protected override void DatabaseInsert(MudSharp.Models.ActiveProject project)
     {
+        project.CharacterId = _characterOwnerId;
         project.CellId = Location?.Id;
     }
 
@@ -176,6 +179,10 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
         {
             sb.Append(
                 $", materials {mandatoryMaterialCompletion.Value.ToString("P0", actor).ColourValue()} complete");
+        }
+        if (HasSatisfiedButJoinableLabour(actor))
+        {
+            sb.Append(", satisfied but joinable".ColourCommand());
         }
 
         return sb.ToString();

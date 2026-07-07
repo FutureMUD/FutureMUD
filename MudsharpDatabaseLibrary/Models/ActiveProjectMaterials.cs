@@ -8,6 +8,7 @@ namespace MudSharp.Models
         public long ActiveProjectId { get; set; }
         public long ProjectMaterialRequirementsId { get; set; }
         public double Progress { get; set; }
+        public decimal PaymentPerUnit { get; set; }
 
         public virtual ActiveProject ActiveProject { get; set; }
         public virtual ProjectMaterialRequirement ProjectMaterialRequirements { get; set; }

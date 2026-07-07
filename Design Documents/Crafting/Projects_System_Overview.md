@@ -27,7 +27,7 @@ The system is composed from five layers:
 ## Public Contracts
 ### Template and active-project contracts
 - `IProject` exposes catalogue visibility, initiation gating, start/cancel/finish hooks, player presentation, cancellation rules, and the ordered phase list.
-- `IActiveProject` exposes the project definition, current phase, labour progress, material progress, active workers, join/leave/cancel operations, tick processing, and player-facing display.
+- `IActiveProject` exposes the project definition, current phase, labour progress, material progress, active workers, payment reserve state, labour and material payment rates, join/leave/cancel operations, tick processing, and player-facing display.
 - `IPersonalProject` is a marker for active projects owned by a single character.
 - `ILocalProject` is a marker for active projects attached to a cell and worked on by multiple people in that location.
 
@@ -178,6 +178,7 @@ Join rules are enforced by:
 - `CharacterIsQualified`
 - `MaximumSimultaneousWorkers`
 - current phase membership
+- the player-facing NPC displacement concession, which lets qualified player characters take over a full labour role when at least one current worker in that role is an NPC
 
 Joining one project labour automatically calls `Leave` on the character's previously selected `CurrentProject.Project` before assigning the new one.
 
@@ -203,6 +204,8 @@ Queue activation is re-evaluated when it matters, including:
 - on login
 - when an idle character enters a cell
 
+A queued player assignment is considered ready when the labour has a genuinely free slot or when the slot is full only because an NPC worker can be displaced. NPC queue entries still require a genuinely free slot.
+
 ### Material supply
 Material supply is driven by `IProjectMaterialRequirement.GetPlanForCharacter`.
 
@@ -210,9 +213,10 @@ The current flow is:
 1. The material requirement creates an inventory plan.
 2. `project preview` or `project supply` scouts the first feasible target with original reference `target`.
 3. The requirement decides how much of that item counts.
-4. `FulfilMaterial` increments active-project progress for that requirement.
+4. If that requirement has a per-unit material payment, the project preflights the exact contribution amount against its virtual cash reserve before consuming the item.
+5. `FulfilMaterial` increments active-project progress for that requirement.
 
-Supply is always against the current phase only.
+Supply is always against the current phase only. If a paid material requirement cannot be paid, the supply attempt is rejected and the item is not consumed. Clearing the material rate makes the requirement volunteer-supplied again.
 
 ### Scheduled ticking and labour progress
 Active projects advance in the main scheduler loop.
@@ -222,8 +226,9 @@ The current tick path is:
 2. Each active project runs `DoProjectsTick()`.
 3. Every active labour entry contributes progress using `HourlyProgress(actor) * ProjectProgressMultiplier`.
 4. Supervision-style multipliers are folded in through `ProgressMultiplierForOtherLabourPerPercentageComplete`.
-5. After progress, each worker gains both `CurrentProjectHours += ProjectProgressMultiplier` and `CurrentProjectProjectHours += ProjectProgressMultiplier`.
-6. Any `ILabourImpactActionAtTick` impacts execute.
+5. If that labour requirement has an hourly payment, the project reserves the tick's fraction of hourly pay as a project payable before recording skill use or progress.
+6. After progress, each worker gains both `CurrentProjectHours += ProjectProgressMultiplier` and `CurrentProjectProjectHours += ProjectProgressMultiplier`.
+7. Any `ILabourImpactActionAtTick` impacts execute.
 
 The default static settings currently include:
 - `ProjectTickMinutes = 15`
@@ -261,6 +266,29 @@ When cancellation succeeds:
 The current hard invariant is:
 - a personal project cannot be cancelled while any unfinished active job still references that exact active project instance
 
+Any unspent payment reserve on a deleted active project is removed from the project's virtual cash reserve and returned to the project owner as a claimable project payable.
+
+### Project payment reserves
+Active projects can hold a virtual cash reserve in a specific currency. The reserve uses the shared economy virtual-cash ledger path, while characters still fund and withdraw it through ordinary physical currency items at the command edge.
+
+Project owners and administrators can:
+- fund the reserve with `project fund`
+- withdraw unspent reserve cash with `project withdraw`
+- set the payment currency while the reserve is empty
+- set or clear per-hour labour rates by current-phase labour requirement
+- set or clear per-unit material rates by current-phase material requirement
+
+Labour payments are measured in hours, so the normal 15-minute project tick pays one quarter of the configured hourly rate when the project uses the default `ProjectProgressMultiplier = 0.25`. Labour payments become persisted project payables that the worker must later claim. Material payments are paid immediately when `project supply` successfully contributes counted material.
+
+Labour payment increases apply immediately. A decrease or removal also applies immediately when nobody is currently assigned to that labour, but if active workers are present the command creates an `Accept` proposal. Accepting recomputes the current workers, removes them from that labour through the normal project leave path, and then applies the lower rate.
+
+Paid contributions are pay-before-progress:
+- if a paid labour tick cannot be funded, that worker is removed from the active project before skill tracking, progress, hours, or labour-impact actions are applied
+- if a paid material contribution cannot be funded, `project supply` rejects the attempt before consuming the item
+- clearing a labour or material rate makes that requirement unpaid/volunteer again
+
+Outstanding labour payables can be claimed as cash or deposited into a character-owned active bank account. Payables persist separately from the active project so workers can still claim earned labour after the project finishes or is cancelled.
+
 ## Persistence and Revisioning
 ### Builder content
 Project definitions persist across these EF models:
@@ -285,6 +313,9 @@ Active runtime instances persist separately in:
 - `ActiveProject`
 - `ActiveProjectLabour`
 - `ActiveProjectMaterial`
+- `ProjectPayable`
+
+The active project row stores the selected payment currency. Labour and material progress rows also store the optional payment rate for their requirement. `ProjectPayable` stores earned but unclaimed labour pay, owner refund payables, the project name and revision at the time the payable was created, the earning character, currency, optional labour requirement, and claim metadata. It deliberately does not require a live active-project foreign key, so payables survive project completion and cancellation.
 
 Character-side links are stored through:
 - `Character.CurrentProjectId`
@@ -308,6 +339,7 @@ These commands cover:
 - queueing next labour
 - cancellation
 - material preview and supply
+- funding, withdrawing, payment-rate setup, and claiming project payments
 - admin list/show/edit/set/review flows
 
 ### Character work state
@@ -338,6 +370,17 @@ Current job integration points are:
 - ending the employment attempts to cancel the linked active personal project
 
 Active project names also replace `@job` with the linked active job's name through `ActiveProject.Name`.
+
+### NPC project-worker AI
+`ProjectWorkerAI` lets NPCs seek paid active projects without going through the unified employment host model.
+
+The AI evaluates visible live local projects by current-phase labour requirements. It requires:
+- a configured minimum hourly payment in its selected currency
+- a funded project reserve with enough cash for at least one tick of work
+- a reachable project location within its pathing range
+- a labour requirement the NPC qualifies for and that still has a free worker slot
+
+When several projects qualify, it chooses the highest global-base-currency equivalent hourly rate, paths to the project location, joins the selected labour, and claims outstanding project payables on its hourly tick. NPC project workers do not displace other NPCs or players; displacement is a player-facing join concession. The AI can optionally deposit claimed project payments into an owned bank account, and can open a configured account type if no suitable account exists.
 
 ### Trait, trait-cap, healing, and infection consumers
 Project labour impacts currently feed into:

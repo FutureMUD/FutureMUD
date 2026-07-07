@@ -19,10 +19,12 @@ namespace MudSharp.Models
         public long CurrentPhaseId { get; set; }
         public long? CharacterId { get; set; }
         public long? CellId { get; set; }
+        public long? PaymentCurrencyId { get; set; }
 
         public virtual Cell Cell { get; set; }
         public virtual Character Character { get; set; }
         public virtual ProjectPhase CurrentPhase { get; set; }
+        public virtual Currency PaymentCurrency { get; set; }
         public virtual Project Project { get; set; }
         public virtual AgricultureProjectContext AgricultureProjectContext { get; set; }
         public virtual ICollection<ActiveProjectLabour> ActiveProjectLabours { get; set; }

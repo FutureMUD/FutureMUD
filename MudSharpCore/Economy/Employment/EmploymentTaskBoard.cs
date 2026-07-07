@@ -188,9 +188,43 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		if (_usePhysicalItemMovement && CanUseInventoryPlan(actor))
 		{
 			items.RemoveAll(x => !IsContextManagedCarriedTaskItem(actor, x) && !ActorCarriesItem(actor, x));
+			AddHeldTransportBundles(actor, items);
+			RemoveTransportBundleContents(items);
 		}
 
 		return items;
+	}
+
+	private void AddHeldTransportBundles(ICharacter actor, List<IGameItem> items)
+	{
+		if (!_transportBundleIds.Any())
+		{
+			return;
+		}
+
+		foreach (var bundle in EmploymentWorkerItemLocator.HeldOrWieldedItems(actor)
+		                                      .Where(x => _transportBundleIds.Contains(x.Id)))
+		{
+			if (items.All(x => x.Id != bundle.Id))
+			{
+				items.Add(bundle);
+			}
+		}
+	}
+
+	private void RemoveTransportBundleContents(List<IGameItem> items)
+	{
+		var bundledItemIds = items
+		                     .Where(x => _transportBundleIds.Contains(x.Id))
+		                     .SelectMany(x => x.GetItemType<PileGameItemComponent>()?.Contents ?? Enumerable.Empty<IGameItem>())
+		                     .Select(x => x.Id)
+		                     .ToHashSet();
+		if (!bundledItemIds.Any())
+		{
+			return;
+		}
+
+		items.RemoveAll(x => bundledItemIds.Contains(x.Id) && !_transportBundleIds.Contains(x.Id));
 	}
 
 	internal IReadOnlyCollection<long> ContextManagedCarriedTaskItemIds(ICharacter actor)
@@ -312,17 +346,27 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			AddCarriedTaskItems(employee, contextManagedItems, contextManaged: true);
 		}
 
-		foreach (var state in task.StepOperationalStates.Take(Math.Max(0, currentStepIndex)))
+		var stateCount = Math.Max(0, currentStepIndex);
+		if (currentStepIndex >= 0 &&
+		    currentStepIndex < task.StepStates.Count &&
+		    task.StepStates[currentStepIndex] is EmploymentActionStepStatus.InProgress or EmploymentActionStepStatus.Blocked)
+		{
+			stateCount++;
+		}
+
+		foreach (var state in task.StepOperationalStates.Take(stateCount))
 		{
 			if (TryParseTaskItemCustody(state.SelectedResources, out var custodyOperation, out _, out var custodyItemIds,
 				    out var custodyBundleIds, out var custodyContextManagedItemIds) &&
 			    task.AssignedEmployee is not null)
 			{
 				var items = custodyItemIds
+				            .Concat(custodyBundleIds)
 				            .Select(x => task.AssignedEmployee.Gameworld?.TryGetItem(x, true) ??
 				                         previousCarriedItems.FirstOrDefault(y => y.Id == x))
 				            .Where(x => x is not null)
 				            .Cast<IGameItem>()
+				            .DistinctBy(x => x.Id)
 				            .ToList();
 				if (custodyOperation.EqualTo("collect") || custodyOperation.EqualTo("unload"))
 				{
@@ -1355,7 +1399,6 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	{
 		var itemIds = items.Select(x => x.Id).Distinct().ToList();
 		var bundleIds = (transportBundleIds ?? [])
-		                .Where(x => itemIds.Contains(x))
 		                .Distinct()
 		                .ToList();
 		var contextItemIds = (contextManagedItemIds ?? [])

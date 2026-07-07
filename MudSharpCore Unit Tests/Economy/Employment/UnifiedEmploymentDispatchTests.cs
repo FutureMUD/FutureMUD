@@ -5893,6 +5893,48 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void EmploymentTaskContext_HydratesCurrentInProgressTransportBundleCustody()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("clinic", currency.Object);
+		var bandage = Item(105, "bandage").Object;
+		var bundle = Item(106, "treatment bundle");
+		bundle.SetupGet(x => x.DeepItems).Returns(() => [bandage]);
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.HeldOrWieldedItems).Returns([bundle.Object]);
+		var employee = Character(107, "Orderly");
+		employee.SetupGet(x => x.Body).Returns(body.Object);
+		employee.SetupGet(x => x.Inventory).Returns([]);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[employee.Object.Id] = employee.Object
+		}, items: new Dictionary<long, IGameItem>
+		{
+			[bandage.Id] = bandage,
+			[bundle.Object.Id] = bundle.Object
+		});
+		employee.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		host.Hire(employee.Object, Offer(currency.Object, EmploymentRole.HospitalOrderly,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.PrepareMedicalSupplies), null);
+		var task = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("prepare hospital supplies",
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "supplies collected")]),
+			employee.Object);
+		task.Assign(employee.Object);
+		var custody = EmploymentTaskContext.FormatTaskItemCustody("collect",
+			CharacterInstanceIdentityComparer.PhysicalInstanceKey(employee.Object), [bandage], [bundle.Object.Id]);
+		task.MarkStep(0, EmploymentActionStepStatus.InProgress,
+			new EmploymentActionStepOperationalState(SelectedResources: custody));
+		var context = new EmploymentTaskContext(host);
+
+		context.HydrateTaskState(task, 0);
+		var carried = context.CarriedTaskItems(employee.Object).Select(x => x.Id).ToArray();
+
+		StringAssert.Contains(custody, "items=105");
+		StringAssert.Contains(custody, "bundles=106");
+		CollectionAssert.Contains(carried, bundle.Object.Id);
+	}
+
+	[TestMethod]
 	public void TaskAssignmentAudit_BlocksWhenVehicleUnavailableWithTaskItemCustody()
 	{
 		var currency = Currency();

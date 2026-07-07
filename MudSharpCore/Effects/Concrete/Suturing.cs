@@ -109,10 +109,7 @@ public class Suturing : CharacterActionWithTarget, IAffectProximity
             return;
         }
 
-        if (OriginalInventoryPlan == null)
-        {
-            BeginInventoryPlan();
-        }
+        BeginInventoryPlan();
         Difficulty maxDifficulty = wounds.Select(x => x.CanBeTreated(TreatmentType.Close))
                                   .Where(x => x != Difficulty.Impossible)
                                   .DefaultIfEmpty()

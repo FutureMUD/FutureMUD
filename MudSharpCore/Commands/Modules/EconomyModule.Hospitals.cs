@@ -1524,13 +1524,12 @@ Administrators can also use:
 
 	private static IEnumerable<IEmploymentActionStep> ServiceRequestActionSteps(IHospital hospital, IHospitalServiceRequest request)
 	{
-		var hasPreparatorySupplyWork = HospitalSupplyPreparationActionStep.HasPreparatorySupplyWork(hospital, request);
-		if (hasPreparatorySupplyWork && HospitalMedicalServiceRunner.ShouldUseTreatmentTheatre(request.Service))
+		if (HospitalMedicalServiceRunner.ShouldUseTreatmentTheatre(request.Service))
 		{
 			yield return new HospitalPatientPreparationActionStep(hospital, request);
 		}
 
-		if (hasPreparatorySupplyWork)
+		if (HospitalSupplyPreparationActionStep.HasPreparatorySupplyWork(hospital, request))
 		{
 			yield return new HospitalSupplyPreparationActionStep(hospital, request);
 		}

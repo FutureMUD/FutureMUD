@@ -133,9 +133,8 @@ public partial class Body
         }
 
         EvaluateWounds();
-        RecheckStatus();
         CheckBodypartDamage();
-        CalculateOrganFunctions();
+        RecheckStatus();
     }
 
     internal void ExecuteWithSuppressedHealthFeedback(Action action)

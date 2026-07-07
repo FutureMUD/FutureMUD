@@ -55,6 +55,7 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
         _blocks.Add("movement");
         UseItems = useItems;
         MinimumSeverity = severity;
+        BeginInventoryPlan();
     }
 
     #region Overrides of TargetedBlockingDelayedAction
@@ -150,6 +151,29 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
         return (true, PeekCanCleanReason.CanClean);
     }
 
+    private void BeginInventoryPlan()
+    {
+        if (!UseItems)
+        {
+            return;
+        }
+
+        OriginalInventoryPlan ??= Gameworld.CleanWoundInventoryPlanTemplate.CreatePlan(CharacterOwner);
+        if (OriginalInventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+        {
+            OriginalInventoryPlan.ExecuteWholePlan();
+        }
+    }
+
+    private ITreatment GetTreatmentItem()
+    {
+        var treatments = CharacterOwner.Body.HeldOrWieldedItems
+                                      .SelectNotNull(x => x.GetItemType<ITreatment>())
+                                      .ToList();
+        return treatments.FirstOrDefault(x => x.IsTreatmentType(TreatmentType.Antiseptic)) ??
+               treatments.FirstOrDefault(x => x.IsTreatmentType(TreatmentType.Clean));
+    }
+
     public override void ExpireEffect()
     {
         List<IWound> wounds = TargetCharacter
@@ -171,22 +195,12 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
             return;
         }
 
-        IInventoryPlan inventoryPlan = UseItems ? Gameworld.CleanWoundInventoryPlanTemplate.CreatePlan(CharacterOwner) : null;
-        OriginalInventoryPlan ??= inventoryPlan;
-
-        ITreatment treatmentItem = null;
-        if (UseItems && inventoryPlan?.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+        if (UseItems && OriginalInventoryPlan == null)
         {
-            IEnumerable<InventoryPlanActionResult> results = inventoryPlan.ExecuteWholePlan();
-            treatmentItem = results.FirstOrDefault(x => x.OriginalReference?.ToString() == "treatment")?.PrimaryTarget
-                                   ?.GetItemType<ITreatment>();
+            BeginInventoryPlan();
         }
 
-        if (inventoryPlan != OriginalInventoryPlan)
-        {
-            inventoryPlan?.FinalisePlanNoRestore();
-        }
-
+        ITreatment treatmentItem = UseItems ? GetTreatmentItem() : null;
         if (treatmentItem == null && wounds.All(x => x.CanBeTreated(TreatmentType.Clean) == Difficulty.Impossible))
         {
             CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote("@ stop|stops cleaning $1's wounds.",

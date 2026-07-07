@@ -4562,9 +4562,14 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 	public static bool HasPreparatorySupplyWork(IHospital hospital, IHospitalServiceRequest request)
 	{
+		if (request.SupplyPrepared)
+		{
+			return false;
+		}
+
 		if (request.Service.RequiredEquipment.Any())
 		{
-			return true;
+			return !TreatmentLocationAlreadyHasConfiguredSupplies(hospital, request);
 		}
 
 		if (!HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(request.Service))
@@ -4572,8 +4577,9 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			return false;
 		}
 
-		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(request.Service);
+		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(request.Service).ToList();
 		return treatmentTypes.Any() &&
+		       !TreatmentLocationAlreadyHasImplicitSupplies(hospital, request, treatmentTypes) &&
 		       hospital.SupplyRooms.Any(room =>
 			       (room.GameItems ?? Enumerable.Empty<IGameItem>())
 			       .SelectMany(DeepItemsOrSelf)
@@ -4584,8 +4590,9 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
-		if (!base.CanExecute(context, actor, out reason))
+		if (actor is null)
 		{
+			reason = "There is no employee assigned to this action step.";
 			return false;
 		}
 
@@ -4621,10 +4628,18 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			return false;
 		}
 
+		var hasSupplyAuthority = context.Employer.HasAuthority(actor, EmploymentAuthority.PrepareMedicalSupplies);
+		var hasMedicalAuthority = context.Employer.HasAuthority(actor, EmploymentAuthority.PerformMedicalServices);
 		if (Request.SupplyPrepared)
 		{
-			reason = "This hospital request's supplies have already been prepared.";
-			return false;
+			if (!hasSupplyAuthority && !hasMedicalAuthority)
+			{
+				reason = $"{actor.HowSeen(actor, colour: false)} lacks authority to acknowledge prepared hospital supplies.";
+				return false;
+			}
+
+			reason = string.Empty;
+			return true;
 		}
 
 		if (!HospitalPatientFlow.TryReserveTreatmentLocation(Hospital, Request, out var theatre, out reason))
@@ -4640,6 +4655,12 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 		if (TreatmentLocationAlreadyPrepared(context, actor, theatre))
 		{
+			if (!hasSupplyAuthority && !hasMedicalAuthority)
+			{
+				reason = $"{actor.HowSeen(actor, colour: false)} lacks authority to acknowledge staged hospital supplies.";
+				return false;
+			}
+
 			if (actor.Location?.Id != theatre.Id && !context.CanPath(actor, theatre))
 			{
 				reason = $"The assigned employee cannot path to the treatment location {theatre.Name}.";
@@ -4648,6 +4669,17 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 			reason = string.Empty;
 			return true;
+		}
+
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (!hasSupplyAuthority)
+		{
+			reason = $"{actor.HowSeen(actor, colour: false)} lacks the authority required to prepare hospital supplies.";
+			return false;
 		}
 
 		if (context.CarriedTaskItems(actor).Any())
@@ -4694,6 +4726,12 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		if (!CanExecute(context, actor, out var reason))
 		{
 			return EmploymentActionStepResult.Blocked(reason);
+		}
+
+		if (Request.SupplyPrepared)
+		{
+			return EmploymentActionStepResult.CompletedResult(
+				$"Hospital supplies for request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)} were already prepared.");
 		}
 
 		if (!HospitalPatientFlow.TryReserveTreatmentLocation(Hospital, Request, out var theatre, out reason) || theatre is null)
@@ -4842,6 +4880,74 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		return treatmentTypes.All(type => treatments.Any(treatment => treatment.IsTreatmentType(type)));
 	}
 
+	private static bool TreatmentLocationAlreadyHasConfiguredSupplies(IHospital hospital,
+		IHospitalServiceRequest request)
+	{
+		foreach (var theatre in TreatmentLocationCandidates(hospital, request))
+		{
+			var available = (theatre.GameItems ?? Enumerable.Empty<IGameItem>())
+			                .SelectMany(DeepItemsOrSelf)
+			                .DistinctBy(x => x.Id)
+			                .ToList();
+			if (RequirementsSatisfiedByItems(available, request.Service.RequiredEquipment))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private static bool TreatmentLocationAlreadyHasImplicitSupplies(IHospital hospital,
+		IHospitalServiceRequest request, IReadOnlyCollection<TreatmentType> treatmentTypes)
+	{
+		var treatments = TreatmentLocationCandidates(hospital, request)
+		                 .SelectMany(theatre => theatre.GameItems ?? Enumerable.Empty<IGameItem>())
+		                 .SelectMany(DeepItemsOrSelf)
+		                 .DistinctBy(x => x.Id)
+		                 .Select(x => x.GetItemType<ITreatment>())
+		                 .Where(x => x is not null)
+		                 .Cast<ITreatment>()
+		                 .ToList();
+		return treatmentTypes.All(type => treatments.Any(treatment => treatment.IsTreatmentType(type)));
+	}
+
+	private static bool RequirementsSatisfiedByItems(IReadOnlyCollection<IGameItem> available,
+		IEnumerable<HospitalServiceEquipmentRequirement> requirements)
+	{
+		var unused = available.ToList();
+		foreach (var requirement in requirements)
+		{
+			var matched = unused
+			              .Where(x => MatchesSelector(x, requirement.Selector))
+			              .Take(requirement.Quantity)
+			              .ToList();
+			if (matched.Count < requirement.Quantity)
+			{
+				return false;
+			}
+
+			foreach (var item in matched)
+			{
+				unused.RemoveAll(x => x.Id == item.Id);
+			}
+		}
+
+		return true;
+	}
+
+	private static IEnumerable<ICell> TreatmentLocationCandidates(IHospital hospital, IHospitalServiceRequest request)
+	{
+		if (request.OperatingTheatreCellId is { } reservedTheatreId)
+		{
+			return (hospital.OperatingTheatres ?? Array.Empty<ICell>()).Where(x => x.Id == reservedTheatreId);
+		}
+
+		return (hospital.OperatingTheatres ?? Array.Empty<ICell>())
+		               .Where(theatre => HospitalPatientFlow.IsTheatreAvailable(hospital, request, theatre, out _))
+		               .Take(1);
+	}
+
 	private IEnumerable<IGameItem> TreatmentLocationSupplyItems(IEmploymentTaskContext context, ICell theatre)
 	{
 		return context.AvailableItems(theatre)
@@ -4974,6 +5080,35 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		};
 	}
 
+	private static bool MatchesSelector(IGameItem item, EmploymentItemSelector selector)
+	{
+		return selector.Kind switch
+		{
+			EmploymentItemSelectorKind.PrototypeId => item.Prototype.Id == selector.Id,
+			EmploymentItemSelectorKind.ItemId => item.Id == selector.Id,
+			EmploymentItemSelectorKind.Tag => !string.IsNullOrWhiteSpace(selector.Text) && ItemHasTag(item, selector.Text),
+			EmploymentItemSelectorKind.Keyword => !string.IsNullOrWhiteSpace(selector.Text) &&
+			                                      MatchesKeyword(item, selector.Text),
+			_ => false
+		};
+	}
+
+	private static bool ItemHasTag(IGameItem item, string tagName)
+	{
+		return item.Tags.Any(x =>
+			x.Name.EqualTo(tagName) ||
+			x.FullName.EqualTo(tagName) ||
+			x.Id.ToString("F0", CultureInfo.InvariantCulture).EqualTo(tagName));
+	}
+
+	private static bool MatchesKeyword(IGameItem item, string text)
+	{
+		var keywords = text.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+		return keywords.All(keyword => item.Keywords.Any(x =>
+			x.StartsWith(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+			x.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)));
+	}
+
 	private bool DoctorBlockedByAvailableSupplyWorker(IEmploymentTaskContext context, ICharacter actor, ICell theatre,
 		ICell source)
 	{
@@ -5029,6 +5164,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			: null;
 	}
 }
+
 public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	public HospitalServiceActionStep(IHospital hospital, IHospitalServiceRequest request)
@@ -5098,6 +5234,13 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 			return false;
 		}
 
+
+		if (!actor.ColocatedWith(patient) && patient.Location is not null && !context.CanPath(actor, patient.Location))
+		{
+			reason = $"The assigned employee cannot path to the patient location {patient.Location.Name}.";
+			return false;
+		}
+
 		if (Request.Status != HospitalServiceRequestStatus.Completed &&
 		    ShouldCollectImplicitTreatmentSupplies(context, actor, out var source, out _, out reason))
 		{
@@ -5108,11 +5251,6 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 			}
 		}
 
-		if (!actor.ColocatedWith(patient) && patient.Location is not null && !context.CanPath(actor, patient.Location))
-		{
-			reason = $"The assigned employee cannot path to the patient location {patient.Location.Name}.";
-			return false;
-		}
 
 		reason = string.Empty;
 		return true;
@@ -5131,32 +5269,6 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 		}
 
 		var patient = Request.Patient!;
-		if (Request.Status != HospitalServiceRequestStatus.Completed &&
-		    ShouldCollectImplicitTreatmentSupplies(context, actor, out var source, out var supplies, out reason))
-		{
-			if (actor.Location?.Id != source.Id)
-			{
-				return new EmploymentActionStepResult(true,
-					$"Hospital treatment supplies are available in {source.Name}.", false,
-					new EmploymentActionStepOperationalState(OperationalPayload:
-						$"hospitalservice:supplies;request={Request.Id.ToString("F0", CultureInfo.InvariantCulture)};source={source.Id.ToString("F0", CultureInfo.InvariantCulture)}"));
-			}
-
-			var previouslyCarried = context.CarriedTaskItems(actor).Select(x => x.Id).ToHashSet();
-			if (!context.TryCollectTaskItems(actor, supplies.Select(x => (x.Item, x.Source)).ToList(), out reason))
-			{
-				return EmploymentActionStepResult.Blocked(reason);
-			}
-
-			return new EmploymentActionStepResult(true,
-				$"Collected treatment supplies for hospital request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)}.",
-				false,
-				EmploymentActionStepOperationalStateBuilder.CollectedTaskItemCustody(context, actor,
-					supplies.Select(x => x.Item).ToList(), previouslyCarried).Merge(
-					new EmploymentActionStepOperationalState(OperationalPayload:
-						$"hospitalservice:supplies;request={Request.Id.ToString("F0", CultureInfo.InvariantCulture)};source={source.Id.ToString("F0", CultureInfo.InvariantCulture)};items={supplies.Select(x => x.Item.Id.ToString("F0", CultureInfo.InvariantCulture)).ListToCommaSeparatedValues()}")));
-		}
-
 		if (!actor.ColocatedWith(patient))
 		{
 			Request.MarkStatus(HospitalServiceRequestStatus.Assigned,
@@ -5190,6 +5302,32 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 			}
 		}
 
+		if (Request.Status != HospitalServiceRequestStatus.Completed &&
+		    ShouldCollectImplicitTreatmentSupplies(context, actor, out var source, out var supplies, out reason))
+		{
+			if (actor.Location?.Id != source.Id)
+			{
+				return new EmploymentActionStepResult(true,
+					$"Hospital treatment supplies are available in {source.Name}.", false,
+					new EmploymentActionStepOperationalState(OperationalPayload:
+						$"hospitalservice:supplies;request={Request.Id.ToString("F0", CultureInfo.InvariantCulture)};source={source.Id.ToString("F0", CultureInfo.InvariantCulture)}"));
+			}
+
+			var previouslyCarried = context.CarriedTaskItems(actor).Select(x => x.Id).ToHashSet();
+			if (!context.TryCollectTaskItems(actor, supplies.Select(x => (x.Item, x.Source)).ToList(), out reason))
+			{
+				return EmploymentActionStepResult.Blocked(reason);
+			}
+
+			return new EmploymentActionStepResult(true,
+				$"Collected treatment supplies for hospital request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)}.",
+				false,
+				EmploymentActionStepOperationalStateBuilder.CollectedTaskItemCustody(context, actor,
+					supplies.Select(x => x.Item).ToList(), previouslyCarried).Merge(
+					new EmploymentActionStepOperationalState(OperationalPayload:
+						$"hospitalservice:supplies;request={Request.Id.ToString("F0", CultureInfo.InvariantCulture)};source={source.Id.ToString("F0", CultureInfo.InvariantCulture)};items={supplies.Select(x => x.Item.Id.ToString("F0", CultureInfo.InvariantCulture)).ListToCommaSeparatedValues()}")));
+		}
+
 		return HospitalMedicalServiceRunner.ExecuteServiceRequest(context, actor, Hospital, Request);
 	}
 
@@ -5200,15 +5338,15 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 			return [];
 		}
 
+		if (!actor.ColocatedWith(patient))
+		{
+			return patient.Location is null ? [] : [patient.Location];
+		}
+
 		if (ShouldCollectImplicitTreatmentSupplies(context, actor, out var source, out _, out _) &&
 		    actor.Location?.Id != source.Id)
 		{
 			return [source];
-		}
-
-		if (!actor.ColocatedWith(patient))
-		{
-			return patient.Location is null ? [] : [patient.Location];
 		}
 
 		return patient.Location is null ? [] : [patient.Location];

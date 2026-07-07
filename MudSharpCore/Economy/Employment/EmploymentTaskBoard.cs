@@ -3938,7 +3938,8 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		}
 
 		var currentStep = task.ActionPlan.Steps[nextStepIndex];
-		if (!activeContracts.Any(x => x.Authority.ContainsAll(currentStep.RequiredAuthority)))
+		if (!activeContracts.Any(x => x.Authority.ContainsAll(currentStep.RequiredAuthority)) &&
+		    !CurrentStepCanExecuteForAssignmentAudit(task, nextStepIndex, currentStep, employee))
 		{
 			reason = $"{employee.Name} no longer has the delegated authority required for this task step.";
 			return true;
@@ -3960,13 +3961,21 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			ai.TaskingEnabled &&
 			(ai.HostTypeFilter is null || ai.HostTypeFilter.Value == _host.EmploymentHostType) &&
 			currentStep.RequiredCapabilities.All(x => ai.Capabilities.Contains(x)));
-		if (!usableAi)
+		if (!usableAi && !CurrentStepCanExecuteForAssignmentAudit(task, nextStepIndex, currentStep, employee))
 		{
 			reason = $"{employee.Name}'s EmploymentWorkerAI can no longer execute this task step.";
 			return true;
 		}
 
 		return false;
+	}
+
+	private bool CurrentStepCanExecuteForAssignmentAudit(EmploymentActiveTask task, int nextStepIndex,
+		IEmploymentActionStep currentStep, ICharacter employee)
+	{
+		var context = new EmploymentTaskContext(_host);
+		context.HydrateTaskState(task, nextStepIndex);
+		return currentStep.CanExecute(context, employee, out _);
 	}
 
 	private bool TryGetLogisticsResourceAuditReason(EmploymentActiveTask task, out string reason)

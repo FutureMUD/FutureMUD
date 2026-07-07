@@ -107,6 +107,7 @@ public class Binding : CharacterActionWithTarget, IAffectProximity
         _blocks.Add("general");
         _blocks.Add("movement");
         target.AddEffect(TargetEffect);
+        BeginInventoryPlan();
         List<IWound> wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
                                     .Where(x => x.BleedStatus == BleedStatus.Bleeding)
                                     .ToList();
@@ -133,6 +134,15 @@ public class Binding : CharacterActionWithTarget, IAffectProximity
 
     #endregion
 
+    private void BeginInventoryPlan()
+    {
+        OriginalInventoryPlan ??= Gameworld.BindInventoryPlanTemplate.CreatePlan(CharacterOwner);
+        if (OriginalInventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+        {
+            OriginalInventoryPlan.ExecuteWholePlan();
+        }
+    }
+
     public override void ExpireEffect()
     {
         List<IWound> wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
@@ -147,28 +157,16 @@ public class Binding : CharacterActionWithTarget, IAffectProximity
             return;
         }
 
-        IInventoryPlan inventoryPlan = Gameworld.BindInventoryPlanTemplate.CreatePlan(CharacterOwner);
         if (OriginalInventoryPlan == null)
         {
-            OriginalInventoryPlan = inventoryPlan;
+            BeginInventoryPlan();
         }
-
-        if (inventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
-        {
-            inventoryPlan.ExecuteWholePlan();
-        }
-
-        if (inventoryPlan != OriginalInventoryPlan)
-        {
-            inventoryPlan.FinalisePlanNoRestore();
-        }
-
         Difficulty maxDifficulty = wounds.Select(x => x.CanBeTreated(TreatmentType.Trauma))
                                   .Where(x => x != Difficulty.Impossible)
                                   .DefaultIfEmpty()
                                   .Max();
         ITreatment treatmentItem =
-            CharacterOwner.Body.HeldItems.SelectNotNull(x => x.GetItemType<ITreatment>())
+            CharacterOwner.Body.HeldOrWieldedItems.SelectNotNull(x => x.GetItemType<ITreatment>())
                           .Where(x => x.IsTreatmentType(TreatmentType.Trauma))
                           .FirstMin(x => x.GetTreatmentDifficulty(maxDifficulty));
 

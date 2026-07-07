@@ -113,6 +113,53 @@ public class BodyFormLifecycleGuardTests
 		StringAssert.Contains(effect, "ApparentBirthday.GetRoundtripString()");
 	}
 
+	[TestMethod]
+	public void CheckHealthStatus_RechecksStatusAfterBodypartAndOrganDamageUpdates()
+	{
+		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Body", "Implementations", "BodyBiology.cs"));
+		var methodStart = source.IndexOf("public void CheckHealthStatus()", StringComparison.Ordinal);
+		Assert.IsTrue(methodStart >= 0);
+		var methodEnd = source.IndexOf("internal void ExecuteWithSuppressedHealthFeedback", methodStart, StringComparison.Ordinal);
+		Assert.IsTrue(methodEnd > methodStart);
+		var method = source[methodStart..methodEnd];
+		var evaluateIndex = method.IndexOf("EvaluateWounds();", StringComparison.Ordinal);
+		var bodypartIndex = method.IndexOf("CheckBodypartDamage();", StringComparison.Ordinal);
+		var statusIndex = method.IndexOf("RecheckStatus();", StringComparison.Ordinal);
+
+		Assert.IsTrue(evaluateIndex >= 0);
+		Assert.IsTrue(bodypartIndex > evaluateIndex);
+		Assert.IsTrue(statusIndex > bodypartIndex);
+		Assert.IsFalse(method.Contains("CalculateOrganFunctions();", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
+	public void WoundCareDelayedEffects_BeginInventoryPlansBeforeFirstTickAndUseHeldOrWieldedItems()
+	{
+		var effects = new[]
+		{
+			("Binding.cs", "public Binding("),
+			("Suturing.cs", "public Suturing("),
+			("TendingWounds.cs", "public TendingWounds("),
+			("CleaningWounds.cs", "public CleaningWounds(")
+		};
+
+		foreach (var (file, constructorSignature) in effects)
+		{
+			var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete", file));
+			StringAssert.Contains(source, "private void BeginInventoryPlan()");
+			StringAssert.Contains(source, "HeldOrWieldedItems");
+			Assert.IsFalse(source.Contains(".HeldItems", StringComparison.Ordinal), file);
+			Assert.IsFalse(source.Contains("inventoryPlan.ExecuteWholePlan();", StringComparison.Ordinal), file);
+
+			var constructorIndex = source.IndexOf(constructorSignature, StringComparison.Ordinal);
+			var beginIndex = source.IndexOf("BeginInventoryPlan();", constructorIndex, StringComparison.Ordinal);
+			var expireIndex = source.IndexOf("public override void ExpireEffect()", StringComparison.Ordinal);
+			Assert.IsTrue(constructorIndex >= 0, file);
+			Assert.IsTrue(beginIndex > constructorIndex, file);
+			Assert.IsTrue(beginIndex < expireIndex, file);
+		}
+	}
+
 	private static Mock<IRace> CreateRaceWithAgeThresholds(int child, int youth, int youngAdult, int adult, int elder,
 		int venerable)
 	{

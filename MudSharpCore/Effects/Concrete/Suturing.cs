@@ -59,6 +59,7 @@ public class Suturing : CharacterActionWithTarget, IAffectProximity
         ActionDescription = "suturing $1's wounds";
         _blocks.Add("general");
         _blocks.Add("movement");
+        BeginInventoryPlan();
     }
 
     public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
@@ -84,6 +85,15 @@ public class Suturing : CharacterActionWithTarget, IAffectProximity
 
     #endregion
 
+    private void BeginInventoryPlan()
+    {
+        OriginalInventoryPlan ??= Gameworld.SutureInventoryPlanTemplate.CreatePlan(CharacterOwner);
+        if (OriginalInventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+        {
+            OriginalInventoryPlan.ExecuteWholePlan();
+        }
+    }
+
     public override void ExpireEffect()
     {
         List<IWound> wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
@@ -99,28 +109,16 @@ public class Suturing : CharacterActionWithTarget, IAffectProximity
             return;
         }
 
-        IInventoryPlan inventoryPlan = Gameworld.SutureInventoryPlanTemplate.CreatePlan(CharacterOwner);
         if (OriginalInventoryPlan == null)
         {
-            OriginalInventoryPlan = inventoryPlan;
+            BeginInventoryPlan();
         }
-
-        if (inventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
-        {
-            inventoryPlan.ExecuteWholePlan();
-        }
-
-        if (inventoryPlan != OriginalInventoryPlan)
-        {
-            inventoryPlan.FinalisePlanNoRestore();
-        }
-
         Difficulty maxDifficulty = wounds.Select(x => x.CanBeTreated(TreatmentType.Close))
                                   .Where(x => x != Difficulty.Impossible)
                                   .DefaultIfEmpty()
                                   .Max();
         ITreatment treatmentItem =
-            CharacterOwner.Body.HeldItems.SelectNotNull(x => x.GetItemType<ITreatment>())
+            CharacterOwner.Body.HeldOrWieldedItems.SelectNotNull(x => x.GetItemType<ITreatment>())
                           .Where(x => x.IsTreatmentType(TreatmentType.Close))
                           .FirstMin(x => x.GetTreatmentDifficulty(maxDifficulty));
 

@@ -4,6 +4,7 @@ using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Framework;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 
@@ -65,7 +66,8 @@ public static class HospitalPatientFlow
 	{
 		reason = string.Empty;
 		request.ReturnCellId ??= patient.Location?.Id;
-		if (patient.Location?.Id == treatmentLocation.Id && employee.Location?.Id == treatmentLocation.Id)
+		var patientAlreadyThere = patient.Location?.Id == treatmentLocation.Id;
+		if (patientAlreadyThere && employee.Location?.Id == treatmentLocation.Id)
 		{
 			return true;
 		}
@@ -75,6 +77,12 @@ public static class HospitalPatientFlow
 		{
 			origin.HandleRoomEcho(new EmoteOutput(new Emote(
 				"@ take|takes $0 into an operating theatre for treatment.", employee, patient)));
+		}
+
+		if (!patientAlreadyThere)
+		{
+			patient.OutputHandler.Send(
+				$"You are taken into {treatmentLocation.Name.ColourName()} for hospital treatment.");
 		}
 
 		MoveCharacter(patient, treatmentLocation);
@@ -92,35 +100,43 @@ public static class HospitalPatientFlow
 			return;
 		}
 
-		var destination = patient.IsHelpless
-			? hospital.RecoveryRooms.FirstOrDefault()
-			: hospital.WaitingRooms.FirstOrDefault();
+		var recoveryRoom = hospital.RecoveryRooms.FirstOrDefault();
+		var destination = recoveryRoom ?? hospital.WaitingRooms.FirstOrDefault();
 		if (destination is null)
 		{
 			request.MarkStatus(request.Status,
-				$"{auditPrefix}: no {(patient.IsHelpless ? "recovery" : "waiting")} room was available, so the patient was left in place.");
+				$"{auditPrefix}: no recovery or waiting room was available, so the patient was left in place.");
 			return;
 		}
 
+		var destinationIsRecovery = recoveryRoom is not null;
 		var origin = patient.Location;
 		if (origin is not null && origin.Id != destination.Id)
 		{
 			origin.HandleRoomEcho(new EmoteOutput(new Emote(
-				patient.IsHelpless
+				destinationIsRecovery
 					? "$0 $0|are|is taken to recovery after treatment."
 					: "$0 $0|are|is escorted back to the waiting room after treatment.", patient, patient)));
 		}
 
 		MoveCharacter(patient, destination);
-		if (patient.IsHelpless)
+		if (destinationIsRecovery)
 		{
 			request.RecoveryRoomCellId = destination.Id;
-			PlaceOnRecoveryBed(patient, destination);
+			if (patient.IsHelpless)
+			{
+				PlaceOnRecoveryBed(patient, destination);
+			}
+
+			patient.OutputHandler.Send(
+				$"Your hospital treatment is complete, and you are {(patient.IsHelpless ? "brought" : "escorted")} to {destination.Name.ColourName()} for recovery.");
 			destination.HandleRoomEcho(new EmoteOutput(new Emote("$0 $0|are|is brought in for recovery.", patient, patient)));
 			return;
 		}
 
 		request.ReturnCellId = destination.Id;
+		patient.OutputHandler.Send(
+			$"Your hospital treatment is complete, and you are returned to {destination.Name.ColourName()}.");
 		destination.HandleRoomEcho(new EmoteOutput(new Emote("$0 $0|return|returns from hospital treatment.", patient, patient)));
 	}
 

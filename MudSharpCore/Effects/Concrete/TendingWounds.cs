@@ -60,6 +60,7 @@ public class TendingWounds : CharacterActionWithTarget, IAffectProximity
         ActionDescription = "tending to $1's wounds";
         _blocks.Add("general");
         _blocks.Add("movement");
+        BeginInventoryPlan();
     }
 
     public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
@@ -85,6 +86,15 @@ public class TendingWounds : CharacterActionWithTarget, IAffectProximity
 
     #endregion
 
+    private void BeginInventoryPlan()
+    {
+        OriginalInventoryPlan ??= Gameworld.TendInventoryPlanTemplate.CreatePlan(CharacterOwner);
+        if (OriginalInventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+        {
+            OriginalInventoryPlan.ExecuteWholePlan();
+        }
+    }
+
     public override void ExpireEffect()
     {
         List<IWound> wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination).ToList();
@@ -99,22 +109,10 @@ public class TendingWounds : CharacterActionWithTarget, IAffectProximity
             return;
         }
 
-        IInventoryPlan inventoryPlan = Gameworld.TendInventoryPlanTemplate.CreatePlan(CharacterOwner);
         if (OriginalInventoryPlan == null)
         {
-            OriginalInventoryPlan = inventoryPlan;
+            BeginInventoryPlan();
         }
-
-        if (inventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
-        {
-            inventoryPlan.ExecuteWholePlan();
-        }
-
-        if (inventoryPlan != OriginalInventoryPlan)
-        {
-            inventoryPlan.FinalisePlanNoRestore();
-        }
-
         ITreatment treatmentItem = GetTreatmentItem(treatment.Type, treatment.Difficulty);
 
         if (treatmentItem == null)
@@ -178,7 +176,7 @@ public class TendingWounds : CharacterActionWithTarget, IAffectProximity
 
     private ITreatment GetTreatmentItem(TreatmentType type, Difficulty difficulty)
     {
-        return CharacterOwner.Body.HeldItems
+        return CharacterOwner.Body.HeldOrWieldedItems
                              .SelectNotNull(x => x.GetItemType<ITreatment>())
                              .Where(x => x.IsTreatmentType(type))
                              .FirstMin(x => x.GetTreatmentDifficulty(difficulty));

@@ -313,8 +313,23 @@ public static class HospitalMedicalServiceRunner
 		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
 			$"Completed hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {completionMessage}",
 			CurrentCorrelationId(context));
+		AnnounceRequestCompleted(employee, request, request.Service.Name);
 		HospitalPatientFlow.TransferAfterTreatment(hospital, request, employee, "Hospital recovery routing");
 		return true;
+	}
+
+	private static void AnnounceRequestCompleted(ICharacter employee, IHospitalServiceRequest request,
+		string procedureName)
+	{
+		if (request.Patient is not { } patient)
+		{
+			return;
+		}
+
+		patient.Location?.HandleRoomEcho(new EmoteOutput(new Emote(
+			$"@ finish|finishes {procedureName.ColourName()} for $0.", employee, patient)));
+		patient.OutputHandler.Send(
+			$"Your {procedureName.ColourName()} hospital procedure is complete.");
 	}
 
 	private static bool TryApplyUsageBilling(IEmploymentTaskContext context, ICharacter employee, IHospital hospital,
@@ -1008,6 +1023,7 @@ public static class HospitalMedicalServiceRunner
 			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
 				$"Completed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {procedure.ProcedureName} completed with {outcome.Outcome.DescribeEnum()} outcome.",
 				CurrentCorrelationId(context));
+			AnnounceRequestCompleted(employee, request, procedure.ProcedureName);
 			HospitalPatientFlow.TransferAfterTreatment(hospital, request, employee, "Hospital recovery routing");
 			return;
 		}
@@ -1919,9 +1935,10 @@ public static class HospitalMedicalServiceRunner
 
 	private static ITreatment? BestTreatmentItem(ICharacter employee, TreatmentType treatment, Difficulty difficulty)
 	{
-		return (employee.Body?.HeldItems ?? Enumerable.Empty<IGameItem>())
-		               .SelectNotNull(x => x!.GetItemType<ITreatment>())
-		               .Where(x => x.IsTreatmentType(treatment))
+		return EmploymentWorkerItemLocator.HeldOrWieldedItems(employee)
+		               .Select(x => x.GetItemType<ITreatment>())
+		               .Where(x => x is not null && x.IsTreatmentType(treatment))
+		               .Cast<ITreatment>()
 		               .FirstMin(x => x.GetTreatmentDifficulty(difficulty));
 	}
 

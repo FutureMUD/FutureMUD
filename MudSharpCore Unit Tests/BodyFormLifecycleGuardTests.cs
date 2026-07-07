@@ -133,7 +133,7 @@ public class BodyFormLifecycleGuardTests
 	}
 
 	[TestMethod]
-	public void WoundCareDelayedEffects_BeginInventoryPlansBeforeFirstTickAndUseHeldOrWieldedItems()
+	public void WoundCareDelayedEffects_BeginInventoryPlansBeforeFirstTickAndDelayedSteps()
 	{
 		var effects = new[]
 		{
@@ -157,7 +157,27 @@ public class BodyFormLifecycleGuardTests
 			Assert.IsTrue(constructorIndex >= 0, file);
 			Assert.IsTrue(beginIndex > constructorIndex, file);
 			Assert.IsTrue(beginIndex < expireIndex, file);
+			var expireBeginIndex = source.IndexOf("BeginInventoryPlan();", expireIndex, StringComparison.Ordinal);
+			Assert.IsTrue(expireBeginIndex > expireIndex, file);
+			Assert.IsFalse(source.Contains("OriginalInventoryPlan == null", StringComparison.Ordinal), file);
 		}
+	}
+
+	[TestMethod]
+	public void HospitalRequestConfirmation_UsesSelfAwareShortMessage()
+	{
+		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Commands", "Modules", "EconomyModule.Hospitals.cs"));
+		var methodStart = source.IndexOf("private static bool TryCreateHospitalRequest", StringComparison.Ordinal);
+		Assert.IsTrue(methodStart >= 0);
+		var methodEnd = source.IndexOf("private static IEnumerable<IEmploymentActionStep> ServiceRequestActionSteps", methodStart, StringComparison.Ordinal);
+		Assert.IsTrue(methodEnd > methodStart);
+		var method = source[methodStart..methodEnd];
+
+		StringAssert.Contains(method, "? \"yourself\"");
+		StringAssert.Contains(method, "You request the {service.Name.ColourName()} service for {patientDescription} at this hospital.");
+		StringAssert.Contains(method, "\\nYour debt account will be charged based on the treatments performed");
+		Assert.IsFalse(method.Contains("Request #", StringComparison.Ordinal));
+		Assert.IsFalse(method.Contains("hospital debt account based on the treatments actually performed", StringComparison.Ordinal));
 	}
 
 	private static Mock<IRace> CreateRaceWithAgeThresholds(int child, int youth, int youngAdult, int adult, int elder,

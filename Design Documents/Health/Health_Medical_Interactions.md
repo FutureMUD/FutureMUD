@@ -78,7 +78,7 @@ Common robot sequence:
 
 That sequencing is one of the main gameplay-design choices in the subsystem.
 
-The delayed `bind`, `suture`, `tend`, and item-using `cleanwounds` flows execute their inventory plan when the action begins. Later delayed ticks reuse the actor's held-or-wielded treatment items instead of creating a fresh pickup and restore cycle for each individual wound. Health status recalculation evaluates wounds, updates bodypart and organ damage effects, and then rechecks consciousness and other character state so newly critical organ function is reflected immediately.
+The delayed `bind`, `suture`, `tend`, and item-using `cleanwounds` flows execute their inventory plan when the action begins and again before each delayed wound step. If the needed treatment item is already held or wielded the per-step execution is a no-op; if a consumable was used up, the next step can pick up a replacement before treating the next wound. Health status recalculation evaluates wounds, updates bodypart and organ damage effects, and then rechecks consciousness and other character state so newly critical organ function is reflected immediately.
 
 ### Economy-mediated hospital requests
 The `hospital` command lives on the economy command surface, but it deliberately reuses the health runtime instead of defining a separate medical model. Hospital services can queue employment tasks for binding, wound cleaning, wound closing, tending, bone relocation, bone setting, configured surgical procedures, configured implant procedures, blood donation, blood transfusion, and automatically maintained stabilisation and full-treatment requests.

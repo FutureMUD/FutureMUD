@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Character;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 
 #nullable enable
 
@@ -17,12 +18,31 @@ internal static class EmploymentWorkerItemLocator
 	public static IEnumerable<IGameItem> TaskHeldItems(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return context.CarriedTaskItems(actor)
-		              .Concat(HeldOrWieldedItems(actor))
+		              .Concat(HeldOrWieldedItems(actor).SelectMany(SelfAndDeepItems))
 		              .DistinctBy(x => x.Id);
 	}
 
 	public static bool IsHeldOrWielded(ICharacter actor, IGameItem item)
 	{
-		return HeldOrWieldedItems(actor).Any(x => x.Id == item.Id);
+		return HeldOrWieldedItems(actor)
+		       .SelectMany(SelfAndDeepItems)
+		       .Any(x => x.Id == item.Id);
+	}
+
+	private static IEnumerable<IGameItem> SelfAndDeepItems(IGameItem item)
+	{
+		yield return item;
+		if (item.GetItemType<PileGameItemComponent>() is not { } pile)
+		{
+			yield break;
+		}
+
+		foreach (var child in pile.Contents)
+		{
+			if (child.Id != item.Id)
+			{
+				yield return child;
+			}
+		}
 	}
 }

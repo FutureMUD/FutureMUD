@@ -1513,10 +1513,15 @@ Administrators can also use:
 		request.EmploymentTaskId = task.Id;
 		request.MarkStatus(HospitalServiceRequestStatus.Queued,
 			$"Queued as employment task {task.CorrelationId.ToString("D")}.");
-		message = $"You request {service.Name.ColourName()} for {patient.HowSeen(requester)} at {hospital.Name.ColourName()}. Request #{request.Id.ToString("N0", requester).ColourValue()} has been queued.";
+		var patientDescription = CharacterInstanceIdentityComparer.SamePhysicalInstance(requester, patient)
+			? "yourself"
+			: patient.HowSeen(requester);
+		message = $"You request the {service.Name.ColourName()} service for {patientDescription} at this hospital.";
 		if (HospitalServiceBilling.IsUsageBilledServiceType(service.ServiceType) && payment.Method != HospitalPaymentMethod.Waived)
 		{
-			message += " It will be charged to the patient's hospital debt account based on the treatments actually performed.";
+			message += CharacterInstanceIdentityComparer.SamePhysicalInstance(requester, patient)
+				? "\nYour debt account will be charged based on the treatments performed"
+				: "\nThe patient's debt account will be charged based on the treatments performed";
 		}
 
 		return true;

@@ -109,10 +109,7 @@ public class TendingWounds : CharacterActionWithTarget, IAffectProximity
             return;
         }
 
-        if (OriginalInventoryPlan == null)
-        {
-            BeginInventoryPlan();
-        }
+        BeginInventoryPlan();
         ITreatment treatmentItem = GetTreatmentItem(treatment.Type, treatment.Difficulty);
 
         if (treatmentItem == null)

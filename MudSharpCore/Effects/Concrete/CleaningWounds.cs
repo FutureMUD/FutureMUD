@@ -195,10 +195,7 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
             return;
         }
 
-        if (UseItems && OriginalInventoryPlan == null)
-        {
-            BeginInventoryPlan();
-        }
+        BeginInventoryPlan();
 
         ITreatment treatmentItem = UseItems ? GetTreatmentItem() : null;
         if (treatmentItem == null && wounds.All(x => x.CanBeTreated(TreatmentType.Clean) == Difficulty.Impossible))

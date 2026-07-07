@@ -10,6 +10,7 @@ using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
+using MudSharp.Economy.Hospitals;
 using MudSharp.Economy.Property;
 using MudSharp.Economy.Shops;
 using MudSharp.FutureProg;
@@ -460,6 +461,8 @@ internal sealed class EmploymentTaskAuthoringService
 				TryParseHotelAdministration(actor, host, input, out step, out message),
 			"hospitalservice" or "medicalservice" or "treatpatient" or "hospitaltreat" =>
 				TryParseHospitalService(actor, host, input, out step, out message),
+			"hospitalprep" or "hospitalpatient" or "medicalprep" or "patientprep" =>
+				TryParseHospitalPatientPreparation(actor, host, input, out step, out message),
 			"hospitalsupply" or "medicalsupply" or "prepareprocedure" or "proceduresupply" =>
 				TryParseHospitalSupply(actor, host, input, out step, out message),
 			"hospitaladmin" or "hospitalaudit" or "medicaladmin" =>
@@ -1715,6 +1718,49 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
+	private static bool TryParseHospitalPatientPreparation(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IHospital hospital)
+		{
+			message = "Hospital patient-preparation steps can only be drafted for hospital employment hosts.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Hospital patient-preparation steps use: {"hospitalprep <request id>".ColourCommand()}";
+			return false;
+		}
+
+		var selector = input.PopSpeech();
+		var request = hospital.RequestById(selector);
+		if (request is null)
+		{
+			message = $"There is no hospital service request matching {selector.ColourCommand()} at {hospital.Name.ColourName()}.";
+			return false;
+		}
+
+		if (!HospitalMedicalServiceRunner.ShouldUseTreatmentTheatre(request.Service))
+		{
+			message = $"Hospital service {request.Service.Name.ColourName()} does not require theatre preparation.";
+			return false;
+		}
+
+		if (request.Status is HospitalServiceRequestStatus.Completed or HospitalServiceRequestStatus.Cancelled or
+		    HospitalServiceRequestStatus.Declined or HospitalServiceRequestStatus.Failed)
+		{
+			message = $"Hospital service request #{request.Id.ToString("N0", actor)} is already {request.Status.DescribeEnum().ColourValue()}.";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new HospitalPatientPreparationActionStep(hospital, request);
+		message = string.Empty;
+		return true;
+	}
+
 	private static bool TryParseHospitalSupply(ICharacter actor, IEmploymentHost host, StringStack input,
 		out IEmploymentActionStep step, out string message)
 	{
@@ -1739,9 +1785,9 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		if (!request.Service.RequiredEquipment.Any())
+		if (!HospitalSupplyPreparationActionStep.HasPreparatorySupplyWork(hospital, request))
 		{
-			message = $"Hospital service {request.Service.Name.ColourName()} has no required equipment configured.";
+			message = $"Hospital service {request.Service.Name.ColourName()} has no configured equipment or available implicit treatment supplies.";
 			return false;
 		}
 
@@ -5728,6 +5774,8 @@ internal sealed class EmploymentTaskAuthoringService
 				DescribeHotelAdministrationStep(hotel),
 			HospitalServiceActionStep hospitalService =>
 				$"perform hospital service request #{hospitalService.Request.Id.ToString("N0", actor)} at {hospitalService.Hospital.Name.ColourName()}",
+			HospitalPatientPreparationActionStep hospitalPrep =>
+				$"move patient for hospital service request #{hospitalPrep.Request.Id.ToString("N0", actor)} to theatre at {hospitalPrep.Hospital.Name.ColourName()}",
 			HospitalSupplyPreparationActionStep hospitalSupply =>
 				$"prepare supplies for hospital service request #{hospitalSupply.Request.Id.ToString("N0", actor)} at {hospitalSupply.Hospital.Name.ColourName()}",
 			HospitalAdministrationActionStep hospitalAdmin =>
@@ -6060,6 +6108,7 @@ internal sealed class EmploymentTaskAuthoringService
 			HotelAdministrationActionStep => EmploymentActionCatalog.Get("hoteladmin"),
 			HospitalServiceActionStep => EmploymentActionCatalog.Get("hospitalservice"),
 			HospitalSupplyPreparationActionStep => EmploymentActionCatalog.Get("hospitalsupply"),
+			HospitalPatientPreparationActionStep => EmploymentActionCatalog.Get("hospitalprep"),
 			HospitalAdministrationActionStep => EmploymentActionCatalog.Get("hospitaladmin"),
 			BoardPostActionStep => EmploymentActionCatalog.Get("board"),
 			GetItemsByIdActionStep => EmploymentActionCatalog.Get("getid"),

@@ -1524,7 +1524,13 @@ Administrators can also use:
 
 	private static IEnumerable<IEmploymentActionStep> ServiceRequestActionSteps(IHospital hospital, IHospitalServiceRequest request)
 	{
-		if (HospitalSupplyPreparationActionStep.HasPreparatorySupplyWork(hospital, request))
+		var hasPreparatorySupplyWork = HospitalSupplyPreparationActionStep.HasPreparatorySupplyWork(hospital, request);
+		if (hasPreparatorySupplyWork && HospitalMedicalServiceRunner.ShouldUseTreatmentTheatre(request.Service))
+		{
+			yield return new HospitalPatientPreparationActionStep(hospital, request);
+		}
+
+		if (hasPreparatorySupplyWork)
 		{
 			yield return new HospitalSupplyPreparationActionStep(hospital, request);
 		}
@@ -2009,6 +2015,8 @@ Administrators can also use:
 
 		return tasks.FirstOrDefault(x => x.ActionPlan.Steps.Any(step => step switch
 		{
+			HospitalPatientPreparationActionStep hospitalPrep =>
+				hospitalPrep.Hospital.Id == hospital.Id && hospitalPrep.Request.Id == request.Id,
 			HospitalServiceActionStep hospitalService =>
 				hospitalService.Hospital.Id == hospital.Id && hospitalService.Request.Id == request.Id,
 			HospitalSupplyPreparationActionStep hospitalSupply =>

@@ -12,6 +12,7 @@ using MudSharp.Arenas;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Character.Name;
+using MudSharp.Commands.Modules;
 using MudSharp.Community;
 using MudSharp.Community.Boards;
 using MudSharp.Construction;
@@ -113,6 +114,15 @@ public class UnifiedEmploymentDispatchTests
 		CollectionAssert.Contains(admin.RequiredCapabilities.ToArray(), EmploymentAICapability.CanPerformMedicalServices);
 		Assert.AreSame(admin, EmploymentActionCatalog.Get("medicaladmin"));
 
+		var prep = EmploymentActionCatalog.Get("hospitalprep");
+
+		Assert.IsNotNull(prep);
+		Assert.AreEqual(EmploymentActionCatalogStatus.Executable, prep!.Status);
+		Assert.AreEqual(EmploymentActionStepType.HospitalPatientPreparation, prep.StepType);
+		Assert.IsTrue(prep.RequiredAuthority.Contains(EmploymentAuthority.PerformMedicalServices));
+		CollectionAssert.Contains(prep.RequiredCapabilities.ToArray(), EmploymentAICapability.CanPerformMedicalServices);
+		Assert.AreSame(prep, EmploymentActionCatalog.Get("patientprep"));
+
 		var supply = EmploymentActionCatalog.Get("hospitalsupply");
 
 		Assert.IsNotNull(supply);
@@ -182,6 +192,45 @@ public class UnifiedEmploymentDispatchTests
 
 		supplyRoom.SetupGet(x => x.GameItems).Returns([]);
 		Assert.IsFalse(HospitalSupplyPreparationActionStep.HasPreparatorySupplyWork(hospital.Object, request.Object));
+	}
+
+	[TestMethod]
+	public void HospitalRequestPlanner_PrioritisesPatientPreparationBeforeSupplyForTheatreTreatment()
+	{
+		var supplyRoom = Cell(741, "supply room");
+		var theatre = Cell(742, "operating theatre");
+		theatre.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
+		var treatment = new Mock<ITreatment>();
+		treatment.Setup(x => x.IsTreatmentType(It.IsAny<TreatmentType>())).Returns(true);
+		var treatmentItem = Item(743, "treatment kit");
+		treatmentItem.Setup(x => x.GetItemType<ITreatment>()).Returns(treatment.Object);
+		supplyRoom.SetupGet(x => x.GameItems).Returns([treatmentItem.Object]);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(744);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.SupplyRooms).Returns([supplyRoom.Object]);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.Stabilisation);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(745);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+
+		var method = typeof(EconomyModule).GetMethod("ServiceRequestActionSteps",
+			BindingFlags.NonPublic | BindingFlags.Static);
+
+		Assert.IsNotNull(method);
+		var steps = ((IEnumerable<IEmploymentActionStep>)method!.Invoke(null, [hospital.Object, request.Object])!).ToList();
+		CollectionAssert.AreEqual(
+			new[]
+			{
+				EmploymentActionStepType.HospitalPatientPreparation,
+				EmploymentActionStepType.HospitalSupplyPreparation,
+				EmploymentActionStepType.HospitalService
+			},
+			steps.Select(x => x.StepType).ToArray());
 	}
 
 	[TestMethod]
@@ -827,6 +876,64 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void HospitalPatientPreparation_MovesPatientAndDoctorToReservedTheatre()
+	{
+		var waitingRoom = Cell(746, "waiting room");
+		var theatre = Cell(747, "operating theatre");
+		theatre.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(748);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.FrameworkItemType).Returns("Hospital");
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.SupplyRooms).Returns(Array.Empty<ICell>());
+		hospital.SetupGet(x => x.EmploymentRegister).Returns(new Mock<IEmploymentRegister>().Object);
+		hospital.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), EmploymentAuthority.PerformMedicalServices))
+		        .Returns(true);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(749);
+		service.SetupGet(x => x.Name).Returns("Stabilisation");
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.Stabilisation);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		service.SetupGet(x => x.PreferOperatingTheatre).Returns(false);
+		var patient = Character(750, "Patient");
+		patient.SetupGet(x => x.Location).Returns(waitingRoom.Object);
+		patient.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var doctor = Character(751, "Doctor");
+		doctor.SetupGet(x => x.Location).Returns(waitingRoom.Object);
+		doctor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		doctor.Setup(x => x.ColocatedWith(patient.Object)).Returns(true);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(752);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupGet(x => x.PatientId).Returns(patient.Object.Id);
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Queued);
+		request.SetupProperty(x => x.OperatingTheatreCellId);
+		request.SetupProperty(x => x.ReturnCellId);
+		request.SetupProperty(x => x.UsedInPlaceFallback);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([request.Object]);
+		hospital.Setup(x => x.IsEmployee(It.IsAny<ICharacter>()))
+		        .Returns<ICharacter>(actor => actor.Id == doctor.Object.Id);
+		var step = new HospitalPatientPreparationActionStep(hospital.Object, request.Object);
+
+		var result = step.Execute(new EmploymentTaskContext(hospital.Object), doctor.Object);
+
+		Assert.IsTrue(result.Success);
+		Assert.IsTrue(result.Completed);
+		Assert.AreEqual(theatre.Object.Id, request.Object.OperatingTheatreCellId);
+		Assert.AreEqual(waitingRoom.Object.Id, request.Object.ReturnCellId);
+		waitingRoom.Verify(x => x.Leave(patient.Object), Times.Once);
+		waitingRoom.Verify(x => x.Leave(doctor.Object), Times.Once);
+		theatre.Verify(x => x.Enter(patient.Object, null, true, RoomLayer.GroundLevel), Times.Once);
+		theatre.Verify(x => x.Enter(doctor.Object, null, true, RoomLayer.GroundLevel), Times.Once);
+		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Assigned,
+			It.Is<string>(message => message.Contains("moved") && message.Contains("operating theatre"))), Times.Once);
+	}
+
+	[TestMethod]
 	public void HospitalServiceActionStep_FailedRequestFailsActiveTask()
 	{
 		var waitingRoom = Cell(729, "waiting room");
@@ -902,6 +1009,21 @@ public class UnifiedEmploymentDispatchTests
 
 		Assert.AreSame(waitingRoom.Object, method.Invoke(null, [hospital.Object]));
 	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_CanReachTreatsSameCellIdAsCurrentLocation()
+	{
+		var current = Cell(753, "operating theatre");
+		var rehydrated = Cell(753, "operating theatre copy");
+		var worker = Character(754, "Orderly");
+		worker.SetupGet(x => x.Location).Returns(current.Object);
+		var ai = EmploymentWorkerAi();
+		var method = typeof(EmploymentWorkerAI).GetMethod("CanReach",
+			BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+		Assert.IsTrue((bool)method.Invoke(ai, [worker.Object, rehydrated.Object])!);
+	}
+
 	[TestMethod]
 	public void ClanHallCellEntity_MapsToClanCellJoinTable()
 	{

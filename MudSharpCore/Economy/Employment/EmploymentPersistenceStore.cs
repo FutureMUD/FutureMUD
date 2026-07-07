@@ -132,6 +132,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 	private sealed record HospitalServiceStepPayload(long HospitalId, long RequestId);
 
+	private sealed record HospitalPatientPreparationStepPayload(long HospitalId, long RequestId);
+
 	private sealed record HospitalSupplyPreparationStepPayload(long HospitalId, long RequestId);
 
 	private sealed record HospitalAdministrationStepPayload(string Operation, long HospitalId, string? Note = null);
@@ -1658,6 +1660,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				ToHotelAdministrationStep(record),
 			EmploymentActionStepType.HospitalService =>
 				ToHospitalServiceStep(record),
+			EmploymentActionStepType.HospitalPatientPreparation =>
+				ToHospitalPatientPreparationStep(record),
 			EmploymentActionStepType.HospitalSupplyPreparation =>
 				ToHospitalSupplyPreparationStep(record),
 			EmploymentActionStepType.HospitalAdministration =>
@@ -2244,6 +2248,19 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		return hospital is null || request is null ? null : new HospitalServiceActionStep(hospital, request);
 	}
 
+	private HospitalPatientPreparationActionStep? ToHospitalPatientPreparationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<HospitalPatientPreparationStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		var hospital = _gameworld.Hospitals.Get(payload.HospitalId);
+		var request = hospital?.RequestById(payload.RequestId.ToString(CultureInfo.InvariantCulture));
+		return hospital is null || request is null ? null : new HospitalPatientPreparationActionStep(hospital, request);
+	}
+
 	private HospitalSupplyPreparationActionStep? ToHospitalSupplyPreparationStep(DbActionStep record)
 	{
 		var payload = TryDeserializeActionPayload<HospitalSupplyPreparationStepPayload>(record.BoardText);
@@ -2765,6 +2782,13 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					hotelAdmin.PatronBalance?.PatronId,
 					hotelAdmin.PatronSelector,
 					hotelAdmin.Note));
+				break;
+			case HospitalPatientPreparationActionStep hospitalPrep:
+				record.Description = $"prepare patient for request #{hospitalPrep.Request.Id.ToString("N0", CultureInfo.InvariantCulture)} at {hospitalPrep.Hospital.Name}";
+				record.DestinationCellId = hospitalPrep.Request.OperatingTheatreCellId ?? hospitalPrep.Request.Patient?.Location?.Id;
+				record.BoardText = SerializeActionPayload(new HospitalPatientPreparationStepPayload(
+					hospitalPrep.Hospital.Id,
+					hospitalPrep.Request.Id));
 				break;
 			case HospitalServiceActionStep hospitalService:
 				record.Description = $"service request #{hospitalService.Request.Id.ToString("N0", CultureInfo.InvariantCulture)} at {hospitalService.Hospital.Name}";

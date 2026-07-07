@@ -4371,6 +4371,178 @@ public sealed class HotelAdministrationActionStep : EmploymentActionStepBase, IE
 	}
 }
 
+public sealed class HospitalPatientPreparationActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
+{
+	public HospitalPatientPreparationActionStep(IHospital hospital, IHospitalServiceRequest request)
+		: base(
+			EmploymentActionStepType.HospitalPatientPreparation,
+			EmploymentAuthority.PerformMedicalServices,
+			new[] { EmploymentAICapability.CanPerformMedicalServices },
+			false,
+			false)
+	{
+		Hospital = hospital;
+		Request = request;
+	}
+
+	public IHospital Hospital { get; }
+	public IHospitalServiceRequest Request { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (!IsHospitalHost(context))
+		{
+			reason = "Hospital patient-preparation steps must execute from the owning hospital employment task board.";
+			return false;
+		}
+
+		if (!Hospital.IsTrading)
+		{
+			reason = $"{Hospital.Name} is not presently trading.";
+			return false;
+		}
+
+		if (Request.Hospital.Id != Hospital.Id)
+		{
+			reason = $"Hospital service request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)} does not belong to {Hospital.Name}.";
+			return false;
+		}
+
+		if (!HospitalMedicalServiceRunner.ShouldUseTreatmentTheatre(Request.Service))
+		{
+			reason = "This hospital service does not require theatre preparation.";
+			return false;
+		}
+
+		if (Request.Patient is not { } patient)
+		{
+			reason = "The patient for this hospital service request is not currently available.";
+			return false;
+		}
+
+		if (Request.Status is HospitalServiceRequestStatus.Completed or HospitalServiceRequestStatus.Cancelled or
+		    HospitalServiceRequestStatus.Declined or HospitalServiceRequestStatus.Failed)
+		{
+			reason = $"Hospital service request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)} is already {Request.Status.DescribeEnum()}.";
+			return false;
+		}
+
+		if (!HospitalPatientFlow.TryReserveTreatmentLocation(Hospital, Request, out var theatre, out reason))
+		{
+			return false;
+		}
+
+		if (theatre is null)
+		{
+			reason = "There is no treatment location for this hospital request.";
+			return false;
+		}
+
+		if (!actor.ColocatedWith(patient))
+		{
+			if (patient.Location is null)
+			{
+				reason = "The patient is not presently in a known location.";
+				return false;
+			}
+
+			if (!context.CanPath(actor, patient.Location))
+			{
+				reason = $"The assigned medical employee cannot path to the patient location {patient.Location.Name}.";
+				return false;
+			}
+
+			reason = string.Empty;
+			return true;
+		}
+
+		if (actor.Location?.Id != theatre.Id && !context.CanPath(actor, theatre))
+		{
+			reason = $"The assigned medical employee cannot path to the treatment location {theatre.Name}.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		if (!CanExecute(context, actor, out var reason))
+		{
+			return EmploymentActionStepResult.Blocked(reason);
+		}
+
+		var patient = Request.Patient!;
+		if (!actor.ColocatedWith(patient))
+		{
+			Request.MarkStatus(HospitalServiceRequestStatus.Assigned,
+				$"Assigned to {actor.HowSeen(actor, colour: false)}; awaiting patient escort.");
+			return new EmploymentActionStepResult(true,
+				"The assigned medical employee must reach the patient before moving them to theatre.", false);
+		}
+
+		if (!HospitalPatientFlow.TryReserveTreatmentLocation(Hospital, Request, out var theatre, out reason) || theatre is null)
+		{
+			return EmploymentActionStepResult.Blocked(reason);
+		}
+
+		if (!HospitalPatientFlow.TransferForTreatment(Hospital, Request, actor, patient, theatre, out reason))
+		{
+			return EmploymentActionStepResult.Blocked(reason);
+		}
+
+		Request.MarkStatus(HospitalServiceRequestStatus.Assigned,
+			$"{actor.HowSeen(actor, colour: false)} moved {patient.HowSeen(actor, colour: false)} to {theatre.Name} for hospital treatment.");
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
+			$"Moved patient for hospital request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)} to {theatre.Name}.",
+			CurrentCorrelationId(context));
+		return new EmploymentActionStepResult(true,
+			$"Moved patient for hospital request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)} to {theatre.Name}.",
+			true,
+			new EmploymentActionStepOperationalState(
+				SelectedResources: $"hospitalpatientprep:request={Request.Id.ToString("F0", CultureInfo.InvariantCulture)};patient={Request.PatientId.ToString("F0", CultureInfo.InvariantCulture)};theatre={theatre.Id.ToString("F0", CultureInfo.InvariantCulture)}",
+				OperationalPayload: $"hospitalpatientprep;hospital={Hospital.Id.ToString("F0", CultureInfo.InvariantCulture)};request={Request.Id.ToString("F0", CultureInfo.InvariantCulture)};theatre={theatre.Id.ToString("F0", CultureInfo.InvariantCulture)}"));
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		if (Request.Patient is not { } patient)
+		{
+			return [];
+		}
+
+		if (!actor.ColocatedWith(patient))
+		{
+			return patient.Location is null ? [] : [patient.Location];
+		}
+
+		return HospitalPatientFlow.TryReserveTreatmentLocation(Hospital, Request, out var theatre, out _) &&
+		       theatre is not null &&
+		       actor.Location?.Id != theatre.Id
+			? [theatre]
+			: [];
+	}
+
+	private bool IsHospitalHost(IEmploymentTaskContext context)
+	{
+		return context.Employer.Id == Hospital.Id &&
+		       context.Employer.FrameworkItemType.Equals(Hospital.FrameworkItemType, StringComparison.OrdinalIgnoreCase);
+	}
+
+	private static Guid? CurrentCorrelationId(IEmploymentTaskContext context)
+	{
+		return context is EmploymentTaskContext concrete && concrete.CurrentTask is not null
+			? concrete.CurrentTask.CorrelationId
+			: null;
+	}
+}
+
 public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	private const string PhaseCollected = "collected";

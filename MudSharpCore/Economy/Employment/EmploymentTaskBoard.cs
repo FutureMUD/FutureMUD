@@ -42,6 +42,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	private readonly Dictionary<long, List<IGameItem>> _locationItems = new();
 	private readonly HashSet<long> _configuredLocationItems = new();
 	private readonly Dictionary<long, List<IGameItem>> _carriedTaskItems = new();
+	private readonly Dictionary<long, HashSet<long>> _contextManagedCarriedTaskItemIds = new();
 	private readonly Dictionary<long, List<IGameItem>> _containerContents = new();
 	private readonly Dictionary<long, HashSet<long>> _loadedTaskItemIds = new();
 	private readonly Dictionary<long, HashSet<string>> _itemTags = new();
@@ -186,10 +187,25 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 		if (_usePhysicalItemMovement && CanUseInventoryPlan(actor))
 		{
-			items.RemoveAll(x => !ActorCarriesItem(actor, x));
+			items.RemoveAll(x => !IsContextManagedCarriedTaskItem(actor, x) && !ActorCarriesItem(actor, x));
 		}
 
 		return items;
+	}
+
+	internal IReadOnlyCollection<long> ContextManagedCarriedTaskItemIds(ICharacter actor)
+	{
+		return _contextManagedCarriedTaskItemIds.TryGetValue(CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor),
+			out var items)
+			? items
+			: [];
+	}
+
+	internal bool IsContextManagedCarriedTaskItem(ICharacter actor, IGameItem item)
+	{
+		return _contextManagedCarriedTaskItemIds.TryGetValue(CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor),
+			       out var items) &&
+		       items.Contains(item.Id);
 	}
 
 	public IReadOnlyCollection<IGameItem> ContainedItems(IGameItem container)
@@ -258,6 +274,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		_currentTask = task;
 		_currentStepIndex = currentStepIndex;
 		var previousCarriedItems = new List<IGameItem>();
+		var previousContextManagedItemIds = new HashSet<long>();
 		if (_usePhysicalItemMovement && task.AssignedEmployee is not null)
 		{
 			var assignedEmployeeKey = CharacterInstanceIdentityComparer.PhysicalInstanceKey(task.AssignedEmployee);
@@ -266,13 +283,39 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 				previousCarriedItems = existingCarried.ToList();
 			}
 
+			if (_contextManagedCarriedTaskItemIds.TryGetValue(assignedEmployeeKey, out var existingContextManaged))
+			{
+				previousContextManagedItemIds = existingContextManaged.ToHashSet();
+			}
+
 			_carriedTaskItems.Remove(assignedEmployeeKey);
+			_contextManagedCarriedTaskItemIds.Remove(assignedEmployeeKey);
+		}
+
+		void HydrateCarriedItems(ICharacter employee, IEnumerable<IGameItem> sourceItems, IEnumerable<long> managedIds)
+		{
+			var itemList = sourceItems.DistinctBy(x => x.Id).ToList();
+			if (!itemList.Any())
+			{
+				return;
+			}
+
+			var contextManagedIds = managedIds.ToHashSet();
+			var contextManagedItems = itemList.Where(x => contextManagedIds.Contains(x.Id)).ToList();
+			var physicalItems = _usePhysicalItemMovement
+				? itemList
+				  .Where(x => !contextManagedIds.Contains(x.Id) && ActorCarriesItem(employee, x))
+				  .ToList()
+				: itemList.Where(x => !contextManagedIds.Contains(x.Id)).ToList();
+
+			AddCarriedTaskItems(employee, physicalItems);
+			AddCarriedTaskItems(employee, contextManagedItems, contextManaged: true);
 		}
 
 		foreach (var state in task.StepOperationalStates.Take(Math.Max(0, currentStepIndex)))
 		{
 			if (TryParseTaskItemCustody(state.SelectedResources, out var custodyOperation, out _, out var custodyItemIds,
-				    out var custodyBundleIds) &&
+				    out var custodyBundleIds, out var custodyContextManagedItemIds) &&
 			    task.AssignedEmployee is not null)
 			{
 				var items = custodyItemIds
@@ -288,8 +331,10 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 						_transportBundleIds.Add(bundleId);
 					}
 
-					AddCarriedTaskItems(task.AssignedEmployee,
-						_usePhysicalItemMovement ? items.Where(x => ActorCarriesItem(task.AssignedEmployee, x)) : items);
+					var contextManagedIds = custodyContextManagedItemIds
+					                        .Concat(previousContextManagedItemIds.Where(x => custodyItemIds.Contains(x)))
+					                        .ToHashSet();
+					HydrateCarriedItems(task.AssignedEmployee, items, contextManagedIds);
 				}
 				else if (custodyOperation.EqualTo("load"))
 				{
@@ -348,12 +393,11 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 				            .Where(x => x is not null)
 				            .Cast<IGameItem>()
 				            .ToList();
-				AddCarriedTaskItems(task.AssignedEmployee,
-					_usePhysicalItemMovement ? items.Where(x => ActorCarriesItem(task.AssignedEmployee, x)) : items);
+				HydrateCarriedItems(task.AssignedEmployee, items,
+					previousContextManagedItemIds.Where(x => itemIds.Contains(x)));
 			}
 		}
 	}
-
 	public bool CanReserveFunds(MoneyAmount amount, out string reason)
 	{
 		return EmploymentFinanceService.CanReserveFunds(this, amount, out reason);
@@ -627,9 +671,10 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 				: source.GameItems.SelectMany(x => x.DeepItems).First(x => x.Id == item.Id)));
 		}
 
-		if (!_usePhysicalItemMovement ||
-		    resolvedItems.Any(x => _configuredLocationItems.Contains(x.Source.Id)) ||
-		    !CanUseInventoryPlan(actor))
+		var contextManagedCollection = !_usePhysicalItemMovement ||
+		                               resolvedItems.Any(x => _configuredLocationItems.Contains(x.Source.Id)) ||
+		                               !CanUseInventoryPlan(actor);
+		if (contextManagedCollection)
 		{
 			foreach (var (source, item) in resolvedItems)
 			{
@@ -642,7 +687,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 				}
 			}
 
-			AddCarriedTaskItems(actor, resolvedItems.Select(x => x.Item));
+			AddCarriedTaskItems(actor, resolvedItems.Select(x => x.Item), contextManaged: contextManagedCollection);
 			reason = string.Empty;
 			return true;
 		}
@@ -704,7 +749,10 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			return false;
 		}
 
-		if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(destination.Id) && CanUseInventoryPlan(actor))
+		if (_usePhysicalItemMovement &&
+		    !_configuredLocationItems.Contains(destination.Id) &&
+		    CanUseInventoryPlan(actor) &&
+		    carried.All(x => !IsContextManagedCarriedTaskItem(actor, x)))
 		{
 			carried.RemoveAll(x => !ActorCarriesItem(actor, x));
 			if (carried.Count == 0)
@@ -727,7 +775,10 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			return false;
 		}
 
-		if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(destination.Id) && CanUseInventoryPlan(actor))
+		if (_usePhysicalItemMovement &&
+		    !_configuredLocationItems.Contains(destination.Id) &&
+		    CanUseInventoryPlan(actor) &&
+		    carried.All(x => !IsContextManagedCarriedTaskItem(actor, x)))
 		{
 			return TryDeliverPhysicalTaskItems(actor, destination, targetContainer, destinationItems, carried, out reason);
 		}
@@ -764,7 +815,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			contents.AddRange(carriedDeliveryItems);
 		}
 
-		carried.Clear();
+		RemoveCarriedTaskItems(actor, carried.ToList());
 		reason = string.Empty;
 		return true;
 	}
@@ -786,7 +837,9 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			return false;
 		}
 
-		if (_usePhysicalItemMovement && EmploymentInventoryPlanLogistics.CanUseInventoryPlan(actor))
+		if (_usePhysicalItemMovement &&
+		    EmploymentInventoryPlanLogistics.CanUseInventoryPlan(actor) &&
+		    carried.All(x => !IsContextManagedCarriedTaskItem(actor, x)))
 		{
 			carried.RemoveAll(x => !ActorCarriesItem(actor, x));
 			if (carried.Count == 0)
@@ -820,7 +873,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		var loaded = carried.ToList();
 		MarkLoadedTaskItems(targetContainer, loaded);
 		RecordContainerContents(targetContainer, loaded);
-		carried.Clear();
+		RemoveCarriedTaskItems(actor, carried.ToList());
 		operationalState = new EmploymentActionStepOperationalState(
 			LoadedAssets: FormatLoadedAssets("load", targetContainer.Id, loaded),
 			ReservationReference: FormatLoadReservation("reserve", targetContainer.Id, loaded));
@@ -1070,7 +1123,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			targetContents.Add(item);
 		}
 
-		carried.Clear();
+		RemoveCarriedTaskItems(actor, carried.ToList());
 		reason = string.Empty;
 		return true;
 	}
@@ -1116,8 +1169,14 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return EmploymentInventoryPlanLogistics.TryHoldItems(actor, items, out collectedItems, out reason);
 	}
 
-	private void AddCarriedTaskItems(ICharacter actor, IEnumerable<IGameItem> items)
+	private void AddCarriedTaskItems(ICharacter actor, IEnumerable<IGameItem> items, bool contextManaged = false)
 	{
+		var itemList = items.DistinctBy(x => x.Id).ToList();
+		if (!itemList.Any())
+		{
+			return;
+		}
+
 		var actorKey = CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor);
 		if (!_carriedTaskItems.TryGetValue(actorKey, out var carried))
 		{
@@ -1125,24 +1184,64 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			_carriedTaskItems[actorKey] = carried;
 		}
 
-		foreach (var item in items)
+		HashSet<long>? contextManagedIds = null;
+		if (contextManaged)
+		{
+			if (!_contextManagedCarriedTaskItemIds.TryGetValue(actorKey, out contextManagedIds))
+			{
+				contextManagedIds = [];
+				_contextManagedCarriedTaskItemIds[actorKey] = contextManagedIds;
+			}
+		}
+		else
+		{
+			_contextManagedCarriedTaskItemIds.TryGetValue(actorKey, out contextManagedIds);
+		}
+
+		foreach (var item in itemList)
 		{
 			if (carried.All(x => x.Id != item.Id))
 			{
 				carried.Add(item);
+			}
+
+			if (contextManaged)
+			{
+				contextManagedIds!.Add(item.Id);
+			}
+			else
+			{
+				contextManagedIds?.Remove(item.Id);
 			}
 		}
 	}
 
 	private void RemoveCarriedTaskItems(ICharacter actor, IEnumerable<IGameItem> items)
 	{
-		if (!_carriedTaskItems.TryGetValue(CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), out var carried))
+		var itemIds = items.Select(x => x.Id).ToHashSet();
+		if (!itemIds.Any())
 		{
 			return;
 		}
 
-		var itemIds = items.Select(x => x.Id).ToHashSet();
-		carried.RemoveAll(x => itemIds.Contains(x.Id));
+		var actorKey = CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor);
+		if (_carriedTaskItems.TryGetValue(actorKey, out var carried))
+		{
+			carried.RemoveAll(x => itemIds.Contains(x.Id));
+		}
+
+		if (_contextManagedCarriedTaskItemIds.TryGetValue(actorKey, out var contextManagedIds))
+		{
+			foreach (var itemId in itemIds)
+			{
+				contextManagedIds.Remove(itemId);
+			}
+
+			if (!contextManagedIds.Any())
+			{
+				_contextManagedCarriedTaskItemIds.Remove(actorKey);
+			}
+		}
 	}
 
 	private void MarkLoadedTaskItems(IGameItem container, IEnumerable<IGameItem> items)
@@ -1243,18 +1342,35 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return $"op={operation};type=load;task={CurrentTask?.Id.ToString("D") ?? string.Empty};container={containerId};items={itemIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues()};count={itemIds.Count.ToString(CultureInfo.InvariantCulture)}";
 	}
 
-	internal static string FormatTaskItemCustody(string operation, long actorId, IEnumerable<IGameItem> items,
+	internal string FormatTaskItemCustodyForActor(string operation, ICharacter actor, IEnumerable<IGameItem> items,
 		IEnumerable<long>? transportBundleIds = null)
+	{
+		var itemList = items.DistinctBy(x => x.Id).ToList();
+		return FormatTaskItemCustody(operation, CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), itemList,
+			transportBundleIds, itemList.Where(x => IsContextManagedCarriedTaskItem(actor, x)).Select(x => x.Id));
+	}
+
+	internal static string FormatTaskItemCustody(string operation, long actorId, IEnumerable<IGameItem> items,
+		IEnumerable<long>? transportBundleIds = null, IEnumerable<long>? contextManagedItemIds = null)
 	{
 		var itemIds = items.Select(x => x.Id).Distinct().ToList();
 		var bundleIds = (transportBundleIds ?? [])
 		                .Where(x => itemIds.Contains(x))
 		                .Distinct()
 		                .ToList();
+		var contextItemIds = (contextManagedItemIds ?? [])
+		                     .Where(x => itemIds.Contains(x))
+		                     .Distinct()
+		                     .ToList();
 		var result =
 			$"operation={operation};actor={actorId};items={itemIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues()}";
-		return bundleIds.Any()
-			? $"{result};bundles={bundleIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues()}"
+		if (bundleIds.Any())
+		{
+			result = $"{result};bundles={bundleIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues()}";
+		}
+
+		return contextItemIds.Any()
+			? $"{result};managed={contextItemIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues()}"
 			: result;
 	}
 
@@ -1322,10 +1438,18 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	internal static bool TryParseTaskItemCustody(string? text, out string operation, out long actorId,
 		out long[] itemIds, out long[] transportBundleIds)
 	{
+		return TryParseTaskItemCustody(text, out operation, out actorId, out itemIds, out transportBundleIds,
+			out _);
+	}
+
+	internal static bool TryParseTaskItemCustody(string? text, out string operation, out long actorId,
+		out long[] itemIds, out long[] transportBundleIds, out long[] contextManagedItemIds)
+	{
 		operation = string.Empty;
 		actorId = 0;
 		itemIds = [];
 		transportBundleIds = [];
+		contextManagedItemIds = [];
 		if (string.IsNullOrWhiteSpace(text) ||
 		    !text.Contains("operation=", StringComparison.InvariantCultureIgnoreCase) ||
 		    !text.Contains("items=", StringComparison.InvariantCultureIgnoreCase))
@@ -1353,6 +1477,14 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		if (parts.TryGetValue("bundles", out var bundlesText))
 		{
 			transportBundleIds = bundlesText.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+			                                .Select(x => long.TryParse(x, out var value) ? value : 0)
+			                                .Where(x => x > 0)
+			                                .ToArray();
+		}
+
+		if (parts.TryGetValue("managed", out var managedText))
+		{
+			contextManagedItemIds = managedText.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
 			                                .Select(x => long.TryParse(x, out var value) ? value : 0)
 			                                .Where(x => x > 0)
 			                                .ToArray();
@@ -1392,7 +1524,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 	private static bool ActorCarriesItem(ICharacter actor, IGameItem item)
 	{
-		return item.InInventoryOf == actor.Body || actor.Inventory.Any(x => x.Id == item.Id);
+		return EmploymentWorkerItemLocator.IsHeldOrWielded(actor, item);
 	}
 
 	private static bool CanUseInventoryPlan(ICharacter actor)
@@ -4048,11 +4180,13 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 	private bool TryGetResourceCustodyAuditReason(EmploymentActiveTask task, out string reason)
 	{
 		reason = string.Empty;
-		if (!TryBuildCustodySnapshot(task, out var carriedIds, out var loadedItemIds, out _))
+		if (!TryBuildCustodySnapshot(task, out var carriedIds, out var contextManagedCarriedIds,
+			    out var loadedItemIds, out _))
 		{
 			return false;
 		}
 
+		var physicalCarriedIds = carriedIds.Except(contextManagedCarriedIds).ToHashSet();
 		var employee = task.AssignedEmployee;
 		var gameworld = employee?.Gameworld ?? (_host as IHaveFuturemud)?.Gameworld;
 		if (gameworld is null)
@@ -4062,7 +4196,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 
 		if (employee is not null)
 		{
-			foreach (var itemId in carriedIds.OrderBy(x => x))
+			foreach (var itemId in physicalCarriedIds.OrderBy(x => x))
 			{
 				var item = gameworld.TryGetItem(itemId, true);
 				if (item is null)
@@ -4079,7 +4213,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 				}
 			}
 		}
-		else if (carriedIds.Any())
+		else if (physicalCarriedIds.Any())
 		{
 			reason = $"The task has no assigned employee but still has carried task item custody recorded. {PhysicalCustodySuspensionReason}";
 			return true;
@@ -4116,8 +4250,10 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 
 	private bool TryGetUnsecuredTaskItemCustodyReason(EmploymentActiveTask task, out string reason)
 	{
-		if (TryBuildCustodySnapshot(task, out var carriedIds, out var loadedItemIds, out var inferredCarried) &&
-		    (inferredCarried || carriedIds.Any() || loadedItemIds.Any(x => x.Value.Any())))
+		if (TryBuildCustodySnapshot(task, out var carriedIds, out var contextManagedCarriedIds,
+			    out var loadedItemIds, out var inferredCarried) &&
+		    (inferredCarried || carriedIds.Except(contextManagedCarriedIds).Any() ||
+		     loadedItemIds.Any(x => x.Value.Any())))
 		{
 			reason = PhysicalCustodySuspensionReason;
 			return true;
@@ -4128,9 +4264,11 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 	}
 
 	private static bool TryBuildCustodySnapshot(EmploymentActiveTask task, out HashSet<long> carriedIds,
-		out Dictionary<long, HashSet<long>> loadedItemIds, out bool inferredCarried)
+		out HashSet<long> contextManagedCarriedIds, out Dictionary<long, HashSet<long>> loadedItemIds,
+		out bool inferredCarried)
 	{
 		carriedIds = [];
+		contextManagedCarriedIds = [];
 		loadedItemIds = new Dictionary<long, HashSet<long>>();
 		inferredCarried = false;
 		for (var i = 0; i < task.ActionPlan.Steps.Count && i < task.StepStates.Count; i++)
@@ -4146,14 +4284,19 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 				continue;
 			}
 
-			if (EmploymentTaskContext.TryParseTaskItemCustody(state.SelectedResources, out var custodyOperation, out _, out var custodyItemIds,
-				    out var custodyBundleIds))
+			if (EmploymentTaskContext.TryParseTaskItemCustody(state.SelectedResources, out var custodyOperation, out _,
+				    out var custodyItemIds, out var custodyBundleIds, out var custodyContextManagedItemIds))
 			{
 				if (custodyOperation.EqualTo("collect") || custodyOperation.EqualTo("unload"))
 				{
 					foreach (var itemId in custodyItemIds.Concat(custodyBundleIds))
 					{
 						carriedIds.Add(itemId);
+					}
+
+					foreach (var itemId in custodyContextManagedItemIds)
+					{
+						contextManagedCarriedIds.Add(itemId);
 					}
 				}
 				else if (custodyOperation.EqualTo("load") ||
@@ -4163,6 +4306,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 					foreach (var itemId in custodyItemIds.Concat(custodyBundleIds))
 					{
 						carriedIds.Remove(itemId);
+						contextManagedCarriedIds.Remove(itemId);
 					}
 				}
 			}
@@ -4181,6 +4325,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 					{
 						itemSet.Add(itemId);
 						carriedIds.Remove(itemId);
+						contextManagedCarriedIds.Remove(itemId);
 					}
 				}
 				else if (operation.EqualTo("unload"))
@@ -4197,6 +4342,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 					{
 						itemSet.Remove(itemId);
 						carriedIds.Remove(itemId);
+						contextManagedCarriedIds.Remove(itemId);
 					}
 				}
 			}
@@ -4222,12 +4368,12 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			}
 		}
 
-		return inferredCarried || carriedIds.Any() || loadedItemIds.Any(x => x.Value.Any());
+		return inferredCarried || carriedIds.Except(contextManagedCarriedIds).Any() ||
+		       loadedItemIds.Any(x => x.Value.Any());
 	}
-
 	private static bool ActorCarriesItem(ICharacter actor, IGameItem item)
 	{
-		return item.InInventoryOf == actor.Body || actor.Inventory.Any(x => x.Id == item.Id);
+		return EmploymentWorkerItemLocator.IsHeldOrWielded(actor, item);
 	}
 }
 

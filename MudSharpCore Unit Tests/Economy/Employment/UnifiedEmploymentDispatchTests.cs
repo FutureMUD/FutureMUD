@@ -195,6 +195,63 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void HospitalSupplyPreparation_CompletesWhenTreatmentSuppliesAlreadyStagedInTheatre()
+	{
+		var supplyRoom = Cell(746, "supply room");
+		var traumaTreatment = new Mock<ITreatment>();
+		traumaTreatment.Setup(x => x.IsTreatmentType(TreatmentType.Trauma)).Returns(true);
+		var closeTreatment = new Mock<ITreatment>();
+		closeTreatment.Setup(x => x.IsTreatmentType(TreatmentType.Close)).Returns(true);
+		var bandage = Item(747, "bandage");
+		bandage.Setup(x => x.GetItemType<ITreatment>()).Returns(traumaTreatment.Object);
+		var sutureKit = Item(748, "suture kit");
+		sutureKit.Setup(x => x.GetItemType<ITreatment>()).Returns(closeTreatment.Object);
+		var theatreItems = new List<IGameItem> { bandage.Object, sutureKit.Object };
+		var theatre = PhysicalCell(749, "operating theatre", theatreItems);
+		theatre.SetupGet(x => x.Characters).Returns([]);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(750);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.FrameworkItemType).Returns("Hospital");
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([supplyRoom.Object]);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.EmploymentRegister).Returns(new Mock<IEmploymentRegister>().Object);
+		hospital.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), EmploymentAuthority.PrepareMedicalSupplies))
+		        .Returns(true);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(751);
+		service.SetupGet(x => x.Name).Returns("stabilisation");
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.Stabilisation);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(752);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Queued);
+		request.SetupProperty(x => x.OperatingTheatreCellId);
+		request.SetupProperty(x => x.SupplyPrepared, false);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([request.Object]);
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.HeldOrWieldedItems).Returns([]);
+		var orderly = Character(753, "Orderly");
+		orderly.SetupGet(x => x.Location).Returns(theatre.Object);
+		orderly.SetupGet(x => x.Inventory).Returns([]);
+		orderly.SetupGet(x => x.Body).Returns(body.Object);
+		var context = new EmploymentTaskContext(hospital.Object);
+		context.SetAvailableItems(theatre.Object, theatreItems);
+		context.SetAvailableItems(supplyRoom.Object, []);
+		var step = new HospitalSupplyPreparationActionStep(hospital.Object, request.Object);
+
+		var result = step.Execute(context, orderly.Object);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.IsTrue(result.Completed);
+		request.Verify(x => x.MarkSuppliesPrepared(orderly.Object,
+			It.Is<string>(message => message.Contains("prepared hospital supplies"))), Times.Once);
+	}
+
+	[TestMethod]
 	public void HospitalRequestPlanner_PrioritisesPatientPreparationBeforeSupplyForTheatreTreatment()
 	{
 		var supplyRoom = Cell(741, "supply room");
@@ -619,7 +676,7 @@ public class UnifiedEmploymentDispatchTests
 		request.SetupGet(x => x.Patient).Returns(patient.Object);
 
 		var doctorBody = new Mock<MudSharp.Body.IBody>();
-		doctorBody.SetupGet(x => x.ItemsInHands).Returns([]);
+		doctorBody.SetupGet(x => x.HeldOrWieldedItems).Returns([]);
 		var doctor = Character(927, "Doctor");
 		doctor.SetupGet(x => x.Location).Returns(doctorCell.Object);
 		doctor.SetupGet(x => x.Inventory).Returns([]);
@@ -683,7 +740,7 @@ public class UnifiedEmploymentDispatchTests
 		request.SetupProperty(x => x.UsedInPlaceFallback);
 
 		var doctorBody = new Mock<MudSharp.Body.IBody>();
-		doctorBody.SetupGet(x => x.ItemsInHands).Returns([]);
+		doctorBody.SetupGet(x => x.HeldOrWieldedItems).Returns([]);
 		var doctor = Character(937, "Doctor");
 		doctor.SetupGet(x => x.Location).Returns(supplyRoom.Object);
 		doctor.SetupGet(x => x.Inventory).Returns([]);
@@ -931,6 +988,43 @@ public class UnifiedEmploymentDispatchTests
 		theatre.Verify(x => x.Enter(doctor.Object, null, true, RoomLayer.GroundLevel), Times.Once);
 		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Assigned,
 			It.Is<string>(message => message.Contains("moved") && message.Contains("operating theatre"))), Times.Once);
+	}
+
+	[TestMethod]
+	public void HospitalPatientPreparation_DoesNotHintTheatreWhenDoctorIsWithPatient()
+	{
+		var waitingRoom = Cell(754, "waiting room");
+		var theatre = Cell(755, "operating theatre");
+		theatre.SetupGet(x => x.Characters).Returns([]);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(756);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.FrameworkItemType).Returns("Hospital");
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([]);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(757);
+		service.SetupGet(x => x.Name).Returns("Stabilisation");
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.Stabilisation);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		var patient = Character(758, "Patient");
+		patient.SetupGet(x => x.Location).Returns(waitingRoom.Object);
+		var doctor = Character(759, "Doctor");
+		doctor.SetupGet(x => x.Location).Returns(waitingRoom.Object);
+		doctor.Setup(x => x.ColocatedWith(patient.Object)).Returns(true);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(760);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupProperty(x => x.OperatingTheatreCellId);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([request.Object]);
+		var step = new HospitalPatientPreparationActionStep(hospital.Object, request.Object);
+
+		var hints = step.ExecutionLocationHints(new EmploymentTaskContext(hospital.Object), doctor.Object);
+
+		Assert.AreEqual(0, hints.Count);
 	}
 
 	[TestMethod]
@@ -2484,14 +2578,12 @@ public class UnifiedEmploymentDispatchTests
 				new DeliverItemsActionStep(destination)
 			]),
 			manager);
-		var dispatcher = new EmploymentTaskDispatcher();
-		var context = new EmploymentTaskContext(host);
-		context.SetAvailableItems(source, [item.Object]);
-		var profile = Profile(employee, 1.0M, PaymentMethodKind.Cash,
-			Caps(EmploymentAICapability.CanDeliverItems));
-
-		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
-		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var concrete = (EmploymentActiveTask)task;
+		concrete.Assign(employee);
+		concrete.MarkStep(0, EmploymentActionStepStatus.Completed,
+			new EmploymentActionStepOperationalState(
+				SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("collect",
+					CharacterInstanceIdentityComparer.PhysicalInstanceKey(employee), [item.Object])));
 		host.Fire(contract, EmploymentTerminationReason.Fired, manager);
 
 		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
@@ -2517,6 +2609,7 @@ public class UnifiedEmploymentDispatchTests
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.Setup(x => x.TryGetItem(102, true)).Returns(item.Object);
 		employeeMock.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		body.SetupGet(x => x.HeldOrWieldedItems).Returns([]);
 		employeeMock.SetupGet(x => x.Body).Returns(body.Object);
 		employeeMock.SetupGet(x => x.Inventory).Returns([]);
 		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
@@ -2530,14 +2623,12 @@ public class UnifiedEmploymentDispatchTests
 				new DeliverItemsActionStep(destination)
 			]),
 			manager);
-		var dispatcher = new EmploymentTaskDispatcher();
-		var context = new EmploymentTaskContext(host);
-		context.SetAvailableItems(source, [item.Object]);
-		var profile = Profile(employee, 1.0M, PaymentMethodKind.Cash,
-			Caps(EmploymentAICapability.CanDeliverItems));
-
-		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
-		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var concrete = (EmploymentActiveTask)task;
+		concrete.Assign(employee);
+		concrete.MarkStep(0, EmploymentActionStepStatus.Completed,
+			new EmploymentActionStepOperationalState(
+				SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("collect",
+					CharacterInstanceIdentityComparer.PhysicalInstanceKey(employee), [item.Object])));
 		var audit = host.TaskBoard.AuditActiveTaskAssignments();
 
 		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
@@ -3774,7 +3865,8 @@ public class UnifiedEmploymentDispatchTests
 	public void ShopEmploymentTaskService_CreatesAndExecutesStockroomRestockMovement()
 	{
 		var currency = Currency();
-		var manager = Character(1, "Manager").Object;
+		var managerMock = Character(1, "Manager");
+		var manager = managerMock.Object;
 		var stockroomItems = new List<IGameItem>();
 		var shopfrontItems = new List<IGameItem>();
 		var stockroom = PhysicalCell(60, "stockroom", stockroomItems).Object;
@@ -3806,8 +3898,11 @@ public class UnifiedEmploymentDispatchTests
 		var context = service.CreatePhysicalContext(shop.Shop.Object);
 		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanDeliverItems));
 		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
-		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
-		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var collect = dispatcher.AdvanceTask(task, context);
+		Assert.IsTrue(collect.Success, collect.Message);
+
+		var deliver = dispatcher.AdvanceTask(task, context);
+		Assert.IsTrue(deliver.Success, deliver.Message);
 
 		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
 		Assert.AreEqual(0, stockroomItems.Count);
@@ -3879,8 +3974,11 @@ public class UnifiedEmploymentDispatchTests
 		var context = service.CreatePhysicalTransferContext(source.Shop.Object, target.Shop.Object);
 		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanDeliverItems));
 		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
-		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
-		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var collect = dispatcher.AdvanceTask(task, context);
+		Assert.IsTrue(collect.Success, collect.Message);
+
+		var deliver = dispatcher.AdvanceTask(task, context);
+		Assert.IsTrue(deliver.Success, deliver.Message);
 
 		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
 		Assert.AreEqual(0, sourceStockroomItems.Count);
@@ -4373,7 +4471,7 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
-	public void HospitalSupplyStockCondition_ReusableToolsCountTheatreAndMedicalStaffInventory()
+	public void HospitalSupplyStockCondition_ReusableToolsCountTheatreAndMedicalStaffHeldTools()
 	{
 		var currency = Currency();
 		var supplyRoom = PhysicalCell(9400, "clinic stockroom", []).Object;
@@ -4386,7 +4484,9 @@ public class UnifiedEmploymentDispatchTests
 			[supplyRoom], [theatre], 120.0M);
 		var carriedTool = Item(9403, "spare surgical clamp", prototypeId: 700).Object;
 		var doctor = Character(9404, "Doctor").Object;
-		Mock.Get(doctor).SetupGet(x => x.Inventory).Returns([carriedTool]);
+		var doctorBody = new Mock<MudSharp.Body.IBody>();
+		doctorBody.SetupGet(x => x.HeldOrWieldedItems).Returns([carriedTool]);
+		Mock.Get(doctor).SetupGet(x => x.Body).Returns(doctorBody.Object);
 		state.Hire(doctor, Offer(currency.Object, EmploymentRole.MedicalWorker,
 			EmploymentAuthority.PerformMedicalServices), null);
 		var service = new Mock<IHospitalService>();
@@ -4434,6 +4534,7 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsFalse(satisfied);
 		StringAssert.Contains(reason, "no active service");
 	}
+
 	[TestMethod]
 	public void HospitalSupplyStockCondition_NoSupplyRoomsDoesNotSatisfyCondition()
 	{
@@ -4496,6 +4597,7 @@ public class UnifiedEmploymentDispatchTests
 		Assert.AreEqual(ManagerGoalStatus.Blocked, goal.Status);
 		StringAssert.Contains(goal.LastEvaluationResult, "no supply rooms");
 	}
+
 	[TestMethod]
 	public void ManagerGoals_AdministratorsCanCreateGoalsWithoutEmploymentContract()
 	{
@@ -5606,6 +5708,28 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void EmploymentTaskContext_CarriedTaskItemsRetainsHeldOrWieldedItems()
+	{
+		IEmploymentHost host = new TestEmploymentHost("clinic", Currency().Object);
+		var body = new Mock<MudSharp.Body.IBody>();
+		var bundle = Item(103, "treatment bundle");
+		body.SetupGet(x => x.HeldOrWieldedItems).Returns([bundle.Object]);
+		var employee = Character(104, "Orderly");
+		employee.SetupGet(x => x.Body).Returns(body.Object);
+		employee.SetupGet(x => x.Inventory).Returns([]);
+		var context = new EmploymentTaskContext(host);
+		var method = typeof(EmploymentTaskContext).GetMethod("AddCarriedTaskItems",
+			BindingFlags.Instance | BindingFlags.NonPublic);
+		Assert.IsNotNull(method);
+		method!.Invoke(context, [employee.Object, new[] { bundle.Object }, false]);
+
+		var carried = context.CarriedTaskItems(employee.Object);
+
+		Assert.AreEqual(1, carried.Count);
+		Assert.AreEqual(bundle.Object.Id, carried.Single().Id);
+	}
+
+	[TestMethod]
 	public void TaskAssignmentAudit_BlocksWhenVehicleUnavailableWithTaskItemCustody()
 	{
 		var currency = Currency();
@@ -5616,9 +5740,8 @@ public class UnifiedEmploymentDispatchTests
 		var stockroom = Cell(923, "stockroom").Object;
 		var body = new Mock<MudSharp.Body.IBody>();
 		var item = Item(924, "cargo crate", prototypeId: 925);
-		item.SetupGet(x => x.InInventoryOf).Returns(body.Object);
+		body.SetupGet(x => x.HeldOrWieldedItems).Returns([item.Object]);
 		driverMock.SetupGet(x => x.Body).Returns(body.Object);
-		driverMock.SetupGet(x => x.Inventory).Returns([item.Object]);
 		var vehicleDestroyed = false;
 		var vehicle = new Mock<IVehicle>();
 		vehicle.SetupGet(x => x.Id).Returns(926);
@@ -5658,6 +5781,10 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
 		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
 		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		((EmploymentActiveTask)task).MarkStep(1, EmploymentActionStepStatus.Completed,
+			new EmploymentActionStepOperationalState(
+				SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("collect",
+					CharacterInstanceIdentityComparer.PhysicalInstanceKey(driver), [item.Object])));
 		vehicleDestroyed = true;
 		var audit = host.TaskBoard.AuditActiveTaskAssignments();
 

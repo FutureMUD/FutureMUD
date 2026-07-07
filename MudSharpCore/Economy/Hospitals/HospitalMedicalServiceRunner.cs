@@ -1309,7 +1309,7 @@ public static class HospitalMedicalServiceRunner
 
 	private static bool EnsureHeld(ICharacter employee, IGameItem item, out string reason)
 	{
-		if (employee.Body.ItemsInHands.Any(x => x.Id == item.Id))
+		if (EmploymentWorkerItemLocator.IsHeldOrWielded(employee, item))
 		{
 			reason = string.Empty;
 			return true;
@@ -1390,9 +1390,7 @@ public static class HospitalMedicalServiceRunner
 			: (context.AvailableItems(theatre) ?? Enumerable.Empty<IGameItem>())
 			  .Concat(theatre.GameItems ?? Enumerable.Empty<IGameItem>())
 			  .SelectMany(DeepItemsOrSelf);
-		var seed = context.CarriedTaskItems(employee)
-		                  .Concat(employee.Inventory)
-		                  .Concat(employee.Body.ItemsInHands)
+		var seed = EmploymentWorkerItemLocator.TaskHeldItems(context, employee)
 		                  .SelectMany(DeepItemsOrSelf)
 		                  .Concat(employee.Location?.GameItems.SelectMany(x => x.DeepItems.Append(x)) ?? Enumerable.Empty<IGameItem>())
 		                  .Concat(theatreItems)
@@ -1912,7 +1910,7 @@ public static class HospitalMedicalServiceRunner
 
 	private static string HeldItemSelector(ICharacter employee, IGameItem item)
 	{
-		var held = employee.Body.ItemsInHands.ToList();
+		var held = EmploymentWorkerItemLocator.HeldOrWieldedItems(employee).ToList();
 		var index = held.FindIndex(x => x.Id == item.Id);
 		return index >= 0
 			? $"#{(index + 1).ToString("N0", CultureInfo.InvariantCulture)}"

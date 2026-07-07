@@ -487,8 +487,7 @@ internal static class EmploymentFinanceService
 			context.CurrentTask?.CorrelationId);
 		operationalState = new EmploymentActionStepOperationalState(
 			TransactionReference: $"{target.Shop.Name}: {reference}",
-			SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("collect",
-				CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), items),
+			SelectedResources: context.FormatTaskItemCustodyForActor("collect", actor, items),
 			ReservationReference: consumptionPayload);
 		reason = string.Empty;
 		return true;
@@ -898,8 +897,7 @@ internal static class EmploymentFinanceService
 			context.CurrentTask?.CorrelationId);
 		operationalState = new EmploymentActionStepOperationalState(
 			TransactionReference: reference,
-			SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("collect",
-				CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), [pile]),
+			SelectedResources: context.FormatTaskItemCustodyForActor("collect", actor, [pile]),
 			ReservationReference: consumptionPayload);
 		reason = string.Empty;
 		return true;

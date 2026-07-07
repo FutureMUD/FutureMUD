@@ -280,7 +280,7 @@ internal static class HospitalSupplyStockGoalPlanner
 		foreach (var contract in hospital.ActiveEmploymentContracts()
 		                                 .Where(x => x.Authority.Contains(EmploymentAuthority.PerformMedicalServices)))
 		{
-			foreach (var item in contract.Employee.Inventory.SelectMany(DeepItemsOrSelf))
+			foreach (var item in EmploymentWorkerItemLocator.HeldOrWieldedItems(contract.Employee).SelectMany(DeepItemsOrSelf))
 			{
 				yield return item;
 			}

@@ -84,6 +84,12 @@ public class CommodityProjectMaterial : MaterialRequirementBase
                item.Quality >= MinimumQuality;
     }
 
+    public override double QuantitySuppliedByItem(IGameItem item, IActiveProject project)
+    {
+        double amount = RequiredAmount - project.MaterialProgress[this];
+        return item.DropsWholeByWeight(amount) ? item.Weight : amount;
+    }
+
     public override double SupplyItem(ICharacter actor, IGameItem item, IActiveProject project)
     {
         double amount = (RequiredAmount - project.MaterialProgress[this]);

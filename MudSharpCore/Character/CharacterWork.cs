@@ -245,7 +245,7 @@ public partial class Character
 					owner._projectLabourQueue.Remove(next);
 					owner.RenumberProjectQueue();
 					owner.Changed = true;
-					next.Project.Join(this, next.Labour);
+					next.Project.TryJoinLabour(this, next.Labour, true, out _);
 					return true;
 				default:
 					return false;

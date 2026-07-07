@@ -3,6 +3,8 @@ using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character;
 using MudSharp.Commands.Helpers;
+using MudSharp.Economy;
+using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -774,9 +776,18 @@ You can use the following player options with this command:
 	#3queue remove <index>#0 - removes a queued assignment
 	#3queue clear#0 - clears your queued assignments
 	#3cancel <project>#0 - cancels an active project
+	#3fund <project> <amount>#0 - deposits cash into an active project's payment reserve
+	#3withdraw <project> <amount>#0 - withdraws unused cash from a project you own
+	#3pay <project>#0 - shows project payment settings
+	#3pay <project> currency <currency>#0 - sets the currency used for project payments
+	#3pay <project> labour <labour> <amount|none>#0 - sets hourly labour pay
+	#3pay <project> material <req> <amount|none>#0 - sets immediate material pay per contribution unit
+	#3claim [account]#0 - claims owed project payments in cash, or deposits them to one of your bank accounts
 	#3supply <project> <req>#0 - supplies material for a particular material requirement
 	#3preview <project> <req>#0 - shows you what material you would submit if you did #3project supply#0
 	#3details <project>#0 - shows you details about an active project.
+
+Lowering or clearing a labour pay rate while people are already working that labour requires confirmation and removes those workers from the project.
 
 You can use the following admin options with this command:
 
@@ -873,6 +884,21 @@ Note: See the closely related #3projects#0 command for information about your cu
             case "details":
                 ProjectDetails(actor, ss);
                 return;
+            case "fund":
+            case "deposit":
+                ProjectFund(actor, ss);
+                return;
+            case "withdraw":
+                ProjectWithdraw(actor, ss);
+                return;
+            case "pay":
+            case "payment":
+                ProjectPay(actor, ss);
+                return;
+            case "claim":
+            case "collect":
+                ProjectClaim(actor, ss);
+                return;
             case "supply":
                 ProjectSupply(actor, ss);
                 return;
@@ -904,7 +930,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        List<IActiveProject> projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+        List<IActiveProject> projects = VisibleActiveProjects(actor);
         IActiveProject project = projects.GetByIdOrName(ss.PopSpeech());
         if (project == null)
         {
@@ -913,6 +939,408 @@ Note: See the closely related #3projects#0 command for information about your cu
         }
 
         actor.OutputHandler.Send(project.ShowToPlayer(actor));
+    }
+
+    private static List<IActiveProject> VisibleActiveProjects(ICharacter actor)
+    {
+        return actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+    }
+
+    private static bool CanManageProjectPayments(ICharacter actor, IActiveProject project)
+    {
+        return actor.IsAdministrator() ||
+               CharacterInstanceIdentityComparer.IdentityId(project.CharacterOwner) ==
+               CharacterInstanceIdentityComparer.IdentityId(actor);
+    }
+
+    private static IActiveProject GetVisibleProject(ICharacter actor, StringStack ss, string prompt)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send(prompt);
+            return null;
+        }
+
+        var project = VisibleActiveProjects(actor).GetByIdOrName(ss.PopSpeech());
+        if (project is null)
+        {
+            actor.OutputHandler.Send("You are not aware of any such project.");
+        }
+
+        return project;
+    }
+
+    private static bool TryParseProjectAmount(ICharacter actor, IActiveProject project, StringStack ss,
+        out decimal amount)
+    {
+        amount = 0.0M;
+        var currency = project.PaymentCurrency ?? actor.Currency;
+        if (currency is null)
+        {
+            actor.OutputHandler.Send("There is no currency available for that project.");
+            return false;
+        }
+
+        if (ss.IsFinished || !currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out amount) || amount <= 0.0M)
+        {
+            actor.OutputHandler.Send($"You must specify a positive amount in {currency.Name.ColourName()}.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void ProjectFund(ICharacter actor, StringStack ss)
+    {
+        var project = GetVisibleProject(actor, ss, "Which project do you want to fund?");
+        if (project is null)
+        {
+            return;
+        }
+
+        if (!CanManageProjectPayments(actor, project))
+        {
+            actor.OutputHandler.Send("Only the project creator can fund that project's payment reserve.");
+            return;
+        }
+
+        if (!TryParseProjectAmount(actor, project, ss, out var amount))
+        {
+            return;
+        }
+
+        if (!project.DepositFunds(actor, amount, out var error))
+        {
+            actor.OutputHandler.Send(error.ColourError());
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"You deposit {project.PaymentCurrency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} into the payment reserve for {project.Name.ColourName()}.");
+    }
+
+    private static void ProjectWithdraw(ICharacter actor, StringStack ss)
+    {
+        var project = GetVisibleProject(actor, ss, "Which project do you want to withdraw funds from?");
+        if (project is null)
+        {
+            return;
+        }
+
+        if (!CanManageProjectPayments(actor, project))
+        {
+            actor.OutputHandler.Send("Only the project creator can withdraw funds from that project's payment reserve.");
+            return;
+        }
+
+        if (!TryParseProjectAmount(actor, project, ss, out var amount))
+        {
+            return;
+        }
+
+        if (!project.WithdrawFunds(actor, amount, out var error))
+        {
+            actor.OutputHandler.Send(error.ColourError());
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"You withdraw {project.PaymentCurrency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from the payment reserve for {project.Name.ColourName()}.");
+    }
+
+    private static void ProjectPay(ICharacter actor, StringStack ss)
+    {
+        var project = GetVisibleProject(actor, ss, "Which project do you want to inspect or configure payments for?");
+        if (project is null)
+        {
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            ShowProjectPay(actor, project);
+            return;
+        }
+
+        if (!CanManageProjectPayments(actor, project))
+        {
+            actor.OutputHandler.Send("Only the project creator can change that project's payment settings.");
+            return;
+        }
+
+        switch (ss.PopForSwitch())
+        {
+            case "labour":
+            case "labor":
+                ProjectPayLabour(actor, project, ss);
+                return;
+            case "currency":
+                ProjectPayCurrency(actor, project, ss);
+                return;
+            case "material":
+            case "materials":
+                ProjectPayMaterial(actor, project, ss);
+                return;
+            default:
+                actor.OutputHandler.Send(
+                    "Use PROJECT PAY <project>, PROJECT PAY <project> CURRENCY <currency>, PROJECT PAY <project> LABOUR <labour> <amount|none>, or PROJECT PAY <project> MATERIAL <requirement> <amount|none>.");
+                return;
+        }
+    }
+
+    private static void ShowProjectPay(ICharacter actor, IActiveProject project)
+    {
+        var currency = project.PaymentCurrency;
+        var sb = new StringBuilder();
+        sb.AppendLine($"Payment settings for {project.Name.ColourName()}:");
+        sb.AppendLine();
+        sb.AppendLine($"Currency: {currency?.Name.ColourName() ?? "None".ColourError()}");
+        sb.AppendLine($"Reserve: {(currency is null ? "None".ColourError() : currency.Describe(project.CashBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue())}");
+        sb.AppendLine();
+        sb.AppendLine("Labour Pay:");
+        foreach (var labour in project.CurrentPhase.LabourRequirements)
+        {
+            var rate = project.LabourPaymentRateFor(labour);
+            sb.AppendLine(
+                $"\t{labour.Name.ColourName()}: {(rate <= 0.0M || currency is null ? "none".ColourError() : $"{currency.Describe(rate, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} per hour")}");
+        }
+
+        sb.AppendLine();
+        sb.AppendLine("Material Pay:");
+        foreach (var material in project.CurrentPhase.MaterialRequirements)
+        {
+            var rate = project.MaterialPaymentRateFor(material);
+            sb.AppendLine(
+                $"\t{material.Name.ColourName()}: {(rate <= 0.0M || currency is null ? "none".ColourError() : $"{currency.Describe(rate, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} per unit")}");
+        }
+
+        actor.OutputHandler.Send(sb.ToString());
+    }
+
+    private static void ProjectPayCurrency(ICharacter actor, IActiveProject project, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send($"Which currency should this project use for payments? The valid currencies are {actor.Gameworld.Currencies.Select(x => x.Name.ColourName()).ListToString()}.");
+            return;
+        }
+
+        var currency = actor.Gameworld.Currencies.GetByIdOrName(ss.SafeRemainingArgument);
+        if (currency is null)
+        {
+            actor.OutputHandler.Send("There is no such currency.");
+            return;
+        }
+
+        if (project.PaymentCurrency?.Id != currency.Id && project.CashBalance > 0.0M)
+        {
+            actor.OutputHandler.Send("You must withdraw the current payment reserve before changing this project's payment currency.");
+            return;
+        }
+
+        project.SetPaymentCurrency(currency);
+        actor.OutputHandler.Send($"This project will now use {currency.Name.ColourName()} for labour and material payments.");
+    }
+
+	private static void ProjectPayLabour(ICharacter actor, IActiveProject project, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which labour requirement do you want to set pay for?");
+            return;
+        }
+
+        var text = ss.PopSpeech();
+        var labour = project.CurrentPhase.LabourRequirements.FirstOrDefault(x => x.Name.EqualTo(text)) ??
+                     project.CurrentPhase.LabourRequirements.FirstOrDefault(x =>
+                         x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
+        if (labour is null)
+        {
+            actor.OutputHandler.Send("That project does not have any such labour requirement in its current phase.");
+            return;
+        }
+
+        if (!TryParsePaymentRate(actor, project, ss, out var amount))
+		{
+			return;
+		}
+
+		var oldRate = project.LabourPaymentRateFor(labour);
+		if (amount >= oldRate || !ActiveWorkersForLabour(project, labour).Any())
+		{
+			ApplyLabourPaymentRate(actor, project, labour, amount);
+			return;
+		}
+
+		ConfirmLabourPaymentDecrease(actor, project, labour, amount, oldRate);
+	}
+
+	private static void ConfirmLabourPaymentDecrease(ICharacter actor, IActiveProject project,
+		IProjectLabourRequirement labour, decimal amount, decimal oldRate)
+	{
+		var workers = ActiveWorkersForLabour(project, labour);
+		var oldRateText = project.PaymentCurrency.Describe(oldRate, CurrencyDescriptionPatternType.ShortDecimal)
+		                         .ColourValue();
+		var newRateText = amount <= 0.0M
+			? "no pay".ColourError()
+			: project.PaymentCurrency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
+		var newRatePhrasing = amount <= 0.0M ? newRateText : $"{newRateText} per hour";
+		actor.OutputHandler.Send(
+			$"The {labour.Name.ColourName()} labour requirement currently has {workers.Count.ToString("N0", actor).ColourValue()} active {(workers.Count == 1 ? "worker" : "workers")} and pays {oldRateText} per hour.\nLowering it to {newRatePhrasing} will remove everyone currently working on that labour. You can type {"accept".ColourCommand()} to proceed or {"decline".ColourCommand()} to change your mind.");
+		actor.AddEffect(new Accept(actor, new GenericProposal
+		{
+			AcceptAction = text =>
+			{
+				if (!actor.Gameworld.ActiveProjects.Has(project) ||
+				    !project.CurrentPhase.LabourRequirements.Contains(labour))
+				{
+					actor.OutputHandler.Send("That project is no longer active in the same phase.");
+					return;
+				}
+
+				var currentRate = project.LabourPaymentRateFor(labour);
+				var currentWorkers = ActiveWorkersForLabour(project, labour);
+				if (amount < currentRate && currentWorkers.Any())
+				{
+					foreach (var worker in project.RemoveWorkersFromLabour(labour))
+					{
+						worker.OutputHandler.Send(
+							$"You stop working on the {labour.Name.ColourName()} task of {project.Name.ColourName()} because its pay rate is being lowered.");
+					}
+				}
+
+				ApplyLabourPaymentRate(actor, project, labour, amount);
+			},
+			RejectAction = text =>
+			{
+				actor.OutputHandler.Send(
+					$"You decide not to change the pay rate for the {labour.Name.ColourName()} labour requirement.");
+			},
+			ExpireAction = () =>
+			{
+				actor.OutputHandler.Send(
+					$"You decide not to change the pay rate for the {labour.Name.ColourName()} labour requirement.");
+			},
+			DescriptionString = $"changing {project.Name} {labour.Name} labour pay from {oldRate} to {amount}",
+			Keywords = new List<string> { "project", "pay", "labour", labour.Name }
+		}), TimeSpan.FromSeconds(120));
+	}
+
+	private static List<ICharacter> ActiveWorkersForLabour(IActiveProject project, IProjectLabourRequirement labour)
+	{
+		return project.ActiveLabour
+		              .Where(x => x.Labour == labour)
+		              .Select(x => x.Character)
+		              .DistinctPhysicalInstances()
+		              .ToList();
+	}
+
+	private static void ApplyLabourPaymentRate(ICharacter actor, IActiveProject project,
+		IProjectLabourRequirement labour, decimal amount)
+	{
+		project.SetLabourPaymentRate(labour, amount);
+		actor.OutputHandler.Send(amount <= 0.0M
+			? $"The {labour.Name.ColourName()} labour requirement will no longer pay workers."
+			: $"The {labour.Name.ColourName()} labour requirement will now pay {project.PaymentCurrency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} per hour.");
+	}
+
+	private static void ProjectPayMaterial(ICharacter actor, IActiveProject project, StringStack ss)
+	{
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which material requirement do you want to set pay for?");
+            return;
+        }
+
+        var text = ss.PopSpeech();
+        var material = project.CurrentPhase.MaterialRequirements.FirstOrDefault(x => x.Name.EqualTo(text)) ??
+                       project.CurrentPhase.MaterialRequirements.FirstOrDefault(x =>
+                           x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
+        if (material is null)
+        {
+            actor.OutputHandler.Send("That project does not have any such material requirement in its current phase.");
+            return;
+        }
+
+        if (!TryParsePaymentRate(actor, project, ss, out var amount))
+        {
+            return;
+        }
+
+        project.SetMaterialPaymentRate(material, amount);
+        actor.OutputHandler.Send(amount <= 0.0M
+            ? $"The {material.Name.ColourName()} material requirement will no longer pay contributors."
+            : $"The {material.Name.ColourName()} material requirement will now pay {project.PaymentCurrency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} per supplied unit.");
+    }
+
+    private static bool TryParsePaymentRate(ICharacter actor, IActiveProject project, StringStack ss,
+        out decimal amount)
+    {
+        amount = 0.0M;
+        var currency = project.PaymentCurrency ?? actor.Currency;
+        if (currency is null)
+        {
+            actor.OutputHandler.Send("There is no currency available for that project.");
+            return false;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send($"What rate should this project pay in {currency.Name.ColourName()}? Use none to clear it.");
+            return false;
+        }
+
+        if (ss.SafeRemainingArgument.EqualToAny("none", "clear", "off", "0"))
+        {
+            amount = 0.0M;
+            return true;
+        }
+
+        if (!currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out amount) || amount < 0.0M)
+        {
+            actor.OutputHandler.Send($"You must specify a non-negative amount in {currency.Name.ColourName()}, or none.");
+            return false;
+        }
+
+        project.SetPaymentCurrency(currency);
+        return true;
+    }
+
+    private static void ProjectClaim(ICharacter actor, StringStack ss)
+    {
+        IBankAccount bankAccount = null;
+        if (!ss.IsFinished)
+        {
+            bankAccount = ResolveOwnedBankAccount(actor, ss.SafeRemainingArgument);
+            if (bankAccount is null)
+            {
+                actor.OutputHandler.Send("You do not own any bank account matching that text.");
+                return;
+            }
+        }
+
+        if (!ProjectPaymentService.TryClaimOutstanding(actor, bankAccount, out var message))
+        {
+            actor.OutputHandler.Send(message.ColourError());
+            return;
+        }
+
+        actor.OutputHandler.Send(message);
+    }
+
+    private static IBankAccount ResolveOwnedBankAccount(ICharacter actor, string selector)
+    {
+        var text = selector.Trim();
+        var numeric = text.TrimStart('#');
+        var accounts = actor.Gameworld.BankAccounts
+                            .Where(x => x.IsAccountOwner(actor))
+                            .ToList();
+        return accounts.FirstOrDefault(x => x.AccountReference.EqualTo(text)) ??
+               accounts.FirstOrDefault(x => x.Name.EqualTo(text)) ??
+               accounts.FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase)) ??
+               (long.TryParse(numeric, out var id)
+                   ? accounts.FirstOrDefault(x => x.Id == id || x.AccountNumber == id)
+                   : null);
     }
 
     #region Project Subcommands
@@ -944,7 +1372,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        List<IActiveProject> projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+        List<IActiveProject> projects = VisibleActiveProjects(actor);
         IActiveProject project = projects.GetByIdOrName(ss.PopSpeech());
         if (project == null)
         {
@@ -989,7 +1417,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        List<IActiveProject> projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+        List<IActiveProject> projects = VisibleActiveProjects(actor);
         IActiveProject project = projects.GetByIdOrName(ss.PopSpeech());
         if (project == null)
         {
@@ -1042,7 +1470,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        List<IActiveProject> projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+        List<IActiveProject> projects = VisibleActiveProjects(actor);
         IActiveProject project = projects.GetByIdOrName(ss.PopSpeech());
         if (project == null)
         {
@@ -1111,7 +1539,15 @@ Note: See the closely related #3projects#0 command for information about your cu
         }
 
         IGameItem target = plan.ScoutAllTargets().First(x => x.OriginalReference?.ToString() == "target").PrimaryTarget;
-        double progress = materialRequirement.SupplyItem(actor, target, project);
+        double progress = materialRequirement.QuantitySuppliedByItem(target, project);
+        if (!project.CanPayMaterialContribution(materialRequirement, progress, out var paymentError))
+        {
+            actor.OutputHandler.Send(paymentError.ColourError());
+            return;
+        }
+
+        progress = materialRequirement.SupplyItem(actor, target, project);
+        project.PayMaterialContribution(actor, materialRequirement, progress);
         project.FulfilMaterial(materialRequirement, progress);
         plan.FinalisePlanNoRestore();
     }
@@ -1181,7 +1617,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        List<IActiveProject> projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+        List<IActiveProject> projects = VisibleActiveProjects(actor);
         IActiveProject project = projects.GetByIdOrName(ss.PopSpeech());
         if (project == null)
         {
@@ -1191,14 +1627,19 @@ Note: See the closely related #3projects#0 command for information about your cu
 
         IProjectLabourRequirement labour = null;
         List<IProjectLabourRequirement> potentiallyJoinable = project.CurrentPhase.LabourRequirements
-                                         .Where(x => x.CharacterIsQualified(actor) &&
-                                                     project.ActiveLabour.Count(y => y.Labour == x) <
-                                                     x.MaximumSimultaneousWorkers)
+                                         .Where(x => project.CanJoinLabour(actor, x))
                                          .ToList();
         if (ss.IsFinished)
         {
             if (potentiallyJoinable.Count == 0)
             {
+                if (project.CurrentPhase.LabourRequirements.Any(x => x.CharacterIsQualified(actor)))
+                {
+                    actor.OutputHandler.Send(
+                        "The project cannot benefit from any more people working on the labour requirements you are qualified for.");
+                    return;
+                }
+
                 actor.OutputHandler.Send(
                     "You are not qualified to be able to join any of the labour requirements for that project.");
                 return;
@@ -1228,6 +1669,15 @@ Note: See the closely related #3projects#0 command for information about your cu
 
             if (!potentiallyJoinable.Contains(labour))
             {
+                if (project.ActiveLabour.Any(x => x.Labour == labour &&
+                                                 CharacterInstanceIdentityComparer.SamePhysicalInstance(x.Character,
+                                                     actor)))
+                {
+                    actor.OutputHandler.Send(
+                        $"You are already working on the {labour.Name.ColourValue()} labour requirement for that project.");
+                    return;
+                }
+
                 if (labour.CharacterIsQualified(actor))
                 {
                     actor.OutputHandler.Send(
@@ -1241,7 +1691,11 @@ Note: See the closely related #3projects#0 command for information about your cu
             }
         }
 
-        project.Join(actor, labour);
+        if (!project.TryJoinLabour(actor, labour, true, out _))
+        {
+            actor.OutputHandler.Send(
+                $"The project cannot benefit from any more people working on {labour.Name.ColourValue()}.");
+        }
     }
 
     private static void ProjectLeave(ICharacter actor, StringStack ss)
@@ -1252,7 +1706,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        List<IActiveProject> projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+        List<IActiveProject> projects = VisibleActiveProjects(actor);
         IActiveProject project = projects.GetByIdOrName(ss.PopSpeech());
         if (project == null)
         {
@@ -1342,7 +1796,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        List<IActiveProject> projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+        List<IActiveProject> projects = VisibleActiveProjects(actor);
         IActiveProject project = projects.GetByIdOrName(ss.PopSpeech());
         if (project == null)
         {

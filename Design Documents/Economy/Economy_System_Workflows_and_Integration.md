@@ -362,6 +362,18 @@ Unified employment builders additionally need:
 - task item selectors using prototype id by default, `*<id>` for live item id, `&<id|name>` for verified tags, and visible keywords for room-targeted items
 - enough physical world layout for worker pathing, inventory plans, stockrooms, shopfronts, tills, containers, workstations, delivery cells, and for clan hosts either clan-owned property cells or admin-managed clan hall cells
 
+Paid project builders additionally need:
+
+- live local projects with current-phase labour or material requirements, not just approved catalogue definitions
+- project owners or administrators to choose the payment currency with `project pay <project> currency`, fund reserves with `project fund`, set rates with `project pay`, and reclaim unspent cash with `project withdraw`
+- enough project reserve cash in the project's payment currency to cover worker ticks and immediate material contribution payouts
+- project workers to use `project claim` for owed labour pay, or `ProjectWorkerAI` with `claim` and optional `deposit` enabled for autonomous collection
+- bank account types if project-worker NPCs should automatically open deposit accounts rather than collecting cash
+
+Lowering or clearing a labour pay rate while workers are active creates an `Accept` confirmation. If accepted, everyone currently working that labour is removed before the lower rate applies, so workers do not silently continue under reduced pay.
+
+NPC project workers are intentionally lower priority than players. A qualified player can join a full project labour by displacing an NPC worker in that same role, while NPC workers still require genuinely free slots and cannot displace each other.
+
 Current unified-employment operating notes:
 
 - `employment <host type> <id|name> ...` is the explicit command surface; `employment clan <clan> ...` resolves by clan id, name, full name, or alias. Local host aliases such as `shop tasks ...`, `stable tasks ...`, `bank tasks ...`, `auction tasks ...`, `arena tasks ...`, and `roomrent tasks ...` resolve the current local host as shorthand.

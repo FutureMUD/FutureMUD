@@ -92,6 +92,8 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
                 CurrentPhase = nextPhase;
                 _labourProgress.Clear();
                 _materialProgress.Clear();
+                _labourPaymentRates.Clear();
+                _materialPaymentRates.Clear();
                 Changed = true;
                 if (CharacterOwner.Location?.Characters.Contains(CharacterOwner) == true)
                 {
@@ -229,6 +231,10 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
         {
             sb.Append(
                 $", materials {mandatoryMaterialCompletion.Value.ToString("P0", actor).ColourValue()} complete");
+        }
+        if (HasSatisfiedButJoinableLabour(actor))
+        {
+            sb.Append(", satisfied but joinable".ColourCommand());
         }
 
         return sb.ToString();

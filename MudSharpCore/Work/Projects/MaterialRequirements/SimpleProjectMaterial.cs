@@ -65,6 +65,11 @@ public class SimpleProjectMaterial : MaterialRequirementBase
         return item.IsA(RequiredTag) && item.Quality >= MinimumQuality;
     }
 
+    public override double QuantitySuppliedByItem(IGameItem item, IActiveProject project)
+    {
+        return RequiredAmount - project.MaterialProgress[this];
+    }
+
     public override double SupplyItem(ICharacter actor, IGameItem item, IActiveProject project)
     {
         int amount = (int)(RequiredAmount - project.MaterialProgress[this]);

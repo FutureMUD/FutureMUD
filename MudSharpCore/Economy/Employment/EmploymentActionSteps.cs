@@ -118,7 +118,7 @@ internal static class EmploymentItemSelectorResolver
 			return item;
 		}
 
-		return includeCarried && ActorCarriesItem(actor, item) ? item : null;
+		return includeCarried && EmploymentWorkerItemLocator.IsHeldOrWielded(actor, item) ? item : null;
 	}
 
 	private static IEnumerable<IGameItem> CandidateItems(IEmploymentTaskContext context, ICharacter actor,
@@ -126,7 +126,7 @@ internal static class EmploymentItemSelectorResolver
 	{
 		if (includeCarried)
 		{
-			foreach (var item in context.CarriedTaskItems(actor).Concat(actor.Inventory))
+			foreach (var item in EmploymentWorkerItemLocator.TaskHeldItems(context, actor))
 			{
 				yield return item;
 			}
@@ -144,10 +144,6 @@ internal static class EmploymentItemSelectorResolver
 		}
 	}
 
-	private static bool ActorCarriesItem(ICharacter actor, IGameItem item)
-	{
-		return item.InInventoryOf == actor.Body || actor.Inventory.Any(x => x.Id == item.Id);
-	}
 }
 
 internal static class EmploymentActionStepOperationalStateBuilder
@@ -181,9 +177,15 @@ internal static class EmploymentActionStepOperationalStateBuilder
 		                         .Where(x => !selectedItemIds.Contains(x.Id))
 		                         .Select(x => x.Id)
 		                         .ToList();
+		var contextManagedItemIds = context is EmploymentTaskContext taskContext
+			? actualCarried
+			  .Where(x => taskContext.IsContextManagedCarriedTaskItem(actor, x))
+			  .Select(x => x.Id)
+			  .ToList()
+			: [];
 		return new EmploymentActionStepOperationalState(
 			SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("collect", actorKey, actualCarried,
-				transportBundleIds));
+				transportBundleIds, contextManagedItemIds));
 	}
 }
 
@@ -2852,7 +2854,7 @@ public sealed class AuctionLotListingActionStep : EmploymentActionStepBase, IEmp
 		}
 
 		var item = ResolveListingItem(context, actor)!;
-		if (actor.Inventory.Any(x => x.Id == item.Id))
+		if (EmploymentWorkerItemLocator.IsHeldOrWielded(actor, item))
 		{
 			actor.Body.Take(item);
 		}
@@ -4522,11 +4524,7 @@ public sealed class HospitalPatientPreparationActionStep : EmploymentActionStepB
 			return patient.Location is null ? [] : [patient.Location];
 		}
 
-		return HospitalPatientFlow.TryReserveTreatmentLocation(Hospital, Request, out var theatre, out _) &&
-		       theatre is not null &&
-		       actor.Location?.Id != theatre.Id
-			? [theatre]
-			: [];
+		return [];
 	}
 
 	private bool IsHospitalHost(IEmploymentTaskContext context)
@@ -4640,6 +4638,18 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			return false;
 		}
 
+		if (TreatmentLocationAlreadyPrepared(context, actor, theatre))
+		{
+			if (actor.Location?.Id != theatre.Id && !context.CanPath(actor, theatre))
+			{
+				reason = $"The assigned employee cannot path to the treatment location {theatre.Name}.";
+				return false;
+			}
+
+			reason = string.Empty;
+			return true;
+		}
+
 		if (context.CarriedTaskItems(actor).Any())
 		{
 			if (!context.CanPath(actor, theatre))
@@ -4706,18 +4716,22 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 				return EmploymentActionStepResult.Blocked(reason);
 			}
 
-			Request.MarkSuppliesPrepared(actor,
-				$"{actor.HowSeen(actor, colour: false)} prepared hospital supplies in {theatre.Name}.");
-			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
-				$"Prepared supplies for hospital request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)} in {theatre.Name}.",
-				CurrentCorrelationId(context));
-			return new EmploymentActionStepResult(true,
-				$"Prepared hospital supplies for request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)} in {theatre.Name}.",
-				true,
-				new EmploymentActionStepOperationalState(
-					SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("deliver",
-						CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), carried),
-					OperationalPayload: SupplyPayload("delivered", theatre.Id)));
+			return CompletePreparedSupplies(context, actor, theatre,
+				EmploymentTaskContext.FormatTaskItemCustody("deliver",
+					CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), carried),
+				"delivered");
+		}
+
+		if (TreatmentLocationAlreadyPrepared(context, actor, theatre))
+		{
+			if (actor.Location?.Id != theatre.Id)
+			{
+				return new EmploymentActionStepResult(true,
+					$"Hospital supplies are already staged in {theatre.Name}.", false,
+					new EmploymentActionStepOperationalState(OperationalPayload: SupplyPayload("staged", theatre.Id)));
+			}
+
+			return CompletePreparedSupplies(context, actor, theatre, null, "staged");
 		}
 
 		if (!TryFindSupplyBundle(context, actor, out var source, out var items, out reason))
@@ -4758,9 +4772,82 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			return [theatre];
 		}
 
+		if (TreatmentLocationAlreadyPrepared(context, actor, theatre))
+		{
+			return actor.Location?.Id == theatre.Id ? [] : [theatre];
+		}
+
 		return TryFindSupplyBundle(context, actor, out var source, out _, out _)
 			? [source]
 			: [theatre];
+	}
+
+	private EmploymentActionStepResult CompletePreparedSupplies(IEmploymentTaskContext context, ICharacter actor,
+		ICell theatre, string? selectedResources, string phase)
+	{
+		Request.MarkSuppliesPrepared(actor,
+			$"{actor.HowSeen(actor, colour: false)} prepared hospital supplies in {theatre.Name}.");
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
+			$"Prepared supplies for hospital request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)} in {theatre.Name}.",
+			CurrentCorrelationId(context));
+		return new EmploymentActionStepResult(true,
+			$"Prepared hospital supplies for request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)} in {theatre.Name}.",
+			true,
+			new EmploymentActionStepOperationalState(
+				SelectedResources: selectedResources,
+				OperationalPayload: SupplyPayload(phase, theatre.Id)));
+	}
+
+	private bool TreatmentLocationAlreadyPrepared(IEmploymentTaskContext context, ICharacter actor, ICell theatre)
+	{
+		var available = TreatmentLocationSupplyItems(context, theatre).ToList();
+		if (Request.Service.RequiredEquipment.Any())
+		{
+			foreach (var requirement in Request.Service.RequiredEquipment)
+			{
+				var matched = available
+				              .Where(x => MatchesSelector(context, actor, x, requirement.Selector))
+				              .Take(requirement.Quantity)
+				              .ToList();
+				if (matched.Count < requirement.Quantity)
+				{
+					return false;
+				}
+
+				foreach (var item in matched)
+				{
+					available.RemoveAll(x => x.Id == item.Id);
+				}
+			}
+
+			return true;
+		}
+
+		if (!HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(Request.Service))
+		{
+			return false;
+		}
+
+		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(Request.Service).ToList();
+		if (!treatmentTypes.Any())
+		{
+			return false;
+		}
+
+		var treatments = available
+		                 .Select(x => x.GetItemType<ITreatment>())
+		                 .Where(x => x is not null)
+		                 .Cast<ITreatment>()
+		                 .ToList();
+		return treatmentTypes.All(type => treatments.Any(treatment => treatment.IsTreatmentType(type)));
+	}
+
+	private IEnumerable<IGameItem> TreatmentLocationSupplyItems(IEmploymentTaskContext context, ICell theatre)
+	{
+		return context.AvailableItems(theatre)
+		              .Concat(theatre.GameItems ?? Enumerable.Empty<IGameItem>())
+		              .SelectMany(DeepItemsOrSelf)
+		              .DistinctBy(x => x.Id);
 	}
 
 	private bool TryFindSupplyBundle(IEmploymentTaskContext context, ICharacter actor, out ICell source,
@@ -5153,9 +5240,7 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 	private IReadOnlyCollection<TreatmentType> MissingTreatmentSupplyTypes(IEmploymentTaskContext context, ICharacter actor,
 		IReadOnlyCollection<TreatmentType> treatmentTypes)
 	{
-		var supplies = context.CarriedTaskItems(actor)
-		                      .Concat(actor.Inventory ?? Enumerable.Empty<IGameItem>())
-		                      .Concat(actor.Body?.ItemsInHands ?? Enumerable.Empty<IGameItem>())
+		var supplies = EmploymentWorkerItemLocator.TaskHeldItems(context, actor)
 		                      .SelectMany(DeepItemsOrSelf)
 		                      .Concat(TreatmentLocationItems(context))
 		                      .Concat(CurrentTreatmentRoomItems(actor))

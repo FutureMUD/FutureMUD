@@ -467,8 +467,7 @@ internal static class EmploymentCraftService
 		operationalState = new EmploymentActionStepOperationalState(
 			OperationalPayload: "craft-status=complete",
 			SelectedResources: candidates.Any()
-				? EmploymentTaskContext.FormatTaskItemCustody("collect",
-					CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), candidates)
+				? context.FormatTaskItemCustodyForActor("collect", actor, candidates)
 				: null,
 			CraftJobReference: SerializeCraftState(completedState));
 		ReleaseCraftReservations(context.CurrentTask, actor.Gameworld);
@@ -507,8 +506,7 @@ internal static class EmploymentCraftService
 		operationalState = new EmploymentActionStepOperationalState(
 			OperationalPayload: "craft-status=failed",
 			SelectedResources: salvage.Any()
-				? EmploymentTaskContext.FormatTaskItemCustody("collect",
-					CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), salvage)
+				? context.FormatTaskItemCustodyForActor("collect", actor, salvage)
 				: null,
 			FailureDiagnostic: reason,
 			CraftJobReference: SerializeCraftState(failedState));

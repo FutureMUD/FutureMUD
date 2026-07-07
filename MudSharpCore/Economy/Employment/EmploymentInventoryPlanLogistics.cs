@@ -22,8 +22,7 @@ internal static class EmploymentInventoryPlanLogistics
 		}
 
 		return actor.Body.HoldLocs is not null &&
-		       actor.Body.WieldLocs is not null &&
-		       actor.Inventory is not null;
+		       actor.Body.WieldLocs is not null;
 	}
 
 	public static bool TryHoldItems(ICharacter actor, IReadOnlyCollection<IGameItem> items,
@@ -187,7 +186,7 @@ internal static class EmploymentInventoryPlanLogistics
 
 	private static bool ActorCarriesItem(ICharacter actor, IGameItem item)
 	{
-		return item.InInventoryOf == actor.Body || actor.Inventory.Any(x => x.Id == item.Id);
+		return EmploymentWorkerItemLocator.IsHeldOrWielded(actor, item);
 	}
 
 	private static bool ContainerHasItem(IContainer container, IGameItem item)

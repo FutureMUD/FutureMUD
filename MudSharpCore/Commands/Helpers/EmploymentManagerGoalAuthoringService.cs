@@ -716,7 +716,7 @@ internal sealed class EmploymentManagerGoalAuthoringService
 
 		if (IsNativeHospitalStockGoal(draft.GoalType) && !HasMatchingHospitalStockCondition(draft))
 		{
-			message = "Hospital stock manager goals require a matching hospitalstock condition.";
+			message = "Hospital stock manager goals require a matching hospital stock or theatre stock condition.";
 			return false;
 		}
 
@@ -921,6 +921,17 @@ internal sealed class EmploymentManagerGoalAuthoringService
 
 		var itemType = HospitalSupplyStockGoalPlanner.ItemTypeForGoal(draft.GoalType);
 		draft.ClearSteps();
+		if (HospitalTheatreStockGoalPlanner.IsHospitalTheatreStockGoal(draft.GoalType))
+		{
+			draft.RemoveConditions(x => x is HospitalTheatreStockCondition stock && stock.ItemType != itemType);
+			if (!draft.Conditions.OfType<HospitalTheatreStockCondition>().Any(x => x.ItemType == itemType))
+			{
+				draft.AddCondition(new HospitalTheatreStockCondition(itemType, 1));
+			}
+
+			return;
+		}
+
 		draft.RemoveConditions(x => x is HospitalSupplyStockCondition stock && stock.ItemType != itemType);
 		if (!draft.Conditions.OfType<HospitalSupplyStockCondition>().Any(x => x.ItemType == itemType))
 		{
@@ -936,6 +947,11 @@ internal sealed class EmploymentManagerGoalAuthoringService
 		}
 
 		var itemType = HospitalSupplyStockGoalPlanner.ItemTypeForGoal(draft.GoalType);
+		if (HospitalTheatreStockGoalPlanner.IsHospitalTheatreStockGoal(draft.GoalType))
+		{
+			return draft.Conditions.OfType<HospitalTheatreStockCondition>().Any(x => x.ItemType == itemType);
+		}
+
 		return draft.Conditions.OfType<HospitalSupplyStockCondition>().Any(x => x.ItemType == itemType);
 	}
 

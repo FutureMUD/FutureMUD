@@ -131,6 +131,28 @@ public static class EmploymentManagerGoalCatalog
 			Examples(
 				"Generated automatically from active service reusable-tool requirements"),
 			Aliases("medicaltools", "hospitalreusables", "proceduretools")),
+		Definition("hospitaltheatreconsumables", EmploymentManagerGoalCategory.Stock,
+			ManagerGoalType.MaintainHospitalTheatreConsumableStock,
+			"goals draft new hospitaltheatreconsumables <description>",
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ManageDeliveryRoutes,
+			"Stages hospital consumables from supply rooms into operating theatres for a configured number of active-service procedure repeats.",
+			Examples(
+				"goals condition hospitaltheatre consumables 1"),
+			Examples(
+				"Generated automatically from active service consumable and treatment-supply requirements"),
+			Aliases("theatreconsumables", "operatingtheatreconsumables", "hospitalstagedconsumables", "theatresupplies", "hospitaltheatre")),
+		Definition("hospitaltheatretools", EmploymentManagerGoalCategory.Stock,
+			ManagerGoalType.MaintainHospitalTheatreReusableEquipmentStock,
+			"goals draft new hospitaltheatretools <description>",
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ManageDeliveryRoutes,
+			"Stages reusable hospital tools from supply rooms into operating theatres for a configured number of active-service procedure repeats.",
+			Examples(
+				"goals condition hospitaltheatre tools 1"),
+			Examples(
+				"Generated automatically from active service reusable-tool requirements"),
+			Aliases("theatretools", "operatingtheatretools", "hospitalstagedtools", "theatreequipment")),
 		Definition("payroll", EmploymentManagerGoalCategory.Finance,
 			ManagerGoalType.KeepEmploymentPayrollCurrent,
 			"goals draft new payroll <description>",

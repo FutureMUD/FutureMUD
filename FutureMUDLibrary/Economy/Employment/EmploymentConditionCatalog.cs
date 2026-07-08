@@ -62,6 +62,12 @@ public static class EmploymentConditionCatalog
 			EmploymentAuthority.ManageDeliveryRoutes,
 			"Satisfied when active hospital service supply requirements are below the configured procedure-repeat target.",
 			Aliases("medicalstock", "proceduresupplies", "hospitaltools", "hospitalconsumables")),
+		Definition("hospitaltheatre", EmploymentConditionCategory.Stock, EmploymentTaskConditionType.HospitalTheatreStock,
+			"tasks rule condition hospitaltheatre consumables|tools <procedure-count>",
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ManageDeliveryRoutes,
+			"Satisfied when operating theatres are missing staged hospital tools or consumables for active service requirements.",
+			Aliases("theatrestock", "theatresupplies", "operatingtheatrestock", "hospitalstaging")),
 		Definition("account", EmploymentConditionCategory.Finance, EmploymentTaskConditionType.AccountBalance,
 			"tasks rule condition account cash|bank|available|key <key> below|atleast <amount>",
 			EmploymentAuthority.CreateScheduledRules,

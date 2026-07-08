@@ -39,6 +39,7 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
+using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
@@ -230,6 +231,9 @@ public class UnifiedEmploymentDispatchTests
 		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
 		request.SetupGet(x => x.Service).Returns(service.Object);
 		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Queued);
+		var patient = Character(7521, "Patient");
+		patient.SetupGet(x => x.Location).Returns(theatre.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
 		request.SetupProperty(x => x.OperatingTheatreCellId);
 		request.SetupProperty(x => x.SupplyPrepared, false);
 		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([request.Object]);
@@ -286,6 +290,9 @@ public class UnifiedEmploymentDispatchTests
 		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
 		request.SetupGet(x => x.Service).Returns(service.Object);
 		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Queued);
+		var patient = Character(8061, "Patient");
+		patient.SetupGet(x => x.Location).Returns(theatre.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
 		request.SetupProperty(x => x.OperatingTheatreCellId);
 		request.SetupProperty(x => x.SupplyPrepared, false);
 		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([request.Object]);
@@ -1062,6 +1069,39 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void HospitalPatientFlow_RecoveryRoutingEchoesAtSourceAndDestination()
+	{
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.RequiresRecovery).Returns(true);
+		var origin = Cell(820, "operating theatre");
+		var recovery = Cell(821, "recovery room");
+		var patient = Character(822, "Patient");
+		patient.SetupGet(x => x.IsHelpless).Returns(false);
+		patient.SetupGet(x => x.Location).Returns(origin.Object);
+		patient.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var employee = Character(823, "Doctor");
+		employee.SetupGet(x => x.Location).Returns(origin.Object);
+		employee.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupProperty(x => x.RecoveryRoomCellId);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.RecoveryRooms).Returns([recovery.Object]);
+		hospital.SetupGet(x => x.WaitingRooms).Returns(Array.Empty<ICell>());
+
+		HospitalPatientFlow.TransferAfterTreatment(hospital.Object, request.Object, employee.Object,
+			"Hospital recovery routing");
+
+		origin.Verify(x => x.HandleRoomEcho(It.IsAny<IEmoteOutput>(), It.IsAny<RoomLayer?>()), Times.Once);
+		recovery.Verify(x => x.HandleRoomEcho(It.IsAny<IEmoteOutput>(), It.IsAny<RoomLayer?>()), Times.Once);
+		origin.Verify(x => x.Leave(patient.Object), Times.Once);
+		origin.Verify(x => x.Leave(employee.Object), Times.Once);
+		recovery.Verify(x => x.Enter(patient.Object, null, true, RoomLayer.GroundLevel), Times.Once);
+		recovery.Verify(x => x.Enter(employee.Object, null, true, RoomLayer.GroundLevel), Times.Once);
+	}
+
+	[TestMethod]
 	public void HospitalServiceActionStep_StaysWithPatientBeforeTheatreTransfer()
 	{
 		var waitingRoom = Cell(720, "waiting room");
@@ -1151,6 +1191,76 @@ public class UnifiedEmploymentDispatchTests
 		theatre.Verify(x => x.Enter(doctor.Object, null, true, RoomLayer.GroundLevel), Times.Once);
 		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Assigned,
 			It.Is<string>(message => message.Contains("moved") && message.Contains("operating theatre"))), Times.Once);
+	}
+
+	[TestMethod]
+	public void HospitalServiceActionStep_FailsRequestWhenPreparedPatientLeavesTheatre()
+	{
+		var theatre = Cell(824, "operating theatre");
+		var waitingRoom = Cell(825, "waiting room");
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(826);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.Locations).Returns([theatre.Object, waitingRoom.Object]);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.Stabilisation);
+		var patient = Character(827, "Patient");
+		patient.SetupGet(x => x.Location).Returns(waitingRoom.Object);
+		var doctor = Character(828, "Doctor");
+		doctor.SetupGet(x => x.Location).Returns(theatre.Object);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(829);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Assigned);
+		request.SetupGet(x => x.ReturnCellId).Returns(825);
+		request.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		var step = new HospitalServiceActionStep(hospital.Object, request.Object);
+
+		var result = step.Execute(new EmploymentTaskContext(hospital.Object), doctor.Object);
+
+		Assert.IsFalse(result.Success);
+		Assert.IsTrue(result.Completed);
+		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Failed,
+			It.Is<string>(message => message.Contains("reserved operating theatre"))), Times.Once);
+	}
+
+	[TestMethod]
+	public void HospitalServiceActionStep_FailsRequestWhenPatientCannotBeSeen()
+	{
+		var theatre = Cell(830, "operating theatre");
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(831);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.Locations).Returns([theatre.Object]);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.Stabilisation);
+		var patient = Character(832, "Patient");
+		patient.SetupGet(x => x.Location).Returns(theatre.Object);
+		var doctor = Character(833, "Doctor");
+		doctor.SetupGet(x => x.Location).Returns(theatre.Object);
+		doctor.Setup(x => x.ColocatedWith(patient.Object)).Returns(true);
+		doctor.Setup(x => x.CanSee(patient.Object)).Returns(false);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(834);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Assigned);
+		request.SetupGet(x => x.ReturnCellId).Returns(825);
+		request.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		var step = new HospitalServiceActionStep(hospital.Object, request.Object);
+
+		var result = step.Execute(new EmploymentTaskContext(hospital.Object), doctor.Object);
+
+		Assert.IsFalse(result.Success);
+		Assert.IsTrue(result.Completed);
+		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Failed,
+			It.Is<string>(message => message.Contains("can no longer see"))), Times.Once);
 	}
 
 	[TestMethod]
@@ -4634,6 +4744,65 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void ManagerGoals_HospitalTheatreConsumablesStageExistingSupplyRoomStock()
+	{
+		var currency = Currency();
+		var manager = Character(932, "Hospital Manager").Object;
+		var supplyItems = new List<IGameItem>
+		{
+			Item(9321, "bandage roll", prototypeId: 500).Object,
+			Item(9322, "antiseptic wipe", prototypeId: 500).Object
+		};
+		var theatreItems = new List<IGameItem>();
+		var supplyRoom = PhysicalCell(9320, "clinic stockroom", supplyItems).Object;
+		var theatre = PhysicalCell(9323, "operating theatre", theatreItems).Object;
+		var (hospital, state) = HospitalEmploymentHost(932, "central clinic", currency.Object,
+			[supplyRoom], [theatre], 120.0M);
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ManageDeliveryRoutes), null);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(9324);
+		service.SetupGet(x => x.Name).Returns("wound binding");
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.RequiredEquipment).Returns([
+			new HospitalServiceEquipmentRequirement(2, EmploymentItemSelector.ForPrototype(500),
+				HospitalServiceSupplyItemType.Consumable)
+		]);
+		hospital.SetupGet(x => x.ActiveServices).Returns([service.Object]);
+		var goal = hospital.Object.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHospitalTheatreConsumableStock,
+			new EmploymentAuthoritySet(EmploymentAuthority.ManageStockRules |
+				EmploymentAuthority.ManageDeliveryRoutes),
+			new ManagerGoalConfiguration("stage theatre consumables", null,
+			[
+				new HospitalTheatreStockCondition(HospitalServiceSupplyItemType.Consumable, 1)
+			]),
+			2,
+			TimeSpan.Zero), manager);
+		var context = new EmploymentTaskContext(hospital.Object);
+		context.SetAvailableItems(supplyRoom, supplyItems);
+		context.SetAvailableItems(theatre, theatreItems);
+
+		var tasks = hospital.Object.ManagerGoalBoard.EvaluateGoals(context, DateTimeOffset.UtcNow).ToList();
+
+		Assert.AreEqual(1, tasks.Count);
+		Assert.AreEqual(ManagerGoalStatus.Active, goal.Status);
+		Assert.AreEqual(2, tasks.Single().ActionPlan.Steps.Count);
+		Assert.IsInstanceOfType(tasks.Single().ActionPlan.Steps[0], typeof(GetItemsByIdActionStep));
+		Assert.IsInstanceOfType(tasks.Single().ActionPlan.Steps[1], typeof(DeliverItemsActionStep));
+		Assert.IsFalse(tasks.Single().ActionPlan.Steps.OfType<PurchaseActionStep>().Any());
+		var get = (GetItemsByIdActionStep)tasks.Single().ActionPlan.Steps[0];
+		Assert.AreEqual(2, get.Quantity);
+		CollectionAssert.AreEquivalent(new List<long> { 9321, 9322 }, get.SpecificItemIds.ToList());
+		Assert.AreSame(supplyRoom, get.SourceLocations.Single());
+		var deliver = (DeliverItemsActionStep)tasks.Single().ActionPlan.Steps[1];
+		Assert.AreSame(theatre, deliver.Destination);
+		Assert.AreEqual(2, tasks.Single().Priority);
+	}
+
+	[TestMethod]
 	public void HospitalSupplyStockCondition_ReusableToolsCountTheatreAndMedicalStaffHeldTools()
 	{
 		var currency = Currency();
@@ -7338,6 +7507,7 @@ public class UnifiedEmploymentDispatchTests
 		theatre.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
 		hospital.SetupGet(x => x.SupplyRooms).Returns([source.Object]);
 		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.Locations).Returns([source.Object, theatre.Object]);
 		hospital.SetupGet(x => x.WaitingRooms).Returns(Array.Empty<ICell>());
 		hospital.SetupGet(x => x.RecoveryRooms).Returns(Array.Empty<ICell>());
 
@@ -7354,7 +7524,9 @@ public class UnifiedEmploymentDispatchTests
 		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
 		request.SetupGet(x => x.Service).Returns(service.Object);
 		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Queued);
-		request.SetupGet(x => x.Patient).Returns((ICharacter?)null);
+		var patient = Character(903, "Patient");
+		patient.SetupGet(x => x.Location).Returns(theatre.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
 		request.SetupProperty(x => x.OperatingTheatreCellId);
 		request.SetupProperty(x => x.UsedInPlaceFallback);
 		request.SetupProperty(x => x.SupplyPrepared, false);
@@ -7420,6 +7592,7 @@ public class UnifiedEmploymentDispatchTests
 		theatre.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
 		hospital.SetupGet(x => x.SupplyRooms).Returns([source.Object]);
 		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.Locations).Returns([source.Object, theatre.Object]);
 		hospital.SetupGet(x => x.WaitingRooms).Returns(Array.Empty<ICell>());
 		hospital.SetupGet(x => x.RecoveryRooms).Returns(Array.Empty<ICell>());
 
@@ -7435,7 +7608,9 @@ public class UnifiedEmploymentDispatchTests
 		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
 		request.SetupGet(x => x.Service).Returns(service.Object);
 		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Queued);
-		request.SetupGet(x => x.Patient).Returns((ICharacter?)null);
+		var patient = Character(904, "Patient");
+		patient.SetupGet(x => x.Location).Returns(theatre.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
 		request.SetupProperty(x => x.OperatingTheatreCellId);
 		request.SetupProperty(x => x.UsedInPlaceFallback);
 		request.SetupProperty(x => x.SupplyPrepared, false);
@@ -7796,6 +7971,9 @@ public class UnifiedEmploymentDispatchTests
 				It.IsAny<bool>(),
 				It.IsAny<PerceiveIgnoreFlags>()))
 		         .Returns(name);
+		character.Setup(x => x.CanSee(It.IsAny<ICharacter>())).Returns(true);
+		character.Setup(x => x.CanSee(It.IsAny<IPerceivable>(), It.IsAny<PerceiveIgnoreFlags>()))
+		         .Returns(true);
 		character.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(administrator);
 		return character;
 	}
@@ -7822,6 +8000,9 @@ public class UnifiedEmploymentDispatchTests
 				It.IsAny<bool>(),
 				It.IsAny<PerceiveIgnoreFlags>()))
 		         .Returns(name);
+		character.Setup(x => x.CanSee(It.IsAny<ICharacter>())).Returns(true);
+		character.Setup(x => x.CanSee(It.IsAny<IPerceivable>(), It.IsAny<PerceiveIgnoreFlags>()))
+		         .Returns(true);
 		character.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(false);
 		return character;
 	}

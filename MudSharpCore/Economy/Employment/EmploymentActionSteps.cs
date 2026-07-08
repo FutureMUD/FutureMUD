@@ -4373,6 +4373,55 @@ public sealed class HotelAdministrationActionStep : EmploymentActionStepBase, IE
 	}
 }
 
+internal static class HospitalActionStepPatientGuard
+{
+	public static bool ShouldExecuteToFail(IHospital hospital, IHospitalServiceRequest request, ICharacter actor,
+		bool requirePreparedTreatmentLocation, out string reason)
+	{
+		if (TryGetTerminalRequestReason(request, out reason))
+		{
+			return true;
+		}
+
+		return HospitalPatientFlow.TryGetUnavailablePatientReason(hospital, request, actor,
+			requirePreparedTreatmentLocation, out reason);
+	}
+
+	public static bool TryFail(IHospital hospital, IHospitalServiceRequest request, ICharacter actor,
+		bool requirePreparedTreatmentLocation, out EmploymentActionStepResult result)
+	{
+		if (TryGetTerminalRequestReason(request, out var reason))
+		{
+			result = EmploymentActionStepResult.Failed(reason);
+			return true;
+		}
+
+		if (HospitalPatientFlow.TryGetUnavailablePatientReason(hospital, request, actor,
+			    requirePreparedTreatmentLocation, out reason))
+		{
+			request.MarkStatus(HospitalServiceRequestStatus.Failed, reason);
+			result = EmploymentActionStepResult.Failed(reason);
+			return true;
+		}
+
+		result = null!;
+		return false;
+	}
+
+	private static bool TryGetTerminalRequestReason(IHospitalServiceRequest request, out string reason)
+	{
+		if (request.Status is HospitalServiceRequestStatus.Cancelled or HospitalServiceRequestStatus.Declined or
+		    HospitalServiceRequestStatus.Failed)
+		{
+			reason = $"Hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)} is already {request.Status.DescribeEnum()}.";
+			return true;
+		}
+
+		reason = string.Empty;
+		return false;
+	}
+}
+
 public sealed class HospitalPatientPreparationActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	public HospitalPatientPreparationActionStep(IHospital hospital, IHospitalServiceRequest request)
@@ -4415,6 +4464,11 @@ public sealed class HospitalPatientPreparationActionStep : EmploymentActionStepB
 			return false;
 		}
 
+		if (HospitalActionStepPatientGuard.ShouldExecuteToFail(Hospital, Request, actor, false, out reason))
+		{
+			return true;
+		}
+
 		if (!HospitalMedicalServiceRunner.ShouldUseTreatmentTheatre(Request.Service))
 		{
 			reason = "This hospital service does not require theatre preparation.";
@@ -4427,8 +4481,7 @@ public sealed class HospitalPatientPreparationActionStep : EmploymentActionStepB
 			return false;
 		}
 
-		if (Request.Status is HospitalServiceRequestStatus.Completed or HospitalServiceRequestStatus.Cancelled or
-		    HospitalServiceRequestStatus.Declined or HospitalServiceRequestStatus.Failed)
+		if (Request.Status == HospitalServiceRequestStatus.Completed)
 		{
 			reason = $"Hospital service request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)} is already {Request.Status.DescribeEnum()}.";
 			return false;
@@ -4475,6 +4528,11 @@ public sealed class HospitalPatientPreparationActionStep : EmploymentActionStepB
 
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
+		if (HospitalActionStepPatientGuard.TryFail(Hospital, Request, actor, false, out var terminalResult))
+		{
+			return terminalResult;
+		}
+
 		if (!CanExecute(context, actor, out var reason))
 		{
 			return EmploymentActionStepResult.Blocked(reason);
@@ -4614,8 +4672,12 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			return false;
 		}
 
-		if (Request.Status is HospitalServiceRequestStatus.Completed or HospitalServiceRequestStatus.Cancelled or
-		    HospitalServiceRequestStatus.Declined or HospitalServiceRequestStatus.Failed)
+		if (HospitalActionStepPatientGuard.ShouldExecuteToFail(Hospital, Request, actor, true, out reason))
+		{
+			return true;
+		}
+
+		if (Request.Status == HospitalServiceRequestStatus.Completed)
 		{
 			reason = $"Hospital service request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)} is already {Request.Status.DescribeEnum()}.";
 			return false;
@@ -4723,6 +4785,11 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
+		if (HospitalActionStepPatientGuard.TryFail(Hospital, Request, actor, true, out var terminalResult))
+		{
+			return terminalResult;
+		}
+
 		if (!CanExecute(context, actor, out var reason))
 		{
 			return EmploymentActionStepResult.Blocked(reason);
@@ -5207,14 +5274,18 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 			return false;
 		}
 
+		if (HospitalActionStepPatientGuard.ShouldExecuteToFail(Hospital, Request, actor, true, out reason))
+		{
+			return true;
+		}
+
 		if (Request.Patient is not { } patient)
 		{
 			reason = "The patient for this hospital service request is not currently available.";
 			return false;
 		}
 
-		if (Request.Status is HospitalServiceRequestStatus.Cancelled or HospitalServiceRequestStatus.Declined or
-		    HospitalServiceRequestStatus.Failed)
+		if (Request.Status == HospitalServiceRequestStatus.Completed)
 		{
 			reason = $"Hospital service request #{Request.Id.ToString("N0", CultureInfo.InvariantCulture)} is already {Request.Status.DescribeEnum()}.";
 			return false;
@@ -5258,6 +5329,11 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
+		if (HospitalActionStepPatientGuard.TryFail(Hospital, Request, actor, true, out var terminalResult))
+		{
+			return terminalResult;
+		}
+
 		if (!CanExecute(context, actor, out var reason))
 		{
 			return EmploymentActionStepResult.Blocked(reason);

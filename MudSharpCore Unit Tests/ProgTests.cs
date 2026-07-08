@@ -2,7 +2,6 @@
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Functions;
-using NCalc.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;

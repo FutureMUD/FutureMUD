@@ -1,5 +1,6 @@
 ﻿using NCalc;
 using NCalc.Exceptions;
+using NCalc.Extensions;
 using NCalc.Handlers;
 using System;
 using System.Collections.Generic;
@@ -184,19 +185,19 @@ namespace ExpressionEngine
 
         #region In-built functions
 
-        private void NotFunction(string name, FunctionArgs args)
+        private void NotFunction(string name, FunctionEventArgs args)
         {
             if (!name.Equals("not", StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            if (args.Parameters.Length != 1)
+            if (args.Parameters.Count != 1)
             {
                 throw new ArgumentException("Not() takes exactly 1 argument");
             }
 
-            double value = Convert.ToDouble(args.Parameters[0].Evaluate());
+            double value = Convert.ToDouble(args.Parameters[0].Evaluate(args.Context));
             if (!double.IsFinite(value))
             {
                 throw new ArgumentException("Not() requires a finite numeric argument");
@@ -204,20 +205,20 @@ namespace ExpressionEngine
 
             args.Result = value == 0.0 ? 1.0 : 0.0;
         }
-        private void DRandFunction(string name, FunctionArgs args)
+        private void DRandFunction(string name, FunctionEventArgs args)
         {
             if (!name.Equals("drand", StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            if (args.Parameters.Length != 2)
+            if (args.Parameters.Count != 2)
             {
                 throw new ArgumentException("DRand() takes exactly 2 arguments");
             }
 
-            double randleft = Convert.ToDouble(args.Parameters[0].Evaluate());
-            double randright = Convert.ToDouble(args.Parameters[1].Evaluate());
+            double randleft = Convert.ToDouble(args.Parameters[0].Evaluate(args.Context));
+            double randright = Convert.ToDouble(args.Parameters[1].Evaluate(args.Context));
             if (!double.IsFinite(randleft) || !double.IsFinite(randright))
             {
                 throw new ArgumentException("DRand() requires finite numeric arguments");
@@ -226,20 +227,20 @@ namespace ExpressionEngine
             args.Result = (RandomInstance.NextDouble() * (randright - randleft)) + randleft;
         }
 
-        private void RandFunction(string name, FunctionArgs args)
+        private void RandFunction(string name, FunctionEventArgs args)
         {
             if (!name.Equals("rand", StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            if (args.Parameters.Length != 2)
+            if (args.Parameters.Count != 2)
             {
                 throw new ArgumentException("Rand() takes exactly 2 arguments");
             }
 
-            object arg1 = args.Parameters[0].Evaluate();
-            object arg2 = args.Parameters[1].Evaluate();
+            var arg1 = args.Parameters[0].Evaluate(args.Context);
+            var arg2 = args.Parameters[1].Evaluate(args.Context);
 
             if (arg1 is null || arg2 is null)
             {
@@ -268,25 +269,25 @@ namespace ExpressionEngine
                 return;
             }
 
-            int randleft = Convert.ToInt32(args.Parameters[0].Evaluate());
-            int randright = Convert.ToInt32(args.Parameters[1].Evaluate());
+            int randleft = Convert.ToInt32(args.Parameters[0].Evaluate(args.Context));
+            int randright = Convert.ToInt32(args.Parameters[1].Evaluate(args.Context));
             args.Result = RandomInstance.Next(randleft, randright + 1);
         }
 
-        private void DiceFunction(string name, FunctionArgs args)
+        private void DiceFunction(string name, FunctionEventArgs args)
         {
             if (!name.Equals("dice", StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            if (args.Parameters.Length != 2)
+            if (args.Parameters.Count != 2)
             {
                 throw new ArgumentException("Dice() takes exactly 2 arguments");
             }
 
-            int left = Convert.ToInt32(args.Parameters[0].Evaluate());
-            int right = Convert.ToInt32(args.Parameters[1].Evaluate());
+            int left = Convert.ToInt32(args.Parameters[0].Evaluate(args.Context));
+            int right = Convert.ToInt32(args.Parameters[1].Evaluate(args.Context));
             if (left < 0 || left > MaximumDiceCount || right <= 0 || right > MaximumDiceSides)
             {
                 throw new ArgumentException($"Dice() requires 0-{MaximumDiceCount} dice and 1-{MaximumDiceSides} sides");

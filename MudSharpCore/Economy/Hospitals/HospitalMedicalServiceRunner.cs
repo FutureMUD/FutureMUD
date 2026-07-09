@@ -1745,14 +1745,15 @@ public static class HospitalMedicalServiceRunner
 
 	public static bool IsIvCapableLiquidContainerItem(IGameItem item, string switchMode)
 	{
-		return item.GetItemType<ILiquidContainer>() is IConnectable &&
+		return item.GetItemType<ILiquidContainer>() is not null &&
+		       item.GetItemTypes<IConnectable>().Any() &&
 		       item.GetItemType<ISwitchable>() is { } switchable &&
 		       switchable.SwitchSettings.Any(x => x.EqualTo(switchMode));
 	}
 
 	private static bool IsIvCapableLiquidContainer(ILiquidContainer container, string switchMode)
 	{
-		return container is IConnectable &&
+		return container.Parent.GetItemTypes<IConnectable>().Any() &&
 		       container.Parent.GetItemType<ISwitchable>() is { } switchable &&
 		       switchable.SwitchSettings.Any(x => x.EqualTo(switchMode));
 	}
@@ -2014,7 +2015,7 @@ public static class HospitalMedicalServiceRunner
 			switchable.Switch(employee, "neutral");
 		}
 
-		var containerConnection = containerItem?.GetItemType<ILiquidContainer>() as IConnectable;
+		var containerConnection = containerItem?.GetItemTypes<IConnectable>().FirstOrDefault();
 		var drip = dripItem?.GetItemType<IDrip>();
 		var cannula = cannulaItem?.GetItemType<ICannula>();
 		if (containerConnection is not null && drip is not null)
@@ -2435,9 +2436,8 @@ public static class HospitalMedicalServiceRunner
 
 		workflow.HospitalInsertedCannula = workflow.HospitalInsertedCannula && workflow.CannulaId == cannula.Parent.Id;
 		workflow.CannulaId = cannula.Parent.Id;
-		var liquidAmount = workflow.TargetLitres / donor.Gameworld.UnitManager.BaseFluidToLitres;
 		var container = CandidateIvLiquidContainers(context, employee, request, "drain")
-		                .FirstOrDefault(x => x.LiquidCapacity - x.LiquidVolume >= liquidAmount &&
+		                .FirstOrDefault(x => x.LiquidCapacity - x.LiquidVolume > 0.0 &&
 		                                     (x.LiquidMixture is null || x.LiquidMixture.IsEmpty ||
 		                                      x.LiquidMixture.CanMerge(donor.Body.BloodLiquid)));
 		if (container is null)
@@ -2445,7 +2445,7 @@ public static class HospitalMedicalServiceRunner
 			progress.BloodWorkflow = null;
 			progress.ActivePhase = null;
 			return new ServiceExecutionResult(false,
-				$"There is no prepared IV blood container with room for {workflow.TargetLitres.ToString("N2", employee)}L of blood.",
+				"There is no prepared IV blood container with spare capacity for blood.",
 				string.Empty, Progress: progress);
 		}
 

@@ -300,12 +300,10 @@ public static class HospitalServiceAvailability
 			return false;
 		}
 
-		var amount = (service.BloodVolumeLitres > 0.0 ? service.BloodVolumeLitres : 0.5) /
-		             hospital.Gameworld.UnitManager.BaseFluidToLitres;
 		var containers = stock
 		                 .Where(x => HospitalMedicalServiceRunner.IsIvCapableLiquidContainerItem(x, "drain"))
 		                 .Select(x => x.GetItemType<ILiquidContainer>()).Where(x => x is not null).Select(x => x!)
-		                 .Where(x => x.LiquidCapacity - x.LiquidVolume >= amount)
+		                 .Where(HasAnySpareLiquidCapacity)
 		                 .ToList();
 		if (!containers.Any())
 		{
@@ -389,6 +387,11 @@ public static class HospitalServiceAvailability
 
 		reason = "insufficient compatible blood";
 		return false;
+	}
+
+	private static bool HasAnySpareLiquidCapacity(ILiquidContainer container)
+	{
+		return container.LiquidCapacity - container.LiquidVolume > 0.0;
 	}
 
 	private static bool HasBloodAccessStock(IReadOnlyCollection<IGameItem> stock, ICharacter? patient,

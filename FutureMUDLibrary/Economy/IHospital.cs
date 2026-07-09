@@ -137,6 +137,7 @@ public interface IHospitalPatientDebtAccount : IFrameworkItem, ISaveable
 	bool CanCharge(decimal amount, out string reason);
 	void Charge(decimal amount, string reason);
 	void Pay(decimal amount, string reason);
+	void Forgive(decimal amount, string reason);
 	string Show(ICharacter actor);
 }
 

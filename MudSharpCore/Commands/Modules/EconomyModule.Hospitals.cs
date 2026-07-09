@@ -51,6 +51,8 @@ Hospital managers and proprietors standing in the hospital can use #3hospital he
 	#3hospital cancel [<##>]#0 - cancels an active hospital service request without refunding completed or partially completed work
 	#3hospital debt [person]#0 - shows medical debt or prepaid credit for yourself or a patient you can see
 	#3hospital debt pay <amount> [for <target>] [cash|with <payment item>]#0 - pays down debt or creates prepaid credit
+	#3hospital debt list#0 - lists all patient debt accounts with an owing balance
+	#3hospital debt forgive <account ##|patient> <amount|all> [reason]#0 - forgives an owing debt account in whole or in part
 	#3hospital requests#0 - lists hospital service requests
 	#3hospital requestshow <##>#0 - shows a hospital service request
 	#3hospital operations#0 - shows room, theatre, procedure, staff, blocker, and reserved-resource status
@@ -297,23 +299,38 @@ Administrators can also use:
 			return;
 		}
 
+		if (!canManage)
+		{
+			var table = new StringBuilder();
+			table.AppendLine($"Hospital Services - {hospital.Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+			table.AppendLine(StringUtilities.GetTextTable(
+				services.Select(service =>
+				{
+					var availability = HospitalServiceAvailability.Evaluate(hospital, service, actor);
+					return new List<string>
+					{
+						service.Id.ToString("N0", actor),
+						service.Name,
+						availability.Available ? "Available".ColourValue() : "Unavailable".ColourError(),
+						HospitalServiceBilling.DescribePrice(hospital, service, actor).ColourValue(),
+						service.AllowDebt.ToColouredString()
+					};
+				}),
+				new List<string> { "#", "Service", "Availability", "Price", "Permits Debt" },
+				actor,
+				Telnet.Cyan,
+				2));
+			actor.OutputHandler.Send(table.ToString());
+			return;
+		}
+
 		var sb = new StringBuilder();
 		sb.AppendLine($"Hospital Services - {hospital.Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		foreach (var service in services)
 		{
-			if (canManage)
-			{
-				AppendHospitalBlock(sb, actor, $"Service #{service.Id.ToString("N0", actor)} - {service.Name}",
-					("Type", service.ServiceType.DescribeEnum().ColourName()),
-					("Offering", service.OfferingMode.DescribeEnum().ColourName()),
-					("Price", HospitalServiceBilling.DescribePrice(hospital, service, actor).ColourValue()),
-					("Debt", service.AllowDebt.ToColouredString()),
-					("Status", HospitalServiceAvailability.Evaluate(hospital, service, actor).DescribeColoured()));
-				continue;
-			}
-
 			AppendHospitalBlock(sb, actor, $"Service #{service.Id.ToString("N0", actor)} - {service.Name}",
 				("Type", service.ServiceType.DescribeEnum().ColourName()),
+				("Offering", service.OfferingMode.DescribeEnum().ColourName()),
 				("Price", HospitalServiceBilling.DescribePrice(hospital, service, actor).ColourValue()),
 				("Debt", service.AllowDebt.ToColouredString()),
 				("Status", HospitalServiceAvailability.Evaluate(hospital, service, actor).DescribeColoured()));
@@ -1901,6 +1918,20 @@ Administrators can also use:
 			return;
 		}
 
+		if (!ss.IsFinished && ss.PeekSpeech().EqualToAny("list", "accounts", "owing", "owed"))
+		{
+			ss.PopSpeech();
+			HospitalDebtList(actor, hospital);
+			return;
+		}
+
+		if (!ss.IsFinished && ss.PeekSpeech().EqualToAny("forgive", "waive", "writeoff", "write-off"))
+		{
+			ss.PopSpeech();
+			HospitalDebtForgive(actor, hospital, ss);
+			return;
+		}
+
 		var patient = ss.IsFinished ? actor : actor.TargetActor(ss.SafeRemainingArgument);
 		if (patient is null)
 		{
@@ -1989,6 +2020,116 @@ Administrators can also use:
 				? $"prepaid credit {hospital.Currency.Describe(-account.Balance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}"
 				: "the account settled".ColourValue();
 		actor.OutputHandler.Send($"You pay {hospital.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} to {hospital.Name.ColourName()} for {account.PatientName.ColourName()}, leaving {status}.");
+	}
+
+	private static void HospitalDebtList(ICharacter actor, IHospital hospital)
+	{
+		if (!RequireHospitalManager(actor, hospital))
+		{
+			return;
+		}
+
+		var accounts = hospital.PatientDebtAccounts
+		                       .Where(x => x.Balance > 0.0M)
+		                       .OrderByDescending(x => x.Balance)
+		                       .ThenBy(x => x.PatientName)
+		                       .ToList();
+		if (!accounts.Any())
+		{
+			actor.OutputHandler.Send($"{hospital.Name.ColourName()} has no patient debt accounts with an owing balance.");
+			return;
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			accounts.Select(x => new List<string>
+			{
+				x.Id.ToString("N0", actor),
+				x.PatientName,
+				hospital.Currency.Describe(x.Balance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+				hospital.Currency.Describe(x.MaximumDebt, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+				hospital.Currency.Describe(x.AvailableCredit, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+				x.IsSuspended.ToColouredString(),
+				x.LastUpdatedAt.ToString("g", actor)
+			}),
+			new List<string> { "#", "Patient", "Owing", "Limit", "Available", "Suspended", "Updated" },
+			actor,
+			Telnet.Cyan,
+			2));
+	}
+
+	private static void HospitalDebtForgive(ICharacter actor, IHospital hospital, StringStack ss)
+	{
+		if (!RequireHospitalManager(actor, hospital))
+		{
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which hospital debt account do you want to forgive?");
+			return;
+		}
+
+		var accountText = ss.PopSpeech();
+		var account = ResolveHospitalDebtAccount(actor, hospital, accountText);
+		if (account is null)
+		{
+			actor.OutputHandler.Send($"There is no hospital debt account matching {accountText.ColourCommand()}.");
+			return;
+		}
+
+		if (account.Balance <= 0.0M)
+		{
+			actor.OutputHandler.Send($"{account.PatientName.ColourName()} does not currently owe any debt to {hospital.Name.ColourName()}.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("How much debt do you want to forgive? Use ALL to forgive the whole balance.");
+			return;
+		}
+
+		var amountText = ss.PopSpeech();
+		decimal amount;
+		if (amountText.EqualToAny("all", "full", "everything"))
+		{
+			amount = account.Balance;
+		}
+		else if (!hospital.Currency.TryGetBaseCurrency(amountText, out amount) || amount <= 0.0M)
+		{
+			actor.OutputHandler.Send($"What positive {hospital.Currency.Name.ColourName()} amount do you want to forgive, or ALL?");
+			return;
+		}
+
+		var forgiven = Math.Min(account.Balance, amount);
+		var reason = ss.SafeRemainingArgument;
+		account.Forgive(forgiven, string.IsNullOrWhiteSpace(reason) ? "Hospital debt forgiveness" : reason);
+		var status = account.Balance > 0.0M
+			? $"remaining balance {hospital.Currency.Describe(account.Balance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}"
+			: "the account settled".ColourValue();
+		actor.OutputHandler.Send(
+			$"You forgive {hospital.Currency.Describe(forgiven, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} of {account.PatientName.ColourName()}'s debt to {hospital.Name.ColourName()}, leaving {status}.");
+	}
+
+	private static IHospitalPatientDebtAccount? ResolveHospitalDebtAccount(ICharacter actor, IHospital hospital,
+		string text)
+	{
+		var cleaned = text.TrimStart('#');
+		if (long.TryParse(cleaned, out var id))
+		{
+			return hospital.PatientDebtAccounts.FirstOrDefault(x => x.Id == id) ??
+			       hospital.DebtAccountFor(id);
+		}
+
+		if (actor.TargetActor(text) is { } patient)
+		{
+			return hospital.DebtAccountFor(patient, false);
+		}
+
+		return hospital.PatientDebtAccounts.FirstOrDefault(x => x.PatientName.EqualTo(text)) ??
+		       hospital.PatientDebtAccounts.FirstOrDefault(x =>
+			       x.PatientName.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
 	}
 
 	private static void HospitalRequests(ICharacter actor, StringStack ss)

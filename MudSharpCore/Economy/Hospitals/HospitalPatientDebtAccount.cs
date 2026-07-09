@@ -147,6 +147,17 @@ public class HospitalPatientDebtAccount : SaveableItem, IHospitalPatientDebtAcco
 		Touch();
 	}
 
+	public void Forgive(decimal amount, string reason)
+	{
+		if (amount <= 0.0M || Balance <= 0.0M)
+		{
+			return;
+		}
+
+		_balance = Math.Max(0.0M, Balance - amount);
+		Touch();
+	}
+
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.HospitalPatientDebtAccounts.Find(Id);

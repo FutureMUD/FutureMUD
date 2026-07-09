@@ -67,6 +67,7 @@ public class UnifiedEmploymentDispatchTests
 	private delegate bool TryCollectTaskItemsCallback(ICharacter actor,
 		IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason);
 	private delegate bool CanChargeCallback(decimal amount, out string reason);
+	private delegate bool TryGetBaseCurrencyCallback(string text, out decimal amount);
 
 	[TestMethod]
 	public void HostShells_MinimumHostTypes_ImplementEmploymentHost()
@@ -205,7 +206,7 @@ public class UnifiedEmploymentDispatchTests
 		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
 
 		var bodyProto = BodyPrototype();
-		var bag = IvContainer(780, "empty blood bag", gameworld.Object);
+		var bag = IvContainer(780, "empty blood bag", gameworld.Object, capacity: 0.25);
 		var cannula = CannulaItem(786, "cannula", bodyProto.Object);
 		var drip = DripItem(787, "iv drip");
 
@@ -608,6 +609,49 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void HospitalServiceAvailability_AllowsBloodDonationIntoSmallerEmptyContainer()
+	{
+		var unitManager = new Mock<MudSharp.Framework.Units.IUnitManager>();
+		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
+
+		var bodyProto = BodyPrototype();
+		var bag = IvContainer(9004, "250ml blood bag", gameworld.Object, capacity: 0.25);
+		var supplyItems = new List<IGameItem>
+		{
+			bag.Object,
+			CannulaItem(9005, "cannula", bodyProto.Object).Object,
+			DripItem(9006, "iv drip").Object
+		};
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([PhysicalCell(9007, "supply room", supplyItems).Object]);
+		SetupAvailableMedicalEmployee(hospital);
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodDonation);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		service.SetupGet(x => x.BloodVolumeLitres).Returns(0.5);
+
+		var donorBlood = new Mock<ILiquid>();
+		donorBlood.SetupGet(x => x.Density).Returns(1.0);
+		var donorBody = new Mock<MudSharp.Body.IBody>();
+		donorBody.SetupGet(x => x.BloodLiquid).Returns(donorBlood.Object);
+		donorBody.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
+		donorBody.SetupGet(x => x.Implants).Returns([]);
+		var donor = Character(9008, "Donor", gameworld: gameworld.Object);
+		donor.SetupGet(x => x.Body).Returns(donorBody.Object);
+
+		var result = HospitalServiceAvailability.Evaluate(hospital.Object, service.Object, patient: donor.Object);
+
+		Assert.IsTrue(result.Available, result.Reason);
+	}
+
+	[TestMethod]
 	public void HospitalServiceAvailability_AllowsTransfusionFromMultipleCompatibleNonMatchingContainers()
 	{
 		var unitManager = new Mock<MudSharp.Framework.Units.IUnitManager>();
@@ -674,7 +718,7 @@ public class UnifiedEmploymentDispatchTests
 		gameworld.SetupGet(x => x.SurgicalProcedures).Returns(new All<ISurgicalProcedure>());
 		var bodyProto = BodyPrototype();
 		var switchCalls = new List<string>();
-		var bag = IvContainer(9150, "empty blood bag", gameworld.Object, switchCalls: switchCalls);
+		var bag = IvContainer(9150, "empty blood bag", gameworld.Object, capacity: 0.25, switchCalls: switchCalls);
 		var drip = DripItem(9151, "iv drip");
 		var cannulaItem = CannulaItem(9152, "installed cannula", bodyProto.Object);
 		var cannula = cannulaItem.Object.GetItemType<ICannula>();
@@ -1146,6 +1190,44 @@ public class UnifiedEmploymentDispatchTests
 		request.Verify(x => x.MarkCharged(0.0M, 12.5M, 12.5M), Times.Once);
 		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Completed,
 			It.Is<string>(text => text.Contains("Usage-billed hospital charge"))), Times.Once);
+	}
+
+	[TestMethod]
+	public void HospitalDebtForgive_ManagerForgivesPartialDebt()
+	{
+		var currency = Currency();
+		currency.Setup(x => x.TryGetBaseCurrency(It.IsAny<string>(), out It.Ref<decimal>.IsAny))
+		        .Returns(new TryGetBaseCurrencyCallback((string text, out decimal amount) =>
+		        {
+			        amount = text.EqualTo("5") ? 5.0M : 0.0M;
+			        return amount > 0.0M;
+		        }));
+		var balance = 12.0M;
+		var account = new Mock<IHospitalPatientDebtAccount>();
+		account.SetupGet(x => x.Id).Returns(9127);
+		account.SetupGet(x => x.PatientId).Returns(9128);
+		account.SetupGet(x => x.PatientName).Returns("Patient");
+		account.SetupGet(x => x.Balance).Returns(() => balance);
+		account.Setup(x => x.Forgive(It.IsAny<decimal>(), It.IsAny<string>()))
+		       .Callback<decimal, string>((amount, _) => balance = Math.Max(0.0M, balance - amount));
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.Currency).Returns(currency.Object);
+		hospital.SetupGet(x => x.PatientDebtAccounts).Returns([account.Object]);
+		var actor = Character(9129, "Manager", administrator: true);
+		var outputHandler = Mock.Get(actor.Object.OutputHandler);
+		var method = typeof(EconomyModule).GetMethod("HospitalDebtForgive",
+			BindingFlags.NonPublic | BindingFlags.Static);
+
+		Assert.IsNotNull(method);
+		method!.Invoke(null, [actor.Object, hospital.Object, new StringStack("#9127 5 waived by manager")]);
+
+		account.Verify(x => x.Forgive(5.0M, "waived by manager"), Times.Once);
+		Assert.AreEqual(7.0M, balance);
+		outputHandler.Verify(x => x.Send(
+			It.Is<string>(text => text.Contains("forgive") && text.Contains("7.00 test dollars")),
+			true,
+			false), Times.Once);
 	}
 
 	[TestMethod]

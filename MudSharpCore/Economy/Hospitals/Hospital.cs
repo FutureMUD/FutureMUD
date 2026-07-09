@@ -438,16 +438,16 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 				.Where(HospitalMedicalServiceRunner.CanBeRequestedStandalone)
 				.OrderBy(x => x.SortOrder)
 				.ThenBy(x => x.Name)
+			let availability = HospitalServiceAvailability.Evaluate(this, service, actor)
 			select new List<string>
 			{
 				service.Id.ToString("N0", actor),
 				service.Name,
-				service.ServiceType.DescribeEnum(),
-				HospitalServiceBilling.DescribePrice(this, service, actor),
-				service.AllowDebt.ToColouredString(),
-				HospitalServiceAvailability.Evaluate(this, service, actor).DescribeColoured()
+				availability.Available ? "Available".ColourValue() : "Unavailable".ColourError(),
+				HospitalServiceBilling.DescribePrice(this, service, actor).ColourValue(),
+				service.AllowDebt.ToColouredString()
 			},
-			new List<string> { "#", "Service", "Type", "Price", "Debt", "Status" },
+			new List<string> { "#", "Service", "Availability", "Price", "Permits Debt" },
 			actor,
 			Telnet.Cyan));
 

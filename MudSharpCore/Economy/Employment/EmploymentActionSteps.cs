@@ -5293,10 +5293,9 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		IHospitalServiceRequest request, out IReadOnlyCollection<IGameItem> items)
 	{
 		items = [];
-		var amount = RequestedBloodLiquidAmount(request);
 		var donorBlood = request.Patient?.Body.BloodLiquid;
 		var selected = containers.FirstOrDefault(x =>
-			x.Container.LiquidCapacity - x.Container.LiquidVolume >= amount &&
+			x.Container.LiquidCapacity - x.Container.LiquidVolume > 0.0 &&
 			(donorBlood is null ||
 			 x.Container.LiquidMixture is null ||
 			 x.Container.LiquidMixture.IsEmpty ||

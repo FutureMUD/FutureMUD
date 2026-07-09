@@ -153,6 +153,8 @@ Some item capabilities are best thought of as paired systems rather than isolate
 
 Those relationships are usually expressed through `IConnectable` plus a domain-specific grid interface such as `ICanConnectToElectricalGrid`, `ICanConnectToLiquidGrid`, or `ICanConnectToTelecommunicationsGrid`.
 
+IV bags are liquid-container and connectable components in this family. Their drip and drain heartbeat logic moves liquid mixture amounts in base fluid units while character blood-volume fields remain in litres, so integrations must convert through the unit manager rather than subtracting raw mixture volume from body blood volume.
+
 Zero-gravity items follow the same interface-first pattern:
 - `IZeroGravityAnchorItem` marks a component-backed object as a push-off anchor
 - `IZeroGravityTetherItem` supplies a physical tether length for the `tether` command

@@ -6,6 +6,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Hospitals;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
@@ -181,6 +182,7 @@ internal sealed record HospitalTheatreStockDeficit(
 	ICell Theatre,
 	EmploymentItemSelector? Selector,
 	TreatmentType? TreatmentType,
+	string? BloodRequirement,
 	HospitalServiceSupplyItemType ItemType,
 	int TargetQuantity,
 	int CurrentQuantity,
@@ -188,7 +190,22 @@ internal sealed record HospitalTheatreStockDeficit(
 {
 	public string Description => Selector is not null
 		? EmploymentItemSelectorResolver.Describe(Selector)
-		: $"{(TreatmentType is { } treatmentType ? treatmentType.DescribeEnum() : "unknown")} treatment supplies";
+		: TreatmentType is { } treatmentType
+			? $"{treatmentType.DescribeEnum()} treatment supplies"
+			: BloodRequirementDescription(BloodRequirement);
+
+	private static string BloodRequirementDescription(string? requirement)
+	{
+		return requirement switch
+		{
+			HospitalTheatreStockGoalPlanner.BloodRequirementCannula => "IV cannula",
+			HospitalTheatreStockGoalPlanner.BloodRequirementDrip => "IV drip",
+			HospitalTheatreStockGoalPlanner.BloodRequirementDonationContainer => "empty drain-capable IV blood container",
+			HospitalTheatreStockGoalPlanner.BloodRequirementBloodProduct => "drip-capable IV blood product",
+			HospitalTheatreStockGoalPlanner.BloodRequirementBloodVolumeSubstitute => "drip-capable IV blood-volume substitute",
+			_ => "unknown treatment supplies"
+		};
+	}
 }
 
 internal static class HospitalSupplyStockGoalPlanner
@@ -414,15 +431,24 @@ internal static class HospitalSupplyStockGoalPlanner
 
 internal static class HospitalTheatreStockGoalPlanner
 {
+	internal const string BloodRequirementCannula = "blood:cannula";
+	internal const string BloodRequirementDrip = "blood:drip";
+	internal const string BloodRequirementDonationContainer = "blood:donationcontainer";
+	internal const string BloodRequirementBloodProduct = "blood:bloodproduct";
+	internal const string BloodRequirementBloodVolumeSubstitute = "blood:bloodvolume";
+
 	private sealed record TheatreStockRequirement(
 		EmploymentItemSelector? Selector,
 		TreatmentType? TreatmentType,
+		string? BloodRequirement,
 		HospitalServiceSupplyItemType ItemType,
 		int TargetQuantity)
 	{
 		public string Key => Selector is not null
 			? $"selector:{Selector.Kind}:{Selector.Id?.ToString("F0", CultureInfo.InvariantCulture) ?? string.Empty}:{Selector.Text ?? string.Empty}"
-			: $"treatment:{TreatmentType?.ToString() ?? "unknown"}";
+			: TreatmentType is not null
+				? $"treatment:{TreatmentType?.ToString() ?? "unknown"}"
+				: $"blood:{BloodRequirement ?? "unknown"}";
 	}
 
 	public static bool IsHospitalTheatreStockGoal(ManagerGoalType goalType)
@@ -482,6 +508,7 @@ internal static class HospitalTheatreStockGoalPlanner
 				}
 
 				deficits.Add(new HospitalTheatreStockDeficit(theatre, requirement.Selector, requirement.TreatmentType,
+					requirement.BloodRequirement,
 					itemType, requirement.TargetQuantity, current, missing));
 			}
 		}
@@ -544,9 +571,17 @@ internal static class HospitalTheatreStockGoalPlanner
 		                                    .Where(x => HospitalSupplyStockGoalPlanner.IsGenericStockSelector(x.Selector)))
 		{
 			var targetQuantity = Math.Max(1, requirement.Quantity) * procedureCount;
-			var next = new TheatreStockRequirement(requirement.Selector, null, itemType, targetQuantity);
+			var next = new TheatreStockRequirement(requirement.Selector, null, null, itemType, targetQuantity);
 			requirements[next.Key] = requirements.TryGetValue(next.Key, out var existing)
 				? next with { TargetQuantity = existing.TargetQuantity + targetQuantity }
+				: next;
+		}
+
+		foreach (var bloodRequirement in BloodRequirementsFor(hospital, itemType))
+		{
+			var next = new TheatreStockRequirement(null, null, bloodRequirement, itemType, procedureCount);
+			requirements[next.Key] = requirements.TryGetValue(next.Key, out var existing)
+				? next with { TargetQuantity = existing.TargetQuantity + procedureCount }
 				: next;
 		}
 
@@ -559,13 +594,54 @@ internal static class HospitalTheatreStockGoalPlanner
 		                                  .Where(HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare)
 		                                  .SelectMany(HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes))
 		{
-			var next = new TheatreStockRequirement(null, treatmentType, itemType, procedureCount);
+			var next = new TheatreStockRequirement(null, treatmentType, null, itemType, procedureCount);
 			requirements[next.Key] = requirements.TryGetValue(next.Key, out var existing)
 				? next with { TargetQuantity = existing.TargetQuantity + procedureCount }
 				: next;
 		}
 
 		return requirements.Values.ToList();
+	}
+
+	private static IEnumerable<string> BloodRequirementsFor(IHospital hospital, HospitalServiceSupplyItemType itemType)
+	{
+		var bloodServices = hospital.ActiveServices
+		                            .Where(x => x.ServiceType is HospitalServiceType.BloodDonation or
+			                            HospitalServiceType.BloodTransfusion or
+			                            HospitalServiceType.Stabilisation or
+			                            HospitalServiceType.FullTreatment)
+		                            .ToList();
+		if (!bloodServices.Any())
+		{
+			yield break;
+		}
+
+		if (itemType == HospitalServiceSupplyItemType.ReusableTool)
+		{
+			yield return BloodRequirementDrip;
+			yield break;
+		}
+
+		if (itemType != HospitalServiceSupplyItemType.Consumable)
+		{
+			yield break;
+		}
+
+		yield return BloodRequirementCannula;
+		if (bloodServices.Any(x => x.ServiceType == HospitalServiceType.BloodDonation))
+		{
+			yield return BloodRequirementDonationContainer;
+		}
+
+		if (bloodServices.Any(x => x.ServiceType is HospitalServiceType.BloodTransfusion or
+			    HospitalServiceType.Stabilisation or HospitalServiceType.FullTreatment))
+		{
+			yield return BloodRequirementBloodProduct;
+			if (bloodServices.Any(x => x.ServiceType is HospitalServiceType.Stabilisation or HospitalServiceType.FullTreatment))
+			{
+				yield return BloodRequirementBloodVolumeSubstitute;
+			}
+		}
 	}
 
 	private static IEnumerable<(ICell Theatre, ICell Source, IGameItem Item)> SelectSupplyRoomItems(IHospital hospital,
@@ -579,7 +655,8 @@ internal static class HospitalTheatreStockGoalPlanner
 		                          .ToList();
 		foreach (var deficit in deficits.OrderBy(x => x.Theatre.Id).ThenBy(x => x.Description))
 		{
-			var requirement = new TheatreStockRequirement(deficit.Selector, deficit.TreatmentType, deficit.ItemType,
+			var requirement = new TheatreStockRequirement(deficit.Selector, deficit.TreatmentType,
+				deficit.BloodRequirement, deficit.ItemType,
 				deficit.MissingQuantity);
 			var selected = supplyItems
 			               .Where(x => !used.Contains(x.Item.Id))
@@ -604,7 +681,31 @@ internal static class HospitalTheatreStockGoalPlanner
 
 		return requirement.TreatmentType is { } treatmentType &&
 		       item.GetItemType<ITreatment>() is { } treatment &&
-		       treatment.IsTreatmentType(treatmentType);
+		       treatment.IsTreatmentType(treatmentType) ||
+		       requirement.BloodRequirement is { } bloodRequirement &&
+		       MatchesBloodRequirement(item, bloodRequirement);
+	}
+
+	private static bool MatchesBloodRequirement(IGameItem item, string requirement)
+	{
+		return requirement switch
+		{
+			BloodRequirementCannula => item.GetItemType<ICannula>() is not null,
+			BloodRequirementDrip => item.GetItemType<IDrip>() is not null,
+			BloodRequirementDonationContainer => HospitalMedicalServiceRunner.IsIvCapableLiquidContainerItem(item, "drain") &&
+			                                     item.GetItemType<ILiquidContainer>() is { } container &&
+			                                     container.LiquidCapacity > container.LiquidVolume &&
+			                                     (container.LiquidMixture is null || container.LiquidMixture.IsEmpty),
+			BloodRequirementBloodProduct => HospitalMedicalServiceRunner.IsIvCapableLiquidContainerItem(item, "drip") &&
+			                                item.GetItemType<ILiquidContainer>()?.LiquidMixture?.Instances
+			                                    .OfType<BloodLiquidInstance>()
+			                                    .Any() == true,
+			BloodRequirementBloodVolumeSubstitute => HospitalMedicalServiceRunner.IsIvCapableLiquidContainerItem(item, "drip") &&
+			                                         item.GetItemType<ILiquidContainer>()?.LiquidMixture?.Instances
+			                                             .Any(x => x.Liquid.InjectionConsequence ==
+			                                                       LiquidInjectionConsequence.BloodVolume) == true,
+			_ => false
+		};
 	}
 
 	private static IEnumerable<IGameItem> ItemsInRoom(ICell room, IEmploymentTaskContext context)

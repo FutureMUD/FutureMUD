@@ -33,6 +33,7 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 	private DateTimeOffset _lastUpdatedAt;
 	private DateTimeOffset? _completedAt;
 	private string _operationalNotes;
+	private string _procedureParameters;
 
 	public HospitalServiceRequest(IHospital hospital, IHospitalService service, ICharacter requester, ICharacter patient,
 		HospitalPaymentMethod paymentMethod)
@@ -55,6 +56,7 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 		CreatedAt = DateTimeOffset.UtcNow;
 		_lastUpdatedAt = CreatedAt;
 		_operationalNotes = string.Empty;
+		_procedureParameters = string.Empty;
 
 		using (new FMDB())
 		{
@@ -76,7 +78,8 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 				ReturnCellId = _returnCellId,
 				CreatedAtUtc = CreatedAt.UtcDateTime,
 				LastUpdatedAtUtc = LastUpdatedAt.UtcDateTime,
-				OperationalNotes = string.Empty
+				OperationalNotes = string.Empty,
+				ProcedureParameters = string.Empty
 			};
 			FMDB.Context.HospitalServiceRequests.Add(dbitem);
 			FMDB.Context.SaveChanges();
@@ -116,6 +119,7 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 			? new DateTimeOffset(DateTime.SpecifyKind(request.CompletedAtUtc.Value, DateTimeKind.Utc))
 			: null;
 		_operationalNotes = request.OperationalNotes;
+		_procedureParameters = request.ProcedureParameters;
 	}
 
 	public override string FrameworkItemType => "HospitalServiceRequest";
@@ -235,6 +239,16 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 		}
 	}
 
+	public string ProcedureParameters
+	{
+		get => _procedureParameters;
+		set
+		{
+			_procedureParameters = value;
+			Touch();
+		}
+	}
+
 	public ICharacter? Requester => _requester ??= Gameworld.TryGetCharacter(RequesterId, true);
 	public ICharacter? Patient => _patient ??= Gameworld.TryGetCharacter(PatientId, true);
 
@@ -303,6 +317,7 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 		dbitem.LastUpdatedAtUtc = LastUpdatedAt.UtcDateTime;
 		dbitem.CompletedAtUtc = CompletedAt?.UtcDateTime;
 		dbitem.OperationalNotes = OperationalNotes;
+		dbitem.ProcedureParameters = ProcedureParameters;
 		Changed = false;
 	}
 
@@ -323,6 +338,7 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 		sb.AppendLine($"Supplies: {(SupplyPrepared ? $"prepared by #{PreparedByEmployeeId?.ToString("N0", actor) ?? "?"} at {PreparedAt?.ToString("g", actor) ?? "?"}".ColourValue() : "Not prepared".ColourError())}");
 		sb.AppendLine($"Recovery Room: {(RecoveryRoomCellId?.ToString("N0", actor).ColourValue() ?? "None".ColourError())}");
 		sb.AppendLine($"Return/Lobby Cell: {(ReturnCellId?.ToString("N0", actor).ColourValue() ?? "None".ColourError())}");
+		sb.AppendLine($"Procedure Parameters: {(string.IsNullOrWhiteSpace(ProcedureParameters) ? "None".ColourError() : ProcedureParameters.ColourCommand())}");
 		sb.AppendLine($"Created: {CreatedAt.ToString("g", actor).ColourValue()}");
 		sb.AppendLine($"Updated: {LastUpdatedAt.ToString("g", actor).ColourValue()}");
 		sb.AppendLine($"Completed: {(CompletedAt?.ToString("g", actor).ColourValue() ?? "No".ColourError())}");

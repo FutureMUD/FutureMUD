@@ -32,6 +32,7 @@ public static class HospitalServiceBilling
 		return hospital.Services
 		               .Where(x => x.IsActive)
 		               .Where(x => x.ServiceType == serviceType)
+		               .Where(HospitalMedicalServiceRunner.CanBeUsedByCombinedService)
 		               .Where(x => !IsUsageBilledServiceType(x.ServiceType))
 		               .OrderBy(x => x.SortOrder)
 		               .ThenBy(x => x.Price)

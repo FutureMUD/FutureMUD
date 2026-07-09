@@ -29,6 +29,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 	private bool _isActive;
 	private bool _allowDebt;
 	private bool _preferOperatingTheatre;
+	private HospitalServiceOfferingMode _offeringMode;
 	private int _sortOrder;
 	private long? _surgicalProcedureId;
 	private ISurgicalProcedure? _surgicalProcedure;
@@ -61,6 +62,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 		_isActive = true;
 		_allowDebt = true;
 		_preferOperatingTheatre = DefaultPreferOperatingTheatre(serviceType);
+		_offeringMode = HospitalServiceOfferingMode.StandaloneAndCombined;
 		_sortOrder = hospital.Services.Any() ? hospital.Services.Max(x => x.SortOrder) + 1 : 0;
 		_procedureParameters = string.Empty;
 		_bloodVolumeLitres = 0.5;
@@ -80,6 +82,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 				IsActive = true,
 				AllowDebt = true,
 				PreferOperatingTheatre = _preferOperatingTheatre,
+				OfferingMode = (int)_offeringMode,
 				SortOrder = _sortOrder,
 				ProcedureParameters = string.Empty,
 				RequiredEquipmentJson = "[]",
@@ -106,6 +109,9 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 		_isActive = service.IsActive;
 		_allowDebt = service.AllowDebt;
 		_preferOperatingTheatre = service.PreferOperatingTheatre;
+		_offeringMode = Enum.IsDefined(typeof(HospitalServiceOfferingMode), service.OfferingMode)
+			? (HospitalServiceOfferingMode)service.OfferingMode
+			: HospitalServiceOfferingMode.StandaloneAndCombined;
 		_sortOrder = service.SortOrder;
 		_surgicalProcedureId = service.SurgicalProcedureId;
 		_implantItemPrototypeId = service.ImplantItemPrototypeId;
@@ -187,6 +193,16 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 		set
 		{
 			_preferOperatingTheatre = value;
+			Changed = true;
+		}
+	}
+
+	public HospitalServiceOfferingMode OfferingMode
+	{
+		get => _offeringMode;
+		set
+		{
+			_offeringMode = value;
 			Changed = true;
 		}
 	}
@@ -402,6 +418,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 		dbitem.IsActive = IsActive;
 		dbitem.AllowDebt = AllowDebt;
 		dbitem.PreferOperatingTheatre = PreferOperatingTheatre;
+		dbitem.OfferingMode = (int)OfferingMode;
 		dbitem.SortOrder = SortOrder;
 		dbitem.SurgicalProcedureId = SurgicalProcedure?.Id;
 		dbitem.ImplantItemPrototypeId = ImplantItemPrototype?.Id;
@@ -430,6 +447,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 		sb.AppendLine($"Current Availability: {availability.DescribeColoured()}");
 		sb.AppendLine($"Allow Debt: {AllowDebt.ToColouredString()}");
 		sb.AppendLine($"Prefer Theatre: {PreferOperatingTheatre.ToColouredString()}");
+		sb.AppendLine($"Offering Mode: {OfferingMode.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Requires Recovery: {RequiresRecovery.ToColouredString()}");
 		sb.AppendLine($"Blood Volume: {BloodVolumeLitres.ToString("N2", actor).ColourValue()}L");
 		sb.AppendLine($"Sort Order: {SortOrder.ToString("N0", actor).ColourValue()}");
@@ -478,14 +496,16 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 	{
 		return serviceType is HospitalServiceType.SurgicalProcedure or HospitalServiceType.ImplantProcedure or
 			HospitalServiceType.BoneSetting or HospitalServiceType.BloodDonation or HospitalServiceType.BloodTransfusion or
-			HospitalServiceType.Stabilisation or HospitalServiceType.FullTreatment;
+			HospitalServiceType.Stabilisation or HospitalServiceType.FullTreatment ||
+			HospitalMedicalServiceRunner.ServiceTypeToSurgicalProcedureType(serviceType) is not null;
 	}
 
 	private static bool DefaultRequiresRecovery(HospitalServiceType serviceType)
 	{
 		return serviceType is HospitalServiceType.SurgicalProcedure or HospitalServiceType.ImplantProcedure or
 			HospitalServiceType.BoneSetting or HospitalServiceType.BloodDonation or HospitalServiceType.BloodTransfusion or
-			HospitalServiceType.Stabilisation or HospitalServiceType.FullTreatment;
+			HospitalServiceType.Stabilisation or HospitalServiceType.FullTreatment ||
+			HospitalMedicalServiceRunner.ServiceTypeToSurgicalProcedureType(serviceType) is not null;
 	}
 
 	private static string SerializeEquipment(IEnumerable<HospitalServiceEquipmentRequirement> requirements)

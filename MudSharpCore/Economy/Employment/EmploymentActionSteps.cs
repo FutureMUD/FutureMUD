@@ -12,6 +12,7 @@ using MudSharp.Economy.Employment;
 using MudSharp.Economy.Hospitals;
 using MudSharp.Economy.Property;
 using MudSharp.Economy.Shops;
+using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
@@ -4388,7 +4389,8 @@ internal static class HospitalActionStepPatientGuard
 	}
 
 	public static bool TryFail(IHospital hospital, IHospitalServiceRequest request, ICharacter actor,
-		bool requirePreparedTreatmentLocation, out EmploymentActionStepResult result)
+		bool requirePreparedTreatmentLocation, out EmploymentActionStepResult result,
+		IEmploymentTaskContext? context = null)
 	{
 		if (TryGetTerminalRequestReason(request, out var reason))
 		{
@@ -4399,6 +4401,11 @@ internal static class HospitalActionStepPatientGuard
 		if (HospitalPatientFlow.TryGetUnavailablePatientReason(hospital, request, actor,
 			    requirePreparedTreatmentLocation, out reason))
 		{
+			if (context is not null)
+			{
+				HospitalMedicalServiceRunner.CleanupBloodWorkflowForTerminalRequest(context, actor, request);
+			}
+
 			request.MarkStatus(HospitalServiceRequestStatus.Failed, reason);
 			result = EmploymentActionStepResult.Failed(reason);
 			return true;
@@ -4528,7 +4535,7 @@ public sealed class HospitalPatientPreparationActionStep : EmploymentActionStepB
 
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
-		if (HospitalActionStepPatientGuard.TryFail(Hospital, Request, actor, false, out var terminalResult))
+		if (HospitalActionStepPatientGuard.TryFail(Hospital, Request, actor, false, out var terminalResult, context))
 		{
 			return terminalResult;
 		}
@@ -4630,20 +4637,35 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			return !TreatmentLocationAlreadyHasConfiguredSupplies(hospital, request);
 		}
 
-		if (!HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(request.Service))
+		if (!HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(request.Service) &&
+		    !RequiresImplicitBloodSupply(request))
 		{
 			return false;
 		}
 
 		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(request.Service).ToList();
-		return treatmentTypes.Any() &&
-		       !TreatmentLocationAlreadyHasImplicitSupplies(hospital, request, treatmentTypes) &&
+		var needsTreatmentSupplies = treatmentTypes.Any() &&
+		                             !TreatmentLocationAlreadyHasImplicitTreatmentSupplies(hospital, request, treatmentTypes);
+		var needsBloodSupplies = RequiresImplicitBloodSupply(request) &&
+		                         !TreatmentLocationAlreadyHasImplicitBloodSupplies(hospital, request);
+		if (!needsTreatmentSupplies && !needsBloodSupplies)
+		{
+			return false;
+		}
+
+		return
 		       hospital.SupplyRooms.Any(room =>
-			       (room.GameItems ?? Enumerable.Empty<IGameItem>())
-			       .SelectMany(DeepItemsOrSelf)
-			       .DistinctBy(x => x.Id)
-			       .Any(item => item.GetItemType<ITreatment>() is { } treatment &&
-			                    treatmentTypes.Any(treatment.IsTreatmentType)));
+		       {
+			       var available = (room.GameItems ?? Enumerable.Empty<IGameItem>())
+			                       .SelectMany(DeepItemsOrSelf)
+			                       .DistinctBy(x => x.Id)
+			                       .ToList();
+			       return needsTreatmentSupplies &&
+			              available.Any(item => item.GetItemType<ITreatment>() is { } treatment &&
+			                                    treatmentTypes.Any(treatment.IsTreatmentType)) ||
+			              needsBloodSupplies &&
+			              TryFindImplicitBloodSupplyItems(available, request, out _);
+		       });
 	}
 
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
@@ -4684,7 +4706,8 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		}
 
 		if (!Request.Service.RequiredEquipment.Any() &&
-		    !HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(Request.Service))
+		    !HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(Request.Service) &&
+		    !RequiresImplicitBloodSupply(Request))
 		{
 			reason = "This hospital service has no configured equipment or implicit treatment-supply requirements.";
 			return false;
@@ -4785,7 +4808,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
-		if (HospitalActionStepPatientGuard.TryFail(Hospital, Request, actor, true, out var terminalResult))
+		if (HospitalActionStepPatientGuard.TryFail(Hospital, Request, actor, true, out var terminalResult, context))
 		{
 			return terminalResult;
 		}
@@ -4928,23 +4951,32 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			return true;
 		}
 
-		if (!HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(Request.Service))
+		var needsBloodSupply = RequiresImplicitBloodSupply(Request);
+		if (!HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(Request.Service) && !needsBloodSupply)
 		{
 			return false;
 		}
 
 		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(Request.Service).ToList();
-		if (!treatmentTypes.Any())
+		if (!treatmentTypes.Any() && !needsBloodSupply)
 		{
 			return false;
 		}
 
-		var treatments = available
-		                 .Select(x => x.GetItemType<ITreatment>())
-		                 .Where(x => x is not null)
-		                 .Cast<ITreatment>()
-		                 .ToList();
-		return treatmentTypes.All(type => treatments.Any(treatment => treatment.IsTreatmentType(type)));
+		var treatmentSuppliesReady = true;
+		if (treatmentTypes.Any())
+		{
+			var treatments = available
+			                 .Select(x => x.GetItemType<ITreatment>())
+			                 .Where(x => x is not null)
+			                 .Cast<ITreatment>()
+			                 .ToList();
+			treatmentSuppliesReady = treatmentTypes.All(type => treatments.Any(treatment => treatment.IsTreatmentType(type)));
+		}
+
+		var bloodSuppliesReady = !needsBloodSupply ||
+		                         TryFindImplicitBloodSupplyItems(available, Request, out _);
+		return treatmentSuppliesReady && bloodSuppliesReady;
 	}
 
 	private static bool TreatmentLocationAlreadyHasConfiguredSupplies(IHospital hospital,
@@ -4965,7 +4997,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		return false;
 	}
 
-	private static bool TreatmentLocationAlreadyHasImplicitSupplies(IHospital hospital,
+	private static bool TreatmentLocationAlreadyHasImplicitTreatmentSupplies(IHospital hospital,
 		IHospitalServiceRequest request, IReadOnlyCollection<TreatmentType> treatmentTypes)
 	{
 		var treatments = TreatmentLocationCandidates(hospital, request)
@@ -4977,6 +5009,17 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		                 .Cast<ITreatment>()
 		                 .ToList();
 		return treatmentTypes.All(type => treatments.Any(treatment => treatment.IsTreatmentType(type)));
+	}
+
+	private static bool TreatmentLocationAlreadyHasImplicitBloodSupplies(IHospital hospital,
+		IHospitalServiceRequest request)
+	{
+		return TreatmentLocationCandidates(hospital, request)
+		       .Select(theatre => (theatre.GameItems ?? Enumerable.Empty<IGameItem>())
+		                          .SelectMany(DeepItemsOrSelf)
+		                          .DistinctBy(x => x.Id)
+		                          .ToList())
+		       .Any(items => TryFindImplicitBloodSupplyItems(items, request, out _));
 	}
 
 	private static bool RequirementsSatisfiedByItems(IReadOnlyCollection<IGameItem> available,
@@ -5088,6 +5131,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		source = null!;
 		items = [];
 		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(Request.Service);
+		var needsBloodSupply = RequiresImplicitBloodSupply(Request);
 		foreach (var room in Hospital.SupplyRooms)
 		{
 			var available = context.AvailableItems(room)
@@ -5111,6 +5155,26 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 				used.Add(item.Id);
 			}
 
+			if (needsBloodSupply)
+			{
+				var remaining = available
+				                .Where(x => !used.Contains(x.Id))
+				                .ToList();
+				if (TryFindImplicitBloodSupplyItems(remaining, Request, out var bloodItems))
+				{
+					selected.AddRange(bloodItems.Select(x => (x, room)));
+					foreach (var item in bloodItems)
+					{
+						used.Add(item.Id);
+					}
+				}
+				else if (Request.Service.ServiceType is HospitalServiceType.BloodDonation or
+				         HospitalServiceType.BloodTransfusion)
+				{
+					continue;
+				}
+			}
+
 			if (!selected.Any())
 			{
 				continue;
@@ -5124,6 +5188,222 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 		reason = "No hospital supply room has treatment supplies useful for this service.";
 		return false;
+	}
+
+	private static bool RequiresImplicitBloodSupply(IHospitalServiceRequest request)
+	{
+		return request.Service.ServiceType switch
+		{
+			HospitalServiceType.BloodDonation or HospitalServiceType.BloodTransfusion => true,
+			HospitalServiceType.Stabilisation => request.Patient?.Body is { TotalBloodVolumeLitres: > 0.0 } body &&
+			                                     body.CurrentBloodVolumeLitres < body.TotalBloodVolumeLitres * 0.75,
+			HospitalServiceType.FullTreatment => request.Patient?.Body is { TotalBloodVolumeLitres: > 0.0 } body &&
+			                                    body.CurrentBloodVolumeLitres < body.TotalBloodVolumeLitres,
+			_ => false
+		};
+	}
+
+	private static bool TryFindImplicitBloodSupplyItems(IReadOnlyCollection<IGameItem> available,
+		IHospitalServiceRequest request, out IReadOnlyCollection<IGameItem> items)
+	{
+		items = [];
+		var selected = new List<IGameItem>();
+		var used = new HashSet<long>();
+		var switchMode = request.Service.ServiceType == HospitalServiceType.BloodDonation ? "drain" : "drip";
+		if (!TryFindBloodAccessItems(available, request, switchMode, selected, used))
+		{
+			return false;
+		}
+
+		var containers = available
+		                 .Where(x => !used.Contains(x.Id))
+		                 .Where(x => HospitalMedicalServiceRunner.IsIvCapableLiquidContainerItem(x, switchMode))
+		                 .Select(x => (Item: x, Container: x.GetItemType<ILiquidContainer>()))
+		                 .Where(x => x.Container is not null)
+		                 .Select(x => (x.Item, Container: x.Container!))
+		                 .ToList();
+		switch (request.Service.ServiceType)
+		{
+			case HospitalServiceType.BloodDonation:
+				if (!TryFindDonationContainer(containers, request, out var donationItems))
+				{
+					return false;
+				}
+
+				selected.AddRange(donationItems);
+				items = selected;
+				return true;
+			case HospitalServiceType.BloodTransfusion:
+				if (!TryFindTransfusionContainers(containers, request, false, out var transfusionItems))
+				{
+					return false;
+				}
+
+				selected.AddRange(transfusionItems);
+				items = selected;
+				return true;
+			case HospitalServiceType.Stabilisation:
+			case HospitalServiceType.FullTreatment:
+				if (!TryFindTransfusionContainers(containers, request, true, out var combinedItems))
+				{
+					return false;
+				}
+
+				selected.AddRange(combinedItems);
+				items = selected;
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	private static bool TryFindBloodAccessItems(IReadOnlyCollection<IGameItem> available,
+		IHospitalServiceRequest request, string switchMode, List<IGameItem> selected, HashSet<long> used)
+	{
+		if (request.Patient?.Body.Implants.Any(x => x.Parent.GetItemType<ICannula>() is not null) != true)
+		{
+			var cannulaItem = available.FirstOrDefault(x =>
+				!used.Contains(x.Id) &&
+				x.GetItemType<ICannula>() is { } cannula &&
+				(request.Patient is null || request.Patient.Body.Prototype.CountsAs(cannula.TargetBody)));
+			if (cannulaItem is null)
+			{
+				return false;
+			}
+
+			selected.Add(cannulaItem);
+			used.Add(cannulaItem.Id);
+		}
+
+		var dripItem = available.FirstOrDefault(x => !used.Contains(x.Id) && x.GetItemType<IDrip>() is not null);
+		if (dripItem is null)
+		{
+			return false;
+		}
+
+		selected.Add(dripItem);
+		used.Add(dripItem.Id);
+		return available.Any(x =>
+			!used.Contains(x.Id) &&
+			HospitalMedicalServiceRunner.IsIvCapableLiquidContainerItem(x, switchMode));
+	}
+
+	private static bool TryFindDonationContainer(
+		IReadOnlyCollection<(IGameItem Item, ILiquidContainer Container)> containers,
+		IHospitalServiceRequest request, out IReadOnlyCollection<IGameItem> items)
+	{
+		items = [];
+		var amount = RequestedBloodLiquidAmount(request);
+		var donorBlood = request.Patient?.Body.BloodLiquid;
+		var selected = containers.FirstOrDefault(x =>
+			x.Container.LiquidCapacity - x.Container.LiquidVolume >= amount &&
+			(donorBlood is null ||
+			 x.Container.LiquidMixture is null ||
+			 x.Container.LiquidMixture.IsEmpty ||
+			 x.Container.LiquidMixture.CanMerge(donorBlood)));
+		if (selected.Item is null)
+		{
+			return false;
+		}
+
+		items = [selected.Item];
+		return true;
+	}
+
+	private static bool TryFindTransfusionContainers(
+		IReadOnlyCollection<(IGameItem Item, ILiquidContainer Container)> containers,
+		IHospitalServiceRequest request, bool allowBloodVolumeSubstitute,
+		out IReadOnlyCollection<IGameItem> items)
+	{
+		items = [];
+		if (request.Patient?.Body.Bloodtype is not { } bloodtype)
+		{
+			return false;
+		}
+
+		var amount = RequestedTransfusionLiquidAmount(request);
+		if (amount <= 0.0)
+		{
+			return false;
+		}
+
+		var bloodProducts = containers
+		                    .Select(x => (x.Item, x.Container,
+			                    Blood: x.Container.LiquidMixture?.Instances.OfType<BloodLiquidInstance>().ToList() ?? []))
+		                    .Where(x => x.Blood.Any() &&
+		                                x.Blood.All(y => y.BloodType is not null &&
+		                                                 bloodtype.IsCompatibleWithDonorBlood(y.BloodType)))
+		                    .OrderByDescending(x => x.Blood.All(y => y.BloodType?.Id == bloodtype.Id))
+		                    .ThenByDescending(x => x.Blood.Sum(y => y.Amount))
+		                    .ToList();
+		var selected = new List<IGameItem>();
+		var remaining = amount;
+		foreach (var candidate in bloodProducts)
+		{
+			if (remaining <= 0.0)
+			{
+				break;
+			}
+
+			selected.Add(candidate.Item);
+			remaining -= candidate.Blood.Sum(x => x.Amount);
+		}
+
+		if (remaining <= 0.0)
+		{
+			items = selected;
+			return true;
+		}
+
+		if (!allowBloodVolumeSubstitute)
+		{
+			return false;
+		}
+
+		selected.Clear();
+		remaining = amount;
+		foreach (var candidate in containers
+			         .Select(x => (x.Item, SubstituteAmount: x.Container.LiquidMixture?.Instances
+			                                                        .Where(y => y.Liquid.InjectionConsequence ==
+			                                                                    LiquidInjectionConsequence.BloodVolume)
+			                                                        .Sum(y => y.Amount) ?? 0.0))
+			         .Where(x => x.SubstituteAmount > 0.0)
+			         .OrderByDescending(x => x.SubstituteAmount))
+		{
+			if (remaining <= 0.0)
+			{
+				break;
+			}
+
+			selected.Add(candidate.Item);
+			remaining -= candidate.SubstituteAmount;
+		}
+
+		if (remaining > 0.0)
+		{
+			return false;
+		}
+
+		items = selected;
+		return true;
+	}
+
+	private static double RequestedBloodLiquidAmount(IHospitalServiceRequest request)
+	{
+		return (request.Service.BloodVolumeLitres > 0.0 ? request.Service.BloodVolumeLitres : 0.5) /
+		       request.Hospital.Gameworld.UnitManager.BaseFluidToLitres;
+	}
+
+	private static double RequestedTransfusionLiquidAmount(IHospitalServiceRequest request)
+	{
+		if (request.Patient?.Body is not { TotalBloodVolumeLitres: > 0.0 } body)
+		{
+			return 0.0;
+		}
+
+		var neededLitres = Math.Min(request.Service.BloodVolumeLitres > 0.0 ? request.Service.BloodVolumeLitres : 0.5,
+			body.TotalBloodVolumeLitres - body.CurrentBloodVolumeLitres);
+		return Math.Max(0.0, neededLitres) / request.Hospital.Gameworld.UnitManager.BaseFluidToLitres;
 	}
 
 	private static IEnumerable<IGameItem> DeepItemsOrSelf(IGameItem item)
@@ -5329,7 +5609,7 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
-		if (HospitalActionStepPatientGuard.TryFail(Hospital, Request, actor, true, out var terminalResult))
+		if (HospitalActionStepPatientGuard.TryFail(Hospital, Request, actor, true, out var terminalResult, context))
 		{
 			return terminalResult;
 		}

@@ -836,7 +836,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
             }
 
             MergeLiquid(new LiquidMixture(new BloodLiquidInstance(tch, rate), Gameworld), null, "ivdrain");
-            tch.Body.CurrentBloodVolumeLitres -= rate;
+            tch.Body.CurrentBloodVolumeLitres -= rate * Gameworld.UnitManager.BaseFluidToLitres;
         }
         else
         {

@@ -197,6 +197,55 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void HospitalSupplyPreparation_DetectsImplicitBloodDonationContainerStock()
+	{
+		var unitManager = new Mock<MudSharp.Framework.Units.IUnitManager>();
+		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
+
+		var bodyProto = BodyPrototype();
+		var bag = IvContainer(780, "empty blood bag", gameworld.Object);
+		var cannula = CannulaItem(786, "cannula", bodyProto.Object);
+		var drip = DripItem(787, "iv drip");
+
+		var supplyRoom = PhysicalCell(781, "supply room", [bag.Object, cannula.Object, drip.Object]);
+		var theatre = PhysicalCell(782, "operating theatre", []);
+		theatre.SetupGet(x => x.Characters).Returns([]);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(783);
+		hospital.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([supplyRoom.Object]);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([]);
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodDonation);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		service.SetupGet(x => x.BloodVolumeLitres).Returns(0.5);
+
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.BloodLiquid).Returns(new Mock<ILiquid>().Object);
+		body.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
+		body.SetupGet(x => x.Implants).Returns([]);
+		var donor = Character(784, "Donor", gameworld: gameworld.Object);
+		donor.SetupGet(x => x.Body).Returns(body.Object);
+
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(785);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Patient).Returns(donor.Object);
+		request.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		request.SetupGet(x => x.SupplyPrepared).Returns(false);
+
+		Assert.IsTrue(HospitalSupplyPreparationActionStep.HasPreparatorySupplyWork(hospital.Object, request.Object));
+
+		supplyRoom.SetupGet(x => x.GameItems).Returns([]);
+		Assert.IsFalse(HospitalSupplyPreparationActionStep.HasPreparatorySupplyWork(hospital.Object, request.Object));
+	}
+
+	[TestMethod]
 	public void HospitalSupplyPreparation_CompletesWhenTreatmentSuppliesAlreadyStagedInTheatre()
 	{
 		var supplyRoom = Cell(746, "supply room");
@@ -524,14 +573,14 @@ public class UnifiedEmploymentDispatchTests
 		var fillerLiquid = new Mock<ILiquid>();
 		fillerLiquid.SetupGet(x => x.Density).Returns(1.0);
 		var mixture = new LiquidMixture(fillerLiquid.Object, 0.1, gameworld.Object);
-		var liquidContainer = new Mock<ILiquidContainer>();
-		liquidContainer.SetupGet(x => x.LiquidCapacity).Returns(1.0);
-		liquidContainer.SetupGet(x => x.LiquidVolume).Returns(0.1);
-		liquidContainer.SetupGet(x => x.LiquidMixture).Returns(mixture);
-		var containerItem = Item(9001, "used blood bag");
-		containerItem.Setup(x => x.GetItemType<ILiquidContainer>()).Returns(liquidContainer.Object);
-
-		var supplyItems = new List<IGameItem> { containerItem.Object };
+		var bodyProto = BodyPrototype();
+		var containerItem = IvContainer(9001, "used blood bag", gameworld.Object, mixture, volume: 0.1);
+		var supplyItems = new List<IGameItem>
+		{
+			containerItem.Object,
+			CannulaItem(9002, "cannula", bodyProto.Object).Object,
+			DripItem(9003, "iv drip").Object
+		};
 		var hospital = new Mock<IHospital>();
 		hospital.SetupGet(x => x.Name).Returns("central clinic");
 		hospital.SetupGet(x => x.IsTrading).Returns(true);
@@ -547,13 +596,414 @@ public class UnifiedEmploymentDispatchTests
 
 		var body = new Mock<MudSharp.Body.IBody>();
 		body.SetupGet(x => x.BloodLiquid).Returns((ILiquid)null!);
+		body.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
+		body.SetupGet(x => x.Implants).Returns([]);
 		var donor = Character(6, "Donor", gameworld: gameworld.Object);
 		donor.SetupGet(x => x.Body).Returns(body.Object);
 
 		var result = HospitalServiceAvailability.Evaluate(hospital.Object, service.Object, patient: donor.Object);
 
 		Assert.IsFalse(result.Available);
-		StringAssert.Contains(result.Reason, "empty blood container");
+		StringAssert.Contains(result.Reason, "empty");
+	}
+
+	[TestMethod]
+	public void HospitalServiceAvailability_AllowsTransfusionFromMultipleCompatibleNonMatchingContainers()
+	{
+		var unitManager = new Mock<MudSharp.Framework.Units.IUnitManager>();
+		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
+		gameworld.SetupGet(x => x.SurgicalProcedures).Returns(new All<ISurgicalProcedure>());
+
+		var recipientBloodtype = new Mock<IBloodtype>();
+		recipientBloodtype.SetupGet(x => x.Id).Returns(1);
+		recipientBloodtype.SetupGet(x => x.Name).Returns("AB+");
+		var donorBloodtype = new Mock<IBloodtype>();
+		donorBloodtype.SetupGet(x => x.Id).Returns(2);
+		donorBloodtype.SetupGet(x => x.Name).Returns("O-");
+		recipientBloodtype.Setup(x => x.IsCompatibleWithDonorBlood(donorBloodtype.Object)).Returns(true);
+		var bloodLiquid = new Mock<ILiquid>();
+		bloodLiquid.SetupGet(x => x.Density).Returns(1.0);
+		var race = new Mock<MudSharp.Character.Heritage.IRace>();
+		race.SetupGet(x => x.Id).Returns(10);
+		var donor = Character(12, "Donor", gameworld: gameworld.Object);
+		var bodyProto = BodyPrototype();
+
+		var firstBag = BloodContainer(9101, "first compatible blood bag", gameworld.Object,
+			new BloodLiquidInstance(donor.Object, race.Object, donorBloodtype.Object, bloodLiquid.Object,
+				gameworld.Object, 0.25));
+		var secondBag = BloodContainer(9102, "second compatible blood bag", gameworld.Object,
+			new BloodLiquidInstance(donor.Object, race.Object, donorBloodtype.Object, bloodLiquid.Object,
+				gameworld.Object, 0.25));
+		var cannula = CannulaItem(9104, "cannula", bodyProto.Object);
+		var drip = DripItem(9105, "iv drip");
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([PhysicalCell(9103, "supply room", [firstBag.Object, secondBag.Object, cannula.Object, drip.Object]).Object]);
+		SetupAvailableMedicalEmployee(hospital);
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodTransfusion);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		service.SetupGet(x => x.BloodVolumeLitres).Returns(0.5);
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.Bloodtype).Returns(recipientBloodtype.Object);
+		body.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
+		body.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(4.5);
+		body.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
+		body.SetupGet(x => x.Implants).Returns([]);
+		var recipient = Character(13, "Recipient", gameworld: gameworld.Object);
+		recipient.SetupGet(x => x.Body).Returns(body.Object);
+
+		var result = HospitalServiceAvailability.Evaluate(hospital.Object, service.Object, patient: recipient.Object);
+
+		Assert.IsTrue(result.Available, result.Reason);
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_BloodDonationStartsIvDrainWorkflow()
+	{
+		var unitManager = new Mock<MudSharp.Framework.Units.IUnitManager>();
+		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
+		gameworld.SetupGet(x => x.SurgicalProcedures).Returns(new All<ISurgicalProcedure>());
+		var bodyProto = BodyPrototype();
+		var switchCalls = new List<string>();
+		var bag = IvContainer(9150, "empty blood bag", gameworld.Object, switchCalls: switchCalls);
+		var drip = DripItem(9151, "iv drip");
+		var cannulaItem = CannulaItem(9152, "installed cannula", bodyProto.Object);
+		var cannula = cannulaItem.Object.GetItemType<ICannula>();
+		var theatre = PhysicalCell(9153, "operating theatre", [bag.Object, drip.Object]);
+
+		var bloodLiquid = new Mock<ILiquid>();
+		bloodLiquid.SetupGet(x => x.Density).Returns(1.0);
+		var bloodtype = new Mock<IBloodtype>();
+		bloodtype.SetupGet(x => x.Id).Returns(1);
+		bloodtype.SetupGet(x => x.Name).Returns("O+");
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.BloodLiquid).Returns(bloodLiquid.Object);
+		body.SetupGet(x => x.Bloodtype).Returns(bloodtype.Object);
+		body.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
+		body.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(5.0);
+		body.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
+		body.SetupGet(x => x.Implants).Returns([cannula]);
+
+		var doctor = Character(9154, "Doctor", gameworld: gameworld.Object);
+		var donor = Character(9155, "Donor", gameworld: gameworld.Object);
+		doctor.SetupGet(x => x.Location).Returns(theatre.Object);
+		doctor.Setup(x => x.ColocatedWith(donor.Object)).Returns(true);
+		donor.SetupGet(x => x.Body).Returns(body.Object);
+		donor.SetupGet(x => x.Location).Returns(theatre.Object);
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(9156);
+		service.SetupGet(x => x.Name).Returns("Blood Donation");
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodDonation);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		service.SetupGet(x => x.BloodVolumeLitres).Returns(0.5);
+
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(9157);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		hospital.SetupGet(x => x.Locations).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.EmploymentRegister).Returns(new Mock<IEmploymentRegister>().Object);
+
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(9158);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Queued);
+		request.SetupGet(x => x.PatientId).Returns(donor.Object.Id);
+		request.SetupGet(x => x.Patient).Returns(donor.Object);
+		request.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		request.SetupGet(x => x.SupplyPrepared).Returns(true);
+
+		var task = new EmploymentActiveTask(hospital.Object, "Donate blood",
+			new EmploymentActionPlan([new HospitalServiceActionStep(hospital.Object, request.Object)]), Guid.NewGuid());
+		task.Assign(doctor.Object);
+		task.MarkStep(0, EmploymentActionStepStatus.InProgress);
+		var context = new EmploymentTaskContext(hospital.Object);
+		context.HydrateTaskState(task, 0);
+
+		var result = HospitalMedicalServiceRunner.ExecuteServiceRequest(context, doctor.Object, hospital.Object,
+			request.Object);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.IsFalse(result.Completed);
+		CollectionAssert.Contains(switchCalls.ToArray(), "drain");
+		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Completed, It.IsAny<string>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_BloodDonationContinuesActiveDrainBelowFullTargetSafeThreshold()
+	{
+		var unitManager = new Mock<MudSharp.Framework.Units.IUnitManager>();
+		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
+		gameworld.SetupGet(x => x.SurgicalProcedures).Returns(new All<ISurgicalProcedure>());
+		var bodyProto = BodyPrototype();
+		var bag = IvContainer(9160, "part-filled blood bag", gameworld.Object, capacity: 1.0, volume: 0.5);
+		var drip = DripItem(9161, "iv drip");
+		var cannulaItem = CannulaItem(9162, "installed cannula", bodyProto.Object);
+		var cannula = cannulaItem.Object.GetItemType<ICannula>();
+		var theatre = PhysicalCell(9163, "operating theatre", [bag.Object, drip.Object]);
+
+		var bloodLiquid = new Mock<ILiquid>();
+		bloodLiquid.SetupGet(x => x.Density).Returns(1.0);
+		var bloodtype = new Mock<IBloodtype>();
+		bloodtype.SetupGet(x => x.Id).Returns(1);
+		bloodtype.SetupGet(x => x.Name).Returns("O+");
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.BloodLiquid).Returns(bloodLiquid.Object);
+		body.SetupGet(x => x.Bloodtype).Returns(bloodtype.Object);
+		body.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
+		body.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(4.5);
+		body.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
+		body.SetupGet(x => x.Implants).Returns([cannula]);
+
+		var doctor = Character(9164, "Doctor", gameworld: gameworld.Object);
+		var donor = Character(9165, "Donor", gameworld: gameworld.Object);
+		doctor.SetupGet(x => x.Location).Returns(theatre.Object);
+		doctor.Setup(x => x.ColocatedWith(donor.Object)).Returns(true);
+		donor.SetupGet(x => x.Body).Returns(body.Object);
+		donor.SetupGet(x => x.Location).Returns(theatre.Object);
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(9166);
+		service.SetupGet(x => x.Name).Returns("Blood Donation");
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodDonation);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		service.SetupGet(x => x.BloodVolumeLitres).Returns(1.0);
+
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(9167);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		hospital.SetupGet(x => x.Locations).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.EmploymentRegister).Returns(new Mock<IEmploymentRegister>().Object);
+
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(9168);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.InProgress);
+		request.SetupGet(x => x.PatientId).Returns(donor.Object.Id);
+		request.SetupGet(x => x.Patient).Returns(donor.Object);
+		request.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		request.SetupGet(x => x.SupplyPrepared).Returns(true);
+
+		var task = new EmploymentActiveTask(hospital.Object, "Donate blood",
+			new EmploymentActionPlan([new HospitalServiceActionStep(hospital.Object, request.Object)]), Guid.NewGuid());
+		task.Assign(doctor.Object);
+		task.MarkStep(0, EmploymentActionStepStatus.InProgress,
+			new EmploymentActionStepOperationalState(
+				OperationalPayload:
+				"hospitalservice;hospital=9167;request=9168;type=BloodDonation;completed=False;active=blooddonation;activecount=0;blood=kind:blooddonation|stage:draining|target:1|startblood:5|startcontainer:0|stockbefore:0|completed:0|inserted:False|substitute:False|container:9160|drip:9161|cannula:9162"));
+		var context = new EmploymentTaskContext(hospital.Object);
+		context.HydrateTaskState(task, 0);
+
+		var result = HospitalMedicalServiceRunner.ExecuteServiceRequest(context, doctor.Object, hospital.Object,
+			request.Object);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.IsFalse(result.Completed);
+		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Failed, It.IsAny<string>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_BloodTransfusionCompletesActiveWorkflowWhenRecipientIsAlreadyFull()
+	{
+		var unitManager = new Mock<MudSharp.Framework.Units.IUnitManager>();
+		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
+		gameworld.SetupGet(x => x.SurgicalProcedures).Returns(new All<ISurgicalProcedure>());
+		var bodyProto = BodyPrototype();
+		var recipientBloodtype = new Mock<IBloodtype>();
+		recipientBloodtype.SetupGet(x => x.Id).Returns(1);
+		recipientBloodtype.SetupGet(x => x.Name).Returns("AB+");
+		recipientBloodtype.Setup(x => x.IsCompatibleWithDonorBlood(recipientBloodtype.Object)).Returns(true);
+		var bloodLiquid = new Mock<ILiquid>();
+		bloodLiquid.SetupGet(x => x.Density).Returns(1.0);
+		var race = new Mock<MudSharp.Character.Heritage.IRace>();
+		race.SetupGet(x => x.Id).Returns(10);
+		var donor = Character(9170, "Donor", gameworld: gameworld.Object);
+		var bag = BloodContainer(9171, "blood bag", gameworld.Object,
+			new BloodLiquidInstance(donor.Object, race.Object, recipientBloodtype.Object, bloodLiquid.Object,
+				gameworld.Object, 0.5));
+		var drip = DripItem(9172, "iv drip");
+		var cannulaItem = CannulaItem(9173, "installed cannula", bodyProto.Object);
+		var cannula = cannulaItem.Object.GetItemType<ICannula>();
+		var switchCalls = new List<string>();
+		bag = IvContainer(9171, "blood bag", gameworld.Object,
+			bag.Object.GetItemType<ILiquidContainer>().LiquidMixture, switchCalls: switchCalls);
+		var theatre = PhysicalCell(9174, "operating theatre", [bag.Object, drip.Object]);
+
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.BloodLiquid).Returns(bloodLiquid.Object);
+		body.SetupGet(x => x.Bloodtype).Returns(recipientBloodtype.Object);
+		body.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
+		body.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(5.0);
+		body.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
+		body.SetupGet(x => x.Implants).Returns([cannula]);
+
+		var doctor = Character(9175, "Doctor", gameworld: gameworld.Object);
+		var recipient = Character(9176, "Recipient", gameworld: gameworld.Object);
+		doctor.SetupGet(x => x.Location).Returns(theatre.Object);
+		doctor.Setup(x => x.ColocatedWith(recipient.Object)).Returns(true);
+		recipient.SetupGet(x => x.Body).Returns(body.Object);
+		recipient.SetupGet(x => x.Location).Returns(theatre.Object);
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(9177);
+		service.SetupGet(x => x.Name).Returns("Blood Transfusion");
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodTransfusion);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		service.SetupGet(x => x.BloodVolumeLitres).Returns(0.5);
+
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Id).Returns(9178);
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		hospital.SetupGet(x => x.Locations).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.EmploymentRegister).Returns(new Mock<IEmploymentRegister>().Object);
+
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(9179);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.InProgress);
+		request.SetupGet(x => x.PatientId).Returns(recipient.Object.Id);
+		request.SetupGet(x => x.Patient).Returns(recipient.Object);
+		request.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		request.SetupGet(x => x.SupplyPrepared).Returns(true);
+
+		var task = new EmploymentActiveTask(hospital.Object, "Transfuse blood",
+			new EmploymentActionPlan([new HospitalServiceActionStep(hospital.Object, request.Object)]), Guid.NewGuid());
+		task.Assign(doctor.Object);
+		task.MarkStep(0, EmploymentActionStepStatus.InProgress,
+			new EmploymentActionStepOperationalState(
+				OperationalPayload:
+				"hospitalservice;hospital=9178;request=9179;type=BloodTransfusion;completed=False;active=bloodtransfusion;activecount=0;blood=kind:bloodtransfusion|stage:dripping|target:0.5|startblood:4.5|startcontainer:0.5|stockbefore:0|completed:0|inserted:False|substitute:False|container:9171|drip:9172|cannula:9173"));
+		var context = new EmploymentTaskContext(hospital.Object);
+		context.HydrateTaskState(task, 0);
+
+		var result = HospitalMedicalServiceRunner.ExecuteServiceRequest(context, doctor.Object, hospital.Object,
+			request.Object);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.IsTrue(result.Completed);
+		CollectionAssert.Contains(switchCalls.ToArray(), "neutral");
+		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Completed,
+			It.Is<string>(message => message.Contains("transfused"))), Times.Once);
+		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Failed, It.IsAny<string>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void HospitalTheatreStockGoalPlanner_IncludesBloodDripForReusableEquipmentGoals()
+	{
+		var drip = DripItem(9180, "iv drip");
+		var supplyRoom = PhysicalCell(9181, "supply room", [drip.Object]);
+		var theatre = PhysicalCell(9182, "operating theatre", []);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodTransfusion);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.SupplyRooms).Returns([supplyRoom.Object]);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.ActiveServices).Returns([service.Object]);
+		var context = new EmploymentTaskContext(hospital.Object);
+
+		var deficits = HospitalTheatreStockGoalPlanner.Deficits(context,
+			HospitalServiceSupplyItemType.ReusableTool, 1, out var reason);
+
+		Assert.IsTrue(deficits.Any(x => x.BloodRequirement == HospitalTheatreStockGoalPlanner.BloodRequirementDrip),
+			reason);
+		Assert.IsTrue(deficits.Any(x => x.Description.Contains("IV drip", StringComparison.InvariantCultureIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_OfferingModesSeparateStandaloneAndCombinedUse()
+	{
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.OfferingMode).Returns(HospitalServiceOfferingMode.CombinedOnly);
+
+		Assert.IsFalse(HospitalMedicalServiceRunner.CanBeRequestedStandalone(service.Object));
+		Assert.IsTrue(HospitalMedicalServiceRunner.CanBeUsedByCombinedService(service.Object));
+
+		service.SetupGet(x => x.OfferingMode).Returns(HospitalServiceOfferingMode.StandaloneOnly);
+		Assert.IsTrue(HospitalMedicalServiceRunner.CanBeRequestedStandalone(service.Object));
+		Assert.IsFalse(HospitalMedicalServiceRunner.CanBeUsedByCombinedService(service.Object));
+	}
+
+	[TestMethod]
+	public void HospitalServiceBilling_UsesCombinedCapableComponentPriceForUsageBilling()
+	{
+		var standaloneOnly = new Mock<IHospitalService>();
+		standaloneOnly.SetupGet(x => x.IsActive).Returns(true);
+		standaloneOnly.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodTransfusion);
+		standaloneOnly.SetupGet(x => x.OfferingMode).Returns(HospitalServiceOfferingMode.StandaloneOnly);
+		standaloneOnly.SetupGet(x => x.Price).Returns(100.0M);
+		var combinedOnly = new Mock<IHospitalService>();
+		combinedOnly.SetupGet(x => x.IsActive).Returns(true);
+		combinedOnly.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodTransfusion);
+		combinedOnly.SetupGet(x => x.OfferingMode).Returns(HospitalServiceOfferingMode.CombinedOnly);
+		combinedOnly.SetupGet(x => x.Price).Returns(25.0M);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Services).Returns([standaloneOnly.Object, combinedOnly.Object]);
+
+		Assert.AreEqual(25.0M, HospitalServiceBilling.UnitPriceForServiceType(hospital.Object,
+			HospitalServiceType.BloodTransfusion));
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_MapsSurgicalFamilyServicesToProcedureTypes()
+	{
+		Assert.AreEqual(SurgicalProcedureType.Triage,
+			HospitalMedicalServiceRunner.ServiceTypeToSurgicalProcedureType(HospitalServiceType.Triage));
+		Assert.AreEqual(SurgicalProcedureType.OrganStabilisation,
+			HospitalMedicalServiceRunner.ServiceTypeToSurgicalProcedureType(HospitalServiceType.OrganStabilisation));
+		Assert.AreEqual(SurgicalProcedureType.InstallProsthetic,
+			HospitalMedicalServiceRunner.ServiceTypeToSurgicalProcedureType(HospitalServiceType.InstallProsthetic));
+		Assert.IsNull(HospitalMedicalServiceRunner.ServiceTypeToSurgicalProcedureType(HospitalServiceType.FullTreatment));
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_SurgicalPreflightDoesNotCreateServiceSuppliedImplant()
+	{
+		var procedures = new All<ISurgicalProcedure>();
+		var procedure = new Mock<ISurgicalProcedure>();
+		procedure.SetupGet(x => x.Id).Returns(9107);
+		procedure.SetupGet(x => x.Name).Returns("implant installation");
+		procedure.SetupGet(x => x.Procedure).Returns(SurgicalProcedureType.InstallImplant);
+		procedure.SetupGet(x => x.TargetBodyType).Returns((MudSharp.Body.IBodyPrototype)null!);
+		procedures.Add(procedure.Object);
+
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.SurgicalProcedures).Returns(procedures);
+		var employee = Character(9108, "Doctor", gameworld: gameworld.Object);
+		var patient = Character(9109, "Patient", gameworld: gameworld.Object);
+		var prototype = new Mock<IGameItemProto>();
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.InstallImplant);
+		service.SetupGet(x => x.ImplantItemPrototype).Returns(prototype.Object);
+		service.SetupGet(x => x.ProcedureParameters).Returns(string.Empty);
+
+		Assert.IsTrue(HospitalMedicalServiceRunner.TryResolveSurgicalProcedureForService(employee.Object,
+			patient.Object, service.Object, null, out var resolved));
+		Assert.AreSame(procedure.Object, resolved);
+		prototype.Verify(x => x.CreateNew(It.IsAny<ICharacter?>()), Times.Never);
 	}
 
 	[TestMethod]
@@ -8043,6 +8493,11 @@ public class UnifiedEmploymentDispatchTests
 		item.SetupGet(x => x.DeepItems).Returns(() => [item.Object]);
 		item.SetupGet(x => x.TrueLocations).Returns(trueLocations ?? []);
 		item.Setup(x => x.GetItemType<IContainer>()).Returns((IContainer)null!);
+		item.Setup(x => x.GetItemType<ILiquidContainer>()).Returns((ILiquidContainer)null!);
+		item.Setup(x => x.GetItemType<ICannula>()).Returns((ICannula)null!);
+		item.Setup(x => x.GetItemType<IDrip>()).Returns((IDrip)null!);
+		item.Setup(x => x.GetItemType<ISwitchable>()).Returns((ISwitchable)null!);
+		item.Setup(x => x.GetItemTypes<IConnectable>()).Returns([]);
 		item.Setup(x => x.HowSeen(
 				It.IsAny<IPerceiver>(),
 				It.IsAny<bool>(),
@@ -8051,6 +8506,97 @@ public class UnifiedEmploymentDispatchTests
 				It.IsAny<PerceiveIgnoreFlags>()))
 		    .Returns(name);
 		return item;
+	}
+
+	private static Mock<MudSharp.Body.IBodyPrototype> BodyPrototype()
+	{
+		var body = new Mock<MudSharp.Body.IBodyPrototype>();
+		body.Setup(x => x.CountsAs(It.IsAny<MudSharp.Body.IBodyPrototype>())).Returns(true);
+		return body;
+	}
+
+	private static Mock<IGameItem> CannulaItem(long id, string name, MudSharp.Body.IBodyPrototype targetBody)
+	{
+		var item = Item(id, name);
+		var cannula = new Mock<ICannula>();
+		var connections = new List<Tuple<ConnectorType, IConnectable>>();
+		cannula.SetupGet(x => x.Parent).Returns(item.Object);
+		cannula.SetupGet(x => x.TargetBody).Returns(targetBody);
+		cannula.SetupGet(x => x.ConnectedItems).Returns(() => connections);
+		cannula.Setup(x => x.CanConnect(It.IsAny<ICharacter?>(), It.IsAny<IConnectable>())).Returns(true);
+		cannula.Setup(x => x.Connect(It.IsAny<ICharacter?>(), It.IsAny<IConnectable>()))
+		       .Callback<ICharacter?, IConnectable>((_, other) =>
+			       connections.Add(new Tuple<ConnectorType, IConnectable>(
+				       new ConnectorType(Gender.Indeterminate, "iv"), other)));
+		cannula.Setup(x => x.CanDisconnect(It.IsAny<ICharacter>(), It.IsAny<IConnectable>())).Returns(true);
+		cannula.Setup(x => x.Disconnect(It.IsAny<ICharacter>(), It.IsAny<IConnectable>()))
+		       .Callback<ICharacter, IConnectable>((_, other) => connections.RemoveAll(x => x.Item2 == other));
+		item.Setup(x => x.GetItemType<ICannula>()).Returns(cannula.Object);
+		item.Setup(x => x.GetItemTypes<IConnectable>()).Returns([cannula.Object]);
+		return item;
+	}
+
+	private static Mock<IGameItem> DripItem(long id, string name)
+	{
+		var item = Item(id, name);
+		var drip = new Mock<IDrip>();
+		var connections = new List<Tuple<ConnectorType, IConnectable>>();
+		drip.SetupGet(x => x.Parent).Returns(item.Object);
+		drip.SetupGet(x => x.RatePerMinute).Returns(0.01);
+		drip.SetupGet(x => x.ConnectedItems).Returns(() => connections);
+		drip.Setup(x => x.CanConnect(It.IsAny<ICharacter?>(), It.IsAny<IConnectable>())).Returns(true);
+		drip.Setup(x => x.Connect(It.IsAny<ICharacter?>(), It.IsAny<IConnectable>()))
+		    .Callback<ICharacter?, IConnectable>((_, other) =>
+			    connections.Add(new Tuple<ConnectorType, IConnectable>(
+				    new ConnectorType(Gender.Indeterminate, "iv"), other)));
+		drip.Setup(x => x.CanDisconnect(It.IsAny<ICharacter>(), It.IsAny<IConnectable>())).Returns(true);
+		drip.Setup(x => x.Disconnect(It.IsAny<ICharacter>(), It.IsAny<IConnectable>()))
+		    .Callback<ICharacter, IConnectable>((_, other) => connections.RemoveAll(x => x.Item2 == other));
+		item.Setup(x => x.GetItemType<IDrip>()).Returns(drip.Object);
+		item.Setup(x => x.GetItemTypes<IConnectable>()).Returns([drip.Object]);
+		return item;
+	}
+
+	private static Mock<IGameItem> IvContainer(long id, string name, IFuturemud gameworld,
+		LiquidMixture? mixture = null, double capacity = 1.0, double? volume = null,
+		IList<string>? switchCalls = null)
+	{
+		var item = Item(id, name);
+		var liquidContainer = new Mock<ILiquidContainer>();
+		var connections = new List<Tuple<ConnectorType, IConnectable>>();
+		liquidContainer.SetupGet(x => x.Parent).Returns(item.Object);
+		liquidContainer.SetupGet(x => x.LiquidCapacity).Returns(capacity);
+		liquidContainer.SetupGet(x => x.LiquidVolume).Returns(() => volume ?? mixture?.TotalVolume ?? 0.0);
+		liquidContainer.SetupGet(x => x.LiquidMixture).Returns(mixture!);
+		var connectable = liquidContainer.As<IConnectable>();
+		connectable.SetupGet(x => x.Parent).Returns(item.Object);
+		connectable.SetupGet(x => x.ConnectedItems).Returns(() => connections);
+		connectable.Setup(x => x.CanConnect(It.IsAny<ICharacter?>(), It.IsAny<IConnectable>())).Returns(true);
+		connectable.Setup(x => x.Connect(It.IsAny<ICharacter?>(), It.IsAny<IConnectable>()))
+		           .Callback<ICharacter?, IConnectable>((_, other) =>
+			           connections.Add(new Tuple<ConnectorType, IConnectable>(
+				           new ConnectorType(Gender.Indeterminate, "iv"), other)));
+		connectable.Setup(x => x.CanDisconnect(It.IsAny<ICharacter>(), It.IsAny<IConnectable>())).Returns(true);
+		connectable.Setup(x => x.Disconnect(It.IsAny<ICharacter>(), It.IsAny<IConnectable>()))
+		           .Callback<ICharacter, IConnectable>((_, other) => connections.RemoveAll(x => x.Item2 == other));
+		var switchable = liquidContainer.As<ISwitchable>();
+		switchable.SetupGet(x => x.Parent).Returns(item.Object);
+		switchable.SetupGet(x => x.SwitchSettings).Returns(["drain", "drip", "neutral"]);
+		switchable.Setup(x => x.CanSwitch(It.IsAny<ICharacter>(), It.IsAny<string>())).Returns(true);
+		switchable.Setup(x => x.Switch(It.IsAny<ICharacter>(), It.IsAny<string>()))
+		          .Callback<ICharacter, string>((_, setting) => switchCalls?.Add(setting))
+		          .Returns(true);
+		item.Setup(x => x.GetItemType<ILiquidContainer>()).Returns(liquidContainer.Object);
+		item.Setup(x => x.GetItemType<ISwitchable>()).Returns(switchable.Object);
+		item.Setup(x => x.GetItemTypes<IConnectable>()).Returns([connectable.Object]);
+		return item;
+	}
+
+	private static Mock<IGameItem> BloodContainer(long id, string name, IFuturemud gameworld,
+		params BloodLiquidInstance[] blood)
+	{
+		var mixture = new LiquidMixture(blood, gameworld);
+		return IvContainer(id, name, gameworld, mixture);
 	}
 
 	private static Mock<IGameItem> ReservationTrackedItem(long id, string name,

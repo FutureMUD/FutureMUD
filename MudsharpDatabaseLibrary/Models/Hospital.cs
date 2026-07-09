@@ -54,6 +54,7 @@ public class HospitalService
 	public bool IsActive { get; set; }
 	public bool AllowDebt { get; set; }
 	public bool PreferOperatingTheatre { get; set; }
+	public int OfferingMode { get; set; }
 	public int SortOrder { get; set; }
 	public long? SurgicalProcedureId { get; set; }
 	public long? ImplantItemPrototypeId { get; set; }
@@ -104,6 +105,7 @@ public class HospitalServiceRequest
 	public DateTime LastUpdatedAtUtc { get; set; }
 	public DateTime? CompletedAtUtc { get; set; }
 	public string OperationalNotes { get; set; } = string.Empty;
+	public string ProcedureParameters { get; set; } = string.Empty;
 
 	public virtual Hospital Hospital { get; set; } = null!;
 	public virtual HospitalService HospitalService { get; set; } = null!;

@@ -26,7 +26,7 @@ public sealed record HospitalServiceAvailabilityResult(bool Available, string Re
 public static class HospitalServiceAvailability
 {
 	public static HospitalServiceAvailabilityResult Evaluate(IHospital hospital, IHospitalService service,
-		ICharacter? actor = null, ICharacter? patient = null)
+		ICharacter? actor = null, ICharacter? patient = null, string? procedureParameters = null)
 	{
 		if (!service.IsActive)
 		{
@@ -38,7 +38,7 @@ public static class HospitalServiceAvailability
 			return Unavailable("closed");
 		}
 
-		if (!HasAvailableMedicalEmployee(hospital, out var employeeReason))
+		if (!TryGetAvailableMedicalEmployee(hospital, out var employee, out var employeeReason))
 		{
 			return Unavailable(employeeReason);
 		}
@@ -48,7 +48,15 @@ public static class HospitalServiceAvailability
 			return Unavailable(equipmentReason);
 		}
 
-		if (service.SurgicalProcedure?.RequiresUnconsciousPatient == true &&
+		var surgicalProcedure = service.SurgicalProcedure;
+		if (HospitalMedicalServiceRunner.ServiceTypeToSurgicalProcedureType(service.ServiceType) is not null &&
+		    !HasSurgicalFamilyProcedure(hospital, service, employee, patient, procedureParameters,
+			    out surgicalProcedure, out var surgeryReason))
+		{
+			return Unavailable(surgeryReason);
+		}
+
+		if (surgicalProcedure?.RequiresUnconsciousPatient == true &&
 		    service.AnesthesiaCannulationProcedure is not null &&
 		    !HasAnesthesiaDripStock(hospital, service, patient, out var anesthesiaReason))
 		{
@@ -75,7 +83,7 @@ public static class HospitalServiceAvailability
 		return new HospitalServiceAvailabilityResult(false, reason);
 	}
 
-	private static bool HasAvailableMedicalEmployee(IHospital hospital, out string reason)
+	private static bool TryGetAvailableMedicalEmployee(IHospital hospital, out ICharacter? employee, out string reason)
 	{
 		var contracts = hospital.EmploymentContracts ?? Array.Empty<IEmploymentContract>();
 		var activeTasks = hospital.TaskBoard?.ActiveTasks ?? Array.Empty<IEmploymentActiveTask>();
@@ -83,18 +91,18 @@ public static class HospitalServiceAvailability
 			         x.Status == EmploymentStatus.Active &&
 			         x.Authority.Contains(EmploymentAuthority.PerformMedicalServices)))
 		{
-			var employee = contract.Employee;
-			if (!CharacterState.Able.HasFlag(employee.State) || employee.Location is null)
+			var candidate = contract.Employee;
+			if (!CharacterState.Able.HasFlag(candidate.State) || candidate.Location is null)
 			{
 				continue;
 			}
 
-			if (!CanPerformAutomatedMedicalService(hospital, employee))
+			if (!CanPerformAutomatedMedicalService(hospital, candidate))
 			{
 				continue;
 			}
 
-			var employeeId = CharacterInstanceIdentityComparer.IdentityId(employee);
+			var employeeId = CharacterInstanceIdentityComparer.IdentityId(candidate);
 			if (activeTasks.Any(x =>
 				    CharacterInstanceIdentityComparer.IdentityId(x.AssignedEmployee) == employeeId &&
 				    x.Status is EmploymentTaskStatus.Assigned or EmploymentTaskStatus.InProgress or
@@ -103,10 +111,12 @@ public static class HospitalServiceAvailability
 				continue;
 			}
 
+			employee = candidate;
 			reason = string.Empty;
 			return true;
 		}
 
+		employee = null;
 		reason = "no medical employee available";
 		return false;
 	}
@@ -168,6 +178,39 @@ public static class HospitalServiceAvailability
 		}
 
 		reason = "missing required equipment";
+		return false;
+	}
+
+	private static bool HasSurgicalFamilyProcedure(IHospital hospital, IHospitalService service, ICharacter? employee,
+		ICharacter? patient, string? procedureParameters, out ISurgicalProcedure? procedure, out string reason)
+	{
+		reason = string.Empty;
+		procedure = service.SurgicalProcedure;
+		if (HospitalMedicalServiceRunner.ServiceTypeToSurgicalProcedureType(service.ServiceType) is not { } procedureType)
+		{
+			return true;
+		}
+
+		if (employee is not null && patient is not null)
+		{
+			if (HospitalMedicalServiceRunner.TryResolveSurgicalProcedureForService(employee, patient, service,
+				    procedureParameters, out procedure))
+			{
+				return true;
+			}
+
+			reason = $"no usable {procedureType.DescribeEnum()} procedure for this patient and doctor";
+			return false;
+		}
+
+		if (hospital.Gameworld.SurgicalProcedures.Any(x =>
+			    x.Procedure == procedureType &&
+			    (patient is null || x.TargetBodyType is null || patient.Body.Prototype.CountsAs(x.TargetBodyType))))
+		{
+			return true;
+		}
+
+		reason = $"no {procedureType.DescribeEnum()} procedure";
 		return false;
 	}
 
@@ -251,15 +294,22 @@ public static class HospitalServiceAvailability
 	private static bool HasDonationContainerStock(IHospital hospital, IHospitalService service, ICharacter? donor,
 		out string reason)
 	{
+		var stock = HospitalStockItems(hospital).ToList();
+		if (!HasBloodAccessStock(stock, donor, "drain", out reason))
+		{
+			return false;
+		}
+
 		var amount = (service.BloodVolumeLitres > 0.0 ? service.BloodVolumeLitres : 0.5) /
 		             hospital.Gameworld.UnitManager.BaseFluidToLitres;
-		var containers = HospitalStockItems(hospital)
+		var containers = stock
+		                 .Where(x => HospitalMedicalServiceRunner.IsIvCapableLiquidContainerItem(x, "drain"))
 		                 .Select(x => x.GetItemType<ILiquidContainer>()).Where(x => x is not null).Select(x => x!)
 		                 .Where(x => x.LiquidCapacity - x.LiquidVolume >= amount)
 		                 .ToList();
 		if (!containers.Any())
 		{
-			reason = "no empty blood container";
+			reason = "no empty IV blood container";
 			return false;
 		}
 
@@ -277,7 +327,7 @@ public static class HospitalServiceAvailability
 				return true;
 			}
 
-			reason = "no empty blood container";
+			reason = "no empty IV blood container";
 			return false;
 		}
 
@@ -287,19 +337,26 @@ public static class HospitalServiceAvailability
 			return true;
 		}
 
-		reason = "no empty or compatible blood container";
+		reason = "no empty or compatible IV blood container";
 		return false;
 	}
 
 	private static bool HasTransfusionStock(IHospital hospital, IHospitalService service, ICharacter? patient,
 		out string reason)
 	{
-		var containers = HospitalStockItems(hospital)
+		var stock = HospitalStockItems(hospital).ToList();
+		if (!HasBloodAccessStock(stock, patient, "drip", out reason))
+		{
+			return false;
+		}
+
+		var containers = stock
+		                 .Where(x => HospitalMedicalServiceRunner.IsIvCapableLiquidContainerItem(x, "drip"))
 		                 .Select(x => x.GetItemType<ILiquidContainer>()).Where(x => x is not null).Select(x => x!)
 		                 .ToList();
 		if (!containers.Any(x => x.LiquidMixture?.Instances.OfType<BloodLiquidInstance>().Any() == true))
 		{
-			reason = "no blood stock";
+			reason = "no IV blood stock";
 			return false;
 		}
 
@@ -318,28 +375,48 @@ public static class HospitalServiceAvailability
 		}
 
 		var neededAmount = needed / hospital.Gameworld.UnitManager.BaseFluidToLitres;
-		foreach (var container in containers)
+		var compatibleAmount = containers
+		                       .Select(x => x.LiquidMixture?.Instances.OfType<BloodLiquidInstance>().ToList() ?? [])
+		                       .Where(x => x.Any())
+		                       .Where(x => x.All(y => y.BloodType is not null &&
+		                                           bloodtype.IsCompatibleWithDonorBlood(y.BloodType)))
+		                       .Sum(x => x.Sum(y => y.Amount));
+		if (compatibleAmount >= neededAmount)
 		{
-			var blood = container.LiquidMixture?.Instances.OfType<BloodLiquidInstance>().ToList() ?? [];
-			if (!blood.Any())
-			{
-				continue;
-			}
-
-			if (blood.Any(x => x.BloodType is null || bloodtype.IsCompatibleWithDonorBlood(x.BloodType) == false))
-			{
-				continue;
-			}
-
-			if (blood.Sum(x => x.Amount) >= neededAmount)
-			{
-				reason = string.Empty;
-				return true;
-			}
+			reason = string.Empty;
+			return true;
 		}
 
-		reason = "no compatible blood";
+		reason = "insufficient compatible blood";
 		return false;
+	}
+
+	private static bool HasBloodAccessStock(IReadOnlyCollection<IGameItem> stock, ICharacter? patient,
+		string switchMode, out string reason)
+	{
+		var hasPatientCannula = patient?.Body.Implants.Any(x => x.Parent.GetItemType<ICannula>() is not null) == true;
+		var hasCannula = hasPatientCannula || stock.Any(x => x.GetItemType<ICannula>() is { } cannula &&
+			(patient is null || patient.Body.Prototype.CountsAs(cannula.TargetBody)));
+		if (!hasCannula)
+		{
+			reason = "missing cannula";
+			return false;
+		}
+
+		if (stock.All(x => x.GetItemType<IDrip>() is null))
+		{
+			reason = "missing IV drip";
+			return false;
+		}
+
+		if (stock.All(x => !HospitalMedicalServiceRunner.IsIvCapableLiquidContainerItem(x, switchMode)))
+		{
+			reason = $"missing IV container with {switchMode} mode";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
 	}
 
 	private static IEnumerable<IGameItem> HospitalStockItems(IHospital hospital)

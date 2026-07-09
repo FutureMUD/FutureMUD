@@ -111,15 +111,33 @@ public static class HospitalPatientFlow
 
 		var destinationIsRecovery = recoveryRoom is not null;
 		var origin = patient.Location;
+		var employeeCanEscort = employee is not null &&
+		                        origin is not null &&
+		                        employee.Location?.Id == origin.Id;
 		if (origin is not null && origin.Id != destination.Id)
 		{
-			origin.HandleRoomEcho(new EmoteOutput(new Emote(
-				destinationIsRecovery
-					? "$0 $0|are|is taken to recovery after treatment."
-					: "$0 $0|are|is escorted back to the waiting room after treatment.", patient, patient)));
+			if (employeeCanEscort)
+			{
+				origin.HandleRoomEcho(new EmoteOutput(new Emote(
+					destinationIsRecovery
+						? "@ escort|escorts $0 to recovery after treatment."
+						: "@ escort|escorts $0 back to the waiting room after treatment.", employee!, patient)));
+			}
+			else
+			{
+				origin.HandleRoomEcho(new EmoteOutput(new Emote(
+					destinationIsRecovery
+						? "$0 $0|are|is taken to recovery after treatment."
+						: "$0 $0|are|is escorted back to the waiting room after treatment.", patient, patient)));
+			}
 		}
 
 		MoveCharacter(patient, destination);
+		if (employeeCanEscort)
+		{
+			MoveCharacter(employee!, destination);
+		}
+
 		if (destinationIsRecovery)
 		{
 			request.RecoveryRoomCellId = destination.Id;
@@ -130,14 +148,78 @@ public static class HospitalPatientFlow
 
 			patient.OutputHandler.Send(
 				$"Your hospital treatment is complete, and you are {(patient.IsHelpless ? "brought" : "escorted")} to {destination.Name.ColourName()} for recovery.");
-			destination.HandleRoomEcho(new EmoteOutput(new Emote("$0 $0|are|is brought in for recovery.", patient, patient)));
+			destination.HandleRoomEcho(new EmoteOutput(employeeCanEscort
+				? new Emote("@ arrive|arrives with $0 for recovery.", employee!, patient)
+				: new Emote("$0 $0|are|is brought in for recovery.", patient, patient)));
 			return;
 		}
 
 		request.ReturnCellId = destination.Id;
 		patient.OutputHandler.Send(
 			$"Your hospital treatment is complete, and you are returned to {destination.Name.ColourName()}.");
-		destination.HandleRoomEcho(new EmoteOutput(new Emote("$0 $0|return|returns from hospital treatment.", patient, patient)));
+		destination.HandleRoomEcho(new EmoteOutput(employeeCanEscort
+			? new Emote("@ arrive|arrives with $0 after hospital treatment.", employee!, patient)
+			: new Emote("$0 $0|return|returns from hospital treatment.", patient, patient)));
+	}
+
+	public static bool TryGetUnavailablePatientReason(IHospital hospital, IHospitalServiceRequest request,
+		ICharacter? employee, bool requirePreparedTreatmentLocation, out string reason)
+	{
+		reason = string.Empty;
+		if (request.Patient is not { } patient)
+		{
+			reason = "The patient is no longer loaded or available for treatment.";
+			return true;
+		}
+
+		var patientName = patient.HowSeen(employee ?? patient, colour: false);
+		if (patient.State.HasFlag(CharacterState.Dead))
+		{
+			reason = $"{patientName} has died and can no longer receive hospital treatment.";
+			return true;
+		}
+
+		if (patient.State.HasFlag(CharacterState.Stasis))
+		{
+			reason = $"{patientName} is no longer present and can no longer receive hospital treatment.";
+			return true;
+		}
+
+		var patientLocation = patient.Location;
+		if (patientLocation is null)
+		{
+			reason = $"{patientName} is not presently in a known location.";
+			return true;
+		}
+
+		var hospitalLocations = (hospital.Locations ?? Enumerable.Empty<ICell>()).ToList();
+		if (hospitalLocations.Any() && hospitalLocations.All(x => x.Id != patientLocation.Id))
+		{
+			reason = $"{patientName} is no longer in a configured location for {hospital.Name}.";
+			return true;
+		}
+
+		if (requirePreparedTreatmentLocation &&
+		    request.ReturnCellId.HasValue &&
+		    request.OperatingTheatreCellId is { } theatreId &&
+		    patientLocation.Id != theatreId)
+		{
+			var theatre = (hospital.OperatingTheatres ?? Enumerable.Empty<ICell>()).FirstOrDefault(x => x.Id == theatreId);
+			reason = theatre is null
+				? $"{patientName} is no longer in the reserved operating theatre."
+				: $"{patientName} is no longer in the reserved operating theatre {theatre.Name}.";
+			return true;
+		}
+
+		if (employee is not null &&
+		    employee.ColocatedWith(patient) &&
+		    !employee.CanSee(patient))
+		{
+			reason = $"{employee.HowSeen(employee, colour: false)} can no longer see {patientName} to continue hospital treatment.";
+			return true;
+		}
+
+		return false;
 	}
 
 	public static bool IsTheatreAvailable(IHospital hospital, IHospitalServiceRequest request, ICell theatre,

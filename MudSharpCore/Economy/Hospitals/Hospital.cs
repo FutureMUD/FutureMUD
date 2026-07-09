@@ -174,7 +174,9 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 		}
 	}
 
-	public bool IsReadyToDoBusiness => IsTrading && ActiveServices.Any() && WaitingRooms.Any();
+	public bool IsReadyToDoBusiness => IsTrading &&
+	                                   ActiveServices.Any(HospitalMedicalServiceRunner.CanBeRequestedStandalone) &&
+	                                   WaitingRooms.Any();
 
 	public decimal DefaultMaximumDebt
 	{
@@ -432,7 +434,10 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 		sb.AppendLine();
 		sb.AppendLine("Available Services:");
 		sb.AppendLine(StringUtilities.GetTextTable(
-			from service in ActiveServices.OrderBy(x => x.SortOrder).ThenBy(x => x.Name)
+			from service in ActiveServices
+				.Where(HospitalMedicalServiceRunner.CanBeRequestedStandalone)
+				.OrderBy(x => x.SortOrder)
+				.ThenBy(x => x.Name)
 			select new List<string>
 			{
 				service.Id.ToString("N0", actor),

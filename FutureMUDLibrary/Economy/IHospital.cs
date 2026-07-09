@@ -26,7 +26,32 @@ public enum HospitalServiceType
 	BloodDonation,
 	BloodTransfusion,
 	Stabilisation,
-	FullTreatment
+	FullTreatment,
+	Triage,
+	DetailedExamination,
+	ExploratorySurgery,
+	TraumaControl,
+	OrganStabilisation,
+	OrganExtraction,
+	OrganTransplant,
+	Amputation,
+	Replantation,
+	SurgicalBoneSetting,
+	Cannulation,
+	Decannulation,
+	InvasiveProcedureFinalisation,
+	InstallImplant,
+	RemoveImplant,
+	ConfigureImplantPower,
+	ConfigureImplantInterface,
+	InstallProsthetic
+}
+
+public enum HospitalServiceOfferingMode
+{
+	StandaloneAndCombined,
+	StandaloneOnly,
+	CombinedOnly
 }
 
 public enum HospitalServiceRequestStatus
@@ -78,6 +103,7 @@ public interface IHospitalService : IFrameworkItem, ISaveable, IKeywordedItem
 	bool IsActive { get; set; }
 	bool AllowDebt { get; set; }
 	bool PreferOperatingTheatre { get; set; }
+	HospitalServiceOfferingMode OfferingMode { get; set; }
 	int SortOrder { get; set; }
 	ISurgicalProcedure? SurgicalProcedure { get; set; }
 	IGameItemProto? ImplantItemPrototype { get; set; }
@@ -149,6 +175,7 @@ public interface IHospitalServiceRequest : IFrameworkItem, ISaveable
 	DateTimeOffset LastUpdatedAt { get; }
 	DateTimeOffset? CompletedAt { get; }
 	string OperationalNotes { get; set; }
+	string ProcedureParameters { get; set; }
 	ICharacter? Requester { get; }
 	ICharacter? Patient { get; }
 	void MarkStatus(HospitalServiceRequestStatus status, string note);

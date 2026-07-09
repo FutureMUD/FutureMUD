@@ -37,7 +37,8 @@ public enum EmploymentTaskConditionType
 	MarketPrice,
 	PayrollLiability,
 	StaffingLevel,
-	HospitalSupplyStock
+	HospitalSupplyStock,
+	HospitalTheatreStock
 }
 
 public enum EmploymentScheduledRuleStatus
@@ -770,7 +771,9 @@ public enum ManagerGoalType
 	MaintainMinimumBusinessFunds,
 	MaintainMaximumBusinessFunds,
 	MaintainHospitalConsumableStock,
-	MaintainHospitalReusableEquipmentStock
+	MaintainHospitalReusableEquipmentStock,
+	MaintainHospitalTheatreConsumableStock,
+	MaintainHospitalTheatreReusableEquipmentStock
 }
 
 public enum ManagerGoalStatus

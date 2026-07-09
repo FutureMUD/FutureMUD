@@ -127,6 +127,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.IsActive).HasColumnType("bit(1)").HasDefaultValue(true);
 			entity.Property(e => e.AllowDebt).HasColumnType("bit(1)").HasDefaultValue(true);
 			entity.Property(e => e.PreferOperatingTheatre).HasColumnType("bit(1)").HasDefaultValue(false);
+			entity.Property(e => e.OfferingMode).HasColumnType("int(11)").HasDefaultValue(0);
 			entity.Property(e => e.SortOrder).HasColumnType("int(11)");
 			entity.Property(e => e.SurgicalProcedureId).HasColumnType("bigint(20)");
 			entity.Property(e => e.ImplantItemPrototypeId).HasColumnType("bigint(20)");
@@ -236,6 +237,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.LastUpdatedAtUtc).HasColumnType("datetime(6)");
 			entity.Property(e => e.CompletedAtUtc).HasColumnType("datetime(6)");
 			entity.Property(e => e.OperationalNotes).RequiredString("mediumtext");
+			entity.Property(e => e.ProcedureParameters).RequiredString("mediumtext");
 
 			entity.HasOne(d => d.Hospital)
 			      .WithMany(p => p.ServiceRequests)

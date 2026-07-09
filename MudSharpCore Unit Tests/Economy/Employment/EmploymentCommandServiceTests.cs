@@ -3286,6 +3286,8 @@ public class EmploymentCommandServiceTests
 		StringAssert.Contains(allTypes, "bankbalancehigh");
 		StringAssert.Contains(allTypes, "pricemargin");
 		StringAssert.Contains(allTypes, "staffing");
+		StringAssert.Contains(allTypes, "hospitaltheatreconsumables");
+		StringAssert.Contains(allTypes, "hospitaltheatretools");
 
 		var highFloat = authoring.RenderGoalTypes(actor, "cashfloathigh");
 		StringAssert.Contains(highFloat, "maximum");
@@ -3404,6 +3406,21 @@ public class EmploymentCommandServiceTests
 		Assert.IsNotNull(retypedGoal);
 		Assert.AreEqual(ManagerGoalType.MaintainHospitalReusableEquipmentStock, retypedGoal!.GoalType);
 		Assert.IsNull(retypedGoal.Configuration.ActionPlan);
+
+		Assert.IsTrue(authoring.TryStartDraft(manager, hospital.Object, "hospitaltheatreconsumables",
+			"Stage theatre consumables", out message), message);
+		Assert.IsTrue(authoring.TryAddCondition(manager, hospital.Object,
+			new StringStack("hospitaltheatre consumables 2"), out message), message);
+		Assert.IsFalse(authoring.TryAddStep(manager, hospital.Object,
+			new StringStack("board Stock = Buy supplies."), out message));
+		StringAssert.Contains(message, "automatically");
+		Assert.IsTrue(authoring.TryFinaliseDraft(manager, hospital.Object, out var theatreGoal, out message), message);
+		Assert.IsNotNull(theatreGoal);
+		Assert.AreEqual(ManagerGoalType.MaintainHospitalTheatreConsumableStock, theatreGoal!.GoalType);
+		Assert.IsNull(theatreGoal.Configuration.ActionPlan);
+		var theatreStock = theatreGoal.Configuration.Conditions!.OfType<HospitalTheatreStockCondition>().Last();
+		Assert.AreEqual(HospitalServiceSupplyItemType.Consumable, theatreStock.ItemType);
+		Assert.AreEqual(2, theatreStock.ProcedureCount);
 	}
 
 	[TestMethod]

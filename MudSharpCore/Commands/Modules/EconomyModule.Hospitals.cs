@@ -33,7 +33,7 @@ internal partial class EconomyModule
 	#3hospital#0 - shows the hospital at your current location
 	#3hospital services#0 - lists available medical services
 	#3hospital service <##|name>#0 - shows one medical service
-	#3hospital request <service> [for <target>] [cash|debt|with <payment item>]#0 - requests treatment and creates hospital task work
+	#3hospital request <service> [params <procedure args>] [for <target>] [cash|debt|with <payment item>]#0 - requests treatment and creates hospital task work
 	#3hospital cancel [<##>]#0 - cancels one of your active hospital service requests without refunding completed or partially completed work
 	#3hospital debt [person]#0 - shows medical debt or prepaid credit for yourself or a patient you can see
 	#3hospital debt pay <amount> [for <target>] [cash|with <payment item>]#0 - pays down debt or creates prepaid credit
@@ -47,7 +47,7 @@ Hospital managers and proprietors standing in the hospital can use #3hospital he
 	#3hospital#0 - shows the hospital at your current location
 	#3hospital services#0 - lists available medical services
 	#3hospital service <##|name>#0 - shows one medical service
-	#3hospital request <service> [for <target>] [cash|debt|with <payment item>]#0 - requests treatment and creates hospital task work
+	#3hospital request <service> [params <procedure args>] [for <target>] [cash|debt|with <payment item>]#0 - requests treatment and creates hospital task work
 	#3hospital cancel [<##>]#0 - cancels an active hospital service request without refunding completed or partially completed work
 	#3hospital debt [person]#0 - shows medical debt or prepaid credit for yourself or a patient you can see
 	#3hospital debt pay <amount> [for <target>] [cash|with <payment item>]#0 - pays down debt or creates prepaid credit
@@ -58,7 +58,7 @@ Hospital managers and proprietors standing in the hospital can use #3hospital he
 	#3hospital maxdebt <amount>#0 - sets the default debt ceiling for new patients
 	#3hospital room add|remove <waiting|theatre|supply|recovery|staff> [here|<direction>|<#>]#0 - flags hospital rooms
 	#3hospital service add <type> <price> <name>#0 - creates a service
-	#3hospital service set <service> price|active|debt|theatre|recovery|blood|equipment|procedure|implant|implantpower|implantinterface|anesthesia|cannulation|parameters|name|desc <value>#0 - edits a service; equipment add accepts optional consumable|reusable after quantity
+	#3hospital service set <service> price|active|debt|theatre|recovery|offering|blood|equipment|procedure|implant|implantpower|implantinterface|anesthesia|cannulation|parameters|name|desc <value>#0 - edits a service; equipment add accepts optional consumable|reusable after quantity
 	#3hospital bloodstock [show|set|clear] ...#0 - manages blood type target stock and donor prices
 	#3hospital deposit <amount>#0 - deposits held cash into the hospital's virtual cash balance
 	#3hospital withdraw <amount>#0 - withdraws cash from the hospital's virtual cash balance
@@ -285,7 +285,12 @@ Administrators can also use:
 			return;
 		}
 
-		var services = hospital.ActiveServices.OrderBy(x => x.SortOrder).ThenBy(x => x.Name).ToList();
+		var canManage = actor.IsAdministrator() || hospital.IsManager(actor) || hospital.IsProprietor(actor);
+		var services = hospital.ActiveServices
+		                       .Where(x => canManage || HospitalMedicalServiceRunner.CanBeRequestedStandalone(x))
+		                       .OrderBy(x => x.SortOrder)
+		                       .ThenBy(x => x.Name)
+		                       .ToList();
 		if (!services.Any())
 		{
 			actor.OutputHandler.Send($"{hospital.Name.ColourName()} is not offering any services right now.");
@@ -296,6 +301,17 @@ Administrators can also use:
 		sb.AppendLine($"Hospital Services - {hospital.Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		foreach (var service in services)
 		{
+			if (canManage)
+			{
+				AppendHospitalBlock(sb, actor, $"Service #{service.Id.ToString("N0", actor)} - {service.Name}",
+					("Type", service.ServiceType.DescribeEnum().ColourName()),
+					("Offering", service.OfferingMode.DescribeEnum().ColourName()),
+					("Price", HospitalServiceBilling.DescribePrice(hospital, service, actor).ColourValue()),
+					("Debt", service.AllowDebt.ToColouredString()),
+					("Status", HospitalServiceAvailability.Evaluate(hospital, service, actor).DescribeColoured()));
+				continue;
+			}
+
 			AppendHospitalBlock(sb, actor, $"Service #{service.Id.ToString("N0", actor)} - {service.Name}",
 				("Type", service.ServiceType.DescribeEnum().ColourName()),
 				("Price", HospitalServiceBilling.DescribePrice(hospital, service, actor).ColourValue()),
@@ -412,7 +428,7 @@ Administrators can also use:
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Which property do you want to set? Options are price, active, debt, theatre, recovery, blood, equipment, procedure, implant, implantpower, implantinterface, anesthesia, cannulation, parameters, name, and desc.");
+			actor.OutputHandler.Send("Which property do you want to set? Options are price, active, debt, theatre, recovery, offering, blood, equipment, procedure, implant, implantpower, implantinterface, anesthesia, cannulation, parameters, name, and desc.");
 			return;
 		}
 
@@ -463,6 +479,11 @@ Administrators can also use:
 				service.RequiresRecovery = !service.RequiresRecovery;
 				service.Changed = true;
 				actor.OutputHandler.Send($"{service.Name.ColourName()} recovery routing is now {service.RequiresRecovery.ToColouredString()}.");
+				return;
+			case "offering":
+			case "mode":
+			case "visibility":
+				HospitalServiceSetOfferingMode(actor, service, ss);
 				return;
 			case "blood":
 			case "bloodvolume":
@@ -546,6 +567,48 @@ Administrators can also use:
 		service.BloodVolumeLitres = amount;
 		service.Changed = true;
 		actor.OutputHandler.Send($"{service.Name.ColourName()} will use {amount.ToString("N2", actor).ColourValue()}L for blood donation/transfusion procedures.");
+	}
+
+	private static void HospitalServiceSetOfferingMode(ICharacter actor, IHospitalService service, StringStack ss)
+	{
+		if (ss.IsFinished || !TryParseHospitalServiceOfferingMode(ss.PopSpeech(), out var mode))
+		{
+			actor.OutputHandler.Send("Which offering mode should this service use? Valid modes are standalone, combined, and both.");
+			return;
+		}
+
+		service.OfferingMode = mode;
+		service.Changed = true;
+		actor.OutputHandler.Send($"{service.Name.ColourName()} is now offered as {mode.DescribeEnum().ColourName()}.");
+	}
+
+	private static bool TryParseHospitalServiceOfferingMode(string text, out HospitalServiceOfferingMode mode)
+	{
+		switch (text.CollapseString().ToLowerInvariant())
+		{
+			case "standalone":
+			case "standaloneonly":
+			case "player":
+			case "public":
+			case "explicit":
+				mode = HospitalServiceOfferingMode.StandaloneOnly;
+				return true;
+			case "combined":
+			case "combinedonly":
+			case "component":
+			case "hidden":
+			case "internal":
+				mode = HospitalServiceOfferingMode.CombinedOnly;
+				return true;
+			case "both":
+			case "all":
+			case "standaloneandcombined":
+			case "standalonecombined":
+				mode = HospitalServiceOfferingMode.StandaloneAndCombined;
+				return true;
+		}
+
+		return text.TryParseEnum(out mode);
 	}
 
 	private static void HospitalServiceSetEquipment(ICharacter actor, IHospitalService service, StringStack ss)
@@ -1204,8 +1267,15 @@ Administrators can also use:
 			return;
 		}
 
+		if (!HospitalMedicalServiceRunner.CanBeRequestedStandalone(service))
+		{
+			actor.OutputHandler.Send($"{service.Name.ColourName()} is an internal hospital care component and cannot be requested directly.");
+			return;
+		}
+
 		var patient = actor;
 		var payment = new HospitalPaymentSelection { Method = HospitalPaymentMethod.Cash };
+		var procedureParameters = string.Empty;
 		if (HospitalServiceBilling.IsUsageBilledServiceType(service.ServiceType))
 		{
 			payment = new HospitalPaymentSelection { Method = HospitalPaymentMethod.Debt };
@@ -1229,6 +1299,33 @@ Administrators can also use:
 					return;
 				}
 
+				continue;
+			}
+
+			if (token.EqualToAny("params", "parameters", "parameter", "target", "targets"))
+			{
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("What procedure parameter or target should be passed to the hospital service?");
+					return;
+				}
+
+				var parameters = new List<string>();
+				while (!ss.IsFinished && !IsHospitalRequestOption(ss.PeekSpeech()))
+				{
+					parameters.Add(ss.PopSpeech());
+				}
+
+				if (!parameters.Any())
+				{
+					actor.OutputHandler.Send("What procedure parameter or target should be passed to the hospital service?");
+					return;
+				}
+
+				var parameter = parameters.ListToString(separator: " ");
+				procedureParameters = string.IsNullOrWhiteSpace(procedureParameters)
+					? parameter
+					: $"{procedureParameters} {parameter}";
 				continue;
 			}
 
@@ -1293,7 +1390,7 @@ Administrators can also use:
 
 		void CreateRequest()
 		{
-			if (!TryCreateHospitalRequest(actor, hospital, service, patient, payment, out var message))
+			if (!TryCreateHospitalRequest(actor, hospital, service, patient, payment, procedureParameters, out var message))
 			{
 				actor.OutputHandler.Send(message);
 				return;
@@ -1325,6 +1422,23 @@ Administrators can also use:
 		}
 
 		CreateRequest();
+	}
+
+	private static bool IsHospitalRequestOption(string token)
+	{
+		return token.EqualToAny(
+			"for",
+			"params",
+			"parameters",
+			"parameter",
+			"target",
+			"targets",
+			"debt",
+			"account",
+			"cash",
+			"with",
+			"waive",
+			"free");
 	}
 
 	private static void HospitalCancel(ICharacter actor, StringStack ss)
@@ -1408,6 +1522,8 @@ Administrators can also use:
 	{
 		var task = HospitalTaskForRequest(hospital, request);
 		var abortedProcedures = CancelHospitalSurgicalEffects(hospital, request, task);
+		var cleanedBloodWorkflow = HospitalMedicalServiceRunner.CleanupBloodWorkflowForTerminalRequest(hospital, request,
+			task, actor);
 		var reason = $"Cancelled by {actor.HowSeen(actor, colour: false)}.";
 		request.MarkStatus(HospitalServiceRequestStatus.Cancelled,
 			$"{reason} Amounts already paid or charged remain on the request; cancellation does not refund completed or partially completed work.");
@@ -1428,6 +1544,11 @@ Administrators can also use:
 			message += $" {abortedProcedures.ToString("N0", actor).ColourValue()} staged surgical procedure{(abortedProcedures == 1 ? " was" : "s were")} aborted.";
 		}
 
+		if (cleanedBloodWorkflow)
+		{
+			message += " Active IV blood gear was neutralised and disconnected where possible.";
+		}
+
 		return true;
 	}
 
@@ -1441,7 +1562,7 @@ Administrators can also use:
 		                        .Where(x => x is not null)
 		                        .DistinctPhysicalInstances()
 		                        .ToList();
-		var procedures = HospitalServiceProcedures(request.Service).Select(x => x.Id).ToHashSet();
+		var procedures = HospitalServiceProcedures(hospital, request.Service).Select(x => x.Id).ToHashSet();
 		var count = 0;
 		foreach (var employee in employees)
 		{
@@ -1460,11 +1581,18 @@ Administrators can also use:
 		return count;
 	}
 
-	private static IEnumerable<ISurgicalProcedure> HospitalServiceProcedures(IHospitalService service)
+	private static IEnumerable<ISurgicalProcedure> HospitalServiceProcedures(IHospital hospital, IHospitalService service)
 	{
 		if (service.SurgicalProcedure is not null)
 		{
 			yield return service.SurgicalProcedure;
+		}
+		else if (HospitalMedicalServiceRunner.ServiceTypeToSurgicalProcedureType(service.ServiceType) is { } procedureType)
+		{
+			foreach (var procedure in hospital.Gameworld.SurgicalProcedures.Where(x => x.Procedure == procedureType))
+			{
+				yield return procedure;
+			}
 		}
 
 		if (service.AnesthesiaCannulationProcedure is not null)
@@ -1484,9 +1612,9 @@ Administrators can also use:
 	}
 
 	private static bool TryCreateHospitalRequest(ICharacter requester, IHospital hospital, IHospitalService service,
-		ICharacter patient, HospitalPaymentSelection payment, out string message)
+		ICharacter patient, HospitalPaymentSelection payment, string procedureParameters, out string message)
 	{
-		var availability = HospitalServiceAvailability.Evaluate(hospital, service, requester, patient);
+		var availability = HospitalServiceAvailability.Evaluate(hospital, service, requester, patient, procedureParameters);
 		if (!availability.Available)
 		{
 			message = $"{service.Name.ColourName()} is currently unavailable: {availability.Reason}.";
@@ -1501,6 +1629,7 @@ Administrators can also use:
 		}
 
 		var request = new HospitalServiceRequest(hospital, service, requester, patient, payment.Method);
+		request.ProcedureParameters = procedureParameters;
 		request.MarkCharged(amountPaid, debtCharged);
 
 		hospital.AddServiceRequest(request);
@@ -2762,6 +2891,88 @@ Administrators can also use:
 			case "setting":
 			case "bonesetting":
 				serviceType = HospitalServiceType.BoneSetting;
+				return true;
+			case "triage":
+				serviceType = HospitalServiceType.Triage;
+				return true;
+			case "detailed":
+			case "detailedexam":
+			case "detailedexamination":
+			case "exam":
+			case "examination":
+				serviceType = HospitalServiceType.DetailedExamination;
+				return true;
+			case "explore":
+			case "exploratory":
+			case "exploratorysurgery":
+				serviceType = HospitalServiceType.ExploratorySurgery;
+				return true;
+			case "trauma":
+			case "traumacontrol":
+			case "controltrauma":
+				serviceType = HospitalServiceType.TraumaControl;
+				return true;
+			case "organstabilise":
+			case "organstabilize":
+			case "organstabilisation":
+			case "organstabilization":
+				serviceType = HospitalServiceType.OrganStabilisation;
+				return true;
+			case "organextraction":
+			case "extractorgan":
+				serviceType = HospitalServiceType.OrganExtraction;
+				return true;
+			case "organtransplant":
+			case "transplant":
+				serviceType = HospitalServiceType.OrganTransplant;
+				return true;
+			case "amputate":
+			case "amputation":
+				serviceType = HospitalServiceType.Amputation;
+				return true;
+			case "replant":
+			case "replantation":
+				serviceType = HospitalServiceType.Replantation;
+				return true;
+			case "surgicalset":
+			case "surgicalsetting":
+			case "surgicalbonesetting":
+				serviceType = HospitalServiceType.SurgicalBoneSetting;
+				return true;
+			case "cannulate":
+			case "cannulation":
+				serviceType = HospitalServiceType.Cannulation;
+				return true;
+			case "decannulate":
+			case "decannulation":
+				serviceType = HospitalServiceType.Decannulation;
+				return true;
+			case "finalise":
+			case "finalize":
+			case "surgeryfinalisation":
+			case "surgeryfinalization":
+			case "invasivefinalisation":
+			case "invasivefinalization":
+				serviceType = HospitalServiceType.InvasiveProcedureFinalisation;
+				return true;
+			case "installimplant":
+				serviceType = HospitalServiceType.InstallImplant;
+				return true;
+			case "removeimplant":
+				serviceType = HospitalServiceType.RemoveImplant;
+				return true;
+			case "implantpower":
+			case "configureimplantpower":
+				serviceType = HospitalServiceType.ConfigureImplantPower;
+				return true;
+			case "implantinterface":
+			case "configureimplantinterface":
+				serviceType = HospitalServiceType.ConfigureImplantInterface;
+				return true;
+			case "prosthetic":
+			case "prosthesis":
+			case "installprosthetic":
+				serviceType = HospitalServiceType.InstallProsthetic;
 				return true;
 			case "surgery":
 			case "surgical":

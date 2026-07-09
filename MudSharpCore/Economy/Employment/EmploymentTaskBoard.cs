@@ -5398,6 +5398,15 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 		if (!HospitalSupplyStockGoalPlanner.TryBuildActionPlan(concrete, context, out var actionPlan, out var planReason) ||
 		    actionPlan is null)
 		{
+			if (HospitalSupplyStockGoalPlanner.ShouldDeferWithoutTask(concrete.GoalType, planReason))
+			{
+				concrete.MarkEvaluated(now, planReason);
+				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+					concrete.LastEvaluationResult!, concrete.CorrelationId);
+				_host.DebugEmployment($"Manager goal #{concrete.Id:N0} did not create work: {concrete.LastEvaluationResult}");
+				return [];
+			}
+
 			concrete.Block(planReason);
 			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
 				concrete.LastEvaluationResult!, concrete.CorrelationId);

@@ -8,6 +8,7 @@ using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Units;
@@ -26,7 +27,169 @@ namespace MudSharp.Economy.Hospitals;
 
 public static class HospitalMedicalServiceRunner
 {
+	private const string BloodDonationPhase = "blooddonation";
+	private const string BloodTransfusionPhase = "bloodtransfusion";
+	private const string BloodWorkflowStageCannulating = "cannulating";
+	private const string BloodWorkflowStageDraining = "draining";
+	private const string BloodWorkflowStageDripping = "dripping";
+	private const string BloodWorkflowStageDecannulating = "decannulating";
+	private const double BloodWorkflowToleranceLitres = 0.01;
+
 	private sealed record UsageCharge(HospitalServiceType ServiceType, int Count);
+
+	private sealed class BloodWorkflowProgress
+	{
+		public string Kind { get; set; } = string.Empty;
+		public string Stage { get; set; } = string.Empty;
+		public long? ContainerId { get; set; }
+		public long? DripId { get; set; }
+		public long? CannulaId { get; set; }
+		public bool HospitalInsertedCannula { get; set; }
+		public bool UseSubstitute { get; set; }
+		public double TargetLitres { get; set; }
+		public double StartingPatientBloodLitres { get; set; }
+		public double StartingContainerVolume { get; set; }
+		public double StockBeforeLitres { get; set; }
+		public double CompletedLitres { get; set; }
+		public HashSet<long> UsedContainerIds { get; } = new();
+
+		public string ToPayload()
+		{
+			var parts = new List<string>
+			{
+				$"kind:{Kind}",
+				$"stage:{Stage}",
+				$"target:{TargetLitres.ToString("R", CultureInfo.InvariantCulture)}",
+				$"startblood:{StartingPatientBloodLitres.ToString("R", CultureInfo.InvariantCulture)}",
+				$"startcontainer:{StartingContainerVolume.ToString("R", CultureInfo.InvariantCulture)}",
+				$"stockbefore:{StockBeforeLitres.ToString("R", CultureInfo.InvariantCulture)}",
+				$"completed:{CompletedLitres.ToString("R", CultureInfo.InvariantCulture)}",
+				$"inserted:{HospitalInsertedCannula.ToString(CultureInfo.InvariantCulture)}",
+				$"substitute:{UseSubstitute.ToString(CultureInfo.InvariantCulture)}"
+			};
+			if (ContainerId is not null)
+			{
+				parts.Add($"container:{ContainerId.Value.ToString("F0", CultureInfo.InvariantCulture)}");
+			}
+
+			if (DripId is not null)
+			{
+				parts.Add($"drip:{DripId.Value.ToString("F0", CultureInfo.InvariantCulture)}");
+			}
+
+			if (CannulaId is not null)
+			{
+				parts.Add($"cannula:{CannulaId.Value.ToString("F0", CultureInfo.InvariantCulture)}");
+			}
+
+			if (UsedContainerIds.Any())
+			{
+				parts.Add($"used:{UsedContainerIds.OrderBy(x => x).Select(x => x.ToString("F0", CultureInfo.InvariantCulture)).ListToCommaSeparatedValues()}");
+			}
+
+			return string.Join('|', parts);
+		}
+
+		public static BloodWorkflowProgress? FromPayload(string payload)
+		{
+			var parts = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+			foreach (var part in payload.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+			{
+				var split = part.Split(':', 2, StringSplitOptions.TrimEntries);
+				if (split.Length != 2)
+				{
+					continue;
+				}
+
+				parts[split[0]] = split[1];
+			}
+
+			if (!parts.TryGetValue("kind", out var kind) ||
+			    !parts.TryGetValue("stage", out var stage))
+			{
+				return null;
+			}
+
+			var result = new BloodWorkflowProgress
+			{
+				Kind = kind,
+				Stage = stage
+			};
+
+			if (parts.TryGetValue("container", out var container) &&
+			    long.TryParse(container, NumberStyles.Any, CultureInfo.InvariantCulture, out var containerId))
+			{
+				result.ContainerId = containerId;
+			}
+
+			if (parts.TryGetValue("drip", out var drip) &&
+			    long.TryParse(drip, NumberStyles.Any, CultureInfo.InvariantCulture, out var dripId))
+			{
+				result.DripId = dripId;
+			}
+
+			if (parts.TryGetValue("cannula", out var cannula) &&
+			    long.TryParse(cannula, NumberStyles.Any, CultureInfo.InvariantCulture, out var cannulaId))
+			{
+				result.CannulaId = cannulaId;
+			}
+
+			if (parts.TryGetValue("target", out var target) &&
+			    double.TryParse(target, NumberStyles.Any, CultureInfo.InvariantCulture, out var targetLitres))
+			{
+				result.TargetLitres = Math.Max(0.0, targetLitres);
+			}
+
+			if (parts.TryGetValue("startblood", out var startBlood) &&
+			    double.TryParse(startBlood, NumberStyles.Any, CultureInfo.InvariantCulture, out var startBloodLitres))
+			{
+				result.StartingPatientBloodLitres = Math.Max(0.0, startBloodLitres);
+			}
+
+			if (parts.TryGetValue("startcontainer", out var startContainer) &&
+			    double.TryParse(startContainer, NumberStyles.Any, CultureInfo.InvariantCulture, out var startContainerVolume))
+			{
+				result.StartingContainerVolume = Math.Max(0.0, startContainerVolume);
+			}
+
+			if (parts.TryGetValue("stockbefore", out var stockBefore) &&
+			    double.TryParse(stockBefore, NumberStyles.Any, CultureInfo.InvariantCulture, out var stockBeforeLitres))
+			{
+				result.StockBeforeLitres = Math.Max(0.0, stockBeforeLitres);
+			}
+
+			if (parts.TryGetValue("completed", out var completed) &&
+			    double.TryParse(completed, NumberStyles.Any, CultureInfo.InvariantCulture, out var completedLitres))
+			{
+				result.CompletedLitres = Math.Max(0.0, completedLitres);
+			}
+
+			if (parts.TryGetValue("inserted", out var inserted) &&
+			    bool.TryParse(inserted, out var hospitalInsertedCannula))
+			{
+				result.HospitalInsertedCannula = hospitalInsertedCannula;
+			}
+
+			if (parts.TryGetValue("substitute", out var substitute) &&
+			    bool.TryParse(substitute, out var useSubstitute))
+			{
+				result.UseSubstitute = useSubstitute;
+			}
+
+			if (parts.TryGetValue("used", out var used))
+			{
+				foreach (var idText in used.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+				{
+					if (long.TryParse(idText, NumberStyles.Any, CultureInfo.InvariantCulture, out var usedId))
+					{
+						result.UsedContainerIds.Add(usedId);
+					}
+				}
+			}
+
+			return result;
+		}
+	}
 
 	private sealed class HospitalTreatmentProgress
 	{
@@ -34,6 +197,7 @@ public static class HospitalMedicalServiceRunner
 		public int ActiveExpectedCount { get; set; }
 		public HashSet<string> CompletedPhases { get; } = new(StringComparer.InvariantCultureIgnoreCase);
 		public Dictionary<HospitalServiceType, int> Charges { get; } = new();
+		public BloodWorkflowProgress? BloodWorkflow { get; set; }
 
 		public IReadOnlyList<UsageCharge> UsageCharges =>
 			Charges.Select(x => new UsageCharge(x.Key, x.Value)).ToList();
@@ -92,6 +256,11 @@ public static class HospitalMedicalServiceRunner
 					$"charges={Charges.Select(x => $"{x.Key}:{x.Value.ToString("F0", CultureInfo.InvariantCulture)}").ListToCommaSeparatedValues()}");
 			}
 
+			if (BloodWorkflow is not null)
+			{
+				parts.Add($"blood={BloodWorkflow.ToPayload()}");
+			}
+
 			return string.Join(';', parts);
 		}
 
@@ -146,6 +315,12 @@ public static class HospitalMedicalServiceRunner
 				}
 			}
 
+			if (parts.TryGetValue("blood", out var blood) &&
+			    BloodWorkflowProgress.FromPayload(blood) is { } bloodWorkflow)
+			{
+				progress.BloodWorkflow = bloodWorkflow;
+			}
+
 			return progress;
 		}
 	}
@@ -176,6 +351,64 @@ public static class HospitalMedicalServiceRunner
 		return service.ServiceType is HospitalServiceType.Binding or HospitalServiceType.WoundCleaning or
 			HospitalServiceType.WoundClosing or HospitalServiceType.WoundTending or HospitalServiceType.BoneRelocation or
 			HospitalServiceType.Stabilisation or HospitalServiceType.FullTreatment;
+	}
+
+	public static bool CanBeRequestedStandalone(IHospitalService service)
+	{
+		return service.OfferingMode is HospitalServiceOfferingMode.StandaloneAndCombined or
+			HospitalServiceOfferingMode.StandaloneOnly;
+	}
+
+	public static bool CanBeUsedByCombinedService(IHospitalService service)
+	{
+		return service.OfferingMode is HospitalServiceOfferingMode.StandaloneAndCombined or
+			HospitalServiceOfferingMode.CombinedOnly;
+	}
+
+	public static bool TryResolveSurgicalProcedureForService(ICharacter employee, ICharacter patient,
+		IHospitalService service, string? procedureParameters, out ISurgicalProcedure? procedure)
+	{
+		procedure = service.SurgicalProcedure ??
+		            ResolveSurgicalProcedureForService(employee, patient, service, procedureParameters);
+		if (procedure is null)
+		{
+			return false;
+		}
+
+		if (service.ImplantItemPrototype is not null)
+		{
+			return true;
+		}
+
+		var args = ServiceProcedureArguments(employee, patient, service, procedureParameters, procedure, false)
+			.ToArray();
+		return procedure.CanPerformProcedure(employee, patient, args);
+	}
+
+	public static SurgicalProcedureType? ServiceTypeToSurgicalProcedureType(HospitalServiceType serviceType)
+	{
+		return serviceType switch
+		{
+			HospitalServiceType.Triage => SurgicalProcedureType.Triage,
+			HospitalServiceType.DetailedExamination => SurgicalProcedureType.DetailedExamination,
+			HospitalServiceType.ExploratorySurgery => SurgicalProcedureType.ExploratorySurgery,
+			HospitalServiceType.TraumaControl => SurgicalProcedureType.TraumaControl,
+			HospitalServiceType.OrganStabilisation => SurgicalProcedureType.OrganStabilisation,
+			HospitalServiceType.OrganExtraction => SurgicalProcedureType.OrganExtraction,
+			HospitalServiceType.OrganTransplant => SurgicalProcedureType.OrganTransplant,
+			HospitalServiceType.Amputation => SurgicalProcedureType.Amputation,
+			HospitalServiceType.Replantation => SurgicalProcedureType.Replantation,
+			HospitalServiceType.SurgicalBoneSetting => SurgicalProcedureType.SurgicalBoneSetting,
+			HospitalServiceType.Cannulation => SurgicalProcedureType.Cannulation,
+			HospitalServiceType.Decannulation => SurgicalProcedureType.Decannulation,
+			HospitalServiceType.InvasiveProcedureFinalisation => SurgicalProcedureType.InvasiveProcedureFinalisation,
+			HospitalServiceType.InstallImplant => SurgicalProcedureType.InstallImplant,
+			HospitalServiceType.RemoveImplant => SurgicalProcedureType.RemoveImplant,
+			HospitalServiceType.ConfigureImplantPower => SurgicalProcedureType.ConfigureImplantPower,
+			HospitalServiceType.ConfigureImplantInterface => SurgicalProcedureType.ConfigureImplantInterface,
+			HospitalServiceType.InstallProsthetic => SurgicalProcedureType.InstallProsthetic,
+			_ => null
+		};
 	}
 
 	public static IReadOnlyCollection<TreatmentType> ImplicitTreatmentSupplyTypes(IHospitalService service)
@@ -246,10 +479,12 @@ public static class HospitalMedicalServiceRunner
 				CheckType.SurgicalSetCheck, "surgically set a fracture"),
 			HospitalServiceType.SurgicalProcedure or HospitalServiceType.ImplantProcedure =>
 				BeginSurgicalProcedure(context, employee, patient, hospital, request),
-			HospitalServiceType.BloodDonation => PerformBloodDonation(context, employee, patient, request),
-			HospitalServiceType.BloodTransfusion => PerformBloodTransfusion(context, employee, patient, request),
+			HospitalServiceType.BloodDonation => PerformBloodDonation(context, employee, patient, request, progress),
+			HospitalServiceType.BloodTransfusion => PerformBloodTransfusion(context, employee, patient, request, progress),
 			HospitalServiceType.Stabilisation => PerformStabilisation(context, employee, patient, hospital, request, progress),
 			HospitalServiceType.FullTreatment => PerformFullTreatment(context, employee, patient, hospital, request, progress),
+			_ when ServiceTypeToSurgicalProcedureType(request.Service.ServiceType) is not null =>
+				BeginSurgicalProcedure(context, employee, patient, hospital, request),
 			_ => new ServiceExecutionResult(false, "Unsupported hospital service type.", string.Empty)
 		};
 
@@ -274,6 +509,41 @@ public static class HospitalMedicalServiceRunner
 		}
 
 		return new EmploymentActionStepResult(true, completionMessage, true, OperationalState(hospital, request, result));
+	}
+
+	public static bool CleanupBloodWorkflowForTerminalRequest(IEmploymentTaskContext context, ICharacter employee,
+		IHospitalServiceRequest request)
+	{
+		var progress = HospitalTreatmentProgress.FromPayload(CurrentOperationalPayload(context), request);
+		if (progress.BloodWorkflow is null || request.Patient is not { } patient)
+		{
+			return false;
+		}
+
+		NeutralizeBloodWorkflowGear(context, employee, patient, request, progress.BloodWorkflow);
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
+			$"Cleaned up IV blood workflow gear for hospital request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)} after terminal interruption.",
+			CurrentCorrelationId(context));
+		return true;
+	}
+
+	public static bool CleanupBloodWorkflowForTerminalRequest(IHospital hospital, IHospitalServiceRequest request,
+		IEmploymentActiveTask? task, ICharacter employee)
+	{
+		if (task is not EmploymentActiveTask concrete)
+		{
+			return false;
+		}
+
+		var index = concrete.NextStepIndex;
+		if (index < 0)
+		{
+			return false;
+		}
+
+		var context = new EmploymentTaskContext(hospital);
+		context.HydrateTaskState(task, index);
+		return CleanupBloodWorkflowForTerminalRequest(context, employee, request);
 	}
 
 	private static EmploymentActionStepResult CompletedStep(IHospitalServiceRequest request, string message)
@@ -556,12 +826,17 @@ public static class HospitalMedicalServiceRunner
 		    patient.Body.TotalBloodVolumeLitres > 0.0 &&
 		    patient.Body.CurrentBloodVolumeLitres < patient.Body.TotalBloodVolumeLitres * 0.75)
 		{
-			var transfusion = PerformBloodTransfusion(context, employee, patient, request);
+			var transfusion = PerformBloodTransfusion(context, employee, patient, request, progress, true);
 			if (!transfusion.Success)
 			{
 				return progress.CompletedPhases.Any()
 					? CompleteCommandRoutedService(employee, patient, hospital, request, progress)
 					: transfusion with { Progress = progress };
+			}
+
+			if (!transfusion.Completed)
+			{
+				return transfusion;
 			}
 
 			progress.CompletedPhases.Add("transfusion");
@@ -627,9 +902,14 @@ public static class HospitalMedicalServiceRunner
 		    patient.Body.TotalBloodVolumeLitres > 0.0 &&
 		    patient.Body.CurrentBloodVolumeLitres < patient.Body.TotalBloodVolumeLitres)
 		{
-			var transfusion = PerformBloodTransfusion(context, employee, patient, request);
+			var transfusion = PerformBloodTransfusion(context, employee, patient, request, progress, true);
 			if (transfusion.Success)
 			{
+				if (!transfusion.Completed)
+				{
+					return transfusion;
+				}
+
 				progress.CompletedPhases.Add("transfusion");
 				progress.AddCharge(HospitalServiceType.BloodTransfusion);
 			}
@@ -949,12 +1229,51 @@ public static class HospitalMedicalServiceRunner
 		ICharacter patient, IHospital hospital, IHospitalServiceRequest request)
 	{
 		var service = request.Service;
-		if (service.SurgicalProcedure is not { } procedure)
+		var procedure = service.SurgicalProcedure ?? ResolveSurgicalProcedureForService(employee, patient, request);
+		if (procedure is null)
 		{
-			return new ServiceExecutionResult(false, $"Hospital service {service.Name} has no surgical procedure configured.", string.Empty);
+			return new ServiceExecutionResult(false, SurgicalResolverFailureMessage(service), string.Empty);
 		}
 
 		return BeginConfiguredSurgicalProcedure(context, employee, patient, hospital, request, procedure);
+	}
+
+	private static string SurgicalResolverFailureMessage(IHospitalService service)
+	{
+		return ServiceTypeToSurgicalProcedureType(service.ServiceType) is { } procedureType
+			? $"Hospital service {service.Name} has no available {procedureType.DescribeEnum()} procedure for this patient and doctor."
+			: $"Hospital service {service.Name} has no surgical procedure configured.";
+	}
+
+	private static ISurgicalProcedure? ResolveSurgicalProcedureForService(ICharacter employee, ICharacter patient,
+		IHospitalServiceRequest request)
+	{
+		return ResolveSurgicalProcedureForService(employee, patient, request.Service, request.ProcedureParameters);
+	}
+
+	private static ISurgicalProcedure? ResolveSurgicalProcedureForService(ICharacter employee, ICharacter patient,
+		IHospitalService service, string? procedureParameters)
+	{
+		if (ServiceTypeToSurgicalProcedureType(service.ServiceType) is not { } procedureType)
+		{
+			return null;
+		}
+
+		return employee.Gameworld.SurgicalProcedures
+		               .Where(x => x.Procedure == procedureType)
+		               .Where(x => x.TargetBodyType is null || patient.Body.Prototype.CountsAs(x.TargetBodyType))
+		               .OrderBy(x => x.Name)
+		               .FirstOrDefault(x =>
+		               {
+			               if (service.ImplantItemPrototype is not null)
+			               {
+				               return true;
+			               }
+
+			               var args = ServiceProcedureArguments(employee, patient, service, procedureParameters, x, false)
+				               .ToArray();
+			               return x.CanPerformProcedure(employee, patient, args);
+		               });
 	}
 
 	private static ServiceExecutionResult BeginConfiguredSurgicalProcedure(IEmploymentTaskContext context,
@@ -977,7 +1296,7 @@ public static class HospitalMedicalServiceRunner
 			}
 		}
 
-		var args = ServiceProcedureArguments(employee, patient, service).ToArray();
+		var args = ServiceProcedureArguments(employee, patient, request, procedure, true).ToArray();
 		var suppliedImplant = ServiceSuppliedImplant(employee, service, args);
 		if (!TryBeginTrackedProcedure(context, employee, patient, hospital, request, procedure, args, suppliedImplant,
 			out var reason))
@@ -994,6 +1313,31 @@ public static class HospitalMedicalServiceRunner
 		IHospitalServiceRequest request, ISurgicalProcedure procedure, bool completed, CheckOutcome outcome,
 		IGameItem? suppliedImplant)
 	{
+		var progress = HospitalTreatmentProgress.FromPayload(CurrentOperationalPayload(context), request);
+		if (progress.BloodWorkflow is not null &&
+		    procedure.Procedure is SurgicalProcedureType.Cannulation or SurgicalProcedureType.Decannulation)
+		{
+			if (completed)
+			{
+				context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
+					$"Continued staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {procedure.ProcedureName} completed with {outcome.Outcome.DescribeEnum()} outcome for the IV blood workflow.",
+					CurrentCorrelationId(context));
+				return;
+			}
+
+			if (request.Patient is { } patient)
+			{
+				NeutralizeBloodWorkflowGear(context, employee, patient, request, progress.BloodWorkflow);
+			}
+
+			request.MarkStatus(HospitalServiceRequestStatus.Failed,
+				$"{procedure.ProcedureName} aborted with {outcome.Outcome.DescribeEnum()} outcome during IV blood workflow.");
+			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
+				$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {procedure.ProcedureName} aborted with {outcome.Outcome.DescribeEnum()} outcome during IV blood workflow.",
+				CurrentCorrelationId(context));
+			return;
+		}
+
 		if (completed)
 		{
 			if (request.Service.AnesthesiaCannulationProcedure?.Id == procedure.Id)
@@ -1048,9 +1392,10 @@ public static class HospitalMedicalServiceRunner
 			return;
 		}
 
-		if (request.Service.SurgicalProcedure is not { } mainProcedure)
+		var mainProcedure = request.Service.SurgicalProcedure ?? ResolveSurgicalProcedureForService(employee, patient, request);
+		if (mainProcedure is null)
 		{
-			var message = $"Hospital service {request.Service.Name} has no surgical procedure configured after {completedProcedure.ProcedureName}.";
+			var message = $"{SurgicalResolverFailureMessage(request.Service)} after {completedProcedure.ProcedureName}.";
 			request.MarkStatus(HospitalServiceRequestStatus.Failed, message);
 			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
 				$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {message}",
@@ -1361,6 +1706,22 @@ public static class HospitalMedicalServiceRunner
 		return true;
 	}
 
+	private static void DisconnectIfNeeded(ICharacter employee, IConnectable source, IConnectable target)
+	{
+		if (source.ConnectedItems.All(x => x.Item2 != target))
+		{
+			return;
+		}
+
+		if (source.CanDisconnect(employee, target))
+		{
+			source.Disconnect(employee, target);
+			return;
+		}
+
+		source.RawDisconnect(target, true);
+	}
+
 	private static bool SetDripRate(ICharacter employee, IDrip drip, double primingVolume, out string reason)
 	{
 		reason = string.Empty;
@@ -1380,6 +1741,27 @@ public static class HospitalMedicalServiceRunner
 
 		reason = $"{drip.Parent.HowSeen(employee, true)} could not be set to a safe anesthetic drip rate.";
 		return false;
+	}
+
+	public static bool IsIvCapableLiquidContainerItem(IGameItem item, string switchMode)
+	{
+		return item.GetItemType<ILiquidContainer>() is IConnectable &&
+		       item.GetItemType<ISwitchable>() is { } switchable &&
+		       switchable.SwitchSettings.Any(x => x.EqualTo(switchMode));
+	}
+
+	private static bool IsIvCapableLiquidContainer(ILiquidContainer container, string switchMode)
+	{
+		return container is IConnectable &&
+		       container.Parent.GetItemType<ISwitchable>() is { } switchable &&
+		       switchable.SwitchSettings.Any(x => x.EqualTo(switchMode));
+	}
+
+	private static IEnumerable<ILiquidContainer> CandidateIvLiquidContainers(IEmploymentTaskContext context,
+		ICharacter employee, IHospitalServiceRequest request, string switchMode)
+	{
+		return CandidateLiquidContainers(context, employee, request)
+		       .Where(x => IsIvCapableLiquidContainer(x, switchMode));
 	}
 
 	private static double AnestheticConcentration(ILiquidContainer container, IDrug drug)
@@ -1415,6 +1797,235 @@ public static class HospitalMedicalServiceRunner
 		var connected = seed.SelectMany(x => x.GetItemTypes<IConnectable>())
 		                    .SelectMany(x => x.ConnectedItems.Select(y => y.Item2.Parent));
 		return seed.Concat(connected).DistinctBy(x => x.Id);
+	}
+
+	private static ISurgicalProcedure? ResolveBloodAccessProcedure(ICharacter employee, ICharacter patient,
+		IHospitalServiceRequest request, SurgicalProcedureType procedureType)
+	{
+		var serviceType = procedureType switch
+		{
+			SurgicalProcedureType.Cannulation => HospitalServiceType.Cannulation,
+			SurgicalProcedureType.Decannulation => HospitalServiceType.Decannulation,
+			_ => (HospitalServiceType?)null
+		};
+
+		if (serviceType is not null)
+		{
+			foreach (var service in request.Hospital.ActiveServices
+			                               .Where(x => x.ServiceType == serviceType.Value)
+			                               .Where(CanBeUsedByCombinedService))
+			{
+				var procedure = service.SurgicalProcedure ??
+				                ResolveSurgicalProcedureForService(employee, patient, service, service.ProcedureParameters);
+				if (procedure?.Procedure == procedureType)
+				{
+					return procedure;
+				}
+			}
+		}
+
+		return employee.Gameworld.SurgicalProcedures
+		               .Where(x => x.Procedure == procedureType)
+		               .Where(x => x.TargetBodyType is null || patient.Body.Prototype.CountsAs(x.TargetBodyType))
+		               .OrderBy(x => x.Name)
+		               .FirstOrDefault();
+	}
+
+	private static bool TryBeginBloodCannulation(IEmploymentTaskContext context, ICharacter employee,
+		ICharacter patient, IHospitalServiceRequest request, HospitalTreatmentProgress progress,
+		BloodWorkflowProgress workflow, out string message)
+	{
+		if (ResolveBloodAccessProcedure(employee, patient, request, SurgicalProcedureType.Cannulation) is not { } procedure)
+		{
+			message = "No hospital cannulation procedure is available for IV blood access.";
+			return false;
+		}
+
+		var cannulaItem = CandidateHospitalItems(context, employee, request)
+		                  .FirstOrDefault(x => x.GetItemType<ICannula>() is { } cannula &&
+		                                       patient.Body.Prototype.CountsAs(cannula.TargetBody));
+		if (cannulaItem is null)
+		{
+			message = "No prepared cannula suitable for the patient is available for IV blood access.";
+			return false;
+		}
+
+		if (!EnsureHeld(employee, cannulaItem, out message))
+		{
+			return false;
+		}
+
+		foreach (var bodypart in patient.Body.Bodyparts)
+		{
+			var args = new object[] { HeldItemSelector(employee, cannulaItem), bodypart.Name };
+			if (!procedure.CanPerformProcedure(employee, patient, args))
+			{
+				continue;
+			}
+
+			workflow.Stage = BloodWorkflowStageCannulating;
+			workflow.CannulaId = cannulaItem.Id;
+			workflow.HospitalInsertedCannula = true;
+			progress.BloodWorkflow = workflow;
+			if (!TryBeginTrackedProcedure(context, employee, patient, request.Hospital, request, procedure, args, null,
+				out message))
+			{
+				progress.BloodWorkflow = null;
+				return false;
+			}
+
+			message = $"{employee.HowSeen(employee, true)} began {procedure.ProcedureName.ColourName()} for IV blood access on {patient.HowSeen(employee)}.";
+			return true;
+		}
+
+		message = procedure.WhyCannotPerformProcedure(employee, patient, HeldItemSelector(employee, cannulaItem),
+			patient.Body.Bodyparts.FirstOrDefault()?.Name ?? string.Empty);
+		return false;
+	}
+
+	private static bool TryBeginBloodDecannulation(IEmploymentTaskContext context, ICharacter employee,
+		ICharacter patient, IHospitalServiceRequest request, HospitalTreatmentProgress progress,
+		BloodWorkflowProgress workflow, out string message)
+	{
+		if (PatientCannula(patient) is not { } cannula)
+		{
+			message = string.Empty;
+			return false;
+		}
+
+		if (ResolveBloodAccessProcedure(employee, patient, request, SurgicalProcedureType.Decannulation) is not { } procedure)
+		{
+			message = "No hospital decannulation procedure is available to remove the IV cannula.";
+			return false;
+		}
+
+		var args = new object[] { cannula.Parent.Keywords.FirstOrDefault() ?? cannula.Parent.Name };
+		if (!procedure.CanPerformProcedure(employee, patient, args))
+		{
+			message = procedure.WhyCannotPerformProcedure(employee, patient, args);
+			return false;
+		}
+
+		workflow.Stage = BloodWorkflowStageDecannulating;
+		workflow.CannulaId = cannula.Parent.Id;
+		progress.BloodWorkflow = workflow;
+		if (!TryBeginTrackedProcedure(context, employee, patient, request.Hospital, request, procedure, args, null,
+			out message))
+		{
+			return false;
+		}
+
+		message = $"{employee.HowSeen(employee, true)} began {procedure.ProcedureName.ColourName()} for {patient.HowSeen(employee)} after IV blood work.";
+		return true;
+	}
+
+	private static bool TryPrepareBloodIvCircuit(IEmploymentTaskContext context, ICharacter employee,
+		ICharacter patient, IHospitalServiceRequest request, HospitalTreatmentProgress progress,
+		BloodWorkflowProgress workflow, ILiquidContainer container, string switchMode, out string message)
+	{
+		if (PatientCannula(patient) is not { } cannula)
+		{
+			message = $"{patient.HowSeen(employee, true)} does not have a cannula installed for IV blood access.";
+			return false;
+		}
+
+		if (container is not IConnectable containerConnection)
+		{
+			message = $"{container.Parent.HowSeen(employee, true)} cannot be connected as an IV container.";
+			return false;
+		}
+
+		var items = CandidateHospitalItems(context, employee, request)
+		            .Append(container.Parent)
+		            .Append(cannula.Parent)
+		            .DistinctBy(x => x.Id)
+		            .ToList();
+		var drip = workflow.DripId is { } dripId
+			? items.FirstOrDefault(x => x.Id == dripId)?.GetItemType<IDrip>()
+			: null;
+		drip ??= items.Select(x => x.GetItemType<IDrip>()).Where(x => x is not null).Select(x => x!).FirstOrDefault();
+		if (drip is null)
+		{
+			message = "No prepared IV drip is available for IV blood access.";
+			return false;
+		}
+
+		if (!ConnectIfNeeded(employee, containerConnection, drip, out message) ||
+		    !ConnectIfNeeded(employee, drip, cannula, out message))
+		{
+			return false;
+		}
+
+		var targetAmount = workflow.TargetLitres / employee.Gameworld.UnitManager.BaseFluidToLitres;
+		if (!SetDripRate(employee, drip, targetAmount, out message))
+		{
+			return false;
+		}
+
+		if (container.Parent.GetItemType<ISwitchable>() is not { } switchable)
+		{
+			message = $"{container.Parent.HowSeen(employee, true)} cannot be switched into {switchMode} mode.";
+			return false;
+		}
+
+		if (!switchable.Switch(employee, switchMode))
+		{
+			message = switchable.WhyCannotSwitch(employee, switchMode);
+			return false;
+		}
+
+		workflow.ContainerId = container.Parent.Id;
+		workflow.DripId = drip.Parent.Id;
+		workflow.CannulaId = cannula.Parent.Id;
+		workflow.StartingPatientBloodLitres = patient.Body.CurrentBloodVolumeLitres;
+		workflow.StartingContainerVolume = container.LiquidVolume;
+		workflow.Stage = switchMode.EqualTo("drain") ? BloodWorkflowStageDraining : BloodWorkflowStageDripping;
+		progress.BloodWorkflow = workflow;
+		employee.OutputHandler.Send(new EmoteOutput(new Emote(
+			switchMode.EqualTo("drain")
+				? "@ connect|connects $1 through $2 to $0's cannula and start|starts drawing blood."
+				: "@ connect|connects $1 through $2 to $0's cannula and start|starts the transfusion.",
+			employee, patient, container.Parent, drip.Parent)));
+		message = string.Empty;
+		return true;
+	}
+
+	private static void NeutralizeBloodWorkflowGear(IEmploymentTaskContext context, ICharacter employee,
+		ICharacter patient, IHospitalServiceRequest request, BloodWorkflowProgress workflow)
+	{
+		var items = CandidateHospitalItems(context, employee, request)
+		            .Concat(patient.Body.Implants.Select(x => x.Parent))
+		            .DistinctBy(x => x.Id)
+		            .ToList();
+		var containerItem = workflow.ContainerId is { } containerId
+			? items.FirstOrDefault(x => x.Id == containerId)
+			: null;
+		var dripItem = workflow.DripId is { } dripId
+			? items.FirstOrDefault(x => x.Id == dripId)
+			: null;
+		var cannulaItem = workflow.CannulaId is { } cannulaId
+			? items.FirstOrDefault(x => x.Id == cannulaId)
+			: PatientCannula(patient)?.Parent;
+
+		if (containerItem?.GetItemType<ISwitchable>() is { } switchable &&
+		    switchable.SwitchSettings.Any(x => x.EqualTo("neutral")) &&
+		    switchable.CanSwitch(employee, "neutral"))
+		{
+			switchable.Switch(employee, "neutral");
+		}
+
+		var containerConnection = containerItem?.GetItemType<ILiquidContainer>() as IConnectable;
+		var drip = dripItem?.GetItemType<IDrip>();
+		var cannula = cannulaItem?.GetItemType<ICannula>();
+		if (containerConnection is not null && drip is not null)
+		{
+			DisconnectIfNeeded(employee, containerConnection, drip);
+		}
+
+		if (drip is not null && cannula is not null)
+		{
+			DisconnectIfNeeded(employee, drip, cannula);
+		}
 	}
 
 	private static IEnumerable<IGameItem> DeepItemsOrSelf(IGameItem item)
@@ -1456,7 +2067,8 @@ public static class HospitalMedicalServiceRunner
 
 	private static IGameItem? ServiceSuppliedImplant(ICharacter employee, IHospitalService service, object[] args)
 	{
-		if (service.ServiceType != HospitalServiceType.ImplantProcedure || service.ImplantItemPrototype is null ||
+		if (service.ServiceType is not (HospitalServiceType.ImplantProcedure or HospitalServiceType.InstallImplant) ||
+		    service.ImplantItemPrototype is null ||
 		    args.FirstOrDefault() is not string selector)
 		{
 			return null;
@@ -1470,7 +2082,8 @@ public static class HospitalMedicalServiceRunner
 		IGameItem? suppliedImplant, out string message)
 	{
 		message = string.Empty;
-		if (request.Service.ServiceType != HospitalServiceType.ImplantProcedure || suppliedImplant is null)
+		if (request.Service.ServiceType is not (HospitalServiceType.ImplantProcedure or HospitalServiceType.InstallImplant) ||
+		    suppliedImplant is null)
 		{
 			return ImplantPipelineResolution.NoNextStep;
 		}
@@ -1686,7 +2299,7 @@ public static class HospitalMedicalServiceRunner
 		}
 	}
 	private static ServiceExecutionResult PerformBloodDonation(IEmploymentTaskContext context, ICharacter employee,
-		ICharacter donor, IHospitalServiceRequest request)
+		ICharacter donor, IHospitalServiceRequest request, HospitalTreatmentProgress progress)
 	{
 		if (donor.Body.BloodLiquid is null || donor.Body.Bloodtype is null || donor.Body.TotalBloodVolumeLitres <= 0.0)
 		{
@@ -1695,33 +2308,180 @@ public static class HospitalMedicalServiceRunner
 
 		var amountLitres = request.Service.BloodVolumeLitres > 0.0 ? request.Service.BloodVolumeLitres : 0.5;
 		var safeMinimum = donor.Body.TotalBloodVolumeLitres * 0.8;
-		if (donor.Body.CurrentBloodVolumeLitres - amountLitres < safeMinimum)
+		var workflow = progress.BloodWorkflow;
+		var hasActiveWorkflow = workflow is not null && workflow.Kind.EqualTo(BloodDonationPhase);
+		if (!hasActiveWorkflow && donor.Body.CurrentBloodVolumeLitres - amountLitres < safeMinimum)
 		{
 			return new ServiceExecutionResult(false,
 				$"Removing {amountLitres.ToString("N2", employee)}L of blood would put {donor.HowSeen(employee)} below the safe donation threshold.", string.Empty);
 		}
 
-		var liquidAmount = amountLitres / donor.Gameworld.UnitManager.BaseFluidToLitres;
-		var container = CandidateLiquidContainers(context, employee, request)
+		if (workflow is null || !workflow.Kind.EqualTo(BloodDonationPhase))
+		{
+			workflow = new BloodWorkflowProgress
+			{
+				Kind = BloodDonationPhase,
+				TargetLitres = amountLitres,
+				StartingPatientBloodLitres = donor.Body.CurrentBloodVolumeLitres,
+				StockBeforeLitres = CurrentBloodStockLitres(request.Hospital, donor.Body.Bloodtype)
+			};
+			progress.ActivePhase = BloodDonationPhase;
+			progress.ActiveExpectedCount = 0;
+			progress.BloodWorkflow = workflow;
+		}
+
+		if (string.IsNullOrWhiteSpace(workflow.Stage))
+		{
+			return StartDonationWorkflow(context, employee, donor, request, progress, workflow);
+		}
+
+		if (workflow.Stage.EqualTo(BloodWorkflowStageCannulating))
+		{
+			if (PatientCannula(donor) is null)
+			{
+				return new ServiceExecutionResult(true,
+					$"{employee.HowSeen(employee, true)} is waiting for IV cannulation before blood donation from {donor.HowSeen(employee)}.",
+					workflow.CannulaId?.ToString("F0", CultureInfo.InvariantCulture) ?? string.Empty, false,
+					Progress: progress);
+			}
+
+			return StartDonationWorkflow(context, employee, donor, request, progress, workflow);
+		}
+
+		if (workflow.Stage.EqualTo(BloodWorkflowStageDecannulating))
+		{
+			if (PatientCannula(donor) is not null)
+			{
+				return new ServiceExecutionResult(true,
+					$"{employee.HowSeen(employee, true)} is waiting to remove the hospital-inserted cannula from {donor.HowSeen(employee)}.",
+					workflow.CannulaId?.ToString("F0", CultureInfo.InvariantCulture) ?? string.Empty, false,
+					Progress: progress);
+			}
+
+			return CompleteDonationWorkflow(context, employee, donor, request, progress, workflow);
+		}
+
+		if (!workflow.Stage.EqualTo(BloodWorkflowStageDraining))
+		{
+			return new ServiceExecutionResult(false, "The blood donation workflow is in an unknown state.", string.Empty,
+				Progress: progress);
+		}
+
+		var container = BloodWorkflowContainer(context, employee, request, workflow, "drain");
+		if (container is null)
+		{
+			NeutralizeBloodWorkflowGear(context, employee, donor, request, workflow);
+			return new ServiceExecutionResult(false, "The active blood donation IV container is no longer available.",
+				string.Empty, Progress: progress);
+		}
+
+		var collectedLitres = Math.Max(0.0,
+			(container.LiquidVolume - workflow.StartingContainerVolume) *
+			donor.Gameworld.UnitManager.BaseFluidToLitres);
+		var remainingCapacity = container.LiquidCapacity - container.LiquidVolume;
+		if (collectedLitres + BloodWorkflowToleranceLitres < workflow.TargetLitres &&
+		    remainingCapacity > 0.0 &&
+		    donor.Body.CurrentBloodVolumeLitres > safeMinimum + BloodWorkflowToleranceLitres)
+		{
+			return new ServiceExecutionResult(true,
+				$"{employee.HowSeen(employee, true)} is drawing blood from {donor.HowSeen(employee)} into {container.Parent.HowSeen(employee)}.",
+				container.Parent.Id.ToString("F0", CultureInfo.InvariantCulture), false, Progress: progress);
+		}
+
+		NeutralizeBloodWorkflowGear(context, employee, donor, request, workflow);
+		workflow.CompletedLitres = Math.Min(workflow.TargetLitres, collectedLitres);
+		workflow.UsedContainerIds.Add(container.Parent.Id);
+		if (workflow.CompletedLitres <= BloodWorkflowToleranceLitres)
+		{
+			progress.BloodWorkflow = null;
+			progress.ActivePhase = null;
+			return new ServiceExecutionResult(false, "No blood was collected before the donation workflow stopped.",
+				string.Empty, Progress: progress);
+		}
+
+		if (workflow.HospitalInsertedCannula && PatientCannula(donor) is not null)
+		{
+			if (!TryBeginBloodDecannulation(context, employee, donor, request, progress, workflow, out var decannulationMessage))
+			{
+				progress.BloodWorkflow = null;
+				progress.ActivePhase = null;
+				return new ServiceExecutionResult(false, decannulationMessage, string.Empty, Progress: progress);
+			}
+
+			return new ServiceExecutionResult(true, decannulationMessage,
+				container.Parent.Id.ToString("F0", CultureInfo.InvariantCulture), false, Progress: progress);
+		}
+
+		return CompleteDonationWorkflow(context, employee, donor, request, progress, workflow);
+	}
+
+	private static ServiceExecutionResult StartDonationWorkflow(IEmploymentTaskContext context, ICharacter employee,
+		ICharacter donor, IHospitalServiceRequest request, HospitalTreatmentProgress progress,
+		BloodWorkflowProgress workflow)
+	{
+		if (PatientCannula(donor) is not { } cannula)
+		{
+			if (!TryBeginBloodCannulation(context, employee, donor, request, progress, workflow, out var cannulationMessage))
+			{
+				progress.BloodWorkflow = null;
+				progress.ActivePhase = null;
+				return new ServiceExecutionResult(false, cannulationMessage, string.Empty, Progress: progress);
+			}
+
+			return new ServiceExecutionResult(true, cannulationMessage,
+				workflow.CannulaId?.ToString("F0", CultureInfo.InvariantCulture) ?? string.Empty, false,
+				Progress: progress);
+		}
+
+		workflow.HospitalInsertedCannula = workflow.HospitalInsertedCannula && workflow.CannulaId == cannula.Parent.Id;
+		workflow.CannulaId = cannula.Parent.Id;
+		var liquidAmount = workflow.TargetLitres / donor.Gameworld.UnitManager.BaseFluidToLitres;
+		var container = CandidateIvLiquidContainers(context, employee, request, "drain")
 		                .FirstOrDefault(x => x.LiquidCapacity - x.LiquidVolume >= liquidAmount &&
 		                                     (x.LiquidMixture is null || x.LiquidMixture.IsEmpty ||
 		                                      x.LiquidMixture.CanMerge(donor.Body.BloodLiquid)));
 		if (container is null)
 		{
+			progress.BloodWorkflow = null;
+			progress.ActivePhase = null;
 			return new ServiceExecutionResult(false,
-				$"There is no prepared liquid container with room for {amountLitres.ToString("N2", employee)}L of blood.", string.Empty);
+				$"There is no prepared IV blood container with room for {workflow.TargetLitres.ToString("N2", employee)}L of blood.",
+				string.Empty, Progress: progress);
 		}
 
-		var stockBefore = CurrentBloodStockLitres(request.Hospital, donor.Body.Bloodtype);
-		container.MergeLiquid(new LiquidMixture(new BloodLiquidInstance(donor, liquidAmount), donor.Gameworld), employee,
-			"hospitaldonation");
-		donor.Body.CurrentBloodVolumeLitres -= amountLitres;
+		if (!TryPrepareBloodIvCircuit(context, employee, donor, request, progress, workflow, container, "drain",
+			out var message))
+		{
+			progress.BloodWorkflow = null;
+			progress.ActivePhase = null;
+			return new ServiceExecutionResult(false, message, string.Empty, Progress: progress);
+		}
+
+		return new ServiceExecutionResult(true,
+			$"{employee.HowSeen(employee, true)} prepared an IV blood donation from {donor.HowSeen(employee)} into {container.Parent.HowSeen(employee)}.",
+			container.Parent.Id.ToString("F0", CultureInfo.InvariantCulture), false, Progress: progress);
+	}
+
+	private static ServiceExecutionResult CompleteDonationWorkflow(IEmploymentTaskContext context, ICharacter employee,
+		ICharacter donor, IHospitalServiceRequest request, HospitalTreatmentProgress progress,
+		BloodWorkflowProgress workflow)
+	{
+		progress.ActivePhase = null;
+		progress.ActiveExpectedCount = 0;
+		progress.CompletedPhases.Add(BloodDonationPhase);
+		progress.BloodWorkflow = null;
+		var amountLitres = workflow.CompletedLitres;
+		var containerId = workflow.UsedContainerIds.OrderBy(x => x).LastOrDefault();
 		employee.OutputHandler.Send(new EmoteOutput(new Emote(
-			"@ draw|draws blood from $0 into $1.", employee, donor, container.Parent)));
-		var payout = TryPayBloodDonor(context, employee, donor, request, amountLitres, stockBefore, out var payoutMessage);
+			"@ finish|finishes drawing blood from $0 and secure|secures the IV collection gear.", employee, donor)));
+		var payout = TryPayBloodDonor(context, employee, donor, request, amountLitres, workflow.StockBeforeLitres,
+			out var payoutMessage);
 		return new ServiceExecutionResult(true,
 			$"{employee.HowSeen(employee, true)} collected {amountLitres.ToString("N2", employee)}L of blood from {donor.HowSeen(employee)}{payoutMessage}",
-			payout ? $"{container.Parent.Id.ToString("F0", CultureInfo.InvariantCulture)};payout=true" : container.Parent.Id.ToString("F0", CultureInfo.InvariantCulture));
+			payout
+				? $"{containerId.ToString("F0", CultureInfo.InvariantCulture)};payout=true"
+				: containerId.ToString("F0", CultureInfo.InvariantCulture),
+			Progress: progress);
 	}
 
 	public static double CurrentBloodStockLitres(IHospital hospital, IBloodtype bloodtype)
@@ -1794,85 +2554,314 @@ public static class HospitalMedicalServiceRunner
 		return true;
 	}
 	private static ServiceExecutionResult PerformBloodTransfusion(IEmploymentTaskContext context, ICharacter employee,
-		ICharacter recipient, IHospitalServiceRequest request)
+		ICharacter recipient, IHospitalServiceRequest request, HospitalTreatmentProgress progress,
+		bool allowBloodVolumeSubstitute = false)
 	{
 		if (recipient.Body.BloodLiquid is null || recipient.Body.Bloodtype is null || recipient.Body.TotalBloodVolumeLitres <= 0.0)
 		{
 			return new ServiceExecutionResult(false, $"{recipient.HowSeen(employee, true)} cannot receive a blood transfusion.", string.Empty);
 		}
 
+		var workflow = progress.BloodWorkflow;
+		var hasActiveWorkflow = workflow is not null && workflow.Kind.EqualTo(BloodTransfusionPhase);
 		var neededLitres = Math.Min(request.Service.BloodVolumeLitres > 0.0 ? request.Service.BloodVolumeLitres : 0.5,
 			recipient.Body.TotalBloodVolumeLitres - recipient.Body.CurrentBloodVolumeLitres);
-		if (neededLitres <= 0.0)
+		if (neededLitres <= 0.0 && !hasActiveWorkflow)
 		{
 			return new ServiceExecutionResult(false, $"{recipient.HowSeen(employee, true)} does not need additional blood volume.", string.Empty);
 		}
 
-		var liquidAmount = neededLitres / recipient.Gameworld.UnitManager.BaseFluidToLitres;
-		var sawIncompatible = false;
-		foreach (var container in CandidateLiquidContainers(context, employee, request))
+		if (workflow is null || !workflow.Kind.EqualTo(BloodTransfusionPhase))
 		{
-			var blood = container.LiquidMixture?.Instances.OfType<BloodLiquidInstance>().ToList() ?? [];
-			if (!blood.Any())
+			var liquidAmount = neededLitres / recipient.Gameworld.UnitManager.BaseFluidToLitres;
+			var candidates = CompatibleBloodProductCandidates(context, employee, request, recipient)
+			                 .OrderByDescending(x => x.ExactMatch)
+			                 .ThenByDescending(x => x.Amount)
+			                 .ToList();
+			var totalCompatible = candidates.Sum(x => x.Amount);
+			var canUseSubstitute = allowBloodVolumeSubstitute &&
+			                       totalCompatible < liquidAmount &&
+			                       BloodVolumeSubstituteAmount(context, employee, request) >= liquidAmount;
+			if (totalCompatible < liquidAmount && !canUseSubstitute)
 			{
-				continue;
+				var sawIncompatible = CandidateIvLiquidContainers(context, employee, request, "drip")
+				                      .Any(x => (x.LiquidMixture?.Instances.OfType<BloodLiquidInstance>().Any(y =>
+					                      y.BloodType is null ||
+					                      !recipient.Body.Bloodtype.IsCompatibleWithDonorBlood(y.BloodType)) ?? false));
+				return new ServiceExecutionResult(false, sawIncompatible
+					? "The prepared IV blood product is not compatible with the recipient."
+					: $"No prepared IV blood product contains {neededLitres.ToString("N2", employee)}L of compatible blood.", string.Empty,
+					Progress: progress);
 			}
 
-			if (blood.Any(x => x.BloodType is null || recipient.Body.Bloodtype.IsCompatibleWithDonorBlood(x.BloodType) == false))
+			workflow = new BloodWorkflowProgress
 			{
-				sawIncompatible = true;
-				continue;
-			}
-
-			if (blood.Sum(x => x.Amount) < liquidAmount)
-			{
-				continue;
-			}
-
-			var removal = BuildBloodRemovalMixture(blood, liquidAmount, recipient.Gameworld);
-			container.LiquidMixture!.RemoveLiquid(removal);
-			recipient.HealthStrategy.InjectedLiquid(recipient, removal);
-			if (recipient.Body.CurrentBloodVolumeLitres > recipient.Body.TotalBloodVolumeLitres)
-			{
-				recipient.Body.CurrentBloodVolumeLitres = recipient.Body.TotalBloodVolumeLitres;
-			}
-
-			employee.OutputHandler.Send(new EmoteOutput(new Emote(
-				"@ transfuse|transfuses blood from $1 into $0.", employee, recipient, container.Parent)));
-			return new ServiceExecutionResult(true,
-				$"{employee.HowSeen(employee, true)} transfused {neededLitres.ToString("N2", employee)}L of compatible blood into {recipient.HowSeen(employee)}.",
-				container.Parent.Id.ToString("F0", CultureInfo.InvariantCulture));
+				Kind = BloodTransfusionPhase,
+				TargetLitres = neededLitres,
+				StartingPatientBloodLitres = recipient.Body.CurrentBloodVolumeLitres,
+				UseSubstitute = canUseSubstitute
+			};
+			progress.ActivePhase = BloodTransfusionPhase;
+			progress.ActiveExpectedCount = 0;
+			progress.BloodWorkflow = workflow;
 		}
 
-		return new ServiceExecutionResult(false, sawIncompatible
-			? "The prepared blood product is not compatible with the recipient."
-			: $"No prepared blood product contains {neededLitres.ToString("N2", employee)}L of compatible blood.", string.Empty);
+		if (string.IsNullOrWhiteSpace(workflow.Stage))
+		{
+			return StartTransfusionWorkflow(context, employee, recipient, request, progress, workflow);
+		}
+
+		if (workflow.Stage.EqualTo(BloodWorkflowStageCannulating))
+		{
+			if (PatientCannula(recipient) is null)
+			{
+				return new ServiceExecutionResult(true,
+					$"{employee.HowSeen(employee, true)} is waiting for IV cannulation before transfusion into {recipient.HowSeen(employee)}.",
+					workflow.CannulaId?.ToString("F0", CultureInfo.InvariantCulture) ?? string.Empty, false,
+					Progress: progress);
+			}
+
+			return StartTransfusionWorkflow(context, employee, recipient, request, progress, workflow);
+		}
+
+		if (workflow.Stage.EqualTo(BloodWorkflowStageDecannulating))
+		{
+			if (PatientCannula(recipient) is not null)
+			{
+				return new ServiceExecutionResult(true,
+					$"{employee.HowSeen(employee, true)} is waiting to remove the hospital-inserted cannula from {recipient.HowSeen(employee)}.",
+					workflow.CannulaId?.ToString("F0", CultureInfo.InvariantCulture) ?? string.Empty, false,
+					Progress: progress);
+			}
+
+			return CompleteTransfusionWorkflow(employee, recipient, progress, workflow);
+		}
+
+		if (!workflow.Stage.EqualTo(BloodWorkflowStageDripping))
+		{
+			return new ServiceExecutionResult(false, "The blood transfusion workflow is in an unknown state.",
+				string.Empty, Progress: progress);
+		}
+
+		var container = BloodWorkflowContainer(context, employee, request, workflow, "drip");
+		if (container is null)
+		{
+			NeutralizeBloodWorkflowGear(context, employee, recipient, request, workflow);
+			return new ServiceExecutionResult(false, "The active transfusion IV container is no longer available.",
+				string.Empty, Progress: progress);
+		}
+
+		var deliveredThisContainer = Math.Max(0.0,
+			recipient.Body.CurrentBloodVolumeLitres - workflow.StartingPatientBloodLitres);
+		var deliveredTotal = Math.Min(workflow.TargetLitres, workflow.CompletedLitres + deliveredThisContainer);
+		if (deliveredTotal + BloodWorkflowToleranceLitres >= workflow.TargetLitres ||
+		    recipient.Body.CurrentBloodVolumeLitres >= recipient.Body.TotalBloodVolumeLitres - BloodWorkflowToleranceLitres)
+		{
+			workflow.CompletedLitres = deliveredTotal;
+			workflow.UsedContainerIds.Add(container.Parent.Id);
+			NeutralizeBloodWorkflowGear(context, employee, recipient, request, workflow);
+			if (workflow.HospitalInsertedCannula && PatientCannula(recipient) is not null)
+			{
+				if (!TryBeginBloodDecannulation(context, employee, recipient, request, progress, workflow,
+					out var decannulationMessage))
+				{
+					progress.BloodWorkflow = null;
+					progress.ActivePhase = null;
+					return new ServiceExecutionResult(false, decannulationMessage, string.Empty, Progress: progress);
+				}
+
+				return new ServiceExecutionResult(true, decannulationMessage,
+					container.Parent.Id.ToString("F0", CultureInfo.InvariantCulture), false, Progress: progress);
+			}
+
+			return CompleteTransfusionWorkflow(employee, recipient, progress, workflow);
+		}
+
+		if (TransfusionLiquidAmount(container, recipient, workflow.UseSubstitute) > 0.0)
+		{
+			return new ServiceExecutionResult(true,
+				$"{employee.HowSeen(employee, true)} is administering {(workflow.UseSubstitute ? "blood-volume substitute" : "compatible blood")} to {recipient.HowSeen(employee)} through {container.Parent.HowSeen(employee)}.",
+				container.Parent.Id.ToString("F0", CultureInfo.InvariantCulture), false, Progress: progress);
+		}
+
+		workflow.CompletedLitres = deliveredTotal;
+		workflow.UsedContainerIds.Add(container.Parent.Id);
+		NeutralizeBloodWorkflowGear(context, employee, recipient, request, workflow);
+		var nextContainer = NextTransfusionContainer(context, employee, request, recipient, workflow);
+		if (nextContainer is null)
+		{
+			progress.BloodWorkflow = null;
+			progress.ActivePhase = null;
+			return new ServiceExecutionResult(false,
+				$"The transfusion stopped after {workflow.CompletedLitres.ToString("N2", employee)}L because no further compatible IV blood product was available.",
+				string.Empty, Progress: progress);
+		}
+
+		if (!TryPrepareBloodIvCircuit(context, employee, recipient, request, progress, workflow, nextContainer, "drip",
+			out var nextMessage))
+		{
+			progress.BloodWorkflow = null;
+			progress.ActivePhase = null;
+			return new ServiceExecutionResult(false, nextMessage, string.Empty, Progress: progress);
+		}
+
+		return new ServiceExecutionResult(true,
+			$"{employee.HowSeen(employee, true)} continued the transfusion for {recipient.HowSeen(employee)} with {nextContainer.Parent.HowSeen(employee)}.",
+			nextContainer.Parent.Id.ToString("F0", CultureInfo.InvariantCulture), false, Progress: progress);
 	}
 
-	private static LiquidMixture BuildBloodRemovalMixture(IEnumerable<BloodLiquidInstance> blood, double amount,
-		IFuturemud gameworld)
+	private static ServiceExecutionResult StartTransfusionWorkflow(IEmploymentTaskContext context, ICharacter employee,
+		ICharacter recipient, IHospitalServiceRequest request, HospitalTreatmentProgress progress,
+		BloodWorkflowProgress workflow)
 	{
-		var remaining = amount;
-		var instances = new List<LiquidInstance>();
-		foreach (var instance in blood)
+		if (PatientCannula(recipient) is not { } cannula)
 		{
-			var take = Math.Min(remaining, instance.Amount);
-			if (take <= 0.0)
+			if (!TryBeginBloodCannulation(context, employee, recipient, request, progress, workflow, out var cannulationMessage))
+			{
+				progress.BloodWorkflow = null;
+				progress.ActivePhase = null;
+				return new ServiceExecutionResult(false, cannulationMessage, string.Empty, Progress: progress);
+			}
+
+			return new ServiceExecutionResult(true, cannulationMessage,
+				workflow.CannulaId?.ToString("F0", CultureInfo.InvariantCulture) ?? string.Empty, false,
+				Progress: progress);
+		}
+
+		workflow.HospitalInsertedCannula = workflow.HospitalInsertedCannula && workflow.CannulaId == cannula.Parent.Id;
+		workflow.CannulaId = cannula.Parent.Id;
+		var container = NextTransfusionContainer(context, employee, request, recipient, workflow);
+		if (container is null)
+		{
+			progress.BloodWorkflow = null;
+			progress.ActivePhase = null;
+			return new ServiceExecutionResult(false,
+				workflow.UseSubstitute
+					? $"No prepared IV blood-volume substitute contains {workflow.TargetLitres.ToString("N2", employee)}L of injectable volume."
+					: $"No prepared IV blood product contains {workflow.TargetLitres.ToString("N2", employee)}L of compatible blood.",
+				string.Empty, Progress: progress);
+		}
+
+		if (!TryPrepareBloodIvCircuit(context, employee, recipient, request, progress, workflow, container, "drip",
+			out var message))
+		{
+			progress.BloodWorkflow = null;
+			progress.ActivePhase = null;
+			return new ServiceExecutionResult(false, message, string.Empty, Progress: progress);
+		}
+
+		return new ServiceExecutionResult(true,
+			workflow.UseSubstitute
+				? $"{employee.HowSeen(employee, true)} prepared an IV blood-volume substitute for {recipient.HowSeen(employee)} because compatible blood was insufficient."
+				: $"{employee.HowSeen(employee, true)} prepared compatible IV blood for transfusion into {recipient.HowSeen(employee)}.",
+			container.Parent.Id.ToString("F0", CultureInfo.InvariantCulture), false, Progress: progress);
+	}
+
+	private static ServiceExecutionResult CompleteTransfusionWorkflow(ICharacter employee, ICharacter recipient,
+		HospitalTreatmentProgress progress, BloodWorkflowProgress workflow)
+	{
+		progress.ActivePhase = null;
+		progress.ActiveExpectedCount = 0;
+		progress.CompletedPhases.Add(BloodTransfusionPhase);
+		progress.BloodWorkflow = null;
+		var amountLitres = Math.Min(workflow.TargetLitres, workflow.CompletedLitres);
+		employee.OutputHandler.Send(new EmoteOutput(new Emote(
+			workflow.UseSubstitute
+				? "@ finish|finishes administering an IV blood-volume substitute to $0 and secure|secures the IV gear."
+				: "@ finish|finishes transfusing compatible blood into $0 and secure|secures the IV gear.",
+			employee, recipient)));
+		return new ServiceExecutionResult(true,
+			workflow.UseSubstitute
+				? $"{employee.HowSeen(employee, true)} administered {amountLitres.ToString("N2", employee)}L of blood-volume substitute to {recipient.HowSeen(employee)} because compatible blood was insufficient."
+				: $"{employee.HowSeen(employee, true)} transfused {amountLitres.ToString("N2", employee)}L of compatible blood into {recipient.HowSeen(employee)} from {workflow.UsedContainerIds.Count.ToString("N0", employee)} container{(workflow.UsedContainerIds.Count == 1 ? "" : "s")}.",
+			workflow.UsedContainerIds.Select(x => x.ToString("F0", CultureInfo.InvariantCulture)).ListToCommaSeparatedValues(),
+			Progress: progress);
+	}
+
+	private sealed record BloodProductCandidate(ILiquidContainer Container, List<BloodLiquidInstance> Blood,
+		double Amount, bool ExactMatch);
+
+	private static ILiquidContainer? BloodWorkflowContainer(IEmploymentTaskContext context, ICharacter employee,
+		IHospitalServiceRequest request, BloodWorkflowProgress workflow, string switchMode)
+	{
+		if (workflow.ContainerId is not { } containerId)
+		{
+			return null;
+		}
+
+		return CandidateIvLiquidContainers(context, employee, request, switchMode)
+		       .FirstOrDefault(x => x.Parent.Id == containerId);
+	}
+
+	private static ILiquidContainer? NextTransfusionContainer(IEmploymentTaskContext context, ICharacter employee,
+		IHospitalServiceRequest request, ICharacter recipient, BloodWorkflowProgress workflow)
+	{
+		if (workflow.UseSubstitute)
+		{
+			return CandidateIvLiquidContainers(context, employee, request, "drip")
+			       .Where(x => !workflow.UsedContainerIds.Contains(x.Parent.Id))
+			       .Where(x => TransfusionLiquidAmount(x, recipient, true) > 0.0)
+			       .OrderByDescending(x => TransfusionLiquidAmount(x, recipient, true))
+			       .FirstOrDefault();
+		}
+
+		return CompatibleBloodProductCandidates(context, employee, request, recipient)
+		       .Where(x => !workflow.UsedContainerIds.Contains(x.Container.Parent.Id))
+		       .OrderByDescending(x => x.ExactMatch)
+		       .ThenByDescending(x => x.Amount)
+		       .Select(x => x.Container)
+		       .FirstOrDefault();
+	}
+
+	private static double TransfusionLiquidAmount(ILiquidContainer container, ICharacter recipient, bool useSubstitute)
+	{
+		if (useSubstitute)
+		{
+			return container.LiquidMixture?.Instances
+			                .Where(x => x.Liquid.InjectionConsequence == LiquidInjectionConsequence.BloodVolume)
+			                .Sum(x => x.Amount) ?? 0.0;
+		}
+
+		if (recipient.Body.Bloodtype is not { } bloodtype)
+		{
+			return 0.0;
+		}
+
+		var blood = container.LiquidMixture?.Instances.OfType<BloodLiquidInstance>().ToList() ?? [];
+		if (!blood.Any() ||
+		    blood.Any(x => x.BloodType is null || !bloodtype.IsCompatibleWithDonorBlood(x.BloodType)))
+		{
+			return 0.0;
+		}
+
+		return blood.Sum(x => x.Amount);
+	}
+
+	private static IEnumerable<BloodProductCandidate> CompatibleBloodProductCandidates(IEmploymentTaskContext context,
+		ICharacter employee, IHospitalServiceRequest request, ICharacter recipient)
+	{
+		foreach (var container in CandidateIvLiquidContainers(context, employee, request, "drip"))
+		{
+			var blood = container.LiquidMixture?.Instances.OfType<BloodLiquidInstance>().ToList() ?? [];
+			if (!blood.Any() ||
+			    blood.Any(x => x.BloodType is null ||
+			                   !recipient.Body.Bloodtype!.IsCompatibleWithDonorBlood(x.BloodType)))
 			{
 				continue;
 			}
 
-			var copy = (BloodLiquidInstance)instance.Copy();
-			copy.Amount = take;
-			instances.Add(copy);
-			remaining -= take;
-			if (remaining <= 0.0)
-			{
-				break;
-			}
+			yield return new BloodProductCandidate(container, blood, blood.Sum(x => x.Amount),
+				blood.All(x => x.BloodType?.Id == recipient.Body.Bloodtype!.Id));
 		}
+	}
 
-		return new LiquidMixture(instances, gameworld);
+	private static double BloodVolumeSubstituteAmount(IEmploymentTaskContext context, ICharacter employee,
+		IHospitalServiceRequest request)
+	{
+		return CandidateIvLiquidContainers(context, employee, request, "drip")
+		       .Sum(x => x.LiquidMixture?.Instances
+		                 .Where(y => y.Liquid.InjectionConsequence == LiquidInjectionConsequence.BloodVolume)
+		                 .Sum(y => y.Amount) ?? 0.0);
 	}
 
 	private static IEnumerable<ILiquidContainer> CandidateLiquidContainers(IEmploymentTaskContext context,
@@ -1883,9 +2872,16 @@ public static class HospitalMedicalServiceRunner
 	}
 
 	private static IEnumerable<object> ServiceProcedureArguments(ICharacter employee, ICharacter patient,
-		IHospitalService service)
+		IHospitalServiceRequest request, ISurgicalProcedure procedure, bool createServiceSuppliedItem)
 	{
-		if (service.ImplantItemPrototype is not null)
+		return ServiceProcedureArguments(employee, patient, request.Service, request.ProcedureParameters, procedure,
+			createServiceSuppliedItem);
+	}
+
+	private static IEnumerable<object> ServiceProcedureArguments(ICharacter employee, ICharacter patient,
+		IHospitalService service, string? procedureParameters, ISurgicalProcedure procedure, bool createServiceSuppliedItem)
+	{
+		if (service.ImplantItemPrototype is not null && createServiceSuppliedItem)
 		{
 			var implant = service.ImplantItemPrototype.CreateNew(employee);
 			employee.Gameworld.Add(implant);
@@ -1901,13 +2897,23 @@ public static class HospitalMedicalServiceRunner
 			yield return HeldItemSelector(employee, implant);
 		}
 
-		if (string.IsNullOrWhiteSpace(service.ProcedureParameters))
+		var parameterText = string.IsNullOrWhiteSpace(procedureParameters)
+			? service.ProcedureParameters
+			: procedureParameters;
+		if (string.IsNullOrWhiteSpace(parameterText))
 		{
+			foreach (var argument in AutomaticProcedureArguments(employee, patient, procedure))
+			{
+				yield return argument;
+			}
+
 			yield break;
 		}
 
-		foreach (var token in service.ProcedureParameters.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+		var stack = new StringStack(parameterText);
+		while (!stack.IsFinished)
 		{
+			var token = stack.PopSpeech();
 			if (patient.Body.GetTargetBodypart(token) is { } bodypart)
 			{
 				yield return bodypart;
@@ -1922,6 +2928,106 @@ public static class HospitalMedicalServiceRunner
 
 			yield return token;
 		}
+	}
+
+	private static IEnumerable<object> AutomaticProcedureArguments(ICharacter employee, ICharacter patient,
+		ISurgicalProcedure procedure)
+	{
+		switch (procedure.Procedure)
+		{
+			case SurgicalProcedureType.Triage:
+			case SurgicalProcedureType.DetailedExamination:
+				yield break;
+			case SurgicalProcedureType.Decannulation:
+				if (PatientCannula(patient)?.Parent is { } cannulaItem)
+				{
+					yield return cannulaItem.Keywords.FirstOrDefault() ?? cannulaItem.Name;
+				}
+				yield break;
+			case SurgicalProcedureType.Cannulation:
+			case SurgicalProcedureType.ExploratorySurgery:
+			case SurgicalProcedureType.TraumaControl:
+			case SurgicalProcedureType.Amputation:
+			case SurgicalProcedureType.Replantation:
+			case SurgicalProcedureType.SurgicalBoneSetting:
+			case SurgicalProcedureType.InvasiveProcedureFinalisation:
+			case SurgicalProcedureType.RemoveImplant:
+			case SurgicalProcedureType.ConfigureImplantPower:
+			case SurgicalProcedureType.ConfigureImplantInterface:
+				if (BestSurgicalBodypartTarget(patient, procedure) is { } bodypart)
+				{
+					yield return bodypart;
+				}
+				yield break;
+			case SurgicalProcedureType.InstallImplant:
+				if (BestSurgicalBodypartTarget(patient, procedure) is { } implantBodypart)
+				{
+					yield return implantBodypart;
+				}
+				yield break;
+			case SurgicalProcedureType.InstallProsthetic:
+				yield break;
+			case SurgicalProcedureType.OrganStabilisation:
+			case SurgicalProcedureType.OrganExtraction:
+				if (BestOrganSurgeryTarget(patient) is var (access, organ) && access is not null && organ is not null)
+				{
+					yield return access;
+					yield return organ;
+				}
+				yield break;
+			case SurgicalProcedureType.OrganTransplant:
+				if (BestSurgicalBodypartTarget(patient, procedure) is { } transplantAccess)
+				{
+					yield return transplantAccess;
+				}
+				yield break;
+		}
+	}
+
+	private static IBodypart? BestSurgicalBodypartTarget(ICharacter patient, ISurgicalProcedure procedure)
+	{
+		if (procedure.Procedure == SurgicalProcedureType.InvasiveProcedureFinalisation)
+		{
+			if (patient.EffectsOfType<SurgeryFinalisationRequired>()
+			           .Select(x => x.Bodypart)
+			           .FirstOrDefault() is { } finalisationBodypart)
+			{
+				return finalisationBodypart;
+			}
+		}
+
+		if (patient.Wounds
+		           .Where(x => x.Bodypart is IBodypart)
+		           .Select(x => (IBodypart)x.Bodypart)
+		           .FirstOrDefault() is { } woundBodypart)
+		{
+			return woundBodypart;
+		}
+
+		return patient.Body.Bodyparts.FirstOrDefault();
+	}
+
+	private static (IBodypart? AccessBodypart, IOrganProto? Organ) BestOrganSurgeryTarget(ICharacter patient)
+	{
+		var organ = patient.Wounds
+		                   .Where(x => x.Bodypart is IOrganProto)
+		                   .OrderByDescending(x => x.CurrentDamage)
+		                   .Select(x => (IOrganProto)x.Bodypart)
+		                   .FirstOrDefault() ??
+		            patient.Body.EffectsOfType<IInternalBleedingEffect>()
+		                   .OrderByDescending(x => x.BloodlossPerTick)
+		                   .Select(x => x.Organ)
+		                   .FirstOrDefault();
+		if (organ is null)
+		{
+			return (null, null);
+		}
+
+		var access = patient.Body.Bodyparts
+		                    .Where(x => x.Organs.Contains(organ))
+		                    .FirstMax(x => (x.Alignment.FrontRearOnly() == Alignment.Front ? 10 : 1) *
+		                                   x.RelativeHitChance);
+		return (access, organ);
 	}
 
 	private static string HeldItemSelector(ICharacter employee, IGameItem item)

@@ -1017,6 +1017,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 			"commodity" => TryParseCommodityThreshold(actor, input, out condition, out message),
 			"stock" => TryParseStock(host, input, out condition, out message),
 			"hospitalstock" => TryParseHospitalStock(host, input, out condition, out message),
+			"hospitaltheatre" => TryParseHospitalTheatreStock(host, input, out condition, out message),
 			"account" => TryParseAccount(host, input, out condition, out message),
 			"shopaccount" => TryParseShopAccount(actor, input, out condition, out message),
 			"float" => TryParseFloat(actor, host, input, out condition, out message),
@@ -1041,6 +1042,8 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 				$"stock {DescribeStockKey(stock.StockKey, host).ColourName()} {(stock.BelowThreshold ? "below" : "at least").ColourCommand()} {stock.Threshold.ToString("N0", actor).ColourValue()}",
 			HospitalSupplyStockCondition hospitalStock =>
 				HospitalSupplyStockCondition.Describe(hospitalStock, actor).ColourName(),
+			HospitalTheatreStockCondition theatreStock =>
+				HospitalTheatreStockCondition.Describe(theatreStock, actor).ColourName(),
 			AccountBalanceCondition account =>
 				$"account {DescribeAccountKey(account.AccountKey).ColourName()} {(account.BelowThreshold ? "below" : "at least").ColourCommand()} {account.Threshold.ToString("N2", actor).ColourValue()}",
 			ItemThresholdCondition item =>
@@ -1359,6 +1362,41 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		return true;
 	}
 
+	private static bool TryParseHospitalTheatreStock(IEmploymentHost host, StringStack input,
+		out IEmploymentTaskCondition condition, out string message)
+	{
+		condition = null!;
+		if (host is not IHospital)
+		{
+			message = "Hospital theatre stock conditions can only be used with hospital employment hosts.";
+			return false;
+		}
+
+		if (input.IsFinished || !TryParseHospitalStockItemType(input.PopSpeech(), out var itemType))
+		{
+			message = $"Hospital theatre stock conditions use the syntax: {"tasks rule condition hospitaltheatre consumables|tools <procedure-count>".ColourCommand()}";
+			return false;
+		}
+
+		if (input.IsFinished ||
+		    !int.TryParse(input.PopSpeech(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var procedureCount) ||
+		    procedureCount <= 0)
+		{
+			message = "How many procedure repeats should each operating theatre stage supplies for?";
+			return false;
+		}
+
+		if (!input.IsFinished)
+		{
+			message = $"Unknown hospital theatre stock option {input.SafeRemainingArgument.ColourCommand()}.";
+			return false;
+		}
+
+		condition = new HospitalTheatreStockCondition(itemType, procedureCount);
+		message = string.Empty;
+		return true;
+	}
+
 	private static bool TryParseHospitalStock(IEmploymentHost host, StringStack input,
 		out IEmploymentTaskCondition condition, out string message)
 	{
@@ -1429,12 +1467,12 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 	{
 		itemType = text.CollapseString().ToLowerInvariant() switch
 		{
-			"consumable" or "consume" or "consumables" or "disposable" or "stock" => HospitalServiceSupplyItemType.Consumable,
+			"consumable" or "consume" or "consumables" or "disposable" or "stock" or "supply" or "supplies" => HospitalServiceSupplyItemType.Consumable,
 			"reusable" or "tool" or "tools" or "equipment" or "reuse" => HospitalServiceSupplyItemType.ReusableTool,
 			_ => HospitalServiceSupplyItemType.ReusableTool
 		};
 
-		return text.CollapseString().ToLowerInvariant().EqualToAny("consumable", "consume", "consumables", "disposable", "stock", "reusable", "tool", "tools", "equipment", "reuse");
+		return text.CollapseString().ToLowerInvariant().EqualToAny("consumable", "consume", "consumables", "disposable", "stock", "supply", "supplies", "reusable", "tool", "tools", "equipment", "reuse");
 	}
 
 	private static bool TryParseConditionMoney(IEmploymentHost host, string text, out decimal amount, out string message)

@@ -3118,6 +3118,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			EmploymentTaskConditionType.HospitalSupplyStock =>
 				HospitalSupplyStockCondition.FromRecord(record.Key ?? string.Empty, record.ThresholdInt ?? 30,
 					record.ThresholdDecimal),
+			EmploymentTaskConditionType.HospitalTheatreStock =>
+				HospitalTheatreStockCondition.FromRecord(record.Key ?? string.Empty, record.ThresholdInt ?? 1),
 			_ => null
 		};
 	}
@@ -3204,6 +3206,10 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.Key = hospitalStock.Key;
 				record.ThresholdInt = hospitalStock.ProcedureCount;
 				record.ThresholdDecimal = hospitalStock.MaximumLineAmount;
+				break;
+			case HospitalTheatreStockCondition theatreStock:
+				record.Key = theatreStock.Key;
+				record.ThresholdInt = theatreStock.ProcedureCount;
 				break;
 		}
 

@@ -149,12 +149,14 @@ public class PrimaryProductionSeederTests
 	public void PrimaryProductionIntegration_WiresToolsCraftsMaterialsAndMetadata()
 	{
 		string reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
+		string sharedBaseline = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PreIndustrialBaseline.cs");
 		string craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
 		string tools = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PrimaryProductionTools.cs");
 		string materials = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
 		string metadata = ReadSource("DatabaseSeeder", "SeederMetadataRegistry.cs");
 
-		AssertContains(reworkRoot, "SeedPrimaryProductionToolsAndProps();");
+		AssertContains(reworkRoot, "SeedSharedPreIndustrialBaselineItems();");
+		AssertContains(sharedBaseline, "SeedPrimaryProductionToolsAndProps();");
 		AssertContains(craftRoot, "SeedPrimaryProductionCommodityCrafts();");
 		AssertContains(metadata, "nameof(PrimaryProductionSeeder)");
 		AssertContains(metadata, "SeederRepeatabilityMode.Idempotent");

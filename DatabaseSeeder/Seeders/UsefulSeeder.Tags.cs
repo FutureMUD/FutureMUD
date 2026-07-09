@@ -58,6 +58,8 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Dark Ages Era", "Era");
             AddTag(context, "Medieval Era", "Era");
             AddTag(context, "Renaissance Era", "Era");
+            AddTag(context, "Early Modern Era", "Era");
+            AddTag(context, "Pre-Industrial Era", "Era");
             AddTag(context, "Colonial Era", "Era");
             AddTag(context, "Industrial Era", "Era");
             AddTag(context, "Modern Era", "Era");
@@ -68,6 +70,7 @@ namespace DatabaseSeeder.Seeders
 
             // Functions
             AddTag(context, "Functions", "");
+            AddTag(context, "Civic Fixtures", "Functions");
 
             AddTag(context, "Material Functions", "Functions");
             AddTag(context, "Kindling", "Material Functions");
@@ -546,6 +549,7 @@ namespace DatabaseSeeder.Seeders
 
             // Tools
             AddTag(context, "Tools", "Functions");
+            AddTag(context, "Timekeeping Tools", "Tools");
 
             AddTag(context, "Mining Tool", "Tools");
             AddTag(context, "Prospecting Tool", "Tools");

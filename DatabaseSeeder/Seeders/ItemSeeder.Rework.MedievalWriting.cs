@@ -22,15 +22,15 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Parchment"
+				"Market / Writing Materials / Parchment"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Sheet_Surface"
+				"Medieval_Parchment_Sheet_Surface"
 			],
 			null,
 			null,
@@ -52,15 +52,15 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Parchment"
+				"Market / Writing Materials / Parchment"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Sheet_Surface"
+				"Medieval_Parchment_Sheet_Surface"
 			],
 			null,
 			null,
@@ -82,15 +82,15 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Parchment"
+				"Market / Writing Materials / Parchment"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Sheet_Surface"
+				"Medieval_Parchment_Sheet_Surface"
 			],
 			null,
 			null,
@@ -112,15 +112,15 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Parchment"
+				"Market / Writing Materials / Parchment"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Bifolium_Surface"
+				"Medieval_Parchment_Bifolium_Surface"
 			],
 			null,
 			null,
@@ -142,15 +142,15 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Parchment"
+				"Market / Writing Materials / Parchment"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Bifolium_Surface"
+				"Medieval_Parchment_Bifolium_Surface"
 			],
 			null,
 			null,
@@ -172,15 +172,15 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Parchment"
+				"Market / Writing Materials / Parchment"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Sheet_Surface"
+				"Medieval_Parchment_Sheet_Surface"
 			],
 			null,
 			null,
@@ -202,15 +202,15 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Parchment"
+				"Market / Writing Materials / Parchment"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Sheet_Surface"
+				"Medieval_Parchment_Sheet_Surface"
 			],
 			null,
 			null,
@@ -232,15 +232,15 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Parchment"
+				"Market / Writing Materials / Parchment"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Sheet_Surface"
+				"Medieval_Parchment_Sheet_Surface"
 			],
 			null,
 			null,
@@ -262,15 +262,15 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Parchment"
+				"Market / Writing Materials / Parchment"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Sheet_Surface"
+				"Medieval_Parchment_Sheet_Surface"
 			],
 			null,
 			null,
@@ -292,15 +292,15 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Rag_Paper_Sheet_Surface"
+				"Medieval_Rag_Paper_Sheet_Surface"
 			],
 			null,
 			null,
@@ -322,15 +322,15 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Rag_Paper_Sheet_Surface"
+				"Medieval_Rag_Paper_Sheet_Surface"
 			],
 			null,
 			null,
@@ -352,15 +352,15 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Rag_Paper_Sheet_Surface"
+				"Medieval_Rag_Paper_Sheet_Surface"
 			],
 			null,
 			null,
@@ -382,15 +382,15 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Rag_Paper_Letter_Surface"
+				"Medieval_Rag_Paper_Letter_Surface"
 			],
 			null,
 			null,
@@ -412,15 +412,15 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Rag_Paper_Letter_Surface"
+				"Medieval_Rag_Paper_Letter_Surface"
 			],
 			null,
 			null,
@@ -442,15 +442,15 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Rag_Paper_Sheet_Surface"
+				"Medieval_Rag_Paper_Sheet_Surface"
 			],
 			null,
 			null,
@@ -472,15 +472,15 @@ public partial class ItemSeeder
 			false,
 			"papyrus",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Papyrus"
+				"Market / Writing Materials / Papyrus"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Papyrus_Sheet_Surface"
+				"Medieval_Papyrus_Sheet_Surface"
 			],
 			null,
 			null,
@@ -502,15 +502,15 @@ public partial class ItemSeeder
 			false,
 			"papyrus",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Papyrus"
+				"Market / Writing Materials / Papyrus"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Papyrus_Sheet_Surface"
+				"Medieval_Papyrus_Sheet_Surface"
 			],
 			null,
 			null,
@@ -532,15 +532,15 @@ public partial class ItemSeeder
 			false,
 			"papyrus",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Papyrus"
+				"Market / Writing Materials / Papyrus"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Papyrus_Sheet_Surface"
+				"Medieval_Papyrus_Sheet_Surface"
 			],
 			null,
 			null,
@@ -562,15 +562,15 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_East_Asian_Paper_Sheet_Surface"
+				"Medieval_East_Asian_Paper_Sheet_Surface"
 			],
 			null,
 			null,
@@ -592,15 +592,15 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_East_Asian_Paper_Sheet_Surface"
+				"Medieval_East_Asian_Paper_Sheet_Surface"
 			],
 			null,
 			null,
@@ -622,15 +622,15 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_East_Asian_Paper_Sheet_Surface"
+				"Medieval_East_Asian_Paper_Sheet_Surface"
 			],
 			null,
 			null,
@@ -652,15 +652,15 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_East_Asian_Paper_Sheet_Surface"
+				"Medieval_East_Asian_Paper_Sheet_Surface"
 			],
 			null,
 			null,
@@ -682,15 +682,15 @@ public partial class ItemSeeder
 			false,
 			"birch",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Birch_Bark_Surface"
+				"Medieval_Birch_Bark_Surface"
 			],
 			null,
 			null,
@@ -712,15 +712,15 @@ public partial class ItemSeeder
 			false,
 			"birch",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Birch_Bark_Surface"
+				"Medieval_Birch_Bark_Surface"
 			],
 			null,
 			null,
@@ -742,15 +742,15 @@ public partial class ItemSeeder
 			false,
 			"birch",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Birch_Bark_Surface"
+				"Medieval_Birch_Bark_Surface"
 			],
 			null,
 			null,
@@ -772,15 +772,15 @@ public partial class ItemSeeder
 			false,
 			"leaf",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Palm_Leaf_Manuscript_Surface"
+				"Medieval_Palm_Leaf_Manuscript_Surface"
 			],
 			null,
 			null,
@@ -802,15 +802,15 @@ public partial class ItemSeeder
 			false,
 			"leaf",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Palm_Leaf_Manuscript_Surface"
+				"Medieval_Palm_Leaf_Manuscript_Surface"
 			],
 			null,
 			null,
@@ -832,15 +832,15 @@ public partial class ItemSeeder
 			false,
 			"leaf",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Palm_Leaf_Manuscript_Surface"
+				"Medieval_Palm_Leaf_Manuscript_Surface"
 			],
 			null,
 			null,
@@ -862,15 +862,15 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Bamboo_Slip_Surface"
+				"Medieval_Bamboo_Slip_Surface"
 			],
 			null,
 			null,
@@ -892,15 +892,15 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Bamboo_Slip_Surface"
+				"Medieval_Bamboo_Slip_Surface"
 			],
 			null,
 			null,
@@ -922,15 +922,15 @@ public partial class ItemSeeder
 			false,
 			"fired clay",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Clay Tablets"
+				"Market / Writing Materials / Clay Tablets"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Ostracon_Surface"
+				"Medieval_Ostracon_Surface"
 			],
 			null,
 			null,
@@ -952,15 +952,15 @@ public partial class ItemSeeder
 			false,
 			"ceramic",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Clay Tablets"
+				"Market / Writing Materials / Clay Tablets"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Ostracon_Surface"
+				"Medieval_Ostracon_Surface"
 			],
 			null,
 			null,
@@ -982,14 +982,14 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Parchment"
+				"Market / Writing Materials / Parchment"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Stack_Number"
+				"Stack_Number"
 			],
 			null,
 			null,
@@ -1011,14 +1011,14 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Stack_Number"
+				"Stack_Number"
 			],
 			null,
 			null,
@@ -1040,14 +1040,14 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Stack_Number"
+				"Stack_Number"
 			],
 			null,
 			null,
@@ -1069,14 +1069,14 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Document Containers"
+				"Market / Writing Materials / Document Containers"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Stack_Number"
+				"Stack_Number"
 			],
 			null,
 			null,
@@ -1098,14 +1098,14 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Stack_Number"
+				"Stack_Number"
 			],
 			null,
 			null,
@@ -1127,16 +1127,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Roll_Surface"
+				"Medieval_Parchment_Roll_Surface"
 			],
 			null,
 			null,
@@ -1158,16 +1158,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Roll_Surface"
+				"Medieval_Parchment_Roll_Surface"
 			],
 			null,
 			null,
@@ -1189,16 +1189,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Roll_Surface"
+				"Medieval_Parchment_Roll_Surface"
 			],
 			null,
 			null,
@@ -1220,16 +1220,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Roll_Surface"
+				"Medieval_Parchment_Roll_Surface"
 			],
 			null,
 			null,
@@ -1251,16 +1251,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Roll_Surface"
+				"Medieval_Parchment_Roll_Surface"
 			],
 			null,
 			null,
@@ -1282,16 +1282,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Roll_Surface"
+				"Medieval_Parchment_Roll_Surface"
 			],
 			null,
 			null,
@@ -1313,16 +1313,16 @@ public partial class ItemSeeder
 			false,
 			"papyrus",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Papyrus_Scroll_Surface"
+				"Medieval_Papyrus_Scroll_Surface"
 			],
 			null,
 			null,
@@ -1344,16 +1344,16 @@ public partial class ItemSeeder
 			false,
 			"papyrus",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Papyrus_Scroll_Surface"
+				"Medieval_Papyrus_Scroll_Surface"
 			],
 			null,
 			null,
@@ -1375,16 +1375,16 @@ public partial class ItemSeeder
 			false,
 			"papyrus",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Papyrus_Scroll_Surface"
+				"Medieval_Papyrus_Scroll_Surface"
 			],
 			null,
 			null,
@@ -1406,16 +1406,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Rag_Paper_Scroll_Surface"
+				"Medieval_Rag_Paper_Scroll_Surface"
 			],
 			null,
 			null,
@@ -1437,16 +1437,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_East_Asian_Paper_Scroll_Surface"
+				"Medieval_East_Asian_Paper_Scroll_Surface"
 			],
 			null,
 			null,
@@ -1468,16 +1468,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_East_Asian_Paper_Scroll_Surface"
+				"Medieval_East_Asian_Paper_Scroll_Surface"
 			],
 			null,
 			null,
@@ -1499,16 +1499,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Scroll",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Scrolls"
+				"Market / Writing Materials / Scrolls"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_East_Asian_Paper_Scroll_Surface"
+				"Medieval_East_Asian_Paper_Scroll_Surface"
 			],
 			null,
 			null,
@@ -1530,16 +1530,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Codex_20_Page"
+				"Medieval_Parchment_Codex_20_Page"
 			],
 			null,
 			null,
@@ -1561,16 +1561,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Codex_40_Page"
+				"Medieval_Parchment_Codex_40_Page"
 			],
 			null,
 			null,
@@ -1592,16 +1592,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Codex_90_Page"
+				"Medieval_Parchment_Codex_90_Page"
 			],
 			null,
 			null,
@@ -1623,16 +1623,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Codex_20_Page"
+				"Medieval_Parchment_Codex_20_Page"
 			],
 			null,
 			null,
@@ -1654,16 +1654,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Codex_90_Page"
+				"Medieval_Parchment_Codex_90_Page"
 			],
 			null,
 			null,
@@ -1685,16 +1685,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Codex_90_Page"
+				"Medieval_Parchment_Codex_90_Page"
 			],
 			null,
 			null,
@@ -1716,16 +1716,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Parchment_Codex_40_Page"
+				"Medieval_Parchment_Codex_40_Page"
 			],
 			null,
 			null,
@@ -1747,16 +1747,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Account_Ledger_90_Page"
+				"Medieval_Account_Ledger_90_Page"
 			],
 			null,
 			null,
@@ -1778,16 +1778,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Account_Ledger_90_Page"
+				"Medieval_Account_Ledger_90_Page"
 			],
 			null,
 			null,
@@ -1809,16 +1809,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Account_Ledger_90_Page"
+				"Medieval_Account_Ledger_90_Page"
 			],
 			null,
 			null,
@@ -1840,16 +1840,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Rag_Paper_Codex_40_Page"
+				"Medieval_Rag_Paper_Codex_40_Page"
 			],
 			null,
 			null,
@@ -1871,16 +1871,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Rag_Paper_Codex_40_Page"
+				"Medieval_Rag_Paper_Codex_40_Page"
 			],
 			null,
 			null,
@@ -1902,16 +1902,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Rag_Paper_Codex_40_Page"
+				"Medieval_Rag_Paper_Codex_40_Page"
 			],
 			null,
 			null,
@@ -1933,16 +1933,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_East_Asian_Stitched_Book"
+				"Medieval_East_Asian_Stitched_Book"
 			],
 			null,
 			null,
@@ -1964,16 +1964,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_East_Asian_Stitched_Book"
+				"Medieval_East_Asian_Stitched_Book"
 			],
 			null,
 			null,
@@ -1995,16 +1995,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_East_Asian_Stitched_Book"
+				"Medieval_East_Asian_Stitched_Book"
 			],
 			null,
 			null,
@@ -2026,16 +2026,16 @@ public partial class ItemSeeder
 			false,
 			"leaf",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Palm_Leaf_Manuscript_Bundle"
+				"Medieval_Palm_Leaf_Manuscript_Bundle"
 			],
 			null,
 			null,
@@ -2057,16 +2057,16 @@ public partial class ItemSeeder
 			false,
 			"leaf",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Palm_Leaf_Manuscript_Bundle"
+				"Medieval_Palm_Leaf_Manuscript_Bundle"
 			],
 			null,
 			null,
@@ -2088,16 +2088,16 @@ public partial class ItemSeeder
 			false,
 			"leaf",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Surface / Codex",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Medieval_Palm_Leaf_Manuscript_Bundle"
+				"Medieval_Palm_Leaf_Manuscript_Bundle"
 			],
 			null,
 			null,
@@ -2119,13 +2119,13 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Codices"
+				"Market / Writing Materials / Codices"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Paper"
+				"Holdable",
+				"Destroyable_Paper"
 			],
 			null,
 			null,
@@ -2147,13 +2147,13 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Paper"
+				"Holdable",
+				"Destroyable_Paper"
 			],
 			null,
 			null,
@@ -2175,13 +2175,13 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Parchment"
+				"Market / Writing Materials / Parchment"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Paper"
+				"Holdable",
+				"Destroyable_Paper"
 			],
 			null,
 			null,
@@ -2203,15 +2203,15 @@ public partial class ItemSeeder
 			false,
 			"beeswax",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Wax Tablets"
+				"Market / Writing Materials / Wax Tablets"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Wax_Tablet_Surface"
+				"Medieval_Wax_Tablet_Surface"
 			],
 			null,
 			null,
@@ -2233,15 +2233,15 @@ public partial class ItemSeeder
 			false,
 			"beeswax",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Wax Tablets"
+				"Market / Writing Materials / Wax Tablets"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Wax_Tablet_Surface"
+				"Medieval_Wax_Tablet_Surface"
 			],
 			null,
 			null,
@@ -2263,15 +2263,15 @@ public partial class ItemSeeder
 			false,
 			"beeswax",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Wax Tablets"
+				"Market / Writing Materials / Wax Tablets"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Wax_Tablet_Surface"
+				"Medieval_Wax_Tablet_Surface"
 			],
 			null,
 			null,
@@ -2293,15 +2293,15 @@ public partial class ItemSeeder
 			false,
 			"beeswax",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Wax Tablets"
+				"Market / Writing Materials / Wax Tablets"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Wax_Tablet_Surface"
+				"Medieval_Wax_Tablet_Surface"
 			],
 			null,
 			null,
@@ -2323,15 +2323,15 @@ public partial class ItemSeeder
 			false,
 			"beeswax",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Wax Tablets"
+				"Market / Writing Materials / Wax Tablets"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Wax_Diptych_Surface"
+				"Medieval_Wax_Diptych_Surface"
 			],
 			null,
 			null,
@@ -2353,15 +2353,15 @@ public partial class ItemSeeder
 			false,
 			"beeswax",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Wax Tablets"
+				"Market / Writing Materials / Wax Tablets"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Wax_Triptych_Surface"
+				"Medieval_Wax_Triptych_Surface"
 			],
 			null,
 			null,
@@ -2383,15 +2383,15 @@ public partial class ItemSeeder
 			false,
 			"beeswax",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Wax Tablets"
+				"Market / Writing Materials / Wax Tablets"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Wax_Tablet_Surface"
+				"Medieval_Wax_Tablet_Surface"
 			],
 			null,
 			null,
@@ -2413,15 +2413,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Wooden_Tablet_Surface"
+				"Medieval_Wooden_Tablet_Surface"
 			],
 			null,
 			null,
@@ -2443,15 +2443,15 @@ public partial class ItemSeeder
 			false,
 			"cedar",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Wooden_Tablet_Surface"
+				"Medieval_Wooden_Tablet_Surface"
 			],
 			null,
 			null,
@@ -2473,15 +2473,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Practice_Board_Surface"
+				"Medieval_Practice_Board_Surface"
 			],
 			null,
 			null,
@@ -2503,15 +2503,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Practice_Board_Surface"
+				"Medieval_Practice_Board_Surface"
 			],
 			null,
 			null,
@@ -2533,15 +2533,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Practice_Board_Surface"
+				"Medieval_Practice_Board_Surface"
 			],
 			null,
 			null,
@@ -2563,15 +2563,15 @@ public partial class ItemSeeder
 			false,
 			"slate",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Slate_Tablet_Surface"
+				"Medieval_Slate_Tablet_Surface"
 			],
 			null,
 			null,
@@ -2593,15 +2593,15 @@ public partial class ItemSeeder
 			false,
 			"slate",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Slate_Tablet_Surface"
+				"Medieval_Slate_Tablet_Surface"
 			],
 			null,
 			null,
@@ -2623,15 +2623,15 @@ public partial class ItemSeeder
 			false,
 			"slate",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Slate_Tablet_Surface"
+				"Medieval_Slate_Tablet_Surface"
 			],
 			null,
 			null,
@@ -2653,15 +2653,15 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Bamboo_Slip_Surface"
+				"Medieval_Bamboo_Slip_Surface"
 			],
 			null,
 			null,
@@ -2683,15 +2683,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Practice_Board_Surface"
+				"Medieval_Practice_Board_Surface"
 			],
 			null,
 			null,
@@ -2713,15 +2713,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials"
+				"Market / Writing Materials"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Practice_Board_Surface"
+				"Medieval_Practice_Board_Surface"
 			],
 			null,
 			null,
@@ -2743,13 +2743,13 @@ public partial class ItemSeeder
 			false,
 			"clay",
 			[
-				"Functions / Writing Goods`",
-				"`Market / Writing Materials / Clay Tablets"
+				"Functions / Writing Goods",
+				"Market / Writing Materials / Clay Tablets"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Sealable_Document_Clay"
+				"Sealable_Document_Clay"
 			],
 			null,
 			null,
@@ -2771,13 +2771,13 @@ public partial class ItemSeeder
 			false,
 			"clay",
 			[
-				"Functions / Writing Goods`",
-				"`Market / Writing Materials / Clay Tablets"
+				"Functions / Writing Goods",
+				"Market / Writing Materials / Clay Tablets"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Sealable_Document_Clay"
+				"Sealable_Document_Clay"
 			],
 			null,
 			null,
@@ -2799,13 +2799,13 @@ public partial class ItemSeeder
 			false,
 			"feather",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Quill Pen"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Quill Pen"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Quill_Pen"
+				"Medieval_Quill_Pen"
 			],
 			null,
 			null,
@@ -2827,13 +2827,13 @@ public partial class ItemSeeder
 			false,
 			"feather",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Quill Pen"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Quill Pen"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Quill_Pen"
+				"Medieval_Quill_Pen"
 			],
 			null,
 			null,
@@ -2855,13 +2855,13 @@ public partial class ItemSeeder
 			false,
 			"feather",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Quill Pen"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Quill Pen"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Fine_Quill_Pen"
+				"Medieval_Fine_Quill_Pen"
 			],
 			null,
 			null,
@@ -2883,13 +2883,13 @@ public partial class ItemSeeder
 			false,
 			"feather",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Quill Pen"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Quill Pen"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Fine_Quill_Pen"
+				"Medieval_Fine_Quill_Pen"
 			],
 			null,
 			null,
@@ -2911,13 +2911,13 @@ public partial class ItemSeeder
 			false,
 			"reed",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Reed Pen"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Reed Pen"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Reed_Pen"
+				"Medieval_Reed_Pen"
 			],
 			null,
 			null,
@@ -2939,13 +2939,13 @@ public partial class ItemSeeder
 			false,
 			"reed",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Reed Pen"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Reed Pen"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Reed_Pen"
+				"Medieval_Reed_Pen"
 			],
 			null,
 			null,
@@ -2967,13 +2967,13 @@ public partial class ItemSeeder
 			false,
 			"reed",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Calligraphy Tools / Qalam Cutter"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Calligraphy Tools / Qalam Cutter"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Qalam"
+				"Medieval_Qalam"
 			],
 			null,
 			null,
@@ -2995,13 +2995,13 @@ public partial class ItemSeeder
 			false,
 			"reed",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Calligraphy Tools / Qalam Cutter"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Calligraphy Tools / Qalam Cutter"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Qalam"
+				"Medieval_Qalam"
 			],
 			null,
 			null,
@@ -3023,13 +3023,13 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Ink Brush"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Ink Brush"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_East_Asian_Writing_Brush"
+				"Medieval_East_Asian_Writing_Brush"
 			],
 			null,
 			null,
@@ -3051,13 +3051,13 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Calligraphy Tools / Calligrapher's Brush"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Calligraphy Tools / Calligrapher's Brush"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Calligraphy_Brush"
+				"Medieval_Calligraphy_Brush"
 			],
 			null,
 			null,
@@ -3079,13 +3079,13 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Calligraphy Tools / Calligrapher's Brush"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Calligraphy Tools / Calligrapher's Brush"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Calligraphy_Brush"
+				"Medieval_Calligraphy_Brush"
 			],
 			null,
 			null,
@@ -3107,13 +3107,13 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Ink Brush"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Ink Brush"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_East_Asian_Writing_Brush"
+				"Medieval_East_Asian_Writing_Brush"
 			],
 			null,
 			null,
@@ -3135,13 +3135,13 @@ public partial class ItemSeeder
 			false,
 			"charcoal",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Charcoal Stick"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Charcoal Stick"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Charcoal_Stick"
+				"Medieval_Charcoal_Stick"
 			],
 			null,
 			null,
@@ -3163,13 +3163,13 @@ public partial class ItemSeeder
 			false,
 			"bone",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Stylus"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Stylus"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Bone_Stylus"
+				"Medieval_Bone_Stylus"
 			],
 			null,
 			null,
@@ -3191,13 +3191,13 @@ public partial class ItemSeeder
 			false,
 			"ivory",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Stylus"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Stylus"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Bone_Stylus"
+				"Medieval_Bone_Stylus"
 			],
 			null,
 			null,
@@ -3219,13 +3219,13 @@ public partial class ItemSeeder
 			false,
 			"bronze",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Stylus"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Stylus"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Bronze_Stylus"
+				"Medieval_Bronze_Stylus"
 			],
 			null,
 			null,
@@ -3247,13 +3247,13 @@ public partial class ItemSeeder
 			false,
 			"wrought iron",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Stylus"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Stylus"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Iron_Stylus"
+				"Medieval_Iron_Stylus"
 			],
 			null,
 			null,
@@ -3275,13 +3275,13 @@ public partial class ItemSeeder
 			false,
 			"reed",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Stylus"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Stylus"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Reed_Stylus"
+				"Medieval_Reed_Stylus"
 			],
 			null,
 			null,
@@ -3303,13 +3303,13 @@ public partial class ItemSeeder
 			false,
 			"wrought iron",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Stylus"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Stylus"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Medieval_Scribing_Chisel"
+				"Medieval_Scribing_Chisel"
 			],
 			null,
 			null,
@@ -3331,12 +3331,12 @@ public partial class ItemSeeder
 			false,
 			"bronze",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Pen Knife"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Pen Knife"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3358,12 +3358,12 @@ public partial class ItemSeeder
 			false,
 			"wrought iron",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Pen Knife"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Pen Knife"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3385,12 +3385,12 @@ public partial class ItemSeeder
 			false,
 			"bronze",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Calligraphy Tools / Qalam Cutter"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Calligraphy Tools / Qalam Cutter"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3412,12 +3412,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Calligraphy Tools / Pen Rest"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Calligraphy Tools / Pen Rest"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3439,12 +3439,12 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Calligraphy Tools / Pen Rack"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Calligraphy Tools / Pen Rack"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3466,12 +3466,12 @@ public partial class ItemSeeder
 			false,
 			"linen",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Calligraphy Tools / Pen Wiper"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Calligraphy Tools / Pen Wiper"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3493,12 +3493,12 @@ public partial class ItemSeeder
 			false,
 			"sand",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Calligraphy Tools / Quill Curing Sand"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Calligraphy Tools / Quill Curing Sand"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3520,13 +3520,13 @@ public partial class ItemSeeder
 			false,
 			"feather",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Quill Pen"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Quill Pen"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Stack_Number"
+				"Stack_Number"
 			],
 			null,
 			null,
@@ -3548,13 +3548,13 @@ public partial class ItemSeeder
 			false,
 			"reed",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Reed Pen"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Reed Pen"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Stack_Number"
+				"Stack_Number"
 			],
 			null,
 			null,
@@ -3576,13 +3576,13 @@ public partial class ItemSeeder
 			false,
 			"charcoal",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Charcoal Stick"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Charcoal Stick"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Stack_Number"
+				"Stack_Number"
 			],
 			null,
 			null,
@@ -3604,12 +3604,12 @@ public partial class ItemSeeder
 			false,
 			"soot",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Material Functions / Writing Craft Stock / Ink Stock"
+				"Market / Writing Materials / Ink",
+				"Functions / Material Functions / Writing Craft Stock / Ink Stock"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3631,12 +3631,12 @@ public partial class ItemSeeder
 			false,
 			"soot",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Material Functions / Writing Craft Stock / Ink Stock"
+				"Market / Writing Materials / Ink",
+				"Functions / Material Functions / Writing Craft Stock / Ink Stock"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3658,12 +3658,12 @@ public partial class ItemSeeder
 			false,
 			"soot",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Material Functions / Writing Craft Stock / Ink Stock"
+				"Market / Writing Materials / Ink",
+				"Functions / Material Functions / Writing Craft Stock / Ink Stock"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3685,12 +3685,12 @@ public partial class ItemSeeder
 			false,
 			"cinnabar",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Material Functions / Writing Craft Stock / Ink Stock"
+				"Market / Writing Materials / Ink",
+				"Functions / Material Functions / Writing Craft Stock / Ink Stock"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3712,12 +3712,12 @@ public partial class ItemSeeder
 			false,
 			"azurite",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Material Functions / Writing Craft Stock / Ink Stock"
+				"Market / Writing Materials / Ink",
+				"Functions / Material Functions / Writing Craft Stock / Ink Stock"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3739,12 +3739,12 @@ public partial class ItemSeeder
 			false,
 			"malachite",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Material Functions / Writing Craft Stock / Ink Stock"
+				"Market / Writing Materials / Ink",
+				"Functions / Material Functions / Writing Craft Stock / Ink Stock"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3766,12 +3766,12 @@ public partial class ItemSeeder
 			false,
 			"gold",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Material Functions / Writing Craft Stock / Ink Stock"
+				"Market / Writing Materials / Ink",
+				"Functions / Material Functions / Writing Craft Stock / Ink Stock"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3793,12 +3793,12 @@ public partial class ItemSeeder
 			false,
 			"silver",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Material Functions / Writing Craft Stock / Ink Stock"
+				"Market / Writing Materials / Ink",
+				"Functions / Material Functions / Writing Craft Stock / Ink Stock"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3820,12 +3820,12 @@ public partial class ItemSeeder
 			false,
 			"chalk",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Material Functions / Writing Craft Stock / Ink Stock"
+				"Market / Writing Materials / Ink",
+				"Functions / Material Functions / Writing Craft Stock / Ink Stock"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3847,12 +3847,12 @@ public partial class ItemSeeder
 			false,
 			"linen",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Material Functions / Writing Craft Stock / Ink Stock"
+				"Market / Writing Materials / Ink",
+				"Functions / Material Functions / Writing Craft Stock / Ink Stock"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3874,12 +3874,12 @@ public partial class ItemSeeder
 			false,
 			"pumice",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Material Functions / Writing Craft Stock / Ink Stock"
+				"Market / Writing Materials / Ink",
+				"Functions / Material Functions / Writing Craft Stock / Ink Stock"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -3901,12 +3901,12 @@ public partial class ItemSeeder
 			false,
 			"fired clay",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Tools / Scribing Tools / Inkwell"
+				"Market / Writing Materials / Ink",
+				"Functions / Tools / Scribing Tools / Inkwell"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Glassware"
+				"Holdable",
+				"Destroyable_Glassware"
 			],
 			null,
 			null,
@@ -3928,12 +3928,12 @@ public partial class ItemSeeder
 			false,
 			"ceramic",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Tools / Scribing Tools / Inkwell"
+				"Market / Writing Materials / Ink",
+				"Functions / Tools / Scribing Tools / Inkwell"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Glassware"
+				"Holdable",
+				"Destroyable_Glassware"
 			],
 			null,
 			null,
@@ -3955,12 +3955,12 @@ public partial class ItemSeeder
 			false,
 			"glass",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Tools / Scribing Tools / Inkwell"
+				"Market / Writing Materials / Ink",
+				"Functions / Tools / Scribing Tools / Inkwell"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Glassware"
+				"Holdable",
+				"Destroyable_Glassware"
 			],
 			null,
 			null,
@@ -3982,12 +3982,12 @@ public partial class ItemSeeder
 			false,
 			"bronze",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Tools / Scribing Tools / Inkwell"
+				"Market / Writing Materials / Ink",
+				"Functions / Tools / Scribing Tools / Inkwell"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -4009,12 +4009,12 @@ public partial class ItemSeeder
 			false,
 			"ceramic",
 			[
-				"Market / Writing Materials / Ink`",
-				"`Functions / Tools / Scribing Tools / Inkwell"
+				"Market / Writing Materials / Ink",
+				"Functions / Tools / Scribing Tools / Inkwell"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Glassware"
+				"Holdable",
+				"Destroyable_Glassware"
 			],
 			null,
 			null,
@@ -4036,12 +4036,12 @@ public partial class ItemSeeder
 			false,
 			"slate",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Calligraphy Tools"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Calligraphy Tools"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4063,12 +4063,12 @@ public partial class ItemSeeder
 			false,
 			"stone",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Calligraphy Tools"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Calligraphy Tools"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4090,12 +4090,12 @@ public partial class ItemSeeder
 			false,
 			"agate",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Calligraphy Tools"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Calligraphy Tools"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4117,12 +4117,12 @@ public partial class ItemSeeder
 			false,
 			"jade",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Calligraphy Tools"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Calligraphy Tools"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4144,12 +4144,12 @@ public partial class ItemSeeder
 			false,
 			"shell",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Illumination Tools / Pigment Shell"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Illumination Tools / Pigment Shell"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4171,12 +4171,12 @@ public partial class ItemSeeder
 			false,
 			"shell",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Illumination Tools / Pigment Shell"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Illumination Tools / Pigment Shell"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4198,12 +4198,12 @@ public partial class ItemSeeder
 			false,
 			"stone",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Illumination Tools / Pigment Muller"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Illumination Tools / Pigment Muller"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4225,12 +4225,12 @@ public partial class ItemSeeder
 			false,
 			"stone",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Illumination Tools / Palette Slab"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Illumination Tools / Palette Slab"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4252,12 +4252,12 @@ public partial class ItemSeeder
 			false,
 			"agate",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Illumination Tools / Agate Burnisher"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Illumination Tools / Agate Burnisher"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4279,12 +4279,12 @@ public partial class ItemSeeder
 			false,
 			"ceramic",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Illumination Tools / Gesso Pot"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Illumination Tools / Gesso Pot"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4306,12 +4306,12 @@ public partial class ItemSeeder
 			false,
 			"wrought iron",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Illumination Tools / Gilding Knife"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Illumination Tools / Gilding Knife"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -4333,12 +4333,12 @@ public partial class ItemSeeder
 			false,
 			"feather",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Illumination Tools / Gilding Tip"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Illumination Tools / Gilding Tip"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4360,12 +4360,12 @@ public partial class ItemSeeder
 			false,
 			"leather",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Illumination Tools / Gold Leaf Cushion"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Illumination Tools / Gold Leaf Cushion"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4387,12 +4387,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Illumination Tools / Miniature Detail Brush"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Illumination Tools / Miniature Detail Brush"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -4414,14 +4414,14 @@ public partial class ItemSeeder
 			false,
 			"cedar",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Scroll_Tube"
+				"Container_Scroll_Tube"
 			],
 			null,
 			null,
@@ -4443,14 +4443,14 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Scroll_Tube"
+				"Container_Scroll_Tube"
 			],
 			null,
 			null,
@@ -4472,14 +4472,14 @@ public partial class ItemSeeder
 			false,
 			"leather",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Scroll_Tube"
+				"Container_Scroll_Tube"
 			],
 			null,
 			null,
@@ -4501,14 +4501,14 @@ public partial class ItemSeeder
 			false,
 			"silk",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Document_Pouch"
+				"Container_Document_Pouch"
 			],
 			null,
 			null,
@@ -4530,14 +4530,14 @@ public partial class ItemSeeder
 			false,
 			"linen",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Document_Pouch"
+				"Container_Document_Pouch"
 			],
 			null,
 			null,
@@ -4559,14 +4559,14 @@ public partial class ItemSeeder
 			false,
 			"leather",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Document_Pouch"
+				"Container_Document_Pouch"
 			],
 			null,
 			null,
@@ -4588,14 +4588,14 @@ public partial class ItemSeeder
 			false,
 			"linen",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Document_Pouch"
+				"Container_Document_Pouch"
 			],
 			null,
 			null,
@@ -4617,14 +4617,14 @@ public partial class ItemSeeder
 			false,
 			"linen",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Document_Pouch"
+				"Container_Document_Pouch"
 			],
 			null,
 			null,
@@ -4646,14 +4646,14 @@ public partial class ItemSeeder
 			false,
 			"leather",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Document_Pouch"
+				"Container_Document_Pouch"
 			],
 			null,
 			null,
@@ -4675,14 +4675,14 @@ public partial class ItemSeeder
 			false,
 			"leather",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Document_Satchel"
+				"Container_Document_Satchel"
 			],
 			null,
 			null,
@@ -4704,14 +4704,14 @@ public partial class ItemSeeder
 			false,
 			"leather",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Document_Satchel"
+				"Container_Document_Satchel"
 			],
 			null,
 			null,
@@ -4733,14 +4733,14 @@ public partial class ItemSeeder
 			false,
 			"leather",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Document_Satchel"
+				"Container_Document_Satchel"
 			],
 			null,
 			null,
@@ -4762,14 +4762,14 @@ public partial class ItemSeeder
 			false,
 			"leather",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Document_Satchel"
+				"Container_Document_Satchel"
 			],
 			null,
 			null,
@@ -4791,14 +4791,14 @@ public partial class ItemSeeder
 			false,
 			"cotton",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Document_Pouch"
+				"Container_Document_Pouch"
 			],
 			null,
 			null,
@@ -4820,14 +4820,14 @@ public partial class ItemSeeder
 			false,
 			"silk",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Document_Pouch"
+				"Container_Document_Pouch"
 			],
 			null,
 			null,
@@ -4849,14 +4849,14 @@ public partial class ItemSeeder
 			false,
 			"cypress",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Archive_Box"
+				"Container_Archive_Box"
 			],
 			null,
 			null,
@@ -4878,14 +4878,14 @@ public partial class ItemSeeder
 			false,
 			"cedar",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Archive_Box"
+				"Container_Archive_Box"
 			],
 			null,
 			null,
@@ -4907,14 +4907,14 @@ public partial class ItemSeeder
 			false,
 			"lacquer",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Archive_Box"
+				"Container_Archive_Box"
 			],
 			null,
 			null,
@@ -4936,14 +4936,14 @@ public partial class ItemSeeder
 			false,
 			"oak",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Archive_Box"
+				"Container_Archive_Box"
 			],
 			null,
 			null,
@@ -4965,14 +4965,14 @@ public partial class ItemSeeder
 			false,
 			"oak",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Archive_Chest"
+				"Container_Archive_Chest"
 			],
 			null,
 			null,
@@ -4994,14 +4994,14 @@ public partial class ItemSeeder
 			false,
 			"walnut",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Archive_Box"
+				"Container_Archive_Box"
 			],
 			null,
 			null,
@@ -5023,14 +5023,14 @@ public partial class ItemSeeder
 			false,
 			"cypress",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Archive_Box"
+				"Container_Archive_Box"
 			],
 			null,
 			null,
@@ -5052,14 +5052,14 @@ public partial class ItemSeeder
 			false,
 			"cedar",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Seal_Box"
+				"Container_Seal_Box"
 			],
 			null,
 			null,
@@ -5081,14 +5081,14 @@ public partial class ItemSeeder
 			false,
 			"cedar",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Seal_Box"
+				"Container_Seal_Box"
 			],
 			null,
 			null,
@@ -5110,14 +5110,14 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Scroll_Tube"
+				"Container_Scroll_Tube"
 			],
 			null,
 			null,
@@ -5139,14 +5139,14 @@ public partial class ItemSeeder
 			false,
 			"leather",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Scroll_Tube"
+				"Container_Scroll_Tube"
 			],
 			null,
 			null,
@@ -5168,14 +5168,14 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Document_Pouch"
+				"Container_Document_Pouch"
 			],
 			null,
 			null,
@@ -5197,14 +5197,14 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Document_Bookcase_Shelves"
+				"Container_Document_Bookcase_Shelves"
 			],
 			null,
 			null,
@@ -5226,14 +5226,14 @@ public partial class ItemSeeder
 			false,
 			"oak",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Market / Household Goods / Luxury Wares"
+				"Market / Household Goods / Luxury Wares"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`LockingContainer_Lockbox"
+				"LockingContainer_Lockbox"
 			],
 			null,
 			null,
@@ -5255,14 +5255,14 @@ public partial class ItemSeeder
 			false,
 			"oak",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Market / Household Goods / Luxury Wares"
+				"Market / Household Goods / Luxury Wares"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`LockingContainer_Footlocker"
+				"LockingContainer_Footlocker"
 			],
 			null,
 			null,
@@ -5284,14 +5284,14 @@ public partial class ItemSeeder
 			false,
 			"oak",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Market / Household Goods / Luxury Wares"
+				"Market / Household Goods / Luxury Wares"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`LockingContainer_Footlocker"
+				"LockingContainer_Footlocker"
 			],
 			null,
 			null,
@@ -5313,14 +5313,14 @@ public partial class ItemSeeder
 			false,
 			"wrought iron",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Market / Household Goods / Luxury Wares"
+				"Market / Household Goods / Luxury Wares"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_HeavyMetal",
-				"`LockingContainer_SafeChest"
+				"LockingContainer_SafeChest"
 			],
 			null,
 			null,
@@ -5342,14 +5342,14 @@ public partial class ItemSeeder
 			false,
 			"brass",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Market / Household Goods / Luxury Wares"
+				"Market / Household Goods / Luxury Wares"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_HeavyMetal",
-				"`LockingContainer_Lockbox"
+				"LockingContainer_Lockbox"
 			],
 			null,
 			null,
@@ -5371,13 +5371,13 @@ public partial class ItemSeeder
 			false,
 			"bronze",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Seal Stamp"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Seal Stamp"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_HeavyMetal",
-				"`SealStamp_Medieval_BronzeSignet"
+				"SealStamp_Medieval_BronzeSignet"
 			],
 			null,
 			null,
@@ -5399,13 +5399,13 @@ public partial class ItemSeeder
 			false,
 			"brass",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Seal Stamp"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Seal Stamp"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_HeavyMetal",
-				"`SealStamp_Medieval_BrassOfficeSeal"
+				"SealStamp_Medieval_BrassOfficeSeal"
 			],
 			null,
 			null,
@@ -5427,13 +5427,13 @@ public partial class ItemSeeder
 			false,
 			"wrought iron",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Seal Stamp"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Seal Stamp"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_HeavyMetal",
-				"`SealStamp_Medieval_IronSealMatrix"
+				"SealStamp_Medieval_IronSealMatrix"
 			],
 			null,
 			null,
@@ -5455,13 +5455,13 @@ public partial class ItemSeeder
 			false,
 			"lead",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Seal Stamp"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Seal Stamp"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_HeavyMetal",
-				"`SealStamp_Medieval_LeadSealMatrix"
+				"SealStamp_Medieval_LeadSealMatrix"
 			],
 			null,
 			null,
@@ -5483,13 +5483,13 @@ public partial class ItemSeeder
 			false,
 			"ivory",
 			[
-				"Market / Writing Materials / Writing Implements`",
-				"`Functions / Tools / Scribing Tools / Seal Stamp"
+				"Market / Writing Materials / Writing Implements",
+				"Functions / Tools / Scribing Tools / Seal Stamp"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`SealStamp_Medieval_BronzeSignet"
+				"SealStamp_Medieval_BronzeSignet"
 			],
 			null,
 			null,
@@ -5511,13 +5511,13 @@ public partial class ItemSeeder
 			false,
 			"beeswax",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Tools / Scribing Tools / Seal Stamp"
+				"Functions / Tools / Scribing Tools / Seal Stamp"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -5539,13 +5539,13 @@ public partial class ItemSeeder
 			false,
 			"beeswax",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Tools / Scribing Tools / Seal Stamp"
+				"Functions / Tools / Scribing Tools / Seal Stamp"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -5567,13 +5567,13 @@ public partial class ItemSeeder
 			false,
 			"clay",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Tools / Scribing Tools / Seal Stamp"
+				"Functions / Tools / Scribing Tools / Seal Stamp"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -5595,13 +5595,13 @@ public partial class ItemSeeder
 			false,
 			"lead",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Tools / Scribing Tools / Seal Stamp"
+				"Functions / Tools / Scribing Tools / Seal Stamp"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -5623,13 +5623,13 @@ public partial class ItemSeeder
 			false,
 			"lead",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Tools / Scribing Tools / Seal Stamp"
+				"Functions / Tools / Scribing Tools / Seal Stamp"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -5651,13 +5651,13 @@ public partial class ItemSeeder
 			false,
 			"linen",
 			[
-				"Functions / Writing Goods`",
+				"Functions / Writing Goods",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Tools / Scribing Tools / Seal Stamp"
+				"Functions / Tools / Scribing Tools / Seal Stamp"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -5679,16 +5679,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Document Containers"
+				"Market / Writing Materials / Document Containers"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
 				"Medieval_Parchment_Sheet_Surface",
-				"`Sealable_Medieval_Parchment_Charter"
+				"Sealable_Medieval_Parchment_Charter"
 			],
 			null,
 			null,
@@ -5710,16 +5710,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Document Containers"
+				"Market / Writing Materials / Document Containers"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
 				"Medieval_Parchment_Roll_Surface",
-				"`Sealable_Medieval_Parchment_Roll"
+				"Sealable_Medieval_Parchment_Roll"
 			],
 			null,
 			null,
@@ -5741,16 +5741,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Document Containers"
+				"Market / Writing Materials / Document Containers"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
 				"Medieval_Rag_Paper_Letter_Surface",
-				"`Sealable_Medieval_Rag_Paper_Letter"
+				"Sealable_Medieval_Rag_Paper_Letter"
 			],
 			null,
 			null,
@@ -5772,16 +5772,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Document Containers"
+				"Market / Writing Materials / Document Containers"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
 				"Medieval_Parchment_Sheet_Surface",
-				"`Sealable_Medieval_Official_Writ"
+				"Sealable_Medieval_Official_Writ"
 			],
 			null,
 			null,
@@ -5803,16 +5803,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Document Containers"
+				"Market / Writing Materials / Document Containers"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
 				"Medieval_East_Asian_Paper_Scroll_Surface",
-				"`Sealable_Medieval_East_Asian_Scroll"
+				"Sealable_Medieval_East_Asian_Scroll"
 			],
 			null,
 			null,
@@ -5834,16 +5834,16 @@ public partial class ItemSeeder
 			false,
 			"leaf",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Document Containers"
+				"Market / Writing Materials / Document Containers"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
 				"Medieval_Palm_Leaf_Manuscript_Bundle",
-				"`Sealable_Medieval_Palm_Leaf_Bundle"
+				"Sealable_Medieval_Palm_Leaf_Bundle"
 			],
 			null,
 			null,
@@ -5865,16 +5865,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Document Containers"
+				"Market / Writing Materials / Document Containers"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
 				"Medieval_Parchment_Sheet_Surface",
-				"`Sealable_Document_Wax"
+				"Sealable_Document_Wax"
 			],
 			null,
 			null,
@@ -5896,16 +5896,16 @@ public partial class ItemSeeder
 			false,
 			"papyrus",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Document Containers"
+				"Market / Writing Materials / Document Containers"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
 				"Medieval_Papyrus_Sheet_Surface",
-				"`Sealable_Document_Clay"
+				"Sealable_Document_Clay"
 			],
 			null,
 			null,
@@ -5927,16 +5927,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Document Containers"
+				"Market / Writing Materials / Document Containers"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
 				"Medieval_Rag_Paper_Letter_Surface",
-				"`Sealable_Envelope"
+				"Sealable_Envelope"
 			],
 			null,
 			null,
@@ -5958,16 +5958,16 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Document Containers"
+				"Market / Writing Materials / Document Containers"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
 				"Medieval_Parchment_Roll_Surface",
-				"`Sealable_Scroll"
+				"Sealable_Scroll"
 			],
 			null,
 			null,
@@ -5989,15 +5989,15 @@ public partial class ItemSeeder
 			false,
 			"leather",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
 				"Container_Document_Pouch",
-				"`Sealable_Medieval_Document_Pouch"
+				"Sealable_Medieval_Document_Pouch"
 			],
 			null,
 			null,
@@ -6019,15 +6019,15 @@ public partial class ItemSeeder
 			false,
 			"oak",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
 				"Container_Archive_Box",
-				"`Sealable_Medieval_Archive_Box"
+				"Sealable_Medieval_Archive_Box"
 			],
 			null,
 			null,
@@ -6049,15 +6049,15 @@ public partial class ItemSeeder
 			false,
 			"oak",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
 				"Container_Archive_Chest",
-				"`Sealable_Medieval_Archive_Box"
+				"Sealable_Medieval_Archive_Box"
 			],
 			null,
 			null,
@@ -6079,15 +6079,15 @@ public partial class ItemSeeder
 			false,
 			"cedar",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Market / Writing Materials / Document Containers",
-				"`Functions / Writing Goods"
+				"Functions / Writing Goods"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
 				"Container_Archive_Box",
-				"`Sealable_Container_Wax"
+				"Sealable_Container_Wax"
 			],
 			null,
 			null,
@@ -6109,12 +6109,12 @@ public partial class ItemSeeder
 			false,
 			"bronze",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Parchmentmaking Tools / Parchment Scraping Knife"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Parchmentmaking Tools / Parchment Scraping Knife"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -6136,12 +6136,12 @@ public partial class ItemSeeder
 			false,
 			"wrought iron",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Parchmentmaking Tools / Parchment Lunellum"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Parchmentmaking Tools / Parchment Lunellum"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -6163,12 +6163,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Parchmentmaking Tools / Parchment Stretching Frame"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Parchmentmaking Tools / Parchment Stretching Frame"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -6190,12 +6190,12 @@ public partial class ItemSeeder
 			false,
 			"hemp",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Parchmentmaking Tools / Parchment Lacing Cord"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Parchmentmaking Tools / Parchment Lacing Cord"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6217,12 +6217,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Parchmentmaking Tools / Parchment Pegs"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Parchmentmaking Tools / Parchment Pegs"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6244,12 +6244,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Parchmentmaking Tools / Parchment Fleshing Beam"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Parchmentmaking Tools / Parchment Fleshing Beam"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -6271,12 +6271,12 @@ public partial class ItemSeeder
 			false,
 			"chalk",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Parchmentmaking Tools / Parchment Whitening Chalk"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Parchmentmaking Tools / Parchment Whitening Chalk"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6298,12 +6298,12 @@ public partial class ItemSeeder
 			false,
 			"pumice",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Parchmentmaking Tools / Parchment Pumice"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Parchmentmaking Tools / Parchment Pumice"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6325,12 +6325,12 @@ public partial class ItemSeeder
 			false,
 			"linen",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Parchmentmaking Tools / Pounce Bag"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Parchmentmaking Tools / Pounce Bag"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6352,12 +6352,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Papermaking Tools / Mould and Deckle"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Papermaking Tools / Mould and Deckle"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -6379,12 +6379,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Papermaking Tools / Papermaker's Vat"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Papermaking Tools / Papermaker's Vat"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -6406,12 +6406,12 @@ public partial class ItemSeeder
 			false,
 			"wool",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Papermaking Tools / Couching Blanket"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Papermaking Tools / Couching Blanket"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6433,12 +6433,12 @@ public partial class ItemSeeder
 			false,
 			"felt",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Papermaking Tools / Press Felt"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Papermaking Tools / Press Felt"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6460,12 +6460,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Papermaking Tools / Lay Press"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Papermaking Tools / Lay Press"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -6487,12 +6487,12 @@ public partial class ItemSeeder
 			false,
 			"wrought iron",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Papermaking Tools / Rag Sorting Knife"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Papermaking Tools / Rag Sorting Knife"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -6514,12 +6514,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Papermaking Tools / Rag Beating Trough"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Papermaking Tools / Rag Beating Trough"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -6541,12 +6541,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Papermaking Tools / Paper Sizing Brush"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Papermaking Tools / Paper Sizing Brush"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6568,12 +6568,12 @@ public partial class ItemSeeder
 			false,
 			"ceramic",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Papermaking Tools / Gelatine Sizing Pot"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Papermaking Tools / Gelatine Sizing Pot"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6595,12 +6595,12 @@ public partial class ItemSeeder
 			false,
 			"agate",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Papermaking Tools / Paper Burnishing Agate"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Papermaking Tools / Paper Burnishing Agate"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6622,12 +6622,12 @@ public partial class ItemSeeder
 			false,
 			"brass",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Papermaking Tools / Watermark Wire"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Papermaking Tools / Watermark Wire"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -6649,12 +6649,12 @@ public partial class ItemSeeder
 			false,
 			"bronze",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Bookbinding Tools / Bookbinder's Needle"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Bookbinding Tools / Bookbinder's Needle"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -6676,12 +6676,12 @@ public partial class ItemSeeder
 			false,
 			"bronze",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Bookbinding Tools / Endband Needle"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Bookbinding Tools / Endband Needle"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -6703,12 +6703,12 @@ public partial class ItemSeeder
 			false,
 			"bronze",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Bookbinding Tools / Bookbinder's Punch"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Bookbinding Tools / Bookbinder's Punch"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -6730,12 +6730,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Bookbinding Tools / Bookbinder's Sewing Frame"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Bookbinding Tools / Bookbinder's Sewing Frame"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -6757,12 +6757,12 @@ public partial class ItemSeeder
 			false,
 			"hemp",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Bookbinding Tools / Sewing Support Cords"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Bookbinding Tools / Sewing Support Cords"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6784,12 +6784,12 @@ public partial class ItemSeeder
 			false,
 			"wrought iron",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Bookbinding Tools / Backing Hammer"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Bookbinding Tools / Backing Hammer"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -6811,12 +6811,12 @@ public partial class ItemSeeder
 			false,
 			"wrought iron",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Bookbinding Tools / Leather Paring Knife"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Bookbinding Tools / Leather Paring Knife"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -6838,12 +6838,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Bookbinding Tools / Lying Press"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Bookbinding Tools / Lying Press"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -6865,12 +6865,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Bookbinding Tools / Book Press"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Bookbinding Tools / Book Press"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -6892,12 +6892,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Bookbinding Tools / Book Plough"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Bookbinding Tools / Book Plough"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -6919,12 +6919,12 @@ public partial class ItemSeeder
 			false,
 			"cedar",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Scrollmaking Tools / Scroll Roller Rod"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Scrollmaking Tools / Scroll Roller Rod"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6946,12 +6946,12 @@ public partial class ItemSeeder
 			false,
 			"stone",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Scrollmaking Tools / Scroll Smoothing Stone"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Scrollmaking Tools / Scroll Smoothing Stone"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -6973,12 +6973,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Scrollmaking Tools / Scroll End Knob"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Scrollmaking Tools / Scroll End Knob"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7000,12 +7000,12 @@ public partial class ItemSeeder
 			false,
 			"linen",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Scrollmaking Tools / Scroll Tie Ribbon"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Scrollmaking Tools / Scroll Tie Ribbon"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7027,12 +7027,12 @@ public partial class ItemSeeder
 			false,
 			"linen",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Scrollmaking Tools / Scroll Seal Cord"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Scrollmaking Tools / Scroll Seal Cord"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7054,12 +7054,12 @@ public partial class ItemSeeder
 			false,
 			"parchment",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Scrollmaking Tools / Scroll Label Tab"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Scrollmaking Tools / Scroll Label Tab"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7081,12 +7081,12 @@ public partial class ItemSeeder
 			false,
 			"wrought iron",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Woodblock Printing Tools / Block Carving Knife"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Woodblock Printing Tools / Block Carving Knife"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -7108,12 +7108,12 @@ public partial class ItemSeeder
 			false,
 			"wrought iron",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Woodblock Printing Tools / Block Clearing Chisel"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Woodblock Printing Tools / Block Clearing Chisel"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_HeavyMetal"
+				"Holdable",
+				"Destroyable_HeavyMetal"
 			],
 			null,
 			null,
@@ -7135,12 +7135,12 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Woodblock Printing Tools / Ink Dauber"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Woodblock Printing Tools / Ink Dauber"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7162,12 +7162,12 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Woodblock Printing Tools / Paper Dampening Brush"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Woodblock Printing Tools / Paper Dampening Brush"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7189,12 +7189,12 @@ public partial class ItemSeeder
 			false,
 			"ceramic",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Woodblock Printing Tools / Paste Pot"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Woodblock Printing Tools / Paste Pot"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7216,12 +7216,12 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Woodblock Printing Tools / Printing Baren"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Woodblock Printing Tools / Printing Baren"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7243,12 +7243,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Woodblock Printing Tools / Impression Spoon"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Woodblock Printing Tools / Impression Spoon"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7270,12 +7270,12 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Market / Professional Tools / Standard Tools`",
-				"`Functions / Tools / Woodblock Printing Tools / Registration Pin"
+				"Market / Professional Tools / Standard Tools",
+				"Functions / Tools / Woodblock Printing Tools / Registration Pin"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7297,12 +7297,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Tools / Woodblock Printing Tools`",
-				"`Market / Professional Tools / Standard Tools"
+				"Functions / Tools / Woodblock Printing Tools",
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -7324,12 +7324,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Tools / Woodblock Printing Tools`",
-				"`Market / Professional Tools / Standard Tools"
+				"Functions / Tools / Woodblock Printing Tools",
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -7351,12 +7351,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Tools / Woodblock Printing Tools`",
-				"`Market / Professional Tools / Standard Tools"
+				"Functions / Tools / Woodblock Printing Tools",
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -7378,12 +7378,12 @@ public partial class ItemSeeder
 			false,
 			"bamboo",
 			[
-				"Functions / Tools / Woodblock Printing Tools`",
-				"`Market / Professional Tools / Standard Tools"
+				"Functions / Tools / Woodblock Printing Tools",
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -7405,15 +7405,15 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Tools / Woodblock Printing Tools`",
+				"Functions / Tools / Woodblock Printing Tools",
 				"Market / Professional Tools / Standard Tools",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Paper"
+				"Holdable",
+				"Destroyable_Paper"
 			],
 			null,
 			null,
@@ -7435,16 +7435,16 @@ public partial class ItemSeeder
 			false,
 			"paper",
 			[
-				"Functions / Tools / Woodblock Printing Tools`",
+				"Functions / Tools / Woodblock Printing Tools",
 				"Market / Professional Tools / Standard Tools",
 				"Functions / Writing Goods",
 				"Materials / Writing Product",
-				"`Market / Writing Materials / Paper"
+				"Market / Writing Materials / Paper"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Paper",
-				"`Stack_Number"
+				"Stack_Number"
 			],
 			null,
 			null,
@@ -7466,12 +7466,12 @@ public partial class ItemSeeder
 			false,
 			"linen",
 			[
-				"Functions / Tools / Woodblock Printing Tools`",
-				"`Market / Professional Tools / Standard Tools"
+				"Functions / Tools / Woodblock Printing Tools",
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7493,12 +7493,12 @@ public partial class ItemSeeder
 			false,
 			"linen",
 			[
-				"Functions / Tools / Woodblock Printing Tools`",
-				"`Market / Professional Tools / Standard Tools"
+				"Functions / Tools / Woodblock Printing Tools",
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7520,12 +7520,12 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Tools / Woodblock Printing Tools`",
-				"`Market / Professional Tools / Standard Tools"
+				"Functions / Tools / Woodblock Printing Tools",
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Furniture"
+				"Holdable",
+				"Destroyable_Furniture"
 			],
 			null,
 			null,
@@ -7547,12 +7547,12 @@ public partial class ItemSeeder
 			false,
 			"hemp",
 			[
-				"Functions / Tools / Woodblock Printing Tools`",
-				"`Market / Professional Tools / Standard Tools"
+				"Functions / Tools / Woodblock Printing Tools",
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
-				"`Destroyable_Misc"
+				"Holdable",
+				"Destroyable_Misc"
 			],
 			null,
 			null,
@@ -7574,15 +7574,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Writing_Desk_Surface"
+				"Container_Writing_Desk_Surface"
 			],
 			null,
 			null,
@@ -7604,15 +7604,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Writing_Desk_Surface"
+				"Container_Writing_Desk_Surface"
 			],
 			null,
 			null,
@@ -7634,15 +7634,15 @@ public partial class ItemSeeder
 			false,
 			"oak",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Writing_Desk_Drawers"
+				"Container_Writing_Desk_Drawers"
 			],
 			null,
 			null,
@@ -7664,15 +7664,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Writing_Desk_Surface"
+				"Container_Writing_Desk_Surface"
 			],
 			null,
 			null,
@@ -7694,15 +7694,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Small_Table"
+				"Container_Small_Table"
 			],
 			null,
 			null,
@@ -7724,15 +7724,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Small_Table"
+				"Container_Small_Table"
 			],
 			null,
 			null,
@@ -7754,15 +7754,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Writing Surface`",
+				"Functions / Writing Surface",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Medieval_Practice_Board_Surface"
+				"Medieval_Practice_Board_Surface"
 			],
 			null,
 			null,
@@ -7784,15 +7784,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Narrow_Shelves"
+				"Container_Narrow_Shelves"
 			],
 			null,
 			null,
@@ -7814,15 +7814,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Tray"
+				"Container_Tray"
 			],
 			null,
 			null,
@@ -7844,15 +7844,15 @@ public partial class ItemSeeder
 			false,
 			"leather",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Document_Pouch"
+				"Container_Document_Pouch"
 			],
 			null,
 			null,
@@ -7874,15 +7874,15 @@ public partial class ItemSeeder
 			false,
 			"silk",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Misc",
-				"`Container_Document_Pouch"
+				"Container_Document_Pouch"
 			],
 			null,
 			null,
@@ -7904,15 +7904,15 @@ public partial class ItemSeeder
 			false,
 			"cedar",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Seal_Box"
+				"Container_Seal_Box"
 			],
 			null,
 			null,
@@ -7934,15 +7934,15 @@ public partial class ItemSeeder
 			false,
 			"oak",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Writing_Desk_Drawers"
+				"Container_Writing_Desk_Drawers"
 			],
 			null,
 			null,
@@ -7964,15 +7964,15 @@ public partial class ItemSeeder
 			false,
 			"cedar",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Writing_Desk_Drawers"
+				"Container_Writing_Desk_Drawers"
 			],
 			null,
 			null,
@@ -7994,15 +7994,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Writing_Desk_Surface"
+				"Container_Writing_Desk_Surface"
 			],
 			null,
 			null,
@@ -8024,15 +8024,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Writing_Desk_Surface"
+				"Container_Writing_Desk_Surface"
 			],
 			null,
 			null,
@@ -8054,15 +8054,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Tray"
+				"Container_Tray"
 			],
 			null,
 			null,
@@ -8084,15 +8084,15 @@ public partial class ItemSeeder
 			false,
 			"bronze",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_HeavyMetal",
-				"`Container_Tray"
+				"Container_Tray"
 			],
 			null,
 			null,
@@ -8114,15 +8114,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Tray"
+				"Container_Tray"
 			],
 			null,
 			null,
@@ -8144,15 +8144,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Document_Bookcase_Shelves"
+				"Container_Document_Bookcase_Shelves"
 			],
 			null,
 			null,
@@ -8174,15 +8174,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Document_Bookcase_Shelves"
+				"Container_Document_Bookcase_Shelves"
 			],
 			null,
 			null,
@@ -8204,15 +8204,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Small_Table"
+				"Container_Small_Table"
 			],
 			null,
 			null,
@@ -8234,15 +8234,15 @@ public partial class ItemSeeder
 			false,
 			"wood",
 			[
-				"Functions / Container`",
+				"Functions / Container",
 				"Functions / Writing Goods",
 				"Functions / Household Items / Household Wares",
-				"`Market / Professional Tools / Standard Tools"
+				"Market / Professional Tools / Standard Tools"
 			],
 			[
-				"Holdable`",
+				"Holdable",
 				"Destroyable_Furniture",
-				"`Container_Writing_Desk_Surface"
+				"Container_Writing_Desk_Surface"
 			],
 			null,
 			null,

@@ -73,6 +73,17 @@ public class ItemSeederReworkMetadataTests
 	}
 
 	[TestMethod]
+	public void BuildReworkItemBuilderNotes_RecordsPreIndustrialCultureAndCategory()
+	{
+		var notes = ItemSeeder.BuildReworkItemBuilderNotesForTesting(
+			"preindustrial_printing_hand_press",
+			["Market / Professional Tools / Standard Tools"]);
+
+		StringAssert.Contains(notes, "Cultures: Shared Pre-Industrial.");
+		StringAssert.Contains(notes, "Seeder category: shared pre-industrial foundation stock.");
+	}
+
+	[TestMethod]
 	public void BuildReworkItemBuilderNotes_RecordsMedievalRepairAndGapCategories()
 	{
 		var repairNotes = ItemSeeder.BuildReworkItemBuilderNotesForTesting(
@@ -216,6 +227,31 @@ public class ItemSeederReworkMetadataTests
 		Assert.AreEqual("antiquity_hellenic_bronze_greaves", hellenic.UniqueName);
 		StringAssert.Contains(roman.BuilderNotes, "Cultures: Roman.");
 		StringAssert.Contains(hellenic.BuilderNotes, "Cultures: Hellenic.");
+	}
+
+	[TestMethod]
+	public void CreateReworkItem_ReusingStableReferenceIsIdempotent()
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		var seeder = new ItemSeeder();
+
+		var first = seeder.CreateReworkItemForTesting(
+			context,
+			"preindustrial_test_shared_item",
+			"item",
+			"a shared test item",
+			"wool");
+		var second = seeder.CreateReworkItemForTesting(
+			context,
+			"preindustrial_test_shared_item",
+			"item",
+			"a shared test item",
+			"wool");
+
+		Assert.IsNotNull(first);
+		Assert.AreSame(first, second);
+		Assert.AreEqual(1, context.GameItemProtos.Local.Count(x => x.UniqueName == "preindustrial_test_shared_item"));
 	}
 
 	private static void SeedPrerequisites(FuturemudDatabaseContext context)

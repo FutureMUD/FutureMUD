@@ -59,6 +59,7 @@ Antiquity Era	Era	Era / Antiquity Era
 Bronze Age Era	Era	Era / Bronze Age Era
 Colonial Era	Era	Era / Colonial Era
 Dark Ages Era	Era	Era / Dark Ages Era
+Early Modern Era	Era	Era / Early Modern Era
 Far Future Era	Era	Era / Far Future Era
 Industrial Era	Era	Era / Industrial Era
 Information Age Era	Era	Era / Information Age Era
@@ -67,9 +68,11 @@ Medieval Era	Era	Era / Medieval Era
 Modern Era	Era	Era / Modern Era
 Near Future Era	Era	Era / Near Future Era
 Nuclear Era	Era	Era / Nuclear Era
+Pre-Industrial Era	Era	Era / Pre-Industrial Era
 Renaissance Era	Era	Era / Renaissance Era
 Stone Age Era	Era	Era / Stone Age Era
 Functions		Functions
+Civic Fixtures	Functions	Functions / Civic Fixtures
 Container	Functions	Functions / Container
 Airtight Container	Container	Functions / Container / Airtight Container
 Open Container	Container	Functions / Container / Open Container
@@ -246,6 +249,9 @@ Shears	Shearing	Functions / Separation / Shearing / Shears
 Sharpening	Functions	Functions / Sharpening
 Shiny	Functions	Functions / Shiny
 Tools	Functions	Functions / Tools
+Primary Production Tools	Tools	Functions / Tools / Primary Production Tools
+Lime Kiln	Primary Production Tools	Functions / Tools / Primary Production Tools / Lime Kiln
+Timekeeping Tools	Tools	Functions / Tools / Timekeeping Tools
 Access Equipment	Tools	Functions / Tools / Access Equipment
 Ladder	Access Equipment	Functions / Tools / Access Equipment / Ladder
 A-Frame Ladder	Ladder	Functions / Tools / Access Equipment / Ladder / A-Frame Ladder
@@ -1069,6 +1075,7 @@ Printing Baren	Woodblock Printing Tools	Functions / Tools / Woodblock Printing T
 Registration Pin	Woodblock Printing Tools	Functions / Tools / Woodblock Printing Tools / Registration Pin
 Woodcrafting Tools	Tools	Functions / Tools / Woodcrafting Tools
 Adze	Woodcrafting Tools	Functions / Tools / Woodcrafting Tools / Adze
+Bow Drill	Woodcrafting Tools	Functions / Tools / Woodcrafting Tools / Bow Drill
 Bowyer Tools	Woodcrafting Tools	Functions / Tools / Woodcrafting Tools / Bowyer Tools
 Bow Press	Bowyer Tools	Functions / Tools / Woodcrafting Tools / Bowyer Tools / Bow Press
 Bow Scale	Bowyer Tools	Functions / Tools / Woodcrafting Tools / Bowyer Tools / Bow Scale

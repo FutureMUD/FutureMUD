@@ -64,9 +64,11 @@ public class ItemSeederMedievalCraftingTests
 	public void MedievalDispatcher_WiresHistoricFoundationAndLaunchStubs()
 	{
 		var reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
+		var sharedBaseline = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PreIndustrialBaseline.cs");
 		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
 
-		AssertContains(reworkRoot, "SeedHistoricCommonWorkshopItems();");
+		AssertContains(reworkRoot, "SeedSharedPreIndustrialBaselineItems();");
+		AssertContains(sharedBaseline, "SeedHistoricCommonWorkshopItems();");
 		foreach (var method in MedievalItemLaunchers.Values)
 		{
 			AssertContains(reworkRoot, $"{method}();");

@@ -29,7 +29,8 @@ namespace DatabaseSeeder.Seeders
                                                   string? morphEmote,
                                                   TimeSpan? morphTimer,
                                                   string? destroyedItemUniqueReference,
-                                                  string? builderNotes = null)
+                                                  string? builderNotes = null,
+                                                  bool allowLegacyShortDescriptionMatch = true)
         {
             var tagList = BuildReworkItemTagList(tags);
             var componentList = components as IReadOnlyCollection<string> ?? components.ToArray();
@@ -45,11 +46,14 @@ namespace DatabaseSeeder.Seeders
                 .AsEnumerable()
                 .FirstOrDefault(x => x.UniqueName?.Equals(stableReference, StringComparison.OrdinalIgnoreCase) == true) ??
                        _context.GameItemProtos.AsEnumerable()
-                           .FirstOrDefault(x => x.UniqueName?.Equals(stableReference, StringComparison.OrdinalIgnoreCase) == true) ??
-                       _context.GameItemProtos.AsEnumerable()
-                           .FirstOrDefault(x =>
-                               string.IsNullOrWhiteSpace(x.UniqueName) &&
-                               x.ShortDescription.Equals(sdesc, StringComparison.OrdinalIgnoreCase));
+                           .FirstOrDefault(x => x.UniqueName?.Equals(stableReference, StringComparison.OrdinalIgnoreCase) == true);
+            if (existing is null && allowLegacyShortDescriptionMatch)
+            {
+                existing = _context.GameItemProtos.AsEnumerable()
+                    .FirstOrDefault(x =>
+                        string.IsNullOrWhiteSpace(x.UniqueName) &&
+                        x.ShortDescription.Equals(sdesc, StringComparison.OrdinalIgnoreCase));
+            }
             if (existing is not null)
             {
                 ApplyReworkItemMetadata(existing, stableReference, tagList, builderNotes);
@@ -181,7 +185,37 @@ namespace DatabaseSeeder.Seeders
             ("_anatolian_", "Anatolian"),
             ("_scythian_", "Scythian-Sarmatian"),
             ("_sarmatian_", "Scythian-Sarmatian"),
-            ("_steppe_", "Scythian-Sarmatian")
+            ("_steppe_", "Scythian-Sarmatian"),
+            ("_renaissance_italian_", "Renaissance Italian"),
+            ("_renaissance_iberian_", "Renaissance Iberian"),
+            ("_renaissance_french_", "Renaissance French/Low Countries"),
+            ("_renaissance_english_", "Tudor/Elizabethan English"),
+            ("_renaissance_german_hre_", "Renaissance German/HRE"),
+            ("_renaissance_ottoman_", "Ottoman"),
+            ("_renaissance_safavid_", "Safavid/Persianate"),
+            ("_renaissance_mughal_", "Mughal/Indo-Persian"),
+            ("_renaissance_ming_", "Ming China"),
+            ("_renaissance_joseon_", "Joseon Korea"),
+            ("_renaissance_japanese_", "Muromachi/Sengoku/Momoyama Japan"),
+            ("_renaissance_west_african_", "West African"),
+            ("_renaissance_mesoamerican_", "Mesoamerican"),
+            ("_renaissance_andean_", "Andean"),
+            ("_renaissance_colonial_", "Early Colonial/Contact Zone"),
+            ("_earlymodern_british_", "Early Modern British"),
+            ("_earlymodern_french_", "Early Modern French"),
+            ("_earlymodern_dutch_", "Early Modern Dutch/Low Countries"),
+            ("_earlymodern_spanish_", "Early Modern Spanish"),
+            ("_earlymodern_portuguese_", "Early Modern Portuguese"),
+            ("_earlymodern_german_", "Early Modern German/HRE"),
+            ("_earlymodern_ottoman_", "Ottoman"),
+            ("_earlymodern_safavid_", "Safavid/Persianate"),
+            ("_earlymodern_mughal_", "Mughal/Indo-Persian"),
+            ("_earlymodern_qing_", "Qing China"),
+            ("_earlymodern_edo_", "Edo Japan"),
+            ("_earlymodern_joseon_", "Joseon Korea"),
+            ("_earlymodern_colonial_", "Colonial/Contact Zone"),
+            ("_earlymodern_atlantic_", "Atlantic World"),
+            ("_preindustrial_", "Shared Pre-Industrial")
         ];
 
         private static readonly (string Token, string Status)[] ReworkStableReferenceStatusTokens =
@@ -429,6 +463,11 @@ namespace DatabaseSeeder.Seeders
                 }
             }
 
+            if (stableReference.StartsWith("preindustrial_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                AddCulture("Shared Pre-Industrial");
+            }
+
             return cultures;
         }
 
@@ -461,6 +500,21 @@ namespace DatabaseSeeder.Seeders
             if (stableReference.StartsWith("historic_", StringComparison.InvariantCultureIgnoreCase))
             {
                 return "shared historic foundation stock";
+            }
+
+            if (stableReference.StartsWith("preindustrial_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "shared pre-industrial foundation stock";
+            }
+
+            if (stableReference.StartsWith("renaissance_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "renaissance era stock";
+            }
+
+            if (stableReference.StartsWith("earlymodern_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "early modern era stock";
             }
 
             if (stableReference.StartsWith("primary_production_", StringComparison.InvariantCultureIgnoreCase))
@@ -650,6 +704,11 @@ namespace DatabaseSeeder.Seeders
         }
 
         
+        private static bool HasAnyEra(string eras, params string[] eraKeys)
+        {
+            return eraKeys.Any(x => eras.Contains(x, StringComparison.InvariantCultureIgnoreCase));
+        }
+
         public void SeedReworkItems()
         {
             if (_questionAnswers?.TryGetValue("eras", out var eras) != true ||
@@ -658,11 +717,9 @@ namespace DatabaseSeeder.Seeders
                 return;
             }
 
-            if (eras.Contains("antiquity", StringComparison.InvariantCultureIgnoreCase) ||
-                eras.Contains("medieval", StringComparison.InvariantCultureIgnoreCase))
+            if (HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern"))
             {
-                SeedHistoricCommonWorkshopItems();
-                SeedPrimaryProductionToolsAndProps();
+                SeedSharedPreIndustrialBaselineItems();
             }
 
             if (eras.Contains("antiquity", StringComparison.InvariantCultureIgnoreCase))
@@ -702,12 +759,12 @@ namespace DatabaseSeeder.Seeders
 
             if (eras.Contains("renaissance", StringComparison.InvariantCultureIgnoreCase))
             {
-
+                SeedRenaissanceItems();
             }
 
             if (eras.Contains("earlymodern", StringComparison.InvariantCultureIgnoreCase))
             {
-
+                SeedEarlyModernItems();
             }
 
             if (eras.Contains("revolution", StringComparison.InvariantCultureIgnoreCase))

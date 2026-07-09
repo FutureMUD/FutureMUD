@@ -4785,6 +4785,26 @@
         "Component Type":  "TimePiece"
     },
     {
+        "Component Name":  "TimePiece_Antiquity_MarkedCandle",
+        "Component Description":  "Turns an item into a coarse marked-candle timepiece.",
+        "Component Type":  "TimePiece"
+    },
+    {
+        "Component Name":  "TimePiece_Antiquity_Sundial",
+        "Component Description":  "Turns an item into a non-settable sundial-style timepiece with crude daylight time display.",
+        "Component Type":  "TimePiece"
+    },
+    {
+        "Component Name":  "TimePiece_Antiquity_WatchBoard",
+        "Component Description":  "Turns an item into a public watch-board timepiece tied to the default clock and timezone.",
+        "Component Type":  "TimePiece"
+    },
+    {
+        "Component Name":  "TimePiece_Antiquity_WaterClock",
+        "Component Description":  "Turns an item into a non-settable water-clock style timepiece for temples, courts or watch posts.",
+        "Component Type":  "TimePiece"
+    },
+    {
         "Component Name":  "TimePiece_PocketWatch",
         "Component Description":  "Turns an item into a pocket watch style timepiece.",
         "Component Type":  "TimePiece"
@@ -5242,6 +5262,36 @@
     {
         "Component Name":  "Sink_5L",
         "Component Description":  "Turns an item into a 5L sink that can be filled up.",
+        "Component Type":  "WaterSource"
+    },
+    {
+        "Component Name":  "WaterSource_Antiquity_BathPool",
+        "Component Description":  "Turns an item into a large bathhouse plunge pool.",
+        "Component Type":  "WaterSource"
+    },
+    {
+        "Component Name":  "WaterSource_Antiquity_Cistern",
+        "Component Description":  "Turns an item into a lined stone cistern with a large stored water supply.",
+        "Component Type":  "WaterSource"
+    },
+    {
+        "Component Name":  "WaterSource_Antiquity_Fountain",
+        "Component Description":  "Turns an item into a public fountain or flowing spout.",
+        "Component Type":  "WaterSource"
+    },
+    {
+        "Component Name":  "WaterSource_Antiquity_IrrigationOutlet",
+        "Component Description":  "Turns an item into an irrigation-channel outlet or agricultural water fixture.",
+        "Component Type":  "WaterSource"
+    },
+    {
+        "Component Name":  "WaterSource_Antiquity_PublicWell",
+        "Component Description":  "Turns an item into a stone public well or similar fixed potable water source.",
+        "Component Type":  "WaterSource"
+    },
+    {
+        "Component Name":  "WaterSource_Antiquity_RitualBasin",
+        "Component Description":  "Turns an item into a temple purification basin or other ritual water source.",
         "Component Type":  "WaterSource"
     },
     {
@@ -6583,6 +6633,11 @@
         "Component Name":  "Container_Writing_Desk_Surface",
         "Component Description":  "Allows a writing desk surface to hold books, documents, seals and writing tools on it.",
         "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Antiquity_Wooden_Block_Surface",
+        "Component Description":  "Allows wooden writing blocks to take incised or charcoal writing",
+        "Component Type":  "InscribableSurface"
     },
     {
         "Component Name":  "Medieval_Account_Ledger_90_Page",

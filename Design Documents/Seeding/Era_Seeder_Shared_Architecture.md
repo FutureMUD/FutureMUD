@@ -1,6 +1,6 @@
 # Era Seeder Shared Architecture
 
-This document describes the shared era item/craft records used by rework seeders. Antiquity currently uses this architecture for live seeded content. The medieval rework path has been reset to no-op launch stubs, so medieval-specific configuration and catalogue examples should be treated as retired context until the from-scratch rebuild adds new source truth.
+This document describes the shared era item/craft records used by rework seeders. Antiquity and Medieval both have live seeded catalogues. The shared pre-industrial baseline now supplies stable cross-era workshop, production, writing, trade, civic, and military-support stock to Antiquity, Medieval, Renaissance, and Early Modern selections without renaming either era's source rows.
 
 ## Shared Records
 
@@ -48,6 +48,12 @@ Add future era content by defining data first:
 6. Seed through shared helpers such as `SeedEraItemSpecs(...)` where possible.
 
 If an era needs different behaviour, express it through configuration or a small strategy helper. Do not copy a retired helper family and edit the copy.
+
+## Shared pre-industrial compatibility layer
+
+Cross-era reuse does not directly invoke broad earlier-era catalogues. Existing `historic_*` and `primary_production_*` rows retain their stable references, while selected Antiquity and Medieval forms receive `preindustrial_*` aliases with copied physical/component data and source-attribution builder notes. Alias lifecycle targets must resolve to aliases when both endpoints are promoted.
+
+See [Pre-Industrial Shared Item Seeder Design Reference](./PreIndustrial_Item_Seeder_Design_Reference.md) and its [complete alias catalogue](./PreIndustrial_Item_Seeder_Alias_Catalogue.md).
 
 ## No Patch-After-Create Clothing
 

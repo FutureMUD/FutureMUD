@@ -109,6 +109,8 @@ Item prototype lookup prefers numeric ids, then exact `UniqueName`, then the leg
 
 Stock rework items seeded by `ItemSeeder` use their stable seeder reference as `UniqueName`. Their builder comments also carry stock-only metadata such as the stable reference, culture context when the catalogue item belongs to a culture-specific slice, and broad seeder package notes.
 
+The shared pre-industrial rework package uses `preindustrial_*` unique names for selected cross-era aliases and new stock. It never renames the source `antiquity_*` or `medieval_*` prototype. Alias builder comments name the source stable reference, while public descriptions remain in-world and do not mention aliases or seeder mechanics. Builders selecting Antiquity, Medieval, Renaissance, or Early Modern receive the same `historic_*`, `primary_production_*`, and shared pre-industrial foundation without duplicate prototypes on rerun.
+
 ### Attach or detach components
 Use:
 - `item set add <id|name>`

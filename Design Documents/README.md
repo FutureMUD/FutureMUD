@@ -60,6 +60,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Medieval Jewellery Seeder Design Reference](./Seeding/Medieval_Jewellery_Seeder_Design_Reference.md)
 - [Medieval Writing, Books, and Documents Seeder Design Reference](./Seeding/FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md)
 - [Medieval Treatment Items, Drugs, and Repair Kits Design Reference](./Seeding/FutureMUD_Medieval_Treatment_Drugs_Repair_Kits_Design_Reference.md)
+- [Pre-Industrial Shared Item Seeder Design Reference](./Seeding/PreIndustrial_Item_Seeder_Design_Reference.md)
+- [Pre-Industrial Item Seeder Alias Catalogue](./Seeding/PreIndustrial_Item_Seeder_Alias_Catalogue.md)
 - [Butchering System](./Crafting/Butchering_System.md)
 - [Crafting System Overview](./Crafting/Crafting_System_Overview.md)
 - [Crafting System Runtime and Extensibility](./Crafting/Crafting_System_Runtime_and_Extensibility.md)
@@ -131,6 +133,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 ## Seeding
 - [DatabaseSeeder Repeatability Strategy](./Seeding/DatabaseSeeder_Repeatability_Strategy.md)
 - [DatabaseSeeder System Gap Audit](./Seeding/DatabaseSeeder_System_Gap_Audit.md)
+- [Era Seeder Shared Architecture](./Seeding/Era_Seeder_Shared_Architecture.md)
 
 ## Technology
 - [Automation End-To-End Test Scenarios](./Technology/Automation_End_To_End_Test_Scenarios.md)

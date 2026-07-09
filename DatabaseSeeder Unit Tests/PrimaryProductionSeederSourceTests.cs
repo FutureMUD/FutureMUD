@@ -252,9 +252,11 @@ public class PrimaryProductionSeederSourceTests
 	public void Phase3_PrimaryProductionItemSeederIsWiredIntoHistoricReworkInstall()
 	{
 		var reworkSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
+		var sharedBaselineSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PreIndustrialBaseline.cs");
 		var primaryProductionSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PrimaryProductionTools.cs");
 
-		AssertContains(reworkSource, "SeedPrimaryProductionToolsAndProps();");
+		AssertContains(reworkSource, "SeedSharedPreIndustrialBaselineItems();");
+		AssertContains(sharedBaselineSource, "SeedPrimaryProductionToolsAndProps();");
 		AssertContains(primaryProductionSource, "private void SeedPrimaryProductionToolsAndProps()");
 		AssertContains(primaryProductionSource, "SeedEraItemSpecs(PrimaryProductionItemSpecs());");
 		AssertContains(primaryProductionSource, "PrimaryProductionItemSpecsForTesting");

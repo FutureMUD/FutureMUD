@@ -340,16 +340,18 @@ Include:
 
 These are item primitives only; they do not implement complete resource, craft, manufacturing, military, scientific, or commodity chains.
 
+The foundational gap patch now supplies exact type metal, printing ink, glass blank, calico/chintz, ribbon, taffeta, logwood, cochineal, tobacco, and processed cash-crop materials, plus historical specialist skill pairs for printing, gunsmithing, powdermaking, optics, clockmaking, instruments, navigation, cartography, surveying, and engraving. These foundations resolve names and commodity inputs; they do not replace the complete chains below.
+
 ### Still required or subject to audit
 
 - Blackpowder, saltpetre/nitre, brimstone/sulfur, charcoal grades, lead shot, cartridge paper, gunflints, and production/safety chains.
 - Gunsmithing: barrels, locks, springs, screws, stock blanks, actual firearm components, repair tools, and ammunition manufacture.
-- Printing: type metal, movable type, composing/locking materials, press hardware, oil-based inks, paper reams, and functional publishing crafts.
+- Printing: movable type item stock, composing/locking materials, press hardware, paper reams, and functional publishing crafts using the live type-metal and printing-ink materials.
 - Glass and optics: clear/lens/mirror glass, telescope and microscope lens systems, polishing powders, and optician crafts.
 - Clockmaking and instruments: brass gears, springs, dials, pendulums, clock/watch cases, and instrument production.
 - Porcelain and ceramics: porcelain, kaolin/china clay, glaze, stoneware, faience/Delft-like and export ceramic support.
-- Textile and dye industries: cotton, calico/chintz, broadcloth, lace, ribbon, velvet, satin, taffeta, indigo, cochineal, and logwood.
-- Cash-crop processing: sugar refining, molasses/rum production, tobacco curing, coffee roasting, cacao processing, and tea packing.
+- Textile and dye industries: crafts and finished stock using the now-live cotton, calico/chintz, broadcloth, lace, ribbon, velvet, satin, taffeta, indigo, cochineal, and logwood materials.
+- Cash-crop processing: transformation crafts using the now-live sugar-loaf, molasses, tobacco, roasted-coffee, cacao, tea-brick, cotton-fibre, indigo-cake, and cochineal foundations.
 - Maritime stores: sailcloth, rope, tar, pitch, oak staves, barrels, blocks, tackle, canvas, and caulking.
 
 ## Useful Seeder impacts
@@ -359,6 +361,7 @@ These are item primitives only; they do not implement complete resource, craft, 
 - `Pre-Industrial Era` and `Early Modern Era` tags are live in the maintained tag hierarchy.
 - The shared print, navigation/science, gunpowder-support, global-trade, tool, writing, container, door, time/water, and military-support stock uses maintained materials, tags, and components.
 - Early Modern selection automatically receives the common primary-production and historic workshop packages.
+- Historical specialist skills now resolve for movable-type printing, gunsmithing, powdermaking, lensmaking, clockmaking, instrument making, navigation, cartography, surveying, and engraving in either naming mode.
 
 ### Still required
 
@@ -384,9 +387,9 @@ Before creating a toolkit or tool, check the shared alias catalogue and named st
 
 ## Agriculture Seeder impacts
 
-The shared baseline does not seed crops, foods, drinks, plantation production, or processing chains. It supplies reusable packaging that those systems can consume or output.
+The shared baseline supplies reusable packaging rather than crops or processing chains. The Agriculture seeder now supplies all named crop foundations below, including tobacco, cardamom, allspice, logwood, explicit medicinal crops, cacao-bean and mace secondary outputs, and cochineal through nopal cultivation.
 
-Add or validate:
+Validated stock coverage:
 
 - maize
 - potato
@@ -405,7 +408,7 @@ Add or validate:
 - spices: clove, nutmeg, mace, pepper, cinnamon, cardamom, saffron, allspice
 - medicinal botanicals and apothecary plants
 
-Processing outputs should include sugar loaf, molasses, rum, tobacco leaf, tobacco twist, snuff, coffee bean, roasted coffee, cacao bean, cacao nibs, chocolate cake/block, tea brick/cake, cotton bale, indigo cake, cochineal packet, and spice sachets. Use the appropriate `preindustrial_trade_*` packaging stable reference rather than creating an Early Modern-only sack, bale, chest, crate, or hogshead for the same form.
+Material foundations now exist for sugar loaf, molasses, tobacco leaf, tobacco twist, snuff, coffee bean, roasted coffee, cacao bean, cacao nibs, chocolate cake/block, tea brick/cake, cotton fibre, indigo cake, and cochineal; rum remains a live liquid. Finished items, packets/bales, and processing crafts remain branch work. Use the appropriate `preindustrial_trade_*` packaging stable reference rather than creating an Early Modern-only sack, bale, chest, crate, or hogshead for the same form.
 
 ## Recommended branch references to produce after this master
 

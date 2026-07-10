@@ -590,7 +590,16 @@ public class CoreDataSeederMaterialTests
             ["pineapple"] = ["Fruit", "Agriculture Seedable"],
             ["gum arabic"] = ["Natural Materials"],
             ["mangrove wood"] = ["Hardwood"],
-            ["charcoal"] = ["Manufactured Materials"]
+            ["charcoal"] = ["Manufactured Materials"],
+			["tobacco leaf"] = ["Herb", "Agriculture Seedable", "Primary Production Commodity"],
+			["logwood"] = ["Hardwood", "Textile Dye", "Agriculture Seedable", "Primary Production Commodity"],
+			["cochineal"] = ["Animal Product", "Textile Dye", "Primary Production Commodity"],
+			["type metal"] = ["Renaissance Age", "Primary Production Metal Stock", "Primary Production Commodity"],
+			["printing ink"] = ["Writing Product", "Primary Production Commodity"],
+			["taffeta"] = ["Natural Fiber Fabric", "Primary Production Commodity"],
+			["molasses"] = ["Food", "Primary Production Commodity"],
+			["cacao bean"] = ["Food Crop", "Primary Production Commodity"],
+			["cotton fibre"] = ["Fiber Crop", "Primary Production Commodity"]
         };
 
         foreach (KeyValuePair<string, string[]> expectation in representativeNewMaterials)
@@ -606,6 +615,46 @@ public class CoreDataSeederMaterialTests
             }
         }
     }
+
+	[TestMethod]
+	public void SeedMaterials_SeedsRenaissanceAndEarlyModernFoundationMaterials()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedMaterials(context);
+
+		string[] expectedMaterials =
+		[
+			"taffeta", "ribbon", "calico", "chintz", "logwood", "cochineal", "tobacco leaf", "type metal",
+			"printing ink", "molasses", "sugar loaf", "tobacco twist", "snuff", "roasted coffee", "cacao bean",
+			"cacao nibs", "chocolate block", "tea brick", "cotton fibre", "glass blank", "indigo dye cake"
+		];
+
+		var materials = context.Materials
+			.Include(x => x.MaterialAliases)
+			.Include(x => x.MaterialsTags)
+			.ThenInclude(x => x.Tag)
+			.AsEnumerable()
+			.Where(x => expectedMaterials.Contains(x.Name, StringComparer.InvariantCultureIgnoreCase))
+			.ToDictionary(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+
+		CollectionAssert.AreEquivalent(expectedMaterials, materials.Keys.ToArray());
+		Assert.AreEqual((int)MaterialBehaviourType.Fabric, materials["taffeta"].BehaviourType);
+		Assert.AreEqual((int)MaterialBehaviourType.Wood, materials["logwood"].BehaviourType);
+		Assert.AreEqual((int)MaterialBehaviourType.Metal, materials["type metal"].BehaviourType);
+		Assert.AreEqual((int)MaterialBehaviourType.Paste, materials["printing ink"].BehaviourType);
+		Assert.AreEqual((int)MaterialBehaviourType.Paste, materials["molasses"].BehaviourType);
+
+		Assert.IsTrue(materials["tobacco leaf"].MaterialsTags.Any(x => x.Tag.Name == "Agriculture Seedable"));
+		Assert.IsTrue(materials["logwood"].MaterialsTags.Any(x => x.Tag.Name == "Agriculture Seedable"));
+		Assert.IsTrue(materials["cochineal"].MaterialsTags.Any(x => x.Tag.Name == "Textile Dye"));
+		Assert.IsTrue(materials["type metal"].MaterialsTags.Any(x => x.Tag.Name == "Primary Production Metal Stock"));
+		Assert.IsTrue(materials["printing ink"].MaterialsTags.Any(x => x.Tag.Name == "Writing Product"));
+
+		Assert.IsTrue(materials["tobacco leaf"].MaterialAliases.Any(x => x.Alias == "tobacco"));
+		Assert.IsTrue(materials["printing ink"].MaterialAliases.Any(x => x.Alias == "oil-based printing ink"));
+		Assert.IsTrue(materials["cacao bean"].MaterialAliases.Any(x => x.Alias == "cocoa bean"));
+		Assert.IsTrue(materials["tea brick"].MaterialAliases.Any(x => x.Alias == "tea cake"));
+	}
 
     [TestMethod]
     public void SeedMaterialsBase_DoesNotAssumeWaterHasLiquidIdOne()

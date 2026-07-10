@@ -349,25 +349,28 @@ Include Renaissance-specific institutional material:
 
 These facts provide item vocabulary only. They do not create complete material-production chains, crafts, resource systems, or specialist mechanics.
 
+The foundational gap patch now supplies exact type metal, printing ink, glass blank, taffeta, ribbon, calico/chintz, logwood, cochineal, tobacco, and processed cash-crop materials, plus historical specialist skill pairs for printing, gunsmithing, powdermaking, optics, clockmaking, instruments, navigation, cartography, surveying, and engraving. These foundations resolve names and commodity inputs; they do not replace the complete chains below.
+
 ### Still required or subject to audit
 
 - Papermaking: rag bales, pulp, mould-and-deckle, press felts, paper reams, sizing, and paper-production crafts.
-- Printing: type metal, movable type, type moulds, ink production, formes/tympan/frisket where distinct, and functional printing crafts.
+- Printing: movable type item stock, type moulds, formes/tympan/frisket where distinct, and functional printing crafts using the live type-metal and printing-ink materials.
 - Gunpowder: saltpetre/nitre, brimstone/sulfur, charcoal grades, blackpowder commodity/craft stock, lead shot, and safe production chains.
 - Firearms and armour: barrels, locks, springs, screws, stock blanks, actual weapon components, ammunition, and period-specific armour manufacture.
 - Glass and optics: clear/lens/mirror glass stock, lens grinding and polishing, and any functional optical component work.
 - Ceramics: porcelain, faience/majolica/stoneware/earthenware/glaze production and cobalt-pigment support.
-- Textiles: broadcloth, velvet, satin, taffeta, lace, ribbon, linen, cotton, silk, felt, canvas, printed cloth, and embroidery stock/crafts.
+- Textiles: finished stock and crafts using the live broadcloth, velvet, satin, taffeta, lace, ribbon, linen, cotton, silk, felt, canvas, calico, and chintz materials.
 - Maritime stores: sailcloth, rope, tar, pitch, resin, oak staves, casks, blocks, tackle, and caulking.
-- Dyes and pigments: indigo, cochineal, madder, woad, logwood, saffron, cinnabar, azurite, malachite, lampblack, and other approved stocks.
+- Dyes and pigments: processing crafts using the live indigo, cochineal, madder, woad, logwood, saffron, cinnabar, azurite, malachite, and other approved stocks.
 
 ## Useful Seeder impacts
 
 ### Already resolved
 
-- `Pre-Industrial Era` and `Early Modern Era` tags are live in the maintained tag hierarchy.
+- `Pre-Industrial Era` and `Renaissance Era` tags are live in the maintained tag hierarchy.
 - Shared print, navigation/science, gunpowder-support, global-trade, tool, writing, container, door, time/water, and military-support rows use maintained materials, tags, and components.
 - Renaissance selection automatically receives the common primary-production and historic workshop packages.
+- Historical specialist skills now resolve for movable-type printing, gunsmithing, powdermaking, lensmaking, clockmaking, instrument making, navigation, cartography, surveying, and engraving in either naming mode.
 
 ### Still required
 
@@ -394,9 +397,9 @@ Before creating a toolkit or tool, check for a `preindustrial_tool_*`, `preindus
 
 ## Agriculture Seeder impacts
 
-The shared baseline does not seed crops, harvests, foods, drinks, or processing chains. It only supplies reusable packaging for several globally traded commodities.
+The shared baseline supplies reusable packaging rather than crops or processing chains. The Agriculture seeder now supplies all named crop foundations below, including tobacco, cardamom, allspice, logwood, explicit medicinal crops, cacao-bean and mace secondary outputs, and cochineal through nopal cultivation.
 
-Add or validate crops and processed outputs for:
+Validated stock crop coverage:
 
 - maize
 - potato
@@ -415,7 +418,7 @@ Add or validate crops and processed outputs for:
 - clove, nutmeg, mace, pepper, cinnamon, cardamom and other spices
 - medicinal herbs, roots, gums, resins, and apothecary botanicals
 
-Processing outputs should include sugar loaf, molasses, cacao beans/nibs, tobacco leaf/twist, cotton bale, indigo cake, cochineal packet, spice sachets, tea bricks/cakes, and coffee-bean sacks. Where a matching shared package exists, Agriculture and trade crafts should output or use that `preindustrial_trade_*` reference instead of creating a Renaissance-only container.
+Material foundations now exist for sugar loaf, molasses, cacao beans/nibs, tobacco leaf/twist, cotton fibre, indigo cake, cochineal, tea bricks/cakes, roasted coffee, snuff, and chocolate blocks. Finished items, packets/bales, and processing crafts remain branch work. Where a matching shared package exists, Agriculture and trade crafts should output or use that `preindustrial_trade_*` reference instead of creating a Renaissance-only container.
 
 ## Recommended branch references to produce after this master
 

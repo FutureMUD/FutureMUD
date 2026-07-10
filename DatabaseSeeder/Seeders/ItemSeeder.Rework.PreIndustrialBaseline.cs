@@ -148,12 +148,28 @@ public partial class ItemSeeder
 
 	private void SeedRenaissanceItems()
 	{
-		// Era-specific Renaissance item seeders go here.
+		SeedRenaissanceSharedBaselineAdmissionManifest();
+		SeedRenaissanceClothingAndAccessories();
+		SeedRenaissanceMilitaryFirearmsAndArmour();
+		SeedRenaissanceWritingPrintAndAdministration();
+		SeedRenaissanceHouseholdUrbanAndTrade();
+		SeedRenaissanceArtCraftScienceAndNavigation();
+		SeedRenaissanceAgricultureFoodDrinkAndCommodities();
+		SeedRenaissancePrimaryIndustryAndUsefulSeederImpacts();
+		SeedRenaissanceCultureManifest();
 	}
 
 	private void SeedEarlyModernItems()
 	{
-		// Era-specific Early Modern item seeders go here.
+		SeedEarlyModernSharedBaselineAdmissionManifest();
+		SeedEarlyModernClothingAndAccessories();
+		SeedEarlyModernMilitaryFirearmsUniformsAndNaval();
+		SeedEarlyModernWritingPrintAdministrationAndFinance();
+		SeedEarlyModernHouseholdCoffeehouseTavernAndTrade();
+		SeedEarlyModernScienceNavigationOpticsAndMeasurement();
+		SeedEarlyModernAgricultureFoodDrinkAndCommodities();
+		SeedEarlyModernPrimaryIndustryAndUsefulSeederImpacts();
+		SeedEarlyModernCultureManifest();
 	}
 
 	private GameItemProto? CreatePreIndustrialAlias(

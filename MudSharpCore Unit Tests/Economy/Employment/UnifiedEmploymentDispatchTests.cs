@@ -652,6 +652,48 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void HospitalServiceAvailability_AllowsBloodDonationWithIvStockStagedInTheatre()
+	{
+		var unitManager = new Mock<MudSharp.Framework.Units.IUnitManager>();
+		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
+		var bodyProto = BodyPrototype();
+		var theatreItems = new List<IGameItem>
+		{
+			IvContainer(9009, "empty blood bag", gameworld.Object).Object,
+			CannulaItem(9010, "cannula", bodyProto.Object).Object,
+			DripItem(9011, "iv drip").Object
+		};
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([]);
+		hospital.SetupGet(x => x.OperatingTheatres)
+		        .Returns([PhysicalCell(9012, "operating theatre", theatreItems).Object]);
+		SetupAvailableMedicalEmployee(hospital);
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodDonation);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		service.SetupGet(x => x.BloodVolumeLitres).Returns(0.5);
+		var donorBlood = new Mock<ILiquid>();
+		donorBlood.SetupGet(x => x.Density).Returns(1.0);
+		var donorBody = new Mock<MudSharp.Body.IBody>();
+		donorBody.SetupGet(x => x.BloodLiquid).Returns(donorBlood.Object);
+		donorBody.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
+		donorBody.SetupGet(x => x.Implants).Returns([]);
+		var donor = Character(9013, "Donor", gameworld: gameworld.Object);
+		donor.SetupGet(x => x.Body).Returns(donorBody.Object);
+
+		var result = HospitalServiceAvailability.Evaluate(hospital.Object, service.Object, patient: donor.Object);
+
+		Assert.IsTrue(result.Available, result.Reason);
+	}
+
+	[TestMethod]
 	public void HospitalServiceAvailability_AllowsTransfusionFromMultipleCompatibleNonMatchingContainers()
 	{
 		var unitManager = new Mock<MudSharp.Framework.Units.IUnitManager>();

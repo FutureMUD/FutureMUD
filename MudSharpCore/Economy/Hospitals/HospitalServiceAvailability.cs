@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Economy.Employment;
 using MudSharp.Framework;
 using MudSharp.Form.Material;
@@ -167,7 +168,7 @@ public static class HospitalServiceAvailability
 			return true;
 		}
 
-		foreach (var room in hospital.SupplyRooms)
+		foreach (var room in HospitalStockRooms(hospital))
 		{
 			var available = room.GameItems
 			                    .SelectMany(x => x.DeepItems.Append(x))
@@ -446,9 +447,16 @@ public static class HospitalServiceAvailability
 
 	private static IEnumerable<IGameItem> HospitalStockItems(IHospital hospital)
 	{
-		return hospital.SupplyRooms
+		return HospitalStockRooms(hospital)
 		               .SelectMany(x => x.GameItems.SelectMany(y => y.DeepItems.Append(y)))
 		               .DistinctBy(x => x.Id);
+	}
+
+	private static IEnumerable<ICell> HospitalStockRooms(IHospital hospital)
+	{
+		return (hospital.SupplyRooms ?? Enumerable.Empty<ICell>())
+		       .Concat(hospital.OperatingTheatres ?? Enumerable.Empty<ICell>())
+		       .DistinctBy(x => x.Id);
 	}
 
 	private static double AnestheticLiquidAmount(ILiquidContainer container, IDrug drug)

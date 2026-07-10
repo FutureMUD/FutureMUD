@@ -1,10 +1,16 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 
@@ -14,6 +20,110 @@ namespace MudSharp.Economy.Hospitals;
 
 public static class HospitalPatientFlow
 {
+	private const string StagedBelongingsNotePrefix = "Patient belongings staged for recovery: item #";
+	private const string ReturnedBelongingsNotePrefix = "Patient belongings returned after treatment: item #";
+
+	internal static void StagePatientBelongings(IHospitalServiceRequest request, ICharacter patient, ICell stagingRoom,
+		IReadOnlyCollection<IGameItem> strippedItems)
+	{
+		if (!strippedItems.Any())
+		{
+			return;
+		}
+
+		var existing = TryGetStagedBelongings(request);
+		if (existing?.GetItemType<PileGameItemComponent>() is { } existingBundle)
+		{
+			foreach (var item in strippedItems.Where(x => x.Id != existing.Id))
+			{
+				DetachItem(item);
+				existingBundle.Put(null, item);
+			}
+
+			RecordBelongingsReference(request, existing.Id, false);
+			return;
+		}
+
+		var belongings = strippedItems
+			.Append(existing)
+			.Where(x => x is not null)
+			.Cast<IGameItem>()
+			.DistinctBy(x => x.Id)
+			.ToList();
+		if (belongings.Count == 1)
+		{
+			belongings[0].SetOwner(patient);
+			RecordBelongingsReference(request, belongings[0].Id, false);
+			return;
+		}
+
+		foreach (var item in belongings)
+		{
+			DetachItem(item);
+		}
+
+		var bundle = PileGameItemComponentProto.CreateNewBundle(belongings);
+		request.Hospital.Gameworld.Add(bundle);
+		bundle.SetOwner(patient);
+		bundle.RoomLayer = patient.RoomLayer;
+		stagingRoom.Insert(bundle, true);
+		RecordBelongingsReference(request, bundle.Id, false);
+	}
+
+	internal static long? StagedPatientBelongingsItemId(IHospitalServiceRequest request)
+	{
+		var line = (request.OperationalNotes ?? string.Empty)
+			.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+			.LastOrDefault(x => x.StartsWith(StagedBelongingsNotePrefix,
+				StringComparison.InvariantCultureIgnoreCase));
+		return line is not null &&
+		       long.TryParse(line[StagedBelongingsNotePrefix.Length..], NumberStyles.Integer,
+			       CultureInfo.InvariantCulture, out var itemId)
+			? itemId
+			: null;
+	}
+
+	private static IGameItem? TryGetStagedBelongings(IHospitalServiceRequest request)
+	{
+		return StagedPatientBelongingsItemId(request) is { } itemId
+			? request.Hospital.Gameworld.TryGetItem(itemId, true)
+			: null;
+	}
+
+	private static void ReturnPatientBelongings(IHospitalServiceRequest request, ICharacter patient,
+		ICell destination)
+	{
+		if (TryGetStagedBelongings(request) is not { } belongings)
+		{
+			return;
+		}
+
+		DetachItem(belongings);
+		belongings.RoomLayer = patient.RoomLayer;
+		destination.Insert(belongings, true);
+		RecordBelongingsReference(request, belongings.Id, true);
+		patient.OutputHandler.Send(
+			$"Your belongings have been returned here as {belongings.HowSeen(patient)}.");
+	}
+
+	private static void RecordBelongingsReference(IHospitalServiceRequest request, long itemId, bool returned)
+	{
+		var notes = (request.OperationalNotes ?? string.Empty)
+			.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+			.Where(x => !x.StartsWith(StagedBelongingsNotePrefix, StringComparison.InvariantCultureIgnoreCase) &&
+			            !x.StartsWith(ReturnedBelongingsNotePrefix, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		notes.Add($"{(returned ? ReturnedBelongingsNotePrefix : StagedBelongingsNotePrefix)}{itemId.ToString(CultureInfo.InvariantCulture)}");
+		request.OperationalNotes = string.Join('\n', notes);
+	}
+
+	private static void DetachItem(IGameItem item)
+	{
+		item.ContainedIn?.Take(item);
+		item.InInventoryOf?.Take(item);
+		item.Location?.Extract(item);
+	}
+
 	public static bool TryReserveTreatmentLocation(IHospital hospital, IHospitalServiceRequest request,
 		out ICell? location, out string reason)
 	{
@@ -171,6 +281,8 @@ public static class HospitalPatientFlow
 		{
 			MoveCharacter(employee!, destination);
 		}
+
+		ReturnPatientBelongings(request, patient, destination);
 
 		if (destinationIsRecovery)
 		{

@@ -218,7 +218,10 @@ internal sealed class EmploymentManagerGoalAuthoringService
 			foreach (var goal in EmploymentManagerGoalCatalog.ForCategory(category.ToString()))
 			{
 				AppendGoalDefinition(sb, goal, detailed: false);
+				sb.AppendLine();
 			}
+
+			sb.AppendLine();
 		}
 
 		return sb.ToString();

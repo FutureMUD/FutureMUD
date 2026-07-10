@@ -35,6 +35,8 @@ public class CannulationProcedure : BodypartSpecificSurgicalProcedure
 
     public override SurgicalProcedureType Procedure => SurgicalProcedureType.Cannulation;
 
+    public override bool RequiresTargetBodypartExposure => true;
+
     public override Difficulty GetProcedureDifficulty(ICharacter surgeon, ICharacter patient,
         params object[] additionalArguments)
     {
@@ -156,7 +158,7 @@ public class CannulationProcedure : BodypartSpecificSurgicalProcedure
             return false;
         }
 
-        if (!IsPermissableBodypart(bodypart))
+        if (!IsPermissibleBodypart(bodypart))
         {
             return false;
         }
@@ -195,7 +197,7 @@ public class CannulationProcedure : BodypartSpecificSurgicalProcedure
             return $"{patient.HowSeen(surgeon, true)} does not have any such bodypart.";
         }
 
-        if (!IsPermissableBodypart(bodypart))
+        if (!IsPermissibleBodypart(bodypart))
         {
             return $"This procedure is not designed to work with {bodypart.FullDescription().Pluralise()}.";
         }

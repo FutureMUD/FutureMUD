@@ -95,7 +95,31 @@ public static class HospitalPatientFlow
 	public static void TransferAfterTreatment(IHospital hospital, IHospitalServiceRequest request, ICharacter? employee,
 		string auditPrefix)
 	{
-		if (!request.Service.RequiresRecovery || request.Patient is not { } patient)
+		if (!request.Service.RequiresRecovery)
+		{
+			return;
+		}
+
+		TransferToPostTreatmentDestination(hospital, request, employee, auditPrefix, true);
+	}
+
+	public static void TransferAfterFailedTreatment(IHospital hospital, IHospitalServiceRequest request,
+		ICharacter? employee, string auditPrefix)
+	{
+		if (request.Patient is not { } patient ||
+		    request.OperatingTheatreCellId is not { } theatreId ||
+		    patient.Location?.Id != theatreId)
+		{
+			return;
+		}
+
+		TransferToPostTreatmentDestination(hospital, request, employee, auditPrefix, false);
+	}
+
+	private static void TransferToPostTreatmentDestination(IHospital hospital, IHospitalServiceRequest request,
+		ICharacter? employee, string auditPrefix, bool completed)
+	{
+		if (request.Patient is not { } patient)
 		{
 			return;
 		}
@@ -119,16 +143,26 @@ public static class HospitalPatientFlow
 			if (employeeCanEscort)
 			{
 				origin.HandleRoomEcho(new EmoteOutput(new Emote(
-					destinationIsRecovery
-						? "@ escort|escorts $0 to recovery after treatment."
-						: "@ escort|escorts $0 back to the waiting room after treatment.", employee!, patient)));
+					completed
+						? destinationIsRecovery
+							? "@ escort|escorts $0 to recovery after treatment."
+							: "@ escort|escorts $0 back to the waiting room after treatment."
+						: destinationIsRecovery
+							? "@ escort|escorts $0 to recovery after the procedure is abandoned."
+							: "@ escort|escorts $0 back to the waiting room after the procedure is abandoned.",
+					employee!, patient)));
 			}
 			else
 			{
 				origin.HandleRoomEcho(new EmoteOutput(new Emote(
-					destinationIsRecovery
-						? "$0 $0|are|is taken to recovery after treatment."
-						: "$0 $0|are|is escorted back to the waiting room after treatment.", patient, patient)));
+					completed
+						? destinationIsRecovery
+							? "$0 $0|are|is taken to recovery after treatment."
+							: "$0 $0|are|is escorted back to the waiting room after treatment."
+						: destinationIsRecovery
+							? "$0 $0|are|is taken to recovery after the procedure is abandoned."
+							: "$0 $0|are|is escorted back to the waiting room after the procedure is abandoned.",
+					patient, patient)));
 			}
 		}
 
@@ -146,20 +180,30 @@ public static class HospitalPatientFlow
 				PlaceOnRecoveryBed(patient, destination);
 			}
 
-			patient.OutputHandler.Send(
-				$"Your hospital treatment is complete, and you are {(patient.IsHelpless ? "brought" : "escorted")} to {destination.Name.ColourName()} for recovery.");
+			patient.OutputHandler.Send(completed
+				? $"Your hospital treatment is complete, and you are {(patient.IsHelpless ? "brought" : "escorted")} to {destination.Name.ColourName()} for recovery."
+				: $"Your hospital procedure could not be completed, and you are {(patient.IsHelpless ? "brought" : "escorted")} to {destination.Name.ColourName()} for recovery.");
 			destination.HandleRoomEcho(new EmoteOutput(employeeCanEscort
-				? new Emote("@ arrive|arrives with $0 for recovery.", employee!, patient)
-				: new Emote("$0 $0|are|is brought in for recovery.", patient, patient)));
+				? new Emote(completed
+					? "@ arrive|arrives with $0 for recovery."
+					: "@ arrive|arrives with $0 for recovery after an abandoned procedure.", employee!, patient)
+				: new Emote(completed
+					? "$0 $0|are|is brought in for recovery."
+					: "$0 $0|are|is brought in for recovery after an abandoned procedure.", patient, patient)));
 			return;
 		}
 
 		request.ReturnCellId = destination.Id;
-		patient.OutputHandler.Send(
-			$"Your hospital treatment is complete, and you are returned to {destination.Name.ColourName()}.");
+		patient.OutputHandler.Send(completed
+			? $"Your hospital treatment is complete, and you are returned to {destination.Name.ColourName()}."
+			: $"Your hospital procedure could not be completed, and you are returned to {destination.Name.ColourName()}.");
 		destination.HandleRoomEcho(new EmoteOutput(employeeCanEscort
-			? new Emote("@ arrive|arrives with $0 after hospital treatment.", employee!, patient)
-			: new Emote("$0 $0|return|returns from hospital treatment.", patient, patient)));
+			? new Emote(completed
+				? "@ arrive|arrives with $0 after hospital treatment."
+				: "@ arrive|arrives with $0 after an abandoned hospital procedure.", employee!, patient)
+			: new Emote(completed
+				? "$0 $0|return|returns from hospital treatment."
+				: "$0 $0|return|returns after an abandoned hospital procedure.", patient, patient)));
 	}
 
 	public static bool TryGetUnavailablePatientReason(IHospital hospital, IHospitalServiceRequest request,

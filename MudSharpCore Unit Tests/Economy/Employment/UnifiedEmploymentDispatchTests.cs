@@ -656,7 +656,7 @@ public class UnifiedEmploymentDispatchTests
 		donorBody.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
 		donorBody.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(5.0);
 		donorBody.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
-		donorBody.SetupGet(x => x.Implants).Returns([]);
+		donorBody.SetupGet(x => x.Implants).Returns([new Mock<ICannula>().Object]);
 		var donor = Character(9008, "Donor", gameworld: gameworld.Object);
 		donor.SetupGet(x => x.Body).Returns(donorBody.Object);
 
@@ -703,7 +703,7 @@ public class UnifiedEmploymentDispatchTests
 		donorBody.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
 		donorBody.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(5.0);
 		donorBody.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
-		donorBody.SetupGet(x => x.Implants).Returns([]);
+		donorBody.SetupGet(x => x.Implants).Returns([new Mock<ICannula>().Object]);
 		var donor = Character(9013, "Donor", gameworld: gameworld.Object);
 		donor.SetupGet(x => x.Body).Returns(donorBody.Object);
 
@@ -806,7 +806,7 @@ public class UnifiedEmploymentDispatchTests
 		body.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
 		body.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(4.5);
 		body.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
-		body.SetupGet(x => x.Implants).Returns([]);
+		body.SetupGet(x => x.Implants).Returns([new Mock<ICannula>().Object]);
 		var recipient = Character(13, "Recipient", gameworld: gameworld.Object);
 		recipient.SetupGet(x => x.Body).Returns(body.Object);
 
@@ -890,6 +890,121 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsFalse(result.Completed);
 		CollectionAssert.Contains(switchCalls.ToArray(), "drain");
 		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Completed, It.IsAny<string>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_BloodAccessTargetsOnlyProcedurePermittedBodyparts()
+	{
+		var chest = new Mock<MudSharp.Body.IBodypart>();
+		chest.SetupGet(x => x.RelativeHitChance).Returns(10.0);
+		chest.Setup(x => x.FullDescription()).Returns("chest");
+		var arm = new Mock<MudSharp.Body.IBodypart>();
+		arm.SetupGet(x => x.RelativeHitChance).Returns(5.0);
+		arm.Setup(x => x.FullDescription()).Returns("arm");
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.Bodyparts).Returns([chest.Object, arm.Object]);
+		var torsoLimb = new Mock<MudSharp.Body.ILimb>();
+		torsoLimb.SetupGet(x => x.LimbType).Returns(MudSharp.Body.LimbType.Torso);
+		var armLimb = new Mock<MudSharp.Body.ILimb>();
+		armLimb.SetupGet(x => x.LimbType).Returns(MudSharp.Body.LimbType.Arm);
+		body.Setup(x => x.GetLimbFor(chest.Object)).Returns(torsoLimb.Object);
+		body.Setup(x => x.GetLimbFor(arm.Object)).Returns(armLimb.Object);
+		body.SetupGet(x => x.ExposedBodyparts).Returns(Array.Empty<MudSharp.Body.IBodypart>());
+		body.SetupGet(x => x.VisiblySeveredBodyparts).Returns(Array.Empty<MudSharp.Body.IBodypart>());
+		var patient = Character(9159, "Patient");
+		patient.SetupGet(x => x.Body).Returns(body.Object);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.ProcedureParameters).Returns(string.Empty);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.ProcedureParameters).Returns(string.Empty);
+		var procedure = new Mock<ISurgicalProcedure>();
+		procedure.Setup(x => x.IsPermissibleBodypart(chest.Object)).Returns(false);
+		procedure.Setup(x => x.IsPermissibleBodypart(arm.Object)).Returns(true);
+
+		var result = HospitalMedicalServiceRunner.TryGetBloodAccessBodyparts(patient.Object, request.Object,
+			procedure.Object, out var targets, out var reason);
+
+		Assert.IsTrue(result, reason);
+		Assert.AreEqual(1, targets.Count);
+		Assert.AreSame(arm.Object, targets.Single());
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_BloodAccessHonoursRequestedBodypart()
+	{
+		var arm = new Mock<MudSharp.Body.IBodypart>();
+		arm.Setup(x => x.FullDescription()).Returns("left arm");
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.Setup(x => x.GetTargetBodypart("left arm")).Returns(arm.Object);
+		var patient = Character(9169, "Patient");
+		patient.SetupGet(x => x.Body).Returns(body.Object);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.ProcedureParameters).Returns(string.Empty);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.ProcedureParameters).Returns("left arm");
+		var procedure = new Mock<ISurgicalProcedure>();
+		procedure.Setup(x => x.IsPermissibleBodypart(arm.Object)).Returns(true);
+
+		var result = HospitalMedicalServiceRunner.TryGetBloodAccessBodyparts(patient.Object, request.Object,
+			procedure.Object, out var targets, out var reason);
+
+		Assert.IsTrue(result, reason);
+		Assert.AreSame(arm.Object, targets.Single());
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_ExposesOnlyClothingCoveringSurgicalTarget()
+	{
+		var targetPart = new Mock<MudSharp.Body.IWear>();
+		targetPart.Setup(x => x.FullDescription()).Returns("left arm");
+		var otherPart = new Mock<MudSharp.Body.IWear>();
+		otherPart.Setup(x => x.FullDescription()).Returns("chest");
+		var targetProfile = new Mock<MudSharp.GameItems.Inventory.IWearlocProfile>();
+		targetProfile.SetupGet(x => x.PreventsRemoval).Returns(true);
+		var otherProfile = new Mock<MudSharp.GameItems.Inventory.IWearlocProfile>();
+		otherProfile.SetupGet(x => x.PreventsRemoval).Returns(true);
+		var sleeve = new Mock<IGameItem>();
+		sleeve.SetupGet(x => x.Id).Returns(9177);
+		sleeve.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
+		var shirt = new Mock<IGameItem>();
+		shirt.SetupGet(x => x.Id).Returns(9178);
+		shirt.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
+		var wornItems = new List<IGameItem> { sleeve.Object, shirt.Object };
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.WornItemsFullInfo).Returns(() =>
+		[
+			(sleeve.Object, targetPart.Object, targetProfile.Object),
+			(shirt.Object, otherPart.Object, otherProfile.Object)
+		]);
+		body.SetupGet(x => x.DirectWornItems).Returns(() => wornItems);
+		body.SetupGet(x => x.ExposedBodyparts).Returns(() =>
+			wornItems.Contains(sleeve.Object) ? [] : [targetPart.Object]);
+		body.SetupGet(x => x.VisiblySeveredBodyparts).Returns(Array.Empty<MudSharp.Body.IBodypart>());
+		body.Setup(x => x.CanBeRemoved(sleeve.Object, It.IsAny<ICharacter>())).Returns(true);
+		body.Setup(x => x.RemoveItem(It.IsAny<IGameItem>(), It.IsAny<MudSharp.PerceptionEngine.IEmote>(),
+			    It.IsAny<ICharacter>()))
+		    .Callback<IGameItem, MudSharp.PerceptionEngine.IEmote, ICharacter>((item, _, _) =>
+		    {
+			    wornItems.Remove(item);
+		    });
+		var theatre = Cell(9179, "operating theatre");
+		var patient = Character(9180, "Patient");
+		patient.SetupGet(x => x.Body).Returns(body.Object);
+		patient.SetupGet(x => x.Location).Returns(theatre.Object);
+		patient.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var employee = Character(9181, "Doctor");
+		employee.SetupGet(x => x.Location).Returns(theatre.Object);
+
+		var result = HospitalMedicalServiceRunner.TryExposeSurgicalBodypart(employee.Object, patient.Object,
+			targetPart.Object, out var reason);
+
+		Assert.IsTrue(result, reason);
+		body.Verify(x => x.RemoveItem(sleeve.Object, null!, employee.Object), Times.Once);
+		body.Verify(x => x.RemoveItem(shirt.Object, It.IsAny<MudSharp.PerceptionEngine.IEmote>(), employee.Object),
+			Times.Never);
+		theatre.Verify(x => x.Insert(sleeve.Object, false), Times.Once);
 	}
 
 	[TestMethod]
@@ -1751,6 +1866,35 @@ public class UnifiedEmploymentDispatchTests
 		origin.Verify(x => x.Leave(patient.Object), Times.Once);
 		recovery.Verify(x => x.Enter(patient.Object, null, true, RoomLayer.GroundLevel), Times.Once);
 		waiting.Verify(x => x.Enter(It.IsAny<ICharacter>(), It.IsAny<ICellExit>(), It.IsAny<bool>(), It.IsAny<RoomLayer>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void HospitalPatientFlow_FailedTheatreProcedureMovesPatientAndExplainsRecovery()
+	{
+		var origin = Cell(8120, "operating theatre");
+		var recovery = Cell(8121, "recovery room");
+		var patient = Character(8122, "Patient");
+		patient.SetupGet(x => x.IsHelpless).Returns(false);
+		patient.SetupGet(x => x.Location).Returns(origin.Object);
+		patient.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupGet(x => x.OperatingTheatreCellId).Returns(origin.Object.Id);
+		request.SetupProperty(x => x.RecoveryRoomCellId);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.RecoveryRooms).Returns([recovery.Object]);
+		hospital.SetupGet(x => x.WaitingRooms).Returns(Array.Empty<ICell>());
+
+		HospitalPatientFlow.TransferAfterFailedTreatment(hospital.Object, request.Object, null,
+			"Hospital failed-treatment recovery routing");
+
+		Assert.AreEqual(recovery.Object.Id, request.Object.RecoveryRoomCellId);
+		origin.Verify(x => x.Leave(patient.Object), Times.Once);
+		recovery.Verify(x => x.Enter(patient.Object, null, true, RoomLayer.GroundLevel), Times.Once);
+		Mock.Get(patient.Object.OutputHandler).Verify(x => x.Send(
+			It.Is<string>(text => text.Contains("could not be completed") && text.Contains("recovery room")),
+			true,
+			false), Times.Once);
 	}
 
 	[TestMethod]

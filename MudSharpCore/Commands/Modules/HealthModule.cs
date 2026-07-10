@@ -1970,6 +1970,8 @@ The syntax is as follows:
         sb.AppendLine(
             $"Requires Unconscious/Restrained Patient: {(procedure.RequiresUnconsciousPatient ? "Yes" : "No")}");
         sb.AppendLine($"Requires Finalisation: {(procedure.RequiresInvasiveProcedureFinalisation ? "Yes" : "No")}");
+        sb.AppendLine($"Bodypart Targets: {procedure.BodypartTargetingDescription.ColourValue()}");
+        sb.AppendLine($"Requires Exposed Target: {(procedure.RequiresTargetBodypartExposure ? "Yes" : "No")}");
         if (procedure.Phases.Any())
         {
             sb.AppendLine();

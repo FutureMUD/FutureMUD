@@ -499,6 +499,9 @@ public static class HospitalMedicalServiceRunner
 		if (!result.Success)
 		{
 			FailRequest(request, result.Message);
+			AnnounceRequestFailed(employee, request, result.Message);
+			HospitalPatientFlow.TransferAfterFailedTreatment(hospital, request, employee,
+				"Hospital failed-treatment recovery routing");
 			return EmploymentActionStepResult.Failed(result.Message);
 		}
 
@@ -577,6 +580,9 @@ public static class HospitalMedicalServiceRunner
 		if (!TryApplyUsageBilling(context, employee, hospital, request, result, out var billingMessage))
 		{
 			FailRequest(request, billingMessage);
+			AnnounceRequestFailed(employee, request, billingMessage);
+			HospitalPatientFlow.TransferAfterFailedTreatment(hospital, request, employee,
+				"Hospital failed-treatment recovery routing");
 			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
 				$"Could not bill hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {billingMessage}",
 				CurrentCorrelationId(context));
@@ -608,6 +614,30 @@ public static class HospitalMedicalServiceRunner
 			$"@ finish|finishes {procedureName.ColourName()} for $0.", employee, patient)));
 		patient.OutputHandler.Send(
 			$"Your {procedureName.ColourName()} hospital procedure is complete.");
+	}
+
+	private static void AnnounceRequestFailed(ICharacter employee, IHospitalServiceRequest request, string reason)
+	{
+		if (request.Patient is not { } patient)
+		{
+			return;
+		}
+
+		patient.Location?.HandleRoomEcho(new EmoteOutput(new Emote(
+			$"@ abandon|abandons {request.Service.Name.ColourName()} for $0 before completion.", employee, patient)));
+		patient.OutputHandler.Send(
+			$"Your {request.Service.Name.ColourName()} hospital procedure could not be completed: {reason.ColourError()}");
+	}
+
+	private static void FailStagedRequest(IEmploymentTaskContext context, ICharacter employee, IHospital hospital,
+		IHospitalServiceRequest request, string reason, string auditMessage)
+	{
+		request.MarkStatus(HospitalServiceRequestStatus.Failed, reason);
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee, auditMessage,
+			CurrentCorrelationId(context));
+		AnnounceRequestFailed(employee, request, reason);
+		HospitalPatientFlow.TransferAfterFailedTreatment(hospital, request, employee,
+			"Hospital failed-treatment recovery routing");
 	}
 
 	private static bool TryApplyUsageBilling(IEmploymentTaskContext context, ICharacter employee, IHospital hospital,
@@ -1338,11 +1368,10 @@ public static class HospitalMedicalServiceRunner
 				NeutralizeBloodWorkflowGear(context, employee, patient, request, progress.BloodWorkflow);
 			}
 
-			request.MarkStatus(HospitalServiceRequestStatus.Failed,
-				$"{procedure.ProcedureName} aborted with {outcome.Outcome.DescribeEnum()} outcome during IV blood workflow.");
-			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
-				$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {procedure.ProcedureName} aborted with {outcome.Outcome.DescribeEnum()} outcome during IV blood workflow.",
-				CurrentCorrelationId(context));
+			var failureReason =
+				$"{procedure.ProcedureName} aborted with {outcome.Outcome.DescribeEnum()} outcome during IV blood workflow.";
+			FailStagedRequest(context, employee, hospital, request, failureReason,
+				$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {failureReason}");
 			return;
 		}
 
@@ -1363,10 +1392,8 @@ public static class HospitalMedicalServiceRunner
 						CurrentCorrelationId(context));
 					return;
 				case ImplantPipelineResolution.Failed:
-					request.MarkStatus(HospitalServiceRequestStatus.Failed, pipelineMessage);
-					context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
-						$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {pipelineMessage}",
-						CurrentCorrelationId(context));
+					FailStagedRequest(context, employee, hospital, request, pipelineMessage,
+						$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {pipelineMessage}");
 					return;
 			}
 
@@ -1380,11 +1407,9 @@ public static class HospitalMedicalServiceRunner
 			return;
 		}
 
-		request.MarkStatus(HospitalServiceRequestStatus.Failed,
-			$"{procedure.ProcedureName} aborted with {outcome.Outcome.DescribeEnum()} outcome.");
-		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
-			$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {procedure.ProcedureName} aborted with {outcome.Outcome.DescribeEnum()} outcome.",
-			CurrentCorrelationId(context));
+		var abortedReason = $"{procedure.ProcedureName} aborted with {outcome.Outcome.DescribeEnum()} outcome.";
+		FailStagedRequest(context, employee, hospital, request, abortedReason,
+			$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {abortedReason}");
 	}
 
 	private static void ContinueAfterAnesthesiaCannulation(IEmploymentTaskContext context, ICharacter employee,
@@ -1393,10 +1418,8 @@ public static class HospitalMedicalServiceRunner
 		if (request.Patient is not { } patient)
 		{
 			const string message = "The anesthesia patient is no longer loaded or available for surgery.";
-			request.MarkStatus(HospitalServiceRequestStatus.Failed, message);
-			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
-				$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {message}",
-				CurrentCorrelationId(context));
+			FailStagedRequest(context, employee, hospital, request, message,
+				$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {message}");
 			return;
 		}
 
@@ -1404,20 +1427,16 @@ public static class HospitalMedicalServiceRunner
 		if (mainProcedure is null)
 		{
 			var message = $"{SurgicalResolverFailureMessage(request.Service)} after {completedProcedure.ProcedureName}.";
-			request.MarkStatus(HospitalServiceRequestStatus.Failed, message);
-			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
-				$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {message}",
-				CurrentCorrelationId(context));
+			FailStagedRequest(context, employee, hospital, request, message,
+				$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {message}");
 			return;
 		}
 
 		var result = BeginConfiguredSurgicalProcedure(context, employee, patient, hospital, request, mainProcedure);
 		if (!result.Success)
 		{
-			request.MarkStatus(HospitalServiceRequestStatus.Failed, result.Message);
-			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
-				$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)} after {completedProcedure.ProcedureName}: {result.Message}",
-				CurrentCorrelationId(context));
+			FailStagedRequest(context, employee, hospital, request, result.Message,
+				$"Failed staged hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)} after {completedProcedure.ProcedureName}: {result.Message}");
 			return;
 		}
 
@@ -1512,11 +1531,18 @@ public static class HospitalMedicalServiceRunner
 			return false;
 		}
 
-		foreach (var bodypart in patient.Body.Bodyparts)
+		var bodyparts = patient.Body.Bodyparts
+		                       .Where(cannulationProcedure.IsPermissibleBodypart)
+		                       .OrderByDescending(x => IsBodypartExposed(patient.Body, x))
+		                       .ThenByDescending(x => x.RelativeHitChance)
+		                       .ToList();
+		var failures = new List<string>();
+		foreach (var bodypart in bodyparts)
 		{
 			var args = new object[] { HeldItemSelector(employee, cannulaItem), bodypart.Name };
 			if (!cannulationProcedure.CanPerformProcedure(employee, patient, args))
 			{
+				failures.Add(cannulationProcedure.WhyCannotPerformProcedure(employee, patient, args));
 				continue;
 			}
 
@@ -1530,8 +1556,11 @@ public static class HospitalMedicalServiceRunner
 			return true;
 		}
 
-		message = cannulationProcedure.WhyCannotPerformProcedure(employee, patient,
-			HeldItemSelector(employee, cannulaItem), patient.Body.Bodyparts.FirstOrDefault()?.Name ?? string.Empty);
+		message = failures
+		          .Where(x => !string.IsNullOrWhiteSpace(x))
+		          .Distinct(StringComparer.InvariantCultureIgnoreCase)
+		          .FirstOrDefault() ??
+		          $"{cannulationProcedure.ProcedureName} has no valid bodypart target for anesthesia access; its restriction is {cannulationProcedure.BodypartTargetingDescription}.";
 		return false;
 	}
 
@@ -1808,7 +1837,7 @@ public static class HospitalMedicalServiceRunner
 		return seed.Concat(connected).DistinctBy(x => x.Id);
 	}
 
-	private static ISurgicalProcedure? ResolveBloodAccessProcedure(ICharacter employee, ICharacter patient,
+	private static IEnumerable<ISurgicalProcedure> ResolveBloodAccessProcedures(ICharacter employee, ICharacter patient,
 		IHospitalServiceRequest request, SurgicalProcedureType procedureType)
 	{
 		var serviceType = procedureType switch
@@ -1828,23 +1857,39 @@ public static class HospitalMedicalServiceRunner
 				                ResolveSurgicalProcedureForService(employee, patient, service, service.ProcedureParameters);
 				if (procedure?.Procedure == procedureType)
 				{
-					return procedure;
+					yield return procedure;
 				}
 			}
 		}
 
-		return employee.Gameworld.SurgicalProcedures
-		               .Where(x => x.Procedure == procedureType)
-		               .Where(x => x.TargetBodyType is null || patient.Body.Prototype.CountsAs(x.TargetBodyType))
-		               .OrderBy(x => x.Name)
-		               .FirstOrDefault();
+		foreach (var procedure in employee.Gameworld.SurgicalProcedures
+		                                  .Where(x => x.Procedure == procedureType)
+		                                  .Where(x => x.TargetBodyType is null ||
+		                                              patient.Body.Prototype.CountsAs(x.TargetBodyType))
+		                                  .OrderByDescending(x => !string.IsNullOrWhiteSpace(employee.PreferredSurgicalSchool) &&
+		                                                          x.MedicalSchool.EqualTo(employee.PreferredSurgicalSchool))
+		                                  .ThenBy(x => x.Name))
+		{
+			yield return procedure;
+		}
+	}
+
+	private static ISurgicalProcedure? ResolveBloodAccessProcedure(ICharacter employee, ICharacter patient,
+		IHospitalServiceRequest request, SurgicalProcedureType procedureType)
+	{
+		return ResolveBloodAccessProcedures(employee, patient, request, procedureType)
+		       .DistinctBy(x => x.Id)
+		       .FirstOrDefault();
 	}
 
 	private static bool TryBeginBloodCannulation(IEmploymentTaskContext context, ICharacter employee,
 		ICharacter patient, IHospitalServiceRequest request, HospitalTreatmentProgress progress,
 		BloodWorkflowProgress workflow, out string message)
 	{
-		if (ResolveBloodAccessProcedure(employee, patient, request, SurgicalProcedureType.Cannulation) is not { } procedure)
+		var procedures = ResolveBloodAccessProcedures(employee, patient, request, SurgicalProcedureType.Cannulation)
+		                 .DistinctBy(x => x.Id)
+		                 .ToList();
+		if (!procedures.Any())
 		{
 			message = "No hospital cannulation procedure is available for IV blood access.";
 			return false;
@@ -1864,32 +1909,96 @@ public static class HospitalMedicalServiceRunner
 			return false;
 		}
 
-		foreach (var bodypart in patient.Body.Bodyparts)
+		var failures = new List<string>();
+		foreach (var procedure in procedures)
 		{
-			var args = new object[] { HeldItemSelector(employee, cannulaItem), bodypart.Name };
-			if (!procedure.CanPerformProcedure(employee, patient, args))
+			if (!TryGetBloodAccessBodyparts(patient, request, procedure, out var bodyparts, out var targetReason))
 			{
+				failures.Add(targetReason);
 				continue;
 			}
 
-			workflow.Stage = BloodWorkflowStageCannulating;
-			workflow.CannulaId = cannulaItem.Id;
-			workflow.HospitalInsertedCannula = true;
-			progress.BloodWorkflow = workflow;
-			if (!TryBeginTrackedProcedure(context, employee, patient, request.Hospital, request, procedure, args, null,
-				out message))
+			foreach (var bodypart in bodyparts)
 			{
-				progress.BloodWorkflow = null;
+				var args = new object[] { HeldItemSelector(employee, cannulaItem), bodypart.Name };
+				if (!procedure.CanPerformProcedure(employee, patient, args))
+				{
+					failures.Add(procedure.WhyCannotPerformProcedure(employee, patient, args));
+					continue;
+				}
+
+				workflow.Stage = BloodWorkflowStageCannulating;
+				workflow.CannulaId = cannulaItem.Id;
+				workflow.HospitalInsertedCannula = true;
+				progress.BloodWorkflow = workflow;
+				if (!TryBeginTrackedProcedure(context, employee, patient, request.Hospital, request, procedure, args, null,
+					out message))
+				{
+					progress.BloodWorkflow = null;
+					failures.Add(message);
+					continue;
+				}
+
+				message = $"{employee.HowSeen(employee, true)} began {procedure.ProcedureName.ColourName()} on {bodypart.FullDescription().ColourName()} for IV blood access on {patient.HowSeen(employee)}.";
+				return true;
+			}
+		}
+
+		message = failures
+		          .Where(x => !string.IsNullOrWhiteSpace(x))
+		          .Distinct(StringComparer.InvariantCultureIgnoreCase)
+		          .FirstOrDefault() ??
+		          "No available hospital cannulation procedure can use a valid bodypart on this patient.";
+		return false;
+	}
+
+	internal static bool TryGetBloodAccessBodyparts(ICharacter patient, IHospitalServiceRequest request,
+		ISurgicalProcedure procedure, out IReadOnlyList<IBodypart> bodyparts, out string reason)
+	{
+		var parameterText = string.IsNullOrWhiteSpace(request.ProcedureParameters)
+			? request.Service.ProcedureParameters
+			: request.ProcedureParameters;
+		if (!string.IsNullOrWhiteSpace(parameterText))
+		{
+			var requestedBodypart = patient.Body.GetTargetBodypart(parameterText);
+			if (requestedBodypart is null)
+			{
+				bodyparts = [];
+				reason = $"{patient.HowSeen(patient, true)} does not have a bodypart matching {parameterText.ColourCommand()} for IV access.";
 				return false;
 			}
 
-			message = $"{employee.HowSeen(employee, true)} began {procedure.ProcedureName.ColourName()} for IV blood access on {patient.HowSeen(employee)}.";
+			if (!procedure.IsPermissibleBodypart(requestedBodypart))
+			{
+				bodyparts = [];
+				reason = $"{procedure.ProcedureName} cannot target {requestedBodypart.FullDescription()}; its bodypart restriction is {procedure.BodypartTargetingDescription}.";
+				return false;
+			}
+
+			bodyparts = [requestedBodypart];
+			reason = string.Empty;
 			return true;
 		}
 
-		message = procedure.WhyCannotPerformProcedure(employee, patient, HeldItemSelector(employee, cannulaItem),
-			patient.Body.Bodyparts.FirstOrDefault()?.Name ?? string.Empty);
+		bodyparts = patient.Body.Bodyparts
+		                   .Where(procedure.IsPermissibleBodypart)
+		                   .Where(x => IsPeripheralBloodAccessBodypart(patient.Body, x))
+		                   .OrderByDescending(x => IsBodypartExposed(patient.Body, x))
+		                   .ThenByDescending(x => x.RelativeHitChance)
+		                   .ToList();
+		if (bodyparts.Any())
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = $"{procedure.ProcedureName} has no valid bodypart target on this patient; its restriction is {procedure.BodypartTargetingDescription}.";
 		return false;
+	}
+
+	internal static bool IsPeripheralBloodAccessBodypart(IBody body, IBodypart bodypart)
+	{
+		return body.GetLimbFor(bodypart)?.LimbType is LimbType.Arm or LimbType.Leg or LimbType.Appendage or LimbType.Wing;
 	}
 
 	private static bool TryBeginBloodDecannulation(IEmploymentTaskContext context, ICharacter employee,
@@ -2059,6 +2168,11 @@ public static class HospitalMedicalServiceRunner
 			return false;
 		}
 
+		if (!TryPrepareSurgicalTarget(employee, patient, procedure, args, out reason))
+		{
+			return false;
+		}
+
 		var existing = employee.CombinedEffectsOfType<SurgicalProcedureEffect>().ToHashSet();
 		procedure.PerformProcedure(employee, patient, args);
 		var effect = employee.CombinedEffectsOfType<SurgicalProcedureEffect>()
@@ -2068,6 +2182,145 @@ public static class HospitalMedicalServiceRunner
 		{
 			effect.OnProcedureResolved = (_, completed, outcome) => ResolveStagedProcedure(context, employee, hospital,
 				request, procedure, completed, outcome, suppliedImplant);
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	private static bool TryPrepareSurgicalTarget(ICharacter employee, ICharacter patient,
+		ISurgicalProcedure procedure, object[] args, out string reason)
+	{
+		reason = string.Empty;
+		if (!procedure.RequiresTargetBodypartExposure)
+		{
+			return true;
+		}
+
+		IBodypart? bodypart;
+		try
+		{
+			bodypart = procedure.TargetBodypart(employee, patient, args);
+		}
+		catch (Exception)
+		{
+			reason = $"{procedure.ProcedureName} could not resolve its target bodypart for preparation.";
+			return false;
+		}
+
+		if (bodypart is null)
+		{
+			reason = $"{procedure.ProcedureName} requires an exposed bodypart, but no valid target bodypart was supplied.";
+			return false;
+		}
+
+		if (IsBodypartExposed(patient.Body, bodypart))
+		{
+			return true;
+		}
+
+		return TryExposeSurgicalBodypart(employee, patient, bodypart, out reason);
+	}
+
+	internal static bool IsBodypartExposed(IBody body, IBodypart bodypart)
+	{
+		return body.ExposedBodyparts.Any(x => x == bodypart || x.CountsAs(bodypart) || bodypart.CountsAs(x)) ||
+		       body.VisiblySeveredBodyparts.Any(x => x == bodypart || x.CountsAs(bodypart) || bodypart.CountsAs(x));
+	}
+
+	internal static bool TryExposeSurgicalBodypart(ICharacter employee, ICharacter patient, IBodypart bodypart,
+		out string reason)
+	{
+		var destination = patient.Location ?? employee.Location;
+		if (destination is null)
+		{
+			reason = $"There is nowhere safe to place clothing removed from {patient.HowSeen(employee)}.";
+			return false;
+		}
+
+		var coveringItems = patient.Body.WornItemsFullInfo
+		                           .Where(x => x.Wearloc == bodypart || x.Wearloc.CountsAs(bodypart) ||
+		                                       bodypart.CountsAs(x.Wearloc))
+		                           .Where(x => x.Profile.PreventsRemoval)
+		                           .Select(x => x.Item)
+		                           .DistinctBy(x => x.Id)
+		                           .ToList();
+		if (!coveringItems.Any())
+		{
+			reason = $"{patient.HowSeen(employee, true)}'s {bodypart.FullDescription()} is not exposed, but no removable covering item could be identified.";
+			return false;
+		}
+
+		var consent = new BeDressedEffect(patient, employee);
+		patient.AddEffect(consent, TimeSpan.FromMinutes(1));
+		try
+		{
+			bool RemoveItemAndCoverings(IGameItem item, out IGameItem? problemItem)
+			{
+				if (!patient.Body.DirectWornItems.Any(x => x.Id == item.Id))
+				{
+					problemItem = null;
+					return true;
+				}
+
+				if (!patient.Body.CanBeRemoved(item, employee))
+				{
+					var outerItems = patient.Body.CoverInformation(item)
+					                        .Where(x => x.Item1 != WearableItemCoverStatus.Uncovered)
+					                        .Select(x => x.Item2)
+					                        .DistinctBy(x => x.Id)
+					                        .ToList();
+					if (!outerItems.Any())
+					{
+						problemItem = item;
+						return false;
+					}
+
+					foreach (var outerItem in outerItems)
+					{
+						if (!RemoveItemAndCoverings(outerItem, out problemItem))
+						{
+							return false;
+						}
+					}
+
+					if (!patient.Body.CanBeRemoved(item, employee))
+					{
+						problemItem = item;
+						return false;
+					}
+				}
+
+				patient.Body.RemoveItem(item, null!, employee);
+				item.RoomLayer = patient.RoomLayer;
+				destination.Insert(item);
+				problemItem = null;
+				return true;
+			}
+
+			employee.OutputHandler.Send(new EmoteOutput(new Emote(
+				$"@ prepare|prepares $0's {bodypart.FullDescription()} for surgery, removing only the clothing needed to expose it.",
+				employee, patient)));
+			foreach (var item in coveringItems.AsEnumerable().Reverse())
+			{
+				if (RemoveItemAndCoverings(item, out var problemItem))
+				{
+					continue;
+				}
+
+				reason = $"{patient.HowSeen(employee, true)}'s {bodypart.FullDescription()} could not be exposed because {problemItem?.HowSeen(employee) ?? "an item"} could not be removed.";
+				return false;
+			}
+		}
+		finally
+		{
+			patient.RemoveEffect(consent);
+		}
+
+		if (!IsBodypartExposed(patient.Body, bodypart))
+		{
+			reason = $"{patient.HowSeen(employee, true)}'s {bodypart.FullDescription()} remains covered after removing the available clothing.";
+			return false;
 		}
 
 		reason = string.Empty;
@@ -3014,6 +3267,7 @@ public static class HospitalMedicalServiceRunner
 		{
 			if (patient.EffectsOfType<SurgeryFinalisationRequired>()
 			           .Select(x => x.Bodypart)
+			           .Where(procedure.IsPermissibleBodypart)
 			           .FirstOrDefault() is { } finalisationBodypart)
 			{
 				return finalisationBodypart;
@@ -3023,12 +3277,19 @@ public static class HospitalMedicalServiceRunner
 		if (patient.Wounds
 		           .Where(x => x.Bodypart is IBodypart)
 		           .Select(x => (IBodypart)x.Bodypart)
+		           .Where(procedure.IsPermissibleBodypart)
+		           .OrderByDescending(x => IsBodypartExposed(patient.Body, x))
+		           .ThenByDescending(x => x.RelativeHitChance)
 		           .FirstOrDefault() is { } woundBodypart)
 		{
 			return woundBodypart;
 		}
 
-		return patient.Body.Bodyparts.FirstOrDefault();
+		return patient.Body.Bodyparts
+		              .Where(procedure.IsPermissibleBodypart)
+		              .OrderByDescending(x => IsBodypartExposed(patient.Body, x))
+		              .ThenByDescending(x => x.RelativeHitChance)
+		              .FirstOrDefault();
 	}
 
 	private static (IBodypart? AccessBodypart, IOrganProto? Organ) BestOrganSurgeryTarget(ICharacter patient)

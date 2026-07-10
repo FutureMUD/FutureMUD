@@ -806,6 +806,26 @@ public class EmploymentCommandServiceTests
 	}
 
 	[TestMethod]
+	public void EmploymentCommandService_ManagerOpeningRequiresManagerAICapability()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var proprietor = Character(31, "Proprietor").Object;
+		host.Hire(proprietor, Offer(currency.Object, EmploymentRole.Proprietor,
+			EmploymentAuthority.CreateJobOpenings | EmploymentAuthoritySet.All.Authorities), null);
+		var service = new EmploymentCommandService();
+
+		var result = service.TryCreateOpening(proprietor, host, EmploymentRole.Manager, 20.0M, 1,
+			out var opening, out var message);
+
+		Assert.IsTrue(result, message);
+		Assert.IsNotNull(opening);
+		Assert.IsTrue(opening.Requirements.Capabilities.Any(x =>
+			x.Capability == EmploymentAICapability.CanManageEmploymentHost));
+		StringAssert.Contains(message, nameof(EmploymentAICapability.CanManageEmploymentHost));
+	}
+
+	[TestMethod]
 	public void EmploymentCommandService_CreateOpeningCommandUsesCurrencyParser()
 	{
 		var currency = Currency();

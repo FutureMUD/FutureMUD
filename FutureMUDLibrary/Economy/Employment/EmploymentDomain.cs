@@ -220,7 +220,8 @@ public enum EmploymentAICapability
 	CanManageStableAnimals,
 	CanManageHotelRooms,
 	CanPerformMedicalServices,
-	CanPrepareHospitalSupplies
+	CanPrepareHospitalSupplies,
+	CanManageEmploymentHost
 }
 
 public sealed record MoneyAmount(ICurrency Currency, decimal Amount)

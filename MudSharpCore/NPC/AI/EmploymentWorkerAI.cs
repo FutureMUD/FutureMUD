@@ -196,7 +196,7 @@ public class EmploymentWorkerAI : PathingAIBase
 	#3currency <currency>#0 - sets the currency used to parse and display reservation wages
 	#3wage <amount>#0 - sets the minimum nominal pay this worker will accept
 	#3payment <method>#0 - toggles an accepted payment method
-	#3capability <capability>#0 - toggles an AI task capability; doctor/medical and orderly/nurse/supplies are hospital shortcuts
+	#3capability <capability>#0 - toggles an AI task capability; manager, doctor/medical and orderly/nurse/supplies are shortcuts
 	#3host <any|type>#0 - restricts this worker to a host type, including hospital/clinic/infirmary
 	#3range <exits>#0 - sets maximum job/task path range
 	#3search#0 - toggles autonomous job searching
@@ -352,6 +352,14 @@ public class EmploymentWorkerAI : PathingAIBase
 	{
 		switch (text.CollapseString().ToLowerInvariant())
 		{
+			case "manager":
+			case "manage":
+			case "management":
+			case "hostmanager":
+			case "managehost":
+			case "manageemploymenthost":
+				capability = EmploymentAICapability.CanManageEmploymentHost;
+				return true;
 			case "doctor":
 			case "medical":
 			case "medic":
@@ -621,10 +629,24 @@ public class EmploymentWorkerAI : PathingAIBase
 
 		var now = EmploymentClock.CurrentInstant(host);
 		DebugWorker(worker, $"evaluating central host operations for {host.EmploymentHostName}.");
-		var result = EmploymentHostOperationsScheduler.EvaluateHost(host, now, usePhysicalItemMovement: true);
+		var result = EmploymentHostOperationsScheduler.EvaluateHost(host, now, usePhysicalItemMovement: true,
+			evaluateManagerGoals: CanEvaluateManagerGoals(worker, host));
 		DebugWorker(worker,
 			$"host evaluation for {host.EmploymentHostName} spawned {result.ScheduledRuleTaskCount:N0} scheduled task(s), {result.ManagerGoalTaskCount:N0} manager-goal task(s), accrued {result.PayableCount:N0} payable(s), and ended {result.ContractEndCount:N0} contract(s).");
 		worker.AddEffect(new EmploymentWorkerHostEvaluationEffect(worker, host), TimeSpan.FromMinutes(1));
+	}
+
+	internal bool CanEvaluateManagerGoals(ICharacter worker, IEmploymentHost host)
+	{
+		if (!_capabilities.Contains(EmploymentAICapability.CanManageEmploymentHost))
+		{
+			return false;
+		}
+
+		var workerId = CharacterInstanceIdentityComparer.IdentityId(worker);
+		return host.ActiveEmploymentContracts().Any(x =>
+			CharacterInstanceIdentityComparer.IdentityId(x.Employee) == workerId &&
+			x.Role is EmploymentRole.Manager or EmploymentRole.Proprietor);
 	}
 
 	private bool TryHandlePayroll(ICharacter worker, IEmploymentHost host)

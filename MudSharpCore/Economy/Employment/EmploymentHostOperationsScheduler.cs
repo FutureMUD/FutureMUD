@@ -59,7 +59,7 @@ public static class EmploymentHostOperationsScheduler
 	}
 
 	public static EmploymentHostOperationsResult EvaluateHost(IEmploymentHost host, DateTimeOffset now,
-		bool usePhysicalItemMovement = true)
+		bool usePhysicalItemMovement = true, bool evaluateManagerGoals = true)
 	{
 		var context = new EmploymentTaskContext(host, usePhysicalItemMovement);
 		var lifecycleCandidates = host.EmploymentContracts
@@ -67,7 +67,9 @@ public static class EmploymentHostOperationsScheduler
 		                             .ToList();
 
 		var scheduledTasks = host.TaskBoard.EvaluateScheduledRules(context, now);
-		var goalTasks = host.ManagerGoalBoard.EvaluateGoals(context, now);
+		var goalTasks = evaluateManagerGoals
+			? host.ManagerGoalBoard.EvaluateGoals(context, now)
+			: Array.Empty<IEmploymentActiveTask>();
 		var payables = host.Payroll.EvaluatePayroll(now);
 		var payrollEndedContracts = lifecycleCandidates
 		                            .Where(x => x.Status == EmploymentStatus.Ended)

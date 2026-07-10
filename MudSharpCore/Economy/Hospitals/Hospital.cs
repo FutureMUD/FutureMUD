@@ -445,7 +445,9 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 				service.Name,
 				availability.Available ? "Available".ColourValue() : "Unavailable".ColourError(),
 				HospitalServiceBilling.DescribePrice(this, service, actor).ColourValue(),
-				service.AllowDebt.ToColouredString()
+				HospitalServiceBilling.IsDonorPaidServiceType(service.ServiceType)
+					? "not applicable".ColourValue()
+					: service.AllowDebt.ToColouredString()
 			},
 			new List<string> { "#", "Service", "Availability", "Price", "Permits Debt" },
 			actor,

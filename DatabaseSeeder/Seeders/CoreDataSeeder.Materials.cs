@@ -226,6 +226,42 @@ public partial class CoreDataSeeder
 			"Herb", "Textile Dye");
 		AddMaterial("indigo dye cake", MaterialBehaviourType.Powder, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
 			"Textile Dye");
+		foreach (var name in new[] { "taffeta", "ribbon", "calico", "chintz" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Fabric, 0.45, true, 10000, 25000, 1.0, 0.14, 0.0001, 500,
+				"Natural Fiber Fabric", "Primary Production Commodity");
+		}
+
+		AddMaterial("logwood", MaterialBehaviourType.Wood, 0.75, true, 40000, 10000, 0.05, 0.14, 0.0001, 420,
+			"Hardwood", "Textile Dye", "Primary Production Commodity");
+		AddMaterial("cochineal", MaterialBehaviourType.Powder, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Animal Product", "Textile Dye", "Primary Production Commodity");
+		AddMaterial("tobacco leaf", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Herb", "Primary Production Commodity");
+		AddMaterial("type metal", MaterialBehaviourType.Metal, 9.4, false, 50000, 120000, 0.0, 35.0, 4800000.0, 160,
+			"Renaissance Age", "Primary Production Metal Stock", "Primary Production Commodity");
+		AddMaterial("printing ink", MaterialBehaviourType.Paste, 1.1, true, 1000, 1000, 0.25, 0.14, 0.0001, 500,
+			"Manufactured Materials", "Writing Product", "Primary Production Commodity");
+		AddMaterial("molasses", MaterialBehaviourType.Paste, 1.4, true, 1000, 1000, 0.2, 0.14, 0.0001, 500,
+			"Food", "Primary Production Commodity");
+		AddMaterial("sugar loaf", MaterialBehaviourType.Food, 1.6, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Food", "Primary Production Commodity");
+		AddMaterial("tobacco twist", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.05, 0.14, 0.0001, 500,
+			"Herb", "Primary Production Commodity");
+		AddMaterial("snuff", MaterialBehaviourType.Powder, 0.7, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Herb", "Primary Production Commodity");
+		AddMaterial("roasted coffee", MaterialBehaviourType.Food, 0.6, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Food", "Primary Production Commodity");
+		AddMaterial("cacao bean", MaterialBehaviourType.Food, 0.6, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Food Crop", "Primary Production Commodity");
+		AddMaterial("cacao nibs", MaterialBehaviourType.Food, 0.6, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Food", "Primary Production Commodity");
+		AddMaterial("chocolate block", MaterialBehaviourType.Food, 1.3, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Food", "Primary Production Commodity");
+		AddMaterial("tea brick", MaterialBehaviourType.Food, 0.7, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Food", "Primary Production Commodity");
+		AddMaterial("cotton fibre", MaterialBehaviourType.Plant, 0.15, true, 1000, 1000, 1.0, 0.08, 0.0001, 500,
+			"Fiber Crop", "Primary Production Commodity");
 		AddMaterial("ochre pigment", MaterialBehaviourType.Powder, 2.8, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
 			"Textile Dye", "Stone");
 		AddMaterial("alum mordant", MaterialBehaviourType.Powder, 1.7, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
@@ -286,6 +322,20 @@ public partial class CoreDataSeeder
 		EnsureTag(materials["saffron"], "Textile Dye");
 		EnsureAlias(materials["madder root"], "madder");
 		EnsureAlias(materials["indigo dye cake"], "indigo");
+		EnsureAlias(materials["logwood"], "campeachy wood");
+		EnsureAlias(materials["tobacco leaf"], "tobacco");
+		EnsureAlias(materials["type metal"], "printer's metal", "printers metal");
+		EnsureAlias(materials["printing ink"], "oil-based printing ink", "printer's ink", "printers ink");
+		EnsureAlias(materials["molasses"], "treacle");
+		EnsureAlias(materials["sugar loaf"], "loaf sugar");
+		EnsureAlias(materials["tobacco twist"], "rope tobacco");
+		EnsureAlias(materials["snuff"], "powdered tobacco");
+		EnsureAlias(materials["roasted coffee"], "roasted coffee bean");
+		EnsureAlias(materials["cacao bean"], "cocoa bean");
+		EnsureAlias(materials["cacao nibs"], "cocoa nibs");
+		EnsureAlias(materials["chocolate block"], "chocolate cake");
+		EnsureAlias(materials["tea brick"], "tea cake");
+		EnsureAlias(materials["cotton fibre"], "cotton fiber");
 		EnsureAlias(materials["ochre pigment"], "ochre");
 		EnsureAlias(materials["saffron"], "crocus");
 		EnsureAlias(materials["woad leaves"], "woad", "isatis");

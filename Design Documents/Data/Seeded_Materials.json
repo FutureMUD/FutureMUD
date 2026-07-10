@@ -759,6 +759,18 @@
                  ]
     },
     {
+        "Material Name":  "cacao bean",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "cacao nibs",
+        "Tags":  [
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
         "Material Name":  "cadmium",
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
@@ -786,6 +798,12 @@
         "Material Name":  "calcium oxide",
         "Tags":  [
                      "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "calico",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
                  ]
     },
     {
@@ -1110,6 +1128,12 @@
                  ]
     },
     {
+        "Material Name":  "chintz",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
         "Material Name":  "chitin",
         "Tags":  [
                      "Materials / Animal Product"
@@ -1119,6 +1143,12 @@
         "Material Name":  "chive",
         "Tags":  [
                      "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "chocolate block",
+        "Tags":  [
+                     "Materials / Natural Materials / Food"
                  ]
     },
     {
@@ -1243,6 +1273,13 @@
                  ]
     },
     {
+        "Material Name":  "cochineal",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Textile Dye"
+                 ]
+    },
+    {
         "Material Name":  "coconut",
         "Tags":  [
                      "Materials / Natural Materials / Food / Fruit"
@@ -1336,6 +1373,12 @@
     },
     {
         "Material Name":  "cotton crop",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Fiber Crop"
+                 ]
+    },
+    {
+        "Material Name":  "cotton fibre",
         "Tags":  [
                      "Materials / Natural Materials / Agricultural Crop / Fiber Crop"
                  ]
@@ -2103,6 +2146,12 @@
                  ]
     },
     {
+        "Material Name":  "glass blank",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Glass"
+                 ]
+    },
+    {
         "Material Name":  "glass-reinforced plastic",
         "Tags":  [
                      "Materials / Manufactured Materials / Plastic"
@@ -2401,6 +2450,12 @@
     },
     {
         "Material Name":  "indigo crop",
+        "Tags":  [
+                     "Materials / Textile Dye"
+                 ]
+    },
+    {
+        "Material Name":  "indigo dye cake",
         "Tags":  [
                      "Materials / Textile Dye"
                  ]
@@ -2788,6 +2843,13 @@
                  ]
     },
     {
+        "Material Name":  "logwood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood",
+                     "Materials / Textile Dye"
+                 ]
+    },
+    {
         "Material Name":  "loparite",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Metal Ore / Rare Earth Ore"
@@ -3034,6 +3096,12 @@
         "Material Name":  "mohair",
         "Tags":  [
                      "Materials / Manufactured Materials / Fabric / Animal Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "molasses",
+        "Tags":  [
+                     "Materials / Natural Materials / Food"
                  ]
     },
     {
@@ -3863,6 +3931,13 @@
                  ]
     },
     {
+        "Material Name":  "printing ink",
+        "Tags":  [
+                     "Materials / Manufactured Materials",
+                     "Materials / Writing Product"
+                 ]
+    },
+    {
         "Material Name":  "proso millet",
         "Tags":  [
                      "Materials / Natural Materials / Agricultural Crop / Food Crop"
@@ -4099,9 +4174,21 @@
                  ]
     },
     {
+        "Material Name":  "ribbon",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
         "Material Name":  "rice",
         "Tags":  [
                      "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "roasted coffee",
+        "Tags":  [
+                     "Materials / Natural Materials / Food"
                  ]
     },
     {
@@ -4547,6 +4634,12 @@
                  ]
     },
     {
+        "Material Name":  "snuff",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
         "Material Name":  "soap",
         "Tags":  [
                      "Materials / Manufactured Materials"
@@ -4767,6 +4860,12 @@
                  ]
     },
     {
+        "Material Name":  "sugar loaf",
+        "Tags":  [
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
         "Material Name":  "sugarcane",
         "Tags":  [
                      "Materials / Natural Materials / Agricultural Crop / Food Crop"
@@ -4827,6 +4926,12 @@
                  ]
     },
     {
+        "Material Name":  "taffeta",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
         "Material Name":  "talc",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone"
@@ -4878,6 +4983,12 @@
         "Material Name":  "tarragon",
         "Tags":  [
                      "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "tea brick",
+        "Tags":  [
+                     "Materials / Natural Materials / Food"
                  ]
     },
     {
@@ -4990,6 +5101,19 @@
         "Material Name":  "titanium",
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
+        "Material Name":  "tobacco leaf",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Agriculture Seedable",
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "tobacco twist",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
                  ]
     },
     {
@@ -5110,6 +5234,12 @@
         "Material Name":  "twill",
         "Tags":  [
                      "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "type metal",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Renaissance Age"
                  ]
     },
     {

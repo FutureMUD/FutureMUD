@@ -20,7 +20,7 @@ namespace MudSharp_Unit_Tests;
 public class AgricultureSeederTests
 {
 	private const int ExpectedFieldProfileCount = 81;
-	private const int ExpectedCropDefinitionCount = 205;
+	private const int ExpectedCropDefinitionCount = 215;
 	private const int ExpectedHerdDefinitionCount = 27;
 	private const int ExpectedWoodlandDefinitionCount = 51;
 	private const int ExpectedOperationCount = 68;
@@ -254,7 +254,8 @@ public class AgricultureSeederTests
 			         "Emmer Wheat", "Einkorn Wheat", "Spelt Wheat", "Naked Barley", "New Glume Wheat", "Bitter Vetch",
 			         "Grass Peas", "Lupins", "Canihua", "Pitseed Goosefoot", "Maygrass", "Little Barley", "Erect Knotweed",
 			         "Oca", "Ulluco", "Mashua", "Jerusalem Artichokes", "Mustard", "Madder", "Weld", "Alkanet",
-			         "Woad", "Coriander", "Saffron Crocus"
+			         "Woad", "Coriander", "Saffron Crocus", "Chamomile", "Lavender", "Yarrow", "Foxglove", "Henbane",
+			         "Mandrake"
 		         })
 		{
 			AssertPlantingGroups(context, cropName, "Autumn", "Spring");
@@ -286,7 +287,11 @@ public class AgricultureSeederTests
 			AssertPlantingGroups(context, cropName, "Spring", "Summer", "Autumn");
 		}
 
-		foreach (var cropName in new[] { "Pigeon Peas", "Arrowroot", "Lotus Root", "Water Chestnuts", "Kenaf", "Indigo" })
+		foreach (var cropName in new[]
+		         {
+			         "Pigeon Peas", "Arrowroot", "Lotus Root", "Water Chestnuts", "Kenaf", "Indigo", "Tobacco",
+			         "Cardamom"
+		         })
 		{
 			AssertPlantingGroups(context, cropName, "Spring", "Summer", "Autumn");
 		}
@@ -369,7 +374,7 @@ public class AgricultureSeederTests
 		foreach (var cropName in new[]
 		         {
 			         "Henequen", "Pineapples", "Vanilla", "Yerba Mate", "Oil Palms", "Shea Trees", "Baobabs",
-			         "Raffia Palms"
+			         "Raffia Palms", "Allspice", "Logwood"
 		         })
 		{
 			AssertPlantingGroups(context, cropName, "Spring", "Summer", "Autumn");
@@ -501,13 +506,33 @@ public class AgricultureSeederTests
 			         ("Hops", "hop"),
 			         ("Artichokes", "artichoke"),
 			         ("Vanilla", "vanilla"),
-			         ("Oil Palms", "palm fruit")
+			         ("Oil Palms", "palm fruit"),
+			         ("Tobacco", "tobacco leaf"),
+			         ("Cardamom", "cardamom"),
+			         ("Allspice", "allspice"),
+			         ("Logwood", "logwood"),
+			         ("Chamomile", "chamomile"),
+			         ("Mandrake", "mandrake")
 		         })
 		{
 			var expandedCropDefinition = CropDefinition(context, cropName);
 			Assert.IsTrue(expandedCropDefinition.Element("Outputs")!.Elements("Commodity").Any(x =>
 				x.Attribute("material")!.Value == materialName &&
 				x.Attribute("tag")!.Value == "Seeded Yield"));
+		}
+
+		foreach (var (cropName, materialName) in new[]
+		         {
+			         ("Cacao", "cacao bean"),
+			         ("Nutmeg", "mace"),
+			         ("Nopal Cactus", "cochineal")
+		         })
+		{
+			Assert.IsTrue(CropDefinition(context, cropName)
+			              .Element("Outputs")!
+			              .Elements("Commodity")
+			              .Any(x => x.Attribute("material")!.Value == materialName),
+				$"{cropName} should include the {materialName} secondary output.");
 		}
 
 		Assert.AreEqual("Required", CropDefinition(context, "Melons").Element("Pollination")!.Attribute("dependency")!.Value);

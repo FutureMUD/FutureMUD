@@ -1,0 +1,10 @@
+#nullable enable
+
+namespace DatabaseSeeder.Seeders;
+
+public partial class ItemSeeder
+{
+	private void SeedEarlyModernMilitaryFirearmsUniformsAndNaval()
+	{
+	}
+}

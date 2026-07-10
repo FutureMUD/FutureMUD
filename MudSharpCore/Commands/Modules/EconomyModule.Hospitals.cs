@@ -56,6 +56,7 @@ Hospital managers and proprietors standing in the hospital can use #3hospital he
 	#3hospital requests#0 - lists hospital service requests
 	#3hospital requestshow <##>#0 - shows a hospital service request
 	#3hospital operations#0 - shows room, theatre, procedure, staff, blocker, and reserved-resource status
+	#3hospital failures [count]#0 - reviews recent failed service requests and their recorded diagnostics
 	#3hospital open|close#0 - opens or closes the hospital
 	#3hospital maxdebt <amount>#0 - sets the default debt ceiling for new patients
 	#3hospital room add|remove <waiting|theatre|supply|recovery|staff> [here|<direction>|<#>]#0 - flags hospital rooms
@@ -150,6 +151,11 @@ Administrators can also use:
 			case "operations":
 			case "ops":
 				HospitalOperations(actor);
+				return;
+			case "failures":
+			case "failurelog":
+			case "failedservices":
+				HospitalFailures(actor, ss);
 				return;
 			case "debt":
 			case "account":
@@ -2211,8 +2217,9 @@ Administrators can also use:
 		var requests = HospitalOperationalRequests(hospital).ToList();
 		var activeTasks = hospital.TaskBoard.ActiveTasks
 		                          .Where(x => x.Status is EmploymentTaskStatus.Pending or EmploymentTaskStatus.Assigned or
-			                          EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked or EmploymentTaskStatus.Failed)
+			                          EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked)
 		                          .ToList();
+		var recentFailures = RecentHospitalFailures(hospital, 5).ToList();
 		var theatres = hospital.OperatingTheatres
 		                       .OrderBy(x => x.Id)
 		                       .ToList();
@@ -2223,7 +2230,7 @@ Administrators can also use:
 
 		var sb = new StringBuilder();
 		sb.AppendLine($"Hospital Operations - {hospital.Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
-		sb.AppendLine($"Open: {hospital.IsTrading.ToColouredString()} | Active Requests: {requests.Count.ToString("N0", actor).ColourValue()} | Active Tasks: {activeTasks.Count.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Open: {hospital.IsTrading.ToColouredString()} | Active Requests: {requests.Count.ToString("N0", actor).ColourValue()} | Active Tasks: {activeTasks.Count.ToString("N0", actor).ColourValue()} | Recent Failures: {recentFailures.Count.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Operating Theatres".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		if (!theatres.Any())
@@ -2288,7 +2295,103 @@ Administrators can also use:
 			}
 		}
 
+		sb.AppendLine();
+		sb.AppendLine("Recent Service Failures".GetLineWithTitleInner(actor, Telnet.Red, Telnet.BoldWhite));
+		if (!recentFailures.Any())
+		{
+			sb.AppendLine("\tNone.".ColourValue());
+		}
+		else
+		{
+			foreach (var request in recentFailures)
+			{
+				AppendHospitalFailureBlock(sb, actor, hospital, request, false);
+			}
+		}
+
 		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void HospitalFailures(ICharacter actor, StringStack ss)
+	{
+		if (!DoHospitalCommandFindHospital(actor, out var hospital) || !RequireHospitalManager(actor, hospital))
+		{
+			return;
+		}
+
+		var count = 10;
+		if (!ss.IsFinished && (!int.TryParse(ss.SafeRemainingArgument, out count) || count <= 0))
+		{
+			actor.OutputHandler.Send("How many recent hospital service failures do you want to review?");
+			return;
+		}
+
+		count = Math.Clamp(count, 1, 50);
+		var failures = RecentHospitalFailures(hospital, count).ToList();
+		if (!failures.Any())
+		{
+			actor.OutputHandler.Send($"{hospital.Name.ColourName()} has no recorded failed service requests.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Hospital Service Failures - {hospital.Name}".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+		foreach (var request in failures)
+		{
+			AppendHospitalFailureBlock(sb, actor, hospital, request, true);
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static IEnumerable<IHospitalServiceRequest> RecentHospitalFailures(IHospital hospital, int count)
+	{
+		return hospital.ServiceRequests
+		               .Where(x => x.Status == HospitalServiceRequestStatus.Failed)
+		               .OrderByDescending(x => x.CompletedAt ?? x.LastUpdatedAt)
+		               .ThenByDescending(x => x.Id)
+		               .Take(count);
+	}
+
+	private static void AppendHospitalFailureBlock(StringBuilder sb, ICharacter actor, IHospital hospital,
+		IHospitalServiceRequest request, bool includeHistory)
+	{
+		var task = HospitalTaskForRequest(hospital, request);
+		var fields = new List<(string Heading, string Content)>
+		{
+			("Failed", (request.CompletedAt ?? request.LastUpdatedAt).ToString("g", actor).ColourValue()),
+			("Patient", DescribeHospitalRequestPatient(actor, request)),
+			("Location", DescribeHospitalRequestLocation(actor, hospital, request)),
+			("Staff", DescribeHospitalTaskEmployee(actor, task, request)),
+			("Reason", LatestHospitalFailureReason(request, task).ColourError()),
+			("Task Diagnostics", DescribeHospitalTaskIssues(request, task))
+		};
+		if (includeHistory)
+		{
+			fields.Add(("Request History", string.IsNullOrWhiteSpace(request.OperationalNotes)
+				? "none"
+				: request.OperationalNotes));
+		}
+
+		AppendHospitalBlock(sb, actor,
+			$"Failure #{request.Id.ToString("N0", actor)} - {request.Service.Name}", fields.ToArray());
+	}
+
+	private static string LatestHospitalFailureReason(IHospitalServiceRequest request, IEmploymentActiveTask? task)
+	{
+		var taskDiagnostic = task?.StepOperationalStates
+		                          .Reverse()
+		                          .Select(x => x.FailureDiagnostic)
+		                          .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
+		if (!string.IsNullOrWhiteSpace(taskDiagnostic))
+		{
+			return taskDiagnostic;
+		}
+
+		var latestRequestNote = request.OperationalNotes
+		                               .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+		                               .LastOrDefault();
+		return string.IsNullOrWhiteSpace(latestRequestNote) ? "No failure reason was recorded." : latestRequestNote;
 	}
 
 	private static IEnumerable<IHospitalServiceRequest> HospitalOperationalRequests(IHospital hospital)

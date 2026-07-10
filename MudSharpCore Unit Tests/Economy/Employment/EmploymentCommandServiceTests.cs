@@ -486,6 +486,75 @@ public class EmploymentCommandServiceTests
 	}
 
 	[TestMethod]
+	public void HospitalCommand_OperationsAndFailureLogShowTerminalServiceReason()
+	{
+		var gameworld = Gameworld();
+		var foyer = Cell(605, "Hospital Foyer");
+		var theatre = Cell(606, "Operating Theatre");
+		var patient = Character(607, "Patient", gameworld: gameworld.Object, location: theatre.Object);
+		var doctor = Character(608, "Doctor", gameworld: gameworld.Object, location: theatre.Object);
+		theatre.SetupGet(x => x.Characters).Returns([patient.Object, doctor.Object]);
+		var hospital = HospitalHost(609, "Easy Street Hospital", [foyer.Object, theatre.Object]);
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.WaitingRooms).Returns([foyer.Object]);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([]);
+		hospital.SetupGet(x => x.RecoveryRooms).Returns([]);
+		hospital.SetupGet(x => x.StaffRooms).Returns([]);
+		hospital.Setup(x => x.IsEmployee(doctor.Object)).Returns(true);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Name).Returns("Blood Donation");
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(610);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupGet(x => x.PatientName).Returns("Patient");
+		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Failed);
+		request.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		request.SetupGet(x => x.AssignedEmployeeId).Returns(doctor.Object.Id);
+		request.SetupGet(x => x.LastUpdatedAt).Returns(DateTimeOffset.UtcNow.AddMinutes(-1));
+		request.SetupGet(x => x.CompletedAt).Returns(DateTimeOffset.UtcNow.AddMinutes(-1));
+		request.SetupGet(x => x.OperationalNotes).Returns(
+			"Queued for treatment.\nDonating 0.50L would put the patient below the safe donation threshold.");
+		var task = new EmploymentActiveTask(hospital.Object, "treat Patient: Blood Donation",
+			new EmploymentActionPlan([new HospitalServiceActionStep(hospital.Object, request.Object)]), Guid.NewGuid());
+		task.Assign(doctor.Object);
+		task.MarkStep(0, EmploymentActionStepStatus.Failed,
+			new EmploymentActionStepOperationalState(FailureDiagnostic:
+				"Donating 0.50L would put the patient below the safe donation threshold."));
+		request.SetupGet(x => x.EmploymentTaskId).Returns(task.Id);
+		var taskBoard = new Mock<IEmploymentTaskBoard>();
+		taskBoard.SetupGet(x => x.ActiveTasks).Returns([task]);
+		hospital.SetupGet(x => x.TaskBoard).Returns(taskBoard.Object);
+		hospital.SetupGet(x => x.ServiceRequests).Returns([request.Object]);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([]);
+		var hospitals = new All<IHospital>();
+		hospitals.Add(hospital.Object);
+		gameworld.SetupGet(x => x.Hospitals).Returns(hospitals);
+		var admin = Character(611, "Admin", administrator: true, gameworld: gameworld.Object, location: foyer.Object).Object;
+
+		InvokeHospitalCommand(admin, "hospital operations");
+		InvokeHospitalCommand(admin, "hospital failures 1");
+
+		Mock.Get(admin.OutputHandler).Verify(x => x.Send(
+			It.Is<string>(text =>
+				text.StripANSIColour().Contains("Active Tasks: 0", StringComparison.OrdinalIgnoreCase) &&
+				text.StripANSIColour().Contains("Recent Service Failures", StringComparison.OrdinalIgnoreCase) &&
+				text.StripANSIColour().Contains("safe donation threshold", StringComparison.OrdinalIgnoreCase)),
+			It.IsAny<bool>(),
+			It.IsAny<bool>()), Times.Once);
+		Mock.Get(admin.OutputHandler).Verify(x => x.Send(
+			It.Is<string>(text =>
+				text.Contains("Hospital Service Failures", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("Request History", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("safe donation threshold", StringComparison.OrdinalIgnoreCase)),
+			It.IsAny<bool>(),
+			It.IsAny<bool>()), Times.Once);
+	}
+
+	[TestMethod]
 	public void HospitalCommand_RequestRejectsSecondActiveRequestForSamePatient()
 	{
 		var gameworld = Gameworld();
@@ -2941,6 +3010,27 @@ public class EmploymentCommandServiceTests
 
 		StringAssert.Contains(rendered, "Treat patient");
 		StringAssert.Contains(rendered, "The operating theatre is occupied.");
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_TasksListShowsFailedStepDiagnostic()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "hospital", currency.Object);
+		var manager = Character(65, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.AssignTasks), null);
+		var task = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("Blood Donation",
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "perform blood donation")]), manager);
+		task.Assign(manager);
+		task.MarkStep(0, EmploymentActionStepStatus.Failed,
+			new EmploymentActionStepOperationalState(FailureDiagnostic:
+				"The donor would fall below the safe donation threshold."));
+		var service = new EmploymentCommandService();
+
+		var rendered = service.RenderTasks(manager, host);
+
+		StringAssert.Contains(rendered, "failed:");
+		StringAssert.Contains(rendered, "safe donation threshold");
 	}
 
 	[TestMethod]

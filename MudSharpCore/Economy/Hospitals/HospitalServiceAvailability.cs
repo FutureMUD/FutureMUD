@@ -65,7 +65,8 @@ public static class HospitalServiceAvailability
 		}
 
 		if (service.ServiceType == HospitalServiceType.BloodDonation &&
-		    (!HasDonationContainerStock(hospital, service, patient, out var donationReason) ||
+		    (!CanPatientDonateBlood(service, patient, out var donationReason) ||
+		     !HasDonationContainerStock(hospital, service, patient, out donationReason) ||
 		     !CanFundDonationPayout(hospital, service, patient, out donationReason)))
 		{
 			return Unavailable(donationReason);
@@ -450,6 +451,33 @@ public static class HospitalServiceAvailability
 		return HospitalStockRooms(hospital)
 		               .SelectMany(x => x.GameItems.SelectMany(y => y.DeepItems.Append(y)))
 		               .DistinctBy(x => x.Id);
+	}
+
+	private static bool CanPatientDonateBlood(IHospitalService service, ICharacter? donor, out string reason)
+	{
+		reason = string.Empty;
+		if (donor is null)
+		{
+			return true;
+		}
+
+		if (donor.Body.BloodLiquid is null || donor.Body.Bloodtype is null ||
+		    donor.Body.TotalBloodVolumeLitres <= 0.0)
+		{
+			reason = "the patient cannot donate blood";
+			return false;
+		}
+
+		var amountLitres = service.BloodVolumeLitres > 0.0 ? service.BloodVolumeLitres : 0.5;
+		var safeMinimum = donor.Body.TotalBloodVolumeLitres *
+		                  HospitalMedicalServiceRunner.MinimumBloodFractionForDonation;
+		if (donor.Body.CurrentBloodVolumeLitres - amountLitres >= safeMinimum)
+		{
+			return true;
+		}
+
+		reason = $"donating {amountLitres.ToString("N2", donor)}L would put the patient below the safe donation threshold";
+		return false;
 	}
 
 	private static IEnumerable<ICell> HospitalStockRooms(IHospital hospital)

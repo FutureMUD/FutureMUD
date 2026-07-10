@@ -954,7 +954,16 @@ internal sealed class EmploymentCommandService
 				var blockedReason = string.IsNullOrWhiteSpace(task.BlockedReason)
 					? string.Empty
 					: $" - blocked: {task.BlockedReason.ColourError()}";
-				sb.AppendLine($"\t#{index++.ToString("N0", actor)} - {task.Name.ColourName()} - {task.Status.DescribeEnum().ColourValue()} - assigned to {task.AssignedEmployee?.HowSeen(actor, colour: false).ColourName() ?? "nobody".ColourError()} - next step {DescribeNextStep(task, actor)}{blockedReason}");
+				var failureDiagnostic = task.Status == EmploymentTaskStatus.Failed
+					? task.StepOperationalStates
+					      .Reverse()
+					      .Select(x => x.FailureDiagnostic)
+					      .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x))
+					: null;
+				var failureReason = string.IsNullOrWhiteSpace(failureDiagnostic)
+					? string.Empty
+					: $" - failed: {failureDiagnostic.ColourError()}";
+				sb.AppendLine($"\t#{index++.ToString("N0", actor)} - {task.Name.ColourName()} - {task.Status.DescribeEnum().ColourValue()} - assigned to {task.AssignedEmployee?.HowSeen(actor, colour: false).ColourName() ?? "nobody".ColourError()} - next step {DescribeNextStep(task, actor)}{blockedReason}{failureReason}");
 			}
 		}
 

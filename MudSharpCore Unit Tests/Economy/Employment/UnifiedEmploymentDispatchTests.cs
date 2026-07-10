@@ -575,18 +575,20 @@ public class UnifiedEmploymentDispatchTests
 		fillerLiquid.SetupGet(x => x.Density).Returns(1.0);
 		var mixture = new LiquidMixture(fillerLiquid.Object, 0.1, gameworld.Object);
 		var bodyProto = BodyPrototype();
-		var containerItem = IvContainer(9001, "used blood bag", gameworld.Object, mixture, volume: 0.1);
+		var containerItem = IvContainer(9001, "used blood bag", gameworld.Object, mixture, capacity: 0.1, volume: 0.1);
 		var supplyItems = new List<IGameItem>
 		{
 			containerItem.Object,
 			CannulaItem(9002, "cannula", bodyProto.Object).Object,
 			DripItem(9003, "iv drip").Object
 		};
+		var supplyRoom = PhysicalCell(705, "supply room", supplyItems);
 		var hospital = new Mock<IHospital>();
 		hospital.SetupGet(x => x.Name).Returns("central clinic");
 		hospital.SetupGet(x => x.IsTrading).Returns(true);
 		hospital.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		hospital.SetupGet(x => x.SupplyRooms).Returns([PhysicalCell(705, "supply room", supplyItems).Object]);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([supplyRoom.Object]);
+		hospital.SetupGet(x => x.Locations).Returns([supplyRoom.Object]);
 		SetupAvailableMedicalEmployee(hospital);
 
 		var service = new Mock<IHospitalService>();
@@ -595,8 +597,14 @@ public class UnifiedEmploymentDispatchTests
 		service.SetupGet(x => x.RequiredEquipment).Returns([]);
 		service.SetupGet(x => x.BloodVolumeLitres).Returns(0.5);
 
+		var donorBlood = new Mock<ILiquid>();
+		donorBlood.SetupGet(x => x.Density).Returns(1.0);
+		var bloodtype = new Mock<IBloodtype>();
 		var body = new Mock<MudSharp.Body.IBody>();
-		body.SetupGet(x => x.BloodLiquid).Returns((ILiquid)null!);
+		body.SetupGet(x => x.BloodLiquid).Returns(donorBlood.Object);
+		body.SetupGet(x => x.Bloodtype).Returns(bloodtype.Object);
+		body.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
+		body.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(5.0);
 		body.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
 		body.SetupGet(x => x.Implants).Returns([]);
 		var donor = Character(6, "Donor", gameworld: gameworld.Object);
@@ -624,11 +632,13 @@ public class UnifiedEmploymentDispatchTests
 			CannulaItem(9005, "cannula", bodyProto.Object).Object,
 			DripItem(9006, "iv drip").Object
 		};
+		var supplyRoom = PhysicalCell(9007, "supply room", supplyItems);
 		var hospital = new Mock<IHospital>();
 		hospital.SetupGet(x => x.Name).Returns("central clinic");
 		hospital.SetupGet(x => x.IsTrading).Returns(true);
 		hospital.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		hospital.SetupGet(x => x.SupplyRooms).Returns([PhysicalCell(9007, "supply room", supplyItems).Object]);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([supplyRoom.Object]);
+		hospital.SetupGet(x => x.Locations).Returns([supplyRoom.Object]);
 		SetupAvailableMedicalEmployee(hospital);
 
 		var service = new Mock<IHospitalService>();
@@ -639,8 +649,12 @@ public class UnifiedEmploymentDispatchTests
 
 		var donorBlood = new Mock<ILiquid>();
 		donorBlood.SetupGet(x => x.Density).Returns(1.0);
+		var bloodtype = new Mock<IBloodtype>();
 		var donorBody = new Mock<MudSharp.Body.IBody>();
 		donorBody.SetupGet(x => x.BloodLiquid).Returns(donorBlood.Object);
+		donorBody.SetupGet(x => x.Bloodtype).Returns(bloodtype.Object);
+		donorBody.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
+		donorBody.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(5.0);
 		donorBody.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
 		donorBody.SetupGet(x => x.Implants).Returns([]);
 		var donor = Character(9008, "Donor", gameworld: gameworld.Object);
@@ -665,13 +679,14 @@ public class UnifiedEmploymentDispatchTests
 			CannulaItem(9010, "cannula", bodyProto.Object).Object,
 			DripItem(9011, "iv drip").Object
 		};
+		var theatre = PhysicalCell(9012, "operating theatre", theatreItems);
 		var hospital = new Mock<IHospital>();
 		hospital.SetupGet(x => x.Name).Returns("central clinic");
 		hospital.SetupGet(x => x.IsTrading).Returns(true);
 		hospital.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		hospital.SetupGet(x => x.SupplyRooms).Returns([]);
-		hospital.SetupGet(x => x.OperatingTheatres)
-		        .Returns([PhysicalCell(9012, "operating theatre", theatreItems).Object]);
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.Locations).Returns([theatre.Object]);
 		SetupAvailableMedicalEmployee(hospital);
 
 		var service = new Mock<IHospitalService>();
@@ -681,8 +696,12 @@ public class UnifiedEmploymentDispatchTests
 		service.SetupGet(x => x.BloodVolumeLitres).Returns(0.5);
 		var donorBlood = new Mock<ILiquid>();
 		donorBlood.SetupGet(x => x.Density).Returns(1.0);
+		var bloodtype = new Mock<IBloodtype>();
 		var donorBody = new Mock<MudSharp.Body.IBody>();
 		donorBody.SetupGet(x => x.BloodLiquid).Returns(donorBlood.Object);
+		donorBody.SetupGet(x => x.Bloodtype).Returns(bloodtype.Object);
+		donorBody.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
+		donorBody.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(5.0);
 		donorBody.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
 		donorBody.SetupGet(x => x.Implants).Returns([]);
 		var donor = Character(9013, "Donor", gameworld: gameworld.Object);
@@ -691,6 +710,52 @@ public class UnifiedEmploymentDispatchTests
 		var result = HospitalServiceAvailability.Evaluate(hospital.Object, service.Object, patient: donor.Object);
 
 		Assert.IsTrue(result.Available, result.Reason);
+	}
+
+	[TestMethod]
+	public void HospitalServiceAvailability_BlocksBloodDonationBelowSafeDonorThreshold()
+	{
+		var unitManager = new Mock<MudSharp.Framework.Units.IUnitManager>();
+		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
+		var bodyProto = BodyPrototype();
+		var supplyItems = new List<IGameItem>
+		{
+			IvContainer(9014, "empty blood bag", gameworld.Object).Object,
+			CannulaItem(9015, "cannula", bodyProto.Object).Object,
+			DripItem(9016, "iv drip").Object
+		};
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Name).Returns("central clinic");
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		hospital.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		hospital.SetupGet(x => x.SupplyRooms)
+		        .Returns([PhysicalCell(9017, "supply room", supplyItems).Object]);
+		SetupAvailableMedicalEmployee(hospital);
+
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodDonation);
+		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		service.SetupGet(x => x.BloodVolumeLitres).Returns(0.5);
+		var bloodLiquid = new Mock<ILiquid>();
+		bloodLiquid.SetupGet(x => x.Density).Returns(1.0);
+		var bloodtype = new Mock<IBloodtype>();
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.BloodLiquid).Returns(bloodLiquid.Object);
+		body.SetupGet(x => x.Bloodtype).Returns(bloodtype.Object);
+		body.SetupGet(x => x.TotalBloodVolumeLitres).Returns(5.0);
+		body.SetupGet(x => x.CurrentBloodVolumeLitres).Returns(4.2);
+		body.SetupGet(x => x.Prototype).Returns(bodyProto.Object);
+		body.SetupGet(x => x.Implants).Returns([]);
+		var donor = Character(9018, "Donor", gameworld: gameworld.Object);
+		donor.SetupGet(x => x.Body).Returns(body.Object);
+
+		var result = HospitalServiceAvailability.Evaluate(hospital.Object, service.Object, patient: donor.Object);
+
+		Assert.IsFalse(result.Available);
+		StringAssert.Contains(result.Reason, "safe donation threshold");
 	}
 
 	[TestMethod]

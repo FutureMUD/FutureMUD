@@ -35,6 +35,7 @@ public static class HospitalMedicalServiceRunner
 	private const string BloodWorkflowStageDecannulating = "decannulating";
 	private const string BloodWorkflowStagePayingDonor = "payingdonor";
 	private const double BloodWorkflowToleranceLitres = 0.01;
+	internal const double MinimumBloodFractionForDonation = 0.8;
 
 	private sealed record UsageCharge(HospitalServiceType ServiceType, int Count);
 	private enum BloodDonorPayoutResult
@@ -2315,7 +2316,7 @@ public static class HospitalMedicalServiceRunner
 		}
 
 		var amountLitres = request.Service.BloodVolumeLitres > 0.0 ? request.Service.BloodVolumeLitres : 0.5;
-		var safeMinimum = donor.Body.TotalBloodVolumeLitres * 0.8;
+		var safeMinimum = donor.Body.TotalBloodVolumeLitres * MinimumBloodFractionForDonation;
 		var workflow = progress.BloodWorkflow;
 		var hasActiveWorkflow = workflow is not null && workflow.Kind.EqualTo(BloodDonationPhase);
 		if (!hasActiveWorkflow && donor.Body.CurrentBloodVolumeLitres - amountLitres < safeMinimum)

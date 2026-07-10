@@ -313,7 +313,9 @@ Administrators can also use:
 						service.Name,
 						availability.Available ? "Available".ColourValue() : "Unavailable".ColourError(),
 						HospitalServiceBilling.DescribePrice(hospital, service, actor).ColourValue(),
-						service.AllowDebt.ToColouredString()
+						HospitalServiceBilling.IsDonorPaidServiceType(service.ServiceType)
+							? "not applicable".ColourValue()
+							: service.AllowDebt.ToColouredString()
 					};
 				}),
 				new List<string> { "#", "Service", "Availability", "Price", "Permits Debt" },
@@ -332,7 +334,9 @@ Administrators can also use:
 				("Type", service.ServiceType.DescribeEnum().ColourName()),
 				("Offering", service.OfferingMode.DescribeEnum().ColourName()),
 				("Price", HospitalServiceBilling.DescribePrice(hospital, service, actor).ColourValue()),
-				("Debt", service.AllowDebt.ToColouredString()),
+				("Debt", HospitalServiceBilling.IsDonorPaidServiceType(service.ServiceType)
+					? "not applicable".ColourValue()
+					: service.AllowDebt.ToColouredString()),
 				("Status", HospitalServiceAvailability.Evaluate(hospital, service, actor).DescribeColoured()));
 		}
 
@@ -420,7 +424,9 @@ Administrators can also use:
 
 		var service = new HospitalService(hospital, name, serviceType, price);
 		hospital.AddService(service);
-		actor.OutputHandler.Send($"You add the hospital service {service.Name.ColourName()} for {hospital.Currency.Describe(service.Price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+		actor.OutputHandler.Send(HospitalServiceBilling.IsDonorPaidServiceType(serviceType)
+			? $"You add the hospital service {service.Name.ColourName()} with a default successful-donation payout of {hospital.Currency.Describe(service.Price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}. Blood-stock policy prices override this default for matching blood types."
+			: $"You add the hospital service {service.Name.ColourName()} for {hospital.Currency.Describe(service.Price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
 	}
 
 	private static void HospitalServiceSet(ICharacter actor, IHospital hospital, StringStack ss)
@@ -465,7 +471,9 @@ Administrators can also use:
 				}
 				service.Price = price;
 				service.Changed = true;
-				actor.OutputHandler.Send($"{service.Name.ColourName()} now costs {hospital.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+				actor.OutputHandler.Send(HospitalServiceBilling.IsDonorPaidServiceType(service.ServiceType)
+					? $"{service.Name.ColourName()} now pays {hospital.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} after a successful donation when no matching blood-stock policy overrides it."
+					: $"{service.Name.ColourName()} now costs {hospital.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
 				return;
 			case "active":
 				service.IsActive = !service.IsActive;
@@ -474,6 +482,14 @@ Administrators can also use:
 				return;
 			case "debt":
 			case "allowdebt":
+				if (HospitalServiceBilling.IsDonorPaidServiceType(service.ServiceType))
+				{
+					service.AllowDebt = false;
+					service.Changed = true;
+					actor.OutputHandler.Send($"{service.Name.ColourName()} pays the donor and never creates patient debt.");
+					return;
+				}
+
 				if (HospitalServiceBilling.IsUsageBilledServiceType(service.ServiceType))
 				{
 					service.AllowDebt = true;
@@ -1291,12 +1307,11 @@ Administrators can also use:
 		}
 
 		var patient = actor;
-		var payment = new HospitalPaymentSelection { Method = HospitalPaymentMethod.Cash };
-		var procedureParameters = string.Empty;
-		if (HospitalServiceBilling.IsUsageBilledServiceType(service.ServiceType))
+		var payment = new HospitalPaymentSelection
 		{
-			payment = new HospitalPaymentSelection { Method = HospitalPaymentMethod.Debt };
-		}
+			Method = HospitalServiceBilling.NormalisePaymentMethod(service, HospitalPaymentMethod.Cash)
+		};
+		var procedureParameters = string.Empty;
 
 		while (!ss.IsFinished)
 		{
@@ -1393,11 +1408,7 @@ Administrators can also use:
 			return;
 		}
 
-		if (HospitalServiceBilling.IsUsageBilledServiceType(service.ServiceType) &&
-		    payment.Method != HospitalPaymentMethod.Waived)
-		{
-			payment = new HospitalPaymentSelection { Method = HospitalPaymentMethod.Debt };
-		}
+		payment.Method = HospitalServiceBilling.NormalisePaymentMethod(service, payment.Method);
 
 		if (payment.Method == HospitalPaymentMethod.Debt && !service.AllowDebt)
 		{
@@ -1645,9 +1656,11 @@ Administrators can also use:
 			return false;
 		}
 
+		payment.Method = HospitalServiceBilling.NormalisePaymentMethod(service, payment.Method);
 		var request = new HospitalServiceRequest(hospital, service, requester, patient, payment.Method);
 		request.ProcedureParameters = procedureParameters;
-		request.MarkCharged(amountPaid, debtCharged);
+		request.MarkCharged(amountPaid, debtCharged,
+			HospitalServiceBilling.IsDonorPaidServiceType(service.ServiceType) ? 0.0M : null);
 
 		hospital.AddServiceRequest(request);
 		var task = hospital.TaskBoard.CreateActiveTask(
@@ -1668,6 +1681,10 @@ Administrators can also use:
 			message += CharacterInstanceIdentityComparer.SamePhysicalInstance(requester, patient)
 				? "\nYour debt account will be charged based on the treatments performed"
 				: "\nThe patient's debt account will be charged based on the treatments performed";
+		}
+		else if (HospitalServiceBilling.IsDonorPaidServiceType(service.ServiceType))
+		{
+			message += "\nThere is no patient charge. The donor payout is issued only after blood is successfully collected";
 		}
 
 		return true;
@@ -1693,6 +1710,11 @@ Administrators can also use:
 		amountPaid = 0.0M;
 		debtCharged = 0.0M;
 		error = string.Empty;
+		if (HospitalServiceBilling.IsDonorPaidServiceType(service.ServiceType))
+		{
+			return true;
+		}
+
 		var amount = service.Price;
 		if (HospitalServiceBilling.IsUsageBilledServiceType(service.ServiceType))
 		{

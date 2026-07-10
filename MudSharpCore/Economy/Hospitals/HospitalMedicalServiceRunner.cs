@@ -33,9 +33,16 @@ public static class HospitalMedicalServiceRunner
 	private const string BloodWorkflowStageDraining = "draining";
 	private const string BloodWorkflowStageDripping = "dripping";
 	private const string BloodWorkflowStageDecannulating = "decannulating";
+	private const string BloodWorkflowStagePayingDonor = "payingdonor";
 	private const double BloodWorkflowToleranceLitres = 0.01;
 
 	private sealed record UsageCharge(HospitalServiceType ServiceType, int Count);
+	private enum BloodDonorPayoutResult
+	{
+		NotDue,
+		Paid,
+		Failed
+	}
 
 	private sealed class BloodWorkflowProgress
 	{
@@ -2362,6 +2369,11 @@ public static class HospitalMedicalServiceRunner
 			return CompleteDonationWorkflow(context, employee, donor, request, progress, workflow);
 		}
 
+		if (workflow.Stage.EqualTo(BloodWorkflowStagePayingDonor))
+		{
+			return CompleteDonationWorkflow(context, employee, donor, request, progress, workflow);
+		}
+
 		if (!workflow.Stage.EqualTo(BloodWorkflowStageDraining))
 		{
 			return new ServiceExecutionResult(false, "The blood donation workflow is in an unknown state.", string.Empty,
@@ -2466,19 +2478,29 @@ public static class HospitalMedicalServiceRunner
 		ICharacter donor, IHospitalServiceRequest request, HospitalTreatmentProgress progress,
 		BloodWorkflowProgress workflow)
 	{
+		var amountLitres = workflow.CompletedLitres;
+		var containerId = workflow.UsedContainerIds.OrderBy(x => x).LastOrDefault();
+		workflow.Stage = BloodWorkflowStagePayingDonor;
+		progress.ActivePhase = BloodDonationPhase;
+		progress.BloodWorkflow = workflow;
+		var payout = TryPayBloodDonor(context, employee, donor, request, amountLitres, workflow.StockBeforeLitres,
+			out var payoutMessage);
+		if (payout == BloodDonorPayoutResult.Failed)
+		{
+			return new ServiceExecutionResult(true,
+				$"{employee.HowSeen(employee, true)} collected {amountLitres.ToString("N2", employee)}L of blood from {donor.HowSeen(employee)}, but completion is waiting for the donor payout: {payoutMessage}",
+				containerId.ToString("F0", CultureInfo.InvariantCulture), false, Progress: progress);
+		}
+
 		progress.ActivePhase = null;
 		progress.ActiveExpectedCount = 0;
 		progress.CompletedPhases.Add(BloodDonationPhase);
 		progress.BloodWorkflow = null;
-		var amountLitres = workflow.CompletedLitres;
-		var containerId = workflow.UsedContainerIds.OrderBy(x => x).LastOrDefault();
 		employee.OutputHandler.Send(new EmoteOutput(new Emote(
 			"@ finish|finishes drawing blood from $0 and secure|secures the IV collection gear.", employee, donor)));
-		var payout = TryPayBloodDonor(context, employee, donor, request, amountLitres, workflow.StockBeforeLitres,
-			out var payoutMessage);
 		return new ServiceExecutionResult(true,
 			$"{employee.HowSeen(employee, true)} collected {amountLitres.ToString("N2", employee)}L of blood from {donor.HowSeen(employee)}{payoutMessage}",
-			payout
+			payout == BloodDonorPayoutResult.Paid
 				? $"{containerId.ToString("F0", CultureInfo.InvariantCulture)};payout=true"
 				: containerId.ToString("F0", CultureInfo.InvariantCulture),
 			Progress: progress);
@@ -2497,26 +2519,24 @@ public static class HospitalMedicalServiceRunner
 		                         .Sum(y => y.Amount) ?? 0.0) * hospital.Gameworld.UnitManager.BaseFluidToLitres);
 	}
 
-	private static bool TryPayBloodDonor(IEmploymentTaskContext context, ICharacter employee, ICharacter donor,
+	private static BloodDonorPayoutResult TryPayBloodDonor(IEmploymentTaskContext context, ICharacter employee, ICharacter donor,
 		IHospitalServiceRequest request, double amountLitres, double stockBefore, out string message)
 	{
 		message = string.Empty;
 		if (donor.Body.Bloodtype is not { } bloodtype)
 		{
-			return false;
+			return BloodDonorPayoutResult.NotDue;
 		}
 
 		var policy = request.Hospital.BloodStockPolicyFor(bloodtype, false);
-		if (policy is null || policy.TargetLitres <= stockBefore || policy.PricePerLitre <= 0.0M)
-		{
-			return false;
-		}
-
-		var eligibleLitres = Math.Min(amountLitres, policy.TargetLitres - stockBefore);
-		var payout = policy.PricePerLitre * (decimal)eligibleLitres;
+		var eligibleLitres = policy is null
+			? amountLitres
+			: Math.Min(amountLitres, Math.Max(0.0, policy.TargetLitres - stockBefore));
+		var payout = HospitalServiceBilling.DonorPayout(request.Hospital, request.Service, donor, amountLitres,
+			stockBefore);
 		if (payout <= 0.0M)
 		{
-			return false;
+			return BloodDonorPayoutResult.NotDue;
 		}
 
 		if (!VirtualCashLedger.Debit(request.Hospital, request.Hospital.Currency, payout, employee, donor,
@@ -2524,14 +2544,17 @@ public static class HospitalMedicalServiceRunner
 			request.Hospital.BankAccount, request.Hospital.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime,
 			out var error, request, $"Hospital request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}"))
 		{
-			request.OperationalNotes = string.Concat(request.OperationalNotes,
-				$"\nBlood donor payout failed: {error}").Trim();
-			request.Changed = true;
-			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
-				$"Blood donor payout for hospital request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)} failed: {error}",
-				CurrentCorrelationId(context));
-			message = ", but the hospital could not pay the configured donor price";
-			return false;
+			var failureNote = $"Blood donor payout failed: {error}";
+			if (!request.OperationalNotes.Contains(failureNote, StringComparison.InvariantCultureIgnoreCase))
+			{
+				request.OperationalNotes = string.Concat(request.OperationalNotes, $"\n{failureNote}").Trim();
+				request.Changed = true;
+				context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
+					$"Blood donor payout for hospital request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)} failed: {error}",
+					CurrentCorrelationId(context));
+			}
+			message = error;
+			return BloodDonorPayoutResult.Failed;
 		}
 
 		var cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(request.Hospital.Currency,
@@ -2551,7 +2574,7 @@ public static class HospitalMedicalServiceRunner
 			$"Paid {request.Hospital.Currency.Describe(payout, CurrencyDescriptionPatternType.ShortDecimal)} to {donor.PersonalName.GetName(MudSharp.Character.Name.NameStyle.FullName)} for {eligibleLitres.ToString("N2", CultureInfo.InvariantCulture)}L of {bloodtype.Name} blood.",
 			CurrentCorrelationId(context));
 		message = $", and paid {request.Hospital.Currency.Describe(payout, CurrencyDescriptionPatternType.ShortDecimal)} to the donor";
-		return true;
+		return BloodDonorPayoutResult.Paid;
 	}
 	private static ServiceExecutionResult PerformBloodTransfusion(IEmploymentTaskContext context, ICharacter employee,
 		ICharacter recipient, IHospitalServiceRequest request, HospitalTreatmentProgress progress,

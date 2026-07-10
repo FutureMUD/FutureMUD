@@ -372,7 +372,7 @@ internal sealed class EmploymentCommandService
 		{
 			opening = host.Employment.CreateJobOpening(new JobOpeningDefinition(
 				role,
-				JobRequirementSet.None,
+				DefaultOpeningRequirements(role),
 				pay,
 				WorkSchedule.AnyTime,
 				EmploymentDuration.Indefinite,
@@ -380,7 +380,12 @@ internal sealed class EmploymentCommandService
 				true,
 				new PaymentMethod(PaymentMethodKind.Cash),
 				DefaultOpeningAuthority(role)), actor);
+			var requiredCapabilities = EffectiveOpeningCapabilities(opening);
 			message = $"You create a {role.DescribeEnum().ColourName()} employment opening for {host.EmploymentHostName.ColourName()} at {DescribeMoney(pay.FixedRate, actor)} hourly.";
+			if (requiredCapabilities.Any())
+			{
+				message += $" Required AI capabilities: {requiredCapabilities.Select(x => x.DescribeEnum().ColourName()).ListToString()}.";
+			}
 			return true;
 		}
 		catch (InvalidOperationException ex)
@@ -848,7 +853,11 @@ internal sealed class EmploymentCommandService
 		sb.AppendLine($"Job openings for {host.EmploymentHostName.ColourName()}:");
 		foreach (var opening in openings)
 		{
-			sb.AppendLine($"\t#{opening.Id.ToString("N0", actor)} - {opening.Role.DescribeEnum().ColourName()} - {opening.Status.DescribeEnum().ColourValue()} - {DescribeCompensation(opening.Compensation, actor)} - {opening.MaxPositions.ToString("N0", actor)} position{(opening.MaxPositions == 1 ? string.Empty : "s")} - authority {DescribeAuthoritySet(opening.Authority)}");
+			var capabilities = EffectiveOpeningCapabilities(opening);
+			var capabilityText = capabilities.Any()
+				? $" - AI {capabilities.Select(x => x.DescribeEnum().ColourName()).ListToString()}"
+				: string.Empty;
+			sb.AppendLine($"\t#{opening.Id.ToString("N0", actor)} - {opening.Role.DescribeEnum().ColourName()} - {opening.Status.DescribeEnum().ColourValue()} - {DescribeCompensation(opening.Compensation, actor)} - {opening.MaxPositions.ToString("N0", actor)} position{(opening.MaxPositions == 1 ? string.Empty : "s")} - authority {DescribeAuthoritySet(opening.Authority)}{capabilityText}");
 		}
 
 		return sb.ToString();
@@ -2359,6 +2368,26 @@ internal sealed class EmploymentCommandService
 	private static EmploymentAuthoritySet DefaultOpeningAuthority(EmploymentRole role)
 	{
 		return DefaultRoleAuthority(role);
+	}
+
+	private static JobRequirementSet DefaultOpeningRequirements(EmploymentRole role)
+	{
+		return new JobRequirementSet(
+			Array.Empty<SkillRequirement>(),
+			Array.Empty<KnowledgeRequirement>(),
+			EmploymentCandidateMatcher.ImplicitCapabilitiesForRole(role)
+			                          .Select(x => new AICapabilityRequirement(x))
+			                          .ToList(),
+			Array.Empty<TagRequirement>());
+	}
+
+	private static IReadOnlyCollection<EmploymentAICapability> EffectiveOpeningCapabilities(IJobOpening opening)
+	{
+		return opening.Requirements.Capabilities
+		              .Select(x => x.Capability)
+		              .Concat(EmploymentCandidateMatcher.ImplicitCapabilitiesForRole(opening.Role))
+		              .Distinct()
+		              .ToList();
 	}
 
 	private static EmploymentAuthoritySet DefaultDirectHireAuthority(EmploymentRole role)

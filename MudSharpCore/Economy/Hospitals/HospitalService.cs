@@ -445,7 +445,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 		sb.AppendLine($"Active: {IsActive.ToColouredString()}");
 		var availability = HospitalServiceAvailability.Evaluate(Hospital, this, actor);
 		sb.AppendLine($"Current Availability: {availability.DescribeColoured()}");
-		sb.AppendLine($"Allow Debt: {AllowDebt.ToColouredString()}");
+		sb.AppendLine($"Allow Debt: {(HospitalServiceBilling.IsDonorPaidServiceType(ServiceType) ? "not applicable".ColourValue() : AllowDebt.ToColouredString())}");
 		sb.AppendLine($"Prefer Theatre: {PreferOperatingTheatre.ToColouredString()}");
 		sb.AppendLine($"Offering Mode: {OfferingMode.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Requires Recovery: {RequiresRecovery.ToColouredString()}");

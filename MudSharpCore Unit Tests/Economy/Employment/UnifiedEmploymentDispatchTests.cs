@@ -1012,6 +1012,52 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void HospitalServiceBilling_BloodDonationNeverChargesAndUsesDefaultPayout()
+	{
+		var currency = Currency();
+		var bloodtype = new Mock<IBloodtype>();
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.Bloodtype).Returns(bloodtype.Object);
+		var donor = Character(9127, "Donor");
+		donor.SetupGet(x => x.Body).Returns(body.Object);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodDonation);
+		service.SetupGet(x => x.Price).Returns(25.0M);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Currency).Returns(currency.Object);
+		hospital.Setup(x => x.BloodStockPolicyFor(bloodtype.Object, false)).Returns((IHospitalBloodStockPolicy?)null);
+
+		Assert.AreEqual(HospitalPaymentMethod.DonorPayout,
+			HospitalServiceBilling.NormalisePaymentMethod(service.Object, HospitalPaymentMethod.Cash));
+		Assert.AreEqual(HospitalPaymentMethod.DonorPayout,
+			HospitalServiceBilling.NormalisePaymentMethod(service.Object, HospitalPaymentMethod.Debt));
+		Assert.AreEqual(25.0M,
+			HospitalServiceBilling.DonorPayout(hospital.Object, service.Object, donor.Object, 0.5, 0.0));
+		StringAssert.Contains(HospitalServiceBilling.DescribePrice(hospital.Object, service.Object, donor.Object), "pays");
+	}
+
+	[TestMethod]
+	public void HospitalServiceBilling_BloodStockPolicyOverridesDefaultDonationPayout()
+	{
+		var bloodtype = new Mock<IBloodtype>();
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.Bloodtype).Returns(bloodtype.Object);
+		var donor = Character(9128, "Donor");
+		donor.SetupGet(x => x.Body).Returns(body.Object);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodDonation);
+		service.SetupGet(x => x.Price).Returns(25.0M);
+		var policy = new Mock<IHospitalBloodStockPolicy>();
+		policy.SetupGet(x => x.TargetLitres).Returns(3.0);
+		policy.SetupGet(x => x.PricePerLitre).Returns(40.0M);
+		var hospital = new Mock<IHospital>();
+		hospital.Setup(x => x.BloodStockPolicyFor(bloodtype.Object, false)).Returns(policy.Object);
+
+		Assert.AreEqual(20.0M,
+			HospitalServiceBilling.DonorPayout(hospital.Object, service.Object, donor.Object, 0.5, 1.0));
+	}
+
+	[TestMethod]
 	public void HospitalMedicalServiceRunner_MapsSurgicalFamilyServicesToProcedureTypes()
 	{
 		Assert.AreEqual(SurgicalProcedureType.Triage,

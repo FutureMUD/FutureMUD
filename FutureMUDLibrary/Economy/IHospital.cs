@@ -71,7 +71,8 @@ public enum HospitalPaymentMethod
 	Cash,
 	BankPaymentItem,
 	Debt,
-	Waived
+	Waived,
+	DonorPayout
 }
 
 public enum HospitalLocationRole

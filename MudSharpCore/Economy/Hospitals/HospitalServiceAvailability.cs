@@ -63,8 +63,9 @@ public static class HospitalServiceAvailability
 			return Unavailable(anesthesiaReason);
 		}
 
-		if (service.ServiceType == HospitalServiceType.BloodDonation && !HasDonationContainerStock(hospital, service, patient,
-			out var donationReason))
+		if (service.ServiceType == HospitalServiceType.BloodDonation &&
+		    (!HasDonationContainerStock(hospital, service, patient, out var donationReason) ||
+		     !CanFundDonationPayout(hospital, service, patient, out donationReason)))
 		{
 			return Unavailable(donationReason);
 		}
@@ -118,6 +119,27 @@ public static class HospitalServiceAvailability
 
 		employee = null;
 		reason = "no medical employee available";
+		return false;
+	}
+
+	private static bool CanFundDonationPayout(IHospital hospital, IHospitalService service, ICharacter? donor,
+		out string reason)
+	{
+		reason = string.Empty;
+		if (donor?.Body.Bloodtype is null)
+		{
+			return true;
+		}
+
+		var amountLitres = service.BloodVolumeLitres > 0.0 ? service.BloodVolumeLitres : 0.5;
+		var stockBefore = HospitalMedicalServiceRunner.CurrentBloodStockLitres(hospital, donor.Body.Bloodtype);
+		var payout = HospitalServiceBilling.DonorPayout(hospital, service, donor, amountLitres, stockBefore);
+		if (VirtualCashLedger.CanDebit(hospital, hospital.Currency, payout, hospital.BankAccount, out var error))
+		{
+			return true;
+		}
+
+		reason = $"the hospital cannot fund the donor payout: {error}";
 		return false;
 	}
 

@@ -135,6 +135,57 @@ public class EmploymentWorkerAITests
 	}
 
 	[TestMethod]
+	public void EmploymentWorkerAI_ManagerCapabilityGatesManagerOpeningsAndGoalEvaluation()
+	{
+		var currency = Currency();
+		var workplace = Cell(119, "office");
+		var host = Shop(119, "managed shop", currency.Object, workplace.Object);
+		var gameworld = Gameworld(shops: [host.Shop.Object], currencies: [currency.Object]);
+		var manager = Character(119, "Manager", gameworld.Object, workplace.Object).Object;
+		var employee = Character(120, "Employee", gameworld.Object, workplace.Object).Object;
+		var opening = host.State.CreateJobOpening(Opening(currency.Object, 20.0M, role: EmploymentRole.Manager), null);
+		var ordinaryProfile = Profile(manager);
+		var managerProfile = ordinaryProfile with
+		{
+			Capabilities = new HashSet<EmploymentAICapability>
+			{
+				EmploymentAICapability.CanDeliverItems,
+				EmploymentAICapability.CanManageEmploymentHost
+			}
+		};
+
+		Assert.IsFalse(EmploymentCandidateMatcher.IsMatch(opening, ordinaryProfile, out var reason));
+		StringAssert.Contains(reason, nameof(EmploymentAICapability.CanManageEmploymentHost));
+		Assert.IsTrue(EmploymentCandidateMatcher.IsMatch(opening, managerProfile, out reason), reason);
+
+		host.State.Hire(manager, Offer(currency.Object, EmploymentRole.Manager), null);
+		host.State.Hire(employee, Offer(currency.Object, EmploymentRole.Employee), null);
+		var managerAi = LoadAI(gameworld.Object, """
+		                                     <Definition>
+		                                       <AcceptedPaymentMethods><Method>Cash</Method></AcceptedPaymentMethods>
+		                                       <Capabilities><Capability>CanManageEmploymentHost</Capability></Capabilities>
+		                                     </Definition>
+		                                     """);
+		var ordinaryAi = LoadAI(gameworld.Object);
+
+		Assert.IsTrue(managerAi.CanEvaluateManagerGoals(manager, host.Shop.Object));
+		Assert.IsFalse(managerAi.CanEvaluateManagerGoals(employee, host.Shop.Object));
+		Assert.IsFalse(ordinaryAi.CanEvaluateManagerGoals(manager, host.Shop.Object));
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_ManagerBuilderAliasAddsManagerCapability()
+	{
+		var currency = Currency();
+		var gameworld = Gameworld(currencies: [currency.Object]);
+		var ai = LoadAI(gameworld.Object);
+		var actor = Character(121, "Builder", gameworld.Object, Cell(121, "office").Object).Object;
+
+		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("capability manager")));
+		Assert.IsTrue(ai.Capabilities.Contains(EmploymentAICapability.CanManageEmploymentHost));
+	}
+
+	[TestMethod]
 	public void EmploymentWorkerAI_NewBuilderDefaultsCurrencyAndClosesDoors()
 	{
 		var currency = Currency();
@@ -1288,10 +1339,11 @@ public class EmploymentWorkerAITests
 		return knowledge.Object;
 	}
 	private static JobOpeningDefinition Opening(ICurrency currency, decimal amount,
-		JobRequirementSet? requirements = null, PayCadence cadence = PayCadence.Hourly)
+		JobRequirementSet? requirements = null, PayCadence cadence = PayCadence.Hourly,
+		EmploymentRole role = EmploymentRole.Employee)
 	{
 		return new JobOpeningDefinition(
-			EmploymentRole.Employee,
+			role,
 			requirements ?? JobRequirementSet.None,
 			Pay(currency, amount, cadence),
 			WorkSchedule.AnyTime,

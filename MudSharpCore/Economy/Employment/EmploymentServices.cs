@@ -10,8 +10,26 @@ namespace MudSharp.Economy.Employment;
 
 public static class EmploymentCandidateMatcher
 {
+	public static IReadOnlySet<EmploymentAICapability> ImplicitCapabilitiesForRole(EmploymentRole role)
+	{
+		return role == EmploymentRole.Manager
+			? new HashSet<EmploymentAICapability> { EmploymentAICapability.CanManageEmploymentHost }
+			: new HashSet<EmploymentAICapability>();
+	}
+
 	public static bool IsMatch(IJobOpening opening, EmploymentCandidateProfile candidate, out string reason)
 	{
+		foreach (var capability in ImplicitCapabilitiesForRole(opening.Role))
+		{
+			if (candidate.Capabilities.Contains(capability))
+			{
+				continue;
+			}
+
+			reason = $"Candidate lacks required AI capability {capability} for the {opening.Role} role.";
+			return false;
+		}
+
 		foreach (var requirement in opening.Requirements.Skills)
 		{
 			if (!TryGetSkill(candidate, requirement.SkillName, out var value) || value < requirement.MinimumValue)

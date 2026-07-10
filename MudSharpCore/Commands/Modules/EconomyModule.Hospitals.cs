@@ -1642,6 +1642,20 @@ Administrators can also use:
 	private static bool TryCreateHospitalRequest(ICharacter requester, IHospital hospital, IHospitalService service,
 		ICharacter patient, HospitalPaymentSelection payment, string procedureParameters, out string message)
 	{
+		var patientId = CharacterInstanceIdentityComparer.IdentityId(patient);
+		var activeRequest = hospital.ActiveServiceRequests
+		                            .FirstOrDefault(x => x.PatientId == patientId);
+		if (activeRequest is not null)
+		{
+			var activePatientDescription = CharacterInstanceIdentityComparer.SamePhysicalInstance(requester, patient)
+				? "you"
+				: patient.HowSeen(requester);
+			message = $"There is already an active {activeRequest.Service.Name.ColourName()} request " +
+			          $"(#{activeRequest.Id.ToString("N0", requester).ColourValue()}) for {activePatientDescription} at this hospital. " +
+			          "Cancel or complete it before requesting another service.";
+			return false;
+		}
+
 		var availability = HospitalServiceAvailability.Evaluate(hospital, service, requester, patient, procedureParameters);
 		if (!availability.Available)
 		{

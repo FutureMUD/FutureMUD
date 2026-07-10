@@ -486,6 +486,40 @@ public class EmploymentCommandServiceTests
 	}
 
 	[TestMethod]
+	public void HospitalCommand_RequestRejectsSecondActiveRequestForSamePatient()
+	{
+		var gameworld = Gameworld();
+		var foyer = Cell(610, "Hospital Foyer").Object;
+		var hospital = HospitalHost(611, "Easy Street Hospital", [foyer]);
+		hospital.SetupGet(x => x.IsTrading).Returns(true);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.Id).Returns(612);
+		service.SetupGet(x => x.Name).Returns("Blood Donation");
+		service.SetupGet(x => x.IsActive).Returns(true);
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodDonation);
+		hospital.Setup(x => x.ServiceByIdOrName(It.IsAny<string>())).Returns(service.Object);
+		var patient = Character(613, "Patient", gameworld: gameworld.Object, location: foyer).Object;
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(614);
+		request.SetupGet(x => x.PatientId).Returns(patient.Id);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		hospital.SetupGet(x => x.ActiveServiceRequests).Returns([request.Object]);
+		var hospitals = new All<IHospital>();
+		hospitals.Add(hospital.Object);
+		gameworld.SetupGet(x => x.Hospitals).Returns(hospitals);
+
+		InvokeHospitalCommand(patient, "hospital request \"Blood Donation\"");
+
+		Mock.Get(patient.OutputHandler).Verify(x => x.Send(
+			It.Is<string>(text =>
+				text.Contains("already an active", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("Blood Donation", StringComparison.OrdinalIgnoreCase) &&
+				text.Contains("Cancel or complete", StringComparison.OrdinalIgnoreCase)),
+			It.IsAny<bool>(),
+			It.IsAny<bool>()), Times.Once);
+	}
+
+	[TestMethod]
 	public void EmploymentCommandService_OutsiderCanOnlyViewOpenings()
 	{
 		var currency = Currency();

@@ -128,7 +128,11 @@ namespace MudSharp.Health
         bool RequiresUnconsciousPatient { get; }
         bool RequiresInvasiveProcedureFinalisation { get; }
         bool RequiresLivingPatient { get; }
+        bool RequiresTargetBodypartExposure { get; }
+        string BodypartTargetingDescription { get; }
         IBodyPrototype TargetBodyType { get; }
+        bool IsPermissibleBodypart(IBodypart bodypart);
+        IBodypart TargetBodypart(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
         void PerformProcedure(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
 
         void CompleteProcedure(ICharacter surgeon, ICharacter patient, CheckOutcome result,

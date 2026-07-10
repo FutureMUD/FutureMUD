@@ -37,6 +37,8 @@ public class DecannulationProcedure : BodypartSpecificSurgicalProcedure
 
     public override SurgicalProcedureType Procedure => SurgicalProcedureType.Decannulation;
 
+    public override bool RequiresTargetBodypartExposure => true;
+
     public override CheckType Check => CheckType.DecannulationProcedure;
 
     public override bool RequiresInvasiveProcedureFinalisation { get; }

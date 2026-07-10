@@ -28,9 +28,39 @@ public abstract class BodypartSpecificSurgicalProcedure : SurgicalProcedure
     private List<IBodypart> _targetedParts = new();
     private bool _targetPartsForbidden;
 
-    protected bool IsPermissableBodypart(IBodypart bodypart)
+    public override bool IsPermissibleBodypart(IBodypart bodypart)
     {
         return MatchesPermissableBodypart(_targetedParts, _targetPartsForbidden, bodypart);
+    }
+
+    protected bool IsPermissableBodypart(IBodypart bodypart)
+    {
+        return IsPermissibleBodypart(bodypart);
+    }
+
+    public override bool RequiresTargetBodypartExposure => Phases.Any(x =>
+        ExpandSpecialPhaseActionTexts(x.PhaseSpecialEffects).Any(y => y.EqualTo("exposed")));
+
+    public override string BodypartTargetingDescription =>
+        DescribeBodypartRestrictions(_targetedParts, _targetPartsForbidden);
+
+    internal static string DescribeBodypartRestrictions(IEnumerable<IBodypart> targetedParts,
+        bool targetPartsForbidden)
+    {
+        var descriptions = targetedParts
+                           .Select(x => x.FullDescription())
+                           .OrderBy(x => x)
+                           .ToList();
+        if (!descriptions.Any())
+        {
+            return targetPartsForbidden
+                ? "Any bodypart"
+                : "No bodyparts (the procedure cannot currently be performed)";
+        }
+
+        return targetPartsForbidden
+            ? $"Any bodypart except {descriptions.ListToString()}"
+            : $"Only {descriptions.ListToString()}";
     }
 
     internal static bool MatchesPermissableBodypart(IEnumerable<IBodypart> targetedParts, bool targetPartsForbidden,
@@ -187,6 +217,12 @@ public abstract class BodypartSpecificSurgicalProcedure : SurgicalProcedure
 	}
 
 	public abstract IBodypart GetTargetBodypart(object[] parameters);
+
+	public override IBodypart TargetBodypart(ICharacter surgeon, ICharacter patient,
+		params object[] additionalArguments)
+	{
+		return GetTargetBodypart(GetProcessedAdditionalArguments(surgeon, patient, additionalArguments));
+	}
 
 	internal static bool TargetBodypartIsExposed(IBody body, IBodypart bodypart)
 	{

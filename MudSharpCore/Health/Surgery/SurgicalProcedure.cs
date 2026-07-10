@@ -54,6 +54,10 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
 
     public virtual bool RequiresLivingPatient => true;
 
+    public virtual bool RequiresTargetBodypartExposure => false;
+
+    public virtual string BodypartTargetingDescription => "Not bodypart-specific";
+
     public IFutureProg UsabilityProg { get; set; }
     public IFutureProg WhyCannotUseProg { get; set; }
     public IFutureProg CompletionProg { get; set; }
@@ -67,6 +71,17 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
     public string MedicalSchool { get; set; }
 
     public IBodyPrototype TargetBodyType { get; set; }
+
+    public virtual bool IsPermissibleBodypart(IBodypart bodypart)
+    {
+        return true;
+    }
+
+    public virtual IBodypart TargetBodypart(ICharacter surgeon, ICharacter patient,
+        params object[] additionalArguments)
+    {
+        return null;
+    }
 
     public void PerformProcedure(ICharacter surgeon, ICharacter patient, params object[] additionalArguments)
     {
@@ -1742,6 +1757,8 @@ Enter your new description in the editor below:");
         sb.AppendLine($"Requires Unconscious Patient: {RequiresUnconsciousPatient.ToColouredString()}");
         sb.AppendLine($"Requires Living Patient: {RequiresLivingPatient.ToColouredString()}");
         sb.AppendLine($"Requires Invasive Finalisation: {RequiresInvasiveProcedureFinalisation.ToColouredString()}");
+        sb.AppendLine($"Bodypart Targets: {BodypartTargetingDescription.ColourValue()}");
+        sb.AppendLine($"Requires Exposed Target: {RequiresTargetBodypartExposure.ToColouredString()}");
         sb.AppendLine();
         sb.AppendLine($"Start Emote: {ProcedureBeginEmote.ColourCommand()}");
         sb.AppendLine();

@@ -94,6 +94,32 @@ public class RobotRuntimeTests
                 actualPart.Object));
     }
 
+	[TestMethod]
+	public void DescribeBodypartRestrictions_PermittedPartsAreShownExplicitly()
+	{
+		Mock<IBodypart> arm = new();
+		arm.Setup(x => x.FullDescription()).Returns("arm");
+		Mock<IBodypart> leg = new();
+		leg.Setup(x => x.FullDescription()).Returns("leg");
+
+		var description = BodypartSpecificSurgicalProcedure.DescribeBodypartRestrictions(
+			[leg.Object, arm.Object], false);
+
+		Assert.AreEqual("Only arm and leg", description);
+	}
+
+	[TestMethod]
+	public void DescribeBodypartRestrictions_ForbiddenPartsAreShownExplicitly()
+	{
+		Mock<IBodypart> chest = new();
+		chest.Setup(x => x.FullDescription()).Returns("chest");
+
+		var description = BodypartSpecificSurgicalProcedure.DescribeBodypartRestrictions(
+			[chest.Object], true);
+
+		Assert.AreEqual("Any bodypart except chest", description);
+	}
+
     [TestMethod]
 	public void MatchesPermissableOrganTarget_CountsAsTargetsAreHonoured()
 	{

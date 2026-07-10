@@ -33,7 +33,7 @@ internal partial class EconomyModule
 	#3hospital#0 - shows the hospital at your current location
 	#3hospital services#0 - lists available medical services
 	#3hospital service <##|name>#0 - shows one medical service
-	#3hospital request <service> [params <procedure args>] [for <target>] [cash|debt|with <payment item>]#0 - requests treatment and creates hospital task work
+	#3hospital request <service> [target <bodypart>|params <procedure args>] [for <target>] [cash|debt|with <payment item>]#0 - requests treatment and creates hospital task work; blood services use target to select the IV site
 	#3hospital cancel [<##>]#0 - cancels one of your active hospital service requests without refunding completed or partially completed work
 	#3hospital debt [person]#0 - shows medical debt or prepaid credit for yourself or a patient you can see
 	#3hospital debt pay <amount> [for <target>] [cash|with <payment item>]#0 - pays down debt or creates prepaid credit
@@ -47,7 +47,7 @@ Hospital managers and proprietors standing in the hospital can use #3hospital he
 	#3hospital#0 - shows the hospital at your current location
 	#3hospital services#0 - lists available medical services
 	#3hospital service <##|name>#0 - shows one medical service
-	#3hospital request <service> [params <procedure args>] [for <target>] [cash|debt|with <payment item>]#0 - requests treatment and creates hospital task work
+	#3hospital request <service> [target <bodypart>|params <procedure args>] [for <target>] [cash|debt|with <payment item>]#0 - requests treatment and creates hospital task work; blood services use target to select the IV site
 	#3hospital cancel [<##>]#0 - cancels an active hospital service request without refunding completed or partially completed work
 	#3hospital debt [person]#0 - shows medical debt or prepaid credit for yourself or a patient you can see
 	#3hospital debt pay <amount> [for <target>] [cash|with <payment item>]#0 - pays down debt or creates prepaid credit

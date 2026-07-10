@@ -67,13 +67,16 @@ public static class HospitalServiceAvailability
 		if (service.ServiceType == HospitalServiceType.BloodDonation &&
 		    (!CanPatientDonateBlood(service, patient, out var donationReason) ||
 		     !HasDonationContainerStock(hospital, service, patient, out donationReason) ||
-		     !CanFundDonationPayout(hospital, service, patient, out donationReason)))
+		     !CanFundDonationPayout(hospital, service, patient, out donationReason) ||
+		     !HasBloodAccessProcedure(hospital, service, employee!, patient, procedureParameters, out donationReason)))
 		{
 			return Unavailable(donationReason);
 		}
 
-		if (service.ServiceType == HospitalServiceType.BloodTransfusion && !HasTransfusionStock(hospital, service, patient,
-			out var transfusionReason))
+		if (service.ServiceType == HospitalServiceType.BloodTransfusion &&
+		    (!HasTransfusionStock(hospital, service, patient, out var transfusionReason) ||
+		     !HasBloodAccessProcedure(hospital, service, employee!, patient, procedureParameters,
+			     out transfusionReason)))
 		{
 			return Unavailable(transfusionReason);
 		}
@@ -289,7 +292,8 @@ public static class HospitalServiceAvailability
 		}
 
 		var stock = HospitalStockItems(hospital).ToList();
-		var hasPatientCannula = patient?.Body.Implants.Any(x => x.Parent.GetItemType<ICannula>() is not null) == true;
+		var hasPatientCannula = patient?.Body.Implants.Any(x =>
+			x is ICannula || x.Parent?.GetItemType<ICannula>() is not null) == true;
 		var hasCannula = hasPatientCannula || stock.Any(x => x.GetItemType<ICannula>() is { } cannula &&
 			(patient is null || patient.Body.Prototype.CountsAs(cannula.TargetBody)));
 		if (!hasCannula)
@@ -421,7 +425,8 @@ public static class HospitalServiceAvailability
 	private static bool HasBloodAccessStock(IReadOnlyCollection<IGameItem> stock, ICharacter? patient,
 		string switchMode, out string reason)
 	{
-		var hasPatientCannula = patient?.Body.Implants.Any(x => x.Parent.GetItemType<ICannula>() is not null) == true;
+		var hasPatientCannula = patient?.Body.Implants.Any(x =>
+			x is ICannula || x?.Parent?.GetItemType<ICannula>() is not null) == true;
 		var hasCannula = hasPatientCannula || stock.Any(x => x.GetItemType<ICannula>() is { } cannula &&
 			(patient is null || patient.Body.Prototype.CountsAs(cannula.TargetBody)));
 		if (!hasCannula)
@@ -451,6 +456,67 @@ public static class HospitalServiceAvailability
 		return HospitalStockRooms(hospital)
 		               .SelectMany(x => x.GameItems.SelectMany(y => y.DeepItems.Append(y)))
 		               .DistinctBy(x => x.Id);
+	}
+
+	private static bool HasBloodAccessProcedure(IHospital hospital, IHospitalService service, ICharacter employee,
+		ICharacter? patient, string? procedureParameters, out string reason)
+	{
+		reason = string.Empty;
+		if (patient is null || patient.Body.Implants.OfType<ICannula>().Any())
+		{
+			return true;
+		}
+
+		var parameterText = string.IsNullOrWhiteSpace(procedureParameters)
+			? service.ProcedureParameters
+			: procedureParameters;
+		IReadOnlyList<MudSharp.Body.IBodypart> bodyparts;
+		if (!string.IsNullOrWhiteSpace(parameterText))
+		{
+			var requestedBodypart = patient.Body.GetTargetBodypart(parameterText);
+			if (requestedBodypart is null)
+			{
+				reason = $"the patient has no bodypart matching {parameterText}";
+				return false;
+			}
+
+			bodyparts = [requestedBodypart];
+		}
+		else
+		{
+			bodyparts = patient.Body.Bodyparts
+			                   .Where(x => HospitalMedicalServiceRunner.IsPeripheralBloodAccessBodypart(patient.Body, x))
+			                   .ToList();
+			if (!bodyparts.Any())
+			{
+				reason = "the patient has no peripheral bodypart suitable for routine IV access";
+				return false;
+			}
+		}
+
+		var configured = hospital.ActiveServices
+		                         .Where(x => x.ServiceType == HospitalServiceType.Cannulation)
+		                         .Where(HospitalMedicalServiceRunner.CanBeUsedByCombinedService)
+		                         .Select(x => x.SurgicalProcedure)
+		                         .Where(x => x is not null)
+		                         .Select(x => x!);
+		var procedures = configured
+		                 .Concat(employee.Gameworld.SurgicalProcedures.Where(x =>
+			                 x.Procedure == SurgicalProcedureType.Cannulation))
+		                 .DistinctBy(x => x.Id)
+		                 .Where(x => x.TargetBodyType is null || patient.Body.Prototype.CountsAs(x.TargetBodyType))
+		                 .Where(x => x.KnowledgeRequired is null || employee.Knowledges.Contains(x.KnowledgeRequired))
+		                 .Where(x => x.UsabilityProg is null || x.UsabilityProg.ExecuteBool(employee, patient))
+		                 .ToList();
+		if (procedures.Any(x => bodyparts.Any(x.IsPermissibleBodypart)))
+		{
+			return true;
+		}
+
+		reason = !string.IsNullOrWhiteSpace(parameterText)
+			? $"no available medical employee knows a cannulation procedure that can target {bodyparts[0].FullDescription()}"
+			: "no available medical employee knows a peripheral cannulation procedure for this patient";
+		return false;
 	}
 
 	private static bool CanPatientDonateBlood(IHospitalService service, ICharacter? donor, out string reason)

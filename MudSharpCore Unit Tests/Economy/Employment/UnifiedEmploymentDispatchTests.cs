@@ -2663,6 +2663,57 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void EmploymentHostOperationsScheduler_IdleHostSkipsEvaluation()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("idle shop", currency.Object);
+
+		var evaluated = EmploymentHostOperationsScheduler.TryEvaluateHost(
+			host,
+			DateTimeOffset.UtcNow,
+			TimeSpan.FromMinutes(1),
+			out var result);
+
+		Assert.IsFalse(evaluated);
+		Assert.IsNull(result);
+	}
+
+	[TestMethod]
+	public void EmploymentHostOperationsScheduler_CoalescesWorkerEvaluationsPerHost()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shared shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, new EmploymentOffer(
+			EmploymentRole.Manager,
+			new CompensationTerms(null, null, PayCadence.Unpaid, null, PaymentSource.HostCash),
+			WorkSchedule.AnyTime,
+			EmploymentDuration.Indefinite,
+			new PaymentMethod(PaymentMethodKind.Cash),
+			EmploymentAuthority.CreateScheduledRules | EmploymentAuthority.PostToHostBoard), null);
+		host.TaskBoard.CreateScheduledRule(
+			"shared report",
+			"shared-report",
+			[],
+			new EmploymentActionPlan([new BoardPostActionStep("Report", "Shared worker evaluation.")]),
+			TimeSpan.Zero,
+			manager);
+		var now = DateTimeOffset.UtcNow;
+
+		var first = EmploymentHostOperationsScheduler.TryEvaluateHost(
+			host, now, TimeSpan.FromMinutes(1), out var firstResult, evaluateManagerGoals: false);
+		var second = EmploymentHostOperationsScheduler.TryEvaluateHost(
+			host, now, TimeSpan.FromMinutes(1), out var secondResult, evaluateManagerGoals: false);
+
+		Assert.IsTrue(first);
+		Assert.IsNotNull(firstResult);
+		Assert.AreEqual(1, firstResult.ScheduledRuleTaskCount);
+		Assert.IsFalse(second);
+		Assert.IsNull(secondResult);
+		Assert.AreEqual(1, host.TaskBoard.ActiveTasks.Count);
+	}
+
+	[TestMethod]
 	public void Payroll_SettlementRequiresBackedEmployerFunds()
 	{
 		VirtualCashLedger.ClearInMemoryForTests();

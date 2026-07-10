@@ -41,6 +41,14 @@ using DbBoard = MudSharp.Models.Board;
 
 namespace MudSharp.Economy.Employment;
 
+internal readonly record struct EmploymentHostKey(string HostType, long HostId)
+{
+	public static EmploymentHostKey For(IEmploymentHost host)
+	{
+		return new EmploymentHostKey(host.EmploymentHostType.ToString(), host.Id);
+	}
+}
+
 public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 {
 	private enum JobRequirementType
@@ -243,23 +251,20 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		}
 	}
 
-	public static bool HasScheduledRules(IEmploymentHost host)
+	internal static IReadOnlyCollection<EmploymentHostKey> LoadScheduledRuleHostKeys()
 	{
-		var gameworld = ResolveGameworld(host);
-		if (gameworld is null)
-		{
-			return false;
-		}
-
 		using (new FMDB())
 		{
-			var hostType = host.EmploymentHostType.ToString();
-			var stateId = FMDB.Context.EmploymentHostStates
-			                  .Where(x => x.HostType == hostType && x.HostId == host.Id)
-			                  .Select(x => (long?)x.Id)
-			                  .FirstOrDefault();
-			return stateId.HasValue &&
-			       FMDB.Context.EmploymentScheduledTaskRules.Any(x => x.EmploymentHostStateId == stateId.Value);
+			var keys = FMDB.Context.EmploymentScheduledTaskRules
+			               .AsNoTracking()
+			               .Select(x => new
+			               {
+				               x.EmploymentHostState.HostType,
+				               x.EmploymentHostState.HostId
+			               })
+			               .Distinct()
+			               .ToList();
+			return keys.Select(x => new EmploymentHostKey(x.HostType, x.HostId)).ToList();
 		}
 	}
 

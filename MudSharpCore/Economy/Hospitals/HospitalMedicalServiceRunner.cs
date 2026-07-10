@@ -1352,8 +1352,7 @@ public static class HospitalMedicalServiceRunner
 		IGameItem? suppliedImplant)
 	{
 		var progress = HospitalTreatmentProgress.FromPayload(CurrentOperationalPayload(context), request);
-		if (progress.BloodWorkflow is not null &&
-		    procedure.Procedure is SurgicalProcedureType.Cannulation or SurgicalProcedureType.Decannulation)
+		if (IsBloodWorkflowAccessProcedure(request, procedure))
 		{
 			if (completed)
 			{
@@ -1363,7 +1362,7 @@ public static class HospitalMedicalServiceRunner
 				return;
 			}
 
-			if (request.Patient is { } patient)
+			if (request.Patient is { } patient && progress.BloodWorkflow is not null)
 			{
 				NeutralizeBloodWorkflowGear(context, employee, patient, request, progress.BloodWorkflow);
 			}
@@ -1874,6 +1873,13 @@ public static class HospitalMedicalServiceRunner
 		}
 	}
 
+	internal static bool IsBloodWorkflowAccessProcedure(IHospitalServiceRequest request,
+		ISurgicalProcedure procedure)
+	{
+		return request.Service.ServiceType is HospitalServiceType.BloodDonation or HospitalServiceType.BloodTransfusion &&
+		       procedure.Procedure is SurgicalProcedureType.Cannulation or SurgicalProcedureType.Decannulation;
+	}
+
 	private static ISurgicalProcedure? ResolveBloodAccessProcedure(ICharacter employee, ICharacter patient,
 		IHospitalServiceRequest request, SurgicalProcedureType procedureType)
 	{
@@ -2168,7 +2174,7 @@ public static class HospitalMedicalServiceRunner
 			return false;
 		}
 
-		if (!TryPrepareSurgicalTarget(employee, patient, procedure, args, out reason))
+		if (!TryPrepareSurgicalTarget(employee, patient, request, procedure, args, out reason))
 		{
 			return false;
 		}
@@ -2189,7 +2195,7 @@ public static class HospitalMedicalServiceRunner
 	}
 
 	private static bool TryPrepareSurgicalTarget(ICharacter employee, ICharacter patient,
-		ISurgicalProcedure procedure, object[] args, out string reason)
+		IHospitalServiceRequest request, ISurgicalProcedure procedure, object[] args, out string reason)
 	{
 		reason = string.Empty;
 		if (!procedure.RequiresTargetBodypartExposure)
@@ -2219,7 +2225,7 @@ public static class HospitalMedicalServiceRunner
 			return true;
 		}
 
-		return TryExposeSurgicalBodypart(employee, patient, bodypart, out reason);
+		return TryExposeSurgicalBodypart(employee, patient, request, bodypart, out reason);
 	}
 
 	internal static bool IsBodypartExposed(IBody body, IBodypart bodypart)
@@ -2230,6 +2236,12 @@ public static class HospitalMedicalServiceRunner
 
 	internal static bool TryExposeSurgicalBodypart(ICharacter employee, ICharacter patient, IBodypart bodypart,
 		out string reason)
+	{
+		return TryExposeSurgicalBodypart(employee, patient, null, bodypart, out reason);
+	}
+
+	private static bool TryExposeSurgicalBodypart(ICharacter employee, ICharacter patient,
+		IHospitalServiceRequest? request, IBodypart bodypart, out string reason)
 	{
 		var destination = patient.Location ?? employee.Location;
 		if (destination is null)
@@ -2294,6 +2306,10 @@ public static class HospitalMedicalServiceRunner
 				patient.Body.RemoveItem(item, null!, employee);
 				item.RoomLayer = patient.RoomLayer;
 				destination.Insert(item);
+				if (request is not null)
+				{
+					HospitalPatientFlow.StagePatientBelongings(request, patient, destination, [item]);
+				}
 				problemItem = null;
 				return true;
 			}

@@ -955,6 +955,22 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void HospitalMedicalServiceRunner_BloodCannulationIsNotTreatedAsAnesthesiaCannulation()
+	{
+		var procedure = new Mock<ISurgicalProcedure>();
+		procedure.SetupGet(x => x.Procedure).Returns(SurgicalProcedureType.Cannulation);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodDonation);
+		service.SetupGet(x => x.AnesthesiaCannulationProcedure).Returns(procedure.Object);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Service).Returns(service.Object);
+
+		Assert.IsTrue(HospitalMedicalServiceRunner.IsBloodWorkflowAccessProcedure(request.Object, procedure.Object));
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.SurgicalProcedure);
+		Assert.IsFalse(HospitalMedicalServiceRunner.IsBloodWorkflowAccessProcedure(request.Object, procedure.Object));
+	}
+
+	[TestMethod]
 	public void HospitalMedicalServiceRunner_ExposesOnlyClothingCoveringSurgicalTarget()
 	{
 		var targetPart = new Mock<MudSharp.Body.IWear>();
@@ -1866,6 +1882,47 @@ public class UnifiedEmploymentDispatchTests
 		origin.Verify(x => x.Leave(patient.Object), Times.Once);
 		recovery.Verify(x => x.Enter(patient.Object, null, true, RoomLayer.GroundLevel), Times.Once);
 		waiting.Verify(x => x.Enter(It.IsAny<ICharacter>(), It.IsAny<ICellExit>(), It.IsAny<bool>(), It.IsAny<RoomLayer>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void HospitalPatientFlow_ReturnsStagedPatientBelongingsAfterAbandonedProcedure()
+	{
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.RequiresRecovery).Returns(true);
+		var belongings = Item(8110, "a pair of gloves");
+		var originItems = new List<IGameItem> { belongings.Object };
+		var recoveryItems = new List<IGameItem>();
+		var origin = PhysicalCell(8111, "operating theatre", originItems);
+		var recovery = PhysicalCell(8112, "recovery room", recoveryItems);
+		belongings.SetupGet(x => x.Location).Returns(origin.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.Setup(x => x.TryGetItem(belongings.Object.Id, true)).Returns(belongings.Object);
+		var patient = Character(8113, "Patient", gameworld: gameworld.Object);
+		patient.SetupGet(x => x.IsHelpless).Returns(false);
+		patient.SetupGet(x => x.Location).Returns(origin.Object);
+		patient.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		hospital.SetupGet(x => x.RecoveryRooms).Returns([recovery.Object]);
+		hospital.SetupGet(x => x.WaitingRooms).Returns(Array.Empty<ICell>());
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		request.SetupGet(x => x.OperatingTheatreCellId).Returns(origin.Object.Id);
+		request.SetupProperty(x => x.OperationalNotes, string.Empty);
+		request.SetupProperty(x => x.RecoveryRoomCellId);
+
+		HospitalPatientFlow.StagePatientBelongings(request.Object, patient.Object, origin.Object,
+			[belongings.Object]);
+		HospitalPatientFlow.TransferAfterFailedTreatment(hospital.Object, request.Object, null,
+			"Hospital failed-treatment recovery routing");
+
+		CollectionAssert.DoesNotContain(originItems, belongings.Object);
+		CollectionAssert.Contains(recoveryItems, belongings.Object);
+		StringAssert.Contains(request.Object.OperationalNotes, "Patient belongings returned after treatment");
+		Mock.Get(patient.Object.OutputHandler).Verify(x => x.Send(
+			It.Is<string>(text => text.Contains("belongings have been returned")), true, false), Times.Once);
 	}
 
 	[TestMethod]

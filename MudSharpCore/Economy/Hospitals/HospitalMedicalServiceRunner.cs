@@ -498,6 +498,7 @@ public static class HospitalMedicalServiceRunner
 
 		if (!result.Success)
 		{
+			CleanupBloodWorkflowForTerminalRequest(context, employee, request);
 			FailRequest(request, result.Message);
 			AnnounceRequestFailed(employee, request, result.Message);
 			HospitalPatientFlow.TransferAfterFailedTreatment(hospital, request, employee,
@@ -632,6 +633,7 @@ public static class HospitalMedicalServiceRunner
 	private static void FailStagedRequest(IEmploymentTaskContext context, ICharacter employee, IHospital hospital,
 		IHospitalServiceRequest request, string reason, string auditMessage)
 	{
+		CleanupBloodWorkflowForTerminalRequest(context, employee, request);
 		request.MarkStatus(HospitalServiceRequestStatus.Failed, reason);
 		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee, auditMessage,
 			CurrentCorrelationId(context));
@@ -1604,6 +1606,8 @@ public static class HospitalMedicalServiceRunner
 		if (!ConnectIfNeeded(employee, containerConnection, drip, out message) ||
 		    !ConnectIfNeeded(employee, drip, cannula, out message))
 		{
+			DisconnectIfNeeded(employee, containerConnection, drip);
+			DisconnectIfNeeded(employee, drip, cannula);
 			return false;
 		}
 
@@ -1758,7 +1762,7 @@ public static class HospitalMedicalServiceRunner
 		source.RawDisconnect(target, true);
 	}
 
-	private static bool SetDripRate(ICharacter employee, IDrip drip, double primingVolume, out string reason)
+	internal static bool SetDripRate(ICharacter employee, IDrip drip, double primingVolume, out string reason)
 	{
 		reason = string.Empty;
 		if (drip is not ISelectable selectable)
@@ -1775,7 +1779,12 @@ public static class HospitalMedicalServiceRunner
 			return true;
 		}
 
-		reason = $"{drip.Parent.HowSeen(employee, true)} could not be set to a safe anesthetic drip rate.";
+		if (drip.RatePerMinute >= minimum && drip.RatePerMinute <= maximum)
+		{
+			return true;
+		}
+
+		reason = $"{drip.Parent.HowSeen(employee, true)} could not be set to a safe IV drip rate.";
 		return false;
 	}
 
@@ -2074,33 +2083,37 @@ public static class HospitalMedicalServiceRunner
 			return false;
 		}
 
+		workflow.ContainerId = container.Parent.Id;
+		workflow.DripId = drip.Parent.Id;
+		workflow.CannulaId = cannula.Parent.Id;
 		if (!ConnectIfNeeded(employee, containerConnection, drip, out message) ||
 		    !ConnectIfNeeded(employee, drip, cannula, out message))
 		{
+			NeutralizeBloodWorkflowGear(context, employee, patient, request, workflow);
 			return false;
 		}
 
 		var targetAmount = workflow.TargetLitres / employee.Gameworld.UnitManager.BaseFluidToLitres;
 		if (!SetDripRate(employee, drip, targetAmount, out message))
 		{
+			NeutralizeBloodWorkflowGear(context, employee, patient, request, workflow);
 			return false;
 		}
 
 		if (container.Parent.GetItemType<ISwitchable>() is not { } switchable)
 		{
 			message = $"{container.Parent.HowSeen(employee, true)} cannot be switched into {switchMode} mode.";
+			NeutralizeBloodWorkflowGear(context, employee, patient, request, workflow);
 			return false;
 		}
 
 		if (!switchable.Switch(employee, switchMode))
 		{
 			message = switchable.WhyCannotSwitch(employee, switchMode);
+			NeutralizeBloodWorkflowGear(context, employee, patient, request, workflow);
 			return false;
 		}
 
-		workflow.ContainerId = container.Parent.Id;
-		workflow.DripId = drip.Parent.Id;
-		workflow.CannulaId = cannula.Parent.Id;
 		workflow.StartingPatientBloodLitres = patient.Body.CurrentBloodVolumeLitres;
 		workflow.StartingContainerVolume = container.LiquidVolume;
 		workflow.Stage = switchMode.EqualTo("drain") ? BloodWorkflowStageDraining : BloodWorkflowStageDripping;

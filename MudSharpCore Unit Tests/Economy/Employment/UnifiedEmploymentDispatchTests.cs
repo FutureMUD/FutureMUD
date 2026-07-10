@@ -971,6 +971,30 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void HospitalMedicalServiceRunner_ReusesSafeDripRateWhenRateSelectorRejectsFormat()
+	{
+		var unitManager = new Mock<MudSharp.Framework.Units.IUnitManager>();
+		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
+		unitManager.Setup(x => x.DescribeExact(It.IsAny<double>(), MudSharp.Framework.Units.UnitType.FluidVolume,
+				It.IsAny<IPerceiver>()))
+		           .Returns("1 mL");
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
+		var doctor = Character(9183, "Doctor", gameworld: gameworld.Object);
+		var dripItem = Item(9184, "iv drip");
+		var drip = new Mock<IDrip>();
+		drip.SetupGet(x => x.Parent).Returns(dripItem.Object);
+		drip.SetupGet(x => x.RatePerMinute).Returns(0.001);
+		var selectable = new Mock<ISelectable>();
+		selectable.Setup(x => x.Select(doctor.Object, It.IsAny<string>(), It.IsAny<IEmote>(), true)).Returns(false);
+		dripItem.Setup(x => x.GetItemType<ISelectable>()).Returns(selectable.Object);
+
+		var result = HospitalMedicalServiceRunner.SetDripRate(doctor.Object, drip.Object, 0.005, out var reason);
+
+		Assert.IsTrue(result, reason);
+	}
+
+	[TestMethod]
 	public void HospitalMedicalServiceRunner_ExposesOnlyClothingCoveringSurgicalTarget()
 	{
 		var targetPart = new Mock<MudSharp.Body.IWear>();

@@ -592,13 +592,13 @@ public class EmploymentWorkerAI : PathingAIBase
 		              .Where(x => EmploymentCandidateMatcher.IsMatch(x.Opening, profile, out _))
 		              .Where(x => HostReputationAcceptable(candidate, x.Host))
 		              .Select(x => (x.Host, x.Opening, WorkCell: PrimaryWorkCell(x.Host)))
-		              .Where(x => CanReach(candidate, x.WorkCell))
 		              .Select(x => (
 			              x.Host,
 			              x.Opening,
 			              EffectivePay: EmploymentCompensationEvaluator.EffectiveHourlyGlobalAmount(x.Opening.Compensation),
 			              OverdueDays: EmployerOverdueDays(x.Host),
 			              CommuteDistance: CommuteDistance(candidate, x.WorkCell)))
+		              .Where(x => x.CommuteDistance != int.MaxValue)
 		              .OrderByDescending(x => x.EffectivePay)
 		              .ThenBy(x => x.OverdueDays)
 		              .ThenBy(x => x.CommuteDistance)
@@ -628,11 +628,16 @@ public class EmploymentWorkerAI : PathingAIBase
 		}
 
 		var now = EmploymentClock.CurrentInstant(host);
-		DebugWorker(worker, $"evaluating central host operations for {host.EmploymentHostName}.");
-		var result = EmploymentHostOperationsScheduler.EvaluateHost(host, now, usePhysicalItemMovement: true,
-			evaluateManagerGoals: CanEvaluateManagerGoals(worker, host));
+		if (!EmploymentHostOperationsScheduler.TryEvaluateHost(host, now, TimeSpan.FromMinutes(1), out var result,
+			    usePhysicalItemMovement: true, evaluateManagerGoals: CanEvaluateManagerGoals(worker, host)))
+		{
+			worker.AddEffect(new EmploymentWorkerHostEvaluationEffect(worker, host), TimeSpan.FromMinutes(1));
+			return;
+		}
+
+		DebugWorker(worker, $"evaluated central host operations for {host.EmploymentHostName}.");
 		DebugWorker(worker,
-			$"host evaluation for {host.EmploymentHostName} spawned {result.ScheduledRuleTaskCount:N0} scheduled task(s), {result.ManagerGoalTaskCount:N0} manager-goal task(s), accrued {result.PayableCount:N0} payable(s), and ended {result.ContractEndCount:N0} contract(s).");
+			$"host evaluation for {host.EmploymentHostName} spawned {result!.ScheduledRuleTaskCount:N0} scheduled task(s), {result.ManagerGoalTaskCount:N0} manager-goal task(s), accrued {result.PayableCount:N0} payable(s), and ended {result.ContractEndCount:N0} contract(s).");
 		worker.AddEffect(new EmploymentWorkerHostEvaluationEffect(worker, host), TimeSpan.FromMinutes(1));
 	}
 
@@ -778,13 +783,20 @@ public class EmploymentWorkerAI : PathingAIBase
 		var context = task is null ? null : ContextFor(worker, host, task);
 		if (task is null)
 		{
+			var pendingTasks = host.TaskBoard.ActiveTasks
+			                       .Where(x => x.Status == EmploymentTaskStatus.Pending)
+			                       .OrderByDescending(x => x.Priority)
+			                       .ThenBy(x => x.DueAt ?? DateTimeOffset.MaxValue)
+			                       .ThenBy(x => x.CreatedAt)
+			                       .ThenBy(x => x.Id)
+			                       .ToList();
+			if (pendingTasks.Count == 0)
+			{
+				return false;
+			}
+
 			var profile = BuildCandidateProfile(worker);
-			foreach (var pending in host.TaskBoard.ActiveTasks
-			                            .Where(x => x.Status == EmploymentTaskStatus.Pending)
-			                            .OrderByDescending(x => x.Priority)
-			                            .ThenBy(x => x.DueAt ?? DateTimeOffset.MaxValue)
-			                            .ThenBy(x => x.CreatedAt)
-			                            .ThenBy(x => x.Id))
+			foreach (var pending in pendingTasks)
 			{
 				context = ContextFor(worker, host, pending);
 				if (!_dispatcher.TryAssignTask(pending, [profile], context, out var assignReason,
@@ -850,23 +862,70 @@ public class EmploymentWorkerAI : PathingAIBase
 
 	private IEmploymentHost? ActiveEmploymentHost(ICharacter worker)
 	{
-		return EmploymentHosts(worker.Gameworld)
-		       .Where(HostMatchesFilter)
-		       .Where(host => host.EmploymentContracts.Any(x =>
-			       x.Employee.Id == worker.Id &&
-			       x.Status == EmploymentStatus.Active))
-		       .Select(host => (
-			       Host: host,
-			       AssignedWork: HasAssignedWork(worker, host),
-			       PendingWork: TaskingEnabled ? HighestPriorityPendingTask(host) : null))
-		       .OrderByDescending(x => x.AssignedWork)
-		       .ThenByDescending(x => x.PendingWork?.Priority ?? int.MinValue)
-		       .ThenBy(x => x.PendingWork?.DueAt ?? DateTimeOffset.MaxValue)
-		       .ThenBy(x => x.PendingWork?.CreatedAt ?? DateTimeOffset.MaxValue)
-		       .ThenBy(x => x.PendingWork?.Id ?? Guid.Empty)
-		       .ThenBy(x => x.Host.EmploymentHostName)
-		       .Select(x => x.Host)
-		       .FirstOrDefault();
+		IEmploymentHost? bestHost = null;
+		IEmploymentActiveTask? bestPending = null;
+		var bestHasAssignedWork = false;
+		foreach (var host in EmploymentHosts(worker.Gameworld))
+		{
+			if (!HostMatchesFilter(host) || !host.EmploymentContracts.Any(x =>
+			    x.Employee.Id == worker.Id && x.Status == EmploymentStatus.Active))
+			{
+				continue;
+			}
+
+			var hasAssignedWork = HasAssignedWork(worker, host);
+			var pending = TaskingEnabled ? HighestPriorityPendingTask(host) : null;
+			if (bestHost is not null && !IsBetterHostCandidate(
+				    host, hasAssignedWork, pending, bestHost, bestHasAssignedWork, bestPending))
+			{
+				continue;
+			}
+
+			bestHost = host;
+			bestHasAssignedWork = hasAssignedWork;
+			bestPending = pending;
+		}
+
+		return bestHost;
+	}
+
+	private static bool IsBetterHostCandidate(IEmploymentHost candidateHost, bool candidateHasAssignedWork,
+		IEmploymentActiveTask? candidatePending, IEmploymentHost currentHost, bool currentHasAssignedWork,
+		IEmploymentActiveTask? currentPending)
+	{
+		if (candidateHasAssignedWork != currentHasAssignedWork)
+		{
+			return candidateHasAssignedWork;
+		}
+
+		if ((candidatePending?.Priority ?? int.MinValue) != (currentPending?.Priority ?? int.MinValue))
+		{
+			return (candidatePending?.Priority ?? int.MinValue) > (currentPending?.Priority ?? int.MinValue);
+		}
+
+		var candidateDueAt = candidatePending?.DueAt ?? DateTimeOffset.MaxValue;
+		var currentDueAt = currentPending?.DueAt ?? DateTimeOffset.MaxValue;
+		if (candidateDueAt != currentDueAt)
+		{
+			return candidateDueAt < currentDueAt;
+		}
+
+		var candidateCreatedAt = candidatePending?.CreatedAt ?? DateTimeOffset.MaxValue;
+		var currentCreatedAt = currentPending?.CreatedAt ?? DateTimeOffset.MaxValue;
+		if (candidateCreatedAt != currentCreatedAt)
+		{
+			return candidateCreatedAt < currentCreatedAt;
+		}
+
+		var candidateId = candidatePending?.Id ?? Guid.Empty;
+		var currentId = currentPending?.Id ?? Guid.Empty;
+		if (candidateId != currentId)
+		{
+			return candidateId.CompareTo(currentId) < 0;
+		}
+
+		return string.Compare(candidateHost.EmploymentHostName, currentHost.EmploymentHostName,
+			StringComparison.CurrentCulture) < 0;
 	}
 
 	private static bool HasAssignedWork(ICharacter worker, IEmploymentHost host)
@@ -878,13 +937,40 @@ public class EmploymentWorkerAI : PathingAIBase
 
 	private static IEmploymentActiveTask? HighestPriorityPendingTask(IEmploymentHost host)
 	{
-		return host.TaskBoard.ActiveTasks
-		           .Where(x => x.Status == EmploymentTaskStatus.Pending)
-		           .OrderByDescending(x => x.Priority)
-		           .ThenBy(x => x.DueAt ?? DateTimeOffset.MaxValue)
-		           .ThenBy(x => x.CreatedAt)
-		           .ThenBy(x => x.Id)
-		           .FirstOrDefault();
+		IEmploymentActiveTask? best = null;
+		foreach (var task in host.TaskBoard.ActiveTasks)
+		{
+			if (task.Status != EmploymentTaskStatus.Pending || best is not null && !IsHigherPriorityTask(task, best))
+			{
+				continue;
+			}
+
+			best = task;
+		}
+
+		return best;
+	}
+
+	private static bool IsHigherPriorityTask(IEmploymentActiveTask candidate, IEmploymentActiveTask current)
+	{
+		if (candidate.Priority != current.Priority)
+		{
+			return candidate.Priority > current.Priority;
+		}
+
+		var candidateDueAt = candidate.DueAt ?? DateTimeOffset.MaxValue;
+		var currentDueAt = current.DueAt ?? DateTimeOffset.MaxValue;
+		if (candidateDueAt != currentDueAt)
+		{
+			return candidateDueAt < currentDueAt;
+		}
+
+		if (candidate.CreatedAt != current.CreatedAt)
+		{
+			return candidate.CreatedAt < current.CreatedAt;
+		}
+
+		return candidate.Id.CompareTo(current.Id) < 0;
 	}
 
 	private EmploymentCandidateProfile BuildCandidateProfile(ICharacter candidate)

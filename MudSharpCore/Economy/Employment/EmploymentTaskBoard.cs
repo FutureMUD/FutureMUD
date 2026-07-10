@@ -3385,6 +3385,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			actionPlan, cooldown);
 		_scheduledRules.Add(rule);
 		_persistence?.SaveScheduledRule(rule);
+		EmploymentScheduledRuleEvaluationService.RegisterHost(_host);
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleCreated, authorisedBy,
 			$"Created scheduled task rule {name}.");
 		_host.DebugEmployment($"Created scheduled task rule {name}.");
@@ -3740,6 +3741,10 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		reason = string.IsNullOrWhiteSpace(reason) ? "Cancelled by a manager." : reason.Trim();
 		_scheduledRules.Remove(rule);
 		_persistence?.DeleteScheduledRule(concrete);
+		if (_scheduledRules.Count == 0)
+		{
+			EmploymentScheduledRuleEvaluationService.UnregisterHost(_host);
+		}
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleCancelled, cancelledBy,
 			$"Cancelled scheduled task rule {rule.Name}: {reason}");
 		_host.DebugEmployment($"Cancelled scheduled task rule {rule.Name}: {reason}", cancelledBy?.Gameworld);
@@ -3800,6 +3805,12 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 
 	public IReadOnlyCollection<EmploymentTaskAssignmentAuditResult> AuditActiveTaskAssignments()
 	{
+		if (!_activeTasks.Any(x => x.Status is EmploymentTaskStatus.Assigned or
+		    EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked))
+		{
+			return [];
+		}
+
 		EmploymentTaskAssignmentAuditResult ResolveAssignmentProblem(EmploymentActiveTask task, string reason)
 		{
 			if (TryGetUnsecuredTaskItemCustodyReason(task, out var itemReason))

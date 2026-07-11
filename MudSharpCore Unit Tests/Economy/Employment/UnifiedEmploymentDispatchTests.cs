@@ -889,6 +889,7 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsTrue(result.Success, result.Message);
 		Assert.IsFalse(result.Completed);
 		CollectionAssert.Contains(switchCalls.ToArray(), "drain");
+		theatre.Verify(x => x.HandleRoomEcho(It.IsAny<IEmoteOutput>(), It.IsAny<RoomLayer?>()), Times.Once);
 		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Completed, It.IsAny<string>()), Times.Never);
 	}
 
@@ -992,6 +993,70 @@ public class UnifiedEmploymentDispatchTests
 		var result = HospitalMedicalServiceRunner.SetDripRate(doctor.Object, drip.Object, 0.005, out var reason);
 
 		Assert.IsTrue(result, reason);
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_BloodDonationRequiresAnEmptyBagWithUsefulCapacity()
+	{
+		var emptyBag = new Mock<ILiquidContainer>();
+		emptyBag.SetupGet(x => x.LiquidCapacity).Returns(0.25);
+		emptyBag.SetupGet(x => x.LiquidVolume).Returns(0.0);
+		emptyBag.SetupGet(x => x.LiquidMixture).Returns((LiquidMixture)null!);
+		var fullBag = new Mock<ILiquidContainer>();
+		fullBag.SetupGet(x => x.LiquidCapacity).Returns(0.25);
+		fullBag.SetupGet(x => x.LiquidVolume).Returns(0.25);
+		fullBag.SetupGet(x => x.LiquidMixture).Returns((LiquidMixture)null!);
+		var partiallyFilledBag = new Mock<ILiquidContainer>();
+		partiallyFilledBag.SetupGet(x => x.LiquidCapacity).Returns(0.25);
+		partiallyFilledBag.SetupGet(x => x.LiquidVolume).Returns(0.1);
+		partiallyFilledBag.SetupGet(x => x.LiquidMixture).Returns((LiquidMixture)null!);
+
+		Assert.IsTrue(HospitalMedicalServiceRunner.IsAvailableBloodDonationContainer(emptyBag.Object, 0.01));
+		Assert.IsFalse(HospitalMedicalServiceRunner.IsAvailableBloodDonationContainer(fullBag.Object, 0.01));
+		Assert.IsFalse(HospitalMedicalServiceRunner.IsAvailableBloodDonationContainer(partiallyFilledBag.Object, 0.01));
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_ReturnsFullAndUnusedBloodBagsToSupplyRoom()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var fullBag = IvContainer(9185, "full blood bag", gameworld.Object, capacity: 0.25, volume: 0.25);
+		var unusedBag = IvContainer(9186, "unused blood bag", gameworld.Object, capacity: 0.25, volume: 0.0);
+		var theatreItems = new List<IGameItem> { fullBag.Object, unusedBag.Object };
+		var supplyItems = new List<IGameItem>();
+		var theatre = PhysicalCell(9187, "operating theatre", theatreItems);
+		var supplyRoom = PhysicalCell(9188, "supply room", supplyItems);
+		var employee = Character(9189, "Doctor", gameworld: gameworld.Object);
+		employee.SetupGet(x => x.Location).Returns(theatre.Object);
+		employee.SetupGet(x => x.Body).Returns(new Mock<MudSharp.Body.IBody>().Object);
+		var service = new Mock<IHospitalService>();
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodDonation);
+		var hospital = new Mock<IHospital>();
+		hospital.SetupGet(x => x.OperatingTheatres).Returns([theatre.Object]);
+		hospital.SetupGet(x => x.SupplyRooms).Returns([supplyRoom.Object]);
+		hospital.SetupGet(x => x.EmploymentRegister).Returns(new Mock<IEmploymentRegister>().Object);
+		var request = new Mock<IHospitalServiceRequest>();
+		request.SetupGet(x => x.Id).Returns(9190);
+		request.SetupGet(x => x.Hospital).Returns(hospital.Object);
+		request.SetupGet(x => x.Service).Returns(service.Object);
+		request.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		var context = new EmploymentTaskContext(hospital.Object);
+
+		var returned = HospitalMedicalServiceRunner.ReturnBloodBagsToSupplyRoom(context, employee.Object,
+			request.Object);
+
+		Assert.AreEqual(2, returned);
+		Assert.AreEqual(0, theatreItems.Count);
+		CollectionAssert.AreEquivalent(new[] { fullBag.Object, unusedBag.Object }, supplyItems);
+		theatre.Verify(x => x.HandleRoomEcho(It.IsAny<IEmoteOutput>(), It.IsAny<RoomLayer?>()), Times.Once);
+
+		var combinedServiceBag = IvContainer(9191, "combined-service blood bag", gameworld.Object);
+		theatreItems.Add(combinedServiceBag.Object);
+		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.FullTreatment);
+		returned = HospitalMedicalServiceRunner.ReturnBloodBagsToSupplyRoom(context, employee.Object, request.Object);
+
+		Assert.AreEqual(1, returned);
+		CollectionAssert.Contains(supplyItems, combinedServiceBag.Object);
 	}
 
 	[TestMethod]

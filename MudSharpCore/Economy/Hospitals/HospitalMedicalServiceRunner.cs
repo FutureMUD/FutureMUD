@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Effects;
@@ -17,6 +18,7 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.Health.Wounds;
+using MudSharp.PerceptionEngine.Lists;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
@@ -529,10 +531,12 @@ public static class HospitalMedicalServiceRunner
 		var progress = HospitalTreatmentProgress.FromPayload(CurrentOperationalPayload(context), request);
 		if (progress.BloodWorkflow is null || request.Patient is not { } patient)
 		{
-			return false;
+			return ReturnBloodBagsToSupplyRoom(context, employee, request) > 0;
 		}
 
 		NeutralizeBloodWorkflowGear(context, employee, patient, request, progress.BloodWorkflow);
+		RemoveHospitalInsertedCannula(employee, patient, progress.BloodWorkflow);
+		ReturnBloodBagsToSupplyRoom(context, employee, request);
 		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
 			$"Cleaned up IV blood workflow gear for hospital request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)} after terminal interruption.",
 			CurrentCorrelationId(context));
@@ -580,6 +584,7 @@ public static class HospitalMedicalServiceRunner
 	{
 		if (!TryApplyUsageBilling(context, employee, hospital, request, result, out var billingMessage))
 		{
+			CleanupBloodWorkflowForTerminalRequest(context, employee, request);
 			FailRequest(request, billingMessage);
 			AnnounceRequestFailed(employee, request, billingMessage);
 			HospitalPatientFlow.TransferAfterFailedTreatment(hospital, request, employee,
@@ -595,6 +600,7 @@ public static class HospitalMedicalServiceRunner
 			? result.Message
 			: $"{result.Message}\n{billingMessage}";
 		request.MarkStatus(HospitalServiceRequestStatus.Completed, completionMessage);
+		ReturnBloodBagsToSupplyRoom(context, employee, request);
 		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
 			$"Completed hospital service request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}: {completionMessage}",
 			CurrentCorrelationId(context));
@@ -1810,6 +1816,61 @@ public static class HospitalMedicalServiceRunner
 		       .Where(x => IsIvCapableLiquidContainer(x, switchMode));
 	}
 
+	internal static bool IsAvailableBloodDonationContainer(ILiquidContainer container, double minimumSpareVolume)
+	{
+		return container.LiquidVolume <= minimumSpareVolume &&
+		       container.LiquidCapacity - container.LiquidVolume > minimumSpareVolume &&
+		       (container.LiquidMixture is null || container.LiquidMixture.IsEmpty);
+	}
+
+	internal static int ReturnBloodBagsToSupplyRoom(IEmploymentTaskContext context, ICharacter employee,
+		IHospitalServiceRequest request)
+	{
+		if (request.Service.ServiceType is not (HospitalServiceType.BloodDonation or HospitalServiceType.BloodTransfusion or HospitalServiceType.Stabilisation or HospitalServiceType.FullTreatment) ||
+		    request.OperatingTheatreCellId is not { } theatreId ||
+		    request.Hospital.OperatingTheatres.FirstOrDefault(x => x.Id == theatreId) is not { } theatre ||
+		    request.Hospital.SupplyRooms.FirstOrDefault() is not { } supplyRoom ||
+		    supplyRoom.Id == theatre.Id)
+		{
+			return 0;
+		}
+
+		var bags = CandidateHospitalItems(context, employee, request)
+			.Where(x => IsIvCapableLiquidContainerItem(x, "drain") &&
+			            IsIvCapableLiquidContainerItem(x, "drip"))
+			.Where(x => x.GetItemTypes<IConnectable>().All(y => !y.ConnectedItems.Any()))
+			.Where(x => x.InInventoryOf == employee.Body || x.TrueLocations.Any(y => y.Id == theatre.Id) ||
+			            theatre.GameItems.Any(y => y.Id == x.Id))
+			.DistinctBy(x => x.Id)
+			.ToList();
+		if (!bags.Any())
+		{
+			return 0;
+		}
+
+		theatre.HandleRoomEcho(new EmoteOutput(new Emote(
+			"@ collect|collects $1 for return to hospital storage.", employee, employee,
+			new PerceivableGroup(bags))));
+		foreach (var bag in bags)
+		{
+			bag.ContainedIn?.Take(bag);
+			bag.InInventoryOf?.Take(bag);
+			bag.Location?.Extract(bag);
+			if (theatre.GameItems.Any(x => x.Id == bag.Id))
+			{
+				theatre.Extract(bag);
+			}
+
+			bag.RoomLayer = RoomLayer.GroundLevel;
+			supplyRoom.Insert(bag, true);
+		}
+
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
+			$"Returned {bags.Count.ToString("N0", CultureInfo.InvariantCulture)} IV blood bag{(bags.Count == 1 ? "" : "s")} from theatre {theatre.Name} to supply room {supplyRoom.Name} after hospital request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}.",
+			CurrentCorrelationId(context));
+		return bags.Count;
+	}
+
 	private static double AnestheticConcentration(ILiquidContainer container, IDrug drug)
 	{
 		if (container.LiquidMixture is null || container.LiquidMixture.TotalVolume <= 0.0)
@@ -2118,7 +2179,7 @@ public static class HospitalMedicalServiceRunner
 		workflow.StartingContainerVolume = container.LiquidVolume;
 		workflow.Stage = switchMode.EqualTo("drain") ? BloodWorkflowStageDraining : BloodWorkflowStageDripping;
 		progress.BloodWorkflow = workflow;
-		employee.OutputHandler.Send(new EmoteOutput(new Emote(
+		patient.Location?.HandleRoomEcho(new EmoteOutput(new Emote(
 			switchMode.EqualTo("drain")
 				? "@ connect|connects $1 through $2 to $0's cannula and start|starts drawing blood."
 				: "@ connect|connects $1 through $2 to $0's cannula and start|starts the transfusion.",
@@ -2163,6 +2224,33 @@ public static class HospitalMedicalServiceRunner
 		{
 			DisconnectIfNeeded(employee, drip, cannula);
 		}
+	}
+
+	private static void RemoveHospitalInsertedCannula(ICharacter employee, ICharacter patient,
+		BloodWorkflowProgress workflow)
+	{
+		if (!workflow.HospitalInsertedCannula ||
+		    PatientCannula(patient) is not { } cannula ||
+		    workflow.CannulaId is { } cannulaId && cannula.Parent.Id != cannulaId)
+		{
+			return;
+		}
+
+		var cannulaItem = cannula.Parent;
+		patient.Body.RemoveImplant(cannula);
+		if (employee.Body.CanGet(cannulaItem, 0))
+		{
+			employee.Body.Get(cannulaItem);
+		}
+		else if (employee.Location is { } location)
+		{
+			cannulaItem.RoomLayer = employee.RoomLayer;
+			location.Insert(cannulaItem);
+		}
+
+		patient.Location?.HandleRoomEcho(new EmoteOutput(new Emote(
+			"@ remove|removes the hospital-installed cannula from $0 while ending the IV blood workflow.",
+			employee, patient)));
 	}
 
 	private static IEnumerable<IGameItem> DeepItemsOrSelf(IGameItem item)
@@ -2731,12 +2819,12 @@ public static class HospitalMedicalServiceRunner
 
 		workflow.HospitalInsertedCannula = workflow.HospitalInsertedCannula && workflow.CannulaId == cannula.Parent.Id;
 		workflow.CannulaId = cannula.Parent.Id;
+		var minimumSpareVolume = BloodWorkflowToleranceLitres / employee.Gameworld.UnitManager.BaseFluidToLitres;
 		var container = CandidateIvLiquidContainers(context, employee, request, "drain")
-		                .FirstOrDefault(x => x.LiquidCapacity - x.LiquidVolume > 0.0 &&
-		                                     (x.LiquidMixture is null || x.LiquidMixture.IsEmpty ||
-		                                      x.LiquidMixture.CanMerge(donor.Body.BloodLiquid)));
+		                .FirstOrDefault(x => IsAvailableBloodDonationContainer(x, minimumSpareVolume));
 		if (container is null)
 		{
+			RemoveHospitalInsertedCannula(employee, donor, workflow);
 			progress.BloodWorkflow = null;
 			progress.ActivePhase = null;
 			return new ServiceExecutionResult(false,
@@ -2747,6 +2835,7 @@ public static class HospitalMedicalServiceRunner
 		if (!TryPrepareBloodIvCircuit(context, employee, donor, request, progress, workflow, container, "drain",
 			out var message))
 		{
+			RemoveHospitalInsertedCannula(employee, donor, workflow);
 			progress.BloodWorkflow = null;
 			progress.ActivePhase = null;
 			return new ServiceExecutionResult(false, message, string.Empty, Progress: progress);
@@ -3039,6 +3128,7 @@ public static class HospitalMedicalServiceRunner
 		var container = NextTransfusionContainer(context, employee, request, recipient, workflow);
 		if (container is null)
 		{
+			RemoveHospitalInsertedCannula(employee, recipient, workflow);
 			progress.BloodWorkflow = null;
 			progress.ActivePhase = null;
 			return new ServiceExecutionResult(false,

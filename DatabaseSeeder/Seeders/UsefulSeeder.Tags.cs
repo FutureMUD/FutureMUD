@@ -12,15 +12,24 @@ namespace DatabaseSeeder.Seeders
     {
 
         private DictionaryWithDefault<string, MudSharp.Models.Tag> _tags = new(StringComparer.OrdinalIgnoreCase);
+		private Dictionary<Tag, string> _tagPaths = new();
 
         private void AddTag(FuturemudDatabaseContext context, string name, string parent)
         {
             Tag? parentTag = string.IsNullOrWhiteSpace(parent) ? null : _tags[parent];
+			if (!string.IsNullOrWhiteSpace(parent) && parentTag is null)
+			{
+				throw new InvalidOperationException($"Cannot seed tag {name} because parent tag path {parent} is missing.");
+			}
+
+			string fullPath = parentTag is null
+				? name
+				: $"{_tagPaths.GetValueOrDefault(parentTag, parentTag.Name)} / {name}";
             bool ParentMatches(Tag tag) => parentTag is null
                 ? tag.ParentId is null && tag.Parent is null
                 : tag.ParentId == parentTag.Id || ReferenceEquals(tag.Parent, parentTag);
 
-            if (_tags.TryGetValue(name, out Tag? cached) && ParentMatches(cached))
+			if (_tags.TryGetValue(fullPath, out Tag? cached) && ParentMatches(cached))
             {
                 return;
             }
@@ -32,7 +41,12 @@ namespace DatabaseSeeder.Seeders
                                    .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && ParentMatches(x));
             if (existing is not null)
             {
-                _tags[name] = existing;
+				_tags[fullPath] = existing;
+				_tagPaths[existing] = fullPath;
+				if (!_tags.ContainsKey(name))
+				{
+					_tags[name] = existing;
+				}
                 return;
             }
 
@@ -42,13 +56,52 @@ namespace DatabaseSeeder.Seeders
                 Parent = parentTag,
                 ParentId = parentTag?.Id > 0 ? parentTag.Id : null
             };
-            _tags[name] = tag;
+			_tags[fullPath] = tag;
+			_tagPaths[tag] = fullPath;
+			if (!_tags.ContainsKey(name))
+			{
+				_tags[name] = tag;
+			}
             context.Tags.Add(tag);
         }
 
+		private void InitialiseTagCache(FuturemudDatabaseContext context)
+		{
+			_tags = new DictionaryWithDefault<string, Tag>(StringComparer.OrdinalIgnoreCase);
+			_tagPaths = new Dictionary<Tag, string>();
+			var tags = context.Tags.ToList();
+			var tagsById = tags.ToDictionary(x => x.Id);
+			var pathsById = new Dictionary<long, string>();
+
+			string FullPath(Tag tag)
+			{
+				if (pathsById.TryGetValue(tag.Id, out var cachedPath))
+				{
+					return cachedPath;
+				}
+
+				var path = tag.ParentId is not null && tagsById.TryGetValue(tag.ParentId.Value, out var parent)
+					? $"{FullPath(parent)} / {tag.Name}"
+					: tag.Name;
+				pathsById[tag.Id] = path;
+				return path;
+			}
+
+			foreach (var tag in tags.OrderBy(x => x.Id))
+			{
+				var fullPath = FullPath(tag);
+				_tags[fullPath] = tag;
+				_tagPaths[tag] = fullPath;
+				if (!_tags.ContainsKey(tag.Name))
+				{
+					_tags[tag.Name] = tag;
+				}
+			}
+		}
+
         private void SeedTags(FuturemudDatabaseContext context, ICollection<string> errors)
         {
-            _tags = context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+			InitialiseTagCache(context);
             // Eras
             AddTag(context, "Era", "");
             AddTag(context, "Stone Age Era", "Era");
@@ -67,6 +120,30 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Information Age Era", "Era");
             AddTag(context, "Near Future Era", "Era");
             AddTag(context, "Far Future Era", "Era");
+
+			// Culture and institution admission tags used by era-specific item catalogues
+			AddTag(context, "Culture", "");
+			AddTag(context, "Renaissance", "Culture");
+			AddTag(context, "Shared", "Culture / Renaissance");
+			foreach (var name in new[]
+			         {
+				         "Western European Renaissance", "Iberian Atlantic", "Central European", "Northern Baltic",
+				         "Central Eastern Frontier", "Eastern Orthodox Northern", "Ottoman Islamicate",
+				         "Persianate Indo-Persian", "South Asian", "East Asian Literati", "Japanese",
+				         "Maritime East Asian", "South-east Asian Mainland", "Maritime South-east Asian",
+				         "Steppe and Caravan", "African Court Atlantic", "Sahelian Islamic", "Red Sea",
+				         "Indian Ocean", "Mesoamerican", "Andean", "Caribbean Contact", "North American Contact",
+				         "Colonial Atlantic", "Global Maritime"
+			         })
+			{
+				AddTag(context, name, "Culture / Renaissance / Shared");
+			}
+
+			AddTag(context, "Institution", "");
+			foreach (var name in new[] { "Court", "Religious", "Guild", "Maritime", "Performance", "Service Household" })
+			{
+				AddTag(context, name, "Institution");
+			}
 
             // Functions
             AddTag(context, "Functions", "");
@@ -422,6 +499,11 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Scarves", "Worn Items");
             AddTag(context, "Headwear", "Worn Items");
             AddTag(context, "Fashion Accessories", "Worn Items");
+			AddTag(context, "Robes", "Functions / Worn Items");
+			AddTag(context, "Outerwear", "Functions / Worn Items");
+			AddTag(context, "Facewear", "Functions / Worn Items");
+			AddTag(context, "Neckwear", "Functions / Worn Items");
+			AddTag(context, "Detachable Garment Parts", "Functions / Worn Items");
             AddTag(context, "Jewellery", "Worn Items");
             AddTag(context, "Rings", "Jewellery");
             AddTag(context, "Necklaces", "Jewellery");
@@ -1385,6 +1467,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Cloth Tenter Frame", "Fulling Tools");
 
             // Lensmaking
+			AddTag(context, "Scientific Tools", "Tools");
             AddTag(context, "Lensmaking Tools", "Scientific Tools");
             AddTag(context, "Lens Grinding Dish", "Lensmaking Tools");
             AddTag(context, "Lens Polishing Lap", "Lensmaking Tools");
@@ -1651,20 +1734,24 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Luxury Clothing", "Clothing");
             AddTag(context, "Winter Clothing", "Clothing");
             AddTag(context, "Military Uniforms", "Clothing");
+			AddTag(context, "Work Clothing", "Market / Clothing");
+			AddTag(context, "Ceremonial Clothing", "Market / Clothing");
+			AddTag(context, "Religious Clothing", "Market / Clothing");
+			AddTag(context, "Maritime Clothing", "Market / Clothing");
 
             AddTag(context, "Jewellery", "Market");
-            AddTag(context, "Children's Jewellery", "Jewellery");
-            AddTag(context, "Commoner Jewellery", "Jewellery");
-            AddTag(context, "Court Jewellery", "Jewellery");
-            AddTag(context, "Ephemeral Jewellery", "Jewellery");
-            AddTag(context, "Festival Jewellery", "Jewellery");
-            AddTag(context, "Luxury Jewellery", "Jewellery");
-            AddTag(context, "Merchant Jewellery", "Jewellery");
-            AddTag(context, "Noble Jewellery", "Jewellery");
-            AddTag(context, "Professional Jewellery", "Jewellery");
-            AddTag(context, "Regalia", "Jewellery");
-            AddTag(context, "Simple Jewellery", "Jewellery");
-            AddTag(context, "Standard Jewellery", "Jewellery");
+			AddTag(context, "Children's Jewellery", "Market / Jewellery");
+			AddTag(context, "Commoner Jewellery", "Market / Jewellery");
+			AddTag(context, "Court Jewellery", "Market / Jewellery");
+			AddTag(context, "Ephemeral Jewellery", "Market / Jewellery");
+			AddTag(context, "Festival Jewellery", "Market / Jewellery");
+			AddTag(context, "Luxury Jewellery", "Market / Jewellery");
+			AddTag(context, "Merchant Jewellery", "Market / Jewellery");
+			AddTag(context, "Noble Jewellery", "Market / Jewellery");
+			AddTag(context, "Professional Jewellery", "Market / Jewellery");
+			AddTag(context, "Regalia", "Market / Jewellery");
+			AddTag(context, "Simple Jewellery", "Market / Jewellery");
+			AddTag(context, "Standard Jewellery", "Market / Jewellery");
 
             AddTag(context, "Domestic Heating", "Market");
             AddTag(context, "Combustion Heating", "Domestic Heating");

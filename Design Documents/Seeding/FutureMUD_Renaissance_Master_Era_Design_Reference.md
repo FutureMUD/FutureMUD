@@ -238,6 +238,8 @@ Use these as builder-facing grouping overlays across the above cultures:
 
 The live baseline contributes only three general clothing accessories: `preindustrial_clothing_plain_leather_belt`, `preindustrial_clothing_iron_buckled_leather_belt`, and `preindustrial_clothing_simple_woven_sash`. Do not treat this as a wardrobe. Renaissance underlayers, silhouettes, footwear, headwear, court dress, workwear, and regional clothing remain era-specific work.
 
+The shared clothing dependency foundation is complete: exact wear profiles/components, the `Culture / Renaissance / Shared` hierarchy, clothing function/market/institution tags, `ramie cloth`, `barkcloth`, `camelid wool`, `raffia cloth`, and their Agriculture outputs are live and maintained. `SeedRenaissanceClothingAndAccessories()` now fails closed with exact missing dependency names before finished clothing seeding begins. This resolves the foundation only; the target catalogue below remains to be authored.
+
 Renaissance clothing should be split into domain references rather than inflated in this master document. Target coverage:
 
 - Western and central European fitted clothing: shirts, chemises, smocks, doublets, jerkins, bodices, gowns, kirtles, hose, trunk hose, breeches, codpiece-adjacent variants if approved, farthingales, ruffs, partlets, cloaks, capes, flat caps, tall hats, coifs, veils, gloves, masks, and fans.

@@ -10,9 +10,9 @@ Stock Agriculture already supplies maize, potatoes, sweet potatoes, cassava, sug
 
 ## Added foundations
 
-Stock Agriculture now includes Tobacco, Cardamom, Allspice, Logwood, Chamomile, Lavender, Yarrow, Foxglove, Henbane, and Mandrake definitions. Nopal Cactus supplies cochineal as a secondary output, Nutmeg supplies mace, and Cacao supplies cacao beans without removing their existing primary outputs.
+Stock Agriculture now includes Tobacco, Cardamom, Allspice, Logwood, Chamomile, Lavender, Yarrow, Foxglove, Henbane, and Mandrake definitions. Nopal Cactus supplies cochineal as a secondary output, Nutmeg supplies mace, and Cacao supplies cacao beans without removing their existing primary outputs. Ramie supplies `ramie cloth`, Breadfruit supplies `barkcloth`, and Raffia Palms supply `raffia cloth` as secondary textile outputs. Llama and Alpaca herds now supply the exact `camelid wool` material rather than generic `wool`.
 
-Material foundations now exist for sugar loaf, molasses, cacao beans/nibs, tobacco leaf/twist, cotton fibre, indigo dye cake, cochineal, tea bricks/cakes, roasted coffee, snuff, and chocolate blocks. Rum remains a live liquid. Finished item prototypes, packets/bales, and transformation crafts remain implementation work.
+Material foundations now exist for sugar loaf, molasses, cacao beans/nibs, tobacco leaf/twist, cotton fibre, indigo dye cake, cochineal, tea bricks/cakes, roasted coffee, snuff, chocolate blocks, ramie cloth, barkcloth, camelid wool, and raffia cloth. Rum remains a live liquid. Finished item prototypes, packets/bales, and transformation crafts remain implementation work.
 
 Use the live shared tea chest, coffee sack, cacao sack, tobacco bale, sugar hogshead, indigo cake box, cotton bale, and spice chest when the package fits. Packaging availability must not backdate consumption culture.
 

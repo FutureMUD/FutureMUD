@@ -597,6 +597,10 @@ public class CoreDataSeederMaterialTests
 			["type metal"] = ["Renaissance Age", "Primary Production Metal Stock", "Primary Production Commodity"],
 			["printing ink"] = ["Writing Product", "Primary Production Commodity"],
 			["taffeta"] = ["Natural Fiber Fabric", "Primary Production Commodity"],
+			["ramie cloth"] = ["Natural Fiber Fabric", "Primary Production Commodity"],
+			["barkcloth"] = ["Natural Fiber Fabric", "Primary Production Commodity"],
+			["camelid wool"] = ["Natural Fiber Fabric", "Primary Production Commodity"],
+			["raffia cloth"] = ["Natural Fiber Fabric", "Primary Production Commodity"],
 			["molasses"] = ["Food", "Primary Production Commodity"],
 			["cacao bean"] = ["Food Crop", "Primary Production Commodity"],
 			["cotton fibre"] = ["Fiber Crop", "Primary Production Commodity"]
@@ -626,7 +630,8 @@ public class CoreDataSeederMaterialTests
 		[
 			"taffeta", "ribbon", "calico", "chintz", "logwood", "cochineal", "tobacco leaf", "type metal",
 			"printing ink", "molasses", "sugar loaf", "tobacco twist", "snuff", "roasted coffee", "cacao bean",
-			"cacao nibs", "chocolate block", "tea brick", "cotton fibre", "glass blank", "indigo dye cake"
+			"cacao nibs", "chocolate block", "tea brick", "cotton fibre", "glass blank", "indigo dye cake",
+			"ramie cloth", "barkcloth", "camelid wool", "raffia cloth"
 		];
 
 		var materials = context.Materials
@@ -639,6 +644,10 @@ public class CoreDataSeederMaterialTests
 
 		CollectionAssert.AreEquivalent(expectedMaterials, materials.Keys.ToArray());
 		Assert.AreEqual((int)MaterialBehaviourType.Fabric, materials["taffeta"].BehaviourType);
+		Assert.AreEqual((int)MaterialBehaviourType.Fabric, materials["ramie cloth"].BehaviourType);
+		Assert.AreEqual((int)MaterialBehaviourType.Fabric, materials["barkcloth"].BehaviourType);
+		Assert.AreEqual((int)MaterialBehaviourType.Fabric, materials["camelid wool"].BehaviourType);
+		Assert.AreEqual((int)MaterialBehaviourType.Fabric, materials["raffia cloth"].BehaviourType);
 		Assert.AreEqual((int)MaterialBehaviourType.Wood, materials["logwood"].BehaviourType);
 		Assert.AreEqual((int)MaterialBehaviourType.Metal, materials["type metal"].BehaviourType);
 		Assert.AreEqual((int)MaterialBehaviourType.Paste, materials["printing ink"].BehaviourType);

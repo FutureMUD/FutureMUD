@@ -33,7 +33,11 @@ public class EconomySeeder : IDatabaseSeeder
             ["Lighting"] = ["Candles", "Torches", "Lamps"],
             ["Medicine"] = ["Simple Medicine", "Standard Medicine", "High-Quality Medicine", "Herbal Medicine", "Apothecary Goods", "Treatment Supplies", "Surgical Supplies", "Prosthetics and Mobility"],
             ["Writing Materials"] = ["Wax Tablets", "Papyrus", "Parchment", "Paper", "Ink", "Clay Tablets", "Writing Implements", "Document Containers", "Scrolls", "Codices"],
-            ["Clothing"] = ["Simple Clothing", "Standard Clothing", "Luxury Clothing", "Winter Clothing", "Military Uniforms"],
+			["Clothing"] =
+			[
+				"Simple Clothing", "Standard Clothing", "Luxury Clothing", "Winter Clothing", "Military Uniforms",
+				"Work Clothing", "Ceremonial Clothing", "Religious Clothing", "Maritime Clothing"
+			],
             ["Intoxicants"] = ["Beer", "Wine", "Mead", "Spirits"],
             ["Luxury Drinks"] = ["Tea", "Coffee"],
             ["Household Goods"] =
@@ -138,11 +142,15 @@ public class EconomySeeder : IDatabaseSeeder
 			],
 			["Clothing"] =
 			[
-				("Simple Clothing", 0.40m),
-				("Standard Clothing", 0.30m),
-				("Winter Clothing", 0.12m),
-				("Luxury Clothing", 0.10m),
-				("Military Uniforms", 0.08m)
+				("Simple Clothing", 0.30m),
+				("Standard Clothing", 0.24m),
+				("Work Clothing", 0.16m),
+				("Winter Clothing", 0.09m),
+				("Luxury Clothing", 0.07m),
+				("Military Uniforms", 0.05m),
+				("Ceremonial Clothing", 0.04m),
+				("Religious Clothing", 0.03m),
+				("Maritime Clothing", 0.02m)
 			],
 			["Intoxicants"] =
 			[

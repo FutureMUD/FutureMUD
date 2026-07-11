@@ -5635,6 +5635,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Breechcloth",
+        "Component Description":  "Permits the item to be worn in the Breechcloth wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Bridle",
         "Component Description":  "Permits the item to be worn in the Bridle wear configuration",
         "Component Type":  "Wearable"
@@ -5737,6 +5742,11 @@
     {
         "Component Name":  "Wear_Doublet",
         "Component Description":  "Permits the item to be worn in the Doublet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Detachable_Sleeves",
+        "Component Description":  "Permits the item to be worn in the Detachable Sleeves wear configuration",
         "Component Type":  "Wearable"
     },
     {
@@ -5850,6 +5860,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Head_Veil",
+        "Component Description":  "Permits the item to be worn in the Head Veil wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Helmet",
         "Component Description":  "Permits the item to be worn in the Helmet wear configuration",
         "Component Type":  "Wearable"
@@ -5857,6 +5872,11 @@
     {
         "Component Name":  "Wear_High_Boots",
         "Component Description":  "Permits the item to be worn in the High Boots wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hood",
+        "Component Description":  "Permits the item to be worn in the Hood wear configuration",
         "Component Type":  "Wearable"
     },
     {
@@ -5890,6 +5910,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Leg_Wraps",
+        "Component Description":  "Permits the item to be worn in the Leg Wraps wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Leggings",
         "Component Description":  "Permits the item to be worn in the Leggings wear configuration",
         "Component Type":  "Wearable"
@@ -5907,6 +5932,11 @@
     {
         "Component Name":  "Wear_Long_Coat",
         "Component Description":  "Permits the item to be worn in the Long Coat wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long_Open_Robe",
+        "Component Description":  "Permits the item to be worn in the Long Open Robe wear configuration",
         "Component Type":  "Wearable"
     },
     {
@@ -6002,6 +6032,16 @@
     {
         "Component Name":  "Wear_Open-Toed_Shoes",
         "Component Description":  "Permits the item to be worn in the Open-Toed Shoes wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Overshoes",
+        "Component Description":  "Permits the item to be worn in the Overshoes wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Partlet",
+        "Component Description":  "Permits the item to be worn in the Partlet wear configuration",
         "Component Type":  "Wearable"
     },
     {
@@ -6117,6 +6157,11 @@
     {
         "Component Name":  "Wear_Skirt",
         "Component Description":  "Permits the item to be worn in the Skirt wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Skirt_Support",
+        "Component Description":  "Permits the item to be worn in the Skirt Support wear configuration",
         "Component Type":  "Wearable"
     },
     {

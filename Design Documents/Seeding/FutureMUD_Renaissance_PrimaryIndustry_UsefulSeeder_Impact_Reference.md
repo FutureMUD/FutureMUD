@@ -16,17 +16,17 @@ This consolidated dependency ledger was checked against live skill, combat, mate
 
 ## Materials
 
-Live exact materials include paper, parchment, oak, beech, walnut, linen, wool, cotton, silk, leather, felt, canvas, broadcloth, velvet, satin, lace, taffeta, ribbon, calico, chintz, wrought iron, carbon steel, spring steel, brass, bronze, copper, lead, type metal, glass, glass blank, soda-lime glass, lead glass, porcelain, faience, earthenware, stoneware, clay, kaolinite clay, gunpowder, saltpeter, sulfur, brimstone, charcoal, flint, bone, horn, chalk, plaster, beeswax, logwood, cochineal, tobacco leaf, printing ink, molasses, sugar loaf, tobacco twist, snuff, roasted coffee, cacao bean, cacao nibs, chocolate block, tea brick, cotton fibre, and indigo dye cake. The maintained material export now contains the complete named foundation set.
+Live exact materials include paper, parchment, oak, beech, walnut, linen, wool, cotton, silk, leather, felt, canvas, broadcloth, velvet, satin, lace, taffeta, ribbon, calico, chintz, ramie cloth, barkcloth, camelid wool, raffia cloth, wrought iron, carbon steel, spring steel, brass, bronze, copper, lead, type metal, glass, glass blank, soda-lime glass, lead glass, porcelain, faience, earthenware, stoneware, clay, kaolinite clay, gunpowder, saltpeter, sulfur, brimstone, charcoal, flint, bone, horn, chalk, plaster, beeswax, logwood, cochineal, tobacco leaf, printing ink, molasses, sugar loaf, tobacco twist, snuff, roasted coffee, cacao bean, cacao nibs, chocolate block, tea brick, cotton fibre, and indigo dye cake. The maintained material export now contains the complete named foundation set. Hemp cloth, brocade, damask, silk gauze, featherwork, and beadwork remain deliberate non-material abstractions for this pass.
 
 ## Tags
 
 Live era tags are `Era / Pre-Industrial Era`, `Era / Renaissance Era`, and `Era / Early Modern Era`. Live functional families cover gunsmithing, movable-type and woodblock printing, papermaking, bookbinding, clockmaking, survey equipment, navigation, lensmaking, military equipment, writing goods/surfaces, textilecraft, armour, weapons, and professional tools. Live market families cover military goods, writing materials, household goods, and tea/coffee.
 
-Renaissance culture-family and institution-specific tag paths are not maintained stock and must be designed and seeded idempotently before branch rows depend on them.
+The `Culture / Renaissance / Shared` hierarchy, its 25 culture-family children, the six `Institution` children, clothing market categories, and worn-item function categories are maintained stock. UsefulSeeder resolves parents through full hierarchy paths so repeated names in separate branches cannot mis-parent these rows.
 
 ## Agriculture
 
-Live crops/outputs cover maize/corn, potatoes, sweet potatoes, cassava, sugarcane, cotton, indigo, rice variants, cacao/cacao bean, coffee, tea, cinnamon, black pepper, cloves, nutmeg/mace, saffron, tobacco, cardamom, allspice, logwood, and explicit chamomile, lavender, yarrow, foxglove, henbane, and mandrake medicinal crops. Nopal cactus supplies a cochineal secondary output.
+Live crops/outputs cover maize/corn, potatoes, sweet potatoes, cassava, sugarcane, cotton, indigo, rice variants, cacao/cacao bean, coffee, tea, cinnamon, black pepper, cloves, nutmeg/mace, saffron, tobacco, cardamom, allspice, logwood, and explicit chamomile, lavender, yarrow, foxglove, henbane, and mandrake medicinal crops. Nopal cactus supplies a cochineal secondary output. Ramie, Breadfruit, and Raffia Palms now expose `ramie cloth`, `barkcloth`, and `raffia cloth`; Llama and Alpaca herds expose `camelid wool` instead of generic sheep wool.
 
 ## Primary production
 

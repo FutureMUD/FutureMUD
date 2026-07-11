@@ -54,6 +54,34 @@ Tree	Consumables	Consumables / Tree
 Trunk	Consumables	Consumables / Trunk
 Tusk	Consumables	Consumables / Tusk
 Wire	Consumables	Consumables / Wire
+Culture		Culture
+Renaissance	Culture	Culture / Renaissance
+Shared	Renaissance	Culture / Renaissance / Shared
+African Court Atlantic	Shared	Culture / Renaissance / Shared / African Court Atlantic
+Andean	Shared	Culture / Renaissance / Shared / Andean
+Caribbean Contact	Shared	Culture / Renaissance / Shared / Caribbean Contact
+Central Eastern Frontier	Shared	Culture / Renaissance / Shared / Central Eastern Frontier
+Central European	Shared	Culture / Renaissance / Shared / Central European
+Colonial Atlantic	Shared	Culture / Renaissance / Shared / Colonial Atlantic
+East Asian Literati	Shared	Culture / Renaissance / Shared / East Asian Literati
+Eastern Orthodox Northern	Shared	Culture / Renaissance / Shared / Eastern Orthodox Northern
+Global Maritime	Shared	Culture / Renaissance / Shared / Global Maritime
+Iberian Atlantic	Shared	Culture / Renaissance / Shared / Iberian Atlantic
+Indian Ocean	Shared	Culture / Renaissance / Shared / Indian Ocean
+Japanese	Shared	Culture / Renaissance / Shared / Japanese
+Maritime East Asian	Shared	Culture / Renaissance / Shared / Maritime East Asian
+Maritime South-east Asian	Shared	Culture / Renaissance / Shared / Maritime South-east Asian
+Mesoamerican	Shared	Culture / Renaissance / Shared / Mesoamerican
+North American Contact	Shared	Culture / Renaissance / Shared / North American Contact
+Northern Baltic	Shared	Culture / Renaissance / Shared / Northern Baltic
+Ottoman Islamicate	Shared	Culture / Renaissance / Shared / Ottoman Islamicate
+Persianate Indo-Persian	Shared	Culture / Renaissance / Shared / Persianate Indo-Persian
+Red Sea	Shared	Culture / Renaissance / Shared / Red Sea
+Sahelian Islamic	Shared	Culture / Renaissance / Shared / Sahelian Islamic
+South Asian	Shared	Culture / Renaissance / Shared / South Asian
+South-east Asian Mainland	Shared	Culture / Renaissance / Shared / South-east Asian Mainland
+Steppe and Caravan	Shared	Culture / Renaissance / Shared / Steppe and Caravan
+Western European Renaissance	Shared	Culture / Renaissance / Shared / Western European Renaissance
 Era		Era
 Antiquity Era	Era	Era / Antiquity Era
 Bronze Age Era	Era	Era / Bronze Age Era
@@ -800,6 +828,15 @@ Laboratory Tripod	Laboratory Equipment	Functions / Tools / Scientific Tools / La
 Test Tube Holder	Laboratory Equipment	Functions / Tools / Scientific Tools / Laboratory Equipment / Test Tube Holder
 Test Tube Rack	Laboratory Equipment	Functions / Tools / Scientific Tools / Laboratory Equipment / Test Tube Rack
 Vacuum Dry Box	Laboratory Equipment	Functions / Tools / Scientific Tools / Laboratory Equipment / Vacuum Dry Box
+Lensmaking Tools	Scientific Tools	Functions / Tools / Scientific Tools / Lensmaking Tools
+Grinding Abrasive Slurry	Lensmaking Tools	Functions / Tools / Scientific Tools / Lensmaking Tools / Grinding Abrasive Slurry
+Lens Blocking Cement	Lensmaking Tools	Functions / Tools / Scientific Tools / Lensmaking Tools / Lens Blocking Cement
+Lens Centering Gauge	Lensmaking Tools	Functions / Tools / Scientific Tools / Lensmaking Tools / Lens Centering Gauge
+Lens Edging Template	Lensmaking Tools	Functions / Tools / Scientific Tools / Lensmaking Tools / Lens Edging Template
+Lens Grinding Dish	Lensmaking Tools	Functions / Tools / Scientific Tools / Lensmaking Tools / Lens Grinding Dish
+Lens Polishing Lap	Lensmaking Tools	Functions / Tools / Scientific Tools / Lensmaking Tools / Lens Polishing Lap
+Optician's Pitch Block	Lensmaking Tools	Functions / Tools / Scientific Tools / Lensmaking Tools / Optician's Pitch Block
+Spectacle Riveting Pliers	Lensmaking Tools	Functions / Tools / Scientific Tools / Lensmaking Tools / Spectacle Riveting Pliers
 Measurement Tools	Scientific Tools	Functions / Tools / Scientific Tools / Measurement Tools
 Absorption Wavemeter	Measurement Tools	Functions / Tools / Scientific Tools / Measurement Tools / Absorption Wavemeter
 Accelerometer	Measurement Tools	Functions / Tools / Scientific Tools / Measurement Tools / Accelerometer
@@ -1132,6 +1169,8 @@ Wood File	Woodcrafting Tools	Functions / Tools / Woodcrafting Tools / Wood File
 Worn Items	Functions	Functions / Worn Items
 Belts	Worn Items	Functions / Worn Items / Belts
 Bodywear	Worn Items	Functions / Worn Items / Bodywear
+Detachable Garment Parts	Worn Items	Functions / Worn Items / Detachable Garment Parts
+Facewear	Worn Items	Functions / Worn Items / Facewear
 Fashion Accessories	Worn Items	Functions / Worn Items / Fashion Accessories
 Footwear	Worn Items	Functions / Worn Items / Footwear
 Gloves	Worn Items	Functions / Worn Items / Gloves
@@ -1186,26 +1225,31 @@ Fresh Wreaths	Wreaths	Functions / Worn Items / Jewellery / Wreaths / Fresh Wreat
 Herb Wreaths	Wreaths	Functions / Worn Items / Jewellery / Wreaths / Herb Wreaths
 Leaf Wreaths	Wreaths	Functions / Worn Items / Jewellery / Wreaths / Leaf Wreaths
 Legwear	Worn Items	Functions / Worn Items / Legwear
+Neckwear	Worn Items	Functions / Worn Items / Neckwear
+Outerwear	Worn Items	Functions / Worn Items / Outerwear
+Robes	Worn Items	Functions / Worn Items / Robes
 Scarves	Worn Items	Functions / Worn Items / Scarves
 Socks	Worn Items	Functions / Worn Items / Socks
 Spectacles	Worn Items	Functions / Worn Items / Spectacles
 Underwear	Worn Items	Functions / Worn Items / Underwear
-Lensmaking Tools		Lensmaking Tools
-Grinding Abrasive Slurry	Lensmaking Tools	Lensmaking Tools / Grinding Abrasive Slurry
-Lens Blocking Cement	Lensmaking Tools	Lensmaking Tools / Lens Blocking Cement
-Lens Centering Gauge	Lensmaking Tools	Lensmaking Tools / Lens Centering Gauge
-Lens Edging Template	Lensmaking Tools	Lensmaking Tools / Lens Edging Template
-Lens Grinding Dish	Lensmaking Tools	Lensmaking Tools / Lens Grinding Dish
-Lens Polishing Lap	Lensmaking Tools	Lensmaking Tools / Lens Polishing Lap
-Optician's Pitch Block	Lensmaking Tools	Lensmaking Tools / Optician's Pitch Block
-Spectacle Riveting Pliers	Lensmaking Tools	Lensmaking Tools / Spectacle Riveting Pliers
+Institution		Institution
+Court	Institution	Institution / Court
+Guild	Institution	Institution / Guild
+Maritime	Institution	Institution / Maritime
+Performance	Institution	Institution / Performance
+Religious	Institution	Institution / Religious
+Service Household	Institution	Institution / Service Household
 Market		Market
 Clothing	Market	Market / Clothing
+Ceremonial Clothing	Clothing	Market / Clothing / Ceremonial Clothing
 Luxury Clothing	Clothing	Market / Clothing / Luxury Clothing
+Maritime Clothing	Clothing	Market / Clothing / Maritime Clothing
 Military Uniforms	Clothing	Market / Clothing / Military Uniforms
+Religious Clothing	Clothing	Market / Clothing / Religious Clothing
 Simple Clothing	Clothing	Market / Clothing / Simple Clothing
 Standard Clothing	Clothing	Market / Clothing / Standard Clothing
 Winter Clothing	Clothing	Market / Clothing / Winter Clothing
+Work Clothing	Clothing	Market / Clothing / Work Clothing
 Jewellery	Market	Market / Jewellery
 Children's Jewellery	Jewellery	Market / Jewellery / Children's Jewellery
 Commoner Jewellery	Jewellery	Market / Jewellery / Commoner Jewellery

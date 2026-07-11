@@ -50,7 +50,6 @@ internal static class EmploymentHostDiscovery
 		}
 
 		foreach (var hotel in (gameworld.Properties ?? Enumerable.Empty<IProperty>())
-		                  .OfType<MudSharp.Economy.Property.Property>()
 		                  .Select(x => x.ExistingHotel)
 		                  .Where(x => x is not null)
 		                  .Cast<IHotel>())

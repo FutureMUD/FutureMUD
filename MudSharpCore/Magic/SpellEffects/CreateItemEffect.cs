@@ -132,6 +132,7 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
             IEnumerable<IGameItem> items = prototype.CreateNew(caster, skin, Quantity, LoadString);
             foreach (IGameItem item in items)
             {
+                item.SetOwner(tch);
                 if (tch.Body.CanGet(item, 0))
                 {
                     tch.Body.Get(item, silent: true);
@@ -152,6 +153,7 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
             IEnumerable<IGameItem> items = prototype.CreateNew(caster, skin, Quantity, LoadString);
             foreach (IGameItem item in items)
             {
+                item.SetOwner(caster);
                 cell.Insert(item, true);
                 item.HandleEvent(EventType.ItemFinishedLoading, item);
                 item.Login();
@@ -169,6 +171,7 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
             ICell location = gitem.TrueLocations.FirstOrDefault() ?? caster.Location;
             foreach (IGameItem item in items)
             {
+                item.SetOwner(caster);
                 if (container is not null && container.CanPut(item))
                 {
                     container.Put(null, item, false);

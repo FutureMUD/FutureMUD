@@ -476,6 +476,9 @@ Good current integration anchors are:
 - property hotel state for short-stay room rental, deposits, furnished-room checks, and lost-property handling
 - FutureProg for permission and selection policies
 - item ownership metadata and item ownership FutureProg helpers for portable property, estate assets, and clan-owned equipment
+- `cell private property <property>` or `cell private host <type> <host>` for a single persistent private-location controller; use `cell private show|clear` to inspect or remove it
+
+Private-property access is evaluated independently of criminal law. Property controllers recognise owners, leaseholders, their trusted allies, tenants, active room guests, and timed permits. Employment-host controllers recognise all active employment contracts and timed permits. The automatic crime system then asks the local legal authority whether an unauthorised entry is trespassing; `ActLawfully` only blocks movement when that authority says it is a crime.
 
 ## Verified Current Limits That Matter During Integration
 These are not hypothetical concerns. They affect how safe it is to integrate new features right now.

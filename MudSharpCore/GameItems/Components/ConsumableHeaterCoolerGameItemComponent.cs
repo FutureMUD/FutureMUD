@@ -135,6 +135,7 @@ public class ConsumableHeaterCoolerGameItemComponent : ThermalSourceGameItemComp
         }
 
         IGameItem newItem = _prototype.SpentItemProto.CreateNew();
+        newItem.CopyOwnerFrom(Parent);
         ICell? location = Parent.TrueLocations.FirstOrDefault();
         Parent.InInventoryOf?.SwapInPlace(Parent, newItem);
         Parent.ContainedIn?.SwapInPlace(Parent, newItem);

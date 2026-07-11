@@ -758,7 +758,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				var cropName = CurrentCrop.Name;
 				var perennialHarvest = CurrentUse == AgricultureFieldUse.Orchard && CurrentCrop.IsPerennial;
 				var cropOutputs = ReleaseCommodityOutputs(CurrentCrop.YieldOutputs, _cropHealth, _cropYieldPotential,
-					CropStage == AgricultureCropStage.Overripe ? 0.75 : 1.0, outcome);
+					CropStage == AgricultureCropStage.Overripe ? 0.75 : 1.0, outcome, actor);
 				result = $"The {cropName} crop is harvested with an estimated yield quality of {_cropYieldPotential.DescribeBand()}.{outcome.DescribeEffect()}{DescribeOutputResult(cropOutputs)}";
 				if (perennialHarvest)
 				{
@@ -792,7 +792,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				break;
 			case AgricultureOperationType.HarvestApiary:
 				var apiaryOutputs = ReleaseCommodityOutputs(operation.ApiaryYieldOutputs, _apiary.ColonyHealth,
-					Math.Min(_apiary.Stores, _apiary.YieldPotential), operation.ApiaryYieldMultiplier, outcome);
+					Math.Min(_apiary.Stores, _apiary.YieldPotential), operation.ApiaryYieldMultiplier, outcome, actor);
 				_apiary.Adjust(0, -operation.ApiaryYieldCost, -operation.ApiaryYieldCost);
 				result = $"The apiary is harvested with an estimated stores quality of {_apiary.Stores.DescribeBand()}.{outcome.DescribeEffect()}{DescribeOutputResult(apiaryOutputs)}";
 				break;
@@ -802,7 +802,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				break;
 			case AgricultureOperationType.HarvestHerdProducts:
 				var herdTarget = (IAgricultureHerdDefinition)target;
-				var herdOutputs = ReleaseHerdOutputs(operation, herdTarget, outcome);
+				var herdOutputs = ReleaseHerdOutputs(operation, herdTarget, outcome, actor);
 				var harvestedHerd = _herds.First(x => x.Definition.Id == herdTarget.Id);
 				result = $"The {harvestedHerd.Definition.Name} herd products are collected with an estimated condition of {((int)Math.Round(harvestedHerd.Condition)).DescribeBand()}.{outcome.DescribeEffect()}{DescribeOutputResult(herdOutputs)}";
 				break;
@@ -827,7 +827,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				result = $"The field is now being managed as {woodland.Name}.";
 				break;
 			case AgricultureOperationType.Clear:
-				var clearOutputs = ReleaseWoodlandOutputs(operation, outcome);
+				var clearOutputs = ReleaseWoodlandOutputs(operation, outcome, actor);
 				ClearCrop();
 				ClearWoodland();
 				_herds.Clear();
@@ -836,7 +836,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				break;
 			default:
 				CurrentUse = operation.ResultUse;
-				var woodlandOutputs = ReleaseWoodlandOutputs(operation, outcome);
+				var woodlandOutputs = ReleaseWoodlandOutputs(operation, outcome, actor);
 				result = $"The {operation.Name} operation has been applied to the field.{outcome.DescribeEffect()}{DescribeOutputResult(woodlandOutputs)}";
 				break;
 		}
@@ -902,11 +902,13 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		var output = operation.CompletionProg?.Execute(this, actor);
 		foreach (var item in CompletionOutputItems(output).Distinct())
 		{
+			item.SetOwner(actor);
 			ReleaseCompletionOutputToField(item);
 		}
 	}
 
-	private IReadOnlyList<IGameItem> ReleaseWoodlandOutputs(IAgricultureOperation operation, AgricultureWorkOutcome outcome)
+	private IReadOnlyList<IGameItem> ReleaseWoodlandOutputs(IAgricultureOperation operation,
+		AgricultureWorkOutcome outcome, ICharacter owner)
 	{
 		if (operation.WoodlandYieldMultiplier <= 0.0 || CurrentWoodland == null)
 		{
@@ -914,7 +916,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		}
 
 		var outputs = ReleaseCommodityOutputs(CurrentWoodland.YieldOutputs, _woodlandHealth, _woodlandYieldPotential,
-			operation.WoodlandYieldMultiplier, outcome);
+			operation.WoodlandYieldMultiplier, outcome, owner);
 		if (operation.WoodlandYieldCost > 0)
 		{
 			_woodlandYieldPotential = (_woodlandYieldPotential - Math.Min(_woodlandYieldPotential, operation.WoodlandYieldCost)).ClampScore();
@@ -924,7 +926,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 	}
 
 	private IReadOnlyList<IGameItem> ReleaseHerdOutputs(IAgricultureOperation operation,
-		IAgricultureHerdDefinition definition, AgricultureWorkOutcome outcome)
+		IAgricultureHerdDefinition definition, AgricultureWorkOutcome outcome, ICharacter owner)
 	{
 		if (operation.HerdYieldMultiplier <= 0.0 || definition == null)
 		{
@@ -942,7 +944,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			                         x.BaseWeight * herd.HeadCount, x.TagName))
 		                         .ToList();
 		var outputs = ReleaseCommodityOutputs(perHerdOutputs, (int)Math.Round(herd.Condition),
-			herd.SecondaryYieldPotential, operation.HerdYieldMultiplier, outcome);
+			herd.SecondaryYieldPotential, operation.HerdYieldMultiplier, outcome, owner);
 		if (operation.HerdYieldCost > 0)
 		{
 			herd.SecondaryYieldPotential = (herd.SecondaryYieldPotential -
@@ -953,7 +955,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 	}
 
 	private IReadOnlyList<IGameItem> ReleaseCommodityOutputs(IEnumerable<AgricultureCommodityYield> outputs, int health,
-		int yieldPotential, double multiplier, AgricultureWorkOutcome outcome)
+		int yieldPotential, double multiplier, AgricultureWorkOutcome outcome, ICharacter owner)
 	{
 		var outputList = outputs?.ToList() ?? [];
 		if (outputList.Count == 0 || multiplier <= 0.0 || health <= 0 || yieldPotential <= 0)
@@ -986,6 +988,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 			var tag = string.IsNullOrWhiteSpace(output.TagName) ? null : Gameworld.Tags.GetByName(output.TagName);
 			var item = CommodityGameItemComponentProto.CreateNewCommodity(material, weight, tag);
+			item.SetOwner(owner);
 			item.Quality = outcome.OutputQuality;
 			item.RoomLayer = RoomLayer.GroundLevel;
 			Gameworld.Add(item);

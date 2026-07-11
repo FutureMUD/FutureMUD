@@ -1,5 +1,7 @@
 ﻿using System;
 
+using System.Linq;
+
 #nullable enable
 
 namespace MudSharp.Framework;
@@ -77,6 +79,16 @@ public class FrameworkItemReference
                     return Gameworld.Shops.Get(Id);
                 case "Clan":
                     return Gameworld.Clans.Get(Id);
+                case "AuctionHouse":
+                    return Gameworld.AuctionHouses.Get(Id);
+                case "CombatArena":
+                    return Gameworld.CombatArenas.Get(Id);
+                case "Stable":
+                    return Gameworld.Stables.Get(Id);
+                case "Hospital":
+                    return Gameworld.Hospitals.Get(Id);
+                case "Hotel":
+                    return Gameworld.Properties.SelectNotNull(x => x?.ExistingHotel).FirstOrDefault(x => x?.Id == Id);
                 default:
                     throw new ApplicationException($"Unsupported framework item type '{FrameworkItemType}' in FrameworkItemReference.GetItem()");
             }

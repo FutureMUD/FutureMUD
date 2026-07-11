@@ -447,6 +447,7 @@ internal static class EmploymentCraftService
 			         .ToList();
 		if (candidates.Any())
 		{
+			ItemOwnershipService.AssignOwner(candidates, context.Employer);
 			if (!context.TryCollectTaskItems(actor, candidates.Select(x => (x, location!)).ToList(), out reason))
 			{
 				operationalState = EmploymentActionStepOperationalState.Empty;
@@ -492,6 +493,8 @@ internal static class EmploymentCraftService
 			operationalState = EmploymentActionStepOperationalState.Empty;
 			return false;
 		}
+
+		ItemOwnershipService.AssignOwner(salvage, context.Employer);
 
 		var failedState = state with
 		{

@@ -7,6 +7,7 @@ using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Economy.Payment;
 using MudSharp.Economy.Property;
 using MudSharp.Effects.Concrete;
@@ -1546,14 +1547,48 @@ The syntax is either #3patrols#0 or #3patrols <jurisdiction>#0 if you are an enf
             return;
         }
 
-        if (!actor.IsAdministrator() && !actor.Gameworld.LegalAuthorities.Any(x =>
-                x.EnforcementZones.Contains(actor.Location.Zone) && x.GetEnforcementAuthority(actor) != null))
+		var isEnforcer = actor.IsAdministrator() || actor.Gameworld.LegalAuthorities.Any(x =>
+			x.EnforcementZones.Contains(actor.Location.Zone) && x.GetEnforcementAuthority(actor) != null);
+		var privateEffect = PrivatePropertyAccessService.EffectFor(actor.Location);
+		if (privateEffect?.Controller is { } privateController)
+		{
+			var mayGrant = isEnforcer || privateController switch
+			{
+				IProperty privateProperty => privateProperty.IsAuthorisedOwner(actor) ||
+				                             privateProperty.IsAuthorisedLeaseHolder(actor),
+				IEmploymentHost host => host.HasManagerEmploymentAccess(actor),
+				_ => false
+			};
+			if (!mayGrant)
+			{
+				actor.OutputHandler.Send("You are not authorised to grant work permits for this private property.");
+				return;
+			}
+
+			target.RemoveAllEffects<PermitWork>(x =>
+				x.Cell == actor.Location || x.Controller?.FrameworkItemType == privateController.FrameworkItemType &&
+				x.Controller.Id == privateController.Id);
+			target.AddEffect(new PermitWork(target)
+			{
+				Cell = actor.Location,
+				Controller = privateController
+			}, timespan);
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote(
+				"@ authorise|authorises $1 to work on private property controlled by $2 for $3.", actor, actor,
+				target,
+				new DummyPerceivable(privateController.Name, customColour: Telnet.Cyan),
+				new DummyPerceivable(perceiver =>
+					timespan.Humanize(2, perceiver.Account.Culture, TimeUnit.Year, TimeUnit.Second)))));
+			return;
+		}
+
+        if (!isEnforcer)
         {
             if (property)
             {
                 IProperty localProperty =
                     actor.Gameworld.Properties.First(x => x.PropertyLocations.Contains(actor.Location));
-                if (!localProperty.IsAuthorisedLeaseHolder(actor) || !localProperty.IsAuthorisedOwner(actor))
+                if (!localProperty.IsAuthorisedLeaseHolder(actor) && !localProperty.IsAuthorisedOwner(actor))
                 {
                     actor.OutputHandler.Send(
                         $"You are not an authorised owner or leaseholder for this property, and so cannot permit others to work.");

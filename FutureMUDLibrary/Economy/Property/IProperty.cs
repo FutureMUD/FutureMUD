@@ -56,6 +56,7 @@ namespace MudSharp.Economy.Property
         void ClaimStables(ICharacter who);
         void ClaimHospitals(ICharacter who);
         IHotel Hotel { get; }
+        [CanBeNull] IHotel ExistingHotel { get; }
         HotelLicenseStatus HotelLicenseStatus { get; set; }
         IBankAccount HotelBankAccount { get; set; }
         decimal HotelCashBalance { get; }

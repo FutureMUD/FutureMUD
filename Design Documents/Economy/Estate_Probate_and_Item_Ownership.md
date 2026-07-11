@@ -113,6 +113,8 @@ Supported owners currently include:
 - characters;
 - clans;
 - shops;
+- properties;
+- auction houses, banks, combat arenas, stables, hotels, and hospitals;
 - estates.
 
 Ownership is stamped automatically in these known flows:
@@ -121,6 +123,11 @@ Ownership is stamped automatically in these known flows:
 - selling items to a shop sets the shop as the owner;
 - claiming auction items now sets ownership to the winning bidder, or back to the seller if the item was unsold;
 - estate transfers set the inheritor as the owner for transferred items.
+- foraging, personal crafting, project/agriculture output, magic creation, and outfit-template materialisation set the acquiring character;
+- employment purchases, crafts, salvage, and physical cash floats set the commissioning employment host;
+- morphs, destruction replacements, stack splits, and commodity splits retain the source ownership reference.
+
+Differently owned stacks, commodities, and currency piles do not merge. This deliberately favours durable title over reducing the number of physical piles.
 
 Ownership inspection is privacy-aware for ordinary players:
 
@@ -154,9 +161,13 @@ Players and staff can inspect and manage item ownership:
 - `ownership claim <item>` for currently unowned items only
 - `ownership claim deep [<possessed item>]` claims all possessed items, or one possessed item, plus contained items recursively when they are currently unowned
 - `ownership clan <clan> <item>` for clan-managed public property
+- `ownership host <host-type> <host> <item>` for a possessed item and a host managed by the actor
+- `ownership property <property> <item>` for a possessed item and a property controlled by the actor
 - `ownership clear <item>` admin only
 - `ownership set character <character> <item>` admin only
 - `ownership set clan <clan> <item>` admin only
+- `ownership set property <property> <item>` admin only
+- `ownership set host <host-type> <host> <item>` admin only
 
 When ordinary players inspect a specific item or list ownership, exact owners are only shown for themselves and clans they can identify; other owners are reported generically as `someone` unless the viewer is an administrator.
 

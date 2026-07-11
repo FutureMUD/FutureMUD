@@ -2931,6 +2931,7 @@ public static class HospitalMedicalServiceRunner
 
 		var cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(request.Hospital.Currency,
 			request.Hospital.Currency.FindCoinsForAmount(payout, out _));
+		cash.SetOwner(donor);
 		if (donor.Body.CanGet(cash, 0, ItemCanGetIgnore.IgnoreWeight))
 		{
 			donor.Body.Get(cash, silent: true, ignoreFlags: ItemCanGetIgnore.IgnoreWeight);

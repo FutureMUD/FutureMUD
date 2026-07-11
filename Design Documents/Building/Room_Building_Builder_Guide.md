@@ -1185,6 +1185,17 @@ landmarks
 
 Use a plain landmark for orientation. Use a meeting place when the room should appear as a social gathering location.
 
+### Example: Private Property
+
+```text
+cell private property "Dockside Warehouse"
+cell private host shop "Copper Kettle"
+cell private show
+cell private clear
+```
+
+A cell can have one private-property controller. Property controllers require the cell to already belong to the property; employment-host controllers require it to be one of the host's configured work locations. Replacing an existing controller requires confirmation. This marker supplies access and potential-trespass policy, while the local legal authority still decides whether unauthorised entry is a crime.
+
 ## Guidance for AI Agents
 
 When assisting a builder:

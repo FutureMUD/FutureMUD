@@ -559,6 +559,7 @@ public partial class GameItem : IHaveWounds
 
         // TODO - customisable message
         GameItem newItem = Prototype.LoadDestroyedItem(this) as GameItem;
+        newItem?.CopyOwnerFrom(this);
         // Component.Die can affect TrueLocation, so save it beforehand
         ICell originalTrueLocation = TrueLocations.FirstOrDefault();
         if (originalTrueLocation == null)

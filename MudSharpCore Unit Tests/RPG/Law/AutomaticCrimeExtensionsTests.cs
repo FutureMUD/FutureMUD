@@ -321,6 +321,36 @@ public class AutomaticCrimeExtensionsTests
 	}
 
 	[TestMethod]
+	public void CheckLawfulMovement_PrivateMarkerUsesControllerContextEvenWithoutLegacyPropertyToggle()
+	{
+		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
+		Mock<IZone> zone = CreateZone(10L);
+		Mock<ICell> origin = CreateCell(1L, zone.Object);
+		Mock<ICell> destination = CreateCell(2L, zone.Object);
+		destination.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		Mock<ICellExit> exit = CreateExit(origin.Object, destination.Object);
+		Mock<IProperty> property = CreateProperty(50L, "Warehouse", destination.Object);
+		property.SetupGet(x => x.ApplyCriminalCodeInProperty).Returns(false);
+		property.SetupGet(x => x.PropertyOwners).Returns(Array.Empty<IPropertyOwner>());
+		property.Setup(x => x.IsAuthorisedOwner(It.IsAny<ICharacter>())).Returns(false);
+		property.Setup(x => x.IsAuthorisedLeaseHolder(It.IsAny<ICharacter>())).Returns(false);
+		var effect = new PrivatePropertyEffect(destination.Object, property.Object);
+		destination.Setup(x => x.EffectsOfType<PrivatePropertyEffect>(It.IsAny<Predicate<PrivatePropertyEffect>>()))
+		           .Returns([effect]);
+		Mock<IAccount> account = new();
+		account.SetupGet(x => x.ActLawfully).Returns(true);
+		Mock<ICharacter> actor = CreateCharacter(20L, gameworld.Object, origin.Object);
+		actor.SetupGet(x => x.Account).Returns(account.Object);
+		actor.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
+		authority.Setup(x => x.WouldBeACrimeAtLocation(actor.Object, CrimeTypes.Trespassing, null!, null!,
+				It.Is<string>(s => s.Contains("automatic=private-property-entry") &&
+				                   s.Contains("controllertype=Property") && s.Contains("denial=")), destination.Object))
+		         .Returns(true);
+
+		Assert.IsTrue(AutomaticCrimeExtensions.CheckLawfulMovement(actor.Object, exit.Object));
+	}
+
+	[TestMethod]
 	public void CheckLawfulMovement_LawfulFollowerWouldTrespass_BlocksWholeMovement()
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out All<IProperty> properties,

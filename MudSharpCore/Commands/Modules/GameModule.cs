@@ -1368,6 +1368,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                     if (foragable.ItemProto.IsItemType<StackableGameItemComponentProto>())
                     {
                         IGameItem newItem = foragable.ItemProto.CreateNew(actor);
+                        newItem.SetOwner(actor);
                         newItem.GetItemType<IStackable>().Quantity = quantity;
                         newItems.Add(newItem);
                         actor.Gameworld.Add(newItem);
@@ -1377,6 +1378,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                         for (int i = 0; i < quantity; i++)
                         {
                             IGameItem newItem = foragable.ItemProto.CreateNew(actor);
+                            newItem.SetOwner(actor);
                             newItems.Add(newItem);
                             actor.Gameworld.Add(newItem);
                         }
@@ -1405,6 +1407,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 
                     IGameItem newItem = CommodityGameItemComponentProto.CreateNewCommodity(foragable.CommodityMaterial,
                         weight, foragable.CommodityTag);
+                    newItem.SetOwner(actor);
                     newItems.Add(newItem);
                     actor.Gameworld.Add(newItem);
                 }

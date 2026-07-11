@@ -63,6 +63,7 @@ public static class ProjectPaymentService
 		}
 
 		var pile = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency, coins);
+		pile.SetOwner(actor);
 		if (actor.Body?.CanGet(pile, 0) == true)
 		{
 			actor.Body.Get(pile, silent: true);

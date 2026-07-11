@@ -1189,6 +1189,7 @@ public class CorpseSpawnEffect : IMagicSpellEffectTemplate
 		{
 			foreach (var newItem in proto.CreateNew(caster, null!, Quantity, string.Empty))
 			{
+				newItem.SetOwner(caster);
 				cell.Insert(newItem, true);
 				newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 				newItem.Login();

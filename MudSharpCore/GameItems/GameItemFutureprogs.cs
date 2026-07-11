@@ -29,6 +29,9 @@ public partial class GameItem
             { "holder", ProgVariableTypes.Character },
             { "wearer", ProgVariableTypes.Character },
             { "owner", OwnershipFunctionHelpers.OwnerVariableType },
+            { "hasowner", ProgVariableTypes.Boolean },
+            { "ownerid", ProgVariableTypes.Number },
+            { "ownertype", ProgVariableTypes.Text },
             { "weight", ProgVariableTypes.Number },
             { "contents", ProgVariableTypes.Collection | ProgVariableTypes.Item },
             { "container", ProgVariableTypes.Item },
@@ -115,7 +118,10 @@ public partial class GameItem
             { "quantity", "The quantity of this item in the stack. 1 if not stacked" },
             { "holder", "The character who is holding this item, if any" },
             { "wearer", "The character who is wearing this item, if any" },
-            { "owner", "The registered owner of this item, if any. This may be a character or a clan." },
+            { "owner", "The registered owner of this item when its owner has a native FutureProg variable type." },
+            { "hasowner", "True if this item has a durable registered owner reference." },
+            { "ownerid", "The ID of this item's registered owner, or 0 if unowned." },
+            { "ownertype", "The framework-item type of this item's registered owner, or empty text if unowned." },
             { "weight", "The weight of this item in base units" },
             { "contents", "A collection of the item contents of this item" },
             { "container", "The item that this item is contained in, if any" },
@@ -242,6 +248,15 @@ public partial class GameItem
                     IProgVariable progVariable => progVariable,
                     _ => new NullVariable(OwnershipFunctionHelpers.OwnerVariableType)
                 };
+
+            case "hasowner":
+                return new BooleanVariable(HasOwner);
+
+            case "ownerid":
+                return new NumberVariable(OwnershipReference?.Id ?? 0L);
+
+            case "ownertype":
+                return new TextVariable(OwnershipReference?.FrameworkItemType ?? string.Empty);
 
             case "weight":
                 return new NumberVariable(Weight);

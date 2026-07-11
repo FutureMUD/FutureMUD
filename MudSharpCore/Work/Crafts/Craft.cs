@@ -1390,7 +1390,12 @@ public class Craft : Framework.Revision.EditableItem, ICraft
                          _craftFailProductProducedPhases[x.Key] <= phase &&
                          !component.ProducedProducts.ContainsKey(x.Value)))
             {
-                component.ProducedProducts[product.Value] = product.Value.ProduceProduct(component, referenceQuality);
+                var produced = product.Value.ProduceProduct(component, referenceQuality);
+                component.ProducedProducts[product.Value] = produced;
+                if (produced is ICraftProductDataWithItems items)
+                {
+                    ItemOwnershipService.AssignOwner(items.Products, character);
+                }
             }
         }
         else
@@ -1401,7 +1406,12 @@ public class Craft : Framework.Revision.EditableItem, ICraft
                          _craftProductProducedPhases[x.Key] <= phase &&
                          !component.ProducedProducts.ContainsKey(x.Value)))
             {
-                component.ProducedProducts[product.Value] = product.Value.ProduceProduct(component, referenceQuality);
+                var produced = product.Value.ProduceProduct(component, referenceQuality);
+                component.ProducedProducts[product.Value] = produced;
+                if (produced is ICraftProductDataWithItems items)
+                {
+                    ItemOwnershipService.AssignOwner(items.Products, character);
+                }
             }
         }
 

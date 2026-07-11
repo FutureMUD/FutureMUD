@@ -919,6 +919,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 		foreach (var templateItem in _items.OrderBy(x => x.WearOrder))
 		{
 			var item = templateItem.GameItemProto.CreateNew(target, null, 1, CombinedLoadArguments(templateItem.LoadArguments, loadArguments)).First();
+			item.SetOwner(target);
 			Gameworld.Add(item);
 			item.RoomLayer = target.RoomLayer;
 			target.Location.Insert(item);

@@ -453,6 +453,7 @@ public abstract partial class Shop : SaveableItem, IShop
 
     public void AddToStock(ICharacter actor, IGameItem item, IMerchandise merch)
     {
+        item.SetOwner(this);
         item.AddEffect(new ItemOnDisplayInShop(item, this, merch));
         actor?.OutputHandler.Send(
             $"You add {item.HowSeen(actor)} to the for-sale inventory of {Name.TitleCase().Colour(Telnet.Cyan)}.");

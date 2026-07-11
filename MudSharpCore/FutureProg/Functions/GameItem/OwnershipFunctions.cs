@@ -2,6 +2,9 @@
 
 using MudSharp.Character;
 using MudSharp.Community;
+using MudSharp.Commands.Helpers;
+using MudSharp.Economy;
+using MudSharp.Economy.Banking;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
@@ -13,7 +16,8 @@ namespace MudSharp.FutureProg.Functions.GameItem;
 
 internal static class OwnershipFunctionHelpers
 {
-    public static readonly ProgVariableTypes OwnerVariableType = ProgVariableTypes.Character | ProgVariableTypes.Clan;
+    public static readonly ProgVariableTypes OwnerVariableType = ProgVariableTypes.Character | ProgVariableTypes.Clan |
+                                                               ProgVariableTypes.Shop | ProgVariableTypes.Bank;
 
     public static bool IsPropertyTrusted(IGameItem item, ICharacter character, bool includeClanPrivileges)
     {
@@ -110,7 +114,7 @@ internal class ItemOwnershipQueryFunction : BuiltInFunction
         }
 
         if (ParameterFunctions[0].Result?.GetObject is not IGameItem item ||
-            ParameterFunctions[1].Result?.GetObject is not ICharacter character)
+            ParameterFunctions[1].Result?.GetObject is not IFrameworkItem queriedOwner)
         {
             Result = new BooleanVariable(false);
             return StatementResult.Normal;
@@ -118,11 +122,13 @@ internal class ItemOwnershipQueryFunction : BuiltInFunction
 
         Result = _mode switch
         {
-            OwnershipQueryMode.IsOwner => new BooleanVariable(item.IsOwnedBy(character)),
+            OwnershipQueryMode.IsOwner => new BooleanVariable(item.IsOwnedBy(queriedOwner)),
             OwnershipQueryMode.IsPropertyTrusted =>
-                new BooleanVariable(OwnershipFunctionHelpers.IsPropertyTrusted(item, character, false)),
+                new BooleanVariable(queriedOwner is ICharacter character &&
+                                    OwnershipFunctionHelpers.IsPropertyTrusted(item, character, false)),
             OwnershipQueryMode.IsPropertyTrustedOrClan =>
-                new BooleanVariable(OwnershipFunctionHelpers.IsPropertyTrusted(item, character, true)),
+                new BooleanVariable(queriedOwner is ICharacter character &&
+                                    OwnershipFunctionHelpers.IsPropertyTrusted(item, character, true)),
             _ => new BooleanVariable(false)
         };
 
@@ -138,6 +144,28 @@ internal class ItemOwnershipQueryFunction : BuiltInFunction
             ["item", "character"],
             ["The item whose ownership you want to check", "The character whose ownership is being tested"],
             "Returns true if the specified character is the registered owner of the item.",
+            "Items",
+            ProgVariableTypes.Boolean
+        ));
+
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "isowner",
+            [ProgVariableTypes.Item, ProgVariableTypes.Shop],
+            (pars, gameworld) => new ItemOwnershipQueryFunction(pars, OwnershipQueryMode.IsOwner),
+            ["item", "shop"],
+            ["The item whose ownership you want to check", "The shop whose ownership is being tested"],
+            "Returns true if the specified shop is the registered owner of the item.",
+            "Items",
+            ProgVariableTypes.Boolean
+        ));
+
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "isowner",
+            [ProgVariableTypes.Item, ProgVariableTypes.Bank],
+            (pars, gameworld) => new ItemOwnershipQueryFunction(pars, OwnershipQueryMode.IsOwner),
+            ["item", "bank"],
+            ["The item whose ownership you want to check", "The bank whose ownership is being tested"],
+            "Returns true if the specified bank is the registered owner of the item.",
             "Items",
             ProgVariableTypes.Boolean
         ));
@@ -245,6 +273,11 @@ internal class ItemOwnershipMutationFunction : BuiltInFunction
             ProgVariableTypes.Boolean
         ));
 
+        RegisterTypedOwnershipMutation("setownership", ProgVariableTypes.Shop, OwnershipMutationMode.SetOwnership,
+            "shop");
+        RegisterTypedOwnershipMutation("setownership", ProgVariableTypes.Bank, OwnershipMutationMode.SetOwnership,
+            "bank");
+
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "setownership",
             [ProgVariableTypes.Item, ProgVariableTypes.Clan],
@@ -267,6 +300,11 @@ internal class ItemOwnershipMutationFunction : BuiltInFunction
             ProgVariableTypes.Boolean
         ));
 
+        RegisterTypedOwnershipMutation("deepsetownership", ProgVariableTypes.Shop,
+            OwnershipMutationMode.DeepSetOwnership, "shop");
+        RegisterTypedOwnershipMutation("deepsetownership", ProgVariableTypes.Bank,
+            OwnershipMutationMode.DeepSetOwnership, "bank");
+
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "deepsetownership",
             [ProgVariableTypes.Item, ProgVariableTypes.Clan],
@@ -288,5 +326,19 @@ internal class ItemOwnershipMutationFunction : BuiltInFunction
             "Items",
             ProgVariableTypes.Boolean
         ));
+    }
+
+    private static void RegisterTypedOwnershipMutation(string name, ProgVariableTypes ownerType,
+        OwnershipMutationMode mode, string ownerName)
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            name,
+            [ProgVariableTypes.Item, ownerType],
+            (pars, gameworld) => new ItemOwnershipMutationFunction(pars, mode),
+            ["item", ownerName],
+            ["The item whose ownership should be changed", $"The {ownerName} that should own the item"],
+            $"Sets the registered owner of the selected item{(mode == OwnershipMutationMode.DeepSetOwnership ? " tree" : string.Empty)} to the specified {ownerName}.",
+            "Items",
+            ProgVariableTypes.Boolean));
     }
 }

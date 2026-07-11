@@ -479,6 +479,7 @@ internal static class EmploymentFinanceService
 			: target.ExactStockItems.Any()
 			? target.Shop.BuyExact(actor, target.Merchandise, target.Quantity, payment, target.ExactStockItems).ToList()
 			: target.Shop.Buy(actor, target.Merchandise, target.Quantity, payment, target.KeywordFilter).ToList();
+		ItemOwnershipService.AssignOwner(items, context.Employer);
 		context.RecordLedger(EmploymentLedgerEntryType.Purchase, actor, amount,
 			$"Purchased {items.Count:N0} item(s) from {target.Shop.Name}: {reference}.",
 			context.CurrentTask?.CorrelationId);
@@ -882,6 +883,7 @@ internal static class EmploymentFinanceService
 		var pile = CurrencyGameItemComponentProto.CreateNewCurrencyPile(amount.Currency,
 			amount.Currency.FindCoinsForAmount(amount.Amount, out _));
 		pile.RoomLayer = actor.RoomLayer;
+		pile.SetOwner(context.Employer);
 		actor.Location.Insert(pile, true);
 		if (!context.TryCollectTaskItem(actor, pile, actor.Location, out reason))
 		{

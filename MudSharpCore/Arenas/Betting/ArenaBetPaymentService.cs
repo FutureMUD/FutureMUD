@@ -69,6 +69,7 @@ public class ArenaBetPaymentService : IArenaBetPaymentService
 
         IGameItem pile = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
             coins.Select(x => Tuple.Create(x.Key, x.Value)));
+        pile.SetOwner(bettor);
         if (bettor.Body.CanGet(pile, 0))
         {
             bettor.Body.Get(pile, silent: true);

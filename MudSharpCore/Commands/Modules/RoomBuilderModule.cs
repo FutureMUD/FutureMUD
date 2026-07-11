@@ -9,6 +9,8 @@ using MudSharp.Construction.Autobuilder;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Editor;
+using MudSharp.Economy.Employment;
+using MudSharp.Economy.Property;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Characteristics;
@@ -128,6 +130,9 @@ The following commands do not require you to have adopted an overlay package:
 	#3cell landmarktext text <##>#0 - drops into an editor to replace an extra text
 	#3cell landmarktext swap <##> <##>#0 - swaps the order of two extra texts
 	#3cell landmarktext delete <##>#0 - deletes a landmark text
+	#3cell private property <property>#0 - marks this cell private under a property controller
+	#3cell private host <host-type> <host>#0 - marks this cell private under an employment host
+	#3cell private show|clear#0 - shows or clears the private-property controller
 
 These are the commands used to work with overlay packages:
 
@@ -250,12 +255,102 @@ There is also a universal optional argument which must come first in the form of
             case "landmarktext":
                 CellLandmarkText(actor, ss);
                 break;
+            case "private":
+            case "privateproperty":
+                CellPrivateProperty(actor, ss);
+                break;
             default:
                 actor.OutputHandler.Send(
                     $"That is not a valid option to use with the {"cell".Colour(Telnet.Yellow)} command. See {"CELL HELP".FluentTagMXP("send", "href='cell help' hint='display cell help'")} for more info.");
                 return;
         }
     }
+
+	private static void CellPrivateProperty(ICharacter actor, StringStack command)
+	{
+		var cell = actor.Location;
+		var existing = PrivatePropertyAccessService.EffectFor(cell);
+		if (command.IsFinished || command.PeekSpeech().EqualTo("show"))
+		{
+			actor.OutputHandler.Send(existing?.Describe(actor) ??
+			                         "This location is not marked as private property.");
+			return;
+		}
+
+		var operation = command.PopSpeech().CollapseString().ToLowerInvariant();
+		if (operation is "clear" or "remove" or "delete")
+		{
+			if (existing is null)
+			{
+				actor.OutputHandler.Send("This location is not marked as private property.");
+				return;
+			}
+
+			cell.RemoveEffect(existing, true);
+			actor.OutputHandler.Send("This location is no longer marked as private property.");
+			return;
+		}
+
+		IFrameworkItem controller;
+		if (operation == "property")
+		{
+			controller = actor.Gameworld.Properties.GetByIdOrName(command.SafeRemainingArgument);
+			if (controller is not IProperty property)
+			{
+				actor.OutputHandler.Send("There is no such property.");
+				return;
+			}
+
+			if (!property.PropertyLocations.Contains(cell))
+			{
+				actor.OutputHandler.Send("This location is not one of that property's configured locations.");
+				return;
+			}
+		}
+		else if (operation is "host" or "employmenthost")
+		{
+			var hostType = command.PopSpeech();
+			var resolver = new EmploymentHostResolver();
+			controller = resolver.Resolve(actor.Gameworld, hostType, command.SafeRemainingArgument, out var error);
+			if (controller is not IEmploymentHost host)
+			{
+				actor.OutputHandler.Send(error);
+				return;
+			}
+
+			if (!host.EmploymentHostLocations().Contains(cell))
+			{
+				actor.OutputHandler.Send("This location is not one of that employment host's configured locations.");
+				return;
+			}
+		}
+		else
+		{
+			actor.OutputHandler.Send("Use cell private property <property>, cell private host <type> <host>, cell private show, or cell private clear.");
+			return;
+		}
+
+		void ApplyController()
+		{
+			cell.RemoveAllEffects<PrivatePropertyEffect>(fireRemovalAction: true);
+			cell.AddEffect(new PrivatePropertyEffect(cell, controller));
+			actor.OutputHandler.Send($"This location is now private property controlled by {controller.Name.ColourName()}.");
+		}
+
+		if (existing is null || existing.ControllerType.EqualTo(controller.FrameworkItemType) && existing.ControllerId == controller.Id)
+		{
+			ApplyController();
+			return;
+		}
+
+		actor.OutputHandler.Send($"This replaces the current private-property controller {existing.Controller?.Name ?? existing.ControllerType}.\n{Accept.StandardAcceptPhrasing}");
+		actor.AddEffect(new Accept(actor, new GenericProposal(
+			_ => ApplyController(),
+			_ => actor.OutputHandler.Send("You decide not to replace the private-property controller."),
+			() => actor.OutputHandler.Send("Your private-property controller change has expired."),
+			$"replacing the private-property controller with {controller.Name}",
+			"private", "property")), TimeSpan.FromSeconds(120));
+	}
 
     private static void CellLandmarkText(ICharacter actor, StringStack ss)
     {
@@ -882,6 +977,8 @@ Enter your text below:");
         }.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
         sb.AppendLine(
             $"Noise Profile: {(cell.CurrentOverlay.HearingProfile == null ? "None".Colour(Telnet.Red) : $"{cell.CurrentOverlay.HearingProfile.Name.TitleCase().Colour(Telnet.Green)} (#{cell.CurrentOverlay.HearingProfile.Id:N0})")}");
+        var privateProperty = PrivatePropertyAccessService.EffectFor(cell);
+        sb.AppendLine($"Private Property: {(privateProperty?.Controller is { } controller ? $"{controller.Name.ColourName()} ({controller.FrameworkItemType.ColourValue()} #{controller.Id.ToString("N0", actor).ColourValue()})" : "None".ColourError())}");
         sb.AppendLine("Overlays:\n");
         sb.Append(
             StringUtilities.GetTextTable(

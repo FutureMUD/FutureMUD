@@ -3588,10 +3588,42 @@ public partial class Body
 
     #region Currency-Related Versions of Inventory Commands
 
+    internal static Dictionary<ICurrencyPile, Dictionary<ICoin, int>> FindCurrencyPreservingOwnership(
+        ICurrency currency, IEnumerable<ICurrencyPile> targetPiles, decimal amount)
+    {
+        return targetPiles
+               .GroupBy(x => x.Parent.OwnershipReference)
+               .Select(x => currency.FindCurrency(x, amount))
+               .Where(x => x.Count > 0)
+               .Select(x => new
+               {
+                   Coins = x,
+                   Total = x.Sum(y => y.Value.Sum(z => z.Key.Value * z.Value))
+               })
+               .OrderBy(x => x.Total == amount ? 0 : 1)
+               .ThenBy(x => Math.Abs(x.Total - amount))
+               .Select(x => x.Coins)
+               .FirstOrDefault() ?? [];
+    }
+
+    private static IGameItem CreateCurrencyPileFromSelection(ICurrency currency,
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins, bool temporary = false)
+    {
+        var newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
+            targetCoins.SelectMany(x => x.Value)
+                       .Select(x => x.Key)
+                       .Distinct()
+                       .Select(x => Tuple.Create(x,
+                           targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+            temporary);
+        newItem.CopyOwnerFrom(targetCoins.First().Key.Parent);
+        return newItem;
+    }
+
     public bool CanGet(ICurrency currency, decimal amount, bool exact)
     {
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
-            currency.FindCurrency(
+            FindCurrencyPreservingOwnership(currency,
                 Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>())
                         .Where(x => Location.CanGet(x.Parent, Actor))
                         .Where(x => Actor.MountedCanRetrieve(x.Parent, out _)), amount);
@@ -3605,13 +3637,7 @@ public partial class Body
             return false;
         }
 
-        IGameItem tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-            true);
+        IGameItem tempItem = CreateCurrencyPileFromSelection(currency, targetCoins, true);
         return CanGet(tempItem, 0);
     }
 
@@ -3623,7 +3649,7 @@ public partial class Body
         }
 
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
-            currency.FindCurrency(
+            FindCurrencyPreservingOwnership(currency,
                 container.GetItemType<IContainer>().Contents.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
                 amount);
         if (!targetCoins.Any())
@@ -3636,13 +3662,7 @@ public partial class Body
             return false;
         }
 
-        IGameItem tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-                        targetCoins.SelectMany(x => x.Value)
-                                   .Select(x => x.Key)
-                                   .Distinct()
-                                   .Select(x =>
-                                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-                        true);
+        IGameItem tempItem = CreateCurrencyPileFromSelection(currency, targetCoins, true);
 
         return CanGet(tempItem, container, 0, ItemCanGetIgnore.IgnoreInContainer);
     }
@@ -3650,7 +3670,7 @@ public partial class Body
     public string WhyCannotGet(ICurrency currency, decimal amount, bool exact)
     {
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
-            currency.FindCurrency(
+            FindCurrencyPreservingOwnership(currency,
                 Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>())
                         .Where(x => Location.CanGet(x.Parent, Actor))
                         .Where(x => Actor.MountedCanRetrieve(x.Parent, out _)), amount);
@@ -3677,13 +3697,7 @@ public partial class Body
                        CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
         }
 
-        IGameItem tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-            true);
+        IGameItem tempItem = CreateCurrencyPileFromSelection(currency, targetCoins, true);
         return WhyCannotGet(tempItem, 0);
     }
 
@@ -3695,7 +3709,7 @@ public partial class Body
         }
 
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
-            currency.FindCurrency(
+            FindCurrencyPreservingOwnership(currency,
                 container.GetItemType<IContainer>().Contents.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
                 amount);
         if (!targetCoins.Any())
@@ -3711,13 +3725,7 @@ public partial class Body
                        CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
         }
 
-        IGameItem tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-                        targetCoins.SelectMany(x => x.Value)
-                                   .Select(x => x.Key)
-                                   .Distinct()
-                                   .Select(x =>
-                                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-                        true);
+        IGameItem tempItem = CreateCurrencyPileFromSelection(currency, targetCoins, true);
         return WhyCannotGet(tempItem, container, 0, ItemCanGetIgnore.IgnoreInContainer);
     }
 
@@ -3739,15 +3747,10 @@ public partial class Body
         IContainer container = containerItem.GetItemType<IContainer>();
 
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
-            currency.FindCurrency(
+            FindCurrencyPreservingOwnership(currency,
                 container.Contents.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
                 amount);
-        IGameItem newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
+        IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
         container.Put(null, newItem, false);
         foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
         {
@@ -3776,14 +3779,9 @@ public partial class Body
         }
 
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
-            currency.FindCurrency(Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+            FindCurrencyPreservingOwnership(currency, Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
                 amount);
-        IGameItem newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
+        IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
         foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
         {
             if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
@@ -3797,7 +3795,7 @@ public partial class Body
 
     public bool CanPut(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount, bool exact)
     {
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
         if (!targetCoins.Any())
         {
@@ -3809,20 +3807,14 @@ public partial class Body
             return false;
         }
 
-        IGameItem tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-            true);
+        IGameItem tempItem = CreateCurrencyPileFromSelection(currency, targetCoins, true);
         return CanPut(tempItem, container, containerOwner, 0, false);
     }
 
     public string WhyCannotPut(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount,
         bool exact)
     {
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()), amount);
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()), amount);
         if (!targetCoins.Any())
         {
             return "You have no money to put in " + container.HowSeen(this) + ".";
@@ -3836,13 +3828,7 @@ public partial class Body
                        CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
         }
 
-        IGameItem tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-            true);
+        IGameItem tempItem = CreateCurrencyPileFromSelection(currency, targetCoins, true);
         return WhyCannotPut(tempItem, container, containerOwner, 0, false);
     }
 
@@ -3862,14 +3848,9 @@ public partial class Body
             return null;
         }
 
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
-        IGameItem newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
+        IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
         foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
         {
             if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
@@ -3884,7 +3865,7 @@ public partial class Body
 
     public bool CanDrop(ICurrency currency, decimal amount, bool exact)
     {
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
         if (!targetCoins.Any())
         {
@@ -3896,19 +3877,13 @@ public partial class Body
             return false;
         }
 
-        IGameItem tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-            true);
+        IGameItem tempItem = CreateCurrencyPileFromSelection(currency, targetCoins, true);
         return CanDrop(tempItem, 0);
     }
 
     public string WhyCannotDrop(ICurrency currency, decimal amount, bool exact)
     {
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
         if (!targetCoins.Any())
         {
@@ -3922,13 +3897,7 @@ public partial class Body
                        CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
         }
 
-        IGameItem tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-            true);
+        IGameItem tempItem = CreateCurrencyPileFromSelection(currency, targetCoins, true);
         return WhyCannotDrop(tempItem, 0);
     }
 
@@ -3941,14 +3910,9 @@ public partial class Body
             return;
         }
 
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
-        IGameItem newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
+        IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
         foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
         {
             if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
@@ -3963,7 +3927,7 @@ public partial class Body
 
     public bool CanGive(ICurrency currency, IBody target, decimal amount, bool exact)
     {
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
         if (!targetCoins.Any())
         {
@@ -3975,19 +3939,13 @@ public partial class Body
             return false;
         }
 
-        IGameItem tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-            true);
+        IGameItem tempItem = CreateCurrencyPileFromSelection(currency, targetCoins, true);
         return CanGive(tempItem, target);
     }
 
     public string WhyCannotGive(ICurrency currency, IBody target, decimal amount, bool exact)
     {
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
         if (!targetCoins.Any())
         {
@@ -4002,13 +3960,7 @@ public partial class Body
                        CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
         }
 
-        IGameItem tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-            true);
+        IGameItem tempItem = CreateCurrencyPileFromSelection(currency, targetCoins, true);
         return WhyCannotGive(tempItem, target);
     }
 
@@ -4020,14 +3972,9 @@ public partial class Body
             return;
         }
 
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
-        IGameItem newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
+        IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
         foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
         {
             if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
@@ -4042,7 +3989,7 @@ public partial class Body
 
     public bool CanGive(ICurrency currency, ICorpse target, decimal amount, bool exact)
     {
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
         if (!targetCoins.Any())
         {
@@ -4054,19 +4001,13 @@ public partial class Body
             return false;
         }
 
-        IGameItem tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-            true);
+        IGameItem tempItem = CreateCurrencyPileFromSelection(currency, targetCoins, true);
         return CanGive(tempItem, target.Body);
     }
 
     public string WhyCannotGive(ICurrency currency, ICorpse target, decimal amount, bool exact)
     {
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()), amount);
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()), amount);
         if (!targetCoins.Any())
         {
             return "You have no money to give " + target.Parent.HowSeen(this) + ".";
@@ -4080,13 +4021,7 @@ public partial class Body
                        CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
         }
 
-        IGameItem tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-            true);
+        IGameItem tempItem = CreateCurrencyPileFromSelection(currency, targetCoins, true);
         return WhyCannotGive(tempItem, target.Body);
     }
 
@@ -4098,14 +4033,9 @@ public partial class Body
             return;
         }
 
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
-        IGameItem newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-            targetCoins.SelectMany(x => x.Value)
-                       .Select(x => x.Key)
-                       .Distinct()
-                       .Select(x =>
-                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
+        IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
         foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
         {
             if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))

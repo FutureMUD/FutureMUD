@@ -28,6 +28,7 @@ public class PermitWork : Effect, IEffect
 
     public IProperty? Property { get; init; }
     public ICell? Cell { get; init; }
+    public IFrameworkItem? Controller { get; init; }
 
     #region Constructors
 
@@ -38,8 +39,15 @@ public class PermitWork : Effect, IEffect
     protected PermitWork(XElement effect, IPerceivable owner) : base(effect, owner)
     {
         XElement? root = effect.Element("Effect");
-        Property = Gameworld.Properties.Get(long.Parse(root!.Element("Property")!.Value))!;
-        Cell = Gameworld.Cells.Get(long.Parse(root.Element("Cell")!.Value))!;
+        Property = Gameworld.Properties.Get(long.Parse(root!.Element("Property")?.Value ?? "0"))!;
+        Cell = Gameworld.Cells.Get(long.Parse(root.Element("Cell")?.Value ?? "0"))!;
+        if (root.Element("ControllerId") is { } controllerId &&
+            long.TryParse(controllerId.Value, out var parsedControllerId) && parsedControllerId > 0 &&
+            root.Element("ControllerType") is { } controllerType &&
+            !string.IsNullOrWhiteSpace(controllerType.Value))
+        {
+            Controller = new FrameworkItemReference(parsedControllerId, controllerType.Value, Gameworld).GetItem;
+        }
     }
 
     #endregion
@@ -50,9 +58,11 @@ public class PermitWork : Effect, IEffect
 
     public override string Describe(IPerceiver voyeur)
     {
-        return Property is null
-            ? $"Permitted to work in the {Cell!.HowSeen(voyeur)} location"
-            : $"Permitted to work on the {Property.Name.ColourName()} property";
+        return Controller is not null
+            ? $"Permitted to work on private property controlled by {Controller.Name.ColourName()}"
+            : Property is null
+                ? $"Permitted to work in the {Cell!.HowSeen(voyeur)} location"
+                : $"Permitted to work on the {Property.Name.ColourName()} property";
     }
 
     public override bool SavingEffect => true;
@@ -61,14 +71,16 @@ public class PermitWork : Effect, IEffect
     {
         return new XElement("Effect",
             new XElement("Property", Property?.Id ?? 0),
-            new XElement("Cell", Cell?.Id ?? 0)
+            new XElement("Cell", Cell?.Id ?? 0),
+            new XElement("ControllerType", Controller?.FrameworkItemType ?? string.Empty),
+            new XElement("ControllerId", Controller?.Id ?? 0)
         );
     }
 
     public override void RemovalEffect()
     {
         ((ICharacter)Owner).OutputHandler.Send(
-            $"You are no longer legally permitted to work on {(Property is not null ? $"the property {Property.Name.ColourName()}" : $"the location {Cell!.HowSeen((ICharacter)Owner)}")}");
+            $"You are no longer legally permitted to work on {(Controller is not null ? $"private property controlled by {Controller.Name.ColourName()}" : Property is not null ? $"the property {Property.Name.ColourName()}" : $"the location {Cell!.HowSeen((ICharacter)Owner)}")}");
     }
 
     #endregion

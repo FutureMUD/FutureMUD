@@ -1,9 +1,11 @@
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
+using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.Work.Agriculture;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -57,8 +59,15 @@ public class AgricultureOperationAction : BaseAction
 
 			var actor = ResolveCompletionActor(project, context);
 			var outcome = AgricultureProjectSkillTracker.OutcomeFor(context.Definition);
+			var existingItems = new HashSet<IGameItem>(field.Cell.GameItems, ReferenceEqualityComparer.Instance);
 			if (field.ApplyOperation(operation, target, actor, false, outcome, out var result))
 			{
+				if (project.CharacterOwner is not null)
+				{
+					ItemOwnershipService.AssignOwner(
+						field.Cell.GameItems.Where(x => !existingItems.Contains(x)),
+						project.CharacterOwner);
+				}
 				field.Cell.Handle(result);
 			}
 			else

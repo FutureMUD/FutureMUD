@@ -1222,6 +1222,7 @@ Administrators can also use:
 
 		var cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(hospital.Currency,
 			hospital.Currency.FindCoinsForAmount(amount, out _));
+		cash.SetOwner(actor);
 		if (actor.Body.CanGet(cash, 0))
 		{
 			actor.Body.Get(cash, silent: true);

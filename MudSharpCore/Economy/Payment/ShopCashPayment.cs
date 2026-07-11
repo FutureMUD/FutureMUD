@@ -60,6 +60,7 @@ public class ShopCashPayment : CashPayment
         IGameItem changePile =
             CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency,
                 Currency.FindCoinsForAmount(change, out _));
+        changePile.SetOwner(Actor);
         foreach (IGameItem item in containers)
         {
             IContainer container = item.GetItemType<IContainer>();
@@ -88,6 +89,7 @@ public class ShopCashPayment : CashPayment
     {
         Shop.TakeCashFromAllSources(price, "buying");
         IGameItem newPile = CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency, Currency.FindCoinsForAmount(price, out _));
+        newPile.SetOwner(Actor);
         if (Actor.Body.CanGet(newPile, 0))
         {
             Actor.Body.Get(newPile);

@@ -272,6 +272,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
     public bool HasOwner => _ownerReference != null;
 
+    public ItemOwnershipReference? OwnershipReference => _ownerReference is null
+        ? null
+        : new ItemOwnershipReference(_ownerReference.FrameworkItemType, _ownerReference.Id);
+
     public bool IsOwnedBy(IFrameworkItem owner)
     {
         if (owner is ICharacter character && _ownerReference?.FrameworkItemType == "Character")
@@ -296,6 +300,24 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         _owner = null;
         _ownerReference = null;
         Changed = true;
+    }
+
+    public void CopyOwnerFrom(IGameItem source)
+    {
+        if (source.OwnershipReference is not { } reference)
+        {
+            ClearOwner();
+            return;
+        }
+
+        _owner = source.Owner;
+        _ownerReference = new FrameworkItemReference(reference.Id, reference.FrameworkItemType, Gameworld);
+        Changed = true;
+    }
+
+    public bool HasSameOwnerAs(IGameItem other)
+    {
+        return OwnershipReference == other.OwnershipReference;
     }
 
     public event PerceivableEvent OnRemovedFromLocation;
@@ -2110,6 +2132,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             return false;
         }
 
+        if (!HasSameOwnerAs(otherItem))
+        {
+            return false;
+        }
+
         if (!otherItem.IsItemType<IStackable>() && !otherItem.IsItemType<ICurrencyPile>() && !otherItem.IsItemType<ICommodity>())
         {
             // We don't need to check this item against these criteria because they are both the same prototype, so have the same component types
@@ -2363,6 +2390,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             IGameItem newItem = CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag,
                 commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
             newItem.RoomLayer = RoomLayer;
+            newItem.CopyOwnerFrom(this);
             newItem.GetItemType<ICommodity>().CopySpoilageFrom(commodity);
             commodity.Weight -= weight;
             newItem.Drop(location);
@@ -2387,6 +2415,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             IGameItem newItem = CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag,
                 commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
             newItem.RoomLayer = RoomLayer;
+            newItem.CopyOwnerFrom(this);
             newItem.GetItemType<ICommodity>().CopySpoilageFrom(commodity);
             commodity.Weight -= weight;
             newItem.Get(getter);
@@ -2415,6 +2444,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag,
                 commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
         newItem.RoomLayer = RoomLayer;
+        newItem.CopyOwnerFrom(this);
         newItem.GetItemType<ICommodity>().CopySpoilageFrom(commodity);
         return newItem;
     }
@@ -2691,6 +2721,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
         if (newItem != null)
         {
+            newItem.CopyOwnerFrom(this);
             InInventoryOf?.SwapInPlace(this, newItem);
             ContainedIn?.SwapInPlace(this, newItem);
             newItem.RoomLayer = RoomLayer;

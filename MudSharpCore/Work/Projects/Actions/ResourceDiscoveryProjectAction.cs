@@ -138,6 +138,10 @@ public class ResourceDiscoveryProjectAction : BaseAction
 		}
 
 		var item = OutputItemPrototype.CreateNew(project.CharacterOwner);
+		if (project.CharacterOwner is not null)
+		{
+			item.SetOwner(project.CharacterOwner);
+		}
 		item.RoomLayer = roomLayer;
 		Gameworld.Add(item);
 		location.Insert(item, true);

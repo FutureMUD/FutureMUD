@@ -418,6 +418,12 @@ When a live item is loaded:
 
 Each component persists its own XML definition through `GameItemComponent.Save()` and `SaveToXml()`.
 
+### Durable legal ownership
+
+Item ownership is a generic `(framework item type, id)` reference, separate from physical custody. The public `ItemOwnershipReference` value remains usable even when the owning entity is not currently resolved. Characters, clans, properties, estates, shops, and all live employment hosts can own items; clan templates cannot.
+
+Ownership is copied through stack and commodity splits, deep copies, morphs, destroyed-item replacements, and component-driven spent-item replacements. Stackable items, commodities, and currency piles may merge only when both ownership references match, including both being unowned. Currency get, put, drop, and give operations likewise select coins from one ownership group and copy that reference to the reconstructed pile rather than consolidating differently titled money. Creation factories do not infer title from their loader argument; commands and subsystems assign ownership at the acquisition boundary where the recipient or commissioning host is known.
+
 ## Update Behaviour
 ### Prototype update checks
 `GameItemProto.CheckForComponentPrototypeUpdates()` updates a prototype if any attached component prototype has moved from current to revised or obsolete.

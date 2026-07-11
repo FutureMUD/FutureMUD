@@ -11,7 +11,7 @@ public partial class Property
 
 	public IHotel Hotel => _hotel ??= HotelPersistenceStore.LoadOrCreate(this);
 
-	internal IHotel? ExistingHotel
+	public IHotel? ExistingHotel
 	{
 		get
 		{

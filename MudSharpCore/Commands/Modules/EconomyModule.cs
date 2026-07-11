@@ -7201,9 +7201,13 @@ The syntax for this command is as follows:
 	#3ownership claim <item>#0 - claims ownership of an unowned item
 	#3ownership claim deep [<possessed item>]#0 - claims everything in your possession, or one possessed item, plus all contents recursively
 	#3ownership clan <clan> <item>#0 - marks an item as clan-owned public property
+	#3ownership host <host-type> <host> <item>#0 - assigns a possessed item to an employment host you manage
+	#3ownership property <property> <item>#0 - assigns a possessed item to a property you control
 	#3ownership clear <item>#0 - clears an item's owner (admin only)
 	#3ownership set character <character> <item>#0 - sets an item's owner to a character (admin only)
-	#3ownership set clan <clan> <item>#0 - sets an item's owner to a clan (admin only)";
+	#3ownership set clan <clan> <item>#0 - sets an item's owner to a clan (admin only)
+	#3ownership set property <property> <item>#0 - sets an item's owner to a property (admin only)
+	#3ownership set host <host-type> <host> <item>#0 - sets an item's owner to an employment host (admin only)";
 
     [PlayerCommand("Ownership", "ownership", "owner", "own")]
     [RequiredCharacterState(CharacterState.Conscious)]
@@ -7230,6 +7234,12 @@ The syntax for this command is as follows:
             case "clan":
                 OwnershipClan(actor, ss);
                 return;
+            case "host":
+                OwnershipHost(actor, ss);
+                return;
+            case "property":
+                OwnershipProperty(actor, ss);
+                return;
             case "clear":
                 OwnershipClear(actor, ss);
                 return;
@@ -7241,6 +7251,81 @@ The syntax for this command is as follows:
                 return;
         }
     }
+
+	private static void OwnershipHost(ICharacter actor, StringStack ss)
+	{
+		var hostType = ss.PopSpeech();
+		var hostIdentifier = ss.PopSpeech();
+		if (string.IsNullOrWhiteSpace(hostType) || string.IsNullOrWhiteSpace(hostIdentifier))
+		{
+			actor.OutputHandler.Send("You must specify a host type and employment host.");
+			return;
+		}
+
+		var host = new EmploymentHostResolver().Resolve(actor.Gameworld, hostType, hostIdentifier, out var error);
+		if (host is null)
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		if (!host.HasManagerEmploymentAccess(actor))
+		{
+			actor.OutputHandler.Send($"You are not a manager or proprietor of {host.EmploymentHostName.ColourName()}.");
+			return;
+		}
+
+		OwnershipAssignManagedEntity(actor, ss, host);
+	}
+
+	private static void OwnershipProperty(ICharacter actor, StringStack ss)
+	{
+		var propertyIdentifier = ss.PopSpeech();
+		var property = actor.Gameworld.Properties.GetByIdOrName(propertyIdentifier);
+		if (property is null)
+		{
+			actor.OutputHandler.Send("There is no such property.");
+			return;
+		}
+
+		if (!actor.IsAdministrator() && !property.IsAuthorisedOwner(actor) && !property.IsAuthorisedLeaseHolder(actor))
+		{
+			actor.OutputHandler.Send($"You do not control {property.Name.ColourName()}.");
+			return;
+		}
+
+		OwnershipAssignManagedEntity(actor, ss, property);
+	}
+
+	private static void OwnershipAssignManagedEntity(ICharacter actor, StringStack ss, IFrameworkItem owner)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which possessed item do you want to assign?");
+			return;
+		}
+
+		var item = actor.Body.AllItems.GetFromItemListByKeyword(ss.SafeRemainingArgument, actor);
+		if (item is null)
+		{
+			actor.OutputHandler.Send("You do not possess any such item.");
+			return;
+		}
+
+		if (item.HasOwner && !item.IsOwnedBy(actor) && !item.IsOwnedBy(owner) && !actor.IsAdministrator())
+		{
+			actor.OutputHandler.Send($"{item.HowSeen(actor)} already belongs to someone else.");
+			return;
+		}
+
+		if (!ItemOwnershipService.AssignOwner(item, owner))
+		{
+			actor.OutputHandler.Send("That entity cannot own items.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You assign {item.HowSeen(actor)} to {owner.Name.ColourName()}.");
+	}
 
     private static void OwnershipSummary(ICharacter actor)
     {
@@ -7464,11 +7549,63 @@ The syntax for this command is as follows:
             case "clan":
                 OwnershipSetClan(actor, ss);
                 return;
+            case "property":
+                OwnershipSetProperty(actor, ss);
+                return;
+            case "host":
+                OwnershipSetHost(actor, ss);
+                return;
             default:
-                actor.OutputHandler.Send("You must specify either character or clan as the ownership target type.");
+                actor.OutputHandler.Send("You must specify character, clan, property, or host as the ownership target type.");
                 return;
         }
     }
+
+	private static void OwnershipSetProperty(ICharacter actor, StringStack ss)
+	{
+		var propertyIdentifier = ss.PopSpeech();
+		var property = actor.Gameworld.Properties.GetByIdOrName(propertyIdentifier);
+		if (property is null)
+		{
+			actor.OutputHandler.Send("There is no such property.");
+			return;
+		}
+
+		OwnershipSetResolvedOwner(actor, ss, property);
+	}
+
+	private static void OwnershipSetHost(ICharacter actor, StringStack ss)
+	{
+		var hostType = ss.PopSpeech();
+		var hostIdentifier = ss.PopSpeech();
+		var host = new EmploymentHostResolver().Resolve(actor.Gameworld, hostType, hostIdentifier, out var error);
+		if (host is null)
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		OwnershipSetResolvedOwner(actor, ss, host);
+	}
+
+	private static void OwnershipSetResolvedOwner(ICharacter actor, StringStack ss, IFrameworkItem owner)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which item do you want to assign?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.SafeRemainingArgument);
+		if (item is null)
+		{
+			actor.OutputHandler.Send("There is no such item here.");
+			return;
+		}
+
+		item.SetOwner(owner);
+		actor.OutputHandler.Send($"You set {owner.Name.ColourName()} as the owner of {item.HowSeen(actor)}.");
+	}
 
     private static void OwnershipSetCharacter(ICharacter actor, StringStack ss)
     {

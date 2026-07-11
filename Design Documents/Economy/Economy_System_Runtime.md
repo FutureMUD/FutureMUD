@@ -64,6 +64,7 @@ The current runtime model is:
 - `Coin` defines minted denominations
 - `CurrencyDescriptionPattern` plus `CurrencyDescriptionPatternElement` define how amounts are rendered for different display styles
 - `CurrencyGameItemComponent` and `ICurrencyPile` bridge abstract value into physical carried money
+- physical currency manipulation selects coins from one legal-owner group and preserves that durable ownership reference on the reconstructed pile
 
 Important consequences of the current implementation:
 
@@ -602,9 +603,9 @@ Verified current FutureProg integration includes:
 - built-in conversion functions for currencies and banks
 - currency utility functions for counting, loading, giving, and taking money
 - economy functions for market influences
-- item ownership functions for checking direct ownership, property trust, clan-authorised property use, and ownership mutation
+- item ownership functions for checking direct ownership, property trust, clan-authorised property use, typed shop/bank ownership, generic employment-host ownership, and ownership mutation
 - FutureProg variable registration on banks, bank accounts, bank account types, currencies, markets, market categories, shops, and merchandise
-- item variable registration for ownership metadata, including nullable character-or-clan item owners
+- item variable registration for durable `hasowner`, `ownerid`, and `ownertype` metadata; the object-valued `owner` remains available when the owner has a native FutureProg type
 - multiple permission and selection hooks in banks, jobs, shoppers, shops, taxes, and market data
 
 This matters because many higher-level world rules are intended to be configured by builders rather than hard-coded into the runtime types.
@@ -621,6 +622,7 @@ Verified current item or effect integrations include:
 - `StableTicketGameItemComponent`
 - `ItemOnDisplayInShop`
 - persisted item ownership metadata on `GameItem`, used by economy commands, estate flows, and property-oriented FutureProg rules
+- persistent `PrivatePropertyEffect` cell controllers and shared property/employment-host access decisions used by builder commands, work permits, FutureProg, and automatic trespass checks
 - `RestockingMerchandise`
 - `ShopStallNoGetEffect`
 

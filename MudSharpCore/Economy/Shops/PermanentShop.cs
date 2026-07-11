@@ -292,6 +292,7 @@ public class PermanentShop : Shop, IPermanentShop
 
         foreach (IGameItem item in newItems)
         {
+            item.SetOwner(this);
             item.AddEffect(new ItemOnDisplayInShop(item, this, merchandise));
             SortItemToStorePhysicalLocation(item, merchandise, newItemsOriginalContainers[item]);
             item.HandleEvent(EventType.ItemFinishedLoading, item);
@@ -603,6 +604,7 @@ public class PermanentShop : Shop, IPermanentShop
 
     public override void AddCurrencyToShop(IGameItem currencyPile)
     {
+        currencyPile.SetOwner(this);
         foreach (IGameItem item in TillItems)
         {
             IContainer itemContainer = item.GetItemType<IContainer>();

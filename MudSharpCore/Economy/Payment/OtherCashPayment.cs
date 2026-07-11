@@ -59,6 +59,7 @@ public class OtherCashPayment : CashPayment
         IGameItem changeItem =
             GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency,
                 Currency.FindCoinsForAmount(change, out _));
+        changeItem.SetOwner(Actor);
         foreach (IGameItem item in containers)
         {
             IContainer container = item.GetItemType<IContainer>();

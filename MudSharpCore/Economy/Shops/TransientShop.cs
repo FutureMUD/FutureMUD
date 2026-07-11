@@ -118,6 +118,7 @@ public class TransientShop : Shop, ITransientShop
 
         foreach (IGameItem item in newItems)
         {
+            item.SetOwner(this);
             item.AddEffect(new ItemOnDisplayInShop(item, this, merchandise));
             SortItemToStorePhysicalLocation(item, merchandise, null);
             item.HandleEvent(EventType.ItemFinishedLoading, item);
@@ -292,6 +293,7 @@ public class TransientShop : Shop, ITransientShop
 
     public override void AddCurrencyToShop(IGameItem currencyPile)
     {
+        currencyPile.SetOwner(this);
         if (CurrentStall is null)
         {
             return;

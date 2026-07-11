@@ -79,10 +79,13 @@ namespace MudSharp.GameItems
         IEnumerable<IGameItem> ShallowAccessibleItems(ICharacter potentialGetter);
 
         IFrameworkItem Owner { get; }
+        ItemOwnershipReference? OwnershipReference { get; }
         bool HasOwner { get; }
         bool IsOwnedBy(IFrameworkItem owner);
         void SetOwner(IFrameworkItem owner);
         void ClearOwner();
+        void CopyOwnerFrom(IGameItem source);
+        bool HasSameOwnerAs(IGameItem other);
 
         /// <summary>
         /// This returns an IPerceivable (which may be this item) that represents the perceivable "thing" that is actually in the room, for purposes of working out proximity of this item irrespestive of whether it is sitting in the room, being carried, in a container, attached to something etc.

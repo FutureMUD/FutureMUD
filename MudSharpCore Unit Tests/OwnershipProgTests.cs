@@ -27,12 +27,16 @@ public class OwnershipProgTests
     }
 
     [TestMethod]
-    public void ItemOwnerDotReference_ShouldExposeCharacterOrClanType()
+    public void ItemOwnerDotReference_ShouldExposeSupportedProgOwnerTypesAndMetadata()
     {
         FutureProgVariableCompileInfo compileInfo = ProgVariable.DotReferenceCompileInfos[ProgVariableTypes.Item];
 
         Assert.IsTrue(compileInfo.PropertyTypeMap.ContainsKey("owner"));
-        Assert.AreEqual(ProgVariableTypes.Character | ProgVariableTypes.Clan, compileInfo.PropertyTypeMap["owner"]);
+        Assert.AreEqual(ProgVariableTypes.Character | ProgVariableTypes.Clan | ProgVariableTypes.Shop |
+                        ProgVariableTypes.Bank, compileInfo.PropertyTypeMap["owner"]);
+        Assert.AreEqual(ProgVariableTypes.Boolean, compileInfo.PropertyTypeMap["hasowner"]);
+        Assert.AreEqual(ProgVariableTypes.Number, compileInfo.PropertyTypeMap["ownerid"]);
+        Assert.AreEqual(ProgVariableTypes.Text, compileInfo.PropertyTypeMap["ownertype"]);
     }
 
     [TestMethod]

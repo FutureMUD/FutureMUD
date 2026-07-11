@@ -130,6 +130,10 @@ public class CommodityOutputProjectAction : BaseAction
 		var roomLayer = ResolveRoomLayer(project, location);
 		var item = CommodityGameItemComponentProto.CreateNewCommodity(Material, Weight, Tag, UseIndirectDescription,
 			_characteristics.Select(x => (x.Key, x.Value)));
+		if (project.CharacterOwner is not null)
+		{
+			item.SetOwner(project.CharacterOwner);
+		}
 		item.RoomLayer = roomLayer;
 		Gameworld.Add(item);
 		location.Insert(item, true);

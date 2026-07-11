@@ -1233,6 +1233,7 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 		}
 
 		var pile = CurrencyGameItemComponentProto.CreateNewCurrencyPile(amount.Currency, coins);
+		pile.SetOwner(actor);
 		actor.Gameworld.Add(pile);
 		if (!actor.Body.CanGet(pile, 0))
 		{

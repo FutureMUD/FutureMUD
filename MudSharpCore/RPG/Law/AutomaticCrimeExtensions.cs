@@ -282,6 +282,18 @@ public static class AutomaticCrimeExtensions
 	private static bool WouldTrespass(IFuturemud gameworld, ICharacter actor, ICell destination, out string context)
 	{
 		context = string.Empty;
+		var privateAccess = PrivatePropertyAccessService.Evaluate(destination, actor);
+		if (privateAccess.IsPrivateProperty)
+		{
+			if (privateAccess.IsAuthorised)
+			{
+				return false;
+			}
+
+			context = PrivatePropertyTrespassContext(privateAccess, destination);
+			return CheckWouldBeACrime(gameworld, actor, CrimeTypes.Trespassing, null, null, context, destination);
+		}
+
 		var property = gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(destination));
 		if (property is null || !property.ApplyCriminalCodeInProperty || IsAuthorisedForProperty(actor, property, destination))
 		{
@@ -290,6 +302,12 @@ public static class AutomaticCrimeExtensions
 
 		context = TrespassContext(property, destination);
 		return CheckWouldBeACrime(gameworld, actor, CrimeTypes.Trespassing, null, null, context, destination);
+	}
+
+	private static string PrivatePropertyTrespassContext(PrivatePropertyAccessResult access, ICell destination)
+	{
+		var controller = access.Controller;
+		return $"automatic=private-property-entry; controller=#{controller?.Id ?? 0}; controllertype={ContextValue(controller?.FrameworkItemType ?? "missing")}; controllername={ContextValue(controller?.Name ?? "missing")}; cell=#{destination.Id}; denial={ContextValue(access.Explanation)}";
 	}
 
 	private static bool IsAuthorisedForProperty(ICharacter actor, IProperty property, ICell destination)

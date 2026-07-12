@@ -50,15 +50,23 @@ public class UnlockDoor : Effect, IEffectSubtype
             if (plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
             {
                 plan.ExecuteWholePlan();
+                var unlockedDoor = false;
                 foreach (ILock theLock in Door.Locks)
                 {
                     if (theLock.CanUnlock(Character, key))
                     {
                         theLock.Unlock(Character, key, Door.Parent, null);
+                        unlockedDoor = true;
                     }
                 }
 
                 plan.FinalisePlan();
+                if (unlockedDoor)
+                {
+                    Character.EffectsOfType<FollowingPath>()
+                             .FirstOrDefault(x => x.Exits.Any(y => ReferenceEquals(y.Exit, Exit.Exit)))
+                             ?.RecordUnlockedExit(Exit);
+                }
             }
 
             if (Door.CanOpen(Character.Body))

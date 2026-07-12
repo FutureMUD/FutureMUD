@@ -289,6 +289,13 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return;
         }
 
+		// FollowingPath closes after the whole movement has resolved. Closing here would happen while
+		// other members of the same movement may still be crossing the threshold.
+		if (ch.EffectsOfType<FollowingPath>().Any(x => x.CloseDoorsBehind))
+		{
+			return;
+		}
+
         if (CloseDoorsBehind)
         {
             FollowingPath.CloseDoorBehind(ch, exit, UseKeys);

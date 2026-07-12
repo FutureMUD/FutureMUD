@@ -389,7 +389,8 @@ public class LegalPatrolStrategyTests
 		StringAssert.Contains(pathSource, "CloseDoorsBehind = closeDoorsBehind");
 		StringAssert.Contains(pathSource, "exit.Destination == ch.Location");
 		StringAssert.Contains(pathSource, "MovementStrategyResult.Waiting");
-		StringAssert.Contains(pathSource, "CloseDoorBehind(ch, exit, UseKeys)");
+		StringAssert.Contains(pathSource, "CloseDoorBehind(ch, exit, UseKeys, mustSecure)");
+		StringAssert.Contains(pathSource, "HasOtherWalkers(ch, exit)");
 		StringAssert.Contains(pathSource, "ShallowAccessibleItems(ch)");
 		StringAssert.Contains(movementSource, "DoorGuardIsOpeningDoor(exit)");
 		StringAssert.Contains(movementSource, "WouldOpenResponseType.WillOpenIfKnock");
@@ -398,6 +399,7 @@ public class LegalPatrolStrategyTests
 		StringAssert.Contains(enforcerSource, "FollowingPath.CreateFullFriendlyPath(enforcer, path, closeDoorsBehind: true)");
 		StringAssert.Contains(patrolBaseSource, "FollowingPath.CreateFullFriendlyPath(member, path, closeDoorsBehind: true)");
 		StringAssert.Contains(unlockSource, "ShallowAccessibleItems(Character)");
+		StringAssert.Contains(unlockSource, "RecordUnlockedExit(Exit)");
 		Assert.IsFalse(unlockSource.Contains("Character.Move(Exit)", StringComparison.Ordinal));
 		StringAssert.Contains(lockSource, "new Queue<Tuple<IKey, IInventoryPlan>>(plans)");
 	}

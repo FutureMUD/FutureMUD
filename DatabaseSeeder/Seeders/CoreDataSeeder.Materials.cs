@@ -231,6 +231,11 @@ public partial class CoreDataSeeder
 			AddMaterial(name, MaterialBehaviourType.Fabric, 0.45, true, 10000, 25000, 1.0, 0.14, 0.0001, 500,
 				"Natural Fiber Fabric", "Primary Production Commodity");
 		}
+		foreach (var name in new[] { "ramie cloth", "barkcloth", "camelid wool", "raffia cloth" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Fabric, 1.5, true, 10000, 25000, 2.0, 0.14, 0.0001, 500,
+				"Natural Fiber Fabric", "Primary Production Commodity");
+		}
 
 		AddMaterial("logwood", MaterialBehaviourType.Wood, 0.75, true, 40000, 10000, 0.05, 0.14, 0.0001, 420,
 			"Hardwood", "Textile Dye", "Primary Production Commodity");

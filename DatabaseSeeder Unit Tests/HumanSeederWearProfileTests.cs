@@ -80,7 +80,16 @@ public class HumanSeederWearProfileTests
 			"Sash",
 			"Bandolier",
 			"Armlet",
-			"Toe Ring"
+			"Toe Ring",
+			"Leg Wraps",
+			"Overshoes",
+			"Head Veil",
+			"Hood",
+			"Detachable Sleeves",
+			"Skirt Support",
+			"Partlet",
+			"Long Open Robe",
+			"Breechcloth"
 		];
 
 		CollectionAssert.AreEquivalent(expectedNames, names);
@@ -125,6 +134,27 @@ public class HumanSeederWearProfileTests
 		{
 			Assert.IsTrue(generatedComponentNames.Contains(componentName),
 				$"{componentName} should be generated from an additional human wear profile.");
+		}
+	}
+
+	[TestMethod]
+	public void AdditionalHumanWearProfiles_IncludeRenaissanceClothingFoundationProfiles()
+	{
+		string[] expectedNames =
+		[
+			"Leg Wraps", "Overshoes", "Head Veil", "Hood", "Detachable Sleeves", "Skirt Support", "Partlet",
+			"Long Open Robe", "Breechcloth"
+		];
+
+		CollectionAssert.IsSubsetOf(
+			expectedNames,
+			HumanSeeder.AdditionalHumanWearProfileNamesForTesting.ToArray());
+		foreach (string name in expectedNames)
+		{
+			Assert.IsTrue(
+				HumanSeeder.AdditionalHumanWearProfileDefinitionsForTesting.Any(x =>
+					x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && x.Locations.Count > 0),
+				$"{name} should have concrete body coverage.");
 		}
 	}
 

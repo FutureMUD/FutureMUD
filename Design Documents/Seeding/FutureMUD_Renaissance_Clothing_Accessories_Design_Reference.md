@@ -4,6 +4,8 @@
 
 This document is the design authority for the Renaissance clothing branch, approximately 1400-1600 CE. It replaces the former catalogue scaffold with an implementation-oriented shared-culture catalogue. The branch owns clothing, underlayers, footwear, headwear, textile accessories, profession overlays, skins, outfits, and clothing crafts that are not supplied by the shared pre-industrial baseline.
 
+The shared dependency foundation is implemented. HumanSeeder now supplies the nine clothing-specific profiles `Leg Wraps`, `Overshoes`, `Head Veil`, `Hood`, `Detachable Sleeves`, `Skirt Support`, `Partlet`, `Long Open Robe`, and the optional `Breechcloth`, with matching `Wear_*` components. UsefulSeeder supplies the complete Renaissance Shared culture hierarchy, clothing market/function tags, and institution tags. CoreDataSeeder and AgricultureSeeder supply the four exact textile materials and their production sources. The Renaissance clothing entry point validates these profiles, materials, full tag paths, and seeded components before any catalogue item can be authored. The 395 finished prototypes, skins, outfits, and crafts remain later implementation work.
+
 The completed first-pass catalogue contains **395 unique proposed prototypes** and **436 culture placements**. Forty-one placements deliberately admit an existing shared prototype into another culture grouping rather than cloning the same silhouette. The catalogue is split into this authority document and three regional volumes:
 
 | Volume | Unique prototypes | Primary coverage |
@@ -65,44 +67,46 @@ Each row records:
 
 ## Wear-profile dependency ledger
 
-The current export already demonstrates `Wear_Shirt`, `Wear_Shorts`, `Wear_Bra`, `Wear_Waist`, and `Wear_Sash`. Other exact stock profiles must be resolved against `Seeded_Item_Components.json` during implementation. The catalogue uses semantic profile ids so that no guessed component name becomes an accidental dependency.
+The maintained component export now contains every profile needed by this foundation. The catalogue retains semantic profile ids so future item rows select the appropriate exact component deliberately.
 
 | Profile id | Required coverage/layering | Resolution status |
 | --- | --- | --- |
 | `WP-UNDER-WAIST` | drawers or loincloth beneath lower-body clothing | map to `Wear_Shorts` where coverage is correct |
 | `WP-BREAST-WRAP` | wrapped breast support beneath upper layers | map to `Wear_Bra` |
 | `WP-SHIRT` | short or long upper-body underlayer | map to `Wear_Shirt` where hem coverage is correct |
-| `WP-LONG-UNDERLAYER` | ankle- or calf-length under-robe/shift | **blocking audit**; add a long-underlayer profile if no exact stock component exists |
-| `WP-VEST` | sleeveless torso layer above a shirt and below a coat | **blocking audit** |
-| `WP-JACKET` | waist/hip-length sleeved outer torso layer | **blocking audit** |
-| `WP-ROBE-CLOSED` | long closed or pull-over robe covering torso and legs | **new profile likely required** |
-| `WP-ROBE-OPEN` | long front-opening robe/coat layered over clothing | **new profile likely required** |
-| `WP-TROUSERS` | joined lower-body garment covering both legs | **blocking audit** |
-| `WP-WRAP-SKIRT` | wrapped lower-body cloth with overlap | **new profile likely required** |
-| `WP-SKIRT` | sewn or gathered lower-body garment | **blocking audit** |
-| `WP-STOCKINGS` | paired close legwear extending above the knee | **new paired-hose profile likely required** |
-| `WP-LEG-WRAPS` | paired lower-leg wraps or gaiters | **new profile likely required** |
-| `WP-CLOAK` | neck/shoulder-fastened outer wrap covering back and arms | **blocking audit** |
-| `WP-SHOULDER` | mantle, shawl, or shoulder cloth that does not occupy coat layering | **new profile likely required** |
-| `WP-FOOT-SANDAL` | open footwear | **blocking audit** |
-| `WP-FOOT-SHOE` | closed low footwear | **blocking audit** |
-| `WP-FOOT-BOOT` | closed footwear extending above ankle | **blocking audit** |
-| `WP-OVERSHOE` | footwear worn over shoes or footwraps | **new layering profile required** |
-| `WP-HEAD-CAP` | close or soft cap | **blocking audit** |
-| `WP-HEAD-HAT` | brimmed or structured hat | **blocking audit** |
-| `WP-HEADWRAP` | wound cloth occupying the headwear layer | **new profile likely required** |
-| `WP-HEAD-VEIL` | veil draped from head without full face coverage | **new profile likely required** |
-| `WP-HOOD` | separate hood covering head and neck | **blocking audit** |
-| `WP-FACE-VEIL` | textile face covering compatible with headwear | **new layering profile required** |
-| `WP-FACE-MASK` | rigid or textile mask occupying face layer | **blocking audit** |
-| `WP-HANDS` | paired gloves or mittens | **blocking audit** |
-| `WP-NECK` | kerchief, collar, or neck cloth | **blocking audit** |
-| `WP-SLEEVES` | detachable paired sleeves layered with bodice/doublet | **new layering profile required** |
+| `WP-LONG-UNDERLAYER` | ankle- or calf-length under-robe/shift | use `Wear_Gown`, `Wear_Dress`, or `Wear_Long_Skirt` according to the authored silhouette |
+| `WP-VEST` | sleeveless torso layer above a shirt and below a coat | use `Wear_Vest` |
+| `WP-JACKET` | waist/hip-length sleeved outer torso layer | use `Wear_Jacket` |
+| `WP-ROBE-CLOSED` | long closed or pull-over robe covering torso and legs | use `Wear_Robe` or the appropriate gown component |
+| `WP-ROBE-OPEN` | long front-opening robe/coat layered over clothing | use `Wear_Long_Open_Robe` |
+| `WP-TROUSERS` | joined lower-body garment covering both legs | use `Wear_Trousers` or `Wear_Chausses` where separately fitted hose is intended |
+| `WP-WRAP-SKIRT` | wrapped lower-body cloth with overlap | use `Wear_Skirt` or `Wear_Long_Skirt` according to length |
+| `WP-SKIRT` | sewn or gathered lower-body garment | use `Wear_Skirt` or `Wear_Long_Skirt` |
+| `WP-STOCKINGS` | paired close legwear extending above the knee | use `Wear_Stockings` |
+| `WP-LEG-WRAPS` | paired lower-leg wraps or gaiters | use `Wear_Leg_Wraps` |
+| `WP-CLOAK` | neck/shoulder-fastened outer wrap covering back and arms | use `Wear_Cloak_(Open)` or `Wear_Cloak_(Closed)` |
+| `WP-SHOULDER` | mantle, shawl, or shoulder cloth that does not occupy coat layering | use `Wear_Mantle` |
+| `WP-FOOT-SANDAL` | open footwear | use `Wear_Sandals` |
+| `WP-FOOT-SHOE` | closed low footwear | use `Wear_Shoes` |
+| `WP-FOOT-BOOT` | closed footwear extending above ankle | use `Wear_Boots` |
+| `WP-OVERSHOE` | footwear worn over shoes or footwraps | use `Wear_Overshoes` |
+| `WP-HEAD-CAP` | close or soft cap | use `Wear_Hat` |
+| `WP-HEAD-HAT` | brimmed or structured hat | use `Wear_Hat` |
+| `WP-HEADWRAP` | wound cloth occupying the headwear layer | use `Wear_Turban` |
+| `WP-HEAD-VEIL` | veil draped from head without full face coverage | use `Wear_Head_Veil` |
+| `WP-HOOD` | separate hood covering head and neck | use `Wear_Hood` |
+| `WP-FACE-VEIL` | textile face covering compatible with headwear | use `Wear_Veil` |
+| `WP-FACE-MASK` | rigid or textile mask occupying face layer | use `Wear_Mask` |
+| `WP-HANDS` | paired gloves or mittens | use `Wear_Gloves` |
+| `WP-NECK` | kerchief, collar, or neck cloth | use `Wear_Scarf` |
+| `WP-SLEEVES` | detachable paired sleeves layered with bodice/doublet | use `Wear_Detachable_Sleeves` |
 | `WP-HANDHELD` | fan or similar carried accessory | use `Holdable`; no wearable component |
 
-### New component work called out by this pass
+### Implemented component foundation
 
-At minimum, implementation must supply exact wearable definitions for any unresolved stock gaps above. The forms most unlikely to map cleanly to existing generic wear components are:
+The exact wearable definitions called out by the dependency audit are now seeded and exported. `Wear_Skirt_Support`, `Wear_Partlet`, and `Wear_Breechcloth` are also available for regional catalogue rows that require those constructions.
+
+Together with the reused stock components, the resolved foundation covers:
 
 - long closed robes and gowns;
 - open robes and long coats;
@@ -114,34 +118,30 @@ At minimum, implementation must supply exact wearable definitions for any unreso
 - detachable sleeves;
 - overshoes worn above another footwear layer.
 
-These are wearable/layering components, not new item-component *types*. No new engine component type is proposed by this catalogue.
+These remain wearable/layering components, not new item-component *types*. No new engine component type was required.
 
 ## Material dependency ledger
 
 ### Live exact materials used directly
 
-`linen`, `wool`, `cotton`, `silk`, `leather`, `felt`, `canvas`, `broadcloth`, `velvet`, `satin`, `lace`, `taffeta`, `ribbon`, `calico`, and `chintz` are live exact materials and cover the implementation-critical majority of the catalogue.
+`linen`, `wool`, `cotton`, `silk`, `leather`, `felt`, `canvas`, `broadcloth`, `velvet`, `satin`, `lace`, `taffeta`, `ribbon`, `calico`, `chintz`, `ramie cloth`, `barkcloth`, `camelid wool`, and `raffia cloth` are live exact materials. Agriculture outputs the last four through Ramie, Breadfruit, Raffia Palms, and Llama/Alpaca definitions respectively.
 
-### Proposed new exact materials
+### Deliberately deferred material abstractions
 
 | Proposed material | Priority | Why a separate material is useful | Fallback before seeding |
 | --- | --- | --- | --- |
 | `hemp cloth` | high | common hard-wearing fibre with different craft and trade chain from linen | `linen` or `canvas`, with reduced cultural specificity |
-| `ramie cloth` | high | East and South-east Asian bast-fibre textile distinct from cotton/linen | fine `linen` |
-| `barkcloth` | high | materially distinct beaten-bark clothing in tropical and Pacific-facing contexts | none without misrepresentation |
-| `camelid wool` | high | Andean fibre source and supply chain distinct from sheep wool | `wool`, but loses production identity |
-| `raffia cloth` | medium | woven palm fibre used in several African dress traditions | coarse `linen` only as a temporary abstraction |
 | `brocade` | medium | patterned supplementary-weft luxury textile with distinct cost/craft behaviour | `silk` or `satin` skin |
 | `damask` | medium | reversible figured textile used across several court markets | `silk` or `linen` skin |
 | `silk gauze` | medium | open, translucent silk behaviour needed for veils and court layers | `silk` |
 | `featherwork` | medium | manufactured feather mosaic/panel composite used as a primary visible surface | `feather` if live, otherwise descriptive trim only |
 | `beadwork` | low | composite surface for regalia and contact goods | keep beads as descriptive trim |
 
-The first implementation wave can proceed with live materials except for prototypes explicitly marked `barkcloth`, `camelid wool`, or `raffia cloth`; those should fail closed rather than silently change material culture.
+The deferred rows above are intentionally represented by existing exact materials or descriptive decoration until a later production-chain pass justifies distinct mechanics. They are not clothing-seeder blockers.
 
 ## Tag additions
 
-`Era / Renaissance Era` is live. The culture-family paths below are not maintained stock and must be seeded idempotently before catalogue rows depend on them:
+`Era / Renaissance Era` and all culture-family paths below are now live maintained stock and are seeded idempotently before catalogue rows depend on them:
 
 ```text
 Culture / Renaissance / Shared / Western European Renaissance

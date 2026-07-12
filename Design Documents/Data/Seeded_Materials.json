@@ -356,6 +356,12 @@
                  ]
     },
     {
+        "Material Name":  "barkcloth",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
         "Material Name":  "barley",
         "Tags":  [
                      "Materials / Natural Materials / Agricultural Crop / Food Crop"
@@ -816,6 +822,12 @@
         "Material Name":  "camel",
         "Tags":  [
                      "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "camelid wool",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
                  ]
     },
     {
@@ -4058,9 +4070,21 @@
                  ]
     },
     {
+        "Material Name":  "raffia cloth",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
         "Material Name":  "ramie",
         "Tags":  [
                      "Materials / Natural Materials / Agricultural Crop / Fiber Crop"
+                 ]
+    },
+    {
+        "Material Name":  "ramie cloth",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
                  ]
     },
     {

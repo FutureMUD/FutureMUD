@@ -500,6 +500,20 @@ public class AgricultureSeederTests
 
 		foreach (var (cropName, materialName) in new[]
 		         {
+			         ("Ramie", "ramie cloth"),
+			         ("Raffia Palms", "raffia cloth"),
+			         ("Breadfruit", "barkcloth")
+		         })
+		{
+			Assert.IsTrue(CropDefinition(context, cropName)
+			              .Element("Outputs")!
+			              .Elements("Commodity")
+			              .Any(x => x.Attribute("material")!.Value == materialName),
+				$"{cropName} should provide production support for {materialName}.");
+		}
+
+		foreach (var (cropName, materialName) in new[]
+		         {
 			         ("Tepary Beans", "tepary bean"),
 			         ("Enset", "enset starch"),
 			         ("Egusi Melons", "egusi seed"),
@@ -552,8 +566,8 @@ public class AgricultureSeederTests
 		AssertHerdOutput(context, "Goat Herd", "milk", "Raw Milk");
 		AssertHerdOutput(context, "Horse Herd", "milk", "Raw Milk");
 		AssertHerdOutput(context, "Camel Herd", "wool", "Raw Textile Fibre");
-		AssertHerdOutput(context, "Llama Herd", "wool", "Raw Textile Fibre");
-		AssertHerdOutput(context, "Alpaca Herd", "wool", "Raw Textile Fibre");
+		AssertHerdOutput(context, "Llama Herd", "camelid wool", "Raw Textile Fibre");
+		AssertHerdOutput(context, "Alpaca Herd", "camelid wool", "Raw Textile Fibre");
 		AssertHerdOutput(context, "Reindeer Herd", "milk", "Raw Milk");
 		AssertHerdOutput(context, "Chicken Flock", "egg", "Egg Product");
 		AssertHerdOutput(context, "Duck Flock", "egg", "Egg Product");

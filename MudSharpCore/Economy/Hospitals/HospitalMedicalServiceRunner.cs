@@ -2406,7 +2406,10 @@ public static class HospitalMedicalServiceRunner
 
 				patient.Body.RemoveItem(item, null!, employee);
 				item.RoomLayer = patient.RoomLayer;
-				destination.Insert(item);
+				if (destination.GameItems.All(x => x.Id != item.Id))
+				{
+					destination.Insert(item, true);
+				}
 				if (request is not null)
 				{
 					HospitalPatientFlow.StagePatientBelongings(request, patient, destination, [item]);

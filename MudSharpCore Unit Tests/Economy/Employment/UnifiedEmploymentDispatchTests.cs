@@ -198,7 +198,7 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
-	public void HospitalSupplyPreparation_DetectsImplicitBloodDonationContainerStock()
+	public void HospitalSupplyPreparation_StagesBloodSuppliesWhenConfiguredDripIsAlreadyInTheatre()
 	{
 		var unitManager = new Mock<MudSharp.Framework.Units.IUnitManager>();
 		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
@@ -210,8 +210,8 @@ public class UnifiedEmploymentDispatchTests
 		var cannula = CannulaItem(786, "cannula", bodyProto.Object);
 		var drip = DripItem(787, "iv drip");
 
-		var supplyRoom = PhysicalCell(781, "supply room", [bag.Object, cannula.Object, drip.Object]);
-		var theatre = PhysicalCell(782, "operating theatre", []);
+		var supplyRoom = PhysicalCell(781, "supply room", [bag.Object, cannula.Object]);
+		var theatre = PhysicalCell(782, "operating theatre", [drip.Object]);
 		theatre.SetupGet(x => x.Characters).Returns([]);
 		var hospital = new Mock<IHospital>();
 		hospital.SetupGet(x => x.Id).Returns(783);
@@ -222,7 +222,9 @@ public class UnifiedEmploymentDispatchTests
 
 		var service = new Mock<IHospitalService>();
 		service.SetupGet(x => x.ServiceType).Returns(HospitalServiceType.BloodDonation);
-		service.SetupGet(x => x.RequiredEquipment).Returns([]);
+		service.SetupGet(x => x.RequiredEquipment).Returns([
+			new HospitalServiceEquipmentRequirement(1, EmploymentItemSelector.ForPrototype(787))
+		]);
 		service.SetupGet(x => x.BloodVolumeLitres).Returns(0.5);
 
 		var body = new Mock<MudSharp.Body.IBody>();
@@ -245,7 +247,6 @@ public class UnifiedEmploymentDispatchTests
 		supplyRoom.SetupGet(x => x.GameItems).Returns([]);
 		Assert.IsFalse(HospitalSupplyPreparationActionStep.HasPreparatorySupplyWork(hospital.Object, request.Object));
 	}
-
 	[TestMethod]
 	public void HospitalSupplyPreparation_CompletesWhenTreatmentSuppliesAlreadyStagedInTheatre()
 	{

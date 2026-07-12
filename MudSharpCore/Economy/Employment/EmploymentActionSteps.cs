@@ -4632,12 +4632,9 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			return false;
 		}
 
-		if (request.Service.RequiredEquipment.Any())
-		{
-			return !TreatmentLocationAlreadyHasConfiguredSupplies(hospital, request);
-		}
-
-		if (!HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(request.Service) &&
+		var needsConfiguredSupplies = request.Service.RequiredEquipment.Any() &&
+		                             !TreatmentLocationAlreadyHasConfiguredSupplies(hospital, request);
+		if (!needsConfiguredSupplies && !HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(request.Service) &&
 		    !RequiresImplicitBloodSupply(request))
 		{
 			return false;
@@ -4648,26 +4645,29 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		                             !TreatmentLocationAlreadyHasImplicitTreatmentSupplies(hospital, request, treatmentTypes);
 		var needsBloodSupplies = RequiresImplicitBloodSupply(request) &&
 		                         !TreatmentLocationAlreadyHasImplicitBloodSupplies(hospital, request);
-		if (!needsTreatmentSupplies && !needsBloodSupplies)
+		if (!needsConfiguredSupplies && !needsTreatmentSupplies && !needsBloodSupplies)
 		{
 			return false;
 		}
 
-		return
-		       hospital.SupplyRooms.Any(room =>
-		       {
-			       var available = (room.GameItems ?? Enumerable.Empty<IGameItem>())
-			                       .SelectMany(DeepItemsOrSelf)
-			                       .DistinctBy(x => x.Id)
-			                       .ToList();
-			       return needsTreatmentSupplies &&
-			              available.Any(item => item.GetItemType<ITreatment>() is { } treatment &&
-			                                    treatmentTypes.Any(treatment.IsTreatmentType)) ||
-			              needsBloodSupplies &&
-			              TryFindImplicitBloodSupplyItems(available, request, out _);
-		       });
+		var stagedItems = TreatmentLocationCandidates(hospital, request)
+			.SelectMany(theatre => theatre.GameItems ?? Enumerable.Empty<IGameItem>())
+			.SelectMany(DeepItemsOrSelf)
+			.DistinctBy(x => x.Id)
+			.ToList();
+		return hospital.SupplyRooms.Any(room =>
+		{
+			var available = (room.GameItems ?? Enumerable.Empty<IGameItem>())
+				.SelectMany(DeepItemsOrSelf)
+				.Concat(stagedItems)
+				.DistinctBy(x => x.Id)
+				.ToList();
+			return (!needsConfiguredSupplies || RequirementsSatisfiedByItems(available, request.Service.RequiredEquipment)) &&
+			       (!needsTreatmentSupplies || treatmentTypes.All(type => available.Any(item =>
+				       item.GetItemType<ITreatment>() is { } treatment && treatment.IsTreatmentType(type)))) &&
+			       (!needsBloodSupplies || TryFindImplicitBloodSupplyItems(available, request, out _));
+		});
 	}
-
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
 		if (actor is null)
@@ -4929,38 +4929,18 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 	private bool TreatmentLocationAlreadyPrepared(IEmploymentTaskContext context, ICharacter actor, ICell theatre)
 	{
 		var available = TreatmentLocationSupplyItems(context, theatre).ToList();
-		if (Request.Service.RequiredEquipment.Any())
-		{
-			foreach (var requirement in Request.Service.RequiredEquipment)
-			{
-				var matched = available
-				              .Where(x => MatchesSelector(context, actor, x, requirement.Selector))
-				              .Take(requirement.Quantity)
-				              .ToList();
-				if (matched.Count < requirement.Quantity)
-				{
-					return false;
-				}
-
-				foreach (var item in matched)
-				{
-					available.RemoveAll(x => x.Id == item.Id);
-				}
-			}
-
-			return true;
-		}
-
+		var configuredSuppliesReady = !Request.Service.RequiredEquipment.Any() ||
+		                              RequirementsSatisfiedByItems(available, Request.Service.RequiredEquipment);
 		var needsBloodSupply = RequiresImplicitBloodSupply(Request);
 		if (!HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(Request.Service) && !needsBloodSupply)
 		{
-			return false;
+			return configuredSuppliesReady;
 		}
 
 		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(Request.Service).ToList();
 		if (!treatmentTypes.Any() && !needsBloodSupply)
 		{
-			return false;
+			return configuredSuppliesReady;
 		}
 
 		var treatmentSuppliesReady = true;
@@ -4976,9 +4956,8 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 		var bloodSuppliesReady = !needsBloodSupply ||
 		                         TryFindImplicitBloodSupplyItems(available, Request, out _);
-		return treatmentSuppliesReady && bloodSuppliesReady;
+		return configuredSuppliesReady && treatmentSuppliesReady && bloodSuppliesReady;
 	}
-
 	private static bool TreatmentLocationAlreadyHasConfiguredSupplies(IHospital hospital,
 		IHospitalServiceRequest request)
 	{
@@ -5069,7 +5048,8 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 	private bool TryFindSupplyBundle(IEmploymentTaskContext context, ICharacter actor, out ICell source,
 		out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
 	{
-		if (!Request.Service.RequiredEquipment.Any())
+		if (!Request.Service.RequiredEquipment.Any() ||
+		    RequiresImplicitBloodSupply(Request) && TreatmentLocationAlreadyHasConfiguredSupplies(Hospital, Request))
 		{
 			return TryFindImplicitTreatmentSupplyBundle(context, out source, out items, out reason);
 		}
@@ -5110,21 +5090,32 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 				}
 			}
 
+			if (!failed && RequiresImplicitBloodSupply(Request))
+			{
+				if (!TryFindImplicitBloodSupplyItems(available, Request, out var bloodItems))
+				{
+					failed = true;
+				}
+				else
+				{
+					selected.AddRange(bloodItems.Select(x => (x, room)));
+				}
+			}
+
 			if (failed)
 			{
 				continue;
 			}
 
 			source = room;
-			items = selected;
+			items = selected.DistinctBy(x => x.Item.Id).ToList();
 			reason = string.Empty;
 			return true;
 		}
 
-		reason = "No single hospital supply room contains all required equipment for this service.";
+		reason = "No single hospital supply room contains all required equipment and IV blood supplies for this service.";
 		return false;
 	}
-
 	private bool TryFindImplicitTreatmentSupplyBundle(IEmploymentTaskContext context, out ICell source,
 		out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
 	{
@@ -5132,12 +5123,21 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		items = [];
 		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(Request.Service);
 		var needsBloodSupply = RequiresImplicitBloodSupply(Request);
+		var stagedItems = TreatmentLocationCandidates(Hospital, Request)
+			.SelectMany(theatre => TreatmentLocationSupplyItems(context, theatre))
+			.DistinctBy(x => x.Id)
+			.ToList();
 		foreach (var room in Hospital.SupplyRooms)
 		{
-			var available = context.AvailableItems(room)
+			var sourceItems = context.AvailableItems(room)
 			                       .SelectMany(DeepItemsOrSelf)
 			                       .DistinctBy(x => x.Id)
 			                       .ToList();
+			var sourceItemIds = sourceItems.Select(x => x.Id).ToHashSet();
+			var available = sourceItems
+			                .Concat(stagedItems)
+			                .DistinctBy(x => x.Id)
+			                .ToList();
 			var selected = new List<(IGameItem Item, ICell Source)>();
 			var used = new HashSet<long>();
 			foreach (var treatmentType in treatmentTypes)
@@ -5151,18 +5151,18 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 					continue;
 				}
 
-				selected.Add((item, room));
+				if (sourceItemIds.Contains(item.Id))
+				{
+					selected.Add((item, room));
+				}
 				used.Add(item.Id);
 			}
 
 			if (needsBloodSupply)
 			{
-				var remaining = available
-				                .Where(x => !used.Contains(x.Id))
-				                .ToList();
-				if (TryFindImplicitBloodSupplyItems(remaining, Request, out var bloodItems))
+				if (TryFindImplicitBloodSupplyItems(available, Request, out var bloodItems))
 				{
-					selected.AddRange(bloodItems.Select(x => (x, room)));
+					selected.AddRange(bloodItems.Where(x => sourceItemIds.Contains(x.Id)).Select(x => (x, room)));
 					foreach (var item in bloodItems)
 					{
 						used.Add(item.Id);
@@ -5181,7 +5181,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			}
 
 			source = room;
-			items = selected;
+			items = selected.DistinctBy(x => x.Item.Id).ToList();
 			reason = string.Empty;
 			return true;
 		}
@@ -5189,7 +5189,6 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		reason = "No hospital supply room has treatment supplies useful for this service.";
 		return false;
 	}
-
 	private static bool RequiresImplicitBloodSupply(IHospitalServiceRequest request)
 	{
 		return request.Service.ServiceType switch

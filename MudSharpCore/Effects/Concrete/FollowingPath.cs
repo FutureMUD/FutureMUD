@@ -20,6 +20,8 @@ namespace MudSharp.Effects.Concrete;
 
 public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 {
+    private readonly HashSet<IExit> _unlockedExits = new();
+
     public Queue<ICellExit> Exits { get; set; }
 
     public FollowingPath(ICharacter owner, IEnumerable<ICellExit> exits) : base(owner, null)
@@ -94,7 +96,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		        Exits.Dequeue();
 		        if (CloseDoorsBehind)
 		        {
-			        CloseDoorBehind(ch, exit, UseKeys);
+			        CloseDoorBehind(ch, exit, UseKeys, ConsumeUnlockedExit(exit));
 		        }
 
 		        if (Exits.Count == 0 && RemoveWhenExitsEmpty)
@@ -161,9 +163,10 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 			return;
 		}
 
+		var mustSecure = ConsumeUnlockedExit(exit);
 		if (ch.Location == exit.Destination)
 		{
-			CloseDoorBehind(ch, exit, UseKeys);
+			CloseDoorBehind(ch, exit, UseKeys, mustSecure);
 			return;
 		}
 
@@ -175,19 +178,61 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		{
 			if (ch.Location == exit.Destination)
 			{
-				CloseDoorBehind(ch, exit, UseKeys);
+				CloseDoorBehind(ch, exit, UseKeys, mustSecure);
 			}
 		}, "closing a door behind them"), delay);
 	}
 
-	public static void CloseDoorBehind(ICharacter ch, ICellExit exit, bool useKeys)
+	public void RecordUnlockedExit(ICellExit exit)
 	{
-		if (exit?.Exit.Door?.IsOpen != true)
+		if (exit?.Exit is not null)
+		{
+			_unlockedExits.Add(exit.Exit);
+		}
+	}
+
+	private bool ConsumeUnlockedExit(ICellExit exit)
+	{
+		return exit?.Exit is not null && _unlockedExits.Remove(exit.Exit);
+	}
+
+	internal static bool HasOtherWalkers(ICharacter ch, ICellExit exit)
+	{
+		if (ch is null || exit?.Exit is null)
+		{
+			return false;
+		}
+
+		return exit.Origin.Characters
+		           .Concat(exit.Destination.Characters)
+		           .Where(x => !ch.SamePhysicalInstance(x))
+		           .Select(x => x.Movement)
+		           .Where(x => x is not null && !x.Cancelled)
+		           .Any(x => ReferenceEquals(x.Exit.Exit, exit.Exit));
+	}
+
+	public static void CloseDoorBehind(ICharacter ch, ICellExit exit, bool useKeys, bool mustSecure = false)
+	{
+		var door = exit?.Exit.Door;
+		if (door is null)
 		{
 			return;
 		}
 
-		ch.Body.Close(exit.Exit.Door, null, null);
+		if (door.IsOpen)
+		{
+			if (!mustSecure && HasOtherWalkers(ch, exit))
+			{
+				return;
+			}
+
+			ch.Body.Close(door, null, null);
+		}
+		else if (!mustSecure)
+		{
+			return;
+		}
+
 		if (!useKeys)
 		{
 			return;
@@ -198,7 +243,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		             .SelectNotNull(x => x.GetItemType<IKey>())
 		             .ToList();
 		var usableKeys = keys
-		                 .Where(x => exit.Exit.Door.Locks.Any(y => !y.IsLocked && y.CanLock(ch, x)))
+		                 .Where(x => door.Locks.Any(y => !y.IsLocked && y.CanLock(ch, x)))
 		                 .Select(x => Tuple.Create(x, GetHoldPlanForItem(ch, x.Parent)))
 		                 .Where(x => x.Item2.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
 		                 .ToList();
@@ -207,7 +252,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 			return;
 		}
 
-		LockDoor effect = new(ch, exit.Exit.Door, usableKeys);
+		LockDoor effect = new(ch, door, usableKeys);
 		ch.AddEffect(effect);
 		ch.RemoveEffect(effect, true);
 	}

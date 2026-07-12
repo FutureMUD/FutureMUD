@@ -440,6 +440,8 @@ It centralizes common movement concerns such as:
 - movement delays
 - location filtering
 
+When `CloseDoorsBehind` is enabled, shared `FollowingPath` movement leaves an open door alone while another character is actively moving through the same exit. This considers traffic in either direction and other members of a coordinated movement. If the NPC had to unlock the door for that traversal, security takes precedence: it still closes the door and, when key use is enabled, locks it again behind itself.
+
 ### `PathingAIWithProgTargetsBase`
 Use this when pathing destinations should come from content configuration instead of hard-coded logic.
 

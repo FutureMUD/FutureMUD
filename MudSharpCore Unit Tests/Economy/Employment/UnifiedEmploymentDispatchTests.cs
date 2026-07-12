@@ -1110,7 +1110,52 @@ public class UnifiedEmploymentDispatchTests
 		body.Verify(x => x.RemoveItem(sleeve.Object, null!, employee.Object), Times.Once);
 		body.Verify(x => x.RemoveItem(shirt.Object, It.IsAny<MudSharp.PerceptionEngine.IEmote>(), employee.Object),
 			Times.Never);
-		theatre.Verify(x => x.Insert(sleeve.Object, false), Times.Once);
+		theatre.Verify(x => x.Insert(sleeve.Object, true), Times.Once);
+	}
+
+	[TestMethod]
+	public void HospitalMedicalServiceRunner_DoesNotReinsertClothingAlreadyPlacedByRemoval()
+	{
+		var targetPart = new Mock<MudSharp.Body.IWear>();
+		targetPart.Setup(x => x.FullDescription()).Returns("left hand");
+		var targetProfile = new Mock<MudSharp.GameItems.Inventory.IWearlocProfile>();
+		targetProfile.SetupGet(x => x.PreventsRemoval).Returns(true);
+		var gloves = new Mock<IGameItem>();
+		gloves.SetupGet(x => x.Id).Returns(9182);
+		gloves.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
+		var wornItems = new List<IGameItem> { gloves.Object };
+		var theatreItems = new List<IGameItem>();
+		var theatre = PhysicalCell(9183, "operating theatre", theatreItems);
+		var body = new Mock<MudSharp.Body.IBody>();
+		body.SetupGet(x => x.WornItemsFullInfo).Returns(() =>
+		[
+			(gloves.Object, targetPart.Object, targetProfile.Object)
+		]);
+		body.SetupGet(x => x.DirectWornItems).Returns(() => wornItems);
+		body.SetupGet(x => x.ExposedBodyparts).Returns(() =>
+			wornItems.Contains(gloves.Object) ? [] : [targetPart.Object]);
+		body.SetupGet(x => x.VisiblySeveredBodyparts).Returns(Array.Empty<MudSharp.Body.IBodypart>());
+		body.Setup(x => x.CanBeRemoved(gloves.Object, It.IsAny<ICharacter>())).Returns(true);
+		body.Setup(x => x.RemoveItem(gloves.Object, It.IsAny<MudSharp.PerceptionEngine.IEmote>(),
+				It.IsAny<ICharacter>()))
+		    .Callback<IGameItem, MudSharp.PerceptionEngine.IEmote, ICharacter>((item, _, _) =>
+		    {
+			    wornItems.Remove(item);
+			    theatreItems.Add(item);
+		    });
+		var patient = Character(9184, "Patient");
+		patient.SetupGet(x => x.Body).Returns(body.Object);
+		patient.SetupGet(x => x.Location).Returns(theatre.Object);
+		patient.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var employee = Character(9185, "Doctor");
+		employee.SetupGet(x => x.Location).Returns(theatre.Object);
+
+		var result = HospitalMedicalServiceRunner.TryExposeSurgicalBodypart(employee.Object, patient.Object,
+			targetPart.Object, out var reason);
+
+		Assert.IsTrue(result, reason);
+		CollectionAssert.AreEqual(new[] { gloves.Object }, theatreItems);
+		theatre.Verify(x => x.Insert(gloves.Object, It.IsAny<bool>()), Times.Never);
 	}
 
 	[TestMethod]

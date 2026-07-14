@@ -2,6 +2,7 @@ using MudSharp.Character;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Units;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -26,7 +27,7 @@ public class SpitAttack : RangedNaturalAttackBase, ISpitAttack
     protected override void LoadFromXElement(XElement root)
     {
         Liquid = Gameworld.Liquids.Get(long.Parse(root.Element("Liquid")?.Value ?? "0"));
-        MaximumQuantity = double.Parse(root.Element("MaximumQuantity")?.Value ?? "0");
+        MaximumQuantity = double.Parse(root.Element("MaximumQuantity")?.Value ?? "0", CultureInfo.InvariantCulture);
     }
 
     protected override void SaveToXml(XElement root)
@@ -79,9 +80,9 @@ public class SpitAttack : RangedNaturalAttackBase, ISpitAttack
     private bool BuildingCommandAmount(ICharacter actor, StringStack command)
     {
         double amount = Gameworld.UnitManager.GetBaseUnits(command.SafeRemainingArgument, UnitType.FluidVolume, out bool success);
-        if (!success)
+        if (!success || amount <= 0.0)
         {
-            actor.OutputHandler.Send("That is not a valid fluid volume.");
+            actor.OutputHandler.Send("You must enter a positive fluid volume.");
             return false;
         }
 

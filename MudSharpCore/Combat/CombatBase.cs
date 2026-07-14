@@ -157,10 +157,18 @@ public abstract class CombatBase : ICombat
         }
 
         int maxRangedDistance = character.Body.WieldedItems
-                                         .SelectNotNull(y => y.GetItemType<IRangedWeapon>())
-                                         .Select(y => (int)y.WeaponType.DefaultRangeInRooms)
-                                         .DefaultIfEmpty(0)
-                                         .Max();
+										 .SelectNotNull(y => y.GetItemType<IRangedWeapon>())
+										 .Select(y => (int)y.WeaponType.DefaultRangeInRooms)
+										 .Concat(character.Race
+											 .UsableNaturalWeaponAttacks(character, who, false,
+												 BuiltInCombatMoveType.RangedNaturalAttack,
+												 BuiltInCombatMoveType.BreathWeaponAttack,
+												 BuiltInCombatMoveType.SpitNaturalAttack,
+												 BuiltInCombatMoveType.ExplosiveNaturalAttack,
+												 BuiltInCombatMoveType.BuffetingNaturalAttack)
+											 .Select(x => x.Attack.GetAttackType<IRangedNaturalAttack>()?.RangeInRooms ?? 0))
+										 .DefaultIfEmpty(0)
+										 .Max();
 
         int distance = character.DistanceBetween(who, 5);
         if (distance == -1)
@@ -390,11 +398,14 @@ public abstract class CombatBase : ICombat
             return;
         }
 
-        perceiver.RemoveAllEffects(x => x.IsEffectType<IdleCombatant>());
-        ICombatMove targetResponse = move.CharacterTargets.FirstOrDefault()?.ResponseToMove(move, perceiver);
-        FireOnUseProg(move);
-        CombatMoveResult result = move.ResolveMove(targetResponse);
-        HandleCombatResult(perceiver, move, targetResponse, result);
+		perceiver.RemoveAllEffects(x => x.IsEffectType<IdleCombatant>());
+		ICombatMove targetResponse = move.CharacterTargets.FirstOrDefault()?.ResponseToMove(move, perceiver);
+		CombatMoveResult result = move.ResolveMove(targetResponse);
+		if (!ReferenceEquals(result, CombatMoveResult.Irrelevant))
+		{
+			FireOnUseProg(move);
+		}
+		HandleCombatResult(perceiver, move, targetResponse, result);
 
         //Bloody weapons, fists, bullets, blood splash, etc.
         (move as WeaponAttackMove)?.ResolveBloodSpray(result);

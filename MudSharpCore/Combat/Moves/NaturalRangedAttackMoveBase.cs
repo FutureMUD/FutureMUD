@@ -4,6 +4,7 @@ using MudSharp.Combat.ScatterStrategies;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
@@ -46,23 +47,45 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
     public override Difficulty CheckDifficulty => Attack.Profile.BaseAttackerDifficulty;
     public override double StaminaCost => NaturalAttackMove.MoveStaminaCost(Assailant, Attack);
 
-    protected abstract CheckType RangedCheck { get; }
+	protected abstract CheckType RangedCheck { get; }
 
-    public override CheckType Check => RangedCheck;
+	public override CheckType Check => RangedCheck;
+
+	internal static bool TargetIsInRange(ICharacter assailant, IPerceivable target, int rangeInRooms)
+	{
+		if (assailant.Location == null || target?.Location == null)
+		{
+			return false;
+		}
+
+		if (assailant.Location == target.Location)
+		{
+			return true;
+		}
+
+		if (rangeInRooms <= 0)
+		{
+			return false;
+		}
+
+		List<ICellExit> path = assailant
+			.PathBetween(target, (uint)rangeInRooms, false, false, true)?
+			.ToList() ?? [];
+		return path.Count > 0 && path.Count <= rangeInRooms;
+	}
 
     protected virtual IEnumerable<IWound> ApplySuccessfulHit(IPerceiver target, CheckOutcome attackOutcome,
         OpposedOutcomeDegree degree, IBodypart bodypart)
     {
-        if (target is not ICharacter tch)
+        if (target is not IHaveWounds targetWithWounds)
         {
             return Enumerable.Empty<IWound>();
         }
 
-        Tuple<IDamage, IDamage> damages = GetDamagePlusSelfDamage(tch, Bodypart, bodypart, null, attackOutcome, Attack.Profile.DamageType,
+        var targetMaterial = (target as IGameItem)?.Material as ISolid;
+        Tuple<IDamage, IDamage> damages = GetDamagePlusSelfDamage(target, Bodypart, bodypart, targetMaterial, attackOutcome, Attack.Profile.DamageType,
             Attack.Profile.BaseAngleOfIncidence, NaturalAttack, degree);
-        List<IWound> wounds = tch.PassiveSufferDamage(damages.Item1).ToList();
-        Assailant.PassiveSufferDamage(damages.Item2).ProcessPassiveWounds();
-        return wounds;
+		return targetWithWounds.PassiveSufferDamage(damages.Item1).ToList();
     }
 
     protected virtual CombatMoveResult HandleMiss(IPerceiver originalTarget, CheckOutcome attackOutcome)
@@ -74,7 +97,12 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
                                                  .GetScatterTarget(Assailant, originalTarget, path);
         if (scatter?.Target is not null)
         {
-            wounds.AddRange(ApplySuccessfulHit(scatter.Target, attackOutcome, OpposedOutcomeDegree.None, null));
+			IBodypart scatterBodypart = scatter.Target is ICharacter scatterCharacter
+				? scatterCharacter.Body.RandomBodyPartGeometry(Attack.Orientation, Attack.Alignment,
+					Assailant.GetFacingFor(scatterCharacter, true), false)
+				: null;
+			wounds.AddRange(ApplySuccessfulHit(scatter.Target, attackOutcome, OpposedOutcomeDegree.None,
+				scatterBodypart));
             HandleScatterImpact(scatter, attackOutcome);
         }
         else if (scatter is not null)
@@ -157,29 +185,56 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
         };
     }
 
-    public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
-    {
-        ICharacter target = CharacterTargets.FirstOrDefault();
-        if (target is null)
-        {
-            return CombatMoveResult.Irrelevant;
-        }
+	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
+	{
+		IPerceiver target = Targets.FirstOrDefault();
+		if (target is null || !TargetIsInRange(Assailant, target, RangedAttack.RangeInRooms))
+		{
+			return CombatMoveResult.Irrelevant;
+		}
 
-        defenderMove ??= new HelplessDefenseMove { Assailant = target };
+		if (target is not ICharacter characterTarget)
+		{
+			CheckOutcome attackOutcome = Gameworld.GetCheck(Check)
+				.Check(Assailant, CheckDifficulty, null, target, Assailant.OffensiveAdvantage);
+			Assailant.OffensiveAdvantage = 0;
+			Assailant.OutputHandler.Handle(new EmoteOutput(
+				new Emote(BuildAttackEmote(target, attackOutcome.Outcome).Fullstop(), Assailant, Assailant, target),
+				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+			if (attackOutcome.IsFail())
+			{
+				return HandleMiss(target, attackOutcome);
+			}
+
+			List<IWound> itemWounds = ApplySuccessfulHit(target, attackOutcome, OpposedOutcomeDegree.Total, null)
+				.ToList();
+			itemWounds.ProcessPassiveWounds();
+			return new CombatMoveResult
+			{
+				MoveWasSuccessful = true,
+				RecoveryDifficulty = RecoveryDifficultySuccess,
+				AttackerOutcome = attackOutcome.Outcome,
+				DefenderOutcome = Outcome.NotTested,
+				WoundsCaused = itemWounds
+			};
+		}
+
+		ICharacter targetCharacter = characterTarget;
+        defenderMove ??= new HelplessDefenseMove { Assailant = targetCharacter };
         Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
-                                  .CheckAgainstAllDifficulties(Assailant, CheckDifficulty, null, target,
+                                  .CheckAgainstAllDifficulties(Assailant, CheckDifficulty, null, targetCharacter,
                                       Assailant.OffensiveAdvantage);
         Assailant.OffensiveAdvantage = 0;
         DetermineTargetBodypart(defenderMove, attackRoll[CheckDifficulty]);
 
-        string attackEmote = BuildAttackEmote(target, attackRoll[CheckDifficulty].Outcome);
+        string attackEmote = BuildAttackEmote(targetCharacter, attackRoll[CheckDifficulty].Outcome);
         Assailant.OutputHandler.Handle(new EmoteOutput(
-            new Emote(attackEmote.Fullstop(), Assailant, Assailant, target),
+            new Emote(attackEmote.Fullstop(), Assailant, Assailant, targetCharacter),
             style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 
         if (attackRoll[CheckDifficulty].IsFail())
         {
-            return HandleMiss(target, attackRoll[CheckDifficulty]);
+            return HandleMiss(targetCharacter, attackRoll[CheckDifficulty]);
         }
 
         switch (defenderMove)
@@ -187,7 +242,7 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
             case HelplessDefenseMove:
             case TooExhaustedMove:
                 {
-                    List<IWound> wounds = ApplySuccessfulHit(target, attackRoll[CheckDifficulty], OpposedOutcomeDegree.Total, TargetBodypart)
+                    List<IWound> wounds = ApplySuccessfulHit(targetCharacter, attackRoll[CheckDifficulty], OpposedOutcomeDegree.Total, TargetBodypart)
                                  .ToList();
                     wounds.ProcessPassiveWounds();
                     return new CombatMoveResult
@@ -200,12 +255,12 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
                     };
                 }
             case DodgeRangeMove dodge:
-                return ResolveDodgeMove(target, dodge, attackRoll[CheckDifficulty]);
+                return ResolveDodgeMove(targetCharacter, dodge, attackRoll[CheckDifficulty]);
             case BlockMove block:
-                return ResolveBlockMove(target, block, attackRoll[CheckDifficulty]);
+                return ResolveBlockMove(targetCharacter, block, attackRoll[CheckDifficulty]);
             default:
                 {
-                    List<IWound> wounds = ApplySuccessfulHit(target, attackRoll[CheckDifficulty], OpposedOutcomeDegree.Moderate, TargetBodypart)
+                    List<IWound> wounds = ApplySuccessfulHit(targetCharacter, attackRoll[CheckDifficulty], OpposedOutcomeDegree.Moderate, TargetBodypart)
                                  .ToList();
                     wounds.ProcessPassiveWounds();
                     return new CombatMoveResult

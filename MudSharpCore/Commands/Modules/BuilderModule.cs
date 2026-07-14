@@ -2585,6 +2585,11 @@ The syntax for this command is as follows:
 	#3liquid set boil <temp>#0 - sets the boil temperature of this liquid#B*#0
 	#3liquid set ignite <temp>#0 - sets the ignite temperature of this liquid#B*#0
 	#3liquid set ignite none#0 - clears the ignite temperature of this liquid#B*#0
+	#3liquid set reaction add <tag>#0 - adds a surface reaction for a material tag
+	#3liquid set reaction <#> delete#0 - deletes a surface reaction
+	#3liquid set reaction <#> tag <tag>#0 - toggles a surface reaction target tag
+	#3liquid set reaction <#> type <damage type>#0 - sets its damage type
+	#3liquid set reaction <#> damage|pain|stun <amount per litre>#0 - sets its wound amounts
 
 #9Note#0: Liquid properties marked with a #B*#0 above are currently not used by the engine but will see inclusion in the future.";
 

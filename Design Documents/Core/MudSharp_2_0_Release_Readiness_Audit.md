@@ -1,30 +1,31 @@
 # MudSharp 2.0 Release-Readiness Audit
 
-Audit date: 14 July 2026  
-Release baseline: `a68f25871ce238e8e9331c0e33d7b585d174c0e4` (`Engine version update to v1.55.0`, 1 March 2026)  
-Audited head: `9babc35e55cf296e324e414ac52c9b883b3238f7` (`master`, 12 July 2026)  
+Audit date: 15 July 2026<br>
+Release baseline: `a68f25871ce238e8e9331c0e33d7b585d174c0e4` (`Engine version update to v1.55.0`, 1 March 2026)<br>
+Audited head: `90ed55992c52860125050945fd356d02c1c62629` (`master`, 14 July 2026), with closure evidence from merged PR #478 (`17a82b4e7b93129959902c375edcb1e28c9fc406`, merge commit `cc5c535eac1c56dc30dca38535ada2437ad84c58`) and the Vehicle/Employment closure worktrees<br>
 Primary scope: `MudSharpCore` runtime features, commands, builders, and core unit tests
 
 ## Executive Verdict
 
-**Overall recommendation: No-Go for an all-inclusive 2.0.0 release at this snapshot.**
+**Overall recommendation: Conditional Go for the scoped 2.0.0 release.**
 
-The engine has a strong automated baseline: the audited head passed all 1,668 core unit tests with no failures or skips, and the completed employment-closure worktree passed the default repository unit suite with 2,601 tests, including 1,686 core tests. Five large feature families now satisfy the audit's full readiness bar, and no reviewed subsystem needs architectural replacement. After resolving the Vehicle V1 boundary and completing the Unified Employment V1 contract, one advertised feature family still contains reachable unfinished behavior:
+The engine has a strong automated baseline: the original audited head passed all 1,668 core unit tests with no failures or skips, merged PR #478 passed 1,678 core tests, and the completed employment-closure worktree passed the default repository unit suite with 2,601 tests, including 1,686 core tests. Six large feature families now satisfy the audit's full readiness bar, no reviewed subsystem needs architectural replacement, and the three implementation-boundary blockers identified by this audit are closed:
 
-1. **Natural ranged weapons**: the shipped blowgun and sling components throw `NotImplementedException` from `GetDamage`, so their primary firing path is incomplete.
-Unified employment completed its explicit V1 closure on 14 July 2026: the supported host/action/payment matrix, durable provenance and grants, earnings/payables, consent, goal policy, recovery, capability providers, action/host policy, and acceptance/security coverage are release-ready. Its parent-organisation/accounting and richer native-workflow roadmap is explicitly post-V1.
+1. **Natural ranged weapons:** merged PR #478 completed the ammunition-owned sling/blowgun damage path, natural-ranged runtime, elemental interactions, builders, repeat-install seeding, documentation, and focused regression coverage.
+2. **Vehicles:** the V1 boundary is the complete manual cell-exit vehicle slice; route, coordinate, and moving-interior movement are explicitly post-V1.
+3. **Unified employment:** the V1 host/action/payment matrix, durable provenance and grants, earnings/payables, consent, goal policy, recovery, capability providers, action/host policy, and acceptance/security coverage are release-ready. Parent-organisation/accounting and richer native workflows are explicitly post-V1.
 
-The release can move from **No-Go** to **Conditional Go** by completing or explicitly excluding the remaining natural-ranged-weapon scope. Vehicle route, coordinate, and moving-interior work is explicitly post-V1, while the employment parent-organisation/accounting and richer native-workflow roadmap is also explicitly post-V1. Documentation sign-off and integration testing should then be completed for the systems listed below.
+The release is therefore at **Conditional Go**. Final sign-off remains contingent on the documentation closures, integration campaigns, release-candidate soak, and packaging/version work listed below; these are release-process gates rather than unresolved advertised implementation boundaries.
 
 ### Status Totals
 
 | Status | Count | Release meaning |
 | --- | ---: | --- |
-| Fully Ready | 5 | Suitable for the 2.0 stable feature set |
+| Fully Ready | 6 | Suitable for the 2.0 stable feature set |
 | Minor Polish Required | 3 | Releasable; low-risk follow-up remains |
 | Documentation Required | 7 | Runtime appears releasable, but the documentation does not yet provide a clean v1.0 sign-off |
 | Testing Required | 7 | Implementation is credible, but live/integration maturity is not sufficiently demonstrated |
-| Further Implementation Required | 1 | Must be completed, narrowed, or excluded from the stable 2.0 promise |
+| Further Implementation Required | 0 | No reviewed feature currently requires implementation or scope exclusion before entering release-candidate validation |
 | Major Changes Required | 0 | No reviewed system requires replacement or a fundamental redesign |
 
 ## Audit Method
@@ -40,7 +41,7 @@ The audit used a hybrid unfinished-code boundary:
 - legacy TODOs were counted only when reachable from, or directly adjacent to, the changed feature;
 - defensive factory exceptions, abstract support types, and unreferenced legacy classes were not treated as blockers.
 
-Examples deliberately excluded from blocker status include the abstract `MagicalMeleeAttackPower`, defensive unknown-type factory exceptions, and the unreferenced legacy `MedicalExaminationProposal`. By contrast, the blowgun and sling `GetDamage` methods are direct runtime contract implementations and are release blockers.
+Examples deliberately excluded from blocker status include the abstract `MagicalMeleeAttackPower`, defensive unknown-type factory exceptions, and the unreferenced legacy `MedicalExaminationProposal`. The natural-ranged closeout confirmed that sling and blowgun damage is owned by the loaded `Ammunition` component; PR #478 removed the redundant component-local `GetDamage` methods rather than creating a competing damage contract.
 
 ## Major Change Catalogue
 
@@ -50,7 +51,7 @@ Examples deliberately excluded from blocker status include the abstract `Magical
 | Drugs and dependence | Expanded drug effects, dependence/offline behavior, clone metadata fix | **Testing Required** | Limited | No |
 | Body forms, simultaneous instances, and possession | Form provisioning, multi-body V1, backups, projection, clone and possession controls | **Fully Ready** | Strong | No |
 | Combat settings and strategies | Default combat settings, strategy audit, auxiliary/subdue behavior | **Minor Polish Required** | Strong | No |
-| Natural ranged weapons and weapon poison | Sling/blowgun components, poison configuration and delivery | **Further Implementation Required** | Weak for ranged damage | **Yes** |
+| Natural ranged weapons and weapon poison | Sling/blowgun components, five natural-ranged attack families, elemental contact, poison configuration and delivery | **Fully Ready** | Strong | No |
 | Combat arenas | Scoring, surrender, ratings, betting, security and builder refinements | **Documentation Required** | Strong, including pre-1.55 | No |
 | Magic and psionics | Multiple spell/power phases, trace, coercion, illusion, wards and information effects | **Documentation Required** | Strong | No |
 | Planes, corporeality, portals, and zero gravity | Planar presence, transient/durable portals, zero-gravity movement and anchors | **Testing Required** | Moderate | No |
@@ -114,13 +115,14 @@ Examples deliberately excluded from blocker status include the abstract `Magical
 
 ### 5. Natural Ranged Weapons and Weapon Poison
 
-**Status: Further Implementation Required. Release blocker: Yes.**
+**Status: Fully Ready. Release blocker: No.**
 
-- **Change and evidence:** Sling and blowgun support was added in `83f1602c`; poison configuration and integration have focused tests. The ranged feature has not had a corrective implementation round that closes its primary gap.
-- **Implementation gap:** `BlowgunGameItemComponent.GetDamage` and `SlingGameItemComponent.GetDamage` directly throw `NotImplementedException`. Their load-error switches also throw for unexpected feasibility states. Current ranged tests largely inspect source/configuration and do not execute damage resolution.
-- **Documentation gap:** `Natural_Ranged_Attacks_Implementation_Plan.md` still contains remaining follow-up and no release recommendation.
-- **Recommended work:** Implement and behavior-test damage/ammunition resolution, or unregister/remove the unfinished components from the stable 2.0 feature set. Weapon poison can ship independently if its supported weapon matrix is documented.
-- **Remaining test plan:** Cover load, ready, aim, fire, damage, ammunition recovery, poison transfer, hidden fire, breath/mouth restrictions, prone/position restrictions, stamina drain, all inventory-plan failure states, and NPC use.
+- **Change and evidence:** Sling and blowgun support originated in `83f1602c`; merged PR #478 (`17a82b4e`, merge `cc5c535e`) audited the complete weapon/ammunition pipeline and natural-ranged/elemental vertical slice, fixed runtime defects, completed builders and repeat-install seeding, and added focused regressions.
+- **Implementation:** Sling and blowgun shots delegate damage, lodging/recovery, and poison delivery to the generic loaded `Ammunition` component. Redundant dead `GetDamage` methods and throwing load-failure fallbacks were removed. Natural attacks now enforce authored range, support eligible item targets, use ranged penetration without melee self-damage, preserve primary area targets, deduplicate victims, select bodyparts for scatter impacts, and safely bound breath swoops. `OnUseAttackProg` fires after a committed resolution.
+- **Elemental and builder scope:** Fire profiles have complete builder editing and liquid-tag extinguishing on bodies/items, including saturated surfaces. Liquid surface reactions have builder add/delete/tag/type/damage/pain/stun workflows. Seeded animal acid has a skin-targeting reaction and seeded dragonfire is water-extinguishable.
+- **Seeder and content:** Fresh and repeat-install paths ensure the named sling/blowgun skills and stock weapon/ammunition definitions plus llama spit, acid spit, dragonfire breath, wing buffet, tail spike, and bombardier spray with representative race/template assignments.
+- **Documentation:** `Natural_Ranged_Attacks_Design.md` and `Natural_Ranged_Attacks_Implementation_Plan.md` now declare the supported slice **Ready for Release** and separate optional post-release extensions.
+- **Remaining test plan:** No feature-specific automated release blocker remains. Release-candidate live smoke should still cover load/ready/aim/fire/recovery, poison transfer, hidden blowgun use, breath/mouth restrictions, NPC natural-ranged selection, multi-room scatter, acid contact, ignition/extinguishing, and rebooted authored attack data.
 
 ### 6. Combat Arenas
 
@@ -316,7 +318,7 @@ The following are important 2.0 changes but do not need separate system ratings:
 
 ## Ordered Pre-Release Work
 
-1. **Resolve natural ranged weapons:** implement and test blowgun/sling damage or remove those components from the stable feature catalogue.
+1. **Natural ranged weapons — complete:** merged PR #478 closes sling/blowgun ammunition damage ownership, natural-ranged runtime, builders, seeding, documentation, and focused regression coverage.
 2. **Vehicle V1 boundary — resolved:** ship manual cell-exit `ItemScale` and `RoomContainer` vehicles, access/cargo/modules/readiness/damage, hitching, and towing. Route, coordinate, and moving-interior movement are post-V1.
 3. **Employment V1 — complete:** the builder-authorable payment/authority/action boundary, durable grant/payroll semantics, acceptance matrix, documentation, migrations, and full automated verification were closed on 14 July 2026.
 4. **Publish V1 sign-off sections:** arenas, magic, mounts/stables, economy, hospitals, law, and ownership need explicit supported-scope/known-limitations sections.
@@ -326,7 +328,7 @@ The following are important 2.0 changes but do not need separate system ratings:
 
 ## Verification Evidence
 
-Commands executed against the audited head and the two completed closure worktrees:
+Commands executed against the original audited head and the three completed closure slices:
 
 ```powershell
 dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510
@@ -339,6 +341,14 @@ Results:
 - `MudSharpCore` build: **passed**, 0 warnings, 0 errors.
 - `MudSharpCore Unit Tests`: **passed**, 1,668 passed, 0 failed, 0 skipped.
 - No live MUD, external AI-provider, or long-duration soak test was claimed by this audit.
+
+Natural-ranged closeout verification from merged PR #478 on 14 July 2026:
+
+- targeted `MudSharpCore` build: **passed**, 0 warnings, 0 errors;
+- targeted `DatabaseSeeder` build: **passed**;
+- `MudSharpCore Unit Tests`: **passed**, 1,678 passed, 0 failed, 0 skipped;
+- filtered `DatabaseSeeder Unit Tests`: **passed**, 512 passed, 0 failed, 0 skipped; the PR recorded the then-stale blank-database snapshot as unrelated, and the later employment closure refreshed that maintained snapshot;
+- no live MUD or release-candidate soak is claimed by the natural-ranged closeout.
 
 Vehicle V1 closeout verification on 14 July 2026:
 
@@ -356,4 +366,4 @@ Employment V1 closeout verification on 14 July 2026:
 
 ## Scope Boundary
 
-DatabaseSeeder features and content completeness were not catalogued or rated. Supporting library, EF model, migration, and seeder references were used only where necessary to determine whether a MudSharpCore runtime path had persistence or an operational entry point. Existing legacy TODOs outside the changed feature paths did not lower readiness ratings.
+DatabaseSeeder features and content completeness were not catalogued or rated as a whole. Supporting library, EF model, migration, and seeder references were used where necessary to determine whether a MudSharpCore runtime path had persistence or an operational entry point; PR #478's natural-ranged stock and repeat-install seeding was explicitly reviewed because it is part of that feature's release contract. Existing legacy TODOs outside the changed feature paths did not lower readiness ratings.

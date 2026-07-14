@@ -96,12 +96,14 @@ public class SwooperStrategy : RangeBaseStrategy
             INaturalAttack breathAttack = combatant.Race
                                        .UsableNaturalWeaponAttacks(combatant, target, false,
                                            BuiltInCombatMoveType.BreathWeaponAttack)
-                                       .Where(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x.Attack) > 0.0)
-                                       .Where(x => combatant.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(combatant, x.Attack)))
-                                       .GetWeightedRandom(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x.Attack));
-            if (breathAttack is not null && (combatant.Location != target.Location || combatant.RoomLayer != target.RoomLayer))
-            {
-                return new BreathSwoopAttackMove(combatant, breathAttack, target);
+									   .Where(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x.Attack) > 0.0)
+									   .Where(x => combatant.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(combatant, x.Attack)))
+									   .GetWeightedRandom(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x.Attack));
+			if (breathAttack is not null &&
+				(combatant.Location != target.Location || combatant.RoomLayer != target.RoomLayer) &&
+				NaturalRangedAttackMoveBase.TargetIsInRange(combatant, target, 1))
+			{
+				return new BreathSwoopAttackMove(combatant, breathAttack, target);
             }
         }
 

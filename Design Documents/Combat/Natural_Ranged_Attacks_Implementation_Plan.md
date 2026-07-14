@@ -1,97 +1,87 @@
 # Natural Ranged Attacks Implementation Plan
 
+Status: **Ready for Release**
+Release review completed: 14 July 2026
+
 ## Completed Structure
 
-### 1. Shared Library Surfaces
+### 1. Shared Library and Persistence
 
 Implemented:
 
-- new ranged-natural attack interfaces
-- `IRangedAttackMove`
-- `IFireProfile`
-- `ILiquidSurfaceReaction`
-- new `BuiltInCombatMoveType` values
-- new `CheckType` values
-- new `IWeaponAttack.OnUseAttackProg`
+- ranged-natural attack, move, fire-profile, and liquid-reaction interfaces
+- `BuiltInCombatMoveType` and `CheckType` values for all five attack families and breath swoops
+- `IWeaponAttack.OnUseAttackProg`, fired after a committed move resolves
+- `WeaponAttacks.OnUseProgId`, `Gases.OxidationFactor`, and `Liquids.SurfaceReactionInfo`
+- migration `20260316112529_NaturalRangedAttacksAndElementalContact` and the matching EF snapshot
 
-### 2. Persistence
+### 2. Combat Definitions and Moves
 
 Implemented:
 
-- `WeaponAttacks.OnUseProgId`
-- `Gases.OxidationFactor`
-- `Liquids.SurfaceReactionInfo`
+- `RangedNaturalAttack`, `BreathWeaponAttack`, `SpitAttack`, `ExplosiveRangedAttack`, and `BuffetingRangedAttack`
+- the corresponding combat moves plus `BreathSwoopAttackMove`
+- factory, ranged-defense, strategy, and combat-distance integration
+- bounded range enforcement and scatter behavior for character and item targets
+- distinct area victims with the primary target always included
+- ranged penetration checks, correct damage/pain/stun expressions, and no melee-style self-damage on launched attacks
+- safe one-cell swoop ingress/egress and the dedicated `BreathWeaponSwoop` check
 
-### 3. Core Combat Definitions
-
-Implemented:
-
-- `RangedNaturalAttackBase`
-- `RangedNaturalAttack`
-- `BreathWeaponAttack`
-- `SpitAttack`
-- `ExplosiveRangedAttack`
-- `BuffetingRangedAttack`
-
-### 4. Combat Move Runtime
+### 3. Elemental Runtime and Builders
 
 Implemented:
 
-- `RangedNaturalAttackMove`
-- `SpitAttackMove`
-- `BreathWeaponAttackMove`
-- `ExplosiveNaturalAttackMove`
-- `BuffetingRangedAttackMove`
-- `BreathSwoopAttackMove`
+- profile-driven `OnFire` damage, heat, oxidation, spread, and scheduled ticks
+- liquid-tag extinguishing on both bodies and items, including already-saturated surfaces
+- tag-driven surface reactions through the shared surface-liquid state
+- complete breath fire-profile editing for name, damage type, damage/pain/stun, heat, spread, oxidation, self-oxidising behavior, interval, and extinguishing tags
+- liquid surface-reaction add/delete/tag/type/damage/pain/stun commands and builder display
+- invariant XML number parsing and positive/bounded builder validation
 
-Integrated:
+### 4. Seeder Content
 
-- `CombatMoveFactory`
-- ranged-defense selection for ranged-natural attacks
-- `SwooperStrategy`
-- `CombatStrategyFactory`
+Implemented for both fresh and repeat-install paths:
 
-### 5. Elemental Runtime
+- named `Sling` and `Blowgun` skills and check mappings
+- sling, staff sling, blowgun, ammunition, and component-prototype stock definitions
+- `Llama Spit`, `Acid Spit`, `Dragonfire Breath`, `Wing Buffet`, `Tail Spike`, and `Bombardier Spray`
+- race/template assignments covering spit, breath, buffeting, ballistic, and explosive examples
+- corrosive animal-acid surface metadata targeting animal skin
+- water-tag extinguishing metadata for seeded dragonfire
+- idempotent repair of missing natural-ranged catalogue and elemental payload metadata
 
-Implemented:
+### 5. Sling and Blowgun Runtime
 
-- `FireProfile`
-- `OnFire`
-- `LiquidSurfaceReaction`
-- `LiquidSurfaceReactionHelper`
-- liquid contamination ticking hooks for corrosive reactions
+Implemented and release-audited:
 
-### 6. Seeder / Check Defaults
+- load, ready, unready, aim, and fire through the shared ranged-weapon runtime
+- damage construction through the generic loaded `Ammunition` component and its `AmmunitionType`; the weapon components do not own a second damage path
+- ammunition recovery and poison transfer through the normal ammunition-hit pipeline
+- sling readied stamina drain and hand/position restrictions
+- blowgun breath, mouth, covering, and hidden-fire restrictions
+- non-throwing load failure diagnostics for unexpected feasibility states
 
-Implemented:
+## Verification
 
-- default check-template routing for the new ranged-natural checks in:
-  - `SkillSeeder`
-  - `SkillPackageSeeder`
+Focused automated coverage now exercises:
 
-## Remaining Follow-Up
+- range and primary-target rules
+- breath and explosive victim selection and deduplication
+- fire-profile persistence and safe tick intervals
+- extinguishing tags and liquid-reaction persistence
+- ammunition-driven sling/blowgun damage ownership
+- item-target natural ranged attacks
+- resolved `OnUseAttackProg` ordering
+- fresh/repeat seeder catalogue and acid/dragonfire metadata
 
-The following work remains desirable to fully round out the release:
+The release-candidate verification commands and final counts are recorded in
+`Design Documents/Core/MudSharp_2_0_Release_Readiness_Audit.md`.
 
-1. Add dedicated database migrations and update the EF snapshot.
-2. Add richer builders for editing:
-   - fire-profile payloads
-   - liquid surface reactions
-3. Expand the combat seeder, mythical animal seeder, and animal seeder with representative new attacks.
-4. Add explicit skill definitions and starter package mappings for worlds that want named skills behind the new checks.
-5. Add broader automated test coverage for:
-   - ranged-natural scatter
-   - breath area effects
-   - fire spread/extinguish behavior
-   - corrosive liquid reactions
+## Post-Release Extensions
 
-## Recommended Next Sequence
+The following are optional extensions rather than release gaps:
 
-1. Add migration `NaturalRangedAttacksAndElementalContact`.
-2. Seed at least one breath creature, one spit creature, and one buffeting creature.
-3. Add unit tests around:
-   - `OnUseAttackProg`
-   - `OnFire`
-   - `LiquidSurfaceReactionHelper`
-   - `SwooperStrategy`
-4. Add combat message defaults for the new move types.
+- additional creature-specific natural-ranged profiles and combat prose
+- richer cone/line geometry beyond the current bounded nearby-victim model
+- more specialised liquid chemistry and fire-suppression interactions
+- campaign-specific named skills or check remapping beyond the stock definitions

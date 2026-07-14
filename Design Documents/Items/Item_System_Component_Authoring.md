@@ -142,7 +142,9 @@ Ranged weapon component families should reuse `IRangedWeapon` and `IRangedWeapon
 
 Current builder-facing ranged component loaders include `bow`, `crossbow`, `firearm`, `sling`, and `blowgun`. `sling` and `blowgun` both store only their selected ranged weapon type in component XML, with `sling` also storing a readied stamina drain tick value. Their live components load, ready, unready, and fire through the existing ranged-weapon command surface. Slings use the shared `ReadiedRangedWeaponDrainStamina` path while readied, as bows do; the component decides whether readied use requires a free hand.
 
-Do not create bespoke ammunition components for ordinary projectile variants. Sling bullets and blowgun darts use the generic `Ammunition` component and rely on the `AmmunitionType` row's `RangedWeaponTypes` and `SpecificType` fields to match the weapon's `RangedWeaponType` and specific ammunition grade. Poisoned or drugged darts should be layered later through the existing wound, liquid, or drug systems instead of changing the base ammunition contract.
+Do not add `GetDamage` or another damage-expression path to sling or blowgun components. Their `Fire` methods consume the loaded ammunition and delegate to `IAmmo.Fire`; `AmmunitionGameItemComponent` constructs the actual damage from the selected ammunition and ranged-weapon type. Load failures must return a player-facing feasibility reason rather than throw, including for an unexpected or newly-added inventory-plan state.
+
+Do not create bespoke ammunition components for ordinary projectile variants. Sling bullets and blowgun darts use the generic `Ammunition` component and rely on the `AmmunitionType` row's `RangedWeaponTypes` and `SpecificType` fields to match the weapon's `RangedWeaponType` and specific ammunition grade. Poisoned or drugged darts layer through the existing `WeaponPoisonCoating` and ammunition wound-delivery systems instead of changing the base ammunition contract.
 
 ### Writing and inscribing components
 

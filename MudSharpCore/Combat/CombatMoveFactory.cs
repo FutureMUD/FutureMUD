@@ -87,7 +87,21 @@ public static class CombatMoveFactory
 
     public static ICombatMove CreateNaturalWeaponAttack(ICharacter assailant, INaturalAttack attack, IGameItem target)
     {
-        throw new ApplicationException(
-            $"Invalid Move Type in CombatMoveFactory.CreateNaturalWeaponAttack: {attack.Attack.MoveType.Describe()}");
+		switch (attack.Attack.MoveType)
+		{
+			case BuiltInCombatMoveType.RangedNaturalAttack:
+				return new RangedNaturalAttackMove(assailant, attack, target);
+			case BuiltInCombatMoveType.BreathWeaponAttack:
+				return new BreathWeaponAttackMove(assailant, attack, target);
+			case BuiltInCombatMoveType.SpitNaturalAttack:
+				return new SpitAttackMove(assailant, attack, target);
+			case BuiltInCombatMoveType.ExplosiveNaturalAttack:
+				return new ExplosiveNaturalAttackMove(assailant, attack, target);
+			case BuiltInCombatMoveType.BuffetingNaturalAttack:
+				return new BuffetingRangedAttackMove(assailant, attack, target);
+		}
+
+		throw new ApplicationException(
+			$"Invalid Move Type in CombatMoveFactory.CreateNaturalWeaponAttack: {attack.Attack.MoveType.Describe()}");
     }
 }

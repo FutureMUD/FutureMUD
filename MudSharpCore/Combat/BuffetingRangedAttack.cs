@@ -1,5 +1,6 @@
 using MudSharp.Character;
 using MudSharp.Framework;
+using System.Globalization;
 using System.Text;
 using System.Xml.Linq;
 
@@ -25,8 +26,8 @@ public class BuffetingRangedAttack : RangedNaturalAttackBase, IBuffetingRangedAt
     protected override void LoadFromXElement(XElement root)
     {
         MaximumPushDistance = int.Parse(root.Element("MaximumPushDistance")?.Value ?? "1");
-        OffensiveAdvantagePerDegree = double.Parse(root.Element("OffensiveAdvantagePerDegree")?.Value ?? "0");
-        DefensiveAdvantagePerDegree = double.Parse(root.Element("DefensiveAdvantagePerDegree")?.Value ?? "0");
+        OffensiveAdvantagePerDegree = double.Parse(root.Element("OffensiveAdvantagePerDegree")?.Value ?? "0", CultureInfo.InvariantCulture);
+        DefensiveAdvantagePerDegree = double.Parse(root.Element("DefensiveAdvantagePerDegree")?.Value ?? "0", CultureInfo.InvariantCulture);
         InflictsDamage = bool.Parse(root.Element("InflictsDamage")?.Value ?? "false");
     }
 
@@ -80,7 +81,7 @@ public class BuffetingRangedAttack : RangedNaturalAttackBase, IBuffetingRangedAt
 
     private bool BuildingCommandOffAdv(ICharacter actor, StringStack command)
     {
-        if (!double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!double.TryParse(command.SafeRemainingArgument, actor, out double value))
         {
             actor.OutputHandler.Send("You must enter a number.");
             return false;
@@ -94,7 +95,7 @@ public class BuffetingRangedAttack : RangedNaturalAttackBase, IBuffetingRangedAt
 
     private bool BuildingCommandDefAdv(ICharacter actor, StringStack command)
     {
-        if (!double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!double.TryParse(command.SafeRemainingArgument, actor, out double value))
         {
             actor.OutputHandler.Send("You must enter a number.");
             return false;

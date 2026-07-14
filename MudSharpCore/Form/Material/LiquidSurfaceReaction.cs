@@ -2,6 +2,7 @@ using MudSharp.Combat;
 using MudSharp.Framework;
 using MudSharp.Health;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -31,9 +32,9 @@ public class LiquidSurfaceReaction : ILiquidSurfaceReaction
     {
         _gameworld = gameworld;
         DamageType = (DamageType)int.Parse(root.Attribute("DamageType")?.Value ?? "0");
-        DamagePerTick = double.Parse(root.Attribute("DamagePerTick")?.Value ?? "0");
-        PainPerTick = double.Parse(root.Attribute("PainPerTick")?.Value ?? "0");
-        StunPerTick = double.Parse(root.Attribute("StunPerTick")?.Value ?? "0");
+		DamagePerTick = double.Parse(root.Attribute("DamagePerTick")?.Value ?? "0", CultureInfo.InvariantCulture);
+		PainPerTick = double.Parse(root.Attribute("PainPerTick")?.Value ?? "0", CultureInfo.InvariantCulture);
+		StunPerTick = double.Parse(root.Attribute("StunPerTick")?.Value ?? "0", CultureInfo.InvariantCulture);
         foreach (XElement tag in root.Element("Tags")?.Elements("Tag") ?? Enumerable.Empty<XElement>())
         {
             if (!long.TryParse(tag.Value, out long value))
@@ -53,5 +54,16 @@ public class LiquidSurfaceReaction : ILiquidSurfaceReaction
     public DamageType DamageType { get; set; }
     public double DamagePerTick { get; set; }
     public double PainPerTick { get; set; }
-    public double StunPerTick { get; set; }
+	public double StunPerTick { get; set; }
+
+	public bool ToggleTargetTag(ITag tag)
+	{
+		if (_targetTags.Remove(tag))
+		{
+			return false;
+		}
+
+		_targetTags.Add(tag);
+		return true;
+	}
 }

@@ -1,5 +1,6 @@
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.Health;
@@ -11,7 +12,7 @@ namespace MudSharp.Combat.Moves;
 
 public class ExplosiveNaturalAttackMove : NaturalRangedAttackMoveBase
 {
-    public ExplosiveNaturalAttackMove(ICharacter owner, INaturalAttack attack, ICharacter target) : base(owner, attack, target)
+    public ExplosiveNaturalAttackMove(ICharacter owner, INaturalAttack attack, IPerceiver target) : base(owner, attack, target)
     {
     }
 
@@ -40,16 +41,25 @@ public class ExplosiveNaturalAttackMove : NaturalRangedAttackMoveBase
         }, 0.0, ExplosiveAttack.ExplosionSize, ExplosiveAttack.MaximumProximity);
     }
 
-    protected override IEnumerable<IWound> ApplySuccessfulHit(IPerceiver target, CheckOutcome attackOutcome,
-        OpposedOutcomeDegree degree, IBodypart bodypart)
-    {
-        ExplosiveDamage damage = BuildExplosionDamage(attackOutcome, bodypart);
+	protected override IEnumerable<IWound> ApplySuccessfulHit(IPerceiver target, CheckOutcome attackOutcome,
+		OpposedOutcomeDegree degree, IBodypart bodypart)
+	{
+		ExplosiveDamage damage = BuildExplosionDamage(attackOutcome, bodypart);
 
-        return target.LocalThingsAndProximities()
-                     .Where(x => x.Thing is IHaveWounds && x.Proximity <= ExplosiveAttack.MaximumProximity)
-                     .SelectMany(x => ((IHaveWounds)x.Thing).PassiveSufferDamage(damage, x.Proximity, Body.Facing.Front))
-                     .ToList();
-    }
+		return SelectExplosionVictims(target, ExplosiveAttack.MaximumProximity)
+					 .SelectMany(x => x.Target.PassiveSufferDamage(damage, x.Proximity, Body.Facing.Front))
+					 .ToList();
+	}
+
+	internal static IEnumerable<(IHaveWounds Target, Proximity Proximity)> SelectExplosionVictims(
+		IPerceiver primaryTarget, Proximity maximumProximity)
+	{
+		return new[] { (Thing: (IPerceivable)primaryTarget, Proximity: Proximity.Intimate) }
+			.Concat(primaryTarget.LocalThingsAndProximities())
+			.Where(x => x.Thing is IHaveWounds && x.Proximity <= maximumProximity)
+			.GroupBy(x => x.Thing, ReferenceEqualityComparer.Instance)
+			.Select(x => (Target: (IHaveWounds)x.Key, Proximity: x.Min(y => y.Proximity)));
+	}
 
     protected override void HandleScatterImpact(RangedScatterResult scatter, CheckOutcome attackOutcome)
     {

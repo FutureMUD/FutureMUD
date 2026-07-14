@@ -1,5 +1,8 @@
 # Natural Ranged Attacks Design
 
+Status: **Ready for Release**
+Release review completed: 14 July 2026
+
 ## Overview
 
 This document defines the natural ranged attack family and the supporting elemental contact systems added for the natural-ranged combat release. The implementation is data-driven and reuses `WeaponAttack` definitions so the same runtime can support both natural attacks and selected weapon-based attacks where appropriate.
@@ -129,7 +132,7 @@ Natural ranged attacks are considered by ranged strategies through `AttemptUseRa
 
 - is flying
 - has a usable `BreathWeaponAttack`
-- has a target in another room or another layer
+- has a target in an adjacent room or another reachable layer
 
 Otherwise it falls back to ordinary ranged-natural or standard ranged logic.
 
@@ -148,6 +151,7 @@ All ranged-natural attack definitions expose:
   - `targets <number>`
   - `bodyparts <number>`
   - `ignite <percentage>`
+  - `fire <option>`
 - `SpitNaturalAttack`
   - `liquid <liquid>`
   - `amount <volume>`
@@ -164,15 +168,23 @@ All attacks also expose:
 
 - `onuse <prog|none>`
 
-## Current Runtime Notes
+Breath fire profiles expose `name`, `type`, `damage`, `pain`, `stun`, `thermal`, `spread`,
+`oxidation`, `selfoxidising`, `interval`, and `extinguish` subcommands. Liquid builders expose
+`reaction add`, `reaction <#> delete`, and per-reaction `tag`, `type`, `damage`, `pain`, and `stun`
+editing.
 
-The current implementation provides the vertical slice for:
+## Release Status
 
-- data definitions
-- combat move factory integration
-- ranged-natural combat moves
-- breath swoops
-- fire profiles and burning effects
-- contamination-driven corrosive reactions
+The supported release slice includes definitions, persistence, builders, character and item targets,
+range/scatter resolution, ranged defenses, adjacent-room breath swoops, area effects, ongoing fire,
+liquid-tag extinguishing, and contamination-driven corrosive reactions. Primary area targets are always
+included, duplicate proximity entries are collapsed, and launched attacks use ranged penetration without
+melee self-damage.
 
-Follow-up work is still expected in content seeding, richer builder support for fire profiles and liquid reactions, and additional combat messaging polish.
+Stock seeding supplies llama and acid spit, dragonfire breath, wing buffet, tail spike, and bombardier
+spray examples. The repeat-install path repairs missing catalogue entries and elemental metadata as well as
+the fresh-install path. Seeded animal acid reacts with animal skin and seeded dragonfire is extinguished by
+water-tagged liquids.
+
+The implementation and its stock content are **Ready for Release**. Further creature profiles, richer
+area geometry, and more specialised chemistry are post-release extensions.

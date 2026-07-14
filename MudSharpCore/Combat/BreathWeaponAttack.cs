@@ -1,5 +1,6 @@
 using MudSharp.Character;
 using MudSharp.Framework;
+using System.Globalization;
 using System.Text;
 using System.Xml.Linq;
 
@@ -28,7 +29,7 @@ public class BreathWeaponAttack : RangedNaturalAttackBase, IBreathWeaponAttack
     {
         AdditionalTargetLimit = int.Parse(root.Element("AdditionalTargetLimit")?.Value ?? "0");
         BodypartsHitPerTarget = int.Parse(root.Element("BodypartsHitPerTarget")?.Value ?? "1");
-        IgniteChance = double.Parse(root.Element("IgniteChance")?.Value ?? "0");
+        IgniteChance = double.Parse(root.Element("IgniteChance")?.Value ?? "0", CultureInfo.InvariantCulture);
         FireProfile = root.Element("FireProfile") is XElement fireRoot ? new FireProfile(fireRoot, Gameworld) : null;
     }
 
@@ -45,10 +46,13 @@ public class BreathWeaponAttack : RangedNaturalAttackBase, IBreathWeaponAttack
         }
     }
 
-    public override string HelpText => $@"{base.HelpText}
+	public override string HelpText => $@"{base.HelpText}
 	#3targets <number>#0 - sets how many extra nearby targets can be hit
 	#3bodyparts <number>#0 - sets how many bodyparts are struck per victim
-	#3ignite <percentage>#0 - sets the ignition chance applied by this breath weapon";
+	#3ignite <percentage>#0 - sets the ignition chance applied by this breath weapon
+	#3fire <option>#0 - edits the payload's fire profile
+	#3fire none#0 - removes the fire profile
+	#3fire reset#0 - creates a default fire profile";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -58,9 +62,12 @@ public class BreathWeaponAttack : RangedNaturalAttackBase, IBreathWeaponAttack
                 return BuildingCommandTargets(actor, command);
             case "bodyparts":
                 return BuildingCommandBodyparts(actor, command);
-            case "ignite":
-            case "ignitechance":
-                return BuildingCommandIgnite(actor, command);
+			case "ignite":
+			case "ignitechance":
+				return BuildingCommandIgnite(actor, command);
+			case "fire":
+			case "fireprofile":
+				return BuildingCommandFire(actor, command);
         }
 
         return base.BuildingCommand(actor, command.GetUndo());
@@ -94,9 +101,10 @@ public class BreathWeaponAttack : RangedNaturalAttackBase, IBreathWeaponAttack
         return true;
     }
 
-    private bool BuildingCommandIgnite(ICharacter actor, StringStack command)
-    {
-        if (!command.SafeRemainingArgument.TryParsePercentage(out double value))
+	private bool BuildingCommandIgnite(ICharacter actor, StringStack command)
+	{
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out double value) ||
+			value < 0.0 || value > 1.0)
         {
             actor.OutputHandler.Send("You must enter a valid percentage.");
             return false;
@@ -105,8 +113,47 @@ public class BreathWeaponAttack : RangedNaturalAttackBase, IBreathWeaponAttack
         IgniteChance = value;
         Changed = true;
         actor.OutputHandler.Send($"This breath attack now has an ignition chance of {IgniteChance.ToString("P2", actor).ColourValue()}.");
-        return true;
-    }
+		return true;
+	}
+
+	private bool BuildingCommandFire(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(MudSharp.Combat.FireProfile.HelpText.SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.PeekSpeech().EqualTo("none"))
+		{
+			FireProfile = null;
+			Changed = true;
+			actor.OutputHandler.Send("This breath attack will no longer apply a persistent fire profile.");
+			return true;
+		}
+
+		if (command.PeekSpeech().EqualTo("reset"))
+		{
+			FireProfile = new FireProfile(Gameworld);
+			Changed = true;
+			actor.OutputHandler.Send("This breath attack now has a default fire profile.");
+			return true;
+		}
+
+		if (FireProfile is not FireProfile profile)
+		{
+			profile = new FireProfile(Gameworld);
+			FireProfile = profile;
+		}
+
+		if (!profile.BuildingCommand(actor, command))
+		{
+			return false;
+		}
+
+		Changed = true;
+		return true;
+	}
 
     protected override string ShowBuilderInternal(ICharacter actor)
     {
@@ -114,7 +161,14 @@ public class BreathWeaponAttack : RangedNaturalAttackBase, IBreathWeaponAttack
         sb.AppendLine($"Additional Targets: {AdditionalTargetLimit.ToString("N0", actor).ColourValue()}");
         sb.AppendLine($"Bodyparts Per Target: {BodypartsHitPerTarget.ToString("N0", actor).ColourValue()}");
         sb.AppendLine($"Ignite Chance: {IgniteChance.ToString("P2", actor).ColourValue()}");
-        sb.AppendLine($"Fire Profile: {FireProfile?.Name.ColourValue() ?? "None".Colour(Telnet.Red)}");
+		if (FireProfile is FireProfile profile)
+		{
+			sb.Append(profile.Show(actor));
+		}
+		else
+		{
+			sb.AppendLine($"Fire Profile: {"None".Colour(Telnet.Red)}");
+		}
         return sb.ToString();
     }
 }

@@ -96,11 +96,6 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 		LoadedAmmo?.Login();
 	}
 
-	public IDamage GetDamage(IPerceiver perceiverSource, OpposedOutcome opposedOutcome)
-	{
-		throw new NotImplementedException();
-	}
-
 	public ITraitDefinition Trait => _prototype.RangedWeaponType.FireTrait;
 
 	public bool CanBeAimedAtSelf => false;
@@ -312,7 +307,7 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 				$"You cannot load {Parent.HowSeen(loader)} because you don't have any suitable ammunition.",
 			InventoryPlanFeasibility.NotFeasibleNotEnoughHands or InventoryPlanFeasibility.NotFeasibleNotEnoughWielders =>
 				$"You cannot load {Parent.HowSeen(loader)} because you don't have enough working {loader.Body.WielderDescriptionPlural}.",
-			_ => throw new NotImplementedException()
+			_ => $"You cannot load {Parent.HowSeen(loader)} at this time."
 		};
 	}
 
@@ -321,7 +316,7 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 		IInventoryPlan plan = _prototype.LoadTemplate.CreatePlan(loader);
 		if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible)
 		{
-			Console.WriteLine("Error: Unfeasible plan made it to sling load.");
+			loader.OutputHandler.Send(WhyCannotLoad(loader, ignoreEmpty, mode));
 			return;
 		}
 
@@ -332,6 +327,9 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 			(x.GetItemType<IAmmo>()?.AmmoType.RangedWeaponTypes.Contains(RangedWeaponType.Sling) ?? false));
 		if (ammo == null)
 		{
+			plan.FinalisePlan();
+			loader.OutputHandler.Send(
+				$"You cannot load {Parent.HowSeen(loader)} because the selected ammunition is no longer available.");
 			return;
 		}
 

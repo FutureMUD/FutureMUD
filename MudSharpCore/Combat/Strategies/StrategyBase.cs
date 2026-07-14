@@ -791,17 +791,21 @@ public abstract class StrategyBase : ICombatStrategy
         return null;
     }
 
-    protected virtual ICombatMove AttemptUseRangedNaturalAttack(ICharacter combatant)
-    {
-        List<INaturalAttack> possibleAttacks =
+	protected virtual ICombatMove AttemptUseRangedNaturalAttack(ICharacter combatant)
+	{
+		List<INaturalAttack> possibleAttacks =
             combatant.Race
                      .UsableNaturalWeaponAttacks(combatant, combatant.CombatTarget, false,
                          BuiltInCombatMoveType.ScreechAttack,
                          BuiltInCombatMoveType.RangedNaturalAttack,
                          BuiltInCombatMoveType.BreathWeaponAttack,
-                         BuiltInCombatMoveType.SpitNaturalAttack,
-                         BuiltInCombatMoveType.ExplosiveNaturalAttack,
-                         BuiltInCombatMoveType.BuffetingNaturalAttack).ToList();
+						  BuiltInCombatMoveType.SpitNaturalAttack,
+						  BuiltInCombatMoveType.ExplosiveNaturalAttack,
+						  BuiltInCombatMoveType.BuffetingNaturalAttack)
+					 .Where(x => x.Attack.GetAttackType<IRangedNaturalAttack>() is not { } rangedAttack ||
+					             NaturalRangedAttackMoveBase.TargetIsInRange(combatant, combatant.CombatTarget,
+						             rangedAttack.RangeInRooms))
+					 .ToList();
         List<INaturalAttack> attacks = possibleAttacks
                       .Where(x => combatant.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(combatant, x.Attack)))
                       .ToList();

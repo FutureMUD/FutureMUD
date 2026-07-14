@@ -645,6 +645,30 @@ public class Liquid : Fluid, ILiquid
         sb.AppendLine($"Wet Desc: {WetDescription.Colour(DisplayColour)}");
         sb.AppendLine($"Drenched Desc: {DrenchedDescription.Colour(DisplayColour)}");
 
+		sb.AppendLine();
+		sb.AppendLine("Surface Reactions".GetLineWithTitle(actor.LineFormatLength, actor.Account.UseUnicode,
+			Telnet.Cyan, Telnet.BoldYellow));
+		sb.AppendLine();
+		if (!_surfaceReactions.Any())
+		{
+			sb.AppendLine("\tNone".ColourError());
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				_surfaceReactions.Select((reaction, index) => new List<string>
+				{
+					(index + 1).ToString("N0", actor),
+					reaction.DamageType.Describe(),
+					reaction.DamagePerTick.ToString("N2", actor),
+					reaction.PainPerTick.ToString("N2", actor),
+					reaction.StunPerTick.ToString("N2", actor),
+					reaction.TargetTags.Select(x => x.FullName).ListToString()
+				}),
+				new[] { "#", "Type", "Damage/L", "Pain/L", "Stun/L", "Target Tags" }, actor,
+				Telnet.Cyan));
+		}
+
         sb.AppendLine();
         sb.AppendLine("Tags".GetLineWithTitle(actor.LineFormatLength, actor.Account.UseUnicode, Telnet.Cyan,
             Telnet.BoldYellow));
@@ -692,7 +716,12 @@ public class Liquid : Fluid, ILiquid
 	#3ignite <temp>#0 - sets the ignite temperature of this liquid
 	#3ignite none#0 - clears the ignite temperature of this liquid
 	#3gas <which>#0 - sets the gas form of this liquid
-	#3gas none#0 - clears the gas form of this liquid";
+	#3gas none#0 - clears the gas form of this liquid
+	#3reaction add <tag>#0 - adds a surface reaction that applies to the target tag
+	#3reaction <#> delete#0 - deletes a surface reaction
+	#3reaction <#> tag <tag>#0 - toggles a target tag for a surface reaction
+	#3reaction <#> type <damage type>#0 - sets a surface reaction's damage type
+	#3reaction <#> damage|pain|stun <amount per litre>#0 - sets a surface reaction amount";
 
     /// <inheritdoc />
     public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -771,10 +800,148 @@ public class Liquid : Fluid, ILiquid
                 return BuildingCommandSdesc(actor, command);
             case "descadd":
                 return BuildingCommandDescAdd(actor, command);
+			case "reaction":
+			case "surfacereaction":
+				return BuildingCommandSurfaceReaction(actor, command);
         }
 
         return base.BuildingCommand(actor, command.GetUndo());
     }
+
+	private bool BuildingCommandSurfaceReaction(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify either #3add <tag>#0 or an existing reaction number."
+				.SubstituteANSIColour());
+			return false;
+		}
+
+		var reactionText = command.PopSpeech();
+		if (reactionText.EqualTo("add"))
+		{
+			if (command.IsFinished)
+			{
+				actor.OutputHandler.Send("Which target tag should the new surface reaction apply to?");
+				return false;
+			}
+
+			var tag = Gameworld.Tags.GetByIdOrName(command.SafeRemainingArgument);
+			if (tag is null)
+			{
+				actor.OutputHandler.Send("There is no such tag.");
+				return false;
+			}
+
+			var newReaction = new LiquidSurfaceReaction(Gameworld)
+			{
+				DamageType = DamageType.Chemical,
+				DamagePerTick = 1.0
+			};
+			newReaction.ToggleTargetTag(tag);
+			_surfaceReactions.Add(newReaction);
+			Changed = true;
+			actor.OutputHandler.Send(
+				$"You add a new chemical surface reaction targeting {tag.FullName.ColourName()}.");
+			return true;
+		}
+
+		if (!int.TryParse(reactionText, out var index) || index < 1 || index > _surfaceReactions.Count)
+		{
+			actor.OutputHandler.Send("That is not a valid surface reaction number.");
+			return false;
+		}
+
+		var reaction = (LiquidSurfaceReaction)_surfaceReactions[index - 1];
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				"You must specify #3delete#0, #3tag#0, #3type#0, #3damage#0, #3pain#0 or #3stun#0."
+					.SubstituteANSIColour());
+			return false;
+		}
+
+		switch (command.PopForSwitch())
+		{
+			case "delete":
+			case "remove":
+				_surfaceReactions.RemoveAt(index - 1);
+				Changed = true;
+				actor.OutputHandler.Send($"You delete surface reaction {index.ToString("N0", actor).ColourValue()}.");
+				return true;
+			case "tag":
+				if (command.IsFinished)
+				{
+					actor.OutputHandler.Send("Which target tag do you want to toggle?");
+					return false;
+				}
+
+				var tag = Gameworld.Tags.GetByIdOrName(command.SafeRemainingArgument);
+				if (tag is null)
+				{
+					actor.OutputHandler.Send("There is no such tag.");
+					return false;
+				}
+
+				var added = reaction.ToggleTargetTag(tag);
+				Changed = true;
+				actor.OutputHandler.Send(
+					$"Surface reaction {index.ToString("N0", actor).ColourValue()} will {(added ? "now" : "no longer")} apply to {tag.FullName.ColourName()}.");
+				return true;
+			case "type":
+				if (!command.SafeRemainingArgument.TryParseEnum<DamageType>(out var damageType))
+				{
+					actor.OutputHandler.Send(
+						$"That is not a valid damage type. Valid types are {Enum.GetValues<DamageType>().Select(x => x.Describe()).ListToString()}.");
+					return false;
+				}
+
+				reaction.DamageType = damageType;
+				Changed = true;
+				actor.OutputHandler.Send(
+					$"Surface reaction {index.ToString("N0", actor).ColourValue()} now deals {damageType.Describe().ColourName()} damage.");
+				return true;
+			case "damage":
+				return BuildingCommandSurfaceReactionAmount(actor, command, index, reaction, "damage");
+			case "pain":
+				return BuildingCommandSurfaceReactionAmount(actor, command, index, reaction, "pain");
+			case "stun":
+				return BuildingCommandSurfaceReactionAmount(actor, command, index, reaction, "stun");
+			default:
+				actor.OutputHandler.Send(
+					"You must specify #3delete#0, #3tag#0, #3type#0, #3damage#0, #3pain#0 or #3stun#0."
+						.SubstituteANSIColour());
+				return false;
+		}
+	}
+
+	private bool BuildingCommandSurfaceReactionAmount(ICharacter actor, StringStack command, int index,
+		LiquidSurfaceReaction reaction, string type)
+	{
+		if (!double.TryParse(command.SafeRemainingArgument, actor, out var value) || value < 0.0)
+		{
+			actor.OutputHandler.Send("You must enter a non-negative amount per litre.");
+			return false;
+		}
+
+		switch (type)
+		{
+			case "damage":
+				reaction.DamagePerTick = value;
+				break;
+			case "pain":
+				reaction.PainPerTick = value;
+				break;
+			case "stun":
+				reaction.StunPerTick = value;
+				break;
+		}
+
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"Surface reaction {index.ToString("N0", actor).ColourValue()} now has {value.ToString("N2", actor).ColourValue()} {type} per litre.");
+		return true;
+	}
 
     private bool BuildingCommandDescAdd(ICharacter actor, StringStack command)
     {

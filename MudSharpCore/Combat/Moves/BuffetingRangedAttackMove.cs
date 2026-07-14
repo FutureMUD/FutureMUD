@@ -1,5 +1,6 @@
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.Health;
@@ -11,7 +12,7 @@ namespace MudSharp.Combat.Moves;
 
 public class BuffetingRangedAttackMove : NaturalRangedAttackMoveBase
 {
-    public BuffetingRangedAttackMove(ICharacter owner, INaturalAttack attack, ICharacter target) : base(owner, attack, target)
+    public BuffetingRangedAttackMove(ICharacter owner, INaturalAttack attack, IPerceiver target) : base(owner, attack, target)
     {
     }
 
@@ -32,12 +33,25 @@ public class BuffetingRangedAttackMove : NaturalRangedAttackMoveBase
         tch.OffensiveAdvantage += BuffetingAttack.OffensiveAdvantagePerDegree * attackOutcome.SuccessDegrees();
         tch.DefensiveAdvantage += BuffetingAttack.DefensiveAdvantagePerDegree * attackOutcome.SuccessDegrees();
 
-        ICellExit awayExit = tch.Location.ExitsFor(tch)
-                          .FirstOrDefault(x => x.Destination != Assailant.Location);
-        if (awayExit is not null && BuffetingAttack.MaximumPushDistance > 0)
-        {
-            tch.MoveTo(awayExit.Destination, tch.RoomLayer, awayExit);
-        }
+		ICell previousCell = Assailant.Location;
+		for (int i = 0; i < BuffetingAttack.MaximumPushDistance; i++)
+		{
+			ICell currentCell = tch.Location;
+			ICellExit awayExit = currentCell.ExitsFor(tch)
+				.FirstOrDefault(x => x.Destination != previousCell);
+			if (awayExit is null)
+			{
+				break;
+			}
+
+			tch.MoveTo(awayExit.Destination, tch.RoomLayer, awayExit);
+			if (tch.Location != awayExit.Destination)
+			{
+				break;
+			}
+
+			previousCell = currentCell;
+		}
 
         if (!BuffetingAttack.InflictsDamage)
         {

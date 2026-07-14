@@ -1,30 +1,31 @@
 # MudSharp 2.0 Release-Readiness Audit
 
-Audit date: 14 July 2026  
-Release baseline: `a68f25871ce238e8e9331c0e33d7b585d174c0e4` (`Engine version update to v1.55.0`, 1 March 2026)  
-Audited head: `90ed55992c52860125050945fd356d02c1c62629` plus the 14 July 2026 natural-ranged release-readiness working tree
+Audit date: 15 July 2026<br>
+Release baseline: `a68f25871ce238e8e9331c0e33d7b585d174c0e4` (`Engine version update to v1.55.0`, 1 March 2026)<br>
+Audited head: `90ed55992c52860125050945fd356d02c1c62629` (`master`, 14 July 2026), with closure evidence from merged PR #478 (`17a82b4e7b93129959902c375edcb1e28c9fc406`, merge commit `cc5c535eac1c56dc30dca38535ada2437ad84c58`) and the Vehicle/Employment closure worktrees<br>
 Primary scope: `MudSharpCore` runtime features, commands, builders, and core unit tests
 
 ## Executive Verdict
 
-**Overall recommendation: No-Go for an all-inclusive 2.0.0 release at this snapshot.**
+**Overall recommendation: Conditional Go for the scoped 2.0.0 release.**
 
-The engine has a strong automated baseline: `MudSharpCore` builds with no warnings or errors and all 1,678 core unit tests pass with no skips. Five large feature families satisfy the audit's full readiness bar, and no reviewed subsystem needs architectural replacement. The first recommended phase is complete: natural ranged attacks, slings, and blowguns are now Ready for Release. Two advertised feature families still contain documentation or supported-scope gaps that describe the system as only partially implemented:
+The engine has a strong automated baseline: the original audited head passed all 1,668 core unit tests with no failures or skips, merged PR #478 passed 1,678 core tests, and the completed employment-closure worktree passed the default repository unit suite with 2,601 tests, including 1,686 core tests. Six large feature families now satisfy the audit's full readiness bar, no reviewed subsystem needs architectural replacement, and the three implementation-boundary blockers identified by this audit are closed:
 
-1. **Vehicles**: cell-exit movement, access, readiness, hitching, towing, and mixed hitch persistence are implemented, but the owning design still marks broader vehicle maturity as partial and route, coordinate, and room-scale movement as planned.
-2. **Unified employment**: the architecture and a large action catalogue are implemented, but the owning roadmap still defers important durable authority, payroll/payment, administration, and autonomous-operation work; unsupported wage methods explicitly remain outstanding at runtime.
+1. **Natural ranged weapons:** merged PR #478 completed the ammunition-owned sling/blowgun damage path, natural-ranged runtime, elemental interactions, builders, repeat-install seeding, documentation, and focused regression coverage.
+2. **Vehicles:** the V1 boundary is the complete manual cell-exit vehicle slice; route, coordinate, and moving-interior movement are explicitly post-V1.
+3. **Unified employment:** the V1 host/action/payment matrix, durable provenance and grants, earnings/payables, consent, goal policy, recovery, capability providers, action/host policy, and acceptance/security coverage are release-ready. Parent-organisation/accounting and richer native workflows are explicitly post-V1.
 
-The release can move from **No-Go** to **Conditional Go** by either completing those two scopes or explicitly excluding/labeling the unfinished portions as experimental and narrowing the 2.0 feature promise. Documentation sign-off and integration testing should then be completed for the systems listed below.
+The release is therefore at **Conditional Go**. Final sign-off remains contingent on the documentation closures, integration campaigns, release-candidate soak, and packaging/version work listed below; these are release-process gates rather than unresolved advertised implementation boundaries.
 
 ### Status Totals
 
 | Status | Count | Release meaning |
 | --- | ---: | --- |
-| Fully Ready | 5 | Suitable for the 2.0 stable feature set |
+| Fully Ready | 6 | Suitable for the 2.0 stable feature set |
 | Minor Polish Required | 3 | Releasable; low-risk follow-up remains |
 | Documentation Required | 7 | Runtime appears releasable, but the documentation does not yet provide a clean v1.0 sign-off |
-| Testing Required | 6 | Implementation is credible, but live/integration maturity is not sufficiently demonstrated |
-| Further Implementation Required | 2 | Must be completed, narrowed, or excluded from the stable 2.0 promise |
+| Testing Required | 7 | Implementation is credible, but live/integration maturity is not sufficiently demonstrated |
+| Further Implementation Required | 0 | No reviewed feature currently requires implementation or scope exclusion before entering release-candidate validation |
 | Major Changes Required | 0 | No reviewed system requires replacement or a fundamental redesign |
 
 ## Audit Method
@@ -40,7 +41,7 @@ The audit used a hybrid unfinished-code boundary:
 - legacy TODOs were counted only when reachable from, or directly adjacent to, the changed feature;
 - defensive factory exceptions, abstract support types, and unreferenced legacy classes were not treated as blockers.
 
-Examples deliberately excluded from blocker status include the abstract `MagicalMeleeAttackPower`, defensive unknown-type factory exceptions, and the unreferenced legacy `MedicalExaminationProposal`. The natural-ranged release audit confirmed that sling and blowgun damage is owned by the loaded `Ammunition` component; the redundant component-local `GetDamage` methods were removed rather than creating a competing damage contract.
+Examples deliberately excluded from blocker status include the abstract `MagicalMeleeAttackPower`, defensive unknown-type factory exceptions, and the unreferenced legacy `MedicalExaminationProposal`. The natural-ranged closeout confirmed that sling and blowgun damage is owned by the loaded `Ammunition` component; PR #478 removed the redundant component-local `GetDamage` methods rather than creating a competing damage contract.
 
 ## Major Change Catalogue
 
@@ -57,13 +58,13 @@ Examples deliberately excluded from blocker status include the abstract `Magical
 | Time, calendars, and celestials | `MudInstant`, astronomical event solving, regnal periods, builder hardening | **Testing Required** | Moderate | No |
 | Pathfinding and live world topology | Incremental hierarchical index, live-cell mutation, portal-anchor correction | **Fully Ready** | Strong | No |
 | Mounts and stables | Stable accounts/tickets, persistence fixes, riding and hitch gear | **Documentation Required** | Strong | No |
-| Vehicles, hitches, and towing | Cell-exit vehicle movement, readiness, cargo/access, mixed hitch graph | **Further Implementation Required** | Strong fixes, incomplete scope | **Yes** |
+| Vehicles, hitches, and towing | Manual cell-exit vehicle movement, readiness, cargo/access, mixed hitch graph | **Testing Required** | Strong unit coverage; fresh-world runbook remains | No |
 | Agriculture and primary production | Fields, crops, herds, woodlands, apiaries, project operations, commodity output | **Testing Required** | Moderate | No |
 | NPC/group AI and event surface | New individual AI types, animal ecology, group registration and event subscriptions | **Minor Polish Required** | Strong | No |
 | AI Storyteller | Builder/help refinement on the existing persisted model/tool-loop subsystem | **Testing Required** | Strong unit coverage, no live model loop | No |
 | Economy and commerce | Markets, shop deals, hotel rentals, auctions, clan finance and security hardening | **Documentation Required** | Strong | No |
-| Unified employment and task hosts | Host persistence, task catalogue, finance, payroll, manager goals and scheduling | **Further Implementation Required** | Strong, but roadmap remains open | **Yes** |
-| Hospitals | Employment-host treatment dispatch, rooms, supplies, blood workflows and diagnostics | **Documentation Required** | Very strong recent fix history | No, if employment supported scope is explicit |
+| Unified employment and task hosts | V1 host/action/payment matrix, durable grants, payroll evidence, consent, recovery and policy | **Fully Ready** | Strong automated closure matrix | No |
+| Hospitals | Employment-host treatment dispatch, rooms, supplies, blood workflows and diagnostics | **Documentation Required** | Very strong recent fix history | No |
 | Law, crime, patrols, and trials | Automatic crimes, evidence, custody, trials, executions and diagnostics | **Documentation Required** | Strong | No |
 | Estates, ownership, and private property | Probate lifecycle, wills, claims, liquidation and durable item/cell ownership | **Documentation Required** | Strong | No |
 | Computers, automation, grids, and telecoms | Computer runtime, persisted processes, terminal apps, signals, mail/FTP/boards | **Fully Ready** | Strong | No |
@@ -116,7 +117,7 @@ Examples deliberately excluded from blocker status include the abstract `Magical
 
 **Status: Fully Ready. Release blocker: No.**
 
-- **Change and evidence:** Sling and blowgun support originated in `83f1602c`; the 14 July 2026 release-readiness round audited the complete weapon/ammunition pipeline and the natural-ranged/elemental vertical slice, fixed runtime defects, completed builders and repeat-install seeding, and added focused regressions.
+- **Change and evidence:** Sling and blowgun support originated in `83f1602c`; merged PR #478 (`17a82b4e`, merge `cc5c535e`) audited the complete weapon/ammunition pipeline and natural-ranged/elemental vertical slice, fixed runtime defects, completed builders and repeat-install seeding, and added focused regressions.
 - **Implementation:** Sling and blowgun shots delegate damage, lodging/recovery, and poison delivery to the generic loaded `Ammunition` component. Redundant dead `GetDamage` methods and throwing load-failure fallbacks were removed. Natural attacks now enforce authored range, support eligible item targets, use ranged penetration without melee self-damage, preserve primary area targets, deduplicate victims, select bodyparts for scatter impacts, and safely bound breath swoops. `OnUseAttackProg` fires after a committed resolution.
 - **Elemental and builder scope:** Fire profiles have complete builder editing and liquid-tag extinguishing on bodies/items, including saturated surfaces. Liquid surface reactions have builder add/delete/tag/type/damage/pain/stun workflows. Seeded animal acid has a skin-targeting reaction and seeded dragonfire is water-extinguishable.
 - **Seeder and content:** Fresh and repeat-install paths ensure the named sling/blowgun skills and stock weapon/ammunition definitions plus llama spit, acid spit, dragonfire breath, wing buffet, tail spike, and bombardier spray with representative race/template assignments.
@@ -185,12 +186,12 @@ Examples deliberately excluded from blocker status include the abstract `Magical
 
 ### 12. Vehicles, Hitches, and Towing
 
-**Status: Further Implementation Required. Release blocker: Yes if advertised as a complete vehicle system.**
+**Status: Testing Required. Release blocker: No within the declared Vehicle V1 boundary.**
 
 - **Change and evidence:** Vehicle movement and iterative fixes landed across `df464988`, `a6be9707`, `29e3b2ee`, and `935bed0c`; remote occupancy was fixed in `16d7d3cf`; hitch equipment in `6bc307ed`; the unified hitch graph in `113917cf`.
-- **Implementation:** Cell-exit movement, access points, cargo, readiness diagnostics, towing, persistent mixed hitches, movement strategies, builders, commands, and tests are present with no direct TODO path in the new vehicle code.
-- **Documentation/feature gap:** `Vehicle_System.md` says cell-exit readiness is implemented but broader maturity is partial. Route movement, coordinate movement, and room-scale moving interiors remain planned.
-- **Recommended work:** Either define **Vehicle V1** narrowly as manual cell-exit vehicles plus hitch/tow/cargo/access and explicitly defer the planned phases, or complete route movement before marketing a general vehicle system.
+- **Implementation:** Cell-exit movement, explicit control handoff, player status/preflight, access points, cargo, modules, damage/repair, readiness, towing, persistent mixed hitches, builders, commands, and tests comprise the stable V1. The closeout also made required access fail closed, enforced exterior synchronisation and required crew, blocked combat/delayed-action driving, preserved the validated hitch/resource plan through delayed completion, prevented duplicate catastrophe rolls/fail-open train movement, made access/cargo projection markers revision-stable, rejected `RoomScale` and invalid authored values, and hardened primary control-station changes.
+- **V1 boundary decision:** Vehicle V1 is manual cell-exit `ItemScale` and `RoomContainer` vehicles. Route movement, coordinate movement, and room-scale moving interiors are explicitly post-V1. Route movement is not moderate work: it needs persisted route/stop/schedule/journey models, scheduler and reboot ownership, boarding/dwell/delay state, builder previews and validation, player timetable UX, automation hooks, and integration tests. Existing readiness/path/hitch services reduce duplication but do not supply that subsystem.
+- **Recommended work:** Keep route, coordinate, and moving-interior language out of the 2.0 stable feature promise. Complete the fresh-world runbook and release-candidate soak for the declared cell-exit boundary.
 - **Remaining test plan:** Run fresh-MUD builder and player scenarios for create/install/access/start/drive/stop, passengers, cargo, fuel/power failure, damage, towing chains, mixed animal/vehicle hitches, cycles, detach/reboot, retirement/death of endpoints, and failed movement rollback.
 
 ### 13. Agriculture and Primary Production
@@ -235,13 +236,15 @@ Examples deliberately excluded from blocker status include the abstract `Magical
 
 ### 17. Unified Employment and Task Hosts
 
-**Status: Further Implementation Required. Release blocker: Yes if presented as a stable complete employment system.**
+**Status: Fully Ready for the declared V1 contract. Release blocker: No.**
+
+**Closure update, 14 July 2026:** the explicit V1 supported matrix and all ten ordered closure slices in `Employment Hosts Implementation Review and Roadmap.md` are complete. Gates 1-13 and 17-37 are automated and passing; parent-organisation gates 14-16 are explicitly Phase D post-V1 design.
 
 - **Change and evidence:** The unified slice landed around `eabb283d`; craft reservations (`70b420ce`), blocked-task throttling (`cf04ad2c`), manager goals (`6363cad9`), persistence correction (`8f66cad3`), Epic 1 completion (`a21a7e68`), clan/hospital hosts, and scheduler optimisation (`291384d9`) show strong hardening.
-- **Implementation gap:** The owning roadmap still defers durable grant persistence/revocation, fuller payroll/attendance state, some payment methods, autonomous vehicle/animal movement, and deeper host-specific administration. `EmploymentFinanceService` explicitly reports unsupported wage disbursement methods as "not implemented yet" and leaves payables outstanding.
-- **Documentation gap:** The design and roadmap are detailed but are not a v1.0 release contract; they mix completed slices with a large open roadmap.
-- **Recommended work:** Define a smaller stable V1 host/action/payment matrix, persist or deliberately remove unsupported authority/payment choices, and ensure builders cannot author action/payment combinations that can only fail at runtime. Otherwise label the subsystem preview/experimental for 2.0.
-- **Remaining test plan:** End-to-end hire/application/contracts, every supported payment method, overdue payroll, rebooted grants/reservations/tasks, worker handoff, scheduled rules, manager goals, craft custody/failure recovery, each host adapter, permission revocation, duplicate scheduler execution, and unsupported-action fail-closed behavior.
+- **Implementation:** Durable task provenance and scoped grants, supported wage authoring and disbursement states, schema-backed time/earning evidence, duty-aware assignment, immutable consented applications with atomic acceptance, durable manager-goal policies, bounded recovery, registered host capabilities, and authoring-time host/invocation policy are complete. Unsupported combinations fail before persistence; runtime authority, custody, reservation, and native-subsystem checks remain fail-closed.
+- **Documentation:** The roadmap now begins with the stable V1 host/action/payment/finance/logistics matrix, separates every post-V1 limitation, maps the acceptance gates to automated evidence, and records final verification.
+- **Verification:** The completed employment-closure worktree passed the full default suite with 2,601 tests: 396 shared-library, 6 expression-engine, 513 seeder, and 1,686 core tests, with 0 failed and 0 skipped. The maintained blank-database snapshot tracks the final employment migration.
+- **Post-V1 work:** Parent organisations, consolidated accounting, cross-currency finance, autonomous vehicle/animal movement, and deeper native arena/bank/stable/hotel workflows remain optional future design and are not part of the stable V1 promise.
 
 ### 18. Hospitals
 
@@ -315,24 +318,22 @@ The following are important 2.0 changes but do not need separate system ratings:
 
 ## Ordered Pre-Release Work
 
-Completed first phase: **natural ranged attacks, slings, and blowguns are Ready for Release.**
-
-1. **Declare the vehicle V1 boundary:** either complete route movement or explicitly ship only manual cell-exit vehicles, access/cargo/readiness, hitching, and towing.
-2. **Declare and close employment V1:** limit builder-authorable choices to supported payment/authority/action paths and close the most important durable grant/payroll gaps, or mark unified employment experimental.
-3. **Publish V1 sign-off sections:** arenas, magic, mounts/stables, economy, hospitals, law, and ownership need explicit supported-scope/known-limitations sections.
-4. **Run integration campaigns:** drugs, planes/zero gravity, time/celestials, agriculture, AI Storyteller, and the grouped item/crafting additions require live or provider-backed testing beyond the green unit suite.
-5. **Run a release-candidate soak:** use an upgraded real database, reboot repeatedly, exercise scheduled systems, and monitor logs/performance. This is a core runtime test; it does not require rating DatabaseSeeder.
-6. **Complete release packaging:** `MudSharpCore.csproj` still reports `1.55.0`; bump version/file/assembly metadata to `2.0.0` only after the release scope is accepted, then author release notes and rerun verification.
+1. **Natural ranged weapons — complete:** merged PR #478 closes sling/blowgun ammunition damage ownership, natural-ranged runtime, builders, seeding, documentation, and focused regression coverage.
+2. **Vehicle V1 boundary — resolved:** ship manual cell-exit `ItemScale` and `RoomContainer` vehicles, access/cargo/modules/readiness/damage, hitching, and towing. Route, coordinate, and moving-interior movement are post-V1.
+3. **Employment V1 — complete:** the builder-authorable payment/authority/action boundary, durable grant/payroll semantics, acceptance matrix, documentation, migrations, and full automated verification were closed on 14 July 2026.
+4. **Publish V1 sign-off sections:** arenas, magic, mounts/stables, economy, hospitals, law, and ownership need explicit supported-scope/known-limitations sections.
+5. **Run integration campaigns:** drugs, planes/zero gravity, time/celestials, agriculture, AI Storyteller, and the grouped item/crafting additions require live or provider-backed testing beyond the green unit suite.
+6. **Run a release-candidate soak:** use an upgraded real database, reboot repeatedly, exercise scheduled systems, and monitor logs/performance. This is a core runtime test; it does not require rating DatabaseSeeder.
+7. **Complete release packaging:** `MudSharpCore.csproj` still reports `1.55.0`; bump version/file/assembly metadata to `2.0.0` only after the release scope is accepted, then author release notes and rerun verification.
 
 ## Verification Evidence
 
-Commands executed against the audited head:
+Commands executed against the original audited head and the three completed closure slices:
 
 ```powershell
 dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510
-dotnet build DatabaseSeeder\DatabaseSeeder.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510
-dotnet test "MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj" -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510
-dotnet test "DatabaseSeeder Unit Tests\DatabaseSeeder Unit Tests.csproj" -c Debug --no-build --no-restore -m:1 --filter "FullyQualifiedName!~BlankDatabaseSnapshotTests"
+& .\scripts\test-unit-core.ps1
+& .\scripts\test-unit.ps1
 ```
 
 Results:
@@ -344,6 +345,28 @@ Results:
 - The unfiltered seeder suite reports the pre-existing committed blank snapshot as stale: its SQL/manifest ends at `20260701122720_ClanHallCellsForEmploymentHosts`, while source migrations now end at `20260708120000_HospitalClinicalPlanning`. Regenerating that maintained SQL snapshot is release-packaging work and was not misrepresented as a natural-ranged failure.
 - No live MUD, external AI-provider, or long-duration soak test was claimed by this audit.
 
+Natural-ranged closeout verification from merged PR #478 on 14 July 2026:
+
+- targeted `MudSharpCore` build: **passed**, 0 warnings, 0 errors;
+- targeted `DatabaseSeeder` build: **passed**;
+- `MudSharpCore Unit Tests`: **passed**, 1,678 passed, 0 failed, 0 skipped;
+- filtered `DatabaseSeeder Unit Tests`: **passed**, 512 passed, 0 failed, 0 skipped; the PR recorded the then-stale blank-database snapshot as unrelated, and the later employment closure refreshed that maintained snapshot;
+- no live MUD or release-candidate soak is claimed by the natural-ranged closeout.
+
+Vehicle V1 closeout verification on 14 July 2026:
+
+- targeted `MudSharpCore` build: **passed**, 0 warnings, 0 errors;
+- vehicle-focused core tests: **passed**, 85 passed, 0 failed, 0 skipped;
+- full `scripts\test-unit-core.ps1` suite: **passed**, 1,674 passed, 0 failed, 0 skipped;
+- fresh-MUD runbook and release-candidate soak remain required before final release sign-off.
+
+Employment V1 closeout verification on 14 July 2026:
+
+- targeted `MudSharpCore` build: **passed**, 0 warnings, 0 errors;
+- `MudSharpCore Unit Tests`: **passed**, 1,686 passed, 0 failed, 0 skipped;
+- full `scripts\test-unit.ps1` default suite: **passed**, 2,601 passed, 0 failed, 0 skipped;
+- no live MUD or release-candidate soak is claimed by the employment closeout.
+
 ## Scope Boundary
 
-DatabaseSeeder features and content completeness were not catalogued or rated globally. The natural-ranged release phase explicitly audited and tested its required combat, skill, animal, and repeat-install seeder paths. Other supporting library, EF model, migration, and seeder references were used only where necessary to determine whether a MudSharpCore runtime path had persistence or an operational entry point. Existing legacy TODOs outside the changed feature paths did not lower readiness ratings.
+DatabaseSeeder features and content completeness were not catalogued or rated as a whole. Supporting library, EF model, migration, and seeder references were used where necessary to determine whether a MudSharpCore runtime path had persistence or an operational entry point; PR #478's natural-ranged stock and repeat-install seeding was explicitly reviewed because it is part of that feature's release contract. Existing legacy TODOs outside the changed feature paths did not lower readiness ratings.

@@ -2,8 +2,6 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
-using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Movement;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +10,6 @@ namespace MudSharp.Vehicles;
 
 public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 {
-	private readonly IVehicleTowService _towService;
 	private readonly IVehicleHitchGraphService _graphService;
 	private readonly IVehicleOperationalReadinessService _readinessService;
 
@@ -32,7 +29,6 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 	public CellExitVehicleMovementStrategy(IVehicleTowService towService, IVehicleHitchGraphService graphService,
 		IVehicleOperationalReadinessService readinessService)
 	{
-		_towService = towService;
 		_graphService = graphService;
 		_readinessService = readinessService;
 	}
@@ -55,14 +51,15 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 
 	public bool Move(IVehicle vehicle, ICharacter actor, ICellExit exit)
 	{
-		if (!TryPrepareMove(vehicle, actor, exit, out var towTrain, out var transition, out _))
+		if (!TryPrepareMove(vehicle, actor, exit, true, out var towTrain, out var transition, out var readiness,
+			    out _))
 		{
 			return false;
 		}
 
 		EchoDeparture(vehicle, actor, exit, towTrain);
 		BeginMove(vehicle, exit, towTrain, transition);
-		CompleteMove(vehicle, exit, towTrain, transition);
+		CompleteMove(vehicle, exit, transition, readiness);
 		EchoArrival(vehicle, actor, exit, towTrain, transition.TargetLayer);
 		return true;
 	}
@@ -70,8 +67,17 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 	public bool TryPrepareMove(IVehicle vehicle, ICharacter actor, ICellExit exit, out IReadOnlyList<IVehicle> towTrain,
 		out (CellMovementTransition TransitionType, RoomLayer TargetLayer) transition, out string reason)
 	{
+		return TryPrepareMove(vehicle, actor, exit, true, out towTrain, out transition, out _, out reason);
+	}
+
+	public bool TryPrepareMove(IVehicle vehicle, ICharacter actor, ICellExit exit, bool rollTowCatastrophe,
+		out IReadOnlyList<IVehicle> towTrain,
+		out (CellMovementTransition TransitionType, RoomLayer TargetLayer) transition,
+		out VehicleMovementReadinessResult readiness, out string reason)
+	{
 		towTrain = [];
 		transition = (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
+		readiness = new VehicleMovementReadinessResult(false, "There is no such exit.", null, null, []);
 		if (exit is null)
 		{
 			reason = "There is no such exit.";
@@ -79,7 +85,7 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		}
 
 		var profile = vehicle is null ? null : MovementProfile(vehicle);
-		var readiness = _readinessService.BuildMovementReadiness(new VehicleMovementReadinessRequest(vehicle, actor, exit, profile));
+		readiness = _readinessService.BuildMovementReadiness(new VehicleMovementReadinessRequest(vehicle, actor, exit, profile));
 		if (!readiness.CanMove || readiness.MovePlan is null)
 		{
 			reason = readiness.Reason;
@@ -87,12 +93,15 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		}
 
 		transition = exit.MovementTransition(actor);
-		var catastrophe = _readinessService.RollTowCatastrophe(readiness.MovePlan, actor);
-		if (catastrophe.Catastrophe)
+		if (rollTowCatastrophe)
 		{
-			reason = catastrophe.Reason;
-			exit.Origin.HandleRoomEcho(catastrophe.Reason, vehicle.RoomLayer);
-			return false;
+			var catastrophe = _readinessService.RollTowCatastrophe(readiness.MovePlan, actor);
+			if (catastrophe.Catastrophe)
+			{
+				reason = catastrophe.Reason;
+				exit.Origin.HandleRoomEcho(catastrophe.Reason, vehicle.RoomLayer);
+				return false;
+			}
 		}
 
 		towTrain = readiness.MovePlan.Vehicles.ToList();
@@ -120,27 +129,22 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		}
 	}
 
-	public void CompleteMove(IVehicle vehicle, ICellExit exit, IReadOnlyList<IVehicle> towTrain,
-		(CellMovementTransition TransitionType, RoomLayer TargetLayer) transition, IMovement movement = null)
+	public void CompleteMove(IVehicle vehicle, ICellExit exit,
+		(CellMovementTransition TransitionType, RoomLayer TargetLayer) transition,
+		VehicleMovementReadinessResult readiness, IMovement movement = null)
 	{
-		var vehicles = towTrain.Any() ? towTrain : [vehicle];
-		var profile = vehicle is null ? null : MovementProfile(vehicle);
-		if (profile is not null)
+		if (!readiness.CanMove || readiness.MovePlan is null)
 		{
-			_readinessService.ConsumeMovementResources(vehicle, profile);
-		}
-
-		if (_graphService.CanMoveVehicleTrain(vehicle.Gameworld, vehicle, exit, out var movePlan, out _))
-		{
-			_graphService.CompleteVehicleTrainMove(movePlan, exit.Destination, transition.TargetLayer, exit, movement);
 			return;
 		}
 
-		foreach (var linkedVehicle in vehicles)
+		if (readiness.ResourcePlan is not null)
 		{
-			linkedVehicle.MoveToCell(exit.Destination, transition.TargetLayer, exit, movement);
+			_readinessService.ConsumeMovementResources(readiness.ResourcePlan);
 		}
-		MoveHitchItems(_towService.TowLinksFrom(vehicle), exit.Destination, transition.TargetLayer);
+
+		_graphService.CompleteVehicleTrainMove(readiness.MovePlan, exit.Destination, transition.TargetLayer, exit,
+			movement);
 	}
 
 	private static IVehicleMovementProfilePrototype MovementProfile(IVehicle vehicle)
@@ -151,34 +155,11 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		              .FirstOrDefault();
 	}
 
-	private static string DescribeResourceFailure(ICharacter actor, string reason, IReadOnlyList<VehicleResourceCandidate> candidates)
-	{
-		var failed = candidates.Where(x => !x.Available && !string.IsNullOrWhiteSpace(x.Reason)).ToList();
-		return failed.Any()
-			? $"{reason} {failed.Select(x => $"{(x.Item?.HowSeen(actor) ?? x.Installation.Prototype.Name)}: {x.Reason}").ListToString()}"
-			: reason;
-	}
-
 	private static string TowEchoSuffix(IEnumerable<IVehicle> towedVehicles, ICharacter actor)
 	{
 		var vehicles = towedVehicles.ToList();
 		return vehicles.Any()
 			? $" towing {vehicles.Select(x => x.ExteriorItem?.HowSeen(actor) ?? x.Name).ListToString()}"
 			: string.Empty;
-	}
-
-	private static void MoveHitchItems(IEnumerable<IVehicleTowLink> towLinks, ICell destination, RoomLayer layer)
-	{
-		foreach (var item in towLinks.Select(x => x.HitchItem).Where(x => x is not null).Distinct().ToList())
-		{
-			if (item!.ContainedIn is not null || item.InInventoryOf is not null)
-			{
-				continue;
-			}
-
-			item.Location?.Extract(item);
-			item.RoomLayer = layer;
-			destination.Insert(item, true);
-		}
 	}
 }

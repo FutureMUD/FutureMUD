@@ -315,7 +315,8 @@ public class Vehicle : SaveableItem, IVehicle
 			return false;
 		}
 
-		var isController = slot.SlotType == VehicleOccupantSlotType.Driver && Controller is null;
+		var isController = slot.SlotType == VehicleOccupantSlotType.Driver &&
+		                   Prototype.ControlStations.Any(x => x.OccupantSlot.Id == slot.Id) && Controller is null;
 		using (new FMDB())
 		{
 			var dbitem = new DB.VehicleOccupancy
@@ -332,6 +333,95 @@ public class Vehicle : SaveableItem, IVehicle
 		}
 
 		return true;
+	}
+
+	public bool CanTakeControl(ICharacter actor, out string reason)
+	{
+		var occupancy = _occupancies.FirstOrDefault(x => x.Occupant?.SamePhysicalInstance(actor) == true);
+		if (occupancy is null)
+		{
+			reason = "You must be aboard that vehicle to take control of it.";
+			return false;
+		}
+
+		if (occupancy.Slot.SlotType != VehicleOccupantSlotType.Driver)
+		{
+			reason = "You must occupy a driver slot to take control of that vehicle.";
+			return false;
+		}
+
+		if (Prototype.ControlStations.All(x => x.OccupantSlot.Id != occupancy.Slot.Id))
+		{
+			reason = "Your driver slot does not have a configured control station.";
+			return false;
+		}
+
+		if (!_operationalReadinessService.CanPerformAction(this, actor, VehicleOperationalAction.Control,
+			    out var accessResult))
+		{
+			reason = accessResult.Reason;
+			return false;
+		}
+
+		if (Controller?.SamePhysicalInstance(actor) == true)
+		{
+			reason = "You are already controlling that vehicle.";
+			return false;
+		}
+
+		if (Controller is not null)
+		{
+			reason = $"{Controller.HowSeen(actor, true)} is already controlling that vehicle.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public bool TakeControl(ICharacter actor)
+	{
+		if (!CanTakeControl(actor, out _))
+		{
+			return false;
+		}
+
+		var occupancy = _occupancies.First(x => x.Occupant?.SamePhysicalInstance(actor) == true);
+		SetControllerOccupancy(occupancy.Id);
+		return true;
+	}
+
+	public bool ReleaseControl(ICharacter actor)
+	{
+		var occupancy = _occupancies.FirstOrDefault(x => x.IsController &&
+		                                                     x.Occupant?.SamePhysicalInstance(actor) == true);
+		if (occupancy is null)
+		{
+			return false;
+		}
+
+		SetControllerOccupancy(null);
+		return true;
+	}
+
+	private void SetControllerOccupancy(long? occupancyId)
+	{
+		using (new FMDB())
+		{
+			foreach (var dbitem in FMDB.Context.VehicleOccupancies.Where(x => x.VehicleId == Id))
+			{
+				dbitem.IsController = dbitem.Id == occupancyId;
+			}
+
+			FMDB.Context.SaveChanges();
+		}
+
+		for (var i = 0; i < _occupancies.Count; i++)
+		{
+			var occupancy = _occupancies[i];
+			_occupancies[i] = new VehicleOccupancy(this, occupancy.Id, occupancy.Occupant,
+				occupancy.CharacterInstanceId, occupancy.Slot, occupancy.Id == occupancyId);
+		}
 	}
 
 	public bool CanLeave(ICharacter actor, out string reason)
@@ -835,6 +925,18 @@ public class VehicleOccupancy : FrameworkItem, IVehicleOccupancy
 				: CharacterActorReferenceKind.IdentityOnly)).Actor;
 		Slot = vehicle.Prototype.OccupantSlots.FirstOrDefault(x => x.Id == dbitem.VehicleOccupantSlotProtoId);
 		IsController = dbitem.IsController;
+	}
+
+	internal VehicleOccupancy(IVehicle vehicle, long id, ICharacter occupant, long? characterInstanceId,
+		IVehicleOccupantSlotPrototype slot, bool isController)
+	{
+		Vehicle = vehicle;
+		_id = id;
+		_name = $"Vehicle Occupancy #{id:N0}";
+		Occupant = occupant;
+		CharacterInstanceId = characterInstanceId;
+		Slot = slot;
+		IsController = isController;
 	}
 
 	public override string FrameworkItemType => "VehicleOccupancy";

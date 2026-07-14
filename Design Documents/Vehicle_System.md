@@ -24,7 +24,7 @@ Phase 1 and the Phase 2 route-ready vehicle-systems slices are present:
 - Projection components for access points, cargo spaces, and installable vehicle modules.
 - `thing@vehicle` targeting for projected access/cargo/module items through the exterior item.
 - `ItemScale` and `RoomContainer` authoring through compartments, slots, stations, and cell-visible exterior item projection.
-- Player commands: `embark`, `disembark`, `drive`, and ordinary movement commands while controlling a vehicle.
+- Player commands: `embark`, `disembark`, `vehiclecontrol`, `vehiclestatus`, `drive`, and ordinary movement commands while controlling a vehicle.
 - Admin/builder commands: `vehicleproto` for prototype authoring and creation, `vehicle` for live diagnostics and relinking.
 - Cell-exit movement strategy with controller, location, profile, exit-size, transition, disabled/destroyed, closed-access, required installation, required role, fuel, power, and recursive tow-train validation.
 - Tow-train service for hitch validation, cycle prevention, tow-point usage checks, recursive train weight checks, required `IHitchGear`/legacy `IDragAid` connector item validity, in-use item reservation, and loaded broken-link diagnostics.
@@ -51,6 +51,24 @@ The following areas are deliberately scaffolded rather than fully built:
 - Route, coordinate, and `RoomScale` movement.
 - Full route, coordinate, and RoomScale scripting APIs beyond the implemented cell-exit readiness predicates.
 - Interior cell networks for `RoomScale` vehicles.
+
+### MudSharp 2.0 Vehicle V1 Boundary
+
+Vehicle V1 is the complete manual cell-exit vehicle system. Its supported vehicle scales are `ItemScale` and `RoomContainer`, represented by one cell-visible exterior item. The stable contract includes occupancy and explicit control handoff, compartments and control stations, access and locks, cargo, installed modules, damage and repair, fuel and power preflight, hitches and recursive towing, persistence/reboot recovery, player commands, builder authoring, staff diagnostics, and the existing vehicle FutureProg predicates.
+
+The following are explicitly post-V1 and are not part of the MudSharp 2.0 stable promise: authored or scheduled routes, coordinate 2D/3D movement, `RoomScale` moving interiors, rich ownership/lease policy, and full electrical/liquid network simulation. Builders cannot submit a `RoomScale` prototype under the V1 validator.
+
+Route movement is not a moderately trivial extension. Existing cell-exit readiness and hitch-graph services are reusable foundations, but a production route system still requires all of the following cohesive work:
+
+| Required route slice | New work beyond cell-exit driving |
+| --- | --- |
+| Domain and persistence | Revisioned routes, ordered stops/legs, schedules, delays, active journey state, and migrations/load order |
+| Runtime orchestration | Scheduler ownership, boarding windows, dwell/departure state, path invalidation, cancellation, and reboot resumption |
+| Builder workflow | Route/stop/schedule authoring, previews, validation, diagnostics, and safe revision/deletion behaviour |
+| Player workflow | Discoverable services, destinations, boarding/alighting rules, departure information, delay/cancellation presentation, and access failures |
+| Integration and verification | Resource charging per leg, damage/tow interruption, automation/employment hooks, persistence tests, live timetable tests, and failure recovery |
+
+That work is a distinct subsystem-sized patch. Shipping it merely to change the V1 label would increase pre-release risk; deferring it preserves a coherent, testable manual vehicle contract without pretending the route scaffolding is complete.
 
 ## Domain Model
 
@@ -251,6 +269,9 @@ Current player commands:
 - `embark <vehicle> <slot id|driver|passenger|crew>`
 - `embark <vehicle> [slot] via <access id|name>`
 - `disembark`
+- `vehiclecontrol` / `takecontrol`
+- `vehiclecontrol release` / `releasecontrol`
+- `vehiclestatus [vehicle]`
 - `drive <direction>`
 - ordinary movement commands such as `north`, `east`, `enter`, or `leave` while controlling a vehicle
 - `install <held module> <vehicle> [install point]`
@@ -277,6 +298,8 @@ Boarding rules currently check:
 Driving rules currently check:
 
 - the actor is the vehicle controller
+- the exterior item exists, is intact, and is synchronised with the canonical vehicle cell and layer
+- the controller is not in combat or blocked by a general/movement delayed action such as crafting
 - operational readiness access grants allow control when access rows exist
 - the actor is in the same canonical cell and room layer as the vehicle
 - the vehicle is at the exit origin
@@ -286,11 +309,14 @@ Driving rules currently check:
 - the exit has a viable movement transition for the driver
 - the vehicle is not disabled or destroyed
 - required access points are closed
+- every occupant slot marked required for movement is staffed
 - required installed modules and roles are present, correctly typed, enabled, not destroyed, and above their movement condition thresholds
 - configured fuel and power are available from functional installed candidate modules
 - recursive tow-train links are valid, tow points are not damage-disabled, hitch items are co-located, all towed vehicles fit through the exit, and any valid strained link survives the tow-stress catastrophe preflight
 
-When a controller enters an ordinary movement command, character movement redirects it to vehicle movement before walking movement is attempted. This means a bicycle rider can type `north` instead of `drive north`; the explicit `drive` command remains available for clarity. Vehicle movement uses the normal movement pipeline shape: it sets the actor's current `IMovement`, applies a movement delay, supports turn-around cancellation and queued follow-up movement commands, marks the vehicle as moving while in transit, and resolves the movement after the scheduled step.
+The first occupant to board an eligible driver slot with a configured control station takes control automatically. A controller can release it with `vehiclecontrol release`; another occupant in an eligible driver slot can then use `vehiclecontrol` to take over. `vehiclestatus` gives players a compact view of controller, crew, access, cargo, modules, damage, and—when they control it—the full cell-exit preflight result.
+
+When a controller enters an ordinary movement command, character movement redirects it to vehicle movement before walking movement is attempted. This means a bicycle rider can type `north` instead of `drive north`; the explicit `drive` command remains available for clarity. Vehicle movement uses the normal movement pipeline shape: it sets the actor's current `IMovement`, applies a movement delay, supports turn-around cancellation and queued follow-up movement commands, marks the vehicle as moving while in transit, and resolves the movement after the scheduled step. Delayed movement revalidates at departure commit, rolls tow catastrophe exactly once at that commit, and completes the exact validated hitch/resource plan rather than rebuilding or failing open.
 
 Visible occupants of a vehicle are presented in the same style as mounted riders. If a character is visibly occupying a vehicle whose exterior item is also visible in the same cell and layer, their long description says they are riding that vehicle, and the exterior item is suppressed from the separate item list to avoid duplicate room lines. If occupants are not visible in the cell, the exterior item remains the room-facing presentation.
 
@@ -439,6 +465,8 @@ It moves a vehicle between adjacent cells through normal exits.
 Current validation:
 
 - actor must be the controller and must have control access when explicit access rows exist
+- exterior projection must exist, be intact, and match the canonical cell and layer
+- controller must not be in combat or blocked by a movement/general delayed action
 - actor must be in the same canonical cell and room layer as the vehicle
 - vehicle must be at the exit origin
 - vehicle prototype must support `CellExit`
@@ -448,6 +476,7 @@ Current validation:
 - exit transition must be viable
 - vehicle must not be disabled or destroyed
 - configured access points that must be closed are closed
+- occupant slots marked required for movement are staffed
 - required modules and roles must be installed, enabled, correctly typed, not destroyed, and above their movement condition thresholds
 - fuel and power candidates must be functional and have the required resource or spike capacity
 - recursive tow-train links must be graph-valid, fit through the exit, remain within hard tow capacities, and survive any tow-stress catastrophe roll
@@ -464,6 +493,7 @@ Current movement behaviour:
 - invoke exterior `IConnectable` force-move cleanup so cables, chargers, and similar independent connections do not remain logically connected across cells
 - move co-located occupants to the destination cell and layer as participants in the vehicle movement, clearing any stale occupancy records that are no longer co-located with the vehicle
 - consume configured fuel and power only after all access, movement, tow, and catastrophe preflight succeeds
+- preserve and complete the exact validated resource/hitch plan, with one catastrophe roll at departure commit and no fail-open fallback
 - move all recursively towed vehicles, hitch items, and occupants exactly once through the unified hitch graph
 - mark vehicle as `Cell` and `Stationary`
 - clear current exit and destination fields
@@ -541,11 +571,13 @@ Currently covered by implementation:
 
 - Creating a vehicle prototype can link a valid exterior item prototype and automatically attach the internal vehicle exterior component.
 - Vehicle prototype creation/submission requires an exterior item component linked to the vehicle prototype.
+- Vehicle prototype submission rejects `RoomScale`, missing driver control stations, ambiguous primary control stations, and non-finite/invalid movement, tow, stress, or damage values.
 - Generic item loading is blocked for vehicle exterior shells through `PreventManualLoad`.
 - Creating a vehicle instance creates a live `Vehicle` and exterior `GameItem`.
 - Vehicle and exterior item have bidirectional links after factory creation.
 - Save/load preserves prototype, exterior item id, canonical location, room layer, movement state, occupancies, and access rows.
 - ItemScale vehicles can be boarded, controlled, moved through a valid cell exit, and exited.
+- Drivers can explicitly release and take control, and players can inspect a compact vehicle status/readiness view.
 - Occupied exterior items reject normal item pickup/repositioning.
 - Occupied exterior items reject being hauled into containers.
 - Forced relocation of the exterior item either moves visible occupants with the exterior to its new cell or clears occupancy if the exterior no longer has a cell location.
@@ -559,6 +591,7 @@ Currently covered by implementation:
 - `hatch@vehicle`, `trunk@vehicle`, and installed module targeting resolves through normal item targeting.
 - Access point projections implement normal open/close/lockable item behaviour while storing canonical state on `VehicleAccessPoint`.
 - Cargo projections gate normal container components through vehicle access rules.
+- Cargo and installation points with a required access point fail closed if that live access point is missing, disabled, locked, or closed.
 - Installed modules use `VehicleInstallableGameItemComponent` and existing `install` / `uninstall` commands.
 - Movement can be blocked by access denial, disabled/destroyed zones, damage-linked movement profiles, open must-close access points, missing or low-condition modules, missing roles, insufficient fuel, insufficient power, invalid recursive tow trains, or tow-stress catastrophe.
 - Exterior item damage creates vehicle-zone wounds rather than ordinary exterior item wounds.
@@ -571,7 +604,7 @@ Currently covered by implementation:
 
 Still to implement:
 
-- Full player-facing vehicle deletion/destruction lifecycle beyond the current exterior-item fail-safe disembark behaviour.
+- Optional player-facing vehicle retirement/deletion UX. V1 treats the canonical record as a durable asset: a missing or destroyed exterior fails movement closed and staff use `vehicle recover`/relink diagnostics rather than allowing an invisible vehicle to move.
 - Rich physical access-device authoring, ownership, and lease tooling beyond simple character grants, presets, fleet helpers, and existing projection locks.
 - Terrain/layer restrictions beyond the existing exit transition rules.
 - Richer hitch item mechanics, broader recovery UX, and fuller fuel/power network topologies.
@@ -600,7 +633,7 @@ Scope:
 
 ### Phase 2: Vehicle Systems
 
-Status: implemented for cell-exit operational readiness; partially implemented for broader vehicle-system maturity.
+Status: complete for the MudSharp 2.0 manual cell-exit V1 boundary. Broader post-V1 movement families remain planned.
 
 Implemented scope:
 
@@ -627,17 +660,20 @@ Implemented scope:
 - tow-stress policy configuration through static defaults and per-tow-point builder overrides
 - `vehicle audit`, `vehicle recover`, and `vehicle fleet` helpers for staff support of local, zone, prototype, or global vehicle sets
 - FutureProg predicates for vehicle identity, action readiness, start readiness, train weight, stress ratio, and readiness reason text
+- explicit player control transfer and compact player-facing status/preflight diagnostics
+- fail-closed required-access, exterior synchronisation, combat/action-blocker, required-crew, and delayed-movement commit validation
+- revision-stable access/cargo projection markers whose live factory links target the exact child system record
 
-Remaining Phase 2 scope:
+Deliberate post-V1 extensions:
 
 - rich physical access-device authoring, ownership, and lease tooling beyond simple character grants, presets, and existing projection locks
 - fuller fuel, power, electrical, and liquid network topology support beyond installed candidate modules
 - richer hitch item mechanics and broader recovery UX beyond the current stress-policy and staff recovery commands
 - deletion/destruction lifecycle polish and deeper builder diagnostics for all system records
 
-Recommended next major slice: **Phase 3 - Route Movement Foundations**. The route slice should build authored route networks, stops, schedules, boarding windows, route previews, and automated transit on top of the existing route-ready readiness predicates. Acceptance should focus on one simple scheduled route that can explain access, start, fuel/power, tow, and damage failures before departure, consume resources only on successful movement, recover cleanly after reboot, and avoid starting coordinate or RoomScale movement.
+Recommended post-release major slice: **Phase 3 - Route Movement Foundations**. The route slice should build authored route networks, stops, schedules, boarding windows, route previews, and automated transit on top of the existing route-ready readiness predicates. Acceptance should focus on one simple scheduled route that can explain access, start, fuel/power, tow, and damage failures before departure, consume resources only on successful movement, recover cleanly after reboot, and avoid starting coordinate or RoomScale movement.
 
-This is now recommended because the cell-exit operational base can answer whether a vehicle can board, start, move, consume resources, recover from damage, and report why not. Phase 3 should reuse those diagnostics rather than adding a second preflight path.
+This is post-V1 because the cell-exit operational base can already answer whether a vehicle can board, start, move, consume resources, recover from damage, and report why not, while route state requires its own persistence, scheduler, builder, player timetable, reboot, and integration contract. Phase 3 should reuse those diagnostics rather than adding a second preflight path.
 
 Cargo and installed systems should reuse existing item/container/component infrastructure, but the vehicle decides which compartment or attachment point exposes each item capability.
 

@@ -429,9 +429,32 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 				: $"That vehicle cannot move because {damageReason}.");
 		}
 
+		if (vehicle.ExteriorItem is null || vehicle.ExteriorItem.Deleted || vehicle.ExteriorItem.Destroyed)
+		{
+			return Fail("That vehicle does not have an intact linked exterior item and cannot move.");
+		}
+
+		if (vehicle.ExteriorItem.Location != vehicle.Location || vehicle.ExteriorItem.RoomLayer != vehicle.RoomLayer)
+		{
+			return Fail("That vehicle's exterior item is not in its canonical location. An administrator must recover it before the vehicle can move.");
+		}
+
 		if (vehicle.Controller != actor)
 		{
 			return Fail("You must be in control of the vehicle to move it.");
+		}
+
+		if (actor.Combat is not null)
+		{
+			return Fail("You cannot drive a vehicle while you are engaged in combat.");
+		}
+
+		var blockingEffect = actor.Effects.FirstOrDefault(x => x.Applies() &&
+			(x.IsBlockingEffect("movement") || x.IsBlockingEffect("general")));
+		if (blockingEffect is not null)
+		{
+			var blockingType = blockingEffect.IsBlockingEffect("movement") ? "movement" : "general";
+			return Fail($"You cannot drive while you are {blockingEffect.BlockingDescription(blockingType, actor)}.");
 		}
 
 		if (!CanPerformAction(vehicle, actor, VehicleOperationalAction.Control, out var accessResult))
@@ -447,6 +470,14 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 		if (actor.RoomLayer != vehicle.RoomLayer)
 		{
 			return Fail("You must be on the same room layer as the vehicle to move it.");
+		}
+
+		var requiredSlots = vehicle.Prototype.OccupantSlots?.Where(x => x.RequiredForMovement).ToList() ?? [];
+		var missingRequiredSlot = requiredSlots.FirstOrDefault(slot =>
+			vehicle.Occupancies.All(x => x.Slot.Id != slot.Id));
+		if (missingRequiredSlot is not null)
+		{
+			return Fail($"The required {missingRequiredSlot.Name} occupant slot must be staffed before the vehicle can move.");
 		}
 
 		var profile = request.MovementProfile ?? MovementProfile(vehicle);

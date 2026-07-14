@@ -79,12 +79,12 @@ public class VehicleCargoSpaceGameItemComponentProto : GameItemComponentProto, I
 
 	public override bool CanSubmit()
 	{
-		return CargoSpacePrototype is not null;
+		return VehiclePrototype is not null;
 	}
 
 	public override string WhyCannotSubmit()
 	{
-		return "You must link this component to a vehicle cargo space prototype.";
+		return "You must link this component to a vehicle prototype.";
 	}
 
 	public override string ComponentDescriptionOLC(ICharacter actor)
@@ -94,7 +94,7 @@ public class VehicleCargoSpaceGameItemComponentProto : GameItemComponentProto, I
 Linked Vehicle Prototype: {(VehiclePrototype is null ? "None".ColourError() : $"{VehiclePrototype.Name.ColourName()} (#{VehiclePrototype.Id.ToString("N0", actor)}r{VehiclePrototype.RevisionNumber.ToString("N0", actor)})")}
 Linked Cargo Space: {(CargoSpacePrototype is null ? "None".ColourError() : $"{CargoSpacePrototype.Name.ColourName()} (#{CargoSpacePrototype.Id.ToString("N0", actor)})")}
 
-This component marks an item as a projected vehicle cargo space. Add a normal container component to the same item prototype to hold cargo.";
+This component is a stable marker for projected cargo spaces belonging to this vehicle prototype. The linked cargo space is an authoring hint; the vehicle factory links each runtime item to its exact cargo space. Add a normal container component to the same item prototype.";
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
@@ -158,5 +158,5 @@ This component marks an item as a projected vehicle cargo space. Add a normal co
 
 	#3name <name>#0 - sets the component name
 	#3desc <description>#0 - sets the component description
-	#3vehicle <vehicle proto> <cargo id>#0 - links this component to a vehicle cargo space prototype";
+	#3vehicle <vehicle proto> <cargo id>#0 - links this marker to a vehicle prototype and records an authoring cargo-space hint";
 }

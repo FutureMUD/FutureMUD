@@ -804,6 +804,8 @@ public class VehicleTowServiceTests
 		exterior.SetupGet(x => x.Id).Returns(id * 100L);
 		exterior.SetupGet(x => x.Weight).Returns(weight);
 		exterior.SetupGet(x => x.Size).Returns(size);
+		exterior.SetupGet(x => x.Location).Returns(location);
+		exterior.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		exterior.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
 			It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(name);
 

@@ -251,7 +251,13 @@ public class VehicleCargoSpace : FrameworkItem, IVehicleCargoSpace
 		if (Prototype.RequiredAccessPoint is not null)
 		{
 			var access = Vehicle.AccessPoints.FirstOrDefault(x => x.Prototype.Id == Prototype.RequiredAccessPoint.Id);
-			if (access is not null && !access.CanUse(actor, out reason))
+			if (access is null)
+			{
+				reason = $"The required {Prototype.RequiredAccessPoint.Name} access point is missing from that vehicle.";
+				return false;
+			}
+
+			if (!access.CanUse(actor, out reason))
 			{
 				return false;
 			}
@@ -373,7 +379,13 @@ public class VehicleInstallation : FrameworkItem, IVehicleInstallation
 		if (Prototype.RequiredAccessPoint is not null)
 		{
 			var access = Vehicle.AccessPoints.FirstOrDefault(x => x.Prototype.Id == Prototype.RequiredAccessPoint.Id);
-			if (access is not null && !access.CanUse(actor, out reason))
+			if (access is null)
+			{
+				reason = $"The required {Prototype.RequiredAccessPoint.Name} access point is missing from that vehicle.";
+				return false;
+			}
+
+			if (!access.CanUse(actor, out reason))
 			{
 				return false;
 			}
@@ -424,6 +436,21 @@ public class VehicleInstallation : FrameworkItem, IVehicleInstallation
 			reason = Vehicle.DamageDisabledReason(VehicleDamageEffectTargetType.InstallationPoint, Prototype.Id);
 			reason = string.IsNullOrWhiteSpace(reason) ? "That installation point is disabled." : $"That installation point is disabled because {reason}.";
 			return false;
+		}
+
+		if (Prototype.RequiredAccessPoint is not null)
+		{
+			var access = Vehicle.AccessPoints.FirstOrDefault(x => x.Prototype.Id == Prototype.RequiredAccessPoint.Id);
+			if (access is null)
+			{
+				reason = $"The required {Prototype.RequiredAccessPoint.Name} access point is missing from that vehicle.";
+				return false;
+			}
+
+			if (!access.CanUse(actor, out reason))
+			{
+				return false;
+			}
 		}
 
 		reason = string.Empty;

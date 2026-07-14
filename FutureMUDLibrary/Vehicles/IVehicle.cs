@@ -42,6 +42,9 @@ public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable
 	bool CanBoard(ICharacter actor, IVehicleOccupantSlotPrototype slot, IVehicleAccessPoint accessPoint, out string reason);
 	bool Board(ICharacter actor, IVehicleOccupantSlotPrototype slot = null);
 	bool Board(ICharacter actor, IVehicleOccupantSlotPrototype slot, IVehicleAccessPoint accessPoint);
+	bool CanTakeControl(ICharacter actor, out string reason);
+	bool TakeControl(ICharacter actor);
+	bool ReleaseControl(ICharacter actor);
 	bool CanLeave(ICharacter actor, out string reason);
 	bool Leave(ICharacter actor);
 	bool CanMove(ICharacter actor, ICellExit exit, out string reason);

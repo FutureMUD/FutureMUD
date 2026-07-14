@@ -96,6 +96,8 @@ public class VehicleMovementCommandTests
 
 		var exterior = new Mock<IGameItem>();
 		exterior.SetupGet(x => x.Size).Returns(SizeCategory.Normal);
+		exterior.SetupGet(x => x.Location).Returns(origin.Object);
+		exterior.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		exterior.Setup(x => x.HowSeen(actor.Object, It.IsAny<bool>(), It.IsAny<DescriptionType>(), It.IsAny<bool>(),
 			It.IsAny<PerceiveIgnoreFlags>())).Returns("a QA test bicycle");
 		actor.Setup(x => x.CanSee(exterior.Object, It.IsAny<PerceiveIgnoreFlags>())).Returns(true);

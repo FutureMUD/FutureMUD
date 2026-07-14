@@ -172,6 +172,10 @@ vehicle list
 vehicle show <vehicle id>
 look
 embark bicycle driver
+vehiclestatus
+vehiclecontrol release
+north
+vehiclecontrol
 look
 get bicycle
 north
@@ -189,6 +193,8 @@ Expected result:
 - After boarding, the rider's room long description shows them riding the bicycle, and the bicycle is not repeated as a separate item line while it is already mentioned in that rider line.
 - `get bicycle` while someone is riding it is rejected because the exterior item is occupied.
 - `north` and `south` work as aliases for `drive north` and `drive south` while the rider controls the bicycle.
+- `vehiclestatus` identifies the controller and reports a successful cell-exit preflight while controlled.
+- after `vehiclecontrol release`, movement is rejected until an eligible driver uses `vehiclecontrol`; a passenger or driver slot without a configured station cannot take control.
 - Vehicle movement has the normal movement rhythm: a begin/departure echo naming the rider and bicycle, movement delay, riding-style arrival echo such as `rides in from the South on a QA test bicycle`, and a refreshed look after arrival.
 - `disembark` with no arguments executes the command and returns the character to ordinary cell presence beside the exterior item; it should not show the help file unless you ask for help.
 - After disembarking, `get bicycle` follows ordinary item rules for the exterior item prototype. If the hull prototype was made holdable, staff/players with normal permissions can pick it up; if it was not holdable, the usual item-system refusal is expected.
@@ -661,6 +667,7 @@ The current implementation should be considered fully supported for:
 - recursive tow trains made from cell-visible vehicles, provided they stay within cell-exit movement and use co-located compatible hitch items;
 - active mount/character-pulled carts, wagons, rickshaws, hand carts, and similar vehicle exteriors, including carts with downstream vehicle tow links, while the hitch is a live movement effect or an eligible NPC-only persistent hitch;
 - player-facing exterior repair through ordinary repair kits, admin damage/hitch recovery, and tow catastrophe recovery for the current cell-exit movement model.
+- explicit driver control handoff, player-facing readiness/status checks, required-crew enforcement, and fail-closed movement when an exterior projection is missing or out of sync.
 
 The current implementation should not yet be considered fully supported for:
 
@@ -668,3 +675,5 @@ The current implementation should not yet be considered fully supported for:
 - coordinate-positioned vehicles;
 - aircraft, spacecraft, elevators, or ships with large moving interiors;
 - vehicles that need rich ownership or lease policy, rich parked-harness administration, or detailed fuel/power topology beyond installed module candidates.
+
+This list is the MudSharp 2.0 Vehicle V1 boundary. Route, coordinate, and moving-interior work is post-V1 rather than an incomplete part of this test contract.

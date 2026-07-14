@@ -79,12 +79,12 @@ public class VehicleAccessPointGameItemComponentProto : GameItemComponentProto, 
 
 	public override bool CanSubmit()
 	{
-		return AccessPointPrototype is not null;
+		return VehiclePrototype is not null;
 	}
 
 	public override string WhyCannotSubmit()
 	{
-		return "You must link this component to a vehicle access point prototype.";
+		return "You must link this component to a vehicle prototype.";
 	}
 
 	public override string ComponentDescriptionOLC(ICharacter actor)
@@ -94,7 +94,7 @@ public class VehicleAccessPointGameItemComponentProto : GameItemComponentProto, 
 Linked Vehicle Prototype: {(VehiclePrototype is null ? "None".ColourError() : $"{VehiclePrototype.Name.ColourName()} (#{VehiclePrototype.Id.ToString("N0", actor)}r{VehiclePrototype.RevisionNumber.ToString("N0", actor)})")}
 Linked Access Point: {(AccessPointPrototype is null ? "None".ColourError() : $"{AccessPointPrototype.Name.ColourName()} (#{AccessPointPrototype.Id.ToString("N0", actor)})")}
 
-This component marks an item as a projected vehicle access point. It prevents manual item loading; create vehicle projections through the vehicle factory.";
+This component is a stable marker for projected access points belonging to this vehicle prototype. The linked access point is an authoring hint; the vehicle factory links each runtime item to its exact access point. It prevents manual item loading.";
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
@@ -158,5 +158,5 @@ This component marks an item as a projected vehicle access point. It prevents ma
 
 	#3name <name>#0 - sets the component name
 	#3desc <description>#0 - sets the component description
-	#3vehicle <vehicle proto> <access id>#0 - links this component to a vehicle access point prototype";
+	#3vehicle <vehicle proto> <access id>#0 - links this marker to a vehicle prototype and records an authoring access-point hint";
 }

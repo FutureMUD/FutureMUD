@@ -1,4 +1,4 @@
-﻿# FutureMUD Design Documents
+# FutureMUD Design Documents
 
 This folder is organised by subsystem so implementation notes, builder workflows, reference catalogues, and audit reports live near the systems they describe.
 
@@ -38,6 +38,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 ## Core
 - [FutureProg Type System](./Core/FutureProg_Type_System.md)
+- [MudSharp 2.0 Release Readiness Audit](./Core/MudSharp_2_0_Release_Readiness_Audit.md)
 - [Patch Notes Authoring Guide](./Core/Patch_Notes_Authoring_Guide.md)
 
 ## Crafting

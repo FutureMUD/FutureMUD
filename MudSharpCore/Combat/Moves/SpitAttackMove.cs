@@ -14,7 +14,7 @@ namespace MudSharp.Combat.Moves;
 
 public class SpitAttackMove : NaturalRangedAttackMoveBase
 {
-    public SpitAttackMove(ICharacter owner, INaturalAttack attack, ICharacter target) : base(owner, attack, target)
+    public SpitAttackMove(ICharacter owner, INaturalAttack attack, IPerceiver target) : base(owner, attack, target)
     {
     }
 

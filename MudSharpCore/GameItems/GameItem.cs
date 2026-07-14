@@ -1120,6 +1120,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             return;
         }
 
+		OnFire.ExtinguishWith(this, mixture);
         ResolveSurfaceLiquidDrying();
         foreach (IGameItemComponent component in _components)
         {

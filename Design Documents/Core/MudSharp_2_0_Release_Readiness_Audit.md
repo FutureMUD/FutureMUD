@@ -339,7 +339,10 @@ dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWa
 Results:
 
 - `MudSharpCore` build: **passed**, 0 warnings, 0 errors.
-- `MudSharpCore Unit Tests`: **passed**, 1,668 passed, 0 failed, 0 skipped.
+- `DatabaseSeeder` build: **passed**, 0 warnings, 0 errors.
+- `MudSharpCore Unit Tests`: **passed**, 1,678 passed, 0 failed, 0 skipped.
+- `DatabaseSeeder Unit Tests` excluding the unrelated blank-snapshot asset check: **passed**, 512 passed, 0 failed, 0 skipped.
+- The unfiltered seeder suite reports the pre-existing committed blank snapshot as stale: its SQL/manifest ends at `20260701122720_ClanHallCellsForEmploymentHosts`, while source migrations now end at `20260708120000_HospitalClinicalPlanning`. Regenerating that maintained SQL snapshot is release-packaging work and was not misrepresented as a natural-ranged failure.
 - No live MUD, external AI-provider, or long-duration soak test was claimed by this audit.
 
 Natural-ranged closeout verification from merged PR #478 on 14 July 2026:

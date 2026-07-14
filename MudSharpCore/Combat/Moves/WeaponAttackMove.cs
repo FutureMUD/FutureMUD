@@ -122,7 +122,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
     }
 
     //Return a factor that compares the hardness of the attacking material and the target material
-    protected double CalculateRelativeHardness(ICharacter assailant, ICharacter target,
+    protected double CalculateRelativeHardness(ICharacter assailant, IPerceivable target,
         IBodypart attackingBodypart, IBodypart targetBodypart, ISolid targetMaterial,
         Outcome attackOutcome, DamageType damageType)
     {
@@ -155,11 +155,11 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
                 break;
         }
 
-        double defenderAverageHardness = targetBodypart != null
-            ? target.Body.WornItemsProfilesFor(targetBodypart)
+        double defenderAverageHardness = target is ICharacter targetCharacter && targetBodypart != null
+            ? targetCharacter.Body.WornItemsProfilesFor(targetBodypart)
                     .Where(x => !x.Item2.NoArmour && x.Item1.IsItemType<IArmour>())
                     .SelectNotNull(x => x.Item1.Material as ISolid)
-                    .Plus(target.Body.GetMaterial(targetBodypart) as ISolid)
+                    .Plus(targetCharacter.Body.GetMaterial(targetBodypart) as ISolid)
                     .Max(x => x?.Density ?? 0)
             : targetMaterial?.Density ?? 0;
 
@@ -263,7 +263,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
         return (finalDamage, selfDamage);
     }
 
-    protected Tuple<IDamage, IDamage> GetDamagePlusSelfDamage(ICharacter target,
+    protected Tuple<IDamage, IDamage> GetDamagePlusSelfDamage(IPerceivable target,
         IBodypart attackingBodypart, IBodypart targetBodypart, ISolid targetMaterial,
         Outcome attackOutcome, DamageType damageType, double attackAngle, INaturalAttack attack,
         OpposedOutcomeDegree degree)
@@ -284,12 +284,12 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
         double damageResult =
             attack.Attack.Profile.DamageExpression.Evaluate(Assailant,
                 context: TraitBonusContext.UnarmedDamageCalculation);
-        double stunResult =
-            attack.Attack.Profile.DamageExpression.Evaluate(Assailant,
-                context: TraitBonusContext.UnarmedDamageCalculation);
-        double painResult =
-            attack.Attack.Profile.DamageExpression.Evaluate(Assailant,
-                context: TraitBonusContext.UnarmedDamageCalculation);
+		double stunResult =
+			attack.Attack.Profile.StunExpression.Evaluate(Assailant,
+				context: TraitBonusContext.UnarmedDamageCalculation);
+		double painResult =
+			attack.Attack.Profile.PainExpression.Evaluate(Assailant,
+				context: TraitBonusContext.UnarmedDamageCalculation);
 
         Damage finalDamage = new()
         {
@@ -302,7 +302,11 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
             DamageType = attack.Attack.Profile.DamageType,
             PainAmount = painResult * relativeHardness * 2 * attackAngle / Math.PI,
             PenetrationOutcome =
-                Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
+                Gameworld.GetCheck(Attack.MoveType is BuiltInCombatMoveType.RangedNaturalAttack or
+					BuiltInCombatMoveType.BreathWeaponAttack or BuiltInCombatMoveType.SpitNaturalAttack or
+					BuiltInCombatMoveType.ExplosiveNaturalAttack or BuiltInCombatMoveType.BuffetingNaturalAttack
+						? CheckType.RangedWeaponPenetrateCheck
+						: CheckType.MeleeWeaponPenetrateCheck)
                          .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType), target),
             ShockAmount = 0,
             StunAmount = stunResult * relativeHardness * 2 * attackAngle / Math.PI

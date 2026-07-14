@@ -1,5 +1,6 @@
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -13,7 +14,7 @@ namespace MudSharp.Combat.Moves;
 
 public class BreathWeaponAttackMove : NaturalRangedAttackMoveBase
 {
-    public BreathWeaponAttackMove(ICharacter owner, INaturalAttack attack, ICharacter target) : base(owner, attack, target)
+    public BreathWeaponAttackMove(ICharacter owner, INaturalAttack attack, IPerceiver target) : base(owner, attack, target)
     {
     }
 
@@ -48,19 +49,38 @@ public class BreathWeaponAttackMove : NaturalRangedAttackMoveBase
         return wounds;
     }
 
-    protected override IEnumerable<IWound> ApplySuccessfulHit(IPerceiver target, CheckOutcome attackOutcome,
-        OpposedOutcomeDegree degree, IBodypart bodypart)
-    {
-        List<ICharacter> victims = target.LocalThingsAndProximities()
-                          .Where(x => x.Thing is ICharacter)
-                          .OrderBy(x => x.Proximity)
-                          .Select(x => x.Thing)
-                          .OfType<ICharacter>()
-                          .Distinct()
-                          .Take(BreathAttack.AdditionalTargetLimit + 1)
-                          .ToList();
-        return ApplyBreathToVictims(victims, attackOutcome, degree);
-    }
+	protected override IEnumerable<IWound> ApplySuccessfulHit(IPerceiver target, CheckOutcome attackOutcome,
+		OpposedOutcomeDegree degree, IBodypart bodypart)
+	{
+		if (target is not ICharacter primaryTarget)
+		{
+			List<IWound> wounds = base.ApplySuccessfulHit(target, attackOutcome, degree, bodypart).ToList();
+			if (BreathAttack.FireProfile is not null && BreathAttack.IgniteChance > 0.0 &&
+				RandomUtilities.Roll(1.0, BreathAttack.IgniteChance))
+			{
+				OnFire.Apply(target, BreathAttack.FireProfile);
+			}
+
+			return wounds;
+		}
+
+		List<ICharacter> victims = SelectBreathVictims(primaryTarget, Assailant,
+			BreathAttack.AdditionalTargetLimit).ToList();
+		return ApplyBreathToVictims(victims, attackOutcome, degree);
+	}
+
+	internal static IEnumerable<ICharacter> SelectBreathVictims(ICharacter primaryTarget, ICharacter assailant,
+		int additionalTargetLimit)
+	{
+		return new[] { primaryTarget }
+			.Concat(primaryTarget.LocalThingsAndProximities()
+				.Where(x => x.Proximity <= Proximity.Proximate)
+				.Select(x => x.Thing)
+				.OfType<ICharacter>())
+			.Where(x => x != assailant)
+			.Distinct()
+			.Take(Math.Max(0, additionalTargetLimit) + 1);
+	}
 
     protected override void HandleScatterImpact(RangedScatterResult scatter, CheckOutcome attackOutcome)
     {

@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
@@ -2248,7 +2249,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             string BreathAttackData(int rangeInRooms, RangedScatterType scatterType, int additionalTargets,
                 int bodypartsPerTarget, double igniteChance, string fireName, double damagePerTick, double painPerTick,
                 double stunPerTick, double thermalLoadPerTick, double spreadChance, double minimumOxidation,
-                bool selfOxidising)
+                bool selfOxidising, long extinguishTagId)
             {
                 return new XElement("Data",
                     new XElement("RangeInRooms", rangeInRooms),
@@ -2267,7 +2268,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                         new XElement("MinimumOxidation", minimumOxidation),
                         new XElement("SelfOxidising", selfOxidising),
                         new XElement("TickFrequencySeconds", 10),
-                        new XElement("ExtinguishTags")))
+                        new XElement("ExtinguishTags", new XElement("Tag", extinguishTagId))))
                 .ToString();
             }
 
@@ -2566,7 +2567,8 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                     Alignment.Front, Orientation.High, 10.0, 1.6, mouthshape, dragonfireDamage,
                     $"@ rear|rears up and unleash|unleashes a roaring cone of dragonfire at $1{attackAddendum}", DamageType.Burning,
                     intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Burning | CombatMoveIntentions.Hard | CombatMoveIntentions.Slow,
-                    additionalInfo: BreathAttackData(2, RangedScatterType.Light, 3, 2, 0.35, "Dragonfire", 0.45, 0.35, 0.1, 2.5, 0.2, 0.05, true));
+                    additionalInfo: BreathAttackData(2, RangedScatterType.Light, 3, 2, 0.35, "Dragonfire", 0.45, 0.35, 0.1, 2.5, 0.2, 0.05, true,
+						_context.Tags.First(x => x.Name == "Water").Id));
             _attacks["wingbuffet"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Wing Buffet") ??
                 AddAttack("Wing Buffet", BuiltInCombatMoveType.BuffetingNaturalAttack,
                     MeleeWeaponVerb.Sweep, Difficulty.Normal, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard,
@@ -2589,7 +2591,250 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                     intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Burning | CombatMoveIntentions.Fast,
                     additionalInfo: ExplosiveAttackData(1, RangedScatterType.Arcing, SizeCategory.VerySmall, Proximity.Immediate));
         }
+
+		EnsureNaturalRangedAttackSeedData(damageExpressions);
     }
+
+	private void EnsureNaturalRangedAttackSeedData(IReadOnlyDictionary<string, string> damageExpressions)
+	{
+		var waterTag = _context.Tags.First(x => x.Name == "Water");
+		var animalSkinTag = _context.Tags.First(x => x.Name == "Animal Skin");
+		var defaultWater = _context.Liquids.FirstOrDefault(x => x.Name == "water") ?? _freshWaters.Last();
+		var animalSpittle = _context.Liquids.FirstOrDefault(x => x.Name == "animal spittle");
+		if (animalSpittle is null)
+		{
+			animalSpittle = CreateNaturalRangedLiquid("animal spittle", "spittle",
+				"a cloudy, stringy animal spittle", "It tastes rank and faintly salty.",
+				"It smells of musk and stale saliva.", "bold green", "slimed with spittle", "spat on",
+				defaultWater, LiquidInjectionConsequence.Harmful);
+		}
+
+		var animalAcid = _context.Liquids.FirstOrDefault(x => x.Name == "animal acid");
+		if (animalAcid is null)
+		{
+			animalAcid = CreateNaturalRangedLiquid("animal acid", "acid",
+				"a smoking, yellow-green acidic slurry", "It is searingly sour and painfully caustic.",
+				"It smells sharp, mineral and corrosive enough to sting the sinuses.", "bold yellow",
+				"hissing with acid", "acid-burned", defaultWater, LiquidInjectionConsequence.Deadly);
+		}
+
+		bool hasSurfaceReaction;
+		try
+		{
+			hasSurfaceReaction = !string.IsNullOrWhiteSpace(animalAcid.SurfaceReactionInfo) &&
+				XElement.Parse(animalAcid.SurfaceReactionInfo).Elements("Reaction").Any();
+		}
+		catch (XmlException)
+		{
+			hasSurfaceReaction = false;
+		}
+
+		if (!hasSurfaceReaction)
+		{
+			animalAcid.SurfaceReactionInfo = new XElement("Reactions",
+				new XElement("Reaction",
+					new XAttribute("DamageType", (int)DamageType.Chemical),
+					new XAttribute("DamagePerTick", 125.0),
+					new XAttribute("PainPerTick", 175.0),
+					new XAttribute("StunPerTick", 0.0),
+					new XElement("Tags", new XElement("Tag", animalSkinTag.Id))))
+				.ToString();
+		}
+
+		TraitExpression EnsureExpression(string name)
+		{
+			var expression = _context.TraitExpressions.FirstOrDefault(x => x.Name == name);
+			if (expression is not null)
+			{
+				return expression;
+			}
+
+			expression = new TraitExpression { Name = name, Expression = damageExpressions[name] };
+			_context.TraitExpressions.Add(expression);
+			_context.SaveChanges();
+			return expression;
+		}
+
+		var peckDamage = EnsureExpression("Animal Peck Damage");
+		var mandibleDamage = EnsureExpression("Animal Mandible Damage");
+		var ramDamage = EnsureExpression("Animal Ram Damage");
+		var dragonfireDamage = EnsureExpression("Dragonfire Breath Damage");
+		var mouthShape = _context.BodypartShapes.First(x => x.Name == "Mouth");
+		var mandibleShape = _context.BodypartShapes.First(x => x.Name == "Mandible");
+		var shoulderShape = _context.BodypartShapes.First(x => x.Name == "Shoulder");
+		var tailShape = _context.BodypartShapes.First(x => x.Name == "Tail");
+		var attackAddendum = CombatSeederMessageStyleHelper.AttackSuffix(
+			CombatSeederMessageStyleHelper.Parse(_questionAnswers["messagestyle"]));
+
+		string RangedData(int range, RangedScatterType scatter)
+		{
+			return new XElement("Data", new XElement("RangeInRooms", range),
+				new XElement("ScatterType", scatter.ToString())).ToString();
+		}
+
+		string SpitData(int range, RangedScatterType scatter, long liquidId, double maximumQuantity)
+		{
+			return new XElement("Data", new XElement("RangeInRooms", range),
+				new XElement("ScatterType", scatter.ToString()), new XElement("Liquid", liquidId),
+				new XElement("MaximumQuantity", maximumQuantity)).ToString();
+		}
+
+		string BreathData()
+		{
+			return new XElement("Data", new XElement("RangeInRooms", 2),
+				new XElement("ScatterType", RangedScatterType.Light.ToString()),
+				new XElement("AdditionalTargetLimit", 3), new XElement("BodypartsHitPerTarget", 2),
+				new XElement("IgniteChance", 0.35),
+				new XElement("FireProfile", new XElement("Name", new XCData("Dragonfire")),
+					new XElement("DamageType", (int)DamageType.Burning), new XElement("DamagePerTick", 0.45),
+					new XElement("PainPerTick", 0.35), new XElement("StunPerTick", 0.1),
+					new XElement("ThermalLoadPerTick", 2.5), new XElement("SpreadChance", 0.2),
+					new XElement("MinimumOxidation", 0.05), new XElement("SelfOxidising", true),
+					new XElement("TickFrequencySeconds", 10),
+					new XElement("ExtinguishTags", new XElement("Tag", waterTag.Id)))).ToString();
+		}
+
+		string BuffetingData()
+		{
+			return new XElement("Data", new XElement("RangeInRooms", 1),
+				new XElement("ScatterType", RangedScatterType.Light.ToString()),
+				new XElement("MaximumPushDistance", 1), new XElement("OffensiveAdvantagePerDegree", 0.1),
+				new XElement("DefensiveAdvantagePerDegree", 0.15), new XElement("InflictsDamage", true)).ToString();
+		}
+
+		string ExplosiveData()
+		{
+			return new XElement("Data", new XElement("RangeInRooms", 1),
+				new XElement("ScatterType", RangedScatterType.Arcing.ToString()),
+				new XElement("ExplosionSize", SizeCategory.VerySmall.ToString()),
+				new XElement("MaximumProximity", Proximity.Immediate.ToString())).ToString();
+		}
+
+		_attacks["llamaspit"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Llama Spit") ??
+			AddAttack("Llama Spit", BuiltInCombatMoveType.SpitNaturalAttack, MeleeWeaponVerb.Blast,
+				Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Alignment.Front,
+				Orientation.High, 2.0, 0.9, mouthShape, peckDamage,
+				$"@ rear|rears back and spit|spits a foul gobbet at $1{attackAddendum}", DamageType.Chemical,
+				intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+				additionalInfo: SpitData(1, RangedScatterType.Arcing, animalSpittle.Id, 0.025));
+		_attacks["acidspit"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Acid Spit") ??
+			AddAttack("Acid Spit", BuiltInCombatMoveType.SpitNaturalAttack, MeleeWeaponVerb.Blast,
+				Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Alignment.Front,
+				Orientation.High, 3.0, 1.0, mandibleShape, mandibleDamage,
+				$"@ rear|rears up and spit|spits a hissing jet of acid at $1{attackAddendum}", DamageType.Chemical,
+				intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Disadvantage,
+				additionalInfo: SpitData(2, RangedScatterType.Arcing, animalAcid.Id, 0.04));
+		_attacks["dragonfirebreath"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Dragonfire Breath") ??
+			AddAttack("Dragonfire Breath", BuiltInCombatMoveType.BreathWeaponAttack, MeleeWeaponVerb.Blast,
+				Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Alignment.Front,
+				Orientation.High, 10.0, 1.6, mouthShape, dragonfireDamage,
+				$"@ rear|rears up and unleash|unleashes a roaring cone of dragonfire at $1{attackAddendum}",
+				DamageType.Burning,
+				intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
+				            CombatMoveIntentions.Burning | CombatMoveIntentions.Hard | CombatMoveIntentions.Slow,
+				additionalInfo: BreathData());
+		_attacks["wingbuffet"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Wing Buffet") ??
+			AddAttack("Wing Buffet", BuiltInCombatMoveType.BuffetingNaturalAttack, MeleeWeaponVerb.Sweep,
+				Difficulty.Normal, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Alignment.Front,
+				Orientation.Centre, 5.0, 1.2, shoulderShape, ramDamage,
+				$"@ beat|beats &0's wings and buffet|buffets $1 with a crashing gust{attackAddendum}",
+				DamageType.Crushing,
+				intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Advantage |
+				            CombatMoveIntentions.Disadvantage, additionalInfo: BuffetingData());
+		_attacks["tailspike"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Tail Spike") ??
+			AddAttack("Tail Spike", BuiltInCombatMoveType.RangedNaturalAttack, MeleeWeaponVerb.Stab,
+				Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Alignment.Rear,
+				Orientation.Centre, 3.0, 0.8, tailShape, peckDamage,
+				$"@ snap|snaps &0's tail and launch|launches a wicked spike at $1{attackAddendum}",
+				DamageType.Piercing,
+				intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Fast,
+				additionalInfo: RangedData(2, RangedScatterType.Ballistic));
+		_attacks["bombardierspray"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Bombardier Spray") ??
+			AddAttack("Bombardier Spray", BuiltInCombatMoveType.ExplosiveNaturalAttack, MeleeWeaponVerb.Blast,
+				Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Alignment.Rear,
+				Orientation.Centre, 2.0, 0.8, mandibleShape, peckDamage,
+				$"@ vent|vents a crackling chemical burst toward $1{attackAddendum}", DamageType.Burning,
+				intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
+				            CombatMoveIntentions.Burning | CombatMoveIntentions.Fast,
+				additionalInfo: ExplosiveData());
+
+		XElement breathXml;
+		if (string.IsNullOrWhiteSpace(_attacks["dragonfirebreath"].AdditionalInfo))
+		{
+			breathXml = XElement.Parse(BreathData());
+		}
+		else try
+		{
+			breathXml = XElement.Parse(_attacks["dragonfirebreath"].AdditionalInfo);
+		}
+		catch (XmlException)
+		{
+			breathXml = XElement.Parse(BreathData());
+		}
+		var fireProfile = breathXml.Element("FireProfile");
+		if (fireProfile is null)
+		{
+			fireProfile = XElement.Parse(BreathData()).Element("FireProfile")!;
+			breathXml.Add(fireProfile);
+		}
+
+		var extinguishTags = fireProfile.Element("ExtinguishTags");
+		if (extinguishTags is null)
+		{
+			extinguishTags = new XElement("ExtinguishTags");
+			fireProfile.Add(extinguishTags);
+		}
+
+		if (!extinguishTags.Elements("Tag").Any(x => long.TryParse(x.Value, out var id) && id == waterTag.Id))
+		{
+			extinguishTags.Add(new XElement("Tag", waterTag.Id));
+			_attacks["dragonfirebreath"].AdditionalInfo = breathXml.ToString();
+		}
+
+		_context.SaveChanges();
+	}
+
+	private Liquid CreateNaturalRangedLiquid(string name, string description, string longDescription, string taste,
+		string smell, string displayColour, string wetDescription, string wetShortDescription, Liquid defaultWater,
+		LiquidInjectionConsequence injectionConsequence)
+	{
+		var liquid = new Liquid
+		{
+			Name = name,
+			Description = description,
+			LongDescription = longDescription,
+			TasteText = taste,
+			VagueTasteText = taste,
+			SmellText = smell,
+			VagueSmellText = smell,
+			TasteIntensity = 60,
+			SmellIntensity = 50,
+			WaterLitresPerLitre = 0.8,
+			Viscosity = 1.2,
+			Density = 1.0,
+			Organic = true,
+			ThermalConductivity = 0.609,
+			ElectricalConductivity = 0.005,
+			SpecificHeatCapacity = 4181,
+			FreezingPoint = -2,
+			BoilingPoint = 100,
+			DisplayColour = displayColour,
+			DampDescription = $"It is {wetDescription}",
+			WetDescription = $"It is {wetDescription}",
+			DrenchedDescription = $"It is drenched in {description}",
+			DampShortDescription = $"({wetShortDescription})",
+			WetShortDescription = $"({wetShortDescription})",
+			DrenchedShortDescription = $"(drenched in {description})",
+			SolventId = defaultWater.Id,
+			CountAsId = defaultWater.Id,
+			SolventVolumeRatio = 1,
+			InjectionConsequence = (int)injectionConsequence,
+			ResidueVolumePercentage = 0.05
+		};
+		_context.Liquids.Add(liquid);
+		_context.SaveChanges();
+		return liquid;
+	}
 
     private void CreateRaceAttacks(Race race)
     {

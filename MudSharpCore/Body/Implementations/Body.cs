@@ -1210,6 +1210,7 @@ public partial class Body : PerceiverItem, IBody
             return;
         }
 
+		OnFire.ExtinguishWith(Actor, mixture);
         ResolveSurfaceLiquidDrying();
         if (direction == LiquidExposureDirection.Irrelevant)
         {

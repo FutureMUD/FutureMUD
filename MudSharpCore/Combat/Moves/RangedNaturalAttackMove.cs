@@ -6,7 +6,7 @@ namespace MudSharp.Combat.Moves;
 
 public class RangedNaturalAttackMove : NaturalRangedAttackMoveBase
 {
-    public RangedNaturalAttackMove(ICharacter owner, INaturalAttack attack, ICharacter target) : base(owner, attack, target)
+    public RangedNaturalAttackMove(ICharacter owner, INaturalAttack attack, IPerceiver target) : base(owner, attack, target)
     {
     }
 

@@ -24,7 +24,7 @@ public class OnFire : Effect
         RegisterFactory("OnFire", (effect, owner) => new OnFire(effect, owner));
     }
 
-    public static OnFire Apply(IPerceivable owner, IFireProfile profile)
+	public static OnFire Apply(IPerceivable owner, IFireProfile profile)
     {
         OnFire existing = owner.EffectsOfType<OnFire>().FirstOrDefault();
         if (existing is not null)
@@ -36,8 +36,31 @@ public class OnFire : Effect
 
         OnFire effect = new(owner, profile);
         owner.AddEffect(effect, profile.TickFrequency);
-        return effect;
-    }
+		return effect;
+	}
+
+	internal static bool IsExtinguishing(IFireProfile profile, IEnumerable<ILiquid> liquids)
+	{
+		List<ITag> extinguishTags = profile.ExtinguishTags.ToList();
+		return extinguishTags.Any() && liquids.Any(liquid => extinguishTags.Any(liquid.IsA));
+	}
+
+	public static bool ExtinguishWith(IPerceivable owner, LiquidMixture mixture)
+	{
+		List<ILiquid> liquids = mixture.Instances
+			.Select(x => x.Liquid)
+			.Distinct()
+			.ToList();
+		List<OnFire> fires = owner.EffectsOfType<OnFire>()
+			.Where(x => IsExtinguishing(x.FireProfile, liquids))
+			.ToList();
+		foreach (OnFire fire in fires)
+		{
+			owner.RemoveEffect(fire, true);
+		}
+
+		return fires.Any();
+	}
 
     public OnFire(IPerceivable owner, IFireProfile profile, IFutureProg applicabilityProg = null) : base(owner, applicabilityProg)
     {

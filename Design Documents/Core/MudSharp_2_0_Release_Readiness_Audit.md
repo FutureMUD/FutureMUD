@@ -9,22 +9,22 @@ Primary scope: `MudSharpCore` runtime features, commands, builders, and core uni
 
 **Overall recommendation: No-Go for an all-inclusive 2.0.0 release at this snapshot.**
 
-The engine has a strong automated baseline: `MudSharpCore` builds with no warnings or errors and all 1,668 core unit tests pass with no skips. Four large feature families satisfy the audit's full readiness bar, and no reviewed subsystem needs architectural replacement. After resolving the Vehicle V1 boundary, two advertised feature families still contain reachable unfinished behavior or documentation that explicitly describes the system as only partially implemented:
+The engine has a strong automated baseline: the audited head passed all 1,668 core unit tests with no failures or skips, and the completed employment-closure worktree passed the default repository unit suite with 2,601 tests, including 1,686 core tests. Five large feature families now satisfy the audit's full readiness bar, and no reviewed subsystem needs architectural replacement. After resolving the Vehicle V1 boundary and completing the Unified Employment V1 contract, one advertised feature family still contains reachable unfinished behavior:
 
 1. **Natural ranged weapons**: the shipped blowgun and sling components throw `NotImplementedException` from `GetDamage`, so their primary firing path is incomplete.
-2. **Unified employment**: the architecture and a large action catalogue are implemented, but the owning roadmap still defers important durable authority, payroll/payment, administration, and autonomous-operation work; unsupported wage methods explicitly remain outstanding at runtime.
+Unified employment completed its explicit V1 closure on 14 July 2026: the supported host/action/payment matrix, durable provenance and grants, earnings/payables, consent, goal policy, recovery, capability providers, action/host policy, and acceptance/security coverage are release-ready. Its parent-organisation/accounting and richer native-workflow roadmap is explicitly post-V1.
 
-The release can move from **No-Go** to **Conditional Go** by completing or explicitly narrowing those two scopes. Vehicle route, coordinate, and moving-interior work is now explicitly excluded from Vehicle V1. Documentation sign-off and integration testing should then be completed for the systems listed below.
+The release can move from **No-Go** to **Conditional Go** by completing or explicitly excluding the remaining natural-ranged-weapon scope. Vehicle route, coordinate, and moving-interior work is explicitly post-V1, while the employment parent-organisation/accounting and richer native-workflow roadmap is also explicitly post-V1. Documentation sign-off and integration testing should then be completed for the systems listed below.
 
 ### Status Totals
 
 | Status | Count | Release meaning |
 | --- | ---: | --- |
-| Fully Ready | 4 | Suitable for the 2.0 stable feature set |
+| Fully Ready | 5 | Suitable for the 2.0 stable feature set |
 | Minor Polish Required | 3 | Releasable; low-risk follow-up remains |
 | Documentation Required | 7 | Runtime appears releasable, but the documentation does not yet provide a clean v1.0 sign-off |
 | Testing Required | 7 | Implementation is credible, but live/integration maturity is not sufficiently demonstrated |
-| Further Implementation Required | 2 | Must be completed, narrowed, or excluded from the stable 2.0 promise |
+| Further Implementation Required | 1 | Must be completed, narrowed, or excluded from the stable 2.0 promise |
 | Major Changes Required | 0 | No reviewed system requires replacement or a fundamental redesign |
 
 ## Audit Method
@@ -62,8 +62,8 @@ Examples deliberately excluded from blocker status include the abstract `Magical
 | NPC/group AI and event surface | New individual AI types, animal ecology, group registration and event subscriptions | **Minor Polish Required** | Strong | No |
 | AI Storyteller | Builder/help refinement on the existing persisted model/tool-loop subsystem | **Testing Required** | Strong unit coverage, no live model loop | No |
 | Economy and commerce | Markets, shop deals, hotel rentals, auctions, clan finance and security hardening | **Documentation Required** | Strong | No |
-| Unified employment and task hosts | Host persistence, task catalogue, finance, payroll, manager goals and scheduling | **Further Implementation Required** | Strong, but roadmap remains open | **Yes** |
-| Hospitals | Employment-host treatment dispatch, rooms, supplies, blood workflows and diagnostics | **Documentation Required** | Very strong recent fix history | No, if employment supported scope is explicit |
+| Unified employment and task hosts | V1 host/action/payment matrix, durable grants, payroll evidence, consent, recovery and policy | **Fully Ready** | Strong automated closure matrix | No |
+| Hospitals | Employment-host treatment dispatch, rooms, supplies, blood workflows and diagnostics | **Documentation Required** | Very strong recent fix history | No |
 | Law, crime, patrols, and trials | Automatic crimes, evidence, custody, trials, executions and diagnostics | **Documentation Required** | Strong | No |
 | Estates, ownership, and private property | Probate lifecycle, wills, claims, liquidation and durable item/cell ownership | **Documentation Required** | Strong | No |
 | Computers, automation, grids, and telecoms | Computer runtime, persisted processes, terminal apps, signals, mail/FTP/boards | **Fully Ready** | Strong | No |
@@ -234,13 +234,15 @@ Examples deliberately excluded from blocker status include the abstract `Magical
 
 ### 17. Unified Employment and Task Hosts
 
-**Status: Further Implementation Required. Release blocker: Yes if presented as a stable complete employment system.**
+**Status: Fully Ready for the declared V1 contract. Release blocker: No.**
+
+**Closure update, 14 July 2026:** the explicit V1 supported matrix and all ten ordered closure slices in `Employment Hosts Implementation Review and Roadmap.md` are complete. Gates 1-13 and 17-37 are automated and passing; parent-organisation gates 14-16 are explicitly Phase D post-V1 design.
 
 - **Change and evidence:** The unified slice landed around `eabb283d`; craft reservations (`70b420ce`), blocked-task throttling (`cf04ad2c`), manager goals (`6363cad9`), persistence correction (`8f66cad3`), Epic 1 completion (`a21a7e68`), clan/hospital hosts, and scheduler optimisation (`291384d9`) show strong hardening.
-- **Implementation gap:** The owning roadmap still defers durable grant persistence/revocation, fuller payroll/attendance state, some payment methods, autonomous vehicle/animal movement, and deeper host-specific administration. `EmploymentFinanceService` explicitly reports unsupported wage disbursement methods as "not implemented yet" and leaves payables outstanding.
-- **Documentation gap:** The design and roadmap are detailed but are not a v1.0 release contract; they mix completed slices with a large open roadmap.
-- **Recommended work:** Define a smaller stable V1 host/action/payment matrix, persist or deliberately remove unsupported authority/payment choices, and ensure builders cannot author action/payment combinations that can only fail at runtime. Otherwise label the subsystem preview/experimental for 2.0.
-- **Remaining test plan:** End-to-end hire/application/contracts, every supported payment method, overdue payroll, rebooted grants/reservations/tasks, worker handoff, scheduled rules, manager goals, craft custody/failure recovery, each host adapter, permission revocation, duplicate scheduler execution, and unsupported-action fail-closed behavior.
+- **Implementation:** Durable task provenance and scoped grants, supported wage authoring and disbursement states, schema-backed time/earning evidence, duty-aware assignment, immutable consented applications with atomic acceptance, durable manager-goal policies, bounded recovery, registered host capabilities, and authoring-time host/invocation policy are complete. Unsupported combinations fail before persistence; runtime authority, custody, reservation, and native-subsystem checks remain fail-closed.
+- **Documentation:** The roadmap now begins with the stable V1 host/action/payment/finance/logistics matrix, separates every post-V1 limitation, maps the acceptance gates to automated evidence, and records final verification.
+- **Verification:** The completed employment-closure worktree passed the full default suite with 2,601 tests: 396 shared-library, 6 expression-engine, 513 seeder, and 1,686 core tests, with 0 failed and 0 skipped. The maintained blank-database snapshot tracks the final employment migration.
+- **Post-V1 work:** Parent organisations, consolidated accounting, cross-currency finance, autonomous vehicle/animal movement, and deeper native arena/bank/stable/hotel workflows remain optional future design and are not part of the stable V1 promise.
 
 ### 18. Hospitals
 
@@ -316,7 +318,7 @@ The following are important 2.0 changes but do not need separate system ratings:
 
 1. **Resolve natural ranged weapons:** implement and test blowgun/sling damage or remove those components from the stable feature catalogue.
 2. **Vehicle V1 boundary — resolved:** ship manual cell-exit `ItemScale` and `RoomContainer` vehicles, access/cargo/modules/readiness/damage, hitching, and towing. Route, coordinate, and moving-interior movement are post-V1.
-3. **Declare and close employment V1:** limit builder-authorable choices to supported payment/authority/action paths and close the most important durable grant/payroll gaps, or mark unified employment experimental.
+3. **Employment V1 — complete:** the builder-authorable payment/authority/action boundary, durable grant/payroll semantics, acceptance matrix, documentation, migrations, and full automated verification were closed on 14 July 2026.
 4. **Publish V1 sign-off sections:** arenas, magic, mounts/stables, economy, hospitals, law, and ownership need explicit supported-scope/known-limitations sections.
 5. **Run integration campaigns:** drugs, planes/zero gravity, time/celestials, agriculture, AI Storyteller, and the grouped item/crafting additions require live or provider-backed testing beyond the green unit suite.
 6. **Run a release-candidate soak:** use an upgraded real database, reboot repeatedly, exercise scheduled systems, and monitor logs/performance. This is a core runtime test; it does not require rating DatabaseSeeder.
@@ -324,11 +326,12 @@ The following are important 2.0 changes but do not need separate system ratings:
 
 ## Verification Evidence
 
-Commands executed against the audited head:
+Commands executed against the audited head and the two completed closure worktrees:
 
 ```powershell
 dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510
 & .\scripts\test-unit-core.ps1
+& .\scripts\test-unit.ps1
 ```
 
 Results:
@@ -343,6 +346,13 @@ Vehicle V1 closeout verification on 14 July 2026:
 - vehicle-focused core tests: **passed**, 85 passed, 0 failed, 0 skipped;
 - full `scripts\test-unit-core.ps1` suite: **passed**, 1,674 passed, 0 failed, 0 skipped;
 - fresh-MUD runbook and release-candidate soak remain required before final release sign-off.
+
+Employment V1 closeout verification on 14 July 2026:
+
+- targeted `MudSharpCore` build: **passed**, 0 warnings, 0 errors;
+- `MudSharpCore Unit Tests`: **passed**, 1,686 passed, 0 failed, 0 skipped;
+- full `scripts\test-unit.ps1` default suite: **passed**, 2,601 passed, 0 failed, 0 skipped;
+- no live MUD or release-candidate soak is claimed by the employment closeout.
 
 ## Scope Boundary
 

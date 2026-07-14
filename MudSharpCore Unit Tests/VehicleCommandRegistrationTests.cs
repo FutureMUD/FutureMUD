@@ -16,5 +16,9 @@ public class VehicleCommandRegistrationTests
 		Assert.IsTrue(commands.ContainsKey("embark"));
 		Assert.IsTrue(commands.ContainsKey("hitch"));
 		Assert.IsTrue(commands.ContainsKey("unhitch"));
+		Assert.IsTrue(commands.ContainsKey("vehiclestatus"));
+		Assert.IsTrue(commands.ContainsKey("vehiclecontrol"));
+		Assert.IsTrue(commands.ContainsKey("takecontrol"));
+		Assert.IsTrue(commands.ContainsKey("releasecontrol"));
 	}
 }

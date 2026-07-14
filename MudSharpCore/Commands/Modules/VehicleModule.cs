@@ -20,7 +20,7 @@ using DB = MudSharp.Models;
 
 namespace MudSharp.Commands.Modules;
 
-internal class VehicleModule : Module<ICharacter>
+internal partial class VehicleModule : Module<ICharacter>
 {
 	private VehicleModule() : base("Vehicles")
 	{
@@ -138,6 +138,7 @@ Syntax:
 	[PlayerCommand("Drive", "drive")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("movement", "You cannot move until you stop {0}.")]
+	[NoCombatCommand]
 	[NoHideCommand]
 	[HelpInfo("drive", "Use #3drive <direction>#0 while in a driver slot to move your vehicle through a normal exit. Ordinary movement commands like #3north#0 and #3east#0 do the same thing while you are controlling a vehicle.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Drive(ICharacter actor, string input)

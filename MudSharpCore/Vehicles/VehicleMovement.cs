@@ -134,6 +134,7 @@ public class VehicleMovement : IMovement
 	private readonly List<ICharacter> _characterMovers;
 	private IReadOnlyList<IVehicle> _towTrain = [];
 	private (CellMovementTransition TransitionType, RoomLayer TargetLayer) _transition;
+	private VehicleMovementReadinessResult _readiness;
 
 	public VehicleMovement(IVehicle vehicle, ICharacter originalMover, ICellExit exit)
 	{
@@ -281,7 +282,7 @@ public class VehicleMovement : IMovement
 
 	public void InitialAction()
 	{
-		if (!RefreshMove(out var reason))
+		if (!RefreshMove(false, out var reason))
 		{
 			_originalMover.OutputHandler.Send(reason);
 			return;
@@ -323,14 +324,14 @@ public class VehicleMovement : IMovement
 			return;
 		}
 
-		if (!RefreshMove(out var reason))
+		if (!RefreshMove(true, out var reason))
 		{
 			_originalMover.OutputHandler.Send(reason);
 			StopMovement();
 			return;
 		}
 
-		_strategy.CompleteMove(_vehicle, Exit, _towTrain, _transition, this);
+		_strategy.CompleteMove(_vehicle, Exit, _transition, _readiness, this);
 		Exit.Origin.ResolveMovement(this);
 		Exit.Destination.RegisterMovement(this);
 		Phase = MovementPhase.NewRoom;
@@ -388,9 +389,10 @@ public class VehicleMovement : IMovement
 		}
 	}
 
-	private bool RefreshMove(out string reason)
+	private bool RefreshMove(bool rollTowCatastrophe, out string reason)
 	{
-		return _strategy.TryPrepareMove(_vehicle, _originalMover, Exit, out _towTrain, out _transition, out reason);
+		return _strategy.TryPrepareMove(_vehicle, _originalMover, Exit, rollTowCatastrophe, out _towTrain,
+			out _transition, out _readiness, out reason);
 	}
 
 	private string DescribeBeginMove(IPerceiver voyeur)

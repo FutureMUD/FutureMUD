@@ -147,6 +147,12 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 	public bool CanCreateVehicle(out string reason)
 	{
+		if (Scale == VehicleScale.RoomScale)
+		{
+			reason = "Room-scale vehicles are not supported by the MudSharp 2.0 cell-exit vehicle boundary.";
+			return false;
+		}
+
 		if (ExteriorItemPrototype is null)
 		{
 			reason = "This vehicle prototype does not have an exterior item prototype.";
@@ -172,9 +178,30 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			return false;
 		}
 
+		if (!_controlStations.Any(x => x.OccupantSlot.SlotType == VehicleOccupantSlotType.Driver))
+		{
+			reason = "This vehicle prototype does not define a control station on a driver slot.";
+			return false;
+		}
+
+		if (_controlStations.Count(x => x.IsPrimary) != 1)
+		{
+			reason = "This vehicle prototype must define exactly one primary control station.";
+			return false;
+		}
+
 		if (!_movementProfiles.Any(x => x.MovementType == VehicleMovementProfileType.CellExit))
 		{
 			reason = "This vehicle prototype does not define a cell-exit movement profile.";
+			return false;
+		}
+
+		var invalidMovementProfile = _movementProfiles.FirstOrDefault(x =>
+			!double.IsFinite(x.RequiredPowerSpikeInWatts) || x.RequiredPowerSpikeInWatts < 0.0 ||
+			!double.IsFinite(x.FuelVolumePerMove) || x.FuelVolumePerMove < 0.0);
+		if (invalidMovementProfile is not null)
+		{
+			reason = $"The {invalidMovementProfile.Name} movement profile has invalid power or fuel requirements.";
 			return false;
 		}
 
@@ -188,7 +215,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 			if (!access.ProjectionItemPrototype.Components
 			           .OfType<VehicleAccessPointGameItemComponentProto>()
-			           .Any(x => x.VehiclePrototypeId == Id && x.AccessPointPrototypeId == access.Id))
+			           .Any(x => x.VehiclePrototypeId == Id))
 			{
 				reason = $"The {access.Name} access point projection item does not have a linked vehicle access component.";
 				return false;
@@ -211,7 +238,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 			if (!cargo.ProjectionItemPrototype.Components
 			          .OfType<VehicleCargoSpaceGameItemComponentProto>()
-			          .Any(x => x.VehiclePrototypeId == Id && x.CargoSpacePrototypeId == cargo.Id))
+			          .Any(x => x.VehiclePrototypeId == Id))
 			{
 				reason = $"The {cargo.Name} cargo projection item does not have a linked vehicle cargo component.";
 				return false;
@@ -227,9 +254,24 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			}
 		}
 
+		var invalidTowPoint = _towPoints.FirstOrDefault(x =>
+			!double.IsFinite(x.MaximumTowedWeight) || x.MaximumTowedWeight < 0.0 ||
+			!double.IsFinite(x.CharacterPullMultiplier) || x.CharacterPullMultiplier <= 0.0 ||
+			x.TowStressWarningRatio is { } warning && (!double.IsFinite(warning) || warning < 0.0 || warning > 1.0) ||
+			x.TowStressFailureStartRatio is { } failure && (!double.IsFinite(failure) || failure < 0.0 || failure > 1.0) ||
+			x.TowStressMaximumFailureChance is { } chance && (!double.IsFinite(chance) || chance < 0.0 || chance > 1.0) ||
+			x.TowStressDamageMultiplier is { } damage && (!double.IsFinite(damage) || damage < 0.0));
+		if (invalidTowPoint is not null)
+		{
+			reason = $"The {invalidTowPoint.Name} tow point has invalid capacity, pull, or stress values.";
+			return false;
+		}
+
 		foreach (var zone in _damageZones)
 		{
-			if (zone.MaximumDamage <= 0.0 || zone.HitWeight <= 0.0 ||
+			if (!double.IsFinite(zone.MaximumDamage) || !double.IsFinite(zone.HitWeight) ||
+			    !double.IsFinite(zone.DisabledThreshold) || !double.IsFinite(zone.DestroyedThreshold) ||
+			    zone.MaximumDamage <= 0.0 || zone.HitWeight <= 0.0 ||
 			    zone.DisabledThreshold <= 0.0 || zone.DestroyedThreshold < zone.DisabledThreshold)
 			{
 				reason = $"The {zone.Name} damage zone has invalid thresholds.";
@@ -780,6 +822,12 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 					return false;
 				}
 
+				if (_controlStations.All(x => x.Id != id))
+				{
+					actor.OutputHandler.Send("There is no such control station.");
+					return false;
+				}
+
 				using (new FMDB())
 				{
 					foreach (var dbitem in FMDB.Context.VehicleControlStationProtos.Where(x => x.VehicleProtoId == Id && x.VehicleProtoRevision == RevisionNumber))
@@ -814,11 +862,21 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 					if (dbitem is not null)
 					{
 						FMDB.Context.VehicleControlStationProtos.Remove(dbitem);
+						if (station.IsPrimary)
+						{
+							var replacement = FMDB.Context.VehicleControlStationProtos
+								.FirstOrDefault(x => x.VehicleProtoId == Id &&
+								                     x.VehicleProtoRevision == RevisionNumber && x.Id != id);
+							if (replacement is not null)
+							{
+								replacement.IsPrimary = true;
+							}
+						}
 						FMDB.Context.SaveChanges();
 					}
 				}
 
-				_controlStations.Remove(station);
+				ReloadChildDefinitions();
 				actor.OutputHandler.Send("You remove that control station.");
 				return true;
 		}
@@ -1131,7 +1189,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		var access = new VehicleAccessPointPrototype(dbitem, _compartments, actor.Gameworld);
 		_accessPoints.Add(access);
 		var component = proto.Components.OfType<VehicleAccessPointGameItemComponentProto>()
-		                     .FirstOrDefault(x => x.VehiclePrototypeId == Id && x.AccessPointPrototypeId == access.Id);
+		                     .FirstOrDefault(x => x.VehiclePrototypeId == Id);
 		if (component is null)
 		{
 			component = new VehicleAccessPointGameItemComponentProto(actor.Gameworld, actor.Account);
@@ -1276,7 +1334,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		var cargo = new VehicleCargoSpacePrototype(dbitem, _compartments, _accessPoints, actor.Gameworld);
 		_cargoSpaces.Add(cargo);
 		var component = proto.Components.OfType<VehicleCargoSpaceGameItemComponentProto>()
-		                     .FirstOrDefault(x => x.VehiclePrototypeId == Id && x.CargoSpacePrototypeId == cargo.Id);
+		                     .FirstOrDefault(x => x.VehiclePrototypeId == Id);
 		if (component is null)
 		{
 			component = new VehicleCargoSpaceGameItemComponentProto(actor.Gameworld, actor.Account);

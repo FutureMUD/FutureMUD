@@ -3,11 +3,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
+using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Vehicles;
 using System.Collections.Generic;
 using System.Linq;
@@ -121,6 +123,78 @@ public class VehicleMovementStrategyTests
 
 		Assert.IsFalse(result);
 		Assert.AreEqual("the charging lead is still connected", reason);
+	}
+
+	[TestMethod]
+	public void CanMove_WhenExteriorProjectionIsMissing_FailsClosed()
+	{
+		var controller = new Mock<ICharacter>();
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		Mock.Get(vehicle).SetupGet(x => x.ExteriorItem).Returns((IGameItem)null!);
+		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
+
+		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+
+		Assert.IsFalse(result);
+		StringAssert.Contains(reason, "intact linked exterior");
+	}
+
+	[TestMethod]
+	public void CanMove_WhenControllerIsInCombat_Fails()
+	{
+		var controller = new Mock<ICharacter>();
+		controller.SetupGet(x => x.Combat).Returns(new Mock<ICombat>().Object);
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
+
+		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+
+		Assert.IsFalse(result);
+		StringAssert.Contains(reason, "combat");
+	}
+
+	[TestMethod]
+	public void CanMove_WhenRequiredCrewSlotIsEmpty_Fails()
+	{
+		var controller = new Mock<ICharacter>();
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var requiredSlot = new Mock<IVehicleOccupantSlotPrototype>();
+		requiredSlot.SetupGet(x => x.Id).Returns(42L);
+		requiredSlot.SetupGet(x => x.Name).Returns("brake operator");
+		requiredSlot.SetupGet(x => x.RequiredForMovement).Returns(true);
+		Mock.Get(vehicle.Prototype).SetupGet(x => x.OccupantSlots).Returns([requiredSlot.Object]);
+		Mock.Get(vehicle).SetupGet(x => x.Occupancies).Returns([]);
+		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
+
+		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+
+		Assert.IsFalse(result);
+		StringAssert.Contains(reason, "brake operator");
+	}
+
+	[TestMethod]
+	public void TryPrepareMove_DelayedPreflightRollsTowCatastropheOnlyAtCommit()
+	{
+		var controller = new Mock<ICharacter>();
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
+		var plan = new VehicleHitchGraphMovePlan(vehicle,
+			[new VehicleHitchGraphTrainMember(vehicle, 0, null)], [], [], 0.0);
+		var readiness = new VehicleMovementReadinessResult(true, string.Empty, plan, null, []);
+		var readinessService = new Mock<IVehicleOperationalReadinessService>();
+		readinessService.Setup(x => x.BuildMovementReadiness(It.IsAny<VehicleMovementReadinessRequest>()))
+		                .Returns(readiness);
+		readinessService.Setup(x => x.RollTowCatastrophe(plan, controller.Object))
+		                .Returns(new VehicleTowCatastropheResult(false, null, string.Empty, [], []));
+		var strategy = new CellExitVehicleMovementStrategy(new Mock<IVehicleTowService>().Object,
+			new Mock<IVehicleHitchGraphService>().Object, readinessService.Object);
+
+		var initial = strategy.TryPrepareMove(vehicle, controller.Object, exit, false, out _, out _, out _, out _);
+		var commit = strategy.TryPrepareMove(vehicle, controller.Object, exit, true, out _, out _, out _, out _);
+
+		Assert.IsTrue(initial);
+		Assert.IsTrue(commit);
+		readinessService.Verify(x => x.RollTowCatastrophe(plan, controller.Object), Times.Once);
 	}
 
 	[TestMethod]
@@ -239,6 +313,33 @@ public class VehicleMovementStrategyTests
 	}
 
 	[TestMethod]
+	public void CargoSpace_WhenRequiredAccessPointIsMissing_FailsClosed()
+	{
+		var requiredAccess = new Mock<IVehicleAccessPointPrototype>();
+		requiredAccess.SetupGet(x => x.Name).Returns("rear hatch");
+		var prototype = new Mock<IVehicleCargoSpacePrototype>();
+		prototype.SetupGet(x => x.Id).Returns(51);
+		prototype.SetupGet(x => x.RequiredAccessPoint).Returns(requiredAccess.Object);
+		var vehiclePrototype = new Mock<IVehiclePrototype>();
+		vehiclePrototype.SetupGet(x => x.CargoSpaces).Returns([prototype.Object]);
+		var vehicle = new Mock<IVehicle>();
+		vehicle.SetupGet(x => x.Prototype).Returns(vehiclePrototype.Object);
+		vehicle.SetupGet(x => x.AccessPoints).Returns([]);
+		var cargo = new VehicleCargoSpace(vehicle.Object, new DB.VehicleCargoSpace
+		{
+			Id = 2,
+			Name = "Trunk",
+			VehicleCargoSpaceProtoId = 51
+		});
+
+		var result = cargo.CanAccess(new Mock<ICharacter>().Object, out var reason);
+
+		Assert.IsFalse(result);
+		StringAssert.Contains(reason, "rear hatch");
+		StringAssert.Contains(reason, "missing");
+	}
+
+	[TestMethod]
 	public void Installation_WhenDisabledByDamage_BlocksInstallWithoutManualFlag()
 	{
 		var prototype = new Mock<IVehicleInstallationPointPrototype>();
@@ -262,6 +363,48 @@ public class VehicleMovementStrategyTests
 		Assert.IsTrue(installation.IsDisabled);
 		Assert.IsFalse(installation.IsManuallyDisabled);
 		Assert.AreEqual("That installation point is disabled because engine mount is disabled.", reason);
+	}
+
+	[TestMethod]
+	public void Installation_WhenRequiredAccessPointIsMissing_BlocksInstallAndRemoval()
+	{
+		var requiredAccess = new Mock<IVehicleAccessPointPrototype>();
+		requiredAccess.SetupGet(x => x.Name).Returns("service hatch");
+		var prototype = new Mock<IVehicleInstallationPointPrototype>();
+		prototype.SetupGet(x => x.Id).Returns(61);
+		prototype.SetupGet(x => x.MountType).Returns("engine");
+		prototype.SetupGet(x => x.RequiredAccessPoint).Returns(requiredAccess.Object);
+		var vehiclePrototype = new Mock<IVehiclePrototype>();
+		vehiclePrototype.SetupGet(x => x.InstallationPoints).Returns([prototype.Object]);
+		var gameworld = new Mock<IFuturemud>();
+		var vehicle = new Mock<IVehicle>();
+		vehicle.SetupGet(x => x.Prototype).Returns(vehiclePrototype.Object);
+		vehicle.SetupGet(x => x.AccessPoints).Returns([]);
+		vehicle.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var installable = new Mock<IVehicleInstallable>();
+		installable.SetupGet(x => x.MountType).Returns("engine");
+		var item = new Mock<IGameItem>();
+		item.Setup(x => x.GetItemType<IVehicleInstallable>()).Returns(installable.Object);
+		var emptyInstallation = new VehicleInstallation(vehicle.Object, new DB.VehicleInstallation
+		{
+			Id = 3,
+			VehicleInstallationPointProtoId = 61
+		});
+		var occupiedInstallation = new VehicleInstallation(vehicle.Object, new DB.VehicleInstallation
+		{
+			Id = 4,
+			VehicleInstallationPointProtoId = 61,
+			InstalledItemId = 42
+		});
+		gameworld.Setup(x => x.TryGetItem(42, true)).Returns(item.Object);
+
+		var canInstall = emptyInstallation.CanInstall(new Mock<ICharacter>().Object, item.Object, out var installReason);
+		var canRemove = occupiedInstallation.CanRemove(new Mock<ICharacter>().Object, out var removeReason);
+
+		Assert.IsFalse(canInstall);
+		Assert.IsFalse(canRemove);
+		StringAssert.Contains(installReason, "service hatch");
+		StringAssert.Contains(removeReason, "service hatch");
 	}
 
 	[TestMethod]
@@ -358,6 +501,8 @@ public class VehicleMovementStrategyTests
 		var location = new Mock<ICell>();
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Size).Returns(exteriorSize);
+		item.SetupGet(x => x.Location).Returns(location.Object);
+		item.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 
 		var profiles = new List<IVehicleMovementProfilePrototype>();
 		foreach (var movementType in movementTypes)

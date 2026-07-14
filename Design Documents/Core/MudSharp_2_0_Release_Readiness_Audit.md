@@ -9,13 +9,12 @@ Primary scope: `MudSharpCore` runtime features, commands, builders, and core uni
 
 **Overall recommendation: No-Go for an all-inclusive 2.0.0 release at this snapshot.**
 
-The engine has a strong automated baseline: `MudSharpCore` builds with no warnings or errors and all 1,668 core unit tests pass with no skips. Four large feature families satisfy the audit's full readiness bar, and no reviewed subsystem needs architectural replacement. However, three advertised feature families still contain either reachable unfinished behavior or documentation that explicitly describes the system as only partially implemented:
+The engine has a strong automated baseline: `MudSharpCore` builds with no warnings or errors and all 1,668 core unit tests pass with no skips. Four large feature families satisfy the audit's full readiness bar, and no reviewed subsystem needs architectural replacement. After resolving the Vehicle V1 boundary, two advertised feature families still contain reachable unfinished behavior or documentation that explicitly describes the system as only partially implemented:
 
 1. **Natural ranged weapons**: the shipped blowgun and sling components throw `NotImplementedException` from `GetDamage`, so their primary firing path is incomplete.
-2. **Vehicles**: cell-exit movement, access, readiness, hitching, towing, and mixed hitch persistence are implemented, but the owning design still marks broader vehicle maturity as partial and route, coordinate, and room-scale movement as planned.
-3. **Unified employment**: the architecture and a large action catalogue are implemented, but the owning roadmap still defers important durable authority, payroll/payment, administration, and autonomous-operation work; unsupported wage methods explicitly remain outstanding at runtime.
+2. **Unified employment**: the architecture and a large action catalogue are implemented, but the owning roadmap still defers important durable authority, payroll/payment, administration, and autonomous-operation work; unsupported wage methods explicitly remain outstanding at runtime.
 
-The release can move from **No-Go** to **Conditional Go** by either completing those three scopes or explicitly excluding/labeling the unfinished portions as experimental and narrowing the 2.0 feature promise. Documentation sign-off and integration testing should then be completed for the systems listed below.
+The release can move from **No-Go** to **Conditional Go** by completing or explicitly narrowing those two scopes. Vehicle route, coordinate, and moving-interior work is now explicitly excluded from Vehicle V1. Documentation sign-off and integration testing should then be completed for the systems listed below.
 
 ### Status Totals
 
@@ -24,8 +23,8 @@ The release can move from **No-Go** to **Conditional Go** by either completing t
 | Fully Ready | 4 | Suitable for the 2.0 stable feature set |
 | Minor Polish Required | 3 | Releasable; low-risk follow-up remains |
 | Documentation Required | 7 | Runtime appears releasable, but the documentation does not yet provide a clean v1.0 sign-off |
-| Testing Required | 6 | Implementation is credible, but live/integration maturity is not sufficiently demonstrated |
-| Further Implementation Required | 3 | Must be completed, narrowed, or excluded from the stable 2.0 promise |
+| Testing Required | 7 | Implementation is credible, but live/integration maturity is not sufficiently demonstrated |
+| Further Implementation Required | 2 | Must be completed, narrowed, or excluded from the stable 2.0 promise |
 | Major Changes Required | 0 | No reviewed system requires replacement or a fundamental redesign |
 
 ## Audit Method
@@ -58,7 +57,7 @@ Examples deliberately excluded from blocker status include the abstract `Magical
 | Time, calendars, and celestials | `MudInstant`, astronomical event solving, regnal periods, builder hardening | **Testing Required** | Moderate | No |
 | Pathfinding and live world topology | Incremental hierarchical index, live-cell mutation, portal-anchor correction | **Fully Ready** | Strong | No |
 | Mounts and stables | Stable accounts/tickets, persistence fixes, riding and hitch gear | **Documentation Required** | Strong | No |
-| Vehicles, hitches, and towing | Cell-exit vehicle movement, readiness, cargo/access, mixed hitch graph | **Further Implementation Required** | Strong fixes, incomplete scope | **Yes** |
+| Vehicles, hitches, and towing | Manual cell-exit vehicle movement, readiness, cargo/access, mixed hitch graph | **Testing Required** | Strong unit coverage; fresh-world runbook remains | No |
 | Agriculture and primary production | Fields, crops, herds, woodlands, apiaries, project operations, commodity output | **Testing Required** | Moderate | No |
 | NPC/group AI and event surface | New individual AI types, animal ecology, group registration and event subscriptions | **Minor Polish Required** | Strong | No |
 | AI Storyteller | Builder/help refinement on the existing persisted model/tool-loop subsystem | **Testing Required** | Strong unit coverage, no live model loop | No |
@@ -185,12 +184,12 @@ Examples deliberately excluded from blocker status include the abstract `Magical
 
 ### 12. Vehicles, Hitches, and Towing
 
-**Status: Further Implementation Required. Release blocker: Yes if advertised as a complete vehicle system.**
+**Status: Testing Required. Release blocker: No within the declared Vehicle V1 boundary.**
 
 - **Change and evidence:** Vehicle movement and iterative fixes landed across `df464988`, `a6be9707`, `29e3b2ee`, and `935bed0c`; remote occupancy was fixed in `16d7d3cf`; hitch equipment in `6bc307ed`; the unified hitch graph in `113917cf`.
-- **Implementation:** Cell-exit movement, access points, cargo, readiness diagnostics, towing, persistent mixed hitches, movement strategies, builders, commands, and tests are present with no direct TODO path in the new vehicle code.
-- **Documentation/feature gap:** `Vehicle_System.md` says cell-exit readiness is implemented but broader maturity is partial. Route movement, coordinate movement, and room-scale moving interiors remain planned.
-- **Recommended work:** Either define **Vehicle V1** narrowly as manual cell-exit vehicles plus hitch/tow/cargo/access and explicitly defer the planned phases, or complete route movement before marketing a general vehicle system.
+- **Implementation:** Cell-exit movement, explicit control handoff, player status/preflight, access points, cargo, modules, damage/repair, readiness, towing, persistent mixed hitches, builders, commands, and tests comprise the stable V1. The closeout also made required access fail closed, enforced exterior synchronisation and required crew, blocked combat/delayed-action driving, preserved the validated hitch/resource plan through delayed completion, prevented duplicate catastrophe rolls/fail-open train movement, made access/cargo projection markers revision-stable, rejected `RoomScale` and invalid authored values, and hardened primary control-station changes.
+- **V1 boundary decision:** Vehicle V1 is manual cell-exit `ItemScale` and `RoomContainer` vehicles. Route movement, coordinate movement, and room-scale moving interiors are explicitly post-V1. Route movement is not moderate work: it needs persisted route/stop/schedule/journey models, scheduler and reboot ownership, boarding/dwell/delay state, builder previews and validation, player timetable UX, automation hooks, and integration tests. Existing readiness/path/hitch services reduce duplication but do not supply that subsystem.
+- **Recommended work:** Keep route, coordinate, and moving-interior language out of the 2.0 stable feature promise. Complete the fresh-world runbook and release-candidate soak for the declared cell-exit boundary.
 - **Remaining test plan:** Run fresh-MUD builder and player scenarios for create/install/access/start/drive/stop, passengers, cargo, fuel/power failure, damage, towing chains, mixed animal/vehicle hitches, cycles, detach/reboot, retirement/death of endpoints, and failed movement rollback.
 
 ### 13. Agriculture and Primary Production
@@ -316,7 +315,7 @@ The following are important 2.0 changes but do not need separate system ratings:
 ## Ordered Pre-Release Work
 
 1. **Resolve natural ranged weapons:** implement and test blowgun/sling damage or remove those components from the stable feature catalogue.
-2. **Declare the vehicle V1 boundary:** either complete route movement or explicitly ship only manual cell-exit vehicles, access/cargo/readiness, hitching, and towing.
+2. **Vehicle V1 boundary — resolved:** ship manual cell-exit `ItemScale` and `RoomContainer` vehicles, access/cargo/modules/readiness/damage, hitching, and towing. Route, coordinate, and moving-interior movement are post-V1.
 3. **Declare and close employment V1:** limit builder-authorable choices to supported payment/authority/action paths and close the most important durable grant/payroll gaps, or mark unified employment experimental.
 4. **Publish V1 sign-off sections:** arenas, magic, mounts/stables, economy, hospitals, law, and ownership need explicit supported-scope/known-limitations sections.
 5. **Run integration campaigns:** drugs, planes/zero gravity, time/celestials, agriculture, AI Storyteller, and the grouped item/crafting additions require live or provider-backed testing beyond the green unit suite.
@@ -337,6 +336,13 @@ Results:
 - `MudSharpCore` build: **passed**, 0 warnings, 0 errors.
 - `MudSharpCore Unit Tests`: **passed**, 1,668 passed, 0 failed, 0 skipped.
 - No live MUD, external AI-provider, or long-duration soak test was claimed by this audit.
+
+Vehicle V1 closeout verification on 14 July 2026:
+
+- targeted `MudSharpCore` build: **passed**, 0 warnings, 0 errors;
+- vehicle-focused core tests: **passed**, 85 passed, 0 failed, 0 skipped;
+- full `scripts\test-unit-core.ps1` suite: **passed**, 1,674 passed, 0 failed, 0 skipped;
+- fresh-MUD runbook and release-candidate soak remain required before final release sign-off.
 
 ## Scope Boundary
 

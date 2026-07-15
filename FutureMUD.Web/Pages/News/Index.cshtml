@@ -1,0 +1,12 @@
+@page "/news"
+@model FutureMUD.Web.Pages.News.IndexModel
+@{
+	ViewData["Title"] = "News";
+}
+<header class="page-header"><p class="eyebrow">Project log</p><h1>News</h1><p class="lede">Release notes, engineering updates, and guides authored with the engine.</p></header>
+<div class="news-list news-archive">
+@foreach (var item in Model.Items)
+{
+	<article><time datetime="@item.PublishedAt?.ToString("O")">@item.PublishedAt?.ToString("d MMM yyyy")</time><div><h2><a href="/news/@item.Slug">@item.Title</a></h2><p>@item.Summary</p><p class="tags">@string.Join(" · ", item.Tags)</p></div></article>
+}
+</div>

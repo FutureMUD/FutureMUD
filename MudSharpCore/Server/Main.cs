@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoreLinq;
 using MudSharp.Database;
+using MudSharp.Documentation.Export;
 using MudSharp.Email;
 using MudSharp.Framework;
 using MudSharp.Network;
@@ -20,6 +21,11 @@ internal class MudSharp
 {
     private static void Main(string[] args)
     {
+        if (TryRunDocumentationExport(args))
+        {
+            return;
+        }
+
         ConfigureConsoleHost();
 
         IPAddress hostIp;
@@ -168,6 +174,34 @@ internal class MudSharp
 		}
 #endif
     }
+
+	private static bool TryRunDocumentationExport(string[] args)
+	{
+		if (args.Length == 0 || !args[0].Equals("--export-documentation", StringComparison.OrdinalIgnoreCase))
+		{
+			return false;
+		}
+
+		if (args.Length != 4 || !args[2].Equals("--source-revision", StringComparison.OrdinalIgnoreCase))
+		{
+			Console.Error.WriteLine("Usage: MudSharp --export-documentation <output-path> --source-revision <sha>");
+			Environment.ExitCode = 2;
+			return true;
+		}
+
+		try
+		{
+			DocumentationCatalogueExporter.ExportAsync(args[1], args[3]).GetAwaiter().GetResult();
+			Console.WriteLine($"Documentation catalogue written to {Path.GetFullPath(args[1])}.");
+		}
+		catch (Exception exception)
+		{
+			Console.Error.WriteLine($"Documentation export failed: {exception.Message}");
+			Environment.ExitCode = 1;
+		}
+
+		return true;
+	}
 
     public static void WriteCrashLog(string crashLog)
     {

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Version>1.0.0</Version>
+		<AssemblyName>FutureMUD.Web</AssemblyName>
+		<RootNamespace>FutureMUD.Web</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Content\**\*.md"
+				 CopyToOutputDirectory="PreserveNewest"
+				 CopyToPublishDirectory="PreserveNewest" />
+		<Content Update="Configuration\release-products.json"
+				 CopyToOutputDirectory="PreserveNewest"
+				 CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="..\Futuremud Configuration Tool\Images\FM Logo.png"
+				 Link="wwwroot\images\fm-logo.png"
+				 CopyToOutputDirectory="PreserveNewest"
+				 CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+
+</Project>

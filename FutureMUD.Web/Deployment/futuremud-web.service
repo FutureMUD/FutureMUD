@@ -1,0 +1,36 @@
+[Unit]
+Description=FutureMUD public website
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=futuremud-web
+Group=futuremud-web
+WorkingDirectory=/opt/futuremud-web/current
+ExecStart=/usr/bin/dotnet /opt/futuremud-web/current/FutureMUD.Web.dll
+Restart=on-failure
+RestartSec=5
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5070
+Environment=ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+EnvironmentFile=/etc/futuremud-web/environment
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+RestrictRealtime=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+ReadWritePaths=/var/lib/futuremud-web
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

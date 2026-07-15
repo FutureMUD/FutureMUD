@@ -1,0 +1,50 @@
+name: Deploy FutureMUD website
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'FutureMUD.Web/**'
+      - 'FutureMUDLibrary/Documentation/**'
+      - '.github/workflows/deploy-website.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: futuremud-web-production
+  cancel-in-progress: false
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
+      - run: dotnet test FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj -c Release --no-restore -m:1
+      - run: dotnet publish FutureMUD.Web/FutureMUD.Web.csproj -c Release -r linux-x64 --self-contained false -p:NuGetAudit=false -o publish
+      - name: Package deployment
+        run: tar -C publish -czf "futuremud-web-${GITHUB_SHA}.tar.gz" .
+      - name: Configure restricted SSH key
+        env:
+          DEPLOY_KEY: ${{ secrets.FUTUREMUD_WEB_DEPLOY_KEY }}
+          KNOWN_HOSTS: ${{ secrets.FUTUREMUD_WEB_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      - name: Transfer and atomically activate
+        env:
+          DEPLOY_HOST: ${{ secrets.FUTUREMUD_WEB_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.FUTUREMUD_WEB_DEPLOY_USER }}
+        run: |
+          scp "futuremud-web-${GITHUB_SHA}.tar.gz" "$DEPLOY_USER@$DEPLOY_HOST:incoming/"
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" "deploy-futuremud-web '$GITHUB_SHA'"
+      - name: Verify production
+        run: curl --fail --retry 12 --retry-delay 5 https://futuremud.com/health/ready

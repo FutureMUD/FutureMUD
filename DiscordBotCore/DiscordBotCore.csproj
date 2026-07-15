@@ -4,9 +4,9 @@
 	<OutputType>Exe</OutputType>
 	<TargetFramework>net10.0</TargetFramework>
 	<RootNamespace>Discord_Bot</RootNamespace>
-	<AssemblyVersion>1.5</AssemblyVersion>
-	<FileVersion>1.5</FileVersion>
-	<Version>1.5</Version>
+	<AssemblyVersion>1.5.0</AssemblyVersion>
+	<FileVersion>1.5.0</FileVersion>
+	<Version>1.5.0</Version>
   </PropertyGroup>
 
 	<PropertyGroup>

@@ -27,6 +27,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Functions;
+using MudSharp.Documentation.Export;
 using MudSharp.FutureProg.Functions.OpenAI;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
@@ -1315,11 +1316,7 @@ public class ImplementorModule : Module<ICharacter>
 
     private static void DebugProgFunctions(ICharacter actor)
     {
-        List<FunctionCompilerInformation> infos = FutureProg.FutureProg.GetFunctionCompilerInformations().ToList();
-        WriteProgParametersByCategory(actor.Gameworld, infos);
-        WriteProgParametersAlphabetically(actor.Gameworld, infos);
-        WriteTypeHelps(actor.Gameworld);
-        WriteCollectionHelps(actor.Gameworld);
+        DocumentationCatalogueExporter.WriteLegacyHtml(actor.Gameworld, Directory.GetCurrentDirectory());
         actor.Send("Done.");
     }
 

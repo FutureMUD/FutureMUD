@@ -1,0 +1,9 @@
+@page "/{slug:regex(^about|getting-started$)}"
+@model FutureMUD.Web.Pages.ContentModel
+@{
+	ViewData["Title"] = Model.Document.Title;
+}
+<article class="document">
+	<header><p class="eyebrow">FutureMUD</p><h1>@Model.Document.Title</h1>@if (!string.IsNullOrWhiteSpace(Model.Document.Summary)) { <p class="lede">@Model.Document.Summary</p> }</header>
+	<div class="prose">@Html.Raw(Model.Document.Html)</div>
+</article>

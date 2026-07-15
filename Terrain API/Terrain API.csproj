@@ -8,6 +8,9 @@
     <Authors>Luke Cunningham</Authors>
     <Company>FutureMUD</Company>
     <Product>FutureMUD</Product>
+	<Version>1.0.0</Version>
+	<AssemblyVersion>1.0.0</AssemblyVersion>
+	<FileVersion>1.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

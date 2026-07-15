@@ -1,0 +1,31 @@
+@page "/downloads"
+@model FutureMUD.Web.Pages.DownloadsModel
+@{
+	ViewData["Title"] = "Downloads";
+}
+<header class="page-header"><p class="eyebrow">Stable releases</p><h1>Downloads</h1><p class="lede">Framework-dependent .NET 10 builds for supported Windows and Linux runtimes. Verify a download with its published SHA-256 checksum.</p></header>
+<div class="stack">
+@foreach (var item in Model.Products)
+{
+	<section class="release-panel">
+		<div><p class="tag">@item.Product.Id</p><h2>@item.Product.PublicName</h2></div>
+		@if (item.Release is null)
+		{
+			<p>No release has been promoted to futuremud.com yet.</p>
+		}
+		else
+		{
+			<p>Version <strong>@item.Release.Version</strong> · published @item.Release.PublishedAtUtc.ToString("d MMMM yyyy")</p>
+			<div class="download-list">
+			@foreach (var artifact in item.Release.Artifacts)
+			{
+				<div><div><strong>@artifact.Runtime</strong><small>@FormatSize(artifact.Size)</small></div><div><a class="button" href="/downloads/@item.Product.Id/@item.Release.Version/@artifact.FileName">Download ZIP</a><a href="/downloads/@item.Product.Id/@item.Release.Version/@(artifact.FileName).sha256">SHA-256</a></div></div>
+			}
+			</div>
+		}
+	</section>
+}
+</div>
+@functions {
+	private static string FormatSize(long bytes) => $"{bytes / 1024.0 / 1024.0:N1} MiB";
+}

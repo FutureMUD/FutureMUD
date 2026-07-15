@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="color-scheme" content="dark" />
+	<title>@(ViewData["Title"] is string title ? $"{title} · FutureMUD" : "FutureMUD")</title>
+	<meta name="description" content="FutureMUD is an open-source engine for building roleplay-intensive text worlds." />
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<link rel="alternate" type="application/rss+xml" title="FutureMUD news" href="/news/feed.xml" />
+</head>
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+	<header class="site-header">
+		<a class="brand" href="/" aria-label="FutureMUD home">
+			<img src="/images/fm-logo.png" width="52" height="52" alt="" />
+			<span><strong>FutureMUD</strong><small>engine for living text worlds</small></span>
+		</a>
+		<nav aria-label="Primary navigation">
+			<a href="/about">About</a>
+			<a href="/getting-started">Get started</a>
+			<a href="/downloads">Downloads</a>
+			<a href="/docs/commands">Documentation</a>
+			<a href="/news">News</a>
+		</nav>
+	</header>
+	<main id="main" class="page-shell">
+		@RenderBody()
+	</main>
+	<footer>
+		<p>FutureMUD is open-source software for roleplay-intensive MUDs.</p>
+		<nav aria-label="Footer navigation">
+			<a href="https://github.com/FutureMUD/FutureMUD">GitHub</a>
+			<a href="/sitemap.xml">Sitemap</a>
+			<a href="/health/live">Service status</a>
+		</nav>
+	</footer>
+</body>
+</html>

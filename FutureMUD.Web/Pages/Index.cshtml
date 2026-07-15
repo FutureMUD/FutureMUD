@@ -1,0 +1,54 @@
+@page
+@model FutureMUD.Web.Pages.IndexModel
+@{
+	ViewData["Title"] = "Build a world that remembers";
+}
+<section class="hero">
+	<div>
+		<p class="eyebrow">Open-source · .NET 10 · RPI focused</p>
+		<h1>Build a world that remembers.</h1>
+		<p class="lede">FutureMUD is a modern engine for persistent, text-based roleplaying worlds: deep simulation, expressive building tools, and code-backed documentation in one project.</p>
+		<div class="actions">
+			<a class="button primary" href="/getting-started">Start building</a>
+			<a class="button" href="/downloads">Download releases</a>
+		</div>
+	</div>
+	<pre class="terminal" aria-label="Example FutureMUD scene"><code><span class="prompt">&gt;</span> look
+The rain writes silver lines across the old station.
+A brass signal lamp burns beside the northern arch.
+
+<span class="prompt">&gt;</span> <span class="cursor">_</span></code></pre>
+</section>
+
+<section aria-labelledby="release-title">
+	<div class="section-heading"><div><p class="eyebrow">Current builds</p><h2 id="release-title">Latest stable releases</h2></div><a href="/downloads">All downloads →</a></div>
+	<div class="card-grid">
+	@foreach (var release in Model.Releases)
+	{
+		<article class="card"><p class="tag">@release.Product</p><h3>Version @release.Version</h3><p>Published <time datetime="@release.PublishedAtUtc.ToString("O")">@release.PublishedAtUtc.ToString("d MMMM yyyy")</time></p></article>
+	}
+	@if (Model.Releases.Count == 0)
+	{
+		<article class="card"><p class="tag">Release service</p><h3>Publishing pipeline ready</h3><p>The first futuremud.com release has not been promoted yet.</p></article>
+	}
+	</div>
+</section>
+
+<section aria-labelledby="explore-title">
+	<div class="section-heading"><div><p class="eyebrow">Explore the engine</p><h2 id="explore-title">Reference material from the code</h2></div></div>
+	<div class="card-grid">
+		<a class="card link-card" href="/docs/commands"><h3>Commands</h3><p>Player, builder, conditional and administrator command help.</p></a>
+		<a class="card link-card" href="/docs/futureprog/functions"><h3>FutureProg</h3><p>Functions, overloads, types and collection extensions.</p></a>
+		<a class="card link-card" href="/docs/items/components"><h3>Item components</h3><p>Type blurbs and builder help for the component system.</p></a>
+	</div>
+</section>
+
+<section aria-labelledby="news-title">
+	<div class="section-heading"><div><p class="eyebrow">Project log</p><h2 id="news-title">Recent news</h2></div><a href="/news">News archive →</a></div>
+	<div class="news-list">
+	@foreach (var item in Model.News.Take(3))
+	{
+		<article><time datetime="@item.PublishedAt?.ToString("O")">@item.PublishedAt?.ToString("d MMM yyyy")</time><div><h3><a href="/news/@item.Slug">@item.Title</a></h3><p>@item.Summary</p></div></article>
+	}
+	</div>
+</section>

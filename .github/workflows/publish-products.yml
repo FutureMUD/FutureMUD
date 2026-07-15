@@ -1,0 +1,130 @@
+name: Publish FutureMUD product
+
+on:
+  push:
+    tags:
+      - 'engine-v*'
+      - 'seeder-v*'
+      - 'discordbot-v*'
+      - 'terrainplanner-v*'
+      - 'terrainapi-v*'
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      product: ${{ steps.release.outputs.product }}
+      version: ${{ steps.release.outputs.version }}
+      project: ${{ steps.release.outputs.project }}
+      matrix: ${{ steps.release.outputs.matrix }}
+      tests: ${{ steps.release.outputs.tests }}
+      documentation: ${{ steps.release.outputs.documentation }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - id: release
+        shell: pwsh
+        run: |
+          $manifest = Get-Content 'FutureMUD.Web/Configuration/release-products.json' -Raw | ConvertFrom-Json
+          $tag = '${{ github.ref_name }}'
+          $definition = $manifest.products | Where-Object { $tag.StartsWith($_.tagPrefix) } | Select-Object -First 1
+          if (-not $definition) { throw "Tag $tag does not match a product." }
+          $version = $tag.Substring($definition.tagPrefix.Length)
+          $projectVersion = (dotnet msbuild $definition.projectPath -getProperty:Version -nologo).Trim()
+          if ($version -notmatch '^\d+\.\d+\.\d+$' -or $version -ne $projectVersion) { throw "Tag version $version must exactly match project Version $projectVersion." }
+          $matrix = @($definition.runtimes | ForEach-Object { @{ runtime = $_; os = if ($_.StartsWith('win-')) { 'windows-latest' } else { 'ubuntu-latest' } } }) | ConvertTo-Json -Compress
+          "product=$($definition.id)" >> $env:GITHUB_OUTPUT
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "project=$($definition.projectPath)" >> $env:GITHUB_OUTPUT
+          "matrix=$matrix" >> $env:GITHUB_OUTPUT
+          "tests=$($definition.testProjects -join ';')" >> $env:GITHUB_OUTPUT
+          "documentation=$($definition.documentationCatalogue -eq $true)" >> $env:GITHUB_OUTPUT
+
+  package:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restore product and tests
+        shell: pwsh
+        run: dotnet restore '${{ needs.prepare.outputs.project }}' -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
+      - name: Run targeted tests
+        if: needs.prepare.outputs.tests != ''
+        shell: pwsh
+        run: |
+          foreach ($testProject in '${{ needs.prepare.outputs.tests }}'.Split(';', [StringSplitOptions]::RemoveEmptyEntries)) {
+            dotnet test $testProject -c Release -m:1 -p:NuGetAudit=false
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+      - name: Publish framework-dependent archive
+        shell: pwsh
+        run: |
+          $output = Join-Path $env:RUNNER_TEMP 'publish'
+          dotnet publish '${{ needs.prepare.outputs.project }}' -c Release -r '${{ matrix.runtime }}' --self-contained false -o $output -p:NuGetAudit=false
+          $archive = '${{ needs.prepare.outputs.product }}-${{ needs.prepare.outputs.version }}-${{ matrix.runtime }}.zip'
+          Compress-Archive -Path "$output/*" -DestinationPath (Join-Path $env:RUNNER_TEMP $archive) -CompressionLevel Optimal
+      - name: Export Engine documentation
+        if: needs.prepare.outputs.documentation == 'True' && matrix.runtime == 'linux-x64'
+        shell: pwsh
+        run: dotnet "$env:RUNNER_TEMP/publish/MudSharp.dll" --export-documentation "$env:RUNNER_TEMP/catalogue.json" --source-revision '${{ github.sha }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ matrix.runtime }}
+          path: |
+            ${{ runner.temp }}/${{ needs.prepare.outputs.product }}-${{ needs.prepare.outputs.version }}-${{ matrix.runtime }}.zip
+            ${{ runner.temp }}/catalogue.json
+          if-no-files-found: error
+
+  publish:
+    needs: [prepare, package]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: package-*
+          path: artifacts
+          merge-multiple: true
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: End-to-end publishing test against temporary host
+        shell: pwsh
+        run: |
+          $token = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(48)).ToLowerInvariant()
+          $env:FutureMUD__PublishingTokenSha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($token)))
+          $env:FutureMUD__DataRoot = "$env:RUNNER_TEMP/release-store"
+          $web = Start-Process dotnet -ArgumentList @('run', '--project', 'FutureMUD.Web/FutureMUD.Web.csproj', '-c', 'Release', '--urls', 'http://127.0.0.1:5080') -PassThru
+          try {
+            $ready = $false
+            for ($attempt = 0; $attempt -lt 60; $attempt++) {
+              try { Invoke-RestMethod http://127.0.0.1:5080/health/ready | Out-Null; $ready = $true; break }
+              catch { Start-Sleep 1 }
+            }
+            if (-not $ready) { throw 'The temporary publishing host did not become ready.' }
+            $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
+            ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl http://127.0.0.1:5080 -Token $token -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ github.sha }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
+          }
+          finally {
+            if (-not $web.HasExited) { Stop-Process -Id $web.Id -Force }
+          }
+      - name: Publish to futuremud.com
+        shell: pwsh
+        env:
+          PUBLISHING_TOKEN: ${{ secrets.FUTUREMUD_PUBLISHING_TOKEN }}
+        run: |
+          $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
+          ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ github.sha }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation

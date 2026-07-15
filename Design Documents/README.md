@@ -37,6 +37,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Natural Ranged Attacks Implementation Plan](./Combat/Natural_Ranged_Attacks_Implementation_Plan.md)
 
 ## Core
+- [FutureMUD Website and Publishing](./Core/FutureMUD_Website_and_Publishing.md)
 - [FutureProg Type System](./Core/FutureProg_Type_System.md)
 - [MudSharp 2.0 Release Readiness Audit](./Core/MudSharp_2_0_Release_Readiness_Audit.md)
 - [Patch Notes Authoring Guide](./Core/Patch_Notes_Authoring_Guide.md)

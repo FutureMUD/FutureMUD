@@ -1,0 +1,30 @@
+@page "/docs/{section}/{collection?}/{slug?}"
+@model FutureMUD.Web.Pages.DocsModel
+@{
+	ViewData["Title"] = Model.Detail?.Title ?? Model.Title;
+}
+@if (Model.Detail is not null)
+{
+	<article class="document">
+		<header><p class="eyebrow">@Model.Title</p><h1>@Model.Detail.Title</h1><p class="tags">@Model.Detail.Category · @Model.Detail.Audience</p></header>
+		<div class="help-text">@Html.Raw(Model.Detail.SafeHtml)</div>
+		<p><a href="@Model.CollectionUrl">← Back to @Model.Title</a></p>
+	</article>
+}
+else
+{
+	<header class="page-header"><p class="eyebrow">Engine @Model.EngineVersion</p><h1>@Model.Title</h1><p class="lede">Generated from source revision <code>@Model.SourceRevision</code>.</p></header>
+	<form class="filter-bar" method="get" role="search">
+		<label>Search <input type="search" name="q" value="@Model.Query" placeholder="Name or help text" /></label>
+		<label>Audience <select name="audience"><option value="">All</option>@foreach (var value in Model.Audiences) { <option value="@value" selected="@(value == Model.Audience)">@value</option> }</select></label>
+		<label>Category <select name="category"><option value="">All</option>@foreach (var value in Model.Categories) { <option value="@value" selected="@(value == Model.Category)">@value</option> }</select></label>
+		<button class="button primary" type="submit">Filter</button>
+	</form>
+	<p class="result-count">@Model.Entries.Count result(s)</p>
+	<div class="reference-list">
+	@foreach (var entry in Model.Entries)
+	{
+		<a href="@Model.CollectionUrl/@entry.Slug"><div><h2>@entry.Title</h2><p>@entry.Summary</p></div><span>@entry.Category@if (!string.IsNullOrWhiteSpace(entry.Audience)) { <text> · @entry.Audience</text> }</span></a>
+	}
+	</div>
+}

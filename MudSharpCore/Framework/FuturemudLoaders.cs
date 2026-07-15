@@ -16,6 +16,7 @@ using MudSharp.CharacterCreation.Resources;
 using MudSharp.Combat;
 using MudSharp.Commands;
 using MudSharp.Commands.Modules;
+using MudSharp.Documentation.Export;
 using MudSharp.Commands.Trees;
 using MudSharp.Communication.Language;
 using MudSharp.Community;
@@ -199,11 +200,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 #if DEBUG
         ConsoleUtilities.WriteLine("\n#EWriting prog help text htmls...#0");
-        List<FunctionCompilerInformation> infos = FutureProg.FutureProg.GetFunctionCompilerInformations().ToList();
-        ImplementorModule.WriteProgParametersByCategory(this, infos);
-        ImplementorModule.WriteProgParametersAlphabetically(this, infos);
-        ImplementorModule.WriteTypeHelps(this);
-        ImplementorModule.WriteCollectionHelps(this);
+        DocumentationCatalogueExporter.WriteLegacyHtml(this, Directory.GetCurrentDirectory());
         ConsoleUtilities.WriteLine("#ADone.#0");
 #endif
 

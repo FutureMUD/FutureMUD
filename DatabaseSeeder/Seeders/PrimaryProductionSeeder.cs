@@ -118,6 +118,7 @@ public sealed class PrimaryProductionSeeder : IDatabaseSeeder
 	public string Tagline => "Stock prospecting, extraction, quarrying, kiln, smelting, salt, tar, peat, and pigment project templates.";
 	public string FullDescription => "Installs setting-neutral local project templates for primary production chains. These templates use resource-discovery actions, commodity output actions, and bulk commodity requirements as builder-editable starting points.";
 	public bool SafeToRunMoreThanOnce => true;
+	public bool Enabled => false;
 
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
 	{

@@ -1144,5 +1144,5 @@ The items and crafts are fairly universal and of approximately medieval to renei
     }
 
     /// <inheritdoc />
-    public bool Enabled => true;
+    public bool Enabled => false;
 }

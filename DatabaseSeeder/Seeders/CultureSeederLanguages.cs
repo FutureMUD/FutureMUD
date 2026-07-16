@@ -3,6 +3,7 @@ using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,7 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class CultureSeeder
 {
-    private readonly Dictionary<string, Language> _languages = new();
+    private readonly Dictionary<string, Language> _languages = new(StringComparer.OrdinalIgnoreCase);
     internal static IReadOnlyCollection<string> RpiLegacyMiddleEarthLanguageNamesForTesting =>
     [
         "Taliska",
@@ -78,9 +79,28 @@ public partial class CultureSeeder
     public void AddScript(string name, string known, string unknown, string description, string subtype, double length,
         double ink, params string[] languages)
     {
+        Script? existingScript = _context.Scripts
+            .AsEnumerable()
+            .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        List<Language> existingLanguages = existingScript is null
+            ? []
+            : _context.ScriptsDesignedLanguages
+                .Where(x => x.ScriptId == existingScript.Id)
+                .Select(x => x.Language)
+                .ToList();
+        foreach (Language language in existingLanguages)
+        {
+            _languages.TryAdd(language.Name, language);
+        }
+
+        string[] designedLanguages = languages
+            .Concat(existingLanguages.Select(x => x.Name))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
         StringBuilder sb = new();
         sb.AppendLine("switch (@skill.Name)");
-        foreach (string language in languages)
+        foreach (string language in designedLanguages)
         {
             sb.AppendLine($"  case (\"{language}\")");
             sb.AppendLine("    return true");
@@ -102,7 +122,7 @@ public partial class CultureSeeder
             FutureProgStaticType.NotStatic,
             (ProgVariableTypes.Chargen, "ch"),
             (ProgVariableTypes.Trait, "skill"));
-        EnsureScript(name, known, unknown, description, subtype, length, ink, prog, languages);
+        EnsureScript(name, known, unknown, description, subtype, length, ink, prog, designedLanguages);
     }
 
     private void SeedMiddleEarthLanguages()
@@ -642,23 +662,23 @@ return false"
             "The Greek script was once widely used across the world but is nowadays mostly limited to the use of the Greek language and as a source of symbols for Mathematics.",
             "Alphabet", 1.0, 1.0, "Greek");
         AddScript("Japanese", "the Japanese script", "an East Asian script",
-            "The Japanese script includes a series of Kata and Kanji, in a mixed approach somewhere in between a syllabic script and a symbolic script.",
+            "Japanese writing combines kana syllabaries with kanji logographs.",
             "Hybrid", 0.75, 1.5, "Japanese");
         AddScript("Korean", "the Korean script", "an East Asian script",
-            "The Korean script, also known as Hangul, is an alphabetic script designed to support the Korean language.",
-            "Hybrid", 0.75, 1.5, "Japanese");
+            "The Korean script, also known as Hangul, is a featural alphabet arranged into syllable blocks.",
+            "Alphabet", 0.75, 1.5, "Korean");
         AddScript("Chinese", "the Chinese script", "an East Asian script",
-            "The Japanese script includes a series of Kata and Kanji, in a mixed approach somewhere in between a syllabic script and a symbolic script.",
-            "Hybrid", 0.5, 2.0, "Japanese");
-        AddScript("Hebrew", "the Japanese script", "an East Asian script",
-            "The Japanese script includes a series of Kata and Kanji, in a mixed approach somewhere in between a syllabic script and a symbolic script.",
-            "Hybrid", 0.5, 2.0, "Japanese");
-        AddScript("Arabic", "the Japanese script", "an East Asian script",
-            "The Japanese script includes a series of Kata and Kanji, in a mixed approach somewhere in between a syllabic script and a symbolic script.",
-            "Hybrid", 0.5, 2.0, "Japanese");
-        AddScript("Sanskrit", "the Japanese script", "an East Asian script",
-            "The Japanese script includes a series of Kata and Kanji, in a mixed approach somewhere in between a syllabic script and a symbolic script.",
-            "Hybrid", 0.5, 2.0, "Japanese");
+            "Chinese writing uses logographs shared across the written standards represented by Mandarin and Yue.",
+            "Logographic", 0.5, 2.0, "Mandarin", "Yue");
+        AddScript("Hebrew", "the Hebrew script", "a right-to-left script",
+            "The Hebrew abjad writes Hebrew from right to left, with optional marks for vowels and cantillation.",
+            "Abjad", 0.8, 1.2, "Hebrew");
+        AddScript("Arabic", "the Arabic script", "a flowing right-to-left script",
+            "The Arabic abjad writes Arabic and, with additional letters, modern Persian from right to left.",
+            "Abjad", 0.8, 1.2, "Arabic", "Farsi");
+        AddScript("Sanskrit", "the Devanagari script", "a South Asian script",
+            "This legacy-named script record represents the Devanagari abugida used for Hindi and many Sanskrit texts.",
+            "Abugida", 0.8, 1.3, "Hindi");
 
         #endregion
 
@@ -1598,6 +1618,8 @@ return false"
             "taishan");
         AddAccent("Yupik", "standard", "with a Standard accent", "with a Standard accent", 2,
             "The standard accent of a speaker of Yupik", "standard");
+
+        SeedModernLanguageCoverageExpansion();
 
         #endregion
     }
@@ -2629,6 +2651,8 @@ return false"
             "This is the accent of speakers of Ariya from the Median.", "Persik");
         AddAccent("Ariya", "Mesopotamian", "in a Mesopotamian accent", "in a Mesopotamian accent", Difficulty.Easy,
             "This is the accent of speakers of Ariya from the city states of Mesopotamia.", "Persik");
+
+        SeedAntiquityLanguageCoverageExpansion();
 
         #endregion
     }
@@ -4367,6 +4391,8 @@ return false"
         AddMutualIntelligability("Swedish", "Danish", Difficulty.VeryHard, true);
         AddMutualIntelligability("Swedish", "Icelandic", Difficulty.ExtremelyHard, true);
         AddMutualIntelligability("Danish", "Icelandic", Difficulty.ExtremelyHard, true);
+
+        SeedRenaissanceEuropeLanguageCoverageExpansion();
 
         #endregion
     }

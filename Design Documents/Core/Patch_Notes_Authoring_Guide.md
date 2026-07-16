@@ -504,30 +504,52 @@ Downloads: https://futuremud.com/downloads
 Keep the Discord announcement short. The website note is the canonical full record.
 
 ## Do And Don't
+
 ### Do
 
 - Do keep the emphasis on what changed for the user.
-- Do mention warnings, uncertainty, costs, or rollout caveats when they matter.
+- Do make the front-matter summary useful when read by itself on the patch-note index.
+- Do mention warnings, uncertainty, costs, compatibility, or rollout caveats when they matter.
+- Do coordinate claims about downloadable releases with the separately promoted product release.
+- Do use stable filenames, dates, tags, product names, and version numbers.
+- Do use only the Markdown features that the website renderer supports.
 - Do summarise internal work in broad user-relevant terms.
 - Do use sections when a release is large enough to benefit from them.
 - Do keep multi-product releases clearly separated by product heading.
+- Do verify the canonical website page before linking it from Discord.
 
 ### Don't
 
+- Don't treat a Discord post as the canonical or only patch note.
+- Don't duplicate the front-matter title as the first body heading.
 - Don't turn the post into a technical diff.
 - Don't explain refactors in depth unless the audience needs that detail.
 - Don't force section headings onto very small releases.
 - Don't mix different product updates together without clear headings.
 - Don't pad the post with every tiny fix when a grouped summary is clearer.
+- Don't rely on raw HTML, tables, images, nested lists, or other unsupported Markdown.
+- Don't rename a published file casually, because that changes its public URL.
+- Don't claim that a release is downloadable until the version is visible and verified on the website.
+- Don't edit the production server as a substitute for merging repository content.
 
 ## Final Sense Check
-Before posting, quickly check:
 
-- Does the heading clearly identify the product and version?
-- Is any upgrade note, warning, or caveat visible immediately?
-- Would a builder, admin, or operator understand why each bullet matters?
+Before merging and announcing, quickly check:
+
+- Does the filename follow `YYYY-MM-DD-stable-slug.md`, and is the slug suitable as a permanent public URL?
+- Are `title`, `summary`, `date`, and `tags` present, and does the date match the filename?
+- Does the front-matter title clearly identify the product and version when appropriate?
+- Does the summary make sense on the index without reading the body?
+- Is any upgrade note, warning, compatibility issue, or caveat visible immediately?
+- Would a builder, admin, player, or operator understand why each item matters?
 - Have internal-only details been simplified enough?
 - If there are multiple products, are they clearly separated?
-- Does the post sound like a person explaining a release, rather than a changelog export?
+- Does the body avoid repeating information already rendered by the page header?
+- Does the note use only supported Markdown and durable public links?
+- Has the relevant product release been promoted and verified if the note says it is available?
+- Did the website tests and deployment workflow pass?
+- Are the index and detail URLs correct on the live website?
+- Does any Discord announcement link back to that canonical page?
+- Does the note sound like a person explaining a release rather than a changelog export?
 
-If the answer to those questions is yes, the patch notes are probably in the right style.
+If the answer to those questions is yes, the patch note is ready to publish.

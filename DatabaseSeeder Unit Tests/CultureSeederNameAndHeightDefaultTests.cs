@@ -67,8 +67,9 @@ public class CultureSeederNameAndHeightDefaultTests
 		CollectionAssert.Contains(
 			CultureSeeder.OptionalHumanCharacteristicDefinitionsForTesting.ToArray(),
 			"Distinctive Feature");
-		Assert.ThrowsException<ApplicationException>(() =>
-			seeder.AddEthnicityVariable("unused", "Eye Colour", "missing"));
+		CollectionAssert.DoesNotContain(
+			CultureSeeder.OptionalHumanCharacteristicDefinitionsForTesting.ToArray(),
+			"Eye Colour");
 	}
 
 	[TestMethod]

@@ -359,25 +359,59 @@ Instead:
 That makes it clear which update belongs to which product.
 
 ## Authoring Method
+
 When assembling patch notes for a release, use this process:
 
-1. Gather the changes for the product being released.
-2. Mark which ones are user-facing, admin-facing, builder-facing, operator-facing, or internal-only.
-3. Pull any breaking changes, upgrade requirements, or warnings to the top.
-4. Decide whether the release is small enough for a simple bullet list or large enough to need sections.
-5. Group tiny related fixes together.
-6. Rewrite technical changes into practical plain-English outcomes.
-7. Give big features a short paragraph if they need context.
-8. Do a last pass to cut internal detail that users do not need.
+1. Confirm the public product name, exact three-part version, release tag, supported runtimes, and expected download availability.
+2. Decide whether the content is a patch note, a news post, or both. Concrete shipped changes belong in patch notes.
+3. Gather the changes and mark them as player-facing, builder-facing, admin-facing, operator-facing, or internal-only.
+4. Pull breaking changes, upgrade requirements, compatibility notes, and warnings to the top.
+5. Decide whether the release needs a simple list or a few meaningful sections.
+6. Group tiny related fixes and rewrite technical implementation details as practical outcomes.
+7. Choose a stable dated filename and write complete front matter. The summary must make sense on the index without the body.
+8. Write the body using only the supported safe Markdown subset. Do not repeat the front-matter title.
+9. Check links, command names, product names, version numbers, and any claimed download availability against the actual release.
+10. Cut internal detail that users do not need and check that operational actions are explicit.
+11. Run the website tests and review the rendered index and detail page before merging.
+12. After deployment, verify the public URL and then announce it through Discord or other community channels.
 
-This method should produce notes that feel informative without feeling dense.
+## Repository Publishing Workflow
+
+1. Add the note beneath `FutureMUD.Web/Content/PatchNotes` on a normal review branch.
+2. Run:
+
+   ```powershell
+   dotnet test FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj -c Release -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
+   ```
+
+3. Open a pull request that includes the note and any related website changes. Review the filename, front matter, summary, rendered structure, links, product version, and operational claims.
+4. Coordinate with the product release workflow. Product tags publish binaries and generated documentation; merging a patch note publishes website content. These are separate workflows. Do not say a download is available until the product release has been promoted and verified on `/downloads`.
+5. Merge the patch-note pull request to `master`. Changes below `FutureMUD.Web/**` trigger `.github/workflows/deploy-website.yml`, which restores, tests, publishes the Linux website, atomically activates it on the server, and checks `/health/ready`.
+6. Confirm the workflow succeeded, then verify both `/patch-notes` and `/patch-notes/{slug}` on the public website. Check the displayed title, summary, date, tags, body structure, links, and any referenced download.
+7. Publish the short Discord announcement with a link to the verified website note.
+
+Do not edit patch-note files directly on the production server. Repository Markdown is the source of truth, and the deployment workflow is the supported publishing channel.
+
+### Corrections After Publication
+
+For a typo or clarification that does not change the release meaning, update the existing Markdown file without renaming it and redeploy. For a material correction—especially a missed warning, incorrect compatibility statement, or unavailable download—update the website note promptly and post a Discord correction linking to it. Preserve the original publication date unless the change represents a genuinely new release or change set.
 
 ## Reusable Templates
-These are skeletons, not rigid formats. Adjust as needed, but stay within the same general style.
 
-### Small Engine Patch
-```text
-Engine Version 1.56.0
+These are website-ready skeletons. Replace the example date, slug, version, summary, and tags with real values.
+
+### Small Product Release
+
+Filename: `2026-07-20-engine-2-0-1.md`
+
+```markdown
+---
+title: Engine 2.0.1
+summary: Fixes several builder workflow issues and improves pathfinding around locked exits.
+date: 2026-07-20
+tags: engine, release
+---
+No additional setup is required for this update.
 
 - Fixed a bug where ...
 - Added ...
@@ -385,98 +419,89 @@ Engine Version 1.56.0
 - Changed ... so that ...
 ```
 
-### Larger Engine Release With Categories
-```text
-Engine Version 1.57.0
+### Larger Release With Operational Notes
 
-Note: You will need to update to ... before using this version.
+Filename: `2026-08-03-engine-2-1-0.md`
 
-Bug Fixes:
+```markdown
+---
+title: Engine 2.1.0
+summary: Adds the example system, expands builder controls, and requires an updated .NET runtime.
+date: 2026-08-03
+tags: engine, release, upgrade
+---
+**Upgrade note:** Install the required .NET runtime before replacing the previous Engine build.
 
-- Fixed ...
+## Bug Fixes
+
 - Fixed ...
 - Improved ...
 
-Minor Features:
+## Minor Features
 
 - Added ...
-- Added ...
+- Changed ...
 
-Major New Feature: Example System
+## Major New Feature: Example System
 
-Implemented a new system for ... This lets builders/admins/players ... It still has some room for future improvement, but it is ready to use now.
+Implemented a new system for ... This lets builders, admins, or players ... It still has some room for future improvement, but it is ready to use now.
 ```
 
-### Seeder-Only Release
-```text
-Database Seeder v2.4.0
+### Multi-Product Change Set
 
-- Added new seeded ...
-- Improved some of the default ...
-- Changed the way the seeder handles ... so that it no longer ...
-- Added support for seeding ...
-```
+Filename: `2026-08-10-august-product-updates.md`
 
-### Discord Bot Release
-```text
-Discord Bot v1.8.0
-
-- Added a new command for ...
-- Fixed an issue where the bot would ...
-- Improved reliability around ...
-- Changed ... so that admins can ...
-```
-
-### Terrain Planner Release
-```text
-Terrain Planner v0.9.0
-
-- Improved the workflow for ...
-- Fixed an issue where terrain edits could ...
-- Added support for ...
-- Changed the way ... displays so that ...
-```
-
-### Terrain API Release
-```text
-Terrain API v0.5.0
-
-Note: This update changes ... so make sure you also update ...
-
-- Added a new endpoint for ...
-- Improved performance for ...
-- Fixed a bug where ...
-- Changed ... so that clients now ...
-```
-
-### Combined Multi-Product Release Post
-```text
-Engine Version 1.58.0
+```markdown
+---
+title: August 2026 product updates
+summary: Updates the Engine, Database Seeder, and Discord Bot with coordinated fixes and new tooling.
+date: 2026-08-10
+tags: engine, seeder, discord-bot, release
+---
+## Engine 2.2.0
 
 - Fixed ...
 - Added ...
 
-Database Seeder v2.5.0
+## Database Seeder 2.5.0
 
 - Added ...
 - Improved ...
 
-Discord Bot v1.9.0
+## Discord Bot 1.9.0
 
 - Fixed ...
 - Added ...
 ```
 
-### Breaking Change Or Required Upgrade Note
+### Website Or Publishing Change
+
+Filename: `2026-08-12-download-workflow-update.md`
+
+```markdown
+---
+title: Download workflow update
+summary: Improves release verification and clarifies supported runtime downloads.
+date: 2026-08-12
+tags: website, publishing
+---
+- Added ...
+- Changed ... so that ...
+- Updated the download guidance for ...
+```
+
+### Discord Announcement
+
 ```text
-Engine Version 1.59.0
+Engine 2.0.1 is now available.
 
-Note: You must update to ... in order to use this version going forward.
+This release fixes several builder workflow issues and improves pathfinding around locked exits. No additional setup is required.
 
-- Fixed ...
-- Added ...
-- Improved ...
+Patch notes: https://futuremud.com/patch-notes/engine-2-0-1
+Downloads: https://futuremud.com/downloads
 ```
+
+Keep the Discord announcement short. The website note is the canonical full record.
 
 ## Do And Don't
 ### Do

@@ -306,7 +306,8 @@ public static class OutputExtensions
 
         ICell location = (handler.Perceiver as ICharacter)?.Corpse?.Parent.Location ??
                        handler.Perceiver?.Location ??
-                       (handler.Perceiver as IGameItem)?.TrueLocations.FirstOrDefault();
+                       (handler.Perceiver as IGameItem)?.TrueLocations.FirstOrDefault() ??
+					   (output as IEmoteOutput)?.DefaultSource?.Location; ;
         IEnumerable<ICell> vicinity = location?.CellsInVicinity(maxRange, false, false).Except(location) ?? [];
         foreach (ICell loc in vicinity)
         {
@@ -326,7 +327,8 @@ public static class OutputExtensions
 
         ICell location = (handler.Perceiver as ICharacter)?.Corpse?.Parent.Location ??
                        handler.Perceiver?.Location ??
-                       (handler.Perceiver as IGameItem)?.TrueLocations.FirstOrDefault();
+                       (handler.Perceiver as IGameItem)?.TrueLocations.FirstOrDefault() ??
+                       (output as IEmoteOutput)?.DefaultSource?.Location;
         bool newline = !output.Style.HasFlag(OutputStyle.NoNewLine);
         bool nopage = output.Style.HasFlag(OutputStyle.NoPage);
 

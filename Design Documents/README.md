@@ -136,6 +136,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 ## Seeding
 - [DatabaseSeeder Repeatability Strategy](./Seeding/DatabaseSeeder_Repeatability_Strategy.md)
 - [DatabaseSeeder System Gap Audit](./Seeding/DatabaseSeeder_System_Gap_Audit.md)
+- [Clan Seeder Template Catalogue](./Seeding/Clan_Seeder_Template_Catalogue.md)
 - [Era Seeder Shared Architecture](./Seeding/Era_Seeder_Shared_Architecture.md)
 - [Renaissance Master Era Design Reference](./Seeding/FutureMUD_Renaissance_Master_Era_Design_Reference.md)
 - [Renaissance Shared Baseline Admission Manifest](./Seeding/FutureMUD_Renaissance_Shared_Baseline_Admission_Manifest.md)

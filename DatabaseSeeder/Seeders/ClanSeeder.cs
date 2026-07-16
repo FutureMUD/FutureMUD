@@ -32,7 +32,7 @@ public partial class ClanSeeder : IDatabaseSeeder
     private const string TemplateCloneElectorateBoardVotesProgName =
         "TemplateCloneElectorate_Board_Votes";
 
-    private static readonly IReadOnlyList<string> TemplateClanNames =
+    private static readonly IReadOnlyList<string> LegacyTemplateClanNames =
     [
         "Feudalism Template",
         "Peerage Template",
@@ -149,6 +149,7 @@ public partial class ClanSeeder : IDatabaseSeeder
         SetupMonasticOrder(context, questionAnswers);
         SetupPeerage(context, questionAnswers);
         SetupFeudalism(context, questionAnswers);
+        SetupAdditionalTemplateClans(context);
         int difference = context.Clans.Count() - count;
         context.Database.CommitTransaction();
         return $"Created {difference} new clans.";
@@ -163,7 +164,9 @@ public partial class ClanSeeder : IDatabaseSeeder
 
         if (context.Clans.Any())
         {
-            if (TemplateClanNames.Any(name => context.Clans.All(x => x.Name != name)))
+            if (LegacyTemplateClanNames
+                .Concat(AdditionalClanTemplateSpecifications.Select(x => x.Name))
+                .Any(name => context.Clans.All(x => x.Name != name)))
             {
                 return ShouldSeedResult.ExtraPackagesAvailable;
             }

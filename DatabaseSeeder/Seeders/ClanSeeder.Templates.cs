@@ -794,4 +794,746 @@ public partial class ClanSeeder
         AddAppointment(context, clan, "Coxswain", "Cox", pettyPrivileges, ableSeaman, lieutenant, captain);
         AddAppointment(context, clan, "Quartermaster", "QM", pettyPrivileges, ordinarySeaman, lieutenant, captain);
     }
+
+	private enum TemplatePrivilegeTier
+	{
+		Member,
+		Staff,
+		Command,
+		All
+	}
+
+	private sealed record ClanTemplateSpecification(
+		string Name,
+		string Alias,
+		string Description,
+		string Sphere,
+		IReadOnlyList<TemplateRankSpecification> Ranks,
+		IReadOnlyList<TemplateAppointmentSpecification> Appointments);
+
+	private sealed record TemplateRankSpecification(
+		string Name,
+		string Abbreviation,
+		int RankNumber,
+		string RankPath,
+		TemplatePrivilegeTier PrivilegeTier);
+
+	private sealed record TemplateAppointmentSpecification(
+		string Name,
+		string Abbreviation,
+		TemplatePrivilegeTier PrivilegeTier,
+		string MinimumRank,
+		string? ParentAppointment = null,
+		int MaximumSimultaneousHolders = 1);
+
+	private static TemplateRankSpecification TemplateRank(string name, string abbreviation, int rankNumber,
+		string rankPath, TemplatePrivilegeTier privilegeTier = TemplatePrivilegeTier.Member)
+	{
+		return new TemplateRankSpecification(name, abbreviation, rankNumber, rankPath, privilegeTier);
+	}
+
+	private static TemplateAppointmentSpecification TemplateAppointment(string name, string abbreviation,
+		TemplatePrivilegeTier privilegeTier, string minimumRank, string? parentAppointment = null,
+		int maximumSimultaneousHolders = 1)
+	{
+		return new TemplateAppointmentSpecification(name, abbreviation, privilegeTier, minimumRank,
+			parentAppointment, maximumSimultaneousHolders);
+	}
+
+	private static readonly IReadOnlyList<ClanTemplateSpecification> AdditionalClanTemplateSpecifications =
+	[
+		new(
+			"Extended Family Template", "family",
+			"A multi-generational household template with dependants, adult members, elders, succession, care, and shared-property responsibilities.",
+			"Kinship",
+			[
+				TemplateRank("Dependant", "Dep", 1, "Household"),
+				TemplateRank("Adult Member", "Adult", 2, "Household"),
+				TemplateRank("Senior Member", "Senior", 3, "Household", TemplatePrivilegeTier.Staff),
+				TemplateRank("Family Head", "Head", 4, "Household", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Household Head", "Head", TemplatePrivilegeTier.All, "Family Head"),
+				TemplateAppointment("Family Elder", "Elder", TemplatePrivilegeTier.Command, "Senior Member", "Household Head", 0),
+				TemplateAppointment("Household Steward", "Steward", TemplatePrivilegeTier.Staff, "Adult Member", "Household Head"),
+				TemplateAppointment("Designated Heir", "Heir", TemplatePrivilegeTier.Staff, "Adult Member", "Household Head"),
+				TemplateAppointment("Caregiver", "Carer", TemplatePrivilegeTier.Staff, "Adult Member", "Household Head", 0)
+			]),
+		new(
+			"Lineage Clan Template", "lineage",
+			"A descent-based clan or great house template with lineage branches, an elder council, genealogy, and collective assets.",
+			"Kinship",
+			[
+				TemplateRank("Affiliate", "Aff", 1, "Affiliated"),
+				TemplateRank("Lineage Member", "Member", 2, "Lineage"),
+				TemplateRank("Branch Representative", "Branch", 3, "Lineage", TemplatePrivilegeTier.Staff),
+				TemplateRank("Clan Elder", "Elder", 4, "Lineage", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Clan Head", "Head", TemplatePrivilegeTier.All, "Clan Elder"),
+				TemplateAppointment("Council Elder", "Council", TemplatePrivilegeTier.Command, "Clan Elder", "Clan Head", 0),
+				TemplateAppointment("Branch Head", "Branch", TemplatePrivilegeTier.Command, "Branch Representative", "Clan Head", 0),
+				TemplateAppointment("Genealogist", "Geneal", TemplatePrivilegeTier.Staff, "Lineage Member", "Clan Head"),
+				TemplateAppointment("Clan Treasurer", "Treas", TemplatePrivilegeTier.Command, "Branch Representative", "Clan Head")
+			]),
+		new(
+			"Tribal Council Template", "tribalcouncil",
+			"A broad kin-and-community governance template with respected elders, customary offices, collective decisions, and war leadership.",
+			"Traditional Government",
+			[
+				TemplateRank("Community Member", "Member", 1, "Community"),
+				TemplateRank("Proven Adult", "Proven", 2, "Community"),
+				TemplateRank("Elder", "Elder", 3, "Council", TemplatePrivilegeTier.Staff),
+				TemplateRank("Paramount Leader", "Leader", 4, "Council", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Chief", "Chief", TemplatePrivilegeTier.All, "Paramount Leader"),
+				TemplateAppointment("Council Elder", "Council", TemplatePrivilegeTier.Command, "Elder", "Chief", 0),
+				TemplateAppointment("War Leader", "War", TemplatePrivilegeTier.Command, "Proven Adult", "Chief"),
+				TemplateAppointment("Speaker", "Speaker", TemplatePrivilegeTier.Staff, "Proven Adult", "Chief"),
+				TemplateAppointment("Keeper of Traditions", "Keeper", TemplatePrivilegeTier.Staff, "Elder", "Chief")
+			]),
+		new(
+			"Norse Warband Template", "warband",
+			"A household warband template suitable for Viking-age or similar retainer cultures, with warriors, household guards, law, and reputation roles.",
+			"Historical Military",
+			[
+				TemplateRank("Camp Follower", "Follower", 1, "Household"),
+				TemplateRank("Free Warrior", "Warrior", 2, "Warrior"),
+				TemplateRank("Retainer", "Ret", 3, "Warrior", TemplatePrivilegeTier.Staff),
+				TemplateRank("Household Guard", "Guard", 4, "Warrior", TemplatePrivilegeTier.Command),
+				TemplateRank("Jarl", "Jarl", 5, "Lord", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Jarl", "Jarl", TemplatePrivilegeTier.All, "Jarl"),
+				TemplateAppointment("Hersir", "Hersir", TemplatePrivilegeTier.Command, "Household Guard", "Jarl"),
+				TemplateAppointment("Standard Bearer", "Banner", TemplatePrivilegeTier.Staff, "Retainer", "Jarl"),
+				TemplateAppointment("Lawspeaker", "Law", TemplatePrivilegeTier.Staff, "Retainer", "Jarl"),
+				TemplateAppointment("Skald", "Skald", TemplatePrivilegeTier.Member, "Free Warrior", "Jarl")
+			]),
+		new(
+			"Steppe Horde Template", "horde",
+			"A mobile confederation and army template for steppe societies, combining household membership, mounted commands, logistics, diplomacy, and ritual authority.",
+			"Historical Military",
+			[
+				TemplateRank("Camp Member", "Camp", 1, "Household"),
+				TemplateRank("Rider", "Rider", 2, "Warrior"),
+				TemplateRank("Veteran Rider", "Veteran", 3, "Warrior", TemplatePrivilegeTier.Staff),
+				TemplateRank("Noyan", "Noyan", 4, "Commander", TemplatePrivilegeTier.Command),
+				TemplateRank("Khan", "Khan", 5, "Ruler", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Khan", "Khan", TemplatePrivilegeTier.All, "Khan"),
+				TemplateAppointment("Orlok", "Orlok", TemplatePrivilegeTier.Command, "Noyan", "Khan"),
+				TemplateAppointment("Tumen Commander", "Tumen", TemplatePrivilegeTier.Command, "Noyan", "Khan", 0),
+				TemplateAppointment("Chief Quartermaster", "Quarter", TemplatePrivilegeTier.Staff, "Veteran Rider", "Khan"),
+				TemplateAppointment("Envoy", "Envoy", TemplatePrivilegeTier.Staff, "Veteran Rider", "Khan", 0),
+				TemplateAppointment("Ritual Specialist", "Ritual", TemplatePrivilegeTier.Member, "Veteran Rider", "Khan")
+			]),
+		new(
+			"Japanese Feudal Domain Template", "han",
+			"A Japanese-inspired feudal domain template with ashigaru, samurai retainers, senior councillors, inspectors, castles, and civil administration.",
+			"Traditional Government",
+			[
+				TemplateRank("Household Retainer", "Ret", 1, "Retainer"),
+				TemplateRank("Ashigaru", "Ashi", 2, "Military"),
+				TemplateRank("Samurai", "Sam", 3, "Military", TemplatePrivilegeTier.Staff),
+				TemplateRank("Hatamoto", "Hata", 4, "Senior Retainer", TemplatePrivilegeTier.Command),
+				TemplateRank("Daimyo", "Daimyo", 5, "Lord", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Daimyo", "Daimyo", TemplatePrivilegeTier.All, "Daimyo"),
+				TemplateAppointment("Senior Councillor", "Karo", TemplatePrivilegeTier.Command, "Hatamoto", "Daimyo", 0),
+				TemplateAppointment("Magistrate", "Bugyo", TemplatePrivilegeTier.Command, "Samurai", "Daimyo", 0),
+				TemplateAppointment("Castellan", "Castle", TemplatePrivilegeTier.Command, "Hatamoto", "Daimyo", 0),
+				TemplateAppointment("Inspector", "Metsuke", TemplatePrivilegeTier.Staff, "Samurai", "Daimyo", 0),
+				TemplateAppointment("Military Commissioner", "Gun", TemplatePrivilegeTier.Command, "Hatamoto", "Daimyo")
+			]),
+		new(
+			"East Asian Imperial Bureaucracy Template", "imperialcourt",
+			"An adaptable examination-and-ministry bureaucracy for Chinese, Korean, Vietnamese, or similarly organised imperial settings.",
+			"Traditional Government",
+			[
+				TemplateRank("Examination Candidate", "Cand", 1, "Civil Service"),
+				TemplateRank("Clerk", "Clerk", 2, "Civil Service"),
+				TemplateRank("Magistrate", "Mag", 3, "Civil Service", TemplatePrivilegeTier.Staff),
+				TemplateRank("Provincial Official", "Prov", 4, "Civil Service", TemplatePrivilegeTier.Command),
+				TemplateRank("Minister", "Min", 5, "Court", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Imperial Sovereign", "Sovereign", TemplatePrivilegeTier.All, "Minister"),
+				TemplateAppointment("Grand Chancellor", "Chancellor", TemplatePrivilegeTier.Command, "Minister", "Imperial Sovereign"),
+				TemplateAppointment("Minister of Personnel", "Personnel", TemplatePrivilegeTier.Command, "Minister", "Grand Chancellor"),
+				TemplateAppointment("Minister of Revenue", "Revenue", TemplatePrivilegeTier.Command, "Minister", "Grand Chancellor"),
+				TemplateAppointment("Minister of Rites", "Rites", TemplatePrivilegeTier.Command, "Minister", "Grand Chancellor"),
+				TemplateAppointment("Minister of War", "War", TemplatePrivilegeTier.Command, "Minister", "Grand Chancellor"),
+				TemplateAppointment("Minister of Justice", "Justice", TemplatePrivilegeTier.Command, "Minister", "Grand Chancellor"),
+				TemplateAppointment("Minister of Works", "Works", TemplatePrivilegeTier.Command, "Minister", "Grand Chancellor"),
+				TemplateAppointment("Chief Censor", "Censor", TemplatePrivilegeTier.Staff, "Provincial Official", "Imperial Sovereign")
+			]),
+		new(
+			"East Asian Imperial Army Template", "imperialarmy",
+			"A traditional East Asian imperial army template with soldiers, unit officers, generals, inspectors, logistics, engineering, and palace command.",
+			"Historical Military",
+			[
+				TemplateRank("Conscript", "Con", 1, "Soldier"),
+				TemplateRank("Soldier", "Sold", 2, "Soldier"),
+				TemplateRank("Unit Leader", "Leader", 3, "Soldier", TemplatePrivilegeTier.Staff),
+				TemplateRank("Military Officer", "Officer", 4, "Officer", TemplatePrivilegeTier.Command),
+				TemplateRank("General", "General", 5, "Officer", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Commander-in-Chief", "C-in-C", TemplatePrivilegeTier.All, "General"),
+				TemplateAppointment("Field General", "Field", TemplatePrivilegeTier.Command, "General", "Commander-in-Chief", 0),
+				TemplateAppointment("Army Inspector", "Inspect", TemplatePrivilegeTier.Command, "Military Officer", "Commander-in-Chief"),
+				TemplateAppointment("Quartermaster General", "Quarter", TemplatePrivilegeTier.Staff, "Military Officer", "Commander-in-Chief"),
+				TemplateAppointment("Chief Engineer", "Engineer", TemplatePrivilegeTier.Staff, "Military Officer", "Commander-in-Chief"),
+				TemplateAppointment("Palace Guard Commander", "Palace", TemplatePrivilegeTier.Command, "Military Officer", "Commander-in-Chief")
+			]),
+		new(
+			"Islamic Sultanate Court Template", "sultanate",
+			"A broad medieval or early-modern sultanate court template with the sovereign, vizierate, judiciary, fiscal offices, household, and military command.",
+			"Traditional Government",
+			[
+				TemplateRank("Court Servant", "Serv", 1, "Household"),
+				TemplateRank("Courtier", "Court", 2, "Court"),
+				TemplateRank("Amir", "Amir", 3, "Military", TemplatePrivilegeTier.Staff),
+				TemplateRank("Vizier", "Viz", 4, "Administration", TemplatePrivilegeTier.Command),
+				TemplateRank("Sultan", "Sultan", 5, "Sovereign", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Sultan", "Sultan", TemplatePrivilegeTier.All, "Sultan"),
+				TemplateAppointment("Grand Vizier", "Vizier", TemplatePrivilegeTier.Command, "Vizier", "Sultan"),
+				TemplateAppointment("Chief Judge", "Qadi", TemplatePrivilegeTier.Command, "Vizier", "Sultan"),
+				TemplateAppointment("Treasury Minister", "Diwan", TemplatePrivilegeTier.Command, "Vizier", "Grand Vizier"),
+				TemplateAppointment("Lord Chamberlain", "Hajib", TemplatePrivilegeTier.Staff, "Courtier", "Sultan"),
+				TemplateAppointment("Commander of Commanders", "Amir", TemplatePrivilegeTier.Command, "Amir", "Sultan"),
+				TemplateAppointment("Intelligence Chief", "Intel", TemplatePrivilegeTier.Staff, "Courtier", "Grand Vizier")
+			]),
+		new(
+			"South Asian Royal Court Template", "southasiancourt",
+			"An adaptable South Asian royal court with household retainers, ranked service, civil administration, military command, ritual advice, and urban security.",
+			"Traditional Government",
+			[
+				TemplateRank("Household Retainer", "Ret", 1, "Household"),
+				TemplateRank("Courtier", "Court", 2, "Court"),
+				TemplateRank("Ranked Officer", "Officer", 3, "Service", TemplatePrivilegeTier.Staff),
+				TemplateRank("Minister", "Min", 4, "Administration", TemplatePrivilegeTier.Command),
+				TemplateRank("Sovereign", "Sov", 5, "Sovereign", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Sovereign", "Sov", TemplatePrivilegeTier.All, "Sovereign"),
+				TemplateAppointment("Chief Minister", "Diwan", TemplatePrivilegeTier.Command, "Minister", "Sovereign"),
+				TemplateAppointment("Commander of the Army", "Senapati", TemplatePrivilegeTier.Command, "Ranked Officer", "Sovereign"),
+				TemplateAppointment("Royal Preceptor", "Preceptor", TemplatePrivilegeTier.Staff, "Courtier", "Sovereign"),
+				TemplateAppointment("City Constable", "Kotwal", TemplatePrivilegeTier.Command, "Ranked Officer", "Chief Minister"),
+				TemplateAppointment("Royal Treasurer", "Treas", TemplatePrivilegeTier.Command, "Minister", "Chief Minister")
+			]),
+		new(
+			"West African Royal Court Template", "westafricancourt",
+			"A flexible royal-court template inspired by West and Central African kingdoms, with lineage authority, provincial chiefs, oral historians, and military offices.",
+			"Traditional Government",
+			[
+				TemplateRank("Community Member", "Member", 1, "Community"),
+				TemplateRank("Court Retainer", "Ret", 2, "Court"),
+				TemplateRank("Provincial Chief", "Chief", 3, "Provincial", TemplatePrivilegeTier.Staff),
+				TemplateRank("Court Elder", "Elder", 4, "Court", TemplatePrivilegeTier.Command),
+				TemplateRank("Sovereign", "Sov", 5, "Royal", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Sovereign", "Sov", TemplatePrivilegeTier.All, "Sovereign"),
+				TemplateAppointment("Queen Mother", "QMother", TemplatePrivilegeTier.Command, "Court Elder", "Sovereign"),
+				TemplateAppointment("Council Elder", "Council", TemplatePrivilegeTier.Command, "Court Elder", "Sovereign", 0),
+				TemplateAppointment("Provincial Chief", "Province", TemplatePrivilegeTier.Command, "Provincial Chief", "Sovereign", 0),
+				TemplateAppointment("War Captain", "War", TemplatePrivilegeTier.Command, "Court Retainer", "Sovereign"),
+				TemplateAppointment("Oral Historian", "Griot", TemplatePrivilegeTier.Staff, "Court Retainer", "Sovereign", 0),
+				TemplateAppointment("Royal Treasurer", "Treas", TemplatePrivilegeTier.Command, "Court Elder", "Sovereign")
+			]),
+		new(
+			"Roman Religious Cult Template", "romancult",
+			"A Roman civic or temple cult template with initiates, ritual personnel, priests, divination offices, and a chief priesthood.",
+			"Religion",
+			[
+				TemplateRank("Initiate", "Init", 1, "Congregant"),
+				TemplateRank("Cult Member", "Member", 2, "Congregant"),
+				TemplateRank("Ritual Attendant", "Attend", 3, "Temple", TemplatePrivilegeTier.Staff),
+				TemplateRank("Priest", "Priest", 4, "Priesthood", TemplatePrivilegeTier.Command),
+				TemplateRank("Senior Priest", "Senior", 5, "Priesthood", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Chief Pontiff", "Pontifex", TemplatePrivilegeTier.All, "Senior Priest"),
+				TemplateAppointment("Temple Priest", "Flamen", TemplatePrivilegeTier.Command, "Priest", "Chief Pontiff", 0),
+				TemplateAppointment("Augur", "Augur", TemplatePrivilegeTier.Staff, "Priest", "Chief Pontiff", 0),
+				TemplateAppointment("Ritual Steward", "Steward", TemplatePrivilegeTier.Staff, "Ritual Attendant", "Chief Pontiff"),
+				TemplateAppointment("Temple Treasurer", "Treas", TemplatePrivilegeTier.Command, "Priest", "Chief Pontiff")
+			]),
+		new(
+			"Buddhist Temple Template", "buddhisttemple",
+			"A broad Buddhist monastic community template with lay supporters, novices, ordained monastics, teaching, discipline, hospitality, and alms administration.",
+			"Religion",
+			[
+				TemplateRank("Lay Supporter", "Lay", 1, "Lay"),
+				TemplateRank("Novice", "Novice", 2, "Monastic"),
+				TemplateRank("Ordained Monastic", "Ord", 3, "Monastic", TemplatePrivilegeTier.Staff),
+				TemplateRank("Senior Monastic", "Senior", 4, "Monastic", TemplatePrivilegeTier.Command),
+				TemplateRank("Abbot", "Abbot", 5, "Leadership", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Abbot", "Abbot", TemplatePrivilegeTier.All, "Abbot"),
+				TemplateAppointment("Preceptor", "Precept", TemplatePrivilegeTier.Command, "Senior Monastic", "Abbot"),
+				TemplateAppointment("Disciplinarian", "Discipline", TemplatePrivilegeTier.Command, "Senior Monastic", "Abbot"),
+				TemplateAppointment("Chant Leader", "Chant", TemplatePrivilegeTier.Staff, "Ordained Monastic", "Abbot"),
+				TemplateAppointment("Guest Master", "Guest", TemplatePrivilegeTier.Staff, "Ordained Monastic", "Abbot"),
+				TemplateAppointment("Almoner", "Alms", TemplatePrivilegeTier.Staff, "Ordained Monastic", "Abbot")
+			]),
+		new(
+			"Daoist Temple Template", "daoisttemple",
+			"A Daoist-inspired temple community with lay affiliates, disciples, ordained priests, ritual masters, scripture custody, charity, and discipline.",
+			"Religion",
+			[
+				TemplateRank("Lay Affiliate", "Lay", 1, "Lay"),
+				TemplateRank("Disciple", "Disc", 2, "Temple"),
+				TemplateRank("Ordained Priest", "Priest", 3, "Priesthood", TemplatePrivilegeTier.Staff),
+				TemplateRank("Senior Priest", "Senior", 4, "Priesthood", TemplatePrivilegeTier.Command),
+				TemplateRank("Temple Master", "Master", 5, "Leadership", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Temple Master", "Master", TemplatePrivilegeTier.All, "Temple Master"),
+				TemplateAppointment("Ritual Master", "Ritual", TemplatePrivilegeTier.Command, "Senior Priest", "Temple Master"),
+				TemplateAppointment("Scripture Keeper", "Scripture", TemplatePrivilegeTier.Staff, "Ordained Priest", "Temple Master"),
+				TemplateAppointment("Temple Steward", "Steward", TemplatePrivilegeTier.Command, "Senior Priest", "Temple Master"),
+				TemplateAppointment("Almoner", "Alms", TemplatePrivilegeTier.Staff, "Ordained Priest", "Temple Master"),
+				TemplateAppointment("Disciplinarian", "Discipline", TemplatePrivilegeTier.Staff, "Ordained Priest", "Temple Master")
+			]),
+		new(
+			"Sufi Order Template", "sufiorder",
+			"A Sufi tariqa or lodge template with visitors, aspirants, initiated members, teaching guides, deputies, hospitality, and charitable work.",
+			"Religion",
+			[
+				TemplateRank("Visitor", "Visitor", 1, "Affiliate"),
+				TemplateRank("Aspirant", "Aspirant", 2, "Path"),
+				TemplateRank("Initiated Member", "Initiate", 3, "Path", TemplatePrivilegeTier.Staff),
+				TemplateRank("Guide", "Guide", 4, "Teaching", TemplatePrivilegeTier.Command),
+				TemplateRank("Senior Guide", "Senior", 5, "Teaching", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Shaykh", "Shaykh", TemplatePrivilegeTier.All, "Senior Guide"),
+				TemplateAppointment("Deputy", "Deputy", TemplatePrivilegeTier.Command, "Guide", "Shaykh"),
+				TemplateAppointment("Teaching Guide", "Teacher", TemplatePrivilegeTier.Command, "Guide", "Shaykh", 0),
+				TemplateAppointment("Lodge Steward", "Steward", TemplatePrivilegeTier.Staff, "Initiated Member", "Shaykh"),
+				TemplateAppointment("Almoner", "Alms", TemplatePrivilegeTier.Staff, "Initiated Member", "Shaykh")
+			]),
+		new(
+			"Hindu Temple Template", "hindutemple",
+			"A broad Hindu temple institution with devotees, temple service, ritual priesthood, administration, music, festivals, and treasury responsibilities.",
+			"Religion",
+			[
+				TemplateRank("Devotee", "Dev", 1, "Congregant"),
+				TemplateRank("Temple Servant", "Serv", 2, "Temple"),
+				TemplateRank("Junior Priest", "JrPriest", 3, "Priesthood", TemplatePrivilegeTier.Staff),
+				TemplateRank("Priest", "Priest", 4, "Priesthood", TemplatePrivilegeTier.Command),
+				TemplateRank("Chief Priest", "Chief", 5, "Leadership", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Chief Priest", "Chief", TemplatePrivilegeTier.All, "Chief Priest"),
+				TemplateAppointment("Ritual Priest", "Ritual", TemplatePrivilegeTier.Command, "Priest", "Chief Priest", 0),
+				TemplateAppointment("Temple Manager", "Manager", TemplatePrivilegeTier.Command, "Priest", "Chief Priest"),
+				TemplateAppointment("Temple Musician", "Music", TemplatePrivilegeTier.Member, "Temple Servant", "Chief Priest", 0),
+				TemplateAppointment("Treasurer", "Treas", TemplatePrivilegeTier.Command, "Priest", "Temple Manager"),
+				TemplateAppointment("Festival Coordinator", "Festival", TemplatePrivilegeTier.Staff, "Junior Priest", "Temple Manager")
+			]),
+		new(
+			"Merchant Guild Template", "merchantguild",
+			"A merchant association with apprenticeship, recognised trading status, guild regulation, finance, quality control, and agents in distant markets.",
+			"Commerce",
+			[
+				TemplateRank("Apprentice", "Appr", 1, "Trade"),
+				TemplateRank("Journeyman", "Journey", 2, "Trade"),
+				TemplateRank("Freeman Merchant", "Merchant", 3, "Trade", TemplatePrivilegeTier.Staff),
+				TemplateRank("Master Merchant", "Master", 4, "Trade", TemplatePrivilegeTier.Command),
+				TemplateRank("Guild Elder", "Elder", 5, "Council", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Guildmaster", "GM", TemplatePrivilegeTier.All, "Guild Elder"),
+				TemplateAppointment("Guild Warden", "Warden", TemplatePrivilegeTier.Command, "Master Merchant", "Guildmaster", 0),
+				TemplateAppointment("Treasurer", "Treas", TemplatePrivilegeTier.Command, "Master Merchant", "Guildmaster"),
+				TemplateAppointment("Assayer", "Assay", TemplatePrivilegeTier.Staff, "Freeman Merchant", "Guildmaster", 0),
+				TemplateAppointment("Factor", "Factor", TemplatePrivilegeTier.Staff, "Freeman Merchant", "Guildmaster", 0),
+				TemplateAppointment("Guild Clerk", "Clerk", TemplatePrivilegeTier.Staff, "Journeyman", "Guildmaster")
+			]),
+		new(
+			"Craft Guild Template", "craftguild",
+			"A craft fraternity with apprentices, journeymen, masters, examinations, workshop oversight, standards enforcement, and shared funds.",
+			"Commerce",
+			[
+				TemplateRank("Apprentice", "Appr", 1, "Craft"),
+				TemplateRank("Journeyman", "Journey", 2, "Craft"),
+				TemplateRank("Master", "Master", 3, "Craft", TemplatePrivilegeTier.Staff),
+				TemplateRank("Guild Elder", "Elder", 4, "Council", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Guildmaster", "GM", TemplatePrivilegeTier.All, "Guild Elder"),
+				TemplateAppointment("Guild Warden", "Warden", TemplatePrivilegeTier.Command, "Master", "Guildmaster", 0),
+				TemplateAppointment("Masterwork Examiner", "Examiner", TemplatePrivilegeTier.Staff, "Master", "Guildmaster", 0),
+				TemplateAppointment("Treasurer", "Treas", TemplatePrivilegeTier.Command, "Master", "Guildmaster"),
+				TemplateAppointment("Workshop Steward", "Workshop", TemplatePrivilegeTier.Staff, "Journeyman", "Guildmaster", 0)
+			]),
+		new(
+			"Pirate Crew Template", "piratecrew",
+			"A pirate or privateer crew template with ordinary hands, officers, an overall captain, and the historically important independent quartermaster role.",
+			"Maritime",
+			[
+				TemplateRank("New Hand", "New", 1, "Crew"),
+				TemplateRank("Able Sailor", "Able", 2, "Crew"),
+				TemplateRank("Petty Officer", "PO", 3, "Crew", TemplatePrivilegeTier.Staff),
+				TemplateRank("Ship Officer", "Officer", 4, "Officer", TemplatePrivilegeTier.Command),
+				TemplateRank("Captain", "Captain", 5, "Officer", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Captain", "Capt", TemplatePrivilegeTier.All, "Captain"),
+				TemplateAppointment("Quartermaster", "QM", TemplatePrivilegeTier.Command, "Ship Officer", "Captain"),
+				TemplateAppointment("Sailing Master", "Master", TemplatePrivilegeTier.Command, "Ship Officer", "Captain"),
+				TemplateAppointment("Boatswain", "Bosun", TemplatePrivilegeTier.Staff, "Petty Officer", "Captain"),
+				TemplateAppointment("Gunner", "Gunner", TemplatePrivilegeTier.Staff, "Petty Officer", "Captain"),
+				TemplateAppointment("Surgeon", "Surgeon", TemplatePrivilegeTier.Staff, "Able Sailor", "Captain")
+			]),
+		new(
+			"University Template", "university",
+			"A modern or historical university template with students, academics, faculties, departments, registry, and institutional finance.",
+			"Education",
+			[
+				TemplateRank("Student", "Student", 1, "Student"),
+				TemplateRank("Graduate", "Grad", 2, "Academic"),
+				TemplateRank("Lecturer", "Lect", 3, "Academic", TemplatePrivilegeTier.Staff),
+				TemplateRank("Professor", "Prof", 4, "Academic", TemplatePrivilegeTier.Command),
+				TemplateRank("Distinguished Professor", "DistProf", 5, "Academic", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Chancellor", "Chancellor", TemplatePrivilegeTier.All, "Distinguished Professor"),
+				TemplateAppointment("Vice-Chancellor", "VC", TemplatePrivilegeTier.Command, "Professor", "Chancellor"),
+				TemplateAppointment("Dean", "Dean", TemplatePrivilegeTier.Command, "Professor", "Vice-Chancellor", 0),
+				TemplateAppointment("Department Head", "Head", TemplatePrivilegeTier.Command, "Professor", "Dean", 0),
+				TemplateAppointment("Registrar", "Registrar", TemplatePrivilegeTier.Staff, "Lecturer", "Vice-Chancellor"),
+				TemplateAppointment("Bursar", "Bursar", TemplatePrivilegeTier.Command, "Lecturer", "Vice-Chancellor")
+			]),
+		new(
+			"Hospital Template", "hospital",
+			"A hospital organisation template separating trainees, support staff, clinical seniority, departments, nursing, operations, pharmacy, and executive leadership.",
+			"Health",
+			[
+				TemplateRank("Trainee", "Trainee", 1, "Clinical"),
+				TemplateRank("Support Staff", "Support", 2, "Operations"),
+				TemplateRank("Clinician", "Clinician", 3, "Clinical", TemplatePrivilegeTier.Staff),
+				TemplateRank("Senior Clinician", "Senior", 4, "Clinical", TemplatePrivilegeTier.Command),
+				TemplateRank("Hospital Executive", "Exec", 5, "Executive", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Hospital Director", "Director", TemplatePrivilegeTier.All, "Hospital Executive"),
+				TemplateAppointment("Medical Director", "Medical", TemplatePrivilegeTier.Command, "Senior Clinician", "Hospital Director"),
+				TemplateAppointment("Nursing Director", "Nursing", TemplatePrivilegeTier.Command, "Senior Clinician", "Hospital Director"),
+				TemplateAppointment("Operations Manager", "Operations", TemplatePrivilegeTier.Command, "Support Staff", "Hospital Director"),
+				TemplateAppointment("Department Head", "Dept", TemplatePrivilegeTier.Command, "Senior Clinician", "Medical Director", 0),
+				TemplateAppointment("Chief Pharmacist", "Pharmacy", TemplatePrivilegeTier.Staff, "Clinician", "Medical Director")
+			]),
+		new(
+			"Fire and Rescue Service Template", "firerescue",
+			"A modern fire and rescue organisation with operational ranks, stations, training, prevention, logistics, and service-wide command.",
+			"Emergency Services",
+			[
+				TemplateRank("Recruit", "Rec", 1, "Operations"),
+				TemplateRank("Firefighter", "FF", 2, "Operations"),
+				TemplateRank("Crew Leader", "Crew", 3, "Operations", TemplatePrivilegeTier.Staff),
+				TemplateRank("Station Officer", "Station", 4, "Officer", TemplatePrivilegeTier.Command),
+				TemplateRank("Chief Officer", "Chief", 5, "Officer", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Fire Chief", "Chief", TemplatePrivilegeTier.All, "Chief Officer"),
+				TemplateAppointment("Deputy Chief", "Deputy", TemplatePrivilegeTier.Command, "Chief Officer", "Fire Chief"),
+				TemplateAppointment("Station Commander", "Station", TemplatePrivilegeTier.Command, "Station Officer", "Deputy Chief", 0),
+				TemplateAppointment("Training Officer", "Training", TemplatePrivilegeTier.Staff, "Station Officer", "Deputy Chief"),
+				TemplateAppointment("Fire Marshal", "Marshal", TemplatePrivilegeTier.Command, "Station Officer", "Fire Chief"),
+				TemplateAppointment("Logistics Officer", "Logistics", TemplatePrivilegeTier.Staff, "Crew Leader", "Deputy Chief")
+			]),
+		new(
+			"Intelligence Agency Template", "intelagency",
+			"A modern intelligence service template with analysts and field personnel under operations, assessment, counter-intelligence, technical, and independent oversight offices.",
+			"Intelligence",
+			[
+				TemplateRank("Trainee", "Trainee", 1, "Service"),
+				TemplateRank("Officer", "Officer", 2, "Operations"),
+				TemplateRank("Senior Officer", "Senior", 3, "Operations", TemplatePrivilegeTier.Staff),
+				TemplateRank("Section Chief", "Chief", 4, "Management", TemplatePrivilegeTier.Command),
+				TemplateRank("Director", "Director", 5, "Executive", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Director-General", "DG", TemplatePrivilegeTier.All, "Director"),
+				TemplateAppointment("Deputy Director", "DD", TemplatePrivilegeTier.Command, "Director", "Director-General"),
+				TemplateAppointment("Operations Director", "Ops", TemplatePrivilegeTier.Command, "Section Chief", "Deputy Director"),
+				TemplateAppointment("Analysis Director", "Analysis", TemplatePrivilegeTier.Command, "Section Chief", "Deputy Director"),
+				TemplateAppointment("Counter-Intelligence Director", "CI", TemplatePrivilegeTier.Command, "Section Chief", "Deputy Director"),
+				TemplateAppointment("Technical Director", "Tech", TemplatePrivilegeTier.Command, "Section Chief", "Deputy Director"),
+				TemplateAppointment("Inspector-General", "IG", TemplatePrivilegeTier.Staff, "Section Chief", "Director-General")
+			]),
+		new(
+			"Political Party Template", "politicalparty",
+			"A political party template with supporters, members, organisers, regional branches, policy work, treasury, and parliamentary or internal leadership.",
+			"Politics",
+			[
+				TemplateRank("Supporter", "Support", 1, "Affiliate"),
+				TemplateRank("Party Member", "Member", 2, "Membership"),
+				TemplateRank("Organiser", "Org", 3, "Organisation", TemplatePrivilegeTier.Staff),
+				TemplateRank("Executive Member", "Exec", 4, "Executive", TemplatePrivilegeTier.Command),
+				TemplateRank("Party Leader", "Leader", 5, "Leadership", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Party Leader", "Leader", TemplatePrivilegeTier.All, "Party Leader"),
+				TemplateAppointment("Deputy Leader", "Deputy", TemplatePrivilegeTier.Command, "Executive Member", "Party Leader"),
+				TemplateAppointment("General Secretary", "Secretary", TemplatePrivilegeTier.Command, "Executive Member", "Party Leader"),
+				TemplateAppointment("Treasurer", "Treas", TemplatePrivilegeTier.Command, "Executive Member", "General Secretary"),
+				TemplateAppointment("Party Whip", "Whip", TemplatePrivilegeTier.Staff, "Organiser", "Party Leader"),
+				TemplateAppointment("Policy Chair", "Policy", TemplatePrivilegeTier.Staff, "Organiser", "Party Leader"),
+				TemplateAppointment("Regional Chair", "Regional", TemplatePrivilegeTier.Command, "Organiser", "General Secretary", 0)
+			]),
+		new(
+			"Labour Union Template", "labourunion",
+			"A labour union template with ordinary members, workplace stewards, organisers, elected-style offices, bargaining, safety, and union funds.",
+			"Labour",
+			[
+				TemplateRank("Union Member", "Member", 1, "Membership"),
+				TemplateRank("Shop Steward", "Steward", 2, "Workplace", TemplatePrivilegeTier.Staff),
+				TemplateRank("Organiser", "Organiser", 3, "Organisation", TemplatePrivilegeTier.Staff),
+				TemplateRank("Union Officer", "Officer", 4, "Executive", TemplatePrivilegeTier.Command),
+				TemplateRank("Union Executive", "Exec", 5, "Executive", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("President", "President", TemplatePrivilegeTier.All, "Union Executive"),
+				TemplateAppointment("General Secretary", "Secretary", TemplatePrivilegeTier.Command, "Union Officer", "President"),
+				TemplateAppointment("Treasurer", "Treas", TemplatePrivilegeTier.Command, "Union Officer", "President"),
+				TemplateAppointment("Lead Organiser", "LeadOrg", TemplatePrivilegeTier.Command, "Organiser", "General Secretary"),
+				TemplateAppointment("Lead Negotiator", "Negotiate", TemplatePrivilegeTier.Command, "Union Officer", "President"),
+				TemplateAppointment("Safety Representative", "Safety", TemplatePrivilegeTier.Staff, "Shop Steward", "General Secretary", 0)
+			]),
+		new(
+			"Non-Governmental Organisation Template", "ngo",
+			"A humanitarian, advocacy, or development organisation template with volunteers, programmes, field teams, finance, safeguarding, and logistics.",
+			"Civil Society",
+			[
+				TemplateRank("Volunteer", "Volunteer", 1, "Volunteer"),
+				TemplateRank("Member", "Member", 2, "Organisation"),
+				TemplateRank("Coordinator", "Coord", 3, "Programme", TemplatePrivilegeTier.Staff),
+				TemplateRank("Manager", "Manager", 4, "Management", TemplatePrivilegeTier.Command),
+				TemplateRank("Director", "Director", 5, "Executive", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Executive Director", "ED", TemplatePrivilegeTier.All, "Director"),
+				TemplateAppointment("Programmes Director", "Programmes", TemplatePrivilegeTier.Command, "Director", "Executive Director"),
+				TemplateAppointment("Field Coordinator", "Field", TemplatePrivilegeTier.Staff, "Coordinator", "Programmes Director", 0),
+				TemplateAppointment("Finance Director", "Finance", TemplatePrivilegeTier.Command, "Manager", "Executive Director"),
+				TemplateAppointment("Safeguarding Officer", "Safeguard", TemplatePrivilegeTier.Staff, "Coordinator", "Executive Director"),
+				TemplateAppointment("Logistics Manager", "Logistics", TemplatePrivilegeTier.Command, "Manager", "Programmes Director")
+			]),
+		new(
+			"Space Colony Administration Template", "spacecolony",
+			"A near- or far-future colony administration balancing civic authority with life support, science, security, logistics, and settlement operations.",
+			"Science Fiction",
+			[
+				TemplateRank("Colonist", "Colonist", 1, "Resident"),
+				TemplateRank("Specialist", "Specialist", 2, "Technical"),
+				TemplateRank("Section Lead", "Lead", 3, "Management", TemplatePrivilegeTier.Staff),
+				TemplateRank("Administrator", "Admin", 4, "Administration", TemplatePrivilegeTier.Command),
+				TemplateRank("Governor", "Governor", 5, "Executive", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Governor", "Governor", TemplatePrivilegeTier.All, "Governor"),
+				TemplateAppointment("Deputy Governor", "Deputy", TemplatePrivilegeTier.Command, "Administrator", "Governor"),
+				TemplateAppointment("Life Support Director", "LifeSup", TemplatePrivilegeTier.Command, "Section Lead", "Governor"),
+				TemplateAppointment("Security Director", "Security", TemplatePrivilegeTier.Command, "Section Lead", "Governor"),
+				TemplateAppointment("Science Director", "Science", TemplatePrivilegeTier.Command, "Section Lead", "Governor"),
+				TemplateAppointment("Logistics Director", "Logistics", TemplatePrivilegeTier.Command, "Section Lead", "Deputy Governor"),
+				TemplateAppointment("Civic Coordinator", "Civic", TemplatePrivilegeTier.Staff, "Specialist", "Deputy Governor")
+			]),
+		new(
+			"Civilian Starship Crew Template", "civilianstarship",
+			"A civilian freighter, liner, research ship, or independent starship crew with watches, technical departments, cargo, passengers, and shipboard services.",
+			"Science Fiction",
+			[
+				TemplateRank("Crew Trainee", "Trainee", 1, "Crew"),
+				TemplateRank("Rated Crew", "Rated", 2, "Crew"),
+				TemplateRank("Watch Officer", "Watch", 3, "Officer", TemplatePrivilegeTier.Staff),
+				TemplateRank("Department Chief", "Chief", 4, "Officer", TemplatePrivilegeTier.Command),
+				TemplateRank("Ship Master", "Master", 5, "Command", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Ship Master", "Master", TemplatePrivilegeTier.All, "Ship Master"),
+				TemplateAppointment("First Officer", "XO", TemplatePrivilegeTier.Command, "Department Chief", "Ship Master"),
+				TemplateAppointment("Chief Engineer", "Engineer", TemplatePrivilegeTier.Command, "Department Chief", "Ship Master"),
+				TemplateAppointment("Navigator", "Navigator", TemplatePrivilegeTier.Staff, "Watch Officer", "First Officer"),
+				TemplateAppointment("Purser", "Purser", TemplatePrivilegeTier.Command, "Watch Officer", "First Officer"),
+				TemplateAppointment("Medical Officer", "Medical", TemplatePrivilegeTier.Staff, "Watch Officer", "Ship Master"),
+				TemplateAppointment("Cargo Master", "Cargo", TemplatePrivilegeTier.Staff, "Watch Officer", "First Officer"),
+				TemplateAppointment("Security Chief", "Security", TemplatePrivilegeTier.Command, "Department Chief", "Ship Master")
+			]),
+		new(
+			"Exploration Corps Template", "explorationcorps",
+			"A scientific, planetary, archaeological, or deep-space exploration service with expedition teams and central science, operations, logistics, medical, and liaison offices.",
+			"Science Fiction",
+			[
+				TemplateRank("Candidate", "Candidate", 1, "Corps"),
+				TemplateRank("Explorer", "Explorer", 2, "Corps"),
+				TemplateRank("Specialist", "Specialist", 3, "Technical", TemplatePrivilegeTier.Staff),
+				TemplateRank("Team Leader", "Leader", 4, "Command", TemplatePrivilegeTier.Command),
+				TemplateRank("Expedition Commander", "Commander", 5, "Command", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Director-General", "DG", TemplatePrivilegeTier.All, "Expedition Commander"),
+				TemplateAppointment("Expedition Commander", "ExpCmd", TemplatePrivilegeTier.Command, "Team Leader", "Director-General", 0),
+				TemplateAppointment("Chief Scientist", "Science", TemplatePrivilegeTier.Command, "Specialist", "Director-General"),
+				TemplateAppointment("Operations Director", "Operations", TemplatePrivilegeTier.Command, "Team Leader", "Director-General"),
+				TemplateAppointment("Logistics Director", "Logistics", TemplatePrivilegeTier.Command, "Team Leader", "Operations Director"),
+				TemplateAppointment("Medical Director", "Medical", TemplatePrivilegeTier.Staff, "Specialist", "Director-General"),
+				TemplateAppointment("Liaison Officer", "Liaison", TemplatePrivilegeTier.Staff, "Explorer", "Operations Director", 0)
+			]),
+		new(
+			"Resistance Network Template", "resistance",
+			"A clandestine resistance or insurgent network template with compartmentalised cells, couriers, logistics, intelligence, and political coordination.",
+			"Clandestine",
+			[
+				TemplateRank("Sympathiser", "Symp", 1, "Affiliate"),
+				TemplateRank("Cell Member", "Member", 2, "Cell"),
+				TemplateRank("Operative", "Operative", 3, "Operations", TemplatePrivilegeTier.Staff),
+				TemplateRank("Cell Leader", "CellLead", 4, "Command", TemplatePrivilegeTier.Command),
+				TemplateRank("Network Coordinator", "Coord", 5, "Command", TemplatePrivilegeTier.Command)
+			],
+			[
+				TemplateAppointment("Network Coordinator", "Coordinator", TemplatePrivilegeTier.All, "Network Coordinator"),
+				TemplateAppointment("Cell Leader", "Cell", TemplatePrivilegeTier.Command, "Cell Leader", "Network Coordinator", 0),
+				TemplateAppointment("Quartermaster", "Quarter", TemplatePrivilegeTier.Command, "Operative", "Network Coordinator"),
+				TemplateAppointment("Intelligence Handler", "Intel", TemplatePrivilegeTier.Staff, "Operative", "Network Coordinator", 0),
+				TemplateAppointment("Courier Master", "Courier", TemplatePrivilegeTier.Staff, "Operative", "Network Coordinator"),
+				TemplateAppointment("Political Liaison", "Liaison", TemplatePrivilegeTier.Staff, "Operative", "Network Coordinator", 0)
+			])
+	];
+
+	private void SetupAdditionalTemplateClans(FuturemudDatabaseContext context)
+	{
+		ValidateAdditionalClanTemplateSpecifications();
+
+		foreach (ClanTemplateSpecification specification in AdditionalClanTemplateSpecifications)
+		{
+			if (context.Clans.Any(x => x.Name == specification.Name))
+			{
+				continue;
+			}
+
+			Clan clan = CreateTemplateClan(context, specification.Name, specification.Alias,
+				specification.Description, specification.Sphere);
+			Dictionary<string, Rank> ranks = specification.Ranks.ToDictionary(
+				x => x.Name,
+				x => AddRank(context, clan, x.Name, x.Abbreviation, x.RankNumber,
+					PrivilegesForTier(x.PrivilegeTier), x.RankPath),
+				StringComparer.OrdinalIgnoreCase);
+			Dictionary<string, Appointment> appointments = new(StringComparer.OrdinalIgnoreCase);
+
+			foreach (TemplateAppointmentSpecification appointmentSpecification in specification.Appointments)
+			{
+				Rank minimumRank = ranks[appointmentSpecification.MinimumRank];
+				Appointment? parent = appointmentSpecification.ParentAppointment is null
+					? null
+					: appointments[appointmentSpecification.ParentAppointment];
+				appointments[appointmentSpecification.Name] = AddAppointment(
+					context,
+					clan,
+					appointmentSpecification.Name,
+					appointmentSpecification.Abbreviation,
+					PrivilegesForTier(appointmentSpecification.PrivilegeTier),
+					minimumRank,
+					minimumRank,
+					parent,
+					maximumSimultaneousHolders: appointmentSpecification.MaximumSimultaneousHolders);
+			}
+		}
+	}
+
+	private static long PrivilegesForTier(TemplatePrivilegeTier tier)
+	{
+		long staffPrivileges = MemberPrivileges() |
+			(long)(ClanPrivilegeType.CanInduct |
+			       ClanPrivilegeType.CanReportDead |
+			       ClanPrivilegeType.CanManageClanJobs |
+			       ClanPrivilegeType.CanViewTreasury |
+			       ClanPrivilegeType.CanAccessLeasedProperties |
+			       ClanPrivilegeType.UseClanProperty);
+		long commandPrivileges = staffPrivileges |
+			(long)(ClanPrivilegeType.CanPromote |
+			       ClanPrivilegeType.CanPromoteToOwnRank |
+			       ClanPrivilegeType.CanDemote |
+			       ClanPrivilegeType.CanCastout |
+			       ClanPrivilegeType.CanAppoint |
+			       ClanPrivilegeType.CanDismiss |
+			       ClanPrivilegeType.CanIncreasePaygrade |
+			       ClanPrivilegeType.CanDecreasePaygrade |
+			       ClanPrivilegeType.CanGiveBackpay |
+			       ClanPrivilegeType.CanManageClanProperty |
+			       ClanPrivilegeType.CanManageBankAccounts |
+			       ClanPrivilegeType.CanChangeRankPath);
+
+		return tier switch
+		{
+			TemplatePrivilegeTier.Member => MemberPrivileges(),
+			TemplatePrivilegeTier.Staff => staffPrivileges,
+			TemplatePrivilegeTier.Command => commandPrivileges,
+			TemplatePrivilegeTier.All => (long)ClanPrivilegeType.All,
+			_ => throw new ArgumentOutOfRangeException(nameof(tier), tier, null)
+		};
+	}
+
+	private static void ValidateAdditionalClanTemplateSpecifications()
+	{
+		if (AdditionalClanTemplateSpecifications.Select(x => x.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count() !=
+		    AdditionalClanTemplateSpecifications.Count)
+		{
+			throw new InvalidOperationException("Additional clan template names must be unique.");
+		}
+
+		if (AdditionalClanTemplateSpecifications.Select(x => x.Alias).Distinct(StringComparer.OrdinalIgnoreCase).Count() !=
+		    AdditionalClanTemplateSpecifications.Count)
+		{
+			throw new InvalidOperationException("Additional clan template aliases must be unique.");
+		}
+
+		foreach (ClanTemplateSpecification specification in AdditionalClanTemplateSpecifications)
+		{
+			HashSet<string> rankNames = specification.Ranks
+				.Select(x => x.Name)
+				.ToHashSet(StringComparer.OrdinalIgnoreCase);
+			if (rankNames.Count != specification.Ranks.Count ||
+			    specification.Ranks.Select(x => x.RankNumber).Distinct().Count() != specification.Ranks.Count)
+			{
+				throw new InvalidOperationException($"Clan template {specification.Name} has duplicate ranks.");
+			}
+
+			HashSet<string> appointmentNames = new(StringComparer.OrdinalIgnoreCase);
+			foreach (TemplateAppointmentSpecification appointment in specification.Appointments)
+			{
+				if (!rankNames.Contains(appointment.MinimumRank))
+				{
+					throw new InvalidOperationException(
+						$"Clan template {specification.Name} appointment {appointment.Name} references an unknown rank.");
+				}
+
+				if (appointment.ParentAppointment is not null &&
+				    !appointmentNames.Contains(appointment.ParentAppointment))
+				{
+					throw new InvalidOperationException(
+						$"Clan template {specification.Name} appointment {appointment.Name} references a parent that has not been declared yet.");
+				}
+
+				if (!appointmentNames.Add(appointment.Name))
+				{
+					throw new InvalidOperationException(
+						$"Clan template {specification.Name} has duplicate appointments.");
+				}
+			}
+		}
+	}
 }

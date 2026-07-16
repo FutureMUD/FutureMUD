@@ -2596,11 +2596,11 @@ The following options are available:
 
     internal static string ResolveEngineUpdateEntryPath(string extractionRoot, string entryName)
     {
-        string root = Path.GetFullPath(extractionRoot);
-        string rootWithSeparator = Path.EndsInDirectorySeparator(root)
+        string root = System.IO.Path.GetFullPath(extractionRoot);
+        string rootWithSeparator = System.IO.Path.EndsInDirectorySeparator(root)
             ? root
-            : root + Path.DirectorySeparatorChar;
-        string destination = Path.GetFullPath(entryName, root);
+            : root + System.IO.Path.DirectorySeparatorChar;
+        string destination = System.IO.Path.GetFullPath(entryName, root);
         StringComparison comparison = OperatingSystem.IsWindows()
             ? StringComparison.OrdinalIgnoreCase
             : StringComparison.Ordinal;
@@ -2619,8 +2619,8 @@ The following options are available:
         Thread.Sleep(100);
 
         string root = AppContext.BaseDirectory;
-        string updatePath = Path.Combine(root, "FutureMUD Update.zip");
-        string extractionPath = Path.Combine(root, "Binaries");
+        string updatePath = System.IO.Path.Combine(root, "FutureMUD Update.zip");
+        string extractionPath = System.IO.Path.Combine(root, "Binaries");
         try
         {
             using HttpClient client = new();
@@ -2692,7 +2692,7 @@ The following options are available:
                     continue;
                 }
 
-                Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+                Directory.CreateDirectory(System.IO.Path.GetDirectoryName(destination)!);
                 entry.ExtractToFile(destination, true);
                 if (!OperatingSystem.IsWindows() &&
                     entry.Name.Equals("MudSharp", StringComparison.Ordinal))

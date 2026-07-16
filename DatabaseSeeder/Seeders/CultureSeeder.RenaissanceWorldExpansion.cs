@@ -75,6 +75,12 @@ public partial class CultureSeeder
 			SeedRenaissanceWorldExpansionNames();
 		}
 
+		if (questionAnswers.TryGetValue("seedlanguages", out string? seedLanguages) &&
+			seedLanguages.EqualToAny("y", "yes"))
+		{
+			SeedRenaissanceWorldExpansionLanguages();
+		}
+
 		if (questionAnswers["seedheritage"].EqualToAny("y", "yes"))
 		{
 			SeedRenaissanceWorldExpansionHeritage();
@@ -174,6 +180,7 @@ public partial class CultureSeeder
 				(Gender.Indeterminate, nameCulture));
 		}
 
+		SeedRenaissanceWorldExpansionHeritageExpansion();
 		_context.SaveChanges();
 	}
 

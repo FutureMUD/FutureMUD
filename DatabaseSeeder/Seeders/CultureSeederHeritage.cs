@@ -151,10 +151,16 @@ public partial class CultureSeeder
         }
 
 
-        if (_ethnicities[ethnicity].EthnicitiesCharacteristics
-            .Any(x => x.CharacteristicDefinition == _definitions[feature]))
+        EthnicitiesCharacteristics? existing = _ethnicities[ethnicity].EthnicitiesCharacteristics
+            .FirstOrDefault(x => x.CharacteristicDefinition == _definitions[feature]);
+        if (existing is not null)
         {
-            return;
+            if (existing.CharacteristicProfile == _profiles[profile])
+            {
+                return;
+            }
+
+            _context.EthnicitiesCharacteristics.Remove(existing);
         }
 
         _context.EthnicitiesCharacteristics.Add(new EthnicitiesCharacteristics
@@ -797,6 +803,7 @@ public partial class CultureSeeder
             "The rural poor are often amongst the poorest people in society, but they have some advantages that the urban poor (or working class) do not. They often own their land and homes, meagre though they might be, and they often have access to supplementary off-market commodities such as food, goods and basic services from their fellow rural poor.");
 
         ApplyModernEthnicityNameCultureMappings();
+        SeedModernCultureCoverageExpansion();
     }
 
     public void SeedMedievalHeritage()
@@ -1555,6 +1562,7 @@ public partial class CultureSeeder
         AddEthnicityVariable("North African", "Eye Colour", "brown_blue_eyes");
         #endregion
         ApplyMedievalEuropeEthnicityNameCultureMappings();
+        SeedRenaissanceEuropeCultureCoverageExpansion();
         _context.SaveChanges();
     }
 

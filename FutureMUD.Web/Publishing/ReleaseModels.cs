@@ -15,6 +15,8 @@ public sealed class ReleaseProductDefinition
 	public string ProjectPath { get; init; } = string.Empty;
 	public string VersionSource { get; init; } = "Version";
 	public bool FrameworkDependent { get; init; } = true;
+	public bool SingleFile { get; init; }
+	public bool IncludeNativeLibrariesForSelfExtract { get; init; }
 	public string ArchiveName { get; init; } = string.Empty;
 	public IReadOnlyList<string> TestProjects { get; init; } = [];
 	public IReadOnlyList<string> Runtimes { get; init; } = [];

@@ -6,9 +6,11 @@
 
 ## Public content model
 
-Authored pages live in `FutureMUD.Web/Content/Pages`. News lives in `FutureMUD.Web/Content/News` and uses `YYYY-MM-DD-slug.md` filenames. Front matter requires a title for every document and additionally requires summary, ISO publication date, and comma-separated tags for news. The renderer implements the supported Markdown subset after HTML encoding; raw HTML and non-HTTP link schemes are never emitted.
+Authored pages live in `FutureMUD.Web/Content/Pages`. News lives in `FutureMUD.Web/Content/News`, while release and website patch notes live in `FutureMUD.Web/Content/PatchNotes`; both dated collections use `YYYY-MM-DD-slug.md` filenames. Front matter requires a title for every document and additionally requires a summary, matching ISO publication date, and comma-separated tags for dated content. `Content/PatchNotes/README.md` documents the authoring workflow and is excluded by the dated filename allowlist. The renderer implements the supported Markdown subset after HTML encoding; raw HTML and non-HTTP link schemes are never emitted.
 
-Public routes cover the home page, About, Getting Started, Downloads, news and RSS, command documentation, FutureProg functions/types/collection extensions, item components, sitemap, and liveness/readiness probes. The four historical generated HTML filenames and the historical engine About and Downloads paths issue permanent redirects.
+Public routes cover the home page, About, Licensing, Getting Started, Downloads, news and RSS, patch-note index/detail pages, command documentation, FutureProg functions/types/collection extensions, item components, sitemap, and liveness/readiness probes. The four historical generated HTML filenames and the historical engine About and Downloads paths issue permanent redirects.
+
+The home, About, Downloads, Licensing, and footer surfaces identify the CC BY-NC-ND 3.0 license, link to Discord support and the public GitHub repository, and explicitly distinguish public source visibility from open-source or open-contribution permission. Getting Started records the .NET 10, MySQL 8.0, email, storage, and memory baseline.
 
 ## Documentation catalogue
 

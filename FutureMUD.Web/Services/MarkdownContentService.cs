@@ -28,24 +28,31 @@ public sealed partial class MarkdownContentService
 		return Parse(Path.Combine(_contentRoot, "Pages", $"{slug}.md"), false);
 	}
 
-	public IReadOnlyList<ContentDocument> GetNews()
+	public IReadOnlyList<ContentDocument> GetNews() => GetDatedDocuments("News");
+
+	public ContentDocument? GetNews(string slug) => GetNews()
+		.FirstOrDefault(document => document.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase));
+
+	public IReadOnlyList<ContentDocument> GetPatchNotes() => GetDatedDocuments("PatchNotes");
+
+	public ContentDocument? GetPatchNote(string slug) => GetPatchNotes()
+		.FirstOrDefault(document => document.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase));
+
+	private IReadOnlyList<ContentDocument> GetDatedDocuments(string collection)
 	{
-		var directory = Path.Combine(_contentRoot, "News");
+		var directory = Path.Combine(_contentRoot, collection);
 		if (!Directory.Exists(directory))
 		{
 			return [];
 		}
 
 		return Directory.EnumerateFiles(directory, "*.md", SearchOption.TopDirectoryOnly)
-			.Where(path => NewsFileRegex().IsMatch(Path.GetFileName(path)))
+			.Where(path => DatedContentFileRegex().IsMatch(Path.GetFileName(path)))
 			.Select(path => Parse(path, true))
 			.OrderByDescending(document => document.PublishedAt)
 			.ThenBy(document => document.Slug, StringComparer.Ordinal)
 			.ToList();
 	}
-
-	public ContentDocument? GetNews(string slug) => GetNews()
-		.FirstOrDefault(document => document.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase));
 
 	public static string RenderMarkdown(string markdown)
 	{
@@ -132,7 +139,7 @@ public sealed partial class MarkdownContentService
 		return output.ToString();
 	}
 
-	private ContentDocument Parse(string path, bool news)
+	private ContentDocument Parse(string path, bool dated)
 	{
 		if (!File.Exists(path))
 		{
@@ -142,7 +149,7 @@ public sealed partial class MarkdownContentService
 		var text = File.ReadAllText(path);
 		var (metadata, markdown) = ParseFrontMatter(text);
 		var fileName = Path.GetFileNameWithoutExtension(path);
-		var slug = news ? fileName[11..] : fileName;
+		var slug = dated ? fileName[11..] : fileName;
 		var title = metadata.GetValueOrDefault("title");
 		if (string.IsNullOrWhiteSpace(title))
 		{
@@ -152,7 +159,7 @@ public sealed partial class MarkdownContentService
 		DateTimeOffset? publishedAt = null;
 		var tags = (metadata.GetValueOrDefault("tags") ?? string.Empty)
 			.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-		if (news)
+		if (dated)
 		{
 			var summary = metadata.GetValueOrDefault("summary");
 			var dateText = metadata.GetValueOrDefault("date");
@@ -160,7 +167,7 @@ public sealed partial class MarkdownContentService
 				!DateTimeOffset.TryParseExact(dateText, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedDate) ||
 				tags.Length == 0 || !fileName.StartsWith($"{parsedDate:yyyy-MM-dd}-", StringComparison.Ordinal))
 			{
-				throw new InvalidDataException($"{path} requires summary and an ISO publication date.");
+				throw new InvalidDataException($"{path} requires summary, tags, and an ISO publication date matching its filename.");
 			}
 			publishedAt = parsedDate;
 		}
@@ -222,7 +229,7 @@ public sealed partial class MarkdownContentService
 	[GeneratedRegex("^[a-z0-9][a-z0-9-]*$", RegexOptions.CultureInvariant)]
 	private static partial Regex SafeSlugRegex();
 	[GeneratedRegex("^\\d{4}-\\d{2}-\\d{2}-[a-z0-9][a-z0-9-]*\\.md$", RegexOptions.CultureInvariant)]
-	private static partial Regex NewsFileRegex();
+	private static partial Regex DatedContentFileRegex();
 	[GeneratedRegex("^(#{1,6})\\s+(.+)$", RegexOptions.CultureInvariant)]
 	private static partial Regex HeadingRegex();
 	[GeneratedRegex("`([^`]+)`", RegexOptions.CultureInvariant)]

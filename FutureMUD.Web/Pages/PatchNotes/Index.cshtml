@@ -1,0 +1,16 @@
+@page "/patch-notes"
+@model FutureMUD.Web.Pages.PatchNotes.IndexModel
+@{
+	ViewData["Title"] = "Patch notes";
+}
+<header class="page-header"><p class="eyebrow">Published changes</p><h1>Patch notes</h1><p class="lede">Release and website changes published from validated Markdown in the FutureMUD repository.</p></header>
+<div class="news-list news-archive">
+@if (Model.Items.Count == 0)
+{
+	<p>No patch notes have been published yet.</p>
+}
+@foreach (var item in Model.Items)
+{
+	<article><time datetime="@item.PublishedAt?.ToString("O")">@item.PublishedAt?.ToString("d MMM yyyy")</time><div><h2><a href="/patch-notes/@item.Slug">@item.Title</a></h2><p>@item.Summary</p><p class="tags">@string.Join(" · ", item.Tags)</p></div></article>
+}
+</div>

@@ -2,9 +2,19 @@
 title: Getting started
 summary: From a release archive to your first local FutureMUD world.
 ---
+## Minimum requirements
+
+- **.NET 10 runtime.** Follow the Microsoft Learn installation guides for [Windows](https://learn.microsoft.com/en-us/dotnet/core/install/windows) or [Linux](https://learn.microsoft.com/en-us/dotnet/core/install/linux).
+- **MySQL Server 8.0.** Use a dedicated database and account for the game.
+- **An email server.** FutureMUD needs access to an email server through which it can send account and system email.
+- **Approximately 1 GB of disk space.** SSD or server-grade storage is preferred.
+- **Approximately 1 GB of RAM.** Larger or busier worlds may require more memory and storage.
+
+These figures are a practical baseline for a small installation. Capacity needs grow with world size, logging, backups, and player load.
+
 ## 1. Choose a supported runtime
 
-Download the Engine and Database Seeder for your operating system from the downloads page. Current packages target Windows x64, Linux x64, and Linux ARM64. The archives are framework-dependent: Engine 1.55.0 requires .NET 10 and Database Seeder 2.3.0 requires .NET 9.
+Download the Engine and Database Seeder for your operating system from the downloads page. Current packages target Windows x64, Linux x64, and Linux ARM64. Archives are framework-dependent and require the appropriate .NET runtime.
 
 ## 2. Prepare MySQL
 
@@ -23,7 +33,8 @@ Launch MudSharp from the generated working directory. The engine applies support
 - Browse the command reference for player, builder, and administrator syntax.
 - Use the FutureProg function and type references while scripting.
 - Consult item-component help when authoring item prototypes.
+- Review the patch notes before upgrading an existing installation.
 
-For development builds or source contributions, clone the [FutureMUD repository](https://github.com/FutureMUD/FutureMUD) and use the repository setup and test scripts.
+For source inspection and release provenance, browse the public [FutureMUD repository](https://github.com/FutureMUD/FutureMUD). Public visibility does not make the project open source or grant contribution or redistribution permission beyond the license. Discuss bugs, support questions, or proposed changes on the [FutureMUD Discord](https://discord.gg/fyKnckr4PG).
 
 On Linux, preserve or restore the Engine app host's executable bit after extracting an archive: `chmod +x MudSharp`.

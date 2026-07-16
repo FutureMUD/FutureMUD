@@ -5,8 +5,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="color-scheme" content="dark" />
 	<title>@(ViewData["Title"] is string title ? $"{title} · FutureMUD" : "FutureMUD")</title>
-	<meta name="description" content="FutureMUD is an open-source engine for building roleplay-intensive text worlds." />
+	<meta name="description" content="FutureMUD is an engine for building roleplay-intensive text worlds." />
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<script src="~/js/site.js" asp-append-version="true" defer></script>
 	<link rel="alternate" type="application/rss+xml" title="FutureMUD news" href="/news/feed.xml" />
 </head>
 <body>
@@ -21,6 +22,7 @@
 			<a href="/getting-started">Get started</a>
 			<a href="/downloads">Downloads</a>
 			<a href="/docs/commands">Documentation</a>
+			<a href="/patch-notes">Patch notes</a>
 			<a href="/news">News</a>
 		</nav>
 	</header>
@@ -28,9 +30,12 @@
 		@RenderBody()
 	</main>
 	<footer>
-		<p>FutureMUD is open-source software for roleplay-intensive MUDs.</p>
+		<p>FutureMUD and its associated tools are available under the <a href="/license">CC BY-NC-ND 3.0 license</a>.</p>
 		<nav aria-label="Footer navigation">
-			<a href="https://github.com/FutureMUD/FutureMUD">GitHub</a>
+			<a href="https://discord.gg/fyKnckr4PG">Discord support</a>
+			<a href="https://github.com/FutureMUD/FutureMUD">Public source repository</a>
+			<a href="/license">Licensing</a>
+			<a href="/patch-notes">Patch notes</a>
 			<a href="/sitemap.xml">Sitemap</a>
 			<a href="/health/live">Service status</a>
 		</nav>

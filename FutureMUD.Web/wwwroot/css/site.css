@@ -40,13 +40,23 @@ h2 { font-size: clamp(1.55rem, 3vw, 2.2rem); }
 .actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
 .button { display: inline-block; border: 1px solid var(--line); border-radius: .3rem; padding: .65rem 1rem; color: var(--ink); background: var(--surface-raised); text-decoration: none; font-weight: 700; cursor: pointer; }
 .button.primary { border-color: var(--green); color: #071009; background: var(--green); }
-.terminal { overflow: auto; min-height: 18rem; margin: 0; padding: 1.6rem; border: 1px solid #3b5845; border-radius: .4rem; box-shadow: 0 2rem 5rem #0008; background: #070b08; color: #c8d2ca; font: 1rem/1.75 "Cascadia Code", Consolas, monospace; }
-.prompt, .cursor { color: var(--green); }
+.gameplay-carousel { min-width: 0; }
+.carousel-viewport { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; overflow-x: auto; overscroll-behavior-inline: contain; border: 1px solid #3b5845; border-radius: .4rem; box-shadow: 0 2rem 5rem #0008; background: #050806; scroll-snap-type: inline mandatory; scrollbar-color: var(--line) #070b08; }
+.carousel-slide { display: grid; align-content: start; min-width: 0; margin: 0; background: #000; scroll-snap-align: start; scroll-snap-stop: always; }
+.carousel-slide img { display: block; width: 100%; height: auto; max-height: 38rem; aspect-ratio: 1; object-fit: contain; object-position: center; background: #000; }
+.carousel-slide figcaption { min-height: 4.8rem; padding: .9rem 1rem; border-top: 1px solid var(--line); color: var(--muted); background: var(--surface); font-size: .9rem; }
+.carousel-controls { display: none; align-items: center; justify-content: center; gap: 1rem; margin-top: .8rem; }
+.carousel-ready .carousel-controls { display: flex; }
+.carousel-controls button { width: 2.6rem; height: 2.6rem; border: 1px solid var(--line); border-radius: .3rem; color: var(--ink); background: var(--surface-raised); font: 700 1.1rem "Cascadia Code", Consolas, monospace; cursor: pointer; }
+.carousel-controls button:hover { border-color: var(--green); }
+.carousel-status { min-width: 4.5rem; color: var(--muted); text-align: center; font: .85rem "Cascadia Code", Consolas, monospace; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin: 4rem 0 1.5rem; }
 .section-heading h2 { margin: .2rem 0 0; }
 .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 .card, .release-panel { border: 1px solid var(--line); border-radius: .35rem; padding: 1.4rem; background: linear-gradient(145deg, #18201be8, #101612e8); }
 .card h3 { margin: .4rem 0; }
+.callout { margin: 4rem 0; border-color: var(--amber); }
+.callout h2 { max-width: 28ch; }
 .link-card { color: var(--ink); text-decoration: none; }
 .link-card:hover { border-color: var(--green); color: var(--ink); }
 .news-list article { display: grid; grid-template-columns: 9rem 1fr; gap: 2rem; padding: 1.5rem 0; border-top: 1px solid var(--line); }

@@ -5,7 +5,7 @@
 }
 <section class="hero">
 	<div>
-		<p class="eyebrow">Open-source · .NET 10 · RPI focused</p>
+		<p class="eyebrow">Public repository · .NET 10 · RPI focused</p>
 		<h1>Build a world that remembers.</h1>
 		<p class="lede">FutureMUD is a modern engine for persistent, text-based roleplaying worlds: a new home for the RPI genre.</p>
 		<div class="actions">
@@ -13,11 +13,23 @@
 			<a class="button" href="/downloads">Download releases</a>
 		</div>
 	</div>
-	<pre class="terminal" aria-label="Example FutureMUD scene"><code><span class="prompt">&gt;</span> look
-The rain writes silver lines across the old station.
-A brass signal lamp burns beside the northern arch.
-
-<span class="prompt">&gt;</span> <span class="cursor">_</span></code></pre>
+	<div class="gameplay-carousel" data-carousel role="region" aria-roledescription="carousel" aria-label="FutureMUD gameplay screenshots">
+		<div class="carousel-viewport" data-carousel-viewport tabindex="0" aria-label="Scrollable gameplay screenshots">
+			<figure class="carousel-slide" data-carousel-slide role="group" aria-roledescription="slide" aria-label="1 of 2">
+				<img src="/images/gameplay/medical-treatment.png" width="804" height="811" alt="FutureMUD terminal showing a medical treatment scene with coloured status and wound messages." fetchpriority="high" />
+				<figcaption>Medical treatment, wounds, character status, and room contents in a live FutureMUD scene.</figcaption>
+			</figure>
+			<figure class="carousel-slide" data-carousel-slide role="group" aria-roledescription="slide" aria-label="2 of 2">
+				<img src="/images/gameplay/combat.png" width="950" height="681" alt="FutureMUD terminal showing a combat exchange with coloured attacks, defenses, wounds, and character resources." loading="lazy" />
+				<figcaption>Detailed combat exchanges with attacks, defenses, wounds, and resource feedback.</figcaption>
+			</figure>
+		</div>
+		<div class="carousel-controls" aria-label="Screenshot controls">
+			<button type="button" data-carousel-previous aria-label="Previous screenshot">←</button>
+			<span class="carousel-status" data-carousel-status aria-live="polite">1 of 2</span>
+			<button type="button" data-carousel-next aria-label="Next screenshot">→</button>
+		</div>
+	</div>
 </section>
 
 <section aria-labelledby="release-title">
@@ -40,6 +52,18 @@ A brass signal lamp burns beside the northern arch.
 		<a class="card link-card" href="/docs/commands"><h3>Commands</h3><p>Player, builder, conditional and administrator command help.</p></a>
 		<a class="card link-card" href="/docs/futureprog/functions"><h3>FutureProg</h3><p>Functions, overloads, types and collection extensions.</p></a>
 		<a class="card link-card" href="/docs/items/components"><h3>Item components</h3><p>Type blurbs and builder help for the component system.</p></a>
+		<a class="card link-card" href="/patch-notes"><h3>Patch notes</h3><p>Published changes and release notes maintained with the code.</p></a>
+	</div>
+</section>
+
+<section class="card callout" aria-labelledby="license-support-title">
+	<p class="eyebrow">License and support</p>
+	<h2 id="license-support-title">Publicly visible source, licensed use.</h2>
+	<p>FutureMUD and all associated tools are licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License. The public repository does not make FutureMUD an open-source or open-contribution project.</p>
+	<div class="actions">
+		<a class="button primary" href="https://discord.gg/fyKnckr4PG">Get support on Discord</a>
+		<a class="button" href="/license">Read the license notice</a>
+		<a class="button" href="https://github.com/FutureMUD/FutureMUD">View the public repository</a>
 	</div>
 </section>
 

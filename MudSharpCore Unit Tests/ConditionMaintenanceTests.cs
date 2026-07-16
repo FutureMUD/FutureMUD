@@ -327,4 +327,3 @@ public class ConditionMaintenanceTests
 		return repository.Object;
 	}
 }
-

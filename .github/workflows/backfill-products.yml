@@ -12,6 +12,8 @@ on:
           - engine-v1.55.0
           - seeder-v2.3.0
           - discordbot-v1.5.0
+          - terrainplanner-v1.1.0
+          - terrainapi-v1.0.1
 
 permissions:
   contents: read
@@ -46,6 +48,8 @@ jobs:
             'engine-v1.55.0' = 'a68f25871ce238e8e9331c0e33d7b585d174c0e4'
             'seeder-v2.3.0' = '256c79e8ca2d613d04e0dce9060dd8851ef3369a'
             'discordbot-v1.5.0' = '0450383162182554683f824810772e3741306157'
+            'terrainplanner-v1.1.0' = '92f9ceab12d4eebc135f30b7cdfe577ccb78835b'
+            'terrainapi-v1.0.1' = '1ad01d6dfd1dda1eea183a3416134588f1ed9932'
           }
           $tag = '${{ inputs.releaseTag }}'
           $sourceRevision = $releaseCommits[$tag]
@@ -63,7 +67,7 @@ jobs:
               runtime = $_
               os = if ($_.StartsWith('win-')) { 'windows-latest' } else { 'ubuntu-latest' }
             }
-          }) | ConvertTo-Json -Compress
+          }) | ConvertTo-Json -Compress -AsArray
 
           "product=$($definition.id)" >> $env:GITHUB_OUTPUT
           "version=$version" >> $env:GITHUB_OUTPUT
@@ -137,6 +141,62 @@ jobs:
           pattern: package-*
           path: artifacts
           merge-multiple: true
+      - name: Create historical Engine documentation notice
+        if: needs.prepare.outputs.product == 'engine'
+        shell: pwsh
+        run: |
+          $notice = 'FutureMUD Engine 1.55.0 predates the database-free documentation exporter. This placeholder will be replaced by the catalogue from the next stable Engine release.'
+          $catalogue = [ordered]@{
+            schemaVersion = 1
+            engineVersion = '${{ needs.prepare.outputs.version }}'
+            sourceRevision = '${{ needs.prepare.outputs.source_revision }}'
+            generatedAtUtc = '2026-03-01T11:09:05Z'
+            commands = @([ordered]@{
+              slug = 'historical-catalogue-unavailable'
+              name = 'Historical catalogue unavailable'
+              module = 'Documentation'
+              permissionLevel = 'Player'
+              audience = 'All'
+              commandWords = @('documentation-unavailable')
+              defaultHelp = $notice
+              adminHelp = ''
+              conditionalHelp = @()
+            })
+            progFunctions = @([ordered]@{
+              slug = 'historical-catalogue-unavailable'
+              name = 'HistoricalCatalogueUnavailable'
+              category = 'Documentation'
+              overloads = @([ordered]@{
+                parameters = @()
+                returnType = 'None'
+                contexts = @('Historical release')
+                help = $notice
+              })
+            })
+            progTypes = @([ordered]@{
+              slug = 'historical-catalogue-unavailable'
+              name = 'HistoricalCatalogueUnavailable'
+              properties = @([ordered]@{
+                name = 'notice'
+                type = 'Text'
+                help = $notice
+              })
+            })
+            collectionExtensions = @([ordered]@{
+              slug = 'historical-catalogue-unavailable'
+              name = 'HistoricalCatalogueUnavailable'
+              returnType = 'None'
+              contexts = @('Historical release')
+              help = $notice
+            })
+            itemComponents = @([ordered]@{
+              slug = 'historical-catalogue-unavailable'
+              name = 'HistoricalCatalogueUnavailable'
+              blurb = $notice
+              builderHelp = $notice
+            })
+          }
+          $catalogue | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath 'artifacts/catalogue.json' -Encoding utf8
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
@@ -146,7 +206,13 @@ jobs:
           $token = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(48)).ToLowerInvariant()
           $env:FutureMUD__PublishingTokenSha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($token)))
           $env:FutureMUD__DataRoot = "$env:RUNNER_TEMP/release-store"
-          $web = Start-Process dotnet -ArgumentList @('run', '--project', 'FutureMUD.Web/FutureMUD.Web.csproj', '-c', 'Release', '--urls', 'http://127.0.0.1:5080') -PassThru
+          $webOutput = Join-Path $env:RUNNER_TEMP 'futuremud-web-host'
+          dotnet publish 'FutureMUD.Web/FutureMUD.Web.csproj' -c Release -o $webOutput -p:NuGetAudit=false
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $webStdout = Join-Path $env:RUNNER_TEMP 'futuremud-web-host.stdout.log'
+          $webStderr = Join-Path $env:RUNNER_TEMP 'futuremud-web-host.stderr.log'
+          $webDll = Join-Path $webOutput 'FutureMUD.Web.dll'
+          $web = Start-Process dotnet -ArgumentList @($webDll, '--urls', 'http://127.0.0.1:5080') -PassThru -WorkingDirectory $webOutput -RedirectStandardOutput $webStdout -RedirectStandardError $webStderr
           try {
             $ready = $false
             for ($attempt = 0; $attempt -lt 60; $attempt++) {
@@ -156,11 +222,17 @@ jobs:
                 break
               }
               catch {
+                if ($web.HasExited) { break }
                 Start-Sleep 1
               }
             }
-            if (-not $ready) { throw 'The temporary publishing host did not become ready.' }
-            ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl http://127.0.0.1:5080 -Token $token -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_revision }}' -ArtifactDirectory artifacts
+            if (-not $ready) {
+              if (Test-Path $webStdout) { Get-Content $webStdout | Write-Host }
+              if (Test-Path $webStderr) { Get-Content $webStderr | Write-Host }
+              throw 'The temporary publishing host did not become ready.'
+            }
+            $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
+            ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl http://127.0.0.1:5080 -Token $token -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_revision }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
           }
           finally {
             if (-not $web.HasExited) { Stop-Process -Id $web.Id -Force }
@@ -169,4 +241,6 @@ jobs:
         shell: pwsh
         env:
           PUBLISHING_TOKEN: ${{ secrets.FUTUREMUD_PUBLISHING_TOKEN }}
-        run: ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_revision }}' -ArtifactDirectory artifacts
+        run: |
+          $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
+          ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_revision }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation

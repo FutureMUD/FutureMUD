@@ -25,3 +25,5 @@ Launch MudSharp from the generated working directory. The engine applies support
 - Consult item-component help when authoring item prototypes.
 
 For development builds or source contributions, clone the [FutureMUD repository](https://github.com/FutureMUD/FutureMUD) and use the repository setup and test scripts.
+
+On Linux, preserve or restore the Engine app host's executable bit after extracting an archive: `chmod +x MudSharp`.

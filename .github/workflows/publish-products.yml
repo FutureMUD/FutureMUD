@@ -22,6 +22,8 @@ jobs:
       matrix: ${{ steps.release.outputs.matrix }}
       tests: ${{ steps.release.outputs.tests }}
       documentation: ${{ steps.release.outputs.documentation }}
+      single_file: ${{ steps.release.outputs.single_file }}
+      include_native_libraries: ${{ steps.release.outputs.include_native_libraries }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -37,13 +39,15 @@ jobs:
           $version = $tag.Substring($definition.tagPrefix.Length)
           $projectVersion = (dotnet msbuild $definition.projectPath -getProperty:Version -nologo).Trim()
           if ($version -notmatch '^\d+\.\d+\.\d+$' -or $version -ne $projectVersion) { throw "Tag version $version must exactly match project Version $projectVersion." }
-          $matrix = @($definition.runtimes | ForEach-Object { @{ runtime = $_; os = if ($_.StartsWith('win-')) { 'windows-latest' } else { 'ubuntu-latest' } } }) | ConvertTo-Json -Compress
+          $matrix = @($definition.runtimes | ForEach-Object { @{ runtime = $_; os = if ($_.StartsWith('win-')) { 'windows-latest' } else { 'ubuntu-latest' } } }) | ConvertTo-Json -Compress -AsArray
           "product=$($definition.id)" >> $env:GITHUB_OUTPUT
           "version=$version" >> $env:GITHUB_OUTPUT
           "project=$($definition.projectPath)" >> $env:GITHUB_OUTPUT
           "matrix=$matrix" >> $env:GITHUB_OUTPUT
           "tests=$($definition.testProjects -join ';')" >> $env:GITHUB_OUTPUT
           "documentation=$($definition.documentationCatalogue -eq $true)" >> $env:GITHUB_OUTPUT
+          "single_file=$($definition.singleFile -eq $true)" >> $env:GITHUB_OUTPUT
+          "include_native_libraries=$($definition.includeNativeLibrariesForSelfExtract -eq $true)" >> $env:GITHUB_OUTPUT
 
   package:
     needs: prepare
@@ -72,13 +76,18 @@ jobs:
         shell: pwsh
         run: |
           $output = Join-Path $env:RUNNER_TEMP 'publish'
-          dotnet publish '${{ needs.prepare.outputs.project }}' -c Release -r '${{ matrix.runtime }}' --self-contained false -o $output -p:NuGetAudit=false
+          $singleFile = '${{ needs.prepare.outputs.single_file }}'.ToLowerInvariant()
+          $includeNativeLibraries = '${{ needs.prepare.outputs.include_native_libraries }}'.ToLowerInvariant()
+          dotnet publish '${{ needs.prepare.outputs.project }}' -c Release -r '${{ matrix.runtime }}' --self-contained false -o $output -p:NuGetAudit=false -p:PublishSingleFile=$singleFile -p:IncludeNativeLibrariesForSelfExtract=$includeNativeLibraries -p:PublishTrimmed=false -p:DebugType=embedded
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $archive = '${{ needs.prepare.outputs.product }}-${{ needs.prepare.outputs.version }}-${{ matrix.runtime }}.zip'
           Compress-Archive -Path "$output/*" -DestinationPath (Join-Path $env:RUNNER_TEMP $archive) -CompressionLevel Optimal
       - name: Export Engine documentation
         if: needs.prepare.outputs.documentation == 'True' && matrix.runtime == 'linux-x64'
         shell: pwsh
-        run: dotnet "$env:RUNNER_TEMP/publish/MudSharp.dll" --export-documentation "$env:RUNNER_TEMP/catalogue.json" --source-revision '${{ github.sha }}'
+        run: |
+          & "$env:RUNNER_TEMP/publish/MudSharp" --export-documentation "$env:RUNNER_TEMP/catalogue.json" --source-revision '${{ github.sha }}'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
         with:
           name: package-${{ matrix.runtime }}
@@ -107,14 +116,24 @@ jobs:
           $token = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(48)).ToLowerInvariant()
           $env:FutureMUD__PublishingTokenSha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($token)))
           $env:FutureMUD__DataRoot = "$env:RUNNER_TEMP/release-store"
-          $web = Start-Process dotnet -ArgumentList @('run', '--project', 'FutureMUD.Web/FutureMUD.Web.csproj', '-c', 'Release', '--urls', 'http://127.0.0.1:5080') -PassThru
+          $webOutput = Join-Path $env:RUNNER_TEMP 'futuremud-web-host'
+          dotnet publish 'FutureMUD.Web/FutureMUD.Web.csproj' -c Release -o $webOutput -p:NuGetAudit=false
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $webStdout = Join-Path $env:RUNNER_TEMP 'futuremud-web-host.stdout.log'
+          $webStderr = Join-Path $env:RUNNER_TEMP 'futuremud-web-host.stderr.log'
+          $webDll = Join-Path $webOutput 'FutureMUD.Web.dll'
+          $web = Start-Process dotnet -ArgumentList @($webDll, '--urls', 'http://127.0.0.1:5080') -PassThru -WorkingDirectory $webOutput -RedirectStandardOutput $webStdout -RedirectStandardError $webStderr
           try {
             $ready = $false
             for ($attempt = 0; $attempt -lt 60; $attempt++) {
               try { Invoke-RestMethod http://127.0.0.1:5080/health/ready | Out-Null; $ready = $true; break }
-              catch { Start-Sleep 1 }
+              catch { if ($web.HasExited) { break }; Start-Sleep 1 }
             }
-            if (-not $ready) { throw 'The temporary publishing host did not become ready.' }
+            if (-not $ready) {
+              if (Test-Path $webStdout) { Get-Content $webStdout | Write-Host }
+              if (Test-Path $webStderr) { Get-Content $webStderr | Write-Host }
+              throw 'The temporary publishing host did not become ready.'
+            }
             $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
             ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl http://127.0.0.1:5080 -Token $token -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ github.sha }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
           }

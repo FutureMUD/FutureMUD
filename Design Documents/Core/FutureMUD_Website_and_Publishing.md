@@ -26,7 +26,7 @@ Database-authored help and seeder-profile-specific content are intentionally exc
 
 ## Product and release contract
 
-`FutureMUD.Web/Configuration/release-products.json` is the central product manifest. It owns tag prefixes, project/version sources, runtime matrices, framework-dependent packaging, archive names, test projects, and the Engine documentation requirement. Stable tags must carry an exact three-part project version:
+`FutureMUD.Web/Configuration/release-products.json` is the central product manifest. It owns tag prefixes, project/version sources, runtime matrices, framework-dependent and single-file packaging, archive names, test projects, and the Engine documentation requirement. `singleFile` and `includeNativeLibrariesForSelfExtract` are explicit per product: normal stable releases bundle managed and native dependencies into the app host, embed symbols, and deliberately disable trimming because FutureMUD uses reflection-heavy registries. Product content such as Markdown, SQL snapshots, and application settings remains alongside the executable when required. Stable tags must carry an exact three-part project version and point to the exact merged commit containing that version:
 
 - `engine-vX.Y.Z`
 - `seeder-vX.Y.Z`
@@ -34,7 +34,9 @@ Database-authored help and seeder-profile-specific content are intentionally exc
 - `terrainplanner-vX.Y.Z`
 - `terrainapi-vX.Y.Z`
 
-The release workflow publishes Windows x64 and the declared Linux x64/ARM64 variants. macOS is not advertised. Matrix jobs test and package independently; the final job downloads all archives, exercises the complete upload/promote flow against a temporary website store, then uses the production bearer token.
+The release workflow publishes Windows x64 and the declared Linux x64/ARM64 variants. macOS is not advertised. Matrix jobs test and package independently; the final job downloads all archives, exercises the complete upload/promote flow against a temporary website store, then uses the production bearer token. Releases are tag-driven only; the historical backfill workflow is a fixed allowlist and is not a nightly or general-purpose publishing path.
+
+The complete human and Codex procedure is documented in [FutureMUD Release Process](./FutureMUD_Release_Process.md).
 
 ## Publishing protocol and storage
 
@@ -60,3 +62,8 @@ Versioned downloads enable byte ranges, attachment disposition, strong SHA-deriv
 Kestrel listens only on `127.0.0.1:5070` under a hardened systemd unit. Nginx terminates strict TLS, supplies forwarded headers, compression, canonical host redirects, a 34 MiB request limit, and disabled request buffering for publishing. Cloudflare proxies both hostnames using strict origin TLS and does not cache publishing or health routes.
 
 Website deployment is independent of product publishing. Changes to the web project, Markdown, or shared documentation contract run the website tests, publish `linux-x64`, transfer through a restricted SSH account, atomically switch `/opt/futuremud-web/current`, restart, health-check, and roll back the symlink on failure. Secrets remain in GitHub environments and `/etc/futuremud-web/environment`; logs go to journald and never include authorization headers.
+
+
+## In-engine updater
+
+From Engine 2.0.0, `DEBUG UPDATE` downloads the no-store latest redirect for the host runtime (`/downloads/engine/latest/win-x64`, `/downloads/engine/latest/linux-x64`, or `/downloads/engine/latest/linux-arm64`) and fails closed on unsupported platforms. The command verifies the response SHA-256, rejects archive entries that escape the `Binaries` directory, and stages the release for the generated restart script to apply. It uses `AppContext.BaseDirectory`, which remains valid for single-file applications. Linux restart scripts copy staged files and restore the executable bit before launch.

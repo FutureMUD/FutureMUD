@@ -113,8 +113,7 @@ Please press enter to begin.".WriteLineConsole();
 
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(
-                    Assembly.GetEntryAssembly()!.Location) + "\\Binaries");
+                Directory.CreateDirectory(AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + "\\Binaries");
 
                 #region Start-MUD.bat
                 FileStream fs = new("Start-MUD.bat", FileMode.OpenOrCreate, FileAccess.ReadWrite);
@@ -123,8 +122,7 @@ Please press enter to begin.".WriteLineConsole();
                 {
                     using StreamWriter shortcut = new(fs);
 
-                    shortcut.Write($@"set MUDDIR={Path.GetDirectoryName(
-                        Assembly.GetEntryAssembly()!.Location)}
+                    shortcut.Write($@"set MUDDIR={AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)}
 set CODEDIR=%MUDDIR%\Binaries
 set SERVER=localhost
 set loopcount=100
@@ -153,8 +151,7 @@ echo Mud was shut down and requested boot loop to end.
                 #endregion
 
                 #region Backup-MUD.bat
-                Directory.CreateDirectory(Path.GetDirectoryName(
-                    Assembly.GetEntryAssembly()!.Location) + "\\Backups");
+                Directory.CreateDirectory(AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + "\\Backups");
                 Regex regex = new(@"(?<option>[^;=]+)=(?<value>[^;=]+)");
                 foreach (Match match in regex.Matches(ConnectionString))
                 {
@@ -191,7 +188,7 @@ set CUR_NN=%time:~3,2%
 set CUR_SS=%time:~6,2%
 set CUR_MS=%time:~9,2%
 
-SET backupdir={Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location) + "\\Backups"}
+SET backupdir={AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + "\\Backups"}
 SET mysqluername={user}
 SET mysqlpassword={password}
 SET database={database}
@@ -219,6 +216,11 @@ rm -r ""$SERVER_PORT_BASEDIR/BOOTING""
 rm -r ""$SERVER_PORT_BASEDIR/STOP-REBOOTING""
 for i in 'seq 1 100'
 do
+  if [ -d ""$SERVER_PORT_BASEDIR/Binaries"" ]
+  then
+    cp -Rf ""$SERVER_PORT_BASEDIR/Binaries/."" ""$SERVER_PORT_BASEDIR/""
+    chmod +x ""$SERVER_PORT_BASEDIR/MudSharp""
+  fi
   $SERVER_PORT_BASEDIR/MudSharp ""MySql.Data.MySqlClient"" ""{ConnectionString}""
   
   if [ -f ""$SERVER_PORT_BASEDIR/BOOTING"" ]

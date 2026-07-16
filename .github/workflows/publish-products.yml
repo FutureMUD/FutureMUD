@@ -8,6 +8,12 @@ on:
       - 'discordbot-v*'
       - 'terrainplanner-v*'
       - 'terrainapi-v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing annotated product tag to retry without moving it
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -24,8 +30,13 @@ jobs:
       documentation: ${{ steps.release.outputs.documentation }}
       single_file: ${{ steps.release.outputs.single_file }}
       include_native_libraries: ${{ steps.release.outputs.include_native_libraries }}
+      tag: ${{ steps.release.outputs.tag }}
+      source_commit: ${{ steps.release.outputs.source_commit }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref }}
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
@@ -33,7 +44,12 @@ jobs:
         shell: pwsh
         run: |
           $manifest = Get-Content 'FutureMUD.Web/Configuration/release-products.json' -Raw | ConvertFrom-Json
-          $tag = '${{ github.ref_name }}'
+          $tag = if ('${{ github.event_name }}' -eq 'workflow_dispatch') { '${{ inputs.release_tag }}' } else { '${{ github.ref_name }}' }
+          $tagObjectType = (git cat-file -t $tag).Trim()
+          if ($tagObjectType -ne 'tag') { throw "Release tag $tag must be an annotated tag." }
+          $sourceCommit = (git rev-list -n 1 $tag).Trim()
+          $checkedOutCommit = (git rev-parse HEAD).Trim()
+          if ($checkedOutCommit -ne $sourceCommit) { throw "Checked-out commit $checkedOutCommit does not match tag target $sourceCommit." }
           $definition = $manifest.products | Where-Object { $tag.StartsWith($_.tagPrefix) } | Select-Object -First 1
           if (-not $definition) { throw "Tag $tag does not match a product." }
           $version = $tag.Substring($definition.tagPrefix.Length)
@@ -48,6 +64,8 @@ jobs:
           "documentation=$($definition.documentationCatalogue -eq $true)" >> $env:GITHUB_OUTPUT
           "single_file=$($definition.singleFile -eq $true)" >> $env:GITHUB_OUTPUT
           "include_native_libraries=$($definition.includeNativeLibrariesForSelfExtract -eq $true)" >> $env:GITHUB_OUTPUT
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "source_commit=$sourceCommit" >> $env:GITHUB_OUTPUT
 
   package:
     needs: prepare
@@ -58,6 +76,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.source_commit }}
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
@@ -65,7 +85,7 @@ jobs:
         shell: pwsh
         run: dotnet restore '${{ needs.prepare.outputs.project }}' -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
       - name: Run targeted tests
-        if: needs.prepare.outputs.tests != ''
+        if: needs.prepare.outputs.tests != '' && (github.event_name != 'workflow_dispatch' || matrix.os == 'windows-latest')
         shell: pwsh
         run: |
           foreach ($testProject in '${{ needs.prepare.outputs.tests }}'.Split(';', [StringSplitOptions]::RemoveEmptyEntries)) {
@@ -86,7 +106,7 @@ jobs:
         if: needs.prepare.outputs.documentation == 'True' && matrix.runtime == 'linux-x64'
         shell: pwsh
         run: |
-          & "$env:RUNNER_TEMP/publish/MudSharp" --export-documentation "$env:RUNNER_TEMP/catalogue.json" --source-revision '${{ github.sha }}'
+          & "$env:RUNNER_TEMP/publish/MudSharp" --export-documentation "$env:RUNNER_TEMP/catalogue.json" --source-revision '${{ needs.prepare.outputs.source_commit }}'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
         with:
@@ -102,6 +122,8 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.source_commit }}
       - uses: actions/download-artifact@v4
         with:
           pattern: package-*
@@ -135,7 +157,7 @@ jobs:
               throw 'The temporary publishing host did not become ready.'
             }
             $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
-            ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl http://127.0.0.1:5080 -Token $token -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ github.sha }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
+            ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl http://127.0.0.1:5080 -Token $token -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_commit }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
           }
           finally {
             if (-not $web.HasExited) { Stop-Process -Id $web.Id -Force }
@@ -146,4 +168,5 @@ jobs:
           PUBLISHING_TOKEN: ${{ secrets.FUTUREMUD_PUBLISHING_TOKEN }}
         run: |
           $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
-          ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ github.sha }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
+          ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_commit }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
+

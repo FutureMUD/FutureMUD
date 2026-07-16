@@ -4,7 +4,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-Type=notify
+Type=simple
 User=futuremud-web
 Group=futuremud-web
 WorkingDirectory=/opt/futuremud-web/current
@@ -26,7 +26,6 @@ RestrictSUIDSGID=true
 RestrictNamespaces=true
 RestrictRealtime=true
 LockPersonality=true
-MemoryDenyWriteExecute=true
 ReadWritePaths=/var/lib/futuremud-web
 CapabilityBoundingSet=
 SystemCallArchitectures=native

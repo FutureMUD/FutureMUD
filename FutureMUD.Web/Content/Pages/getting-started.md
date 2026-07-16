@@ -4,7 +4,7 @@ summary: From a release archive to your first local FutureMUD world.
 ---
 ## 1. Choose a supported runtime
 
-Download the Engine and Database Seeder for your operating system from the downloads page. Current packages target Windows x64, Linux x64, and Linux ARM64. The archives are framework-dependent, so install the matching .NET 10 runtime first.
+Download the Engine and Database Seeder for your operating system from the downloads page. Current packages target Windows x64, Linux x64, and Linux ARM64. The archives are framework-dependent: Engine 1.55.0 requires .NET 10 and Database Seeder 2.3.0 requires .NET 9.
 
 ## 2. Prepare MySQL
 

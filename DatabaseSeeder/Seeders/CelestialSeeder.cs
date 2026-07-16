@@ -83,7 +83,9 @@ public class CelestialSeeder : IDatabaseSeeder
     private const double GanymedeSiderealTimePerDay = JupiterSunSiderealTimePerDay;
     private const double JupiterAngularRadiusFromGanymede = 0.0653594916439514;
 
-    private static readonly Regex DateValidationRegex = new(@"\d+(-|/|\s)\w+(-|/|\s)\d+", RegexOptions.IgnoreCase);
+    private static readonly Regex DateValidationRegex = new(
+        @"^\s*(?:\d+[-/\s][\w-]+|[\w-]+[-/\s]\d+)[-/\s]\d+\s*$",
+        RegexOptions.IgnoreCase);
 
     public bool SafeToRunMoreThanOnce => true;
 

@@ -50,10 +50,13 @@ public sealed class BlankDatabaseSnapshotManifest
     }
 
     public static BlankDatabaseSnapshotManifest Refresh(string assetDirectory, IDatabaseUpgradeCoordinator coordinator,
-        Version productVersion)
+        Version productVersion, string? snapshotRefreshConnectionString = null)
     {
+        snapshotRefreshConnectionString = string.IsNullOrWhiteSpace(snapshotRefreshConnectionString)
+            ? SnapshotRefreshConnectionString
+            : snapshotRefreshConnectionString;
         string snapshotPath = GetSnapshotPath(assetDirectory);
-        string? latestMigrationId = coordinator.GetLatestMigrationId(SnapshotRefreshConnectionString);
+        string? latestMigrationId = coordinator.GetLatestMigrationId(snapshotRefreshConnectionString);
         if (string.IsNullOrWhiteSpace(latestMigrationId))
         {
             throw new InvalidOperationException("Could not determine the latest EF migration for the blank database snapshot.");
@@ -62,7 +65,7 @@ public sealed class BlankDatabaseSnapshotManifest
         coordinator.CreateBlankDatabaseSnapshot(
             new DatabaseUpgradeRequest
             {
-                ConnectionString = SnapshotRefreshConnectionString,
+                ConnectionString = snapshotRefreshConnectionString,
                 WorkingDirectory = assetDirectory,
                 ExecutableType = "DatabaseSeederSnapshotRefresh"
             },

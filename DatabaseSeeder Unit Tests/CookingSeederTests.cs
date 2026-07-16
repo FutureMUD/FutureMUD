@@ -181,4 +181,26 @@ public class CookingSeederTests
 
 		Assert.AreEqual(ShouldSeedResult.PrerequisitesNotMet, new CookingSeeder().ShouldSeedData(context));
 	}
+
+	[TestMethod]
+	public void CookingSeeder_AllowsDuplicateTagNamesInDifferentHierarchies()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context);
+		var animalProduct = new Tag { Id = 1, Name = "Animal Product" };
+		var agriculture = new Tag { Id = 2, Name = "Agriculture" };
+		context.Tags.AddRange(
+			animalProduct,
+			agriculture,
+			new Tag { Id = 3, Name = "Apiary Product", Parent = animalProduct, ParentId = animalProduct.Id },
+			new Tag { Id = 4, Name = "Apiary Product", Parent = agriculture, ParentId = agriculture.Id },
+			new Tag { Id = 5, Name = "Food", Parent = animalProduct, ParentId = animalProduct.Id });
+		context.SaveChanges();
+
+		new CookingSeeder().SeedData(context, new Dictionary<string, string>());
+
+		Assert.AreEqual(2, context.Tags.Count(x => x.Name == "Apiary Product"));
+		Assert.AreEqual(1, context.Tags.Count(x => x.Name == "Food" && x.ParentId == null));
+		Assert.AreEqual(1, context.Tags.Count(x => x.Name == "Prepared Food" && x.Parent!.Name == "Food"));
+	}
 }

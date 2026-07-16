@@ -1,5 +1,7 @@
+#nullable enable
 using DatabaseSeeder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Database;
 using System;
 using System.IO;
 using System.Linq;
@@ -15,13 +17,13 @@ public class BlankDatabaseSnapshotTests
     public void CommittedBlankSnapshotManifest_TracksLatestMigration()
     {
         string assetDirectory = GetDatabaseSeederProjectDirectory();
-        BlankDatabaseSnapshotManifest manifest = BlankDatabaseSnapshotManifest.Load(assetDirectory);
+        BlankDatabaseSnapshotManifest? manifest = BlankDatabaseSnapshotManifest.Load(assetDirectory);
 
         Assert.IsNotNull(manifest);
         Assert.IsTrue(File.Exists(BlankDatabaseSnapshotManifest.GetSnapshotPath(assetDirectory)));
 
         string latestMigrationId = GetLatestMigrationIdFromSource();
-        Assert.AreEqual(latestMigrationId, manifest.LatestMigrationId);
+        Assert.AreEqual(latestMigrationId, manifest!.LatestMigrationId);
     }
 
     [TestMethod]
@@ -54,6 +56,25 @@ public class BlankDatabaseSnapshotTests
         StringAssert.Contains(assessment.Reason, "stale");
         Assert.AreEqual(DatabaseBootstrapMode.FreshMigration, mode);
     }
+
+	[TestMethod]
+	public void Refresh_WhenConnectionStringIsSupplied_UsesThatDatabase()
+	{
+		using TemporaryDirectoryHarness harness = new();
+		const string connectionString =
+			"server=localhost;port=3307;database=demo_dbo;uid=tester;password=secret;";
+		FakeDatabaseUpgradeCoordinator coordinator = new();
+
+		BlankDatabaseSnapshotManifest manifest = BlankDatabaseSnapshotManifest.Refresh(
+			harness.DirectoryPath,
+			coordinator,
+			new Version(3, 0, 0),
+			connectionString);
+
+		Assert.AreEqual(connectionString, coordinator.LatestMigrationConnectionString);
+		Assert.AreEqual(connectionString, coordinator.SnapshotRequest?.ConnectionString);
+		Assert.AreEqual("3.0.0", manifest.ProductVersion);
+	}
 
     private static string GetDatabaseSeederProjectDirectory()
     {
@@ -118,4 +139,41 @@ public class BlankDatabaseSnapshotTests
             }
         }
     }
+
+	private sealed class FakeDatabaseUpgradeCoordinator : IDatabaseUpgradeCoordinator
+	{
+		public string? LatestMigrationConnectionString { get; private set; }
+		public DatabaseUpgradeRequest? SnapshotRequest { get; private set; }
+
+		public string? GetLatestMigrationId(string connectionString)
+		{
+			LatestMigrationConnectionString = connectionString;
+			return LatestMigrationId;
+		}
+
+		public void CreateBlankDatabaseSnapshot(DatabaseUpgradeRequest request, string snapshotPath,
+			string databaseNamePlaceholder)
+		{
+			SnapshotRequest = request;
+			File.WriteAllText(snapshotPath, databaseNamePlaceholder);
+		}
+
+		public DatabaseUpgradePreparation PrepareForStartup(DatabaseUpgradeRequest request) =>
+			throw new NotSupportedException();
+
+		public void ApplyPreparedMigrations(DatabaseUpgradePreparation preparation,
+			Action<DatabaseMigrationProgress>? progressAction = null) => throw new NotSupportedException();
+
+		public void RollbackPreparedUpgrade(DatabaseUpgradePreparation preparation, Exception? exception = null) =>
+			throw new NotSupportedException();
+
+		public void CompletePreparedUpgrade(DatabaseUpgradePreparation preparation) => throw new NotSupportedException();
+		public bool DatabaseLooksBlank(string connectionString) => throw new NotSupportedException();
+
+		public void ImportBlankDatabaseSnapshot(string connectionString, string scriptPath,
+			string databaseNamePlaceholder) => throw new NotSupportedException();
+
+		public void RecreateEmptyDatabase(string connectionString) => throw new NotSupportedException();
+		public string CreateBackup(DatabaseUpgradeRequest request) => throw new NotSupportedException();
+	}
 }

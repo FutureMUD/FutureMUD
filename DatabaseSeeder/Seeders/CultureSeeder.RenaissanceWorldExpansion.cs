@@ -186,7 +186,7 @@ public partial class CultureSeeder
 
 	private string ResolveRenaissanceWorldNameCulture(RenaissanceWorldSeed seed)
 	{
-		if (_context.NameCultures.Any(x => x.Name.Equals(seed.NameCultureName, StringComparison.OrdinalIgnoreCase)))
+		if (ContainsNameCulture(_context.NameCultures.AsEnumerable(), seed.NameCultureName))
 		{
 			return seed.NameCultureName;
 		}
@@ -200,6 +200,16 @@ public partial class CultureSeeder
 			RenaissanceWorldNameForm.GivenToponym => "Given and Toponym",
 			_ => "Given and Family"
 		};
+	}
+
+	internal static bool ContainsNameCultureForTesting(IEnumerable<NameCulture> nameCultures, string name)
+	{
+		return ContainsNameCulture(nameCultures, name);
+	}
+
+	private static bool ContainsNameCulture(IEnumerable<NameCulture> nameCultures, string name)
+	{
+		return nameCultures.Any(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 	}
 
 	private void ApplyRenaissanceWorldCharacteristicDefaults(RenaissanceWorldSeed seed)

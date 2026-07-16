@@ -310,23 +310,41 @@ public partial class CoreDataSeeder
 
 	private static Dictionary<string, Tag?> EnsureStockGasTags(FuturemudDatabaseContext context)
 	{
-		var tags = context.Tags
-			.AsEnumerable()
-			.ToDictionary(x => x.Name, x => (Tag?)x, StringComparer.OrdinalIgnoreCase);
+		var allTags = context.Tags.ToList();
+		var tags = new Dictionary<string, Tag?>(StringComparer.OrdinalIgnoreCase);
 
 		foreach (var (name, parentName) in StockGasTagDefinitions)
 		{
-			if (tags.ContainsKey(name))
+			Tag? parent = null;
+			if (parentName is not null)
 			{
+				if (!tags.TryGetValue(parentName, out parent))
+				{
+					parent = allTags
+						.Where(x => x.Name.Equals(parentName, StringComparison.OrdinalIgnoreCase))
+						.OrderBy(x => x.ParentId is null ? 0 : 1)
+						.ThenBy(x => x.Id)
+						.FirstOrDefault();
+				}
+			}
+
+			var tag = allTags.FirstOrDefault(x =>
+				x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+				x.ParentId == parent?.Id);
+			if (tag is not null)
+			{
+				tags[name] = tag;
 				continue;
 			}
 
-			var tag = new Tag
+			tag = new Tag
 			{
 				Name = name,
-				Parent = parentName is null || !tags.TryGetValue(parentName, out var parent) ? null : parent
+				Parent = parent,
+				ParentId = parent?.Id
 			};
 			context.Tags.Add(tag);
+			allTags.Add(tag);
 			tags[name] = tag;
 		}
 

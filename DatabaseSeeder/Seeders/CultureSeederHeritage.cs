@@ -15,6 +15,11 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class CultureSeeder
 {
+	private static readonly string[] OptionalHumanCharacteristicDefinitions = ["Distinctive Feature"];
+
+	internal static IReadOnlyCollection<string> OptionalHumanCharacteristicDefinitionsForTesting =>
+		OptionalHumanCharacteristicDefinitions;
+
 	private static readonly IReadOnlyDictionary<string, (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours)> CultureRaceSatiationLimits =
 		new Dictionary<string, (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours)>(StringComparer.OrdinalIgnoreCase)
 		{
@@ -133,6 +138,11 @@ public partial class CultureSeeder
 
         if (!_definitions.Any(x => x.Key.Equals(feature, StringComparison.OrdinalIgnoreCase)))
         {
+			if (OptionalHumanCharacteristicDefinitions.Contains(feature, StringComparer.OrdinalIgnoreCase))
+			{
+				return;
+			}
+
 #if DEBUG
             throw new ApplicationException($"Unknown definition {feature}");
 #else

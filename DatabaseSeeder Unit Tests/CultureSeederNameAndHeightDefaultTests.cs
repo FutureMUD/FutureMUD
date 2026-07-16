@@ -58,6 +58,20 @@ public class CultureSeederNameAndHeightDefaultTests
 	}
 
 	[TestMethod]
+	public void CultureSeeder_MissingOptionalDistinctiveFeature_DoesNotBlockCulturePacks()
+	{
+		CultureSeeder seeder = new();
+
+		seeder.AddEthnicityVariable("unused", "Distinctive Feature", "All Distinctive Features");
+
+		CollectionAssert.Contains(
+			CultureSeeder.OptionalHumanCharacteristicDefinitionsForTesting.ToArray(),
+			"Distinctive Feature");
+		Assert.ThrowsException<ApplicationException>(() =>
+			seeder.AddEthnicityVariable("unused", "Eye Colour", "missing"));
+	}
+
+	[TestMethod]
 	public void DarkAgesAndMedievalNameSeeder_ValidatesAndSeedsGeneratedCatalogue()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -85,6 +99,18 @@ public class CultureSeederNameAndHeightDefaultTests
 		AssertCultureHasReadyCompatibleProfile(context, "Renaissance Amazigh", Gender.Female);
 		AssertProfileHasMinimumElementCount(context, "Renaissance Armenian Male", NameUsage.BirthName, 50);
 		AssertProfileHasMinimumElementCount(context, "Renaissance Amazigh Female", NameUsage.BirthName, 50);
+	}
+
+	[TestMethod]
+	public void RenaissanceWorldNameCultureLookup_IsCaseInsensitiveAfterClientEvaluation()
+	{
+		DbNameCulture[] cultures =
+		[
+			new DbNameCulture { Name = "Renaissance Armenian", Definition = "<Definition />" }
+		];
+
+		Assert.IsTrue(CultureSeeder.ContainsNameCultureForTesting(cultures, "renaissance armenian"));
+		Assert.IsFalse(CultureSeeder.ContainsNameCultureForTesting(cultures, "Renaissance Amazigh"));
 	}
 
 	[TestMethod]

@@ -356,9 +356,7 @@ public static class SeederMetadataRegistry
                 SeederUpdateCapability.RepairExisting,
                 [
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
-                    Requirement("The Item seeder must have installed the generic rotten meat item.", context =>
-                        context.GameItemProtos.Any(x => x.ShortDescription == "some rotten meat")),
-                    Requirement("Useful item component prerequisites must already include simple held, destroyable and stackable props.", context =>
+					Requirement("Useful item component prerequisites must already include simple held, destroyable and stackable props.", context =>
                         context.GameItemComponentProtos.Any(x => x.Name == "Holdable") &&
                         context.GameItemComponentProtos.Any(x => x.Name == "Destroyable_Misc") &&
                         context.GameItemComponentProtos.Any(x => x.Name == "Stack_Pile")),
@@ -368,8 +366,8 @@ public static class SeederMetadataRegistry
                         context.Materials.Any(x => x.Name == "meat") &&
                         context.Materials.Any(x => x.Name == "bone") &&
                         context.Materials.Any(x => x.Name == "animal skin")),
-                    Requirement("The Butchery/Butchering skill and at least one stock animal race must already exist.", context =>
-                        HasTrait(context, "Butchery", "Butchering") &&
+                    Requirement("A dedicated Butchery skill (or the simple package's Survival skill) and at least one stock animal race must already exist.", context =>
+                        HasTrait(context, "Butchery", "Butchering", "Survival", "Surviving") &&
                         context.Races.Any())
                 ],
                 RerunSummary: "Reruns reuse stock animal butchery item, product and profile names, then attach missing eligible stock races.",

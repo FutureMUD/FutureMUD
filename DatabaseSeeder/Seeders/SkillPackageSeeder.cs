@@ -1393,7 +1393,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 
         void AddSkill(SkillDetails details)
         {
-            string skillName = gerund ? details.GerundName : details.ImperativeName;
+			string skillName = ResolveSeededSkillName(context.TraitDefinitions.AsEnumerable(), details, gerund);
             string capExpression = string.Empty;
             switch (questionAnswers["skillcapmodel"].ToLowerInvariant())
             {
@@ -1509,6 +1509,38 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 
         return skills;
     }
+
+	internal static string ResolveSeededSkillNameForTesting(
+		IEnumerable<TraitDefinition> existingTraits,
+		SkillDetails details,
+		bool useGerund)
+	{
+		return ResolveSeededSkillName(existingTraits, details, useGerund);
+	}
+
+	private static string ResolveSeededSkillName(
+		IEnumerable<TraitDefinition> existingTraits,
+		SkillDetails details,
+		bool useGerund)
+	{
+		var traits = existingTraits.ToList();
+		var preferredName = useGerund ? details.GerundName : details.ImperativeName;
+		var preferred = traits.FirstOrDefault(x => x.Name.Equals(preferredName, StringComparison.OrdinalIgnoreCase));
+		if (preferred is null || preferred.Type == 0)
+		{
+			return preferredName;
+		}
+
+		var alternateName = useGerund ? details.ImperativeName : details.GerundName;
+		var alternate = traits.FirstOrDefault(x => x.Name.Equals(alternateName, StringComparison.OrdinalIgnoreCase));
+		if (!alternateName.Equals(preferredName, StringComparison.OrdinalIgnoreCase) &&
+		    (alternate is null || alternate.Type == 0))
+		{
+			return alternateName;
+		}
+
+		return $"{preferredName} Skill";
+	}
 
     /// <inheritdoc />
     public override ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)

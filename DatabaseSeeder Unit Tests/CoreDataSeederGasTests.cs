@@ -111,4 +111,25 @@ public class CoreDataSeederGasTests
 			.GroupBy(x => new { x.GasId, x.TagId })
 			.Any(x => x.Count() > 1), "Expected rerun not to duplicate gas tag links.");
 	}
+
+	[TestMethod]
+	public void EnsureStockGases_AllowsDuplicateNamesInUnrelatedTagHierarchies()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		var firstParent = new Tag { Id = 1, Name = "First Parent" };
+		var secondParent = new Tag { Id = 2, Name = "Second Parent" };
+		context.Tags.AddRange(
+			firstParent,
+			secondParent,
+			new Tag { Id = 3, Name = "Apiary Product", Parent = firstParent, ParentId = firstParent.Id },
+			new Tag { Id = 4, Name = "Apiary Product", Parent = secondParent, ParentId = secondParent.Id },
+			new Tag { Id = 5, Name = "Gases", Parent = firstParent, ParentId = firstParent.Id });
+		context.SaveChanges();
+
+		CoreDataSeeder.EnsureStockGases(context);
+
+		Assert.AreEqual(2, context.Tags.Count(x => x.Name == "Apiary Product"));
+		Assert.AreEqual(1, context.Tags.Count(x => x.Name == "Gases" && x.ParentId == null));
+		Assert.AreEqual(1, context.Tags.Count(x => x.Name == "Breathable Atmospheres" && x.Parent!.Name == "Gases"));
+	}
 }

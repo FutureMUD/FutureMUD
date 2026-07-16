@@ -236,8 +236,7 @@ public static class OutputExtensions
         ICell location =
             (handler.Perceiver as ICharacter)?.Corpse?.Parent.Location ??
             handler.Perceiver?.Location ??
-            (handler.Perceiver as IGameItem)?.TrueLocations.FirstOrDefault() ??
-					   (output as IEmoteOutput)?.DefaultSource?.Location; ;
+            (handler.Perceiver as IGameItem)?.TrueLocations.FirstOrDefault();
         switch (range)
         {
             case OutputRange.Personal:

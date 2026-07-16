@@ -26,8 +26,9 @@ public static class SiteMetadataEndpoints
 
 		endpoints.MapGet("/sitemap.xml", (MarkdownContentService content) =>
 		{
-			var routes = new[] { "", "about", "downloads", "getting-started", "news", "docs/commands", "docs/futureprog/functions", "docs/futureprog/types", "docs/futureprog/collections", "docs/items/components" }
-				.Concat(content.GetNews().Select(item => $"news/{item.Slug}"));
+			var routes = new[] { "", "about", "license", "downloads", "getting-started", "news", "patch-notes", "docs/commands", "docs/futureprog/functions", "docs/futureprog/types", "docs/futureprog/collections", "docs/items/components" }
+				.Concat(content.GetNews().Select(item => $"news/{item.Slug}"))
+				.Concat(content.GetPatchNotes().Select(item => $"patch-notes/{item.Slug}"));
 			var xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">" +
 				string.Concat(routes.Select(route => $"<url><loc>https://futuremud.com/{WebUtility.HtmlEncode(route)}</loc></url>")) + "</urlset>";
 			return Results.Text(xml, "application/xml", Encoding.UTF8);

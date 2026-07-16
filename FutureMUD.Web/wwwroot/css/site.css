@@ -47,6 +47,8 @@ h2 { font-size: clamp(1.55rem, 3vw, 2.2rem); }
 .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 .card, .release-panel { border: 1px solid var(--line); border-radius: .35rem; padding: 1.4rem; background: linear-gradient(145deg, #18201be8, #101612e8); }
 .card h3 { margin: .4rem 0; }
+.callout { margin: 4rem 0; border-color: var(--amber); }
+.callout h2 { max-width: 28ch; }
 .link-card { color: var(--ink); text-decoration: none; }
 .link-card:hover { border-color: var(--green); color: var(--ink); }
 .news-list article { display: grid; grid-template-columns: 9rem 1fr; gap: 2rem; padding: 1.5rem 0; border-top: 1px solid var(--line); }

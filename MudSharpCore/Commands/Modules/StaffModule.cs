@@ -58,6 +58,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -2587,11 +2588,17 @@ The following options are available:
         actor.Send(sb.ToString());
     }
 
-    internal static string EngineUpdateDownloadUrl(bool isWindows)
+    internal static string EngineUpdateDownloadUrl(bool isWindows, bool isLinux, Architecture architecture)
     {
-        return isWindows
-            ? "https://futuremud.com/downloads/engine/latest/win-x64"
-            : "https://futuremud.com/downloads/engine/latest/linux-x64";
+        string runtime = (isWindows, isLinux, architecture) switch
+        {
+            (true, false, Architecture.X64) => "win-x64",
+            (false, true, Architecture.X64) => "linux-x64",
+            (false, true, Architecture.Arm64) => "linux-arm64",
+            _ => throw new PlatformNotSupportedException(
+                $"Automatic updates are not published for this {architecture} operating system.")
+        };
+        return $"https://futuremud.com/downloads/engine/latest/{runtime}";
     }
 
     internal static string ResolveEngineUpdateEntryPath(string extractionRoot, string entryName)
@@ -2626,7 +2633,10 @@ The following options are available:
             using HttpClient client = new();
             using HttpResponseMessage response = client
                 .GetAsync(
-                    EngineUpdateDownloadUrl(OperatingSystem.IsWindows()),
+                    EngineUpdateDownloadUrl(
+                        OperatingSystem.IsWindows(),
+                        OperatingSystem.IsLinux(),
+                        RuntimeInformation.ProcessArchitecture),
                     HttpCompletionOption.ResponseHeadersRead)
                 .GetAwaiter()
                 .GetResult();

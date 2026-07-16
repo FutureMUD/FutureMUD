@@ -1,4 +1,4 @@
-@page "/{slug:regex(^about|getting-started$)}"
+@page "/{slug:regex(^(about|getting-started|license)$)}"
 @model FutureMUD.Web.Pages.ContentModel
 @{
 	ViewData["Title"] = Model.Document.Title;

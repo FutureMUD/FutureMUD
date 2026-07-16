@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Commands.Modules;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace MudSharp_Unit_Tests;
 
@@ -15,10 +16,20 @@ public class EngineUpdateTests
 	{
 		Assert.AreEqual(
 			"https://futuremud.com/downloads/engine/latest/win-x64",
-			StaffModule.EngineUpdateDownloadUrl(true));
+			StaffModule.EngineUpdateDownloadUrl(true, false, Architecture.X64));
 		Assert.AreEqual(
 			"https://futuremud.com/downloads/engine/latest/linux-x64",
-			StaffModule.EngineUpdateDownloadUrl(false));
+			StaffModule.EngineUpdateDownloadUrl(false, true, Architecture.X64));
+		Assert.AreEqual(
+			"https://futuremud.com/downloads/engine/latest/linux-arm64",
+			StaffModule.EngineUpdateDownloadUrl(false, true, Architecture.Arm64));
+	}
+
+	[TestMethod]
+	public void EngineUpdateDownloadUrl_UnsupportedRuntime_Throws()
+	{
+		Assert.ThrowsException<PlatformNotSupportedException>(() =>
+			StaffModule.EngineUpdateDownloadUrl(false, false, Architecture.X64));
 	}
 
 	[TestMethod]

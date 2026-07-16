@@ -43,7 +43,7 @@ h2 { font-size: clamp(1.55rem, 3vw, 2.2rem); }
 .gameplay-carousel { min-width: 0; }
 .carousel-viewport { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; overflow-x: auto; overscroll-behavior-inline: contain; border: 1px solid #3b5845; border-radius: .4rem; box-shadow: 0 2rem 5rem #0008; background: #050806; scroll-snap-type: inline mandatory; scrollbar-color: var(--line) #070b08; }
 .carousel-slide { display: grid; align-content: start; min-width: 0; margin: 0; background: #000; scroll-snap-align: start; scroll-snap-stop: always; }
-.carousel-slide img { display: block; width: 100%; height: auto; max-height: 38rem; object-fit: contain; object-position: top center; background: #000; }
+.carousel-slide img { display: block; width: 100%; height: auto; max-height: 38rem; aspect-ratio: 1; object-fit: contain; object-position: center; background: #000; }
 .carousel-slide figcaption { min-height: 4.8rem; padding: .9rem 1rem; border-top: 1px solid var(--line); color: var(--muted); background: var(--surface); font-size: .9rem; }
 .carousel-controls { display: none; align-items: center; justify-content: center; gap: 1rem; margin-top: .8rem; }
 .carousel-ready .carousel-controls { display: flex; }

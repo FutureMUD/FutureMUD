@@ -204,7 +204,7 @@ public class ConditionMaintenanceTests
 		var evaluation = component.Decorate(actor.Object, "mask", "A mask.", DescriptionType.Evaluate, true,
 			PerceiveIgnoreFlags.None);
 		StringAssert.Contains(evaluation, "a spent filter");
-		StringAssert.Contains(evaluation, "0%");
+		StringAssert.Contains(evaluation, 0.0.ToString("P0", actor.Object));
 	}
 
 	private static ConditionMaintenanceProfile EnabledProfile(string useFormula)

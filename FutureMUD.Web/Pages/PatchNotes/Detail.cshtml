@@ -1,0 +1,9 @@
+@page "/patch-notes/{slug}"
+@model FutureMUD.Web.Pages.PatchNotes.DetailModel
+@{
+	ViewData["Title"] = Model.Document?.Title ?? "Patch notes";
+}
+<article class="document">
+	<header><p class="eyebrow">Patch notes</p><h1>@Model.Document!.Title</h1><p class="lede">@Model.Document.Summary</p><p><time datetime="@Model.Document.PublishedAt?.ToString("O")">@Model.Document.PublishedAt?.ToString("d MMMM yyyy")</time> · @string.Join(" · ", Model.Document.Tags)</p></header>
+	<div class="prose">@Html.Raw(Model.Document.Html)</div>
+</article>

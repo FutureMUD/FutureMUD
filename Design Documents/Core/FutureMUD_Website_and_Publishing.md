@@ -12,6 +12,8 @@ Public routes cover the home page, About, Licensing, Getting Started, Downloads,
 
 The home, About, Downloads, Licensing, and footer surfaces identify the CC BY-NC-ND 3.0 license, link to Discord support and the public GitHub repository, and explicitly distinguish public source visibility from open-source or open-contribution permission. Getting Started records the .NET 10, MySQL 8.0, email, storage, and memory baseline.
 
+The homepage gameplay carousel uses original screenshots from `FutureMUD.Web/wwwroot/images/gameplay`. It progressively enhances a horizontally scrollable, keyboard-focusable list with previous/next controls, never auto-advances, and respects reduced-motion preferences. Add another optimized image and corresponding `figure[data-carousel-slide]` with meaningful alt text, caption, and updated slide numbering when expanding the carousel.
+
 ## Documentation catalogue
 
 The versioned contract is in `FutureMUDLibrary/Documentation`. Schema version 1 contains engine/source metadata and five code-backed families:

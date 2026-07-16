@@ -30,6 +30,16 @@ public sealed class WebApplicationTests
 		StringAssert.Contains(homeHtml, "https://discord.gg/fyKnckr4PG");
 		StringAssert.Contains(homeHtml, "https://github.com/FutureMUD/FutureMUD");
 		StringAssert.Contains(homeHtml, "Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License");
+		StringAssert.Contains(homeHtml, "/images/gameplay/medical-treatment.png");
+		StringAssert.Contains(homeHtml, "/images/gameplay/combat.png");
+		StringAssert.Contains(homeHtml, "data-carousel");
+		var medicalScreenshot = await client.GetAsync("/images/gameplay/medical-treatment.png");
+		Assert.AreEqual(HttpStatusCode.OK, medicalScreenshot.StatusCode);
+		Assert.AreEqual("image/png", medicalScreenshot.Content.Headers.ContentType?.MediaType);
+		var combatScreenshot = await client.GetAsync("/images/gameplay/combat.png");
+		Assert.AreEqual(HttpStatusCode.OK, combatScreenshot.StatusCode);
+		Assert.AreEqual("image/png", combatScreenshot.Content.Headers.ContentType?.MediaType);
+		Assert.AreEqual(HttpStatusCode.OK, (await client.GetAsync("/js/site.js")).StatusCode);
 
 		Assert.AreEqual(HttpStatusCode.OK, (await client.GetAsync("/about")).StatusCode);
 		Assert.AreEqual(HttpStatusCode.OK, (await client.GetAsync("/license")).StatusCode);

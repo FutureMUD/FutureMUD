@@ -12,6 +12,8 @@ on:
           - engine-v1.55.0
           - seeder-v2.3.0
           - discordbot-v1.5.0
+          - terrainplanner-v1.1.0
+          - terrainapi-v1.0.1
 
 permissions:
   contents: read
@@ -46,6 +48,8 @@ jobs:
             'engine-v1.55.0' = 'a68f25871ce238e8e9331c0e33d7b585d174c0e4'
             'seeder-v2.3.0' = '256c79e8ca2d613d04e0dce9060dd8851ef3369a'
             'discordbot-v1.5.0' = '0450383162182554683f824810772e3741306157'
+            'terrainplanner-v1.1.0' = '92f9ceab12d4eebc135f30b7cdfe577ccb78835b'
+            'terrainapi-v1.0.1' = '1ad01d6dfd1dda1eea183a3416134588f1ed9932'
           }
           $tag = '${{ inputs.releaseTag }}'
           $sourceRevision = $releaseCommits[$tag]
@@ -63,7 +67,7 @@ jobs:
               runtime = $_
               os = if ($_.StartsWith('win-')) { 'windows-latest' } else { 'ubuntu-latest' }
             }
-          }) | ConvertTo-Json -Compress
+          }) | ConvertTo-Json -Compress -AsArray
 
           "product=$($definition.id)" >> $env:GITHUB_OUTPUT
           "version=$version" >> $env:GITHUB_OUTPUT

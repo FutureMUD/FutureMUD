@@ -37,7 +37,7 @@ jobs:
           $version = $tag.Substring($definition.tagPrefix.Length)
           $projectVersion = (dotnet msbuild $definition.projectPath -getProperty:Version -nologo).Trim()
           if ($version -notmatch '^\d+\.\d+\.\d+$' -or $version -ne $projectVersion) { throw "Tag version $version must exactly match project Version $projectVersion." }
-          $matrix = @($definition.runtimes | ForEach-Object { @{ runtime = $_; os = if ($_.StartsWith('win-')) { 'windows-latest' } else { 'ubuntu-latest' } } }) | ConvertTo-Json -Compress
+          $matrix = @($definition.runtimes | ForEach-Object { @{ runtime = $_; os = if ($_.StartsWith('win-')) { 'windows-latest' } else { 'ubuntu-latest' } } }) | ConvertTo-Json -Compress -AsArray
           "product=$($definition.id)" >> $env:GITHUB_OUTPUT
           "version=$version" >> $env:GITHUB_OUTPUT
           "project=$($definition.projectPath)" >> $env:GITHUB_OUTPUT

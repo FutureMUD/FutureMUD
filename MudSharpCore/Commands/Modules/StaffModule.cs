@@ -57,7 +57,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Sockets;
-using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -2587,43 +2587,138 @@ The following options are available:
         actor.Send(sb.ToString());
     }
 
+    internal static string EngineUpdateDownloadUrl(bool isWindows)
+    {
+        return isWindows
+            ? "https://futuremud.com/downloads/engine/latest/win-x64"
+            : "https://futuremud.com/downloads/engine/latest/linux-x64";
+    }
+
+    internal static string ResolveEngineUpdateEntryPath(string extractionRoot, string entryName)
+    {
+        string root = Path.GetFullPath(extractionRoot);
+        string rootWithSeparator = Path.EndsInDirectorySeparator(root)
+            ? root
+            : root + Path.DirectorySeparatorChar;
+        string destination = Path.GetFullPath(entryName, root);
+        StringComparison comparison = OperatingSystem.IsWindows()
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+        if (!destination.StartsWith(rootWithSeparator, comparison))
+        {
+            throw new InvalidDataException($"The update archive entry {entryName} escapes the Binaries directory.");
+        }
+
+        return destination;
+    }
+
     private static void Debug_Update(ICharacter actor)
     {
-        actor.OutputHandler.Send("Downloading and applying the update...");
+        actor.OutputHandler.Send("Downloading and applying the latest stable FutureMUD Engine update...");
         actor.Gameworld.ForceOutgoingMessages();
         Thread.Sleep(100);
-        using HttpClient hc = new();
-        using Task<HttpResponseMessage> responseTask = hc.GetAsync(
-            Environment.OSVersion.Platform.In(PlatformID.Unix, PlatformID.MacOSX, PlatformID.Other) ?
-                "https://www.labmud.com/downloads/FutureMUD-Linux.zip" :
-                "https://www.labmud.com/downloads/FutureMUD-Windows.zip");
-        using Stream stream = Task.Run(() => responseTask).Result.Content.ReadAsStream();
-        string root = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-        using FileStream zip = File.Open(string.IsNullOrEmpty(root) ? "FutureMUD Update.zip" : System.IO.Path.Combine(root, "FutureMUD Update.zip"), FileMode.Create);
-        stream.CopyTo(zip);
-        string toPath = System.IO.Path.GetFullPath(string.IsNullOrEmpty(root) ? "Binaries" : System.IO.Path.Combine(root, "Binaries"));
-        if (!Directory.Exists(toPath))
+
+        string root = AppContext.BaseDirectory;
+        string updatePath = Path.Combine(root, "FutureMUD Update.zip");
+        string extractionPath = Path.Combine(root, "Binaries");
+        try
         {
-            if (!OperatingSystem.IsWindows())
+            using HttpClient client = new();
+            using HttpResponseMessage response = client
+                .GetAsync(
+                    EngineUpdateDownloadUrl(OperatingSystem.IsWindows()),
+                    HttpCompletionOption.ResponseHeadersRead)
+                .GetAwaiter()
+                .GetResult();
+            response.EnsureSuccessStatusCode();
+
+            string? expectedSha256 = response.Headers
+                .TryGetValues("X-Checksum-SHA256", out IEnumerable<string>? checksumValues)
+                ? checksumValues.FirstOrDefault()
+                : null;
+            if (string.IsNullOrWhiteSpace(expectedSha256))
             {
-                Directory.CreateDirectory(toPath, UnixFileMode.UserWrite | UnixFileMode.UserRead | UnixFileMode.UserExecute | UnixFileMode.SetUser | UnixFileMode.SetGroup | UnixFileMode.GroupExecute | UnixFileMode.GroupRead | UnixFileMode.GroupWrite);
+                throw new InvalidDataException("The update response did not include its SHA-256 checksum.");
             }
-            else
+
+            using (Stream stream = response.Content.ReadAsStream())
+            using (FileStream zip = File.Open(updatePath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                Directory.CreateDirectory(toPath);
+                stream.CopyTo(zip);
+            }
+
+            byte[] expectedHash;
+            try
+            {
+                expectedHash = Convert.FromHexString(expectedSha256);
+            }
+            catch (FormatException exception)
+            {
+                throw new InvalidDataException("The update response contained an invalid SHA-256 checksum.", exception);
+            }
+
+            using (FileStream updateStream = File.OpenRead(updatePath))
+            {
+                byte[] actualHash = SHA256.HashData(updateStream);
+                if (expectedHash.Length != actualHash.Length ||
+                    !CryptographicOperations.FixedTimeEquals(expectedHash, actualHash))
+                {
+                    throw new InvalidDataException("The downloaded update did not match its SHA-256 checksum.");
+                }
+            }
+
+            if (!Directory.Exists(extractionPath))
+            {
+                if (OperatingSystem.IsWindows())
+                {
+                    Directory.CreateDirectory(extractionPath);
+                }
+                else
+                {
+                    Directory.CreateDirectory(
+                        extractionPath,
+                        UnixFileMode.UserWrite | UnixFileMode.UserRead | UnixFileMode.UserExecute |
+                        UnixFileMode.GroupRead | UnixFileMode.GroupExecute);
+                }
+            }
+
+            using ZipArchive archive = ZipFile.OpenRead(updatePath);
+            foreach (ZipArchiveEntry entry in archive.Entries)
+            {
+                string destination = ResolveEngineUpdateEntryPath(extractionPath, entry.FullName);
+                if (string.IsNullOrEmpty(entry.Name))
+                {
+                    Directory.CreateDirectory(destination);
+                    continue;
+                }
+
+                Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+                entry.ExtractToFile(destination, true);
+                if (!OperatingSystem.IsWindows() &&
+                    entry.Name.Equals("MudSharp", StringComparison.Ordinal))
+                {
+                    File.SetUnixFileMode(
+                        destination,
+                        UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                        UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
+                        UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+                }
+            }
+
+            actor.OutputHandler.Send(
+                "The update has been placed in the Binaries directory and will be applied by the restart script.");
+        }
+        catch (Exception exception)
+        {
+            actor.OutputHandler.Send($"The update failed: {exception.Message}".ColourError());
+        }
+        finally
+        {
+            if (File.Exists(updatePath))
+            {
+                File.Delete(updatePath);
             }
         }
-
-        zip.Close();
-
-        using ZipArchive archive = ZipFile.OpenRead(string.IsNullOrEmpty(root) ? "FutureMUD Update.zip" : System.IO.Path.Combine(root, "FutureMUD Update.zip"));
-        foreach (ZipArchiveEntry entry in archive.Entries)
-        {
-            string destination = System.IO.Path.GetFullPath(entry.FullName, toPath);
-            entry.ExtractToFile(destination, true);
-        }
-
-        actor.OutputHandler.Send("Done.");
     }
 
     private static void DebugDead(ICharacter actor)

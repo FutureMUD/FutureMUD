@@ -180,6 +180,7 @@ public partial class CultureSeeder
 				(Gender.Indeterminate, nameCulture));
 		}
 
+		SeedRenaissanceWorldExpansionHeritageExpansion();
 		_context.SaveChanges();
 	}
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document is the maintainer reference for the real-world language, accent, script and mutual-intelligibility content owned by `CultureSeeder`.
+This document is the maintainer reference for the real-world language, accent, script and mutual-intelligibility content owned by `CultureSeeder`. The companion ethnicity and broader-culture matrix is documented in the [Culture Seeder Heritage Pack Reference](./Culture_Seeder_Heritage_Pack_Reference.md).
 
 The stock goal is coverage rather than a claim that every historical speech community fits a modern language boundary. Every real-world naming culture installed by a culture pack must have at least one defensible language in the same standalone pack. Broad or composite naming cultures may map to several languages when the culture represents a court, contact zone, literary tradition or multilingual polity.
 

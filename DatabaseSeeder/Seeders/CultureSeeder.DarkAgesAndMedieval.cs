@@ -181,6 +181,7 @@ public partial class CultureSeeder
 				(Gender.Indeterminate, nameCulture));
 		}
 
+		SeedDarkAgesAndMedievalHeritageExpansion();
 		_context.SaveChanges();
 	}
 

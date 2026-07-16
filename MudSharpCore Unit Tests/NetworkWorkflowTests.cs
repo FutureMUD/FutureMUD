@@ -108,9 +108,10 @@ public class NetworkWorkflowTests
 			fixture.Connection.AddOutgoing("hello");
 			fixture.Connection.SendOutgoing();
 
-			var bytes = await ReadAvailableBytes(fixture.Client, 2);
+			var eorPrompt = new[] { Telnet.IAC, Telnet.EOR };
+			var bytes = await ReadUntilSuffix(fixture.Client, eorPrompt);
 			Assert.IsTrue(bytes.Length >= 2, "Expected output bytes from server.");
-			CollectionAssert.AreEqual(new[] { Telnet.IAC, Telnet.EOR }, bytes[^2..]);
+			CollectionAssert.AreEqual(eorPrompt, bytes[^2..]);
 		}
 		finally
 		{
@@ -259,6 +260,30 @@ public class NetworkWorkflowTests
 		return bytes.ToArray();
 	}
 
+	private static async Task<byte[]> ReadUntilSuffix(TcpClient client, byte[] suffix)
+	{
+		var bytes = new List<byte>();
+		var buffer = new byte[1024];
+		var stopwatch = Stopwatch.StartNew();
+		while (stopwatch.ElapsedMilliseconds < 1000)
+		{
+			while (client.Available > 0)
+			{
+				var count = client.GetStream().Read(buffer, 0, Math.Min(buffer.Length, client.Available));
+				bytes.AddRange(buffer.Take(count));
+			}
+
+			if (bytes.Count >= suffix.Length && bytes.Skip(bytes.Count - suffix.Length).SequenceEqual(suffix))
+			{
+				break;
+			}
+
+			await Task.Delay(10);
+		}
+
+		return bytes.ToArray();
+	}
+
 	private sealed record ConnectionFixture(
 		TcpListener Listener,
 		TcpClient Client,
@@ -273,3 +298,4 @@ public class NetworkWorkflowTests
 		}
 	}
 }
+

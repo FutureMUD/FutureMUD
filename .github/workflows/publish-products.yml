@@ -107,14 +107,24 @@ jobs:
           $token = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(48)).ToLowerInvariant()
           $env:FutureMUD__PublishingTokenSha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($token)))
           $env:FutureMUD__DataRoot = "$env:RUNNER_TEMP/release-store"
-          $web = Start-Process dotnet -ArgumentList @('run', '--project', 'FutureMUD.Web/FutureMUD.Web.csproj', '-c', 'Release', '--urls', 'http://127.0.0.1:5080') -PassThru
+          $webOutput = Join-Path $env:RUNNER_TEMP 'futuremud-web-host'
+          dotnet publish 'FutureMUD.Web/FutureMUD.Web.csproj' -c Release -o $webOutput -p:NuGetAudit=false
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $webStdout = Join-Path $env:RUNNER_TEMP 'futuremud-web-host.stdout.log'
+          $webStderr = Join-Path $env:RUNNER_TEMP 'futuremud-web-host.stderr.log'
+          $webDll = Join-Path $webOutput 'FutureMUD.Web.dll'
+          $web = Start-Process dotnet -ArgumentList @($webDll, '--urls', 'http://127.0.0.1:5080') -PassThru -WorkingDirectory $webOutput -RedirectStandardOutput $webStdout -RedirectStandardError $webStderr
           try {
             $ready = $false
             for ($attempt = 0; $attempt -lt 60; $attempt++) {
               try { Invoke-RestMethod http://127.0.0.1:5080/health/ready | Out-Null; $ready = $true; break }
-              catch { Start-Sleep 1 }
+              catch { if ($web.HasExited) { break }; Start-Sleep 1 }
             }
-            if (-not $ready) { throw 'The temporary publishing host did not become ready.' }
+            if (-not $ready) {
+              if (Test-Path $webStdout) { Get-Content $webStdout | Write-Host }
+              if (Test-Path $webStderr) { Get-Content $webStderr | Write-Host }
+              throw 'The temporary publishing host did not become ready.'
+            }
             $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
             ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl http://127.0.0.1:5080 -Token $token -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ github.sha }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
           }

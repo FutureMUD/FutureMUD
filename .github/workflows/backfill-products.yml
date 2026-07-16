@@ -1,0 +1,172 @@
+name: Backfill FutureMUD public release
+run-name: Backfill ${{ inputs.releaseTag }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseTag:
+        description: Historical release tag to build and publish
+        required: true
+        type: choice
+        options:
+          - engine-v1.55.0
+          - seeder-v2.3.0
+          - discordbot-v1.5.0
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backfill-${{ inputs.releaseTag }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      product: ${{ steps.release.outputs.product }}
+      version: ${{ steps.release.outputs.version }}
+      project: ${{ steps.release.outputs.project }}
+      matrix: ${{ steps.release.outputs.matrix }}
+      source_revision: ${{ steps.release.outputs.source_revision }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+      - id: release
+        shell: pwsh
+        run: |
+          $releaseCommits = @{
+            'engine-v1.55.0' = 'a68f25871ce238e8e9331c0e33d7b585d174c0e4'
+            'seeder-v2.3.0' = '256c79e8ca2d613d04e0dce9060dd8851ef3369a'
+            'discordbot-v1.5.0' = '0450383162182554683f824810772e3741306157'
+          }
+          $tag = '${{ inputs.releaseTag }}'
+          $sourceRevision = $releaseCommits[$tag]
+          if (-not $sourceRevision) { throw "Tag $tag is not an allowlisted historical release." }
+
+          $manifest = Get-Content 'FutureMUD.Web/Configuration/release-products.json' -Raw | ConvertFrom-Json
+          $definition = $manifest.products | Where-Object { $tag.StartsWith($_.tagPrefix) } | Select-Object -First 1
+          if (-not $definition) { throw "Tag $tag does not match a product." }
+
+          $version = $tag.Substring($definition.tagPrefix.Length)
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Tag version $version must contain three numeric parts." }
+
+          $matrix = @($definition.runtimes | ForEach-Object {
+            @{
+              runtime = $_
+              os = if ($_.StartsWith('win-')) { 'windows-latest' } else { 'ubuntu-latest' }
+            }
+          }) | ConvertTo-Json -Compress
+
+          "product=$($definition.id)" >> $env:GITHUB_OUTPUT
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "project=$($definition.projectPath)" >> $env:GITHUB_OUTPUT
+          "matrix=$matrix" >> $env:GITHUB_OUTPUT
+          "source_revision=$sourceRevision" >> $env:GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.release.outputs.source_revision }}
+          path: release-source
+      - name: Validate historical project version
+        shell: pwsh
+        run: |
+          function Normalize-Version([string]$value) {
+            $parts = @($value.Split('.'))
+            while ($parts.Count -lt 3) { $parts += '0' }
+            return ($parts[0..2] -join '.')
+          }
+
+          $projectPath = Join-Path 'release-source' '${{ steps.release.outputs.project }}'
+          $projectVersion = (dotnet msbuild $projectPath -getProperty:Version -nologo).Trim()
+          $normalisedVersion = Normalize-Version $projectVersion
+          if ($normalisedVersion -ne '${{ steps.release.outputs.version }}') {
+            throw "Historical project Version $projectVersion does not match tag version ${{ steps.release.outputs.version }}."
+          }
+
+  package:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.source_revision }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+      - name: Restore historical product
+        shell: pwsh
+        run: dotnet restore '${{ needs.prepare.outputs.project }}' -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
+      - name: Publish framework-dependent archive
+        shell: pwsh
+        run: |
+          $output = Join-Path $env:RUNNER_TEMP 'publish'
+          dotnet publish '${{ needs.prepare.outputs.project }}' -c Release -r '${{ matrix.runtime }}' --self-contained false -o $output -p:NuGetAudit=false
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $archive = '${{ needs.prepare.outputs.product }}-${{ needs.prepare.outputs.version }}-${{ matrix.runtime }}.zip'
+          Compress-Archive -Path "$output/*" -DestinationPath (Join-Path $env:RUNNER_TEMP $archive) -CompressionLevel Optimal
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ matrix.runtime }}
+          path: ${{ runner.temp }}/${{ needs.prepare.outputs.product }}-${{ needs.prepare.outputs.version }}-${{ matrix.runtime }}.zip
+          if-no-files-found: error
+
+  publish:
+    needs: [prepare, package]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: package-*
+          path: artifacts
+          merge-multiple: true
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: End-to-end publishing test against temporary host
+        shell: pwsh
+        run: |
+          $token = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(48)).ToLowerInvariant()
+          $env:FutureMUD__PublishingTokenSha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($token)))
+          $env:FutureMUD__DataRoot = "$env:RUNNER_TEMP/release-store"
+          $web = Start-Process dotnet -ArgumentList @('run', '--project', 'FutureMUD.Web/FutureMUD.Web.csproj', '-c', 'Release', '--urls', 'http://127.0.0.1:5080') -PassThru
+          try {
+            $ready = $false
+            for ($attempt = 0; $attempt -lt 60; $attempt++) {
+              try {
+                Invoke-RestMethod http://127.0.0.1:5080/health/ready | Out-Null
+                $ready = $true
+                break
+              }
+              catch {
+                Start-Sleep 1
+              }
+            }
+            if (-not $ready) { throw 'The temporary publishing host did not become ready.' }
+            ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl http://127.0.0.1:5080 -Token $token -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_revision }}' -ArtifactDirectory artifacts
+          }
+          finally {
+            if (-not $web.HasExited) { Stop-Process -Id $web.Id -Force }
+          }
+      - name: Publish to futuremud.com
+        shell: pwsh
+        env:
+          PUBLISHING_TOKEN: ${{ secrets.FUTUREMUD_PUBLISHING_TOKEN }}
+        run: ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_revision }}' -ArtifactDirectory artifacts

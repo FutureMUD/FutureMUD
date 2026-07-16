@@ -141,6 +141,62 @@ jobs:
           pattern: package-*
           path: artifacts
           merge-multiple: true
+      - name: Create historical Engine documentation notice
+        if: needs.prepare.outputs.product == 'engine'
+        shell: pwsh
+        run: |
+          $notice = 'FutureMUD Engine 1.55.0 predates the database-free documentation exporter. This placeholder will be replaced by the catalogue from the next stable Engine release.'
+          $catalogue = [ordered]@{
+            schemaVersion = 1
+            engineVersion = '${{ needs.prepare.outputs.version }}'
+            sourceRevision = '${{ needs.prepare.outputs.source_revision }}'
+            generatedAtUtc = '2026-03-01T11:09:05Z'
+            commands = @([ordered]@{
+              slug = 'historical-catalogue-unavailable'
+              name = 'Historical catalogue unavailable'
+              module = 'Documentation'
+              permissionLevel = 'Player'
+              audience = 'All'
+              commandWords = @('documentation-unavailable')
+              defaultHelp = $notice
+              adminHelp = ''
+              conditionalHelp = @()
+            })
+            progFunctions = @([ordered]@{
+              slug = 'historical-catalogue-unavailable'
+              name = 'HistoricalCatalogueUnavailable'
+              category = 'Documentation'
+              overloads = @([ordered]@{
+                parameters = @()
+                returnType = 'None'
+                contexts = @('Historical release')
+                help = $notice
+              })
+            })
+            progTypes = @([ordered]@{
+              slug = 'historical-catalogue-unavailable'
+              name = 'HistoricalCatalogueUnavailable'
+              properties = @([ordered]@{
+                name = 'notice'
+                type = 'Text'
+                help = $notice
+              })
+            })
+            collectionExtensions = @([ordered]@{
+              slug = 'historical-catalogue-unavailable'
+              name = 'HistoricalCatalogueUnavailable'
+              returnType = 'None'
+              contexts = @('Historical release')
+              help = $notice
+            })
+            itemComponents = @([ordered]@{
+              slug = 'historical-catalogue-unavailable'
+              name = 'HistoricalCatalogueUnavailable'
+              blurb = $notice
+              builderHelp = $notice
+            })
+          }
+          $catalogue | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath 'artifacts/catalogue.json' -Encoding utf8
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
@@ -175,7 +231,8 @@ jobs:
               if (Test-Path $webStderr) { Get-Content $webStderr | Write-Host }
               throw 'The temporary publishing host did not become ready.'
             }
-            ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl http://127.0.0.1:5080 -Token $token -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_revision }}' -ArtifactDirectory artifacts
+            $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
+            ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl http://127.0.0.1:5080 -Token $token -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_revision }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
           }
           finally {
             if (-not $web.HasExited) { Stop-Process -Id $web.Id -Force }
@@ -184,4 +241,6 @@ jobs:
         shell: pwsh
         env:
           PUBLISHING_TOKEN: ${{ secrets.FUTUREMUD_PUBLISHING_TOKEN }}
-        run: ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_revision }}' -ArtifactDirectory artifacts
+        run: |
+          $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
+          ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_revision }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation

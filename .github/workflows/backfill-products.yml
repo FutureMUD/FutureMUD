@@ -156,7 +156,7 @@ jobs:
           $webStdout = Join-Path $env:RUNNER_TEMP 'futuremud-web-host.stdout.log'
           $webStderr = Join-Path $env:RUNNER_TEMP 'futuremud-web-host.stderr.log'
           $webDll = Join-Path $webOutput 'FutureMUD.Web.dll'
-          $web = Start-Process dotnet -ArgumentList @($webDll, '--urls', 'http://127.0.0.1:5080') -PassThru -RedirectStandardOutput $webStdout -RedirectStandardError $webStderr
+          $web = Start-Process dotnet -ArgumentList @($webDll, '--urls', 'http://127.0.0.1:5080') -PassThru -WorkingDirectory $webOutput -RedirectStandardOutput $webStdout -RedirectStandardError $webStderr
           try {
             $ready = $false
             for ($attempt = 0; $attempt -lt 60; $attempt++) {

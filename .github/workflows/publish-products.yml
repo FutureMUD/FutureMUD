@@ -22,6 +22,8 @@ jobs:
       matrix: ${{ steps.release.outputs.matrix }}
       tests: ${{ steps.release.outputs.tests }}
       documentation: ${{ steps.release.outputs.documentation }}
+      single_file: ${{ steps.release.outputs.single_file }}
+      include_native_libraries: ${{ steps.release.outputs.include_native_libraries }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -44,6 +46,8 @@ jobs:
           "matrix=$matrix" >> $env:GITHUB_OUTPUT
           "tests=$($definition.testProjects -join ';')" >> $env:GITHUB_OUTPUT
           "documentation=$($definition.documentationCatalogue -eq $true)" >> $env:GITHUB_OUTPUT
+          "single_file=$($definition.singleFile -eq $true)" >> $env:GITHUB_OUTPUT
+          "include_native_libraries=$($definition.includeNativeLibrariesForSelfExtract -eq $true)" >> $env:GITHUB_OUTPUT
 
   package:
     needs: prepare
@@ -72,13 +76,18 @@ jobs:
         shell: pwsh
         run: |
           $output = Join-Path $env:RUNNER_TEMP 'publish'
-          dotnet publish '${{ needs.prepare.outputs.project }}' -c Release -r '${{ matrix.runtime }}' --self-contained false -o $output -p:NuGetAudit=false
+          $singleFile = '${{ needs.prepare.outputs.single_file }}'.ToLowerInvariant()
+          $includeNativeLibraries = '${{ needs.prepare.outputs.include_native_libraries }}'.ToLowerInvariant()
+          dotnet publish '${{ needs.prepare.outputs.project }}' -c Release -r '${{ matrix.runtime }}' --self-contained false -o $output -p:NuGetAudit=false -p:PublishSingleFile=$singleFile -p:IncludeNativeLibrariesForSelfExtract=$includeNativeLibraries -p:PublishTrimmed=false -p:DebugType=embedded
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $archive = '${{ needs.prepare.outputs.product }}-${{ needs.prepare.outputs.version }}-${{ matrix.runtime }}.zip'
           Compress-Archive -Path "$output/*" -DestinationPath (Join-Path $env:RUNNER_TEMP $archive) -CompressionLevel Optimal
       - name: Export Engine documentation
         if: needs.prepare.outputs.documentation == 'True' && matrix.runtime == 'linux-x64'
         shell: pwsh
-        run: dotnet "$env:RUNNER_TEMP/publish/MudSharp.dll" --export-documentation "$env:RUNNER_TEMP/catalogue.json" --source-revision '${{ github.sha }}'
+        run: |
+          & "$env:RUNNER_TEMP/publish/MudSharp" --export-documentation "$env:RUNNER_TEMP/catalogue.json" --source-revision '${{ github.sha }}'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
         with:
           name: package-${{ matrix.runtime }}

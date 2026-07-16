@@ -7,6 +7,8 @@
       "projectPath": "MudSharpCore/MudSharpCore.csproj",
       "versionSource": "Version",
       "frameworkDependent": true,
+      "singleFile": true,
+      "includeNativeLibrariesForSelfExtract": true,
       "archiveName": "engine-{version}-{runtime}.zip",
       "testProjects": [ "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj" ],
       "runtimes": [ "win-x64", "linux-x64", "linux-arm64" ],
@@ -19,6 +21,8 @@
       "projectPath": "DatabaseSeeder/DatabaseSeeder.csproj",
       "versionSource": "Version",
       "frameworkDependent": true,
+      "singleFile": true,
+      "includeNativeLibrariesForSelfExtract": true,
       "archiveName": "seeder-{version}-{runtime}.zip",
       "testProjects": [ "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj" ],
       "runtimes": [ "win-x64", "linux-x64", "linux-arm64" ]
@@ -30,6 +34,8 @@
       "projectPath": "DiscordBotCore/DiscordBotCore.csproj",
       "versionSource": "Version",
       "frameworkDependent": true,
+      "singleFile": true,
+      "includeNativeLibrariesForSelfExtract": true,
       "archiveName": "discordbot-{version}-{runtime}.zip",
       "testProjects": [ "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj" ],
       "runtimes": [ "win-x64", "linux-x64" ]
@@ -41,6 +47,8 @@
       "projectPath": "Terrain Planner Core/Terrain Planner Core.csproj",
       "versionSource": "Version",
       "frameworkDependent": true,
+      "singleFile": true,
+      "includeNativeLibrariesForSelfExtract": true,
       "archiveName": "terrainplanner-{version}-{runtime}.zip",
       "testProjects": [],
       "runtimes": [ "win-x64" ]
@@ -52,6 +60,8 @@
       "projectPath": "Terrain API/Terrain API.csproj",
       "versionSource": "Version",
       "frameworkDependent": true,
+      "singleFile": true,
+      "includeNativeLibrariesForSelfExtract": true,
       "archiveName": "terrainapi-{version}-{runtime}.zip",
       "testProjects": [],
       "runtimes": [ "win-x64", "linux-x64" ]

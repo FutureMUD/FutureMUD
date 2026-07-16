@@ -140,18 +140,19 @@ Each post should quickly answer most of these questions:
 If a piece of work does not help answer one of those questions, it probably does not need much space in the patch notes.
 
 ## Structural Rules
-### Start With The Product And Version
-Begin with a heading that names the product the way users see it and includes the version number.
+### Put The Product And Version In The Page Title
 
-Typical heading patterns:
+Set the front-matter `title` to the product name users recognise and its exact version number. The website renders this as the page heading, so do not repeat it at the start of the body.
 
-- `Engine Version 1.56.0`
-- `Database Seeder v2.4.0`
-- `Discord Bot v1.8.0`
-- `Terrain Planner v0.9.0`
-- `Terrain API v0.5.0`
+Typical title values:
 
-Keep the heading simple and prominent. Do not bury the product name halfway through the post.
+- `Engine 1.56.0`
+- `Database Seeder 2.4.0`
+- `Discord Bot 1.8.0`
+- `Terrain Planner 1.1.0`
+- `Terrain API 1.0.1`
+
+Keep the title simple and prominent. Use the product's established public name and the exact three-part release version.
 
 ### Put Breaking Or Operational Notes Up Front
 If there is any note that affects whether someone can safely update, put it immediately below the heading before the change list.

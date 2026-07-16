@@ -58,4 +58,3 @@ After cloning a template:
 5. Review membership visibility and whether the organisation should appear in player-facing lists.
 6. Delete ranks and offices that do not fit; the templates deliberately expose useful structural possibilities rather
    than claiming that every named culture used every office in every period.
-

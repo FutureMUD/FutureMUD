@@ -19,10 +19,10 @@ public partial class CultureSeeder : IDatabaseSeeder
 The FutureMUD Database Seeder currently has the following culture packs, which include full suites of naming conventions, languages and dialects and sometimes more for various real world or fictional settings.
 
 #BEarth-Modern#F: This culture pack includes ethnicities, cultures, languages, scripts and accents from the modern Earth
-#BEarth-Antiquity#F: This culture pack includes languages, scripts and accents from European antiquity at roughly the time of the late republic
-#BEarth-DarkAgesAndMedieval#F: This culture pack includes ethnicities, names and cultures from the Dark Ages and Medieval period, roughly 500-1400
+#BEarth-Antiquity#F: This culture pack includes names, languages, scripts and accents from Mediterranean antiquity and neighbouring regions at roughly the time of the late republic
+#BEarth-DarkAgesAndMedieval#F: This culture pack includes ethnicities, names, cultures, languages, scripts and accents from the Dark Ages and Medieval period, roughly 500-1400
 #BEarth-RenaissanceEurope#F: This culture pack includes ethnicities, names, languages, scripts and accents from Renaissance Europe (and surrounds), roughly 15th century
-#BEarth-RenaissanceWorldExpansion#F: This companion pack adds late-fifteenth-century ethnicities, cultures and names from the Middle East, Asia and Africa
+#BEarth-RenaissanceWorldExpansion#F: This companion pack adds late-fifteenth-century ethnicities, cultures, names, languages, scripts and accents from the Middle East, Asia and Africa
 #BMiddle-Earth#F: This culture pack includes races, ethnicities, cultures, languages, scripts and dialects from J.R.R. Tolkien's Middle-Earth
 
 #1Note: Even if you choose none of the above, some useful culture-related defaults will be installed to make things easier for you#F
@@ -91,8 +91,10 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOpt
         }
 
         return NormalizeCulturePackAnswer(answer) is "earthmodern" or "modern" or
-            "earthantiquity" or "antiquity" or "earthrenaissanceeurope" or
+            "earthantiquity" or "antiquity" or "earthdarkagesandmedieval" or
+            "darkagesandmedieval" or "earthrenaissanceeurope" or
             "renaissanceeurope" or "earthmedievaleurope" or "medievaleurope" or
+            "earthrenaissanceworldexpansion" or "renaissanceworldexpansion" or
             "middleearth";
     }
 

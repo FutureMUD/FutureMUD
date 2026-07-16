@@ -310,18 +310,17 @@ public partial class CultureSeeder
         script.UnknownScriptDescription = unknown;
         script.Knowledge = knowledge;
 
-        foreach (ScriptsDesignedLanguage? existing in script.ScriptsDesignedLanguages.ToList())
-        {
-            _context.ScriptsDesignedLanguages.Remove(existing);
-        }
-
         foreach (string languageName in languages)
         {
-            script.ScriptsDesignedLanguages.Add(new ScriptsDesignedLanguage
-            {
-                Script = script,
-                Language = _languages[languageName]
-            });
+            Language language = _languages[languageName];
+            SeederRepeatabilityHelper.EnsureLink(
+                _context.ScriptsDesignedLanguages,
+                x => x.ScriptId == script.Id && x.LanguageId == language.Id,
+                () => new ScriptsDesignedLanguage
+                {
+                    Script = script,
+                    Language = language
+                });
         }
 
         _context.SaveChanges();

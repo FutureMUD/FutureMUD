@@ -76,6 +76,12 @@ public partial class CultureSeeder
 			SeedDarkAgesAndMedievalNames();
 		}
 
+		if (questionAnswers.TryGetValue("seedlanguages", out string? seedLanguages) &&
+			seedLanguages.EqualToAny("y", "yes"))
+		{
+			SeedDarkAgesAndMedievalLanguages();
+		}
+
 		if (questionAnswers["seedheritage"].EqualToAny("y", "yes"))
 		{
 			SeedDarkAgesAndMedievalHeritage();
@@ -175,6 +181,7 @@ public partial class CultureSeeder
 				(Gender.Indeterminate, nameCulture));
 		}
 
+		SeedDarkAgesAndMedievalHeritageExpansion();
 		_context.SaveChanges();
 	}
 

@@ -15,7 +15,7 @@ ln -sfn "$release" "${current}.new"
 mv -Tf "${current}.new" "$current"
 systemctl restart futuremud-web.service
 
-if ! curl --fail --silent --show-error --retry 12 --retry-delay 2 http://127.0.0.1:5070/health/ready >/dev/null; then
+if ! curl --fail --silent --show-error --retry 12 --retry-delay 2 --retry-connrefused http://127.0.0.1:5070/health/ready >/dev/null; then
 	if test -n "$previous" && test -d "$previous"; then
 		ln -sfn "$previous" "${current}.rollback"
 		mv -Tf "${current}.rollback" "$current"

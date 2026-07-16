@@ -26,6 +26,8 @@ The tag version must contain exactly three numeric parts and must exactly equal 
 6. Publish at least one representative runtime locally with the manifest settings when packaging changed. Normal packages are framework-dependent, single-file, untrimmed, include native libraries in the bundle, and embed symbols.
 7. Merge the release preparation. The commit on `master` that contains the final version is the release commit. Prefer the title `Version update to X.Y.Z` for that exact commit.
 
+For Database Seeder releases, refresh the bundled blank database snapshot whenever its manifest does not name the latest migration. Run the seeder with `--refresh-blank-snapshot`; maintainers who cannot use the default local snapshot database can set `FUTUREMUD_SNAPSHOT_CONNECTION_STRING` to a disposable database connection string. The refresh command drops and recreates the database named by that connection string, so never point it at a database that must be retained.
+
 Do not tag an earlier feature commit, an unmerged PR head, or a later unrelated commit. If a PR is squash-merged, tag the squash commit on `master`.
 
 ## Publish manually

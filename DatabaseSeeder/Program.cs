@@ -153,7 +153,7 @@ echo Mud was shut down and requested boot loop to end.
                 #region Backup-MUD.bat
                 Directory.CreateDirectory(AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + "\\Backups");
                 Regex regex = new(@"(?<option>[^;=]+)=(?<value>[^;=]+)");
-                foreach (Match match in regex.Matches(ConnectionString))
+                foreach (Match match in regex.Matches(ConnectionString ?? string.Empty))
                 {
                     switch (match.Groups["option"].Value.ToLowerInvariant())
                     {
@@ -277,7 +277,13 @@ The exception details were as follows:
     private static void RefreshBlankDatabaseSnapshot(Version version)
     {
         string assetDirectory = BlankDatabaseSnapshotManifest.FindProjectAssetDirectory(AppContext.BaseDirectory);
-        BlankDatabaseSnapshotManifest manifest = BlankDatabaseSnapshotManifest.Refresh(assetDirectory, UpgradeCoordinator, version);
+        string? snapshotRefreshConnectionString =
+            Environment.GetEnvironmentVariable("FUTUREMUD_SNAPSHOT_CONNECTION_STRING");
+        BlankDatabaseSnapshotManifest manifest = BlankDatabaseSnapshotManifest.Refresh(
+            assetDirectory,
+            UpgradeCoordinator,
+            version,
+            snapshotRefreshConnectionString);
         Console.WriteLine($"Blank database snapshot refreshed at {BlankDatabaseSnapshotManifest.GetSnapshotPath(assetDirectory)}");
         Console.WriteLine($"Manifest refreshed at {BlankDatabaseSnapshotManifest.GetManifestPath(assetDirectory)}");
         Console.WriteLine($"Latest migration recorded: {manifest.LatestMigrationId}");

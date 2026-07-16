@@ -324,6 +324,8 @@ public class CelestialSeederTests
     [TestMethod]
     public void ResolveEpochDisplays_AllSupportedTimeSeederCalendarModes_ProvideSuggestedDefaults()
     {
+		Dictionary<string, SeederQuestion> questions = ((IDatabaseSeeder)new CelestialSeeder()).Questions
+			.ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
         foreach (string mode in EpochSuggestionCalendarModes)
         {
             using FuturemudDatabaseContext context = BuildContext();
@@ -345,6 +347,14 @@ public class CelestialSeederTests
             Assert.IsFalse(string.IsNullOrWhiteSpace(moon.DefaultAnswer), $"{mode}: moon default missing.");
             Assert.IsFalse(string.IsNullOrWhiteSpace(gasGiantSun.DefaultAnswer), $"{mode}: gas giant sun default missing.");
             Assert.IsFalse(string.IsNullOrWhiteSpace(gasGiantMoon.DefaultAnswer), $"{mode}: gas giant moon default missing.");
+			Assert.IsTrue(questions["sunepoch"].Validator(sun.DefaultAnswer!, context).Success,
+				$"{mode}: sun default should pass its prompt validator.");
+			Assert.IsTrue(questions["moonepoch"].Validator(moon.DefaultAnswer!, context).Success,
+				$"{mode}: moon default should pass its prompt validator.");
+			Assert.IsTrue(questions["gasgiantsunepoch"].Validator(gasGiantSun.DefaultAnswer!, context).Success,
+				$"{mode}: gas giant sun default should pass its prompt validator.");
+			Assert.IsTrue(questions["gasgiantmoonepoch"].Validator(gasGiantMoon.DefaultAnswer!, context).Success,
+				$"{mode}: gas giant moon default should pass its prompt validator.");
             StringAssert.Contains(sun.Prompt, "Selected calendar");
             StringAssert.Contains(moon.Prompt, "21st day of the year");
             StringAssert.Contains(gasGiantMoon.Prompt, "epoch-aligned");

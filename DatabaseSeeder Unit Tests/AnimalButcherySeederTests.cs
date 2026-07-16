@@ -379,6 +379,30 @@ public class AnimalButcherySeederTests
 		};
 	}
 
+	private static MudSharp.Models.GameItemProto PlaceholderItem(long id)
+	{
+		return new MudSharp.Models.GameItemProto
+		{
+			Id = id,
+			Name = "object",
+			Keywords = "new object",
+			MaterialId = 1,
+			EditableItem = Editable(),
+			RevisionNumber = 0,
+			Size = (int)SizeCategory.Small,
+			Weight = 1,
+			ReadOnly = false,
+			LongDescription = "A new object is here.",
+			BaseItemQuality = (int)ItemQuality.Standard,
+			MorphEmote = "$0 morphs.",
+			ShortDescription = "a new object",
+			FullDescription = "A placeholder object.",
+			PermitPlayerSkins = false,
+			CostInBaseCurrency = 0,
+			IsHiddenFromPlayers = false
+		};
+	}
+
 	[TestMethod]
 	public void AnimalRaceTemplates_AllMapToButcheryFamilies()
 	{
@@ -504,6 +528,33 @@ public class AnimalButcherySeederTests
 	}
 
 	[TestMethod]
+	public void SeedData_WithoutDisabledItemSeeder_CreatesGenericRottenMeatTarget()
+	{
+		using var context = BuildContext();
+		SeedFullCatalogueContext(context);
+		context.GameItemProtos.Remove(
+			context.GameItemProtos.Single(x =>
+				x.ShortDescription == AnimalButcherySeeder.RottenMeatShortDescriptionForTesting));
+		context.SaveChanges();
+		var seeder = new AnimalButcherySeeder();
+
+		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, seeder.ShouldSeedData(context));
+		seeder.SeedData(context, new Dictionary<string, string>());
+
+		var rottenMeat = context.GameItemProtos
+			.Include(x => x.GameItemProtosGameItemComponentProtos)
+			.ThenInclude(x => x.GameItemComponent)
+			.Single(x => x.ShortDescription == AnimalButcherySeeder.RottenMeatShortDescriptionForTesting);
+		Assert.IsTrue(rottenMeat.GameItemProtosGameItemComponentProtos.Any(x =>
+			x.GameItemComponent.Name == "Holdable"));
+		Assert.IsTrue(rottenMeat.GameItemProtosGameItemComponentProtos.Any(x =>
+			x.GameItemComponent.Name == "Destroyable_Misc"));
+		Assert.IsTrue(context.GameItemProtos
+			.Where(x => x.MorphTimeSeconds > 0)
+			.All(x => x.MorphGameItemProtoId == rottenMeat.Id));
+	}
+
+	[TestMethod]
 	public void SeedData_FullCatalogue_AcceptsGerundButcheringSkillName()
 	{
 		using var context = BuildContext();
@@ -515,6 +566,36 @@ public class AnimalButcherySeederTests
 		seeder.SeedData(context, new Dictionary<string, string>());
 
 		Assert.IsTrue(context.RaceButcheryProfilesBreakdownChecks.All(x => x.TraitDefinitionId == 1));
+		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
+	}
+
+	[TestMethod]
+	public void SeedData_FullCatalogue_UsesSimpleSkillPackageSurvivalFallback()
+	{
+		using var context = BuildContext();
+		SeedFullCatalogueContext(context);
+		RenameButcheryTrait(context, "Surviving");
+		var seeder = new AnimalButcherySeeder();
+
+		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, seeder.ShouldSeedData(context));
+		seeder.SeedData(context, new Dictionary<string, string>());
+
+		Assert.IsTrue(context.RaceButcheryProfilesBreakdownChecks.All(x => x.TraitDefinitionId == 1));
+		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
+	}
+
+	[TestMethod]
+	public void SeedData_FullCatalogue_AllowsDuplicateUnrelatedItemDescriptions()
+	{
+		using var context = BuildContext();
+		SeedFullCatalogueContext(context);
+		context.GameItemProtos.AddRange(PlaceholderItem(10000), PlaceholderItem(10001));
+		context.SaveChanges();
+
+		var seeder = new AnimalButcherySeeder();
+		seeder.SeedData(context, new Dictionary<string, string>());
+
+		Assert.AreEqual(2, context.GameItemProtos.Count(x => x.ShortDescription == "a new object"));
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
 	}
 

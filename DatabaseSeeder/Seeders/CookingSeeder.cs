@@ -53,7 +53,7 @@ It intentionally leaves the legacy Food component untouched. The direct items ca
 		var created = new List<string>();
 		var now = DateTime.UtcNow;
 		var account = context.Accounts.First();
-		var tags = context.Tags.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+		var tags = context.Tags.ToList();
 		var components = context.GameItemComponentProtos.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 		var materials = context.Materials.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
@@ -232,22 +232,25 @@ It intentionally leaves the legacy Food component untouched. The direct items ca
 		}
 	}
 
-	private static Tag EnsureTag(FuturemudDatabaseContext context, IDictionary<string, Tag> tags, string name, Tag? parent)
+	private static Tag EnsureTag(FuturemudDatabaseContext context, ICollection<Tag> tags, string name, Tag? parent)
 	{
-		if (tags.TryGetValue(name, out var tag))
+		var tag = tags.FirstOrDefault(x =>
+			x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+			x.ParentId == parent?.Id);
+		if (tag is not null)
 		{
 			return tag;
 		}
 
 		tag = new Tag
 		{
-			Id = tags.Values.Any() ? tags.Values.Max(x => x.Id) + 1 : 1,
+			Id = tags.Any() ? tags.Max(x => x.Id) + 1 : 1,
 			Name = name,
 			Parent = parent,
 			ParentId = parent?.Id
 		};
 		context.Tags.Add(tag);
-		tags[name] = tag;
+		tags.Add(tag);
 		return tag;
 	}
 

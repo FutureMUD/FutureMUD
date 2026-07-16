@@ -1,9 +1,11 @@
-# FutureMUD Patch Notes Authoring Guide
+# FutureMUD Patch Notes Authoring And Publishing Guide
 
 ## Purpose
-This document captures how FutureMUD public release notes are usually written for Discord.
+This document defines how FutureMUD public patch notes are written and published on the FutureMUD website.
 
 These posts are public-facing patch notes, not exhaustive engineering changelogs. The job is to tell builders, admins, and interested players what changed, why it matters, and whether they need to do anything about it.
+
+The canonical published copy lives at [futuremud.com/patch-notes](https://futuremud.com/patch-notes). Discord is a discussion and announcement channel: it can link to a published note and provide a short summary, but it is not the authoritative archive and should not contain the only copy of release information.
 
 The same overall style applies to all public-facing FutureMUD products:
 
@@ -12,6 +14,97 @@ The same overall style applies to all public-facing FutureMUD products:
 - `Discord Bot`
 - `Terrain Planner`
 - `Terrain API`
+
+Website and publishing-platform changes can also have their own patch notes when they materially affect downloads, documentation, installation, or other public workflows.
+
+## Publishing Channels
+
+### Canonical Channel: FutureMUD Website
+
+Every public patch note is a Markdown file in `FutureMUD.Web/Content/PatchNotes`. Once merged to `master`, it is deployed with the website and appears in two places:
+
+- `/patch-notes` shows the publication date, title, summary, and tags.
+- `/patch-notes/{slug}` shows the full note.
+
+Patch-note detail pages are also included in the website sitemap. The website does not currently provide a separate patch-note RSS feed; `/news/feed.xml` is for news and project announcements, not product patch notes.
+
+### Supporting Channel: Discord
+
+Discord remains the right place to announce a release, discuss its effects, answer questions, collect bug reports, and provide support. A Discord announcement should normally contain:
+
+- the product and version;
+- one or two sentences describing the most important changes or warnings;
+- a link to the canonical website patch note;
+- a link to the relevant download page when useful.
+
+Do not maintain a divergent long-form Discord copy. If a published note needs correction, update the repository Markdown and redeploy the website, then point Discord readers to the corrected page.
+
+### News Versus Patch Notes
+
+Use `FutureMUD.Web/Content/News` for project announcements, engineering updates, guides, or broader context. Use `FutureMUD.Web/Content/PatchNotes` for concrete product, release, website, or publishing changes. A major release can have both: the news post tells the story, while the patch note records what changed and what users must do.
+
+## Website Content Contract
+
+### File Location And Name
+
+Create one file per published change set in `FutureMUD.Web/Content/PatchNotes` using:
+
+```text
+YYYY-MM-DD-stable-slug.md
+```
+
+The filename must use lowercase ASCII letters, numbers, and hyphens after the date. The date becomes the publication date and the part after `YYYY-MM-DD-` becomes the public URL slug. Renaming a published file changes its URL, so treat the filename as stable once it is public.
+
+Files that do not match this pattern are not published. This is why the directory's `README.md` can live beside the content without appearing on the website.
+
+### Required Front Matter
+
+Every patch note must begin with terminated front matter containing all four fields:
+
+```yaml
+---
+title: Engine 2.0.0
+summary: A concise public summary of the release.
+date: 2026-07-16
+tags: engine, release
+---
+```
+
+- `title` is the page heading and the link text on the patch-note index. Include the public product name and version for a product release.
+- `summary` appears on both the index and the detail page. Write it as a useful standalone sentence, not as a duplicate heading or a teaser with missing context.
+- `date` must be an ISO date in `YYYY-MM-DD` form and must exactly match the filename date.
+- `tags` is a comma-separated, non-empty list. Use stable lowercase audience or product terms such as `engine`, `seeder`, `discord-bot`, `terrain-planner`, `terrain-api`, `website`, `publishing`, `security`, or `release`.
+
+The index is sorted by publication date descending, then by slug. Do not use a future date merely to force a note to the top.
+
+### Supported Markdown And Safety
+
+The website deliberately supports a small, safe Markdown subset:
+
+- headings using `#` through `######`;
+- paragraphs;
+- unordered lists using `- `;
+- fenced code blocks using triple backticks;
+- `**strong text**`;
+- inline code using backticks;
+- links using `[label](https://example.com)` or safe relative URLs.
+
+Raw HTML is encoded rather than rendered. Unsafe link schemes are rejected. Do not rely on tables, images, blockquotes, nested lists, task lists, embedded media, or other extended Markdown features unless the renderer and its tests are deliberately expanded first.
+
+Because the website page already renders the title, summary, date, and tags from front matter, do not repeat the title as the first body heading. Start the body with an operational note, a short introductory paragraph, a section heading, or the change list.
+
+### Links And Durable References
+
+Prefer links that will remain valid after the release:
+
+- `/downloads` or a stable versioned download URL;
+- `/getting-started` for installation prerequisites;
+- `/docs/...` for published engine reference material;
+- `/license` for licensing terms;
+- the public GitHub repository when source provenance matters;
+- the FutureMUD Discord invite for support and discussion.
+
+Do not link to local files, temporary workflow artifacts, private administration pages, draft pull requests, or Discord messages as the only source of required upgrade information.
 
 ## Core Voice And Tone
 FutureMUD patch notes should sound like a developer talking directly to the people who use the products, not like marketing copy and not like a git diff.

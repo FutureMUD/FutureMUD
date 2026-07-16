@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -39,11 +38,11 @@ public class EmailHelper
     {
         try
         {
-            DirectoryInfo info = Directory.CreateDirectory(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location) +
-                                                 "\\FailedEmails");
-            message.WriteTo(new FileStream(
-                info.FullName + $"\\{DateTime.UtcNow:yyyyMMddhhmmss} {message.Subject}.eml",
-                FileMode.Create));
+            DirectoryInfo info = Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "FailedEmails"));
+            using FileStream file = new(
+                Path.Combine(info.FullName, $"{DateTime.UtcNow:yyyyMMddhhmmss} {message.Subject}.eml"),
+                FileMode.Create);
+            message.WriteTo(file);
         }
         catch
         {

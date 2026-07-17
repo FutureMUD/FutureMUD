@@ -25,73 +25,144 @@ concurrency:
 jobs:
   prepare:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     outputs:
       product: ${{ steps.release.outputs.product }}
       version: ${{ steps.release.outputs.version }}
       project: ${{ steps.release.outputs.project }}
       matrix: ${{ steps.release.outputs.matrix }}
       source_revision: ${{ steps.release.outputs.source_revision }}
+      publisher_revision: ${{ steps.release.outputs.publisher_revision }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: master
-      - uses: actions/setup-dotnet@v4
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: |
             8.0.x
             9.0.x
             10.0.x
       - id: release
+        name: Validate historical release and manifest
         shell: pwsh
+        env:
+          RELEASE_TAG: ${{ inputs.releaseTag }}
         run: |
-          $releaseCommits = @{
-            'engine-v1.55.0' = 'a68f25871ce238e8e9331c0e33d7b585d174c0e4'
-            'seeder-v2.3.0' = '256c79e8ca2d613d04e0dce9060dd8851ef3369a'
-            'discordbot-v1.5.0' = '0450383162182554683f824810772e3741306157'
-            'terrainplanner-v1.1.0' = '92f9ceab12d4eebc135f30b7cdfe577ccb78835b'
-            'terrainapi-v1.0.1' = '1ad01d6dfd1dda1eea183a3416134588f1ed9932'
+          function Assert-ExactArray([object[]]$Actual, [string[]]$Expected, [string]$Name) {
+            $actualValues = @($Actual | ForEach-Object { [string]$_ })
+            if ($actualValues.Count -ne $Expected.Count -or ($actualValues -join "`n") -cne ($Expected -join "`n")) {
+              throw "$Name does not match the workflow allowlist."
+            }
           }
-          $tag = '${{ inputs.releaseTag }}'
-          $sourceRevision = $releaseCommits[$tag]
-          if (-not $sourceRevision) { throw "Tag $tag is not an allowlisted historical release." }
+
+          $allowedReleases = @{
+            'engine-v1.55.0' = [pscustomobject]@{ Product = 'engine'; Version = '1.55.0'; SourceRevision = 'a68f25871ce238e8e9331c0e33d7b585d174c0e4' }
+            'seeder-v2.3.0' = [pscustomobject]@{ Product = 'seeder'; Version = '2.3.0'; SourceRevision = '256c79e8ca2d613d04e0dce9060dd8851ef3369a' }
+            'discordbot-v1.5.0' = [pscustomobject]@{ Product = 'discordbot'; Version = '1.5.0'; SourceRevision = '0450383162182554683f824810772e3741306157' }
+            'terrainplanner-v1.1.0' = [pscustomobject]@{ Product = 'terrainplanner'; Version = '1.1.0'; SourceRevision = '92f9ceab12d4eebc135f30b7cdfe577ccb78835b' }
+            'terrainapi-v1.0.1' = [pscustomobject]@{ Product = 'terrainapi'; Version = '1.0.1'; SourceRevision = '1ad01d6dfd1dda1eea183a3416134588f1ed9932' }
+          }
+          $allowedDefinitions = @{
+            engine = [pscustomobject]@{ TagPrefix = 'engine-v'; ProjectPath = 'MudSharpCore/MudSharpCore.csproj'; Runtimes = [string[]]@('win-x64', 'linux-x64', 'linux-arm64'); ArchiveName = 'engine-{version}-{runtime}.zip' }
+            seeder = [pscustomobject]@{ TagPrefix = 'seeder-v'; ProjectPath = 'DatabaseSeeder/DatabaseSeeder.csproj'; Runtimes = [string[]]@('win-x64', 'linux-x64', 'linux-arm64'); ArchiveName = 'seeder-{version}-{runtime}.zip' }
+            discordbot = [pscustomobject]@{ TagPrefix = 'discordbot-v'; ProjectPath = 'DiscordBotCore/DiscordBotCore.csproj'; Runtimes = [string[]]@('win-x64', 'linux-x64'); ArchiveName = 'discordbot-{version}-{runtime}.zip' }
+            terrainplanner = [pscustomobject]@{ TagPrefix = 'terrainplanner-v'; ProjectPath = 'Terrain Planner Core/Terrain Planner Core.csproj'; Runtimes = [string[]]@('win-x64'); ArchiveName = 'terrainplanner-{version}-{runtime}.zip' }
+            terrainapi = [pscustomobject]@{ TagPrefix = 'terrainapi-v'; ProjectPath = 'Terrain API/Terrain API.csproj'; Runtimes = [string[]]@('win-x64', 'linux-x64'); ArchiveName = 'terrainapi-{version}-{runtime}.zip' }
+          }
+          $allowedIds = [string[]]@('engine', 'seeder', 'discordbot', 'terrainplanner', 'terrainapi')
+
+          if ($env:RELEASE_TAG -cnotmatch '^(engine-v1\.55\.0|seeder-v2\.3\.0|discordbot-v1\.5\.0|terrainplanner-v1\.1\.0|terrainapi-v1\.0\.1)$') {
+            throw "Release tag '$($env:RELEASE_TAG)' is not an allowlisted historical release."
+          }
+          $release = $allowedReleases[$env:RELEASE_TAG]
+          if ($null -eq $release) { throw 'The historical release mapping is missing.' }
+
+          git fetch --force --prune --tags origin '+refs/heads/master:refs/remotes/origin/master'
+          if ($LASTEXITCODE -ne 0) { throw 'Could not fetch protected origin/master and release tags.' }
+          $publisherCommit = (git rev-parse refs/remotes/origin/master).Trim()
+          $tagRef = "refs/tags/$($env:RELEASE_TAG)"
+          $tagCommit = (git rev-parse "$tagRef^{commit}").Trim()
+          foreach ($revision in @($publisherCommit, $tagCommit, $release.SourceRevision)) {
+            if ($revision -cnotmatch '^[0-9a-f]{40}$') { throw "Invalid commit revision '$revision'." }
+          }
+          if ($tagCommit -cne $release.SourceRevision) {
+            throw "Tag $($env:RELEASE_TAG) does not point to its allowlisted historical commit."
+          }
+          git merge-base --is-ancestor $tagCommit refs/remotes/origin/master
+          if ($LASTEXITCODE -ne 0) {
+            throw "Tag $($env:RELEASE_TAG) does not point to a commit reachable from protected origin/master."
+          }
+          git checkout --detach $publisherCommit
+          if ($LASTEXITCODE -ne 0) { throw 'Could not check out the captured protected-master revision.' }
 
           $manifest = Get-Content 'FutureMUD.Web/Configuration/release-products.json' -Raw | ConvertFrom-Json
-          $definition = $manifest.products | Where-Object { $tag.StartsWith($_.tagPrefix) } | Select-Object -First 1
-          if (-not $definition) { throw "Tag $tag does not match a product." }
-
-          $version = $tag.Substring($definition.tagPrefix.Length)
-          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Tag version $version must contain three numeric parts." }
-
-          $matrix = @($definition.runtimes | ForEach-Object {
-            @{
-              runtime = $_
-              os = if ($_.StartsWith('win-')) { 'windows-latest' } else { 'ubuntu-latest' }
+          $definitions = @($manifest.products)
+          if ($definitions.Count -ne $allowedIds.Count) { throw 'The product manifest contains an unexpected number of products.' }
+          $seenIds = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+          foreach ($candidate in $definitions) {
+            $id = [string]$candidate.id
+            if ($allowedIds -cnotcontains $id -or -not $seenIds.Add($id)) {
+              throw "Unexpected or duplicate product id '$id'."
             }
-          }) | ConvertTo-Json -Compress -AsArray
+            $allowed = $allowedDefinitions[$id]
+            if ([string]$candidate.tagPrefix -cne $allowed.TagPrefix -or
+                [string]$candidate.projectPath -cne $allowed.ProjectPath -or
+                [string]$candidate.archiveName -cne $allowed.ArchiveName) {
+              throw "Product '$id' does not match the workflow allowlist."
+            }
+            Assert-ExactArray @($candidate.runtimes) $allowed.Runtimes "$id runtimes"
+          }
+          $definition = $definitions | Where-Object { [string]$_.id -ceq $release.Product } | Select-Object -First 1
+          if ($null -eq $definition) { throw "Product '$($release.Product)' is absent from the validated manifest." }
+          if (-not (Test-Path -LiteralPath (Join-Path $env:GITHUB_WORKSPACE $definition.projectPath) -PathType Leaf)) {
+            throw "Allowlisted project path '$($definition.projectPath)' does not exist."
+          }
 
-          "product=$($definition.id)" >> $env:GITHUB_OUTPUT
-          "version=$version" >> $env:GITHUB_OUTPUT
-          "project=$($definition.projectPath)" >> $env:GITHUB_OUTPUT
-          "matrix=$matrix" >> $env:GITHUB_OUTPUT
-          "source_revision=$sourceRevision" >> $env:GITHUB_OUTPUT
-      - uses: actions/checkout@v4
+          $matrixEntries = @($definition.runtimes | ForEach-Object {
+            @{
+              runtime = [string]$_
+              os = if ($_ -ceq 'win-x64') { 'windows-latest' } else { 'ubuntu-latest' }
+            }
+          })
+          $matrix = ConvertTo-Json -InputObject $matrixEntries -Compress
+          $outputLines = @(
+            "product=$($release.Product)"
+            "version=$($release.Version)"
+            "project=$([string]$definition.projectPath)"
+            "matrix=$matrix"
+            "source_revision=$($release.SourceRevision)"
+            "publisher_revision=$publisherCommit"
+          )
+          foreach ($line in $outputLines) {
+            if ($line.Contains("`r") -or $line.Contains("`n")) { throw 'A workflow output unexpectedly contained a newline.' }
+            Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value $line -Encoding utf8
+          }
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: ${{ steps.release.outputs.source_revision }}
           path: release-source
+          persist-credentials: false
       - name: Validate historical project version
         shell: pwsh
+        env:
+          EXPECTED_VERSION: ${{ steps.release.outputs.version }}
+          PROJECT_PATH: ${{ steps.release.outputs.project }}
         run: |
           function Normalize-Version([string]$value) {
             $parts = @($value.Split('.'))
             while ($parts.Count -lt 3) { $parts += '0' }
             return ($parts[0..2] -join '.')
           }
-
-          $projectPath = Join-Path 'release-source' '${{ steps.release.outputs.project }}'
-          $projectVersion = (dotnet msbuild $projectPath -getProperty:Version -nologo).Trim()
+          $projectPath = Join-Path 'release-source' $env:PROJECT_PATH
+          $projectVersionOutput = dotnet msbuild $projectPath -getProperty:Version -nologo
+          if ($LASTEXITCODE -ne 0) { throw 'Could not read the historical project Version property.' }
+          $projectVersion = ($projectVersionOutput | Select-Object -Last 1).Trim()
           $normalisedVersion = Normalize-Version $projectVersion
-          if ($normalisedVersion -ne '${{ steps.release.outputs.version }}') {
-            throw "Historical project Version $projectVersion does not match tag version ${{ steps.release.outputs.version }}."
+          if ($normalisedVersion -cne $env:EXPECTED_VERSION) {
+            throw "Historical project Version $projectVersion does not match tag version $($env:EXPECTED_VERSION)."
           }
 
   package:
@@ -101,11 +172,13 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.prepare.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: ${{ needs.prepare.outputs.source_revision }}
-      - uses: actions/setup-dotnet@v4
+          persist-credentials: false
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: |
             8.0.x
@@ -113,30 +186,36 @@ jobs:
             10.0.x
       - name: Restore historical product
         shell: pwsh
-        run: dotnet restore '${{ needs.prepare.outputs.project }}' -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
+        env:
+          PROJECT_PATH: ${{ needs.prepare.outputs.project }}
+        run: dotnet restore $env:PROJECT_PATH -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
       - name: Publish framework-dependent archive
         shell: pwsh
+        env:
+          PRODUCT: ${{ needs.prepare.outputs.product }}
+          PROJECT_PATH: ${{ needs.prepare.outputs.project }}
+          RUNTIME: ${{ matrix.runtime }}
+          VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           $output = Join-Path $env:RUNNER_TEMP 'publish'
-          dotnet publish '${{ needs.prepare.outputs.project }}' -c Release -r '${{ matrix.runtime }}' --self-contained false -o $output -p:NuGetAudit=false
+          dotnet publish $env:PROJECT_PATH -c Release -r $env:RUNTIME --self-contained false -o $output -p:NuGetAudit=false
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $archive = '${{ needs.prepare.outputs.product }}-${{ needs.prepare.outputs.version }}-${{ matrix.runtime }}.zip'
+          $archive = "$($env:PRODUCT)-$($env:VERSION)-$($env:RUNTIME).zip"
           Compress-Archive -Path "$output/*" -DestinationPath (Join-Path $env:RUNNER_TEMP $archive) -CompressionLevel Optimal
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: package-${{ matrix.runtime }}
           path: ${{ runner.temp }}/${{ needs.prepare.outputs.product }}-${{ needs.prepare.outputs.version }}-${{ matrix.runtime }}.zip
           if-no-files-found: error
+          retention-days: 1
 
-  publish:
+  assemble:
     needs: [prepare, package]
     runs-on: ubuntu-latest
-    environment: production
+    timeout-minutes: 15
+    permissions: {}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: master
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: package-*
           path: artifacts
@@ -144,64 +223,52 @@ jobs:
       - name: Create historical Engine documentation notice
         if: needs.prepare.outputs.product == 'engine'
         shell: pwsh
+        env:
+          SOURCE_REVISION: ${{ needs.prepare.outputs.source_revision }}
+          VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           $notice = 'FutureMUD Engine 1.55.0 predates the database-free documentation exporter. This placeholder will be replaced by the catalogue from the next stable Engine release.'
           $catalogue = [ordered]@{
             schemaVersion = 1
-            engineVersion = '${{ needs.prepare.outputs.version }}'
-            sourceRevision = '${{ needs.prepare.outputs.source_revision }}'
+            engineVersion = $env:VERSION
+            sourceRevision = $env:SOURCE_REVISION
             generatedAtUtc = '2026-03-01T11:09:05Z'
-            commands = @([ordered]@{
-              slug = 'historical-catalogue-unavailable'
-              name = 'Historical catalogue unavailable'
-              module = 'Documentation'
-              permissionLevel = 'Player'
-              audience = 'All'
-              commandWords = @('documentation-unavailable')
-              defaultHelp = $notice
-              adminHelp = ''
-              conditionalHelp = @()
-            })
-            progFunctions = @([ordered]@{
-              slug = 'historical-catalogue-unavailable'
-              name = 'HistoricalCatalogueUnavailable'
-              category = 'Documentation'
-              overloads = @([ordered]@{
-                parameters = @()
-                returnType = 'None'
-                contexts = @('Historical release')
-                help = $notice
-              })
-            })
-            progTypes = @([ordered]@{
-              slug = 'historical-catalogue-unavailable'
-              name = 'HistoricalCatalogueUnavailable'
-              properties = @([ordered]@{
-                name = 'notice'
-                type = 'Text'
-                help = $notice
-              })
-            })
-            collectionExtensions = @([ordered]@{
-              slug = 'historical-catalogue-unavailable'
-              name = 'HistoricalCatalogueUnavailable'
-              returnType = 'None'
-              contexts = @('Historical release')
-              help = $notice
-            })
-            itemComponents = @([ordered]@{
-              slug = 'historical-catalogue-unavailable'
-              name = 'HistoricalCatalogueUnavailable'
-              blurb = $notice
-              builderHelp = $notice
-            })
+            commands = @([ordered]@{ slug = 'historical-catalogue-unavailable'; name = 'Historical catalogue unavailable'; module = 'Documentation'; permissionLevel = 'Player'; audience = 'All'; commandWords = @('documentation-unavailable'); defaultHelp = $notice; adminHelp = ''; conditionalHelp = @() })
+            progFunctions = @([ordered]@{ slug = 'historical-catalogue-unavailable'; name = 'HistoricalCatalogueUnavailable'; category = 'Documentation'; overloads = @([ordered]@{ parameters = @(); returnType = 'None'; contexts = @('Historical release'); help = $notice }) })
+            progTypes = @([ordered]@{ slug = 'historical-catalogue-unavailable'; name = 'HistoricalCatalogueUnavailable'; properties = @([ordered]@{ name = 'notice'; type = 'Text'; help = $notice }) })
+            collectionExtensions = @([ordered]@{ slug = 'historical-catalogue-unavailable'; name = 'HistoricalCatalogueUnavailable'; returnType = 'None'; contexts = @('Historical release'); help = $notice })
+            itemComponents = @([ordered]@{ slug = 'historical-catalogue-unavailable'; name = 'HistoricalCatalogueUnavailable'; blurb = $notice; builderHelp = $notice })
           }
           $catalogue | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath 'artifacts/catalogue.json' -Encoding utf8
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: backfill-release
+          path: artifacts
+          if-no-files-found: error
+          retention-days: 1
+
+  smoke-publish:
+    needs: [prepare, assemble]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ needs.prepare.outputs.publisher_revision }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: backfill-release
+          path: artifacts
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: 10.0.x
       - name: End-to-end publishing test against temporary host
         shell: pwsh
+        env:
+          PRODUCT: ${{ needs.prepare.outputs.product }}
+          SOURCE_REVISION: ${{ needs.prepare.outputs.source_revision }}
+          VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           $token = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(48)).ToLowerInvariant()
           $env:FutureMUD__PublishingTokenSha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($token)))
@@ -216,15 +283,8 @@ jobs:
           try {
             $ready = $false
             for ($attempt = 0; $attempt -lt 60; $attempt++) {
-              try {
-                Invoke-RestMethod http://127.0.0.1:5080/health/ready | Out-Null
-                $ready = $true
-                break
-              }
-              catch {
-                if ($web.HasExited) { break }
-                Start-Sleep 1
-              }
+              try { Invoke-RestMethod http://127.0.0.1:5080/health/ready | Out-Null; $ready = $true; break }
+              catch { if ($web.HasExited) { break }; Start-Sleep 1 }
             }
             if (-not $ready) {
               if (Test-Path $webStdout) { Get-Content $webStdout | Write-Host }
@@ -232,15 +292,45 @@ jobs:
               throw 'The temporary publishing host did not become ready.'
             }
             $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
-            ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl http://127.0.0.1:5080 -Token $token -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_revision }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
+            ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl http://127.0.0.1:5080 -Token $token -Product $env:PRODUCT -Version $env:VERSION -SourceCommit $env:SOURCE_REVISION -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
           }
           finally {
             if (-not $web.HasExited) { Stop-Process -Id $web.Id -Force }
           }
+
+  publish:
+    needs: [prepare, assemble, smoke-publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    concurrency:
+      group: futuremud-product-${{ needs.prepare.outputs.product }}
+      cancel-in-progress: false
+    environment: production
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ needs.prepare.outputs.publisher_revision }}
+          persist-credentials: false
+          sparse-checkout: scripts/Publish-WebsiteRelease.ps1
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: backfill-release
+          path: artifacts
       - name: Publish to futuremud.com
         shell: pwsh
         env:
+          PRODUCT: ${{ needs.prepare.outputs.product }}
           PUBLISHING_TOKEN: ${{ secrets.FUTUREMUD_PUBLISHING_TOKEN }}
+          SOURCE_REVISION: ${{ needs.prepare.outputs.source_revision }}
+          VERSION: ${{ needs.prepare.outputs.version }}
         run: |
+          if ($env:PRODUCT -cnotmatch '^(engine|seeder|discordbot|terrainplanner|terrainapi)$' -or
+              $env:VERSION -cnotmatch '^\d+\.\d+\.\d+$' -or
+              $env:SOURCE_REVISION -cnotmatch '^[0-9a-f]{40}$') {
+            throw 'Prepared publishing metadata failed production validation.'
+          }
           $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
-          ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product '${{ needs.prepare.outputs.product }}' -Version '${{ needs.prepare.outputs.version }}' -SourceCommit '${{ needs.prepare.outputs.source_revision }}' -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
+          ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product $env:PRODUCT -Version $env:VERSION -SourceCommit $env:SOURCE_REVISION -ArtifactDirectory artifacts -DocumentationCatalogue $documentation

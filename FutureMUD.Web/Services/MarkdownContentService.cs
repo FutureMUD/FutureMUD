@@ -67,7 +67,7 @@ public sealed partial class MarkdownContentService
 			{
 				return;
 			}
-			output.Append("<p>").Append(RenderInline(string.Join(' ', paragraph))).AppendLine("</p>");
+			output.Append("<p>").Append(RenderInline(string.Join((char)0x0A, paragraph))).AppendLine("</p>");
 			paragraph.Clear();
 		}
 
@@ -215,9 +215,7 @@ public sealed partial class MarkdownContentService
 		encoded = LinkRegex().Replace(encoded, match =>
 		{
 			var href = WebUtility.HtmlDecode(match.Groups[2].Value);
-			if (href.StartsWith("//", StringComparison.Ordinal) ||
-				!Uri.TryCreate(href, UriKind.RelativeOrAbsolute, out var uri) ||
-				(uri.IsAbsoluteUri && uri.Scheme is not ("http" or "https")))
+			if (!IsSafeLinkTarget(href))
 			{
 				return match.Groups[1].Value;
 			}
@@ -226,6 +224,55 @@ public sealed partial class MarkdownContentService
 		return encoded;
 	}
 
+	private static bool IsSafeLinkTarget(string href)
+	{
+		if (string.IsNullOrWhiteSpace(href))
+		{
+			return false;
+		}
+
+		var canonical = href;
+		for (var pass = 0; pass < 8; pass++)
+		{
+			var decoded = WebUtility.HtmlDecode(canonical);
+			if (decoded.Equals(canonical, StringComparison.Ordinal))
+			{
+				break;
+			}
+			if (pass == 7)
+			{
+				return false;
+			}
+			canonical = decoded;
+		}
+
+		if (string.IsNullOrWhiteSpace(canonical) ||
+			!canonical.Equals(canonical.Trim(), StringComparison.Ordinal) ||
+			canonical.Any(char.IsControl))
+		{
+			return false;
+		}
+
+		canonical = canonical.Replace((char)0x5C, '/');
+		if (canonical.StartsWith("//", StringComparison.Ordinal))
+		{
+			return false;
+		}
+
+		if (SchemeRegex().IsMatch(canonical))
+		{
+			if (!Uri.TryCreate(canonical, UriKind.Absolute, out var absoluteUri))
+			{
+				return false;
+			}
+
+			return absoluteUri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) ||
+				absoluteUri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) ||
+				absoluteUri.Scheme.Equals(Uri.UriSchemeMailto, StringComparison.OrdinalIgnoreCase);
+		}
+
+		return Uri.TryCreate(canonical, UriKind.Relative, out _);
+	}
 	[GeneratedRegex("^[a-z0-9][a-z0-9-]*$", RegexOptions.CultureInvariant)]
 	private static partial Regex SafeSlugRegex();
 	[GeneratedRegex("^\\d{4}-\\d{2}-\\d{2}-[a-z0-9][a-z0-9-]*\\.md$", RegexOptions.CultureInvariant)]
@@ -238,6 +285,8 @@ public sealed partial class MarkdownContentService
 	private static partial Regex StrongRegex();
 	[GeneratedRegex("\\[([^]]+)]\\(([^)]+)\\)", RegexOptions.CultureInvariant)]
 	private static partial Regex LinkRegex();
+	[GeneratedRegex("^[A-Za-z][A-Za-z0-9+.-]*:", RegexOptions.CultureInvariant)]
+	private static partial Regex SchemeRegex();
 }
 
 public sealed record ContentDocument(

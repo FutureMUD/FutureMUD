@@ -11,25 +11,34 @@ WorkingDirectory=/opt/futuremud-web/current
 ExecStart=/usr/bin/dotnet /opt/futuremud-web/current/FutureMUD.Web.dll
 Restart=on-failure
 RestartSec=5
+TimeoutStopSec=30
 Environment=ASPNETCORE_URLS=http://127.0.0.1:5070
-Environment=ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 EnvironmentFile=/etc/futuremud-web/environment
 NoNewPrivileges=true
 PrivateTmp=true
 PrivateDevices=true
 ProtectSystem=strict
 ProtectHome=true
+ProtectClock=true
+ProtectHostname=true
 ProtectKernelTunables=true
 ProtectKernelModules=true
+ProtectKernelLogs=true
 ProtectControlGroups=true
+ProtectProc=invisible
+RemoveIPC=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+IPAddressDeny=169.254.169.254/32
+IPAddressDeny=fd00:ec2::254/128
 RestrictSUIDSGID=true
 RestrictNamespaces=true
 RestrictRealtime=true
 LockPersonality=true
 ReadWritePaths=/var/lib/futuremud-web
 CapabilityBoundingSet=
+AmbientCapabilities=
 SystemCallArchitectures=native
-UMask=0027
+UMask=0077
 
 [Install]
 WantedBy=multi-user.target

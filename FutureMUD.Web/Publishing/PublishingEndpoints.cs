@@ -1,5 +1,6 @@
 #nullable enable
 
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -11,21 +12,11 @@ public static partial class PublishingEndpoints
 	public static IEndpointRouteBuilder MapPublishingApi(this IEndpointRouteBuilder endpoints)
 	{
 		var group = endpoints.MapGroup("/api/publishing/v1")
-			.RequireRateLimiting("publishing")
-			.AddEndpointFilter(async (context, next) =>
-			{
-				context.HttpContext.Response.Headers.CacheControl = "no-cache,no-store";
-				var authentication = context.HttpContext.RequestServices.GetRequiredService<PublishingAuthentication>();
-				return authentication.Authenticate(context.HttpContext.Request) switch
-				{
-					PublishingAuthenticationResult.Accepted => await next(context),
-					PublishingAuthenticationResult.NotConfigured => Results.Problem("Publishing is not configured.", statusCode: StatusCodes.Status503ServiceUnavailable),
-					_ => Results.Unauthorized()
-				};
-			});
+			.RequireRateLimiting("publishing");
 
 		group.MapPost("/releases", async (CreateReleaseRequest request, ReleaseStore store, CancellationToken token) =>
-			await ExecuteAsync(() => store.CreateOrResumeAsync(request, token)));
+			await ExecuteAsync(() => store.CreateOrResumeAsync(request, token)))
+			.WithMetadata(new RequestSizeLimitAttribute(64 * 1024));
 
 		group.MapGet("/releases/{uploadId}", async (string uploadId, ReleaseStore store, CancellationToken token) =>
 			await ExecuteAsync(async () => await store.GetAsync(uploadId, token)

@@ -1,27 +1,354 @@
 #!/bin/sh
 set -eu
+umask 027
 
-revision="${1:?revision is required}"
-incoming="/home/futuremud-deploy/incoming/futuremud-web-${revision}.tar.gz"
-release="/opt/futuremud-web/releases/${revision}"
-current="/opt/futuremud-web/current"
-previous="$(readlink -f "$current" 2>/dev/null || true)"
-
-test -f "$incoming"
-test ! -e "$release"
-mkdir -p "$release"
-tar -xzf "$incoming" -C "$release"
-ln -sfn "$release" "${current}.new"
-mv -Tf "${current}.new" "$current"
-systemctl restart futuremud-web.service
-
-if ! curl --fail --silent --show-error --retry 12 --retry-delay 2 --retry-connrefused http://127.0.0.1:5070/health/ready >/dev/null; then
-	if test -n "$previous" && test -d "$previous"; then
-		ln -sfn "$previous" "${current}.rollback"
-		mv -Tf "${current}.rollback" "$current"
-		systemctl restart futuremud-web.service
-	fi
-	exit 1
+if test "$#" -ne 1; then
+	echo "usage: deploy-futuremud-web <40-character-revision>" >&2
+	exit 64
+fi
+revision="$1"
+case "$revision" in
+	*[!0-9a-f]*|'')
+		echo "revision must be exactly 40 lowercase hexadecimal characters" >&2
+		exit 64
+		;;
+esac
+if test "${#revision}" -ne 40; then
+	echo "revision must be exactly 40 lowercase hexadecimal characters" >&2
+	exit 64
 fi
 
-rm -f "$incoming"
+deploy_state_root="/var/lib/futuremud-web-deploy"
+lock_root="/run/futuremud-web-deploy"
+incoming_root="$deploy_state_root/incoming"
+claimed_root="$deploy_state_root/claimed"
+install_root="/opt/futuremud-web"
+release_root="$install_root/releases"
+current="$install_root/current"
+incoming="$incoming_root/futuremud-web-${revision}.tar.gz"
+claimed_upload="$claimed_root/futuremud-web-${revision}.upload"
+archive="$claimed_root/futuremud-web-${revision}.tar.gz"
+path_list="$claimed_root/futuremud-web-${revision}.paths"
+verbose_list="$claimed_root/futuremud-web-${revision}.entries"
+release="$release_root/$revision"
+previous=""
+archive_claimed=false
+install_root_validated=false
+release_created=false
+activated=false
+deployment_succeeded=false
+
+is_revision() {
+	candidate_revision="$1"
+	case "$candidate_revision" in
+		*[!0-9a-f]*|'') return 1 ;;
+	esac
+	test "${#candidate_revision}" -eq 40
+}
+
+is_release_path() {
+	candidate_path="$1"
+	test -n "$candidate_path" || return 1
+	test "$(dirname -- "$candidate_path")" = "$release_root" || return 1
+	is_revision "$(basename -- "$candidate_path")"
+}
+
+require_secure_root_directory() {
+	directory="$1"
+	test -d "$directory"
+	test ! -L "$directory"
+	test "$(stat -c '%U' "$directory")" = "root"
+	mode="$(stat -c '%a' "$directory")"
+	case "$mode" in
+		*[!0-7]*|'') return 1 ;;
+	esac
+	test $((0$mode & 0022)) -eq 0
+}
+
+wait_for_ready() {
+	curl --fail --silent --show-error --retry 12 --retry-delay 2 --retry-connrefused \
+		--connect-timeout 2 --max-time 60 http://127.0.0.1:5070/health/ready >/dev/null
+}
+
+rollback_activation() {
+	if test "$activated" != true; then
+		return
+	fi
+
+	if is_release_path "$previous" && test -d "$previous" && test ! -L "$previous"; then
+		if ln -sfn "$previous" "${current}.rollback" && mv -Tf "${current}.rollback" "$current"; then
+			activated=false
+			if ! systemctl restart futuremud-web.service || ! wait_for_ready; then
+				echo "rollback selected the previous release, but its readiness check failed" >&2
+			fi
+			return
+		fi
+		echo "failed to restore the previous release symlink" >&2
+		return
+	fi
+
+	active_release="$(readlink -f "$current" 2>/dev/null || true)"
+	if test "$active_release" = "$release"; then
+		rm -f -- "$current"
+		activated=false
+		systemctl stop futuremud-web.service || true
+	fi
+}
+
+cleanup() {
+	status="$?"
+	trap - 0 1 2 15
+	set +e
+
+	if test "$deployment_succeeded" != true; then
+		if test "$status" -eq 0; then
+			status=1
+		fi
+		rollback_activation
+	fi
+
+	if test "$install_root_validated" = true; then
+		rm -f -- "${current}.new" "${current}.rollback"
+	fi
+	if test "$archive_claimed" = true; then
+		rm -f -- "$path_list" "$verbose_list"
+		if test -e "$claimed_upload" || test -L "$claimed_upload"; then
+			rm -rf --one-file-system -- "$claimed_upload"
+		fi
+		if test -e "$archive" || test -L "$archive"; then
+			rm -rf --one-file-system -- "$archive"
+		fi
+	fi
+	if test "$deployment_succeeded" != true && test "$activated" = false \
+		&& test "$release_created" = true && test -d "$release"; then
+		rm -rf --one-file-system -- "$release"
+	fi
+
+	exit "$status"
+}
+
+prune_old_releases() {
+	active_release="$(readlink -f "$current" 2>/dev/null || true)"
+	kept=0
+
+	find "$release_root" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %f\n' \
+		| sort -rn \
+		| while read -r modified candidate_revision; do
+			is_revision "$candidate_revision" || continue
+			candidate="$release_root/$candidate_revision"
+
+			if test "$candidate" = "$active_release" || test "$candidate" = "$previous"; then
+				kept=$((kept + 1))
+				continue
+			fi
+			if test "$kept" -lt 5; then
+				kept=$((kept + 1))
+				continue
+			fi
+			if test "$(stat -c '%U' "$candidate")" != "root"; then
+				echo "not pruning release with unexpected ownership: $candidate" >&2
+				continue
+			fi
+			rm -rf --one-file-system -- "$candidate"
+		done
+}
+
+# /run is root-owned; use a private child rather than a predictable file in the
+# commonly world-writable /run/lock directory.
+install -d -o root -g root -m 0700 "$lock_root"
+require_secure_root_directory "$lock_root"
+exec 9>"$lock_root/deploy.lock"
+if ! flock -n 9; then
+	echo "another website deployment is already running" >&2
+	exit 75
+fi
+
+# Arm cleanup only after this process owns the deployment lock. A losing
+# concurrent invocation must never remove the lock holder's staging paths.
+trap cleanup 0
+trap 'exit 129' 1
+trap 'exit 130' 2
+trap 'exit 143' 15
+
+require_secure_root_directory "$deploy_state_root"
+require_secure_root_directory "$install_root"
+install_root_validated=true
+require_secure_root_directory "$release_root"
+test -d "$incoming_root"
+test ! -L "$incoming_root"
+test "$(stat -c '%U' "$incoming_root")" = "futuremud-deploy"
+incoming_mode="$(stat -c '%a' "$incoming_root")"
+case "$incoming_mode" in
+	*[!0-7]*|'') exit 65 ;;
+esac
+test $((0$incoming_mode & 0022)) -eq 0
+install -d -o root -g root -m 0700 "$claimed_root"
+require_secure_root_directory "$claimed_root"
+test "$(stat -c '%d' "$incoming_root")" = "$(stat -c '%d' "$claimed_root")"
+
+if test -e "$current" || test -L "$current"; then
+	test -L "$current"
+	previous="$(readlink -f "$current" 2>/dev/null || true)"
+	if ! is_release_path "$previous" || ! require_secure_root_directory "$previous"; then
+		echo "current does not resolve to a valid secure release directory" >&2
+		exit 65
+	fi
+fi
+
+test ! -e "$release"
+test ! -L "$release"
+test ! -e "$claimed_upload"
+test ! -L "$claimed_upload"
+test ! -e "$archive"
+test ! -L "$archive"
+test -e "$incoming" || {
+	echo "incoming deployment archive was not found" >&2
+	exit 66
+}
+
+# Both directories are on the same filesystem beneath a root-owned parent. This
+# rename claims one inode atomically before any privileged process opens it.
+archive_claimed=true
+mv -T -- "$incoming" "$claimed_upload"
+test -f "$claimed_upload"
+test ! -L "$claimed_upload"
+test "$(stat -c '%U' "$claimed_upload")" = "futuremud-deploy"
+case "$(stat -c '%a' "$claimed_upload")" in
+	600|640|644) ;;
+	*) echo "incoming archive permissions are unexpected" >&2; exit 65 ;;
+esac
+test "$(stat -c '%h' "$claimed_upload")" -eq 1
+compressed_bytes="$(stat -c '%s' "$claimed_upload")"
+if test "$compressed_bytes" -gt 536870912; then
+	echo "incoming archive exceeds the 512 MiB compressed limit" >&2
+	exit 65
+fi
+chown root:root "$claimed_upload"
+chmod 0600 "$claimed_upload"
+claimed_digest_before="$(sha256sum "$claimed_upload" | awk '{ print $1 }')"
+claimed_available_kib="$(LC_ALL=C df -Pk "$claimed_root" | awk 'NR == 2 { print $4 }')"
+case "$claimed_available_kib" in
+	*[!0-9]*|'') echo "could not determine deployment-staging space" >&2; exit 74 ;;
+esac
+claimed_required_kib=$(((compressed_bytes + 1023) / 1024 + 262144))
+if test "$claimed_available_kib" -lt "$claimed_required_kib"; then
+	echo "deployment staging requires the archive size plus a 256 MiB validation reserve" >&2
+	exit 74
+fi
+
+# The uploader may still hold an already-open descriptor after the ownership
+# change. Validate and extract only a root-created byte-for-byte sealed copy.
+install -o root -g root -m 0600 /dev/null "$archive"
+cp --reflink=never --sparse=never -- "$claimed_upload" "$archive"
+claimed_digest_after="$(sha256sum "$claimed_upload" | awk '{ print $1 }')"
+archive_digest="$(sha256sum "$archive" | awk '{ print $1 }')"
+if test "$claimed_digest_before" != "$claimed_digest_after" \
+	|| test "$claimed_digest_before" != "$archive_digest"; then
+	echo "archive changed while it was being sealed" >&2
+	exit 65
+fi
+rm -f -- "$claimed_upload"
+
+# Bound the listing files as well as entry count and expanded bytes. A hostile
+# archive cannot use millions of empty members or extreme compression to fill
+# the root filesystem before validation completes.
+if ! (
+	ulimit -f 131072
+	LC_ALL=C timeout --signal=TERM --kill-after=10s 120s \
+		tar -tzf "$archive" --numeric-owner --quoting-style=escape >"$path_list"
+	LC_ALL=C timeout --signal=TERM --kill-after=10s 120s \
+		tar -tvzf "$archive" --numeric-owner --quoting-style=escape >"$verbose_list"
+); then
+	echo "deployment archive could not be read safely" >&2
+	exit 65
+fi
+
+path_count=0
+while IFS= read -r member; do
+	path_count=$((path_count + 1))
+	case "$member" in
+		''|/*|..|../*|*/..|*/../*|*\\*)
+			echo "archive contains an unsafe path" >&2
+			exit 65
+			;;
+	esac
+done <"$path_list"
+
+archive_stats="$(awk '
+	BEGIN { valid = 1; entries = 0; bytes = 0 }
+	{
+		type = substr($0, 1, 1)
+		if (type != "-" && type != "d") valid = 0
+		entries++
+		if (type == "-") {
+			if ($3 !~ /^[0-9]+$/) valid = 0
+			bytes += $3
+		}
+		if (entries > 20000 || bytes > 1073741824) valid = 0
+	}
+	END {
+		if (!valid || entries == 0) exit 1
+		printf "%.0f %.0f\n", entries, bytes
+	}
+' "$verbose_list")" || {
+	echo "archive contains unsupported entries or exceeds extraction limits" >&2
+	exit 65
+}
+set -- $archive_stats
+entry_count="$1"
+expanded_bytes="$2"
+if test "$path_count" -ne "$entry_count"; then
+	echo "archive member listings were inconsistent" >&2
+	exit 65
+fi
+if test "$(sha256sum "$archive" | awk '{ print $1 }')" != "$archive_digest"; then
+	echo "archive changed while it was being validated" >&2
+	exit 65
+fi
+
+available_kib="$(LC_ALL=C df -Pk "$release_root" | awk 'NR == 2 { print $4 }')"
+case "$available_kib" in
+	*[!0-9]*|'') echo "could not determine available deployment space" >&2; exit 74 ;;
+esac
+required_kib=$(((expanded_bytes + 1023) / 1024 + 1048576))
+if test "$available_kib" -lt "$required_kib"; then
+	echo "deployment requires its expanded size plus a 1 GiB free-space reserve" >&2
+	exit 74
+fi
+
+release_created=true
+install -d -o root -g futuremud-web -m 0750 "$release"
+LC_ALL=C timeout --signal=TERM --kill-after=10s 10m \
+	tar -xzf "$archive" -C "$release" --restrict \
+	--no-same-owner --no-same-permissions --delay-directory-restore
+if test "$(sha256sum "$archive" | awk '{ print $1 }')" != "$archive_digest"; then
+	echo "archive changed while it was being extracted" >&2
+	exit 65
+fi
+if test -n "$(find "$release" -mindepth 1 ! -type f ! -type d -print -quit)"; then
+	echo "extracted release contains a link or special file" >&2
+	exit 65
+fi
+for required_file in \
+	FutureMUD.Web.dll \
+	FutureMUD.Web.deps.json \
+	FutureMUD.Web.runtimeconfig.json \
+	appsettings.json; do
+	test -f "$release/$required_file"
+	test ! -L "$release/$required_file"
+done
+chown -R root:futuremud-web "$release"
+find "$release" -type d -exec chmod 0750 {} +
+find "$release" -type f -exec chmod 0640 {} +
+
+ln -sfn "$release" "${current}.new"
+mv -Tf "${current}.new" "$current"
+activated=true
+systemctl restart futuremud-web.service
+wait_for_ready
+
+deployment_succeeded=true
+activated=false
+if ! prune_old_releases; then
+	echo "deployment succeeded, but old release pruning failed" >&2
+fi

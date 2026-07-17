@@ -1,0 +1,33 @@
+version: 2
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:15"
+      timezone: "Australia/Sydney"
+    open-pull-requests-limit: 1
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "nuget"
+    directory: "/FutureMUD.Web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:30"
+      timezone: "Australia/Sydney"
+    open-pull-requests-limit: 0
+
+  - package-ecosystem: "nuget"
+    directory: "/FutureMUD.Web.Tests"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:45"
+      timezone: "Australia/Sydney"
+    open-pull-requests-limit: 0

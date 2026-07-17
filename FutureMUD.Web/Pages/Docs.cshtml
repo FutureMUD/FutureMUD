@@ -20,11 +20,25 @@ else
 		<label>Category <select name="category"><option value="">All</option>@foreach (var value in Model.Categories) { <option value="@value" selected="@(value == Model.Category)">@value</option> }</select></label>
 		<button class="button primary" type="submit">Filter</button>
 	</form>
-	<p class="result-count">@Model.Entries.Count result(s)</p>
+	<p class="result-count">@Model.TotalResults result(s) &middot; showing @Model.FirstResult-@Model.LastResult</p>
 	<div class="reference-list">
 	@foreach (var entry in Model.Entries)
 	{
 		<a href="@Model.CollectionUrl/@entry.Slug"><div><h2>@entry.Title</h2><p>@entry.Summary</p></div><span>@entry.Category@if (!string.IsNullOrWhiteSpace(entry.Audience)) { <text> · @entry.Audience</text> }</span></a>
 	}
 	</div>
+	@if (Model.TotalPages > 1)
+	{
+		<nav class="pagination" aria-label="Documentation result pages">
+			@if (Model.HasPreviousPage)
+			{
+				<a class="button" href="@Model.GetPageUrl(Model.CurrentPage - 1)">Previous</a>
+			}
+			<span>Page @Model.CurrentPage of @Model.TotalPages</span>
+			@if (Model.HasNextPage)
+			{
+				<a class="button" href="@Model.GetPageUrl(Model.CurrentPage + 1)">Next</a>
+			}
+		</nav>
+	}
 }

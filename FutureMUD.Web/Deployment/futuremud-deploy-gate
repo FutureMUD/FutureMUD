@@ -1,0 +1,46 @@
+#!/bin/sh
+set -eu
+
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+export PATH
+
+deploy_root=/var/lib/futuremud-web-deploy
+original_command=${SSH_ORIGINAL_COMMAND-}
+
+deny() {
+	printf '%s\n' 'This SSH key may only upload and activate a FutureMUD website deployment.' >&2
+	exit 126
+}
+
+case "$original_command" in
+	sftp|internal-sftp|/usr/libexec/openssh/sftp-server|/usr/lib/openssh/sftp-server)
+		if test -x /usr/libexec/openssh/sftp-server; then
+			sftp_server=/usr/libexec/openssh/sftp-server
+		elif test -x /usr/lib/openssh/sftp-server; then
+			sftp_server=/usr/lib/openssh/sftp-server
+		else
+			printf '%s\n' 'The OpenSSH SFTP server is not installed at an approved path.' >&2
+			exit 69
+		fi
+		exec "$sftp_server" -d "$deploy_root" -u 077
+		;;
+esac
+
+command_prefix="deploy-futuremud-web '"
+case "$original_command" in
+	"$command_prefix"*"'")
+		revision=${original_command#"$command_prefix"}
+		revision=${revision%?}
+		;;
+	*)
+		deny
+		;;
+esac
+
+case "$revision" in
+	*[!0-9a-f]*|'') deny ;;
+esac
+test "${#revision}" -eq 40 || deny
+test "$original_command" = "deploy-futuremud-web '$revision'" || deny
+
+exec /usr/bin/sudo -n -- /usr/local/sbin/deploy-futuremud-web "$revision"

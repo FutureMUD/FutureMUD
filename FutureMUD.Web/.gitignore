@@ -1,1 +1,22 @@
+# Runtime state and ASP.NET Core data-protection keys
 App_Data/
+
+# Local or production configuration and secret material
+.env
+.env.*
+!.env.example
+appsettings.Production.json
+appsettings.*.local.json
+environment
+secrets.json
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Local infrastructure state and variable values
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json

@@ -9,8 +9,18 @@
 		<RootNamespace>FutureMUD.Web</RootNamespace>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+
 	<ItemGroup>
-		<ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
+		<!--
+			The website only consumes the database-free documentation transport types.
+			Linking their canonical source keeps the wire contract single-sourced without
+			shipping the engine library and its database/cryptography dependency graph.
+		-->
+		<Compile Include="..\FutureMUDLibrary\Documentation\DocumentationCatalogue.cs"
+				 Link="Documentation\DocumentationCatalogue.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -20,6 +30,8 @@
 		<Content Update="Configuration\release-products.json"
 				 CopyToOutputDirectory="PreserveNewest"
 				 CopyToPublishDirectory="PreserveNewest" />
+		<Content Update="appsettings.Development.json"
+				 CopyToPublishDirectory="Never" />
 	</ItemGroup>
 
 	<ItemGroup>

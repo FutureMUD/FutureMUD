@@ -77,6 +77,41 @@ public sealed class DownloadAndDocumentationEndpointTests
 	}
 
 	[TestMethod]
+	public async Task DownloadRejectsPersistedReleaseIdentityMismatch()
+	{
+		var bytes = new byte[] { 1, 2, 3 };
+		var sha = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
+		var live = Path.Combine(_root, "releases", "live", "terrainplanner");
+		Directory.CreateDirectory(live);
+		const string fileName = "terrainplanner-1.2.3-win-x64.zip";
+		await File.WriteAllBytesAsync(Path.Combine(live, fileName), bytes);
+		await File.WriteAllTextAsync(Path.Combine(live, "release.json"), JsonSerializer.Serialize(new PublicRelease
+		{
+			Product = "engine",
+			Version = "1.2.3",
+			SourceCommit = new string('a', 40),
+			PublishedAtUtc = DateTimeOffset.UtcNow,
+			Artifacts =
+			[
+				new ReleaseArtifactRequest
+				{
+					ArtifactId = "win-x64",
+					Runtime = "win-x64",
+					FileName = fileName,
+					Size = bytes.Length,
+					Sha256 = sha
+				}
+			]
+		}, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+
+		await using var factory = CreateFactory();
+		var client = factory.CreateClient();
+		var response = await client.GetAsync($"/downloads/terrainplanner/1.2.3/{fileName}");
+
+		Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+	}
+
+	[TestMethod]
 	public async Task DocumentationSearchFiltersAndDetailEncodesHelpText()
 	{
 		var documentation = Path.Combine(_root, "documentation", "live");

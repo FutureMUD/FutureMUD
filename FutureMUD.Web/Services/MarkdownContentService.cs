@@ -273,9 +273,9 @@ public sealed partial class MarkdownContentService
 
 		return Uri.TryCreate(canonical, UriKind.Relative, out _);
 	}
-	[GeneratedRegex("^[a-z0-9][a-z0-9-]*$", RegexOptions.CultureInvariant)]
+	[GeneratedRegex("\\A[a-z0-9][a-z0-9-]*\\z", RegexOptions.CultureInvariant)]
 	private static partial Regex SafeSlugRegex();
-	[GeneratedRegex("^\\d{4}-\\d{2}-\\d{2}-[a-z0-9][a-z0-9-]*\\.md$", RegexOptions.CultureInvariant)]
+	[GeneratedRegex("\\A\\d{4}-\\d{2}-\\d{2}-[a-z0-9][a-z0-9-]*\\.md\\z", RegexOptions.CultureInvariant)]
 	private static partial Regex DatedContentFileRegex();
 	[GeneratedRegex("^(#{1,6})\\s+(.+)$", RegexOptions.CultureInvariant)]
 	private static partial Regex HeadingRegex();

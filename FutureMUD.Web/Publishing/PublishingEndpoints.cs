@@ -80,14 +80,26 @@ public static partial class PublishingEndpoints
 			ReleaseStore store,
 			CancellationToken token) =>
 		{
+			if (fileName.Contains("..", StringComparison.Ordinal) ||
+				fileName.Contains('/') ||
+				fileName.Contains('\\'))
+			{
+				return Results.NotFound();
+			}
 			var release = await store.GetLiveReleaseAsync(product, token);
-			var artifact = release?.Artifacts.FirstOrDefault(item =>
-				item.FileName == fileName && release.Version == version);
+			if (release is null ||
+				!release.Product.Equals(product, StringComparison.Ordinal) ||
+				!release.Version.Equals(version, StringComparison.Ordinal))
+			{
+				return Results.NotFound();
+			}
+			var artifact = release.Artifacts.FirstOrDefault(item =>
+				item.FileName.Equals(fileName, StringComparison.Ordinal));
 			if (artifact is null)
 			{
 				return Results.NotFound();
 			}
-			var path = store.GetLiveArtifactPath(product, fileName);
+			var path = store.GetLiveArtifactPath(release.Product, artifact.FileName);
 			if (!File.Exists(path))
 			{
 				return Results.NotFound();
@@ -97,8 +109,8 @@ public static partial class PublishingEndpoints
 			return Results.File(
 				path,
 				"application/zip",
-				fileDownloadName: fileName,
-				lastModified: release!.PublishedAtUtc,
+				fileDownloadName: artifact.FileName,
+				lastModified: release.PublishedAtUtc,
 				entityTag: new EntityTagHeaderValue($"\"{artifact.Sha256}\""),
 				enableRangeProcessing: true);
 		});
@@ -166,7 +178,7 @@ public static partial class PublishingEndpoints
 		}
 	}
 
-	private static (long Start, long End, long Total)? ParseContentRange(string value)
+	internal static (long Start, long End, long Total)? ParseContentRange(string value)
 	{
 		var match = ContentRangeRegex().Match(value);
 		return match.Success &&
@@ -177,6 +189,6 @@ public static partial class PublishingEndpoints
 			: null;
 	}
 
-	[GeneratedRegex("^bytes (\\d+)-(\\d+)/(\\d+)$", RegexOptions.CultureInvariant)]
+	[GeneratedRegex("\\Abytes (\\d+)-(\\d+)/(\\d+)\\z", RegexOptions.CultureInvariant)]
 	private static partial Regex ContentRangeRegex();
 }

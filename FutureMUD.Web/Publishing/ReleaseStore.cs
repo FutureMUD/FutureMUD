@@ -135,7 +135,12 @@ public sealed partial class ReleaseStore
 			Directory.CreateDirectory(GetDraftPath(release.UploadId));
 			Directory.CreateDirectory(GetChunksPath(release.UploadId));
 			await WriteStagedReleaseAsync(release, cancellationToken);
-			_logger.LogInformation("Publishing draft {UploadId} created for {Product} {Version} at {Commit}.", release.UploadId, release.Product, release.Version, release.SourceCommit);
+			_logger.LogInformation(
+				"Publishing draft {UploadId} created for {Product} {Version} at {Commit}.",
+				SanitiseLogValue(release.UploadId),
+				SanitiseLogValue(release.Product),
+				SanitiseLogValue(release.Version),
+				SanitiseLogValue(release.SourceCommit));
 			return release;
 		}
 		finally
@@ -301,7 +306,7 @@ public sealed partial class ReleaseStore
 			}
 			release.Status = "validated";
 			await WriteStagedReleaseAsync(release, cancellationToken);
-			_logger.LogInformation("Publishing draft {UploadId} validated.", uploadId);
+			_logger.LogInformation("Publishing draft {UploadId} validated.", SanitiseLogValue(uploadId));
 			return release;
 		}
 		finally
@@ -446,13 +451,17 @@ public sealed partial class ReleaseStore
 					_logger.LogCritical(
 						rollbackException,
 						"Promotion rollback failed for draft {UploadId} after {Error}.",
-						uploadId,
-						exception.Message);
+						SanitiseLogValue(uploadId),
+						SanitiseLogValue(exception.Message));
 				}
 				throw;
 			}
 
-			_logger.LogInformation("Publishing draft {UploadId} promoted as {Product} {Version}.", uploadId, staged.Product, staged.Version);
+			_logger.LogInformation(
+				"Publishing draft {UploadId} promoted as {Product} {Version}.",
+				SanitiseLogValue(uploadId),
+				SanitiseLogValue(staged.Product),
+				SanitiseLogValue(staged.Version));
 			return publicRelease;
 		}
 		finally
@@ -500,7 +509,21 @@ public sealed partial class ReleaseStore
 		return await JsonSerializer.DeserializeAsync<PublicRelease>(stream, _jsonOptions, cancellationToken);
 	}
 
-	public string GetLiveArtifactPath(string product, string fileName) => Path.Combine(LiveRoot, ValidateIdentifier(product, nameof(product)), Path.GetFileName(fileName));
+	public string GetLiveArtifactPath(string product, string fileName)
+	{
+		product = ValidateIdentifier(product, nameof(product));
+		fileName = ValidateFileName(fileName);
+		var productRoot = Path.GetFullPath(Path.Combine(LiveRoot, product));
+		var artifactPath = Path.GetFullPath(Path.Combine(productRoot, fileName));
+		var productRootPrefix = Path.EndsInDirectorySeparator(productRoot)
+			? productRoot
+			: $"{productRoot}{Path.DirectorySeparatorChar}";
+		if (!artifactPath.StartsWith(productRootPrefix, StringComparison.Ordinal))
+		{
+			throw new ReleaseStoreException("Invalid artifact filename.", StatusCodes.Status400BadRequest);
+		}
+		return artifactPath;
+	}
 
 	public void Cleanup(DateTimeOffset now)
 	{
@@ -1003,9 +1026,9 @@ public sealed partial class ReleaseStore
 				throw new ReleaseStoreException("An artifact manifest entry is invalid.", StatusCodes.Status400BadRequest);
 			}
 			ValidateIdentifier(artifact.ArtifactId, nameof(artifact.ArtifactId));
+			ValidateFileName(artifact.FileName);
 			if (!ids.Add(artifact.ArtifactId) || artifact.Size <= 0 || artifact.Size > MaximumArtifactSize ||
-				!ShaRegex().IsMatch(artifact.Sha256) || Path.GetFileName(artifact.FileName) != artifact.FileName ||
-				!FileNameRegex().IsMatch(artifact.FileName))
+				!ShaRegex().IsMatch(artifact.Sha256))
 			{
 				throw new ReleaseStoreException("An artifact manifest entry is invalid.", StatusCodes.Status400BadRequest);
 			}
@@ -1302,6 +1325,21 @@ public sealed partial class ReleaseStore
 		? value
 		: throw new ReleaseStoreException($"Invalid {name}.", StatusCodes.Status400BadRequest);
 
+	private static string ValidateFileName(string value)
+	{
+		if (!FileNameRegex().IsMatch(value) ||
+			Path.GetFileName(value) != value ||
+			value.Contains("..", StringComparison.Ordinal) ||
+			value.Contains('/') ||
+			value.Contains('\\'))
+		{
+			throw new ReleaseStoreException("Invalid artifact filename.", StatusCodes.Status400BadRequest);
+		}
+		return value;
+	}
+
+	internal static string SanitiseLogValue(string value) => value.ReplaceLineEndings("\\n");
+
 	private sealed class UploadLock
 	{
 		public SemaphoreSlim Semaphore { get; } = new(1, 1);
@@ -1339,17 +1377,17 @@ public sealed partial class ReleaseStore
 		public bool HadDocumentation { get; init; }
 	}
 
-	[GeneratedRegex("^[a-f0-9]{32}$", RegexOptions.CultureInvariant)]
+	[GeneratedRegex("\\A[a-f0-9]{32}\\z", RegexOptions.CultureInvariant)]
 	private static partial Regex UploadIdRegex();
-	[GeneratedRegex("^[a-z0-9][a-z0-9._-]{0,63}$", RegexOptions.CultureInvariant)]
+	[GeneratedRegex("\\A[a-z0-9][a-z0-9._-]{0,63}\\z", RegexOptions.CultureInvariant)]
 	private static partial Regex IdentifierRegex();
-	[GeneratedRegex("^\\d+\\.\\d+\\.\\d+$", RegexOptions.CultureInvariant)]
+	[GeneratedRegex("\\A\\d+\\.\\d+\\.\\d+\\z", RegexOptions.CultureInvariant)]
 	private static partial Regex VersionRegex();
-	[GeneratedRegex("^[a-fA-F0-9]{40}$", RegexOptions.CultureInvariant)]
+	[GeneratedRegex("\\A[a-fA-F0-9]{40}\\z", RegexOptions.CultureInvariant)]
 	private static partial Regex CommitRegex();
-	[GeneratedRegex("^[a-fA-F0-9]{64}$", RegexOptions.CultureInvariant)]
+	[GeneratedRegex("\\A[a-fA-F0-9]{64}\\z", RegexOptions.CultureInvariant)]
 	private static partial Regex ShaRegex();
-	[GeneratedRegex("^[A-Za-z0-9][A-Za-z0-9._-]{0,199}$", RegexOptions.CultureInvariant)]
+	[GeneratedRegex("\\A[A-Za-z0-9][A-Za-z0-9._-]{0,199}\\z", RegexOptions.CultureInvariant)]
 	private static partial Regex FileNameRegex();
 }
 

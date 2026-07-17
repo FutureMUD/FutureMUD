@@ -17,6 +17,7 @@ namespace FutureMUD.Web.Tests;
 [TestClass]
 public sealed class ReleaseStoreTests
 {
+	private static readonly string[] _lineTerminators = ["\r\n", "\r", "\n", "\f", "\u0085", "\u2028", "\u2029"];
 	private string _root = null!;
 	private ReleaseStore _store = null!;
 
@@ -185,6 +186,114 @@ public sealed class ReleaseStoreTests
 		var noDiskStore = CreateStore(new FutureMudWebOptions { DataRoot = _root, MinimumFreeBytes = long.MaxValue });
 		var diskException = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() => noDiskStore.CreateOrResumeAsync(valid, CancellationToken.None));
 		Assert.AreEqual(StatusCodes.Status507InsufficientStorage, diskException.StatusCode);
+	}
+
+	[TestMethod]
+	public void LiveArtifactPathRejectsUnsafeFileNames()
+	{
+		string[] unsafeFileNames =
+		[
+			"",
+			"../secret.zip",
+			"..\\secret.zip",
+			"nested/secret.zip",
+			"nested\\secret.zip",
+			"artifact..zip",
+			"artifact.zip\n",
+			"artifact.zip\0"
+		];
+
+		foreach (var fileName in unsafeFileNames)
+		{
+			var exception = Assert.ThrowsException<ReleaseStoreException>(() =>
+				_store.GetLiveArtifactPath("terrainplanner", fileName));
+			Assert.AreEqual(StatusCodes.Status400BadRequest, exception.StatusCode, fileName);
+		}
+	}
+
+	[TestMethod]
+	public async Task PublishingIdentifiersRejectEveryLineTerminator()
+	{
+		foreach (var lineTerminator in _lineTerminators)
+		{
+			var valid = CreateTerrainPlannerRequest("1.2.3", [1, 2, 3], 'c');
+			var invalidCommit = new CreateReleaseRequest
+			{
+				Product = valid.Product,
+				Version = valid.Version,
+				SourceCommit = $"{valid.SourceCommit}{lineTerminator}",
+				Artifacts = valid.Artifacts
+			};
+			var commitException = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+				_store.CreateOrResumeAsync(invalidCommit, CancellationToken.None));
+			Assert.AreEqual(StatusCodes.Status400BadRequest, commitException.StatusCode, Escape(lineTerminator));
+
+			var invalidVersion = new CreateReleaseRequest
+			{
+				Product = valid.Product,
+				Version = $"{valid.Version}{lineTerminator}",
+				SourceCommit = valid.SourceCommit,
+				Artifacts = valid.Artifacts
+			};
+			var versionException = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+				_store.CreateOrResumeAsync(invalidVersion, CancellationToken.None));
+			Assert.AreEqual(StatusCodes.Status400BadRequest, versionException.StatusCode, Escape(lineTerminator));
+
+			var artifact = valid.Artifacts.Single();
+			var invalidSha = new CreateReleaseRequest
+			{
+				Product = valid.Product,
+				Version = valid.Version,
+				SourceCommit = valid.SourceCommit,
+				Artifacts =
+				[
+					new ReleaseArtifactRequest
+					{
+						ArtifactId = artifact.ArtifactId,
+						Runtime = artifact.Runtime,
+						FileName = artifact.FileName,
+						Size = artifact.Size,
+						Sha256 = $"{artifact.Sha256}{lineTerminator}"
+					}
+				]
+			};
+			var shaException = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+				_store.CreateOrResumeAsync(invalidSha, CancellationToken.None));
+			Assert.AreEqual(StatusCodes.Status400BadRequest, shaException.StatusCode, Escape(lineTerminator));
+
+			var uploadIdException = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+				_store.GetAsync($"{new string('a', 32)}{lineTerminator}", CancellationToken.None));
+			Assert.AreEqual(StatusCodes.Status400BadRequest, uploadIdException.StatusCode, Escape(lineTerminator));
+		}
+	}
+
+	[TestMethod]
+	public void ContentRangeRejectsTrailingLineTerminators()
+	{
+		var valid = PublishingEndpoints.ParseContentRange("bytes 0-2/3");
+		Assert.IsNotNull(valid);
+		Assert.AreEqual(0L, valid.Value.Start);
+		Assert.AreEqual(2L, valid.Value.End);
+		Assert.AreEqual(3L, valid.Value.Total);
+
+		foreach (var lineTerminator in _lineTerminators)
+		{
+			Assert.IsNull(
+				PublishingEndpoints.ParseContentRange($"bytes 0-2/3{lineTerminator}"),
+				Escape(lineTerminator));
+		}
+	}
+
+	[TestMethod]
+	public void LogValuesAreForcedOntoOneVisibleLine()
+	{
+		foreach (var lineTerminator in _lineTerminators)
+		{
+			Assert.AreEqual(
+				"before\\nafter",
+				ReleaseStore.SanitiseLogValue($"before{lineTerminator}after"),
+				Escape(lineTerminator));
+		}
 	}
 
 	[TestMethod]
@@ -581,6 +690,8 @@ public sealed class ReleaseStoreTests
 			CancellationToken.None);
 		await _store.CompleteAsync(release.UploadId, CancellationToken.None);
 	}
+
+	private static string Escape(string value) => string.Concat(value.Select(character => $"\\u{(int)character:X4}"));
 
 	private ReleaseStore CreateStore(FutureMudWebOptions options)
 	{

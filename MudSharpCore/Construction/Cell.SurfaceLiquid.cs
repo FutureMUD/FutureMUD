@@ -11,6 +11,7 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 
 #nullable enable
 
@@ -73,6 +74,7 @@ public partial class Cell
 	public void ResolveRoomWeatherExposure(IPerceiver? voyeur)
 	{
 		var layer = voyeur?.RoomLayer ?? RoomLayer.GroundLevel;
+		ConsolidateLegacyPuddles(layer);
 		if (!IsUnderwaterLayer(layer))
 		{
 			ResolveSurfaceDrying(layer);
@@ -156,6 +158,36 @@ public partial class Cell
 				ch.Body.ExposeToPrecipitation(weather.Precipitation, rainLiquid);
 			}
 		}
+	}
+
+	private void ConsolidateLegacyPuddles(RoomLayer layer)
+	{
+		if (!Gameworld.GetStaticBool("PuddlesEnabled") || IsSwimmingLayer(layer))
+		{
+			return;
+		}
+
+		var legacyPuddles = LayerGameItems(layer)
+			.Select(x => (Item: x, Puddle: x.GetItemType<PuddleGameItemComponent>()))
+			.Where(x => x.Puddle is not null)
+			.ToList();
+		if (legacyPuddles.Count == 0)
+		{
+			return;
+		}
+
+		var state = GetOrCreateSurfaceState(layer);
+		foreach (var (item, puddle) in legacyPuddles)
+		{
+			if (puddle!.LiquidMixture?.IsEmpty == false)
+			{
+				state.AddLiquid(puddle.LiquidMixture);
+			}
+
+			item.Delete();
+		}
+
+		CapSurfaceLiquid(state);
 	}
 
 	private void LoadSurfaceLiquidState(string? xml)

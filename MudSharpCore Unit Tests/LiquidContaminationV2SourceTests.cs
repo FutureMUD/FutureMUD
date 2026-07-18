@@ -43,6 +43,35 @@ public class LiquidContaminationV2SourceTests
 	}
 
 	[TestMethod]
+	public void RoomWeatherResolution_ConsolidatesLegacyPuddleItemsBeforePresentation()
+	{
+		var cellSurface = File.ReadAllText(GetSourcePath("MudSharpCore", "Construction", "Cell.SurfaceLiquid.cs"));
+		var bodyPerception = File.ReadAllText(GetSourcePath("MudSharpCore", "Body", "Implementations", "BodyPerception.cs"));
+		var puddleComponent = File.ReadAllText(GetSourcePath("MudSharpCore", "GameItems", "Components", "PuddleGameItemComponent.cs"));
+
+		StringAssert.Contains(cellSurface, "ConsolidateLegacyPuddles(layer);");
+		StringAssert.Contains(cellSurface, "!Gameworld.GetStaticBool(\"PuddlesEnabled\")");
+		StringAssert.Contains(cellSurface, "x.GetItemType<PuddleGameItemComponent>()");
+		StringAssert.Contains(cellSurface, "state.AddLiquid(puddle.LiquidMixture);");
+		StringAssert.Contains(cellSurface, "item.Delete();");
+		StringAssert.Contains(puddleComponent, "public override void Delete()");
+		StringAssert.Contains(puddleComponent, "DeregisterEvents();");
+
+		var resolveIndex = bodyPerception.IndexOf("Location.ResolveRoomWeatherExposure(Actor);", StringComparison.Ordinal);
+		var snapshotIndex = bodyPerception.IndexOf("List<IGameItem> items = Location.LayerGameItems", StringComparison.Ordinal);
+		Assert.IsTrue(resolveIndex > 0);
+		Assert.IsTrue(snapshotIndex > resolveIndex, "Legacy puddles must be consolidated before the visible item snapshot is taken.");
+	}
+
+	[TestMethod]
+	public void EmptyOntoGround_UsesVirtualRoomSurface()
+	{
+		var manipulation = File.ReadAllText(GetSourcePath("MudSharpCore", "Commands", "Modules", "ManipulationModule.cs"));
+		StringAssert.Contains(manipulation, "PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, actor.Location, actor.RoomLayer, actor);");
+		Assert.IsFalse(manipulation.Contains("PuddleGameItemComponentProto.CreateNewPuddle(mixture, actor.Location", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
 	public void PuddlesDisabled_DoesNotDisableLazyRainExposure()
 	{
 		var cellSurface = File.ReadAllText(GetSourcePath("MudSharpCore", "Construction", "Cell.SurfaceLiquid.cs"));
@@ -124,12 +153,13 @@ public class LiquidContaminationV2SourceTests
 
 	private static string GetSourcePath(params string[] parts)
 	{
-		return Path.GetFullPath(Path.Combine(
-			AppContext.BaseDirectory,
-			"..",
-			"..",
-			"..",
-			"..",
-			Path.Combine(parts)));
+		var directory = new DirectoryInfo(AppContext.BaseDirectory);
+		while (directory is not null && !Directory.Exists(Path.Combine(directory.FullName, "MudSharpCore")))
+		{
+			directory = directory.Parent;
+		}
+
+		Assert.IsNotNull(directory, "Could not locate the repository root from the test output directory.");
+		return Path.Combine(directory.FullName, Path.Combine(parts));
 	}
 }

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Caching.Memory;
 using MudSharp.Documentation;
-using System.Net;
 
 namespace FutureMUD.Web.Pages;
 
@@ -28,6 +27,8 @@ public sealed class DocsModel : PageModel
 
 	public string Title { get; private set; } = string.Empty;
 	public string CollectionUrl { get; private set; } = string.Empty;
+	public string SectionCssClass { get; private set; } = string.Empty;
+	public string SectionDescription { get; private set; } = string.Empty;
 	public string EngineVersion { get; private set; } = string.Empty;
 	public string SourceRevision { get; private set; } = string.Empty;
 	public string Query { get; private set; } = string.Empty;
@@ -37,6 +38,11 @@ public sealed class DocsModel : PageModel
 	public IReadOnlyList<string> Categories { get; private set; } = [];
 	public IReadOnlyList<DocumentationEntry> Entries { get; private set; } = [];
 	public DocumentationEntry? Detail { get; private set; }
+	public CommandDocumentationDetail? CommandDetail { get; private set; }
+	public ProgFunctionDocumentationDetail? FunctionDetail { get; private set; }
+	public ProgTypeDocumentationDetail? TypeDetail { get; private set; }
+	public CollectionExtensionDocumentationDetail? CollectionDetail { get; private set; }
+	public ItemComponentDocumentationDetail? ItemComponentDetail { get; private set; }
 	public int TotalResults { get; private set; }
 	public int CurrentPage { get; private set; } = 1;
 	public int TotalPages { get; private set; } = 1;
@@ -76,6 +82,7 @@ public sealed class DocsModel : PageModel
 				return NotFound();
 			}
 			Detail = detail;
+			ConfigureDetail(catalogue, section, collection, slug);
 			return Page();
 		}
 
@@ -113,14 +120,14 @@ public sealed class DocsModel : PageModel
 
 	private bool ConfigureSection(string section, string? collection)
 	{
-		(Title, CollectionUrl) = (section, collection) switch
+		(Title, CollectionUrl, SectionCssClass, SectionDescription) = (section, collection) switch
 		{
-			("commands", null) => ("Command reference", "/docs/commands"),
-			("futureprog", "functions") => ("FutureProg functions", "/docs/futureprog/functions"),
-			("futureprog", "types") => ("FutureProg types", "/docs/futureprog/types"),
-			("futureprog", "collections") => ("Collection extensions", "/docs/futureprog/collections"),
-			("items", "components") => ("Item components", "/docs/items/components"),
-			_ => (string.Empty, string.Empty)
+			("commands", null) => ("Command reference", "/docs/commands", "commands", "Player, builder and staff command help generated from the engine."),
+			("futureprog", "functions") => ("FutureProg functions", "/docs/futureprog/functions", "functions", "Built-in FutureProg functions with overloads, types, contexts and parameter help."),
+			("futureprog", "types") => ("FutureProg types", "/docs/futureprog/types", "types", "FutureProg variable types and their available dot-reference properties."),
+			("futureprog", "collections") => ("Collection extensions", "/docs/futureprog/collections", "collections", "Query, filter, aggregate and transform functions for FutureProg collections."),
+			("items", "components") => ("Item components", "/docs/items/components", "components", "Source-backed item-component blurbs and builder help."),
+			_ => (string.Empty, string.Empty, string.Empty, string.Empty)
 		};
 		return Title.Length > 0;
 	}
@@ -191,7 +198,7 @@ public sealed class DocsModel : PageModel
 		foreach (var entry in entries)
 		{
 			characters += entry.Slug.Length + entry.Title.Length + entry.Category.Length +
-				entry.Audience.Length + entry.Summary.Length + entry.SearchText.Length + entry.SafeHtml.Length;
+				entry.Audience.Length + entry.Summary.Length + entry.SearchText.Length;
 		}
 		return Math.Max(1, entries.Count + (characters + 1023) / 1024);
 	}
@@ -206,8 +213,7 @@ public sealed class DocsModel : PageModel
 				command.Module,
 				command.Audience,
 				string.Join(", ", command.CommandWords),
-				command.DefaultHelp,
-				TextMarkupService.ToSafeHtml(BuildCommandHelp(command)))).ToList();
+				BuildCommandSearchText(command))).ToList();
 		}
 
 		if (section == "futureprog" && collection == "functions")
@@ -218,8 +224,7 @@ public sealed class DocsModel : PageModel
 				function.Category,
 				string.Join(", ", function.Overloads.SelectMany(overload => overload.Contexts).Distinct()),
 				$"{function.Overloads.Count} overload(s)",
-				string.Join('\n', function.Overloads.Select(overload => overload.Help)),
-				TextMarkupService.ToSafeHtml(BuildFunctionHelp(function)))).ToList();
+				BuildFunctionSearchText(function))).ToList();
 		}
 
 		if (section == "futureprog" && collection == "types")
@@ -230,8 +235,7 @@ public sealed class DocsModel : PageModel
 				"type",
 				string.Empty,
 				$"{type.Properties.Count} dot-reference properties",
-				string.Join('\n', type.Properties.Select(property => property.Help)),
-				TextMarkupService.ToSafeHtml(BuildTypeHelp(type)))).ToList();
+				string.Join('\n', type.Properties.Select(property => $"{property.Name} {property.Type} {property.Help}")))).ToList();
 		}
 
 		if (section == "futureprog" && collection == "collections")
@@ -241,9 +245,8 @@ public sealed class DocsModel : PageModel
 				extension.Name,
 				"collection",
 				string.Join(", ", extension.Contexts),
-				extension.ReturnType,
-				extension.Help,
-				TextMarkupService.ToSafeHtml($"Returns: {extension.ReturnType}\n\n{extension.Help}"))).ToList();
+				$"Returns {extension.ReturnType}",
+				$"{extension.Name} {extension.ReturnType} {string.Join(' ', extension.Contexts)} {extension.Help}")).ToList();
 		}
 
 		if (section == "items" && collection == "components")
@@ -254,22 +257,100 @@ public sealed class DocsModel : PageModel
 				"item component",
 				"builder",
 				component.Blurb,
-				component.BuilderHelp,
-				TextMarkupService.ToSafeHtml($"{component.Blurb}\n\n{component.BuilderHelp}"))).ToList();
+				$"{component.Blurb}\n{component.BuilderHelp}")).ToList();
 		}
 
 		return null;
 	}
 
-	private static string BuildCommandHelp(CommandHelpDocument command) =>
-		$"Command words: {string.Join(", ", command.CommandWords)}\nPermission: {command.PermissionLevel}\n\n{command.DefaultHelp}" +
-		(command.AdminHelp == command.DefaultHelp ? string.Empty : $"\n\nAdministrator variant:\n{command.AdminHelp}") +
-		string.Concat(command.ConditionalHelp.Select(help => $"\n\nConditional variant ({help.Condition}):\n{help.Help}"));
+	private void ConfigureDetail(
+		DocumentationCatalogue catalogue,
+		string section,
+		string? collection,
+		string slug)
+	{
+		if (section == "commands" && collection is null)
+		{
+			var command = catalogue.Commands.First(command => command.Slug == slug);
+			CommandDetail = new CommandDocumentationDetail(
+				command.CommandWords,
+				command.PermissionLevel,
+				TextMarkupService.ToSafeHtml(command.DefaultHelp),
+				command.AdminHelp == command.DefaultHelp
+					? null
+					: TextMarkupService.ToSafeHtml(command.AdminHelp),
+				command.ConditionalHelp
+					.Select(help => new ConditionalCommandHelpDetail(
+						help.Condition,
+						TextMarkupService.ToSafeHtml(help.Help)))
+					.ToList());
+			return;
+		}
 
-	private static string BuildFunctionHelp(ProgFunctionDocument function) => string.Join("\n\n", function.Overloads.Select(overload =>
-		$"{overload.ReturnType} {function.Name}({string.Join(", ", overload.Parameters.Select(parameter => $"{parameter.Type} {parameter.Name}"))})\nContexts: {string.Join(", ", overload.Contexts)}\n{overload.Help}"));
+		if (section == "futureprog" && collection == "functions")
+		{
+			var function = catalogue.ProgFunctions.First(function => function.Slug == slug);
+			FunctionDetail = new ProgFunctionDocumentationDetail(function.Overloads
+				.Select((overload, index) => new ProgFunctionOverloadDetail(
+					index + 1,
+					overload.ReturnType,
+					overload.Contexts,
+					TextMarkupService.ToSafeHtml(
+						string.IsNullOrWhiteSpace(overload.GeneralHelp)
+							? overload.Help
+							: overload.GeneralHelp),
+					overload.Parameters
+						.Select(parameter => new ProgFunctionParameterDetail(
+							parameter.Name,
+							parameter.Type,
+							TextMarkupService.ToSafeHtml(parameter.Help)))
+						.ToList()))
+				.ToList());
+			return;
+		}
 
-	private static string BuildTypeHelp(ProgTypeDocument type) => string.Join("\n\n", type.Properties.Select(property => $"{property.Name} \u2192 {property.Type}\n{property.Help}"));
+		if (section == "futureprog" && collection == "types")
+		{
+			var type = catalogue.ProgTypes.First(type => type.Slug == slug);
+			TypeDetail = new ProgTypeDocumentationDetail(type.Properties
+				.Select(property => new ProgTypePropertyDetail(
+					property.Name,
+					property.Type,
+					TextMarkupService.ToSafeHtml(property.Help)))
+				.ToList());
+			return;
+		}
+
+		if (section == "futureprog" && collection == "collections")
+		{
+			var extension = catalogue.CollectionExtensions.First(extension => extension.Slug == slug);
+			CollectionDetail = new CollectionExtensionDocumentationDetail(
+				extension.ReturnType,
+				extension.Contexts,
+				TextMarkupService.ToSafeHtml(extension.Help));
+			return;
+		}
+
+		if (section == "items" && collection == "components")
+		{
+			var component = catalogue.ItemComponents.First(component => component.Slug == slug);
+			ItemComponentDetail = new ItemComponentDocumentationDetail(
+				TextMarkupService.ToSafeHtml(component.Blurb),
+				TextMarkupService.ToSafeHtml(component.BuilderHelp));
+		}
+	}
+
+	private static string BuildCommandSearchText(CommandHelpDocument command) =>
+		$"{command.DefaultHelp}\n{command.AdminHelp}\n" +
+		string.Join('\n', command.ConditionalHelp.Select(help => $"{help.Condition} {help.Help}"));
+
+	private static string BuildFunctionSearchText(ProgFunctionDocument function) =>
+		string.Join('\n', function.Overloads.Select(overload =>
+			$"{overload.ReturnType} {function.Name} " +
+			$"{string.Join(' ', overload.Contexts)} " +
+			$"{overload.GeneralHelp} {overload.Help} " +
+			string.Join(' ', overload.Parameters.Select(parameter =>
+				$"{parameter.Type} {parameter.Name} {parameter.Help}"))));
 }
 
 file sealed record DocumentationCacheKey(
@@ -289,5 +370,47 @@ public sealed record DocumentationEntry(
 	string Category,
 	string Audience,
 	string Summary,
-	string SearchText,
-	string SafeHtml);
+	string SearchText);
+
+public sealed record CommandDocumentationDetail(
+	IReadOnlyList<string> CommandWords,
+	string PermissionLevel,
+	string DefaultHelpHtml,
+	string? AdminHelpHtml,
+	IReadOnlyList<ConditionalCommandHelpDetail> ConditionalHelp);
+
+public sealed record ConditionalCommandHelpDetail(
+	string Condition,
+	string HelpHtml);
+
+public sealed record ProgFunctionDocumentationDetail(
+	IReadOnlyList<ProgFunctionOverloadDetail> Overloads);
+
+public sealed record ProgFunctionOverloadDetail(
+	int Number,
+	string ReturnType,
+	IReadOnlyList<string> Contexts,
+	string HelpHtml,
+	IReadOnlyList<ProgFunctionParameterDetail> Parameters);
+
+public sealed record ProgFunctionParameterDetail(
+	string Name,
+	string Type,
+	string HelpHtml);
+
+public sealed record ProgTypeDocumentationDetail(
+	IReadOnlyList<ProgTypePropertyDetail> Properties);
+
+public sealed record ProgTypePropertyDetail(
+	string Name,
+	string Type,
+	string HelpHtml);
+
+public sealed record CollectionExtensionDocumentationDetail(
+	string ReturnType,
+	IReadOnlyList<string> Contexts,
+	string HelpHtml);
+
+public sealed record ItemComponentDocumentationDetail(
+	string BlurbHtml,
+	string BuilderHelpHtml);

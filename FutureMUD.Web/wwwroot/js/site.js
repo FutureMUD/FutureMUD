@@ -1,4 +1,35 @@
 (() => {
+	const disclosures = Array.from(document.querySelectorAll("[data-nav-disclosure]"));
+	for (const disclosure of disclosures) {
+		disclosure.addEventListener("toggle", () => {
+			if (!disclosure.open) {
+				return;
+			}
+
+			for (const other of disclosures) {
+				if (other !== disclosure) {
+					other.open = false;
+				}
+			}
+		});
+		disclosure.addEventListener("keydown", (event) => {
+			if (event.key !== "Escape" || !disclosure.open) {
+				return;
+			}
+
+			event.preventDefault();
+			disclosure.open = false;
+			disclosure.querySelector("summary")?.focus();
+		});
+	}
+	document.addEventListener("pointerdown", (event) => {
+		for (const disclosure of disclosures) {
+			if (!disclosure.contains(event.target)) {
+				disclosure.open = false;
+			}
+		}
+	});
+
 	const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 	for (const carousel of document.querySelectorAll("[data-carousel]")) {
 		const viewport = carousel.querySelector("[data-carousel-viewport]");

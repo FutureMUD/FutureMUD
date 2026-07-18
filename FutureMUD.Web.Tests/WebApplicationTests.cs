@@ -33,6 +33,19 @@ public sealed class WebApplicationTests
 		StringAssert.Contains(homeHtml, "/images/gameplay/medical-treatment.png");
 		StringAssert.Contains(homeHtml, "/images/gameplay/combat.png");
 		StringAssert.Contains(homeHtml, "data-carousel");
+		StringAssert.Contains(homeHtml, "data-nav-disclosure");
+		foreach (var documentationPath in new[]
+		{
+			"/docs/commands",
+			"/docs/futureprog/functions",
+			"/docs/futureprog/types",
+			"/docs/futureprog/collections",
+			"/docs/items/components",
+			"/patch-notes"
+		})
+		{
+			StringAssert.Contains(homeHtml, $"href=\"{documentationPath}\"");
+		}
 		var medicalScreenshot = await client.GetAsync("/images/gameplay/medical-treatment.png");
 		Assert.AreEqual(HttpStatusCode.OK, medicalScreenshot.StatusCode);
 		Assert.AreEqual("image/png", medicalScreenshot.Content.Headers.ContentType?.MediaType);
@@ -55,11 +68,32 @@ public sealed class WebApplicationTests
 		Assert.AreEqual(HttpStatusCode.OK, (await client.GetAsync("/news/feed.xml")).StatusCode);
 		var sitemap = await client.GetAsync("/sitemap.xml");
 		Assert.AreEqual(HttpStatusCode.OK, sitemap.StatusCode);
-		StringAssert.Contains(await sitemap.Content.ReadAsStringAsync(), "https://futuremud.com/patch-notes/website-publishing-rollout");
+		var sitemapHtml = await sitemap.Content.ReadAsStringAsync();
+		StringAssert.Contains(sitemapHtml, "https://futuremud.com/patch-notes/website-publishing-rollout");
+		StringAssert.Contains(sitemapHtml, "https://futuremud.com/docs/futureprog/types");
+		StringAssert.Contains(sitemapHtml, "https://futuremud.com/docs/futureprog/collections");
+		StringAssert.Contains(sitemapHtml, "https://futuremud.com/docs/items/components");
 		Assert.AreEqual(HttpStatusCode.OK, (await client.GetAsync("/health/live")).StatusCode);
 		var legacy = await client.GetAsync("/ProgFunctionsAlphabetically.html");
 		Assert.AreEqual(HttpStatusCode.MovedPermanently, legacy.StatusCode);
 		Assert.AreEqual("/docs/futureprog/functions", legacy.Headers.Location?.ToString());
+		var legacyTypes = await client.GetAsync("/ProgTypeHelps.html");
+		Assert.AreEqual(HttpStatusCode.MovedPermanently, legacyTypes.StatusCode);
+		Assert.AreEqual("/docs/futureprog/types", legacyTypes.Headers.Location?.ToString());
+		var legacyCollections = await client.GetAsync("/ProgCollectionHelps.html");
+		Assert.AreEqual(HttpStatusCode.MovedPermanently, legacyCollections.StatusCode);
+		Assert.AreEqual("/docs/futureprog/collections", legacyCollections.Headers.Location?.ToString());
+		foreach (var documentationPath in new[]
+		{
+			"/docs/commands",
+			"/docs/futureprog/functions",
+			"/docs/futureprog/types",
+			"/docs/futureprog/collections",
+			"/docs/items/components"
+		})
+		{
+			Assert.AreEqual(HttpStatusCode.OK, (await client.GetAsync(documentationPath)).StatusCode);
+		}
 		Assert.AreEqual(HttpStatusCode.NotFound, (await client.GetAsync("/news/not-a-real-post")).StatusCode);
 	}
 }

@@ -13,18 +13,29 @@
 <body>
 	<a class="skip-link" href="#main">Skip to content</a>
 	<header class="site-header">
-		<a class="brand" href="/" aria-label="FutureMUD home">
-			<img src="/images/fm-logo.png" width="52" height="52" alt="" />
-			<span><strong>FutureMUD</strong><small>engine for living text worlds</small></span>
-		</a>
-		<nav aria-label="Primary navigation">
-			<a href="/about">About</a>
-			<a href="/getting-started">Get started</a>
-			<a href="/downloads">Downloads</a>
-			<a href="/docs/commands">Documentation</a>
-			<a href="/patch-notes">Patch notes</a>
-			<a href="/news">News</a>
-		</nav>
+		<div class="site-header-inner">
+			<a class="brand" href="/" aria-label="FutureMUD home">
+				<img src="/images/fm-logo.png" width="52" height="52" alt="" />
+				<span><strong>FutureMUD</strong><small>engine for living text worlds</small></span>
+			</a>
+			<nav class="primary-navigation" aria-label="Primary navigation">
+				<a href="/about">About</a>
+				<a href="/getting-started">Get started</a>
+				<a href="/downloads">Downloads</a>
+				<details class="nav-disclosure" data-nav-disclosure>
+					<summary>Documentation</summary>
+					<ul>
+						<li><a href="/docs/commands"><strong>Commands</strong><small>Player, builder and staff help</small></a></li>
+						<li><a href="/docs/futureprog/functions"><strong>FutureProg functions</strong><small>Built-in functions and overloads</small></a></li>
+						<li><a href="/docs/futureprog/types"><strong>FutureProg types</strong><small>Dot-reference properties by type</small></a></li>
+						<li><a href="/docs/futureprog/collections"><strong>Collection extensions</strong><small>Collection query and transform helpers</small></a></li>
+						<li><a href="/docs/items/components"><strong>Item components</strong><small>Component blurbs and builder help</small></a></li>
+						<li><a href="/patch-notes"><strong>Patch notes</strong><small>Release and website changes</small></a></li>
+					</ul>
+				</details>
+				<a href="/news">News</a>
+			</nav>
+		</div>
 	</header>
 	<main id="main" class="page-shell">
 		@RenderBody()

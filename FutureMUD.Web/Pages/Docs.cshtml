@@ -3,25 +3,158 @@
 @{
 	ViewData["Title"] = Model.Detail?.Title ?? Model.Title;
 }
+<nav class="docs-navigation" aria-label="Documentation sections">
+	<a href="/docs/commands" aria-current="@(Model.CollectionUrl == "/docs/commands" ? "page" : null)">Commands</a>
+	<a href="/docs/futureprog/functions" aria-current="@(Model.CollectionUrl == "/docs/futureprog/functions" ? "page" : null)">Functions</a>
+	<a href="/docs/futureprog/types" aria-current="@(Model.CollectionUrl == "/docs/futureprog/types" ? "page" : null)">Types</a>
+	<a href="/docs/futureprog/collections" aria-current="@(Model.CollectionUrl == "/docs/futureprog/collections" ? "page" : null)">Collections</a>
+	<a href="/docs/items/components" aria-current="@(Model.CollectionUrl == "/docs/items/components" ? "page" : null)">Item components</a>
+	<a href="/patch-notes">Patch notes</a>
+</nav>
 @if (Model.Detail is not null)
 {
-	<article class="document">
-		<header><p class="eyebrow">@Model.Title</p><h1>@Model.Detail.Title</h1><p class="tags">@Model.Detail.Category · @Model.Detail.Audience</p></header>
-		<div class="help-text">@Html.Raw(Model.Detail.SafeHtml)</div>
-		<p><a href="@Model.CollectionUrl">← Back to @Model.Title</a></p>
+	<article class="document document--@Model.SectionCssClass">
+		<header>
+			<p class="eyebrow">@Model.Title</p>
+			<h1>@Model.Detail.Title</h1>
+			<p class="tags">@Model.Detail.Category@if (!string.IsNullOrWhiteSpace(Model.Detail.Audience)) { <text><span aria-hidden="true"> · </span>@Model.Detail.Audience</text> }</p>
+		</header>
+		@if (Model.CommandDetail is not null)
+		{
+			<dl class="command-meta">
+				<div>
+					<dt>Command words</dt>
+					<dd>@foreach (var word in Model.CommandDetail.CommandWords) { <code class="command-word">@word</code> }</dd>
+				</div>
+				<div><dt>Permission</dt><dd>@Model.CommandDetail.PermissionLevel</dd></div>
+			</dl>
+			<section class="help-variant">
+				<h2 class="mud-help-heading"><span>Help on @Model.Detail.Title</span></h2>
+				<div class="mud-help-copy">@Html.Raw(Model.CommandDetail.DefaultHelpHtml)</div>
+			</section>
+			@if (Model.CommandDetail.AdminHelpHtml is not null)
+			{
+				<section class="help-variant help-variant--admin">
+					<h2 class="mud-help-heading"><span>Administrator variant</span></h2>
+					<div class="mud-help-copy">@Html.Raw(Model.CommandDetail.AdminHelpHtml)</div>
+				</section>
+			}
+			@foreach (var conditional in Model.CommandDetail.ConditionalHelp)
+			{
+				<section class="help-variant help-variant--conditional">
+					<h2 class="mud-help-heading"><span>Conditional variant</span></h2>
+					<p class="variant-condition">Available when <code>@conditional.Condition</code> applies</p>
+					<div class="mud-help-copy">@Html.Raw(conditional.HelpHtml)</div>
+				</section>
+			}
+		}
+		else if (Model.FunctionDetail is not null)
+		{
+			<div class="function-overloads">
+			@foreach (var overload in Model.FunctionDetail.Overloads)
+			{
+				var overloadId = $"overload-{overload.Number}";
+				<section class="function-overload" aria-labelledby="@overloadId">
+					<div class="overload-heading">
+						@if (Model.FunctionDetail.Overloads.Count > 1)
+						{
+							<p class="overload-number">Overload @overload.Number</p>
+						}
+						<h2 id="@overloadId" class="visually-hidden">@Model.Detail.Title overload @overload.Number</h2>
+						<code class="fp-signature"><span class="fp-type">@overload.ReturnType</span> <span class="fp-function">@Model.Detail.Title</span><span>(</span>@for (var index = 0; index < overload.Parameters.Count; index++) {if (index > 0) {<text>, </text>}<span class="fp-type">@overload.Parameters[index].Type</span><text> </text><span class="fp-variable">@overload.Parameters[index].Name</span>}<span>)</span></code>
+					</div>
+					@if (overload.Contexts.Count > 0)
+					{
+						<div class="context-list"><span>Available in</span><ul>@foreach (var context in overload.Contexts) { <li>@context</li> }</ul></div>
+					}
+					<div class="documentation-copy">@Html.Raw(overload.HelpHtml)</div>
+					@if (overload.Parameters.Count > 0)
+					{
+						<div class="table-scroll">
+							<table class="documentation-table function-parameters">
+								<thead><tr><th scope="col">Parameter</th><th scope="col">Type</th><th scope="col">Description</th></tr></thead>
+								<tbody>
+								@foreach (var parameter in overload.Parameters)
+								{
+									<tr>
+										<th scope="row"><code class="fp-variable">@parameter.Name</code></th>
+										<td><code class="fp-type">@parameter.Type</code></td>
+										<td class="documentation-copy">@if (string.IsNullOrWhiteSpace(parameter.HelpHtml)) { <span class="muted">Included in the function description.</span> } else { @Html.Raw(parameter.HelpHtml) }</td>
+									</tr>
+								}
+								</tbody>
+							</table>
+						</div>
+					}
+					else
+					{
+						<p class="muted">This function takes no parameters.</p>
+					}
+				</section>
+			}
+			</div>
+		}
+		else if (Model.TypeDetail is not null)
+		{
+			<div class="table-scroll">
+				<table class="documentation-table type-properties">
+					<thead><tr><th scope="col">Property</th><th scope="col">Return type</th><th scope="col">Help</th></tr></thead>
+					<tbody>
+					@foreach (var property in Model.TypeDetail.Properties)
+					{
+						<tr>
+							<th scope="row"><code class="fp-variable">.@property.Name</code></th>
+							<td><code class="fp-type">@property.Type</code></td>
+							<td class="documentation-copy">@if (string.IsNullOrWhiteSpace(property.HelpHtml)) { <span class="muted">No additional help is supplied.</span> } else { @Html.Raw(property.HelpHtml) }</td>
+						</tr>
+					}
+					</tbody>
+				</table>
+			</div>
+		}
+		else if (Model.CollectionDetail is not null)
+		{
+			<section class="collection-extension-help">
+				<p class="syntax-label">Syntax</p>
+				<code class="fp-signature"><span class="fp-variable">@@CollectionVariable</span>.<span class="fp-function">@Model.Detail.Title</span>(<span class="fp-variable">ItemVariableName</span>, <span class="fp-keyword">InnerFunction</span>)</code>
+				<dl class="collection-meta">
+					<div><dt>Returns</dt><dd><code class="fp-type">@Model.CollectionDetail.ReturnType</code></dd></div>
+					@if (Model.CollectionDetail.Contexts.Count > 0)
+					{
+						<div><dt>Available in</dt><dd>@string.Join(", ", Model.CollectionDetail.Contexts)</dd></div>
+					}
+				</dl>
+				<div class="documentation-copy">@Html.Raw(Model.CollectionDetail.HelpHtml)</div>
+			</section>
+		}
+		else if (Model.ItemComponentDetail is not null)
+		{
+			<div class="component-blurb documentation-copy">@Html.Raw(Model.ItemComponentDetail.BlurbHtml)</div>
+			<section class="help-variant component-builder-help">
+				<h2 class="mud-help-heading"><span>Builder help</span></h2>
+				<div class="mud-help-copy">@Html.Raw(Model.ItemComponentDetail.BuilderHelpHtml)</div>
+			</section>
+		}
+		<p class="back-link"><a href="@Model.CollectionUrl">← Back to @Model.Title</a></p>
 	</article>
 }
 else
 {
-	<header class="page-header"><p class="eyebrow">Engine @Model.EngineVersion</p><h1>@Model.Title</h1><p class="lede">Generated from source revision <code>@Model.SourceRevision</code>.</p></header>
+	<header class="page-header"><p class="eyebrow">Engine @Model.EngineVersion</p><h1>@Model.Title</h1><p class="lede">@Model.SectionDescription</p><p class="source-meta">Generated from source revision <code>@Model.SourceRevision</code>.</p></header>
 	<form class="filter-bar" method="get" role="search">
 		<label>Search <input type="search" name="q" value="@Model.Query" placeholder="Name or help text" /></label>
-		<label>Audience <select name="audience"><option value="">All</option>@foreach (var value in Model.Audiences) { <option value="@value" selected="@(value == Model.Audience)">@value</option> }</select></label>
-		<label>Category <select name="category"><option value="">All</option>@foreach (var value in Model.Categories) { <option value="@value" selected="@(value == Model.Category)">@value</option> }</select></label>
+		@if (Model.Audiences.Count > 0)
+		{
+			<label>Audience <select name="audience"><option value="">All</option>@foreach (var value in Model.Audiences) { <option value="@value" selected="@(value == Model.Audience)">@value</option> }</select></label>
+		}
+		@if (Model.Categories.Count > 1)
+		{
+			<label>Category <select name="category"><option value="">All</option>@foreach (var value in Model.Categories) { <option value="@value" selected="@(value == Model.Category)">@value</option> }</select></label>
+		}
 		<button class="button primary" type="submit">Filter</button>
 	</form>
 	<p class="result-count">@Model.TotalResults result(s) &middot; showing @Model.FirstResult-@Model.LastResult</p>
-	<div class="reference-list">
+	<div class="reference-list reference-list--@Model.SectionCssClass">
 	@foreach (var entry in Model.Entries)
 	{
 		<a href="@Model.CollectionUrl/@entry.Slug"><div><h2>@entry.Title</h2><p>@entry.Summary</p></div><span>@entry.Category@if (!string.IsNullOrWhiteSpace(entry.Audience)) { <text> · @entry.Audience</text> }</span></a>

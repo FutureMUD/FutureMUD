@@ -262,6 +262,7 @@ public class Zone : Location, IEditableZone
             dbzone.Elevation = Geography.Elevation;
             dbzone.Name = Name;
             dbzone.ForagableProfileId = ForagableProfile?.Id;
+            dbzone.WeatherControllerId = WeatherController?.Id;
             FMDB.Context.ZonesTimezones.RemoveRange(dbzone.ZonesTimezones);
             foreach (KeyValuePair<IClock, IMudTimeZone> timezone in TimeZones)
             {

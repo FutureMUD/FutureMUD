@@ -17,6 +17,55 @@ namespace MudSharp.Commands.Helpers;
 
 public partial class EditableItemHelper
 {
+	internal static (string Name, IRegionalClimate RegionalClimate, Construction.IZone Zone)?
+		ParseWeatherControllerCreationArguments(Character.ICharacter actor, StringStack input)
+	{
+		if (input.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a name for your weather controller.");
+			return null;
+		}
+
+		var name = input.PopSpeech().TitleCase();
+		if (actor.Gameworld.WeatherControllers.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send(
+				$"There is already a weather controller called {name.ColourName()}. Names must be unique.");
+			return null;
+		}
+
+		if (input.IsFinished)
+		{
+			actor.OutputHandler.Send("Which regional climate is this a weather controller for?");
+			return null;
+		}
+
+		var regionalClimateText = input.PopSpeech();
+		var regionalClimate = actor.Gameworld.RegionalClimates.GetByIdOrName(regionalClimateText);
+		if (regionalClimate is null)
+		{
+			actor.OutputHandler.Send(
+				$"The text {regionalClimateText.ColourCommand()} is not a valid regional climate.");
+			return null;
+		}
+
+		if (input.IsFinished)
+		{
+			actor.OutputHandler.Send("Which zone do you want to use for the geographic information?");
+			return null;
+		}
+
+		var zoneText = input.SafeRemainingArgument;
+		var zone = actor.Gameworld.Zones.GetByIdOrName(zoneText);
+		if (zone is null)
+		{
+			actor.OutputHandler.Send($"The text {zoneText.ColourCommand()} is not a valid zone.");
+			return null;
+		}
+
+		return (name, regionalClimate, zone);
+	}
+
     public static EditableItemHelper WeatherEventHelper { get; } = new()
     {
         ItemName = "Weather Event",
@@ -386,50 +435,13 @@ public partial class EditableItemHelper
         CastToType = typeof(IWeatherController),
         EditableNewAction = (actor, input) =>
         {
-            if (input.IsFinished)
-            {
-                actor.OutputHandler.Send("You must specify a name for your weather controller.");
-                return;
-            }
+			var creationArguments = ParseWeatherControllerCreationArguments(actor, input);
+			if (creationArguments is null)
+			{
+				return;
+			}
 
-            string name = input.PopSpeech().TitleCase();
-            if (actor.Gameworld.WeatherControllers.Any(x => x.Name.EqualTo(name)))
-            {
-                actor.OutputHandler.Send($"There is already a weather controller called {name.ColourName()}. Names must be unique.");
-                return;
-            }
-
-            if (input.IsFinished)
-            {
-                actor.OutputHandler.Send("Which regional climate is this a weather controller for?");
-                return;
-            }
-
-            IRegionalClimate regionalClimate = actor.Gameworld.RegionalClimates.GetByIdOrName(input.PopSpeech());
-            if (regionalClimate is null)
-            {
-                actor.OutputHandler.Send($"The text {input.Last.ColourCommand()} is not a valid regional climate.");
-                return;
-            }
-
-            if (input.IsFinished)
-            {
-                actor.OutputHandler.Send("Which zone do you want to use for the geographic information?");
-                return;
-            }
-
-            Construction.IZone zone = actor.Gameworld.Zones.GetByIdOrName(input.SafeRemainingArgument);
-            if (zone is null)
-            {
-                actor.OutputHandler.Send($"The text {input.SafeRemainingArgument.ColourCommand()} is not a valid zone.");
-                return;
-            }
-
-            if (!int.TryParse(input.SafeRemainingArgument, out int onset) || onset < 0)
-            {
-                actor.OutputHandler.Send($"The text {input.SafeRemainingArgument.ColourCommand()} is not a valid number 0 or greater.");
-                return;
-            }
+			var (name, regionalClimate, zone) = creationArguments.Value;
 
             WeatherController wc = new(actor.Gameworld, name, regionalClimate, zone);
             actor.Gameworld.Add(wc);

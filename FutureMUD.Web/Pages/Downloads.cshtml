@@ -9,24 +9,36 @@
 	<p class="lede">Framework-dependent builds for supported Windows and Linux runtimes. Install the appropriate .NET runtime and verify every download with its published SHA-256 checksum.</p>
 	<p>Before installing, review the <a href="/getting-started">minimum requirements</a> and <a href="/license">licensing terms</a>. For bugs, questions, or support, join the <a href="https://discord.gg/fyKnckr4PG">FutureMUD Discord</a>. Source is publicly visible on <a href="https://github.com/FutureMUD/FutureMUD">GitHub</a>, subject to the stated license.</p>
 </header>
-<div class="stack">
+<div class="release-stack">
 @foreach (var item in Model.Products)
 {
-	<section class="release-panel">
-		<div><p class="tag">@item.Product.Id</p><h2>@item.Product.PublicName</h2></div>
+	var headingId = $"release-{item.Product.Id}";
+	<section class="release-panel" aria-labelledby="@headingId">
+		<header class="release-header">
+			<div><p class="tag">@item.Product.Id</p><h2 id="@headingId">@item.Product.PublicName</h2></div>
+			@if (item.Release is not null)
+			{
+				<p class="release-version">Version <strong>@item.Release.Version</strong><span aria-hidden="true"> &middot; </span><time datetime="@item.Release.PublishedAtUtc.ToString("yyyy-MM-dd")">published @item.Release.PublishedAtUtc.ToString("d MMMM yyyy")</time></p>
+			}
+		</header>
 		@if (item.Release is null)
 		{
-			<p>No release has been promoted to futuremud.com yet.</p>
+			<p class="release-empty">No release has been promoted to futuremud.com yet.</p>
 		}
 		else
 		{
-			<p>Version <strong>@item.Release.Version</strong> · published @item.Release.PublishedAtUtc.ToString("d MMMM yyyy")</p>
-			<div class="download-list">
+			<ul class="download-list" aria-label="@item.Product.PublicName downloads">
 			@foreach (var artifact in item.Release.Artifacts)
 			{
-				<div><div><strong>@artifact.Runtime</strong><small>@FormatSize(artifact.Size)</small></div><div><a class="button" href="/downloads/@item.Product.Id/@item.Release.Version/@artifact.FileName">Download ZIP</a><a href="/downloads/@item.Product.Id/@item.Release.Version/@(artifact.FileName).sha256">SHA-256</a></div></div>
+				<li class="download-item">
+					<div class="download-artifact"><strong>@artifact.Runtime</strong><small>@FormatSize(artifact.Size)</small></div>
+					<div class="download-actions">
+						<a class="button" href="/downloads/@item.Product.Id/@item.Release.Version/@artifact.FileName" aria-label="Download @item.Product.PublicName @item.Release.Version for @artifact.Runtime as a ZIP archive">Download ZIP</a>
+						<a href="/downloads/@item.Product.Id/@item.Release.Version/@(artifact.FileName).sha256" aria-label="View the SHA-256 checksum for @item.Product.PublicName @item.Release.Version on @artifact.Runtime">SHA-256</a>
+					</div>
+				</li>
 			}
-			</div>
+			</ul>
 		}
 	</section>
 }

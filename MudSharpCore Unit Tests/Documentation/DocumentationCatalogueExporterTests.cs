@@ -27,6 +27,16 @@ public sealed class DocumentationCatalogueExporterTests
 		Assert.AreEqual(catalogue.ProgFunctions.Count, catalogue.ProgFunctions.Select(function => function.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		Assert.IsTrue(catalogue.Commands.Any(command => command.Audience == "admin"));
 		Assert.IsTrue(catalogue.Commands.Any(command => command.ConditionalHelp.Count > 0));
+		Assert.IsTrue(catalogue.ProgFunctions
+			.SelectMany(function => function.Overloads)
+			.All(overload => !string.IsNullOrWhiteSpace(overload.GeneralHelp)));
+		Assert.IsTrue(catalogue.ProgFunctions
+			.SelectMany(function => function.Overloads)
+			.SelectMany(overload => overload.Parameters)
+			.All(parameter => !string.IsNullOrWhiteSpace(parameter.Help)));
+		Assert.IsTrue(catalogue.ProgFunctions
+			.SelectMany(function => function.Overloads)
+			.Any(overload => overload.Parameters.Count > 0 && overload.Help != overload.GeneralHelp));
 	}
 
 	[TestMethod]

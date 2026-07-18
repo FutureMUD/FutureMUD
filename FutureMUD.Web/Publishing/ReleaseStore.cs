@@ -925,6 +925,7 @@ public sealed partial class ReleaseStore
 					Reject();
 				}
 				AddString(overload.ReturnType);
+				AddString(overload.GeneralHelp);
 				AddString(overload.Help);
 				AddStrings(overload.Contexts, 128);
 				AddNestedEntries(overload.Parameters.Count);
@@ -936,6 +937,7 @@ public sealed partial class ReleaseStore
 					}
 					AddString(parameter.Name);
 					AddString(parameter.Type);
+					AddString(parameter.Help);
 				}
 			}
 		}

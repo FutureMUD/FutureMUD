@@ -16,12 +16,24 @@ public static partial class TextMarkupService
 		['4'] = "ansi-blue",
 		['5'] = "ansi-magenta",
 		['6'] = "ansi-cyan",
-		['7'] = "ansi-white",
+		['7'] = "ansi-dim",
+		['8'] = "ansi-orange",
+		['9'] = "ansi-bright-red",
 		['A'] = "ansi-bright-green",
-		['B'] = "ansi-bright-cyan",
-		['C'] = "ansi-bright-red",
-		['D'] = "ansi-bright-yellow",
-		['E'] = "ansi-bright-white"
+		['B'] = "ansi-bright-yellow",
+		['C'] = "ansi-bright-blue",
+		['D'] = "ansi-bright-magenta",
+		['E'] = "ansi-bright-cyan",
+		['F'] = "ansi-bright-white",
+		['G'] = "ansi-bright-orange",
+		['H'] = "ansi-bright-pink",
+		['I'] = "ansi-pink",
+		['J'] = "ansi-function",
+		['K'] = "ansi-type",
+		['L'] = "ansi-keyword-blue",
+		['M'] = "ansi-variable",
+		['N'] = "ansi-text",
+		['O'] = "ansi-keyword-pink"
 	};
 
 	public static string ToSafeHtml(string? source)
@@ -57,7 +69,7 @@ public static partial class TextMarkupService
 					continue;
 				}
 
-				if (ColourClasses.TryGetValue(code, out var cssClass))
+				if (ColourClasses.TryGetValue(char.ToUpperInvariant(code), out var cssClass))
 				{
 					if (spanOpen)
 					{
@@ -79,7 +91,9 @@ public static partial class TextMarkupService
 		{
 			builder.Append("</span>");
 		}
-		return builder.ToString().Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", "<br>\n", StringComparison.Ordinal);
+		return builder.ToString()
+			.Replace("\r\n", "\n", StringComparison.Ordinal)
+			.Replace('\r', '\n');
 	}
 
 	[GeneratedRegex(@"<\/?(?:send|a|hint|version|support|expire|recommend|user|password|relocate|frame|dest|image|filter|sound|music|gauge|stat|var|element|attlist|entity)(?:\s[^>]*)?>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]

@@ -74,6 +74,13 @@ public sealed class DownloadAndDocumentationEndpointTests
 		StringAssert.Contains(latest.Headers.CacheControl?.ToString(), "no-store");
 		var checksum = await client.GetStringAsync($"/downloads/terrainplanner/1.2.3/{artifact.FileName}.sha256");
 		StringAssert.Contains(checksum, sha);
+		var downloads = await client.GetStringAsync("/downloads");
+		StringAssert.Contains(downloads, "release-header");
+		StringAssert.Contains(downloads, "download-item");
+		StringAssert.Contains(downloads, "FutureMUD Terrain Planner");
+		StringAssert.Contains(downloads, "Version <strong>1.2.3</strong>");
+		StringAssert.Contains(downloads, $"href=\"/downloads/terrainplanner/1.2.3/{artifact.FileName}\"");
+		StringAssert.Contains(downloads, $"href=\"/downloads/terrainplanner/1.2.3/{artifact.FileName}.sha256\"");
 	}
 
 	[TestMethod]
@@ -132,7 +139,15 @@ public sealed class DownloadAndDocumentationEndpointTests
 					PermissionLevel = "Player",
 					CommandWords = ["look"],
 					DefaultHelp = "#2Look safely#0 <script>alert(1)</script>",
-					AdminHelp = "#2Look safely#0 <script>alert(1)</script>"
+					AdminHelp = "Administrator-only telescope controls.",
+					ConditionalHelp =
+					[
+						new ConditionalCommandHelpDocument
+						{
+							Condition = "CanSeeHiddenThings",
+							Help = "Conditional-only hidden sight controls."
+						}
+					]
 				},
 				new CommandHelpDocument
 				{
@@ -145,6 +160,82 @@ public sealed class DownloadAndDocumentationEndpointTests
 					DefaultHelp = "A duplicate command name with a stable module slug.",
 					AdminHelp = "A duplicate command name with a stable module slug."
 				}
+			],
+			ProgFunctions =
+			[
+				new ProgFunctionDocument
+				{
+					Slug = "addhealingeffect",
+					Name = "addhealingeffect",
+					Category = "Effects",
+					Overloads =
+					[
+						new ProgFunctionOverloadDocument
+						{
+							ReturnType = "Effect",
+							Contexts = ["standard futureprog", "computer function"],
+							GeneralHelp = "Adds a healing effect without rendering <script>bad()</script>.",
+							Help = "Adds a healing effect without rendering <script>bad()</script>.",
+							Parameters =
+							[
+								new ProgFunctionParameterDocument
+								{
+									Name = "perceivable",
+									Type = "Perceivable",
+									Help = "The target that receives the effect."
+								}
+							]
+						},
+						new ProgFunctionOverloadDocument
+						{
+							ReturnType = "Effect",
+							Contexts = ["standard futureprog"],
+							Help = "Legacy combined overload help.",
+							Parameters =
+							[
+								new ProgFunctionParameterDocument { Name = "targetId", Type = "Number" }
+							]
+						}
+					]
+				}
+			],
+			ProgTypes =
+			[
+				new ProgTypeDocument
+				{
+					Slug = "mud-date-time",
+					Name = "Mud Date Time",
+					Properties =
+					[
+						new ProgTypePropertyDocument
+						{
+							Name = "mudinstant",
+							Type = "Text",
+							Help = "Returns the absolute instant."
+						}
+					]
+				}
+			],
+			CollectionExtensions =
+			[
+				new CollectionExtensionDocument
+				{
+					Slug = "where",
+					Name = "where",
+					ReturnType = "Collection (Same Type)",
+					Contexts = ["standard futureprog"],
+					Help = "Filters the collection using a boolean expression."
+				}
+			],
+			ItemComponents =
+			[
+				new ItemComponentHelpDocument
+				{
+					Slug = "container",
+					Name = "Container",
+					Blurb = "Makes an item contain other items.",
+					BuilderHelp = "Use #3capacity <weight>#0 to set its capacity."
+				}
 			]
 		}, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
 
@@ -155,8 +246,37 @@ public sealed class DownloadAndDocumentationEndpointTests
 		StringAssert.Contains(search, "perception-look");
 		var detail = await client.GetStringAsync("/docs/commands/movement-look");
 		StringAssert.Contains(detail, "ansi-green");
+		StringAssert.Contains(detail, "help-variant--admin");
+		StringAssert.Contains(detail, "help-variant--conditional");
 		Assert.IsFalse(detail.Contains("<script>alert", StringComparison.OrdinalIgnoreCase));
 		StringAssert.Contains(detail, "&lt;script&gt;alert(1)&lt;/script&gt;");
+		StringAssert.Contains(await client.GetStringAsync("/docs/commands?q=telescope"), "movement-look");
+		StringAssert.Contains(await client.GetStringAsync("/docs/commands?q=hidden+sight"), "movement-look");
+
+		var functionList = await client.GetStringAsync("/docs/futureprog/functions?q=perceivable");
+		StringAssert.Contains(functionList, "addhealingeffect");
+		var functionDetail = await client.GetStringAsync("/docs/futureprog/functions/addhealingeffect");
+		StringAssert.Contains(functionDetail, "function-overload");
+		StringAssert.Contains(functionDetail, "fp-function");
+		StringAssert.Contains(functionDetail, "function-parameters");
+		StringAssert.Contains(functionDetail, "Included in the function description.");
+		Assert.IsFalse(functionDetail.Contains("<script>bad", StringComparison.OrdinalIgnoreCase));
+		StringAssert.Contains(functionDetail, "&lt;script&gt;bad()&lt;/script&gt;");
+
+		var typeList = await client.GetStringAsync("/docs/futureprog/types?q=mudinstant");
+		StringAssert.Contains(typeList, "mud-date-time");
+		var typeDetail = await client.GetStringAsync("/docs/futureprog/types/mud-date-time");
+		StringAssert.Contains(typeDetail, "type-properties");
+		StringAssert.Contains(typeDetail, ".mudinstant");
+
+		var collectionDetail = await client.GetStringAsync("/docs/futureprog/collections/where");
+		StringAssert.Contains(collectionDetail, "collection-extension-help");
+		StringAssert.Contains(collectionDetail, "@CollectionVariable");
+		StringAssert.Contains(collectionDetail, "Collection (Same Type)");
+
+		var componentDetail = await client.GetStringAsync("/docs/items/components/container");
+		StringAssert.Contains(componentDetail, "component-builder-help");
+		StringAssert.Contains(componentDetail, "ansi-yellow");
 	}
 
 	private WebApplicationFactory<Program> CreateFactory() => new WebApplicationFactory<Program>()

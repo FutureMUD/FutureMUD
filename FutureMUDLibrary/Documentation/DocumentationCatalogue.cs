@@ -55,6 +55,7 @@ public sealed class ProgFunctionOverloadDocument
 	public IReadOnlyList<ProgFunctionParameterDocument> Parameters { get; init; } = [];
 	public string ReturnType { get; init; } = string.Empty;
 	public IReadOnlyList<string> Contexts { get; init; } = [];
+	public string GeneralHelp { get; init; } = string.Empty;
 	public string Help { get; init; } = string.Empty;
 }
 
@@ -62,6 +63,7 @@ public sealed class ProgFunctionParameterDocument
 {
 	public string Name { get; init; } = string.Empty;
 	public string Type { get; init; } = string.Empty;
+	public string Help { get; init; } = string.Empty;
 }
 
 public sealed class ProgTypeDocument

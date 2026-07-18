@@ -208,16 +208,14 @@ public static class DocumentationCatalogueExporter
 			Name = index < parameterNames.Count && !string.IsNullOrWhiteSpace(parameterNames[index])
 				? parameterNames[index]
 				: $"parameter{index + 1}",
-			Type = type.Describe()
+			Type = type.Describe(),
+			Help = index < parameterHelp.Count ? parameterHelp[index] ?? string.Empty : string.Empty
 		}).ToList();
-
-		var help = new StringBuilder(info.FunctionHelp ?? "This function has no general help information.");
-		for (var index = 0; index < parameters.Count; index++)
+		var generalHelp = info.FunctionHelp ?? "This function has no general help information.";
+		var combinedHelp = new StringBuilder(generalHelp);
+		foreach (var parameter in parameters.Where(parameter => !string.IsNullOrWhiteSpace(parameter.Help)))
 		{
-			if (index < parameterHelp.Count && !string.IsNullOrWhiteSpace(parameterHelp[index]))
-			{
-				help.AppendLine().Append(parameters[index].Name).Append(": ").Append(parameterHelp[index]);
-			}
+			combinedHelp.AppendLine().Append(parameter.Name).Append(": ").Append(parameter.Help);
 		}
 
 		return new ProgFunctionOverloadDocument
@@ -228,7 +226,8 @@ public static class DocumentationCatalogueExporter
 				.Select(context => context.Describe())
 				.OrderBy(context => context, StringComparer.Ordinal)
 				.ToList(),
-			Help = help.ToString()
+			GeneralHelp = generalHelp,
+			Help = combinedHelp.ToString()
 		};
 	}
 
@@ -359,7 +358,16 @@ public static class DocumentationCatalogueExporter
 		foreach (var overload in function.Overloads)
 		{
 			writer.WriteLine($"<h3>{Encode(overload.ReturnType)} {Encode(function.Name)}({Encode(string.Join(", ", overload.Parameters.Select(parameter => $"{parameter.Type} {parameter.Name}")))})</h3>");
-			writer.WriteLine($"<pre>{Encode(overload.Help)}</pre>");
+			writer.WriteLine($"<p>{Encode(string.IsNullOrWhiteSpace(overload.GeneralHelp) ? overload.Help : overload.GeneralHelp)}</p>");
+			if (overload.Parameters.Count > 0)
+			{
+				writer.WriteLine("<table><thead><tr><th>Parameter</th><th>Type</th><th>Help</th></tr></thead><tbody>");
+				foreach (var parameter in overload.Parameters)
+				{
+					writer.WriteLine($"<tr><td>{Encode(parameter.Name)}</td><td>{Encode(parameter.Type)}</td><td>{Encode(parameter.Help)}</td></tr>");
+				}
+				writer.WriteLine("</tbody></table>");
+			}
 		}
 		writer.WriteLine("</section>");
 	}

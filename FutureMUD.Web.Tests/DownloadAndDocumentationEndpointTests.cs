@@ -233,8 +233,8 @@ public sealed class DownloadAndDocumentationEndpointTests
 				{
 					Slug = "container",
 					Name = "Container",
-					Blurb = "Makes an item contain other items.",
-					BuilderHelp = "Use #3capacity <weight>#0 to set its capacity."
+					Blurb = "Makes an item a \x1B[1;32m[container]\x1B[0;39m with a \x1B[38;5;171msignal consumer\x1B[0m <script>bad()</script>.",
+					BuilderHelp = "Use #3capacity <weight>#0 and \x1B[36mcontents\x1B[0m <img src=x onerror=bad()> to configure it."
 				}
 			]
 		}, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
@@ -274,9 +274,22 @@ public sealed class DownloadAndDocumentationEndpointTests
 		StringAssert.Contains(collectionDetail, "@CollectionVariable");
 		StringAssert.Contains(collectionDetail, "Collection (Same Type)");
 
+		var componentList = await client.GetStringAsync("/docs/items/components");
+		StringAssert.Contains(componentList, "ansi-bright-green");
+		StringAssert.Contains(componentList, "ansi-bright-pink");
+		Assert.IsFalse(componentList.Contains('\x1B'));
+		Assert.IsFalse(componentList.Contains("<script>bad", StringComparison.OrdinalIgnoreCase));
+		StringAssert.Contains(componentList, "&lt;script&gt;bad()&lt;/script&gt;");
 		var componentDetail = await client.GetStringAsync("/docs/items/components/container");
 		StringAssert.Contains(componentDetail, "component-builder-help");
 		StringAssert.Contains(componentDetail, "ansi-yellow");
+		StringAssert.Contains(componentDetail, "ansi-bright-green");
+		StringAssert.Contains(componentDetail, "ansi-bright-pink");
+		StringAssert.Contains(componentDetail, "ansi-cyan");
+		Assert.IsFalse(componentDetail.Contains('\x1B'));
+		Assert.IsFalse(componentDetail.Contains("<script>bad", StringComparison.OrdinalIgnoreCase));
+		Assert.IsFalse(componentDetail.Contains("<img src=x", StringComparison.OrdinalIgnoreCase));
+		StringAssert.Contains(componentDetail, "&lt;img src=x onerror=bad()&gt;");
 	}
 
 	private WebApplicationFactory<Program> CreateFactory() => new WebApplicationFactory<Program>()

@@ -157,7 +157,7 @@ else
 	<div class="reference-list reference-list--@Model.SectionCssClass">
 	@foreach (var entry in Model.Entries)
 	{
-		<a href="@Model.CollectionUrl/@entry.Slug"><div><h2>@entry.Title</h2><p>@entry.Summary</p></div><span>@entry.Category@if (!string.IsNullOrWhiteSpace(entry.Audience)) { <text> · @entry.Audience</text> }</span></a>
+		<a href="@Model.CollectionUrl/@entry.Slug"><div><h2>@entry.Title</h2><p>@Html.Raw(entry.SummaryHtml)</p></div><span>@entry.Category@if (!string.IsNullOrWhiteSpace(entry.Audience)) { <text> · @entry.Audience</text> }</span></a>
 	}
 	</div>
 	@if (Model.TotalPages > 1)

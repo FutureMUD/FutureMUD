@@ -158,7 +158,7 @@ The syntax is as follows:
 
 	#3wc list [<filters>]#0 - lists all of the controllers
 	#3wc edit <which>#0 - begins editing a controller
-	#3wc edit new <name> <climate> <zone>#0 - creates a new controller
+	#3wc edit new <name> <climate id|name> <zone id|name>#0 - creates a new controller
 	#3wc close#0 - stops editing a controller
 	#3wc show <which>#0 - views information about a controller
 	#3wc show#0 - views information about your currently editing controller

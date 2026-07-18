@@ -97,6 +97,10 @@ For item positions, `_positionItemRegex` parses command, item, optional modifier
 - swim transitions require `PositionSwimming`;
 - zero-gravity cells require `PositionFloatingInZeroGravity` unless the transition is swim-only, swim-to-land, or fly-only.
 
+Safe-movement confirmation accepts `!` either attached to the movement verb (`east!`) or as a separate argument (`east !`). The confirmation remains in effect when the move is revalidated at the room threshold, but it bypasses only safe-movement warnings; ordinary posture, stamina, effect, exit-size, and other movement blockers still apply.
+
+On a `SwimToLand` transition, the swimmer uses their most upright available land-movement position after entering the destination (normally standing, with prostrate or prone fallbacks). If the body has no viable land-movement position, it arrives sprawled rather than retaining the swimming state on dry ground.
+
 `CanMoveInternal` rejects `Restricted` positions and `FreeIfNotInOn` positions that are currently in or on a target. It then chooses a moving position:
 
 - swimming, climbing, flying, and zero-gravity floating keep their own state;

@@ -275,6 +275,11 @@ public partial class Character
             return PositionState;
         }
 
+		return MostUprightLandMovementPosition(ignoreCouldMove);
+	}
+
+	private IPositionState MostUprightLandMovementPosition(bool ignoreCouldMove = false)
+	{
         if ((CanMovePosition(PositionStanding.Instance, ignoreCouldMove) ||
              PositionState == PositionStanding.Instance) &&
             (ignoreCouldMove || CouldMove(true, PositionStanding.Instance).Success))
@@ -1532,7 +1537,8 @@ public partial class Character
 
                 break;
             case CellMovementTransition.SwimToLand:
-                SetPosition(PositionSwimming.Instance, PositionModifier.None, null, null);
+				SetPosition(MostUprightLandMovementPosition() ?? PositionSprawled.Instance,
+					PositionModifier.None, null, null);
                 break;
         }
 

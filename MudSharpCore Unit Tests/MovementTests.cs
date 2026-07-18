@@ -6,6 +6,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
+using MudSharp.Commands;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
@@ -24,6 +25,98 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MovementTests
 {
+	[TestMethod]
+	public void CharacterCommandManager_AttachedForceSuffix_NormalisesMovementCommand()
+	{
+		var manager = new CharacterCommandManager();
+		var command = new Command<ICharacter>((_, _) => { }, name: "Move");
+		manager.Add("east", command);
+		var actor = new Mock<ICharacter>();
+		var input = "east! (carefully)";
+
+		var result = manager.LocateCommand(actor.Object, ref input);
+
+		Assert.AreSame(command, result);
+		Assert.AreEqual("east ! (carefully)", input);
+	}
+
+	[TestMethod]
+	public void CreateMovement_ForcedSafeMovement_UsesIgnoreSafeMovementFlag()
+	{
+		var exit = new Mock<ICellExit>();
+		var destination = new Mock<ICell>();
+		exit.SetupGet(x => x.Destination).Returns(destination.Object);
+		var mover = CreateMoverMock(new Queue<string>());
+		mover.Setup(x => x.CanMove(exit.Object, CanMoveFlags.None))
+			.Returns(new CanMoveResponse { Result = false, ErrorMessage = "Safe movement warning." });
+		mover.Setup(x => x.CanMove(exit.Object, CanMoveFlags.IgnoreSafeMovement))
+			.Returns(CanMoveResponse.True);
+
+		var movement = Movement.CreateMovement(mover.Object, exit.Object, ignoreSafeMovement: true);
+
+		Assert.IsNotNull(movement);
+		mover.Verify(x => x.CanMove(exit.Object, CanMoveFlags.IgnoreSafeMovement), Times.Once);
+		mover.Verify(x => x.CanMove(exit.Object, CanMoveFlags.None), Times.Never);
+	}
+
+	[TestMethod]
+	public void IntermediateStep_ForcedSafeMovement_PreservesConfirmationDuringRevalidation()
+	{
+		var origin = new Mock<ICell>();
+		var destination = new Mock<ICell>();
+		destination.SetupGet(x => x.Characters).Returns([]);
+		var exit = new Mock<ICellExit>();
+		exit.SetupGet(x => x.Origin).Returns(origin.Object);
+		exit.SetupGet(x => x.Destination).Returns(destination.Object);
+		var mover = CreateMoverMock(new Queue<string>());
+		var body = new Mock<IBody>();
+		mover.SetupGet(x => x.Body).Returns(body.Object);
+		mover.Setup(x => x.CanMove(exit.Object, CanMoveFlags.None))
+			.Returns(new CanMoveResponse { Result = false, ErrorMessage = "Safe movement warning." });
+		mover.Setup(x => x.CanMove(exit.Object, CanMoveFlags.IgnoreSafeMovement))
+			.Returns(CanMoveResponse.True);
+		mover.Setup(x => x.CanCross(exit.Object)).Returns((true, null!));
+
+		var movement = new Movement(
+			mover.Object,
+			null!,
+			Enumerable.Empty<ICharacter>(),
+			Enumerable.Empty<ICharacter>(),
+			[mover.Object],
+			Enumerable.Empty<ICharacter>(),
+			Enumerable.Empty<IPerceivable>(),
+			Enumerable.Empty<Dragging>(),
+			exit.Object,
+			ignoreSafeMovement: true);
+
+		movement.IntermediateStep();
+
+		Assert.IsFalse(movement.Cancelled);
+		mover.Verify(x => x.CanMove(exit.Object, CanMoveFlags.IgnoreSafeMovement), Times.Once);
+		mover.Verify(x => x.CanMove(exit.Object, CanMoveFlags.None), Times.Never);
+		mover.Verify(x => x.ExecuteMove(movement, It.IsAny<IMoveSpeed>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void ExecuteMove_SwimToLand_ChoosesLandMovementPosition()
+	{
+		var movementSource = File.ReadAllText(GetCoreSourcePath("Character", "CharacterMovement.cs"));
+		var executeMoveStart = movementSource.IndexOf("public void ExecuteMove(IMovement movement",
+			StringComparison.Ordinal);
+		Assert.IsTrue(executeMoveStart >= 0, "Character.ExecuteMove should exist.");
+		var transitionStart = movementSource.IndexOf("case CellMovementTransition.SwimToLand:",
+			executeMoveStart, StringComparison.Ordinal);
+		Assert.IsTrue(transitionStart >= 0, "ExecuteMove should handle SwimToLand transitions.");
+		var transitionEnd = movementSource.IndexOf("break;", transitionStart, StringComparison.Ordinal);
+
+		Assert.IsTrue(transitionEnd > transitionStart, "The SwimToLand transition should terminate with break.");
+		var transitionBlock = movementSource[transitionStart..transitionEnd];
+		StringAssert.Contains(transitionBlock, "MostUprightLandMovementPosition()");
+		StringAssert.Contains(transitionBlock, "PositionSprawled.Instance");
+		Assert.IsFalse(transitionBlock.Contains("SetPosition(PositionSwimming.Instance", StringComparison.Ordinal),
+			"Reaching dry land must not preserve the swimming position.");
+	}
+
     [TestMethod]
     public void FinalStep_SoloMoverWithQueuedCommand_ExecutesQueuedMove()
     {

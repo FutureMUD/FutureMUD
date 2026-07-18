@@ -35,6 +35,7 @@ public class Movement : IMovement
     private readonly IVehicleHitchGraphService _vehicleHitchGraphService = new VehicleHitchGraphService();
     private readonly IVehicleOperationalReadinessService _vehicleOperationalReadinessService = new VehicleOperationalReadinessService();
     private readonly Dictionary<long, VehicleHitchGraphMovePlan> _vehicleDragMovePlans = new();
+	private readonly bool _ignoreSafeMovement;
 
     #region Implementation of IMovement
 
@@ -162,9 +163,9 @@ public class Movement : IMovement
             return false;
         }
 
-        if (!ignoreSafeMovement &&
-            character.RidingMount is null &&
-            !character.CanMove(exit, CanMoveFlags.None).Result)
+		var moveFlags = ignoreSafeMovement ? CanMoveFlags.IgnoreSafeMovement : CanMoveFlags.None;
+		if (character.RidingMount is null &&
+		    !character.CanMove(exit, moveFlags).Result)
         {
             return false;
         }
@@ -246,7 +247,9 @@ public class Movement : IMovement
 
         foreach (ICharacter mover in primaryMovers)
         {
-            if (!EvaluateCharacterForAdditionToMovement(originalMover.Party, mover, exit, consideredMovers, nondraggers, mounts, draggers, helpers, nonConsensualMovers, targets, effects, false, false))
+			if (!EvaluateCharacterForAdditionToMovement(originalMover.Party, mover, exit, consideredMovers,
+			        nondraggers, mounts, draggers, helpers, nonConsensualMovers, targets, effects,
+			        ignoreSafeMovement, false))
             {
                 failedMovers.Add(mover);
             }
@@ -254,7 +257,8 @@ public class Movement : IMovement
 
         if (failedMovers.ContainsPhysicalInstance(originalMover))
         {
-            CanMoveResponse response = originalMover.CanMove(exit, CanMoveFlags.None);
+			var moveFlags = ignoreSafeMovement ? CanMoveFlags.IgnoreSafeMovement : CanMoveFlags.None;
+			CanMoveResponse response = originalMover.CanMove(exit, moveFlags);
             string message = response.ErrorMessage;
             if (string.IsNullOrEmpty(message))
             {
@@ -301,7 +305,8 @@ public class Movement : IMovement
             return null;
         }
 
-        return new Movement(originalMover, originalMover.Party, draggers, helpers, nondraggers, mounts, targets, effects, exit);
+		return new Movement(originalMover, originalMover.Party, draggers, helpers, nondraggers, mounts, targets,
+			effects, exit, ignoreSafeMovement);
     }
 
     public Movement(
@@ -313,10 +318,12 @@ public class Movement : IMovement
             IEnumerable<ICharacter> mounts,
             IEnumerable<IPerceivable> targets,
             IEnumerable<Dragging> dragEffects,
-            ICellExit exit
+			ICellExit exit,
+			bool ignoreSafeMovement = false
         )
     {
         _originalMover = originalMover;
+		_ignoreSafeMovement = ignoreSafeMovement;
         Exit = exit;
         Phase = MovementPhase.OriginalRoom;
         Party = party;
@@ -800,11 +807,15 @@ public class Movement : IMovement
             return;
         }
 
+		var moveFlags = _ignoreSafeMovement ? CanMoveFlags.IgnoreSafeMovement : CanMoveFlags.None;
         List<ICharacter> nonMovers = new();
-        nonMovers.AddRange(Mounts.Where(mount => !mount.CanMove(Exit, CanMoveFlags.None).Result));
-        nonMovers.AddRange(Draggers.Where(dragger => dragger.RidingMount is null).Where(dragger => !dragger.CanMove(Exit, CanMoveFlags.None).Result));
-        nonMovers.AddRange(Helpers.Where(dragger => dragger.RidingMount is null).Where(dragger => !dragger.CanMove(Exit, CanMoveFlags.None).Result));
-        nonMovers.AddRange(NonDraggers.Where(ch => ch.RidingMount is null).Where(ch => !ch.CanMove(Exit, CanMoveFlags.None).Result));
+		nonMovers.AddRange(Mounts.Where(mount => !mount.CanMove(Exit, moveFlags).Result));
+		nonMovers.AddRange(Draggers.Where(dragger => dragger.RidingMount is null)
+			.Where(dragger => !dragger.CanMove(Exit, moveFlags).Result));
+		nonMovers.AddRange(Helpers.Where(dragger => dragger.RidingMount is null)
+			.Where(dragger => !dragger.CanMove(Exit, moveFlags).Result));
+		nonMovers.AddRange(NonDraggers.Where(ch => ch.RidingMount is null)
+			.Where(ch => !ch.CanMove(Exit, moveFlags).Result));
         if (nonMovers.Count > 0)
         {
             if (Party is not null && Party.LeaveNoneBehind)

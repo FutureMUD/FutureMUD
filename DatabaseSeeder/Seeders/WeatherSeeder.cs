@@ -241,6 +241,25 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
         return variation == WeatherEventVariation.Normal ? string.Empty : variation.DescribeEnum();
     }
 
+	private static double GetLightLevelMultiplier(PrecipitationLevel precipitation, CloudVariation cloudVariation)
+	{
+		return cloudVariation switch
+		{
+			CloudVariation.Cloudy => 0.8,
+			CloudVariation.Overcast => 0.5,
+			_ => precipitation switch
+			{
+				PrecipitationLevel.Parched or PrecipitationLevel.Dry or PrecipitationLevel.Humid => 1.0,
+				PrecipitationLevel.LightRain or PrecipitationLevel.LightSnow => 0.6,
+				PrecipitationLevel.Rain or PrecipitationLevel.Snow => 0.4,
+				PrecipitationLevel.HeavyRain or PrecipitationLevel.HeavySnow => 0.25,
+				PrecipitationLevel.TorrentialRain or PrecipitationLevel.Blizzard => 0.1,
+				PrecipitationLevel.Sleet => 0.3,
+				_ => 1.0
+			}
+		};
+	}
+
     private static WeatherEvent GetRequiredEvent(WeatherSeederEventCatalog eventCatalog, WeatherSeederEventDescriptor descriptor)
     {
         return eventCatalog.EventsByDescriptor[CreateEventDescriptor(
@@ -385,6 +404,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
             weatherEvent.WindTemperatureEffect = windTemp;
             weatherEvent.Precipitation = (int)precipitationLevel;
             weatherEvent.Wind = (int)windLevel;
+			weatherEvent.LightLevelMultiplier = GetLightLevelMultiplier(precipitationLevel, cloudVariation);
             weatherEvent.ObscuresViewOfSky = obscureSky;
             weatherEvent.PermittedAtNight = night;
             weatherEvent.PermittedAtDawn = dawn;

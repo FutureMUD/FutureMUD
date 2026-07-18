@@ -3641,7 +3641,7 @@ The syntax is as follows:
                 flags: OutputFlags.SuppressObscured, style: OutputStyle.IgnoreLiquidsAndFlags).Append(emote));
             LiquidMixture mixture = new(liquidContainer.LiquidMixture);
             mixture.SetLiquidVolume(amount);
-            PuddleGameItemComponentProto.CreateNewPuddle(mixture, actor.Location, actor.RoomLayer, actor);
+            PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, actor.Location, actor.RoomLayer, actor);
             liquidContainer.ReduceLiquidQuantity(amount, actor, "empty");
             return;
         }

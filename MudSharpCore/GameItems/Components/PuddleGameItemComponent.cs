@@ -91,6 +91,12 @@ namespace MudSharp.GameItems.Components
             DeregisterEvents();
         }
 
+        public override void Delete()
+        {
+            DeregisterEvents();
+            base.Delete();
+        }
+
         private void RegisterEvents()
         {
             Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= DoFiveSecondUpdate;

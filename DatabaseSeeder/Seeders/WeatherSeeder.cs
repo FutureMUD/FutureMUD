@@ -649,7 +649,9 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
             return "Could not proceed because there was not a celestial object. No data was seeded.";
         }
 
-        switch (_questionAnswers["rain"].ToLowerInvariant())
+        string rainMode = _questionAnswers["rain"].ToLowerInvariant();
+        ConfigurePuddleSettingForRainMode(context, rainMode);
+        switch (rainMode)
         {
             case "full":
                 UseRainEvents = true;
@@ -657,13 +659,6 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
                 break;
             case "soak":
                 UseRainEvents = true;
-                StaticConfiguration? dbsetting = context.StaticConfigurations.Find("PuddlesEnabled");
-                if (dbsetting is null)
-                {
-                    dbsetting = new StaticConfiguration { SettingName = "PuddlesEnabled", Definition = "" };
-                    context.StaticConfigurations.Add(dbsetting);
-                }
-                dbsetting.Definition = "false";
                 RainLiquid = context.Liquids.First(x => x.Name == "rain water");
                 break;
             case "none":
@@ -715,6 +710,30 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
         Console.WriteLine($"[Weather Seeder] Weather seeding complete in {totalStopwatch.Elapsed.TotalSeconds:0.0}s.");
 
         return string.Empty;
+    }
+
+    internal static void ConfigurePuddleSettingForRainMode(FuturemudDatabaseContext context, string rainMode)
+    {
+        bool? puddlesEnabled = rainMode.ToLowerInvariant() switch
+        {
+            "full" => true,
+            "soak" => false,
+            "none" => null,
+            _ => throw new ArgumentOutOfRangeException(nameof(rainMode), rainMode, "Unknown rain configuration mode.")
+        };
+        if (puddlesEnabled is null)
+        {
+            return;
+        }
+
+        StaticConfiguration? setting = context.StaticConfigurations.Find("PuddlesEnabled");
+        if (setting is null)
+        {
+            setting = new StaticConfiguration { SettingName = "PuddlesEnabled", Definition = "" };
+            context.StaticConfigurations.Add(setting);
+        }
+
+        setting.Definition = puddlesEnabled.Value.ToString().ToLowerInvariant();
     }
 
     private static IEnumerable<WeatherSeederClimateProfile> GetClimateProfiles()

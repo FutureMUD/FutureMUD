@@ -644,6 +644,7 @@ public partial class Body
                                                                 (x.IsOccupant(Actor) || visibleCharacters.Any(x.IsOccupant)))
                                                     .Select(x => x.ExteriorItem)
                                                     .ToHashSet();
+        Location.ResolveRoomWeatherExposure(Actor);
         List<IGameItem> items = Location.LayerGameItems(RoomLayer)
                                         .Where(x => CanSee(x))
                                         .Where(x => !movementTargets.Contains(x))
@@ -657,7 +658,6 @@ public partial class Body
         }
         else
         {
-            Location.ResolveRoomWeatherExposure(Actor);
             var virtualPuddleText = Location.DescribeLiquidSurface(RoomLayer, Actor, true);
             if (!string.IsNullOrWhiteSpace(virtualPuddleText))
             {

@@ -820,6 +820,31 @@ public class WeatherSeederClimateTests
         Assert.AreEqual(322, context.WeatherEvents.Count(), "Expected the weather seeder to create the canonical single-tier weather event set.");
     }
 
+	[TestMethod]
+	public void WeatherSeeder_WeatherEventsUseSeverityAppropriateLightMultipliers()
+	{
+		using FuturemudDatabaseContext context = CreateFreshSeededWeatherContext();
+
+		Assert.IsTrue(
+			context.WeatherEvents.All(x => x.LightLevelMultiplier > 0.0 && x.LightLevelMultiplier <= 1.0),
+			"Every seeded weather event should preserve some natural light without amplifying it.");
+
+		AssertLightMultiplier(context, PrecipitationLevel.Parched, null, 1.0);
+		AssertLightMultiplier(context, PrecipitationLevel.Dry, null, 1.0);
+		AssertLightMultiplier(context, PrecipitationLevel.Dry, "Cloudy", 0.8);
+		AssertLightMultiplier(context, PrecipitationLevel.Humid, null, 1.0);
+		AssertLightMultiplier(context, PrecipitationLevel.Humid, "Overcast", 0.5);
+		AssertLightMultiplier(context, PrecipitationLevel.LightRain, null, 0.6);
+		AssertLightMultiplier(context, PrecipitationLevel.Rain, null, 0.4);
+		AssertLightMultiplier(context, PrecipitationLevel.HeavyRain, null, 0.25);
+		AssertLightMultiplier(context, PrecipitationLevel.TorrentialRain, null, 0.1);
+		AssertLightMultiplier(context, PrecipitationLevel.LightSnow, null, 0.6);
+		AssertLightMultiplier(context, PrecipitationLevel.Snow, null, 0.4);
+		AssertLightMultiplier(context, PrecipitationLevel.HeavySnow, null, 0.25);
+		AssertLightMultiplier(context, PrecipitationLevel.Blizzard, null, 0.1);
+		AssertLightMultiplier(context, PrecipitationLevel.Sleet, null, 0.3);
+	}
+
     [DataTestMethod]
     [DynamicData(nameof(GetMaritimeAndTropicalClimateExpectations), DynamicDataSourceType.Method)]
     public void WeatherSeeder_MaritimeAndTropicalKoppenProfiles_RemainWithinBroadReferenceBounds(ClimateExpectation expectation)
@@ -1047,6 +1072,27 @@ public class WeatherSeederClimateTests
         });
         Assert.AreEqual(string.Empty, error);
     }
+
+	private static void AssertLightMultiplier(
+		FuturemudDatabaseContext context,
+		PrecipitationLevel precipitation,
+		string namePrefix,
+		double expectedMultiplier)
+	{
+		MudSharp.Models.WeatherEvent weatherEvent = context.WeatherEvents.Single(x =>
+			x.Precipitation == (int)precipitation &&
+			x.Wind == (int)WindLevel.None &&
+			(namePrefix == null
+				? !x.Name.StartsWith("Cloudy", StringComparison.Ordinal) &&
+				  !x.Name.StartsWith("Overcast", StringComparison.Ordinal)
+				: x.Name.StartsWith(namePrefix, StringComparison.Ordinal)));
+
+		Assert.AreEqual(
+			expectedMultiplier,
+			weatherEvent.LightLevelMultiplier,
+			0.0001,
+			$"Unexpected natural-light multiplier for {weatherEvent.Name}.");
+	}
 
     private static WeatherStatisticsResult AnalyzeSeededClimate(string regionalClimateName, string controllerName)
     {

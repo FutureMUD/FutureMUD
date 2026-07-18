@@ -345,6 +345,65 @@ return concat(@window, ""|"")");
 		Assert.IsTrue(shieldGlint.Compile(), shieldGlint.CompileError);
 	}
 
+	[TestMethod]
+	public void SeededAiStorytellerTool_MixedCaseParameter_CompilesAndExecutes()
+	{
+		FutureProg prog = new(_gameworld,
+			"AIStorytellerToolRecordCue",
+			ProgVariableTypes.Text,
+			new[] { Tuple.Create(ProgVariableTypes.Text, "Cue") },
+			"""return "Narrative cue captured: " + @Cue""");
+
+		Assert.IsTrue(prog.Compile(), prog.CompileError);
+		Assert.AreEqual("Narrative cue captured: Hold the western gate.", prog.Execute<string>("Hold the western gate."));
+	}
+
+	[TestMethod]
+	public void SeededArenaBoxingScoring_CamelCaseParameters_Compile()
+	{
+		Tuple<ProgVariableTypes, string>[] parameters =
+		[
+			Tuple.Create(ProgVariableTypes.Character | ProgVariableTypes.Collection, "participants"),
+			Tuple.Create(ProgVariableTypes.Number | ProgVariableTypes.Collection, "sideIndices"),
+			Tuple.Create(ProgVariableTypes.Location, "arenaCell"),
+			Tuple.Create(ProgVariableTypes.Text, "eventTypeName"),
+			Tuple.Create(ProgVariableTypes.Text, "arenaName"),
+			Tuple.Create(ProgVariableTypes.Text, "eventName"),
+			Tuple.Create(ProgVariableTypes.Character | ProgVariableTypes.Collection, "scoringAttackers"),
+			Tuple.Create(ProgVariableTypes.Character | ProgVariableTypes.Collection, "scoringDefenders"),
+			Tuple.Create(ProgVariableTypes.Number | ProgVariableTypes.Collection, "scoringAttackerSides"),
+			Tuple.Create(ProgVariableTypes.Number | ProgVariableTypes.Collection, "scoringDefenderSides"),
+			Tuple.Create(ProgVariableTypes.Number | ProgVariableTypes.Collection, "landedHits"),
+			Tuple.Create(ProgVariableTypes.Number | ProgVariableTypes.Collection, "undefendedHits"),
+			Tuple.Create(ProgVariableTypes.Text | ProgVariableTypes.Collection, "impactLocations"),
+			Tuple.Create(ProgVariableTypes.Text | ProgVariableTypes.Collection, "impactBodyparts")
+		];
+		FutureProg prog = new(_gameworld,
+			"ArenaBoxingScoring",
+			ProgVariableTypes.Number | ProgVariableTypes.Collection,
+			parameters,
+			"return arenaboxingscores(@sideIndices, @scoringAttackerSides, @landedHits, @undefendedHits, @impactLocations)");
+
+		Assert.IsTrue(prog.Compile(), prog.CompileError);
+	}
+
+	[TestMethod]
+	public void Compile_ParametersDifferingOnlyByCase_ReturnsClearError()
+	{
+		FutureProg prog = new(_gameworld,
+			"DuplicateParameterCase",
+			ProgVariableTypes.Text,
+			new[]
+			{
+				Tuple.Create(ProgVariableTypes.Text, "Cue"),
+				Tuple.Create(ProgVariableTypes.Text, "cue")
+			},
+			"return @Cue");
+
+		Assert.IsFalse(prog.Compile());
+		Assert.AreEqual("Parameter Cue is defined more than once.", prog.CompileError);
+	}
+
     [TestMethod]
     public void TestGetTypeByName()
     {

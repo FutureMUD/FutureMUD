@@ -98,6 +98,8 @@ Type display and description logic is centralised through the registry-backed `D
 
 ## Runtime Safety Invariants
 
+FutureProg parameter and local-variable references are case-insensitive. Persisted parameter names retain their authored casing for display and integration schemas, while compiler and runtime variable spaces normalise those names for lookup. A prog may not define two parameters whose names differ only by case.
+
 Collection variables must expose `IProgVariable` elements at runtime, even when a helper or dot reference builds a collection from scalar CLR values such as `string`, `decimal`, `bool`, `DateTime`, `TimeSpan`, `MudDateTime`, or `Gender`. The `CollectionVariable` constructor normalises those scalar elements so collection extension functions, admin result display, and dot references like `first`, `last`, and `reverse` all see the same element shape.
 
 Variable-register persistence must be total for every type that can be registered and saved. Value types, including `LiquidMixture`, serialise through value XML rather than reference IDs; unsupported or null preserved values must not create null `IVariableValue` entries. Resetting a stored register value removes the persisted override row and falls back to the default value.

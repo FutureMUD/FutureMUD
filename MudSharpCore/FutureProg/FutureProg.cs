@@ -237,6 +237,15 @@ public class FutureProg : SaveableItem, IFutureProg
 			return false;
 		}
 
+		var duplicateParameter = NamedParameters
+			.GroupBy(x => x.Item2, StringComparer.InvariantCultureIgnoreCase)
+			.FirstOrDefault(x => x.Count() > 1);
+		if (duplicateParameter is not null)
+		{
+			CompileError = $"Parameter {duplicateParameter.Key} is defined more than once.";
+			return false;
+		}
+
         Stopwatch sw = new();
         sw.Start();
         // Split the raw text into lines
@@ -248,7 +257,9 @@ public class FutureProg : SaveableItem, IFutureProg
         }
 
         // Create the initial variable space from the parameters
-        Dictionary<string, ProgVariableTypes> variableSpace = NamedParameters.ToDictionary(x => x.Item2, x => x.Item1);
+        Dictionary<string, ProgVariableTypes> variableSpace = NamedParameters.ToDictionary(
+			x => x.Item2.ToLowerInvariant(),
+			x => x.Item1);
 
         // If the program has a non-void return type, create the return variable
         if (ReturnType != ProgVariableTypes.Void)
@@ -559,12 +570,12 @@ public class FutureProg : SaveableItem, IFutureProg
         {
             try
             {
-                variableSpaceDict.Add(NamedParameters[i].Item2, GetVariable(NamedParameters[i].Item1, variables.ElementAtOrDefault(i)));
+                variableSpaceDict.Add(NamedParameters[i].Item2.ToLowerInvariant(), GetVariable(NamedParameters[i].Item1, variables.ElementAtOrDefault(i)));
             }
             catch (Exception e)
             {
                 Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was an exception while assigning parameter #{i} ({NamedParameters[i].Item2}) in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nException:\n\n{e}");
-                variableSpaceDict.Add(NamedParameters[i].Item2, new NullVariable(NamedParameters[i].Item1));
+                variableSpaceDict.Add(NamedParameters[i].Item2.ToLowerInvariant(), new NullVariable(NamedParameters[i].Item1));
             }
 
         }
@@ -596,12 +607,12 @@ public class FutureProg : SaveableItem, IFutureProg
         {
             try
             {
-                variableSpaceDict.Add(NamedParameters[i].Item2, GetVariable(NamedParameters[i].Item1, variables.ElementAtOrDefault(i)));
+                variableSpaceDict.Add(NamedParameters[i].Item2.ToLowerInvariant(), GetVariable(NamedParameters[i].Item1, variables.ElementAtOrDefault(i)));
             }
             catch (Exception e)
             {
                 Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was an exception while assigning parameter #{i} ({NamedParameters[i].Item2}) in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nException:\n\n{e}");
-                variableSpaceDict.Add(NamedParameters[i].Item2, new NullVariable(NamedParameters[i].Item1));
+                variableSpaceDict.Add(NamedParameters[i].Item2.ToLowerInvariant(), new NullVariable(NamedParameters[i].Item1));
             }
 
         }

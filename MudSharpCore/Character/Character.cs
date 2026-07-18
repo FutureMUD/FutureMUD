@@ -15,6 +15,7 @@ using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.Combat;
+using MudSharp.Commands;
 using MudSharp.Commands.Trees;
 using MudSharp.Communication.Language;
 using MudSharp.Communication.Language.Scramblers;
@@ -2146,6 +2147,11 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
     bool IControllable.ExecuteCommand(string command)
     {
         Gameworld?.LogManager.LogCharacterCommand(this, command);
+		if (CommandTree.Commands is CharacterCommandManager characterCommands)
+		{
+			command = characterCommands.NormaliseMovementForceSuffix(this, command);
+		}
+
         // Handle Command Interupt hooks first
         string cmd = new StringStack(command).PopSpeech();
         StringStack ss = new(command.RemoveFirstWord());

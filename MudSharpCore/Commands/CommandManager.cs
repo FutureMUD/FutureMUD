@@ -513,8 +513,26 @@ public class CharacterCommandManager : CommandManager<ICharacter>, ICharacterCom
 
     public IEnumerable<ICommandHelpInfo> CommandHelpInfos => _tCommands.Values.SelectNotNull(x => x.HelpInfo);
 
+	internal string NormaliseMovementForceSuffix(ICharacter reference, string input)
+	{
+		var splitCommands = new StringStack(input);
+		var commandText = splitCommands.PopSpeech().ToLowerInvariant();
+		if (commandText.Length <= 1 || !commandText.EndsWith('!'))
+		{
+			return input;
+		}
+
+		var movementCommandText = commandText[..^1];
+		_tCommands.TryGetValue(movementCommandText, out var movementCommand);
+		CheckCommandConditions(ref movementCommand, reference, movementCommandText);
+		return movementCommand?.Name.EqualTo("Move") == true
+			? $"{movementCommandText} !{splitCommands.RemainingArgument.LeadingSpaceIfNotEmpty()}"
+			: input;
+	}
+
     public override IExecutable<ICharacter> LocateCommand(ICharacter reference, ref string input)
     {
+		input = NormaliseMovementForceSuffix(reference, input);
         StringStack splitCommands = new(input);
 
         string commandText = splitCommands.PopSpeech().ToLowerInvariant();

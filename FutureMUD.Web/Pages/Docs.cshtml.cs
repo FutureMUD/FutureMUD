@@ -198,7 +198,7 @@ public sealed class DocsModel : PageModel
 		foreach (var entry in entries)
 		{
 			characters += entry.Slug.Length + entry.Title.Length + entry.Category.Length +
-				entry.Audience.Length + entry.Summary.Length + entry.SearchText.Length;
+				entry.Audience.Length + entry.Summary.Length + entry.SummaryHtml.Length + entry.SearchText.Length;
 		}
 		return Math.Max(1, entries.Count + (characters + 1023) / 1024);
 	}
@@ -370,7 +370,10 @@ public sealed record DocumentationEntry(
 	string Category,
 	string Audience,
 	string Summary,
-	string SearchText);
+	string SearchText)
+{
+	public string SummaryHtml { get; } = TextMarkupService.ToSafeHtml(Summary);
+}
 
 public sealed record CommandDocumentationDetail(
 	IReadOnlyList<string> CommandWords,

@@ -36,6 +36,48 @@ public static partial class TextMarkupService
 		['O'] = "ansi-keyword-pink"
 	};
 
+	private static readonly IReadOnlyDictionary<string, char> AnsiColourCodes =
+		new Dictionary<string, char>(StringComparer.Ordinal)
+	{
+		["\x1B[0m"] = '0',
+		["\x1B[0;39m"] = '0',
+		["\x1B[39m"] = '0',
+		["\x1B[30m"] = '7',
+		["\x1B[31m"] = '1',
+		["\x1B[32m"] = '2',
+		["\x1B[33m"] = '3',
+		["\x1B[34m"] = '4',
+		["\x1B[35m"] = '5',
+		["\x1B[36m"] = '6',
+		["\x1B[37m"] = 'F',
+		["\x1B[1;30m"] = '7',
+		["\x1B[1;31m"] = '9',
+		["\x1B[1;32m"] = 'A',
+		["\x1B[1;33m"] = 'B',
+		["\x1B[1;34m"] = 'C',
+		["\x1B[1;35m"] = 'D',
+		["\x1B[1;36m"] = 'E',
+		["\x1B[1;37m"] = 'F',
+		["\x1B[90m"] = '7',
+		["\x1B[91m"] = '9',
+		["\x1B[92m"] = 'A',
+		["\x1B[93m"] = 'B',
+		["\x1B[94m"] = 'C',
+		["\x1B[95m"] = 'D',
+		["\x1B[96m"] = 'E',
+		["\x1B[97m"] = 'F',
+		["\x1B[38;5;94m"] = '8',
+		["\x1B[38;5;202m"] = 'G',
+		["\x1B[38;5;183m"] = 'I',
+		["\x1B[38;5;171m"] = 'H',
+		["\x1B[38;2;220;220;170m"] = 'J',
+		["\x1B[38;2;184;215;163m"] = 'K',
+		["\x1B[38;2;86;156;214m"] = 'L',
+		["\x1B[38;2;156;220;254m"] = 'M',
+		["\x1B[38;2;214;157;133m"] = 'N',
+		["\x1B[38;2;238;130;238m"] = 'O'
+	};
+
 	public static string ToSafeHtml(string? source)
 	{
 		if (string.IsNullOrEmpty(source))
@@ -44,7 +86,10 @@ public static partial class TextMarkupService
 		}
 
 		var withoutMxp = MxpTagRegex().Replace(source, string.Empty);
-		withoutMxp = AnsiEscapeRegex().Replace(withoutMxp, string.Empty);
+		withoutMxp = AnsiEscapeRegex().Replace(withoutMxp, match =>
+			AnsiColourCodes.TryGetValue(match.Value, out var colourCode)
+				? $"#{colourCode}"
+				: string.Empty);
 		var builder = new StringBuilder();
 		var spanOpen = false;
 		for (var index = 0; index < withoutMxp.Length; index++)

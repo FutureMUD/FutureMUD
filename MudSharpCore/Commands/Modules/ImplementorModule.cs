@@ -967,18 +967,7 @@ public class ImplementorModule : Module<ICharacter>
 
     private static void AppendCraftExportRow(StringBuilder sb, IEnumerable<string> cells)
     {
-        sb.AppendLine(string.Join(",", cells.Select(EncodeCraftExportCsvCell)));
-    }
-
-    private static string EncodeCraftExportCsvCell(string value)
-    {
-        var text = value ?? string.Empty;
-        if (text.Length > 0 && text[0].In('=', '+', '-', '@', '\t', '\r', '\n'))
-        {
-            text = $"'{text}";
-        }
-
-        return $"\"{text.Replace("\"", "\"\"")}\"";
+        sb.AppendLine(string.Join(",", cells.Select(SpreadsheetSafeCsv.EncodeCell)));
     }
 
     private static void DebugTestCover(ICharacter actor, StringStack ss)

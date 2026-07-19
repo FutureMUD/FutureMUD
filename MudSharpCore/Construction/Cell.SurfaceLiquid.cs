@@ -22,21 +22,26 @@ public partial class Cell
 
 	public void AddLiquidToSurface(LiquidMixture mixture, RoomLayer layer, IPerceivable? referenceItem)
 	{
-		if (mixture.IsEmpty || IsSwimmingLayer(layer))
+		var route = SurfaceLiquidTransferService.SelectRoute(
+			mixture.IsEmpty,
+			() => Gameworld.GetStaticBool("PuddlesEnabled"),
+			IsSwimmingLayer(layer));
+		switch (route)
 		{
-			return;
+			case SurfaceLiquidRoute.Ignore:
+				return;
+			case SurfaceLiquidRoute.Discard:
+				mixture.SetLiquidVolume(0.0);
+				return;
+			case SurfaceLiquidRoute.Surface:
+				SurfaceLiquidTransferService.TransferToSurface(
+					GetOrCreateSurfaceState(layer),
+					mixture,
+					Gameworld.GetStaticDouble("EnormousPoolLiquidQuantity"));
+				return;
+			default:
+				throw new ArgumentOutOfRangeException();
 		}
-
-		if (!Gameworld.GetStaticBool("PuddlesEnabled"))
-		{
-			mixture.SetLiquidVolume(0.0);
-			return;
-		}
-
-		var state = GetOrCreateSurfaceState(layer);
-		state.AddLiquid(mixture);
-		CapSurfaceLiquid(state);
-		mixture.SetLiquidVolume(0.0);
 	}
 
 	public string DescribeLiquidSurface(RoomLayer layer, IPerceiver voyeur, bool colour)

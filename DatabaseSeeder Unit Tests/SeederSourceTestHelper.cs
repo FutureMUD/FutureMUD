@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,41 +10,56 @@ namespace MudSharp_Unit_Tests;
 
 internal static class SeederSourceTestHelper
 {
+	private static readonly Lazy<string> SeedersRoot = new(FindSeedersRoot);
+	private static readonly ConcurrentDictionary<string, string> SourcePaths =
+		new(StringComparer.OrdinalIgnoreCase);
+	private static readonly ConcurrentDictionary<string, string> SourceText =
+		new(StringComparer.OrdinalIgnoreCase);
+	private static readonly ConcurrentDictionary<string, string> PartialFamilyText =
+		new(StringComparer.OrdinalIgnoreCase);
+
 	internal static string GetSeederSourcePath(string fileName)
 	{
-		var matches = Directory
-			.EnumerateFiles(GetSeedersRoot(), fileName, SearchOption.AllDirectories)
-			.ToList();
-
-		return matches.Count switch
+		return SourcePaths.GetOrAdd(fileName, static name =>
 		{
-			1 => matches[0],
-			0 => throw new FileNotFoundException($"Could not find seeder source file {fileName}."),
-			_ => throw new InvalidOperationException($"Found multiple seeder source files named {fileName}: {string.Join(", ", matches)}")
-		};
+			var matches = Directory
+				.EnumerateFiles(SeedersRoot.Value, name, SearchOption.AllDirectories)
+				.ToList();
+
+			return matches.Count switch
+			{
+				1 => matches[0],
+				0 => throw new FileNotFoundException($"Could not find seeder source file {name}."),
+				_ => throw new InvalidOperationException(
+					$"Found multiple seeder source files named {name}: {string.Join(", ", matches)}")
+			};
+		});
 	}
 
 	internal static string ReadSeederSource(string fileName)
 	{
-		return File.ReadAllText(GetSeederSourcePath(fileName));
+		return SourceText.GetOrAdd(fileName, static name => File.ReadAllText(GetSeederSourcePath(name)));
 	}
 
 	internal static string ReadPartialFamily(string filePrefix)
 	{
-		var files = Directory
-			.EnumerateFiles(GetSeedersRoot(), $"{filePrefix}*.cs", SearchOption.AllDirectories)
-			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
-			.ToList();
-
-		if (files.Count == 0)
+		return PartialFamilyText.GetOrAdd(filePrefix, static prefix =>
 		{
-			throw new FileNotFoundException($"Could not find any seeder partials beginning with {filePrefix}.");
-		}
+			var files = Directory
+				.EnumerateFiles(SeedersRoot.Value, $"{prefix}*.cs", SearchOption.AllDirectories)
+				.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+				.ToList();
 
-		return string.Join(Environment.NewLine, files.Select(File.ReadAllText));
+			if (files.Count == 0)
+			{
+				throw new FileNotFoundException($"Could not find any seeder partials beginning with {prefix}.");
+			}
+
+			return string.Join(Environment.NewLine, files.Select(File.ReadAllText));
+		});
 	}
 
-	private static string GetSeedersRoot()
+	private static string FindSeedersRoot()
 	{
 		DirectoryInfo? current = new(AppContext.BaseDirectory);
 		while (current is not null)

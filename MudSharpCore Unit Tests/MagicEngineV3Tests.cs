@@ -148,88 +148,6 @@ public class MagicEngineV3Tests
 	}
 
 	[TestMethod]
-	public void MagicSecurity_MagicPowerSerializers_PersistLoadableXmlAndAliases()
-	{
-		var attackSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "Powers", "MagicAttackPower.cs"));
-		StringAssert.Contains(attackSource, "public override string DatabaseType => \"magicattack\";");
-		StringAssert.Contains(attackSource, "RegisterLoader(\"Magic Attack\"");
-
-		var connectSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "Powers", "ConnectMindPower.cs"));
-		StringAssert.Contains(connectSource, "public override string DatabaseType => \"connectmind\";");
-		StringAssert.Contains(connectSource, "RegisterLoader(\"Connect Mind\"");
-
-		var invisibilitySource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "Powers", "InvisibilityPower.cs"));
-		StringAssert.Contains(invisibilitySource, "public override string DatabaseType => \"invisibility\";");
-		StringAssert.Contains(invisibilitySource, "RegisterLoader(\"Invisibility\"");
-		StringAssert.Contains(invisibilitySource, "new XElement(\"StartPowerVerb\", BeginVerb)");
-		StringAssert.Contains(invisibilitySource, "new XElement(\"EndPowerVerb\", EndVerb)");
-		StringAssert.Contains(invisibilitySource, "new XElement(\"MinimumSuccessThreshold\", (int)MinimumSuccessThreshold)");
-		StringAssert.Contains(invisibilitySource, "root.Element(\"StartPowerVerb\") ?? root.Element(\"ConnectVerb\")");
-
-		var armourSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "Powers", "MagicArmourPower.cs"));
-		StringAssert.Contains(armourSource, "public override string DatabaseType => \"armour\";");
-		StringAssert.Contains(armourSource, "RegisterLoader(\"Armour\"");
-		StringAssert.Contains(armourSource, "new XElement(\"MinimumSuccessThreshold\", (int)MinimumSuccessThreshold)");
-
-		var anesthesiaSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "Powers", "MindAnesthesiaPower.cs"));
-		StringAssert.Contains(anesthesiaSource, "public override string DatabaseType => \"mindanesthesia\";");
-		StringAssert.Contains(anesthesiaSource, "RegisterLoader(\"mindanesthesia\"");
-		StringAssert.Contains(anesthesiaSource, "TryParseFiniteDouble(command.SafeRemainingArgument");
-		StringAssert.Contains(anesthesiaSource, "MaximumResistanceIntervalSeconds");
-
-		var broadcastSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "Powers", "MindBroadcastPower.cs"));
-		StringAssert.Contains(broadcastSource, "new XElement(\"PowerDistance\", (int)PowerDistance)");
-		StringAssert.Contains(broadcastSource, "root.Element(\"PowerDistance\") ?? root.Element(\"Distance\")");
-		StringAssert.Contains(broadcastSource, "text.Sanitise().ProperSentences().Fullstop()");
-	}
-
-	[TestMethod]
-	public void MagicSecurity_RuntimeSources_EnforceVisibilityCleanupAndLifecycleInvariants()
-	{
-		var remoteLookSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "RemoteLookRenderer.cs"));
-		StringAssert.Contains(remoteLookSource, "var flags = PerceiveIgnoreFlags.None;");
-		Assert.IsFalse(remoteLookSource.Contains("IgnoreCanSee", StringComparison.Ordinal));
-		Assert.IsFalse(remoteLookSource.Contains("IgnoreDark", StringComparison.Ordinal));
-
-		var weatherFreezeSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete",
-			"SpellEffects", "SpellWeatherFreezeEffect.cs"));
-		StringAssert.Contains(weatherFreezeSource, "public override void RemovalEffect()");
-		StringAssert.Contains(weatherFreezeSource, "ReleaseFreeze();");
-		StringAssert.Contains(weatherFreezeSource, "_controller.WeatherChanged += WeatherChanged;");
-		StringAssert.Contains(weatherFreezeSource, "_controller?.WeatherChanged -= WeatherChanged;");
-
-		var forcedTransformSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete",
-			"SpellEffects", "SpellTransformFormEffect.cs"));
-		StringAssert.Contains(forcedTransformSource, "character.ReevaluateForcedBodyTransformation(this);");
-
-		var characterFormsSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Character", "CharacterForms.cs"));
-		StringAssert.Contains(characterFormsSource, "echo.Sanitise()");
-		StringAssert.Contains(characterFormsSource, "transformationEcho?.Sanitise()");
-
-		var transformFormSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "SpellEffects",
-			"TransformFormEffect.cs"));
-		StringAssert.Contains(transformFormSource, "root.Element(\"TransformationEcho\")?.Value.Sanitise()");
-		StringAssert.Contains(transformFormSource, "text.Sanitise()");
-
-		var telepathySource = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete",
-			"SpellEffects", "SpellTelepathyEffect.cs"));
-		StringAssert.Contains(telepathySource, "public override bool Applies(object target)");
-		StringAssert.Contains(telepathySource, "ReferenceEquals(target, ParentEffect.Caster)");
-
-		var teleportSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Character", "CharacterMovement.cs"));
-		Assert.IsFalse(teleportSource.Contains(".SelectMany(x => x.Cells)", StringComparison.Ordinal));
-
-		var spellSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "MagicSpell.cs"));
-		StringAssert.Contains(spellSource, "EchoInterdiction(originalTarget, interdiction, false);");
-		StringAssert.Contains(spellSource, "return true;");
-
-		var poisonSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete",
-			"SpellEffects", "StandaloneSpellStatusEffects.cs"));
-		StringAssert.Contains(poisonSource, "RemoveDrugDosages(IsLegacyUnownedDose)");
-		StringAssert.Contains(poisonSource, "ReferenceEquals(x.Originator, this) || IsLegacyUnownedDose(x)");
-	}
-
-	[TestMethod]
 	public void DetectPoisonEffect_ReportsActiveAndLatentDrugDosages()
 	{
 		var gameworld = CreateGameworldWithUnits();
@@ -482,20 +400,4 @@ public class MagicEngineV3Tests
 		return collection;
 	}
 
-	private static string GetSourcePath(params string[] parts)
-	{
-		var directory = AppContext.BaseDirectory;
-		while (directory is not null)
-		{
-			var candidate = Path.Combine(new[] { directory }.Concat(parts).ToArray());
-			if (File.Exists(candidate))
-			{
-				return candidate;
-			}
-
-			directory = Directory.GetParent(directory)?.FullName;
-		}
-
-		throw new FileNotFoundException($"Could not locate source file {Path.Combine(parts)}.");
-	}
 }

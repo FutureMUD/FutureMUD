@@ -1,0 +1,27 @@
+name: Climate Regression Tests
+
+on:
+  schedule:
+    - cron: '17 3 * * 0'
+  workflow_dispatch:
+
+concurrency:
+  group: climate-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  climate-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restore solution
+        run: dotnet restore MudSharp.sln -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
+      - name: Run climate regression gate
+        shell: bash
+        run: bash ./scripts/test-unit-climate.sh

@@ -589,7 +589,8 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
                     // Partially dry items during the spin
                     foreach (IGameItem item in _laundryContents)
                     {
-                        item.SurfaceLiquidState.Dry(Math.Max(0.02 / Gameworld.UnitManager.BaseFluidToLitres, item.SurfaceLiquidState.LiquidVolume * 0.30));
+                        SurfaceLiquidTransferService.DryAfterMachineCycle(
+                            item.SurfaceLiquidState, 0.02 / Gameworld.UnitManager.BaseFluidToLitres);
                     }
 
                     break;

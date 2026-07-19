@@ -18,13 +18,22 @@ function Initialize-Dotnet {
 	throw 'dotnet was not found. Run scripts/setup.ps1 to bootstrap a local SDK.'
 }
 
+function Invoke-Dotnet {
+	param([Parameter(Mandatory)] [scriptblock]$Command)
+
+	& $Command
+	if ($LASTEXITCODE -ne 0) {
+		throw "dotnet command failed with exit code $LASTEXITCODE."
+	}
+}
+
 Initialize-Dotnet
 $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = '1'
 $env:DOTNET_NOLOGO = '1'
 
 Push-Location $repoRoot
 try {
-	dotnet test 'MudSharpCore Climate Tests\MudSharpCore Climate Tests.csproj' -c Debug --no-restore -p:NoWarn=NU1902%3BNU1510
+	Invoke-Dotnet { dotnet test 'MudSharpCore Climate Tests\MudSharpCore Climate Tests.csproj' -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 }
 }
 finally {
 	Pop-Location

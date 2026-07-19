@@ -9,11 +9,11 @@ It inherits from the [Solution-Level AGENTS.md](../AGENTS.md).
 * Precedence: **Module > Project > Solution**.
 
 ## Purpose of Project
-Scaffold project for MSTest-based tests that directly target `MudsharpDatabaseLibrary` persistence models, EF configuration, and migration-adjacent helper behaviour.
+Contains MSTest-based tests that directly target `MudsharpDatabaseLibrary` persistence models, EF configuration, upgrade coordination, and migration-adjacent helper behaviour.
 
 ## Key Architectural Principles
 * Add direct database-library tests here as coverage is introduced.
-* Keep this suite opt-in until it contains meaningful coverage.
+* This suite is part of the default unit-test pass and should avoid requiring a live MySQL server.
 * Prefer tests that isolate persistence behaviour from higher-level engine runtime concerns.
 
 ## Notes

@@ -130,7 +130,7 @@ public class RpiClanConversionTests
 		var priests = converted["com_priests"];
 		Assert.AreEqual("Cult of Morgoth Priests", priests.FullName);
 		CollectionAssert.AreEquivalent(
-			new[] { RpiClanRankSlot.Membership },
+			new[] { RpiClanRankSlot.Membership, RpiClanRankSlot.Leadership },
 			priests.Ranks.Select(x => x.Slot).ToArray());
 
 		var sergeant = ithilien.Ranks.Single(x => x.Slot == RpiClanRankSlot.Sergeant);
@@ -188,7 +188,7 @@ public class RpiClanConversionTests
 			new[] { "black-watch", "black_watch" },
 			blackWatch.LegacyAliases.Where(x => !x.Equals("blackwatch", StringComparison.OrdinalIgnoreCase)).ToArray());
 		CollectionAssert.AreEquivalent(
-			new[] { RpiClanRankSlot.Membership },
+			new[] { RpiClanRankSlot.Membership, RpiClanRankSlot.Leadership },
 			blackWatch.Ranks.Select(x => x.Slot).ToArray());
 	}
 

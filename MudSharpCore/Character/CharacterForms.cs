@@ -237,21 +237,10 @@ public partial class Character
 	private static (double Height, double Weight) SanitiseProvisionedFormDimensions(double height, double weight,
 		ICharacterTemplate template)
 	{
-		if (!HasUsableDimension(height))
-		{
-			height = HasUsableDimension(template.SelectedHeight)
-				? template.SelectedHeight
-				: FallbackProvisionedFormHeight;
-		}
-
-		if (!HasUsableDimension(weight))
-		{
-			weight = HasUsableDimension(template.SelectedWeight)
-				? template.SelectedWeight
-				: FallbackProvisionedFormWeight;
-		}
-
-		return (height, weight);
+		return (
+			BodyFormLifecyclePolicy.SelectProvisionedDimension(height, template.SelectedHeight, FallbackProvisionedFormHeight),
+			BodyFormLifecyclePolicy.SelectProvisionedDimension(weight, template.SelectedWeight, FallbackProvisionedFormWeight)
+		);
 	}
 
 	private static IHeightWeightModel? DefaultHeightWeightModelFor(IRace race, Gender gender)
@@ -348,7 +337,8 @@ public partial class Character
 
 	private void EnsureBodyFormApparentAge(IBody body, MudDate apparentBirthday)
 	{
-		if (body.EffectsOfType<BodyFormApparentAgeEffect>().Any())
+		if (!BodyFormLifecyclePolicy.ShouldAttachApparentAge(
+			    body.EffectsOfType<BodyFormApparentAgeEffect>().Any()))
 		{
 			return;
 		}
@@ -1097,27 +1087,14 @@ public partial class Character
 		}
 
 		var body = form.Body;
-		if (SameFormBody(body, CurrentBody))
+		var deletionBlocker = BodyFormLifecyclePolicy.GetDeletionBlocker(
+			SameFormBody(body, CurrentBody),
+			() => Instances.Any(x => SameFormBody(x.Body, body) && x.IsEmbodied),
+			() => EffectsOfType<IBodyBackupEffect>().Any(x => x.BackupBodyId == body.Id),
+			() => HasPhysicalReferenceToRetiredBody(body.Id, null));
+		if (deletionBlocker != BodyFormDeletionBlocker.None)
 		{
-			whyNot = "You cannot delete the current body form.";
-			return false;
-		}
-
-		if (Instances.Any(x => SameFormBody(x.Body, body) && x.IsEmbodied))
-		{
-			whyNot = "You cannot delete a form while it has a live embodied instance.";
-			return false;
-		}
-
-		if (EffectsOfType<IBodyBackupEffect>().Any(x => x.BackupBodyId == body.Id))
-		{
-			whyNot = "You cannot delete a form while it is referenced by a body backup effect.";
-			return false;
-		}
-
-		if (HasPhysicalReferenceToRetiredBody(body.Id, null))
-		{
-			whyNot = "You cannot delete a form while corpses, remains, or other physical references still point at its body.";
+			whyNot = BodyFormLifecyclePolicy.GetDeletionFailureMessage(deletionBlocker);
 			return false;
 		}
 

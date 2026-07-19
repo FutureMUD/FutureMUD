@@ -74,22 +74,27 @@ public partial class DiscordBot
         {
             try
             {
-                DiscordBotSetttings settings =
-                    JsonConvert.DeserializeObject<DiscordBotSetttings>(reader.ReadToEnd());
-                _tcpClientPort = settings.Port;
-                _botToken = settings.Token;
-                _botPrefixes.AddRange(settings.Prefixes);
-                ServerAuth = settings.ServerAuth;
-                _announceChannelId = settings.AnnounceChannelId;
-                _adminAnnounceChannelId = settings.AdminAnnounceChannelId;
-                _debugAnnounceChannelId = settings.DebugAnnounceChannelId;
-                GameName = settings.GameName;
-                _authorisedUsers.AddRange(settings.AdminUsers);
-                _customGlobalReactions.AddRange(settings.CustomGlobalReactions);
+                if (!DiscordBotSettingsStore.TryLoadSettings(reader.ReadToEnd(), out var settings))
+                {
+                    Console.WriteLine("Discord bot settings.json is malformed.");
+                }
+                else
+                {
+                    _tcpClientPort = settings.Port;
+                    _botToken = settings.Token;
+                    _botPrefixes.AddRange(settings.Prefixes);
+                    ServerAuth = settings.ServerAuth;
+                    _announceChannelId = settings.AnnounceChannelId;
+                    _adminAnnounceChannelId = settings.AdminAnnounceChannelId;
+                    _debugAnnounceChannelId = settings.DebugAnnounceChannelId;
+                    GameName = settings.GameName;
+                    _authorisedUsers.AddRange(settings.AdminUsers);
+                    _customGlobalReactions.AddRange(settings.CustomGlobalReactions);
+                }
             }
             catch (Exception)
             {
-                Console.WriteLine("");
+                Console.WriteLine("Discord bot settings.json could not be read.");
             }
         }
 
@@ -97,23 +102,23 @@ public partial class DiscordBot
         {
             try
             {
+                List<string> lines = new();
                 while (!reader.EndOfStream)
                 {
-                    string line = reader.ReadLine();
-                    if (string.IsNullOrWhiteSpace(line))
-                    {
-                        continue;
-                    }
-                    DetailedUserSetting setting = new(line);
-                    DetailedUserSettings.Add(setting);
+                    lines.Add(reader.ReadLine());
+                }
+
+                DiscordBotAccountLinkLoadResult result = DiscordBotSettingsStore.LoadAccountLinks(lines);
+                DetailedUserSettings.AddRange(result.Settings);
+                if (result.InvalidLineCount > 0)
+                {
+                    Console.WriteLine($"Ignored {result.InvalidLineCount:N0} malformed Discord account-link entries.");
                 }
             }
             catch (Exception)
             {
-
             }
         }
-
         using (StreamReader reader = new(new FileStream("lastversion.config", FileMode.OpenOrCreate)))
         {
             try
@@ -513,9 +518,9 @@ public partial class DiscordBot
     {
         await using (StreamWriter writer = new(new FileStream("accountlinks.data", FileMode.Create, FileAccess.Write)))
         {
-            foreach (DetailedUserSetting config in DetailedUserSettings)
+            foreach (string configLine in DiscordBotSettingsStore.SaveAccountLinks(DetailedUserSettings))
             {
-                await writer.WriteLineAsync(config.SaveToConfig());
+                await writer.WriteLineAsync(configLine);
             }
         }
     }

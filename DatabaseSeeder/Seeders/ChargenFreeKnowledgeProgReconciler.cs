@@ -144,12 +144,18 @@ internal static partial class ChargenFreeKnowledgeProgReconciler
 
 	private static FutureProg? FindTargetProg(FuturemudDatabaseContext context)
 	{
+		FutureProg? tracked = context.FutureProgs.Local
+			.FirstOrDefault(x => x.FunctionName.Equals(ProgName, StringComparison.OrdinalIgnoreCase));
+		if (tracked is not null)
+		{
+			return tracked;
+		}
+
 		FutureProg? persisted = context.FutureProgs
 			.Include(x => x.FutureProgsParameters)
 			.AsEnumerable()
 			.FirstOrDefault(x => x.FunctionName.Equals(ProgName, StringComparison.OrdinalIgnoreCase));
-		return persisted ?? context.FutureProgs.Local
-			.FirstOrDefault(x => x.FunctionName.Equals(ProgName, StringComparison.OrdinalIgnoreCase));
+		return persisted;
 	}
 
 	private static bool TryValidateTargetContract(FutureProg target, out FutureProgsParameter? characterParameter,
@@ -387,14 +393,14 @@ internal static partial class ChargenFreeKnowledgeProgReconciler
 
 	private static Regex MarkerRegex(string marker)
 	{
-		return new Regex($"^[\\t ]*{Regex.Escape(marker)}[\\t ]*$",
+		return new Regex($"^[\\t ]*{Regex.Escape(marker)}[\\t ]*\\r?$",
 			RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.CultureInvariant);
 	}
 
 	[GeneratedRegex("^[A-Za-z][A-Za-z0-9_]*$", RegexOptions.CultureInvariant)]
 	private static partial Regex UserDefinedFunctionNameRegex();
 
-	[GeneratedRegex("^[\\t ]*return[\\t ]+@knowledges[\\t ]*$",
+	[GeneratedRegex("^[\\t ]*return[\\t ]+@knowledges[\\t ]*\\r?$",
 		RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.CultureInvariant)]
 	private static partial Regex ReturnKnowledgesRegex();
 }

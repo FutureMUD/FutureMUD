@@ -20,6 +20,8 @@ The default gate is:
 & .\scripts\test-unit.ps1
 ```
 
+`scripts/unit-test-projects.txt` is the canonical default-project manifest consumed by both `test-unit.ps1` and `test-unit.sh`. Both runners build projects sequentially to avoid shared-output locks and then run the already-built, process-isolated test hosts in parallel. Any project failure makes the overall runner fail.
+
 It runs every fast, meaningful test project:
 
 | Project | Responsibility | Tests after the July 2026 review |
@@ -27,9 +29,9 @@ It runs every fast, meaningful test project:
 | `FutureMUDLibrary Unit Tests` | Shared abstractions, extension methods, utilities, and value objects | 396 |
 | `ExpressionEngine Unit Tests` | Expression parsing, evaluation, custom functions, and failure semantics | 21 |
 | `DatabaseSeeder Unit Tests` | Seeder behavior, repeatability, content contracts, and maintained catalogues | 539 |
-| `MudSharpCore Unit Tests` | Engine runtime and gameplay behavior | 1,704 |
-| `MudsharpDatabaseLibrary Unit Tests` | Upgrade coordination, model compatibility, and persistence helpers | 12 |
-| `DiscordBotCore Unit Tests` | Discord protocol parsing and bot integration glue | 5 |
+| `MudSharpCore Unit Tests` | Engine runtime and gameplay behavior | 1,672 |
+| `MudsharpDatabaseLibrary Unit Tests` | Upgrade coordination, model compatibility, and persistence helpers | 27 |
+| `DiscordBotCore Unit Tests` | Discord protocol parsing and bot integration glue | 22 |
 | `RPI Engine Worldfile Converter Tests` | Legacy parsing and conversion compatibility | 43 |
 | `FutureMUD.Web.Tests` | Website endpoints, publishing, documentation transport, and security | 49 |
 
@@ -77,7 +79,7 @@ Database-backed fixtures may be shared only when they are read-only, the class i
 
 The review began with a clean default baseline of 2,663 passing tests. The four default projects were healthy, but the gate omitted four projects that already contained meaningful tests. The converter test project was also absent from `MudSharp.sln`, so a solution restore did not restore it; a direct restored run revealed two stale assertions.
 
-The post-change default gate passes 2,769 tests with zero failures and zero skips in 93.7 seconds of wall time on the same environment. Together with the 34-case climate gate, the maintained test system now resolves 2,803 passing cases.
+The completed follow-up default gate passes 2,769 tests with zero failures and zero skips. Three warm Windows runs completed in 68.8, 80.5, and 67.1 seconds; the 68.8-second median is 26.6% below the original 93.7-second post-review result. Together with the unchanged 34-case climate gate, the maintained test system resolves 2,803 passing cases.
 
 The PowerShell scripts relied on `$ErrorActionPreference = 'Stop'`, which does not reliably turn native `dotnet` exit codes into terminating PowerShell errors. An earlier failing suite could therefore be followed by a passing suite and leave a misleading successful script exit. The scripts now check every `dotnet` exit code explicitly, and all test invocations use single-node MSBuild to avoid the known Windows output-lock failure mode.
 
@@ -89,15 +91,28 @@ ExpressionEngine had only six resolved tests. Its coverage now includes `not`, `
 
 The seeder timing profile showed 69.65 seconds of test execution, of which `EconomySeederTests` accounted for 24.91 seconds. Read-only classical, all-era, scale, and currency contexts are now shared within a non-parallel test class, while rerun and mutation tests retain isolated contexts. The focused class fell to 19.94 seconds in the first post-change run. Repeated seeder source-file searches are also cached for the duration of the process.
 
+## July 2026 Follow-up Implementation
+
+A method-level recount corrected the planning estimate of 72 priority source-reading tests to 68. The earlier estimate attributed helper reads to more than one surrounding test. In the named law, command-security, body-form, liquid-contamination, magic, combat, poison, settings, and ranged-weapon files, 67 source-coupled tests were converted or retired. Existing direct suites already covered the durable magic factory round trips, dispel outcomes, combat-setting resolver, weapon-poison configuration, natural-ranged runtime, legal trial state, and surface-liquid state behavior. New callable seams added focused coverage for patrol candidate/custody decisions, body-form deletion and provisioning decisions, surface-liquid routing and washing-machine drying, force target collection selection, and spreadsheet-formula neutralisation.
+
+The sole retained structural exception is `CommandExecutionArchitectureTests.AuthoredCommandPaths_UseTheSecureExecutor`. It is isolated in its own class and marked `SourceCoupled` because the security requirement spans authored command entry points that do not share one runtime fixture. It verifies that those paths delegate to the secure executor; it does not assert private helper names, local variables, or formatting. No other named priority file reads production source.
+
+Future production-source-reading tests require an explicit compatibility or security justification, isolation in a `SourceCoupled` class/category, and an explanation of why a callable seam is not practical. Unrelated seeder catalogue source checks remain for a later content-test audit; they are not precedent for runtime implementation-text tests.
+
+The Discord suite grew from 5 to 22 cases. It now covers framing, size limits without sleeps, authenticated routing, exact fixed-time secret validation, Unicode, shutdown compatibility, main-settings validation, account-link recovery and invariant persistence, and concurrent request ids. The tests exposed two defects: authentication used a case-insensitive comparison, and one malformed account-link row discarded every later link. Both are corrected and documented in `Discord_Bot_Protocol_and_Settings.md`.
+
+The database-library suite grew from 12 to 27 cases. It now covers request validation, settings repair, migration progress and ordering, attempted-state persistence, recovery matching, rollback failures, disabled backups, snapshot exception cleanup, and pruning. It exposed malformed backup-settings JSON as a permanent startup failure; loading now replaces damaged JSON with defaults. The lifecycle is documented in `Database_Upgrade_Coordination.md`.
+
+Normal CI is defined in `.github/workflows/unit-tests.yml` and runs the canonical default gate on .NET 10 for Windows and Linux in parallel matrix jobs. `.github/workflows/climate-tests.yml` keeps the unchanged multi-year climate suite separate on a weekly and manual schedule. Neither workflow collects coverage or runs mutation testing.
 ## Remaining Risks and Priorities
 
-The suite is broad but not demonstrably complete because no maintained line/branch coverage report or mutation-testing gate exists. Raw coverage percentage should not become a target by itself, but a report would make untested high-risk code easier to find.
+The suite is broad but not demonstrably complete because this branch intentionally does not add line/branch coverage or mutation tooling. Raw coverage percentage should not become a target by itself.
 
 The next highest-value work is:
 
-1. Replace source-coupled legal patrol, command security, body-form lifecycle, liquid-contamination, magic, and combat checks with behavioral seams as those subsystems are next changed.
-2. Grow the Discord and database-library suites from their current small foundations, especially authorization/error handling and EF mapping/upgrade recovery behavior.
-3. Add tests for important pure helpers and parser branches when uncovered code is encountered, rather than adding snapshots of private implementation text.
+1. Audit the remaining legacy source-reading files outside the named priority set, beginning with runtime tests whose requirements can be reached without external services; handle seeder catalogue checks as a separate content-test audit.
+2. Add behavior around important pure helpers, parsers, and persistence boundaries when uncovered code is encountered rather than adding snapshots of private implementation text.
+3. Add only targeted EF mapping invariants backed by an explicit database compatibility requirement.
 4. Keep the climate simulation separate and benchmark-driven; do not weaken its year ranges merely to improve the default-gate time.
 
 This document should be updated whenever a test project moves into or out of the default gate, the test taxonomy changes, or a later measured audit materially changes the priorities above.

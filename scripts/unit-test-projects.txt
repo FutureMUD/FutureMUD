@@ -1,0 +1,8 @@
+FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj
+ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj
+DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj
+MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj
+MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj
+DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj
+RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj
+FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj

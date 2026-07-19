@@ -1,0 +1,85 @@
+name: Generate Early Modern clothing catalogue
+
+on:
+  push:
+    branches:
+      - docs/earlymodern-clothing-first-pass-20260719
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out catalogue branch
+        uses: actions/checkout@v4
+        with:
+          ref: docs/earlymodern-clothing-first-pass-20260719
+          fetch-depth: 0
+
+      - name: Reconstruct and validate design documents
+        shell: python
+        run: |
+          import base64
+          import gzip
+          import hashlib
+          import shutil
+          from pathlib import Path
+
+          payload = Path('Design Documents/Seeding/.earlymodern-clothing-payload')
+          documents = [
+              (
+                  Path('Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md'),
+                  sorted(payload.glob("catalogue.part*")),
+                  "90f09cc78a373e29a57efa11645b6d7fdcf27728976010dc260c811092cce97f",
+              ),
+              (
+                  Path('Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Register.md'),
+                  sorted(payload.glob("dependencies.part*")),
+                  "7ac43ded7649b6308c19a3f63f17510e7f91f1a5cf5488979a5be831dd1e0e45",
+              ),
+          ]
+
+          for destination, parts, expected_sha256 in documents:
+              if not parts:
+                  raise SystemExit(f"No payload parts found for {destination}")
+              encoded = "".join(part.read_text(encoding="ascii") for part in parts)
+              content = gzip.decompress(base64.b64decode(encoded))
+              actual_sha256 = hashlib.sha256(content).hexdigest()
+              if actual_sha256 != expected_sha256:
+                  raise SystemExit(
+                      f"Checksum mismatch for {destination}: "
+                      f"expected {expected_sha256}, got {actual_sha256}"
+                  )
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              destination.write_bytes(content)
+
+          target = Path('Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md').read_text(encoding="utf-8")
+          dependencies = Path('Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Register.md').read_text(encoding="utf-8")
+          checks = {
+              "culture sections": target.count("## Culture ") == 35,
+              "outfit manifests": target.count("### Outfit ") == 350,
+              "catalogue rows": target.count("| `earlymodern_") == 417,
+              "global maritime excluded": "## Culture Global maritime" not in target,
+              "dependency register populated": "No blocking new dependencies" in dependencies,
+          }
+          failures = [name for name, passed in checks.items() if not passed]
+          if failures:
+              raise SystemExit("Catalogue validation failed: " + ", ".join(failures))
+
+          shutil.rmtree(payload)
+
+      - name: Commit generated catalogue
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- "Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md" "Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Register.md" "Design Documents/Seeding/.earlymodern-clothing-payload"
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+            exit 0
+          fi
+          git commit -m "Expand Early Modern civilian clothing catalogue"
+          git push origin HEAD:docs/earlymodern-clothing-first-pass-20260719

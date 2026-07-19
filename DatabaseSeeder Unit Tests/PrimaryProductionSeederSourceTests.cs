@@ -398,7 +398,7 @@ public class PrimaryProductionSeederSourceTests
 	public void Phase3_PrimaryProductionSpecsUseSeededComponentAndTagDependencies()
 	{
 		var specs = ItemSeeder.PrimaryProductionItemSpecsForTesting.ToArray();
-		var componentSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.ItemComponents.cs");
+		var componentSource = SeederSourceTestHelper.ReadPartialFamily("UsefulSeeder.ItemComponents");
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
 
 		foreach (var component in specs

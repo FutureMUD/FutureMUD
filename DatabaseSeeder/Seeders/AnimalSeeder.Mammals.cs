@@ -1,8 +1,26 @@
 #nullable enable
 
+using MudSharp.Body.Traits;
 using MudSharp.Body;
+using MudSharp.Combat;
+using MudSharp.Construction;
+using MudSharp.Database;
+using MudSharp.Form.Characteristics;
+using MudSharp.Form.Material;
+using MudSharp.Form.Shape;
+using MudSharp.Framework;
+using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.Health;
+using MudSharp.Models;
+using MudSharp.RPG.Checks;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
+using System.Xml;
+using System;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -1077,5 +1095,910 @@ public partial class AnimalSeeder
 
             Their presence at the edge of camp or pasture is enough to make livestock restless and travellers attentive. A dingo can serve as background wildlife, valuable domestic animal, troublesome vermin or a serious hazard, depending on the scene and the way nearby people have learned to live with it.
             """, bloodProfile: "canine", combatStrategyKey: "Beast Skirmisher");
+    }
+
+    private void SeedQuadruped(BodyProto quadrupedBody, BodyProto ungulateBody, BodyProto toedQuadruped)
+    {
+        ResetCachedParts();
+        int order = 1;
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Bodyparts...");
+
+        #region Torso
+
+        AddBodypart(quadrupedBody, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Wear, null,
+            Alignment.Front, Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "rbreast", "right breast", "breast", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.FrontRight, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "lbreast", "left breast", "breast", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.FrontLeft, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "urflank", "upper right flank", "flank", BodypartTypeEnum.Wear, "rbreast",
+            Alignment.Right, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "ulflank", "upper left flank", "flank", BodypartTypeEnum.Wear, "lbreast",
+            Alignment.Left, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "lrflank", "lower right flank", "flank", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.RearRight, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "llflank", "lower left flank", "flank", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.RearLeft, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "belly", "belly", "belly", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.Front, Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "rshoulder", "right shoulder", "shoulder", BodypartTypeEnum.Wear, "rbreast",
+            Alignment.FrontRight, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal,
+            "Torso", true, isVital: false, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "lshoulder", "left shoulder", "shoulder", BodypartTypeEnum.Wear, "lbreast",
+            Alignment.FrontLeft, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal,
+            "Torso", true, isVital: false, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "uback", "upper back", "upper back", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.Front, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "lback", "lower back", "lower back", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.Rear, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "withers", "withers", "withers", BodypartTypeEnum.Wear, "uback",
+            Alignment.Front, Orientation.High, 80, -1, 50, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: false, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "rrump", "right rump", "rump", BodypartTypeEnum.Wear, "lback",
+            Alignment.RearRight, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal,
+            "Torso", true, isVital: false, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "lrump", "left rump", "rump", BodypartTypeEnum.Wear, "lback",
+            Alignment.RearLeft, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal,
+            "Torso", true, isVital: false, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "rloin", "right loin", "loin", BodypartTypeEnum.Wear, "belly",
+            Alignment.RearRight, Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "lloin", "left loin", "loin", BodypartTypeEnum.Wear, "belly",
+            Alignment.RearLeft, Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+
+        #endregion
+
+        #region Head
+
+        AddBodypart(quadrupedBody, "neck", "neck", "neck", BodypartTypeEnum.Wear, "uback", Alignment.Front,
+            Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(quadrupedBody, "bneck", "neck back", "neck back", BodypartTypeEnum.Wear, "neck",
+            Alignment.Rear, Orientation.Highest, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(quadrupedBody, "throat", "throat", "throat", BodypartTypeEnum.Wear, "neck",
+            Alignment.Front, Orientation.Highest, 40, 50, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Head",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(quadrupedBody, "head", "head", "face", BodypartTypeEnum.Wear, "neck", Alignment.Front,
+            Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(quadrupedBody, "bhead", "head back", "head back", BodypartTypeEnum.Wear, "bneck",
+            Alignment.Rear, Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(quadrupedBody, "rjaw", "right jaw", "jaw", BodypartTypeEnum.Wear, "head",
+            Alignment.FrontRight, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(quadrupedBody, "ljaw", "left jaw", "jaw", BodypartTypeEnum.Wear, "head",
+            Alignment.FrontLeft, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(quadrupedBody, "rcheek", "right cheek", "cheek", BodypartTypeEnum.Wear, "head",
+            Alignment.Right, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small, "Head",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(quadrupedBody, "lcheek", "left cheek", "cheek", BodypartTypeEnum.Wear, "head",
+            Alignment.Left, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small, "Head",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(quadrupedBody, "reyesocket", "right eye socket", "eye socket", BodypartTypeEnum.Wear,
+            "head", Alignment.FrontRight, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh",
+            SizeCategory.Small, "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(quadrupedBody, "leyesocket", "left eye socket", "eye socket", BodypartTypeEnum.Wear,
+            "head", Alignment.FrontLeft, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh",
+            SizeCategory.Small, "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(quadrupedBody, "reye", "right eye", "eye", BodypartTypeEnum.Eye, "reyesocket",
+            Alignment.FrontRight, Orientation.Highest, 10, 30, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(quadrupedBody, "leye", "left eye", "eye", BodypartTypeEnum.Eye, "leyesocket",
+            Alignment.FrontLeft, Orientation.Highest, 10, 30, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(quadrupedBody, "rear", "right ear", "ear", BodypartTypeEnum.Wear, "head", Alignment.Right,
+            Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head", true, isVital: false,
+            implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "lear", "left ear", "ear", BodypartTypeEnum.Wear, "head", Alignment.Left,
+            Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head", true, isVital: false,
+            implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(quadrupedBody, "muzzle", "muzzle", "muzzle", BodypartTypeEnum.Wear, "head",
+            Alignment.Front, Orientation.Highest, 50, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(quadrupedBody, "mouth", "mouth", "mouth", BodypartTypeEnum.Mouth, "muzzle", Alignment.Front,
+            Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(quadrupedBody, "tongue", "tongue", "tongue", BodypartTypeEnum.Tongue, "mouth", Alignment.Front,
+            Orientation.Highest, 10, 30, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(quadrupedBody, "nose", "nose", "nose", BodypartTypeEnum.Wear, "mouth", Alignment.Front,
+            Orientation.Highest, 10, 30, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+
+        #endregion
+
+        #region Legs
+
+        AddBodypart(quadrupedBody, "ruforeleg", "right upper foreleg", "upper foreleg", BodypartTypeEnum.Wear,
+            "rshoulder", Alignment.FrontRight, Orientation.Low, 80, 100, 100, order++, "Bony Flesh",
+            SizeCategory.Normal, "Right Foreleg");
+        AddBodypart(quadrupedBody, "luforeleg", "left upper foreleg", "upper foreleg", BodypartTypeEnum.Wear,
+            "lshoulder", Alignment.FrontLeft, Orientation.Low, 80, 100, 100, order++, "Bony Flesh",
+            SizeCategory.Normal, "Left Foreleg");
+        AddBodypart(quadrupedBody, "ruhindleg", "right upper hindleg", "upper hindleg", BodypartTypeEnum.Wear,
+            "rrump", Alignment.RearRight, Orientation.Low, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal,
+            "Right Hindleg");
+        AddBodypart(quadrupedBody, "luhindleg", "left upper hindleg", "upper hindleg", BodypartTypeEnum.Wear,
+            "lrump", Alignment.RearLeft, Orientation.Low, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal,
+            "Left Hindleg");
+        AddBodypart(quadrupedBody, "rfknee", "right front knee", "knee", BodypartTypeEnum.Wear, "ruforeleg",
+            Alignment.FrontRight, Orientation.Low, 60, 80, 30, order++, "Dense Bony Flesh", SizeCategory.Normal,
+            "Right Foreleg");
+        AddBodypart(quadrupedBody, "lfknee", "left front knee", "knee", BodypartTypeEnum.Wear, "luforeleg",
+            Alignment.FrontLeft, Orientation.Low, 60, 80, 30, order++, "Dense Bony Flesh", SizeCategory.Normal,
+            "Left Foreleg");
+        AddBodypart(quadrupedBody, "rrknee", "right rear knee", "knee", BodypartTypeEnum.Wear, "ruhindleg",
+            Alignment.RearRight, Orientation.Low, 60, 80, 30, order++, "Dense Bony Flesh", SizeCategory.Normal,
+            "Right Hindleg");
+        AddBodypart(quadrupedBody, "rlknee", "left rear knee", "knee", BodypartTypeEnum.Wear, "luhindleg",
+            Alignment.RearLeft, Orientation.Low, 60, 80, 30, order++, "Dense Bony Flesh", SizeCategory.Normal,
+            "Left Hindleg");
+        AddBodypart(quadrupedBody, "rlforeleg", "right lower foreleg", "lower foreleg", BodypartTypeEnum.Wear,
+            "rfknee", Alignment.FrontRight, Orientation.Lowest, 40, 50, 100, order++, "Dense Bony Flesh",
+            SizeCategory.Normal, "Right Foreleg");
+        AddBodypart(quadrupedBody, "llforeleg", "left lower foreleg", "lower foreleg", BodypartTypeEnum.Wear,
+            "lfknee", Alignment.FrontLeft, Orientation.Lowest, 40, 50, 100, order++, "Dense Bony Flesh",
+            SizeCategory.Normal, "Left Foreleg");
+        AddBodypart(quadrupedBody, "rlhindleg", "right lower hindleg", "lower hindleg", BodypartTypeEnum.Wear,
+            "rrknee", Alignment.RearRight, Orientation.Lowest, 40, 50, 100, order++, "Dense Bony Flesh",
+            SizeCategory.Normal, "Right Hindleg");
+        AddBodypart(quadrupedBody, "llhindleg", "left lower hindleg", "lower hindleg", BodypartTypeEnum.Wear,
+            "rlknee", Alignment.RearLeft, Orientation.Lowest, 40, 50, 100, order++, "Dense Bony Flesh",
+            SizeCategory.Normal, "Left Hindleg");
+        AddBodypart(quadrupedBody, "rfhock", "right front hock", "front hock", BodypartTypeEnum.Wear,
+            "rlforeleg", Alignment.FrontRight, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh",
+            SizeCategory.Normal, "Right Foreleg");
+        AddBodypart(quadrupedBody, "lfhock", "left front hock", "front hock", BodypartTypeEnum.Wear,
+            "llforeleg", Alignment.FrontLeft, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh",
+            SizeCategory.Normal, "Left Foreleg");
+        AddBodypart(quadrupedBody, "rrhock", "right rear hock", "rear hock", BodypartTypeEnum.Wear,
+            "rlhindleg", Alignment.RearRight, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh",
+            SizeCategory.Normal, "Right Hindleg");
+        AddBodypart(quadrupedBody, "lrhock", "left rear hock", "rear hock", BodypartTypeEnum.Wear, "llhindleg",
+            Alignment.RearLeft, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh", SizeCategory.Normal,
+            "Left Hindleg");
+
+        #endregion
+
+        #region Tail
+
+        AddBodypart(quadrupedBody, "utail", "upper tail", "tail", BodypartTypeEnum.Wear, "lback",
+            Alignment.Rear, Orientation.Centre, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "Tail");
+        AddBodypart(quadrupedBody, "mtail", "middle tail", "tail", BodypartTypeEnum.Wear, "utail",
+            Alignment.Rear, Orientation.Centre, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "Tail");
+        AddBodypart(quadrupedBody, "ltail", "lower tail", "tail", BodypartTypeEnum.Wear, "mtail",
+            Alignment.Rear, Orientation.Centre, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "Tail");
+
+        #endregion
+
+        #region Genitals
+
+        AddBodypart(quadrupedBody, "groin", "groin", "groin", BodypartTypeEnum.Wear, "belly", Alignment.Rear,
+            Orientation.Low, 30, -1, 100, order++, "Fatty Flesh", SizeCategory.Small, "Genitals");
+        AddBodypart(quadrupedBody, "testicles", "testicles", "testicles", BodypartTypeEnum.Wear, "groin",
+            Alignment.Rear, Orientation.Low, 10, 30, 100, order++, "Fatty Flesh", SizeCategory.Small, "Genitals",
+            true, isCore: false);
+        AddBodypart(quadrupedBody, "penis", "penis", "penis", BodypartTypeEnum.Wear, "groin", Alignment.Rear,
+            Orientation.Low, 10, 30, 100, order++, "Fatty Flesh", SizeCategory.Small, "Genitals", true,
+            isCore: false);
+        AddBodypartUsage("penis", "male", quadrupedBody);
+        AddBodypartUsage("testicles", "male", quadrupedBody);
+
+        #endregion
+
+        #region Wings
+
+        AddBodypart(quadrupedBody, "rwingbase", "right wing base", "wing base", BodypartTypeEnum.Wear, "uback",
+            Alignment.FrontRight, Orientation.High, 40, -1, 100, order++, "Flesh", SizeCategory.Normal,
+            "Right Wing", true, isCore: false);
+        AddBodypart(quadrupedBody, "lwingbase", "left wing base", "wing base", BodypartTypeEnum.Wear, "uback",
+            Alignment.FrontLeft, Orientation.High, 40, -1, 100, order++, "Flesh", SizeCategory.Normal, "Left Wing",
+            true, isCore: false);
+        AddBodypart(quadrupedBody, "rwing", "right wing", "wing", BodypartTypeEnum.Wing, "rwingbase",
+            Alignment.FrontRight, Orientation.High, 40, 50, 100, order++, "Flesh", SizeCategory.Normal,
+            "Right Wing", true, isCore: false);
+        AddBodypart(quadrupedBody, "lwing", "left wing", "wing", BodypartTypeEnum.Wing, "lwingbase",
+            Alignment.FrontLeft, Orientation.High, 40, 50, 100, order++, "Flesh", SizeCategory.Normal, "Left Wing",
+            true, isCore: false);
+
+        #endregion
+
+        #region Misceallaneous
+
+        AddBodypart(quadrupedBody, "udder", "udder", "udder", BodypartTypeEnum.Wear, "belly", Alignment.Rear,
+            Orientation.Low, 40, 60, 100, order++, "Flesh", SizeCategory.Normal, "Torso", false, isCore: false);
+        AddBodypart(quadrupedBody, "rhorn", "right horn", "horn", BodypartTypeEnum.Wear, "head",
+            Alignment.FrontRight, Orientation.Highest, 40, 60, 100, order++, "Keratin", SizeCategory.Small, "Head",
+            false, isCore: false);
+        AddBodypart(quadrupedBody, "lhorn", "left horn", "horn", BodypartTypeEnum.Wear, "head",
+            Alignment.FrontLeft, Orientation.Highest, 40, 60, 100, order++, "Keratin", SizeCategory.Small, "Head",
+            false, isCore: false);
+        AddBodypart(quadrupedBody, "horn", "horn", "horn", BodypartTypeEnum.Wear, "head", Alignment.Front,
+            Orientation.Highest, 40, 60, 100, order++, "Keratin", SizeCategory.Small, "Head", false, isCore: false);
+        AddBodypart(quadrupedBody, "rantler", "right antler", "antler", BodypartTypeEnum.Wear, "head",
+            Alignment.FrontRight, Orientation.Highest, 40, 60, 100, order++, "Antler", SizeCategory.Small, "Head",
+            false, isCore: false);
+        AddBodypart(quadrupedBody, "lantler", "left antler", "antler", BodypartTypeEnum.Wear, "head",
+            Alignment.FrontLeft, Orientation.Highest, 40, 60, 100, order++, "Antler", SizeCategory.Small, "Head",
+            false, isCore: false);
+        AddBodypart(quadrupedBody, "rtusk", "right tusk", "tusk", BodypartTypeEnum.Wear, "rjaw",
+            Alignment.FrontRight, Orientation.Highest, 40, 60, 100, order++, "Keratin", SizeCategory.Small, "Head",
+            false, isCore: false);
+        AddBodypart(quadrupedBody, "ltusk", "left tusk", "tusk", BodypartTypeEnum.Wear, "ljaw",
+            Alignment.FrontLeft, Orientation.Highest, 40, 60, 100, order++, "Keratin", SizeCategory.Small, "Head",
+            false, isCore: false);
+
+        #endregion
+
+        #region Ungulates
+
+        AddBodypart(ungulateBody, "rfhoof", "right front hoof", "hoof", BodypartTypeEnum.Wear, "rfhock",
+            Alignment.FrontRight, Orientation.Lowest, 40, 50, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Right Foreleg");
+        AddBodypart(ungulateBody, "lfhoof", "left front hoof", "hoof", BodypartTypeEnum.Wear, "lfhock",
+            Alignment.FrontLeft, Orientation.Lowest, 40, 50, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Left Foreleg");
+        AddBodypart(ungulateBody, "rrhoof", "right rear hoof", "hoof", BodypartTypeEnum.Wear, "rrhock",
+            Alignment.RearRight, Orientation.Lowest, 40, 50, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Right Hindleg");
+        AddBodypart(ungulateBody, "lrhoof", "left rear hoof", "hoof", BodypartTypeEnum.Wear, "lrhock",
+            Alignment.RearLeft, Orientation.Lowest, 40, 50, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Left Hindleg");
+        AddBodypart(ungulateBody, "rffrog", "right front frog", "hoof", BodypartTypeEnum.Standing, "rfhoof",
+            Alignment.FrontRight, Orientation.Lowest, 20, 50, 10, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Right Foreleg");
+        AddBodypart(ungulateBody, "lffrog", "left front frog", "hoof", BodypartTypeEnum.Standing, "lfhoof",
+            Alignment.FrontLeft, Orientation.Lowest, 20, 50, 10, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Left Foreleg");
+        AddBodypart(ungulateBody, "rrfrog", "right rear frog", "hoof", BodypartTypeEnum.Standing, "rrhoof",
+            Alignment.RearRight, Orientation.Lowest, 20, 50, 10, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Right Hindleg");
+        AddBodypart(ungulateBody, "lrfrog", "left rear frog", "hoof", BodypartTypeEnum.Standing, "lrhoof",
+            Alignment.RearLeft, Orientation.Lowest, 20, 50, 10, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Left Hindleg");
+
+        #endregion
+
+        #region Toed
+
+        AddBodypart(toedQuadruped, "rfpaw", "right front paw", "paw", BodypartTypeEnum.Standing, "rfhock",
+            Alignment.FrontRight, Orientation.Lowest, 40, 50, 50, order++, "Bony Flesh", SizeCategory.Normal,
+            "Right Foreleg");
+        AddBodypart(toedQuadruped, "lfpaw", "left front paw", "paw", BodypartTypeEnum.Standing, "lfhock",
+            Alignment.FrontLeft, Orientation.Lowest, 40, 50, 50, order++, "Bony Flesh", SizeCategory.Normal,
+            "Left Foreleg");
+        AddBodypart(toedQuadruped, "rrpaw", "right rear paw", "paw", BodypartTypeEnum.Standing, "rrhock",
+            Alignment.RearRight, Orientation.Lowest, 40, 50, 50, order++, "Bony Flesh", SizeCategory.Normal,
+            "Right Hindleg");
+        AddBodypart(toedQuadruped, "lrpaw", "left rear paw", "paw", BodypartTypeEnum.Standing, "lrhock",
+            Alignment.RearLeft, Orientation.Lowest, 40, 50, 50, order++, "Bony Flesh", SizeCategory.Normal,
+            "Left Hindleg");
+        AddBodypart(toedQuadruped, "rfclaw", "right front claws", "claw", BodypartTypeEnum.Wear, "rfpaw",
+            Alignment.FrontRight, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh", SizeCategory.Normal,
+            "Right Foreleg", false, isVital: false);
+        AddBodypart(toedQuadruped, "lfclaw", "left front claws", "claw", BodypartTypeEnum.Wear, "lfpaw",
+            Alignment.FrontLeft, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh", SizeCategory.Normal,
+            "Left Foreleg", false, isVital: false);
+        AddBodypart(toedQuadruped, "rrclaw", "right rear claws", "claw", BodypartTypeEnum.Wear, "rrpaw",
+            Alignment.RearRight, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh", SizeCategory.Normal,
+            "Right Hindleg", false, isVital: false);
+        AddBodypart(toedQuadruped, "lrclaw", "left rear claws", "claw", BodypartTypeEnum.Wear, "lrpaw",
+            Alignment.RearLeft, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh", SizeCategory.Normal,
+            "Left Hindleg", false, isVital: false);
+        AddBodypart(toedQuadruped, "rrdewclaw", "right dewclaw", "dewclaw", BodypartTypeEnum.Wear, "rrpaw",
+            Alignment.RearRight, Orientation.Lowest, 10, 50, 5, order++, "Dense Bony Flesh", SizeCategory.Normal,
+            "Right Hindleg", false, isVital: false);
+        AddBodypart(toedQuadruped, "lrdewclaw", "left dewclaw", "dewclaw", BodypartTypeEnum.Wear, "lrpaw",
+            Alignment.RearLeft, Orientation.Lowest, 10, 50, 5, order++, "Dense Bony Flesh", SizeCategory.Normal,
+            "Left Hindleg", false, isVital: false);
+
+        #endregion
+
+        _context.SaveChanges();
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Organs...");
+
+        #region Organs
+
+        AddOrgan(quadrupedBody, "brain", "brain", BodypartTypeEnum.Brain, 2.0, 50, 0.2, 0.2, 0.1,
+            stunModifier: 1.0);
+        AddOrgan(quadrupedBody, "heart", "heart", BodypartTypeEnum.Heart, 1.0, 50, 0.2, 1.0, 1.0);
+        AddOrgan(quadrupedBody, "liver", "liver", BodypartTypeEnum.Liver, 3.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(quadrupedBody, "spleen", "spleen", BodypartTypeEnum.Spleen, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(quadrupedBody, "stomach", "stomach", BodypartTypeEnum.Stomach, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(quadrupedBody, "lintestines", "large intestines", BodypartTypeEnum.Intestines, 0.5, 50, 0.2, 1.0,
+            0.05);
+        AddOrgan(quadrupedBody, "sintestines", "small intestines", BodypartTypeEnum.Intestines, 2.0, 50, 0.2, 1.0,
+            0.05);
+        AddOrgan(quadrupedBody, "rkidney", "right kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
+            painModifier: 3.0);
+        AddOrgan(quadrupedBody, "lkidney", "left kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
+            painModifier: 3.0);
+        AddOrgan(quadrupedBody, "rlung", "right lung", BodypartTypeEnum.Lung, 2.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(quadrupedBody, "llung", "left lung", BodypartTypeEnum.Lung, 2.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(quadrupedBody, "trachea", "trachea", BodypartTypeEnum.Trachea, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(quadrupedBody, "esophagus", "esophagus", BodypartTypeEnum.Esophagus, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(quadrupedBody, "uspinalcord", "upper spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
+            stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(quadrupedBody, "mspinalcord", "middle spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0,
+            0.05, stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(quadrupedBody, "lspinalcord", "lower spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
+            stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(quadrupedBody, "rinnerear", "right inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+        AddOrgan(quadrupedBody, "linnerear", "left inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+
+        AddOrganCoverage("brain", "head", 100, true);
+        AddOrganCoverage("brain", "bhead", 100);
+        AddOrganCoverage("brain", "rcheek", 85);
+        AddOrganCoverage("brain", "lcheek", 85);
+        AddOrganCoverage("brain", "reyesocket", 85);
+        AddOrganCoverage("brain", "leyesocket", 85);
+        AddOrganCoverage("brain", "reye", 85);
+        AddOrganCoverage("brain", "leye", 85);
+        AddOrganCoverage("brain", "muzzle", 10);
+        AddOrganCoverage("brain", "mouth", 30);
+        AddOrganCoverage("brain", "lear", 10);
+        AddOrganCoverage("brain", "rear", 10);
+
+        AddOrganCoverage("linnerear", "lear", 33, true);
+        AddOrganCoverage("rinnerear", "rear", 33, true);
+        AddOrganCoverage("esophagus", "throat", 50, true);
+        AddOrganCoverage("esophagus", "neck", 20);
+        AddOrganCoverage("esophagus", "bneck", 5);
+        AddOrganCoverage("trachea", "throat", 50, true);
+        AddOrganCoverage("trachea", "neck", 20);
+        AddOrganCoverage("trachea", "bneck", 5);
+
+        AddOrganCoverage("rlung", "rbreast", 100, true);
+        AddOrganCoverage("llung", "lbreast", 100, true);
+        AddOrganCoverage("rlung", "uback", 15);
+        AddOrganCoverage("llung", "uback", 15);
+        AddOrganCoverage("rlung", "rshoulder", 66);
+        AddOrganCoverage("llung", "lshoulder", 66);
+
+        AddOrganCoverage("heart", "lbreast", 33, true);
+        AddOrganCoverage("heart", "lshoulder", 20);
+
+        AddOrganCoverage("uspinalcord", "bneck", 10, true);
+        AddOrganCoverage("uspinalcord", "neck", 2);
+        AddOrganCoverage("uspinalcord", "throat", 5);
+        AddOrganCoverage("mspinalcord", "uback", 10, true);
+        AddOrganCoverage("mspinalcord", "withers", 2);
+        AddOrganCoverage("lspinalcord", "lback", 10, true);
+
+        AddOrganCoverage("liver", "abdomen", 33, true);
+        AddOrganCoverage("spleen", "abdomen", 20, true);
+        AddOrganCoverage("stomach", "abdomen", 20, true);
+        AddOrganCoverage("liver", "uback", 15);
+        AddOrganCoverage("spleen", "uback", 10);
+        AddOrganCoverage("stomach", "uback", 5);
+
+        AddOrganCoverage("lintestines", "belly", 5, true);
+        AddOrganCoverage("sintestines", "belly", 50, true);
+        AddOrganCoverage("lintestines", "lback", 5);
+        AddOrganCoverage("sintestines", "lback", 33);
+        AddOrganCoverage("lintestines", "groin", 5);
+        AddOrganCoverage("lintestines", "rloin", 10);
+        AddOrganCoverage("lintestines", "lloin", 10);
+
+        AddOrganCoverage("rkidney", "lback", 20, true);
+        AddOrganCoverage("lkidney", "lback", 20, true);
+        AddOrganCoverage("rkidney", "belly", 5);
+        AddOrganCoverage("lkidney", "belly", 5);
+        _context.SaveChanges();
+
+        #endregion
+
+        _context.SaveChanges();
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Bones...");
+
+        #region Bones
+
+        AddBone(quadrupedBody, "smaxillary", "superior maxillary", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rimaxillary", "right inferior maxillary", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "limaxillary", "left inferior maxillary", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "fskull", "frontal skull bone", BodypartTypeEnum.NonImmobilisingBone, 200,
+            "Compact Bone");
+        AddBone(quadrupedBody, "cvertebrae", "cervical vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "dvertebrae", "dorsal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lvertebrae", "lumbar vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "svertebrae", "sacral vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "cavertebrae", "caudal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rscapula", "right scapula", BodypartTypeEnum.NonImmobilisingBone, 150,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lscapula", "left scapula", BodypartTypeEnum.NonImmobilisingBone, 150,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rhumerus", "right humerus", BodypartTypeEnum.Bone, 140, "Compact Bone");
+        AddBone(quadrupedBody, "lhumerus", "left humerus", BodypartTypeEnum.Bone, 140, "Compact Bone");
+        AddBone(quadrupedBody, "rradius", "right radius", BodypartTypeEnum.Bone, 140, "Compact Bone");
+        AddBone(quadrupedBody, "lradius", "left radius", BodypartTypeEnum.Bone, 140, "Compact Bone");
+        AddBone(quadrupedBody, "rulna", "right ulna", BodypartTypeEnum.Bone, 120, "Compact Bone");
+        AddBone(quadrupedBody, "lulna", "left ulna", BodypartTypeEnum.Bone, 120, "Compact Bone");
+        AddBone(quadrupedBody, "rcarpal", "right carpal", BodypartTypeEnum.MinorBone, 40, "Compact Bone");
+        AddBone(quadrupedBody, "lcarpal", "left carpal", BodypartTypeEnum.MinorBone, 40, "Compact Bone");
+        AddBone(quadrupedBody, "rmetacarpal", "right metacarpal", BodypartTypeEnum.MinorBone, 40, "Compact Bone");
+        AddBone(quadrupedBody, "lmetacarpal", "left metacarpal", BodypartTypeEnum.MinorBone, 40, "Compact Bone");
+        AddBone(quadrupedBody, "sternum", "sternum", BodypartTypeEnum.NonImmobilisingBone, 200, "Compact Bone");
+        AddBone(quadrupedBody, "rrib1", "right first rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lrib1", "left first rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rrib2", "right second rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lrib2", "left second rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rrib3", "right third rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lrib3", "left third rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rrib4", "right fourth rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lrib4", "left fourth rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rrib5", "right fifth rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lrib5", "left fifth rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rrib6", "right sixth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lrib6", "left sixth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rrib7", "right seventh rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lrib7", "left seventh rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rrib8", "right eighth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lrib8", "left eighth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rrib9", "right ninth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lrib9", "left ninth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rrib10", "right tenth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lrib10", "left tenth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rrib11", "right eleventh rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lrib11", "left eleventh rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rrib12", "right twelth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lrib12", "left twelth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rilium", "right ilium", BodypartTypeEnum.NonImmobilisingBone, 150, "Compact Bone");
+        AddBone(quadrupedBody, "lilium", "left ilium", BodypartTypeEnum.NonImmobilisingBone, 150, "Compact Bone");
+        AddBone(quadrupedBody, "sacrum", "sacrum", BodypartTypeEnum.NonImmobilisingBone, 150, "Compact Bone");
+        AddBone(quadrupedBody, "rpubis", "right pubis", BodypartTypeEnum.NonImmobilisingBone, 150, "Compact Bone");
+        AddBone(quadrupedBody, "lpubis", "left pubis", BodypartTypeEnum.NonImmobilisingBone, 150, "Compact Bone");
+        AddBone(quadrupedBody, "rischium", "right ischium", BodypartTypeEnum.NonImmobilisingBone, 150,
+            "Compact Bone");
+        AddBone(quadrupedBody, "lischium", "left ischium", BodypartTypeEnum.NonImmobilisingBone, 150,
+            "Compact Bone");
+        AddBone(quadrupedBody, "rfemur", "right femur", BodypartTypeEnum.Bone, 200, "Compact Bone");
+        AddBone(quadrupedBody, "lfemur", "left femur", BodypartTypeEnum.Bone, 200, "Compact Bone");
+        AddBone(quadrupedBody, "rpatella", "right patella", BodypartTypeEnum.Bone, 90, "Compact Bone");
+        AddBone(quadrupedBody, "lpatella", "left patella", BodypartTypeEnum.Bone, 90, "Compact Bone");
+        AddBone(quadrupedBody, "rtibia", "right tibia", BodypartTypeEnum.Bone, 150, "Compact Bone");
+        AddBone(quadrupedBody, "ltibia", "left tibia", BodypartTypeEnum.Bone, 150, "Compact Bone");
+        AddBone(quadrupedBody, "rfibula", "right fibula", BodypartTypeEnum.Bone, 150, "Compact Bone");
+        AddBone(quadrupedBody, "lfibula", "left fibula", BodypartTypeEnum.Bone, 150, "Compact Bone");
+        AddBone(quadrupedBody, "rcalcaneus", "right calcaneus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(quadrupedBody, "lcalcaneus", "left calcaneus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(quadrupedBody, "rtalus", "right talus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(quadrupedBody, "ltalus", "left talus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(quadrupedBody, "rtarsus", "right tarsus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(quadrupedBody, "ltarsus", "left tarsus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(quadrupedBody, "rmetatarsus", "right metatarsus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(quadrupedBody, "lmetatarsus", "left metatarsus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+
+        // TORSO BONES
+        AddBoneInternal("sternum", "abdomen", 50);
+        AddBoneInternal("rrib1", "rshoulder", 10);
+        AddBoneInternal("lrib1", "lshoulder", 10);
+        AddBoneInternal("rrib2", "rbreast", 5);
+        AddBoneInternal("lrib2", "lbreast", 5);
+        AddBoneInternal("rrib3", "rbreast", 5);
+        AddBoneInternal("lrib3", "lbreast", 5);
+        AddBoneInternal("rrib4", "rbreast", 5);
+        AddBoneInternal("lrib4", "lbreast", 5);
+        AddBoneInternal("rrib5", "rbreast", 5);
+        AddBoneInternal("lrib5", "lbreast", 5);
+        AddBoneInternal("rrib6", "rbreast", 5);
+        AddBoneInternal("lrib6", "lbreast", 5);
+        AddBoneInternal("rrib7", "rbreast", 5);
+        AddBoneInternal("lrib7", "lbreast", 5);
+        AddBoneInternal("rrib8", "rbreast", 5);
+        AddBoneInternal("lrib8", "lbreast", 5);
+        AddBoneInternal("rrib9", "rbreast", 5);
+        AddBoneInternal("lrib9", "lbreast", 5);
+        AddBoneInternal("rrib10", "rbreast", 5);
+        AddBoneInternal("lrib10", "lbreast", 5);
+        AddBoneInternal("rrib11", "rbreast", 5);
+        AddBoneInternal("lrib11", "lbreast", 5);
+        AddBoneInternal("rrib12", "rbreast", 5);
+        AddBoneInternal("lrib12", "lbreast", 5);
+        AddBoneInternal("cvertebrae", "bneck", 35);
+        AddBoneInternal("dvertebrae", "uback", 20);
+        AddBoneInternal("dvertebrae", "withers", 20, false);
+        AddBoneInternal("lvertebrae", "lback", 20);
+        AddBoneInternal("svertebrae", "utail", 90);
+        AddBoneInternal("svertebrae", "mtail", 90, false);
+        AddBoneInternal("cavertebrae", "ltail", 80);
+        AddBoneInternal("sacrum", "lback", 15);
+        AddBoneInternal("rilium", "rrump", 50);
+        AddBoneInternal("lilium", "lrump", 50);
+        AddBoneInternal("rilium", "lback", 4, false);
+        AddBoneInternal("lilium", "lback", 4, false);
+        AddBoneInternal("rpubis", "groin", 20);
+        AddBoneInternal("lpubis", "groin", 20);
+        AddBoneInternal("rischium", "rrump", 20);
+        AddBoneInternal("lischium", "lrump", 20);
+
+        // HEAD BONES
+        AddBoneInternal("smaxillary", "muzzle", 100);
+        AddBoneInternal("smaxillary", "mouth", 40, false);
+        AddBoneInternal("smaxillary", "rcheek", 20, false);
+        AddBoneInternal("smaxillary", "lcheek", 20, false);
+        AddBoneInternal("rimaxillary", "rjaw", 100);
+        AddBoneInternal("limaxillary", "ljaw", 100);
+        AddBoneInternal("fskull", "head", 100);
+        AddBoneInternal("fskull", "bhead", 40, false);
+
+        // ARM BONES
+        AddBoneInternal("rscapula", "rshoulder", 100);
+        AddBoneInternal("lscapula", "lshoulder", 100);
+        AddBoneInternal("rhumerus", "ruforeleg", 50);
+        AddBoneInternal("lhumerus", "luforeleg", 50);
+        AddBoneInternal("rradius", "rlforeleg", 33);
+        AddBoneInternal("lradius", "llforeleg", 33);
+        AddBoneInternal("rulna", "rlforeleg", 33);
+        AddBoneInternal("lulna", "llforeleg", 33);
+        AddBoneInternal("rcarpal", "rfhock", 50);
+        AddBoneInternal("lcarpal", "lfhock", 50);
+        AddBoneInternal("rmetacarpal", "rfhoof", 50);
+        AddBoneInternal("lmetacarpal", "lfhoof", 50);
+        AddBoneInternal("rmetacarpal", "rfpaw", 50);
+        AddBoneInternal("lmetacarpal", "lfpaw", 50);
+
+        // LEG BONES
+        AddBoneInternal("rfemur", "ruforeleg", 50);
+        AddBoneInternal("lfemur", "luforeleg", 50);
+        AddBoneInternal("rpatella", "rrknee", 100);
+        AddBoneInternal("lpatella", "rlknee", 100);
+        AddBoneInternal("rtibia", "rlforeleg", 100);
+        AddBoneInternal("ltibia", "llforeleg", 100);
+        AddBoneInternal("rfibula", "rlforeleg", 33);
+        AddBoneInternal("lfibula", "llforeleg", 33);
+        AddBoneInternal("rcalcaneus", "rrhock", 20);
+        AddBoneInternal("lcalcaneus", "lrhock", 20);
+        AddBoneInternal("rtalus", "rrhock", 20);
+        AddBoneInternal("ltalus", "lrhock", 20);
+        AddBoneInternal("rtarsus", "rrhock", 50);
+        AddBoneInternal("ltarsus", "lrhock", 50);
+        AddBoneInternal("rmetatarsus", "rrhoof", 50);
+        AddBoneInternal("lmetatarsus", "lrhoof", 50);
+        AddBoneInternal("rmetatarsus", "rrpaw", 50);
+        AddBoneInternal("lmetatarsus", "lrpaw", 50);
+        _context.SaveChanges();
+
+        AddBoneCover("fskull", "brain", 100);
+        AddBoneCover("smaxillary", "brain", 90);
+
+        AddBoneCover("cvertebrae", "uspinalcord", 100);
+        AddBoneCover("dvertebrae", "mspinalcord", 100);
+        AddBoneCover("lvertebrae", "lspinalcord", 100);
+
+        AddBoneCover("sternum", "heart", 80);
+        AddBoneCover("sternum", "rlung", 17.5);
+        AddBoneCover("sternum", "llung", 17.5);
+        AddBoneCover("lrib1", "heart", 5);
+        AddBoneCover("lrib2", "heart", 10);
+        AddBoneCover("lrib3", "heart", 15);
+        AddBoneCover("lrib4", "heart", 15);
+        AddBoneCover("lrib5", "heart", 15);
+        AddBoneCover("lrib6", "heart", 15);
+        AddBoneCover("lrib1", "llung", 10);
+        AddBoneCover("lrib2", "llung", 15);
+        AddBoneCover("lrib3", "llung", 20);
+        AddBoneCover("lrib4", "llung", 20);
+        AddBoneCover("lrib5", "llung", 20);
+        AddBoneCover("lrib6", "llung", 20);
+        AddBoneCover("lrib7", "llung", 20);
+        AddBoneCover("rrib1", "rlung", 10);
+        AddBoneCover("rrib2", "rlung", 15);
+        AddBoneCover("rrib3", "rlung", 20);
+        AddBoneCover("rrib4", "rlung", 20);
+        AddBoneCover("rrib5", "rlung", 20);
+        AddBoneCover("rrib6", "rlung", 20);
+        AddBoneCover("rrib7", "rlung", 20);
+
+        AddBoneCover("rrib6", "liver", 30);
+        AddBoneCover("rrib7", "liver", 45);
+        AddBoneCover("lrib6", "liver", 30);
+        AddBoneCover("lrib7", "liver", 45);
+
+        AddBoneCover("lrib8", "liver", 80);
+        AddBoneCover("lrib8", "spleen", 25);
+        AddBoneCover("rrib8", "liver", 80);
+        AddBoneCover("rrib8", "spleen", 25);
+
+        AddBoneCover("lrib9", "liver", 60);
+        AddBoneCover("lrib9", "spleen", 20);
+        AddBoneCover("rrib9", "liver", 60);
+        AddBoneCover("rrib9", "spleen", 20);
+
+        AddBoneCover("lrib10", "liver", 15);
+        AddBoneCover("lrib10", "lkidney", 20);
+        AddBoneCover("rrib10", "liver", 15);
+        AddBoneCover("rrib10", "rkidney", 20);
+
+        AddBoneCover("rscapula", "rlung", 70);
+        AddBoneCover("lscapula", "llung", 70);
+
+        AddBoneCover("rilium", "sintestines", 20);
+        AddBoneCover("lilium", "sintestines", 20);
+        AddBoneCover("rilium", "lintestines", 40);
+        AddBoneCover("lilium", "lintestines", 40);
+
+        AddBoneCover("rischium", "lintestines", 40);
+        AddBoneCover("lischium", "lintestines", 40);
+        _context.SaveChanges();
+
+        #endregion
+
+        _context.SaveChanges();
+
+        foreach ((BodypartProto? child, BodypartProto? parent) in _cachedBodypartUpstreams)
+        {
+            _context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
+            {
+                Child = child.Id,
+                Parent = parent.Id
+            });
+        }
+
+        _context.SaveChanges();
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Limbs...");
+
+        #region Limbs
+
+        Dictionary<string, Limb> limbs = new(StringComparer.OrdinalIgnoreCase);
+
+        void AddLimb(string name, LimbType limbType, string rootPart, double damageThreshold,
+            double painThreshold)
+        {
+            Limb limb = new()
+            {
+                Name = name,
+                LimbType = (int)limbType,
+                RootBody = quadrupedBody,
+                RootBodypart = _cachedBodyparts[rootPart],
+                LimbDamageThresholdMultiplier = damageThreshold,
+                LimbPainThresholdMultiplier = painThreshold
+            };
+            _context.Limbs.Add(limb);
+            limbs[name] = limb;
+        }
+
+        AddLimb("Torso", LimbType.Torso, "abdomen", 1.0, 1.0);
+        AddLimb("Head", LimbType.Head, "neck", 1.0, 1.0);
+        AddLimb("Genitals", LimbType.Genitals, "groin", 0.5, 0.5);
+        AddLimb("Right Foreleg", LimbType.Leg, "ruforeleg", 0.5, 0.5);
+        AddLimb("Left Foreleg", LimbType.Leg, "luforeleg", 0.5, 0.5);
+        AddLimb("Right Hindleg", LimbType.Leg, "ruhindleg", 0.5, 0.5);
+        AddLimb("Left Hindleg", LimbType.Leg, "luhindleg", 0.5, 0.5);
+        AddLimb("Tail", LimbType.Appendage, "utail", 0.5, 0.5);
+        AddLimb("Right Wing", LimbType.Wing, "rwingbase", 0.5, 0.5);
+        AddLimb("Left Wing", LimbType.Wing, "lwingbase", 0.5, 0.5);
+        _context.SaveChanges();
+
+        foreach (Limb limb in limbs.Values)
+        {
+            foreach (BodypartProto part in _cachedLimbs[limb.Name])
+            {
+                _context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
+            }
+
+            switch (limb.Name)
+            {
+                case "Torso":
+                case "Right Wing":
+                case "Left Wing":
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
+                    break;
+                case "Genitals":
+                case "Right Foreleg":
+                case "Left Foreleg":
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
+                    break;
+                case "Leg Hindleg":
+                case "Right Hindleg":
+                case "Tail":
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
+                    break;
+            }
+        }
+
+        _context.SaveChanges();
+
+        #endregion
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Group Describers...");
+
+        #region Groups
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "body", "The whole torso of a quadruped",
+            ("abdomen", 1, 1),
+            ("belly", 1, 1),
+            ("withers", 1, 1),
+            ("breast", 1, 2),
+            ("flank", 1, 2),
+            ("loin", 1, 2),
+            ("shoulder", 1, 2),
+            ("upper back", 1, 1),
+            ("lower back", 1, 1),
+            ("rump", 1, 2),
+            ("neck", 0, 1),
+            ("neck back", 0, 1),
+            ("throat", 0, 1),
+            ("udder", 0, 1)
+        );
+        AddBodypartGroupDescriberShape(quadrupedBody, "legs", "Four legs of a quadruped",
+            ("upper hindleg", 1, 2),
+            ("upper foreleg", 1, 2),
+            ("lower hindleg", 0, 2),
+            ("lower foreleg", 0, 2),
+            ("knee", 0, 4),
+            ("front hock", 0, 2),
+            ("rear hock", 0, 2),
+            ("hoof", 0, 4),
+            ("paw", 0, 4),
+            ("claw", 0, 4),
+            ("frog", 0, 4),
+            ("dewclaw", 0, 2)
+        );
+        AddBodypartGroupDescriberShape(quadrupedBody, "forelegs", "Both forelegs of a quadruped",
+            ("upper foreleg", 2, 2),
+            ("lower foreleg", 0, 2),
+            ("knee", 0, 2),
+            ("front hock", 0, 2),
+            ("hoof", 0, 2),
+            ("paw", 0, 2),
+            ("claw", 0, 2),
+            ("frog", 0, 2)
+        );
+        AddBodypartGroupDescriberShape(quadrupedBody, "hindlegs", "Both hindlegs of a quadruped",
+            ("upper hindleg", 2, 2),
+            ("lower hindleg", 0, 2),
+            ("knee", 0, 2),
+            ("rear hock", 0, 2),
+            ("hoof", 0, 2),
+            ("paw", 0, 2),
+            ("claw", 0, 2),
+            ("frog", 0, 2),
+            ("dewclaw", 0, 2)
+        );
+        AddBodypartGroupDescriberShape(quadrupedBody, "tail", "The tail bodyparts",
+            ("tail", 1, 3)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "head", "A quadruped head",
+            ("face", 1, 1),
+            ("head back", 0, 1),
+            ("eye socket", 0, 2),
+            ("eye", 0, 2),
+            ("ear", 0, 2),
+            ("jaw", 0, 2),
+            ("muzzle", 0, 1),
+            ("nose", 0, 1),
+            ("mouth", 0, 1),
+            ("tongue", 0, 1),
+            ("cheek", 0, 2),
+            ("throat", 0, 1),
+            ("withers", 0, 1),
+            ("neck", 0, 1),
+            ("neck back", 0, 1),
+            ("horn", 0, 2),
+            ("tusk", 0, 2),
+            ("antler", 0, 2)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "wings", "A pair of quadruped wings",
+            ("wing base", 2, 2),
+            ("wing", 2, 2)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "back", "A quadruped back",
+            ("upper back", 1, 1),
+            ("lower back", 1, 1),
+            ("flank", 0, 4),
+            ("rump", 0, 2),
+            ("withers", 0, 1),
+            ("neck back", 0, 1)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "eyes", "A pair of quadruped eyes",
+            ("eye socket", 2, 2),
+            ("eye", 0, 2)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "ears", "A pair of quadruped ears",
+            ("ear", 2, 2)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "horns", "A pair of quadruped horns",
+            ("horn", 2, 2)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "tusks", "A pair of quadruped tusks",
+            ("tusk", 2, 2)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "antlers", "A pair of quadruped antlers",
+            ("antler", 2, 2)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "hooves", "A group of quadruped hooves",
+            ("hoof", 2, 4)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "paws", "A group of quadruped paws",
+            ("paw", 2, 4)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "claws", "A group of quadruped claws",
+            ("claw", 2, 4)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "knees", "A group of quadruped knees",
+            ("knee", 2, 4)
+        );
+
+        AddBodypartGroupDescriberShape(quadrupedBody, "shoulders", "A group of quadruped shoulders",
+            ("shoulder", 2, 4)
+        );
+
+        _context.SaveChanges();
+
+        #endregion
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Races...");
+
+        #region Races
+
+        SeedAnimalRaces(GetMammalRaceTemplates(),
+            ("Ungulate", ungulateBody),
+            ("Toed Quadruped", toedQuadruped));
+
+        #endregion
     }
 }

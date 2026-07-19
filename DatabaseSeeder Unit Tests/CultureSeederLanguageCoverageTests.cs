@@ -40,7 +40,7 @@ public class CultureSeederLanguageCoverageTests
 		};
 
 		InvokePrivate(new CultureSeeder(), "SeedDarkAgesAndMedieval", legacyAnswers);
-		InvokePrivate(new CultureSeeder(), "SeedRenaissanceWorldExpansion", legacyAnswers);
+		InvokePrivate(new CultureSeeder(), "SeedRenaissanceWorld", legacyAnswers);
 	}
 
 	[TestMethod]
@@ -75,7 +75,7 @@ public class CultureSeederLanguageCoverageTests
 	public void ExistingPackExpansion_CoversPreviouslyUnrepresentedNamingCultures()
 	{
 		IReadOnlyDictionary<string, string[]> coverage =
-			CultureSeeder.ExistingPackLanguageCoverageExpansionForTesting;
+			CultureSeeder.ExistingPackLanguageCoverageForTesting;
 
 		foreach (string culture in new[]
 		{
@@ -99,7 +99,7 @@ public class CultureSeederLanguageCoverageTests
 	public void SharedScriptUpsert_PreservesPriorPackLanguageMemberships()
 	{
 		string sharedSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "CultureSeeder.Shared.cs"));
-		string languageSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "CultureSeederLanguages.cs"));
+		string languageSource = SeederSourceTestHelper.ReadPartialFamily("CultureSeeder.Languages");
 
 		Assert.IsFalse(
 			sharedSource.Contains("ScriptsDesignedLanguages.Remove", StringComparison.Ordinal),
@@ -171,7 +171,7 @@ public class CultureSeederLanguageCoverageTests
 	[TestMethod]
 	public void ModernScriptDefinitions_TargetTheirOwnLanguages()
 	{
-		string source = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "CultureSeederLanguages.cs"));
+		string source = SeederSourceTestHelper.ReadPartialFamily("CultureSeeder.Languages");
 
 		StringAssert.Contains(source, "\"Alphabet\", 0.75, 1.5, \"Korean\"");
 		StringAssert.Contains(source, "\"Logographic\", 0.5, 2.0, \"Mandarin\", \"Yue\"");

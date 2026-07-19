@@ -333,7 +333,7 @@ public class HumanSeederWearProfileTests
 
 	private static string ReadHumanBodypartSource()
 	{
-		return File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "HumanSeederBodyparts.cs"));
+		return SeederSourceTestHelper.ReadPartialFamily("HumanSeeder");
 	}
 
 	private static string GetSourcePath(params string[] parts)

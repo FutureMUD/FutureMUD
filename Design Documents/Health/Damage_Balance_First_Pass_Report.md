@@ -3,7 +3,7 @@
 ## Scope
 This report covers the April 2026 first-pass stock-human damage rebalance. The work stays primarily in seeder and static data:
 
-- `DatabaseSeeder/Seeders/HumanSeederBodyparts.cs`
+- `DatabaseSeeder/Seeders/HumanSeeder.Bodyparts.cs`
 - `DatabaseSeeder/Seeders/HumanSeeder.cs`
 - `DatabaseSeeder/Seeders/CombatSeeder.cs`
 - `scripts/damage-balance-first-pass.ps1`

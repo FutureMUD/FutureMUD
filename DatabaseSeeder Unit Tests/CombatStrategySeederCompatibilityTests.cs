@@ -111,7 +111,7 @@ public class CombatStrategySeederCompatibilityTests
     [TestMethod]
     public void SeederSources_DependentSeeders_EnsureStrategiesByNameBeforeApplyingRaceDefaults()
     {
-        string animalSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "AnimalSeeder.cs"));
+		string animalSource = SeederSourceTestHelper.ReadPartialFamily("AnimalSeeder");
         string mythicalSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "MythicalAnimalSeeder.cs"));
         string robotSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "RobotSeeder.Races.cs"));
 
@@ -123,7 +123,7 @@ public class CombatStrategySeederCompatibilityTests
     [TestMethod]
     public void CombatSeederSource_RerunsEnsureCanonicalStrategiesWithoutEmptyTableGuard()
     {
-        string source = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "CombatSeeder.cs"));
+		string source = SeederSourceTestHelper.ReadPartialFamily("CombatSeeder");
 
         StringAssert.Contains(source, "SeedCombatStrategies(context, questionAnswers);");
         StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Brawler\");");

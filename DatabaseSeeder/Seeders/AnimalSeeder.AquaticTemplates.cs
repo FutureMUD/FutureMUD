@@ -1,9 +1,26 @@
 #nullable enable
 
+using MudSharp.Body.Traits;
 using MudSharp.Body;
+using MudSharp.Combat;
+using MudSharp.Construction;
+using MudSharp.Database;
+using MudSharp.Form.Characteristics;
+using MudSharp.Form.Material;
+using MudSharp.Form.Shape;
+using MudSharp.Framework;
+using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using System;
+using MudSharp.Health;
+using MudSharp.Models;
+using MudSharp.RPG.Checks;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
+using System.Xml;
+using System;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -537,5 +554,1508 @@ public partial class AnimalSeeder
 
             They turn ocean into encounter rather than emptiness, inspiring awe, fear and stories wherever their backs break the surface. For characters nearby, a toothed whale is best treated as a living presence with habits and limits, not as scenery waiting to be ignored.
             """);
+    }
+
+    private void SeedAquatic(BodyProto fishProto, BodyProto crabProto, BodyProto malacostracanProto, BodyProto octopusProto,
+        BodyProto jellyfishProto, BodyProto pinnipedProto, BodyProto cetaceanProto)
+    {
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Fish...");
+
+        #region Fish
+
+        ResetCachedParts();
+        int order = 1;
+
+        #region Torso
+
+        AddBodypart(fishProto, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.BonyDrapeable, null, Alignment.Front,
+            Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(fishProto, "rbreast", "right breast", "breast", BodypartTypeEnum.BonyDrapeable, "abdomen",
+            Alignment.FrontRight, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(fishProto, "lbreast", "left breast", "breast", BodypartTypeEnum.BonyDrapeable, "abdomen",
+            Alignment.FrontLeft, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(fishProto, "urflank", "upper right flank", "flank", BodypartTypeEnum.BonyDrapeable, "rbreast",
+            Alignment.Right, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(fishProto, "ulflank", "upper left flank", "flank", BodypartTypeEnum.BonyDrapeable, "lbreast",
+            Alignment.Left, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(fishProto, "lrflank", "lower right flank", "flank", BodypartTypeEnum.BonyDrapeable, "abdomen",
+            Alignment.RearRight, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(fishProto, "llflank", "lower left flank", "flank", BodypartTypeEnum.BonyDrapeable, "abdomen",
+            Alignment.RearLeft, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(fishProto, "belly", "belly", "belly", BodypartTypeEnum.Wear, "abdomen", Alignment.Front,
+            Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(fishProto, "uback", "upper back", "upper back", BodypartTypeEnum.BonyDrapeable, "abdomen",
+            Alignment.Front, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(fishProto, "lback", "lower back", "lower back", BodypartTypeEnum.BonyDrapeable, "abdomen",
+            Alignment.Rear, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(fishProto, "loin", "loin", "loin", BodypartTypeEnum.Wear, "belly", Alignment.Rear,
+            Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(fishProto, "dorsalfin", "dorsal fin", "fin", BodypartTypeEnum.Fin, "uback", Alignment.Rear,
+            Orientation.Highest, 20, 35, 100, order++, "Fin", SizeCategory.Normal, "Torso");
+        AddBodypart(fishProto, "analfin", "anal fin", "fin", BodypartTypeEnum.Fin, "loin", Alignment.Rear,
+            Orientation.Lowest, 20, 35, 100, order++, "Fin", SizeCategory.Normal, "Torso");
+        AddBodypart(fishProto, "rpectoralfin", "right pectoral fin", "fin", BodypartTypeEnum.Fin, "urflank",
+            Alignment.Right, Orientation.Centre, 20, 35, 100, order++, "Fin", SizeCategory.Normal, "Torso");
+        AddBodypart(fishProto, "lpectoralfin", "left pectoral fin", "fin", BodypartTypeEnum.Fin, "ulflank",
+            Alignment.Left, Orientation.Centre, 20, 35, 100, order++, "Fin", SizeCategory.Normal, "Torso");
+        AddBodypart(fishProto, "rpelvicfin", "right pelvic fin", "fin", BodypartTypeEnum.Fin, "belly",
+            Alignment.Right, Orientation.Centre, 20, 35, 100, order++, "Fin", SizeCategory.Normal, "Torso");
+        AddBodypart(fishProto, "lpelvicfin", "left pelvic fin", "fin", BodypartTypeEnum.Fin, "belly",
+            Alignment.Left, Orientation.Low, 20, 35, 100, order++, "Fin", SizeCategory.Normal, "Torso");
+
+        #endregion
+
+        #region Head
+
+        AddBodypart(fishProto, "neck", "neck", "neck", BodypartTypeEnum.BonyDrapeable, "uback", Alignment.Front,
+            Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(fishProto, "rgill", "right gills", "gill", BodypartTypeEnum.Gill, "urflank", Alignment.Right,
+            Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(fishProto, "lgill", "left gills", "gill", BodypartTypeEnum.Gill, "ulflank", Alignment.Left,
+            Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(fishProto, "head", "head", "face", BodypartTypeEnum.BonyDrapeable, "neck", Alignment.Front,
+            Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(fishProto, "reyesocket", "right eye socket", "eye socket", BodypartTypeEnum.BonyDrapeable, "head",
+            Alignment.FrontRight, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(fishProto, "leyesocket", "left eye socket", "eye socket", BodypartTypeEnum.BonyDrapeable, "head",
+            Alignment.FrontLeft, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(fishProto, "reye", "right eye", "eye", BodypartTypeEnum.Eye, "reyesocket", Alignment.FrontRight,
+            Orientation.Highest, 10, 30, 100, order++, "Dense Bony Flesh", SizeCategory.Small, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(fishProto, "leye", "left eye", "eye", BodypartTypeEnum.Eye, "leyesocket", Alignment.FrontLeft,
+            Orientation.Highest, 10, 30, 100, order++, "Dense Bony Flesh", SizeCategory.Small, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(fishProto, "mouth", "mouth", "mouth", BodypartTypeEnum.Mouth, "head", Alignment.Front,
+            Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+
+        #endregion
+
+        #region Tail
+
+        AddBodypart(fishProto, "peduncle", "peduncle", "Peduncle", BodypartTypeEnum.Wear, "lback", Alignment.Rear,
+    Orientation.Centre, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "Tail");
+        AddBodypart(fishProto, "caudalfin", "caudal fin", "fin", BodypartTypeEnum.Fin, "peduncle", Alignment.Rear,
+            Orientation.Centre, 20, 35, 100, order++, "Fin", SizeCategory.Normal, "Tail");
+
+        #endregion
+
+        _context.SaveChanges();
+
+        #region Bones
+
+        AddBone(fishProto, "fskull", "frontal skull bone", BodypartTypeEnum.NonImmobilisingBone, 200,
+            "Compact Bone");
+        AddBone(fishProto, "cvertebrae", "cervical vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(fishProto, "dvertebrae", "dorsal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(fishProto, "lvertebrae", "lumbar vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(fishProto, "cavertebrae", "caudal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        _context.SaveChanges();
+
+        AddBoneInternal("fskull", "head", 100);
+        AddBoneInternal("cvertebrae", "neck", 100);
+        AddBoneInternal("dvertebrae", "uback", 100);
+        AddBoneInternal("lvertebrae", "lback", 100);
+        AddBoneInternal("cavertebrae", "peduncle", 100);
+        _context.SaveChanges();
+
+        #endregion
+
+        #region Organs
+
+        AddOrgan(fishProto, "brain", "brain", BodypartTypeEnum.Brain, 2.0, 50, 0.2, 0.2, 0.1, stunModifier: 1.0);
+        AddOrgan(fishProto, "heart", "heart", BodypartTypeEnum.Heart, 1.0, 50, 0.2, 1.0, 1.0);
+        AddOrgan(fishProto, "liver", "liver", BodypartTypeEnum.Liver, 3.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(fishProto, "spleen", "spleen", BodypartTypeEnum.Spleen, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(fishProto, "stomach", "stomach", BodypartTypeEnum.Stomach, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(fishProto, "lintestines", "large intestines", BodypartTypeEnum.Intestines, 0.5, 50, 0.2, 1.0,
+            0.05);
+        AddOrgan(fishProto, "sintestines", "small intestines", BodypartTypeEnum.Intestines, 2.0, 50, 0.2, 1.0,
+            0.05);
+        AddOrgan(fishProto, "rkidney", "right kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
+            painModifier: 3.0);
+        AddOrgan(fishProto, "lkidney", "left kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
+            painModifier: 3.0);
+        AddOrgan(fishProto, "esophagus", "esophagus", BodypartTypeEnum.Esophagus, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(fishProto, "uspinalcord", "upper spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
+            stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(fishProto, "mspinalcord", "middle spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
+            stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(fishProto, "lspinalcord", "lower spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
+            stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(fishProto, "rinnerear", "right inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+        AddOrgan(fishProto, "linnerear", "left inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+
+        AddOrganCoverage("brain", "head", 100, true);
+        AddOrganCoverage("brain", "reyesocket", 85);
+        AddOrganCoverage("brain", "leyesocket", 85);
+        AddOrganCoverage("brain", "reye", 85);
+        AddOrganCoverage("brain", "leye", 85);
+
+        AddOrganCoverage("linnerear", "head", 10, true);
+        AddOrganCoverage("rinnerear", "head", 10, true);
+        AddOrganCoverage("esophagus", "neck", 20, true);
+
+        AddOrganCoverage("heart", "lbreast", 33, true);
+
+        AddOrganCoverage("uspinalcord", "neck", 2, true);
+        AddOrganCoverage("mspinalcord", "uback", 10, true);
+        AddOrganCoverage("lspinalcord", "lback", 10, true);
+        AddOrganCoverage("lspinalcord", "peduncle", 10);
+
+        AddOrganCoverage("liver", "abdomen", 33, true);
+        AddOrganCoverage("spleen", "abdomen", 20, true);
+        AddOrganCoverage("stomach", "abdomen", 20, true);
+        AddOrganCoverage("liver", "uback", 15);
+        AddOrganCoverage("spleen", "uback", 10);
+        AddOrganCoverage("stomach", "uback", 5);
+
+        AddOrganCoverage("lintestines", "belly", 5, true);
+        AddOrganCoverage("sintestines", "belly", 50, true);
+        AddOrganCoverage("lintestines", "lback", 5);
+        AddOrganCoverage("sintestines", "lback", 33);
+        AddOrganCoverage("lintestines", "loin", 5);
+
+        AddOrganCoverage("rkidney", "lback", 20, true);
+        AddOrganCoverage("lkidney", "lback", 20, true);
+        AddOrganCoverage("rkidney", "belly", 5);
+        AddOrganCoverage("lkidney", "belly", 5);
+
+        AddBoneCover("fskull", "brain", 100);
+        AddBoneCover("cvertebrae", "uspinalcord", 100);
+        AddBoneCover("dvertebrae", "mspinalcord", 100);
+        AddBoneCover("lvertebrae", "lspinalcord", 100);
+        AddBoneCover("cavertebrae", "lspinalcord", 100);
+        _context.SaveChanges();
+
+        #endregion
+
+        _context.SaveChanges();
+
+        foreach ((BodypartProto? child, BodypartProto? parent) in _cachedBodypartUpstreams)
+        {
+            _context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
+            {
+                Child = child.Id,
+                Parent = parent.Id
+            });
+        }
+
+        _context.SaveChanges();
+
+        #region Limbs
+
+        Dictionary<string, Limb> limbs = new(StringComparer.OrdinalIgnoreCase);
+
+        void AddLimb(string name, LimbType limbType, string rootPart, double damageThreshold,
+            double painThreshold, BodyProto proto)
+        {
+            Limb limb = new()
+            {
+                Name = name,
+                LimbType = (int)limbType,
+                RootBody = proto,
+                RootBodypart = _cachedBodyparts[rootPart],
+                LimbDamageThresholdMultiplier = damageThreshold,
+                LimbPainThresholdMultiplier = painThreshold
+            };
+            _context.Limbs.Add(limb);
+            limbs[name] = limb;
+        }
+
+        AddLimb("Torso", LimbType.Torso, "abdomen", 1.0, 1.0, fishProto);
+        AddLimb("Head", LimbType.Head, "neck", 1.0, 1.0, fishProto);
+        AddLimb("Tail", LimbType.Appendage, "peduncle", 0.5, 0.5, fishProto);
+        _context.SaveChanges();
+
+        foreach (Limb limb in limbs.Values)
+        {
+            foreach (BodypartProto part in _cachedLimbs[limb.Name])
+            {
+                _context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
+            }
+
+            switch (limb.Name)
+            {
+                case "Torso":
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
+                    break;
+                case "Tail":
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
+                    break;
+            }
+        }
+
+        _context.SaveChanges();
+
+        #endregion
+
+        #region Groups
+
+        AddBodypartGroupDescriberShape(fishProto, "body", "The whole torso of a fish",
+            ("abdomen", 0, 1),
+            ("breast", 0, 2),
+            ("flank", 0, 4),
+            ("belly", 0, 1),
+            ("loin", 0, 1),
+            ("upper back", 1, 1),
+            ("lower back", 1, 1),
+            ("neck", 0, 1),
+            ("gill", 0, 2),
+            ("peduncle", 0, 1)
+        );
+
+        AddBodypartGroupDescriberShape(fishProto, "fins", "All the fins of a fish",
+            ("fin", 2, 6)
+        );
+
+        AddBodypartGroupDescriberDirect(fishProto, "pectoral fins", "The pectoral fins of a fish",
+            ("rpectoralfin", true),
+            ("lpectoralfin", true)
+        );
+
+        AddBodypartGroupDescriberShape(fishProto, "head", "The eyes of a fish",
+            ("eye socket", 0, 2),
+            ("eye", 0, 2)
+        );
+
+        AddBodypartGroupDescriberDirect(fishProto, "gills", "The gills of a fish",
+            ("rgill", true),
+            ("lgill", true)
+        );
+
+        AddBodypartGroupDescriberShape(fishProto, "head", "The whole head of a fish",
+            ("face", 0, 1),
+            ("eye socket", 0, 2),
+            ("eye", 0, 2),
+            ("mouth", 0, 1),
+            ("neck", 0, 1),
+            ("gill", 0, 2)
+        );
+
+        AddBodypartGroupDescriberDirect(fishProto, "pelvic fins", "The pelvic fins of a fish",
+            ("rpelvicfin", true),
+            ("lpelvicfin", true)
+        );
+
+        AddBodypartGroupDescriberDirect(fishProto, "tail", "The whole of a fish",
+            ("caudalfin", true),
+            ("peduncle", true)
+        );
+
+        #endregion
+
+        _context.SaveChanges();
+
+        #endregion
+
+        #region Crabs
+
+        SeedDecapodBody(crabProto);
+        SeedMalacostracanBody(malacostracanProto);
+
+        #endregion
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Cephalopods...");
+
+        #region Cephalopods
+
+        ResetCachedParts();
+        order = 1;
+
+        #region Torso
+
+        AddBodypart(octopusProto, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Wear, null, Alignment.Front,
+            Orientation.Centre, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(octopusProto, "mouth", "mouth", "mouth", BodypartTypeEnum.Mouth, "abdomen", Alignment.Front,
+            Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+
+        #endregion
+
+        #region Head
+
+        AddBodypart(octopusProto, "head", "head", "head", BodypartTypeEnum.Wear, "abdomen", Alignment.Front,
+            Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(octopusProto, "mantle", "mantle", "mantle", BodypartTypeEnum.Wear, "head", Alignment.Front,
+            Orientation.Highest, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(octopusProto, "reye", "right eye", "eye", BodypartTypeEnum.Eye, "head", Alignment.FrontRight,
+            Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(octopusProto, "leye", "left eye", "eye", BodypartTypeEnum.Eye, "head", Alignment.FrontLeft,
+            Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+
+        #endregion
+
+        #region Appendages
+
+        AddBodypart(octopusProto, "arm1", "1st Arm", "arm", BodypartTypeEnum.GrabbingWielding, "abdomen",
+            Alignment.Front,
+            Orientation.Low, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "1st Arm");
+        AddBodypart(octopusProto, "arm2", "2nd Arm", "arm", BodypartTypeEnum.GrabbingWielding, "abdomen",
+            Alignment.Front,
+            Orientation.Low, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "2nd Arm");
+        AddBodypart(octopusProto, "arm3", "3rd Arm", "arm", BodypartTypeEnum.GrabbingWielding, "abdomen",
+            Alignment.Front,
+            Orientation.Low, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "3rd Arm");
+        AddBodypart(octopusProto, "arm4", "4th Arm", "arm", BodypartTypeEnum.GrabbingWielding, "abdomen",
+            Alignment.Front,
+            Orientation.Low, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "4th Arm");
+        AddBodypart(octopusProto, "arm5", "5th Arm", "arm", BodypartTypeEnum.GrabbingWielding, "abdomen",
+            Alignment.Front,
+            Orientation.Low, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "5th Arm");
+        AddBodypart(octopusProto, "arm6", "6th Arm", "arm", BodypartTypeEnum.GrabbingWielding, "abdomen",
+            Alignment.Front,
+            Orientation.Low, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "6th Arm");
+        AddBodypart(octopusProto, "arm7", "7th Arm", "arm", BodypartTypeEnum.GrabbingWielding, "abdomen",
+            Alignment.Front,
+            Orientation.Low, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "7th Arm");
+        AddBodypart(octopusProto, "arm8", "8th Arm", "arm", BodypartTypeEnum.GrabbingWielding, "abdomen",
+            Alignment.Front,
+            Orientation.Low, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "8th Arm");
+        AddBodypart(octopusProto, "tentacle1", "1st Tentacle", "tentacle", BodypartTypeEnum.GrabbingWielding, "abdomen",
+            Alignment.Front,
+            Orientation.Lowest, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "1st Tentacle", isCore: false);
+        AddBodypart(octopusProto, "tentacle2", "2nd Tentacle", "tentacle", BodypartTypeEnum.GrabbingWielding, "abdomen",
+            Alignment.Front,
+            Orientation.Lowest, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "2nd Tentacle", isCore: false);
+
+        #endregion
+
+        _context.SaveChanges();
+
+        #region Organs
+
+        AddOrgan(octopusProto, "brain", "brain", BodypartTypeEnum.Brain, 2.0, 50, 0.2, 0.2, 0.1, stunModifier: 1.0);
+        AddOrgan(octopusProto, "heart", "heart", BodypartTypeEnum.Heart, 1.0, 50, 0.2, 1.0, 1.0);
+        AddOrgan(octopusProto, "liver", "liver", BodypartTypeEnum.Liver, 3.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(octopusProto, "spleen", "spleen", BodypartTypeEnum.Spleen, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(octopusProto, "stomach", "stomach", BodypartTypeEnum.Stomach, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(octopusProto, "intestines", "intestines", BodypartTypeEnum.Intestines, 0.5, 50, 0.2, 1.0,
+            0.05);
+        AddOrgan(octopusProto, "rkidney", "right kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
+            painModifier: 3.0);
+        AddOrgan(octopusProto, "lkidney", "left kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
+            painModifier: 3.0);
+        AddOrgan(octopusProto, "esophagus", "esophagus", BodypartTypeEnum.Esophagus, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(octopusProto, "rinnerear", "right inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+        AddOrgan(octopusProto, "linnerear", "left inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+
+        AddOrganCoverage("brain", "head", 100, true);
+        AddOrganCoverage("brain", "reye", 85);
+        AddOrganCoverage("brain", "leye", 85);
+        AddOrganCoverage("brain", "mouth", 5);
+        AddOrganCoverage("linnerear", "head", 10, true);
+        AddOrganCoverage("rinnerear", "head", 10, true);
+        AddOrganCoverage("esophagus", "abdomen", 20, true);
+        AddOrganCoverage("heart", "mantle", 33, true);
+        AddOrganCoverage("liver", "mantle", 33, true);
+        AddOrganCoverage("spleen", "mantle", 20, true);
+        AddOrganCoverage("stomach", "mantle", 20, true);
+        AddOrganCoverage("intestines", "mantle", 5, true);
+        AddOrganCoverage("rkidney", "mantle", 20, true);
+        AddOrganCoverage("lkidney", "mantle", 20, true);
+        _context.SaveChanges();
+
+        #endregion
+
+        _context.SaveChanges();
+
+        foreach ((BodypartProto? child, BodypartProto? parent) in _cachedBodypartUpstreams)
+        {
+            _context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
+            {
+                Child = child.Id,
+                Parent = parent.Id
+            });
+        }
+
+        _context.SaveChanges();
+
+        #region Limbs
+
+        limbs = new Dictionary<string, Limb>(StringComparer.OrdinalIgnoreCase);
+        AddLimb("Torso", LimbType.Torso, "abdomen", 1.0, 1.0, octopusProto);
+        AddLimb("Head", LimbType.Head, "head", 1.0, 1.0, octopusProto);
+        AddLimb("1st Arm", LimbType.Arm, "arm1", 0.5, 0.5, octopusProto);
+        AddLimb("2nd Arm", LimbType.Arm, "arm2", 0.5, 0.5, octopusProto);
+        AddLimb("3rd Arm", LimbType.Arm, "arm3", 0.5, 0.5, octopusProto);
+        AddLimb("4th Arm", LimbType.Arm, "arm4", 0.5, 0.5, octopusProto);
+        AddLimb("5th Arm", LimbType.Arm, "arm5", 0.5, 0.5, octopusProto);
+        AddLimb("6th Arm", LimbType.Arm, "arm6", 0.5, 0.5, octopusProto);
+        AddLimb("7th Arm", LimbType.Arm, "arm7", 0.5, 0.5, octopusProto);
+        AddLimb("8th Arm", LimbType.Arm, "arm8", 0.5, 0.5, octopusProto);
+        AddLimb("1st Tentacle", LimbType.Appendage, "tentacle1", 0.5, 0.5, octopusProto);
+        AddLimb("2nd Tentacle", LimbType.Appendage, "tentacle2", 0.5, 0.5, octopusProto);
+        _context.SaveChanges();
+
+        foreach (Limb limb in limbs.Values)
+        {
+            foreach (BodypartProto part in _cachedLimbs[limb.Name])
+            {
+                _context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
+            }
+        }
+
+        #endregion
+
+        #region Groups
+
+        AddBodypartGroupDescriberShape(octopusProto, "body", "The whole torso of a cephalopod",
+            ("abdomen", 0, 1),
+            ("head", 0, 1),
+            ("mantle", 0, 1),
+            ("mouth", 0, 1)
+        );
+
+        AddBodypartGroupDescriberShape(octopusProto, "arms", "All the arms of a cephalopod",
+            ("arm", 2, 8)
+        );
+
+        AddBodypartGroupDescriberShape(octopusProto, "tentacles", "All the tentacles of a cephalopod",
+            ("tentacle", 2, 2)
+        );
+
+        AddBodypartGroupDescriberShape(octopusProto, "eyes", "The eyes of a cephalopod",
+            ("eye", 0, 2)
+        );
+
+        #endregion
+
+        _context.SaveChanges();
+
+        #endregion
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Jellyfish...");
+
+        #region Jellyfish
+
+        ResetCachedParts();
+        order = 1;
+
+        #region Torso
+
+        AddBodypart(jellyfishProto, "body", "body", "abdomen", BodypartTypeEnum.Wear, null, Alignment.Front,
+            Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.2);
+
+        #endregion
+
+        #region Appendages
+
+        for (int i = 1; i < 11; i++)
+        {
+            AddBodypart(jellyfishProto, $"tendril{i}", $"{i.ToOrdinal()} tendril", "tendril",
+                BodypartTypeEnum.Wear, "body", Alignment.Front,
+                Orientation.Lowest, 30, 50, 100, order++, "Flesh", SizeCategory.Small, $"Tendril{i}");
+        }
+
+        #endregion
+
+        _context.SaveChanges();
+
+        foreach ((BodypartProto? child, BodypartProto? parent) in _cachedBodypartUpstreams)
+        {
+            _context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
+            {
+                Child = child.Id,
+                Parent = parent.Id
+            });
+        }
+
+        _context.SaveChanges();
+
+        #region Limbs
+
+        limbs = new Dictionary<string, Limb>(StringComparer.OrdinalIgnoreCase);
+        AddLimb("Torso", LimbType.Torso, "body", 1.0, 1.0, jellyfishProto);
+        for (int i = 1; i < 11; i++)
+        {
+            AddLimb($"Tendril{i}", LimbType.Appendage, $"tendril{i}", 0.5, 0.5, jellyfishProto);
+        }
+
+        _context.SaveChanges();
+
+        foreach (Limb limb in limbs.Values)
+        {
+            foreach (BodypartProto part in _cachedLimbs[limb.Name])
+            {
+                _context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
+            }
+        }
+
+        #endregion
+
+        #region Groups
+
+        AddBodypartGroupDescriberShape(jellyfishProto, "tendrils", "All the tendrils of a jellyfish",
+            ("tendril", 2, 10)
+        );
+
+        #endregion
+
+        _context.SaveChanges();
+
+        #endregion Jellyfish
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Pinnipeds...");
+
+        #region Pinnipeds
+
+        ResetCachedParts();
+        order = 1;
+
+        #region Torso
+
+        AddBodypart(pinnipedProto, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Wear, null,
+            Alignment.Front, Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "rbreast", "right breast", "breast", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.FrontRight, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "lbreast", "left breast", "breast", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.FrontLeft, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "urflank", "upper right flank", "flank", BodypartTypeEnum.Wear, "rbreast",
+            Alignment.Right, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "ulflank", "upper left flank", "flank", BodypartTypeEnum.Wear, "lbreast",
+            Alignment.Left, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "lrflank", "lower right flank", "flank", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.RearRight, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "llflank", "lower left flank", "flank", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.RearLeft, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "belly", "belly", "belly", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.Front, Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "rshoulder", "right shoulder", "shoulder", BodypartTypeEnum.Wear, "rbreast",
+            Alignment.FrontRight, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal,
+            "Torso", true, isVital: false, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "lshoulder", "left shoulder", "shoulder", BodypartTypeEnum.Wear, "lbreast",
+            Alignment.FrontLeft, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal,
+            "Torso", true, isVital: false, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "uback", "upper back", "upper back", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.Front, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "lback", "lower back", "lower back", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.Rear, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "withers", "withers", "withers", BodypartTypeEnum.Wear, "uback",
+            Alignment.Front, Orientation.High, 80, -1, 50, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: false, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "rrump", "right rump", "rump", BodypartTypeEnum.Wear, "lback",
+            Alignment.RearRight, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal,
+            "Torso", true, isVital: false, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "lrump", "left rump", "rump", BodypartTypeEnum.Wear, "lback",
+            Alignment.RearLeft, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal,
+            "Torso", true, isVital: false, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "rloin", "right loin", "loin", BodypartTypeEnum.Wear, "belly",
+            Alignment.RearRight, Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "lloin", "left loin", "loin", BodypartTypeEnum.Wear, "belly",
+            Alignment.RearLeft, Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+
+        #endregion
+
+        #region Head
+
+        AddBodypart(pinnipedProto, "neck", "neck", "neck", BodypartTypeEnum.Wear, "uback", Alignment.Front,
+            Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(pinnipedProto, "bneck", "neck back", "neck back", BodypartTypeEnum.Wear, "neck",
+            Alignment.Rear, Orientation.Highest, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(pinnipedProto, "throat", "throat", "throat", BodypartTypeEnum.Wear, "neck",
+            Alignment.Front, Orientation.Highest, 40, 50, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Head",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(pinnipedProto, "head", "head", "face", BodypartTypeEnum.Wear, "neck", Alignment.Front,
+            Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(pinnipedProto, "bhead", "head back", "head back", BodypartTypeEnum.Wear, "bneck",
+            Alignment.Rear, Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(pinnipedProto, "rjaw", "right jaw", "jaw", BodypartTypeEnum.Wear, "head",
+            Alignment.FrontRight, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(pinnipedProto, "ljaw", "left jaw", "jaw", BodypartTypeEnum.Wear, "head",
+            Alignment.FrontLeft, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(pinnipedProto, "rcheek", "right cheek", "cheek", BodypartTypeEnum.Wear, "head",
+            Alignment.Right, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small, "Head",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(pinnipedProto, "lcheek", "left cheek", "cheek", BodypartTypeEnum.Wear, "head",
+            Alignment.Left, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small, "Head",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(pinnipedProto, "reyesocket", "right eye socket", "eye socket", BodypartTypeEnum.Wear,
+            "head", Alignment.FrontRight, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh",
+            SizeCategory.Small, "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(pinnipedProto, "leyesocket", "left eye socket", "eye socket", BodypartTypeEnum.Wear,
+            "head", Alignment.FrontLeft, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh",
+            SizeCategory.Small, "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(pinnipedProto, "reye", "right eye", "eye", BodypartTypeEnum.Eye, "reyesocket",
+            Alignment.FrontRight, Orientation.Highest, 10, 30, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(pinnipedProto, "leye", "left eye", "eye", BodypartTypeEnum.Eye, "leyesocket",
+            Alignment.FrontLeft, Orientation.Highest, 10, 30, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(pinnipedProto, "rear", "right ear", "ear", BodypartTypeEnum.Wear, "head", Alignment.Right,
+            Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head", true, isVital: false,
+            implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "lear", "left ear", "ear", BodypartTypeEnum.Wear, "head", Alignment.Left,
+            Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head", true, isVital: false,
+            implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(pinnipedProto, "muzzle", "muzzle", "muzzle", BodypartTypeEnum.Wear, "head",
+            Alignment.Front, Orientation.Highest, 50, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(pinnipedProto, "mouth", "mouth", "mouth", BodypartTypeEnum.Mouth, "muzzle", Alignment.Front,
+            Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(pinnipedProto, "tongue", "tongue", "tongue", BodypartTypeEnum.Tongue, "mouth", Alignment.Front,
+            Orientation.Highest, 10, 30, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(pinnipedProto, "nose", "nose", "nose", BodypartTypeEnum.Wear, "mouth", Alignment.Front,
+            Orientation.Highest, 10, 30, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+
+        #endregion
+
+        #region Legs
+
+        AddBodypart(pinnipedProto, "rfrontflipper", "right front flipper", "front flipper", BodypartTypeEnum.Standing,
+            "rshoulder", Alignment.FrontRight, Orientation.Low, 80, 100, 100, order++, "Bony Flesh",
+            SizeCategory.Normal, "Right Foreleg");
+        AddBodypart(pinnipedProto, "lfrontflipper", "left front flipper", "front flipper", BodypartTypeEnum.Standing,
+            "lshoulder", Alignment.FrontLeft, Orientation.Low, 80, 100, 100, order++, "Bony Flesh",
+            SizeCategory.Normal, "Left Foreleg");
+        AddBodypart(pinnipedProto, "rhindflipper", "right hind flipper", "hind flipper", BodypartTypeEnum.Standing,
+            "rrump", Alignment.RearRight, Orientation.Low, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal,
+            "Right Hindleg");
+        AddBodypart(pinnipedProto, "lhindflipper", "left hind flipper", "hind flipper", BodypartTypeEnum.Standing,
+            "lrump", Alignment.RearLeft, Orientation.Low, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal,
+            "Left Hindleg");
+
+        #endregion
+
+        #region Tail
+
+        AddBodypart(pinnipedProto, "tail", "tail", "tail", BodypartTypeEnum.Wear, "lback",
+            Alignment.Rear, Orientation.Centre, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "Tail");
+
+        #endregion
+
+        #region Genitals
+
+        AddBodypart(pinnipedProto, "groin", "groin", "groin", BodypartTypeEnum.Wear, "belly", Alignment.Rear,
+            Orientation.Low, 30, -1, 100, order++, "Fatty Flesh", SizeCategory.Small, "Genitals");
+        AddBodypart(pinnipedProto, "testicles", "testicles", "testicles", BodypartTypeEnum.Wear, "groin",
+            Alignment.Rear, Orientation.Low, 10, 30, 100, order++, "Fatty Flesh", SizeCategory.Small, "Genitals",
+            true, isCore: false);
+        AddBodypart(pinnipedProto, "penis", "penis", "penis", BodypartTypeEnum.Wear, "groin", Alignment.Rear,
+            Orientation.Low, 10, 30, 100, order++, "Fatty Flesh", SizeCategory.Small, "Genitals", true,
+            isCore: false);
+        AddBodypartUsage("penis", "male", pinnipedProto);
+        AddBodypartUsage("testicles", "male", pinnipedProto);
+
+        #endregion
+
+        #region Misceallaneous
+
+        AddBodypart(pinnipedProto, "rtusk", "right tusk", "tusk", BodypartTypeEnum.Wear, "rjaw",
+            Alignment.FrontRight, Orientation.Highest, 40, 60, 100, order++, "Keratin", SizeCategory.Small, "Head",
+            false, isCore: false);
+        AddBodypart(pinnipedProto, "ltusk", "left tusk", "tusk", BodypartTypeEnum.Wear, "ljaw",
+            Alignment.FrontLeft, Orientation.Highest, 40, 60, 100, order++, "Keratin", SizeCategory.Small, "Head",
+            false, isCore: false);
+
+        #endregion
+
+        _context.SaveChanges();
+
+        #region Organs
+
+        AddOrgan(pinnipedProto, "brain", "brain", BodypartTypeEnum.Brain, 2.0, 50, 0.2, 0.2, 0.1,
+            stunModifier: 1.0);
+        AddOrgan(pinnipedProto, "heart", "heart", BodypartTypeEnum.Heart, 1.0, 50, 0.2, 1.0, 1.0);
+        AddOrgan(pinnipedProto, "liver", "liver", BodypartTypeEnum.Liver, 3.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(pinnipedProto, "spleen", "spleen", BodypartTypeEnum.Spleen, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(pinnipedProto, "stomach", "stomach", BodypartTypeEnum.Stomach, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(pinnipedProto, "lintestines", "large intestines", BodypartTypeEnum.Intestines, 0.5, 50, 0.2, 1.0,
+            0.05);
+        AddOrgan(pinnipedProto, "sintestines", "small intestines", BodypartTypeEnum.Intestines, 2.0, 50, 0.2, 1.0,
+            0.05);
+        AddOrgan(pinnipedProto, "rkidney", "right kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
+            painModifier: 3.0);
+        AddOrgan(pinnipedProto, "lkidney", "left kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
+            painModifier: 3.0);
+        AddOrgan(pinnipedProto, "rlung", "right lung", BodypartTypeEnum.Lung, 2.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(pinnipedProto, "llung", "left lung", BodypartTypeEnum.Lung, 2.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(pinnipedProto, "trachea", "trachea", BodypartTypeEnum.Trachea, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(pinnipedProto, "esophagus", "esophagus", BodypartTypeEnum.Esophagus, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(pinnipedProto, "uspinalcord", "upper spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
+            stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(pinnipedProto, "mspinalcord", "middle spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0,
+            0.05, stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(pinnipedProto, "lspinalcord", "lower spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
+            stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(pinnipedProto, "rinnerear", "right inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+        AddOrgan(pinnipedProto, "linnerear", "left inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+
+        AddOrganCoverage("brain", "head", 100, true);
+        AddOrganCoverage("brain", "bhead", 100);
+        AddOrganCoverage("brain", "rcheek", 85);
+        AddOrganCoverage("brain", "lcheek", 85);
+        AddOrganCoverage("brain", "reyesocket", 85);
+        AddOrganCoverage("brain", "leyesocket", 85);
+        AddOrganCoverage("brain", "reye", 85);
+        AddOrganCoverage("brain", "leye", 85);
+        AddOrganCoverage("brain", "muzzle", 10);
+        AddOrganCoverage("brain", "mouth", 30);
+        AddOrganCoverage("brain", "lear", 10);
+        AddOrganCoverage("brain", "rear", 10);
+
+        AddOrganCoverage("linnerear", "lear", 33, true);
+        AddOrganCoverage("rinnerear", "rear", 33, true);
+        AddOrganCoverage("esophagus", "throat", 50, true);
+        AddOrganCoverage("esophagus", "neck", 20);
+        AddOrganCoverage("esophagus", "bneck", 5);
+        AddOrganCoverage("trachea", "throat", 50, true);
+        AddOrganCoverage("trachea", "neck", 20);
+        AddOrganCoverage("trachea", "bneck", 5);
+
+        AddOrganCoverage("rlung", "rbreast", 100, true);
+        AddOrganCoverage("llung", "lbreast", 100, true);
+        AddOrganCoverage("rlung", "uback", 15);
+        AddOrganCoverage("llung", "uback", 15);
+        AddOrganCoverage("rlung", "rshoulder", 66);
+        AddOrganCoverage("llung", "lshoulder", 66);
+
+        AddOrganCoverage("heart", "lbreast", 33, true);
+        AddOrganCoverage("heart", "lshoulder", 20);
+
+        AddOrganCoverage("uspinalcord", "bneck", 10, true);
+        AddOrganCoverage("uspinalcord", "neck", 2);
+        AddOrganCoverage("uspinalcord", "throat", 5);
+        AddOrganCoverage("mspinalcord", "uback", 10, true);
+        AddOrganCoverage("mspinalcord", "withers", 2);
+        AddOrganCoverage("lspinalcord", "lback", 10, true);
+
+        AddOrganCoverage("liver", "abdomen", 33, true);
+        AddOrganCoverage("spleen", "abdomen", 20, true);
+        AddOrganCoverage("stomach", "abdomen", 20, true);
+        AddOrganCoverage("liver", "uback", 15);
+        AddOrganCoverage("spleen", "uback", 10);
+        AddOrganCoverage("stomach", "uback", 5);
+
+        AddOrganCoverage("lintestines", "belly", 5, true);
+        AddOrganCoverage("sintestines", "belly", 50, true);
+        AddOrganCoverage("lintestines", "lback", 5);
+        AddOrganCoverage("sintestines", "lback", 33);
+        AddOrganCoverage("lintestines", "groin", 5);
+        AddOrganCoverage("lintestines", "rloin", 10);
+        AddOrganCoverage("lintestines", "lloin", 10);
+
+        AddOrganCoverage("rkidney", "lback", 20, true);
+        AddOrganCoverage("lkidney", "lback", 20, true);
+        AddOrganCoverage("rkidney", "belly", 5);
+        AddOrganCoverage("lkidney", "belly", 5);
+        _context.SaveChanges();
+
+        #endregion
+
+        _context.SaveChanges();
+
+        #region Bones
+
+        AddBone(pinnipedProto, "smaxillary", "superior maxillary", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rimaxillary", "right inferior maxillary", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "limaxillary", "left inferior maxillary", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "fskull", "frontal skull bone", BodypartTypeEnum.NonImmobilisingBone, 200,
+            "Compact Bone");
+        AddBone(pinnipedProto, "cvertebrae", "cervical vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "dvertebrae", "dorsal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lvertebrae", "lumbar vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "svertebrae", "sacral vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "cavertebrae", "caudal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rscapula", "right scapula", BodypartTypeEnum.NonImmobilisingBone, 150,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lscapula", "left scapula", BodypartTypeEnum.NonImmobilisingBone, 150,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rhumerus", "right humerus", BodypartTypeEnum.Bone, 140, "Compact Bone");
+        AddBone(pinnipedProto, "lhumerus", "left humerus", BodypartTypeEnum.Bone, 140, "Compact Bone");
+        AddBone(pinnipedProto, "rradius", "right radius", BodypartTypeEnum.Bone, 140, "Compact Bone");
+        AddBone(pinnipedProto, "lradius", "left radius", BodypartTypeEnum.Bone, 140, "Compact Bone");
+        AddBone(pinnipedProto, "rulna", "right ulna", BodypartTypeEnum.Bone, 120, "Compact Bone");
+        AddBone(pinnipedProto, "lulna", "left ulna", BodypartTypeEnum.Bone, 120, "Compact Bone");
+        AddBone(pinnipedProto, "rcarpal", "right carpal", BodypartTypeEnum.MinorBone, 40, "Compact Bone");
+        AddBone(pinnipedProto, "lcarpal", "left carpal", BodypartTypeEnum.MinorBone, 40, "Compact Bone");
+        AddBone(pinnipedProto, "rmetacarpal", "right metacarpal", BodypartTypeEnum.MinorBone, 40, "Compact Bone");
+        AddBone(pinnipedProto, "lmetacarpal", "left metacarpal", BodypartTypeEnum.MinorBone, 40, "Compact Bone");
+        AddBone(pinnipedProto, "sternum", "sternum", BodypartTypeEnum.NonImmobilisingBone, 200, "Compact Bone");
+        AddBone(pinnipedProto, "rrib1", "right first rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lrib1", "left first rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rrib2", "right second rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lrib2", "left second rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rrib3", "right third rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lrib3", "left third rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rrib4", "right fourth rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lrib4", "left fourth rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rrib5", "right fifth rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lrib5", "left fifth rib", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rrib6", "right sixth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lrib6", "left sixth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rrib7", "right seventh rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lrib7", "left seventh rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rrib8", "right eighth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lrib8", "left eighth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rrib9", "right ninth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lrib9", "left ninth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rrib10", "right tenth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lrib10", "left tenth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rrib11", "right eleventh rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lrib11", "left eleventh rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rrib12", "right twelth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lrib12", "left twelth rib", BodypartTypeEnum.MinorNonImobilisingBone, 100,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rilium", "right ilium", BodypartTypeEnum.NonImmobilisingBone, 150, "Compact Bone");
+        AddBone(pinnipedProto, "lilium", "left ilium", BodypartTypeEnum.NonImmobilisingBone, 150, "Compact Bone");
+        AddBone(pinnipedProto, "sacrum", "sacrum", BodypartTypeEnum.NonImmobilisingBone, 150, "Compact Bone");
+        AddBone(pinnipedProto, "rpubis", "right pubis", BodypartTypeEnum.NonImmobilisingBone, 150, "Compact Bone");
+        AddBone(pinnipedProto, "lpubis", "left pubis", BodypartTypeEnum.NonImmobilisingBone, 150, "Compact Bone");
+        AddBone(pinnipedProto, "rischium", "right ischium", BodypartTypeEnum.NonImmobilisingBone, 150,
+            "Compact Bone");
+        AddBone(pinnipedProto, "lischium", "left ischium", BodypartTypeEnum.NonImmobilisingBone, 150,
+            "Compact Bone");
+        AddBone(pinnipedProto, "rfemur", "right femur", BodypartTypeEnum.Bone, 200, "Compact Bone");
+        AddBone(pinnipedProto, "lfemur", "left femur", BodypartTypeEnum.Bone, 200, "Compact Bone");
+        AddBone(pinnipedProto, "rpatella", "right patella", BodypartTypeEnum.Bone, 90, "Compact Bone");
+        AddBone(pinnipedProto, "lpatella", "left patella", BodypartTypeEnum.Bone, 90, "Compact Bone");
+        AddBone(pinnipedProto, "rtibia", "right tibia", BodypartTypeEnum.Bone, 150, "Compact Bone");
+        AddBone(pinnipedProto, "ltibia", "left tibia", BodypartTypeEnum.Bone, 150, "Compact Bone");
+        AddBone(pinnipedProto, "rfibula", "right fibula", BodypartTypeEnum.Bone, 150, "Compact Bone");
+        AddBone(pinnipedProto, "lfibula", "left fibula", BodypartTypeEnum.Bone, 150, "Compact Bone");
+        AddBone(pinnipedProto, "rcalcaneus", "right calcaneus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(pinnipedProto, "lcalcaneus", "left calcaneus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(pinnipedProto, "rtalus", "right talus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(pinnipedProto, "ltalus", "left talus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(pinnipedProto, "rtarsus", "right tarsus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(pinnipedProto, "ltarsus", "left tarsus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(pinnipedProto, "rmetatarsus", "right metatarsus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+        AddBone(pinnipedProto, "lmetatarsus", "left metatarsus", BodypartTypeEnum.Bone, 80, "Compact Bone");
+
+        // TORSO BONES
+        AddBoneInternal("sternum", "abdomen", 50);
+        AddBoneInternal("rrib1", "rshoulder", 10);
+        AddBoneInternal("lrib1", "lshoulder", 10);
+        AddBoneInternal("rrib2", "rbreast", 5);
+        AddBoneInternal("lrib2", "lbreast", 5);
+        AddBoneInternal("rrib3", "rbreast", 5);
+        AddBoneInternal("lrib3", "lbreast", 5);
+        AddBoneInternal("rrib4", "rbreast", 5);
+        AddBoneInternal("lrib4", "lbreast", 5);
+        AddBoneInternal("rrib5", "rbreast", 5);
+        AddBoneInternal("lrib5", "lbreast", 5);
+        AddBoneInternal("rrib6", "rbreast", 5);
+        AddBoneInternal("lrib6", "lbreast", 5);
+        AddBoneInternal("rrib7", "rbreast", 5);
+        AddBoneInternal("lrib7", "lbreast", 5);
+        AddBoneInternal("rrib8", "rbreast", 5);
+        AddBoneInternal("lrib8", "lbreast", 5);
+        AddBoneInternal("rrib9", "rbreast", 5);
+        AddBoneInternal("lrib9", "lbreast", 5);
+        AddBoneInternal("rrib10", "rbreast", 5);
+        AddBoneInternal("lrib10", "lbreast", 5);
+        AddBoneInternal("rrib11", "rbreast", 5);
+        AddBoneInternal("lrib11", "lbreast", 5);
+        AddBoneInternal("rrib12", "rbreast", 5);
+        AddBoneInternal("lrib12", "lbreast", 5);
+        AddBoneInternal("cvertebrae", "bneck", 35);
+        AddBoneInternal("dvertebrae", "uback", 20);
+        AddBoneInternal("dvertebrae", "withers", 20, false);
+        AddBoneInternal("lvertebrae", "lback", 20);
+        AddBoneInternal("svertebrae", "tail", 90);
+        AddBoneInternal("cavertebrae", "tail", 80);
+        AddBoneInternal("sacrum", "lback", 15);
+        AddBoneInternal("rilium", "rrump", 50);
+        AddBoneInternal("lilium", "lrump", 50);
+        AddBoneInternal("rilium", "lback", 4, false);
+        AddBoneInternal("lilium", "lback", 4, false);
+        AddBoneInternal("rpubis", "groin", 20);
+        AddBoneInternal("lpubis", "groin", 20);
+        AddBoneInternal("rischium", "rrump", 20);
+        AddBoneInternal("lischium", "lrump", 20);
+
+        // HEAD BONES
+        AddBoneInternal("smaxillary", "muzzle", 100);
+        AddBoneInternal("smaxillary", "mouth", 40, false);
+        AddBoneInternal("smaxillary", "rcheek", 20, false);
+        AddBoneInternal("smaxillary", "lcheek", 20, false);
+        AddBoneInternal("rimaxillary", "rjaw", 100);
+        AddBoneInternal("limaxillary", "ljaw", 100);
+        AddBoneInternal("fskull", "head", 100);
+        AddBoneInternal("fskull", "bhead", 40, false);
+
+        // ARM BONES
+        AddBoneInternal("rscapula", "rshoulder", 100);
+        AddBoneInternal("lscapula", "lshoulder", 100);
+        AddBoneInternal("rhumerus", "rfrontflipper", 50);
+        AddBoneInternal("lhumerus", "lfrontflipper", 50);
+        AddBoneInternal("rradius", "rfrontflipper", 33);
+        AddBoneInternal("lradius", "lfrontflipper", 33);
+        AddBoneInternal("rulna", "rfrontflipper", 33);
+        AddBoneInternal("lulna", "lfrontflipper", 33);
+        AddBoneInternal("rcarpal", "rfrontflipper", 50);
+        AddBoneInternal("lcarpal", "lfrontflipper", 50);
+        AddBoneInternal("rmetacarpal", "rfrontflipper", 50);
+        AddBoneInternal("lmetacarpal", "lfrontflipper", 50);
+
+        // LEG BONES
+        AddBoneInternal("rfemur", "rhindflipper", 50);
+        AddBoneInternal("lfemur", "lhindflipper", 50);
+        AddBoneInternal("rpatella", "rhindflipper", 100);
+        AddBoneInternal("lpatella", "lhindflipper", 100);
+        AddBoneInternal("rtibia", "rhindflipper", 100);
+        AddBoneInternal("ltibia", "lhindflipper", 100);
+        AddBoneInternal("rfibula", "rhindflipper", 33);
+        AddBoneInternal("lfibula", "lhindflipper", 33);
+        AddBoneInternal("rcalcaneus", "rhindflipper", 20);
+        AddBoneInternal("lcalcaneus", "lhindflipper", 20);
+        AddBoneInternal("rtalus", "rhindflipper", 20);
+        AddBoneInternal("ltalus", "lhindflipper", 20);
+        AddBoneInternal("rtarsus", "rhindflipper", 50);
+        AddBoneInternal("ltarsus", "lhindflipper", 50);
+        AddBoneInternal("rmetatarsus", "rhindflipper", 50);
+        AddBoneInternal("lmetatarsus", "lhindflipper", 50);
+        _context.SaveChanges();
+
+        AddBoneCover("fskull", "brain", 100);
+        AddBoneCover("smaxillary", "brain", 90);
+
+        AddBoneCover("cvertebrae", "uspinalcord", 100);
+        AddBoneCover("dvertebrae", "mspinalcord", 100);
+        AddBoneCover("lvertebrae", "lspinalcord", 100);
+
+        AddBoneCover("sternum", "heart", 80);
+        AddBoneCover("sternum", "rlung", 17.5);
+        AddBoneCover("sternum", "llung", 17.5);
+        AddBoneCover("lrib1", "heart", 5);
+        AddBoneCover("lrib2", "heart", 10);
+        AddBoneCover("lrib3", "heart", 15);
+        AddBoneCover("lrib4", "heart", 15);
+        AddBoneCover("lrib5", "heart", 15);
+        AddBoneCover("lrib6", "heart", 15);
+        AddBoneCover("lrib1", "llung", 10);
+        AddBoneCover("lrib2", "llung", 15);
+        AddBoneCover("lrib3", "llung", 20);
+        AddBoneCover("lrib4", "llung", 20);
+        AddBoneCover("lrib5", "llung", 20);
+        AddBoneCover("lrib6", "llung", 20);
+        AddBoneCover("lrib7", "llung", 20);
+        AddBoneCover("rrib1", "rlung", 10);
+        AddBoneCover("rrib2", "rlung", 15);
+        AddBoneCover("rrib3", "rlung", 20);
+        AddBoneCover("rrib4", "rlung", 20);
+        AddBoneCover("rrib5", "rlung", 20);
+        AddBoneCover("rrib6", "rlung", 20);
+        AddBoneCover("rrib7", "rlung", 20);
+
+        AddBoneCover("rrib6", "liver", 30);
+        AddBoneCover("rrib7", "liver", 45);
+        AddBoneCover("lrib6", "liver", 30);
+        AddBoneCover("lrib7", "liver", 45);
+
+        AddBoneCover("lrib8", "liver", 80);
+        AddBoneCover("lrib8", "spleen", 25);
+        AddBoneCover("rrib8", "liver", 80);
+        AddBoneCover("rrib8", "spleen", 25);
+
+        AddBoneCover("lrib9", "liver", 60);
+        AddBoneCover("lrib9", "spleen", 20);
+        AddBoneCover("rrib9", "liver", 60);
+        AddBoneCover("rrib9", "spleen", 20);
+
+        AddBoneCover("lrib10", "liver", 15);
+        AddBoneCover("lrib10", "lkidney", 20);
+        AddBoneCover("rrib10", "liver", 15);
+        AddBoneCover("rrib10", "rkidney", 20);
+
+        AddBoneCover("rscapula", "rlung", 70);
+        AddBoneCover("lscapula", "llung", 70);
+
+        AddBoneCover("rilium", "sintestines", 20);
+        AddBoneCover("lilium", "sintestines", 20);
+        AddBoneCover("rilium", "lintestines", 40);
+        AddBoneCover("lilium", "lintestines", 40);
+
+        AddBoneCover("rischium", "lintestines", 40);
+        AddBoneCover("lischium", "lintestines", 40);
+        _context.SaveChanges();
+
+        #endregion
+
+        _context.SaveChanges();
+
+        foreach ((BodypartProto? child, BodypartProto? parent) in _cachedBodypartUpstreams)
+        {
+            _context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
+            {
+                Child = child.Id,
+                Parent = parent.Id
+            });
+        }
+
+        _context.SaveChanges();
+
+        #region Limbs
+
+        limbs = new Dictionary<string, Limb>(StringComparer.OrdinalIgnoreCase);
+        AddLimb("Torso", LimbType.Torso, "abdomen", 1.0, 1.0, pinnipedProto);
+        AddLimb("Head", LimbType.Head, "neck", 1.0, 1.0, pinnipedProto);
+        AddLimb("Genitals", LimbType.Genitals, "groin", 0.5, 0.5, pinnipedProto);
+        AddLimb("Right Foreleg", LimbType.Leg, "rfrontflipper", 0.5, 0.5, pinnipedProto);
+        AddLimb("Left Foreleg", LimbType.Leg, "lfrontflipper", 0.5, 0.5, pinnipedProto);
+        AddLimb("Right Hindleg", LimbType.Leg, "rhindflipper", 0.5, 0.5, pinnipedProto);
+        AddLimb("Left Hindleg", LimbType.Leg, "lhindflipper", 0.5, 0.5, pinnipedProto);
+        AddLimb("Tail", LimbType.Appendage, "tail", 0.5, 0.5, pinnipedProto);
+        _context.SaveChanges();
+
+        foreach (Limb limb in limbs.Values)
+        {
+            foreach (BodypartProto part in _cachedLimbs[limb.Name])
+            {
+                _context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
+            }
+
+            switch (limb.Name)
+            {
+                case "Torso":
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
+                    break;
+                case "Genitals":
+                case "Right Foreleg":
+                case "Left Foreleg":
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
+                    break;
+                case "Leg Hindleg":
+                case "Right Hindleg":
+                case "Tail":
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
+                    break;
+            }
+        }
+
+        _context.SaveChanges();
+
+        #endregion
+
+        #region Groups
+
+        AddBodypartGroupDescriberShape(pinnipedProto, "body", "The whole torso of a pinniped",
+            ("abdomen", 1, 1),
+            ("belly", 1, 1),
+            ("withers", 1, 1),
+            ("breast", 1, 2),
+            ("flank", 1, 2),
+            ("loin", 1, 2),
+            ("shoulder", 1, 2),
+            ("upper back", 1, 1),
+            ("lower back", 1, 1),
+            ("rump", 1, 2),
+            ("neck", 0, 1),
+            ("neck back", 0, 1),
+            ("throat", 0, 1)
+        );
+        AddBodypartGroupDescriberShape(pinnipedProto, "flippers", "Four flippers of a pinniped",
+            ("front flipper", 1, 2),
+            ("hind flipper", 1, 2)
+        );
+        AddBodypartGroupDescriberShape(pinnipedProto, "front flippers", "Both front flippers of a pinniped",
+            ("front flipper", 2, 2)
+        );
+        AddBodypartGroupDescriberShape(pinnipedProto, "hind flippers", "Both hind flippers of a pinniped",
+            ("hind flipper", 2, 2)
+        );
+
+        AddBodypartGroupDescriberShape(pinnipedProto, "head", "A pinniped head",
+            ("face", 1, 1),
+            ("head back", 0, 1),
+            ("eye socket", 0, 2),
+            ("eye", 0, 2),
+            ("ear", 0, 2),
+            ("jaw", 0, 2),
+            ("muzzle", 0, 1),
+            ("nose", 0, 1),
+            ("mouth", 0, 1),
+            ("tongue", 0, 1),
+            ("cheek", 0, 2),
+            ("throat", 0, 1),
+            ("withers", 0, 1),
+            ("neck", 0, 1),
+            ("neck back", 0, 1),
+            ("tusk", 0, 2)
+        );
+
+        AddBodypartGroupDescriberShape(pinnipedProto, "back", "A pinniped back",
+            ("upper back", 1, 1),
+            ("lower back", 1, 1),
+            ("flank", 0, 4),
+            ("rump", 0, 2),
+            ("withers", 0, 1),
+            ("neck back", 0, 1)
+        );
+
+        AddBodypartGroupDescriberShape(pinnipedProto, "eyes", "A pair of pinniped eyes",
+            ("eye socket", 2, 2),
+            ("eye", 0, 2)
+        );
+
+        AddBodypartGroupDescriberShape(pinnipedProto, "ears", "A pair of pinniped ears",
+            ("ear", 2, 2)
+        );
+
+        AddBodypartGroupDescriberShape(pinnipedProto, "tusks", "A pair of pinniped tusks",
+            ("tusk", 2, 2)
+        );
+
+        AddBodypartGroupDescriberShape(pinnipedProto, "shoulders", "A group of pinniped shoulders",
+            ("shoulder", 2, 4)
+        );
+
+        _context.SaveChanges();
+
+        #endregion
+
+        #endregion
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Cetaceans...");
+
+        #region Cetaceans
+
+        ResetCachedParts();
+        order = 1;
+
+        #region Torso
+
+        AddBodypart(cetaceanProto, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Wear, null, Alignment.Front,
+            Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(cetaceanProto, "rbreast", "right breast", "breast", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.FrontRight, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(cetaceanProto, "lbreast", "left breast", "breast", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.FrontLeft, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(cetaceanProto, "urflank", "upper right flank", "flank", BodypartTypeEnum.Wear, "rbreast",
+            Alignment.Right, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(cetaceanProto, "ulflank", "upper left flank", "flank", BodypartTypeEnum.Wear, "lbreast",
+            Alignment.Left, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(cetaceanProto, "lrflank", "lower right flank", "flank", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.RearRight, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(cetaceanProto, "llflank", "lower left flank", "flank", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.RearLeft, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(cetaceanProto, "belly", "belly", "belly", BodypartTypeEnum.Wear, "abdomen", Alignment.Front,
+            Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(cetaceanProto, "uback", "upper back", "upper back", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.Front, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(cetaceanProto, "lback", "lower back", "lower back", BodypartTypeEnum.Wear, "abdomen",
+            Alignment.Rear, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(cetaceanProto, "loin", "loin", "loin", BodypartTypeEnum.Wear, "belly", Alignment.Rear,
+            Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.2);
+        AddBodypart(cetaceanProto, "dorsalfin", "dorsal fin", "fin", BodypartTypeEnum.Fin, "uback", Alignment.Rear,
+            Orientation.Highest, 20, 35, 100, order++, "Flesh", SizeCategory.Normal, "Torso");
+        AddBodypart(cetaceanProto, "rpectoralfin", "right pectoral fin", "fin", BodypartTypeEnum.Fin, "urflank",
+            Alignment.Right, Orientation.Centre, 20, 35, 100, order++, "Flesh", SizeCategory.Normal, "Torso");
+        AddBodypart(cetaceanProto, "lpectoralfin", "left pectoral fin", "fin", BodypartTypeEnum.Fin, "ulflank",
+            Alignment.Left, Orientation.Centre, 20, 35, 100, order++, "Flesh", SizeCategory.Normal, "Torso");
+
+        #endregion
+
+        #region Head
+
+        AddBodypart(cetaceanProto, "neck", "neck", "neck", BodypartTypeEnum.Wear, "uback", Alignment.Front,
+            Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(cetaceanProto, "head", "head", "face", BodypartTypeEnum.Wear, "neck", Alignment.Front,
+            Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(cetaceanProto, "blowhole", "blowhole", "blowhole", BodypartTypeEnum.Blowhole, "head",
+            Alignment.Front,
+            Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
+            implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(cetaceanProto, "reyesocket", "right eye socket", "eye socket", BodypartTypeEnum.Wear, "head",
+            Alignment.FrontRight, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(cetaceanProto, "leyesocket", "left eye socket", "eye socket", BodypartTypeEnum.Wear, "head",
+            Alignment.FrontLeft, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(cetaceanProto, "reye", "right eye", "eye", BodypartTypeEnum.Eye, "reyesocket", Alignment.FrontRight,
+            Orientation.Highest, 10, 30, 100, order++, "Dense Bony Flesh", SizeCategory.Small, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(cetaceanProto, "leye", "left eye", "eye", BodypartTypeEnum.Eye, "leyesocket", Alignment.FrontLeft,
+            Orientation.Highest, 10, 30, 100, order++, "Dense Bony Flesh", SizeCategory.Small, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(cetaceanProto, "mouth", "mouth", "mouth", BodypartTypeEnum.Mouth, "head", Alignment.Front,
+            Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+
+        #endregion
+
+        #region Tail
+
+        AddBodypart(cetaceanProto, "stock", "tail stock", "tail", BodypartTypeEnum.Wear, "lback", Alignment.Rear,
+            Orientation.Centre, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "Tail");
+        AddBodypart(cetaceanProto, "fluke", "fluke", "tail", BodypartTypeEnum.Fin, "stock", Alignment.Rear,
+            Orientation.Centre, 20, 35, 100, order++, "Flesh", SizeCategory.Normal, "Tail");
+
+        #endregion
+
+        _context.SaveChanges();
+
+        #region Organs
+
+        AddOrgan(cetaceanProto, "brain", "brain", BodypartTypeEnum.Brain, 2.0, 50, 0.2, 0.2, 0.1, stunModifier: 1.0);
+        AddOrgan(cetaceanProto, "heart", "heart", BodypartTypeEnum.Heart, 1.0, 50, 0.2, 1.0, 1.0);
+        AddOrgan(cetaceanProto, "liver", "liver", BodypartTypeEnum.Liver, 3.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(cetaceanProto, "spleen", "spleen", BodypartTypeEnum.Spleen, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(cetaceanProto, "stomach", "stomach", BodypartTypeEnum.Stomach, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(cetaceanProto, "lintestines", "large intestines", BodypartTypeEnum.Intestines, 0.5, 50, 0.2, 1.0,
+            0.05);
+        AddOrgan(cetaceanProto, "sintestines", "small intestines", BodypartTypeEnum.Intestines, 2.0, 50, 0.2, 1.0,
+            0.05);
+        AddOrgan(cetaceanProto, "rkidney", "right kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
+            painModifier: 3.0);
+        AddOrgan(cetaceanProto, "lkidney", "left kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
+            painModifier: 3.0);
+        AddOrgan(cetaceanProto, "esophagus", "esophagus", BodypartTypeEnum.Esophagus, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(cetaceanProto, "uspinalcord", "upper spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
+            stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(cetaceanProto, "mspinalcord", "middle spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
+            stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(cetaceanProto, "lspinalcord", "lower spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
+            stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(cetaceanProto, "rinnerear", "right inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+        AddOrgan(cetaceanProto, "linnerear", "left inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+
+        AddOrganCoverage("brain", "head", 100, true);
+        AddOrganCoverage("brain", "reyesocket", 85);
+        AddOrganCoverage("brain", "leyesocket", 85);
+        AddOrganCoverage("brain", "reye", 85);
+        AddOrganCoverage("brain", "leye", 85);
+
+        AddOrganCoverage("linnerear", "head", 10, true);
+        AddOrganCoverage("rinnerear", "head", 10, true);
+        AddOrganCoverage("esophagus", "neck", 20, true);
+
+        AddOrganCoverage("heart", "lbreast", 33, true);
+
+        AddOrganCoverage("uspinalcord", "neck", 2, true);
+        AddOrganCoverage("mspinalcord", "uback", 10, true);
+        AddOrganCoverage("lspinalcord", "lback", 10, true);
+
+        AddOrganCoverage("liver", "abdomen", 33, true);
+        AddOrganCoverage("spleen", "abdomen", 20, true);
+        AddOrganCoverage("stomach", "abdomen", 20, true);
+        AddOrganCoverage("liver", "uback", 15);
+        AddOrganCoverage("spleen", "uback", 10);
+        AddOrganCoverage("stomach", "uback", 5);
+
+        AddOrganCoverage("lintestines", "belly", 5, true);
+        AddOrganCoverage("sintestines", "belly", 50, true);
+        AddOrganCoverage("lintestines", "lback", 5);
+        AddOrganCoverage("sintestines", "lback", 33);
+        AddOrganCoverage("lintestines", "loin", 5);
+
+        AddOrganCoverage("rkidney", "lback", 20, true);
+        AddOrganCoverage("lkidney", "lback", 20, true);
+        AddOrganCoverage("rkidney", "belly", 5);
+        AddOrganCoverage("lkidney", "belly", 5);
+        _context.SaveChanges();
+
+        #endregion
+
+        _context.SaveChanges();
+
+        foreach ((BodypartProto? child, BodypartProto? parent) in _cachedBodypartUpstreams)
+        {
+            _context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
+            {
+                Child = child.Id,
+                Parent = parent.Id
+            });
+        }
+
+        _context.SaveChanges();
+
+        #region Limbs
+
+        limbs = new Dictionary<string, Limb>(StringComparer.OrdinalIgnoreCase);
+        AddLimb("Torso", LimbType.Torso, "abdomen", 1.0, 1.0, cetaceanProto);
+        AddLimb("Head", LimbType.Head, "neck", 1.0, 1.0, cetaceanProto);
+        AddLimb("Tail", LimbType.Appendage, "stock", 0.5, 0.5, cetaceanProto);
+        _context.SaveChanges();
+
+        foreach (Limb limb in limbs.Values)
+        {
+            foreach (BodypartProto part in _cachedLimbs[limb.Name])
+            {
+                _context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
+            }
+
+            switch (limb.Name)
+            {
+                case "Torso":
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
+                    break;
+                case "Tail":
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
+                    break;
+            }
+        }
+
+        _context.SaveChanges();
+
+        #endregion
+
+        #region Groups
+
+        AddBodypartGroupDescriberShape(cetaceanProto, "body", "The whole torso of a cetacean",
+            ("abdomen", 0, 1),
+            ("breast", 0, 2),
+            ("flank", 0, 4),
+            ("belly", 0, 1),
+            ("loin", 0, 1),
+            ("upper back", 1, 1),
+            ("lower back", 1, 1),
+            ("neck", 0, 1),
+            ("blowhole", 0, 2),
+            ("tail", 0, 2)
+        );
+
+        AddBodypartGroupDescriberShape(cetaceanProto, "fins", "All the fins of a cetacean",
+            ("fin", 2, 3)
+        );
+
+        AddBodypartGroupDescriberDirect(cetaceanProto, "pectoral fins", "The pectoral fins of a cetacean",
+            ("rpectoralfin", true),
+            ("lpectoralfin", true)
+        );
+
+        AddBodypartGroupDescriberShape(cetaceanProto, "eyes", "The eyes of a cetacean",
+            ("eye socket", 0, 2),
+            ("eye", 0, 2)
+        );
+
+        AddBodypartGroupDescriberShape(cetaceanProto, "head", "The whole head of a cetacean",
+            ("face", 0, 1),
+            ("eye socket", 0, 2),
+            ("eye", 0, 2),
+            ("mouth", 0, 1),
+            ("neck", 0, 1),
+            ("blowhole", 0, 2)
+        );
+
+        AddBodypartGroupDescriberDirect(cetaceanProto, "tail", "The whole of a cetacean's tail",
+            ("fluke", true),
+            ("stock", true)
+        );
+
+        #endregion
+
+        _context.SaveChanges();
+
+        #endregion
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Races...");
+
+        #region Races
+
+        SeedAnimalRaces(GetAquaticRaceTemplates(),
+            ("Piscine", fishProto),
+            ("Decapod", crabProto),
+            ("Malacostracan", malacostracanProto),
+            ("Cephalopod", octopusProto),
+            ("Jellyfish", jellyfishProto),
+            ("Pinniped", pinnipedProto),
+            ("Cetacean", cetaceanProto));
+
+        #endregion
     }
 }

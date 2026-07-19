@@ -1,8 +1,23 @@
 #nullable enable
 
+using Humanizer;
+using Microsoft.EntityFrameworkCore.Storage;
+using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Email;
+using MudSharp.Form.Audio;
+using MudSharp.Form.Material;
 using MudSharp.Framework.Units;
+using MudSharp.Framework;
 using MudSharp.Models;
+using MudSharp.RPG.Checks;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
+using System;
+using TimeOfDay = MudSharp.Celestial.TimeOfDay;
+using TimeZoneInfo = MudSharp.Models.TimeZoneInfo;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -278,4 +293,938 @@ public partial class CoreDataSeeder
 		AddUnit(119, "kg/m2", "kg/m2", "kg/m2 kgm2 kgsqm bmi", 1.0, 0.0, 0.0, UnitType.BMI, true, false,
 			imperialUkSystem, true);
 	}
+
+    private static void SeedUnitsOfMeasureLegacy(FuturemudDatabaseContext context)
+    {
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 1,
+            Name = "gram",
+            PrimaryAbbreviation = "g",
+            Abbreviations = "gram g grams",
+            BaseMultiplier = 1,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 0,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 2,
+            Name = "kilogram",
+            PrimaryAbbreviation = "kg",
+            Abbreviations = "kilogram kg kilo kilograms kilos",
+            BaseMultiplier = 1000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 0,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 3,
+            Name = "tonne",
+            PrimaryAbbreviation = "t",
+            Abbreviations = "tonne ton t mg tonnes tons",
+            BaseMultiplier = 1000000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 0,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 4,
+            Name = "pound",
+            PrimaryAbbreviation = "lb",
+            Abbreviations = "pound lb pounds lbs",
+            BaseMultiplier = 453.592,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 0,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 5,
+            Name = "ounce",
+            PrimaryAbbreviation = "oz",
+            Abbreviations = "ounce oz ounces",
+            BaseMultiplier = 28.3495,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 0,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 6,
+            Name = "centimetre",
+            PrimaryAbbreviation = "cm",
+            Abbreviations = "centimetre cm centimeter centimeters centimetres cms",
+            BaseMultiplier = 1,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 1,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 7,
+            Name = "metre",
+            PrimaryAbbreviation = "m",
+            Abbreviations = "metre meter m metres meters",
+            BaseMultiplier = 100,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 1,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 8,
+            Name = "millimetre",
+            PrimaryAbbreviation = "mm",
+            Abbreviations = "millimetre millimeter mm millimeters millimetres",
+            BaseMultiplier = 0.1,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 1,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 9,
+            Name = "foot",
+            PrimaryAbbreviation = "ft",
+            Abbreviations = "foot feet ft '",
+            BaseMultiplier = 30.48,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 1,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 10,
+            Name = "inch",
+            PrimaryAbbreviation = "in",
+            Abbreviations = "inch inches in \"",
+            BaseMultiplier = 2.54,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 1,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 11,
+            Name = "tonne",
+            PrimaryAbbreviation = "t",
+            Abbreviations = "tonne ton t mg tonnes tons",
+            BaseMultiplier = 907184.74,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 0,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 12,
+            Name = "kilotonne",
+            PrimaryAbbreviation = "kt",
+            Abbreviations = "kilotonne kilotonnes kt",
+            BaseMultiplier = 1000000000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 0,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 13,
+            Name = "stone",
+            PrimaryAbbreviation = "st",
+            Abbreviations = "stone stones st",
+            BaseMultiplier = 6350.29,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 0,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 14,
+            Name = "chain",
+            PrimaryAbbreviation = "ch",
+            Abbreviations = "chain chains ch",
+            BaseMultiplier = 2011.68,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 1,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 15,
+            Name = "mile",
+            PrimaryAbbreviation = "mi",
+            Abbreviations = "mile miles",
+            BaseMultiplier = 160934.4,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 1,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 16,
+            Name = "kilometer",
+            PrimaryAbbreviation = "km",
+            Abbreviations = "kilometre kilometer kilometres kilometers km kms",
+            BaseMultiplier = 100000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 1,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 17,
+            Name = "furlong",
+            PrimaryAbbreviation = "fl",
+            Abbreviations = "furlong furlongs fur",
+            BaseMultiplier = 20116.8,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 1,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 18,
+            Name = "league",
+            PrimaryAbbreviation = "lg",
+            Abbreviations = "leagues league lea",
+            BaseMultiplier = 482803.2,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 1,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 19,
+            Name = "link",
+            PrimaryAbbreviation = "lnk",
+            Abbreviations = "link links",
+            BaseMultiplier = 20.1168,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 1,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 20,
+            Name = "rod",
+            PrimaryAbbreviation = "rd",
+            Abbreviations = "rod rods",
+            BaseMultiplier = 502.92,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 1,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 21,
+            Name = "litre",
+            PrimaryAbbreviation = "l",
+            Abbreviations = "litre liter l litres liters",
+            BaseMultiplier = 1,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 2,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 22,
+            Name = "millilitre",
+            PrimaryAbbreviation = "ml",
+            Abbreviations = "millilitre milliletres milliliter milliliters ml mls",
+            BaseMultiplier = 0.001,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 2,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 23,
+            Name = "ounce",
+            PrimaryAbbreviation = "oz",
+            Abbreviations = "ounce ounces floz oz",
+            BaseMultiplier = 0.0295735,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 2,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 24,
+            Name = "dram",
+            PrimaryAbbreviation = "dr",
+            Abbreviations = "dram drams",
+            BaseMultiplier = 0.0036966912,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 2,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 25,
+            Name = "cup",
+            PrimaryAbbreviation = "cp",
+            Abbreviations = "cup cups cp cps",
+            BaseMultiplier = 0.236588,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 2,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 26,
+            Name = "pint",
+            PrimaryAbbreviation = "pt",
+            Abbreviations = "pint pints p pt pts",
+            BaseMultiplier = 0.473176,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 2,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 27,
+            Name = "quart",
+            PrimaryAbbreviation = "qt",
+            Abbreviations = "quart quarts qt qts",
+            BaseMultiplier = 0.946352946,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 2,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 28,
+            Name = "gallon",
+            PrimaryAbbreviation = "gal",
+            Abbreviations = "gallon gallons gal gals",
+            BaseMultiplier = 3.785411784,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 2,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 29,
+            Name = "kilolitre",
+            PrimaryAbbreviation = "kl",
+            Abbreviations = "kilolitre kilolitres kiloliter kiloliters kl",
+            BaseMultiplier = 1000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 2,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 30,
+            Name = "megalitre",
+            PrimaryAbbreviation = "ml",
+            Abbreviations = "megalitre megalitres megaliter megaliters ml",
+            BaseMultiplier = 1000000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 2,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 31,
+            Name = "gigalitre",
+            PrimaryAbbreviation = "gl",
+            Abbreviations = "gigalitre gigalitres gigaliter gigaliters gl",
+            BaseMultiplier = 1000000000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 2,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 32,
+            Name = "square metre",
+            PrimaryAbbreviation = "m2",
+            Abbreviations = "sqm sqms m2",
+            BaseMultiplier = 1,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 3,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 33,
+            Name = "square foot",
+            PrimaryAbbreviation = "ft2",
+            Abbreviations = "sqft sqf f2 ft2",
+            BaseMultiplier = 0.092903,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 3,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 34,
+            Name = "acre",
+            PrimaryAbbreviation = "ac",
+            Abbreviations = "acre acres ac",
+            BaseMultiplier = 4046.86,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 3,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 35,
+            Name = "hectare",
+            PrimaryAbbreviation = "ha",
+            Abbreviations = "hectare hectares ha",
+            BaseMultiplier = 10000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 3,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 36,
+            Name = "cubic metre",
+            PrimaryAbbreviation = "m3",
+            Abbreviations = "cm m3 cms cbm cbms",
+            BaseMultiplier = 1,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 4,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 37,
+            Name = "cubic foot",
+            PrimaryAbbreviation = "cuft",
+            Abbreviations = "cft ft3 f3 cuft",
+            BaseMultiplier = 0.0283168466,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 4,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 38,
+            Name = "°C",
+            PrimaryAbbreviation = "°C",
+            Abbreviations = "°C C deg degree degrees degs",
+            BaseMultiplier = 1,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 5,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Metric",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 39,
+            Name = "°F",
+            PrimaryAbbreviation = "°F",
+            Abbreviations = "°F F deg degree degrees degs",
+            BaseMultiplier = 0.55555555555,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 32,
+            Type = 5,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Imperial",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 40,
+            Name = "perch",
+            PrimaryAbbreviation = "per",
+            Abbreviations = "perch",
+            BaseMultiplier = 25.29285264,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 3,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 41,
+            Name = "rood",
+            PrimaryAbbreviation = "rood",
+            Abbreviations = "rood",
+            BaseMultiplier = 1011.7141056,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 3,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 42,
+            Name = "acre",
+            PrimaryAbbreviation = "ac",
+            Abbreviations = "acre ac",
+            BaseMultiplier = 4045.8564224,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 3,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 43,
+            Name = "drachm",
+            PrimaryAbbreviation = "dr",
+            Abbreviations = "dr drachm drachms",
+            BaseMultiplier = 1.7718451953125,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 0,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 44,
+            Name = "grain",
+            PrimaryAbbreviation = "ggr",
+            Abbreviations = "grain gr grains",
+            BaseMultiplier = 0.06479891,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 0,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 45,
+            Name = "thou",
+            PrimaryAbbreviation = "th",
+            Abbreviations = "thou th thous",
+            BaseMultiplier = 0.00254,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 0,
+            Describer = false,
+            SpaceBetween = true,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 46,
+            Name = "milligram",
+            PrimaryAbbreviation = "mg",
+            Abbreviations = "milligram mg milligrams",
+            BaseMultiplier = 0.001,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 0,
+            Describer = true,
+            SpaceBetween = true,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 47,
+            Name = "°C",
+            PrimaryAbbreviation = "°C",
+            Abbreviations = "°C C deg degree degrees degs",
+            BaseMultiplier = 1,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 6,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Metric",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 48,
+            Name = "°F",
+            PrimaryAbbreviation = "°F",
+            Abbreviations = "°F F deg degree degrees degs",
+            BaseMultiplier = 0.55555555555,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 6,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Imperial",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 49,
+            Name = "newton",
+            PrimaryAbbreviation = "N",
+            Abbreviations = "N newton newtons",
+            BaseMultiplier = 1,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 7,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Metric",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 50,
+            Name = "kilonewton",
+            PrimaryAbbreviation = "kN",
+            Abbreviations = "kN kilonewtons kilonewton",
+            BaseMultiplier = 1000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 7,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 51,
+            Name = "meganewton",
+            PrimaryAbbreviation = "MN",
+            Abbreviations = "MN meganewtons meganewton",
+            BaseMultiplier = 1000000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 7,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 52,
+            Name = "pound",
+            PrimaryAbbreviation = "lb",
+            Abbreviations = "lb lbf lbs lbf pounds pound",
+            BaseMultiplier = 4.448222,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 7,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Imperial",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 53,
+            Name = "pascal",
+            PrimaryAbbreviation = "pa",
+            Abbreviations = "pa pascal pascals",
+            BaseMultiplier = 1,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 8,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Metric",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 54,
+            Name = "kilopascal",
+            PrimaryAbbreviation = "kpa",
+            Abbreviations = "kpa kilopascal kilopascals",
+            BaseMultiplier = 1000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 8,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 55,
+            Name = "megapascal",
+            PrimaryAbbreviation = "mpa",
+            Abbreviations = "mpa megapascal megapascals",
+            BaseMultiplier = 1000000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 8,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 56,
+            Name = "gigapascal",
+            PrimaryAbbreviation = "gpa",
+            Abbreviations = "gpa gigapascal gigapascals",
+            BaseMultiplier = 1000000000,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 8,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Metric",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 57,
+            Name = "psi",
+            PrimaryAbbreviation = "psi",
+            Abbreviations = "psi lb lbs pound pounds",
+            BaseMultiplier = 6894.757293168,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 8,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Imperial",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 58,
+            Name = "kpsi",
+            PrimaryAbbreviation = "kpsi",
+            Abbreviations = "kpsi klb klbs kilopound kilopounds",
+            BaseMultiplier = 6894757.293168,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 8,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 59,
+            Name = "mpsi",
+            PrimaryAbbreviation = "mpsi",
+            Abbreviations = "mpsi mlb mlbs megapound megapounds",
+            BaseMultiplier = 6894757293.168,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 8,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 60,
+            Name = "kpsi",
+            PrimaryAbbreviation = "kpsi",
+            Abbreviations = "kpsi klb klbs kilopound kilopounds",
+            BaseMultiplier = 6894757.293168,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 8,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Imperial",
+            DefaultUnitForSystem = false
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 61,
+            Name = "kg/m\u00b2",
+            PrimaryAbbreviation = "kg/m\u00b2",
+            Abbreviations = "kg kgm kgms",
+            BaseMultiplier = 1.0,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 9,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Metric",
+            DefaultUnitForSystem = true
+        });
+        context.UnitsOfMeasure.Add(new UnitOfMeasure
+        {
+            Id = 62,
+            Name = "lb/in\u00b2",
+            PrimaryAbbreviation = "lb/in\u00b2",
+            Abbreviations = "lb lbin lbin2 lbsqin",
+            BaseMultiplier = 0.00142247510668563300142247510669,
+            PreMultiplierBaseOffset = 0,
+            PostMultiplierBaseOffset = 0,
+            Type = 9,
+            Describer = true,
+            SpaceBetween = false,
+            System = "Imperial",
+            DefaultUnitForSystem = true
+        });
+    }
 }

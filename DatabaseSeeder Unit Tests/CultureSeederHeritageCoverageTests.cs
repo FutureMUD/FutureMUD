@@ -273,8 +273,8 @@ public class CultureSeederHeritageCoverageTests
 		SetPrivateField(seeder, "_alwaysTrueProg", alwaysTrue);
 		SetPrivateField(seeder, "_skillStartProg", skillStartingValue);
 
-		InvokePrivate(seeder, "SeedModernCultureCoverageExpansion");
-		InvokePrivate(seeder, "SeedModernCultureCoverageExpansion");
+		InvokePrivate(seeder, "SeedModernCultureCoverage");
+		InvokePrivate(seeder, "SeedModernCultureCoverage");
 
 		Assert.AreEqual(26, context.Cultures.Count());
 		Culture southAsian = context.Cultures.Single(x => x.Name == "Modern South Asian");

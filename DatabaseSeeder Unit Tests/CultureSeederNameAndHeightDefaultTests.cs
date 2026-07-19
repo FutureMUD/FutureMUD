@@ -45,16 +45,9 @@ public class CultureSeederNameAndHeightDefaultTests
 	[TestMethod]
 	public void CultureSeeder_EyeShapeProfiles_DoNotUseTypoFallback()
 	{
-		foreach (string file in new[]
-		{
-			"CultureSeederHeritage.cs",
-			"CultureSeeder.DarkAgesAndMedieval.cs",
-			"CultureSeeder.RenaissanceWorldExpansion.cs"
-		})
-		{
-			string source = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", file));
-			Assert.IsFalse(source.Contains("Sa" + "pe", StringComparison.Ordinal), $"{file} should use Shape, not the known typo.");
-		}
+		string source = SeederSourceTestHelper.ReadPartialFamily("CultureSeeder");
+		Assert.IsFalse(source.Contains("Sa" + "pe", StringComparison.Ordinal),
+			"Culture seeder partials should use Shape, not the known typo.");
 	}
 
 	[TestMethod]
@@ -94,7 +87,7 @@ public class CultureSeederNameAndHeightDefaultTests
 		CultureSeeder seeder = new();
 		SetSeederContext(seeder, context);
 
-		InvokePrivate(seeder, "SeedRenaissanceWorldExpansionNames");
+		InvokePrivate(seeder, "SeedRenaissanceWorldNames");
 
 		AssertCultureHasReadyCompatibleProfile(context, "Renaissance Armenian", Gender.Male);
 		AssertCultureHasReadyCompatibleProfile(context, "Renaissance Amazigh", Gender.Female);
@@ -117,14 +110,7 @@ public class CultureSeederNameAndHeightDefaultTests
 	[TestMethod]
 	public void MedievalLevantineAndMorrocanNameRegexes_UsePrintableSpacesForPatronyms()
 	{
-		string source = File.ReadAllText(Path.Combine(
-			"..",
-			"..",
-			"..",
-			"..",
-			"DatabaseSeeder",
-			"Seeders",
-			"CultureSeederMedievalNamesComplex.cs"));
+		string source = SeederSourceTestHelper.ReadSeederSource("CultureSeeder.Names.MedievalEurope.cs");
 
 		StringAssert.Contains(source,
 			"AddNameCulture(\"Levantine\", \"^(?<birthname>[\\\\w'-]{2,}) (?<patronym>(?:Ibnat|Bin|Ibn|Bint)[ ]*[\\\\w'-]{2,})");
@@ -137,7 +123,7 @@ public class CultureSeederNameAndHeightDefaultTests
 	[TestMethod]
 	public void RomanHeritageCultures_LinkToAdditionalAntiquityNameCulturesWithFallbacks()
 	{
-		string source = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "CultureSeederHeritage.cs"));
+		string source = SeederSourceTestHelper.ReadSeederSource("CultureSeeder.Heritage.Antiquity.cs");
 
 		StringAssert.Contains(source, "ResolveAntiquityNameCulture(\"Numidian-Mauretanian\", \"Punic\")");
 		StringAssert.Contains(source, "ResolveAntiquityNameCulture(\"Illyrian-Pannonian\", \"Hellenic\")");
@@ -307,7 +293,7 @@ public class CultureSeederNameAndHeightDefaultTests
 		SetSeederContext(seeder, context);
 
 		InvokePrivate(seeder, "SeedLatinNames", context);
-		InvokePrivate(seeder, "SeedAntiquityAdditionalNameCultures");
+		InvokePrivate(seeder, "SeedAntiquityRegionalNameCultures");
 
 		foreach ((string cultureName, Gender gender) in AntiquityExpectedNameCultureProfiles())
 		{
@@ -342,7 +328,7 @@ public class CultureSeederNameAndHeightDefaultTests
 		SetSeederContext(seeder, context);
 
 		InvokePrivate(seeder, "SeedLatinNames", context);
-		InvokePrivate(seeder, "SeedAntiquityAdditionalNameCultures");
+		InvokePrivate(seeder, "SeedAntiquityRegionalNameCultures");
 
 		foreach (DbNameCulture culture in context.NameCultures.ToList())
 		{
@@ -511,7 +497,7 @@ public class CultureSeederNameAndHeightDefaultTests
 		IReadOnlyList<string> robotIssues = RobotSeeder.ValidateTemplateCatalogForTesting();
 		Assert.AreEqual(0, robotIssues.Count, string.Join("\n", robotIssues));
 
-		string humanSeederSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "HumanSeeder.cs"));
+		string humanSeederSource = SeederSourceTestHelper.ReadPartialFamily("HumanSeeder");
 		Assert.IsTrue(
 			humanSeederSource.IndexOf("SetupHeightWeightModels();", StringComparison.Ordinal) <
 			humanSeederSource.IndexOf("SetupRaces(", StringComparison.Ordinal),
@@ -521,7 +507,7 @@ public class CultureSeederNameAndHeightDefaultTests
 		StringAssert.Contains(humanSeederSource, "human.DefaultHeightWeightModelMale = _humanMaleHWModel;");
 		StringAssert.Contains(humanSeederSource, "human.DefaultHeightWeightModelFemale = _humanFemaleHWModel;");
 
-		string cultureHeritageSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "CultureSeederHeritage.cs"));
+		string cultureHeritageSource = SeederSourceTestHelper.ReadPartialFamily("CultureSeeder.Heritage");
 		foreach (string assignment in new[]
 		{
 			"elfRace.DefaultHeightWeightModelMale = elfMaleHWModel;",

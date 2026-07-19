@@ -15,9 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="FutureMUDLibrary">
-			<HintPath>..\FutureMUDLibrary\bin\$(Configuration)\net10.0\FutureMUDLibrary.dll</HintPath>
-		</Reference>
+		<ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
 	</ItemGroup>
 
 </Project>

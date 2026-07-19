@@ -39,8 +39,9 @@ try {
 		Where-Object { -not [string]::IsNullOrWhiteSpace($_) -and -not $_.TrimStart().StartsWith('#') }
 
 	# Build sequentially to avoid shared-output locks, then run the isolated test hosts in parallel.
+	# Each targeted build restores its own graph, avoiding unrelated platform-specific solution projects.
 	foreach ($testProject in $testProjects) {
-		Invoke-Dotnet { & $dotnetCommand build $testProject -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 }
+		Invoke-Dotnet { & $dotnetCommand build $testProject -c Debug -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false -p:NoWarn=NU1902%3BNU1510 }
 	}
 
 	$jobs = foreach ($testProject in $testProjects) {

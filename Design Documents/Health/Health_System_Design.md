@@ -226,6 +226,8 @@ The health system now supports combat-driven burning via `FireProfile` and the `
 
 Liquids can now define `SurfaceReactionInfo`, loaded into `ILiquidSurfaceReaction` entries. These reactions are tag-driven and are evaluated by the surface-liquid exposure path when items or bodies become wet and when drying resolves residue creation. Ordinary wetness is no longer a scheduled saved effect; `SurfaceLiquidState` stores the mixture, residues, saturation, and last-resolved time for bodies and items.
 
+Room-scale spills use one `SurfaceLiquidState` per cell layer. The cell description owns presentation of that virtual surface so a normal room look renders it exactly once, while legacy puddle game items are consolidated into the same state before the visible item snapshot is built. The senior-admin `debug evaporate` routine dries both any remaining legacy puddle items and all loaded room-layer surface liquid; normal room-surface residue rules still apply.
+
 Each reaction can apply:
 
 - damage

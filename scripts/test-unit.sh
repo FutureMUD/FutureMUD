@@ -40,8 +40,9 @@ while IFS= read -r test_project || [ -n "$test_project" ]; do
 done < "$TEST_PROJECT_MANIFEST"
 
 # Build sequentially to avoid shared-output locks, then run the isolated test hosts in parallel.
+# Each targeted build restores its own graph, avoiding unrelated platform-specific solution projects.
 for test_project in "${TEST_PROJECTS[@]}"; do
-	"$DOTNET" build "$test_project" -c Debug --no-restore -m:1 "-p:NoWarn=NU1902%3BNU1510"
+	"$DOTNET" build "$test_project" -c Debug -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false "-p:NoWarn=NU1902%3BNU1510"
 done
 
 TEST_LOG_DIR="$(mktemp -d)"

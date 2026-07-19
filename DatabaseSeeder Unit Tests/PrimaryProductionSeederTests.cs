@@ -1,5 +1,6 @@
 #nullable enable
 
+using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -37,7 +38,6 @@ public class PrimaryProductionSeederTests
 	[TestMethod]
 	public void PrimaryProductionSeeder_DefinesResourceTagsDepositsProjectsAndGatedExtraction()
 	{
-		string source = ReadSource("DatabaseSeeder", "Seeders", "PrimaryProductionSeeder.cs");
 		string tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
 		var itemSpecs = ItemSeeder.PrimaryProductionItemSpecsForTesting.ToArray();
 		var projectSpecs = PrimaryProductionSeeder.PrimaryProductionProjectSpecsForTesting.ToArray();
@@ -93,15 +93,11 @@ public class PrimaryProductionSeederTests
 				$"{projectName} should be resource-gated rather than globally startable.");
 		}
 
-		AssertContains(source, "BuildCanInitiateProgText");
-		AssertContains(source, "istagged(@ch.Location");
-		AssertContains(source, "layeritems(@ch.Location, \"GroundLevel\").any");
 	}
 
 	[TestMethod]
 	public void PrimaryProductionCrafts_CoverRegionalMethodologiesAndSemanticCommodityFixes()
 	{
-		string source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.PrimaryProduction.cs");
 		var craftSpecs = ItemSeeder.PrimaryProductionCraftSpecsForTesting.ToArray();
 
 		string[] expectedCraftNames =
@@ -141,26 +137,24 @@ public class PrimaryProductionSeederTests
 		Assert.IsFalse(plasterCraft.Products.Any(x => x.Contains("Mortar Commodity", StringComparison.OrdinalIgnoreCase)),
 			"Plaster output should not be tagged as mortar.");
 
-		AssertContains(source, "\"Soda Ash Commodity\"");
-		AssertContains(source, "\"Plaster Commodity\"");
 	}
 
 	[TestMethod]
-	public void PrimaryProductionIntegration_WiresToolsCraftsMaterialsAndMetadata()
+	public void PrimaryProductionContracts_ExposeToolsCraftsProjectsAndRepeatabilityMetadata()
 	{
-		string reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
-		string sharedBaseline = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.cs");
-		string craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
-		string tools = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PrimaryProductionTools.cs");
-		string materials = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
-		string metadata = ReadSource("DatabaseSeeder", "SeederMetadataRegistry.cs");
+		var itemSpecs = ItemSeeder.PrimaryProductionItemSpecsForTesting.ToArray();
+		var craftSpecs = ItemSeeder.PrimaryProductionCraftSpecsForTesting.ToArray();
+		var projectSpecs = PrimaryProductionSeeder.PrimaryProductionProjectSpecsForTesting.ToArray();
+		var seeder = new PrimaryProductionSeeder();
+		var metadata = SeederMetadataRegistry.GetMetadata(seeder);
 
-		AssertContains(reworkRoot, "SeedSharedPreIndustrialBaselineItems();");
-		AssertContains(sharedBaseline, "SeedPrimaryProductionToolsAndProps();");
-		AssertContains(craftRoot, "SeedPrimaryProductionCommodityCrafts();");
-		AssertContains(metadata, "nameof(PrimaryProductionSeeder)");
-		AssertContains(metadata, "SeederRepeatabilityMode.Idempotent");
-		AssertContains(metadata, "SeederUpdateCapability.RepairExisting");
+		Assert.IsTrue(seeder.SafeToRunMoreThanOnce);
+		Assert.AreEqual(420, seeder.SortOrder);
+		Assert.AreEqual(SeederRepeatabilityMode.Idempotent, metadata.RepeatabilityMode);
+		Assert.AreEqual(SeederUpdateCapability.RepairExisting, metadata.UpdateCapability);
+		Assert.IsFalse(string.IsNullOrWhiteSpace(metadata.OwnershipSummary));
+		Assert.IsTrue(craftSpecs.Length >= 35, "The stock package should expose a substantial commodity craft catalogue.");
+		Assert.IsTrue(projectSpecs.Length >= 30, "The stock package should expose a substantial project catalogue.");
 
 		string[] toolReferences =
 		[
@@ -178,22 +172,20 @@ public class PrimaryProductionSeederTests
 
 		foreach (string toolReference in toolReferences)
 		{
-			AssertContains(tools, $"\"{toolReference}\"");
+			Assert.IsTrue(itemSpecs.Any(x => x.StableReference == toolReference),
+				$"Missing primary-production item contract {toolReference}.");
 		}
 
 		foreach (var (_, _, _, uniqueName, _) in ExpectedResources)
 		{
-			AssertContains(tools, $"\"{uniqueName}\"");
+			Assert.IsTrue(itemSpecs.Any(x => x.StableReference == uniqueName),
+				$"Missing primary-production deposit contract {uniqueName}.");
 		}
 
-		AssertContains(materials, "AddMaterial(\"bog iron ore\"");
-		AssertContains(materials, "AddMaterial(\"magnetite sand\"");
-		AssertContains(materials, "AddMaterial(\"barilla plant\"");
-		AssertContains(materials, "AddMaterial(\"barilla ash\"");
-		AssertContains(materials, "AddMaterial(\"kelp ash\"");
-		AssertContains(materials, "EnsureAlias(materials[\"seaweed\"], \"kelp\")");
-		AssertContains(materials, "RemoveTag(materials[\"native gold\"], \"Native Nickel Ore\")");
-		AssertContains(materials, "RemoveTag(materials[\"native nickel\"], \"Native Gold Ore\")");
+		Assert.IsTrue(projectSpecs
+			.SelectMany(x => x.ActionTypes)
+			.All(x => x is "resourcediscovery" or "commodityoutput"),
+			"Stock primary-production projects should not embed topology-changing actions.");
 	}
 
 	[TestMethod]

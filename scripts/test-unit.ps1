@@ -18,17 +18,30 @@ function Initialize-Dotnet {
 	throw 'dotnet was not found. Run scripts/setup.ps1 to bootstrap a local SDK.'
 }
 
+function Invoke-Dotnet {
+	param([Parameter(Mandatory)] [scriptblock]$Command)
+
+	& $Command
+	if ($LASTEXITCODE -ne 0) {
+		throw "dotnet command failed with exit code $LASTEXITCODE."
+	}
+}
+
 Initialize-Dotnet
 $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = '1'
 $env:DOTNET_NOLOGO = '1'
 
 Push-Location $repoRoot
 try {
-	dotnet build DatabaseSeeder\DatabaseSeeder.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510
-	dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -p:NoWarn=NU1902%3BNU1510
-	dotnet test 'ExpressionEngine Unit Tests\ExpressionEngine Unit Tests.csproj' -c Debug --no-restore -p:NoWarn=NU1902%3BNU1510
-	dotnet test 'DatabaseSeeder Unit Tests\DatabaseSeeder Unit Tests.csproj' -c Debug --no-restore -p:NoWarn=NU1902%3BNU1510
-	dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510
+	Invoke-Dotnet { dotnet build 'DatabaseSeeder\DatabaseSeeder.csproj' -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 }
+	Invoke-Dotnet { dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 }
+	Invoke-Dotnet { dotnet test 'ExpressionEngine Unit Tests\ExpressionEngine Unit Tests.csproj' -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 }
+	Invoke-Dotnet { dotnet test 'DatabaseSeeder Unit Tests\DatabaseSeeder Unit Tests.csproj' -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 }
+	Invoke-Dotnet { dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 }
+	Invoke-Dotnet { dotnet test 'MudsharpDatabaseLibrary Unit Tests\MudsharpDatabaseLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 }
+	Invoke-Dotnet { dotnet test 'DiscordBotCore Unit Tests\DiscordBotCore Unit Tests.csproj' -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 }
+	Invoke-Dotnet { dotnet test 'RPI Engine Worldfile Converter Tests\RPI Engine Worldfile Converter Tests.csproj' -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 }
+	Invoke-Dotnet { dotnet test 'FutureMUD.Web.Tests\FutureMUD.Web.Tests.csproj' -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 }
 }
 finally {
 	Pop-Location

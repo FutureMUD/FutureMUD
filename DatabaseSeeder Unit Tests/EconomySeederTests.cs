@@ -18,6 +18,7 @@ using CultureInfo = System.Globalization.CultureInfo;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
+[DoNotParallelize]
 public class EconomySeederTests
 {
     private const string ClassicalEra = "Classical Age";
@@ -254,6 +255,72 @@ public class EconomySeederTests
             ["Construction Materials"] = ["Brick", "Mortar", "Lime", "Worked Timber", "Worked Stone", "Glass Panes", "Roofing Materials"],
             ["Household Consumables"] = ["Lamp Oil", "Cleaning Supplies", "Candlemaking Wax", "Toiletries"]
         };
+
+	private static readonly Lazy<FuturemudDatabaseContext> ClassicalContext =
+		new(() => BuildSeededContext(BuildAnswers()));
+	private static readonly Lazy<FuturemudDatabaseContext> AllErasContext =
+		new(BuildAllErasContext);
+	private static readonly Lazy<FuturemudDatabaseContext> LowScaleContext =
+		new(() => BuildSeededContext(BuildAnswers(shopperScale: "Low")));
+	private static readonly Lazy<FuturemudDatabaseContext> HighScaleContext =
+		new(() => BuildSeededContext(BuildAnswers(shopperScale: "High")));
+	private static readonly Lazy<FuturemudDatabaseContext> PoundsContext =
+		new(() => BuildSeededContext(BuildAnswers(currency: "Pounds"), "Pounds"));
+	private static readonly Lazy<FuturemudDatabaseContext> DollarsContext =
+		new(() => BuildSeededContext(BuildAnswers(currency: "Dollars"), "Dollars"));
+
+	[ClassCleanup]
+	public static void ClassCleanup()
+	{
+		foreach (var context in new[]
+		         {
+			         ClassicalContext,
+			         AllErasContext,
+			         LowScaleContext,
+			         HighScaleContext,
+			         PoundsContext,
+			         DollarsContext
+		         }
+		         .Where(x => x.IsValueCreated)
+		         .Select(x => x.Value))
+		{
+			context.Dispose();
+		}
+	}
+
+	private static FuturemudDatabaseContext BuildSeededContext(
+		Dictionary<string, string> answers,
+		params string[] currencyNames)
+	{
+		var context = BuildContext();
+		SeedEconomyPrerequisites(context, currencyNames);
+		var result = new EconomySeeder().SeedData(context, answers);
+		if (!result.Equals("The operation completed successfully.", StringComparison.Ordinal))
+		{
+			context.Dispose();
+			throw new InvalidOperationException($"Could not build shared economy test fixture: {result}");
+		}
+
+		return context;
+	}
+
+	private static FuturemudDatabaseContext BuildAllErasContext()
+	{
+		var context = BuildContext();
+		SeedEconomyPrerequisites(context);
+		var seeder = new EconomySeeder();
+		foreach (var era in new[] { "Classical Age", "Feudal Age", "Medieval Age", "Early Modern Age" })
+		{
+			var result = seeder.SeedData(context, BuildAnswers(era: era));
+			if (!result.Equals("The operation completed successfully.", StringComparison.Ordinal))
+			{
+				context.Dispose();
+				throw new InvalidOperationException($"Could not build shared {era} economy test fixture: {result}");
+			}
+		}
+
+		return context;
+	}
 
     private static FuturemudDatabaseContext BuildContext()
     {
@@ -773,11 +840,7 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_EveryCategory_HasAtLeastThreeUpwardAndDownwardExternalTemplates()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-        EconomySeeder seeder = new();
-
-        seeder.SeedData(context, BuildAnswers());
+        FuturemudDatabaseContext context = ClassicalContext.Value;
         Dictionary<long, (int Upward, int Downward)> coverage = GetExternalCoverageByCategory(context);
 
         foreach (MarketCategory? category in context.MarketCategories.OrderBy(x => x.Name))
@@ -790,10 +853,7 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_SeedsSettingAgnosticCombinationCategoryExamples()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-
-        new EconomySeeder().SeedData(context, BuildAnswers());
+        FuturemudDatabaseContext context = ClassicalContext.Value;
 
         Dictionary<long, MarketCategory> categoriesById = context.MarketCategories
             .AsEnumerable()
@@ -845,10 +905,7 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_DoesNotSerializePlaceholderIdsInStockXml()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-
-        new EconomySeeder().SeedData(context, BuildAnswers());
+        FuturemudDatabaseContext context = ClassicalContext.Value;
 
         HashSet<long> categoryIds = context.MarketCategories.Select(x => x.Id).ToHashSet();
         HashSet<long> populationIds = context.MarketPopulations.Select(x => x.Id).ToHashSet();
@@ -910,11 +967,7 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_EachPopulation_HasThreeStressThresholdsAndValidProgs()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-        EconomySeeder seeder = new();
-
-        seeder.SeedData(context, BuildAnswers());
+        FuturemudDatabaseContext context = ClassicalContext.Value;
 
         foreach (MarketPopulation? population in context.MarketPopulations.OrderBy(x => x.Name))
         {
@@ -934,10 +987,7 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_EveryStressTemplate_IncludesSupplyContraction()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-
-        new EconomySeeder().SeedData(context, BuildAnswers());
+        FuturemudDatabaseContext context = ClassicalContext.Value;
 
         foreach (MarketInfluenceTemplate? template in context.MarketInfluenceTemplates
                      .AsEnumerable()
@@ -954,10 +1004,7 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_PopulationsPersistIncomeFactorSavingsAndSavingsCaps()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-
-        new EconomySeeder().SeedData(context, BuildAnswers());
+        FuturemudDatabaseContext context = ClassicalContext.Value;
 
         foreach (MarketPopulation? population in context.MarketPopulations.OrderBy(x => x.Name))
         {
@@ -970,10 +1017,7 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_EveryCategory_GetsTariffAndSubsidyTemplatesWithFlatPriceOnly()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-
-        new EconomySeeder().SeedData(context, BuildAnswers());
+        FuturemudDatabaseContext context = ClassicalContext.Value;
 
         foreach (MarketCategory? category in context.MarketCategories.OrderBy(x => x.Name))
         {
@@ -1000,10 +1044,7 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_CreatesDedicatedIncomeTemplatesAndUpdatesSelectedExistingTemplates()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-
-        new EconomySeeder().SeedData(context, BuildAnswers());
+        FuturemudDatabaseContext context = ClassicalContext.Value;
 
         string[] incomeTemplateNames =
         [
@@ -1046,11 +1087,7 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_AllPopulations_IncludeMedicineNeedAndChurchClassesExist()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-        EconomySeeder seeder = new();
-
-        seeder.SeedData(context, BuildAnswers());
+        FuturemudDatabaseContext context = ClassicalContext.Value;
 
         CollectionAssert.IsSubsetOf(
             new[]
@@ -1073,13 +1110,7 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_LiterateHouseholds_IncludeWritingMaterialsNeeds()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-        EconomySeeder seeder = new();
-        foreach (string? era in new[] { "Classical Age", "Feudal Age", "Medieval Age", "Early Modern Age" })
-        {
-            seeder.SeedData(context, BuildAnswers(era: era));
-        }
+        FuturemudDatabaseContext context = AllErasContext.Value;
 
         string[] literatePopulations = new[]
         {
@@ -1108,13 +1139,7 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_LaterEras_UseBroaderServiceAndHospitalityNeeds()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-        EconomySeeder seeder = new();
-        foreach (string? era in new[] { "Feudal Age", "Medieval Age", "Early Modern Age" })
-        {
-            seeder.SeedData(context, BuildAnswers(era: era));
-        }
+        FuturemudDatabaseContext context = AllErasContext.Value;
 
         CollectionAssert.IsSubsetOf(
             new[] { "Standard Lodging", "Cheap Entertainment", "Messenger Services" },
@@ -1133,9 +1158,7 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_EliteHouseholds_SpendAtLeastFiveTimesPoorHouseholds()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-        new EconomySeeder().SeedData(context, BuildAnswers());
+        FuturemudDatabaseContext context = ClassicalContext.Value;
 
         decimal poorBudget = GetBudgetForShopper(context, "Classical Age Urban Poor Shopper");
         decimal eliteBudget = GetBudgetForShopper(context, "Classical Age Patrician Elite Shopper");
@@ -1149,19 +1172,13 @@ public class EconomySeederTests
     {
         const string shopperName = "Classical Age Urban Poor Shopper";
 
-        using FuturemudDatabaseContext lowContext = BuildContext();
-        SeedEconomyPrerequisites(lowContext);
-        new EconomySeeder().SeedData(lowContext, BuildAnswers("Low"));
+        FuturemudDatabaseContext lowContext = LowScaleContext.Value;
         decimal lowBudget = GetBudgetForShopper(lowContext, shopperName);
 
-        using FuturemudDatabaseContext standardContext = BuildContext();
-        SeedEconomyPrerequisites(standardContext);
-        new EconomySeeder().SeedData(standardContext, BuildAnswers("Standard"));
+        FuturemudDatabaseContext standardContext = ClassicalContext.Value;
         decimal standardBudget = GetBudgetForShopper(standardContext, shopperName);
 
-        using FuturemudDatabaseContext highContext = BuildContext();
-        SeedEconomyPrerequisites(highContext);
-        new EconomySeeder().SeedData(highContext, BuildAnswers("High"));
+        FuturemudDatabaseContext highContext = HighScaleContext.Value;
         decimal highBudget = GetBudgetForShopper(highContext, shopperName);
 
         Assert.IsTrue(standardBudget > 0.0m);
@@ -1172,19 +1189,13 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_CurrencyScaling_KeepsComparableSterlingValueAcrossCurrencies()
     {
-        using FuturemudDatabaseContext bitContext = BuildContext();
-        SeedEconomyPrerequisites(bitContext, "Bits");
-        new EconomySeeder().SeedData(bitContext, BuildAnswers(currency: "Bits"));
+        FuturemudDatabaseContext bitContext = ClassicalContext.Value;
         decimal bitNeed = GetPopulationNeedExpenditure(bitContext, "Classical Age Urban Poor", "Staple Food");
 
-        using FuturemudDatabaseContext poundContext = BuildContext();
-        SeedEconomyPrerequisites(poundContext, "Pounds");
-        new EconomySeeder().SeedData(poundContext, BuildAnswers(currency: "Pounds"));
+        FuturemudDatabaseContext poundContext = PoundsContext.Value;
         decimal poundNeed = GetPopulationNeedExpenditure(poundContext, "Classical Age Urban Poor", "Staple Food");
 
-        using FuturemudDatabaseContext dollarContext = BuildContext();
-        SeedEconomyPrerequisites(dollarContext, "Dollars");
-        new EconomySeeder().SeedData(dollarContext, BuildAnswers(currency: "Dollars"));
+        FuturemudDatabaseContext dollarContext = DollarsContext.Value;
         decimal dollarNeed = GetPopulationNeedExpenditure(dollarContext, "Classical Age Urban Poor", "Staple Food");
 
         decimal bitSterling = bitNeed / 100.0m;
@@ -1198,15 +1209,9 @@ public class EconomySeederTests
     [TestMethod]
     public void SeedData_EraScaling_RaisesLaterEraCommonerBudgets()
     {
-        using FuturemudDatabaseContext feudalContext = BuildContext();
-        SeedEconomyPrerequisites(feudalContext, "Bits");
-        new EconomySeeder().SeedData(feudalContext, BuildAnswers(era: "Feudal Age", currency: "Bits"));
-        decimal feudalBudget = GetBudgetForShopper(feudalContext, "Feudal Age Peasantry Shopper");
-
-        using FuturemudDatabaseContext earlyModernContext = BuildContext();
-        SeedEconomyPrerequisites(earlyModernContext, "Bits");
-        new EconomySeeder().SeedData(earlyModernContext, BuildAnswers(era: "Early Modern Age", currency: "Bits"));
-        decimal earlyModernBudget = GetBudgetForShopper(earlyModernContext, "Early Modern Age Labourers Shopper");
+        FuturemudDatabaseContext context = AllErasContext.Value;
+        decimal feudalBudget = GetBudgetForShopper(context, "Feudal Age Peasantry Shopper");
+        decimal earlyModernBudget = GetBudgetForShopper(context, "Early Modern Age Labourers Shopper");
 
         Assert.IsTrue(earlyModernBudget > feudalBudget,
             $"Early modern commoner budget {earlyModernBudget} should exceed feudal commoner budget {feudalBudget} when both use the same currency.");

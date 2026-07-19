@@ -264,6 +264,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FutureMUD.Web", "FutureMUD.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FutureMUD.Web.Tests", "FutureMUD.Web.Tests\FutureMUD.Web.Tests.csproj", "{D53BCE6C-B305-43FA-8DF5-AF3DBDD9EDB2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RPI Engine Worldfile Converter Tests", "RPI Engine Worldfile Converter Tests\RPI Engine Worldfile Converter Tests.csproj", "{40002679-2860-4A5A-80DF-08263AD793DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug (LabMUD)|Any CPU = Debug (LabMUD)|Any CPU
@@ -1368,6 +1370,46 @@ Global
 		{D53BCE6C-B305-43FA-8DF5-AF3DBDD9EDB2}.Release|x64.Build.0 = Release|Any CPU
 		{D53BCE6C-B305-43FA-8DF5-AF3DBDD9EDB2}.Release|x86.ActiveCfg = Release|Any CPU
 		{D53BCE6C-B305-43FA-8DF5-AF3DBDD9EDB2}.Release|x86.Build.0 = Release|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (LabMUD)|Any CPU.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (LabMUD)|Any CPU.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (LabMUD)|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (LabMUD)|Mixed Platforms.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (LabMUD)|Win32.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (LabMUD)|Win32.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (LabMUD)|x64.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (LabMUD)|x64.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (LabMUD)|x86.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (LabMUD)|x86.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (MySQL)|Any CPU.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (MySQL)|Any CPU.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (MySQL)|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (MySQL)|Mixed Platforms.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (MySQL)|Win32.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (MySQL)|Win32.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (MySQL)|x64.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (MySQL)|x64.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (MySQL)|x86.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug (MySQL)|x86.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug|Win32.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug|x64.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Debug|x86.Build.0 = Debug|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Release|Win32.ActiveCfg = Release|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Release|Win32.Build.0 = Release|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Release|x64.ActiveCfg = Release|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Release|x64.Build.0 = Release|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Release|x86.ActiveCfg = Release|Any CPU
+		{40002679-2860-4A5A-80DF-08263AD793DC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

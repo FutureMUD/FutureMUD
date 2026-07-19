@@ -9,11 +9,11 @@ It inherits from the [Solution-Level AGENTS.md](../AGENTS.md).
 * Precedence: **Module > Project > Solution**.
 
 ## Purpose of Project
-Scaffold project for MSTest-based tests that directly target Discord bot command handling, integration glue, and message formatting in `DiscordBotCore`.
+Contains MSTest-based tests that directly target Discord bot command handling, integration glue, protocol parsing, and message formatting in `DiscordBotCore`.
 
 ## Key Architectural Principles
 * Add direct bot tests here as coverage is introduced.
-* Keep this suite opt-in until it contains meaningful coverage.
+* This suite is part of the default unit-test pass and should stay independent of a live Discord connection.
 * Prefer testing bot-specific behaviour rather than duplicating engine runtime coverage.
 
 ## Notes

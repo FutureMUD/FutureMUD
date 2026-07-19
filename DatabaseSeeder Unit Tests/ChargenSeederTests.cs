@@ -172,6 +172,48 @@ public class ChargenSeederTests
 		return context.ChargenScreenStoryboards.Single(x => x.ChargenStage == (int)stage);
 	}
 
+	private static void SeedHealthKnowledgeForChargenIntegration(FuturemudDatabaseContext context)
+	{
+		FutureProg gate = CreateProg(1000, "HealthCanPickBroadMedicalKnowledgeAtChargen",
+			ProgVariableTypes.Boolean, "return @trait.Group == \"Medical\"");
+		gate.Category = "Chargen";
+		gate.Subcategory = "Knowledge";
+		gate.Public = false;
+		gate.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = gate,
+			FutureProgId = gate.Id,
+			ParameterIndex = 0,
+			ParameterName = "ch",
+			ParameterTypeDefinition = ProgVariableTypes.Toon.ToStorageString()
+		});
+		gate.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = gate,
+			FutureProgId = gate.Id,
+			ParameterIndex = 1,
+			ParameterName = "trait",
+			ParameterTypeDefinition = ProgVariableTypes.Trait.ToStorageString()
+		});
+		context.FutureProgs.Add(gate);
+		context.Knowledges.Add(new Knowledge
+		{
+			Id = 1000,
+			Name = "Medicine",
+			Description = "Medicine",
+			LongDescription = "Medicine",
+			Type = "Medicine",
+			Subtype = "Human",
+			LearnableType = 0,
+			LearnDifficulty = 0,
+			TeachDifficulty = 0,
+			LearningSessionsRequired = 0,
+			CanAcquireProg = gate,
+			CanAcquireProgId = gate.Id
+		});
+		context.SaveChanges();
+	}
+
 	[TestMethod]
 	public void ShouldSeedData_WithPrerequisitesAndNoChargenPackage_ReturnsReadyToInstall()
 	{
@@ -259,6 +301,38 @@ public class ChargenSeederTests
 			x.Name == "Default Starting Location"));
 		Assert.AreEqual(7L, context.ChargenRoles.Single(x => x.Name == "Default Starting Location").PosterId);
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
+	}
+
+	[TestMethod]
+	public void SeedData_AfterHealthContent_ReconcilesFreeKnowledgesAndPreservesBodyOnRerun()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context);
+		SeedHealthKnowledgeForChargenIntegration(context);
+		ChargenSeeder seeder = new();
+
+		seeder.SeedData(context, BuildAnswers());
+
+		FutureProg target = context.FutureProgs
+			.Include(x => x.FutureProgsParameters)
+			.Single(x => x.FunctionName == ChargenFreeKnowledgeProgReconciler.ProgName);
+		StringAssert.Contains(target.FunctionText, ChargenFreeKnowledgeProgReconciler.HealthStartMarker);
+		StringAssert.Contains(target.FunctionText,
+			"@HealthCanPickBroadMedicalKnowledgeAtChargen(@ch, @skill)");
+		Assert.AreEqual(ProgVariableTypes.Chargen.ToStorageString(),
+			target.FutureProgsParameters.Single().ParameterTypeDefinition);
+
+		target.FunctionText = target.FunctionText.Replace(
+			"return @knowledges",
+			"// Builder-authored rule survives Chargen reruns\nreturn @knowledges",
+			StringComparison.Ordinal);
+		context.SaveChanges();
+		seeder.SeedData(context, BuildAnswers(attributeMode: "points", skillMode: "picker"));
+
+		StringAssert.Contains(target.FunctionText, "// Builder-authored rule survives Chargen reruns");
+		Assert.AreEqual(1,
+			target.FunctionText.Split(ChargenFreeKnowledgeProgReconciler.HealthStartMarker).Length - 1);
+		Assert.AreEqual(1, target.FunctionText.Split("ToKnowledge(\"Medicine\")").Length - 1);
 	}
 
 	[TestMethod]

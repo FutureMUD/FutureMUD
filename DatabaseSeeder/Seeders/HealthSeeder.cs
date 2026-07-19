@@ -391,9 +391,14 @@ Please answer #3primitive#F, #3pre-modern#0, #3medieval#0, or #3modern#F: ",
                 SeedMedievalIncenseComponents();
             }
             context.SaveChanges();
+			ChargenFreeKnowledgeProgReconcileResult freeKnowledgeResult =
+				ChargenFreeKnowledgeProgReconciler.Reconcile(context);
+			context.SaveChanges();
             context.Database.CommitTransaction();
 
-            return "Successfully set up Health Modules.";
+			return string.IsNullOrWhiteSpace(freeKnowledgeResult.Message)
+				? "Successfully set up Health Modules."
+				: $"Successfully set up Health Modules. {freeKnowledgeResult.Message}";
         }
 
         public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
@@ -420,6 +425,11 @@ Please answer #3primitive#F, #3pre-modern#0, #3medieval#0, or #3modern#F: ",
                 ClassifyTierPresence(context, "medieval"),
                 ClassifyTierPresence(context, "modern")
             };
+
+			if (ChargenFreeKnowledgeProgReconciler.HasRepairableHealthDrift(context))
+			{
+				return ShouldSeedResult.ExtraPackagesAvailable;
+			}
 
             if (tierStates.Any(x => x == ShouldSeedResult.MayAlreadyBeInstalled))
             {

@@ -58,6 +58,17 @@ Conditional helpers include:
 - attribute point-buy helpers when the seeded attribute stage is `AttributePointBuy`
 - skill boost pricing when the seeded skill stage is `SkillCostPicker`
 
+### Automatic free-knowledge integration
+
+`ChargenFreeKnowledges` is the aggregation point for knowledge grants that do not consume a chargen pick. The stock Culture and Health seeders reconcile two marked, stock-owned sections in this prog:
+
+- Health knowledges are granted when one of the character's selected skills passes that knowledge's existing stock chargen acquisition prog.
+- Script knowledges require the `Literacy` skill and a selected language skill that passes the script knowledge's existing acquisition prog.
+
+The reconciler uses the acquisition progs rather than duplicating their rules, so later changes to medical skill gates and additive script-language memberships remain authoritative. It works whether Character Creation is seeded before or after those content packages.
+
+Text outside the two managed marker pairs remains builder-owned. Reruns replace only the marked sections. If the prog has malformed markers, an incompatible signature, or no final standalone `return @knowledges`, the seeder reports a warning and leaves the function text unchanged.
+
 ### Storyboards
 The seeder installs one canonical storyboard row per `ChargenStage`.
 
@@ -123,6 +134,7 @@ The stock special-application screen now documents the real engine behavior:
 Current repeatability rules are:
 - chargen resources are upserted by stable names and aliases
 - helper progs are upserted by function name
+- a non-empty existing `ChargenFreeKnowledges` body is preserved, then its stock-managed Culture and Health sections are reconciled
 - special-application static settings are upserted by setting name
 - the default starting-location role is upserted by stable name
 - storyboard ownership is one canonical row per `ChargenStage`
@@ -132,12 +144,13 @@ Reruns can repair:
 - missing stock stages
 - duplicate stock rows for the same stage
 - missing helper progs
+- missing or stale stock Culture and Health sections in a safely editable `ChargenFreeKnowledges` prog
 - missing special-application settings
 - missing default starting-location role
 - missing stage dependencies
 
 ## What Reruns Preserve
-If a stage already has storyboard XML, the seeder preserves that existing definition rather than overwriting it with stock placeholder text.
+If a stage already has storyboard XML, the seeder preserves that existing definition rather than overwriting it with stock placeholder text. It likewise preserves builder-authored `ChargenFreeKnowledges` text outside the explicit stock-managed marker pairs.
 
 That is intentional so builders do not lose their chargen copy and tuning just because they reran the package.
 

@@ -394,6 +394,12 @@ Please answer #3yes#f or #3no#f: ",
 
         #region Progs
 
+		string? existingFreeKnowledgesText = context.FutureProgs
+			.AsEnumerable()
+			.FirstOrDefault(x => x.FunctionName.Equals(ChargenFreeKnowledgeProgReconciler.ProgName,
+				StringComparison.OrdinalIgnoreCase))
+			?.FunctionText;
+
         FutureProg EnsureChargenProg(
             string functionName,
             string subcategory,
@@ -533,19 +539,19 @@ return @skills",
             @"return 1",
             (ProgVariableTypes.Toon, "ch"),
             (ProgVariableTypes.Trait, "trait"));
-        EnsureChargenProg(
+        FutureProg freeKnowledgesProg = EnsureChargenProg(
             "ChargenFreeKnowledges",
             "Skills",
             ProgVariableTypes.Knowledge | ProgVariableTypes.Collection,
             "Returns a list of knowledges that a character gets for free",
             @"var knowledges as knowledge collection
-// If you have any surgerical procedures you need to add the related knowledge based on those skills
+// If you have any surgical procedures you need to add the related knowledge based on those skills
 // if (@ch.Skills.Any(x, @x.Name == ""Surgery""))
 //   additem knowledges ToKnowledge(""SurgicalKnowledge"")
 // end if
 
 // This is also the place to add scripts to literate characters
-// if (@ch.Skills.Any(x, @x.Name == ""Literature""))
+// if (@ch.Skills.Any(x, @x.Name == ""Literacy""))
 //   if (@ch.Skills.Any(x, @x.Name == ""English""))
 //     additem knowledges ToKnowledge(""Latin Script"")
 //   end if
@@ -553,7 +559,11 @@ return @skills",
 
 // You can also add clan-based, racial, merit-based etc or anything you can think of
 return @knowledges",
-            (ProgVariableTypes.Toon, "ch"));
+			(ProgVariableTypes.Chargen, "ch"));
+		if (!string.IsNullOrWhiteSpace(existingFreeKnowledgesText))
+		{
+			freeKnowledgesProg.FunctionText = existingFreeKnowledgesText;
+		}
 
         if (questionAnswers["attributemode"].EqualTo("points"))
         {
@@ -620,6 +630,12 @@ return 10"
         }
 
         context.SaveChanges();
+		ChargenFreeKnowledgeProgReconcileResult freeKnowledgeResult =
+			ChargenFreeKnowledgeProgReconciler.Reconcile(context);
+		if (!string.IsNullOrWhiteSpace(freeKnowledgeResult.Message))
+		{
+			completionNotes.Add(freeKnowledgeResult.Message);
+		}
 
         #endregion
 

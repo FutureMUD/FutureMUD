@@ -136,6 +136,28 @@ public class HealthSeederTests
             AcceptsAnyParameters = true,
             StaticType = 0
         });
+		DbFutureProg freeKnowledgesProg = new()
+		{
+			Id = 1000,
+			FunctionName = ChargenFreeKnowledgeProgReconciler.ProgName,
+			FunctionComment = "Free knowledges test prog",
+			FunctionText = "var knowledges as knowledge collection\nreturn @knowledges",
+			ReturnTypeDefinition = (ProgVariableTypes.Knowledge | ProgVariableTypes.Collection).ToStorageString(),
+			Category = "Chargen",
+			Subcategory = "Skills",
+			Public = false,
+			AcceptsAnyParameters = false,
+			StaticType = 0
+		};
+		freeKnowledgesProg.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = freeKnowledgesProg,
+			FutureProgId = freeKnowledgesProg.Id,
+			ParameterIndex = 0,
+			ParameterName = "ch",
+			ParameterTypeDefinition = ProgVariableTypes.Toon.ToStorageString()
+		});
+		context.FutureProgs.Add(freeKnowledgesProg);
         context.Tags.AddRange(
             new Tag { Id = 1, Name = "Arterial Clamp" },
             new Tag { Id = 2, Name = "Bonesaw" },
@@ -486,9 +508,90 @@ public class HealthSeederTests
                 Assert.AreEqual(expectedProgName, knowledge.CanAcquireProg!.FunctionName, knowledgeName);
                 Assert.AreNotEqual("AlwaysTrue", knowledge.CanAcquireProg.FunctionName, knowledgeName);
                 AssertSkillAvailabilityProgShape(knowledge.CanAcquireProg);
+				DbFutureProg freeKnowledgesProg = context.FutureProgs
+					.Single(x => x.FunctionName == ChargenFreeKnowledgeProgReconciler.ProgName);
+				StringAssert.Contains(freeKnowledgesProg.FunctionText,
+					$"@{expectedProgName}(@ch, @skill)", knowledgeName);
+				StringAssert.Contains(freeKnowledgesProg.FunctionText,
+					$"ToKnowledge(\"{knowledgeName}\")", knowledgeName);
             }
+
+			DbFutureProg target = context.FutureProgs
+				.Single(x => x.FunctionName == ChargenFreeKnowledgeProgReconciler.ProgName);
+			Assert.AreEqual(ProgVariableTypes.Chargen.ToStorageString(),
+				target.FutureProgsParameters.Single().ParameterTypeDefinition);
+			Assert.AreEqual(1,
+				target.FunctionText.Split(ChargenFreeKnowledgeProgReconciler.HealthStartMarker).Length - 1);
         }
     }
+
+	[TestMethod]
+	public void SeedData_HigherTierRerun_PreservesPriorHealthKnowledgeGrantsWithoutDuplicates()
+	{
+		using FuturemudDatabaseContext context = BuildHealthSeederInstallContext();
+		HealthSeeder seeder = new();
+
+		seeder.SeedData(context, new Dictionary<string, string> { ["techlevel"] = "primitive" });
+		seeder.SeedData(context, new Dictionary<string, string> { ["techlevel"] = "modern" });
+
+		DbFutureProg target = context.FutureProgs
+			.Single(x => x.FunctionName == ChargenFreeKnowledgeProgReconciler.ProgName);
+		foreach (string knowledgeName in new[]
+		         {
+			         "Medicine",
+			         "Animal Medicine",
+			         "Diagnostic Medicine",
+			         "Clinical Medicine",
+			         "Surgery",
+			         "Veterinary Medicine",
+			         "Veterinary Surgery"
+		         })
+		{
+			Assert.AreEqual(1, target.FunctionText.Split($"ToKnowledge(\"{knowledgeName}\")").Length - 1,
+				knowledgeName);
+		}
+
+		Assert.AreEqual(1,
+			target.FunctionText.Split(ChargenFreeKnowledgeProgReconciler.HealthStartMarker).Length - 1);
+	}
+
+	[TestMethod]
+	public void ShouldSeedData_SafelyRepairableHealthGrantDrift_ReturnsUpdateWithoutLoopingOnUnsafeBody()
+	{
+		using FuturemudDatabaseContext context = BuildHealthSeederInstallContext();
+		context.Races.Add(new Race
+		{
+			Id = 1,
+			Name = "Organic Humanoid",
+			Description = "Organic Humanoid test race",
+			BaseBodyId = 2,
+			AllowedGenders = "Male Female Neuter NonBinary",
+			DiceExpression = "1d100",
+			CorpseModelId = 0,
+			DefaultHealthStrategyId = 0,
+			BreathingModel = "Simple",
+			CommunicationStrategyType = "HumanoidCommunicationStrategy",
+			HandednessOptions = "Left,Right",
+			MaximumDragWeightExpression = "100",
+			MaximumLiftWeightExpression = "100",
+			EatCorpseEmoteText = "@ eat|eats $0.",
+			BreathingVolumeExpression = "1",
+			HoldBreathLengthExpression = "1"
+		});
+		context.SaveChanges();
+		HealthSeeder seeder = new();
+		seeder.SeedData(context, new Dictionary<string, string> { ["techlevel"] = "primitive" });
+		DbFutureProg target = context.FutureProgs
+			.Single(x => x.FunctionName == ChargenFreeKnowledgeProgReconciler.ProgName);
+
+		target.FunctionText = "var knowledges as knowledge collection\nreturn @knowledges";
+		context.SaveChanges();
+		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, seeder.ShouldSeedData(context));
+
+		target.FunctionText = "var knowledges as knowledge collection";
+		context.SaveChanges();
+		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
+	}
 
     [TestMethod]
     public void SeedData_DrugExpansionPayloads_AreSeeded()

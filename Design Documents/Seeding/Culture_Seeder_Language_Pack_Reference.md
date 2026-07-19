@@ -160,6 +160,10 @@ The following keys are upsert contracts:
 
 Shared scripts use additive union semantics. Seeding another pack must not delete prior script-language memberships or builder-added memberships. The script acquisition FutureProg is rebuilt from the union of the requested and existing language memberships, so a Latin, Greek, Arabic or Chinese script remains selectable for every installed language that uses it regardless of pack order.
 
+When `ChargenFreeKnowledges` exists, the Culture seeder also reconciles a marked stock section that grants each CultureSeeder-owned script knowledge for free when the chargen has `Literacy` and at least one selected skill accepted by that script's acquisition prog. Because the free-knowledge rule invokes the acquisition prog directly, shared-script language unions flow into chargen without another hard-coded language list. If Character Creation is seeded later, `ChargenSeeder` performs the same reconciliation from the installed script records.
+
+Only script records whose knowledge uses the canonical `CanPick<ScriptName>ScriptKnowledge` prog are included. Builder text outside the managed Culture marker pair is preserved. Unsafe custom prog bodies are left unchanged with a warning rather than being rewritten.
+
 Rerunning a pack repairs stock descriptions, difficulty values, accent fields, language traits, script metadata and mutual-intelligibility difficulty without duplicating stable rows.
 
 ## Verification Contract

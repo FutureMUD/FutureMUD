@@ -12,7 +12,7 @@ public class NaturalRangedAttackSeederSourceTests
 	[TestMethod]
 	public void AnimalSeeder_EnsuresNaturalRangedCatalogueForFreshAndRepeatInstalls()
 	{
-		string source = ReadSource("DatabaseSeeder", "Seeders", "AnimalSeeder.cs");
+		string source = SeederSourceTestHelper.ReadPartialFamily("AnimalSeeder");
 
 		StringAssert.Contains(source, "EnsureNaturalRangedAttackSeedData(damageExpressions);");
 		StringAssert.Contains(source, "_attacks[\"llamaspit\"]");
@@ -26,7 +26,7 @@ public class NaturalRangedAttackSeederSourceTests
 	[TestMethod]
 	public void AnimalSeeder_AcidAndDragonfireCarryTheirRuntimePayloadMetadata()
 	{
-		string source = ReadSource("DatabaseSeeder", "Seeders", "AnimalSeeder.cs");
+		string source = SeederSourceTestHelper.ReadPartialFamily("AnimalSeeder");
 
 		StringAssert.Contains(source, "animalAcid.SurfaceReactionInfo = new XElement(\"Reactions\"");
 		StringAssert.Contains(source, "new XAttribute(\"DamageType\", (int)DamageType.Chemical)");

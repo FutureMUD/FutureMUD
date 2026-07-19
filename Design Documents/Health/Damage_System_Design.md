@@ -7,7 +7,7 @@ Primary source files:
 
 - `DatabaseSeeder/Seeders/CombatSeeder.cs`
 - `DatabaseSeeder/Seeders/HumanSeeder.cs`
-- `DatabaseSeeder/Seeders/HumanSeederBodyparts.cs`
+- `DatabaseSeeder/Seeders/HumanSeeder.Bodyparts.cs`
 - `MudSharpCore/Body/Implementations/BodyBiology.cs`
 - `MudSharpCore/Combat/ArmourType.cs`
 - `MudSharpCore/Health/Strategies/BaseHealthStrategy.cs`

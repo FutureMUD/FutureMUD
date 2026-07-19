@@ -98,7 +98,7 @@ public class ItemSeederAntiquityPigmentAndDyeTests
 	[TestMethod]
 	public void ColourProfiles_AddPigmentAndDyeValues()
 	{
-		var coreSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.cs");
+		var coreSource = SeederSourceTestHelper.ReadPartialFamily("CoreDataSeeder");
 
 		foreach (var expected in new[] { "Basic_Colours", "Fine_Colours", "Drab_Colours", "Most_Colours" })
 		{
@@ -188,7 +188,7 @@ public class ItemSeederAntiquityPigmentAndDyeTests
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 		var householdSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityHousehold.cs");
-		var coreSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.cs");
+		var coreSource = SeederSourceTestHelper.ReadPartialFamily("CoreDataSeeder");
 		var source = $"{craftSource}\n{householdSource}";
 		var basicColours = new[]
 			{

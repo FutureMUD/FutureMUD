@@ -113,7 +113,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityRepairKits.cs");
 		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
-		var componentSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.ItemComponents.cs");
+		var componentSource = SeederSourceTestHelper.ReadPartialFamily("UsefulSeeder.ItemComponents");
 		var componentCatalogue = ReadSource("Design Documents", "Data", "Seeded_Item_Components.json");
 		var equipmentDoc = ReadSource("Design Documents", "Seeding", "Antiquity_Equipment_Crafting_Suite.md");
 

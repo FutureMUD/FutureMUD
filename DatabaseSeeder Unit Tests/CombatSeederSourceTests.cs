@@ -170,7 +170,7 @@ public class CombatSeederSourceTests
     [TestMethod]
     public void CombatSeederSource_ForcedPositioningMoves_HaveChecksMessagesAndStockAttacks()
     {
-        string source = File.ReadAllText(GetCombatSeederSourcePath());
+        string source = GetCombatSeederSource();
 
         StringAssert.Contains(source, "CheckType.PushbackCheck");
         StringAssert.Contains(source, "CheckType.OpposePushbackCheck");
@@ -237,7 +237,7 @@ public class CombatSeederSourceTests
 	public void CombatAuxiliarySeederSource_GatedProgsTagsMessagesAndRerunHooks_ArePresent()
 	{
 		string helper = File.ReadAllText(GetSeederSourcePath("CombatAuxiliarySeederHelper.cs"));
-		string combatSeeder = File.ReadAllText(GetCombatSeederSourcePath());
+		string combatSeeder = GetCombatSeederSource();
 
 		StringAssert.Contains(combatSeeder, "EnsureStockAuxiliaryContent(context)");
 		StringAssert.Contains(combatSeeder, "auxiliaryResult");
@@ -267,7 +267,7 @@ public class CombatSeederSourceTests
 	{
 		string helper = File.ReadAllText(GetSeederSourcePath("ManualCombatCommandSeederHelper.cs"));
 		string auxiliary = File.ReadAllText(GetSeederSourcePath("CombatAuxiliarySeederHelper.cs"));
-		string combatSeeder = File.ReadAllText(GetCombatSeederSourcePath());
+		string combatSeeder = GetCombatSeederSource();
 
 		StringAssert.Contains(combatSeeder, "ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context)");
 		StringAssert.Contains(combatSeeder, "stock manual combat command bindings");
@@ -329,17 +329,17 @@ public class CombatSeederSourceTests
 
 		Dictionary<string, string> seederHooks = new(StringComparer.OrdinalIgnoreCase)
 		{
-			["AnimalSeeder.cs"] = "EnsureAnimalAuxiliaryLinks",
-			["MythicalAnimalSeeder.cs"] = "EnsureMythicalAuxiliaryLinks",
-			["RobotSeeder.cs"] = "EnsureRobotAuxiliaryLinks",
-			["SupernaturalSeeder.cs"] = "EnsureSupernaturalAuxiliaryLinks"
+			["AnimalSeeder"] = "EnsureAnimalAuxiliaryLinks",
+			["MythicalAnimalSeeder"] = "EnsureMythicalAuxiliaryLinks",
+			["RobotSeeder"] = "EnsureRobotAuxiliaryLinks",
+			["SupernaturalSeeder"] = "EnsureSupernaturalAuxiliaryLinks"
 		};
 
-		foreach ((string fileName, string hook) in seederHooks)
+		foreach ((string seederName, string hook) in seederHooks)
 		{
-			string source = File.ReadAllText(GetSeederSourcePath(fileName));
+			string source = SeederSourceTestHelper.ReadPartialFamily(seederName);
 			Assert.IsTrue(source.Contains(hook, StringComparison.Ordinal),
-				$"{fileName} should call {hook}.");
+				$"{seederName} should call {hook}.");
 		}
 	}
 
@@ -368,7 +368,7 @@ public class CombatSeederSourceTests
 	[TestMethod]
 	public void CombatSeederSource_PrimitiveRangedWeapons_SeedAndRepairSlingAndBlowgunStock()
 	{
-		string source = File.ReadAllText(GetCombatSeederSourcePath());
+		string source = GetCombatSeederSource();
 
 		StringAssert.Contains(source, "EnsurePrimitiveRangedContent(context, skills);");
 		StringAssert.Contains(source, "primitiveRangedCount = EnsurePrimitiveRangedContent(context);");
@@ -390,7 +390,7 @@ public class CombatSeederSourceTests
 	[TestMethod]
 	public void CombatSeederSource_StockArrowAndBoltAmmunition_IncludesBodkinVariants()
 	{
-		string source = File.ReadAllText(GetCombatSeederSourcePath());
+		string source = GetCombatSeederSource();
 
 		StringAssert.Contains(source, "AddAmmoType(\"Bodkin Arrow\"");
 		StringAssert.Contains(source, "AddAmmoType(\"Bodkin Bolt\"");
@@ -400,7 +400,7 @@ public class CombatSeederSourceTests
 	[TestMethod]
 	public void CombatSeederSource_ExpandedShieldCatalogue_HasHistoricalAndModernTypes()
 	{
-		string source = File.ReadAllText(GetCombatSeederSourcePath());
+		string source = GetCombatSeederSource();
 		Dictionary<string, (double BlockBonus, double Stamina)> expected = new(StringComparer.OrdinalIgnoreCase)
 		{
 			["Hide"] = (-1.0, 6.0),
@@ -447,7 +447,7 @@ public class CombatSeederSourceTests
 	[TestMethod]
 	public void CombatSeederSource_ExpandedWeaponCatalogue_SeedsDistinctPremodernClassesAndRerunHook()
 	{
-		string source = File.ReadAllText(GetCombatSeederSourcePath());
+		string source = GetCombatSeederSource();
 		foreach (string weaponName in new[]
 		         {
 			         "Quarterstaff",
@@ -472,7 +472,7 @@ public class CombatSeederSourceTests
 	[TestMethod]
 	public void CombatSeederSource_SpearSuites_HaveShieldRequiredSwordAndBoardAttacks()
 	{
-		string source = File.ReadAllText(GetCombatSeederSourcePath());
+		string source = GetCombatSeederSource();
 		IReadOnlyList<CombatAttackSeed> attacks = ParseCombatSeederAttacks();
 		string[] expectedAttackNames =
 		[
@@ -596,7 +596,7 @@ public class CombatSeederSourceTests
 
     private static IReadOnlyList<CombatAttackSeed> ParseCombatSeederAttacks()
     {
-        string source = File.ReadAllText(GetCombatSeederSourcePath());
+        string source = GetCombatSeederSource();
         Regex regex = new(
             """AddAttack\("(?<name>[^"]+)",\s*BuiltInCombatMoveType\.(?<move>[A-Za-z0-9_]+),\s*MeleeWeaponVerb\.[A-Za-z0-9_]+,\s*Difficulty\.(?<attacker>[A-Za-z0-9_]+),\s*Difficulty\.[A-Za-z0-9_]+,\s*Difficulty\.[A-Za-z0-9_]+,\s*Difficulty\.[A-Za-z0-9_]+,\s*Alignment\.[A-Za-z0-9_]+,\s*Orientation\.[A-Za-z0-9_]+,\s*(?<stamina>[0-9.]+),\s*(?<delay>[0-9.]+),\s*(?<weapon>[A-Za-z0-9_]+),\s*(?<damage>[A-Za-z0-9_]+)""",
             RegexOptions.Singleline | RegexOptions.CultureInvariant);
@@ -613,21 +613,13 @@ public class CombatSeederSourceTests
             .ToList();
     }
 
-    private static string GetCombatSeederSourcePath()
+    private static string GetCombatSeederSource()
     {
-		return GetSeederSourcePath("CombatSeeder.cs");
+		return SeederSourceTestHelper.ReadPartialFamily("CombatSeeder");
     }
 
 	private static string GetSeederSourcePath(string fileName)
 	{
-        return Path.GetFullPath(Path.Combine(
-            AppContext.BaseDirectory,
-            "..",
-            "..",
-            "..",
-            "..",
-            "DatabaseSeeder",
-            "Seeders",
-            fileName));
+		return SeederSourceTestHelper.GetSeederSourcePath(fileName);
     }
 }

@@ -45,7 +45,7 @@ The seeder helper resolves names case-insensitively.
 For human templates, prefer `BodypartAliases` when the content is meant for one exact location and prefer `BodypartShapeNames` when the content should generalise across equivalent anatomy.
 
 ## Human Bodypart Shapes
-These are the canonical human-compatible shape names currently seeded by `HumanSeederBodyparts.cs` and suitable for `BodypartShapeNames`:
+These are the canonical human-compatible shape names currently seeded by `HumanSeeder.Bodyparts.cs` and suitable for `BodypartShapeNames`:
 
 `abdomen`, `ankle`, `belly`, `breast`, `buttock`, `calf`, `cheek`, `chin`, `ear`, `elbow`, `eye`, `eye socket`, `eyebrow`, `face`, `finger`, `foot`, `forearm`, `forehead`, `groin`, `hand`, `head back`, `heel`, `hip`, `inventory`, `knee`, `knee back`, `lower back`, `mouth`, `neck`, `neck back`, `nipple`, `nose`, `penis`, `scalp`, `shin`, `shoulder`, `shoulder blade`, `temple`, `testicles`, `thigh`, `thigh back`, `throat`, `thumb`, `toe`, `tongue`, `upper arm`, `upper back`, `wrist`
 
@@ -374,8 +374,8 @@ For first-pass human tattoo seeding:
 This document is derived from the currently seeded and coded values in:
 
 - `DatabaseSeeder/Seeders/HumanSeeder.Disfigurements.cs`
-- `DatabaseSeeder/Seeders/SeederDisfigurementTemplateUtilities.cs`
-- `DatabaseSeeder/Seeders/HumanSeederBodyparts.cs`
+- `DatabaseSeeder/Seeders/Utilities/Characters/SeederDisfigurementTemplateUtilities.cs`
+- `DatabaseSeeder/Seeders/HumanSeeder.Bodyparts.cs`
 - `DatabaseSeeder/Seeders/CoreDataSeeder.cs`
 - `MudSharpCore/Body/Disfigurements/ScarTemplate.cs`
 - `MudSharpCore/Body/Disfigurements/TattooTemplate.cs`

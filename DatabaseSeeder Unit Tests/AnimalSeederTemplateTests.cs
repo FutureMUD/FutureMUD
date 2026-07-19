@@ -397,15 +397,7 @@ public class AnimalSeederTemplateTests
 
     private static string ReadAnimalSeederSource()
     {
-        return File.ReadAllText(Path.GetFullPath(Path.Combine(
-            AppContext.BaseDirectory,
-            "..",
-            "..",
-            "..",
-            "..",
-            "DatabaseSeeder",
-            "Seeders",
-            "AnimalSeeder.cs")));
+		return SeederSourceTestHelper.ReadPartialFamily("AnimalSeeder");
     }
 
     private static int ParagraphCount(string text)

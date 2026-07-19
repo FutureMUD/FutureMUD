@@ -4,7 +4,7 @@
 
 This document extends [Character Description System](./Character_Description_System.md) with the human-specific seeded description grammar and vocabulary implemented by:
 
-- `DatabaseSeeder/Seeders/HumanSeederCharacteristics.cs`
+- `DatabaseSeeder/Seeders/HumanSeeder.Characteristics.cs`
 - `DatabaseSeeder/Seeders/HumanSeeder.cs`
 - `MudSharpCore/Form/Characteristics/CharacteristicValue.cs`
 - `MudSharpCore/Form/Characteristics/MultiformCharacteristicValue.cs`

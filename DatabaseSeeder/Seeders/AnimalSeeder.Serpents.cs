@@ -1,9 +1,26 @@
 #nullable enable
 
+using MudSharp.Body.Traits;
 using MudSharp.Body;
+using MudSharp.Combat;
+using MudSharp.Construction;
+using MudSharp.Database;
+using MudSharp.Form.Characteristics;
+using MudSharp.Form.Material;
+using MudSharp.Form.Shape;
+using MudSharp.Framework;
+using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using System;
+using MudSharp.Health;
+using MudSharp.Models;
+using MudSharp.RPG.Checks;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
+using System.Xml;
+using System;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -172,5 +189,235 @@ public partial class AnimalSeeder
 
             They are treated with caution even when small, because a serpent's danger is rarely measured by noise or size alone. A moccasin can serve as background wildlife, valuable domestic animal, troublesome vermin or a serious hazard, depending on the scene and the way nearby people have learned to live with it.
             """);
+    }
+
+    private void SeedSerpents(BodyProto wormProto, BodyProto serpentProto)
+    {
+        ResetCachedParts();
+        int order = 1;
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Bodyparts...");
+
+        #region Bodyparts
+
+        AddBodypart(wormProto, "head", "head", "head back", BodypartTypeEnum.Wear, null, Alignment.Front,
+            Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(wormProto, "mouth", "mouth", "mouth", BodypartTypeEnum.Wear, "head", Alignment.Front,
+            Orientation.Highest, 40, -1, 50, order++, "Bony Flesh", SizeCategory.Small, "Head", true,
+            isVital: false, implantSpace: 0, stunMultiplier: 1.0);
+        AddBodypart(serpentProto, "fangs", "fangs", "fang", BodypartTypeEnum.Wear, "mouth", Alignment.Front,
+            Orientation.Highest, 40, -1, 50, order++, "Tooth", SizeCategory.Small, "Head", true, isVital: false,
+            implantSpace: 0, stunMultiplier: 1.0);
+        AddBodypart(wormProto, "reyesocket", "right eye socket", "eye socket", BodypartTypeEnum.Wear,
+            "head", Alignment.FrontRight, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh",
+            SizeCategory.Small, "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(wormProto, "leyesocket", "left eye socket", "eye socket", BodypartTypeEnum.Wear, "head",
+            Alignment.FrontLeft, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
+            "Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(wormProto, "reye", "right eye", "eye", BodypartTypeEnum.Eye, "reyesocket",
+            Alignment.FrontRight, Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head",
+            true, isVital: false, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(wormProto, "leye", "left eye", "eye", BodypartTypeEnum.Eye, "leyesocket",
+            Alignment.FrontLeft, Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head",
+            true, isVital: false, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(serpentProto, "tongue", "tongue", "tongue", BodypartTypeEnum.Tongue, "mouth", Alignment.Front,
+            Orientation.Highest, 10, 30, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+        AddBodypart(wormProto, "neck", "neck", "neck", BodypartTypeEnum.Wear, "head", Alignment.Front,
+            Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(wormProto, "ubody", "upper body", "serpent body", BodypartTypeEnum.Wear, "neck",
+            Alignment.Front, Orientation.High, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(wormProto, "mbody", "middle body", "serpent body", BodypartTypeEnum.Wear, "ubody",
+            Alignment.Front, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(wormProto, "lbody", "lower body", "serpent body", BodypartTypeEnum.Wear, "mbody",
+            Alignment.Front, Orientation.Low, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
+            true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+        AddBodypart(wormProto, "tail", "tail", "tail", BodypartTypeEnum.Wear, "lbody", Alignment.Rear,
+            Orientation.Lowest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Tail", true,
+            isVital: true, implantSpace: 5, stunMultiplier: 0.5);
+
+        #endregion
+
+        _context.SaveChanges();
+
+        #region Bones
+
+        AddBone(serpentProto, "fskull", "frontal skull bone", BodypartTypeEnum.NonImmobilisingBone, 200,
+            "Compact Bone");
+        AddBone(serpentProto, "cvertebrae", "cervical vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(serpentProto, "dvertebrae", "dorsal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(serpentProto, "lvertebrae", "lumbar vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        AddBone(serpentProto, "cavertebrae", "caudal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+            "Compact Bone");
+        _context.SaveChanges();
+
+        AddBoneInternal("fskull", "head", 100);
+        AddBoneInternal("cvertebrae", "neck", 100);
+        AddBoneInternal("dvertebrae", "ubody", 100);
+        AddBoneInternal("lvertebrae", "mbody", 100);
+        AddBoneInternal("lvertebrae", "lbody", 100, false);
+        AddBoneInternal("cavertebrae", "tail", 100);
+        _context.SaveChanges();
+
+        #endregion
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Organs...");
+
+        #region Organs
+
+        AddOrgan(wormProto, "brain", "brain", BodypartTypeEnum.Brain, 2.0, 50, 0.2, 0.2, 0.1, stunModifier: 1.0);
+        AddOrgan(wormProto, "heart", "heart", BodypartTypeEnum.Heart, 1.0, 50, 0.2, 1.0, 1.0);
+        AddOrgan(wormProto, "liver", "liver", BodypartTypeEnum.Liver, 3.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(wormProto, "spleen", "spleen", BodypartTypeEnum.Spleen, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(wormProto, "stomach", "stomach", BodypartTypeEnum.Stomach, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(wormProto, "lintestines", "large intestines", BodypartTypeEnum.Intestines, 0.5, 50, 0.2, 1.0,
+            0.05);
+        AddOrgan(wormProto, "sintestines", "small intestines", BodypartTypeEnum.Intestines, 2.0, 50, 0.2, 1.0,
+            0.05);
+        AddOrgan(wormProto, "rkidney", "right kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
+            painModifier: 3.0);
+        AddOrgan(wormProto, "lkidney", "left kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
+            painModifier: 3.0);
+        AddOrgan(wormProto, "rlung", "right lung", BodypartTypeEnum.Lung, 2.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(wormProto, "llung", "left lung", BodypartTypeEnum.Lung, 2.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(wormProto, "trachea", "trachea", BodypartTypeEnum.Trachea, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(wormProto, "esophagus", "esophagus", BodypartTypeEnum.Esophagus, 1.0, 50, 0.2, 1.0, 0.05);
+        AddOrgan(wormProto, "spinalcord", "spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
+            stunModifier: 1.0, painModifier: 2.0);
+        AddOrgan(wormProto, "rinnerear", "right inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+        AddOrgan(wormProto, "linnerear", "left inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+
+        AddOrganCoverage("brain", "head", 100, true);
+        AddOrganCoverage("brain", "reyesocket", 85);
+        AddOrganCoverage("brain", "leyesocket", 85);
+        AddOrganCoverage("brain", "reye", 85);
+        AddOrganCoverage("brain", "leye", 85);
+        AddOrganCoverage("brain", "mouth", 10);
+
+        AddOrganCoverage("linnerear", "head", 5, true);
+        AddOrganCoverage("rinnerear", "head", 5, true);
+        AddOrganCoverage("esophagus", "neck", 50, true);
+        AddOrganCoverage("trachea", "neck", 50, true);
+
+        AddOrganCoverage("rlung", "ubody", 100, true);
+        AddOrganCoverage("llung", "ubody", 100, true);
+
+        AddOrganCoverage("heart", "ubody", 33, true);
+
+        AddOrganCoverage("spinalcord", "neck", 10, true);
+        AddOrganCoverage("spinalcord", "ubody", 2);
+
+        AddOrganCoverage("liver", "mbody", 33, true);
+        AddOrganCoverage("spleen", "mbody", 20, true);
+        AddOrganCoverage("stomach", "mbody", 20, true);
+
+        AddOrganCoverage("lintestines", "lbody", 5, true);
+        AddOrganCoverage("sintestines", "lbody", 50, true);
+
+        AddOrganCoverage("rkidney", "lbody", 20, true);
+        AddOrganCoverage("lkidney", "lbody", 20, true);
+
+        AddBoneCover("fskull", "brain", 100);
+        AddBoneCover("cvertebrae", "spinalcord", 100);
+        AddBoneCover("dvertebrae", "spinalcord", 100);
+        AddBoneCover("lvertebrae", "spinalcord", 100);
+        AddBoneCover("cavertebrae", "spinalcord", 100);
+        _context.SaveChanges();
+
+        #endregion
+
+        _context.SaveChanges();
+
+        foreach ((BodypartProto? child, BodypartProto? parent) in _cachedBodypartUpstreams)
+        {
+            _context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
+            {
+                Child = child.Id,
+                Parent = parent.Id
+            });
+        }
+
+        _context.SaveChanges();
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Limbs...");
+
+        #region Limbs
+
+        Dictionary<string, Limb> limbs = new(StringComparer.OrdinalIgnoreCase);
+
+        void AddLimb(string name, LimbType limbType, string rootPart, double damageThreshold,
+            double painThreshold)
+        {
+            Limb limb = new()
+            {
+                Name = name,
+                LimbType = (int)limbType,
+                RootBody = wormProto,
+                RootBodypart = _cachedBodyparts[rootPart],
+                LimbDamageThresholdMultiplier = damageThreshold,
+                LimbPainThresholdMultiplier = painThreshold
+            };
+            _context.Limbs.Add(limb);
+            limbs[name] = limb;
+        }
+
+        AddLimb("Torso", LimbType.Torso, "ubody", 1.0, 1.0);
+        AddLimb("Head", LimbType.Head, "neck", 1.0, 1.0);
+        AddLimb("Tail", LimbType.Appendage, "tail", 0.5, 0.5);
+        _context.SaveChanges();
+
+        foreach (Limb limb in limbs.Values)
+        {
+            foreach (BodypartProto part in _cachedLimbs[limb.Name])
+            {
+                _context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
+            }
+
+            switch (limb.Name)
+            {
+                case "Torso":
+                    _context.LimbsSpinalParts.Add(new LimbsSpinalPart
+                    { Limb = limb, BodypartProto = _cachedOrgans["spinalcord"] });
+                    break;
+            }
+        }
+
+        _context.SaveChanges();
+
+        #endregion
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Groups...");
+
+        #region Groups
+
+        AddBodypartGroupDescriberShape(serpentProto, "body", "The whole torso of a worm",
+            ("serpent body", 1, 3),
+            ("tail", 0, 1),
+            ("neck", 0, 1)
+        );
+
+        AddBodypartGroupDescriberShape(serpentProto, "eyes", "A pair of serpent eyes",
+            ("eye socket", 2, 2),
+            ("eye", 0, 2)
+        );
+
+        #endregion
+
+        _context.SaveChanges();
+
+        Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Races...");
+
+        #region Races
+
+        SeedAnimalRaces(GetSerpentRaceTemplates(),
+            ("Serpentine", serpentProto));
+
+        #endregion
     }
 }

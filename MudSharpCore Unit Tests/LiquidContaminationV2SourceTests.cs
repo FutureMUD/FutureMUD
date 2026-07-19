@@ -64,6 +64,33 @@ public class LiquidContaminationV2SourceTests
 	}
 
 	[TestMethod]
+	public void RoomLook_RendersVirtualSurfaceOnlyThroughCellDescription()
+	{
+		var cellDescription = File.ReadAllText(GetSourcePath("MudSharpCore", "Construction", "CellDescription.cs"));
+		var bodyPerception = File.ReadAllText(GetSourcePath("MudSharpCore", "Body", "Implementations", "BodyPerception.cs"));
+
+		StringAssert.Contains(cellDescription, "DescribeLiquidSurface(voyeur?.RoomLayer ?? RoomLayer.GroundLevel, voyeur, colour)");
+		Assert.IsFalse(bodyPerception.Contains("Location.DescribeLiquidSurface", StringComparison.Ordinal),
+			"The room surface is already part of Location.HowSeen and must not be appended again by the outer look routine.");
+	}
+
+	[TestMethod]
+	public void DebugEvaporate_DriesVirtualRoomSurfacesAsWellAsLegacyPuddles()
+	{
+		var staffModule = File.ReadAllText(GetSourcePath("MudSharpCore", "Commands", "Modules", "StaffModule.cs"));
+		var methodStart = staffModule.IndexOf("private static void DebugEvaporate", StringComparison.Ordinal);
+		var methodEnd = staffModule.IndexOf("private static void DebugFixBites", methodStart, StringComparison.Ordinal);
+		Assert.IsTrue(methodStart > 0);
+		Assert.IsTrue(methodEnd > methodStart);
+
+		var method = staffModule[methodStart..methodEnd];
+		StringAssert.Contains(method, "x.GetItemType<PuddleGameItemComponent>()");
+		StringAssert.Contains(method, "actor.Gameworld.Cells");
+		StringAssert.Contains(method, "x.SurfaceLiquidStates");
+		StringAssert.Contains(method, "state.Dry(state.LiquidVolume, roomSurface: true);");
+	}
+
+	[TestMethod]
 	public void EmptyOntoGround_UsesVirtualRoomSurface()
 	{
 		var manipulation = File.ReadAllText(GetSourcePath("MudSharpCore", "Commands", "Modules", "ManipulationModule.cs"));

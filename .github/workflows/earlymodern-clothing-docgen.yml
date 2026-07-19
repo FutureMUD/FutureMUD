@@ -16,12 +16,16 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - name: Check out catalogue branch
+      - name: Check out catalogue payload
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: docs/earlymodern-clothing-first-pass-20260719
           fetch-depth: 1
           show-progress: false
+          sparse-checkout: |
+            /Design Documents/Seeding/.earlymodern-clothing-payload/
+            /Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md
+          sparse-checkout-cone-mode: false
 
       - name: Reconstruct and validate design documents
         shell: python

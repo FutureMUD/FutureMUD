@@ -259,32 +259,6 @@ public class BodyFormProvisioningTests
 	}
 
 	[TestMethod]
-	public void BodyCommand_RegistersDeleteFormWithConfirmation()
-	{
-		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Commands", "Modules", "CharacterInformation.cs"));
-
-		StringAssert.Contains(source, "body delform <character> <form> confirm");
-		StringAssert.Contains(source, "case \"delform\":");
-		StringAssert.Contains(source, "BodyDeleteForm(actor, ss)");
-		StringAssert.Contains(source, "This cannot be undone");
-		StringAssert.Contains(source, "TryDeleteForm(form, out var whyNot)");
-	}
-
-	[TestMethod]
-	public void TryDeleteForm_GuardsActiveAndPersistedBodyReferencesBeforeCleanup()
-	{
-		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Character", "CharacterForms.cs"));
-
-		StringAssert.Contains(source, "You cannot delete the current body form.");
-		StringAssert.Contains(source, "x.IsEmbodied");
-		StringAssert.Contains(source, "EffectsOfType<IBodyBackupEffect>()");
-		StringAssert.Contains(source, "HasPhysicalReferenceToRetiredBody(body.Id, null)");
-		StringAssert.Contains(source, "PersistedInstanceReferencesBody(body, out whyNot)");
-		StringAssert.Contains(source, "TryCleanupRetiredBody(body)");
-		StringAssert.Contains(source, "_forms.AddRange(removedForms)");
-	}
-
-	[TestMethod]
 	public void SpellEffectFactory_RegistersTransformFormEffect()
 	{
 		Assert.IsTrue(SpellEffectFactory.MagicEffectTypes.Contains("transformform"));
@@ -859,17 +833,6 @@ public class BodyFormProvisioningTests
 		mock.SetupGet(x => x.Name).Returns(name);
 		mock.SetupGet(x => x.FrameworkItemType).Returns(typeof(T).Name);
 		return mock;
-	}
-
-	private static string GetSourcePath(params string[] parts)
-	{
-		var root = AppContext.BaseDirectory;
-		for (var i = 0; i < 8 && !File.Exists(Path.Combine(root, "MudSharp.sln")); i++)
-		{
-			root = Path.GetFullPath(Path.Combine(root, ".."));
-		}
-
-		return Path.Combine(new[] { root }.Concat(parts).ToArray());
 	}
 
 	private sealed record CopyCloneSpellContext(

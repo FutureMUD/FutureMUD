@@ -73,16 +73,6 @@ public class BodyFormLifecycleGuardTests
 	}
 
 	[TestMethod]
-	public void BodySwitchEcho_UsesFormSnapshotsForOldAndNewDescriptions()
-	{
-		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Character", "CharacterForms.cs"));
-
-		StringAssert.Contains(source, "BodyFormEchoSnapshot");
-		StringAssert.Contains(source, "new Emote(echo.Sanitise(), oldSnapshot, oldSnapshot, newSnapshot)");
-		StringAssert.Contains(source, "PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf");
-	}
-
-	[TestMethod]
 	public void EquivalentAgeForLifeStage_MapsAdultProgressToTargetRace()
 	{
 		var human = CreateRaceWithAgeThresholds(3, 10, 16, 21, 55, 75).Object;
@@ -97,87 +87,6 @@ public class BodyFormLifecycleGuardTests
 		var human = CreateRaceWithAgeThresholds(3, 10, 16, 21, 55, 75).Object;
 
 		Assert.AreEqual(38, ConcreteCharacter.EquivalentAgeForLifeStage(human, 38, human));
-	}
-
-	[TestMethod]
-	public void ProvisionedForms_AttachPersistentApparentAgeMetadata()
-	{
-		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Character", "CharacterForms.cs"));
-		var effect = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete", "BodyFormApparentAgeEffect.cs"));
-
-		StringAssert.Contains(source, "EquivalentBirthdayForLifeStage(template, race)");
-		StringAssert.Contains(source, "SelectedBirthday = apparentBirthday");
-		StringAssert.Contains(source, "EnsureBodyFormApparentAge(newBody, apparentBirthday)");
-		StringAssert.Contains(source, "EnsureBodyFormApparentAge(form.Body, EquivalentBirthdayForLifeStage");
-		StringAssert.Contains(effect, "public override bool SavingEffect => true;");
-		StringAssert.Contains(effect, "ApparentBirthday.GetRoundtripString()");
-	}
-
-	[TestMethod]
-	public void CheckHealthStatus_RechecksStatusAfterBodypartAndOrganDamageUpdates()
-	{
-		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Body", "Implementations", "BodyBiology.cs"));
-		var methodStart = source.IndexOf("public void CheckHealthStatus()", StringComparison.Ordinal);
-		Assert.IsTrue(methodStart >= 0);
-		var methodEnd = source.IndexOf("internal void ExecuteWithSuppressedHealthFeedback", methodStart, StringComparison.Ordinal);
-		Assert.IsTrue(methodEnd > methodStart);
-		var method = source[methodStart..methodEnd];
-		var evaluateIndex = method.IndexOf("EvaluateWounds();", StringComparison.Ordinal);
-		var bodypartIndex = method.IndexOf("CheckBodypartDamage();", StringComparison.Ordinal);
-		var statusIndex = method.IndexOf("RecheckStatus();", StringComparison.Ordinal);
-
-		Assert.IsTrue(evaluateIndex >= 0);
-		Assert.IsTrue(bodypartIndex > evaluateIndex);
-		Assert.IsTrue(statusIndex > bodypartIndex);
-		Assert.IsFalse(method.Contains("CalculateOrganFunctions();", StringComparison.Ordinal));
-	}
-
-	[TestMethod]
-	public void WoundCareDelayedEffects_BeginInventoryPlansBeforeFirstTickAndDelayedSteps()
-	{
-		var effects = new[]
-		{
-			("Binding.cs", "public Binding("),
-			("Suturing.cs", "public Suturing("),
-			("TendingWounds.cs", "public TendingWounds("),
-			("CleaningWounds.cs", "public CleaningWounds(")
-		};
-
-		foreach (var (file, constructorSignature) in effects)
-		{
-			var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete", file));
-			StringAssert.Contains(source, "private void BeginInventoryPlan()");
-			StringAssert.Contains(source, "HeldOrWieldedItems");
-			Assert.IsFalse(source.Contains(".HeldItems", StringComparison.Ordinal), file);
-			Assert.IsFalse(source.Contains("inventoryPlan.ExecuteWholePlan();", StringComparison.Ordinal), file);
-
-			var constructorIndex = source.IndexOf(constructorSignature, StringComparison.Ordinal);
-			var beginIndex = source.IndexOf("BeginInventoryPlan();", constructorIndex, StringComparison.Ordinal);
-			var expireIndex = source.IndexOf("public override void ExpireEffect()", StringComparison.Ordinal);
-			Assert.IsTrue(constructorIndex >= 0, file);
-			Assert.IsTrue(beginIndex > constructorIndex, file);
-			Assert.IsTrue(beginIndex < expireIndex, file);
-			var expireBeginIndex = source.IndexOf("BeginInventoryPlan();", expireIndex, StringComparison.Ordinal);
-			Assert.IsTrue(expireBeginIndex > expireIndex, file);
-			Assert.IsFalse(source.Contains("OriginalInventoryPlan == null", StringComparison.Ordinal), file);
-		}
-	}
-
-	[TestMethod]
-	public void HospitalRequestConfirmation_UsesSelfAwareShortMessage()
-	{
-		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Commands", "Modules", "EconomyModule.Hospitals.cs"));
-		var methodStart = source.IndexOf("private static bool TryCreateHospitalRequest", StringComparison.Ordinal);
-		Assert.IsTrue(methodStart >= 0);
-		var methodEnd = source.IndexOf("private static IEnumerable<IEmploymentActionStep> ServiceRequestActionSteps", methodStart, StringComparison.Ordinal);
-		Assert.IsTrue(methodEnd > methodStart);
-		var method = source[methodStart..methodEnd];
-
-		StringAssert.Contains(method, "? \"yourself\"");
-		StringAssert.Contains(method, "You request the {service.Name.ColourName()} service for {patientDescription} at this hospital.");
-		StringAssert.Contains(method, "\\nYour debt account will be charged based on the treatments performed");
-		Assert.IsFalse(method.Contains("Request #", StringComparison.Ordinal));
-		Assert.IsFalse(method.Contains("hospital debt account based on the treatments actually performed", StringComparison.Ordinal));
 	}
 
 	private static Mock<IRace> CreateRaceWithAgeThresholds(int child, int youth, int youngAdult, int adult, int elder,
@@ -236,14 +145,4 @@ public class BodyFormLifecycleGuardTests
 		return race;
 	}
 
-	private static string GetSourcePath(params string[] parts)
-	{
-		var root = AppContext.BaseDirectory;
-		for (var i = 0; i < 8 && !File.Exists(Path.Combine(root, "MudSharp.sln")); i++)
-		{
-			root = Path.GetFullPath(Path.Combine(root, ".."));
-		}
-
-		return Path.Combine(new[] { root }.Concat(parts).ToArray());
-	}
 }

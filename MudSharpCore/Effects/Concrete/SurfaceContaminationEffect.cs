@@ -68,33 +68,6 @@ public sealed class SurfaceContaminationEffect : Effect, ICleanableEffect, IIngr
 
 	public void TransferToFood(IPreparedFood food, double proportion)
 	{
-		if (proportion <= 0.0)
-		{
-			return;
-		}
-
-		var state = SurfaceOwner.SurfaceLiquidState;
-		if (!state.ContaminatingLiquid.IsEmpty)
-		{
-			food.AbsorbLiquid(state.ContaminatingLiquid.Clone(state.ContaminatingLiquid.TotalVolume * proportion), "transferred surface liquid");
-		}
-
-		foreach (var residue in state.Residues)
-		{
-			if (residue.Weight <= 0.0)
-			{
-				continue;
-			}
-
-			food.AddIngredient(new FoodIngredientInstance
-			{
-				Role = "residue",
-				Description = residue.Material.MaterialDescription,
-				TasteText = residue.Material.MaterialDescription,
-				MaterialId = residue.Material.Id,
-				Weight = residue.Weight * proportion,
-				Quality = ItemQuality.Standard
-			});
-		}
+		SurfaceLiquidTransferService.TransferToFood(SurfaceOwner.SurfaceLiquidState, food, proportion);
 	}
 }

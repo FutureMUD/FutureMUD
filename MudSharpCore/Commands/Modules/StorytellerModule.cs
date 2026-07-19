@@ -1133,7 +1133,7 @@ The syntax is as follows:
                             $"@ force|forces everyone in the game to do the command '{ss.RemainingArgument}'",
                             character),
                         flags: OutputFlags.WizOnly), true);
-                    foreach (ICharacter person in character.Gameworld.Actors
+                    foreach (ICharacter person in ForceTargetResolver.Resolve(character.Gameworld, ForceTargetScope.All)
                                                     .Where(x => !x.AffectedBy<IIgnoreForceEffect>() &&
                                                                 CommandExecutionGuards.CanForceTarget(character, x))
                                                     .ToList())
@@ -1171,7 +1171,7 @@ The syntax is as follows:
                             $"@ force|forces all players in the game to do the command '{ss.RemainingArgument}'",
                             character),
                         flags: OutputFlags.WizOnly), true);
-                    foreach (ICharacter person in character.Gameworld.Characters
+                    foreach (ICharacter person in ForceTargetResolver.Resolve(character.Gameworld, ForceTargetScope.Players)
                                                     .Where(x => !x.AffectedBy<IIgnoreForceEffect>() &&
                                                                 CommandExecutionGuards.CanForceTarget(character, x))
                                                     .ToList())
@@ -1209,7 +1209,7 @@ The syntax is as follows:
                             $"@ force|forces all NPCs in the game to do the command '{ss.RemainingArgument}'",
                             character),
                         flags: OutputFlags.WizOnly), true);
-                    foreach (ICharacter person in character.Gameworld.NPCs
+                    foreach (ICharacter person in ForceTargetResolver.Resolve(character.Gameworld, ForceTargetScope.Npcs)
                                                     .Where(x => !x.AffectedBy<IIgnoreForceEffect>() &&
                                                                 CommandExecutionGuards.CanForceTarget(character, x))
                                                     .ToList())

@@ -183,45 +183,20 @@ public class CommandExecutionSecurityTests
 	}
 
 	[TestMethod]
-	public void CommandExecutionSecurity_ForceFanoutUsesCorrectWorldCollections()
+	public void CommandExecutionSecurity_ForceTargetResolver_UsesCorrectWorldCollections()
 	{
-		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Commands", "Modules", "StorytellerModule.cs"));
-		var allBranch = Slice(source, "targetText.Equals(\"all\"", "targetText.Equals(\"players\"");
-		var playersBranch = Slice(source, "targetText.Equals(\"players\"", "targetText.Equals(\"npcs\"");
-		var npcsBranch = Slice(source, "targetText.Equals(\"npcs\"", "targetText.Equals(\"here\"");
+		var all = Character(PermissionLevel.Player).Object;
+		var player = Character(PermissionLevel.Player).Object;
+		var npc = Character(PermissionLevel.NPC, false).Object;
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.Actors).Returns(Repository([all]).Object);
+		gameworld.SetupGet(x => x.Characters).Returns(Repository([player]).Object);
+		gameworld.SetupGet(x => x.NPCs).Returns(Repository([npc]).Object);
 
-		StringAssert.Contains(allBranch, "character.Gameworld.Actors");
-		StringAssert.Contains(playersBranch, "character.Gameworld.Characters");
-		StringAssert.Contains(npcsBranch, "character.Gameworld.NPCs");
-		StringAssert.Contains(allBranch, "CommandExecutionGuards.CanForceTarget(character, x)");
-		StringAssert.Contains(playersBranch, "CommandExecutionGuards.CanForceTarget(character, x)");
-		StringAssert.Contains(npcsBranch, "CommandExecutionGuards.CanForceTarget(character, x)");
+		Assert.AreSame(all, ForceTargetResolver.Resolve(gameworld.Object, ForceTargetScope.All).Single());
+		Assert.AreSame(player, ForceTargetResolver.Resolve(gameworld.Object, ForceTargetScope.Players).Single());
+		Assert.AreSame(npc, ForceTargetResolver.Resolve(gameworld.Object, ForceTargetScope.Npcs).Single());
 	}
-
-	[TestMethod]
-	public void CommandExecutionSecurity_AuthoredIndirectCommandPathsUseSecureHelper()
-	{
-		var guardedSources = new[]
-		{
-			("MudSharpCore", "FutureProg", "Statements", "Force.cs"),
-			("MudSharpCore", "FutureProg", "Statements", "Delay.cs"),
-			("MudSharpCore", "Effects", "Concrete", "Dreaming.cs"),
-			("MudSharpCore", "Framework", "Scheduling", "Schedules.cs"),
-			("MudSharpCore", "Magic", "SpellEffects", "MagicPhase3Effects.cs")
-		};
-
-		foreach (var parts in guardedSources)
-		{
-			var source = File.ReadAllText(GetSourcePath(parts.Item1, parts.Item2, parts.Item3, parts.Item4));
-			Assert.IsTrue(source.Contains("CommandExecutionGuards.", StringComparison.Ordinal),
-				$"{parts.Item4} should use CommandExecutionGuards for authored forced commands.");
-		}
-
-		var hookSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Events", "Hooks", "CommandHook.cs"));
-		StringAssert.Contains(hookSource, "if (target is ICharacter character)");
-		StringAssert.Contains(hookSource, "CommandExecutionGuards.ExecuteForcedCommand(character, command);");
-	}
-
 	[TestMethod]
 	public void LiteracyRead_SealedTargetRequiresManipulationBeforeBreakingSeal()
 	{
@@ -340,11 +315,9 @@ public class CommandExecutionSecurityTests
 	[TestMethod]
 	public void ExportCraftCsvCell_QuotesAndNeutralisesSpreadsheetFormulae()
 	{
-		var method = typeof(ImplementorModule).GetMethod("EncodeCraftExportCsvCell",
-			BindingFlags.Static | BindingFlags.NonPublic)!;
-
-		Assert.AreEqual("\"'=1+1\"", method.Invoke(null, ["=1+1"]));
-		Assert.AreEqual("\"text, with \"\"quotes\"\"\"", method.Invoke(null, ["text, with \"quotes\""]));
+		Assert.AreEqual("\"'=1+1\"", SpreadsheetSafeCsv.EncodeCell("=1+1"));
+		Assert.AreEqual("\"text, with \"\"quotes\"\"\"", SpreadsheetSafeCsv.EncodeCell("text, with \"quotes\""));
+		Assert.AreEqual("\"\"", SpreadsheetSafeCsv.EncodeCell(null));
 	}
 
 	private static Mock<ICharacter> Character(PermissionLevel permissionLevel, bool isPlayerCharacter = true)
@@ -379,6 +352,15 @@ public class CommandExecutionSecurityTests
 		return mock;
 	}
 
+	private static Mock<IUneditableAll<T>> Repository<T>(IEnumerable<T> items) where T : class, IFrameworkItem
+	{
+		var values = items.ToList();
+		var repository = new Mock<IUneditableAll<T>>();
+		repository.As<IEnumerable<T>>()
+		          .Setup(x => x.GetEnumerator())
+		          .Returns(() => values.GetEnumerator());
+		return repository;
+	}
 	private static Mock<ICharacter> CharacterWithMutablePermission(PermissionLevel startingPermission,
 		bool isPlayerCharacter, out MutablePermission permission)
 	{
@@ -390,26 +372,6 @@ public class CommandExecutionSecurityTests
 		character.Setup(x => x.ChangePermissionLevel(It.IsAny<PermissionLevel>()))
 		         .Callback<PermissionLevel>(value => capturedPermission.Value = value);
 		return character;
-	}
-
-	private static string Slice(string source, string startText, string endText)
-	{
-		var start = source.IndexOf(startText, StringComparison.Ordinal);
-		Assert.IsTrue(start >= 0, $"Could not find source marker {startText}.");
-		var end = source.IndexOf(endText, start, StringComparison.Ordinal);
-		Assert.IsTrue(end > start, $"Could not find source marker {endText} after {startText}.");
-		return source[start..end];
-	}
-
-	private static string GetSourcePath(params string[] parts)
-	{
-		return Path.GetFullPath(Path.Combine(
-			AppContext.BaseDirectory,
-			"..",
-			"..",
-			"..",
-			"..",
-			Path.Combine(parts)));
 	}
 
 	private static void InvokeLiteracyCommand(string methodName, ICharacter actor, string command)

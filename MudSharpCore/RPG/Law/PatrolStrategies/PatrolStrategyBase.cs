@@ -68,20 +68,15 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         // Check for presence of criminals
         foreach (ICharacter person in patrol.PatrolLeader.Location.LayerCharacters(patrol.PatrolLeader.RoomLayer))
         {
-            if (person == patrol.PatrolLeader ||
-                patrol.PatrolMembers.ContainsPhysicalInstance(person) ||
-                person.State.IsDead() ||
-                person.State.IsInStatis() ||
-                !patrol.PatrolLeader.CanSee(person))
-            {
-                continue;
-            }
-
             var beingDraggedByPatrol = IsBeingDraggedByPatrol(patrol, person);
-            if (person.AffectedBy<InCustodyOfEnforcer>(patrol.LegalAuthority) ||
-                person.AffectedBy<WarnedByEnforcer>(authority) ||
-                person.AffectedBy<Dragging.DragTarget>(authority) && !beingDraggedByPatrol ||
-                person.AffectedBy<OnTrial>(authority))
+            if (!PatrolEnforcementPolicy.CanConsiderCandidate(
+                    person == patrol.PatrolLeader || patrol.PatrolMembers.ContainsPhysicalInstance(person),
+                    person.State.IsDead() || person.State.IsInStatis(),
+                    () => patrol.PatrolLeader.CanSee(person),
+                    () => person.AffectedBy<InCustodyOfEnforcer>(patrol.LegalAuthority),
+                    () => person.AffectedBy<WarnedByEnforcer>(authority),
+                    () => person.AffectedBy<Dragging.DragTarget>(authority) && !beingDraggedByPatrol,
+                    () => person.AffectedBy<OnTrial>(authority)))
             {
                 continue;
             }
@@ -94,7 +89,8 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
                                                ? x.Law.EnforcementStrategy.IsArrestable()
                                                : x.Law.EnforcementStrategy >= MinimumEnforcementStrategyToAct)
                                            .ToList();
-            if (!crimes.Any())
+            var candidateAction = PatrolEnforcementPolicy.SelectCandidateAction(beingDraggedByPatrol, crimes.Any());
+            if (candidateAction == PatrolCandidateAction.None)
             {
                 continue;
             }
@@ -105,7 +101,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
                               .First();
             patrol.ActiveEnforcementTarget = person;
             patrol.ActiveEnforcementCrime = targetCrime;
-            if (beingDraggedByPatrol)
+            if (candidateAction == PatrolCandidateAction.ResumeCustody)
             {
                 person.RemoveAllEffects(x => x.IsEffectType<WarnedByEnforcer>(), true);
                 patrol.PatrolLeader.RemoveAllEffects<FollowingPath>(fireRemovalAction: true);
@@ -358,7 +354,8 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         }
 
         // Is criminal incapacitated?
-        if (crime.Law.EnforcementStrategy.IsArrestable() && TryStartDraggingHelplessCriminal(patrol, criminal))
+        if (PatrolEnforcementPolicy.ShouldBeginCustody(crime.Law.EnforcementStrategy.IsArrestable(), criminal.IsHelpless) &&
+            TryStartDraggingHelplessCriminal(patrol, criminal))
         {
             return;
         }
@@ -391,7 +388,8 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         }
 
         // Has criminal been warned to surrender?
-        if (criminal.AffectedBy<WarnedByEnforcer>(patrol.LegalAuthority))
+        if (PatrolEnforcementPolicy.ShouldWaitForSurrender(
+                criminal.AffectedBy<WarnedByEnforcer>(patrol.LegalAuthority)))
         // If lethal force detention or greater move to block exits
         {
             return;

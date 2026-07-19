@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - docs/earlymodern-clothing-first-pass-20260719
+  pull_request:
+    branches:
+      - master
 
 permissions:
   contents: write

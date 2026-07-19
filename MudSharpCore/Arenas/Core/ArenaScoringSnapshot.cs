@@ -1,6 +1,5 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 
 namespace MudSharp.Arenas;
 

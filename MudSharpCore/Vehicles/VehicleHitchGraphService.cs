@@ -1,16 +1,10 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Movement;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Vehicles;
 

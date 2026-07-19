@@ -1,16 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using MudSharp.Character;
 using MudSharp.Effects.Concrete.SpellEffects;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 

@@ -1,8 +1,5 @@
 ﻿using MudSharp.Arenas;
-using MudSharp.Character;
 using MudSharp.FutureProg.Variables;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Arena;
 

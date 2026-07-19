@@ -1,13 +1,5 @@
-using MudSharp.Character;
-using MudSharp.Effects.Concrete.SpellEffects;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
+﻿using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 #nullable enable
 

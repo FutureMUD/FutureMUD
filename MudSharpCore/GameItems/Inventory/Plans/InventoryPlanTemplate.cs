@@ -1,19 +1,8 @@
 ﻿using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
 using MudSharp.Framework.Units;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Inventory.Plans;
 

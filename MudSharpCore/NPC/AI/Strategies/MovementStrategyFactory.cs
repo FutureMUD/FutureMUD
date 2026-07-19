@@ -1,17 +1,11 @@
 ﻿using MudSharp.Body.Position;
-using MudSharp.Character;
 using MudSharp.Commands.Socials;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Movement;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.NPC.AI.Strategies;
 

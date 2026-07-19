@@ -1,21 +1,10 @@
-using ExpressionEngine;
+﻿using ExpressionEngine;
 using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Form.Audio;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
 using MudSharp.Health;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 #nullable enable annotations
 

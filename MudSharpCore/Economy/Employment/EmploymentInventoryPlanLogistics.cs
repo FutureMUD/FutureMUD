@@ -1,12 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Character;
-using MudSharp.Economy.Employment;
-using MudSharp.Framework;
+﻿using MudSharp.Economy.Employment;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
-using MudSharp.GameItems.Interfaces;
 
 #nullable enable
 

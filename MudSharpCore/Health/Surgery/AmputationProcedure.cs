@@ -1,16 +1,7 @@
 ﻿using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.Events;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Health.Surgery;
 

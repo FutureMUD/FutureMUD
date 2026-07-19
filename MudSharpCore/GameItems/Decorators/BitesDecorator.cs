@@ -1,7 +1,4 @@
-﻿using MudSharp.Framework;
-using System;
-using System.Xml.Linq;
-
+﻿
 namespace MudSharp.GameItems.Decorators;
 
 public class BitesDecorator : StackDecorator

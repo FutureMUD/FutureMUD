@@ -1,8 +1,4 @@
-﻿using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.RPG.Checks;
-using System.Xml.Linq;
+﻿using MudSharp.RPG.Checks;
 
 namespace MudSharp.Effects.Concrete;
 

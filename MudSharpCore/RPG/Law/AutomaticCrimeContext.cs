@@ -1,10 +1,4 @@
-#nullable enable
-using MudSharp.Character;
-using MudSharp.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿#nullable enable
 
 namespace MudSharp.RPG.Law;
 

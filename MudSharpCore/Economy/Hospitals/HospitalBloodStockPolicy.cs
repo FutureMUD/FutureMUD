@@ -1,9 +1,5 @@
-using System;
-using System.Text;
-using MudSharp.Character;
-using MudSharp.Database;
+﻿using MudSharp.Database;
 using MudSharp.Economy.Currency;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Health;
 using DbHospitalBloodStockPolicy = MudSharp.Models.HospitalBloodStockPolicy;

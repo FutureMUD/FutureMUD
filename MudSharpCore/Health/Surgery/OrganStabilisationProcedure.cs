@@ -1,22 +1,8 @@
 ﻿using MudSharp.Body;
 using MudSharp.Body.PartProtos;
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Units;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Health.Surgery;
 

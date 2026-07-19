@@ -1,8 +1,5 @@
 ﻿using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
 
 namespace MudSharp.Body.Traits;
 

@@ -1,8 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using System;
+﻿using MudSharp.Effects.Concrete;
 
 namespace MudSharp.RPG.Knowledge;
 

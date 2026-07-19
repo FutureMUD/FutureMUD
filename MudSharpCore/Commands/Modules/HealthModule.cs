@@ -1,32 +1,21 @@
-using MailKit;
+﻿using MailKit;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
-using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Health;
 using MudSharp.Health.Infections;
 using MudSharp.Health.Surgery;
 using MudSharp.Health.Wounds;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
 using MudSharp.Vehicles;
 using Org.BouncyCastle.Asn1.X509.Qualified;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Commands.Modules;
 

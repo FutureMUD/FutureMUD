@@ -1,15 +1,9 @@
 ﻿using MudSharp.Body.Traits.Decorators;
-using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Commands.Trees;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
-using System;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Body.Traits.Subtypes;
 

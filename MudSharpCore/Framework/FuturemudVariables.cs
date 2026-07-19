@@ -1,4 +1,4 @@
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
@@ -6,7 +6,6 @@ using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Decorators;
 using MudSharp.Body.Traits.Improvement;
 using MudSharp.Celestial;
-using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
@@ -35,12 +34,9 @@ using MudSharp.Form.Audio;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Colour;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Decorators;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.GameItems.Inventory.Size;
@@ -72,9 +68,6 @@ using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 #nullable enable
 #nullable disable warnings

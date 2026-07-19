@@ -1,7 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.Models;
-using System.Collections.Generic;
+﻿using MudSharp.Models;
 
 namespace MudSharp.Body.Traits.Decorators;
 

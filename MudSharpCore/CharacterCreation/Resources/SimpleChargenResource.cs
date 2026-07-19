@@ -1,8 +1,5 @@
 ﻿using ExpressionEngine;
-using MudSharp.Character;
-using MudSharp.Framework;
 using MudSharp.Models;
-using System;
 
 namespace MudSharp.CharacterCreation.Resources;
 

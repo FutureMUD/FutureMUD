@@ -1,9 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Communication.Language;
-using MudSharp.Framework;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
+﻿using MudSharp.Communication.Language;
 
 namespace MudSharp.PerceptionEngine.Parsers;
 

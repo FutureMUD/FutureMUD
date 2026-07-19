@@ -1,14 +1,10 @@
-using MudSharp.Framework;
-using MudSharp.FutureProg.Compiler;
+﻿using MudSharp.FutureProg.Compiler;
 using MudSharp.FutureProg.Functions.BuiltIn;
 using MudSharp.FutureProg.Functions.DateTime;
 using MudSharp.FutureProg.Functions.Logical;
 using MudSharp.FutureProg.Functions.Mathematical;
 using MudSharp.FutureProg.Functions.Textual;
 using MudSharp.FutureProg.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace MudSharp.FutureProg.Functions;

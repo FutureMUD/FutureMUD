@@ -1,12 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Database;
-using MudSharp.Framework;
+﻿using MudSharp.Database;
 using MudSharp.Models;
-using System;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace MudSharp.Form.Characteristics;
 

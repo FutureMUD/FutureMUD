@@ -1,18 +1,10 @@
-﻿using MudSharp.Character;
-using MudSharp.Community;
+﻿using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Economy.Banking;
 

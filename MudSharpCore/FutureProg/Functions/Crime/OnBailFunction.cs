@@ -1,13 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
+﻿using MudSharp.Effects.Concrete;
 using MudSharp.FutureProg.Variables;
 using MudSharp.RPG.Law;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.FutureProg.Functions.Crime;
 

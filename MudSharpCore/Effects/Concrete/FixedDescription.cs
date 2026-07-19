@@ -1,9 +1,4 @@
-﻿using MudSharp.Effects.Interfaces;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.GameItems;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MudSharp.GameItems;
 
 namespace MudSharp.Effects.Concrete;
 

@@ -1,9 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.FutureProg.Variables;
+﻿using MudSharp.FutureProg.Variables;
 using MudSharp.RPG.Knowledge;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Characters;
 

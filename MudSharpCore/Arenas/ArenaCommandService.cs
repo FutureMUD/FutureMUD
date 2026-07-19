@@ -1,13 +1,7 @@
-#nullable enable
+﻿#nullable enable
 using MudSharp.Arenas;
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Economy.Currency;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Arenas;
 

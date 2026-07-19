@@ -2,22 +2,12 @@
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Movement;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Merits.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Body.Implementations;
 

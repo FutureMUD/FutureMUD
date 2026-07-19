@@ -1,8 +1,6 @@
-#nullable enable
+﻿#nullable enable
 
 using ExpressionEngine;
-using MudSharp.Framework;
-using System;
 
 namespace MudSharp.GameItems;
 

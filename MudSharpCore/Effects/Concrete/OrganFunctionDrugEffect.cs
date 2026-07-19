@@ -1,9 +1,5 @@
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Body.PartProtos;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

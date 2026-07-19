@@ -1,18 +1,10 @@
-﻿using MudSharp.Character;
-using MudSharp.Character.Name;
+﻿using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Screens;
 using MudSharp.Commands.Trees;
 using MudSharp.Database;
 using MudSharp.Form.Characteristics;
-using MudSharp.Framework;
 using MudSharp.GameItems.Inventory.Plans;
-using MudSharp.PerceptionEngine.Outputs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Menus;
 #nullable enable

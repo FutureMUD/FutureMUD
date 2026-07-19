@@ -1,10 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Database;
-using MudSharp.Framework;
+﻿using MudSharp.Database;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.Models;
-using System.Text;
 
 namespace MudSharp.Form.Characteristics;
 

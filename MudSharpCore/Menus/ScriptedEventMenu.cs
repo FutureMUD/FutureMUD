@@ -1,15 +1,7 @@
 ﻿using JetBrains.Annotations;
 using MoreLinq;
-using MudSharp.Character;
 using MudSharp.Editor;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
 using MudSharp.RPG.ScriptedEvents;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Menus;
 #nullable enable

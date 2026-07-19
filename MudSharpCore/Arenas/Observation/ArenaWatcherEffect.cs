@@ -1,18 +1,10 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.Health;
 using MudSharp.Movement;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Arenas;
 

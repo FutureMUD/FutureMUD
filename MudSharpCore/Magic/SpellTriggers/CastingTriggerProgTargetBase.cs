@@ -1,9 +1,4 @@
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using System.Collections.Generic;
-using System.Xml.Linq;
-
+﻿
 #nullable enable
 
 namespace MudSharp.Magic.SpellTriggers;

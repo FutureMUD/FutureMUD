@@ -1,16 +1,9 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.Movement;
 using MudSharp.Planes;
-using System;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 

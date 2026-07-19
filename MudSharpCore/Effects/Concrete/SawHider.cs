@@ -1,7 +1,4 @@
-﻿using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using System;
-
+﻿
 namespace MudSharp.Effects.Concrete;
 
 public class SawHider : Effect, ISawHiderEffect

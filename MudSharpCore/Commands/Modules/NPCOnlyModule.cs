@@ -1,17 +1,9 @@
 ﻿using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Law;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Commands.Modules;
 

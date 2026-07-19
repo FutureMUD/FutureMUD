@@ -1,5 +1,4 @@
-using JetBrains.Annotations;
-using MudSharp.Character;
+﻿using JetBrains.Annotations;
 using MudSharp.Character.Name;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -8,31 +7,19 @@ using MudSharp.Economy.Employment;
 using MudSharp.Economy.Payment;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Lists;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Law;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Economy.Shops;
 

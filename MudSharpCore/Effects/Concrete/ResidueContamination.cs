@@ -1,13 +1,6 @@
-﻿using MudSharp.Effects.Interfaces;
-using MudSharp.Form.Material;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
+﻿using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Decorators;
-using MudSharp.GameItems.Interfaces;
-using System;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

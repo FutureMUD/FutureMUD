@@ -1,18 +1,10 @@
 ﻿using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Units;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace MudSharp.Health.Corpses;
 

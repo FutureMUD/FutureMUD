@@ -1,17 +1,11 @@
-#nullable enable
+﻿#nullable enable
 
 using ExpressionEngine;
-using MudSharp.Character;
 using MudSharp.Effects.Concrete.SpellEffects;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
-using System;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 

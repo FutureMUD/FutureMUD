@@ -1,14 +1,9 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Accounts;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
-using MudSharp.Framework;
 using MudSharp.GameItems.Components;
-using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
-using System;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 

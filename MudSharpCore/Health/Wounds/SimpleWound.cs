@@ -1,18 +1,9 @@
 ﻿using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
-using System;
-using System.Xml.Linq;
 
 namespace MudSharp.Health.Wounds;
 

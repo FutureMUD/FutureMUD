@@ -1,17 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.GameItems;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿using MudSharp.GameItems;
 
 namespace MudSharp.Effects.Concrete;
 

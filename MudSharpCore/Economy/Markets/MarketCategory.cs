@@ -1,19 +1,10 @@
-using MudSharp.Character;
-using MudSharp.Database;
-using MudSharp.Framework;
+﻿using MudSharp.Database;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Functions.DateTime;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 #nullable enable
 #nullable disable warnings

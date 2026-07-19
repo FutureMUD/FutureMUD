@@ -1,14 +1,7 @@
-#nullable enable
-using MudSharp.Character;
+﻿#nullable enable
 using MudSharp.Character.Heritage;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.RPG.Merits.Interfaces;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;
 

@@ -1,17 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Database;
+﻿using MudSharp.Database;
 using MudSharp.Events;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.NPC.AI;
 

@@ -1,12 +1,7 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Arenas;
-using MudSharp.Character;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Arenas;
 

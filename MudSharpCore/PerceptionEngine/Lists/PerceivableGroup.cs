@@ -3,17 +3,8 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
 using MudSharp.Events;
 using MudSharp.Events.Hooks;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Functions.Location;
 using MudSharp.GameItems;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.PerceptionEngine.Lists;
 

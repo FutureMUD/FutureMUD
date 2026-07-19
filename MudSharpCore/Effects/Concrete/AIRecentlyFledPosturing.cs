@@ -1,6 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-
+﻿
 namespace MudSharp.Effects.Concrete;
 
 public class AIRecentlyFledPosturing : Effect, IEffectSubtype

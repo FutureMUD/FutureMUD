@@ -1,17 +1,10 @@
-#nullable enable
-using MudSharp.Character;
+﻿#nullable enable
 using MudSharp.Combat;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.Health;
 using MudSharp.Health.Infections;
 using MudSharp.Magic;
 using MudSharp.RPG.Checks;
-using System;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 

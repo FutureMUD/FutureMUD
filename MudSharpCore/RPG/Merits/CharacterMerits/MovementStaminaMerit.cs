@@ -1,13 +1,8 @@
 ﻿using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Commands.Trees;
-using MudSharp.Framework;
 using MudSharp.Models;
 using MudSharp.Movement;
 using MudSharp.RPG.Merits.Interfaces;
-using System;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;
 

@@ -1,13 +1,9 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Celestial;
 using MudSharp.Construction;
-using MudSharp.Framework;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Celestials;
 

@@ -1,6 +1,4 @@
 ﻿using MudSharp.Combat;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 
 namespace MudSharp.Effects.Concrete;
 

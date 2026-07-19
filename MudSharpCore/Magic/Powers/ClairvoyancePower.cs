@@ -1,13 +1,8 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Body.Traits;
-using MudSharp.Character;
-using MudSharp.Framework;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.Powers;
 

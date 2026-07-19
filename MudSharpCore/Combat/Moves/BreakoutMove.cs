@@ -1,20 +1,9 @@
 ﻿using MudSharp.Body;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Combat.Moves;
 

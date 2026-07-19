@@ -1,4 +1,4 @@
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
@@ -9,22 +9,12 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Communication.Language;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Characteristics;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.NPC.Templates;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.TimeAndDate.Date;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 #nullable enable
 #nullable disable warnings

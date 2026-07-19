@@ -1,8 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace MudSharp.Body.Traits.Decorators;
 
 public class PercentageDecorator : FrameworkItem, ITraitValueDecorator

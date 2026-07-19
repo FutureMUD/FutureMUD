@@ -1,21 +1,13 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Body.CommunicationStrategies;
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Events;
 using MudSharp.Form.Audio;
-using MudSharp.Framework;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Communication;
 

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace MudSharp.Body.Traits.Subtypes;
 
 public class DerivedAttribute : DerivedTrait, IAttribute

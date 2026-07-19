@@ -1,22 +1,9 @@
 ﻿using MudSharp.Body;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Construction;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.Work.Butchering;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Effects.Concrete;
 

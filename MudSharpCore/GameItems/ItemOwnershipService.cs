@@ -1,12 +1,9 @@
-#nullable enable
+﻿#nullable enable
 
-using System.Collections.Generic;
-using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.Economy.Employment;
 using MudSharp.Economy.Estates;
 using MudSharp.Economy.Property;
-using MudSharp.Framework;
 
 namespace MudSharp.GameItems;
 

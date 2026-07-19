@@ -1,15 +1,5 @@
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Form.Characteristics;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
+﻿using MudSharp.Form.Characteristics;
 using MudSharp.Magic.SpellEffects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 #nullable enable
 namespace MudSharp.Effects.Concrete.SpellEffects;

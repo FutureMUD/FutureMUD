@@ -1,17 +1,8 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.Magic;
+﻿using MudSharp.Magic;
 using MudSharp.Magic.Powers;
 using MudSharp.Models;
 using MudSharp.Planes;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

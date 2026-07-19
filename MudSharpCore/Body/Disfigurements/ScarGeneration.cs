@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Body;
-using MudSharp.Character;
-using MudSharp.Framework;
+﻿using MudSharp.Body;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;

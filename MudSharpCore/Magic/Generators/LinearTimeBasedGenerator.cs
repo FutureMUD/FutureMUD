@@ -1,15 +1,7 @@
-﻿using MudSharp.Character;
-using MudSharp.Database;
+﻿using MudSharp.Database;
 using MudSharp.Economy;
-using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.Generators;
 

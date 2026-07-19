@@ -1,13 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.Framework.Units;
+﻿using MudSharp.Framework.Units;
 using MudSharp.GameItems;
 using MudSharp.Health;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Form.Material;
 

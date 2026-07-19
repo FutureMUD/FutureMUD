@@ -1,5 +1,4 @@
-using MudSharp.Character;
-using MudSharp.Character.Name;
+﻿using MudSharp.Character.Name;
 using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction;
@@ -9,18 +8,8 @@ using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Economy.Stables;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 #nullable enable
 

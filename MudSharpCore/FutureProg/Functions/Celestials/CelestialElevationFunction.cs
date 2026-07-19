@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Celestial;
+﻿using MudSharp.Celestial;
 using MudSharp.Construction;
 using MudSharp.FutureProg.Variables;
 

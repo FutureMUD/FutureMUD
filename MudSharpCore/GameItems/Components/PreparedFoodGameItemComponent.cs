@@ -1,19 +1,10 @@
-using MudSharp.Body;
-using MudSharp.Effects.Interfaces;
+﻿using MudSharp.Body;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.GameItems.Decorators;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 #nullable enable
 

@@ -1,16 +1,8 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
+﻿using MudSharp.Effects.Concrete;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.RPG.Law.PatrolStrategies;
 using MudSharp.Server;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.RPG.Law;
 

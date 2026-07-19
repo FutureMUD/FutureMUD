@@ -1,10 +1,6 @@
-using MudSharp.Body;
-using MudSharp.Character;
+﻿using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.Health.Corpses;
 

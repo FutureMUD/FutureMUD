@@ -1,12 +1,8 @@
-using MudSharp.Character;
-using MudSharp.Construction;
+﻿using MudSharp.Construction;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Work.Agriculture;
 using MudSharp.Work.Projects.ConcreteTypes;
-using System;
-using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Functions.Agriculture;
 

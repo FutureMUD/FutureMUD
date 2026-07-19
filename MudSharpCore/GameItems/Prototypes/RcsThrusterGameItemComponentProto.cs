@@ -1,15 +1,7 @@
-using MudSharp.Accounts;
-using MudSharp.Character;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
+﻿using MudSharp.Accounts;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems.Components;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 

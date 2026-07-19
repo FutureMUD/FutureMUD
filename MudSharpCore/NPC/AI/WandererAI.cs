@@ -3,23 +3,14 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
-using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.Movement;
 using MudSharp.NPC.Templates;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.NPC.AI;
 

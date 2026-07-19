@@ -1,17 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Screens;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace MudSharp.Menus;
 

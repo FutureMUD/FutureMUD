@@ -1,13 +1,8 @@
-#nullable enable
+﻿#nullable enable
 
-using System;
-using System.Xml.Linq;
 using MudSharp.Accounts;
-using MudSharp.Character;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
-using MudSharp.PerceptionEngine;
 
 namespace MudSharp.GameItems.Prototypes;
 

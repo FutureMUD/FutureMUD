@@ -1,21 +1,8 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.FutureProg.Statements;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
+﻿using MudSharp.FutureProg.Statements;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
 using MudSharp.TimeAndDate;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

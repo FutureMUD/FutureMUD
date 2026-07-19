@@ -1,10 +1,6 @@
-using MudSharp.Body;
-using MudSharp.Character;
-using MudSharp.GameItems.Interfaces;
+﻿using MudSharp.Body;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 

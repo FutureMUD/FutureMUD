@@ -1,16 +1,9 @@
 ﻿using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
-using MudSharp.Character;
 using MudSharp.Character.Name;
-using MudSharp.Framework;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Logging;
 

@@ -1,17 +1,10 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Construction;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Movement;
-using MudSharp.PerceptionEngine;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Magic;
 

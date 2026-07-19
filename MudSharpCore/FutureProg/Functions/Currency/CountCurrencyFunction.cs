@@ -1,12 +1,7 @@
-using MudSharp.Character;
-using MudSharp.Construction;
+﻿using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Currency;
 

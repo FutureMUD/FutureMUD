@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace MudSharp.Framework.Scheduling;
 
 public class RepeatingSchedule : Schedule

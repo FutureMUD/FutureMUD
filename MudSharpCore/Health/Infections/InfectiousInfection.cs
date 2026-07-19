@@ -1,13 +1,8 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.Construction;
-using MudSharp.Framework;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Health.Infections;
 

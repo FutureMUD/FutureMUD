@@ -4,13 +4,8 @@ using MudSharp.Character.Name;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.Combat;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Magic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Character;
 

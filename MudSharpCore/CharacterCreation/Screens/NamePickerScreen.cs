@@ -1,13 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Character.Name;
-using MudSharp.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MudSharp.Character.Name;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace MudSharp.CharacterCreation.Screens;
 

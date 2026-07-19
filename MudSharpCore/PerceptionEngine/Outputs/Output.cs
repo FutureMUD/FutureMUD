@@ -1,7 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using System;
-
+﻿
 namespace MudSharp.PerceptionEngine.Outputs;
 
 public abstract class Output : IOutput

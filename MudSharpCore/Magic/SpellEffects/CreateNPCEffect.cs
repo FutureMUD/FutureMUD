@@ -1,21 +1,10 @@
 ﻿using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Construction;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.NPC.Templates;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 

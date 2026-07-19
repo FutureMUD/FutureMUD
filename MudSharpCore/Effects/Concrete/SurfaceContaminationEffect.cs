@@ -1,9 +1,5 @@
-using System;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Form.Material;
-using MudSharp.Framework;
+﻿using MudSharp.Form.Material;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 
 #nullable enable
 

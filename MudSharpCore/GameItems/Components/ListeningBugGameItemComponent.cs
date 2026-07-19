@@ -1,16 +1,9 @@
-﻿using MudSharp.Character;
-using MudSharp.Communication.Language;
+﻿using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.Form.Audio;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 

@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
-using MudSharp.Database;
-using MudSharp.Framework;
+﻿using MudSharp.Database;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.Work.Projects;
 
 namespace MudSharp.Work.Agriculture;

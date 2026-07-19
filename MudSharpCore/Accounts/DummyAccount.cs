@@ -1,12 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.CharacterCreation.Resources;
-using MudSharp.Framework;
+﻿using MudSharp.CharacterCreation.Resources;
 using MudSharp.Health;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 
 namespace MudSharp.Accounts;
 

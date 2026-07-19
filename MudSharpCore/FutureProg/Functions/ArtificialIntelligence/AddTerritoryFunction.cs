@@ -1,12 +1,6 @@
-using MudSharp.Character;
-using MudSharp.Construction;
+﻿using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.FutureProg.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.FutureProg.Functions.ArtificialIntelligence;
 

@@ -1,13 +1,8 @@
 ﻿using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Combat.Moves;
 using MudSharp.Construction.Boundary;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Movement;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Combat.Strategies;
 

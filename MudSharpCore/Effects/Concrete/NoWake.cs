@@ -1,12 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
-using MudSharp.RPG.Merits.Interfaces;
-using System;
-using System.Linq;
-using System.Xml.Linq;
+﻿using MudSharp.RPG.Merits.Interfaces;
 
 namespace MudSharp.Effects.Concrete;
 

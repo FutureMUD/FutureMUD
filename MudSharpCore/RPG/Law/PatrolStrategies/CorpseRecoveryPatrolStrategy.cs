@@ -1,16 +1,8 @@
-using MudSharp.Construction.Boundary;
+﻿using MudSharp.Construction.Boundary;
 using MudSharp.Economy.Estates;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Movement;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.RPG.Law.PatrolStrategies;
 

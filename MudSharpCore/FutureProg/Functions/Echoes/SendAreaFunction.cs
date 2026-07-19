@@ -1,11 +1,5 @@
-using MudSharp.Construction;
-using MudSharp.Framework;
+﻿using MudSharp.Construction;
 using MudSharp.FutureProg.Variables;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Echoes;
 

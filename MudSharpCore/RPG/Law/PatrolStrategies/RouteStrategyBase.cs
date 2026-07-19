@@ -1,22 +1,14 @@
-﻿using MudSharp.Character;
-using MudSharp.Character.Name;
+﻿using MudSharp.Character.Name;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Movement;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.RPG.Law.PatrolStrategies;
 

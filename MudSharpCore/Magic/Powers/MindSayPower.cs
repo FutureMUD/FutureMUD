@@ -1,22 +1,10 @@
 ﻿using Mscc.GenerativeAI;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.Powers;
 

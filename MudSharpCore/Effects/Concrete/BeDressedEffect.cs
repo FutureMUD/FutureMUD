@@ -1,7 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-
+﻿
 namespace MudSharp.Effects.Concrete;
 
 public class BeDressedEffect : Effect, IEffectSubtype

@@ -1,13 +1,7 @@
-#nullable enable
-using MudSharp.Character;
+﻿#nullable enable
 using MudSharp.Construction;
 using MudSharp.Effects;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

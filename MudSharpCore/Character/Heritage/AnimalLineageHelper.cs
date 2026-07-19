@@ -1,10 +1,6 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Body;
-using MudSharp.Character;
-using MudSharp.Framework;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Character.Heritage;
 

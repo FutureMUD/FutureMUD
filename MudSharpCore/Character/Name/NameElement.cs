@@ -1,5 +1,4 @@
-﻿using MudSharp.Framework;
-
+﻿
 namespace MudSharp.Character.Name;
 
 public class NameElement : FrameworkItem

@@ -1,21 +1,14 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Body.Disfigurements;
 using MudSharp.Body.PartProtos;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
-using MudSharp.Character;
 using MudSharp.Health;
 using MudSharp.Health.Breathing;
 using MudSharp.Health.Wounds;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Body.Implementations;
 

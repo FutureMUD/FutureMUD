@@ -1,10 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
+﻿
 namespace MudSharp.Effects.Concrete;
 
 public class AIPosturingEffect : Effect, IEffectSubtype, IRemoveOnCombatStart, IRemoveOnMeleeCombat,

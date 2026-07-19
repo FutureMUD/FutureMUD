@@ -1,12 +1,7 @@
-using MudSharp.Character;
-using MudSharp.Commands.Modules;
+﻿using MudSharp.Commands.Modules;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.RPG.AIStorytellers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Commands.Helpers;
 

@@ -1,10 +1,6 @@
 ﻿using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Combat;
 

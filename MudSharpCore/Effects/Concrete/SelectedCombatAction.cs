@@ -1,19 +1,10 @@
 ﻿using MudSharp.Body;
 using MudSharp.Body.Position;
-using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Parsers;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

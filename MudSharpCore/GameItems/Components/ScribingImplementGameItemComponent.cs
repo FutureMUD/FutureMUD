@@ -1,11 +1,6 @@
-using MudSharp.Form.Characteristics;
+﻿using MudSharp.Form.Characteristics;
 using MudSharp.Form.Colour;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
-using System;
-using System.Xml.Linq;
 
 #nullable enable
 

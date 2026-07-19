@@ -1,15 +1,7 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Concrete;
+﻿using MudSharp.Effects.Concrete;
 using MudSharp.Events;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.NPC.AI;
 

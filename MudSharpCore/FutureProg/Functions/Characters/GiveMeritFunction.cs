@@ -1,11 +1,7 @@
-﻿using MudSharp.Character;
-using MudSharp.Communication.Language;
-using MudSharp.Framework;
+﻿using MudSharp.Communication.Language;
 using MudSharp.FutureProg.Variables;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Characters;
 

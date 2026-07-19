@@ -1,6 +1,5 @@
 ﻿using Castle.Components.DictionaryAdapter;
 using MoreLinq.Extensions;
-using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -10,7 +9,6 @@ using MudSharp.Economy.Payment;
 using MudSharp.Economy.Property;
 using MudSharp.Economy.Tax;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Statements;
@@ -21,13 +19,8 @@ using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Intervals;
 using MudSharp.TimeAndDate.Time;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Object = System.Object;
 
 namespace MudSharp.Economy;

@@ -1,8 +1,5 @@
-#nullable enable
+﻿#nullable enable
 
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Functions;
 
 namespace MudSharp.Computers;

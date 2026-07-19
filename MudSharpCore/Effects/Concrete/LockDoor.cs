@@ -1,10 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.GameItems.Inventory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MudSharp.GameItems.Inventory;
 
 namespace MudSharp.Effects.Concrete;
 

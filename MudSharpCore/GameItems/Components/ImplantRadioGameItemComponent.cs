@@ -1,18 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Communication.Language;
+﻿using MudSharp.Communication.Language;
 using MudSharp.Construction;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 

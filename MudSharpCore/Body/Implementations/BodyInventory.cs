@@ -1,29 +1,17 @@
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Combat;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Size;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Law;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 #nullable enable annotations
 

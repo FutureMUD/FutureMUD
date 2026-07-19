@@ -1,10 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
-
+﻿
 namespace MudSharp.Construction.Autobuilder.Areas.Features;
 
 public class AdjacentFeature : Feature

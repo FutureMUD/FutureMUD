@@ -1,11 +1,9 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MoreLinq.Extensions;
-using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Models;
 using MudSharp.TimeAndDate;
@@ -16,12 +14,6 @@ using MudSharp.TimeAndDate.Time;
 using MudSharp.Work.Projects;
 using MudSharp.Work.Projects.ConcreteTypes;
 using NCalc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Economy.Employment;
 #nullable enable

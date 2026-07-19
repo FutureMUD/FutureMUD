@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using MudSharp.Character;
+﻿using System.Globalization;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 
 #nullable enable
 

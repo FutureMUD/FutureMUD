@@ -1,9 +1,4 @@
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.GameItems;
-using MudSharp.PerceptionEngine;
-using System.Xml.Linq;
+﻿using MudSharp.GameItems;
 
 namespace MudSharp.Effects.Concrete;
 

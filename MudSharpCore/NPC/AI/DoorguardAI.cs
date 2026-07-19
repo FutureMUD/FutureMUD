@@ -1,18 +1,10 @@
 ﻿using MoreLinq.Extensions;
-using MudSharp.Character;
 using MudSharp.Commands.Socials;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Statements.Manipulation;
 using MudSharp.Models;
-using System;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.NPC.AI;
 

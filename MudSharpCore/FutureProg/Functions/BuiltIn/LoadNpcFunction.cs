@@ -1,9 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Construction;
-using MudSharp.Framework;
+﻿using MudSharp.Construction;
 using MudSharp.Framework.Revision;
 using MudSharp.NPC.Templates;
-using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Functions.BuiltIn;
 

@@ -1,15 +1,8 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Construction;
-using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate.Date;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.Form.Audio.HearingProfiles;
 

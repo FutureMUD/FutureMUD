@@ -1,19 +1,11 @@
-using MudSharp.Character;
-using MudSharp.Construction;
+﻿using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Economy.Shops;
 

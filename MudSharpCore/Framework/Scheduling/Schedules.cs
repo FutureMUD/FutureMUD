@@ -1,6 +1,4 @@
-﻿using MudSharp.Character;
-using System;
-
+﻿
 namespace MudSharp.Framework.Scheduling;
 
 public abstract class ScheduleBase : IComparable<ScheduleBase>, ISchedule

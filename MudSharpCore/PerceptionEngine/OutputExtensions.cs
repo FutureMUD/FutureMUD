@@ -1,12 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Construction;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
+﻿using MudSharp.Construction;
 using MudSharp.GameItems;
-using MudSharp.PerceptionEngine.Outputs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.PerceptionEngine;
 

@@ -1,10 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Construction;
+﻿using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
-using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Characters;
 

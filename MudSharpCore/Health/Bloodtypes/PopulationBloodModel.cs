@@ -1,15 +1,8 @@
-using MudSharp.Character;
-using MudSharp.CharacterCreation;
+﻿using MudSharp.CharacterCreation;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Merits.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Health.Bloodtypes;
 

@@ -1,29 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
 using MudSharp.Body.Position;
-using MudSharp.Character;
 using MudSharp.Communication;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Statements.Manipulation;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 using MudSharp.Movement;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Law;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.NPC.AI;
 

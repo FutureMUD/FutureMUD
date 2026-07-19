@@ -1,21 +1,10 @@
 ﻿using MudSharp.Construction;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

@@ -1,7 +1,5 @@
-using MudSharp.Accounts;
-using MudSharp.Character;
+﻿using MudSharp.Accounts;
 using MudSharp.Commands.Helpers;
-using MudSharp.Framework;
 
 namespace MudSharp.Commands.Modules;
 

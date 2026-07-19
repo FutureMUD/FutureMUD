@@ -2,26 +2,18 @@
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using MudSharp.Accounts;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Commands.Modules;
 using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Editor;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Merits;
 using Org.BouncyCastle.Cms;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.CharacterCreation.Roles;
 

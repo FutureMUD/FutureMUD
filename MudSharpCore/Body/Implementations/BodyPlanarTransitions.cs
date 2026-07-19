@@ -1,8 +1,4 @@
-using System.Linq;
-using MudSharp.GameItems;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
+﻿using MudSharp.GameItems;
 
 namespace MudSharp.Body.Implementations;
 

@@ -1,14 +1,10 @@
 ﻿using MudSharp.Body.Disfigurements;
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.GameItems;
 using MudSharp.NPC.Templates;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Framework.Revision;
 

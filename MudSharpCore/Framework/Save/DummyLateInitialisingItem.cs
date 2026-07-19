@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace MudSharp.Framework.Save;
 
 public class DummyLateInitialisingItem : LateInitialisingItem

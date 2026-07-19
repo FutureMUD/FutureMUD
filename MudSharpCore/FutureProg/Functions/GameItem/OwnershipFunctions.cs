@@ -1,16 +1,11 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.Commands.Helpers;
 using MudSharp.Economy;
 using MudSharp.Economy.Banking;
-using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.GameItem;
 

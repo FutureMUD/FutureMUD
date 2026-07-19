@@ -1,14 +1,5 @@
 ﻿using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.Database;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Inventory;
 

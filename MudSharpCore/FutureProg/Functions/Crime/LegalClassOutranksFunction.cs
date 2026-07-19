@@ -1,8 +1,5 @@
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.FutureProg.Variables;
+﻿using MudSharp.FutureProg.Variables;
 using MudSharp.RPG.Law;
-using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Functions.Crime;
 

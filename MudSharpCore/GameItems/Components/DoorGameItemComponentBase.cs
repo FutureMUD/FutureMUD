@@ -1,26 +1,13 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Body;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Form.Characteristics;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 

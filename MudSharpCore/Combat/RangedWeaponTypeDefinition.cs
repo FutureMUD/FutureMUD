@@ -1,16 +1,10 @@
 ﻿using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Commands.Trees;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.RPG.Checks;
 using Parlot.Fluent;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Combat;
 

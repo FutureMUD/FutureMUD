@@ -1,21 +1,13 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Work.Projects.ConcreteTypes;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 using ProjectAction = MudSharp.Models.ProjectAction;
 
 namespace MudSharp.Work.Projects.Actions;

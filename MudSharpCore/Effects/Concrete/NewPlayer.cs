@@ -1,9 +1,5 @@
 ﻿using MudSharp.Database;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.Models;
-using System;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

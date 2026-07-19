@@ -1,6 +1,5 @@
-using MoreLinq.Extensions;
+﻿using MoreLinq.Extensions;
 using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.Commands.Socials;
@@ -10,8 +9,6 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Effects;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Compiler;
 using MudSharp.FutureProg.Functions;
@@ -20,16 +17,11 @@ using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.TimeAndDate;
 using Org.BouncyCastle.Asn1.X509.Qualified;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace MudSharp.FutureProg;
 

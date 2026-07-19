@@ -1,18 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Construction;
-using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 
 #nullable enable
 

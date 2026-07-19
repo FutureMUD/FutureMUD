@@ -1,18 +1,12 @@
 ﻿using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
-using MudSharp.Character;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.Logging;
 using MudSharp.Models;
 using MudSharp.RPG.Merits.Interfaces;
-using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 
 namespace MudSharp.RPG.Checks;

@@ -2,34 +2,23 @@
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Health;
 using MudSharp.Health.Breathing;
 using MudSharp.Health.Wounds;
 using MudSharp.Logging;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.Planes;
 using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Work.Projects.Impacts;
 using ExpressionEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Body.Implementations;
 

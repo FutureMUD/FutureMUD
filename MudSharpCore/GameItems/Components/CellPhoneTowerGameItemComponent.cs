@@ -1,16 +1,7 @@
-#nullable enable
-using MudSharp.Character;
+﻿#nullable enable
 using MudSharp.Construction;
 using MudSharp.Construction.Grids;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
-using MudSharp.PerceptionEngine;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 

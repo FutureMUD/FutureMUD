@@ -1,5 +1,4 @@
-using MudSharp.Body.Traits;
-using MudSharp.Character;
+﻿using MudSharp.Body.Traits;
 using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.Communication.Language;
@@ -9,10 +8,6 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.RPG.Knowledge;
@@ -20,13 +15,9 @@ using MudSharp.RPG.Merits;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Linq;
 using System.Text.Json;
-using System.Xml.Linq;
 
 #nullable enable
 

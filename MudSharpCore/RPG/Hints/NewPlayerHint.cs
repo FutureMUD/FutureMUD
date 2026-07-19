@@ -1,16 +1,7 @@
 ﻿using JetBrains.Annotations;
-using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Editor;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.RPG.Hints
 {

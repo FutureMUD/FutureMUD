@@ -1,15 +1,11 @@
-#nullable enable
+﻿#nullable enable
 using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Work.Foraging;
-using System.Linq;
 
 namespace MudSharp.NPC.AI;
 

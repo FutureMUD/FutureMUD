@@ -1,24 +1,11 @@
-using MudSharp.Character;
-using MudSharp.Construction;
+﻿using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Events;
 using MudSharp.Form.Characteristics;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
-using MudSharp.FutureProg;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 #nullable enable annotations
 

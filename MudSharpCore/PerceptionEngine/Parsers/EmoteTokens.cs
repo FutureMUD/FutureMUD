@@ -1,13 +1,7 @@
-﻿using MudSharp.Character;
-using MudSharp.Communication.Language;
+﻿using MudSharp.Communication.Language;
 using MudSharp.Form.Audio;
-using MudSharp.Framework;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace MudSharp.PerceptionEngine.Parsers;
 

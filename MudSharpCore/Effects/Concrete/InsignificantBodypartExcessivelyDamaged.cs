@@ -1,11 +1,5 @@
 ﻿using MudSharp.Body;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
 using System.Globalization;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

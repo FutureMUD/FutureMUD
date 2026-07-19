@@ -1,18 +1,8 @@
-#nullable enable
-using MudSharp.Character;
+﻿#nullable enable
 using MudSharp.Character.Name;
 using MudSharp.Communication.Language;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Audio;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

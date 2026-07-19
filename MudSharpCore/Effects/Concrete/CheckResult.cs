@@ -1,8 +1,5 @@
 ﻿using MudSharp.Body.Traits;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.RPG.Checks;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

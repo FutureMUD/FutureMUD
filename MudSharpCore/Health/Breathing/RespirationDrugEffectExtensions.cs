@@ -1,6 +1,4 @@
-using MudSharp.Body;
-using MudSharp.Effects.Interfaces;
-using System.Linq;
+﻿using MudSharp.Body;
 
 namespace MudSharp.Health.Breathing;
 

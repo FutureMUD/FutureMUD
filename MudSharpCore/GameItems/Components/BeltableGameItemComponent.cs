@@ -1,7 +1,4 @@
 ﻿using MudSharp.Construction;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;

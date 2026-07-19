@@ -1,7 +1,4 @@
-using System.Xml.Linq;
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.Framework.Scheduling;
+﻿using MudSharp.Framework.Scheduling;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.AuxiliaryEffects;

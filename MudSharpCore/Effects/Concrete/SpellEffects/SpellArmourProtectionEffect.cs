@@ -1,18 +1,9 @@
-#nullable enable
+﻿#nullable enable
 using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.Combat;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Magic;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 

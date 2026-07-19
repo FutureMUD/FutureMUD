@@ -1,10 +1,7 @@
 ﻿using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
-using System;
-using System.Collections.Generic;
 
 namespace MudSharp.Community;
 

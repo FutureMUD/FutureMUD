@@ -1,10 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.RPG.Checks;
-using System;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
+﻿using MudSharp.RPG.Checks;
 
 namespace MudSharp.Work.Projects.LabourRequirements;
 

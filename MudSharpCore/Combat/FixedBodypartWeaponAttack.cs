@@ -1,11 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.FutureProg.Functions.GameItem;
+﻿using MudSharp.FutureProg.Functions.GameItem;
 using MudSharp.GameItems;
-using System;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Combat;
 

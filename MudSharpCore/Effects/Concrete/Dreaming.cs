@@ -1,14 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Character.Name;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
+﻿using MudSharp.Character.Name;
 using MudSharp.Framework.Scheduling;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Dreams;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace MudSharp.Effects.Concrete;

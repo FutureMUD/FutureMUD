@@ -1,9 +1,4 @@
-using System;
-using System.Text;
-using System.Xml.Linq;
-using MudSharp.Character;
-using MudSharp.Combat.Moves;
-using MudSharp.Framework;
+﻿using MudSharp.Combat.Moves;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.AuxiliaryEffects;

@@ -2,30 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Commands.Trees;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
-using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Lists;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 #nullable enable
 #nullable disable warnings

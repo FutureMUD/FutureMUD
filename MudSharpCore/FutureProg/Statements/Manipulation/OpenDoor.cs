@@ -1,12 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Construction.Boundary;
-using MudSharp.Framework;
+﻿using MudSharp.Construction.Boundary;
 using MudSharp.FutureProg.Compiler;
 using MudSharp.FutureProg.Functions;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace MudSharp.FutureProg.Statements.Manipulation;

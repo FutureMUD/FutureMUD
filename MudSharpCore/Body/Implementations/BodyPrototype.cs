@@ -1,22 +1,14 @@
 ﻿using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Database;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.GameItems.Inventory.Size;
 using MudSharp.Models;
 using MudSharp.Movement;
 using MudSharp.Planes;
 using MudSharp.Strategies.BodyStratagies;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BodypartGroupDescriber = MudSharp.Body.Grouping.BodypartGroupDescriber;
 using MoveSpeed = MudSharp.Movement.MoveSpeed;
 

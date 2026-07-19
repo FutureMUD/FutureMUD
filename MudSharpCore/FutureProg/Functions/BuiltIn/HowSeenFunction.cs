@@ -1,8 +1,4 @@
-﻿using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.FutureProg.Variables;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions.BuiltIn;
 

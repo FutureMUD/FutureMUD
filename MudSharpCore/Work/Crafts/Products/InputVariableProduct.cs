@@ -1,23 +1,14 @@
-﻿using MudSharp.Character;
-using MudSharp.Commands.Trees;
+﻿using MudSharp.Commands.Trees;
 using MudSharp.Events;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
 using MudSharp.NPC;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Work.Crafts.Products;
 

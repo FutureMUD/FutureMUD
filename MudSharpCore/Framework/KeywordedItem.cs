@@ -1,10 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using MudSharp.Character.Name;
 using MudSharp.Community;
-using MudSharp.Form.Shape;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Framework;
 

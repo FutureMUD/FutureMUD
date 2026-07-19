@@ -1,21 +1,11 @@
 ﻿using ExpressionEngine;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Construction;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 

@@ -1,17 +1,8 @@
-﻿using MudSharp.Character;
-using MudSharp.Character.Heritage;
+﻿using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.CharacterCreation;
 

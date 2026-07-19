@@ -1,5 +1,4 @@
-﻿using MudSharp.Framework;
-
+﻿
 namespace MudSharp.GameItems.Decorators;
 
 public class SuffixStackDecorator : StackDecorator

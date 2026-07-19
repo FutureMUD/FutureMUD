@@ -1,18 +1,8 @@
 ﻿using MudSharp.Body.Traits;
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 using NCalc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 

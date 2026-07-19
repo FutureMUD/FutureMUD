@@ -1,8 +1,4 @@
-using MudSharp.Character;
-using MudSharp.Construction.Boundary;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using System.Xml.Linq;
+﻿using MudSharp.Construction.Boundary;
 
 namespace MudSharp.Effects.Concrete;
 

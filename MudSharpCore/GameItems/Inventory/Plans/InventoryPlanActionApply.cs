@@ -1,10 +1,4 @@
-using MudSharp.Body;
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
-using System;
-using System.Linq;
-using System.Xml.Linq;
+﻿using MudSharp.Body;
 
 namespace MudSharp.GameItems.Inventory.Plans;
 

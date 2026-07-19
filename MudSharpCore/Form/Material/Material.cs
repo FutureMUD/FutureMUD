@@ -1,12 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
+﻿using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Variables;
 using Parlot.Fluent;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Form.Material;
 

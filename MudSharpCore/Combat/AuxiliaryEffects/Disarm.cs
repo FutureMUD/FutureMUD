@@ -1,12 +1,5 @@
-using System;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using MudSharp.Character;
-using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
+﻿using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.AuxiliaryEffects;

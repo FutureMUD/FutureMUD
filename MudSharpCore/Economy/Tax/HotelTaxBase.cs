@@ -1,12 +1,7 @@
-using MudSharp.Character;
-using MudSharp.Database;
+﻿using MudSharp.Database;
 using MudSharp.Economy.Property;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.Models;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Economy.Tax;
 

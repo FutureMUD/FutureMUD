@@ -1,13 +1,6 @@
-#nullable enable
+﻿#nullable enable
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 using MudSharp.Body.Disfigurements;
-using MudSharp.Character;
-using MudSharp.Framework;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Merits.Interfaces;

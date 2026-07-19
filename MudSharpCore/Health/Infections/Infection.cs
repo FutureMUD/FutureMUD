@@ -2,14 +2,9 @@
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Database;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.RPG.Checks;
-using System;
-using System.Linq;
 
 namespace MudSharp.Health.Infections;
 

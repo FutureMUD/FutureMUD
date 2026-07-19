@@ -1,26 +1,13 @@
-#nullable enable annotations
+﻿#nullable enable annotations
 
-using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.NPC.AI;
 

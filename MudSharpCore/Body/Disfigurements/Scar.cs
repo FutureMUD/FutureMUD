@@ -1,12 +1,7 @@
-using MudSharp.Character;
-using MudSharp.Character.Heritage;
-using MudSharp.Framework;
+﻿using MudSharp.Character.Heritage;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.TimeAndDate;
-using System;
-using System.Collections.Generic;
-using System.Xml.Linq;
 
 namespace MudSharp.Body.Disfigurements;
 

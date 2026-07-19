@@ -1,14 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Construction;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
+﻿using MudSharp.Construction;
 using MudSharp.PerceptionEngine.Lists;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellTriggers;
 

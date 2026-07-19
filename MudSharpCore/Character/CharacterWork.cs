@@ -1,10 +1,7 @@
-using MudSharp.Database;
+﻿using MudSharp.Database;
 using MudSharp.Economy;
-using MudSharp.Framework;
 using MudSharp.Work.Projects;
 using MudSharp.Work.Projects.ConcreteTypes;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Character;
 

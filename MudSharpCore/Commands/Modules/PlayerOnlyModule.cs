@@ -1,24 +1,12 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.Commands.Socials;
 using MudSharp.Community.Boards;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.TimeAndDate;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.Commands.Modules;
 

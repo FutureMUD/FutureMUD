@@ -1,5 +1,4 @@
-﻿using MudSharp.Framework;
-
+﻿
 namespace MudSharp.GameItems.Inventory.Size;
 
 internal class ParameterStandardSize : FrameworkItem, IStandardSize

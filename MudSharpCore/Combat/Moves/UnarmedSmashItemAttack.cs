@@ -1,19 +1,10 @@
 ﻿using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.Construction.Boundary;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Combat.Moves;
 

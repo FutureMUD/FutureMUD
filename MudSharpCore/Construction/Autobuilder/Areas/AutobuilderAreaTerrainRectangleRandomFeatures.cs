@@ -1,19 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MudSharp.Character;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction.Autobuilder.Areas.Features;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.GameItems.Prototypes;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Construction.Autobuilder.Areas;
 

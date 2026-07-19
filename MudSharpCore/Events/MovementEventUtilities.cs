@@ -1,8 +1,5 @@
-#nullable enable
+﻿#nullable enable
 
-using System.Linq;
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
 
 namespace MudSharp.Events;
 

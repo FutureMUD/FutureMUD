@@ -1,24 +1,14 @@
 ﻿using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
-using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Editor;
 using MudSharp.Effects.Concrete;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
-using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.CharacterCreation.Screens;
 

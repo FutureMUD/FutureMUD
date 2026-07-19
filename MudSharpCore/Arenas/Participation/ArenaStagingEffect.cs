@@ -1,13 +1,6 @@
-#nullable enable
-using MudSharp.Character;
+﻿#nullable enable
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Arenas;
 

@@ -1,15 +1,8 @@
 ﻿using MudSharp.Body.Traits.Improvement;
-using MudSharp.Character;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Database;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Body.Traits.Subtypes;
 

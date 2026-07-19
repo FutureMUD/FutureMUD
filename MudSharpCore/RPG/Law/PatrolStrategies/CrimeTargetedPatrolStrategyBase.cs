@@ -1,15 +1,9 @@
-using MudSharp.Character;
-using MudSharp.Construction;
+﻿using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.Movement;
 using MudSharp.TimeAndDate;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.RPG.Law.PatrolStrategies;
 

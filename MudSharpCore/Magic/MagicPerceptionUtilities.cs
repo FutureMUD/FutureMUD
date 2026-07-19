@@ -1,10 +1,5 @@
-#nullable enable
+﻿#nullable enable
 using MudSharp.Effects;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Magic;
 

@@ -1,22 +1,13 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
+﻿using System.Collections;
 using Microsoft.EntityFrameworkCore;
-using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Climate;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.NPC;
 

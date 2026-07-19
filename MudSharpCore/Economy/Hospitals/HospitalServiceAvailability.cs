@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Character;
-using MudSharp.Construction;
+﻿using MudSharp.Construction;
 using MudSharp.Economy.Employment;
-using MudSharp.Framework;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;

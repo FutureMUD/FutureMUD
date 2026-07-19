@@ -1,13 +1,6 @@
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
 
 #nullable enable annotations
 

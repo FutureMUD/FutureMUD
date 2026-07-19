@@ -7,23 +7,13 @@ using MudSharp.Combat;
 using MudSharp.Communication;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Units;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Health.Breathing;
 using MudSharp.NPC.Templates;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.Work.Butchering;
 using Org.BouncyCastle.Asn1.TeleTrust;
 using Org.BouncyCastle.Asn1.X509;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Character.Heritage;
 

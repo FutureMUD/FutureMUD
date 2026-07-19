@@ -1,9 +1,4 @@
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using System;
-using System.Xml.Linq;
-
+﻿
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
 public class SpellHealingRateEffect : MagicSpellEffectBase, IHealingRateEffect

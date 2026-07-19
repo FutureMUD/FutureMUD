@@ -1,14 +1,7 @@
 ﻿using MudSharp.Body.Traits;
-using MudSharp.Character;
-using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using MudSharp.RPG.Checks;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.FutureProg.Functions.Characters;
 

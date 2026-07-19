@@ -2,15 +2,9 @@
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Communication.Language;
 using MudSharp.Database;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Work.Projects.Impacts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Body.Implementations;
 

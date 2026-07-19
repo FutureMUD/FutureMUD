@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
-using System.Xml.Linq;
-using MudSharp.Effects.Concrete;
+﻿using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 
 #nullable enable

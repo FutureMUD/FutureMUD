@@ -1,9 +1,5 @@
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.Models;
-using MudSharp.PerceptionEngine.Parsers;
+﻿using MudSharp.Models;
 using MudSharp.RPG.Merits.Interfaces;
-using System.Xml.Linq;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;
 

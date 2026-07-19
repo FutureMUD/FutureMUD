@@ -1,8 +1,4 @@
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using System.Xml.Linq;
-
+﻿
 namespace MudSharp.Magic.SpellTriggers;
 
 public class CastingTriggerProgCharacter : CastingTriggerProgTargetBase

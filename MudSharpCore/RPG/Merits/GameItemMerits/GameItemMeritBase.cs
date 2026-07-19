@@ -1,5 +1,4 @@
-﻿using MudSharp.Framework;
-using MudSharp.GameItems;
+﻿using MudSharp.GameItems;
 using MudSharp.Models;
 
 namespace MudSharp.RPG.Merits.GameItemMerits;

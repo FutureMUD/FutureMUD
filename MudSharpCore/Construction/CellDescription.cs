@@ -1,23 +1,13 @@
 ﻿using MudSharp.Celestial;
-using MudSharp.Character;
 using MudSharp.Climate;
 using MudSharp.Economy;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Magic;
 using MudSharp.Planes;
 using MudSharp.RPG.Law;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace MudSharp.Construction;
 

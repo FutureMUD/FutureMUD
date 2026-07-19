@@ -1,10 +1,6 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.CharacterCreation.Resources;
-using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Chargen;
 

@@ -1,6 +1,4 @@
-using MudSharp.Framework;
-using System.Xml.Linq;
-
+﻿
 namespace MudSharp.Effects.Concrete;
 
 public class ForcedTransformationBaselineEffect : Effect

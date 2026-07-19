@@ -1,16 +1,9 @@
-#nullable enable
-using MudSharp.Character;
+﻿#nullable enable
 using MudSharp.Character.Heritage;
 using MudSharp.Effects.Concrete.SpellEffects;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
-using MudSharp.FutureProg;
 using MudSharp.Magic;
 using MudSharp.RPG.Checks;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 

@@ -1,9 +1,7 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Body.PartProtos;
 using MudSharp.Health;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Body;
 

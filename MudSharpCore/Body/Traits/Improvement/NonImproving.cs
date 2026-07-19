@@ -1,8 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.RPG.Checks;
-using System.Text;
-using System.Xml.Linq;
+﻿using MudSharp.RPG.Checks;
 
 namespace MudSharp.Body.Traits.Improvement;
 

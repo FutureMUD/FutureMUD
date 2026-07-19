@@ -1,9 +1,6 @@
 ﻿using MudSharp.Body;
 using MudSharp.Body.Traits;
-using MudSharp.Framework;
 using MudSharp.Models;
-using System;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Inventory.Size;
 

@@ -1,28 +1,18 @@
-using C5;
+﻿using C5;
 using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Framework.Units;
-using MudSharp.FutureProg;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.OpenAI;
-using MudSharp.PerceptionEngine;
 using MudSharp.Planes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using EditableItem = MudSharp.Framework.Revision.EditableItem;
 
 #nullable enable

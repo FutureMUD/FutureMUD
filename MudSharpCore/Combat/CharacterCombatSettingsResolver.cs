@@ -1,6 +1,4 @@
-using MudSharp.Character;
-using MudSharp.NPC.Templates;
-using System.Linq;
+﻿using MudSharp.NPC.Templates;
 
 namespace MudSharp.Combat;
 

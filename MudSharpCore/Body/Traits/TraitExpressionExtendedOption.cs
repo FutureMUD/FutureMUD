@@ -1,11 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Character.Heritage;
+﻿using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation.Roles;
-using MudSharp.Framework;
 using MudSharp.RPG.Merits;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Body.Traits;
 

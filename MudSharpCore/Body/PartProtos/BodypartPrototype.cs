@@ -1,21 +1,14 @@
 ﻿using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Database;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Models;
 using ExpressionEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BodypartShape = MudSharp.Form.Shape.BodypartShape;
 using Material = MudSharp.Form.Material.Material;
 

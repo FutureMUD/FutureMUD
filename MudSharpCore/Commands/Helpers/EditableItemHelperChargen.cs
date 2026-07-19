@@ -2,17 +2,9 @@
 using MudSharp.Commands.Modules;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Hints;
 using MudSharp.RPG.Merits;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Commands.Helpers;
 

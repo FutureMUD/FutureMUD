@@ -10,9 +10,6 @@ using MudSharp.CharacterCreation.Roles;
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Form.Characteristics;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.Health;
@@ -21,10 +18,6 @@ using MudSharp.RPG.Merits;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using Org.BouncyCastle.Crypto.Agreement;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 #nullable enable
 #nullable disable warnings

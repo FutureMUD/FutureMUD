@@ -110,9 +110,14 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOpt
 
 		RefreshExistingCultureRaceSatiationLimits();
 		EnsureFallbackRandomNameProfiles();
+		ChargenFreeKnowledgeProgReconcileResult freeKnowledgeResult =
+			ChargenFreeKnowledgeProgReconciler.Reconcile(context);
+		context.SaveChanges();
 
 		context.Database.CommitTransaction();
-		return "Completed successfully.";
+		return string.IsNullOrWhiteSpace(freeKnowledgeResult.Message)
+			? "Completed successfully."
+			: $"Completed successfully. {freeKnowledgeResult.Message}";
 	}
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
@@ -135,7 +140,8 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOpt
                     context.Ethnicities.Any(x => x.Name == marker) ||
                     context.Cultures.Any(x => x.Name == marker))));
 		if (repeatability == ShouldSeedResult.MayAlreadyBeInstalled &&
-		    HasCultureRaceSatiationLimitUpdates(context))
+		    (HasCultureRaceSatiationLimitUpdates(context) ||
+		     ChargenFreeKnowledgeProgReconciler.HasRepairableCultureDrift(context)))
 		{
 			return ShouldSeedResult.ExtraPackagesAvailable;
 		}

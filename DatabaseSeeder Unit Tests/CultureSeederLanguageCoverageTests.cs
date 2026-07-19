@@ -2,6 +2,7 @@
 
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using MudSharp.FutureProg;
@@ -179,6 +180,105 @@ public class CultureSeederLanguageCoverageTests
 		StringAssert.Contains(source, "\"Abugida\", 0.8, 1.3, \"Hindi\"");
 	}
 
+	[TestMethod]
+	public void SeedData_ExistingCultureScript_ReconcilesChargenFreeKnowledgeProg()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		DbFutureProg target = new()
+		{
+			Id = 1,
+			FunctionName = ChargenFreeKnowledgeProgReconciler.ProgName,
+			FunctionComment = "Free knowledges test prog",
+			FunctionText = "var knowledges as knowledge collection\n// Preserve this builder rule\nreturn @knowledges",
+			ReturnTypeDefinition = (ProgVariableTypes.Knowledge | ProgVariableTypes.Collection).ToStorageString(),
+			Category = "Chargen",
+			Subcategory = "Skills",
+			Public = false,
+			AcceptsAnyParameters = false,
+			StaticType = 0
+		};
+		target.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = target,
+			FutureProgId = target.Id,
+			ParameterIndex = 0,
+			ParameterName = "ch",
+			ParameterTypeDefinition = ProgVariableTypes.Toon.ToStorageString()
+		});
+		DbFutureProg scriptGate = new()
+		{
+			Id = 2,
+			FunctionName = "CanPickLatinScriptKnowledge",
+			FunctionComment = "Latin test gate",
+			FunctionText = "return @skill.Name == \"Latin\"",
+			ReturnTypeDefinition = ProgVariableTypes.Boolean.ToStorageString(),
+			Category = "Knowledges",
+			Subcategory = "Scripts",
+			Public = true,
+			AcceptsAnyParameters = false,
+			StaticType = 0
+		};
+		scriptGate.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = scriptGate,
+			FutureProgId = scriptGate.Id,
+			ParameterIndex = 0,
+			ParameterName = "ch",
+			ParameterTypeDefinition = ProgVariableTypes.Chargen.ToStorageString()
+		});
+		scriptGate.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = scriptGate,
+			FutureProgId = scriptGate.Id,
+			ParameterIndex = 1,
+			ParameterName = "skill",
+			ParameterTypeDefinition = ProgVariableTypes.Trait.ToStorageString()
+		});
+		Knowledge scriptKnowledge = new()
+		{
+			Id = 1,
+			Name = "Latin Script",
+			Description = "Latin Script",
+			LongDescription = "Latin Script",
+			Type = "Script",
+			Subtype = "Alphabet",
+			LearnableType = 0,
+			LearnDifficulty = 0,
+			TeachDifficulty = 0,
+			LearningSessionsRequired = 0,
+			CanAcquireProg = scriptGate,
+			CanAcquireProgId = scriptGate.Id
+		};
+		context.FutureProgs.AddRange(target, scriptGate);
+		context.Knowledges.Add(scriptKnowledge);
+		context.Scripts.Add(new Script
+		{
+			Id = 1,
+			Name = "Latin",
+			KnownScriptDescription = "Latin",
+			UnknownScriptDescription = "Latin",
+			Knowledge = scriptKnowledge,
+			KnowledgeId = scriptKnowledge.Id,
+			DocumentLengthModifier = 1.0,
+			InkUseModifier = 1.0
+		});
+		context.SaveChanges();
+
+		string result = new CultureSeeder().SeedData(context, new Dictionary<string, string>
+		{
+			["culturepacks"] = "none"
+		});
+
+		StringAssert.Contains(result, "Updated ChargenFreeKnowledges");
+		StringAssert.Contains(target.FunctionText, "// Preserve this builder rule");
+		StringAssert.Contains(target.FunctionText, ChargenFreeKnowledgeProgReconciler.CultureStartMarker);
+		StringAssert.Contains(target.FunctionText,
+			"@ch.Skills.Any(skill, @skill.Name == \"Literacy\") and @ch.Skills.Any(skill, @CanPickLatinScriptKnowledge(@ch, @skill))");
+		StringAssert.Contains(target.FunctionText, "ToKnowledge(\"Latin Script\")");
+		Assert.AreEqual(ProgVariableTypes.Chargen.ToStorageString(),
+			target.FutureProgsParameters.Single().ParameterTypeDefinition);
+	}
+
 	private static IReadOnlyDictionary<string, string> Answers(string culturePack)
 	{
 		return new Dictionary<string, string>
@@ -192,6 +292,7 @@ public class CultureSeederLanguageCoverageTests
 		DbContextOptions<FuturemudDatabaseContext> options =
 			new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 				.UseInMemoryDatabase(Guid.NewGuid().ToString())
+				.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
 				.Options;
 		return new FuturemudDatabaseContext(options);
 	}

@@ -46,7 +46,16 @@ public sealed class DatabaseBackupSettings
         }
 
         string json = File.ReadAllText(path);
-        DatabaseBackupSettings loaded = JsonSerializer.Deserialize<DatabaseBackupSettings>(json) ?? Default;
+        DatabaseBackupSettings loaded;
+        try
+        {
+            loaded = JsonSerializer.Deserialize<DatabaseBackupSettings>(json) ?? Default;
+        }
+        catch (JsonException)
+        {
+            loaded = Default;
+            loaded.Save(path);
+        }
         if (loaded.RetainedBackupCount < 1)
         {
             loaded.RetainedBackupCount = Default.RetainedBackupCount;

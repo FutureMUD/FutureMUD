@@ -15,11 +15,10 @@ namespace Discord_Bot;
 public class TcpConnection
 {
 	private const int ReadBufferSize = 4096;
-	public const int MaximumIncomingCommandBytes = 64 * 1024;
+	public const int MaximumIncomingCommandBytes = DiscordTcpFrameDecoder.MaximumFrameBytes;
 	private readonly TcpClient _tcpClient;
 	private readonly NetworkStream _networkStream;
-	private static readonly byte[] ByteSeparators = { 1 };
-	private readonly List<byte> _incomingBytes = new();
+	private readonly DiscordTcpFrameDecoder _frameDecoder = new();
 	private readonly DiscordClient _discordClient;
 	private readonly DiscordBot _discordBot;
 	public bool TcpClientAuthenticated { get; private set; }
@@ -42,17 +41,30 @@ public class TcpConnection
 				return;
 			}
 
-			byte[] inputBuffer = new byte[ReadBufferSize];
-			int bytes = _networkStream.Read(inputBuffer, 0, ReadBufferSize);
+			var inputBuffer = new byte[ReadBufferSize];
+			var bytes = await _networkStream.ReadAsync(inputBuffer);
 			if (bytes == 0)
 			{
 				CloseTcpConnection();
 				return;
 			}
 
-			_incomingBytes.AddRange(inputBuffer.Take(bytes));
-			while (TryReadIncomingCommand(out byte[] command))
+			_frameDecoder.Append(inputBuffer.AsSpan(0, bytes));
+			while (true)
 			{
+				var result = _frameDecoder.TryRead(out var command);
+				if (result == DiscordTcpFrameReadResult.NoFrame)
+				{
+					return;
+				}
+
+				if (result == DiscordTcpFrameReadResult.Overflow)
+				{
+					Log.Warning("Closing TCP connection after receiving a Discord bot command larger than {MaximumIncomingCommandBytes} bytes.", MaximumIncomingCommandBytes);
+					CloseTcpConnection();
+					return;
+				}
+
 				if (command.Length == 0)
 				{
 					continue;
@@ -73,38 +85,10 @@ public class TcpConnection
 		}
 #endif
 	}
-
-	private bool TryReadIncomingCommand(out byte[] command)
-	{
-		int delimiterIndex = _incomingBytes.IndexOf(ByteSeparators[0]);
-		if (delimiterIndex == -1)
-		{
-			command = Array.Empty<byte>();
-			if (_incomingBytes.Count > MaximumIncomingCommandBytes)
-			{
-				Log.Warning("Closing TCP connection after receiving an incomplete Discord bot command larger than {MaximumIncomingCommandBytes} bytes.", MaximumIncomingCommandBytes);
-				CloseTcpConnection();
-			}
-			return false;
-		}
-
-		if (delimiterIndex > MaximumIncomingCommandBytes)
-		{
-			command = Array.Empty<byte>();
-			Log.Warning("Closing TCP connection after receiving a Discord bot command larger than {MaximumIncomingCommandBytes} bytes.", MaximumIncomingCommandBytes);
-			CloseTcpConnection();
-			return false;
-		}
-
-		command = _incomingBytes.GetRange(0, delimiterIndex).ToArray();
-		_incomingBytes.RemoveRange(0, delimiterIndex + 1);
-		return true;
-	}
-
 	private void CloseTcpConnection()
 	{
 		Closing = true;
-		_incomingBytes.Clear();
+		_frameDecoder.Clear();
 		_tcpClient?.Close();
 		_networkStream?.Close();
 		TcpClientAuthenticated = false;
@@ -115,8 +99,14 @@ public class TcpConnection
     {
 
         Console.WriteLine($"TCP Communique: {getString}");
-        StringStack ss = new(getString);
-        switch (ss.Pop())
+        if (!DiscordTcpCommandRouter.TryParse(getString, out var command) ||
+            command.RequiresAuthentication && !TcpClientAuthenticated)
+        {
+            return;
+        }
+
+        StringStack ss = new(command.Payload);
+        switch (command.Name)
         {
             case "request":
                 await HandleTcpCommandRequest(ss);
@@ -495,7 +485,7 @@ public class TcpConnection
     {
         StringStack ss = new(getString);
         string auth = ss.Pop();
-        if (auth.EqualTo(_discordBot.ServerAuth))
+        if (DiscordAuthenticationPolicy.IsValid(auth, _discordBot.ServerAuth))
         {
             TcpClientAuthenticated = true;
             _tcpClient.Client.Send(DiscordBotProtocol.EncodeCommandForEngine("authsuccess"));

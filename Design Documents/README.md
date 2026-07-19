@@ -37,6 +37,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Natural Ranged Attacks Implementation Plan](./Combat/Natural_Ranged_Attacks_Implementation_Plan.md)
 
 ## Core
+- [Database Upgrade Coordination](./Core/Database_Upgrade_Coordination.md)
+- [Discord Bot Protocol and Settings](./Core/Discord_Bot_Protocol_and_Settings.md)
 - [FutureMUD Website and Publishing](./Core/FutureMUD_Website_and_Publishing.md)
 - [FutureMUD Release Process](./Core/FutureMUD_Release_Process.md)
 - [FutureProg Type System](./Core/FutureProg_Type_System.md)

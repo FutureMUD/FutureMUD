@@ -648,12 +648,6 @@ public partial class Body
         }
         else
         {
-            var virtualPuddleText = Location.DescribeLiquidSurface(RoomLayer, Actor, true);
-            if (!string.IsNullOrWhiteSpace(virtualPuddleText))
-            {
-                sb.AppendLine(virtualPuddleText.Wrap(InnerLineFormatLength));
-            }
-
             // Do puddle groups first
             List<PuddleGameItemComponent> puddles = items.SelectNotNull(x => x.GetItemType<PuddleGameItemComponent>()).ToList();
             List<PuddleGameItemComponent> bloodPuddles = puddles.Where(x => x.LiquidMixture.Instances.All(y => y is BloodLiquidInstance)).ToList();

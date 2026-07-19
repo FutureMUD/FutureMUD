@@ -2432,7 +2432,7 @@ The following options are available:
 	#3debug listeners#0 - shows all listeners
 	#3debug fixmorph#0 - resets all morph timers of shop stocked items
 	#3debug fixbites#0 - resets all bite counts of shop stocked items
-	#3debug evaporate#0 - evaporate all puddles in the gameworld", AutoHelp.HelpArgOrNoArg)]
+	#3debug evaporate#0 - evaporate all legacy puddle items and virtual room-surface liquid in the gameworld", AutoHelp.HelpArgOrNoArg)]
     protected static void Debug(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2503,16 +2503,29 @@ The following options are available:
 
     #region Debug Sub-Routines
 
-    private static void DebugEvaporate(ICharacter actor)
-    {
-        List<PuddleGameItemComponent> puddles = actor.Gameworld.Items.SelectNotNull(x => x.GetItemType<PuddleGameItemComponent>()).ToList();
-        foreach (PuddleGameItemComponent puddle in puddles)
-        {
-            puddle.ReduceLiquidQuantity(puddle.LiquidVolume, null, "debug");
-        }
+	private static void DebugEvaporate(ICharacter actor)
+	{
+		var puddles = actor.Gameworld.Items
+			.SelectNotNull(x => x.GetItemType<PuddleGameItemComponent>())
+			.ToList();
+		foreach (var puddle in puddles)
+		{
+			puddle.ReduceLiquidQuantity(puddle.LiquidVolume, null, "debug");
+		}
 
-        actor.OutputHandler.Send("Evaporated all puddles.");
-    }
+		var surfaceStates = actor.Gameworld.Cells
+			.SelectMany(x => x.SurfaceLiquidStates)
+			.Select(x => x.State)
+			.Where(x => x.IsWet)
+			.ToList();
+		foreach (var state in surfaceStates)
+		{
+			state.Dry(state.LiquidVolume, roomSurface: true);
+		}
+
+		actor.OutputHandler.Send(
+			$"Evaporated {puddles.Count.ToStringN0Colour(actor)} legacy {"puddle".Pluralise(puddles.Count != 1)} and liquid from {surfaceStates.Count.ToStringN0Colour(actor)} room {"surface".Pluralise(surfaceStates.Count != 1)}.");
+	}
 
     private static void DebugFixBites(ICharacter actor)
     {

@@ -1,6 +1,6 @@
 # ItemSeeder AddCraft Authoring Guide
 
-This guide documents the craft-authoring slice in `DatabaseSeeder/Seeders/ItemSeederCrafting.cs`.
+This guide documents the craft-authoring slice in `DatabaseSeeder/Seeders/ItemSeeder.Crafting.cs`.
 
 `AddCraft` now uses a typed seeder API internally. The compact spreadsheet-style strings are still supported, but they are treated as an import layer: strings are parsed into typed phase, input, tool, and product specs, validated as a group, and then inserted through one implementation path.
 
@@ -26,7 +26,7 @@ The old string-heavy `AddCraft` overload remains for stock spreadsheet imports. 
 
 ## Where To Invoke It
 
-Stock craft definitions live in `SeedCrafts()` in `DatabaseSeeder/Seeders/ItemSeederCrafting.cs`.
+Stock craft definitions live in `SeedCrafts()` in `DatabaseSeeder/Seeders/ItemSeeder.Crafting.cs`.
 
 Add new calls after `_nextId` has been reset and after the item prototypes, tags, materials, liquids, traits, and FutureProgs they reference have already been seeded into the lookup dictionaries. In normal `ItemSeeder` flow, `CreateProgs()` and `SeedItems()` run before `SeedCrafts()`, so stock craft calls can use:
 
@@ -35,7 +35,7 @@ Add new calls after `_nextId` has been reset and after the item prototypes, tags
 - item prototype references by `#id`
 - tag/material/liquid/currency/NPC/blood-model names already present in the database
 
-The helper is private to `ItemSeederCrafting.cs`, so agents should produce calls in that file rather than trying to call it from another seeder.
+The helper is private to `ItemSeeder.Crafting.cs`, so agents should produce calls in that file rather than trying to call it from another seeder.
 
 All names and `#id` values in examples below are templates. Before committing a generated craft, replace them with real seeded FutureProg names, trait names, tags, materials, liquids, currencies, NPC templates, blood models, and item prototype IDs that exist in the target database seed flow.
 

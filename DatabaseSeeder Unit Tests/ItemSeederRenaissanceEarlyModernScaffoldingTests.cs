@@ -41,7 +41,7 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 	[TestMethod]
 	public void RecommendedBranchReferences_HaveMatchingInvokedItemSeederStubs()
 	{
-		var dispatcher = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PreIndustrialBaseline.cs");
+		var dispatcher = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.cs");
 		AssertBranches(RenaissanceBranches, dispatcher);
 		AssertBranches(EarlyModernBranches, dispatcher);
 	}
@@ -65,7 +65,7 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 
 	private static string? FindSeederFileContaining(string method)
 	{
-		foreach (var file in Directory.GetFiles(SourcePath("DatabaseSeeder", "Seeders"), "ItemSeeder.Rework.*.cs"))
+		foreach (var file in Directory.GetFiles(SourcePath("DatabaseSeeder", "Seeders"), "ItemSeeder.*.cs"))
 		{
 			if (File.ReadAllText(file).Contains($"private void {method}()", StringComparison.Ordinal))
 			{

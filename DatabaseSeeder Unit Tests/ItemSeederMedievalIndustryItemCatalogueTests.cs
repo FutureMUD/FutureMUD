@@ -14,8 +14,8 @@ public class ItemSeederMedievalIndustryItemCatalogueTests
 	[TestMethod]
 	public void MedievalIndustryItemSeeder_ShouldContainToolAndStockCatalogueRows()
 	{
-		var toolSource = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalHouseholdTools.cs");
-		var stockSource = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalComponentGaps.cs");
+		var toolSource = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalHouseholdTools.cs");
+		var stockSource = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalComponentGaps.cs");
 		var designReference = ReadDatabaseSeederSource("Design Documents", "Seeding", "FutureMUD_Medieval_Industry_Tools_And_Stock_Item_Catalogue.md");
 
 		var toolReferences = Regex.Matches(toolSource, "\\\"medieval_(?:workshop|tool)_[^\\\"]+\\\"")
@@ -58,7 +58,7 @@ public class ItemSeederMedievalIndustryItemCatalogueTests
 	public void MedievalIndustryItemSeeder_ShouldUseMergedPrerequisiteToolComponents()
 	{
 		var usefulSeeder = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "UsefulSeeder.cs");
-		var toolSource = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalHouseholdTools.cs");
+		var toolSource = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalHouseholdTools.cs");
 
 		var requiredComponents = new[]
 		{

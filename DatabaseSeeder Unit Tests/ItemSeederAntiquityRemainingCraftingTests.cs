@@ -42,22 +42,22 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityRemainingCrafts_SourceAuditCoversAllCurrentTargets()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
 		var partialItemSource =
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityApiary.cs") +
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs") +
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityHouseholdTools.cs") +
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityMedical.cs") +
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityWriting.cs");
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityApiary.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityFood.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityHouseholdTools.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityMedical.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityWriting.cs");
 		var existingCraftSource =
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs") +
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs") +
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityHousehold.cs");
-		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
-		var jewelleryCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityJewellery.cs");
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityHousehold.cs");
+		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityEquipment.cs");
+		var jewelleryCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityJewellery.cs");
 		var allCraftSource =
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs") +
-			ReadSeederSources("ItemSeederCrafting.Antiquity*.cs");
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs") +
+			ReadSeederSources("ItemSeeder.Crafting.Antiquity*.cs");
 
 		var items = AntiquityReworkMethods
 			.SelectMany(method => ParseItemsInMethod(itemSource, method))
@@ -108,11 +108,11 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityRepairKitCrafts_RegisterGeneralMaterialCoverage()
 	{
-		var reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
-		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityRepairKits.cs");
-		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
+		var reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
+		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityRepairKits.cs");
+		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityEquipment.cs");
 		var componentSource = SeederSourceTestHelper.ReadPartialFamily("UsefulSeeder.ItemComponents");
 		var componentCatalogue = ReadSource("Design Documents", "Data", "Seeded_Item_Components.json");
 		var equipmentDoc = ReadSource("Design Documents", "Seeding", "Antiquity_Equipment_Crafting_Suite.md");
@@ -170,9 +170,9 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityJewelleryCrafts_RegisterDynamicKnowledgeGatedSuiteAndCatalogue()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
-		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityJewellery.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
+		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityJewellery.cs");
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
 		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 		var jewelleryDoc = ReadSource("Design Documents", "Seeding", "Antiquity_Jewellery_Crafting_Suite.md");
@@ -237,8 +237,8 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityEquipmentCrafts_RegisterKnowledgeGatedSuitesAndCorrectAccessProgs()
 	{
-		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
+		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityEquipment.cs");
 
 		AssertContains(craftRoot, "SeedAntiquityEquipmentCrafts();");
 		AssertContains(craftRoot, "AddProg(\"HasWeaponcrafting\"");
@@ -268,7 +268,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityEquipmentCrafts_AddUpstreamCommodityAndTagSurface()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityEquipment.cs");
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
 		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 
@@ -306,8 +306,8 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityEquipmentCrafts_MakeSupportToolsAndUnlitApparatusCraftable()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
-		var householdToolSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityHouseholdTools.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityEquipment.cs");
+		var householdToolSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityHouseholdTools.cs");
 
 		foreach (var expected in new[]
 		{
@@ -359,7 +359,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityEquipmentCrafts_KeepVisibleCraftStringsCultureNeutral()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityEquipment.cs");
 
 		AssertContains(craftSource, "SanitiseAntiquityEquipmentVisibleName(item.ShortDescription)");
 		AssertContains(craftSource, "BuildUniqueAntiquityEquipmentCraftName");
@@ -377,8 +377,8 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityCrafting_AllCurrentTagToolsHaveSeededItemCoverage()
 	{
-		var craftSource = ReadSeederSources("ItemSeederCrafting.Antiquity*.cs");
-		var itemSource = ReadSeederSources("ItemSeeder.Rework.Antiquity*.cs");
+		var craftSource = ReadSeederSources("ItemSeeder.Crafting.Antiquity*.cs");
+		var itemSource = ReadSeederSources("ItemSeeder.Antiquity*.cs");
 
 		var toolTags = Regex.Matches(craftSource,
 				@"TagTool\s*-\s*(?:Held|InRoom|In Room|Wielded)\s*-\s*an item with the (?<tag>.+?) tag",
@@ -406,8 +406,8 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	public void ItemSeederCrafts_RequestedSkillNamesResolveAgainstStockSkillPackage()
 	{
 		var skillSource = ReadSource("DatabaseSeeder", "Seeders", "SkillPackageSeeder.cs");
-		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var craftSource = ReadSeederSources("ItemSeederCrafting*.cs");
+		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var craftSource = ReadSeederSources("ItemSeeder.Crafting*.cs");
 
 		var supportedSkillNames = ExtractSkillPackageNames(skillSource);
 		supportedSkillNames.UnionWith(ExtractStockSkillPackageTraitAliases(craftRoot));
@@ -429,9 +429,9 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityCrafting_LitWorkshopItemsHaveMorphTargetsTimersAndToolTags()
 	{
-		var createItemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
-		var householdToolSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityHouseholdTools.cs");
-		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
+		var createItemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
+		var householdToolSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityHouseholdTools.cs");
+		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityEquipment.cs");
 
 		foreach (var expected in new[]
 		{
@@ -479,7 +479,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityCrafting_ProducedIntermediateTagsAreConsumedOrDocumentedReusableStock()
 	{
-		var craftSource = ReadSeederSources("ItemSeederCrafting.Antiquity*.cs");
+		var craftSource = ReadSeederSources("ItemSeeder.Crafting.Antiquity*.cs");
 		var docsSource =
 			ReadSource("Design Documents", "Seeding", "Antiquity_Equipment_Crafting_Suite.md") +
 			ReadSource("Design Documents", "Seeding", "Antiquity_Food_Beverage_Crafting_Suite.md") +
@@ -504,7 +504,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityCrafting_DocumentationMentionsEveryCraftSourceStableReference()
 	{
-		var craftSource = ReadSeederSources("ItemSeederCrafting.Antiquity*.cs");
+		var craftSource = ReadSeederSources("ItemSeeder.Crafting.Antiquity*.cs");
 		var docsSource = ReadDesignDocumentSources("Antiquity_*.md");
 
 		var craftStableReferences = ExtractStableReferences(craftSource)
@@ -523,7 +523,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityMedicalCookingPotCrafts_RequireLitFireState()
 	{
-		var medicalCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityMedical.cs");
+		var medicalCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityMedical.cs");
 
 		foreach (var craftName in new[]
 		{

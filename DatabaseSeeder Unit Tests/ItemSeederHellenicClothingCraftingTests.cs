@@ -32,8 +32,8 @@ public class ItemSeederHellenicClothingCraftingTests
 	[TestMethod]
 	public void HellenicClothingCrafts_ProduceEveryCurrentHellenicClothingPrototype()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
 
 		foreach (var stableReference in HellenicClothingStableReferences)
 		{
@@ -48,7 +48,7 @@ public class ItemSeederHellenicClothingCraftingTests
 	[TestMethod]
 	public void HellenicFinishedGarmentCrafts_UseHellenicKnowledgeGate()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
 
 		AssertContains(craftSource, "const string hellenicKnowledge = \"Hellenic Textilecraft\"");
 		AssertContains(craftSource, "knowledgeSubtype: \"Hellenic\"");
@@ -59,7 +59,7 @@ public class ItemSeederHellenicClothingCraftingTests
 	[TestMethod]
 	public void UpstreamTextileCrafts_UseCommodityStateTagsAndPreserveColours()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{
@@ -111,7 +111,7 @@ public class ItemSeederHellenicClothingCraftingTests
 	[TestMethod]
 	public void AntiquityReworkItems_AddPeriodTextileToolPrototypes()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{

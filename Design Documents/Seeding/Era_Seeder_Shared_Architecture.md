@@ -4,7 +4,7 @@ This document describes the shared era item/craft records used by rework seeders
 
 ## Shared Records
 
-`DatabaseSeeder/Seeders/ItemSeeder.Rework.EraDefinitions.cs` owns the reusable records:
+`DatabaseSeeder/Seeders/ItemSeeder.EraDefinitions.cs` owns the reusable records:
 
 - `EraItemSpec` for seeded item prototypes.
 - `EraClothingPieceSpec` for clothing entries that also know outfit usage and craft data.

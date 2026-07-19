@@ -3,11 +3,11 @@
 **Status:** implemented item-catalogue source for the first medieval industry prerequisite item pass.  
 **Date:** 1 July 2026.  
 **Era band:** approximately 500-1300 CE.  
-**Implementation files:** `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalHouseholdTools.cs` and `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalComponentGaps.cs`.
+**Implementation files:** `DatabaseSeeder/Seeders/ItemSeeder.MedievalHouseholdTools.cs` and `DatabaseSeeder/Seeders/ItemSeeder.MedievalComponentGaps.cs`.
 
 This catalogue is the concrete item-prototype layer that sits between the merged medieval industry-chain design and the future medieval craft definitions. It creates the tools, workshop apparatus, and shared intermediate stock that later crafts can consume while recursively closing finished items back to butchery, forage, agricultural, or primary-industry products.
 
-This pass does **not** implement medieval crafts. The craft authoring target remains `DatabaseSeeder/Seeders/ItemSeederCrafting.Medieval.cs`.
+This pass does **not** implement medieval crafts. The craft authoring target remains `DatabaseSeeder/Seeders/ItemSeeder.Crafting.Medieval.cs`.
 
 ---
 

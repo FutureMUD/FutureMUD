@@ -1,11 +1,11 @@
 # Medieval ItemSeeder Rebuild Audit
 
-The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, military-goods prototypes, writing/book/document prototypes, treatment and repair prototypes, decorative jewellery prototypes, and the first medieval industry tool and intermediate-stock item catalogue.
+The medieval `ItemSeeder` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, military-goods prototypes, writing/book/document prototypes, treatment and repair prototypes, decorative jewellery prototypes, and the first medieval industry tool and intermediate-stock item catalogue.
 
 ## Current Runtime State
 
-- `ItemSeeder.Rework.cs` still dispatches the medieval item launch methods when the `medieval` era is selected.
-- `ItemSeederCrafting.cs` still dispatches the medieval craft launch methods.
+- `ItemSeeder.cs` still dispatches the medieval item launch methods when the `medieval` era is selected.
+- `ItemSeeder.Crafting.cs` still dispatches the medieval craft launch methods.
 - `SeedMedievalClothing` contains the direct clothing item `CreateItem(...)` calls.
 - `SeedMedievalContainers` contains the direct household, trade, personal, and furniture-container `CreateItem(...)` calls.
 - `SeedMedievalDoorsLocksAndStrongboxes` contains the direct door, gate, grate, lock, latch, key, and lock-hardware `CreateItem(...)` calls.
@@ -19,7 +19,7 @@ The medieval `ItemSeeder.Rework` item and craft implementation was reset to laun
 - `SeedMedievalRepairKits` contains the direct repair-kit and repair-supply `CreateItem(...)` calls.
 - `SeedMedievalHouseholdCraftTools` now seeds the first medieval industry tool and workshop-apparatus item catalogue.
 - `SeedMedievalComponentGapItems` now seeds the first medieval intermediate-stock item catalogue.
-- `ItemSeederCrafting.Medieval.cs` currently contains no-op medieval craft launch points only.
+- `ItemSeeder.Crafting.Medieval.cs` currently contains no-op medieval craft launch points only.
 - The old authored outfit catalogue, explicit culture catalogue, generated helper/data model, and medieval craft helper families have been removed.
 
 ## Prerequisite Routing Audit Shape
@@ -66,8 +66,8 @@ The medieval industry prerequisite pass is reflected in the maintained data docu
 
 The first medieval industry foundation item source is implemented as current item-catalogue content:
 
-- Tool and workshop-apparatus item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalHouseholdTools.cs`.
-- Intermediate stock item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalComponentGaps.cs`.
+- Tool and workshop-apparatus item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalHouseholdTools.cs`.
+- Intermediate stock item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalComponentGaps.cs`.
 - Catalogue metadata lives in `Design Documents/Seeding/FutureMUD_Medieval_Industry_Tools_And_Stock_Item_Catalogue.md`.
 - This item pass creates 168 tool/workshop prototypes and 50 intermediate stock prototypes.
 - Industry crafts are not rebuilt yet; `SeedMedievalProductionChainCrafts` and `SeedMedievalComponentGapCrafts` remain no-op craft launch points.
@@ -76,7 +76,7 @@ The first medieval industry foundation item source is implemented as current ite
 
 The live medieval clothing item source is intentionally direct-call only:
 
-- Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalClothing.cs`.
+- Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalClothing.cs`.
 - Catalogue metadata lives in `Design Documents/Seeding/Medieval_Clothing_Seeder_Design_Reference.md`.
 - Full descriptions live in `Design Documents/Seeding/Medieval_Clothing_FDesc_Catalogue.csv`.
 - Each clothing garment is represented by exactly one `CreateItem(...)` call in `SeedMedievalClothing`.
@@ -87,8 +87,8 @@ The live medieval clothing item source is intentionally direct-call only:
 The live medieval military item source is intentionally direct-call only:
 
 - Military design metadata lives in `Design Documents/Seeding/Medieval_Military_Seeder_Design_Reference.md`.
-- Melee weapons, ranged weapons, ammunition, and thrown weapons live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalWeapons.cs`.
-- Armour, horse tack, barding, shields, and military support gear live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalArmour.cs`.
+- Melee weapons, ranged weapons, ammunition, and thrown weapons live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalWeapons.cs`.
+- Armour, horse tack, barding, shields, and military support gear live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalArmour.cs`.
 - Each military-goods prototype is represented by exactly one `CreateItem(...)` call in its owning method.
 - Military crafts are not rebuilt yet; the medieval craft launch points remain no-op methods.
 
@@ -96,7 +96,7 @@ The live medieval military item source is intentionally direct-call only:
 
 The live medieval household goods and furniture item source is intentionally direct-call only:
 
-- Item prototypes live across `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalContainers.cs`, `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalDoorsLocksStrongboxes.cs`, `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalFood.cs`, `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalFurniture.cs`, and `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalJewellery.cs`.
+- Item prototypes live across `DatabaseSeeder/Seeders/ItemSeeder.MedievalContainers.cs`, `DatabaseSeeder/Seeders/ItemSeeder.MedievalDoorsLocksStrongboxes.cs`, `DatabaseSeeder/Seeders/ItemSeeder.MedievalFood.cs`, `DatabaseSeeder/Seeders/ItemSeeder.MedievalFurniture.cs`, and `DatabaseSeeder/Seeders/ItemSeeder.MedievalJewellery.cs`.
 - Catalogue metadata lives in `Design Documents/Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md`.
 - Each household-goods prototype is represented by exactly one `CreateItem(...)` call in its owning medieval household method.
 - Furniture and container crafts are not rebuilt yet; `SeedMedievalFurnitureAndContainerCrafts` remains a no-op.
@@ -105,7 +105,7 @@ The live medieval household goods and furniture item source is intentionally dir
 
 The live medieval decorative jewellery item source is intentionally direct-call only:
 
-- Decorative jewellery item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalJewellery.cs`.
+- Decorative jewellery item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalJewellery.cs`.
 - Jewellery design metadata lives in `Design Documents/Seeding/Medieval_Jewellery_Seeder_Design_Reference.md`.
 - Full structured item rows live in `Design Documents/Seeding/FutureMUD_Medieval_Jewellery_Item_Catalogue_Full.csv`.
 - Full descriptions live in `Design Documents/Seeding/FutureMUD_Medieval_Jewellery_FDesc_Catalogue.csv`.
@@ -116,7 +116,7 @@ The live medieval decorative jewellery item source is intentionally direct-call 
 
 The live medieval writing, books, and documents item source is intentionally direct-call only:
 
-- Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalWriting.cs`.
+- Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalWriting.cs`.
 - Catalogue metadata lives in `Design Documents/Seeding/FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md`.
 - Full descriptions live in `Design Documents/Seeding/FutureMUD_Medieval_Writing_Books_Documents_FDesc_Catalogue.csv`.
 - Each writing, book, document, seal, container, scribal-tool, and writing-support prototype is represented by exactly one `CreateItem(...)` call in `SeedMedievalWritingAdministrationAndDocuments`.
@@ -126,7 +126,7 @@ The live medieval writing, books, and documents item source is intentionally dir
 
 The live medieval treatment, drug-delivery, mobility, prosthetic, and specialist-repair source is intentionally direct-call only:
 
-- Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalMedical.cs` and `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalRepairKits.cs`.
+- Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalMedical.cs` and `DatabaseSeeder/Seeders/ItemSeeder.MedievalRepairKits.cs`.
 - Merged design metadata and final catalogue rows live in `Design Documents/Seeding/FutureMUD_Medieval_Treatment_Drugs_Repair_Kits_Design_Reference.md`.
 - Each treatment, apothecary, drug-delivery, mobility, prosthetic, repair-kit, and repair-supply prototype is represented by exactly one `CreateItem(...)` call in its owning method.
 - Medieval health-tier seeding, medicinal liquids, medicine vessels, and fumigation components live in `DatabaseSeeder/Seeders/HealthSeeder.cs`.
@@ -139,8 +139,8 @@ The live medieval treatment, drug-delivery, mobility, prosthetic, and specialist
 
 The shared `historic_*` workshop foundation content remains active for antiquity or medieval installs. It is not part of the medieval reset payload.
 
-- Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.HistoricFoundation.cs`.
-- Crafts live in `DatabaseSeeder/Seeders/ItemSeederCrafting.HistoricFoundation.cs`.
+- Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.HistoricFoundation.cs`.
+- Crafts live in `DatabaseSeeder/Seeders/ItemSeeder.Crafting.HistoricFoundation.cs`.
 - Focused tests keep these files separate from medieval-named partials so future work does not confuse cross-era foundations with medieval-specific stock.
 
 ## Documentation Policy

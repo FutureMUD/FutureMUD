@@ -127,7 +127,7 @@ public class ItemSeederAntiquityPigmentAndDyeTests
 	[TestMethod]
 	public void AntiquityTextileDyeCrafts_UseDyeStockIntermediates()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
 
 		foreach (var expected in new[]
 		         {
@@ -156,7 +156,7 @@ public class ItemSeederAntiquityPigmentAndDyeTests
 	[TestMethod]
 	public void AntiquityHouseholdPigmentCrafts_CoverMineralOrganicAndToxicPigments()
 	{
-		var householdSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityHousehold.cs");
+		var householdSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityHousehold.cs");
 
 		foreach (var expected in new[]
 		         {
@@ -186,8 +186,8 @@ public class ItemSeederAntiquityPigmentAndDyeTests
 	[TestMethod]
 	public void AntiquityPigmentAndDyeCrafts_EmitProfileBackedColours()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
-		var householdSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityHousehold.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
+		var householdSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityHousehold.cs");
 		var coreSource = SeederSourceTestHelper.ReadPartialFamily("CoreDataSeeder");
 		var source = $"{craftSource}\n{householdSource}";
 		var basicColours = new[]

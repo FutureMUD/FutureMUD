@@ -139,9 +139,9 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	[TestMethod]
 	public void RemainingAntiquityClothingCrafts_ProduceEveryCurrentCultureGarmentPrototype()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
-		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
+		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
 
 		AssertReferencesPresent(PunicClothingStableReferences, itemSource, craftSource);
 		AssertReferencesPresent(PersianClothingStableReferences, itemSource, craftSource);
@@ -167,9 +167,9 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	{
 		Assert.AreEqual(39, SupplementalClothingStableReferences.Length, "The supplemental clothing pass should track all 39 new catalogue rows.");
 
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
-		var stableReferenceSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
+		var stableReferenceSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
 		var designSource = ReadSource("Design Documents", "Seeding", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
 
 		foreach (var stableReference in SupplementalClothingStableReferences)
@@ -184,7 +184,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	[TestMethod]
 	public void SupplementalAntiquityClothingCrafts_UseCommodityTextilesAndStableVariableProducts()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{
@@ -220,7 +220,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	[TestMethod]
 	public void SupplementalAntiquityClothingItems_UseExistingMaterialsTagsAndPreciseWearComponents()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
 		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
 		var componentCatalogue = ReadSource("Design Documents", "Data", "Seeded_Item_Components.json");
@@ -266,7 +266,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	[TestMethod]
 	public void RemainingAntiquityFinishedGarmentCrafts_UseCultureKnowledgeGates()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{
@@ -289,7 +289,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	[TestMethod]
 	public void SharedUpstreamTextileCrafts_AddFeltCommodityPath()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
 		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
 
 		foreach (var expected in new[]
@@ -309,7 +309,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	[TestMethod]
 	public void RemainingAntiquitySpecialGarments_UseCommodityInputsAndGeneratedProducts()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{

@@ -5,7 +5,7 @@
 **Era band:** approximately 500-1300 CE, matching the current medieval item-seeder slice.  
 **Primary implementation target:** make every accepted medieval catalogue item craftable, then recursively close every non-terminal craft input until the chain reaches butchery, forage, agricultural, or primary-industry products.
 
-This document is deliberately a craft and dependency reference, not a claim that medieval crafts are already implemented. It should guide the next code passes in `ItemSeederCrafting.Medieval.cs` and the likely companion tool/intermediate-stock item pass. It should be updated as craft rows, tool items, intermediary products, and tests land.
+This document is deliberately a craft and dependency reference, not a claim that medieval crafts are already implemented. It should guide the next code passes in `ItemSeeder.Crafting.Medieval.cs` and the likely companion tool/intermediate-stock item pass. It should be updated as craft rows, tool items, intermediary products, and tests land.
 
 ---
 
@@ -33,23 +33,23 @@ The current medieval rebuild is direct-call item seeding. The craft launch point
 
 | Area | Current implementation or target file |
 |---|---|
-| Craft entry points | `DatabaseSeeder/Seeders/ItemSeederCrafting.Medieval.cs` |
-| Shared craft helpers | `DatabaseSeeder/Seeders/ItemSeederCrafting.cs` |
-| Shared historic foundation items | `DatabaseSeeder/Seeders/ItemSeeder.Rework.HistoricFoundation.cs` |
-| Clothing item source | `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalClothing.cs` |
-| Household/container/furniture item sources | `ItemSeeder.Rework.MedievalContainers.cs`, `ItemSeeder.Rework.MedievalDoorsLocksStrongboxes.cs`, `ItemSeeder.Rework.MedievalFood.cs`, `ItemSeeder.Rework.MedievalFurniture.cs`, `ItemSeeder.Rework.MedievalJewellery.cs` |
-| Military item sources | `ItemSeeder.Rework.MedievalWeapons.cs`, `ItemSeeder.Rework.MedievalArmour.cs` |
-| Writing/document item source | `ItemSeeder.Rework.MedievalWriting.cs` |
-| Treatment and repair item sources | `ItemSeeder.Rework.MedievalMedical.cs`, `ItemSeeder.Rework.MedievalRepairKits.cs` |
+| Craft entry points | `DatabaseSeeder/Seeders/ItemSeeder.Crafting.Medieval.cs` |
+| Shared craft helpers | `DatabaseSeeder/Seeders/ItemSeeder.Crafting.cs` |
+| Shared historic foundation items | `DatabaseSeeder/Seeders/ItemSeeder.HistoricFoundation.cs` |
+| Clothing item source | `DatabaseSeeder/Seeders/ItemSeeder.MedievalClothing.cs` |
+| Household/container/furniture item sources | `ItemSeeder.MedievalContainers.cs`, `ItemSeeder.MedievalDoorsLocksStrongboxes.cs`, `ItemSeeder.MedievalFood.cs`, `ItemSeeder.MedievalFurniture.cs`, `ItemSeeder.MedievalJewellery.cs` |
+| Military item sources | `ItemSeeder.MedievalWeapons.cs`, `ItemSeeder.MedievalArmour.cs` |
+| Writing/document item source | `ItemSeeder.MedievalWriting.cs` |
+| Treatment and repair item sources | `ItemSeeder.MedievalMedical.cs`, `ItemSeeder.MedievalRepairKits.cs` |
 | Existing current-state audit | `Design Documents/Seeding/Medieval_Crafting_Audit.md` |
 
 Recommended implementation files for this workstream:
 
 ```text
-DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalIndustryTools.cs
-DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalIndustryStock.cs
-DatabaseSeeder/Seeders/ItemSeederCrafting.MedievalProduction.cs
-DatabaseSeeder/Seeders/ItemSeederCrafting.MedievalFinishedGoods.cs
+DatabaseSeeder/Seeders/ItemSeeder.MedievalIndustryTools.cs
+DatabaseSeeder/Seeders/ItemSeeder.MedievalIndustryStock.cs
+DatabaseSeeder/Seeders/ItemSeeder.Crafting.MedievalProduction.cs
+DatabaseSeeder/Seeders/ItemSeeder.Crafting.MedievalFinishedGoods.cs
 DatabaseSeeder Unit Tests/ItemSeederMedievalCraftingTests.cs
 ```
 

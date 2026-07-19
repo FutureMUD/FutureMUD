@@ -251,9 +251,9 @@ public class PrimaryProductionSeederSourceTests
 	[TestMethod]
 	public void Phase3_PrimaryProductionItemSeederIsWiredIntoHistoricReworkInstall()
 	{
-		var reworkSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
-		var sharedBaselineSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PreIndustrialBaseline.cs");
-		var primaryProductionSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PrimaryProductionTools.cs");
+		var reworkSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
+		var sharedBaselineSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.cs");
+		var primaryProductionSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PrimaryProductionTools.cs");
 
 		AssertContains(reworkSource, "SeedSharedPreIndustrialBaselineItems();");
 		AssertContains(sharedBaselineSource, "SeedPrimaryProductionToolsAndProps();");
@@ -430,8 +430,8 @@ public class PrimaryProductionSeederSourceTests
 	[TestMethod]
 	public void Phase4_PrimaryProductionCommodityCraftsAreWiredIntoCraftSeeder()
 	{
-		var craftSeederSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var primaryProductionSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.PrimaryProduction.cs");
+		var craftSeederSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var primaryProductionSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.PrimaryProduction.cs");
 
 		AssertContains(craftSeederSource, "SeedPrimaryProductionCommodityCrafts();");
 		AssertContains(primaryProductionSource, "private void SeedPrimaryProductionCommodityCrafts()");

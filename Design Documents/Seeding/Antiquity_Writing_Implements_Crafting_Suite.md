@@ -97,4 +97,4 @@ The household craft suite still covers older document furniture and generic hous
 
 ## One-Step-Back Boundary
 
-The May 2026 one-step-back pass seeds every writing/book/pigment tool currently named by `ItemSeederCrafting.AntiquityWriting.cs` as a `TagTool` prerequisite. Those tool prototypes are stock prerequisites for the current suite. Crafts to make the newly introduced tool prototypes themselves remain a second-pass task unless they are already part of a current finished-product craft family.
+The May 2026 one-step-back pass seeds every writing/book/pigment tool currently named by `ItemSeeder.Crafting.AntiquityWriting.cs` as a `TagTool` prerequisite. Those tool prototypes are stock prerequisites for the current suite. Crafts to make the newly introduced tool prototypes themselves remain a second-pass task unless they are already part of a current finished-product craft family.

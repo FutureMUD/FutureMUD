@@ -111,9 +111,9 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	[TestMethod]
 	public void LeatherCrafts_HaveStableReferencesInItemAndCraftSources()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
-		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
+		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{
@@ -148,9 +148,9 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	public void LeatherCrafts_CoverEveryAntiquityLeatherMaterialItem()
 	{
 		var craftSource =
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs") +
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityRepairKits.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityRepairKits.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
 		var leatherItemStableReferences = FindAntiquityLeatherMaterialItemStableReferences(itemSource)
 			.ToArray();
 
@@ -170,7 +170,7 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	[TestMethod]
 	public void LeatherCrafts_UseLeatherworkingKnowledgeTraitAndCommodityPipeline()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{
@@ -214,7 +214,7 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	[TestMethod]
 	public void LeatherCrafts_BridgeAnimalButcheryRawHidesIntoCommodityPipeline()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
 		var butcherySource = ReadSource("DatabaseSeeder", "Seeders", "AnimalButcherySeeder.cs");
 		var coreMaterialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
 		var hierarchySource = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
@@ -250,7 +250,7 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	{
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
 		var hierarchySource = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{
@@ -313,7 +313,7 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	[TestMethod]
 	public void AntiquityCraftVisibleStrings_DoNotUseCultureNamesOrRepairLayer()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
 		var bannedTerms = new[]
 		{
 			"Hellenic",

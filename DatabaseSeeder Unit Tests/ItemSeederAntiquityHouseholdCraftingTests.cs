@@ -13,7 +13,7 @@ public class ItemSeederAntiquityHouseholdCraftingTests
 	[TestMethod]
 	public void AntiquityHouseholdSeeder_CurrentCatalogueHasFurnitureAndContainerTargets()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
 
 		Assert.AreEqual(243, CountCreateItemsInMethod(itemSource, "SeedAntiquityContainers"));
 		Assert.AreEqual(89, CountCreateItemsInMethod(itemSource, "SeedAntiquityHouseholdFurniture"));
@@ -22,8 +22,8 @@ public class ItemSeederAntiquityHouseholdCraftingTests
 	[TestMethod]
 	public void AntiquityHouseholdCrafts_DiscoverAllHouseholdGoodsByFunctionalTags()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityHousehold.cs");
-		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityHousehold.cs");
+		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
 
 		AssertContains(craftRoot, "SeedAntiquityFurnitureAndContainerCrafts();");
 		AssertContains(craftSource, "Functions / Household Items");
@@ -38,7 +38,7 @@ public class ItemSeederAntiquityHouseholdCraftingTests
 	[TestMethod]
 	public void AntiquityHouseholdCrafts_UseCommodityIntermediatePathways()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityHousehold.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityHousehold.cs");
 
 		foreach (var expected in new[]
 		{
@@ -73,7 +73,7 @@ public class ItemSeederAntiquityHouseholdCraftingTests
 	[TestMethod]
 	public void AntiquityHouseholdCrafts_CopySingleColourVariablesFromColourBearingInputs()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityHousehold.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityHousehold.cs");
 
 		foreach (var expected in new[]
 		         {
@@ -92,7 +92,7 @@ public class ItemSeederAntiquityHouseholdCraftingTests
 	[TestMethod]
 	public void AntiquityHouseholdCrafts_DefineCultureKnowledgeAndNewSkills()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityHousehold.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityHousehold.cs");
 		var skillSource = ReadSource("DatabaseSeeder", "Seeders", "SkillPackageSeeder.cs");
 
 		foreach (var expected in new[]
@@ -139,8 +139,8 @@ public class ItemSeederAntiquityHouseholdCraftingTests
 	public void AntiquityHouseholdCrafts_AddToolAndCommodityTagsAndPeriodTools()
 	{
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
-		var toolSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityHouseholdTools.cs");
-		var reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
+		var toolSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityHouseholdTools.cs");
+		var reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
 
 		foreach (var expected in new[]
 		{

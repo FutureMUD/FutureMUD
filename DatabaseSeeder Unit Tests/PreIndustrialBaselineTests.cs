@@ -81,12 +81,14 @@ public class PreIndustrialBaselineTests
 		Assert.AreEqual(342, mappings.Count);
 		Assert.AreEqual(mappings.Count, mappings.Values.Distinct(StringComparer.OrdinalIgnoreCase).Count());
 
+		var seederPath = Path.Combine(SourceRoot(), "DatabaseSeeder", "Seeders");
 		var allSeederSource = string.Join("\n", Directory
-			.GetFiles(Path.Combine(SourceRoot(), "DatabaseSeeder", "Seeders"), "ItemSeeder.Rework*.cs")
+			.GetFiles(seederPath, "ItemSeeder.*.cs")
+			.Append(Path.Combine(seederPath, "ItemSeeder.cs"))
 			.Where(x => !Path.GetFileName(x).Contains("PreIndustrialBaseline", StringComparison.OrdinalIgnoreCase))
 			.Select(File.ReadAllText));
-		var aliasSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PreIndustrialBaseline.Aliases.cs") +
-		                  ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PreIndustrialBaseline.cs");
+		var aliasSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.Aliases.cs") +
+		                  ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.cs");
 
 		foreach (var (source, alias) in mappings)
 		{
@@ -184,7 +186,7 @@ public class PreIndustrialBaselineTests
 	[TestMethod]
 	public void AliasLifecycleReferences_DoNotFallBackToMedievalRows()
 	{
-		var aliasSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PreIndustrialBaseline.Aliases.cs");
+		var aliasSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.Aliases.cs");
 		var medievalReferences = Regex.Matches(aliasSource, "\"medieval_[a-z0-9_]+\"").Count;
 		Assert.AreEqual(PreIndustrialBaselineExpectations.DirectAliasSpecs.Count, medievalReferences,
 			"Each alias call should contain only its source medieval reference; lifecycle targets must use aliases.");
@@ -225,7 +227,7 @@ public class PreIndustrialBaselineTests
 	[TestMethod]
 	public void MedievalWritingTagAndComponentStrings_ContainNoBackticks()
 	{
-		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalWriting.cs");
+		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalWriting.cs");
 		Assert.IsFalse(source.Contains('`'), "No medieval writing tag/component string may contain '`'.");
 	}
 

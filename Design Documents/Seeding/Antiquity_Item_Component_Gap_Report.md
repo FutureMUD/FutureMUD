@@ -4,7 +4,7 @@ This document records proposed stock-content additions for the antiquity item se
 
 The goal is not to replace the existing antiquity catalogue. It is a forward-looking implementation guide for logical item groups that fit the technology level, social setting, and current MUD functionality.
 
-Cross-era foundation note: genuinely shared workshop foundations use `historic_*` stable references in `ItemSeeder.Rework.HistoricFoundation.cs` and are seeded for either antiquity or medieval installs. Antiquity culture-specific clothing, weapons, jewellery, foodways, and document forms remain under their existing `antiquity_*` references.
+Cross-era foundation note: genuinely shared workshop foundations use `historic_*` stable references in `ItemSeeder.HistoricFoundation.cs` and are seeded for either antiquity or medieval installs. Antiquity culture-specific clothing, weapons, jewellery, foodways, and document forms remain under their existing `antiquity_*` references.
 
 ## Existing Coverage Baseline
 
@@ -21,7 +21,7 @@ The current antiquity item suite already has broad coverage for:
 
 These items can be added to the antiquity seeder without new runtime component types. Some use stock generic components exactly as seeded; others would be better if the component prototype names were later made more setting-specific, but they are still implementable today.
 
-Seeder status: the item prototypes listed in this section are now seeded by `ItemSeeder.Rework.AntiquityComponentGaps.cs`. Items whose richer behaviour depends on still-deferred systems, such as physical length measurement or rules-aware board games, are seeded as ordinary props.
+Seeder status: the item prototypes listed in this section are now seeded by `ItemSeeder.AntiquityComponentGaps.cs`. Items whose richer behaviour depends on still-deferred systems, such as physical length measurement or rules-aware board games, are seeded as ordinary props.
 
 ### Timekeeping Items
 
@@ -112,7 +112,7 @@ Original gap: `Board` exists as a message-board component, but there was no anti
 
 These gaps did not require brand-new engine functionality. They are now seeded by `UsefulSeeder.ItemComponents.cs` as stock component prototypes so antiquity items can reference setting-appropriate variants instead of borrowing misleading generic or modern examples.
 
-ItemSeeder status: the item prototypes named in the "Items enabled or improved" lists below are now seeded by `ItemSeeder.Rework.AntiquityComponentGaps.cs`.
+ItemSeeder status: the item prototypes named in the "Items enabled or improved" lists below are now seeded by `ItemSeeder.AntiquityComponentGaps.cs`.
 
 ### Antiquity TimePiece Variants
 
@@ -240,7 +240,7 @@ Items enabled or improved:
 
 These gaps originally needed new runtime component families. They are now first-class component types with seeded examples in `UsefulSeeder.ItemComponents.cs`.
 
-ItemSeeder status: the `SealStamp`, `Sealable`, and `MeasuringInstrument` item examples listed below are now seeded by `ItemSeeder.Rework.AntiquityComponentGaps.cs`. Length/cubit/survey rod examples remain prop-only until item dimensions exist.
+ItemSeeder status: the `SealStamp`, `Sealable`, and `MeasuringInstrument` item examples listed below are now seeded by `ItemSeeder.AntiquityComponentGaps.cs`. Length/cubit/survey rod examples remain prop-only until item dimensions exist.
 
 ### SealStamp and Sealable Components
 

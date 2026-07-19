@@ -139,8 +139,8 @@ Recommended file layout:
 
 ```text
 Design Documents/Seeding/Primary_Production_Seeder_Design_Reference.md
-DatabaseSeeder/Seeders/ItemSeeder.Rework.PrimaryProductionTools.cs
-DatabaseSeeder/Seeders/ItemSeederCrafting.PrimaryProduction.cs
+DatabaseSeeder/Seeders/ItemSeeder.PrimaryProductionTools.cs
+DatabaseSeeder/Seeders/ItemSeeder.Crafting.PrimaryProduction.cs
 DatabaseSeeder/Seeders/PrimaryProductionSeeder.cs
 DatabaseSeeder/Seeders/PrimaryProductionSeeder.Projects.cs
 DatabaseSeeder/Seeders/PrimaryProductionSeeder.Progs.cs
@@ -1536,7 +1536,7 @@ The main design decision in this phase was seeding-order related rather than dom
 
 ### Phase 3 Tools, Apparatus, And Resource Props - Completed 2026-06-18
 
-The reusable item layer is now seeded through `ItemSeeder.Rework.PrimaryProductionTools.cs` and is wired into the shared historic item install path for antiquity and medieval selections:
+The reusable item layer is now seeded through `ItemSeeder.PrimaryProductionTools.cs` and is wired into the shared historic item install path for antiquity and medieval selections:
 
 - Portable durable tools now cover prospecting, surveying, mining, quarrying, masonry, hauling, charcoal burning, kiln work, smelting, saltworking, alkali work, tar/pitch work, peat cutting, and pigment processing.
 - Carrying aids now include sample bags, ore baskets, ore sacks, a hand-barrow, a wheelbarrow, rope, timber props, and process containers such as the ash hopper.
@@ -1548,7 +1548,7 @@ The main design decision in this phase was to avoid adding a new fixture/scenery
 
 ### Phase 4 Commodity Crafts - Completed 2026-06-18
 
-The reusable craft layer is now seeded through `ItemSeederCrafting.PrimaryProduction.cs` and is wired immediately after `SeedHistoricFoundationCrafts()` in the shared craft seeder:
+The reusable craft layer is now seeded through `ItemSeeder.Crafting.PrimaryProduction.cs` and is wired immediately after `SeedHistoricFoundationCrafts()` in the shared craft seeder:
 
 - The catalogue adds deterministic `primary production - ...` craft names under `Primary Production / ...` categories and gates them behind `Primary Production - Historic Commodity Work` knowledge.
 - Ore-preparation crafts now cover sample assay plus break, sort, wash, and roast chains for iron, copper, tin, and lead ores.

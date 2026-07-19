@@ -4,7 +4,7 @@
 **Date:** 27 June 2026
 **Era band:** approximately 500-1300 CE
 **Main catalogue size:** 183 item prototypes.
-**Implementation files:** `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalMedical.cs` and `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalRepairKits.cs`.
+**Implementation files:** `DatabaseSeeder/Seeders/ItemSeeder.MedievalMedical.cs` and `DatabaseSeeder/Seeders/ItemSeeder.MedievalRepairKits.cs`.
 
 This document merges the dependency design reference with the finished catalogue. The dependency sections preserve the authoring contract and validated seeded assets; the catalogue sections are the exact final item rows used by the medieval item seeder. The standalone CSV companion is intentionally not embedded as a project resource; its `sdesc` and `fdesc` values are represented here and in the direct `CreateItem(...)` calls.
 
@@ -85,8 +85,8 @@ Use these current project files as the validation boundary:
 The catalogue is implemented as focused medieval rework partials:
 
 ```text
-DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalMedical.cs
-DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalRepairKits.cs
+DatabaseSeeder/Seeders/ItemSeeder.MedievalMedical.cs
+DatabaseSeeder/Seeders/ItemSeeder.MedievalRepairKits.cs
 ```
 
 Each row is implemented as a direct `CreateItem(...)` call in the same style as the other direct-call medieval partials. The rows are directly auditable as normal `CreateItem(...)` arguments.

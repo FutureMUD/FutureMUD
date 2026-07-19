@@ -3,7 +3,7 @@
 **Status:** second-pass production-chain audit after the medieval industry tool and intermediate-stock item catalogue landed.  
 **Date:** 3 July 2026.  
 **Scope:** identifies which newly seeded tools and workshop apparatus must themselves become craft outputs before the medieval finished-good craft pass can safely proceed.  
-**Primary implementation target:** `DatabaseSeeder/Seeders/ItemSeederCrafting.Medieval.cs`, beginning with `SeedMedievalProductionChainCrafts` and only then moving to the category-specific medieval craft launchers.
+**Primary implementation target:** `DatabaseSeeder/Seeders/ItemSeeder.Crafting.Medieval.cs`, beginning with `SeedMedievalProductionChainCrafts` and only then moving to the category-specific medieval craft launchers.
 
 This document does not implement crafts. It records the required dependency closure for the tools and stock now present in `SeedMedievalHouseholdCraftTools` and `SeedMedievalComponentGapItems`.
 

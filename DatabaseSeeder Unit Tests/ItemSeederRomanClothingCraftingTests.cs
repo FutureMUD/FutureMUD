@@ -29,8 +29,8 @@ public class ItemSeederRomanClothingCraftingTests
 	[TestMethod]
 	public void RomanClothingCrafts_ProduceEveryCurrentRomanClothingPrototype()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
 
 		foreach (var stableReference in RomanClothingStableReferences)
 		{
@@ -44,8 +44,8 @@ public class ItemSeederRomanClothingCraftingTests
 	[TestMethod]
 	public void RomanFinishedGarmentCrafts_UseRomanKnowledgeGate()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
-		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
+		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
 
 		AssertContains(craftSource, "const string romanKnowledge = \"Roman Textilecraft\"");
 		AssertContains(craftSource, "knowledgeSubtype: \"Roman\"");
@@ -57,7 +57,7 @@ public class ItemSeederRomanClothingCraftingTests
 	[TestMethod]
 	public void RomanGarmentCrafts_UseSharedTextileCommoditiesAndCopyColours()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{

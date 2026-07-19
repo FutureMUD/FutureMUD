@@ -101,7 +101,7 @@ public class PrimaryProductionSeederTests
 	[TestMethod]
 	public void PrimaryProductionCrafts_CoverRegionalMethodologiesAndSemanticCommodityFixes()
 	{
-		string source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.PrimaryProduction.cs");
+		string source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.PrimaryProduction.cs");
 		var craftSpecs = ItemSeeder.PrimaryProductionCraftSpecsForTesting.ToArray();
 
 		string[] expectedCraftNames =
@@ -148,10 +148,10 @@ public class PrimaryProductionSeederTests
 	[TestMethod]
 	public void PrimaryProductionIntegration_WiresToolsCraftsMaterialsAndMetadata()
 	{
-		string reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
-		string sharedBaseline = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PreIndustrialBaseline.cs");
-		string craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		string tools = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.PrimaryProductionTools.cs");
+		string reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
+		string sharedBaseline = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.cs");
+		string craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		string tools = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PrimaryProductionTools.cs");
 		string materials = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
 		string metadata = ReadSource("DatabaseSeeder", "SeederMetadataRegistry.cs");
 

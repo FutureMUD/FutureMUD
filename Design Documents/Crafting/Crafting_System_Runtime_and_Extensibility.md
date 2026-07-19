@@ -17,7 +17,7 @@ Crafting is not implemented as a single isolated module. It is a distributed sub
 | Persistence | Revisioned craft tables and child records for phases, inputs, products, and tools | `MudsharpDatabaseLibrary/Models/Craft.cs`, `CraftPhase.cs`, `CraftInput.cs`, `CraftTool.cs`, `CraftProduct.cs` |
 | Boot and loading | Craft loading and registration timing within world startup | `MudSharpCore/Framework/FuturemudLoaders.cs` |
 | Commands and review | Player use, builder editing, listing, filtering, cloning, and review | `MudSharpCore/Commands/Modules/CraftModule.cs`, `MudSharpCore/Commands/Helpers/EditableRevisableItemHelper.cs` |
-| Seeder and stock examples | Seeded FutureProgs and stock craft content | `DatabaseSeeder/Seeders/ItemSeederCrafting.cs` |
+| Seeder and stock examples | Seeded FutureProgs and stock craft content | `DatabaseSeeder/Seeders/ItemSeeder.Crafting.cs` |
 | Cross-system integration | Item skins, tool items, tags, liquids, NPC templates, AI, inventory plans, economy search | multiple runtime locations described below |
 
 ## Main Public Contracts
@@ -472,7 +472,7 @@ They use:
 - unique name enforcement across approved and in-design craft records
 
 ### Seeder content
-`DatabaseSeeder/Seeders/ItemSeederCrafting.cs` seeds:
+`DatabaseSeeder/Seeders/ItemSeeder.Crafting.cs` seeds:
 
 - stock availability and gating progs
 - large numbers of example crafts

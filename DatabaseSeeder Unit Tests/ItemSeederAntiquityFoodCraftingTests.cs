@@ -56,10 +56,10 @@ public class ItemSeederAntiquityFoodCraftingTests
 	[TestMethod]
 	public void AntiquityApiaryCrafting_BackfillsApicultureItemsAndProcessing()
 	{
-		var reworkSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityApiary.cs");
-		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityApiary.cs");
+		var reworkSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityApiary.cs");
+		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityApiary.cs");
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
 		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
 
@@ -108,8 +108,8 @@ public class ItemSeederAntiquityFoodCraftingTests
 	[TestMethod]
 	public void AntiquityAgricultureCrafting_BackfillsSeedPastoralAndDerivativeProcessing()
 	{
-		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityAgriculture.cs");
+		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityAgriculture.cs");
 		var agricultureSource = ReadSource("DatabaseSeeder", "Seeders", "AgricultureSeeder.cs");
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
 		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
@@ -184,10 +184,10 @@ public class ItemSeederAntiquityFoodCraftingTests
 	public void AntiquityFoodCrafting_RunsThroughItemSeederReworkPath()
 	{
 		var shimPath = SourcePath("DatabaseSeeder", "Seeders", "AntiquityFoodBeverageSeeder.cs");
-		var reworkSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
-		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+		var reworkSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityFood.cs");
+		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityFood.cs");
 		var metadataSource = ReadSource("DatabaseSeeder", "SeederMetadataRegistry.cs");
 		var cookingSource = ReadSource("DatabaseSeeder", "Seeders", "CookingSeeder.cs");
 
@@ -205,7 +205,7 @@ public class ItemSeederAntiquityFoodCraftingTests
 	[TestMethod]
 	public void AntiquityFoodCrafting_BridgesAnimalButcheryOutputsIntoCommodityPipeline()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityFood.cs");
 		var butcherySource = ReadSource("DatabaseSeeder", "Seeders", "AnimalButcherySeeder.cs");
 		var coreMaterialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
 		var hierarchySource = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
@@ -256,8 +256,8 @@ public class ItemSeederAntiquityFoodCraftingTests
 	public void AntiquityFoodCrafting_UsesSpecialisedAgriculturalAndBeverageSkills()
 	{
 		var skillSource = ReadSource("DatabaseSeeder", "Seeders", "SkillPackageSeeder.cs");
-		var progSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+		var progSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityFood.cs");
 
 		AssertContains(skillSource, "new SkillDetails(\"Threshing\"");
 		AssertContains(skillSource, "new SkillDetails(\"Milling\"");
@@ -279,7 +279,7 @@ public class ItemSeederAntiquityFoodCraftingTests
 	[TestMethod]
 	public void AntiquityFoodCrafting_DeclaresCommodityTagsLiquidsPreparedFoodsAndSpoilageRules()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityFood.cs");
 		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 
 		foreach (var tag in CommodityTags)
@@ -328,8 +328,8 @@ public class ItemSeederAntiquityFoodCraftingTests
 	[TestMethod]
 	public void AntiquityFoodCrafting_MakesFoodToolsAndEmptyVesselsCraftable()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityFood.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityFood.cs");
 
 		AssertContains(itemSource, "[toolTag, \"Market / Professional Tools / Standard Tools\"]");
 		foreach (var expected in new[]
@@ -402,8 +402,8 @@ public class ItemSeederAntiquityFoodCraftingTests
 	[TestMethod]
 	public void AntiquityFoodCrafting_UsesFermentingMorphVesselsForFermentedBeverages()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityFood.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityFood.cs");
 
 		foreach (var active in new[]
 		         {
@@ -461,8 +461,8 @@ public class ItemSeederAntiquityFoodCraftingTests
 	[TestMethod]
 	public void AntiquityFoodCrafting_UsesMilkForKumisAndKeepsCoreWineLiquidsInCoreData()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityFood.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityFood.cs");
 		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
 
 		var beverageStockBody = ExtractMethodBody(craftSource, "CultureBeverageStockInput");
@@ -484,8 +484,8 @@ public class ItemSeederAntiquityFoodCraftingTests
 	[TestMethod]
 	public void AntiquityFoodCrafting_AddsOilAndFruitCommodityPaths()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityFood.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityFood.cs");
 
 		AssertContains(itemSource, "EnsureMaterialHasTag(material, \"Oilseed Crop\")");
 		AssertContains(itemSource, "EnsureMaterialHasTag(material, \"Ready Fruit Crop\")");
@@ -516,8 +516,8 @@ public class ItemSeederAntiquityFoodCraftingTests
 	[TestMethod]
 	public void AntiquityFoodCrafting_DoublesCultureSuiteWithLuxuryFoodsAndBeverages()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityFood.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityFood.cs");
 		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 
 		Assert.AreEqual(14, Regex.Matches(craftSource, @"AddCultureFoodCraft\(culture,").Count,
@@ -566,8 +566,8 @@ public class ItemSeederAntiquityFoodCraftingTests
 	[TestMethod]
 	public void AntiquityFoodCrafting_CoversAllCulturesWithVariableMeatAndPreparedFoodProducts()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityFood.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityFood.cs");
 
 		foreach (var culture in Cultures)
 		{

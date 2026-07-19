@@ -56,8 +56,8 @@ public class ItemSeederAntiquityMedicalCraftingTests
 	[TestMethod]
 	public void AntiquityMedicalItems_AreSeededWithFunctionalComponentAndTagCoverage()
 	{
-		var reworkRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityMedical.cs");
+		var reworkRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityMedical.cs");
 
 		AssertContains(reworkRootSource, "SeedAntiquityMedicalItems();");
 
@@ -107,8 +107,8 @@ public class ItemSeederAntiquityMedicalCraftingTests
 	[TestMethod]
 	public void AntiquityMedicalCrafts_RegisterKnowledgeGatedSuite()
 	{
-		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityMedical.cs");
+		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityMedical.cs");
 
 		AssertContains(craftRoot, "SeedAntiquityMedicalCrafts();");
 
@@ -132,7 +132,7 @@ public class ItemSeederAntiquityMedicalCraftingTests
 	[TestMethod]
 	public void AntiquityMedicalCrafts_AddUpstreamCommodityAndTagSurface()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityMedical.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityMedical.cs");
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
 		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 
@@ -170,7 +170,7 @@ public class ItemSeederAntiquityMedicalCraftingTests
 	[TestMethod]
 	public void AntiquityMedicalCrafts_CoverEveryMedicalPrototypeAndVisibleTextIsCultureNeutral()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityMedical.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityMedical.cs");
 
 		foreach (var stableReference in ExpectedMedicalStableReferences)
 		{

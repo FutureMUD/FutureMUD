@@ -389,7 +389,7 @@ Use `AnimalSeeder` as the venom reference. Its pattern is:
 2. Create a matching liquid with `Drug`, `DrugGramsPerUnitVolume`, taste/smell text, and injection consequence.
 3. Attach that liquid to an `EnvenomingAttack`.
 
-Use `ItemSeeder.Rework.AntiquityMedical` as an example of item prototypes that consume the stock drug delivery component names, such as `Pill_Willow_Bark_Tea`, `TopicalCream_Honey_Poultice`, and `Smokeable_Henbane_Smoke`.
+Use `ItemSeeder.AntiquityMedical` as an example of item prototypes that consume the stock drug delivery component names, such as `Pill_Willow_Bark_Tea`, `TopicalCream_Honey_Poultice`, and `Smokeable_Henbane_Smoke`.
 
 ## Testing Checklist
 Before considering a drug content slice complete:

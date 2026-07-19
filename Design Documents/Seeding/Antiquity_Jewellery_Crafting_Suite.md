@@ -1,6 +1,6 @@
 # Antiquity Jewellery Crafting Suite
 
-This document records the dedicated craft suite for the `SeedAntiquityJewellery` catalogue in `DatabaseSeeder/Seeders/ItemSeeder.Rework.Antiquity.cs`. Jewellery was previously treated as an older covered surface by the broad antiquity audit; the next-pass implementation now gives it a real craft source, upstream commodity chain, knowledge gate, and per-reference catalogue.
+This document records the dedicated craft suite for the `SeedAntiquityJewellery` catalogue in `DatabaseSeeder/Seeders/ItemSeeder.Antiquity.cs`. Jewellery was previously treated as an older covered surface by the broad antiquity audit; the next-pass implementation now gives it a real craft source, upstream commodity chain, knowledge gate, and per-reference catalogue.
 
 ## Target Surface
 
@@ -11,7 +11,7 @@ This document records the dedicated craft suite for the `SeedAntiquityJewellery`
 
 ## Implementation
 
-The implementation lives in `DatabaseSeeder/Seeders/ItemSeederCrafting.AntiquityJewellery.cs` and is registered from `SeedCrafts()` through `SeedAntiquityJewelleryCrafts()`.
+The implementation lives in `DatabaseSeeder/Seeders/ItemSeeder.Crafting.AntiquityJewellery.cs` and is registered from `SeedCrafts()` through `SeedAntiquityJewelleryCrafts()`.
 
 The suite follows the same stock pattern as the other antiquity craft suites:
 

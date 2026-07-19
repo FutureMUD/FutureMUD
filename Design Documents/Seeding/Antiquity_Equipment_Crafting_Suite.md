@@ -1,6 +1,6 @@
 # Antiquity Equipment Crafting Suite
 
-This document records the craft suite that closes the remaining non-household antiquity gaps from `ItemSeeder.Rework.Antiquity.cs`: common clothing/accessories, textile and leather craft tools, support tools, unlit workshop apparatus, non-leather armour, weapons, shields, ammunition, slings, and the construction hardware used by doors and gates.
+This document records the craft suite that closes the remaining non-household antiquity gaps from `ItemSeeder.Antiquity.cs`: common clothing/accessories, textile and leather craft tools, support tools, unlit workshop apparatus, non-leather armour, weapons, shields, ammunition, slings, and the construction hardware used by doors and gates.
 
 ## Target Surface
 
@@ -17,7 +17,7 @@ Existing jewellery, culture-specific textile clothing, leather clothing, leather
 
 ## Implementation
 
-The implementation lives primarily in `DatabaseSeeder/Seeders/ItemSeederCrafting.AntiquityEquipment.cs` and is registered from `SeedCrafts()` through `SeedAntiquityEquipmentCrafts()`. Portable repair kits live in `ItemSeederCrafting.AntiquityRepairKits.cs` and are registered through `SeedAntiquityRepairKitCrafts()`.
+The implementation lives primarily in `DatabaseSeeder/Seeders/ItemSeeder.Crafting.AntiquityEquipment.cs` and is registered from `SeedCrafts()` through `SeedAntiquityEquipmentCrafts()`. Portable repair kits live in `ItemSeeder.Crafting.AntiquityRepairKits.cs` and are registered through `SeedAntiquityRepairKitCrafts()`.
 
 The suite follows the same stock pattern as the textile, leather, jewellery, and household work:
 
@@ -30,7 +30,7 @@ The suite follows the same stock pattern as the textile, leather, jewellery, and
 
 ## One-Step-Back Heat And Tool Audit
 
-The May 2026 one-step-back pass audits the full `ItemSeederCrafting.Antiquity*.cs` source set, not only the clothing/equipment anchor file. The audit boundary is:
+The May 2026 one-step-back pass audits the full `ItemSeeder.Crafting.Antiquity*.cs` source set, not only the clothing/equipment anchor file. The audit boundary is:
 
 - every current `TagTool` requirement in the antiquity craft suite
 - every literal commodity product tag produced by an antiquity craft
@@ -100,7 +100,7 @@ All equipment stock tags are seeded under `Functions / Material Functions / Anti
 
 ## Source-Audited Product Catalogue
 
-The equipment suite has two product surfaces. The military surface is discovered dynamically from `Functions / Military Equipment` tags, while common clothing and craft-tool products are explicitly named or discovered from functional tool tags in `ItemSeederCrafting.AntiquityEquipment.cs`.
+The equipment suite has two product surfaces. The military surface is discovered dynamically from `Functions / Military Equipment` tags, while common clothing and craft-tool products are explicitly named or discovered from functional tool tags in `ItemSeeder.Crafting.AntiquityEquipment.cs`.
 
 ### Armour
 
@@ -178,4 +178,4 @@ Spears and javelins: `antiquity_weapon_celtic_leaf_bladed_spear`, `antiquity_wea
 
 ## Verification
 
-`ItemSeederAntiquityRemainingCraftingTests` parses `ItemSeeder.Rework.Antiquity.cs`, applies the same coverage rules as the seeder, and fails if a current prototype is not covered by either an existing suite or the new equipment/expanded household pass. It also asserts upstream commodity tags, full antiquity `TagTool` item coverage, lit workshop morph metadata, reusable intermediate documentation, knowledge-gated registration, culture-neutral visible string construction, and the corrected fresh-install `HasWeaponcrafting` / `HasArmourcrafting` source definitions.
+`ItemSeederAntiquityRemainingCraftingTests` parses `ItemSeeder.Antiquity.cs`, applies the same coverage rules as the seeder, and fails if a current prototype is not covered by either an existing suite or the new equipment/expanded household pass. It also asserts upstream commodity tags, full antiquity `TagTool` item coverage, lit workshop morph metadata, reusable intermediate documentation, knowledge-gated registration, culture-neutral visible string construction, and the corrected fresh-install `HasWeaponcrafting` / `HasArmourcrafting` source definitions.

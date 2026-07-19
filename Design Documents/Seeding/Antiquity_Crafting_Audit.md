@@ -8,28 +8,28 @@ Current item definitions are seeded from:
 
 | Source | Current Item Definitions |
 | --- | ---: |
-| `DatabaseSeeder/Seeders/ItemSeeder.Rework.Antiquity.cs` | 1034 |
-| `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityFood.cs` | 167 |
-| `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityHouseholdTools.cs` | 65 |
-| `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityMedical.cs` | 41 |
-| `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityWriting.cs` | 33 |
+| `DatabaseSeeder/Seeders/ItemSeeder.Antiquity.cs` | 1034 |
+| `DatabaseSeeder/Seeders/ItemSeeder.AntiquityFood.cs` | 167 |
+| `DatabaseSeeder/Seeders/ItemSeeder.AntiquityHouseholdTools.cs` | 65 |
+| `DatabaseSeeder/Seeders/ItemSeeder.AntiquityMedical.cs` | 41 |
+| `DatabaseSeeder/Seeders/ItemSeeder.AntiquityWriting.cs` | 33 |
 | Total | 1340 |
 
-Cross-era foundation note: `ItemSeeder.Rework.HistoricFoundation.cs` and `ItemSeederCrafting.HistoricFoundation.cs` own the shared `historic_*` workshop apparatus that is seeded when either `antiquity` or `medieval` is selected. Antiquity-specific garment, weapon, jewellery, and foodway stable references remain unchanged; the shared items are additions rather than renames.
+Cross-era foundation note: `ItemSeeder.HistoricFoundation.cs` and `ItemSeeder.Crafting.HistoricFoundation.cs` own the shared `historic_*` workshop apparatus that is seeded when either `antiquity` or `medieval` is selected. Antiquity-specific garment, weapon, jewellery, and foodway stable references remain unchanged; the shared items are additions rather than renames.
 
 Current craft definitions are seeded from:
 
 | Source | Craft Surface |
 | --- | --- |
-| `ItemSeederCrafting.Antiquity.cs` | Textile, leather, and older shared antiquity craft chains. |
-| `ItemSeederCrafting.AntiquityAgriculture.cs` | Seed-stock selection, raw milk straining, and crop derivative stock for dyes and saffron. |
-| `ItemSeederCrafting.AntiquityApiary.cs` | Apiary tools, hive equipment, and honeycomb processing. |
-| `ItemSeederCrafting.AntiquityEquipment.cs` | Common clothing/accessories, equipment stock, military goods, and heat-source lighting crafts. |
-| `ItemSeederCrafting.AntiquityFood.cs` | Grain, pulse, meat, preservation, beverage, and culture-gated foodway crafts. |
-| `ItemSeederCrafting.AntiquityHousehold.cs` | Household, container, vessel, door, gate, and furnishing craft discovery. |
-| `ItemSeederCrafting.AntiquityJewellery.cs` | Jewellery stock, beads, settings, wire, and final jewellery craft discovery. |
-| `ItemSeederCrafting.AntiquityMedical.cs` | Medical supplies, remedies, surgical tools, mobility aids, and prosthetics. |
-| `ItemSeederCrafting.AntiquityWriting.cs` | Writing surfaces, implements, inks, scrolls, codices, and document containers. |
+| `ItemSeeder.Crafting.Antiquity.cs` | Textile, leather, and older shared antiquity craft chains. |
+| `ItemSeeder.Crafting.AntiquityAgriculture.cs` | Seed-stock selection, raw milk straining, and crop derivative stock for dyes and saffron. |
+| `ItemSeeder.Crafting.AntiquityApiary.cs` | Apiary tools, hive equipment, and honeycomb processing. |
+| `ItemSeeder.Crafting.AntiquityEquipment.cs` | Common clothing/accessories, equipment stock, military goods, and heat-source lighting crafts. |
+| `ItemSeeder.Crafting.AntiquityFood.cs` | Grain, pulse, meat, preservation, beverage, and culture-gated foodway crafts. |
+| `ItemSeeder.Crafting.AntiquityHousehold.cs` | Household, container, vessel, door, gate, and furnishing craft discovery. |
+| `ItemSeeder.Crafting.AntiquityJewellery.cs` | Jewellery stock, beads, settings, wire, and final jewellery craft discovery. |
+| `ItemSeeder.Crafting.AntiquityMedical.cs` | Medical supplies, remedies, surgical tools, mobility aids, and prosthetics. |
+| `ItemSeeder.Crafting.AntiquityWriting.cs` | Writing surfaces, implements, inks, scrolls, codices, and document containers. |
 
 The suite-specific docs now catalogue every stable reference explicitly named by those craft source files. Dynamic discovery surfaces are documented by their source counts and inventory lists:
 
@@ -42,7 +42,7 @@ The suite-specific docs now catalogue every stable reference explicitly named by
 ## Verified Invariants
 
 - Every current antiquity `TagTool` requirement has at least one seeded item prototype carrying the exact leaf tool tag.
-- Every explicit stable reference in `ItemSeederCrafting.Antiquity*.cs` is listed in the antiquity crafting docs.
+- Every explicit stable reference in `ItemSeeder.Crafting.Antiquity*.cs` is listed in the antiquity crafting docs.
 - Lit workshop items have morph targets, morph timers, and their expected lit-state tags.
 - Heat-source lighting crafts consume `charcoal`, produce the lit apparatus, and return the unlit apparatus on failure.
 - Literal commodity product tags are either consumed downstream or documented as reusable stock outputs.

@@ -47,7 +47,7 @@ Important distinctions:
 | Persistence | Revisioned craft rows plus child phase/input/tool/product rows | `MudsharpDatabaseLibrary/Models/Craft*.cs` |
 | Command surface | Player craft use, builder craft editing, review workflow, list and search helpers | `MudSharpCore/Commands/Modules/CraftModule.cs`, `MudSharpCore/Commands/Helpers/EditableRevisableItemHelper.cs` |
 | Active in-world tracking | System-only active craft item prototype/component plus active character effect | `MudSharpCore/GameItems/Prototypes/ActiveCraftGameItemComponentProto.cs`, `MudSharpCore/GameItems/Components/ActiveCraftGameItemComponent.cs`, `MudSharpCore/Effects/Concrete/ActiveCraft.cs` |
-| Seeder and examples | Stock FutureProgs and seeded craft definitions that demonstrate common patterns | `DatabaseSeeder/Seeders/ItemSeederCrafting.cs` |
+| Seeder and examples | Stock FutureProgs and seeded craft definitions that demonstrate common patterns | `DatabaseSeeder/Seeders/ItemSeeder.Crafting.cs` |
 | Cross-system integrations | Item skins, tool items, tags, materials, liquids, NPC templates, AI, inventory plans, review framework, economy search surfaces | multiple runtime locations; see the runtime document for the verified list |
 
 ## Core Concepts

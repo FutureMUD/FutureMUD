@@ -1,7 +1,5 @@
-using System;
-using MudSharp.Economy.Employment;
+﻿using MudSharp.Economy.Employment;
 using MudSharp.Effects;
-using MudSharp.Framework;
 
 #nullable enable
 

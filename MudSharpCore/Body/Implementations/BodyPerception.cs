@@ -3,36 +3,26 @@ using MudSharp.Body.Disfigurements;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Traits;
 using MudSharp.Celestial;
-using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.Movement;
 using MudSharp.Magic;
-using MudSharp.PerceptionEngine;
 using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Vehicles;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
 
 #nullable enable
 #nullable disable warnings

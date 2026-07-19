@@ -1,18 +1,8 @@
-#nullable enable
+﻿#nullable enable
 using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Form.Audio;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 using ShapeGender = MudSharp.Form.Shape.Gender;
 
 namespace MudSharp.GameItems.Prototypes;

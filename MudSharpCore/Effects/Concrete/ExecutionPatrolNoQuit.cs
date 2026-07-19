@@ -1,9 +1,4 @@
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.RPG.Law;
-using System.Linq;
-using System.Xml.Linq;
+﻿using MudSharp.RPG.Law;
 
 namespace MudSharp.Effects.Concrete;
 

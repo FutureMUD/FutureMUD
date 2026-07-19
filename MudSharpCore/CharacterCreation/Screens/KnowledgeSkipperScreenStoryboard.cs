@@ -1,17 +1,8 @@
 ﻿using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Editor;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Knowledge;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.CharacterCreation.Screens;
 

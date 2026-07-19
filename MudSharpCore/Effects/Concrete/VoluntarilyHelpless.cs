@@ -1,12 +1,4 @@
-﻿using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace MudSharp.Effects.Concrete;
 
 public class VoluntarilyHelpless : Effect, IHelplessEffect

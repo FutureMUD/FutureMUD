@@ -1,11 +1,4 @@
-﻿using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace MudSharp.Effects.Concrete;
 
 public class Scanning : MultiStageBlockingDelayedAction, IRemoveOnMovementEffect, ILDescSuffixEffect

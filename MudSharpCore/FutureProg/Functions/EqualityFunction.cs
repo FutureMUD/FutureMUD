@@ -1,6 +1,4 @@
-using MudSharp.Form.Shape;
-using MudSharp.FutureProg.Variables;
-using System;
+﻿using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions;
 

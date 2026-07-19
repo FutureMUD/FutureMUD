@@ -1,7 +1,4 @@
 ﻿using MudSharp.Body.Traits;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

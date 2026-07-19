@@ -2,20 +2,13 @@
 using MoreLinq;
 using MoreLinq.Extensions;
 using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.Commands.Helpers;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.RPG.Merits;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Encodings.Web;
-using System.Threading.Tasks;
 
 namespace MudSharp.Commands.Modules;
 

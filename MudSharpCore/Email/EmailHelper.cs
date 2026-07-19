@@ -2,14 +2,8 @@
 using MimeKit;
 using MimeKit.Text;
 using MudSharp.Database;
-using MudSharp.Framework;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Email;
 

@@ -1,6 +1,4 @@
-﻿using MudSharp.Character;
-using System.Collections.Generic;
-
+﻿
 namespace MudSharp.FutureProg.Functions.BuiltIn;
 
 internal class ConvertToCharacterFunction : BuiltInFunction

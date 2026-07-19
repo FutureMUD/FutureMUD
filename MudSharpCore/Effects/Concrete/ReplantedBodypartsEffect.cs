@@ -1,12 +1,6 @@
 ﻿using MudSharp.Body;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.Health.Infections;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

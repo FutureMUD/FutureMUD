@@ -1,15 +1,7 @@
 ﻿using Humanizer;
-using MudSharp.Character;
-using MudSharp.Framework;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Merits.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;
 

@@ -1,8 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Combat.Moves;
+﻿using MudSharp.Combat.Moves;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
-using System;
 
 namespace MudSharp.Combat;
 

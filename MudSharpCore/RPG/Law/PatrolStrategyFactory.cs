@@ -1,8 +1,4 @@
-﻿using MudSharp.Framework;
-using MudSharp.RPG.Law.PatrolStrategies;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MudSharp.RPG.Law.PatrolStrategies;
 
 namespace MudSharp.RPG.Law;
 

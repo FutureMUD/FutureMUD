@@ -1,9 +1,7 @@
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.RPG.Merits.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Character;
 

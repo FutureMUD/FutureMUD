@@ -2,14 +2,8 @@
 using MudSharp.Communication.Language;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Character;
 

@@ -1,9 +1,4 @@
-using MudSharp.Effects.Interfaces;
-using MudSharp.Form.Material;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using System;
-using System.Xml.Linq;
+﻿using MudSharp.Form.Material;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 

@@ -1,12 +1,6 @@
 ﻿using MudSharp.Body.Position.PositionStates;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Construction.Boundary;
 

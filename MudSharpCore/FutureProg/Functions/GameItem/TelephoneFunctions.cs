@@ -1,11 +1,5 @@
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.FutureProg.Variables;
+﻿using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.GameItem;
 

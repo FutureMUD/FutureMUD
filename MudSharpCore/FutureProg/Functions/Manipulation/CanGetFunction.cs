@@ -1,7 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.FutureProg.Variables;
+﻿using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
-using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Functions.Manipulation;
 

@@ -1,7 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-
+﻿
 namespace MudSharp.Effects.Concrete;
 
 public class RecentlyRescuedTarget : CombatEffectBase, IRecentlyRescuedTargetEffect

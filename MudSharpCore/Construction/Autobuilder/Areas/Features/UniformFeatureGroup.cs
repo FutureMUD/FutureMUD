@@ -1,12 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Commands.Trees;
+﻿using MudSharp.Commands.Trees;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.Construction.Autobuilder.Areas.Features;
 

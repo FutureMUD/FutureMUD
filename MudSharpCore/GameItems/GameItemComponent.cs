@@ -2,20 +2,14 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using MudSharp.Body;
 using MudSharp.Body.Position;
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Events;
 using MudSharp.Events.Hooks;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.GameItems;
 

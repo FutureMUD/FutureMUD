@@ -1,25 +1,16 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.CharacterCreation;
 using MudSharp.Commands.Modules;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.NPC.AI;
 using MudSharp.NPC.Templates;
 using Org.BouncyCastle.Asn1.X509;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.NPC;
 #nullable enable

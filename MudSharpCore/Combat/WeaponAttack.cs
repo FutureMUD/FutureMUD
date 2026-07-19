@@ -4,23 +4,14 @@ using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Database;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Combat;
 

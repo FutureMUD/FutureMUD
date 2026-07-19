@@ -3,19 +3,11 @@ using MudSharp.Form.Material;
 using MudSharp.Framework.Units;
 using MudSharp.Accounts;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Work.Foraging;
 

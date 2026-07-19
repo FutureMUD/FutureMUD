@@ -1,5 +1,4 @@
-﻿using MudSharp.Character;
-
+﻿
 namespace MudSharp.Body.Needs;
 
 /// <summary>

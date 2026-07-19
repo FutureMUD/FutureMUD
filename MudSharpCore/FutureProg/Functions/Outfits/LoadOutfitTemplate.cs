@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using MudSharp.Character;
-using MudSharp.Framework;
-
+﻿
 namespace MudSharp.FutureProg.Functions.Outfits;
 
 internal sealed class LoadOutfitTemplate : BuiltInFunction

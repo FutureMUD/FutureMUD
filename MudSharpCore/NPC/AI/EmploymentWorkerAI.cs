@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using MudSharp.Arenas;
+﻿using MudSharp.Arenas;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.RPG.Knowledge;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.Construction;
@@ -15,7 +9,6 @@ using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.Models;
 
 #nullable enable

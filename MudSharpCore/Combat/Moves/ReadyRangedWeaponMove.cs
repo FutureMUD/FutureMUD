@@ -1,5 +1,4 @@
-﻿using MudSharp.GameItems.Interfaces;
-using MudSharp.RPG.Checks;
+﻿using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
 

@@ -1,6 +1,4 @@
-﻿using MudSharp.Framework;
-using System;
-
+﻿
 namespace MudSharp.GameItems.Decorators;
 
 public abstract class StackDecorator : FrameworkItem, IStackDecorator

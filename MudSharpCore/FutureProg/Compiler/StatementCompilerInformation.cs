@@ -1,9 +1,5 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace MudSharp.FutureProg.Compiler;

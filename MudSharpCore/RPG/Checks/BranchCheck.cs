@@ -1,14 +1,8 @@
 ﻿using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.Logging;
 using MudSharp.RPG.Merits.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.RPG.Checks;
 

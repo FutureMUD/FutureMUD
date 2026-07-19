@@ -1,14 +1,8 @@
 ﻿using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.RPG.Checks;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 

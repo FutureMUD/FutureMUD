@@ -1,20 +1,13 @@
 ﻿using Humanizer;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Movement;
 using MudSharp.NPC.AI.Strategies;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

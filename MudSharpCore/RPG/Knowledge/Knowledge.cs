@@ -1,17 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
-using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.RPG.Knowledge;
 

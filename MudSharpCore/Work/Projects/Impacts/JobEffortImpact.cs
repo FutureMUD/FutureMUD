@@ -1,14 +1,6 @@
 ﻿using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Economy;
-using MudSharp.Framework;
 using MudSharp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 
 namespace MudSharp.Work.Projects.Impacts;

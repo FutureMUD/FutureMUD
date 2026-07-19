@@ -1,10 +1,6 @@
-using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
+﻿using MudSharp.Effects.Concrete;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Planes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Planes;
 

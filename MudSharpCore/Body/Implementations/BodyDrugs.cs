@@ -1,17 +1,11 @@
-using MudSharp.Body.PartProtos;
-using MudSharp.Character;
+﻿using MudSharp.Body.PartProtos;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.Health;
 using MudSharp.Magic;
 using MudSharp.Models;
 using MudSharp.Planes;
 using MudSharp.RPG.Merits.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Body.Implementations;
 

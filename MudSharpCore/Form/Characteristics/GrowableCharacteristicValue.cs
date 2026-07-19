@@ -1,12 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Database;
-using MudSharp.Framework;
+﻿using MudSharp.Database;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Form.Characteristics;
 

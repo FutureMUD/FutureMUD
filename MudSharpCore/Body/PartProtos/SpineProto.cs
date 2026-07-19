@@ -1,5 +1,4 @@
-﻿using MudSharp.Framework;
-
+﻿
 namespace MudSharp.Body.PartProtos;
 
 public class SpineProto : InternalOrganProto, ISpineProto

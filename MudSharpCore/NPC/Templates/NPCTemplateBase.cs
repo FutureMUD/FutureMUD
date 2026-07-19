@@ -1,23 +1,15 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
-using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
-using MudSharp.FutureProg;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.NPC.AI;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 using EditableItem = MudSharp.Framework.Revision.EditableItem;
 
 #nullable enable

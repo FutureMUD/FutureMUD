@@ -1,11 +1,6 @@
-﻿using MudSharp.Framework;
-using MudSharp.Framework.Scheduling;
+﻿using MudSharp.Framework.Scheduling;
 using MudSharp.ThirdPartyCode;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Effects;
 

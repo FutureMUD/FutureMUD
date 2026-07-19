@@ -1,5 +1,4 @@
 ﻿using MudSharp.Body.Traits;
-using MudSharp.Framework;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 

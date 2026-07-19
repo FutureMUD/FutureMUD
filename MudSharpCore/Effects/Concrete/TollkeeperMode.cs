@@ -1,11 +1,7 @@
-#nullable enable annotations
+﻿#nullable enable annotations
 
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

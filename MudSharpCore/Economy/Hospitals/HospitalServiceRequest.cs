@@ -1,11 +1,6 @@
-using System;
-using System.Linq;
-using System.Text;
-using MudSharp.Character;
-using MudSharp.Character.Name;
+﻿using MudSharp.Character.Name;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using DbHospitalServiceRequest = MudSharp.Models.HospitalServiceRequest;
 

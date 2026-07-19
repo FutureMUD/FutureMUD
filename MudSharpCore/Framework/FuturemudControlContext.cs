@@ -1,18 +1,9 @@
 ﻿using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
 using MudSharp.GameItems;
 using MudSharp.Menus;
 using MudSharp.Network;
-using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Handlers;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Framework;
 

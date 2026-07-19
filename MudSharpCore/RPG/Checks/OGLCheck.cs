@@ -1,14 +1,8 @@
 ﻿using MudSharp.Body;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.Models;
 using MudSharp.RPG.Merits.Interfaces;
-using System;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.RPG.Checks;
 

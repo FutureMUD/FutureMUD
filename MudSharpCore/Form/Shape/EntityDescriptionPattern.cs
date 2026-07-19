@@ -1,12 +1,8 @@
-﻿using MudSharp.Character;
-using MudSharp.CharacterCreation;
+﻿using MudSharp.CharacterCreation;
 using MudSharp.Database;
 using MudSharp.Form.Characteristics;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace MudSharp.Form.Shape;
 

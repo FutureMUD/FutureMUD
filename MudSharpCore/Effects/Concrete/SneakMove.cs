@@ -1,7 +1,4 @@
-﻿using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.RPG.Checks;
-using System.Collections.Generic;
+﻿using MudSharp.RPG.Checks;
 
 namespace MudSharp.Effects.Concrete;
 

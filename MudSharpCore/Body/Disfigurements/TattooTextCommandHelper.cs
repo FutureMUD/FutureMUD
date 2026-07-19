@@ -1,11 +1,5 @@
-using MudSharp.Character;
-using MudSharp.Communication.Language;
-using MudSharp.Framework;
+﻿using MudSharp.Communication.Language;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Body.Disfigurements;
 

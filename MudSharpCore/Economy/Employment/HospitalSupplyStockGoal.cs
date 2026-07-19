@@ -1,15 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using MudSharp.Character;
+﻿using System.Globalization;
 using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Hospitals;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 
 #nullable enable

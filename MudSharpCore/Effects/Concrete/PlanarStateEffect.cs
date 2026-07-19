@@ -1,11 +1,7 @@
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Body.Implementations;
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Planes;
-using System.Xml.Linq;
 using ConcreteBody = MudSharp.Body.Implementations.Body;
 
 namespace MudSharp.Effects.Concrete;

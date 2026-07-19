@@ -1,9 +1,4 @@
-﻿using MudSharp.Framework;
-using MudSharp.Character;
-using System;
-using System.Linq;
-using System.Xml.Linq;
-
+﻿
 namespace MudSharp.Events.Hooks;
 
 /// <summary>

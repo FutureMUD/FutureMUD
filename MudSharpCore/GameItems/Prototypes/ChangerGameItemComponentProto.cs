@@ -1,14 +1,8 @@
-using MudSharp.Accounts;
-using MudSharp.Character;
+﻿using MudSharp.Accounts;
 using MudSharp.Form.Characteristics;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Inventory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 #nullable enable annotations
 

@@ -1,7 +1,4 @@
-﻿using MudSharp.Framework;
-using MudSharp.PerceptionEngine.Parsers;
-using System.Text;
-
+﻿
 namespace MudSharp.PerceptionEngine.Outputs;
 
 public class PriorEmoteOutput : AppendableEmoteOutput

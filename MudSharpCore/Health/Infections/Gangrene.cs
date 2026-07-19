@@ -1,13 +1,7 @@
 ﻿using ExpressionEngine;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
-using MudSharp.Framework;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Health.Infections;
 

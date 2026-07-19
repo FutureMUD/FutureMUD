@@ -1,7 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Database;
+﻿using MudSharp.Database;
 using MudSharp.Economy.Shops;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
 using MudSharp.TimeAndDate;
@@ -9,13 +7,7 @@ using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Intervals;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Economy.Shoppers;
 

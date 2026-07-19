@@ -1,10 +1,5 @@
-using MudSharp.Body;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
+﻿using MudSharp.Body;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Work.Butchering;
 

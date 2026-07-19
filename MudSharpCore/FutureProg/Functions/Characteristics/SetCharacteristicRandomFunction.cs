@@ -1,13 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.CharacterCreation;
+﻿using MudSharp.CharacterCreation;
 using MudSharp.Form.Characteristics;
-using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.FutureProg.Functions.Characteristics;
 

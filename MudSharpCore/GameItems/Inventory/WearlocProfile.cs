@@ -1,6 +1,4 @@
-﻿using System;
-using System.Xml.Linq;
-
+﻿
 namespace MudSharp.GameItems.Inventory;
 
 public class WearlocProfile : IWearlocProfile

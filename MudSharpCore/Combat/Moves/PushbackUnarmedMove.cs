@@ -1,11 +1,5 @@
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.Framework.Scheduling;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
+﻿using MudSharp.Framework.Scheduling;
 using MudSharp.RPG.Checks;
-using System;
 
 namespace MudSharp.Combat.Moves;
 

@@ -1,14 +1,7 @@
 ﻿using MudSharp.CharacterCreation;
 using MudSharp.Database;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Character.Name;
 

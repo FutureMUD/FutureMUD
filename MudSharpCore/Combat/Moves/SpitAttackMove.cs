@@ -1,14 +1,9 @@
-using MudSharp.Body;
-using MudSharp.Character;
+﻿using MudSharp.Body;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Combat.Moves;
 

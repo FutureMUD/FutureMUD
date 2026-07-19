@@ -1,9 +1,7 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.FutureProg.Variables;
-using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Functions.BuiltIn;
 

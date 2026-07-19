@@ -1,10 +1,4 @@
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.Magic;
-using System;
-using System.Xml.Linq;
+﻿using MudSharp.Magic;
 
 #nullable enable
 #nullable disable warnings

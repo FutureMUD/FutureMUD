@@ -1,8 +1,5 @@
 ﻿using MudSharp.Body;
-using MudSharp.Character;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 

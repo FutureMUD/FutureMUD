@@ -1,12 +1,7 @@
-using MudSharp.Character;
-using MudSharp.Construction;
-using MudSharp.Framework;
+﻿using MudSharp.Construction;
 using MudSharp.FutureProg.Variables;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 #nullable enable
 

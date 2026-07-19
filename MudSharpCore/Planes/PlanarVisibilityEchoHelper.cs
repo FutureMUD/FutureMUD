@@ -1,7 +1,4 @@
-using MudSharp.Framework;
-using System.Collections.Generic;
-using System.Linq;
-
+﻿
 namespace MudSharp.Planes;
 
 internal static class PlanarVisibilityEchoHelper

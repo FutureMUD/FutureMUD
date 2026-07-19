@@ -1,10 +1,6 @@
-using MudSharp.Character;
-using MudSharp.Community;
+﻿using MudSharp.Community;
 using MudSharp.FutureProg.Variables;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Clan;
 

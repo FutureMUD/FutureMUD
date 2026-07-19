@@ -1,18 +1,7 @@
-using MudSharp.Accounts;
-using MudSharp.Character;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
+﻿using MudSharp.Accounts;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
-using MudSharp.FutureProg;
 using MudSharp.GameItems.Components;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 #nullable enable
 

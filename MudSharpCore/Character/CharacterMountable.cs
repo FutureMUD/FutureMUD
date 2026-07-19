@@ -1,17 +1,11 @@
-using MudSharp.Body.Position;
+﻿using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Heritage;
 using MudSharp.Construction.Boundary;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
-using System.Collections.Generic;
-using System.Linq;
 
 #nullable enable annotations
 

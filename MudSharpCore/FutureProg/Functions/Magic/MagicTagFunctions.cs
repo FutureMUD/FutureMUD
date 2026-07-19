@@ -1,10 +1,6 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Magic;
 

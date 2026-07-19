@@ -1,7 +1,6 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Events;
-using System;
 
 namespace MudSharp.GameItems.Components;
 

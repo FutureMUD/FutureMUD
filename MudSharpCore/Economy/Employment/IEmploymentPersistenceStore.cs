@@ -1,5 +1,4 @@
-using MudSharp.Character;
-
+﻿
 #nullable enable
 
 namespace MudSharp.Economy.Employment;

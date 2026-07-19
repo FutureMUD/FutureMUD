@@ -1,22 +1,12 @@
 ﻿using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.CharacterCreation;
 using MudSharp.Construction;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine.Lists;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Work.Crafts.Products;
 

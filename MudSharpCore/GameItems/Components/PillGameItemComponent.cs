@@ -1,5 +1,4 @@
 ﻿using MudSharp.Body;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 

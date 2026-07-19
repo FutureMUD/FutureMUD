@@ -1,10 +1,4 @@
-using MudSharp.Character;
-using MudSharp.Framework;
-using System;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-
+﻿
 namespace MudSharp.Combat;
 
 public abstract class RangedNaturalAttackBase : WeaponAttack, IRangedNaturalAttack

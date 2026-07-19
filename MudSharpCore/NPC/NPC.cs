@@ -1,20 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.CharacterCreation;
 using MudSharp.Combat;
 using MudSharp.Database;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.NPC.AI;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine.Handlers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.NPC;
 

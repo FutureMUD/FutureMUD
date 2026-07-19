@@ -1,8 +1,4 @@
-#nullable enable
-using MudSharp.Character;
-using MudSharp.Framework;
-using System;
-using System.Linq;
+﻿#nullable enable
 
 namespace MudSharp.Work.Projects.ConcreteTypes;
 

@@ -1,10 +1,6 @@
-using System;
-using System.Text;
-using MudSharp.Character;
-using MudSharp.Character.Name;
+﻿using MudSharp.Character.Name;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using DbHospitalPatientDebtAccount = MudSharp.Models.HospitalPatientDebtAccount;
 

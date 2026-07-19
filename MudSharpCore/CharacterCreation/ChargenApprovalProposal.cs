@@ -1,12 +1,7 @@
 ﻿using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Database;
 using MudSharp.Editor;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.CharacterCreation;
 

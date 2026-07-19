@@ -1,14 +1,8 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
-using System;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Arenas;
 

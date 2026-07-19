@@ -1,13 +1,7 @@
-using MudSharp.Character;
-using MudSharp.Commands.Trees;
+﻿using MudSharp.Commands.Trees;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.GameItems.Prototypes;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 #nullable enable
 

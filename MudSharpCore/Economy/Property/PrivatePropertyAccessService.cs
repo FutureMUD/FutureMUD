@@ -1,12 +1,9 @@
-#nullable enable
+﻿#nullable enable
 
-using System.Linq;
-using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Economy.Employment;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 
 namespace MudSharp.Economy.Property;
 

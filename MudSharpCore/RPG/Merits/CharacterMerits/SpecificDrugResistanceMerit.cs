@@ -1,12 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.Health;
+﻿using MudSharp.Health;
 using MudSharp.RPG.Merits.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;
 

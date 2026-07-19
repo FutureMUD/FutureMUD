@@ -1,8 +1,6 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.TimeAndDate;
-using MudSharp.Framework;
-using System;
 
 namespace MudSharp.Celestial;
 

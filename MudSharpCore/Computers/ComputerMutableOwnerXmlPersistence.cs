@@ -1,12 +1,6 @@
-#nullable enable
+﻿#nullable enable
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Xml.Linq;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 
 namespace MudSharp.Computers;
 

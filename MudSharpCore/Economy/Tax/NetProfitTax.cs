@@ -1,9 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Database;
-using MudSharp.Framework;
+﻿using MudSharp.Database;
 using MudSharp.Models;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.Economy.Tax;
 

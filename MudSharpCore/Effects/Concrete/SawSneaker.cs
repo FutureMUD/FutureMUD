@@ -1,6 +1,4 @@
-﻿using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-
+﻿
 namespace MudSharp.Effects.Concrete;
 
 public class SawSneaker : Effect, ISawSneakerEffect

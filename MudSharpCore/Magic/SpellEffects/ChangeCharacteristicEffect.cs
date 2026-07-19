@@ -1,15 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Concrete.SpellEffects;
-using MudSharp.Effects.Interfaces;
+﻿using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Form.Characteristics;
-using MudSharp.Framework;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 #nullable enable

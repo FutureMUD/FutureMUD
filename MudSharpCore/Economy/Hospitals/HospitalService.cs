@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using MudSharp.Character;
+﻿using System.Text.Json;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.Health;

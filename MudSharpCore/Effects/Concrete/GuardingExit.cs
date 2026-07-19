@@ -1,15 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Construction.Boundary;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿using MudSharp.Construction.Boundary;
 
 namespace MudSharp.Effects.Concrete;
 

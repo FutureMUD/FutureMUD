@@ -1,6 +1,5 @@
-#nullable enable
+﻿#nullable enable
 
-using System.Collections.Generic;
 
 namespace MudSharp.Computers;
 

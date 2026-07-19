@@ -1,8 +1,6 @@
-#nullable enable
+﻿#nullable enable
 
-using System.Xml.Linq;
 using MudSharp.Construction;
-using MudSharp.Framework;
 
 namespace MudSharp.Effects.Concrete;
 

@@ -1,11 +1,6 @@
 ﻿using MudSharp.Body;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Units;
-using System;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

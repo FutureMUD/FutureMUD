@@ -1,14 +1,7 @@
 ﻿using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 #nullable enable
 #nullable disable warnings

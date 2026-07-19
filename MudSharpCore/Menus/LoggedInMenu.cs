@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Screens;
 using MudSharp.Commands;
@@ -8,17 +7,9 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Email;
-using MudSharp.Framework;
 using MudSharp.Network;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.ScriptedEvents;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Chargen = MudSharp.Models.Chargen;
 

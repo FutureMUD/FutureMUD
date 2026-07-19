@@ -1,16 +1,9 @@
-﻿using MudSharp.Character;
-using MudSharp.Commands.Trees;
+﻿using MudSharp.Commands.Trees;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.NPC;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.RPG.Law.PatrolStrategies;
 

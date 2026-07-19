@@ -1,15 +1,7 @@
 ﻿using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine.Parsers;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 using Chargen = MudSharp.CharacterCreation.Chargen;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;

@@ -1,10 +1,5 @@
-using MudSharp.Body;
-using MudSharp.Character;
-using MudSharp.Framework;
+﻿using MudSharp.Body;
 using MudSharp.TimeAndDate.Date;
-using System;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

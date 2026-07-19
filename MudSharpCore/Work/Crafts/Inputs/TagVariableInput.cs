@@ -1,11 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Form.Characteristics;
-using MudSharp.Framework;
+﻿using MudSharp.Form.Characteristics;
 using MudSharp.GameItems;
 using MudSharp.PerceptionEngine.Lists;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Work.Crafts.Inputs;
 

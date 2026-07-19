@@ -1,16 +1,10 @@
-using MudSharp.Database;
+﻿using MudSharp.Database;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Functions;
 using MudSharp.FutureProg.Variables;
 using MudSharp.TimeAndDate;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.FutureProg;
 

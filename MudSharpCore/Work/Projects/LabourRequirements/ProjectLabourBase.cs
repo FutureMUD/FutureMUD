@@ -1,16 +1,9 @@
 ﻿using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Work.Projects.LabourRequirements;
 

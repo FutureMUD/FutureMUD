@@ -1,18 +1,10 @@
 ﻿using ExpressionEngine;
 using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.TimeAndDate;
 using NCalc.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.CharacterCreation.Resources;
 

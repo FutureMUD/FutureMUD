@@ -1,26 +1,16 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Decorators;
-using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Communication.Language;
 using MudSharp.Form.Colour;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.RPG.Knowledge;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Body.Disfigurements;
 

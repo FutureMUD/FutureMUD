@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace MudSharp.FutureProg.Functions;
 
 internal class ConstantFunction : IFunction

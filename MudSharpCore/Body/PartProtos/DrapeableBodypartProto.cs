@@ -1,12 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.GameItems;
+﻿using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Body.PartProtos;
 

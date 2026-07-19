@@ -1,15 +1,6 @@
 ﻿using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.RPG.Knowledge;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

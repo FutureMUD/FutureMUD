@@ -1,13 +1,5 @@
 ﻿using MudSharp.Body;
-using MudSharp.Character;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Combat.Moves;
 

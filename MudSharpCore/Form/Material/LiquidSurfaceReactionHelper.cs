@@ -1,11 +1,7 @@
-using MudSharp.Body;
-using MudSharp.Character;
-using MudSharp.Framework;
+﻿using MudSharp.Body;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Form.Material;
 

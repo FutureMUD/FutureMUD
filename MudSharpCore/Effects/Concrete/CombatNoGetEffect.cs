@@ -1,6 +1,4 @@
 ﻿using MudSharp.Combat;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.GameItems;
 
 namespace MudSharp.Effects.Concrete;

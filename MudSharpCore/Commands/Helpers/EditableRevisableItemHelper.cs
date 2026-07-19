@@ -1,10 +1,8 @@
 ﻿using MudSharp.Body.Disfigurements;
-using MudSharp.Character;
 using MudSharp.Commands.Modules;
 using MudSharp.Database;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.NPC.AI;
@@ -12,9 +10,6 @@ using MudSharp.NPC.Templates;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Commands.Helpers;
 

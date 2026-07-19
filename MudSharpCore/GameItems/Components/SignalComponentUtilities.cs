@@ -1,12 +1,7 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Computers;
 using MudSharp.Construction;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.GameItems.Components;
 

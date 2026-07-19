@@ -1,18 +1,9 @@
 ﻿using MailKit.Net.Imap;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Editor;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
 using NCalc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Xml.Linq;
 using Expression = ExpressionEngine.Expression;
 
 namespace MudSharp.CharacterCreation.Screens;

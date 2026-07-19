@@ -1,11 +1,7 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Effects;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using System;
-using System.Xml.Linq;
 
 namespace MudSharp.Arenas;
 

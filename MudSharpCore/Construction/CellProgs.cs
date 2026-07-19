@@ -1,13 +1,7 @@
 ﻿using MudSharp.Climate;
 using MudSharp.Construction.Grids;
 using MudSharp.Form.Material;
-using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Construction;
 

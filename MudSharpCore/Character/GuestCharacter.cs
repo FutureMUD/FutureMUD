@@ -4,15 +4,9 @@ using MudSharp.Body.Position.PositionStates;
 using MudSharp.CharacterCreation;
 using MudSharp.Construction;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Handlers;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Linq;
 
 namespace MudSharp.Character;
 

@@ -1,12 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.GameItems.Prototypes;
+﻿using MudSharp.GameItems.Prototypes;
 using MudSharp.TimeAndDate.Time;
-using System;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 

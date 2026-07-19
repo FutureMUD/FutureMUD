@@ -1,7 +1,5 @@
-#nullable enable
+﻿#nullable enable
 using MudSharp.Body;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 
 namespace MudSharp.Character;
 

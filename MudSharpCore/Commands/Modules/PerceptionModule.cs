@@ -2,7 +2,6 @@
 using MoreLinq;
 using MudSharp.Accounts;
 using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Combat;
 using MudSharp.Construction;
@@ -10,26 +9,15 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Economy;
 using MudSharp.Economy.Property;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.Movement;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Commands.Modules;
 

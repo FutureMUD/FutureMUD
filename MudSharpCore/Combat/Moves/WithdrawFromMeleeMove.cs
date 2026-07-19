@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace MudSharp.Combat.Moves;
 
 public class WithdrawFromMeleeMove : CombatMoveBase

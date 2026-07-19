@@ -1,16 +1,9 @@
-﻿using MudSharp.Character;
-using MudSharp.CharacterCreation;
+﻿using MudSharp.CharacterCreation;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Security.Principal;
-using System.Text;
 
 namespace MudSharp.Help;
 

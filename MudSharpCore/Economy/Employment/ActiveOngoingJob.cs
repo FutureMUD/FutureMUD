@@ -1,20 +1,13 @@
 ﻿using JetBrains.Annotations;
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
-using MudSharp.Framework;
 using MudSharp.Models;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using MudSharp.Work.Projects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Economy.Employment;
 #nullable enable

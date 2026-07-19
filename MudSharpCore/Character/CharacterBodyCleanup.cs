@@ -1,11 +1,8 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Body;
 using MudSharp.Database;
-using MudSharp.Effects.Interfaces;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
-using System.Linq;
 
 namespace MudSharp.Character;
 

@@ -1,11 +1,6 @@
 ﻿using MudSharp.Construction;
 using MudSharp.Effects;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate.Time;
-using System;
 
 namespace MudSharp.Celestial;
 

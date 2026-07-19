@@ -1,5 +1,4 @@
-using MudSharp.Effects;
-using MudSharp.Framework;
+﻿using MudSharp.Effects;
 
 #nullable enable
 

@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-using MudSharp.Framework;
-
+﻿
 namespace MudSharp.GameItems.Inventory;
 
 public sealed class TemplateOutfitItem : IOutfitTemplateItem

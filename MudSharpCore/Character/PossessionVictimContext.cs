@@ -1,7 +1,5 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Character;
 

@@ -1,5 +1,4 @@
-using MudSharp.Accounts;
-using MudSharp.Character;
+﻿using MudSharp.Accounts;
 
 namespace MudSharp.Framework;
 

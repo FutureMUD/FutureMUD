@@ -1,11 +1,6 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Framework;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Magic;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 

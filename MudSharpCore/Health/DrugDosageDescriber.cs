@@ -1,10 +1,6 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
-using MudSharp.Framework;
 using MudSharp.Framework.Units;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Health;
 

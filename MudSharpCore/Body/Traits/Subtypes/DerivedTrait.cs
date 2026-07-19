@@ -1,6 +1,4 @@
 ﻿using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
 
 namespace MudSharp.Body.Traits.Subtypes;
 

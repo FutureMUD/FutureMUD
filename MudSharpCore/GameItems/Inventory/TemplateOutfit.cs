@@ -1,17 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MudSharp.Character;
-using MudSharp.Database;
+﻿using MudSharp.Database;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine;
 using DbOutfitTemplate = MudSharp.Models.OutfitTemplate;
 using DbOutfitTemplateItem = MudSharp.Models.OutfitTemplateItem;
 

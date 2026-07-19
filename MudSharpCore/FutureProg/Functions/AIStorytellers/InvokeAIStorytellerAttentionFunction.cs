@@ -1,7 +1,5 @@
-using MudSharp.Framework;
-using MudSharp.FutureProg.Variables;
+﻿using MudSharp.FutureProg.Variables;
 using MudSharp.RPG.AIStorytellers;
-using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Functions.AIStorytellers;
 

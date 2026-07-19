@@ -1,13 +1,5 @@
 ﻿using MudSharp.Body;
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.Magic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Effects.Concrete;
 

@@ -1,12 +1,8 @@
-#nullable enable
+﻿#nullable enable
 
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Character;
 using MudSharp.Commands.Helpers;
 using MudSharp.Construction;
 using MudSharp.Economy.Property;
-using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 

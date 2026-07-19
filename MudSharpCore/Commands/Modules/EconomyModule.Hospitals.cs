@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MudSharp.Character;
-using MudSharp.Character.Name;
+﻿using MudSharp.Character.Name;
 using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction;
@@ -14,13 +9,9 @@ using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Economy.Hospitals;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 
 #nullable enable
 

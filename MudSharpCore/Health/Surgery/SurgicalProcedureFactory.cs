@@ -1,8 +1,5 @@
 ﻿using MudSharp.Body;
-using MudSharp.Framework;
 using MudSharp.RPG.Knowledge;
-using System;
-using System.Collections.Generic;
 
 namespace MudSharp.Health.Surgery;
 

@@ -1,12 +1,7 @@
-using MudSharp.Body.Disfigurements;
+﻿using MudSharp.Body.Disfigurements;
 using MudSharp.Communication.Language;
 using MudSharp.Form.Colour;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Body.Disfigurements;
 

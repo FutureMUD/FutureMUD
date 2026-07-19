@@ -1,12 +1,6 @@
-using System;
-using System.Text;
-using System.Xml.Linq;
-using MudSharp.Body.Position;
+﻿using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
-using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.AuxiliaryEffects;

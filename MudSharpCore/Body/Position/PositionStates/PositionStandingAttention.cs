@@ -1,8 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Parsers;
-
+﻿
 namespace MudSharp.Body.Position.PositionStates;
 
 public class PositionStandingAttention : PositionState

@@ -1,9 +1,5 @@
 ﻿using MudSharp.Body.Traits;
-using MudSharp.Character;
-using MudSharp.Framework;
 using MudSharp.Models;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.Work.Projects.Impacts;
 

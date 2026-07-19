@@ -1,18 +1,8 @@
-﻿using MudSharp.Character;
-using MudSharp.CharacterCreation;
+﻿using MudSharp.CharacterCreation;
 using MudSharp.Commands.Modules;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.Help;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.Commands;
 

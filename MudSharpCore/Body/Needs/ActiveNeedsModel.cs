@@ -1,8 +1,4 @@
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.RPG.Merits.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MudSharp.RPG.Merits.Interfaces;
 
 namespace MudSharp.Body.Needs;
 

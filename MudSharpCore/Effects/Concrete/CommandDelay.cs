@@ -1,10 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Events;
-using MudSharp.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MudSharp.Events;
 
 namespace MudSharp.Effects.Concrete;
 

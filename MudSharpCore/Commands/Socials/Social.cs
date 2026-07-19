@@ -1,14 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Construction.Boundary;
+﻿using MudSharp.Construction.Boundary;
 using MudSharp.Events;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Commands.Socials;
 

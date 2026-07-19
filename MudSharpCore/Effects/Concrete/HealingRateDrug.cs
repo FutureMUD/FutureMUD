@@ -1,7 +1,4 @@
-﻿using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-
+﻿
 namespace MudSharp.Effects.Concrete;
 
 public class HealingRateDrug : Effect, IHealingRateEffect

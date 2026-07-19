@@ -1,13 +1,8 @@
-using MudSharp.Character;
-using MudSharp.Climate;
+﻿using MudSharp.Climate;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete.SpellEffects;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.Magic;
 using MudSharp.RPG.Checks;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 

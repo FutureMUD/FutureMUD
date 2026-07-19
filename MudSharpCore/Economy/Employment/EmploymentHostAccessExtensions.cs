@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Arenas;
-using MudSharp.Character;
+﻿using MudSharp.Arenas;
 using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Property;
-using MudSharp.Framework;
 
 #nullable enable
 

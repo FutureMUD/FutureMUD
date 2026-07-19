@@ -1,19 +1,11 @@
 ﻿using MailKit;
 using MudSharp.Body;
-using MudSharp.Character;
 using MudSharp.Climate;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MudSharp.Combat;

@@ -1,19 +1,11 @@
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Events;
+﻿using MudSharp.Events;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine.Lists;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 #nullable enable
 

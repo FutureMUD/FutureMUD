@@ -1,10 +1,6 @@
 ﻿using MudSharp.Construction;
 using MudSharp.Form.Characteristics;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 

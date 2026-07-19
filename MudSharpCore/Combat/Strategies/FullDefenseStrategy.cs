@@ -1,5 +1,4 @@
-﻿using MudSharp.Framework;
-
+﻿
 namespace MudSharp.Combat.Strategies;
 
 public class FullDefenseStrategy : StandardMeleeStrategy

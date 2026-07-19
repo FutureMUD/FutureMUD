@@ -1,13 +1,6 @@
-using MudSharp.Body;
-using MudSharp.Character;
-using MudSharp.Framework;
+﻿using MudSharp.Body;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Linq;
 
 #nullable enable annotations
 

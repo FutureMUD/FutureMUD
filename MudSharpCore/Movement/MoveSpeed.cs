@@ -1,5 +1,4 @@
 ﻿using MudSharp.Body.Position;
-using MudSharp.Framework;
 
 namespace MudSharp.Movement;
 

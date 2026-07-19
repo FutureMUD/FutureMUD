@@ -1,12 +1,6 @@
-#nullable enable
-using MudSharp.Character;
+﻿#nullable enable
 using MudSharp.Character.Heritage;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Characters;
 

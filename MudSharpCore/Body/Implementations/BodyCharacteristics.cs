@@ -1,15 +1,7 @@
-﻿using MudSharp.Character;
-using MudSharp.Database;
-using MudSharp.Effects.Interfaces;
+﻿using MudSharp.Database;
 using MudSharp.Form.Characteristics;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 using MudSharp.RPG.Merits;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using CharacteristicValue = MudSharp.Form.Characteristics.CharacteristicValue;
 

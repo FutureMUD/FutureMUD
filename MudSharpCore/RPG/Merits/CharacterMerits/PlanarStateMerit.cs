@@ -1,10 +1,5 @@
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.Models;
+﻿using MudSharp.Models;
 using MudSharp.Planes;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;
 

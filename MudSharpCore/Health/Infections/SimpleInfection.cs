@@ -2,10 +2,7 @@
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.RPG.Checks;
-using System;
-using System.Linq;
 
 namespace MudSharp.Health.Infections;
 

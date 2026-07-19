@@ -1,11 +1,6 @@
-using MudSharp.Character;
-using MudSharp.Form.Material;
-using MudSharp.Framework;
+﻿using MudSharp.Form.Material;
 using MudSharp.Framework.Units;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.Combat;
 

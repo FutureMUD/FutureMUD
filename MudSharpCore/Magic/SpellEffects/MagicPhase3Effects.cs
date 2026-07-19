@@ -1,31 +1,18 @@
-#nullable enable
+﻿#nullable enable
 
 using ExpressionEngine;
 using MudSharp.Accounts;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Commands;
 using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete.SpellEffects;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.NPC.Templates;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.Planes;
 using MudSharp.RPG.Checks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 

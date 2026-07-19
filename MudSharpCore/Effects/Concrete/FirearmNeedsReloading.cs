@@ -1,8 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.GameItems.Interfaces;
-
+﻿
 namespace MudSharp.Effects.Concrete;
 
 public class FirearmNeedsReloading : Effect, IEffectSubtype

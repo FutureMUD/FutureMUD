@@ -1,7 +1,4 @@
-﻿using MudSharp.Framework;
-using MudSharp.FutureProg.Variables;
-using System;
-using System.Collections.Generic;
+﻿using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions.Mathematical;
 

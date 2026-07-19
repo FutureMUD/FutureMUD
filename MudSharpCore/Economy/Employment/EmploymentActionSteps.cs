@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using MudSharp.Arenas;
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Economy;
@@ -15,12 +11,7 @@ using MudSharp.Economy.Shops;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.Health;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.TimeAndDate;
 using MudSharp.Vehicles;
 

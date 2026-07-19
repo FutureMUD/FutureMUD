@@ -1,11 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Construction.Boundary;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
+﻿using MudSharp.Construction.Boundary;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
-using System;
-using System.Linq;
 
 namespace MudSharp.Effects.Concrete;
 

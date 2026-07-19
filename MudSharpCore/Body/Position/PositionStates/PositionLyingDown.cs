@@ -1,9 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Parsers;
+﻿using MudSharp.GameItems;
 
 namespace MudSharp.Body.Position.PositionStates;
 

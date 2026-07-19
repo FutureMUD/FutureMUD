@@ -1,10 +1,4 @@
-﻿using MudSharp.FutureProg;
-using MudSharp.FutureProg.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.RPG.Law;
 

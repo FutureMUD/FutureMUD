@@ -1,11 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
+﻿using MudSharp.Effects.Concrete;
 using MudSharp.FutureProg.Compiler;
 using MudSharp.FutureProg.Functions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace MudSharp.FutureProg.Statements;

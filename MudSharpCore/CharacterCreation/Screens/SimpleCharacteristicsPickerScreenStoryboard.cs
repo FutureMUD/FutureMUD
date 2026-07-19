@@ -1,16 +1,8 @@
-﻿using MudSharp.Character;
-using MudSharp.Editor;
+﻿using MudSharp.Editor;
 using MudSharp.Form.Characteristics;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Xml.Linq;
 using static MudSharp.CharacterCreation.Screens.CharacteristicPickerScreenStoryboard;
 
 namespace MudSharp.CharacterCreation.Screens;

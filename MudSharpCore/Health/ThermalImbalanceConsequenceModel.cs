@@ -1,7 +1,5 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Framework;
-using System;
 
 namespace MudSharp.Health;
 

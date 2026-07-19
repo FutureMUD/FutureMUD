@@ -1,11 +1,7 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Body;
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.Health;
-using System.Collections.Generic;
 
 namespace MudSharp.Effects.Concrete;
 

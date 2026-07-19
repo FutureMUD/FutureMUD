@@ -1,21 +1,10 @@
-﻿using MudSharp.Character;
-using MudSharp.Character.Heritage;
+﻿using MudSharp.Character.Heritage;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.NPC.AI.Groups.GroupTypes;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.NPC.AI.Groups;
 

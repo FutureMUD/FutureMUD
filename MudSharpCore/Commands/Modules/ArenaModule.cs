@@ -1,22 +1,13 @@
-#nullable enable
+﻿#nullable enable
 using MudSharp.Arenas;
-using MudSharp.Character;
 using MudSharp.Commands.Helpers;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Payment;
-using MudSharp.Framework;
 using MudSharp.GameItems.Prototypes;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.TimeAndDate;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.Commands.Modules;
 

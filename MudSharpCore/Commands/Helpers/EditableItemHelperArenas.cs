@@ -1,17 +1,11 @@
-using MudSharp.Arenas;
-using MudSharp.Character;
+﻿using MudSharp.Arenas;
 using MudSharp.Commands.Modules;
 using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 
 namespace MudSharp.Commands.Helpers;
 

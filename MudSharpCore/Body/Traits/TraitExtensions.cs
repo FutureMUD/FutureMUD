@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace MudSharp.Body.Traits;
 
 public static class TraitExtensions

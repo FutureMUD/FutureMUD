@@ -1,5 +1,4 @@
-using MudSharp.Framework;
-
+﻿
 namespace MudSharp.Combat;
 
 public class RangedNaturalAttack : RangedNaturalAttackBase, IRangedNaturalAttack

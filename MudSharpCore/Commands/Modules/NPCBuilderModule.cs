@@ -1,24 +1,16 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.NPC.AI.Groups;
 using MudSharp.NPC.Templates;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Commands.Modules
 {

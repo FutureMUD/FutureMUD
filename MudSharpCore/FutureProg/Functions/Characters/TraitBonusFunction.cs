@@ -1,11 +1,7 @@
 ﻿using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
-using MudSharp.Character;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
-using System;
-using System.Collections.Generic;
 using System.Configuration;
 
 #nullable enable

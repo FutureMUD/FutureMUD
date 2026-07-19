@@ -1,13 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Combat;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
+﻿using MudSharp.Combat;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MudSharp.RPG.Law.PatrolStrategies;
 

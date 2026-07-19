@@ -1,14 +1,8 @@
 ﻿using ExpressionEngine;
-using MudSharp.Character;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MudSharp.Body.Traits;

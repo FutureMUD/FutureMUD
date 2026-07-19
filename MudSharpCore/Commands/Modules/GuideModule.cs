@@ -1,20 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.Database;
 using MudSharp.Editor;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 using Account = MudSharp.Accounts.Account;
 using Chargen = MudSharp.Models.Chargen;
 

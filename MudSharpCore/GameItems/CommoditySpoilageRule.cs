@@ -1,16 +1,9 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Form.Material;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.TimeAndDate;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using DbCommoditySpoilageRule = MudSharp.Models.CommoditySpoilageRule;
 
 namespace MudSharp.GameItems;

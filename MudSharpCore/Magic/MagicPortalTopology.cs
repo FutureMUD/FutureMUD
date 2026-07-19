@@ -1,20 +1,11 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using MudSharp.PerceptionEngine;
 using MudSharp.Planes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using DB = MudSharp.Models;
 
 namespace MudSharp.Magic;

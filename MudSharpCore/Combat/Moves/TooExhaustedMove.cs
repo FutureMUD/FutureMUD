@@ -1,12 +1,6 @@
 ﻿using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
-using System;
-using System.Linq;
 
 namespace MudSharp.Combat.Moves;
 

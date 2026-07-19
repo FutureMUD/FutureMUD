@@ -1,6 +1,4 @@
-using MudSharp.Character;
-using MudSharp.Effects.Concrete;
-using System.Linq;
+﻿using MudSharp.Effects.Concrete;
 
 #nullable enable
 

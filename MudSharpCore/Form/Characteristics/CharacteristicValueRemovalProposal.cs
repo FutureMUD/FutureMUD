@@ -1,9 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Database;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MudSharp.Database;
 
 namespace MudSharp.Form.Characteristics;
 

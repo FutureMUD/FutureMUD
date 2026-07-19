@@ -1,7 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Database;
-using MudSharp.Framework;
-using System.Linq;
+﻿using MudSharp.Database;
 
 namespace MudSharp.Form.Characteristics;
 

@@ -1,8 +1,6 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Economy;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Economy.Shops;
 

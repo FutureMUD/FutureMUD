@@ -1,18 +1,10 @@
 ﻿using JetBrains.Annotations;
 using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Database;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
 using MudSharp.TimeAndDate;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Community.Boards;
 

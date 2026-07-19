@@ -1,13 +1,8 @@
-#nullable enable
+﻿#nullable enable
 
 using MudSharp.Computers;
-using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems.Components;
-using MudSharp.GameItems.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Computers;
 

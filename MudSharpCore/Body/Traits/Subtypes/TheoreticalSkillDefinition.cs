@@ -1,5 +1,4 @@
 ﻿using ExpressionEngine;
-using MudSharp.Framework;
 
 namespace MudSharp.Body.Traits.Subtypes;
 

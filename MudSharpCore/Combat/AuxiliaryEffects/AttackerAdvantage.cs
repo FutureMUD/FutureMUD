@@ -1,12 +1,6 @@
 ﻿using MudSharp.Body.Traits;
-using MudSharp.Character;
-using MudSharp.Framework;
 using MudSharp.RPG.Checks;
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace MudSharp.Combat.AuxiliaryEffects;
 #nullable enable

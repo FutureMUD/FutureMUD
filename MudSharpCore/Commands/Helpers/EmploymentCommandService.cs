@@ -1,18 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MudSharp.Arenas;
-using MudSharp.Character;
+﻿using MudSharp.Arenas;
 using MudSharp.Community;
 using MudSharp.Community.Boards;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
-using MudSharp.Framework;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
-using MudSharp.PerceptionEngine;
 
 #nullable enable
 

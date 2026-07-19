@@ -1,12 +1,6 @@
-using MudSharp.Body.Needs;
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
+﻿using MudSharp.Body.Needs;
 using MudSharp.Magic;
-using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 

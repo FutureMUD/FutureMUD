@@ -1,14 +1,5 @@
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
+﻿using System.Globalization;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.AuxiliaryEffects;

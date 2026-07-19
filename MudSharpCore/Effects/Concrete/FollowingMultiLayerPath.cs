@@ -1,8 +1,6 @@
 ﻿using MudSharp.Body.Position.PositionStates;
-using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
-using System.Collections.Generic;
 
 namespace MudSharp.Effects.Concrete;
 

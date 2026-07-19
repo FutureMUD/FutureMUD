@@ -1,9 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using System.Collections.Generic;
-using System.Linq;
-
+﻿
 namespace MudSharp.Movement;
 
 public class PartyJoinProposal : Proposal, IProposal

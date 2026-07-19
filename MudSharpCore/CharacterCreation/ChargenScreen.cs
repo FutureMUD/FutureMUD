@@ -1,15 +1,9 @@
 ﻿using MudSharp.Accounts;
-using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Database;
-using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace MudSharp.CharacterCreation;

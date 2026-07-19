@@ -1,13 +1,7 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using MudSharp.Body;
-using MudSharp.Character;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
-using System;
-using System.Linq;
 
 namespace MudSharp.Combat.Moves;
 

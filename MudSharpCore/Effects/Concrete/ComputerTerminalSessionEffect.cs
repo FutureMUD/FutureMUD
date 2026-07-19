@@ -1,9 +1,7 @@
-#nullable enable
+﻿#nullable enable
 
-using MudSharp.Character;
 using MudSharp.Computers;
 using MudSharp.Effects;
-using MudSharp.Framework;
 
 namespace MudSharp.Effects.Concrete;
 

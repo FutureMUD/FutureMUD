@@ -1,14 +1,9 @@
-#nullable enable
+﻿#nullable enable
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 using MudSharp.Body;
 using MudSharp.Character.Heritage;
-using MudSharp.Framework;
 using MudSharp.Health;
 using MudSharp.Health.Wounds;
 using MudSharp.RPG.Checks;

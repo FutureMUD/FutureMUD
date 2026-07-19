@@ -1,9 +1,5 @@
-using System.Linq;
-using MudSharp.Body;
-using MudSharp.Character;
+﻿using MudSharp.Body;
 using MudSharp.Effects.Concrete;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
 
 namespace MudSharp.Combat.Moves;
 

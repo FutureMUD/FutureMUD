@@ -1,21 +1,12 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Body.Traits;
-using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Character.Name;
 using MudSharp.Commands.Helpers;
 using MudSharp.Communication.Language;
 using MudSharp.Effects.Concrete;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MudSharp.Commands.Modules;
 

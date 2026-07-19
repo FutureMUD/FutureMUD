@@ -1,9 +1,5 @@
-﻿using MudSharp.Character;
-using MudSharp.Economy.Currency;
+﻿using MudSharp.Economy.Currency;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MudSharp.Economy.Payment;
 

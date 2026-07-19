@@ -1,12 +1,6 @@
-﻿using MudSharp.Character;
-using MudSharp.Economy.Currency;
-using MudSharp.Framework;
+﻿using MudSharp.Economy.Currency;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
-using MudSharp.GameItems.Interfaces;
-using System;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace MudSharp.Work.Crafts.Products;
 

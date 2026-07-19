@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-
+﻿
 namespace MudSharp.FutureProg;
 
 internal class LocalVariableSpace : VariableSpace

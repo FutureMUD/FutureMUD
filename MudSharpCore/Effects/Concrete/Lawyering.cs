@@ -1,8 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.RPG.Law;
-using System.Xml.Linq;
+﻿using MudSharp.RPG.Law;
 
 namespace MudSharp.Effects.Concrete;
 #nullable enable

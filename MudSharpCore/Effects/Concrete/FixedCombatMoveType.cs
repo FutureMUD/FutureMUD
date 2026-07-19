@@ -1,7 +1,4 @@
-﻿using MudSharp.Character;
-using MudSharp.Combat;
-using MudSharp.Framework;
-using System.Collections.Generic;
+﻿using MudSharp.Combat;
 
 namespace MudSharp.Effects.Concrete;
 

@@ -1,5 +1,7 @@
 ﻿using MudSharp.Accounts;
+using MudSharp.Combat.Moves;
 using MudSharp.Commands.Trees;
+using MudSharp.Climate;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Revision;
@@ -22,6 +24,7 @@ internal partial class VehicleModule : Module<ICharacter>
 	private static readonly IVehicleHitchService HitchService = new VehicleHitchService();
 	private static readonly IVehicleHitchGraphService HitchGraphService = new VehicleHitchGraphService();
 	private static readonly IVehicleOperationalReadinessService OperationalReadinessService = new VehicleOperationalReadinessService(HitchGraphService);
+	private static readonly IVehiclePropulsionService PropulsionService = new VehiclePropulsionService();
 	private static readonly IVehicleFleetOperationsService FleetOperationsService = new VehicleFleetOperationsService(OperationalReadinessService, HitchGraphService);
 
 	private const string EmbarkHelp = @"The #3embark#0 command lets you board a vehicle exterior item.
@@ -97,6 +100,25 @@ Syntax:
 			return;
 		}
 
+		if (actor.Combat is not null)
+		{
+			if (!actor.CanSpendStamina(BoardVehicleCombatMove.BoardingStaminaCost))
+			{
+				actor.OutputHandler.Send("You are too exhausted to board a vehicle in combat.");
+				return;
+			}
+
+			if (actor.TakeOrQueueCombatAction(
+				    SelectedCombatAction.GetEffectBoardVehicle(actor, exterior.Vehicle, slot, access)) &&
+			    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+			{
+				actor.OutputHandler.Send(
+					$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Boarding {item.HowSeen(actor)}.");
+			}
+
+			return;
+		}
+
 		exterior.Vehicle.Board(actor, slot, access);
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ board|boards $1.", actor, actor, item)));
 	}
@@ -134,6 +156,100 @@ Syntax:
 	protected static void Drive(ICharacter actor, string input)
 	{
 		VehicleMovementCommand.TryMoveControlledVehicle(actor, input.RemoveFirstWord(), true);
+	}
+
+	private const string VehiclePropulsionHelp = @"Use #3vehiclepropulsion#0 while aboard a vehicle to see its selected and supported propulsion modes.
+
+Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|none>#0 while controlling a stationary vehicle to select a mode. Movement never silently falls back to another authored mode.";
+
+	[PlayerCommand("VehiclePropulsion", "vehiclepropulsion")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[NoMovementCommand]
+	[HelpInfo("vehiclepropulsion", VehiclePropulsionHelp, AutoHelp.HelpArg)]
+	protected static void VehiclePropulsion(ICharacter actor, string input)
+	{
+		var vehicle = actor.Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(actor));
+		if (vehicle is null)
+		{
+			actor.OutputHandler.Send("You are not aboard a vehicle.");
+			return;
+		}
+
+		if (vehicle.MovementProfile?.MovementEnvironment != VehicleMovementEnvironment.SurfaceWater)
+		{
+			actor.OutputHandler.Send("That vehicle does not use surface-water propulsion modes.");
+			return;
+		}
+
+		var modes = vehicle.MovementProfile.PropulsionProfiles.ToList();
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (!ss.IsFinished)
+		{
+			if (vehicle.Controller?.SamePhysicalInstance(actor) != true)
+			{
+				actor.OutputHandler.Send("You must be aboard and in control of the vehicle to change its propulsion mode.");
+				return;
+			}
+
+			var type = MudSharp.Vehicles.VehiclePrototype.ParseVehiclePropulsionType(ss.SafeRemainingArgument);
+			if (type is null)
+			{
+				actor.OutputHandler.Send("You must specify selfpowered, rowed, sail, outboard or none.");
+				return;
+			}
+
+			var profile = modes.FirstOrDefault(x => x.PropulsionType == type.Value);
+			if (profile is null)
+			{
+				actor.OutputHandler.Send("That vehicle does not support that propulsion mode.");
+				return;
+			}
+
+			if (!vehicle.SetActivePropulsionProfile(profile, out var reason))
+			{
+				actor.OutputHandler.Send(reason);
+				return;
+			}
+
+			actor.OutputHandler.Send($"You select {profile.PropulsionType.DescribeEnum().ColourName()} propulsion for {vehicle.Name.ColourName()}.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Propulsion for {vehicle.Name.ColourName()}:");
+		if (!modes.Any())
+		{
+			sb.AppendLine("\tLegacy surface-water movement (no explicit propulsion profiles).".Colour(Telnet.Yellow));
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		sb.AppendLine($"Selected: {(vehicle.ActivePropulsionProfile?.PropulsionType.DescribeEnum().ColourName() ?? "none".ColourError())}");
+		sb.AppendLine($"Supported: {modes.Select(x => $"{x.PropulsionType.DescribeEnum().ColourName()}{(x.IsDefault ? " (default)".Colour(Telnet.Green) : "")}").ListToString()}");
+		var readiness = PropulsionService.BuildReadiness(vehicle, actor, null);
+		if (readiness.Profile?.PropulsionType == VehiclePropulsionType.Sail)
+		{
+			sb.AppendLine($"Wind: {readiness.Wind.Describe().ColourName()}");
+		}
+
+		if (readiness.Contributors.Any())
+		{
+			sb.AppendLine($"Contributors: {readiness.Contributors.Select(x => $"{x.Character.HowSeen(actor)}{(x.OarItem is null ? "" : $" with {x.OarItem.HowSeen(actor)}")}").ListToString()}");
+		}
+
+		if (readiness.Motors.Any())
+		{
+			sb.AppendLine("Motors:");
+			foreach (var motor in readiness.Motors)
+			{
+				sb.AppendLine($"\t{motor.Item?.HowSeen(actor) ?? motor.Installation.Prototype.Name}: {(motor.Available ? "ready".Colour(Telnet.Green) : motor.Reason.ColourError())}");
+			}
+		}
+
+		sb.AppendLine(readiness.CanMove
+			? "Status: ready to provide propulsion.".Colour(Telnet.Green)
+			: $"Blocker: {readiness.Reason.ColourError()}");
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	[PlayerCommand("Hitch", "hitch")]
@@ -1870,10 +1986,7 @@ Syntax:
 
 	private static void AppendOperationalReadiness(ICharacter actor, IVehicle vehicle, StringBuilder sb)
 	{
-		var movementProfile = vehicle.Prototype.MovementProfiles
-		                         .Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
-		                         .OrderByDescending(x => x.IsDefault)
-		                         .FirstOrDefault();
+		var movementProfile = vehicle.MovementProfile;
 		var report = OperationalReadinessService.BuildReport(vehicle, actor, null, movementProfile);
 		sb.AppendLine("Operational Readiness:");
 		sb.AppendLine(vehicle.AccessStates.Any()
@@ -1883,6 +1996,41 @@ Syntax:
 		if (movementProfile is not null)
 		{
 			sb.AppendLine($"\tMovement Profile: {movementProfile.Name.ColourName()} (#{movementProfile.Id.ToString("N0", actor)})");
+			sb.AppendLine($"\tEnvironment: {movementProfile.MovementEnvironment.DescribeEnum(true).ColourName()}");
+			if (movementProfile.MovementEnvironment == VehicleMovementEnvironment.SurfaceWater)
+			{
+				sb.AppendLine($"\tOccupant Water Exposure: {(movementProfile.ExposesOccupantsToWater ? "Exposed".Colour(Telnet.Yellow) : "Protected".Colour(Telnet.Green))}");
+				var modes = movementProfile.PropulsionProfiles.ToList();
+				sb.AppendLine($"\tActive Propulsion: {(vehicle.ActivePropulsionProfile?.PropulsionType.DescribeEnum().ColourName() ?? "legacy implicit movement".Colour(Telnet.Yellow))}");
+				sb.AppendLine($"\tSupported Propulsion: {(modes.Any() ? modes.Select(x => x.PropulsionType.DescribeEnum().ColourName()).ListToString() : "none authored".Colour(Telnet.Yellow))}");
+				var rowerSlots = vehicle.Prototype.OccupantSlots.Where(x => x.ContributesToPropulsion).ToList();
+				sb.AppendLine($"\tPropulsion Slots: {(rowerSlots.Any() ? rowerSlots.Select(x => x.Name.ColourName()).ListToString() : "none")}");
+				foreach (var mode in modes)
+				{
+					sb.AppendLine($"\t\t#{mode.Id.ToString("N0", actor)} {mode.PropulsionType.DescribeEnum().ColourName()} time {TimeSpan.FromMilliseconds(mode.BaseMoveTimeMilliseconds).Describe(actor).ColourValue()} speed {mode.SpeedMultiplierExpression.ColourCommand()}{(mode.PropulsionType is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed ? $" stamina {mode.StaminaCostExpression.ColourCommand()} trait {(mode.PropulsionTrait?.Name.ColourName() ?? "none".ColourError())}" : "")}");
+				}
+
+				var propulsion = PropulsionService.BuildReadiness(vehicle, vehicle.Controller ?? actor, null);
+				if (propulsion.Profile?.PropulsionType == VehiclePropulsionType.Sail)
+				{
+					sb.AppendLine($"\tWind: {propulsion.Wind.Describe().ColourName()}");
+				}
+
+				if (propulsion.Contributors.Any())
+				{
+					sb.AppendLine($"\tContributors: {propulsion.Contributors.Select(x => $"{x.Character.HowSeen(actor)}{(x.OarItem is null ? "" : $" with {x.OarItem.HowSeen(actor)}")}").ListToString()}");
+				}
+
+				foreach (var motor in propulsion.Motors)
+				{
+					sb.AppendLine($"\tMotor {(motor.Item?.HowSeen(actor) ?? motor.Installation.Prototype.Name)}: {(motor.Available ? "ready".Colour(Telnet.Green) : motor.Reason.Colour(Telnet.Yellow))}");
+				}
+
+				if (!propulsion.CanMove)
+				{
+					sb.AppendLine($"\tPropulsion Blocker: {propulsion.Reason.ColourError()}");
+				}
+			}
 		}
 
 		foreach (var module in report.Modules.Where(x => !x.IsFunctionalForMovement))

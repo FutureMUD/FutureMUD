@@ -209,6 +209,9 @@ namespace MudSharp.RPG.Checks
         StealCheck = 200, // Called when someone uses the steal command or palms into someone else's belongings
         ApplyPoisonToWeapon = 201, // Called when someone applies a poison coating to a melee weapon or ammunition
         InstallProstheticSurgery = 202, // Called when someone fits a prosthetic with a surgical procedure
+		PaddleVehicleCheck = 203, // Called when a controller self-propels a surface-water vehicle
+		RowVehicleCheck = 204, // Called for each rower contributing to a surface-water vehicle move
+		BoatStabilityCheck = 205, // Called when an occupant may be knocked from a surface-water vehicle
     }
 
     public enum FailIfTraitMissingType
@@ -359,6 +362,9 @@ namespace MudSharp.RPG.Checks
                 case CheckType.ForcedMovementCheck:
                 case CheckType.OpposeForcedMovementCheck:
                 case CheckType.DangerSenseDefense:
+				case CheckType.PaddleVehicleCheck:
+				case CheckType.RowVehicleCheck:
+				case CheckType.BoatStabilityCheck:
                     return true;
             }
             return false;

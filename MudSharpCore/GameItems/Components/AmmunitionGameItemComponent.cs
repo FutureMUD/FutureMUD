@@ -8,6 +8,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using MudSharp.Vehicles;
 using MudSharp.RPG.Merits.Interfaces;
 
 namespace MudSharp.GameItems.Components;
@@ -320,12 +321,17 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo,
         IRangedWeaponType weaponType, IReadOnlyList<ICellExit> path)
     {
-        if (!shotOutcome.IsPass() || coverOutcome.IsPass() || target?.Cover == null)
+		var effectiveCover = target is ICharacter targetCharacter
+			? VehicleCombatService.Instance.ResolveEffectiveRangedCover(actor, targetCharacter)
+			: null;
+		var cover = effectiveCover?.Cover ?? target?.Cover?.Cover;
+		var coverItem = effectiveCover?.Provider ?? target?.Cover?.CoverItem?.Parent;
+		if (!shotOutcome.IsPass() || coverOutcome.IsPass() || cover is null)
         {
             return false;
         }
 
-        bool strikeCover = target.Cover.Cover.CoverType == CoverType.Hard || shotOutcome == Outcome.MajorPass ||
+		bool strikeCover = cover.CoverType == CoverType.Hard || shotOutcome == Outcome.MajorPass ||
                           coverOutcome == Outcome.MinorFail;
         if (!strikeCover)
         {
@@ -333,7 +339,6 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         }
 
         BroadcastProjectileFlight(actor, target, ammo, path);
-        IGameItem coverItem = target.Cover.CoverItem?.Parent;
         string actorText = actor.HowSeen(actor);
         string targetText = target.HowSeen(actor);
         string coverText = coverItem?.HowSeen(actor) ?? "environmental cover";
@@ -347,7 +352,10 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 
         Damage damage = BuildDamage(actor, target, bodypart, ammo, weaponType, defenseOutcome);
         List<IWound> wounds = new();
-        wounds.AddRange(coverItem?.PassiveSufferDamage(damage) ?? Enumerable.Empty<IWound>());
+		if (effectiveCover?.IsVehicleCover != true)
+		{
+			wounds.AddRange(coverItem?.PassiveSufferDamage(damage) ?? Enumerable.Empty<IWound>());
+		}
         wounds.ProcessPassiveWounds();
 
         if (wounds.Any(x => x.Lodged == ammo))

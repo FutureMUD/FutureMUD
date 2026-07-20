@@ -85,6 +85,7 @@ public class ForcedMovementMove : CombatMoveBase
 			                          Weapon?.WeaponType.AttackTrait, defenderMove.Assailant,
 			                          Assailant.OffensiveAdvantage);
 		Assailant.OffensiveAdvantage = 0;
+		var displacementSuccessDegrees = Math.Max(1, attackRoll[CheckDifficulty].Outcome.SuccessDegrees());
 
 		var attackEmote = GetAttackEmote(attackRoll[CheckDifficulty]);
 		if (defenderMove is not HelplessDefenseMove and not TooExhaustedMove)
@@ -110,9 +111,11 @@ public class ForcedMovementMove : CombatMoveBase
 					DefenderOutcome = defenseRoll[Attack.SecondaryDifficulty]
 				};
 			}
+
+			displacementSuccessDegrees = Math.Max(1, (int)opposed.Degree);
 		}
 
-		if (!TryApplyMovement(out var why))
+		if (!TryApplyMovement(displacementSuccessDegrees, out var why))
 		{
 			Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(
 					$"{attackEmote}, but {why}",
@@ -164,11 +167,13 @@ public class ForcedMovementMove : CombatMoveBase
 				opposed is null ? 0.0 : (int)opposed.Degree));
 	}
 
-	private bool TryApplyMovement(out string why)
+	private bool TryApplyMovement(int successDegrees, out string why)
 	{
 		return MovementType == ForcedMovementTypes.Exit
-			? CombatForcedMovementUtilities.TryForceExitMovement(Assailant, CharacterTarget, Exit, Verb, out why)
-			: CombatForcedMovementUtilities.TryForceLayerMovement(Assailant, CharacterTarget, Layer!.Value, Verb, out why);
+			? CombatForcedMovementUtilities.TryForceExitMovement(Assailant, CharacterTarget, Exit, Verb,
+				successDegrees, out why)
+			: CombatForcedMovementUtilities.TryForceLayerMovement(Assailant, CharacterTarget, Layer!.Value, Verb,
+				successDegrees, out why);
 	}
 
 	private string VerbPresentParticiple()

@@ -526,14 +526,25 @@ public partial class Character
         }
     }
 
-    public void DoCombatKnockdown()
+	public void DoCombatKnockdown(int successDegrees = 1,
+		VehicleCombatDisplacementType displacementType = VehicleCombatDisplacementType.Knockdown)
     {
         if (RidingMount is not null)
         {
             DoFallOffHorse();
         }
 
-        Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(this))?.ForceDisembark(this, false);
+		var occupiedVehicle = VehicleCombatService.Instance.VehicleFor(this);
+		var overboard = VehicleCombatService.Instance.ResolveDisplacement(this, displacementType, successDegrees);
+		if (overboard.FellOverboard)
+		{
+			return;
+		}
+
+		if (occupiedVehicle is not null && !overboard.WasApplicable)
+		{
+			occupiedVehicle.ForceDisembark(this, false);
+		}
 
         // TODO - check sprawled is a valid position and maybe give a chance (skill based?) to land in another position
         SetPosition(PositionSprawled.Instance, PositionModifier.None, PositionTarget, null);

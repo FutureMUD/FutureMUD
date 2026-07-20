@@ -10,7 +10,15 @@ public class VehicleOccupantSlotProto
 	public int SlotType { get; set; }
 	public int Capacity { get; set; }
 	public bool RequiredForMovement { get; set; }
+	public bool ContributesToPropulsion { get; set; }
+	public long? SameLevelRangedCoverId { get; set; }
+	public long? AboveRangedCoverId { get; set; }
+	public long? BelowRangedCoverId { get; set; }
+	public int BoatStabilityDifficulty { get; set; } = 5;
 
 	public virtual VehicleProto VehicleProto { get; set; }
 	public virtual VehicleCompartmentProto VehicleCompartmentProto { get; set; }
+	public virtual RangedCover SameLevelRangedCover { get; set; }
+	public virtual RangedCover AboveRangedCover { get; set; }
+	public virtual RangedCover BelowRangedCover { get; set; }
 }

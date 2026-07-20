@@ -11,14 +11,22 @@ namespace MudSharp.Vehicles;
 public class VehicleOperationalReadinessService : IVehicleOperationalReadinessService
 {
 	private readonly IVehicleHitchGraphService _graphService;
+	private readonly IVehiclePropulsionService _propulsionService;
 
-	public VehicleOperationalReadinessService() : this(new VehicleHitchGraphService())
+	public VehicleOperationalReadinessService() : this(new VehicleHitchGraphService(), new VehiclePropulsionService())
 	{
 	}
 
-	public VehicleOperationalReadinessService(IVehicleHitchGraphService graphService)
+	public VehicleOperationalReadinessService(IVehicleHitchGraphService graphService) : this(graphService,
+		new VehiclePropulsionService())
+	{
+	}
+
+	public VehicleOperationalReadinessService(IVehicleHitchGraphService graphService,
+		IVehiclePropulsionService propulsionService)
 	{
 		_graphService = graphService;
+		_propulsionService = propulsionService;
 	}
 
 	public VehicleTowStressPolicy TowStressPolicy(IFuturemud? gameworld)
@@ -386,15 +394,22 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 		}
 	}
 
+	public bool TryCommitPropulsion(VehiclePropulsionReadinessResult readiness,
+		out VehiclePropulsionMovePlan? plan, out string reason)
+	{
+		return _propulsionService.TryCommitDeparture(readiness, out plan, out reason);
+	}
+
 	public VehicleMovementReadinessResult BuildMovementReadiness(VehicleMovementReadinessRequest request)
 	{
 		var issues = new List<VehicleOperationalIssue>();
 		VehicleMovementReadinessResult Fail(string reason, VehicleHitchGraphMovePlan? plan = null,
-			VehicleResourceReadinessPlan? resourcePlan = null)
+			VehicleResourceReadinessPlan? resourcePlan = null,
+			VehiclePropulsionReadinessResult? propulsionReadiness = null)
 		{
 			issues.Add(new VehicleOperationalIssue(VehicleOperationalSubsystem.Movement,
 				VehicleOperationalSeverity.Blocking, request.Vehicle?.Id, request.Vehicle?.Name ?? "vehicle", reason, string.Empty));
-			return new VehicleMovementReadinessResult(false, reason, plan, resourcePlan, issues);
+			return new VehicleMovementReadinessResult(false, reason, plan, resourcePlan, issues, propulsionReadiness);
 		}
 
 		var vehicle = request.Vehicle;
@@ -575,7 +590,30 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 			}
 		}
 
-		return new VehicleMovementReadinessResult(true, string.Empty, movePlan, resourcePlan, issues);
+		VehiclePropulsionReadinessResult propulsionReadiness;
+		if (request.CommittedPropulsionPlan is not null)
+		{
+			if (!_propulsionService.ValidateCommittedPlan(request.CommittedPropulsionPlan, out reason))
+			{
+				return Fail(reason, movePlan, resourcePlan);
+			}
+
+			propulsionReadiness = new VehiclePropulsionReadinessResult(true, string.Empty, vehicle, actor, exit,
+				request.CommittedPropulsionPlan.Profile,
+				request.CommittedPropulsionPlan.Contributors.Select(x => x.Contributor).ToList(),
+				request.CommittedPropulsionPlan.Motors, request.CommittedPropulsionPlan.Wind, false);
+		}
+		else
+		{
+			propulsionReadiness = _propulsionService.BuildReadiness(vehicle, actor, exit);
+			if (!propulsionReadiness.CanMove)
+			{
+				return Fail(propulsionReadiness.Reason, movePlan, resourcePlan, propulsionReadiness);
+			}
+		}
+
+		return new VehicleMovementReadinessResult(true, string.Empty, movePlan, resourcePlan, issues,
+			propulsionReadiness);
 	}
 
 	public VehicleOperationalReadinessReport BuildReport(IVehicle vehicle, ICharacter voyeur,
@@ -627,6 +665,25 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 				towStress.CanFail ? VehicleOperationalSeverity.Warning : VehicleOperationalSeverity.Information,
 				towStress.Link.WrappedLink?.Id, towStress.Link.WrappedLink?.Name ?? towStress.Link.Key,
 				towStress.Reason, "reduce load or use stronger hitch gear/tow points"));
+		}
+
+		var effectiveMovementProfile = movementProfile ?? vehicle.MovementProfile;
+		if (effectiveMovementProfile?.MovementEnvironment == VehicleMovementEnvironment.SurfaceWater)
+		{
+			var propulsion = _propulsionService.BuildReadiness(vehicle, vehicle.Controller ?? voyeur, null);
+			if (propulsion.UsesLegacyMovement)
+			{
+				issues.Add(new VehicleOperationalIssue(VehicleOperationalSubsystem.Propulsion,
+					VehicleOperationalSeverity.Warning, effectiveMovementProfile.Id, effectiveMovementProfile.Name,
+					"This surface-water movement profile has no explicit propulsion mode and is using legacy movement behaviour.",
+					"revise the vehicle prototype and author an explicit propulsion mode"));
+			}
+			else if (!propulsion.CanMove)
+			{
+				issues.Add(new VehicleOperationalIssue(VehicleOperationalSubsystem.Propulsion,
+					VehicleOperationalSeverity.Blocking, propulsion.Profile?.Id, propulsion.Profile?.Name ?? "Propulsion",
+					propulsion.Reason, "resolve the propulsion blocker or select another supported propulsion mode"));
+			}
 		}
 
 		return new VehicleOperationalReadinessReport(vehicle, issues, modules, fuel, power, stress);
@@ -739,10 +796,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 
 	private static IVehicleMovementProfilePrototype? MovementProfile(IVehicle vehicle)
 	{
-		return vehicle.Prototype.MovementProfiles
-		              .Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
-		              .OrderByDescending(x => x.IsDefault)
-		              .FirstOrDefault();
+		return vehicle.MovementProfile;
 	}
 
 	private static string DescribeResourceFailure(ICharacter actor, string reason,

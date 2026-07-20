@@ -19,7 +19,8 @@ public enum VehicleOperationalSubsystem
 	Damage,
 	Repair,
 	HitchTow,
-	Movement
+	Movement,
+	Propulsion
 }
 
 public enum VehicleOperationalSeverity
@@ -103,14 +104,16 @@ public sealed record VehicleMovementReadinessRequest(
 	IVehicle Vehicle,
 	ICharacter Actor,
 	ICellExit? Exit,
-	IVehicleMovementProfilePrototype? MovementProfile = null);
+	IVehicleMovementProfilePrototype? MovementProfile = null,
+	VehiclePropulsionMovePlan? CommittedPropulsionPlan = null);
 
 public sealed record VehicleMovementReadinessResult(
 	bool CanMove,
 	string Reason,
 	VehicleHitchGraphMovePlan? MovePlan,
 	VehicleResourceReadinessPlan? ResourcePlan,
-	IReadOnlyList<VehicleOperationalIssue> Issues);
+	IReadOnlyList<VehicleOperationalIssue> Issues,
+	VehiclePropulsionReadinessResult? PropulsionReadiness = null);
 
 public sealed record VehicleTowCatastropheResult(
 	bool Catastrophe,
@@ -142,6 +145,8 @@ public interface IVehicleOperationalReadinessService
 	VehicleResourceReadinessPlan BuildResourcePlan(IVehicle vehicle, IVehicleMovementProfilePrototype profile);
 	void ConsumeMovementResources(IVehicle vehicle, IVehicleMovementProfilePrototype profile);
 	void ConsumeMovementResources(VehicleResourceReadinessPlan plan);
+	bool TryCommitPropulsion(VehiclePropulsionReadinessResult readiness, out VehiclePropulsionMovePlan? plan,
+		out string reason);
 	VehicleMovementReadinessResult BuildMovementReadiness(VehicleMovementReadinessRequest request);
 	VehicleTowStressPolicy TowStressPolicy(IFuturemud? gameworld);
 	VehicleOperationalReadinessReport BuildReport(IVehicle vehicle, ICharacter voyeur,

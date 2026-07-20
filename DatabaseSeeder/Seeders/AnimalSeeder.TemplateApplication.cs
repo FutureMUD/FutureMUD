@@ -48,6 +48,11 @@ public partial class AnimalSeeder
             }
         }
 
+		if (race.Name is "Shark" or "Orca" or "Giant Squid" or "Crocodile" or "Alligator")
+		{
+			AddAttackToRace("aquatichullassault", race, ItemQuality.Good);
+		}
+
         return true;
     }
 

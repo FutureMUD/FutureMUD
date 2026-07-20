@@ -2,6 +2,7 @@
 using MudSharp.Construction.Boundary;
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat.Moves;
 
@@ -38,6 +39,13 @@ public class MoveToMeleeMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		if (Assailant.CombatTarget is ICharacter boundaryTarget &&
+		    !VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, boundaryTarget, false, false,
+			    out var boundaryReason))
+		{
+			Assailant.OutputHandler.Send(boundaryReason);
+			return CombatMoveResult.Irrelevant;
+		}
         if (Assailant.CombatTarget is not ICharacter target)
         {
             return CombatMoveResult.Irrelevant;

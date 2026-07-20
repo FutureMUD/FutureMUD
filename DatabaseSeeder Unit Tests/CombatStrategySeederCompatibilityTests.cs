@@ -55,6 +55,11 @@ public class CombatStrategySeederCompatibilityTests
                 "Beast Dropper",
                 "Beast Physical Avoider",
                 "Beast Artillery",
+				"Beast Aquatic Brawler",
+				"Beast Aquatic Clincher",
+				"Beast Aquatic Behemoth",
+				"Beast Aquatic Skirmisher",
+				"Beast Aquatic Artillery",
                 "Beast Coward",
                 "Construct Brawler",
                 "Construct Skirmisher",
@@ -108,6 +113,26 @@ public class CombatStrategySeederCompatibilityTests
         }
     }
 
+	[TestMethod]
+	public void EnsureCombatStrategy_AquaticVariants_DoNotPreferTerrestrialCombat()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		context.FutureProgs.AddRange(
+			CreateFutureProg(1, "AlwaysTrue"),
+			CreateFutureProg(2, "IsHumanoid"));
+		context.SaveChanges();
+
+		foreach (var strategy in new[]
+		{
+			"Beast Aquatic Brawler", "Beast Aquatic Clincher", "Beast Aquatic Behemoth",
+			"Beast Aquatic Skirmisher", "Beast Aquatic Artillery"
+		})
+		{
+			var setting = CombatStrategySeederHelper.EnsureCombatStrategy(context, strategy);
+			Assert.IsFalse(setting.PreferTerrestrialCombat, strategy);
+		}
+	}
+
     [TestMethod]
     public void SeederSources_DependentSeeders_EnsureStrategiesByNameBeforeApplyingRaceDefaults()
     {
@@ -128,6 +153,7 @@ public class CombatStrategySeederCompatibilityTests
         StringAssert.Contains(source, "SeedCombatStrategies(context, questionAnswers);");
         StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Brawler\");");
         StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Drowner\");");
+		StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Aquatic Brawler\");");
         StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Dropper\");");
         StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Physical Avoider\");");
         Assert.IsFalse(source.Contains("if (!context.CharacterCombatSettings.Any())"),

@@ -16,6 +16,13 @@ public static class VehicleFactory
 		}
 
 		var exterior = prototype.ExteriorItemPrototype.CreateNew(loader);
+		var movementProfile = prototype.MovementProfiles
+			.Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
+			.OrderByDescending(x => x.IsDefault)
+			.FirstOrDefault();
+		var propulsionProfile = movementProfile?.PropulsionProfiles
+			.OrderByDescending(x => x.IsDefault)
+			.FirstOrDefault();
 		prototype.Gameworld.Add(exterior);
 		exterior.RoomLayer = roomLayer;
 		location.Insert(exterior, true);
@@ -34,6 +41,8 @@ public static class VehicleFactory
 				CurrentCellId = location.Id,
 				CurrentRoomLayer = (int)roomLayer,
 				MovementStatus = (int)VehicleMovementStatus.Stationary,
+				MovementProfileProtoId = movementProfile?.Id,
+				ActivePropulsionProfileProtoId = propulsionProfile?.Id,
 				CreatedDateTime = DateTime.UtcNow
 			};
 			FMDB.Context.Vehicles.Add(dbitem);
@@ -112,6 +121,7 @@ public static class VehicleFactory
 		prototype.Gameworld.Add(vehicle);
 		vehicle.LinkExteriorItem(exterior);
 		exterior.GetItemType<IVehicleExterior>()?.LinkVehicle(vehicle);
+		vehicle.SynchroniseExteriorItemToLocation();
 		CreateProjectionItems(vehicle, loader);
 		exterior.HandleEvent(EventType.ItemFinishedLoading, exterior);
 		exterior.Login();

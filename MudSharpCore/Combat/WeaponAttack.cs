@@ -163,6 +163,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
             case BuiltInCombatMoveType.Pushback:
             case BuiltInCombatMoveType.PushbackUnarmed:
             case BuiltInCombatMoveType.PushbackClinch:
+			case BuiltInCombatMoveType.AquaticVehicleAttack:
                 return new SecondaryDifficultyWeaponAttack(attack, gameworld);
             case BuiltInCombatMoveType.ForcedMovement:
             case BuiltInCombatMoveType.ForcedMovementUnarmed:
@@ -207,6 +208,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
             case BuiltInCombatMoveType.Pushback:
             case BuiltInCombatMoveType.PushbackUnarmed:
             case BuiltInCombatMoveType.PushbackClinch:
+			case BuiltInCombatMoveType.AquaticVehicleAttack:
                 return new SecondaryDifficultyWeaponAttack(gameworld, type);
             case BuiltInCombatMoveType.ForcedMovement:
             case BuiltInCombatMoveType.ForcedMovementUnarmed:

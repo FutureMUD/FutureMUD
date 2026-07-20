@@ -16,7 +16,7 @@ This keeps vehicle logic out of component XML while preserving normal item-world
 Phase 1 and the Phase 2 route-ready vehicle-systems slices are present:
 
 - Vehicle domain interfaces: `IVehiclePrototype`, `IVehicle`, `IVehicleMovementStrategy`, `IVehicleMovementState`, `IVehicleOccupancy`, and `IVehicleAccessState`.
-- Vehicle enums: `VehicleScale`, `VehicleLocationType`, `VehicleOccupantSlotType`, `VehicleMovementProfileType`, and `VehicleMovementStatus`.
+- Vehicle enums: `VehicleScale`, `VehicleLocationType`, `VehicleOccupantSlotType`, `VehicleMovementProfileType`, `VehicleMovementEnvironment`, and `VehicleMovementStatus`.
 - EF persistence for the Phase 1 vehicle prototype/live tables plus Phase 2 access points, cargo spaces, installation points, tow points, damage zones, damage-zone effects, tow links, and vehicle-zone wound links.
 - Gameworld registries and loaders for vehicle prototypes and live vehicles.
 - Vehicle factory creation of canonical vehicle instance plus exterior item projection.
@@ -27,6 +27,7 @@ Phase 1 and the Phase 2 route-ready vehicle-systems slices are present:
 - Player commands: `embark`, `disembark`, `vehiclecontrol`, `vehiclestatus`, `drive`, and ordinary movement commands while controlling a vehicle.
 - Admin/builder commands: `vehicleproto` for prototype authoring and creation, `vehicle` for live diagnostics and relinking.
 - Cell-exit movement strategy with controller, location, profile, exit-size, transition, disabled/destroyed, closed-access, required installation, required role, fuel, power, and recursive tow-train validation.
+- Surface-water cell-exit profiles for `ItemScale` and `RoomContainer` craft, including surface-only traversal, hull floating, occupant swim support, configurable occupant water exposure, explicit selectable propulsion, and water-safe disembark/destruction cleanup.
 - Tow-train service for hitch validation, cycle prevention, tow-point usage checks, recursive train weight checks, required `IHitchGear`/legacy `IDragAid` connector item validity, in-use item reservation, and loaded broken-link diagnostics.
 - Active character/mount hitching through the normal drag movement system, including character-to-character chains and character/mount-to-vehicle tow-point hitches with physical connector gear for non-direct tow points.
 - Tow point authoring includes a character pull multiplier that scales effective pull capacity for mounts, animals, or people pulling that vehicle point.
@@ -98,7 +99,7 @@ Child definitions:
 - `VehicleCompartmentPrototype` groups stations and occupant slots.
 - `VehicleOccupantSlotPrototype` defines driver, passenger, and crew capacity.
 - `VehicleControlStationPrototype` links vehicle control authority to a slot.
-- `VehicleMovementProfilePrototype` declares supported movement strategy families.
+- `VehicleMovementProfilePrototype` declares the movement strategy family, movement environment, occupant water-exposure policy, and resource/readiness requirements.
 - `VehicleAccessPointPrototype` defines doors, hatches, ramps, canopies, and service panels projected as targetable items.
 - `VehicleCargoSpacePrototype` links a canonical cargo space to a targetable container projection item.
 - `VehicleInstallationPointPrototype` defines installable module mount type, optional role, and movement-required slots.
@@ -116,6 +117,7 @@ Submit/create validation currently requires:
 - valid projection item prototypes for access and cargo definitions
 - cargo projection item prototypes that include a normal container component
 - valid installation mount types, damage-zone thresholds, and damage-zone effect targets
+- valid movement environments, with occupant water exposure enabled only for surface-water profiles
 
 ### Vehicle Instance
 
@@ -172,6 +174,7 @@ Prototype tables:
 - `VehicleOccupantSlotProtos`
 - `VehicleControlStationProtos`
 - `VehicleMovementProfileProtos`
+- `VehiclePropulsionProfileProtos`
 - `VehicleAccessPointProtos`
 - `VehicleCargoSpaceProtos`
 - `VehicleInstallationPointProtos`
@@ -193,7 +196,7 @@ Live tables:
 - `VehicleHitchLinks`
 - `VehicleDamageZones`
 
-The initial migration is `VehiclesHybridModel`; Phase 2 system tables are added in `VehicleSystemsPhase2`, with later additive migrations for character-pull multipliers, persistent hitch links, operational-readiness fields, and nullable tow-stress policy overrides.
+The initial migration is `VehiclesHybridModel`; Phase 2 system tables are added in `VehicleSystemsPhase2`, with later additive migrations for character-pull multipliers, persistent hitch links, operational-readiness fields, nullable tow-stress policy overrides, and surface-water movement profile fields.
 
 Important persistence rules:
 
@@ -202,6 +205,8 @@ Important persistence rules:
 - A live vehicle has a one-to-one external projection by convention and database uniqueness on `Vehicles.ExteriorItemId`.
 - Occupants are persisted in `VehicleOccupancies`; they are never stored inside item component XML.
 - Movement recovery fields are persisted on `Vehicles`: current cell, room layer, movement status, current exit, destination cell, and movement profile.
+- `VehicleMovementProfileProtos.MovementEnvironment` and `ExposesOccupantsToWater` persist the surface-water operating contract. Existing rows default to unrestricted movement and protected exposure, so ordinary vehicles retain their prior behaviour.
+- `VehiclePropulsionProfileProtos` stores at most one configuration of each propulsion type for a surface-water movement profile. It persists the default flag, base traversal time, check trait/difficulty, and speed/stamina expressions. `VehicleOccupantSlotProtos.ContributesToPropulsion` marks automatic rower slots, while nullable `Vehicles.ActivePropulsionProfileProtoId` persists the selected live mode. Existing surface-water profiles without child rows retain legacy movement and display a migration warning; new surface-water revisions must author a mode before submission.
 - `VehicleExteriorGameItemComponent.VehicleId` is a repairable bridge value, not the source of truth.
 - Access and cargo projection components store only repairable bridge ids; their canonical state lives on the vehicle records.
 - Cargo contents remain ordinary item/container state on the cargo projection item.
@@ -224,7 +229,7 @@ Current load order is:
 
 This order allows vehicle prototypes to resolve item prototypes, live vehicles to resolve exterior items, and vehicle occupancies to resolve characters.
 
-When vehicles load, they call `SynchroniseExteriorItemToLocation()` so the exterior item projection returns to the vehicle's canonical cell and room layer after reboot.
+When vehicles load, they call `SynchroniseExteriorItemToLocation()` so the exterior item projection returns to the vehicle's canonical cell and room layer after reboot. Intact surface-water exteriors are restored to floating posture; destroyed surface-water vehicles clear any stale occupancies and place those characters into swimming posture when the canonical layer is water.
 
 Persistent hitch links are loaded after vehicles, world items, and NPCs are available. Endpoints resolve lazily and invalid rows remain diagnosable rather than crashing boot. Missing vehicles, NPCs, tow points, required hitch items, incompatible hitch gear, or co-location failures make the link invalid until repaired or unhitched. Valid NPC/vehicle links are projected back into active `CharacterHitch` and `Dragging` effects at boot so ordinary movement continues to move the hitch chain. PC endpoints are not persisted; any PC-inclusive hitch is treated as a transient runtime hitch and blocks voluntary quit or timeout while active.
 
@@ -239,9 +244,13 @@ Builder flow:
 5. `vehicleproto set slot add <compartment id> <driver|passenger|crew> <capacity> <name>`
 6. `vehicleproto set station add <slot id> <name>`
 7. `vehicleproto set movement cell`
-8. `vehicleproto submit <comment>`
-9. `vehicleproto approve <id> <comment>`
-10. `vehicleproto create <id|name>`
+8. Optional: `vehicleproto set movement environment <movement profile id> surfacewater`
+9. Optional for surface-water craft: `vehicleproto set movement waterexposure <movement profile id> <protected|exposed>`
+10. Required for new surface-water craft: `vehicleproto set movement propulsion add <movement profile id> <selfpowered|rowed|sail|outboard|none>`
+11. Configure the propulsion row with `time`, `trait`, `difficulty`, `speed`, or `stamina` as applicable; use `vehicleproto set slot propulsion <slot id>` for rowers.
+12. `vehicleproto submit <comment>`
+13. `vehicleproto approve <id> <comment>`
+14. `vehicleproto create <id|name>`
 
 Factory flow:
 
@@ -272,6 +281,7 @@ Current player commands:
 - `vehiclecontrol` / `takecontrol`
 - `vehiclecontrol release` / `releasecontrol`
 - `vehiclestatus [vehicle]`
+- `vehiclepropulsion [selfpowered|rowed|sail|outboard|none]`
 - `drive <direction>`
 - ordinary movement commands such as `north`, `east`, `enter`, or `leave` while controlling a vehicle
 - `install <held module> <vehicle> [install point]`
@@ -305,6 +315,7 @@ Driving rules currently check:
 - the vehicle is at the exit origin
 - the vehicle prototype has a `CellExit` movement profile
 - the movement profile is not disabled by vehicle damage effects
+- every surface-water vehicle in the driven, dragged, or towed train starts and finishes at `GroundLevel` in a cell whose ground layer is a swimming layer
 - the exit is large enough for the exterior item
 - the exit has a viable movement transition for the driver
 - the vehicle is not disabled or destroyed
@@ -312,6 +323,7 @@ Driving rules currently check:
 - every occupant slot marked required for movement is staffed
 - required installed modules and roles are present, correctly typed, enabled, not destroyed, and above their movement condition thresholds
 - configured fuel and power are available from functional installed candidate modules
+- the selected explicit propulsion mode is ready; an authored mode never silently falls back to another mode
 - recursive tow-train links are valid, tow points are not damage-disabled, hitch items are co-located, all towed vehicles fit through the exit, and any valid strained link survives the tow-stress catastrophe preflight
 
 The first occupant to board an eligible driver slot with a configured control station takes control automatically. A controller can release it with `vehiclecontrol release`; another occupant in an eligible driver slot can then use `vehiclecontrol` to take over. `vehiclestatus` gives players a compact view of controller, crew, access, cargo, modules, damage, and—when they control it—the full cell-exit preflight result.
@@ -319,6 +331,49 @@ The first occupant to board an eligible driver slot with a configured control st
 When a controller enters an ordinary movement command, character movement redirects it to vehicle movement before walking movement is attempted. This means a bicycle rider can type `north` instead of `drive north`; the explicit `drive` command remains available for clarity. Vehicle movement uses the normal movement pipeline shape: it sets the actor's current `IMovement`, applies a movement delay, supports turn-around cancellation and queued follow-up movement commands, marks the vehicle as moving while in transit, and resolves the movement after the scheduled step. Delayed movement revalidates at departure commit, rolls tow catastrophe exactly once at that commit, and completes the exact validated hitch/resource plan rather than rebuilding or failing open.
 
 Visible occupants of a vehicle are presented in the same style as mounted riders. If a character is visibly occupying a vehicle whose exterior item is also visible in the same cell and layer, their long description says they are riding that vehicle, and the exterior item is suppressed from the separate item list to avoid duplicate room lines. If occupants are not visible in the cell, the exterior item remains the room-facing presentation.
+
+### Surface-Water Movement Profiles
+
+Surface-water boats use the existing `ItemScale` or `RoomContainer` vehicle scales and the normal `CellExit` strategy. They are not `RoomScale` moving interiors. Builders configure the cell-exit movement profile with:
+
+```text
+vehicleproto set movement environment <profile id> surfacewater
+vehicleproto set movement waterexposure <profile id> <protected|exposed>
+```
+
+`SurfaceWater` requires both the origin and destination to be exactly `RoomLayer.GroundLevel`, with `ICell.IsSwimmingLayer(GroundLevel)` true. The shared hitch-graph preflight applies this rule to every vehicle in driven, character-dragged, and vehicle-towed movement. A surface-water craft can still be created, stored, administratively relocated, or carried as an unoccupied item on land; it simply cannot traverse a cell exit operationally from or into that state.
+
+An intact surface-water exterior is kept in `PositionFloatingInWater` even when its ordinary material buoyancy would be negative. The hull still receives normal liquid exposure. Disabled craft continue to float, while a globally destroyed vehicle loses its floating exemption.
+
+Occupants of an intact, canonically co-located surface-water craft do not run swim heartbeats, spend swimming stamina, or sink. A protected profile also suppresses the terrain-water exposure applied to exposed inventory; an exposed profile leaves that normal immersion in place, which suits surfboards and other wet craft. Protection is continuous while aboard but does not dry existing wetness or block rain, spills, or other liquid sources. Voluntary disembark, forced disembark, exterior destruction, and a damage transition that destroys the overall vehicle clear occupancy and set characters left in water to `PositionSwimming`.
+
+#### Propulsion Profiles
+
+Surface-water movement profiles may author one row for each of `SelfPowered`, `Rowed`, `Sail`, and `OutboardMotor`, or one exclusive `None` row. One authored row is the default for newly created vehicles. A controller aboard a stationary vehicle uses `vehiclepropulsion <mode>` to change the active row; `vehiclepropulsion` and `vehiclestatus` show the current choice. The choice persists, and failure of the chosen mode does not select another mode automatically. `None` prevents the craft from initiating vehicle movement but does not prevent an unoccupied item-scale craft from being carried, or a craft from being dragged or towed when another mover is the root.
+
+Builder commands are:
+
+```text
+vehicleproto set movement propulsion add <movement-id> <selfpowered|rowed|sail|outboard|none>
+vehicleproto set movement propulsion remove <propulsion-id>
+vehicleproto set movement propulsion default <propulsion-id>
+vehicleproto set movement propulsion time <propulsion-id> <seconds>
+vehicleproto set movement propulsion trait <propulsion-id> <trait-id|name>
+vehicleproto set movement propulsion difficulty <propulsion-id> <difficulty>
+vehicleproto set movement propulsion speed <propulsion-id> <expression>
+vehicleproto set movement propulsion stamina <propulsion-id> <expression>
+vehicleproto set slot propulsion <slot-id>
+```
+
+Every explicit mode starts with a 10-second base traversal time. Actual time is `base time * max(exit time multiplier, 0.01) / effective propulsion multiplier`, capped by `MaximumMoveTimeMilliseconds` and independent of walking speed. Speed expressions may use only `outcome` for self-powered/rowed, `wind` for sail, or `output` for outboards; self-powered/rowed stamina expressions may use `outcome` and `swimcost`. Departure preflight is stateless. At commit it revalidates the train, freezes wind/contributor/oar/motor/resource identities, rolls each human check once, and charges stamina and motor energy once before movement begins. Cancellation retains those committed costs; intermediate validation uses the frozen plan.
+
+- `SelfPowered` rolls `PaddleVehicleCheck` for the controller with the configured trait and difficulty. Its default speed is `max(0.25, 1.0 + 0.15 * outcome)`.
+- `Rowed` automatically selects every able non-combatant occupant in a propulsion slot who holds or wields a usable oar and can afford the worst configured stamina result. The best held oar is chosen by positive efficiency multiplied by clamped item condition. Each rower rolls `RowVehicleCheck`; speed is the square root of the sum of oar effectiveness multiplied by each outcome multiplier, so additional rowers have diminishing returns.
+- Self-powered and rowed stamina defaults to `swimcost * max(0.5, 1.0 - 0.10 * outcome)`. Outcomes range from -3 to +3; failure makes propulsion slower and costlier without blocking it. Upgraded databases whose dedicated check is missing or was automatically created with a constant, parameterless expression explicitly use `GenericSkillCheck` with the selected trait.
+- `Sail` samples origin wind at departure and requires wind above `Still`. The expression receives ranks 1 through 7 for `OccasionalBreeze` through `MaelstromWind`; the default is `1.0 + 0.15 * (wind - 1.0)`. Direction, tacking, waves, swell, currents, and weather-driven movement are outside this slice.
+- `OutboardMotor` uses every installed, functional, switched-on (when an `IOnOff` exists), energy-ready outboard. Outputs sum linearly, while unavailable motors remain visible with their blockers. Each motor that successfully commits consumes its configured same-item fuel or electrical spike exactly once. A motor that fails its commit-time draw is excluded, and duration is recalculated from the motors that actually supplied energy; departure fails without a charge only when none can commit.
+
+`Vehicle Oar` is an item component with a positive efficiency multiplier. `Outboard Motor` is an item component with a positive output multiplier and either a fuelled or electric energy source. A fuelled motor requires a configured liquid/volume and a same-item `ILiquidContainer`; an electric motor requires a configured spike and a same-item `IProducePower`. Motor items must also carry `Vehicle Installable` and be installed on the driven vehicle.
 
 ### Character And Mount Hitching
 
@@ -480,6 +535,7 @@ Current validation:
 - required modules and roles must be installed, enabled, correctly typed, not destroyed, and above their movement condition thresholds
 - fuel and power candidates must be functional and have the required resource or spike capacity
 - recursive tow-train links must be graph-valid, fit through the exit, remain within hard tow capacities, and survive any tow-stress catastrophe roll
+- every surface-water member of the train must traverse from surface water to surface water at `GroundLevel`
 
 Current movement behaviour:
 
@@ -606,11 +662,31 @@ Still to implement:
 
 - Optional player-facing vehicle retirement/deletion UX. V1 treats the canonical record as a durable asset: a missing or destroyed exterior fails movement closed and staff use `vehicle recover`/relink diagnostics rather than allowing an invisible vehicle to move.
 - Rich physical access-device authoring, ownership, and lease tooling beyond simple character grants, presets, fleet helpers, and existing projection locks.
-- Terrain/layer restrictions beyond the existing exit transition rules.
+- Waves, swell, currents, weather-driven vessel motion, and other dynamic water-state effects.
+- Damage to boats, capsizing, and boat-targeted weapon damage. The current boat-combat slice affects occupants only.
 - Richer hitch item mechanics, broader recovery UX, and fuller fuel/power network topologies.
 - Route, coordinate 2D, coordinate 3D, and RoomScale systems.
 
 For a fresh-world manual verification path, including the supporting item and component prototype authoring steps, see [Vehicle System Fresh MUD Test Runbook](./Vehicle_System_Fresh_MUD_Test_Runbook.md).
+
+## Boat Combat And Directional Cover
+
+Each occupant slot can offer a different `IRangedCover` from the same level, above, and below, plus a base boat-stability difficulty:
+
+```text
+vehicleproto set slot cover <slot-id> same <ranged-cover-id-or-name>
+vehicleproto set slot cover <slot-id> above <ranged-cover-id-or-name|none>
+vehicleproto set slot cover <slot-id> below <ranged-cover-id-or-name>
+vehicleproto set slot stability <slot-id> <difficulty>
+```
+
+`all` may replace the directional token to set or clear all three cover values together. A surface swimmer is below an intact surface-water craft even though both are represented at `GroundLevel`; aerial and elevated attackers are above. Occupants aboard the same vehicle do not receive cover from their own vehicle against one another. Personal and slot cover do not stack: the effective cover is whichever is stronger, with hard cover winning an equal-difficulty soft/hard comparison.
+
+Ordinary swimmer contact attacks cannot cross into the craft. Boarding or a specially authored aquatic vehicle natural attack is required; physical ranged attacks may still target occupants through directional cover. Successful unbalancing, knockdown, push, pull, throw, and aquatic vehicle assault effects call the slot stability check. Failure uses the existing water-safe force-disembark lifecycle and places the occupant swimming. A passed stability check during exit- or layer-based forced movement keeps the occupant aboard and prevents the independent teleport that would otherwise leave a stale occupancy behind. Disabled but intact boats still provide this support; destroyed boats do not.
+
+Using `embark` during combat queues the same two-second, 5-stamina boarding action used by terrestrial-preferring combat AI and revalidates the chosen slot and access point before charging stamina. Outside combat, `embark` remains immediate. Manual combat commands bound to an aquatic vehicle attack may target an occupant; the move resolves against that occupant's vehicle exterior.
+
+The `AquaticVehicleAttack` type attacks the exterior as a single action but does not damage it. One attack roll determines whether the assault rocks the craft, after which each occupant checks stability independently. Boat damage, capsizing, waves, and swell remain outside this slice.
 
 ## Implementation Phases
 

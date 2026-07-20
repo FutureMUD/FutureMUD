@@ -2,6 +2,7 @@
 using MudSharp.Character.Heritage;
 using MudSharp.Effects.Concrete;
 using MudSharp.RPG.Checks;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat.Moves;
 
@@ -19,6 +20,12 @@ public class InitiateGrappleMove : NaturalAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		if (!VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, CharacterTarget, false, false,
+			    out var boundaryReason))
+		{
+			Assailant.OutputHandler.Send(boundaryReason);
+			return CombatMoveResult.Irrelevant;
+		}
         if (defenderMove == null)
         {
             defenderMove = new HelplessDefenseMove { Assailant = CharacterTarget };

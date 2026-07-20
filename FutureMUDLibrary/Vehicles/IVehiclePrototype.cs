@@ -1,6 +1,9 @@
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
+using MudSharp.Body.Traits;
+using MudSharp.RPG.Checks;
+using MudSharp.Combat;
 using System.Collections.Generic;
 
 namespace MudSharp.Vehicles;
@@ -34,6 +37,11 @@ public interface IVehicleOccupantSlotPrototype : IFrameworkItem
 	VehicleOccupantSlotType SlotType { get; }
 	int Capacity { get; }
 	bool RequiredForMovement { get; }
+	bool ContributesToPropulsion { get; }
+	IRangedCover SameLevelRangedCover { get; }
+	IRangedCover AboveRangedCover { get; }
+	IRangedCover BelowRangedCover { get; }
+	Difficulty BoatStabilityDifficulty { get; }
 }
 
 public interface IVehicleControlStationPrototype : IFrameworkItem
@@ -45,6 +53,8 @@ public interface IVehicleControlStationPrototype : IFrameworkItem
 public interface IVehicleMovementProfilePrototype : IFrameworkItem
 {
 	VehicleMovementProfileType MovementType { get; }
+	VehicleMovementEnvironment MovementEnvironment { get; }
+	bool ExposesOccupantsToWater { get; }
 	bool IsDefault { get; }
 	double RequiredPowerSpikeInWatts { get; }
 	long? FuelLiquidId { get; }
@@ -52,6 +62,18 @@ public interface IVehicleMovementProfilePrototype : IFrameworkItem
 	string RequiredInstalledRole { get; }
 	bool RequiresTowLinksClosed { get; }
 	bool RequiresAccessPointsClosed { get; }
+	IEnumerable<IVehiclePropulsionProfilePrototype> PropulsionProfiles { get; }
+}
+
+public interface IVehiclePropulsionProfilePrototype : IFrameworkItem
+{
+	VehiclePropulsionType PropulsionType { get; }
+	bool IsDefault { get; }
+	double BaseMoveTimeMilliseconds { get; }
+	ITraitDefinition PropulsionTrait { get; }
+	Difficulty CheckDifficulty { get; }
+	string SpeedMultiplierExpression { get; }
+	string StaminaCostExpression { get; }
 }
 
 public interface IVehicleAccessPointPrototype : IFrameworkItem

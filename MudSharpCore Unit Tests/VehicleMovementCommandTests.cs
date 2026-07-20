@@ -48,6 +48,17 @@ public class VehicleMovementCommandTests
 	}
 
 	[TestMethod]
+	public void VehiclePropulsion_IsRegisteredAsStationaryPlayerCommand()
+	{
+		var method = typeof(VehicleModule).GetMethod("VehiclePropulsion", BindingFlags.Static | BindingFlags.NonPublic);
+
+		Assert.IsNotNull(method);
+		Assert.IsNotNull(method!.GetCustomAttribute<PlayerCommand>());
+		Assert.IsNotNull(method.GetCustomAttribute<NoMovementCommand>());
+		Assert.IsNotNull(method.GetCustomAttribute<HelpInfo>());
+	}
+
+	[TestMethod]
 	public void VehicleMovement_InitialAction_BeginsTransitAndSchedulesDelayedMove()
 	{
 		var scheduler = new Mock<IScheduler>();
@@ -108,6 +119,7 @@ public class VehicleMovementCommandTests
 		vehicle.SetupGet(x => x.Location).Returns(origin.Object);
 		vehicle.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
+		vehicle.SetupGet(x => x.MovementProfile).Returns(profile.Object);
 		vehicle.SetupGet(x => x.ExteriorItem).Returns(exterior.Object);
 		vehicle.SetupGet(x => x.Occupants).Returns([actor.Object]);
 		vehicle.Setup(x => x.IsOccupant(actor.Object)).Returns(true);

@@ -6,6 +6,7 @@ using MudSharp.Economy.Currency;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat;
 
@@ -120,7 +121,10 @@ public class AimInformation : IAimInformation
         if (Shooter is IPerceivableHaveTraits iphtShooter)
         {
             Tuple<CheckOutcome, CheckOutcome> outcomes = Shooter.Gameworld.GetCheck(CheckType.KeepAimTargetMoved).MultiDifficultyCheck(iphtShooter,
-                Weapon.AimDifficulty, Target?.Cover?.Cover.MinimumRangedDifficulty ?? Difficulty.Automatic, Target,
+				Weapon.AimDifficulty,
+				Target is ICharacter targetCharacter
+					? VehicleCombatService.Instance.ResolveEffectiveRangedCover(Shooter, targetCharacter)?.Cover.MinimumRangedDifficulty ?? Difficulty.Automatic
+					: Target?.Cover?.Cover.MinimumRangedDifficulty ?? Difficulty.Automatic, Target,
                 Weapon.WeaponType.FireTrait);
             Outcome worstOutcome = outcomes.Item1.Outcome.Worst(outcomes.Item2);
             if (worstOutcome.IsFail())
@@ -235,7 +239,9 @@ public class AimInformation : IAimInformation
         {
             Tuple<CheckOutcome, CheckOutcome> outcomes = Shooter.Gameworld.GetCheck(CheckType.KeepAimTargetMoved).MultiDifficultyCheck(iphtShooter,
                 Weapon.AimDifficulty,
-                (Target as IPerceiver)?.Cover?.Cover.MinimumRangedDifficulty ?? Difficulty.Automatic, Target,
+				Target is ICharacter targetCharacter
+					? VehicleCombatService.Instance.ResolveEffectiveRangedCover(Shooter, targetCharacter)?.Cover.MinimumRangedDifficulty ?? Difficulty.Automatic
+					: (Target as IPerceiver)?.Cover?.Cover.MinimumRangedDifficulty ?? Difficulty.Automatic, Target,
                 Weapon.WeaponType.FireTrait);
             Outcome worstOutcome = outcomes.Item1.Outcome.Worst(outcomes.Item2);
             if (worstOutcome.IsFail())

@@ -40,6 +40,11 @@ public partial class CombatSeeder
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Dropper");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Physical Avoider");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Artillery");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Aquatic Brawler");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Aquatic Clincher");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Aquatic Behemoth");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Aquatic Skirmisher");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Aquatic Artillery");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Coward");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Construct Brawler");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Construct Skirmisher");
@@ -361,6 +366,14 @@ public partial class CombatSeeder
                                 $"(0.25 * veterancy:{skills["Veterancy"].Id}) + (0.75 * endure:{(skills.GetValueOrDefault("Enduring") ?? skills.GetValueOrDefault("Endurance") ?? skills["Athletics"]).Id})"
                         }, template.Id, Difficulty.Impossible);
                     continue;
+				case CheckType.BoatStabilityCheck:
+					AddCheck(check,
+						new TraitExpression
+						{
+							Expression =
+								$"(0.5 * dodge:{(skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id}) + (0.5 * athletics:{skills["Athletics"].Id})"
+						}, template.Id, Difficulty.Impossible);
+					continue;
                 case CheckType.StruggleFreeFromDrag:
                     AddCheck(check,
                         new TraitExpression

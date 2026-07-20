@@ -589,6 +589,14 @@ public interface IVehicleInstallablePrototype : IExclusiveGameItemComponentProto
 {
 }
 
+public interface IVehicleOarPrototype : IExclusiveGameItemComponentPrototype<IVehicleOar>
+{
+}
+
+public interface IOutboardMotorPrototype : IExclusiveGameItemComponentPrototype<IOutboardMotor>
+{
+}
+
 public interface IVendingMachinePrototype : IExclusiveGameItemComponentPrototype<IVendingMachine>, ISelectablePrototype, IListablePrototype
 {
 }

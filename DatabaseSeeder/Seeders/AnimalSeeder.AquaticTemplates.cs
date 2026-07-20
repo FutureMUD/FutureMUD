@@ -264,7 +264,7 @@ public partial class AnimalSeeder
                 "It carries itself with the remorseless calm of something that expects to eat what it catches.",
                 "open sea and dark water"),
             AnimalBreathingMode.Saltwater,
-            combatStrategyKey: "Beast Drowner",
+			combatStrategyKey: "Beast Aquatic Brawler",
             description: """
             Sharks are apex marine predators whose presence changes the meaning of open water. A fin, a pale belly in the dark or the slow turn of a powerful body can make a whole stretch of sea feel suddenly claimed.
 
@@ -280,7 +280,7 @@ public partial class AnimalSeeder
                 "It skitters with prickly sideways certainty.",
                 "tidal rock, shoreline pool and shallow reef"),
             AnimalBreathingMode.Saltwater,
-            combatStrategyKey: "Beast Clincher",
+			combatStrategyKey: "Beast Clincher",
             description: """
             Small crabs occupy reefs, tidal flats, rocky seabeds, creeks, estuaries and mangroves as armoured aquatic arthropods. Their lives are shaped by feeding, sheltering, avoiding danger and exploiting the opportunities their build allows.
 
@@ -427,7 +427,7 @@ public partial class AnimalSeeder
                 "It suggests abyssal depth and cold water where light does not matter much.",
                 "deep ocean and black water"),
             AnimalBreathingMode.Saltwater,
-            combatStrategyKey: "Beast Clincher",
+			combatStrategyKey: "Beast Aquatic Clincher",
             description: """
             Giant squid are intelligent soft-bodied sea hunters of reefs, wrecks, rocky floors, open sea and deep water. Their habits give them a visible place in the scene, whether they are glimpsed in the wild, kept near habitation or encountered at the edge of danger.
 
@@ -516,7 +516,7 @@ public partial class AnimalSeeder
                 "It cuts through the water with top-predator certainty.",
                 "cold current and open sea"),
             AnimalBreathingMode.Blowhole,
-            combatStrategyKey: "Beast Behemoth",
+			combatStrategyKey: "Beast Aquatic Behemoth",
             description: """
             Orcas occupy coastal waters, cold currents, pelagic seas and migratory routes as large breath-holding marine mammals. Their lives are shaped by feeding, sheltering, avoiding danger and exploiting the opportunities their build allows.
 

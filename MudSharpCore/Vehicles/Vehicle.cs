@@ -1,4 +1,6 @@
 ﻿using MudSharp.Body;
+using MudSharp.Body.Position;
+using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
@@ -22,6 +24,7 @@ public class Vehicle : SaveableItem, IVehicle
 	private readonly List<IVehicleDamageZone> _damageZones = new();
 	private readonly CellExitVehicleMovementStrategy _cellExitMovementStrategy = new();
 	private readonly IVehicleOperationalReadinessService _operationalReadinessService = new VehicleOperationalReadinessService();
+	private bool _forceDisembarking;
 	private long _prototypeId;
 	private int _prototypeRevision;
 	private long? _exteriorItemId;
@@ -33,6 +36,7 @@ public class Vehicle : SaveableItem, IVehicle
 	private long? _currentExitId;
 	private long? _destinationCellId;
 	private long? _movementProfileId;
+	private long? _activePropulsionProfileId;
 
 	public Vehicle(DB.Vehicle dbitem, IFuturemud gameworld)
 	{
@@ -49,6 +53,7 @@ public class Vehicle : SaveableItem, IVehicle
 		_currentExitId = dbitem.CurrentExitId;
 		_destinationCellId = dbitem.DestinationCellId;
 		_movementProfileId = dbitem.MovementProfileProtoId;
+		_activePropulsionProfileId = dbitem.ActivePropulsionProfileProtoId;
 
 		foreach (var occupancy in dbitem.Occupancies)
 		{
@@ -127,6 +132,17 @@ public class Vehicle : SaveableItem, IVehicle
 	}
 
 	public long? ExteriorItemId => _exteriorItemId;
+	public IVehicleMovementProfilePrototype MovementProfile =>
+		Prototype?.MovementProfiles.FirstOrDefault(x => x.Id == _movementProfileId) ??
+		Prototype?.MovementProfiles
+		          .Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
+		          .OrderByDescending(x => x.IsDefault)
+		          .FirstOrDefault();
+	public IVehiclePropulsionProfilePrototype ActivePropulsionProfile =>
+		MovementProfile?.PropulsionProfiles.FirstOrDefault(x => x.Id == _activePropulsionProfileId) ??
+		MovementProfile?.PropulsionProfiles
+		               .OrderByDescending(x => x.IsDefault)
+		               .FirstOrDefault();
 	public IVehicleMovementState MovementState => new VehicleMovementState(_locationType, Location, _roomLayer, _movementStatus, _currentExitId, _destinationCellId);
 	public VehicleLocationType LocationType => _locationType;
 	public ICell Location => _currentCellId is null ? null : Gameworld.Cells.Get(_currentCellId.Value);
@@ -149,6 +165,26 @@ public class Vehicle : SaveableItem, IVehicle
 	                        _damageZones.Any(x => x.Status != VehicleSystemStatus.Functional && x.Prototype.DisablesMovement) ||
 	                        IsDisabledByDamage(VehicleDamageEffectTargetType.WholeVehicleMovement, null);
 	public ICharacter Controller => _occupancies.FirstOrDefault(x => x.IsController)?.Occupant;
+
+	public bool SetActivePropulsionProfile(IVehiclePropulsionProfilePrototype profile, out string reason)
+	{
+		if (_movementStatus != VehicleMovementStatus.Stationary)
+		{
+			reason = "The vehicle must be stationary before changing its propulsion mode.";
+			return false;
+		}
+
+		if (profile is null || MovementProfile?.PropulsionProfiles.All(x => x.Id != profile.Id) != false)
+		{
+			reason = "That propulsion mode is not supported by this vehicle's current movement profile.";
+			return false;
+		}
+
+		_activePropulsionProfileId = profile.Id;
+		Changed = true;
+		reason = string.Empty;
+		return true;
+	}
 
 	public IEnumerable<IVehicleDamageZone> DamageZonesDisabling(VehicleDamageEffectTargetType targetType,
 		long? targetPrototypeId)
@@ -204,6 +240,12 @@ public class Vehicle : SaveableItem, IVehicle
 
 	private bool CanBoardCore(ICharacter actor, IVehicleOccupantSlotPrototype slot, out string reason)
 	{
+		if (_movementStatus != VehicleMovementStatus.Stationary)
+		{
+			reason = "You cannot board a vehicle while it is moving.";
+			return false;
+		}
+
 		if (actor is null)
 		{
 			reason = "There is no such character.";
@@ -455,6 +497,7 @@ public class Vehicle : SaveableItem, IVehicle
 		}
 
 		var occupancy = _occupancies.First(x => x.Occupant?.SamePhysicalInstance(actor) == true);
+		SynchroniseOccupantWithVehicle(actor);
 		using (new FMDB())
 		{
 			var dbitem = FMDB.Context.VehicleOccupancies.Find(occupancy.Id);
@@ -466,18 +509,33 @@ public class Vehicle : SaveableItem, IVehicle
 		}
 
 		_occupancies.Remove(occupancy);
+		NormaliseDisembarkedOccupant(actor);
 		return true;
 	}
 
 	public void ForceDisembarkAll()
 	{
-		SetStationaryAfterForcedExteriorChange();
-		foreach (var occupancy in _occupancies.ToList())
+		if (_forceDisembarking)
 		{
-			ForceDisembark(occupancy.Occupant);
+			return;
 		}
 
-		Changed = true;
+		_forceDisembarking = true;
+		try
+		{
+			SetStationaryAfterForcedExteriorChange();
+			foreach (var occupancy in _occupancies.ToList())
+			{
+				SynchroniseOccupantWithVehicle(occupancy.Occupant);
+				ForceDisembark(occupancy.Occupant);
+			}
+
+			Changed = true;
+		}
+		finally
+		{
+			_forceDisembarking = false;
+		}
 	}
 
 	public void ForceDisembark(ICharacter actor, bool cancelMovement = true)
@@ -493,6 +551,8 @@ public class Vehicle : SaveableItem, IVehicle
 			ClearForcedOccupantMovement(occupancy.Occupant);
 		}
 
+		SynchroniseOccupantWithVehicle(occupancy.Occupant);
+
 		using (new FMDB())
 		{
 			var dbitem = FMDB.Context.VehicleOccupancies.Find(occupancy.Id);
@@ -504,7 +564,29 @@ public class Vehicle : SaveableItem, IVehicle
 		}
 
 		_occupancies.Remove(occupancy);
+		NormaliseDisembarkedOccupant(occupancy.Occupant);
 		Changed = true;
+	}
+
+	private void SynchroniseOccupantWithVehicle(ICharacter occupant)
+	{
+		if (!this.IsSurfaceWaterVehicle() || occupant is null || Location is null ||
+		    occupant.Location == Location && occupant.RoomLayer == _roomLayer)
+		{
+			return;
+		}
+
+		occupant.Teleport(Location, _roomLayer, false, false);
+	}
+
+	private void NormaliseDisembarkedOccupant(ICharacter occupant)
+	{
+		if (!this.IsSurfaceWaterVehicle() || occupant?.Location?.IsSwimmingLayer(occupant.RoomLayer) != true)
+		{
+			return;
+		}
+
+		occupant.SetPosition(PositionSwimming.Instance, PositionModifier.None, null, null);
 	}
 
 	public IVehicleAccessState GrantAccess(ICharacter character, string accessTag, int accessLevel)
@@ -608,7 +690,10 @@ public class Vehicle : SaveableItem, IVehicle
 	private void SetStationaryAfterForcedExteriorChange()
 	{
 		_locationType = VehicleLocationType.Cell;
-		_movementStatus = VehicleMovementStatus.Stationary;
+		if (_movementStatus != VehicleMovementStatus.Destroyed)
+		{
+			_movementStatus = VehicleMovementStatus.Stationary;
+		}
 		_currentExitId = null;
 		_destinationCellId = null;
 	}
@@ -642,15 +727,32 @@ public class Vehicle : SaveableItem, IVehicle
 			return;
 		}
 
+		if ((Destroyed || ExteriorItem.Deleted || ExteriorItem.Destroyed) &&
+		    this.IsSurfaceWaterVehicle() &&
+		    _occupancies.Any())
+		{
+			ForceDisembarkAll();
+		}
+
 		if (ExteriorItem.Location == Location && ExteriorItem.RoomLayer == _roomLayer)
 		{
+			EnsureExteriorWaterPosition();
 			return;
 		}
 
 		ExteriorItem.Location?.Extract(ExteriorItem);
 		ExteriorItem.RoomLayer = _roomLayer;
 		Location.Insert(ExteriorItem, true);
+		EnsureExteriorWaterPosition();
 		Changed = true;
+	}
+
+	private void EnsureExteriorWaterPosition()
+	{
+		if (this.KeepsExteriorAfloat() && ExteriorItem.PositionState != PositionFloatingInWater.Instance)
+		{
+			ExteriorItem.PositionState = PositionFloatingInWater.Instance;
+		}
 	}
 
 	public void BeginMoveToCell(ICell destination, RoomLayer layer, ICellExit exit)
@@ -700,6 +802,7 @@ public class Vehicle : SaveableItem, IVehicle
 		_movementStatus = VehicleMovementStatus.Stationary;
 		_currentExitId = null;
 		_destinationCellId = null;
+		EnsureExteriorWaterPosition();
 		Changed = true;
 	}
 
@@ -740,6 +843,7 @@ public class Vehicle : SaveableItem, IVehicle
 
 		_currentCellId = destination.Id;
 		_roomLayer = layer;
+		EnsureExteriorWaterPosition();
 		Changed = true;
 	}
 
@@ -895,6 +999,7 @@ public class Vehicle : SaveableItem, IVehicle
 			dbitem.CurrentExitId = _currentExitId;
 			dbitem.DestinationCellId = _destinationCellId;
 			dbitem.MovementProfileProtoId = _movementProfileId;
+			dbitem.ActivePropulsionProfileProtoId = _activePropulsionProfileId;
 			dbitem.LastMovementDateTime = DateTime.UtcNow;
 			FMDB.Context.SaveChanges();
 		}

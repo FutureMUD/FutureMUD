@@ -343,6 +343,146 @@ Expected result:
 - If the kit cannot repair the vehicle material, damage type, severity, or remaining repair points, the ordinary repair command explains why.
 - `vehicle repair <vehicle> damage all` clears the damage-derived disables through the same recalculation path without clearing any manually disabled flags.
 
+## Surface-Water Boat Tests
+
+These tests require two adjacent cells whose `GroundLevel` is a swimming layer, plus an adjacent land cell. Use the normal room/terrain builder to establish that topology before creating the craft.
+
+Create an exposed `ItemScale` surfboard by following the basic ItemScale workflow, then configure its cell-exit profile before submission:
+
+```text
+vehicleproto set movement environment <movement-profile-id> surfacewater
+vehicleproto set movement waterexposure <movement-profile-id> exposed
+vehicleproto set movement propulsion add <movement-profile-id> selfpowered
+vehicleproto show <surfboard vehicle proto id>
+vehicleproto set movement propulsion trait <selfpowered-propulsion-id> <paddling-trait-id-or-name>
+vehicleproto set damage add 50 1 30 50 true board
+vehicleproto show <surfboard vehicle proto id>
+```
+
+The new mode starts with a 10-second base time, the default speed formula `max(0.25, 1.0 + (0.15 * outcome))`, and the default stamina formula `swimcost * max(0.5, 1.0 - (0.10 * outcome))`. Use `movement propulsion time|difficulty|speed|stamina` with the propulsion id to test overrides.
+
+Create a protected multi-rower `RoomContainer` rowboat by following the RoomContainer workflow with a hull, driver slot, station, two crew/passenger slots, and a globally movement-disabling hull damage zone, then configure:
+
+```text
+vehicleproto set movement environment <movement-profile-id> surfacewater
+vehicleproto set movement waterexposure <movement-profile-id> protected
+vehicleproto set movement propulsion add <movement-profile-id> rowed
+vehicleproto show <rowboat vehicle proto id>
+vehicleproto set movement propulsion trait <rowed-propulsion-id> <rowing-trait-id-or-name>
+vehicleproto set slot propulsion <port-rower-slot-id>
+vehicleproto set slot propulsion <starboard-rower-slot-id>
+vehicleproto set damage add 100 1 50 100 true hull
+vehicleproto show <boat vehicle proto id>
+```
+
+Create and submit a `Vehicle Oar` component prototype, setting `efficiency <multiplier>`, then attach it to a holdable oar item prototype. Give one rower two oars with different efficiency/condition values to verify that only the highest effective oar is selected. Give a second rower another oar to verify multiple contributors and diminishing returns.
+
+Create a protected sailboat with auxiliary outboards. Its movement profile may author both modes, but exactly one must be the default:
+
+```text
+vehicleproto set movement environment <movement-profile-id> surfacewater
+vehicleproto set movement waterexposure <movement-profile-id> protected
+vehicleproto set movement propulsion add <movement-profile-id> sail
+vehicleproto set movement propulsion add <movement-profile-id> outboard
+vehicleproto show <sailboat vehicle proto id>
+vehicleproto set movement propulsion default <sail-propulsion-id>
+vehicleproto set installpoint add none outboard auxiliary false port motor mount
+vehicleproto set installpoint add none outboard auxiliary false starboard motor mount
+```
+
+Create and submit two `Outboard Motor` component prototypes. Both parent items also need `Vehicle Installable` with mount `outboard`. Configure one with `fuel <liquid> <volume>` and a same-item liquid container, and the other with `power <watts>` and a same-item `BatteryPowered` or battery-fed `PowerSupply`. Set each positive `output <multiplier>`. An optional same-item `IOnOff` component must be on. Install both motors on the sailboat.
+
+Finally create a protected non-self-moving barge:
+
+```text
+vehicleproto set movement environment <movement-profile-id> surfacewater
+vehicleproto set movement waterexposure <movement-profile-id> protected
+vehicleproto set movement propulsion add <movement-profile-id> none
+vehicleproto show <barge vehicle proto id>
+```
+
+Submission should reject `None` combined with another mode, duplicate mode rows, a non-positive speed expression, a negative stamina expression, or a self-powered/rowed mode with no trait. Returning a profile to `unrestricted` requires removing its propulsion rows first and resets water exposure to protected.
+
+Create both vehicles at the surface-water test cell. Verify the movement profile display reports `Surface Water` and the expected occupant exposure policy. Then run:
+
+```text
+embark surfboard driver
+vehiclepropulsion
+drive <water-exit>
+vehiclestatus
+disembark
+embark boat driver
+vehiclepropulsion
+drive <water-exit>
+vehiclestatus
+```
+
+Expected result:
+
+- Both craft remain at `GroundLevel`, their exterior items remain floating even if their materials would otherwise have negative buoyancy, and their occupants do not spend swimming stamina or sink.
+- The surfboard occupant receives normal continuous terrain-water exposure while aboard.
+- The protected boat occupant does not receive terrain-water exposure while aboard. Boarding does not remove water that was already present, and rain or deliberate spills remain ordinary liquid sources.
+- Disembarking either craft at the water surface sets the character to swimming immediately.
+- The surfboard makes one `PaddleVehicleCheck`, charges the resulting stamina once, and uses its explicit base time rather than walking speed. Cancelling after departure does not refund the charge.
+- The rowboat ignores exhausted, incapacitated, in-combat, oarless, or non-designated occupants. Each ready rower checks once; additional effective oars improve speed with square-root diminishing returns.
+
+Test the sailboat in still weather and then in progressively stronger wind:
+
+```text
+embark sailboat driver
+vehiclepropulsion sail
+drive <water-exit>
+<set origin weather to OccasionalBreeze>
+drive <water-exit>
+<set origin weather to GaleWind>
+drive <water-exit>
+vehiclepropulsion outboard
+drive <water-exit>
+```
+
+Expected result: sail is blocked at `None` or `Still`, becomes faster as departure wind rank rises, and retains the departure sample if weather changes during the movement delay. Outboard mode reports both motors and their resource candidates, sums ready output linearly, consumes the configured liquid and power spike once, ignores a switched-off/damaged/unfuelled motor with an explicit reason, and blocks only when no motor remains ready. The chosen mode never silently falls back to the other.
+
+Test the barge as both root and tow target. `vehiclepropulsion` reports `None`; direct `drive` is blocked. A valid driven tow vehicle can still tow it water-to-water, and ordinary unoccupied item handling remains available where the hull's item components permit it.
+
+Attempt each operational path toward the land cell:
+
+```text
+drive <land-exit>
+drag surfboard <land-exit>
+hitch <tow-source> <surfboard-tow-point>
+drive <land-exit>
+```
+
+Expected result: driven, character-dragged, and tow-train movement all fail before resource consumption or relocation because every surface-water vehicle in the move must start and finish at the ground-level water surface. After disembarking, ordinary `get`, inventory, containment, staff relocation, or creation rules can still place the unoccupied surfboard on land; it remains unable to drive or be dragged through exits there.
+
+Finally, return the protected boat to the water surface, board it, and apply enough exterior damage to take its globally movement-disabling hull zone to `Destroyed`:
+
+```text
+wound <boat> none slashing 100
+vehicle show <boat vehicle id>
+```
+
+Expected result: the controller and all passengers are disembarked exactly once into the boat's canonical cell and layer, vehicle control/movement is cleared, and each character is set to swimming. Deleting or destroying the exterior item follows the same water-safe disembark rule. A destroyed hull is no longer exempt from ordinary item sinking.
+
+### Boat Combat And Directional Cover Check
+
+Configure the rowboat's driver and passenger slots with distinct cover and stability values before submission:
+
+```text
+vehicleproto set slot cover <driver-slot-id> same <partial-hard-cover>
+vehicleproto set slot cover <driver-slot-id> above none
+vehicleproto set slot cover <driver-slot-id> below <total-hard-cover>
+vehicleproto set slot stability <driver-slot-id> normal
+vehicleproto set slot cover <passenger-slot-id> all <partial-soft-cover>
+vehicleproto set slot stability <passenger-slot-id> easy
+```
+
+Board two test occupants. From another occupant in the same boat, confirm ranged attacks do not use the boat's cover. From the water surface, confirm physical ranged attacks use the slot's `below` cover. Repeat from `InAir` or another elevated layer and confirm the `above` definition is selected. Give the target ordinary personal cover and confirm only the stronger of personal and boat cover applies.
+
+As an unsupported swimmer, attempt an ordinary melee attack, clinch, grapple, and charge against an occupant. Each must explain that boarding is required. Set an NPC combat setting to `combat config terrestrial true`; it should spend a two-second combat action and 5 stamina to board a stationary craft, but no stamina if boarding preflight fails. Set an aquatic predator to a `Beast Aquatic ...` setting; it should use `Aquatic Hull Assault` against the exterior instead of boarding.
+
+Resolve unbalancing, knockdown, push, pull, takedown/throw, and aquatic hull-assault successes against occupants. Each affected occupant makes one independent `BoatStabilityCheck`; a failure force-disembarks exactly once into swimming posture while a success leaves the occupant aboard and preserves the attack's ordinary non-overboard consequences. An aquatic hull assault makes one attack roll for the craft, applies no exterior damage, ignores ranged cover, and can knock any number of occupants overboard through their separate stability results.
+
 ## Tow Train Test
 
 For a tow train, create at least two live vehicles with compatible tow points. The `QA Test Car` prototype above can be used for both source and target if it has one `tow` point and one `towed` point, but a dedicated trailer prototype is cleaner.
@@ -663,7 +803,9 @@ Expected result: if the connection itself blocks movement, driving is rejected w
 The current implementation should be considered fully supported for:
 
 - simple `ItemScale` vehicles that board one or more occupants, expose a driver station, and move through cell exits;
+- exposed `ItemScale` surface-water craft such as surfboards, with floating support but normal ambient water exposure for occupants;
 - `RoomContainer` vehicles represented by one exterior item, with authored compartments, slots, stations, access projections, cargo projections, installation points, damage effects, tow points, operational readiness checks, and cell-exit movement;
+- protected `RoomContainer` surface-water boats whose occupants avoid swimming, sinking, and ambient terrain-water exposure while the craft remains intact;
 - recursive tow trains made from cell-visible vehicles, provided they stay within cell-exit movement and use co-located compatible hitch items;
 - active mount/character-pulled carts, wagons, rickshaws, hand carts, and similar vehicle exteriors, including carts with downstream vehicle tow links, while the hitch is a live movement effect or an eligible NPC-only persistent hitch;
 - player-facing exterior repair through ordinary repair kits, admin damage/hitch recovery, and tow catastrophe recovery for the current cell-exit movement model.

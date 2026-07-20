@@ -437,6 +437,9 @@ Again, the choices you make here can be fixed later so don't stress it too great
                 case CheckType.CastSpellCheck:
                 case CheckType.AuxiliaryMoveCheck:
                 case CheckType.ResistMagicSpellCheck:
+				case CheckType.PaddleVehicleCheck:
+				case CheckType.RowVehicleCheck:
+				case CheckType.BoatStabilityCheck:
                     // Variable skills
                     AddCheck(check,
                         new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 1,

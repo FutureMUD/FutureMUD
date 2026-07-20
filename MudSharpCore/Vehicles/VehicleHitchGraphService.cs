@@ -464,7 +464,7 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 			return false;
 		}
 
-		if (!ValidateTrain(root, exit, members, links, out reason))
+		if (!ValidateTrain(root, exit, members, links, root.Controller, out reason))
 		{
 			return false;
 		}
@@ -516,7 +516,7 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 			}
 		}
 
-		if (!ValidateTrain(root, exit, members, links, out reason, allowRootIncoming: true))
+		if (!ValidateTrain(root, exit, members, links, pullers.FirstOrDefault(), out reason, allowRootIncoming: true))
 		{
 			return false;
 		}
@@ -559,8 +559,12 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 	}
 
 	private bool ValidateTrain(IVehicle root, ICellExit exit, IReadOnlyList<VehicleHitchGraphTrainMember> members,
-		IReadOnlyList<VehicleHitchGraphLink> links, out string reason, bool allowRootIncoming = false)
+		IReadOnlyList<VehicleHitchGraphLink> links, ICharacter? transitionActor, out string reason,
+		bool allowRootIncoming = false)
 	{
+		var targetLayer = transitionActor is null
+			? root.RoomLayer
+			: exit.MovementTransition(transitionActor).TargetLayer;
 		foreach (var member in members)
 		{
 			var vehicle = member.Vehicle;
@@ -575,6 +579,11 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 				reason = SameVehicle(vehicle, root)
 					? "That exit is too small for the vehicle."
 					: "That exit is too small for one of the towed vehicles.";
+				return false;
+			}
+
+			if (!vehicle.CanTraverseEnvironment(exit.Destination, targetLayer, out reason))
+			{
 				return false;
 			}
 		}

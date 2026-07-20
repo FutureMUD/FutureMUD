@@ -81,7 +81,9 @@ public partial class AnimalSeeder
             PreferredWeaponSetup = (int)setup,
             RequiredMinimumAim = requiredMinimumAim,
             MeleeAttackOrderPreference = order.Select(selector: x => ((int)x).ToString()).ListToCommaSeparatedValues(separator: " "),
-            GrappleResponse = (int)grapple
+			GrappleResponse = (int)grapple,
+			PreferTerrestrialCombat = !name.EqualTo("Beast Drowner") &&
+			                           !name.StartsWith("Beast Aquatic ", StringComparison.OrdinalIgnoreCase)
         };
         _context.CharacterCombatSettings.Add(entity: strategy);
         _context.SaveChanges();
@@ -1294,7 +1296,32 @@ public partial class AnimalSeeder
         }
 
 		EnsureNaturalRangedAttackSeedData(damageExpressions);
+		EnsureAquaticVehicleAttackSeedData();
     }
+
+	private void EnsureAquaticVehicleAttackSeedData()
+	{
+		var existing = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Aquatic Hull Assault");
+		if (existing is not null)
+		{
+			existing.MoveType = (int)BuiltInCombatMoveType.AquaticVehicleAttack;
+			existing.Intentions = (long)(CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage);
+			existing.AdditionalInfo = ((int)Difficulty.Normal).ToString();
+			_attacks["aquatichullassault"] = existing;
+			_context.SaveChanges();
+			return;
+		}
+
+		var headShape = _context.BodypartShapes.First(x => x.Name == "Head");
+		var ramDamage = _context.TraitExpressions.First(x => x.Name == "Animal Ram Damage");
+		_attacks["aquatichullassault"] = AddAttack("Aquatic Hull Assault",
+			BuiltInCombatMoveType.AquaticVehicleAttack, MeleeWeaponVerb.Bash,
+			Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+			Alignment.Front, Orientation.Centre, 8.0, 1.5, headShape, ramDamage,
+			"@ slam|slams into $1 from the water, violently rocking the craft", DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+			additionalInfo: ((int)Difficulty.Normal).ToString());
+	}
 
 	private void EnsureNaturalRangedAttackSeedData(IReadOnlyDictionary<string, string> damageExpressions)
 	{

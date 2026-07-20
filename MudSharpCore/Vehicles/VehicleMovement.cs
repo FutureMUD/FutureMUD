@@ -126,6 +126,7 @@ public class VehicleMovement : IMovement
 	private IReadOnlyList<IVehicle> _towTrain = [];
 	private (CellMovementTransition TransitionType, RoomLayer TargetLayer) _transition;
 	private VehicleMovementReadinessResult _readiness;
+	private VehiclePropulsionMovePlan _propulsionPlan;
 
 	public VehicleMovement(IVehicle vehicle, ICharacter originalMover, ICellExit exit)
 	{
@@ -168,7 +169,7 @@ public class VehicleMovement : IMovement
 	public IEnumerable<IPerceivable> Targets => _vehicle.ExteriorItem is null ? [] : [_vehicle.ExteriorItem];
 	public IReadOnlyDictionary<ICharacter, ISneakMoveEffect> SneakMoveEffects { get; } =
 		new Dictionary<ICharacter, ISneakMoveEffect>();
-	public TimeSpan Duration { get; }
+	public TimeSpan Duration { get; private set; }
 	public double StaminaMultiplier => 0.0;
 
 	public MovementType MovementTypeForMover(ICharacter mover)
@@ -279,6 +280,17 @@ public class VehicleMovement : IMovement
 			return;
 		}
 
+		if (!_strategy.TryCommitPropulsion(_readiness, out _propulsionPlan, out reason))
+		{
+			_originalMover.OutputHandler.Send(reason);
+			return;
+		}
+
+		if (_propulsionPlan is not null)
+		{
+			Duration = _propulsionPlan.Duration;
+		}
+
 		Exit.Origin.RegisterMovement(this);
 		foreach (var mover in _characterMovers.ToList())
 		{
@@ -383,7 +395,7 @@ public class VehicleMovement : IMovement
 	private bool RefreshMove(bool rollTowCatastrophe, out string reason)
 	{
 		return _strategy.TryPrepareMove(_vehicle, _originalMover, Exit, rollTowCatastrophe, out _towTrain,
-			out _transition, out _readiness, out reason);
+			out _transition, out _readiness, out reason, _propulsionPlan);
 	}
 
 	private string DescribeBeginMove(IPerceiver voyeur)

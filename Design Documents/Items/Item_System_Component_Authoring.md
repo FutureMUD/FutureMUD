@@ -49,6 +49,16 @@ Zero-gravity components are another reference for small gameplay contracts:
 
 When adding similar movement equipment, keep the public movement contract in `FutureMUDLibrary/GameItems/Interfaces` and keep connector/gas details inside the concrete component pair.
 
+Surface-water vehicle propulsion follows that same interface-first rule. `Vehicle Oar` implements `IVehicleOar` and exposes only a positive efficiency multiplier; the vehicle service discovers it while the item is held or wielded and combines that value with clamped parent-item condition. `Outboard Motor` implements `IOutboardMotor` and exposes a positive output multiplier plus either fuelled or electric energy configuration. It is intentionally compositional rather than a complete engine item by itself:
+
+- every motor parent item must also have `Vehicle Installable` so it can occupy a vehicle installation point;
+- a fuelled motor needs `fuel <liquid> <volume>` and a same-item `ILiquidContainer`;
+- an electric motor needs `power <watts>` and a same-item `IProducePower`, normally `BatteryPowered` or a battery-fed `PowerSupply`;
+- an optional same-item `IOnOff` participates automatically and must be switched on;
+- `output <multiplier>` and oar `efficiency <multiplier>` must remain positive.
+
+These component prototypes store their builder values in compatible XML and have no mutable live XML state. Submission rejects non-positive oar/output multipliers, a fuelled motor without a liquid and positive per-move volume, or an electric motor without a positive power spike. Propulsion selection, contributor outcomes, installed-motor identity, and resource charging belong to the vehicle domain rather than component XML. Use `comp typehelp VehicleOar` and `comp typehelp OutboardMotor` for the exact builder surface.
+
 Computer-program and signal-automation work should follow the same rule:
 - shared contracts such as `IComputerHost`, `IComputerFileSystem`, `IComputerExecutable`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary/Computers`
 - broader mutable file-owner contracts such as `IComputerFileOwner` belong in `FutureMUDLibrary/Computers` when item components need to expose files without also exposing executable storage

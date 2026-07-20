@@ -1090,6 +1090,7 @@ public static class CombatExtensions
             case BuiltInCombatMoveType.ForcedMovement:
             case BuiltInCombatMoveType.ForcedMovementUnarmed:
             case BuiltInCombatMoveType.ForcedMovementClinch:
+			case BuiltInCombatMoveType.AquaticVehicleAttack:
                 return true;
             default:
                 return false;
@@ -1116,6 +1117,8 @@ public static class CombatExtensions
                 return "Retrieve Item";
             case BuiltInCombatMoveType.UseWeaponAttack:
                 return "Weapon Attack";
+			case BuiltInCombatMoveType.AquaticVehicleAttack:
+				return "Aquatic Vehicle Attack";
             case BuiltInCombatMoveType.ChargeToMelee:
                 return "Charge to Melee";
             case BuiltInCombatMoveType.MoveToMelee:

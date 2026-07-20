@@ -19,11 +19,27 @@ Every strategy exposes:
 
 1. Core blockers: blocking combat effects, missing combat settings, active movement, unconsciousness, and paralysis.
 2. Obligatory moves: wake from sleep, execute selected manual combat action, automatic standing, rescue setup, and rescue moves.
-3. Inventory moves: retrieve or wield preferred weapons and shields when inventory automation permits.
-4. Combat movement: break clinches and perform strategy-specific movement.
-5. Attacks: strategy-specific attack selection.
+3. Vehicle-boundary action: board an occupied surface-water craft or select an aquatic hull assault when the target is aboard and the attacker is an unsupported swimmer.
+4. Inventory moves: retrieve or wield preferred weapons and shields when inventory automation permits.
+5. Combat movement: break clinches and perform strategy-specific movement.
+6. Attacks: strategy-specific attack selection.
 
 Returning `null` intentionally idles the combatant for a short combat tick. The audit goal is to reserve that for genuine blockers, manual-control decisions, or fully unavailable actions rather than missed fallback logic.
+
+## Surface-Water Vehicle Boundaries
+
+An unsupported swimmer at the water surface cannot use an ordinary contact attack, clinch, grapple, charge, or move-to-melee action against an occupant of an intact surface-water vehicle. Ranged attacks remain legal and resolve the occupant slot's directional vehicle cover. Occupants of the same vehicle bypass its cover and contact boundary.
+
+The shared AI action depends on `PreferTerrestrialCombat`:
+
+- `true` attempts a normal, stationary-vehicle boarding preflight and uses a two-second combat boarding move costing 5 stamina. The move revalidates before boarding and does not charge stamina when that revalidation fails.
+- `false` considers only an authored `AquaticVehicleAttack` natural attack for this boundary. The attack targets the exterior item, makes one natural-attack roll, inflicts no hull damage, ignores slot cover, and gives every current occupant an independent boat-stability check.
+
+Players who use `embark` during combat queue the same boarding move, including any explicitly selected slot or access point. Out-of-combat boarding remains immediate. An authored aquatic assault can likewise be selected through a manual combat command targeting an occupant; resolution redirects the move to that occupant's vehicle exterior.
+
+Boat-stability difficulty is authored per occupant slot. Successful unbalance, knockdown, push, pull, throw/takedown, and aquatic hull-assault effects stage that check from the causing move's success. Failure force-disembarks the occupant into the craft's cell and layer, clears close-contact state, and uses swimming posture. Passing an exit- or layer-forced-movement stability check keeps the occupant aboard and suppresses the otherwise independent relocation. A fresh MUD seeds `BoatStabilityCheck` as equal parts Dodge and Athletics; upgraded worlds whose automatically created dedicated check still has a constant, parameterless expression explicitly fall back to `GenericSkillCheck` with Dodge/Dodging/Athletics when available.
+
+Ranged cover is independently authored for attacks from the same level, above, and below. A surface swimmer attacking an occupant is classified as below even though both use `GroundLevel`. When personal and vehicle cover both apply, only the stronger cover is used; equal difficulty prefers hard over soft cover, and an exact tie preserves personal cover. Vehicle cover intercepts use the exterior as the narrative provider but never transfer damage to the hull in this slice.
 
 ## Shared Defensive Behaviour
 

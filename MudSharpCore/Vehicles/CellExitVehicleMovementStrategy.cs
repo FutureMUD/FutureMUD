@@ -53,6 +53,13 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 			return false;
 		}
 
+		if (readiness.PropulsionReadiness is not null &&
+		    !_readinessService.TryCommitPropulsion(readiness.PropulsionReadiness, out _, out var propulsionReason))
+		{
+			actor.OutputHandler.Send(propulsionReason);
+			return false;
+		}
+
 		EchoDeparture(vehicle, actor, exit, towTrain);
 		BeginMove(vehicle, exit, towTrain, transition);
 		CompleteMove(vehicle, exit, transition, readiness);
@@ -69,7 +76,8 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 	public bool TryPrepareMove(IVehicle vehicle, ICharacter actor, ICellExit exit, bool rollTowCatastrophe,
 		out IReadOnlyList<IVehicle> towTrain,
 		out (CellMovementTransition TransitionType, RoomLayer TargetLayer) transition,
-		out VehicleMovementReadinessResult readiness, out string reason)
+		out VehicleMovementReadinessResult readiness, out string reason,
+		VehiclePropulsionMovePlan committedPropulsionPlan = null)
 	{
 		towTrain = [];
 		transition = (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
@@ -81,7 +89,8 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		}
 
 		var profile = vehicle is null ? null : MovementProfile(vehicle);
-		readiness = _readinessService.BuildMovementReadiness(new VehicleMovementReadinessRequest(vehicle, actor, exit, profile));
+		readiness = _readinessService.BuildMovementReadiness(new VehicleMovementReadinessRequest(vehicle, actor, exit,
+			profile, committedPropulsionPlan));
 		if (!readiness.CanMove || readiness.MovePlan is null)
 		{
 			reason = readiness.Reason;
@@ -103,6 +112,19 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		towTrain = readiness.MovePlan.Vehicles.ToList();
 		reason = string.Empty;
 		return true;
+	}
+
+	public bool TryCommitPropulsion(VehicleMovementReadinessResult readiness, out VehiclePropulsionMovePlan plan,
+		out string reason)
+	{
+		if (readiness.PropulsionReadiness is null)
+		{
+			plan = null;
+			reason = string.Empty;
+			return true;
+		}
+
+		return _readinessService.TryCommitPropulsion(readiness.PropulsionReadiness, out plan, out reason);
 	}
 
 	public void EchoDeparture(IVehicle vehicle, ICharacter actor, ICellExit exit, IReadOnlyList<IVehicle> towTrain)
@@ -145,10 +167,7 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 
 	private static IVehicleMovementProfilePrototype MovementProfile(IVehicle vehicle)
 	{
-		return vehicle.Prototype.MovementProfiles
-		              .Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
-		              .OrderByDescending(x => x.IsDefault)
-		              .FirstOrDefault();
+		return vehicle.MovementProfile;
 	}
 
 	private static string TowEchoSuffix(IEnumerable<IVehicle> towedVehicles, ICharacter actor)

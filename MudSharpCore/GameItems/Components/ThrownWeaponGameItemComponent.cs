@@ -7,6 +7,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using MudSharp.Vehicles;
 
 namespace MudSharp.GameItems.Components;
 
@@ -211,19 +212,26 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
             (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
 
         List<IWound> wounds = new();
-        if (shotOutcome.IsPass() && coverOutcome.IsFail() && target.Cover != null)
+		var effectiveCover = target is ICharacter targetCharacter
+			? VehicleCombatService.Instance.ResolveEffectiveRangedCover(actor, targetCharacter)
+			: null;
+		var cover = effectiveCover?.Cover ?? target.Cover?.Cover;
+		var coverItem = effectiveCover?.Provider ?? target.Cover?.CoverItem?.Parent;
+		if (shotOutcome.IsPass() && coverOutcome.IsFail() && cover is not null)
         {
             // Shot would've hit if it wasn't for cover
-            bool strikeCover = target.Cover.Cover.CoverType == CoverType.Hard || shotOutcome == Outcome.MajorPass ||
+			bool strikeCover = cover.CoverType == CoverType.Hard || shotOutcome == Outcome.MajorPass ||
                               coverOutcome == Outcome.MinorFail;
             if (strikeCover)
             {
                 target.OutputHandler.Handle(
                     new EmoteOutput(new Emote($"The {Parent.Name} strikes $?1|$1, ||$$0's cover!", target, target,
-                        target.Cover.CoverItem?.Parent)));
+						coverItem)));
                 actor.Send("You hit your target's cover instead.".Colour(Telnet.Yellow));
-                wounds.AddRange(target.Cover?.CoverItem?.Parent.PassiveSufferDamage(damage) ??
-                                Enumerable.Empty<IWound>());
+				if (effectiveCover?.IsVehicleCover != true)
+				{
+					wounds.AddRange(coverItem?.PassiveSufferDamage(damage) ?? Enumerable.Empty<IWound>());
+				}
                 wounds.ProcessPassiveWounds();
                 defenseOutcome = new OpposedOutcome(OpposedOutcomeDirection.Opponent, OpposedOutcomeDegree.Total);
             }

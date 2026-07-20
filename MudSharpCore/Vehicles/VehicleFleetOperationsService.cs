@@ -125,10 +125,7 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 		var findings = new List<VehicleFleetAuditFinding>();
 		foreach (var vehicle in vehicleList)
 		{
-			var movementProfile = vehicle.Prototype.MovementProfiles
-				.Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
-				.OrderByDescending(x => x.IsDefault)
-				.FirstOrDefault();
+			var movementProfile = vehicle.MovementProfile;
 			var report = _readinessService.BuildReport(vehicle, voyeur, null, movementProfile);
 			foreach (var issue in report.Issues.Where(x => Includes(mode, x.Subsystem)))
 			{

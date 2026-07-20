@@ -5,6 +5,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Scheduling;
 using MudSharp.RPG.Checks;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat.Moves;
 
@@ -90,7 +91,7 @@ public class StaggeringBlowUnarmedMove : NaturalAttackMove
                 {
                     Target.OutputHandler.Handle(
                         new EmoteOutput(new Emote("@ are|is knocked to the ground by the force of the blow!", Target)));
-                    Target.DoCombatKnockdown();
+					Target.DoCombatKnockdown(cr.Outcome.FailureDegrees(), VehicleCombatDisplacementType.Knockdown);
                 }
                 else
                 {

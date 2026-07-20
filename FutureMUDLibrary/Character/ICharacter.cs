@@ -36,6 +36,7 @@ using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Merits;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.Work.Projects;
+using MudSharp.Vehicles;
 using System;
 using System.Collections.Generic;
 
@@ -493,7 +494,8 @@ namespace MudSharp.Character
         ICharacter? RidingMount { get; set; }
 #nullable restore
 
-        void DoCombatKnockdown();
+		void DoCombatKnockdown(int successDegrees = 1,
+			VehicleCombatDisplacementType displacementType = VehicleCombatDisplacementType.Knockdown);
         void DoFallOffHorse();
     }
 

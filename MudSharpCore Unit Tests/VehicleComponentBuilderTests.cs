@@ -8,6 +8,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.Vehicles;
 using System;
 using System.Linq;
 using System.Xml.Linq;
@@ -51,6 +52,12 @@ public class VehicleComponentBuilderTests
 		StringAssert.Contains(help, "role <role>");
 		StringAssert.Contains(help, "mincondition <percent>");
 		StringAssert.Contains(help, "movementcondition <percent>");
+		Assert.IsTrue(primaryTypes.Any(x => x.EqualTo("vehicle oar")));
+		Assert.IsTrue(primaryTypes.Any(x => x.EqualTo("outboard motor")));
+		Assert.IsFalse(string.IsNullOrWhiteSpace(manager.TypeHelpInfo
+			.FirstOrDefault(x => x.Name.EqualTo("VehicleOar")).Help));
+		Assert.IsFalse(string.IsNullOrWhiteSpace(manager.TypeHelpInfo
+			.FirstOrDefault(x => x.Name.EqualTo("OutboardMotor")).Help));
 	}
 
 	[DataTestMethod]
@@ -60,6 +67,8 @@ public class VehicleComponentBuilderTests
 	[DataRow("Vehicle Installable", "mount <type>")]
 	[DataRow("RidingGear", "role <role>")]
 	[DataRow("HitchGear", "role <role>")]
+	[DataRow("Vehicle Oar", "efficiency <multiplier>")]
+	[DataRow("Outboard Motor", "output <multiplier>")]
 	public void VehicleComponentProtos_SurfaceSpecificBuilderHelp(string componentType, string expectedHelp)
 	{
 		var gameworld = new Mock<IFuturemud>();
@@ -119,6 +128,31 @@ public class VehicleComponentBuilderTests
 		Assert.AreEqual(2, hitch.MaximumUsers);
 		Assert.AreEqual(2.25, hitch.EffortMultiplier);
 		Assert.AreEqual(450.0, hitch.MaximumTowedWeight);
+	}
+
+	[TestMethod]
+	public void WaterPropulsionComponentProtos_LoadCompatibleXmlDefinitions()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var manager = new GameItemComponentManager();
+		var oarDefinition = new XElement("Definition",
+			new XElement("EfficiencyMultiplier", 1.75));
+		var motorDefinition = new XElement("Definition",
+			new XElement("EnergySource", OutboardMotorEnergySource.Electric),
+			new XElement("OutputMultiplier", 2.5),
+			new XElement("RequiredPowerSpikeInWatts", 750.0));
+
+		var oar = manager.GetProto(CreateComponentProto("Vehicle Oar",
+			oarDefinition.ToString(SaveOptions.DisableFormatting)), gameworld.Object) as VehicleOarGameItemComponentProto;
+		var motor = manager.GetProto(CreateComponentProto("Outboard Motor",
+			motorDefinition.ToString(SaveOptions.DisableFormatting)), gameworld.Object) as OutboardMotorGameItemComponentProto;
+
+		Assert.IsNotNull(oar);
+		Assert.AreEqual(1.75, oar!.EfficiencyMultiplier);
+		Assert.IsNotNull(motor);
+		Assert.AreEqual(OutboardMotorEnergySource.Electric, motor!.EnergySource);
+		Assert.AreEqual(2.5, motor.OutputMultiplier);
+		Assert.AreEqual(750.0, motor.RequiredPowerSpikeInWatts);
 	}
 
 	private static DbGameItemComponentProto CreateComponentProto(string componentType, string definition = "<Definition />")

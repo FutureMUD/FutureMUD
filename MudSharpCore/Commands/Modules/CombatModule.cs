@@ -3469,6 +3469,7 @@ The syntax to use this command is as follows:");
 	#3auto_move <auto|manual|cover_only|keep_range>#0 - changes the degree of automation of your combat movement
 	#3auto_position#0 - Toggle whether position will be managed automatically
 	#3auto_melee#0 - Toggle whether you will automatically move to melee if you are unable to engage in ranged combat
+	#3terrestrial <true|false>#0 - configures whether AI prefers boarding a vehicle over fighting from the water
 	#3movetotarget#0 - Toggle whether you will try to close to the same room as a distant target
 	#3skirmish#0 - Toggle whether you will disengage to other rooms when skirmishing
 	#3swap <type1> <type2>#0 - swaps the order in which you will execute different attack types
@@ -4507,6 +4508,21 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
             $"If this setting finds itself unable to use any ranged attacks, it will {(actor.CombatSettings.MoveToMeleeIfCannotEngageInRangedCombat ? "now" : "no longer")} automatically move to melee instead.");
     }
 
+	private static void CombatConfigTerrestrial(ICharacter actor, StringStack command)
+	{
+		var truth = GetTruthValue(actor, command, actor.CombatSettings.PreferTerrestrialCombat);
+		if (truth is null)
+		{
+			return;
+		}
+
+		actor.CombatSettings.PreferTerrestrialCombat = truth.Value;
+		actor.CombatSettings.Changed = true;
+		actor.OutputHandler.Send(truth.Value
+			? "This combat setting will now prefer boarding a vehicle before fighting its occupants from the water."
+			: "This combat setting will now prefer aquatic attacks over boarding a vehicle.");
+	}
+
     private static void CombatConfigName(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
@@ -4798,6 +4814,11 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
             case "auto_melee":
                 CombatConfigAutoMelee(actor, command);
                 break;
+			case "terrestrial":
+			case "prefer_terrestrial":
+			case "preferterrestrial":
+				CombatConfigTerrestrial(actor, command);
+				break;
             case "setup":
                 CombatConfigSetup(actor, command);
                 break;

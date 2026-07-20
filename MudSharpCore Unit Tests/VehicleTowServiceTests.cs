@@ -702,6 +702,67 @@ public class VehicleTowServiceTests
 	}
 
 	[TestMethod]
+	public void CanDragVehicleTrain_SurfaceWaterVehicleTowardLand_Fails()
+	{
+		var graph = new VehicleHitchGraphService();
+		var location = new Mock<ICell>();
+		location.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
+		var destination = new Mock<ICell>();
+		var gameworld = new Mock<IFuturemud>();
+		var craft = CreateVehicle(1, "surfboard", location.Object, gameworld: gameworld.Object);
+		var profile = new Mock<IVehicleMovementProfilePrototype>();
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.SurfaceWater);
+		craft.Vehicle.SetupGet(x => x.MovementProfile).Returns(profile.Object);
+		var puller = CreateActor();
+		puller.SetupGet(x => x.Id).Returns(100);
+		puller.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		puller.SetupGet(x => x.Location).Returns(location.Object);
+		puller.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		puller.Setup(x => x.EffectsOfType<CharacterHitch>(It.IsAny<Predicate<CharacterHitch>>()))
+		      .Returns([]);
+		puller.Setup(x => x.EffectsOfType<Dragging>(It.IsAny<Predicate<Dragging>>()))
+		      .Returns([]);
+		gameworld.SetupGet(x => x.Actors).Returns(new All<ICharacter> { puller.Object });
+		gameworld.SetupGet(x => x.Vehicles).Returns(new All<IVehicle> { craft.Vehicle.Object });
+		var exit = CreateExit(location.Object, destination.Object, SizeCategory.Huge);
+
+		var result = graph.CanDragVehicleTrain(gameworld.Object, craft.Vehicle.Object, exit.Object,
+			[puller.Object], out _, out var reason);
+
+		Assert.IsFalse(result);
+		StringAssert.Contains(reason, "only move to another surface-water location");
+	}
+
+	[TestMethod]
+	public void CanMoveVehicleTrain_SurfaceWaterTowedMemberTowardLand_Fails()
+	{
+		var graph = new VehicleHitchGraphService();
+		var location = new Mock<ICell>();
+		location.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
+		var destination = new Mock<ICell>();
+		var gameworld = new Mock<IFuturemud>();
+		var tug = CreateVehicle(1, "tug", location.Object, gameworld: gameworld.Object);
+		var boat = CreateVehicle(2, "boat", location.Object, gameworld: gameworld.Object);
+		var profile = new Mock<IVehicleMovementProfilePrototype>();
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.SurfaceWater);
+		boat.Vehicle.SetupGet(x => x.MovementProfile).Returns(profile.Object);
+		var tugPoint = CreateTowPoint(11, "stern hitch", canTow: true, canBeTowed: false);
+		var boatPoint = CreateTowPoint(12, "bow ring", canTow: false, canBeTowed: true);
+		AddLink(20, tug, tugPoint, boat, boatPoint);
+		gameworld.SetupGet(x => x.Actors).Returns(new All<ICharacter>());
+		gameworld.SetupGet(x => x.Vehicles).Returns(new All<IVehicle> { tug.Vehicle.Object, boat.Vehicle.Object });
+		var exit = CreateExit(location.Object, destination.Object, SizeCategory.Huge);
+
+		var result = graph.CanMoveVehicleTrain(gameworld.Object, tug.Vehicle.Object, exit.Object,
+			out _, out var reason);
+
+		Assert.IsFalse(result);
+		StringAssert.Contains(reason, "boat can only move to another surface-water location");
+	}
+
+	[TestMethod]
 	public void ApplyCharacterHitch_TransientActorHeldGear_DropsGearBeforeGraphValidation()
 	{
 		var graph = new VehicleHitchGraphService();
@@ -907,6 +968,7 @@ public class VehicleTowServiceTests
 		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
 		profile.SetupGet(x => x.RequiredPowerSpikeInWatts).Returns(requiredPower);
 		vehicle.Prototype.SetupGet(x => x.MovementProfiles).Returns([profile.Object]);
+		vehicle.Vehicle.SetupGet(x => x.MovementProfile).Returns(profile.Object);
 		vehicle.Vehicle.SetupGet(x => x.Controller).Returns(controller);
 		Mock.Get(controller).SetupGet(x => x.Location).Returns(vehicle.Vehicle.Object.Location);
 		Mock.Get(controller).SetupGet(x => x.RoomLayer).Returns(vehicle.Vehicle.Object.RoomLayer);

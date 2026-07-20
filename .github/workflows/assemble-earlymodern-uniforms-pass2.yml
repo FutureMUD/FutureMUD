@@ -27,7 +27,7 @@ jobs:
           temporary_directory='.tmp/earlymodern-uniforms-pass2'
           target='Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md'
           mapfile -t parts < <(find "$temporary_directory" -maxdepth 1 -type f -name 'catalogue.part.*.b64' -print | sort)
-          test "${#parts[@]}" -eq 9
+          test "${#parts[@]}" -eq 12
           cat "${parts[@]}" | base64 --decode | gzip --decompress > "$target"
           test "$(git hash-object "$target")" = '940af2af6492bcb9f9a78a36cdd1602d8f3159d8'
           rm -rf "$temporary_directory"

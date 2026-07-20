@@ -1,0 +1,45 @@
+name: Assemble Early Modern noble and jewellery catalogue
+
+on:
+  push:
+    branches:
+      - design/earlymodern-noble-court-jewellery-pass-3
+    paths:
+      - .tmp/earlymodern-noble-pass3/READY
+  pull_request:
+    branches:
+      - master
+    paths:
+      - .tmp/earlymodern-noble-pass3/READY
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the working branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: design/earlymodern-noble-court-jewellery-pass-3
+          fetch-depth: 0
+          show-progress: false
+
+      - name: Assemble and verify the catalogue
+        shell: bash
+        run: |
+          set -euo pipefail
+          temporary_directory='.tmp/earlymodern-noble-pass3'
+          target='Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md'
+          mapfile -t parts < <(find "$temporary_directory" -maxdepth 1 -type f -name 'catalogue.part.*.b64' -print | sort)
+          test "${#parts[@]}" -eq 4
+          cat "${parts[@]}" | base64 --decode | gzip --decompress > "$target"
+          test "$(git hash-object "$target")" = 'c1be1426dc71d55e38babb8857c6f23207893824'
+          rm -rf "$temporary_directory"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A -- "$target" "$temporary_directory"
+          git commit -m 'Add Early Modern noble and jewellery catalogue pass'
+          git push origin HEAD:design/earlymodern-noble-court-jewellery-pass-3

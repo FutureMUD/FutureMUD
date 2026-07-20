@@ -1,0 +1,86 @@
+| `medieval_military_worn_levy_spear` | a worn levy spear | `spear` | `wrought iron` | `Large` / `Substandard` | 1,650g / 20.0m | `Holdable`<br>`Melee_Long Spear`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_plain_short_spear` | a plain short spear | `spear` | `carbon steel` | `Large` / `Standard` | 1,450g / 44.0m | `Holdable`<br>`Melee_Short Spear`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_plain_war_spear` | a plain war spear | `spear` | `carbon steel` | `Large` / `Standard` | 1,750g / 52.0m | `Holdable`<br>`Melee_Long Spear`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_plain_infantry_pike` | a plain infantry pike | `pike` | `carbon steel` | `Large` / `Standard` | 2,950g / 84.0m | `Holdable`<br>`Melee_Pike`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_plain_axe_headed_polearm` | an axe-headed polearm | `polearm` | `carbon steel` | `Large` / `Standard` | 2,300g / 160.0m | `Holdable`<br>`Melee_Halberd`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_wooden_practice_knife` | a wooden practice knife | `knife` | `beech` | `Small` / `Standard` | 180g / 4.0m | `Holdable`<br>`Melee_Training Knife`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_wooden_practice_dagger` | a wooden practice dagger | `dagger` | `beech` | `Small` / `Standard` | 220g / 6.0m | `Holdable`<br>`Melee_Training Dagger`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_short_sword_waster` | a short sword waster | `shortsword` | `beech` | `Normal` / `Standard` | 620g / 12.0m | `Holdable`<br>`Melee_Training Shortsword`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_arming_sword_waster` | an arming sword waster | `sword` | `beech` | `Normal` / `Standard` | 760g / 18.0m | `Holdable`<br>`Melee_Training Longsword`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_practice_axe` | a wooden practice axe | `axe` | `beech` | `Normal` / `Standard` | 620g / 12.0m | `Holdable`<br>`Melee_Training Axe`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_training_club` | a padded training club | `club` | `beech` | `Normal` / `Standard` | 650g / 10.0m | `Holdable`<br>`Melee_Training Club`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_training_quarterstaff` | a training quarterstaff | `quarterstaff` | `ash` | `Large` / `Standard` | 1,350g / 12.0m | `Holdable`<br>`Melee_Training Quarterstaff`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_training_mace` | a padded training mace | `mace` | `beech` | `Normal` / `Standard` | 760g / 16.0m | `Holdable`<br>`Melee_Training Mace`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_training_war_hammer` | a padded training hammer | `hammer` | `beech` | `Normal` / `Standard` | 720g / 18.0m | `Holdable`<br>`Melee_Training Warhammer`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_training_spear` | a blunted training spear | `spear` | `ash` | `Large` / `Standard` | 1,250g / 16.0m | `Holdable`<br>`Melee_Training Spear`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_training_pike` | a blunted training pike | `pike` | `ash` | `Large` / `Standard` | 2,200g / 28.0m | `Holdable`<br>`Melee_Training Pike`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_training_axe_headed_polearm` | a wooden practice polearm | `polearm` | `beech` | `Large` / `Standard` | 1,400g / 32.0m | `Holdable`<br>`Melee_Training Halberd`<br>`Destroyable_Weapon` | `SOURCE` |
+
+#### 1.4. Direct Medieval admissions — ranged weapons and ammunition — 35
+
+These rows retain the existing Medieval stable reference and source fields. Admit them idempotently through local date/culture/unit policy.
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tag profile |
+|---|---|---|---|---|---:|---|---|
+| `medieval_military_worn_ash_shortbow` | a worn ash shortbow | `shortbow` | `ash` | `Normal` / `Substandard` | 680g / 40.0m | `Holdable`<br>`Shortbow`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_plain_elm_shortbow` | a plain elm shortbow | `shortbow` | `elm` | `Normal` / `Standard` | 720g / 80.0m | `Holdable`<br>`Shortbow`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_bamboo_shortbow` | a bamboo shortbow | `shortbow` | `bamboo` | `Normal` / `Standard` | 520g / 92.0m | `Holdable`<br>`Shortbow`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_rough_self_longbow` | a rough self longbow | `longbow` | `ash` | `Large` / `Substandard` | 860g / 56.0m | `Holdable`<br>`Longbow`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_elm_self_longbow` | an elm self longbow | `longbow` | `elm` | `Large` / `Standard` | 940g / 110.0m | `Holdable`<br>`Longbow`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_yew_longbow` | a yew longbow | `longbow` | `yew` | `Large` / `Good` | 900g / 240.0m | `Holdable`<br>`Longbow`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_worn_stirrup_crossbow` | a worn stirrup crossbow | `crossbow` | `wood` | `Normal` / `Substandard` | 2,850g / 160.0m | `Holdable`<br>`Crossbow`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_plain_wooden_crossbow` | a plain wooden crossbow | `crossbow` | `wood` | `Normal` / `Standard` | 3,100g / 280.0m | `Holdable`<br>`Crossbow`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_hunting_crossbow` | a compact hunting crossbow | `crossbow` | `wood` | `Normal` / `Standard` | 2,500g / 300.0m | `Holdable`<br>`Crossbow`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_braided_linen_sling` | a braided linen sling | `sling` | `linen` | `Small` / `Standard` | 70g / 4.0m | `Holdable`<br>`Sling`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_leather_pouch_sling` | a leather-pouch sling | `sling` | `leather` | `Small` / `Good` | 95g / 10.0m | `Holdable`<br>`Sling`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_plain_staff_sling` | a plain staff sling | `staff sling` | `ash` | `Large` / `Standard` | 1,250g / 18.0m | `Holdable`<br>`Staff Sling`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_heavy_oak_staff_sling` | a heavy oak staff sling | `staff sling` | `oak` | `Large` / `Good` | 1,700g / 32.0m | `Holdable`<br>`Staff Sling`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_field_point_arrow` | a field-point arrow | `arrow` | `ash` | `Small` / `Standard` | 34g / 2.0m | `Holdable`<br>`Ammo_FieldPointArrow`<br>`Stack_Number`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_broadhead_arrow` | a broadhead arrow | `arrow` | `ash` | `Small` / `Standard` | 42g / 3.0m | `Holdable`<br>`Ammo_BroadheadArrow`<br>`Stack_Number`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_bodkin_arrow` | a bodkin arrow | `arrow` | `ash` | `Small` / `Standard` | 38g / 4.0m | `Holdable`<br>`Ammo_BodkinArrow`<br>`Stack_Number`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_target_arrow` | a target arrow | `arrow` | `poplar` | `Small` / `Standard` | 30g / 1.0m | `Holdable`<br>`Ammo_TargetArrow`<br>`Stack_Number`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_padded_training_arrow` | a padded training arrow | `arrow` | `ash` | `Small` / `Standard` | 48g / 3.0m | `Holdable`<br>`Ammo_PaddedArrow`<br>`Stack_Number`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_field_point_bolt` | a field-point bolt | `bolt` | `ash` | `Small` / `Standard` | 50g / 3.0m | `Holdable`<br>`Ammo_FieldPointBolt`<br>`Stack_Number`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_broadhead_bolt` | a broadhead bolt | `bolt` | `ash` | `Small` / `Standard` | 58g / 5.0m | `Holdable`<br>`Ammo_BroadheadBolt`<br>`Stack_Number`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_bodkin_bolt` | a bodkin bolt | `bolt` | `ash` | `Small` / `Standard` | 56g / 6.0m | `Holdable`<br>`Ammo_BodkinBolt`<br>`Stack_Number`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_target_bolt` | a target bolt | `bolt` | `poplar` | `Small` / `Standard` | 44g / 2.0m | `Holdable`<br>`Ammo_TargetBolt`<br>`Stack_Number`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_padded_training_bolt` | a padded training bolt | `bolt` | `ash` | `Small` / `Standard` | 70g / 4.0m | `Holdable`<br>`Ammo_PaddedBolt`<br>`Stack_Number`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_selected_sling_stone` | a selected sling stone | `bullet` | `stone` | `VerySmall` / `Standard` | 85g / 1.0m | `Holdable`<br>`Ammo_SlingBullet`<br>`Stack_Number`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_lead_sling_bullet` | a lead sling bullet | `bullet` | `lead` | `VerySmall` / `Standard` | 65g / 3.0m | `Holdable`<br>`Ammo_LeadSlingBullet`<br>`Stack_Number`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_worn_throwing_knife` | a worn throwing knife | `knife` | `wrought iron` | `Small` / `Substandard` | 180g / 10.0m | `Holdable`<br>`Throwing_Knife`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_balanced_throwing_knife` | a balanced throwing knife | `knife` | `carbon steel` | `Small` / `Standard` | 210g / 26.0m | `Holdable`<br>`Throwing_Knife`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_rough_throwing_hatchet` | a rough throwing hatchet | `axe` | `wrought iron` | `Small` / `Substandard` | 620g / 22.0m | `Holdable`<br>`Throwing_Axe`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_balanced_throwing_axe` | a balanced throwing axe | `axe` | `carbon steel` | `Small` / `Standard` | 760g / 48.0m | `Holdable`<br>`Throwing_Axe`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_light_javelin` | a light javelin | `javelin` | `ash` | `Normal` / `Standard` | 850g / 18.0m | `Holdable`<br>`Throwing_Spear`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_rough_javelin` | a rough javelin | `javelin` | `wrought iron` | `Normal` / `Substandard` | 900g / 10.0m | `Holdable`<br>`Throwing_Spear`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_heavy_war_javelin` | a heavy war javelin | `javelin` | `ash` | `Normal` / `Good` | 1,250g / 42.0m | `Holdable`<br>`Throwing_Spear`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_barbed_throwing_spear` | a barbed throwing spear | `javelin` | `ash` | `Normal` / `Standard` | 980g / 34.0m | `Holdable`<br>`Throwing_Spear`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_bamboo_war_dart` | a bamboo war dart | `dart` | `bamboo` | `Normal` / `Standard` | 520g / 22.0m | `Holdable`<br>`Throwing_Spear`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_short_throwing_spear` | a short throwing spear | `spear` | `ash` | `Normal` / `Standard` | 1,100g / 36.0m | `Holdable`<br>`Throwing_Spear`<br>`Destroyable_Weapon` | `SOURCE` |
+
+#### 1.5. Direct Medieval admissions — armour and shields — 68
+
+These rows retain the existing Medieval stable reference and source fields. Admit them idempotently through local date/culture/unit policy.
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tag profile |
+|---|---|---|---|---|---:|---|---|
+| `medieval_military_padded_arming_cap` | a $colour padded arming cap | `cap` | `linen` | `Small` / `Standard` | 320g / 12.0m | `Holdable`<br>`Wear_Coif`<br>`Armour_HeavyClothing`<br>`Destroyable_Armour`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `SOURCE` |
+| `medieval_military_heavy_padded_coif` | a heavy padded coif | `coif` | `linen` | `Small` / `Standard` | 520g / 24.0m | `Holdable`<br>`Wear_Coif`<br>`Armour_UltraHeavyClothing`<br>`Destroyable_Armour`<br>`Insulation_Balanced_Heavy` | `SOURCE` |
+| `medieval_military_light_aketon` | a $colour light aketon | `aketon` | `linen` | `Normal` / `Standard` | 2,200g / 72.0m | `Holdable`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_HeavyClothing`<br>`Destroyable_Armour`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `SOURCE` |
+| `medieval_military_heavy_gambeson` | a thick quilted gambeson | `gambeson` | `linen` | `Large` / `Good` | 4,300g / 160.0m | `Holdable`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_UltraHeavyClothing`<br>`Destroyable_Armour`<br>`Insulation_Balanced_Heavy` | `SOURCE` |
+| `medieval_military_sleeveless_padded_jack` | a sleeveless padded jack | `jack` | `canvas` | `Normal` / `Standard` | 2,500g / 84.0m | `Holdable`<br>`Wear_Vest`<br>`Armour_HeavyClothing`<br>`Destroyable_Armour`<br>`Insulation_Moderate` | `SOURCE` |
+| `medieval_military_quilted_militia_jack` | a quilted militia jack | `jack` | `canvas` | `Normal` / `Standard` | 3,400g / 120.0m | `Holdable`<br>`Wear_Jerkin`<br>`Armour_UltraHeavyClothing`<br>`Destroyable_Armour`<br>`Insulation_Balanced_Heavy` | `SOURCE` |
+| `medieval_military_padded_chausses` | a pair of padded chausses | `chausses` | `linen` | `Normal` / `Standard` | 1,750g / 64.0m | `Holdable`<br>`Wear_Chausses`<br>`Armour_HeavyClothing`<br>`Destroyable_Armour`<br>`Insulation_Moderate` | `SOURCE` |
+| `medieval_military_padded_mittens` | a pair of padded fighting mittens | `mittens` | `linen` | `Small` / `Standard` | 430g / 20.0m | `Holdable`<br>`Wear_Mittens`<br>`Armour_HeavyClothing`<br>`Destroyable_Armour`<br>`Insulation_Moderate` | `SOURCE` |
+| `medieval_military_rawhide_chestguard` | a rawhide chestguard | `chestguard` | `rawhide` | `Normal` / `Substandard` | 2,100g / 52.0m | `Holdable`<br>`Wear_Cuirass`<br>`Armour_BoiledLeather`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_boiled_leather_cuirass` | a boiled leather cuirass | `cuirass` | `leather` | `Normal` / `Standard` | 2,800g / 180.0m | `Holdable`<br>`Wear_Cuirass`<br>`Armour_BoiledLeather`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_hardened_leather_jerkin` | a hardened leather jerkin | `jerkin` | `leather` | `Normal` / `Standard` | 2,100g / 112.0m | `Holdable`<br>`Wear_Jerkin`<br>`Armour_BoiledLeather`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_leather_scale_vest` | a leather scale vest | `vest` | `leather` | `Normal` / `Standard` | 2,600g / 150.0m | `Holdable`<br>`Wear_Vest`<br>`Armour_LeatherScale`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_boiled_leather_bracers` | a pair of boiled leather bracers | `bracers` | `leather` | `Small` / `Standard` | 560g / 36.0m | `Holdable`<br>`Wear_Bracers`<br>`Armour_BoiledLeather`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_leather_greaves` | a pair of boiled leather greaves | `greaves` | `leather` | `Small` / `Standard` | 980g / 64.0m | `Holdable`<br>`Wear_Greaves`<br>`Armour_BoiledLeather`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_leather_spaulders` | a pair of leather spaulders | `spaulders` | `leather` | `Small` / `Standard` | 920g / 78.0m | `Holdable`<br>`Wear_Spaulders`<br>`Armour_BoiledLeather`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_worn_mail_byrnie` | a worn mail byrnie | `byrnie` | `wrought iron` | `Normal` / `Substandard` | 5,600g / 420.0m | `Holdable`<br>`Wear_Haubergeon`<br>`Armour_Chainmail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_short_mail_haubergeon` | a short mail haubergeon | `haubergeon` | `mild steel` | `Normal` / `Standard` | 7,200g / 820.0m | `Holdable`<br>`Wear_Haubergeon`<br>`Armour_Chainmail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_long_mail_hauberk` | a long mail hauberk | `hauberk` | `mild steel` | `Large` / `Good` | 10,800g / 1,560.0m | `Holdable`<br>`Wear_Hauberk`<br>`Armour_Chainmail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_mail_coif` | a riveted mail coif | `coif` | `mild steel` | `Small` / `Standard` | 2,300g / 280.0m | `Holdable`<br>`Wear_Coif`<br>`Armour_Chainmail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_mail_pixane` | a mail pixane collar | `pixane` | `mild steel` | `Small` / `Standard` | 1,500g / 180.0m | `Holdable`<br>`Wear_Pixane`<br>`Armour_Chainmail`<br>`Destroyable_Armour` | `SOURCE` |

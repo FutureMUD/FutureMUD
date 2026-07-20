@@ -1,0 +1,86 @@
+| `preindustrial_military_support_broad_weapon_belt` | a broad weapon belt | `belt` | `cow leather` | `Small` / `Good` | 560g / 48.0m | `Holdable`<br>`Wear_Waist`<br>`Belt_4`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_bronze_fitted_sword_scabbard` | a bronze-fitted sword scabbard | `scabbard` | `leather` | `Normal` / `Good` | 820g / 96.0m | `Holdable`<br>`Sheath`<br>`Beltable`<br>`Destroyable_Weapon` | `SHARED` |
+| `preindustrial_military_support_crossbow_rack` | a crossbow rack | `rack` | `oak` | `VeryLarge` / `Good` | 28,000g / 180.0m | `Container_Weapon_Rack`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_double_hanger_sword_belt` | a double-hanger sword belt | `belt` | `leather` | `Small` / `Good` | 520g / 64.0m | `Holdable`<br>`Wear_Waist`<br>`Belt_4`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_fine_bolt_case` | a fine bolt case | `case` | `goat leather` | `Normal` / `VeryGood` | 720g / 120.0m | `Holdable`<br>`Container_Quiver`<br>`Wear_Shoulder`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_fine_display_armour_stand` | a fine armour display stand | `stand` | `walnut` | `VeryLarge` / `VeryGood` | 28,000g / 480.0m | `Container_Armor_Stand`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_fine_dyed_dagger_sheath` | a fine $colour dagger sheath | `sheath` | `goat leather` | `Small` / `VeryGood` | 210g / 72.0m | `Holdable`<br>`Sheath_Small`<br>`Beltable`<br>`Destroyable_Weapon`<br>`Variable_FineColour` | `SHARED` |
+| `preindustrial_military_support_fine_dyed_sword_scabbard` | a fine $colour sword scabbard | `scabbard` | `goat leather` | `Normal` / `VeryGood` | 780g / 180.0m | `Holdable`<br>`Sheath`<br>`Beltable`<br>`Destroyable_Weapon`<br>`Variable_FineColour` | `SHARED` |
+| `preindustrial_military_support_fine_sword_belt` | a fine $colour sword belt | `belt` | `goat leather` | `Small` / `VeryGood` | 500g / 140.0m | `Holdable`<br>`Wear_Waist`<br>`Belt_4`<br>`Destroyable_Clothing`<br>`Variable_FineColour` | `SHARED` |
+| `preindustrial_military_support_heavy_war_belt` | a heavy war belt | `belt` | `cow leather` | `Normal` / `Good` | 820g / 84.0m | `Holdable`<br>`Wear_Waist`<br>`Belt_6`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_iron_armoury_rack` | an iron armoury rack | `rack` | `wrought iron` | `VeryLarge` / `Good` | 42,000g / 360.0m | `Container_Weapon_Rack`<br>`Destroyable_HeavyMetal` | `SHARED` |
+| `preindustrial_military_support_lacquered_arrow_quiver` | a lacquered arrow quiver | `quiver` | `lacquer` | `Normal` / `VeryGood` | 720g / 160.0m | `Holdable`<br>`Container_Quiver`<br>`Wear_Shoulder`<br>`Destroyable_Misc` | `SHARED` |
+| `preindustrial_military_support_leather_baldric` | a leather weapon baldric | `baldric` | `leather` | `Normal` / `Standard` | 480g / 36.0m | `Holdable`<br>`Wear_Sash`<br>`Belt_2`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_leather_bound_short_sword_scabbard` | a short sword scabbard | `scabbard` | `leather` | `Small` / `Standard` | 520g / 32.0m | `Holdable`<br>`Sheath`<br>`Beltable`<br>`Destroyable_Weapon` | `SHARED` |
+| `preindustrial_military_support_long_sword_scabbard` | a long sword scabbard | `scabbard` | `leather` | `Large` / `Standard` | 1,050g / 72.0m | `Holdable`<br>`Sheath_Large`<br>`Beltable`<br>`Destroyable_Weapon` | `SHARED` |
+| `preindustrial_military_support_mail_armour_stand` | a mail armour stand | `stand` | `oak` | `VeryLarge` / `Good` | 26,000g / 170.0m | `Container_Armor_Stand`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_mounted_harness_stand` | a mounted harness stand | `stand` | `oak` | `VeryLarge` / `Good` | 36,000g / 240.0m | `Container_Armor_Stand`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_mounted_weapon_harness` | a mounted weapon harness | `harness` | `cow leather` | `Normal` / `Good` | 980g / 120.0m | `Holdable`<br>`Wear_Bandolier`<br>`Belt_6`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_plain_arming_belt` | a plain arming belt | `belt` | `cow leather` | `Small` / `Standard` | 380g / 24.0m | `Holdable`<br>`Wear_Waist`<br>`Belt_2`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_plain_bolt_case` | a plain bolt case | `case` | `leather` | `Normal` / `Standard` | 620g / 36.0m | `Holdable`<br>`Container_Quiver`<br>`Wear_Shoulder`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_plain_dagger_sheath` | a plain dagger sheath | `sheath` | `cow leather` | `Small` / `Standard` | 140g / 14.0m | `Holdable`<br>`Sheath_Small`<br>`Beltable`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_plain_leather_knife_sheath` | a plain leather knife sheath | `sheath` | `cow leather` | `Small` / `Standard` | 90g / 8.0m | `Holdable`<br>`Sheath_Small`<br>`Beltable`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_plain_shoulder_arrow_quiver` | a plain shoulder arrow quiver | `quiver` | `leather` | `Normal` / `Standard` | 680g / 32.0m | `Holdable`<br>`Container_Quiver`<br>`Wear_Shoulder`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_plain_sword_scabbard` | a plain sword scabbard | `scabbard` | `leather` | `Normal` / `Standard` | 700g / 36.0m | `Holdable`<br>`Sheath`<br>`Beltable`<br>`Destroyable_Weapon` | `SHARED` |
+| `preindustrial_military_support_polearm_rack` | a polearm rack | `rack` | `oak` | `VeryLarge` / `Good` | 34,000g / 200.0m | `Container_Weapon_Rack`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_portable_campaign_weapon_rack` | a portable campaign weapon rack | `rack` | `ash` | `Large` / `Standard` | 9,500g / 88.0m | `Holdable`<br>`Container_Weapon_Rack`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_rawhide_axe_edge_cover` | a rawhide axe-edge cover | `cover` | `rawhide` | `Small` / `Standard` | 120g / 6.0m | `Holdable`<br>`Sheath_Small`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_reinforced_dagger_sheath` | a reinforced dagger sheath | `sheath` | `leather` | `Small` / `Good` | 220g / 32.0m | `Holdable`<br>`Sheath_Small`<br>`Beltable`<br>`Destroyable_Weapon` | `SHARED` |
+| `preindustrial_military_support_reinforced_large_weapon_sheath` | a reinforced large weapon sheath | `sheath` | `cow leather` | `Large` / `Good` | 1,450g / 120.0m | `Holdable`<br>`Sheath_Large`<br>`Beltable`<br>`Destroyable_Weapon` | `SHARED` |
+| `preindustrial_military_support_riders_side_quiver` | a rider's side quiver | `quiver` | `rawhide` | `Normal` / `Good` | 820g / 72.0m | `Holdable`<br>`Container_Quiver`<br>`Wear_Waist`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_riding_weapon_belt` | a riding weapon belt | `belt` | `cow leather` | `Small` / `Good` | 620g / 72.0m | `Holdable`<br>`Wear_Waist`<br>`Belt_4`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_rough_leather_arrow_quiver` | a rough leather arrow quiver | `quiver` | `cow leather` | `Normal` / `Substandard` | 520g / 16.0m | `Holdable`<br>`Container_Quiver`<br>`Wear_Shoulder`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_rough_rawhide_knife_sheath` | a rough rawhide knife sheath | `sheath` | `rawhide` | `Small` / `Substandard` | 70g / 4.0m | `Holdable`<br>`Sheath_Small`<br>`Beltable`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_simple_armour_stand` | a simple armour stand | `stand` | `pine` | `Large` / `Standard` | 12,000g / 80.0m | `Container_Armor_Stand`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_simple_sword_belt` | a simple sword belt | `belt` | `leather` | `Small` / `Standard` | 420g / 32.0m | `Holdable`<br>`Wear_Waist`<br>`Belt_2`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_simple_weapon_rack` | a simple weapon rack | `rack` | `pine` | `VeryLarge` / `Standard` | 22,000g / 120.0m | `Container_Weapon_Rack`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_spearhead_rawhide_cover` | a rawhide spearhead cover | `cover` | `rawhide` | `Small` / `Standard` | 85g / 5.0m | `Holdable`<br>`Sheath_Small`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_sturdy_armour_tree` | a sturdy armour tree | `stand` | `oak` | `VeryLarge` / `Good` | 24,000g / 160.0m | `Container_Armor_Stand`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_sword_rack` | a sword rack | `rack` | `oak` | `Large` / `Good` | 14,000g / 110.0m | `Container_Weapon_Rack`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_tooled_leather_knife_sheath` | a $colour tooled leather knife sheath | `sheath` | `leather` | `Small` / `Good` | 110g / 18.0m | `Holdable`<br>`Sheath_Small`<br>`Beltable`<br>`Destroyable_Clothing`<br>`Variable_BasicColour` | `SHARED` |
+| `preindustrial_military_support_wall_spear_rack` | a wall-mounted spear rack | `rack` | `oak` | `VeryLarge` / `Standard` | 18,000g / 96.0m | `Container_Weapon_Rack`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_wicker_arrow_quiver` | a wicker arrow quiver | `quiver` | `wicker` | `Normal` / `Standard` | 430g / 24.0m | `Holdable`<br>`Container_Quiver`<br>`Wear_Shoulder`<br>`Destroyable_Misc` | `SHARED` |
+| `preindustrial_military_support_wooden_crossbow_bolt_box` | a wooden crossbow bolt box | `box` | `oak` | `Normal` / `Good` | 1,250g / 64.0m | `Holdable`<br>`Container_Quiver`<br>`Wear_Shoulder`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_worn_sword_scabbard` | a worn sword scabbard | `scabbard` | `leather` | `Normal` / `Substandard` | 620g / 18.0m | `Holdable`<br>`Sheath`<br>`Beltable`<br>`Destroyable_Weapon` | `SHARED` |
+
+#### 1.2. Shared pre-industrial gunpowder-support stock — 10
+
+These are live `preindustrial_firearms_*` shared stock rows. They are support objects only and require an approved firearm system.
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tag profile |
+|---|---|---|---|---|---:|---|---|
+| `preindustrial_firearms_powder_horn` | a stoppered powder horn | `horn` | `bone` | `Small` / `Standard` | 420g / 18.0m | `Holdable`<br>`Container_Pouch` | `SHARED` |
+| `preindustrial_firearms_powder_flask` | a brass powder flask | `flask` | `brass` | `Small` / `Good` | 650g / 36.0m | `Holdable`<br>`Container_Pouch` | `SHARED` |
+| `preindustrial_firearms_priming_flask` | a small priming flask | `flask` | `brass` | `VerySmall` / `Good` | 260g / 24.0m | `Holdable`<br>`Container_Pouch` | `SHARED` |
+| `preindustrial_firearms_shot_pouch` | a leather shot pouch | `pouch` | `leather` | `Small` / `Standard` | 380g / 14.0m | `Holdable`<br>`Container_Pouch` | `SHARED` |
+| `preindustrial_firearms_match_cord_bundle` | a bundle of match cord | `cord` | `hemp` | `Small` / `Standard` | 620g / 8.0m | `Holdable`<br>`Stack_Number` | `SHARED` |
+| `preindustrial_firearms_musket_wadding_packet` | a packet of musket wadding | `packet` | `paper` | `Tiny` / `Standard` | 90g / 5.0m | `Holdable`<br>`Stack_Number` | `SHARED` |
+| `preindustrial_firearms_bullet_mould` | a hinged brass bullet mould | `mould` | `brass` | `Small` / `Good` | 760g / 42.0m | `Holdable` | `SHARED` |
+| `preindustrial_firearms_ramrod` | a straight wooden ramrod | `ramrod` | `oak` | `Normal` / `Standard` | 360g / 10.0m | `Holdable` | `SHARED` |
+| `preindustrial_firearms_touchhole_pick` | a fine brass touchhole pick | `pick` | `brass` | `Tiny` / `Standard` | 28g / 8.0m | `Holdable` | `SHARED` |
+| `preindustrial_firearms_cleaning_rod` | a brass-tipped cleaning rod | `rod` | `oak` | `Normal` / `Standard` | 420g / 12.0m | `Holdable` | `SHARED` |
+
+#### 1.3. Direct Medieval admissions — melee and training weapons — 35
+
+These rows retain the existing Medieval stable reference and source fields. Admit them idempotently through local date/culture/unit policy.
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tag profile |
+|---|---|---|---|---|---:|---|---|
+| `medieval_military_worn_fighting_knife` | a worn fighting knife | `knife` | `wrought iron` | `Small` / `Substandard` | 260g / 12.0m | `Holdable`<br>`Melee_Knife`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_plain_fighting_knife` | a plain fighting knife | `knife` | `carbon steel` | `Small` / `Standard` | 280g / 28.0m | `Holdable`<br>`Melee_Knife`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_worn_iron_dagger` | a worn iron dagger | `dagger` | `wrought iron` | `Small` / `Substandard` | 330g / 32.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_plain_steel_dagger` | a plain steel dagger | `dagger` | `carbon steel` | `Small` / `Standard` | 340g / 72.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_balanced_steel_dagger` | a balanced steel dagger | `dagger` | `carbon steel` | `Small` / `Good` | 320g / 160.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_worn_short_sword` | a worn short sword | `shortsword` | `wrought iron` | `Normal` / `Substandard` | 900g / 120.0m | `Holdable`<br>`Melee_Shortsword`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_plain_short_sword` | a plain short sword | `shortsword` | `carbon steel` | `Normal` / `Standard` | 850g / 260.0m | `Holdable`<br>`Melee_Shortsword`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_fine_short_sword` | a fine short sword | `shortsword` | `carbon steel` | `Normal` / `Good` | 820g / 580.0m | `Holdable`<br>`Melee_Shortsword`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_plain_arming_sword` | a plain arming sword | `sword` | `carbon steel` | `Normal` / `Standard` | 1,180g / 720.0m | `Holdable`<br>`Melee_Longsword`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_balanced_arming_sword` | a balanced arming sword | `sword` | `carbon steel` | `Normal` / `Good` | 1,120g / 1,500.0m | `Holdable`<br>`Melee_Longsword`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_worn_hand_axe` | a worn hand axe | `axe` | `wrought iron` | `Normal` / `Substandard` | 720g / 28.0m | `Holdable`<br>`Melee_Axe`<br>`Destroyable_Weapon`<br>`Beltable` | `SOURCE` |
+| `medieval_military_plain_battle_axe` | a plain battle axe | `axe` | `carbon steel` | `Normal` / `Standard` | 980g / 76.0m | `Holdable`<br>`Melee_Axe`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_hardwood_cudgel` | a hardwood cudgel | `cudgel` | `oak` | `Normal` / `Standard` | 760g / 8.0m | `Holdable`<br>`Melee_Club`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_ash_quarterstaff` | an ash quarterstaff | `quarterstaff` | `ash` | `Large` / `Standard` | 1,450g / 14.0m | `Holdable`<br>`Melee_Quarterstaff`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_plain_iron_mace` | a plain iron mace | `mace` | `wrought iron` | `Normal` / `Standard` | 1,250g / 140.0m | `Holdable`<br>`Melee_Mace`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_flanged_steel_mace` | a flanged steel mace | `mace` | `carbon steel` | `Normal` / `Good` | 1,220g / 320.0m | `Holdable`<br>`Melee_Mace`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_plain_war_hammer` | a plain war hammer | `hammer` | `carbon steel` | `Normal` / `Standard` | 980g / 160.0m | `Holdable`<br>`Melee_Warhammer`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_plain_military_pick` | a plain military pick | `pick` | `carbon steel` | `Normal` / `Standard` | 940g / 150.0m | `Holdable`<br>`Melee_Military Pick`<br>`Destroyable_Weapon` | `SOURCE` |

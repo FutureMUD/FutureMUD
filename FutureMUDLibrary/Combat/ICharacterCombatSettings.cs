@@ -149,6 +149,7 @@ namespace MudSharp.Combat
         bool AutomaticallyMoveTowardsTarget { get; set; }
         bool PreferNonContactClinchBreaking { get; set; }
         bool MoveToMeleeIfCannotEngageInRangedCombat { get; set; }
+		bool PreferTerrestrialCombat { get; set; }
         PursuitMode PursuitMode { get; set; }
         DefenseType DefaultPreferredDefenseType { get; set; }
         CombatStrategyMode PreferredMeleeMode { get; set; }

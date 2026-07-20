@@ -43,6 +43,7 @@ Combat settings now expose:
 
 - `combat config availprog <prog|clear>`
 - `combat config priorityprog <prog|clear>`
+- `combat config terrestrial <true|false>`
 
 Prog-targeting builder lookups use `ProgLookupFromBuilderInput` for consistent validation and error messaging.
 
@@ -71,6 +72,8 @@ Two new persisted links support this feature:
 - `CharacterCombatSettings.PriorityProgId`
 - `Races.DefaultCombatSettingId`
 
+`CharacterCombatSettings.PreferTerrestrialCombat` is also persisted and defaults to `true` for existing and newly created settings. It controls the shared boat-boundary AI decision: terrestrial-preferring combatants try to board an occupied surface-water craft, while aquatic combatants may select an authored aquatic vehicle attack instead.
+
 NPC template defaults are stored in the template XML definition for both simple and variable templates.
 
 ## Seeder Behaviour
@@ -91,9 +94,16 @@ The seeded non-humanoid defaults are:
 - `Beast Skirmisher`
 - `Beast Swooper`
 - `Beast Artillery`
+- `Beast Aquatic Brawler`
+- `Beast Aquatic Clincher`
+- `Beast Aquatic Behemoth`
+- `Beast Aquatic Skirmisher`
+- `Beast Aquatic Artillery`
 - `Beast Coward`
 - `Construct Brawler`
 - `Construct Skirmisher`
 - `Construct Artillery`
 
 Humanoid seeded races that are intended to behave like weapon-using NPCs use `Melee (Auto)`.
+
+All `Beast Aquatic ...` settings seed `PreferTerrestrialCombat = false`. Shark, giant squid, and orca defaults use the aquatic brawler, clincher, and behemoth variants respectively. Crocodiles and alligators retain `Beast Drowner`, which also has terrestrial preference disabled. These five stock predators receive the no-damage `Aquatic Hull Assault` natural attack.

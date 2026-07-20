@@ -1,12 +1,20 @@
+using System.Collections.Generic;
+
 namespace MudSharp.Models;
 
 public class VehicleMovementProfileProto
 {
+	public VehicleMovementProfileProto()
+	{
+		PropulsionProfiles = new HashSet<VehiclePropulsionProfileProto>();
+	}
 	public long Id { get; set; }
 	public long VehicleProtoId { get; set; }
 	public int VehicleProtoRevision { get; set; }
 	public string Name { get; set; }
 	public int MovementType { get; set; }
+	public int MovementEnvironment { get; set; }
+	public bool ExposesOccupantsToWater { get; set; }
 	public bool IsDefault { get; set; }
 	public double RequiredPowerSpikeInWatts { get; set; }
 	public long? FuelLiquidId { get; set; }
@@ -16,4 +24,5 @@ public class VehicleMovementProfileProto
 	public bool RequiresAccessPointsClosed { get; set; }
 
 	public virtual VehicleProto VehicleProto { get; set; }
+	public virtual ICollection<VehiclePropulsionProfileProto> PropulsionProfiles { get; set; }
 }

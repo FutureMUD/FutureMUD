@@ -5,6 +5,7 @@ using MudSharp.Combat.Moves;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.GameItems;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Effects.Concrete;
 
@@ -72,6 +73,23 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
         {
             actor.CombatTarget = Target;
             return new MoveToMeleeMove { Assailant = actor };
+        }
+    }
+
+    internal class BoardVehicleAction : CombatActionType
+    {
+        public IVehicle Vehicle { get; init; }
+        public IVehicleOccupantSlotPrototype Slot { get; init; }
+        public IVehicleAccessPoint AccessPoint { get; init; }
+
+        public override string Describe(IPerceiver voyeur)
+        {
+            return $"board {Vehicle.ExteriorItem.HowSeen(voyeur)}.";
+        }
+
+        public override ICombatMove GetCombatMove(ICharacter actor)
+        {
+            return new BoardVehicleCombatMove(actor, Vehicle, Slot, AccessPoint);
         }
     }
 
@@ -584,6 +602,17 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
         return new SelectedCombatAction(actor, new MoveToMeleeAction
         {
             Target = target
+        });
+    }
+
+    public static SelectedCombatAction GetEffectBoardVehicle(ICharacter actor, IVehicle vehicle,
+        IVehicleOccupantSlotPrototype slot, IVehicleAccessPoint accessPoint)
+    {
+        return new SelectedCombatAction(actor, new BoardVehicleAction
+        {
+            Vehicle = vehicle,
+            Slot = slot,
+            AccessPoint = accessPoint
         });
     }
 

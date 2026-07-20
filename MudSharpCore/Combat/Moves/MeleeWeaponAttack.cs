@@ -8,6 +8,7 @@ using MudSharp.Framework.Scheduling;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat.Moves;
 
@@ -78,6 +79,14 @@ public class MeleeWeaponAttack : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		var boundaryTarget = CharacterTargets.FirstOrDefault();
+		if (boundaryTarget is not null &&
+		    !VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, boundaryTarget, false, false,
+			    out var boundaryReason))
+		{
+			Assailant.OutputHandler.Send(boundaryReason);
+			return CombatMoveResult.Irrelevant;
+		}
         if (defenderMove == null)
         {
             defenderMove = new HelplessDefenseMove { Assailant = CharacterTargets.First() };

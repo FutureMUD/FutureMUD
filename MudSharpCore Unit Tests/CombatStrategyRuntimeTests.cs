@@ -291,6 +291,23 @@ public class CombatStrategyRuntimeTests
 	}
 
 	[TestMethod]
+	public void BoatForcedMovementSources_PreserveOccupancyAndPropagateSuccessDegrees()
+	{
+		var characterMovement = File.ReadAllText(GetCoreSourcePath("Character", "CharacterMovement.cs"));
+		var forcedMove = File.ReadAllText(GetCoreSourcePath("Combat", "Moves", "ForcedMovementMove.cs"));
+		var utilities = File.ReadAllText(GetCoreSourcePath("Combat", "Moves",
+			"CombatForcedMovementUtilities.cs"));
+
+		StringAssert.Contains(characterMovement, "occupiedVehicle is not null && !overboard.WasApplicable");
+		StringAssert.Contains(characterMovement, "occupiedVehicle.ForceDisembark(this, false)");
+		StringAssert.Contains(forcedMove, "TryApplyMovement(displacementSuccessDegrees, out var why)");
+		StringAssert.Contains(forcedMove, "Math.Max(1, (int)opposed.Degree)");
+		StringAssert.Contains(utilities, "Math.Max(1, successDegrees)");
+		Assert.AreEqual(2, utilities.Split("if (overboard.WasApplicable)").Length - 1,
+			"Both exit and layer forced movement must retain a stable occupant aboard rather than teleporting them away.");
+	}
+
+	[TestMethod]
 	public void ManualCombatResolver_AuxiliaryAction_ResolvesRaceMoveWithStamina()
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld();

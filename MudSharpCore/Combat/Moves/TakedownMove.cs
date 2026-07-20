@@ -6,6 +6,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat.Moves;
 
@@ -113,7 +114,8 @@ public class TakedownMove : WeaponAttackMove
         double painResult =
             Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.UnarmedDamageCalculation);
 
-        CharacterTarget.DoCombatKnockdown();
+		CharacterTarget.DoCombatKnockdown(attackRoll.Outcome.SuccessDegrees(),
+			VehicleCombatDisplacementType.Throw);
         Assailant.DoCombatKnockdown();
         Gameworld.Scheduler.DelayScheduleType(CharacterTarget, ScheduleType.Combat,
             TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("TakedownReelTime")));

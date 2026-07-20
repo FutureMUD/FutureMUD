@@ -26,6 +26,27 @@ public class BlankDatabaseSnapshotTests
         Assert.AreEqual(latestMigrationId, manifest!.LatestMigrationId);
     }
 
+	[TestMethod]
+	public void CommittedBlankSnapshot_AppendedDeltasUseDumpTableCasing()
+	{
+		var snapshotPath = BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory());
+		var snapshot = File.ReadAllText(snapshotPath);
+		var marker = snapshot.IndexOf("-- EF-generated idempotent delta", StringComparison.Ordinal);
+
+		Assert.IsTrue(marker >= 0, "The maintained snapshot should contain its generated migration deltas.");
+		var deltas = snapshot[marker..];
+		foreach (var table in new[]
+		         {
+			         "__EFMigrationsHistory", "Vehicles", "VehicleOccupantSlotProtos",
+			         "VehicleMovementProfileProtos", "VehiclePropulsionProfileProtos",
+			         "CharacterCombatSettings", "TraitDefinitions", "RangedCovers"
+		         })
+		{
+			Assert.IsFalse(deltas.Contains($"`{table}`", StringComparison.Ordinal),
+				$"Appended deltas must use the lowercase table names created by the maintained dump, not `{table}`.");
+		}
+	}
+
     [TestMethod]
     public void Assess_WhenManifestIsCurrent_BlankDatabaseUsesSnapshotImport()
     {

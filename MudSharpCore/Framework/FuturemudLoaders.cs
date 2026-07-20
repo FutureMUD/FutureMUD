@@ -4055,7 +4055,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                                             .Include(x => x.Compartments)
                                             .Include(x => x.OccupantSlots)
                                             .Include(x => x.ControlStations)
-                                            .Include(x => x.MovementProfiles)
+                                            .Include(x => x.MovementProfiles).ThenInclude(x => x.PropulsionProfiles)
                                             .Include(x => x.AccessPoints)
                                             .Include(x => x.CargoSpaces)
                                             .Include(x => x.InstallationPoints)

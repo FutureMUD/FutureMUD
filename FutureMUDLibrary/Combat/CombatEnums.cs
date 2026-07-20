@@ -116,6 +116,7 @@ namespace MudSharp.Combat
         ForcedMovement,
         ForcedMovementUnarmed,
         ForcedMovementClinch,
+		AquaticVehicleAttack,
     }
 
     [Flags]

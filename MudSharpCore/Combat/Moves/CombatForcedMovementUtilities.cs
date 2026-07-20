@@ -5,6 +5,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.Movement;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat.Moves;
 
@@ -129,6 +130,14 @@ public static class CombatForcedMovementUtilities
 
 	public static void ApplyPushback(ICharacter actor, ICharacter target, int degrees)
 	{
+		var overboard = VehicleCombatService.Instance.ResolveDisplacement(target,
+			VehicleCombatDisplacementType.Push, Math.Max(1, degrees));
+		if (overboard.FellOverboard)
+		{
+			BreakCloseContact(actor, target);
+			return;
+		}
+
 		BreakCloseContact(actor, target);
 		target.MeleeRange = false;
 		if (actor.CombatTarget == target)
@@ -179,6 +188,7 @@ public static class CombatForcedMovementUtilities
 		ICharacter target,
 		ICellExit exit,
 		ForcedMovementVerbs verb,
+		int successDegrees,
 		out string why)
 	{
 		why = string.Empty;
@@ -215,6 +225,22 @@ public static class CombatForcedMovementUtilities
 		var wasMelee = actor.MeleeRange || target.MeleeRange;
 		var wasClinch = HasClinch(actor, target);
 		var wasGrapple = HasAnyGrapple(actor, target);
+		var displacementType = verb == ForcedMovementVerbs.Pull
+			? VehicleCombatDisplacementType.Pull
+			: VehicleCombatDisplacementType.Push;
+		var overboard = VehicleCombatService.Instance.ResolveDisplacement(target, displacementType,
+			Math.Max(1, successDegrees));
+		if (overboard.FellOverboard)
+		{
+			BreakCloseContact(actor, target);
+			return true;
+		}
+
+		if (overboard.WasApplicable)
+		{
+			why = $"{target.HowSeen(actor, true)} keeps their footing aboard {overboard.Vehicle?.ExteriorItem?.HowSeen(actor) ?? "the vehicle"}.";
+			return false;
+		}
 
 		if (verb == ForcedMovementVerbs.Pull)
 		{
@@ -263,6 +289,7 @@ public static class CombatForcedMovementUtilities
 		ICharacter target,
 		RoomLayer layer,
 		ForcedMovementVerbs verb,
+		int successDegrees,
 		out string why)
 	{
 		why = string.Empty;
@@ -276,6 +303,22 @@ public static class CombatForcedMovementUtilities
 		var wasMelee = actor.MeleeRange || target.MeleeRange;
 		var wasClinch = HasClinch(actor, target);
 		var wasGrapple = HasAnyGrapple(actor, target);
+		var displacementType = verb == ForcedMovementVerbs.Pull
+			? VehicleCombatDisplacementType.Pull
+			: VehicleCombatDisplacementType.Push;
+		var overboard = VehicleCombatService.Instance.ResolveDisplacement(target, displacementType,
+			Math.Max(1, successDegrees));
+		if (overboard.FellOverboard)
+		{
+			BreakCloseContact(actor, target);
+			return true;
+		}
+
+		if (overboard.WasApplicable)
+		{
+			why = $"{target.HowSeen(actor, true)} keeps their footing aboard {overboard.Vehicle?.ExteriorItem?.HowSeen(actor) ?? "the vehicle"}.";
+			return false;
+		}
 
 		if (verb == ForcedMovementVerbs.Pull)
 		{

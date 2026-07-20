@@ -4,6 +4,7 @@ using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
+using MudSharp.Vehicles;
 using MudSharp.RPG.Law;
 
 namespace MudSharp.Combat.Moves;
@@ -150,6 +151,9 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
         visionModifiers += GetSpottingModifier(illuminationDifficulty);
 
         ICharacter targetAsCharacter = target as ICharacter;
+		var effectiveCover = targetAsCharacter is null
+			? null
+			: VehicleCombatService.Instance.ResolveEffectiveRangedCover(Assailant, targetAsCharacter);
         Difficulty coverDifficulty = Difficulty.Automatic;
         bool bUseCover = true;
 
@@ -168,8 +172,8 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
 
         if (bUseCover)
         {
-            coverDifficulty = target.Cover?.Cover.MinimumRangedDifficulty ?? difficulty;
-            if (target.Cover != null)
+			coverDifficulty = effectiveCover?.Cover.MinimumRangedDifficulty ?? target.Cover?.Cover.MinimumRangedDifficulty ?? difficulty;
+			if (effectiveCover is not null || target.Cover is not null)
             {
                 coverDifficulty = coverDifficulty.StageDown((int)Weapon.WeaponType.CoverBonus);
             }

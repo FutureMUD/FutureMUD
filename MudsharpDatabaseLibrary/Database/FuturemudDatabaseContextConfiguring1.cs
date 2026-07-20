@@ -2735,6 +2735,10 @@ namespace MudSharp.Database
                 entity.Property(e => e.PreferToFightArmed)
                       .HasColumnType("bit(1)");
 
+				entity.Property(e => e.PreferTerrestrialCombat)
+				      .HasColumnType("bit(1)")
+				      .HasDefaultValueSql("b'1'");
+
                 entity.Property(e => e.PreferredIntentions).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.PreferredMeleeMode).HasColumnType("int(11)");

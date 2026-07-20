@@ -30,6 +30,7 @@ public class Vehicle
 	public long? CurrentExitId { get; set; }
 	public long? DestinationCellId { get; set; }
 	public long? MovementProfileProtoId { get; set; }
+	public long? ActivePropulsionProfileProtoId { get; set; }
 	public DateTime CreatedDateTime { get; set; }
 	public DateTime? LastMovementDateTime { get; set; }
 
@@ -39,6 +40,7 @@ public class Vehicle
 	public virtual Cell DestinationCell { get; set; }
 	public virtual Exit CurrentExit { get; set; }
 	public virtual VehicleMovementProfileProto MovementProfileProto { get; set; }
+	public virtual VehiclePropulsionProfileProto ActivePropulsionProfileProto { get; set; }
 	public virtual ICollection<VehicleCompartment> Compartments { get; set; }
 	public virtual ICollection<VehicleOccupancy> Occupancies { get; set; }
 	public virtual ICollection<VehicleAccessState> AccessStates { get; set; }

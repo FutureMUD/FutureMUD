@@ -32,6 +32,44 @@ public enum VehicleMovementProfileType
 	Coordinate3D = 3
 }
 
+public enum VehicleMovementEnvironment
+{
+	Unrestricted = 0,
+	SurfaceWater = 1
+}
+
+public enum VehiclePropulsionType
+{
+	None = 0,
+	SelfPowered = 1,
+	Rowed = 2,
+	Sail = 3,
+	OutboardMotor = 4
+}
+
+public enum OutboardMotorEnergySource
+{
+	Fuelled = 0,
+	Electric = 1
+}
+
+public enum VehicleRangedCoverDirection
+{
+	SameLevel = 0,
+	Above = 1,
+	Below = 2
+}
+
+public enum VehicleCombatDisplacementType
+{
+	Unbalance = 0,
+	Knockdown = 1,
+	Push = 2,
+	Pull = 3,
+	Throw = 4,
+	AquaticVehicleAttack = 5
+}
+
 public enum VehicleMovementStatus
 {
 	Stationary = 0,

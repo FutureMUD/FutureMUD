@@ -1093,8 +1093,10 @@ public class AnimalSeederTemplateTests
         Assert.AreEqual("Beast Physical Avoider", AnimalSeeder.RaceTemplatesForTesting["Ostrich"].CombatStrategyKey);
         Assert.AreEqual("Beast Artillery", AnimalSeeder.RaceTemplatesForTesting["Llama"].CombatStrategyKey);
         Assert.AreEqual("Beast Dropper", AnimalSeeder.RaceTemplatesForTesting["Eagle"].CombatStrategyKey);
-        Assert.AreEqual("Beast Drowner", AnimalSeeder.RaceTemplatesForTesting["Shark"].CombatStrategyKey);
+		Assert.AreEqual("Beast Aquatic Brawler", AnimalSeeder.RaceTemplatesForTesting["Shark"].CombatStrategyKey);
         Assert.AreEqual("Beast Drowner", AnimalSeeder.RaceTemplatesForTesting["Crocodile"].CombatStrategyKey);
+		Assert.AreEqual("Beast Aquatic Clincher", AnimalSeeder.RaceTemplatesForTesting["Giant Squid"].CombatStrategyKey);
+		Assert.AreEqual("Beast Aquatic Behemoth", AnimalSeeder.RaceTemplatesForTesting["Orca"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", AnimalSeeder.RaceTemplatesForTesting["Python"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", AnimalSeeder.RaceTemplatesForTesting["Elephant"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", AnimalSeeder.RaceTemplatesForTesting["Oliphant"].CombatStrategyKey);

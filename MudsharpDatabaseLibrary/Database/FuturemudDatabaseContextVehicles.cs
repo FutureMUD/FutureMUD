@@ -10,6 +10,7 @@ public partial class FuturemudDatabaseContext
 	public virtual DbSet<VehicleOccupantSlotProto> VehicleOccupantSlotProtos { get; set; }
 	public virtual DbSet<VehicleControlStationProto> VehicleControlStationProtos { get; set; }
 	public virtual DbSet<VehicleMovementProfileProto> VehicleMovementProfileProtos { get; set; }
+	public virtual DbSet<VehiclePropulsionProfileProto> VehiclePropulsionProfileProtos { get; set; }
 	public virtual DbSet<VehicleAccessPointProto> VehicleAccessPointProtos { get; set; }
 	public virtual DbSet<VehicleCargoSpaceProto> VehicleCargoSpaceProtos { get; set; }
 	public virtual DbSet<VehicleInstallationPointProto> VehicleInstallationPointProtos { get; set; }
@@ -91,6 +92,9 @@ public partial class FuturemudDatabaseContext
 			entity.HasKey(e => e.Id).HasName("PRIMARY");
 			entity.HasIndex(e => new { e.VehicleProtoId, e.VehicleProtoRevision }).HasDatabaseName("FK_VehicleOccupantSlotProtos_VehicleProtos_idx");
 			entity.HasIndex(e => e.VehicleCompartmentProtoId).HasDatabaseName("FK_VehicleOccupantSlotProtos_Compartments_idx");
+			entity.HasIndex(e => e.SameLevelRangedCoverId).HasDatabaseName("FK_VehicleOccupantSlotProtos_SameLevelCover_idx");
+			entity.HasIndex(e => e.AboveRangedCoverId).HasDatabaseName("FK_VehicleOccupantSlotProtos_AboveCover_idx");
+			entity.HasIndex(e => e.BelowRangedCoverId).HasDatabaseName("FK_VehicleOccupantSlotProtos_BelowCover_idx");
 
 			entity.Property(e => e.Id).HasColumnType("bigint(20)");
 			entity.Property(e => e.VehicleProtoId).HasColumnType("bigint(20)");
@@ -100,6 +104,11 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.SlotType).HasColumnType("int(11)");
 			entity.Property(e => e.Capacity).HasColumnType("int(11)");
 			entity.Property(e => e.RequiredForMovement).HasColumnType("bit(1)");
+			entity.Property(e => e.ContributesToPropulsion).HasColumnType("bit(1)");
+			entity.Property(e => e.SameLevelRangedCoverId).HasColumnType("bigint(20)");
+			entity.Property(e => e.AboveRangedCoverId).HasColumnType("bigint(20)");
+			entity.Property(e => e.BelowRangedCoverId).HasColumnType("bigint(20)");
+			entity.Property(e => e.BoatStabilityDifficulty).HasColumnType("int(11)").HasDefaultValue(5);
 
 			entity.HasOne(d => d.VehicleProto)
 			      .WithMany(p => p.OccupantSlots)
@@ -110,6 +119,24 @@ public partial class FuturemudDatabaseContext
 			      .WithMany()
 			      .HasForeignKey(d => d.VehicleCompartmentProtoId)
 			      .HasConstraintName("FK_VehicleOccupantSlotProtos_Compartments");
+
+			entity.HasOne(d => d.SameLevelRangedCover)
+			      .WithMany()
+			      .HasForeignKey(d => d.SameLevelRangedCoverId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleOccupantSlotProtos_SameLevelCover");
+
+			entity.HasOne(d => d.AboveRangedCover)
+			      .WithMany()
+			      .HasForeignKey(d => d.AboveRangedCoverId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleOccupantSlotProtos_AboveCover");
+
+			entity.HasOne(d => d.BelowRangedCover)
+			      .WithMany()
+			      .HasForeignKey(d => d.BelowRangedCoverId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleOccupantSlotProtos_BelowCover");
 		});
 
 		modelBuilder.Entity<VehicleControlStationProto>(entity =>
@@ -148,6 +175,8 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.VehicleProtoRevision).HasColumnType("int(11)");
 			entity.Property(e => e.Name).IsRequired().HasColumnType("varchar(200)").HasCharSet("utf8").UseCollation("utf8_general_ci");
 			entity.Property(e => e.MovementType).HasColumnType("int(11)");
+			entity.Property(e => e.MovementEnvironment).HasColumnType("int(11)");
+			entity.Property(e => e.ExposesOccupantsToWater).HasColumnType("bit(1)");
 			entity.Property(e => e.IsDefault).HasColumnType("bit(1)");
 			entity.Property(e => e.RequiredPowerSpikeInWatts).HasColumnType("double");
 			entity.Property(e => e.FuelLiquidId).HasColumnType("bigint(20)");
@@ -160,6 +189,48 @@ public partial class FuturemudDatabaseContext
 			      .WithMany(p => p.MovementProfiles)
 			      .HasForeignKey(d => new { d.VehicleProtoId, d.VehicleProtoRevision })
 			      .HasConstraintName("FK_VehicleMovementProfileProtos_VehicleProtos");
+		});
+
+		modelBuilder.Entity<VehiclePropulsionProfileProto>(entity =>
+		{
+			entity.ToTable("VehiclePropulsionProfileProtos");
+			entity.HasKey(e => e.Id).HasName("PRIMARY");
+			entity.HasIndex(e => e.VehicleMovementProfileProtoId)
+			      .HasDatabaseName("FK_VehiclePropulsionProfileProtos_MovementProfiles_idx");
+			entity.HasIndex(e => new { e.VehicleMovementProfileProtoId, e.PropulsionType })
+			      .IsUnique()
+			      .HasDatabaseName("UX_VehiclePropulsionProfileProtos_Profile_Type");
+			entity.HasIndex(e => e.PropulsionTraitDefinitionId)
+			      .HasDatabaseName("FK_VehiclePropulsionProfileProtos_Traits_idx");
+
+			entity.Property(e => e.Id).HasColumnType("bigint(20)");
+			entity.Property(e => e.VehicleMovementProfileProtoId).HasColumnType("bigint(20)");
+			entity.Property(e => e.PropulsionType).HasColumnType("int(11)");
+			entity.Property(e => e.IsDefault).HasColumnType("bit(1)");
+			entity.Property(e => e.BaseMoveTimeMilliseconds).HasColumnType("double");
+			entity.Property(e => e.PropulsionTraitDefinitionId).HasColumnType("bigint(20)");
+			entity.Property(e => e.CheckDifficulty).HasColumnType("int(11)");
+			entity.Property(e => e.SpeedMultiplierExpression)
+			      .IsRequired()
+			      .HasColumnType("varchar(1000)")
+			      .HasCharSet("utf8")
+			      .UseCollation("utf8_general_ci");
+			entity.Property(e => e.StaminaCostExpression)
+			      .IsRequired()
+			      .HasColumnType("varchar(1000)")
+			      .HasCharSet("utf8")
+			      .UseCollation("utf8_general_ci");
+
+			entity.HasOne(d => d.VehicleMovementProfileProto)
+			      .WithMany(p => p.PropulsionProfiles)
+			      .HasForeignKey(d => d.VehicleMovementProfileProtoId)
+			      .HasConstraintName("FK_VehiclePropulsionProfileProtos_MovementProfiles");
+
+			entity.HasOne(d => d.PropulsionTraitDefinition)
+			      .WithMany()
+			      .HasForeignKey(d => d.PropulsionTraitDefinitionId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehiclePropulsionProfileProtos_Traits");
 		});
 
 		modelBuilder.Entity<VehicleAccessPointProto>(entity =>
@@ -363,6 +434,7 @@ public partial class FuturemudDatabaseContext
 			entity.HasIndex(e => e.DestinationCellId).HasDatabaseName("FK_Vehicles_Cells_Destination_idx");
 			entity.HasIndex(e => e.CurrentExitId).HasDatabaseName("FK_Vehicles_Exits_idx");
 			entity.HasIndex(e => e.MovementProfileProtoId).HasDatabaseName("FK_Vehicles_MovementProfileProtos_idx");
+			entity.HasIndex(e => e.ActivePropulsionProfileProtoId).HasDatabaseName("FK_Vehicles_PropulsionProfileProtos_idx");
 
 			entity.Property(e => e.Id).HasColumnType("bigint(20)");
 			entity.Property(e => e.VehicleProtoId).HasColumnType("bigint(20)");
@@ -376,6 +448,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.CurrentExitId).HasColumnType("bigint(20)");
 			entity.Property(e => e.DestinationCellId).HasColumnType("bigint(20)");
 			entity.Property(e => e.MovementProfileProtoId).HasColumnType("bigint(20)");
+			entity.Property(e => e.ActivePropulsionProfileProtoId).HasColumnType("bigint(20)");
 			entity.Property(e => e.CreatedDateTime).HasColumnType("datetime");
 			entity.Property(e => e.LastMovementDateTime).HasColumnType("datetime");
 
@@ -413,6 +486,12 @@ public partial class FuturemudDatabaseContext
 			      .HasForeignKey(d => d.MovementProfileProtoId)
 			      .OnDelete(DeleteBehavior.SetNull)
 			      .HasConstraintName("FK_Vehicles_MovementProfileProtos");
+
+			entity.HasOne(d => d.ActivePropulsionProfileProto)
+			      .WithMany()
+			      .HasForeignKey(d => d.ActivePropulsionProfileProtoId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_Vehicles_PropulsionProfileProtos");
 		});
 
 		modelBuilder.Entity<VehicleCompartment>(entity =>

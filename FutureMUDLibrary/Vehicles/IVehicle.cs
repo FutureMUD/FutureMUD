@@ -18,6 +18,8 @@ public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable
 	int PrototypeRevisionNumber { get; }
 	IGameItem ExteriorItem { get; }
 	long? ExteriorItemId { get; }
+	IVehicleMovementProfilePrototype MovementProfile { get; }
+	IVehiclePropulsionProfilePrototype ActivePropulsionProfile { get; }
 	IVehicleMovementState MovementState { get; }
 	VehicleLocationType LocationType { get; }
 	ICell Location { get; }
@@ -49,6 +51,7 @@ public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable
 	bool Leave(ICharacter actor);
 	bool CanMove(ICharacter actor, ICellExit exit, out string reason);
 	bool Move(ICharacter actor, ICellExit exit);
+	bool SetActivePropulsionProfile(IVehiclePropulsionProfilePrototype profile, out string reason);
 	void BeginMoveToCell(ICell destination, RoomLayer layer, ICellExit exit);
 	void MoveToCell(ICell destination, RoomLayer layer, ICellExit exit, IMovement movement = null);
 	void RecoverInterruptedMovement();

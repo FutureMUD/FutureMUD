@@ -6,6 +6,7 @@ using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat.Moves;
 
@@ -217,6 +218,12 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
                                       Assailant.OffensiveAdvantage);
         Assailant.OffensiveAdvantage = 0;
         DetermineTargetBodypart(defenderMove, attackRoll[CheckDifficulty]);
+		var effectiveCover = VehicleCombatService.Instance.ResolveEffectiveRangedCover(Assailant, targetCharacter);
+		var coverDifficulty = effectiveCover?.Cover.MinimumRangedDifficulty ?? CheckDifficulty;
+		if (coverDifficulty < CheckDifficulty)
+		{
+			coverDifficulty = CheckDifficulty;
+		}
 
         string attackEmote = BuildAttackEmote(targetCharacter, attackRoll[CheckDifficulty].Outcome);
         Assailant.OutputHandler.Handle(new EmoteOutput(
@@ -227,6 +234,25 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
         {
             return HandleMiss(targetCharacter, attackRoll[CheckDifficulty]);
         }
+
+		if (effectiveCover is not null && attackRoll[coverDifficulty].IsFail() &&
+		    (effectiveCover.Cover.CoverType == CoverType.Hard ||
+		     attackRoll[CheckDifficulty].Outcome == Outcome.MajorPass ||
+		     attackRoll[coverDifficulty].Outcome == Outcome.MinorFail))
+		{
+			targetCharacter.OutputHandler.Handle(new EmoteOutput(
+				new Emote("The attack strikes $?1|$1, ||$$0's cover!", targetCharacter, targetCharacter,
+					effectiveCover.Provider),
+				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+			Assailant.Send("You hit your target's cover instead.".Colour(Telnet.Yellow));
+			return new CombatMoveResult
+			{
+				MoveWasSuccessful = false,
+				RecoveryDifficulty = RecoveryDifficultyFailure,
+				AttackerOutcome = attackRoll[CheckDifficulty].Outcome,
+				DefenderOutcome = attackRoll[coverDifficulty].Outcome
+			};
+		}
 
         switch (defenderMove)
         {

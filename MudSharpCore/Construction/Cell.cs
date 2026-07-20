@@ -1366,6 +1366,13 @@ public partial class Cell : Location, IDisposable, ICell
             foreach (IGameItem item in items[layer])
             {
                 item.ExposeToLiquid(mixture, null, LiquidExposureDirection.Irrelevant);
+                var exteriorVehicle = item.GetItemType<IVehicleExterior>()?.Vehicle;
+                if (exteriorVehicle.KeepsExteriorAfloat())
+                {
+                    item.PositionState = PositionFloatingInWater.Instance;
+                    continue;
+                }
+
                 if (!item.IsItemType<IHoldable>() || !item.GetItemType<IHoldable>().IsHoldable)
                 {
                     continue;
@@ -1411,6 +1418,11 @@ public partial class Cell : Location, IDisposable, ICell
             foreach (ICharacter character in characters[layer])
             {
                 if (character.PositionState == PositionFlying.Instance)
+                {
+                    continue;
+                }
+
+                if (character.IsProtectedFromSurfaceWater(out _))
                 {
                     continue;
                 }

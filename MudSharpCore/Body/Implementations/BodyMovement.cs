@@ -8,6 +8,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Movement;
 using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Body.Implementations;
 
@@ -340,7 +341,9 @@ public partial class Body
             LongtermExertion = CurrentExertion;
         }
 
-        if (Location.IsSwimmingLayer(RoomLayer) && positionState != PositionFlying.Instance)
+        if (Location.IsSwimmingLayer(RoomLayer) &&
+            positionState != PositionFlying.Instance &&
+            !Actor.IsSupportedBySurfaceWaterVehicle(out _))
         {
             Actor.DoSwimHeartbeat();
         }

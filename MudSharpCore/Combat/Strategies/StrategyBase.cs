@@ -7,6 +7,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Movement;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat.Strategies;
 
@@ -455,6 +456,45 @@ public abstract class StrategyBase : ICombatStrategy
 
         return null;
     }
+
+	protected virtual ICombatMove HandleVehicleCombatBoundary(ICharacter combatant)
+	{
+		if (combatant.CombatTarget is not ICharacter target)
+		{
+			return null;
+		}
+
+		var vehicle = VehicleCombatService.Instance.VehicleFor(target);
+		if (vehicle is null || !vehicle.IsSurfaceWaterVehicle() || vehicle.Destroyed ||
+		    VehicleCombatService.Instance.CanCrossVehicleBoundary(combatant, target, false, false, out _))
+		{
+			return null;
+		}
+
+		if (combatant.CombatSettings.PreferTerrestrialCombat)
+		{
+			if (!combatant.CanSpendStamina(BoardVehicleCombatMove.BoardingStaminaCost))
+			{
+				return null;
+			}
+
+			var slot = vehicle.Prototype.OccupantSlots
+				.FirstOrDefault(x => vehicle.CanBoard(combatant, x, out _));
+			return slot is null ? null : new BoardVehicleCombatMove(combatant, vehicle, slot);
+		}
+
+		var attacks = combatant.Race
+			.UsableNaturalWeaponAttacks(combatant, vehicle.ExteriorItem, false,
+				BuiltInCombatMoveType.AquaticVehicleAttack)
+			.Where(x => combatant.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(combatant, x.Attack)))
+			.Where(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x.Attack) > 0.0)
+			.ToList();
+		var attack = attacks.GetWeightedRandom(x =>
+			x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x.Attack));
+		return attack is null
+			? null
+			: CombatMoveFactory.CreateNaturalWeaponAttack(combatant, attack, vehicle.ExteriorItem);
+	}
 
     protected virtual Func<IGameItem, double> MeleeWeaponFitnessFunction(ICharacter ch)
     {
@@ -993,6 +1033,12 @@ public abstract class StrategyBase : ICombatStrategy
         {
             return move;
         }
+
+		if (combatant is ICharacter character &&
+		    (move = HandleVehicleCombatBoundary(character)) != null)
+		{
+			return move;
+		}
 
         if ((move = HandleInventoryMoves(combatant)) != null)
         {

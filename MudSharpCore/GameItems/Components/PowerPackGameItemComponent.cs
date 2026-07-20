@@ -7,6 +7,7 @@ using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.Vehicles;
 
 namespace MudSharp.GameItems.Components;
 
@@ -301,12 +302,17 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
         Outcome coverOutcome, IRangedWeaponType weaponType, IBodypart bodypart, OpposedOutcome defenseOutcome,
         double painMultiplier, double stunMultiplier, IReadOnlyList<ICellExit> path)
     {
-        if (!shotOutcome.IsPass() || coverOutcome.IsPass() || target?.Cover == null)
+		var effectiveCover = target is ICharacter targetCharacter
+			? VehicleCombatService.Instance.ResolveEffectiveRangedCover(actor, targetCharacter)
+			: null;
+		var cover = effectiveCover?.Cover ?? target?.Cover?.Cover;
+		var coverItem = effectiveCover?.Provider ?? target?.Cover?.CoverItem?.Parent;
+		if (!shotOutcome.IsPass() || coverOutcome.IsPass() || cover is null)
         {
             return false;
         }
 
-        bool strikeCover = target.Cover.Cover.CoverType == CoverType.Hard || shotOutcome == Outcome.MajorPass ||
+		bool strikeCover = cover.CoverType == CoverType.Hard || shotOutcome == Outcome.MajorPass ||
                           coverOutcome == Outcome.MinorFail;
         if (!strikeCover)
         {
@@ -314,7 +320,6 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
         }
 
         BroadcastBeamFlight(actor, target, path);
-        IGameItem coverItem = target.Cover.CoverItem?.Parent;
         string actorText = actor.HowSeen(actor);
         string targetText = target.HowSeen(actor);
         string coverText = coverItem?.HowSeen(actor) ?? "environmental cover";
@@ -326,7 +331,9 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
         actor.Send("You hit your target's cover instead.".Colour(Telnet.Yellow));
 
         Damage damage = BuildDamage(actor, target, bodypart, weaponType, defenseOutcome, painMultiplier, stunMultiplier);
-        List<IWound> coverWounds = coverItem?.PassiveSufferDamage(damage)?.ToList() ?? new List<IWound>();
+		List<IWound> coverWounds = effectiveCover?.IsVehicleCover == true
+			? new List<IWound>()
+			: coverItem?.PassiveSufferDamage(damage)?.ToList() ?? new List<IWound>();
         coverWounds.ProcessPassiveWounds();
 
         string scatterContext = $"cover {actorText}->{targetText}";

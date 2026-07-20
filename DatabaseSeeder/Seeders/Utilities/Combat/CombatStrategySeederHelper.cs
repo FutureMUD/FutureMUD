@@ -21,6 +21,11 @@ internal static class CombatStrategySeederHelper
         "Beast Dropper",
         "Beast Physical Avoider",
         "Beast Artillery",
+		"Beast Aquatic Brawler",
+		"Beast Aquatic Clincher",
+		"Beast Aquatic Behemoth",
+		"Beast Aquatic Skirmisher",
+		"Beast Aquatic Artillery",
         "Beast Coward",
         "Construct Brawler",
         "Construct Skirmisher",
@@ -37,7 +42,11 @@ internal static class CombatStrategySeederHelper
         CharacterCombatSetting? existing = context.CharacterCombatSettings.FirstOrDefault(x => x.Name == strategyName);
         if (existing is not null)
         {
-            if (CombatAuxiliarySeederHelper.ApplyStockAuxiliaryPercentage(existing))
+			var desiredTerrestrialPreference = !strategyName.EqualTo("Beast Drowner") &&
+			                                   !strategyName.StartsWith("Beast Aquatic ", StringComparison.OrdinalIgnoreCase);
+			var changed = existing.PreferTerrestrialCombat != desiredTerrestrialPreference;
+			existing.PreferTerrestrialCombat = desiredTerrestrialPreference;
+			if (CombatAuxiliarySeederHelper.ApplyStockAuxiliaryPercentage(existing) || changed)
             {
                 context.SaveChanges();
             }
@@ -107,7 +116,9 @@ internal static class CombatStrategySeederHelper
                 PreferredWeaponSetup = (int)setup,
                 RequiredMinimumAim = requiredMinimumAim,
                 MeleeAttackOrderPreference = order.Select(x => ((int)x).ToString()).ListToCommaSeparatedValues(" "),
-                GrappleResponse = (int)grapple
+				GrappleResponse = (int)grapple,
+				PreferTerrestrialCombat = !name.EqualTo("Beast Drowner") &&
+				                           !name.StartsWith("Beast Aquatic ", StringComparison.OrdinalIgnoreCase)
             };
         }
 
@@ -129,6 +140,14 @@ internal static class CombatStrategySeederHelper
                 AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
                 AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance,
                 0.5, 5.0, DefenseType.Dodge, defaultOrder, alwaysTrue),
+			"Beast Aquatic Brawler" => CreateStrategy(
+				"Beast Aquatic Brawler",
+				"Fully automatic aquatic natural-weapon brawler that assaults occupied surface craft rather than trying to board.",
+				0.0, 1.0, 0.0, false, false, false, false, true, true, false, true, true, false, true,
+				PursuitMode.AlwaysPursue, CombatStrategyMode.StandardMelee, CombatStrategyMode.FullAdvance,
+				AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
+				AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance,
+				0.5, 5.0, DefenseType.Dodge, defaultOrder, alwaysTrue),
             "Beast Clincher" => CreateStrategy(
                 "Beast Clincher",
                 "Fully automatic clinch-focused beast strategy for bites, constriction, and clamp attacks.",
@@ -137,6 +156,14 @@ internal static class CombatStrategySeederHelper
                 AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
                 AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance,
                 0.5, 5.0, DefenseType.Dodge, defaultOrder, alwaysTrue),
+			"Beast Aquatic Clincher" => CreateStrategy(
+				"Beast Aquatic Clincher",
+				"Fully automatic aquatic clincher that assaults occupied surface craft rather than trying to board.",
+				0.0, 1.0, 0.0, false, false, false, false, true, true, false, true, true, false, true,
+				PursuitMode.AlwaysPursue, CombatStrategyMode.Clinch, CombatStrategyMode.FullAdvance,
+				AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
+				AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance,
+				0.5, 5.0, DefenseType.Dodge, defaultOrder, alwaysTrue),
             "Beast Behemoth" => CreateStrategy(
                 "Beast Behemoth",
                 "Fully automatic heavy beast strategy for big chargers, stompers, and rammers.",
@@ -145,6 +172,14 @@ internal static class CombatStrategySeederHelper
                 AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
                 AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Counter,
                 0.5, 5.0, DefenseType.Dodge, defaultOrder, alwaysTrue),
+			"Beast Aquatic Behemoth" => CreateStrategy(
+				"Beast Aquatic Behemoth",
+				"Fully automatic heavy aquatic strategy that assaults occupied surface craft rather than trying to board.",
+				0.0, 1.0, 0.0, false, false, true, false, true, true, false, true, true, false, true,
+				PursuitMode.AlwaysPursue, CombatStrategyMode.StandardMelee, CombatStrategyMode.FullAdvance,
+				AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
+				AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Counter,
+				0.5, 5.0, DefenseType.Dodge, defaultOrder, alwaysTrue),
             "Beast Skirmisher" => CreateStrategy(
                 "Beast Skirmisher",
                 "Fully automatic hit-and-run beast strategy for agile natural attackers.",
@@ -153,6 +188,14 @@ internal static class CombatStrategySeederHelper
                 AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
                 AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.Any, GrappleResponse.Avoidance,
                 0.4, 5.0, DefenseType.Dodge, defaultOrder, alwaysTrue),
+			"Beast Aquatic Skirmisher" => CreateStrategy(
+				"Beast Aquatic Skirmisher",
+				"Fully automatic agile aquatic strategy that assaults occupied surface craft rather than trying to board.",
+				0.0, 1.0, 0.0, false, false, true, false, true, true, true, true, true, false, true,
+				PursuitMode.AlwaysPursue, CombatStrategyMode.FullSkirmish, CombatStrategyMode.FireNoCover,
+				AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
+				AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.Any, GrappleResponse.Avoidance,
+				0.4, 5.0, DefenseType.Dodge, defaultOrder, alwaysTrue),
             "Beast Swooper" => CreateStrategy(
                 "Beast Swooper",
                 "Fully automatic aerial hunter strategy for diving and buffeting creatures.",
@@ -194,6 +237,14 @@ internal static class CombatStrategySeederHelper
                 AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
                 AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.Any, GrappleResponse.Avoidance,
                 0.5, 5.0, DefenseType.Dodge, defaultOrder, alwaysTrue),
+			"Beast Aquatic Artillery" => CreateStrategy(
+				"Beast Aquatic Artillery",
+				"Fully automatic aquatic ranged-natural strategy that assaults occupied surface craft rather than trying to board.",
+				0.0, 0.85, 0.15, false, false, true, false, true, true, true, true, true, false, true,
+				PursuitMode.AlwaysPursue, CombatStrategyMode.FullSkirmish, CombatStrategyMode.StandardRange,
+				AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
+				AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.Any, GrappleResponse.Avoidance,
+				0.5, 5.0, DefenseType.Dodge, defaultOrder, alwaysTrue),
             "Beast Coward" => CreateStrategy(
                 "Beast Coward",
                 "Fully automatic flee-first strategy for timid prey animals.",

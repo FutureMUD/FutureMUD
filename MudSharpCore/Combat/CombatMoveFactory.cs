@@ -1,5 +1,6 @@
 ﻿using MudSharp.Combat.Moves;
 using MudSharp.GameItems;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat;
 
@@ -76,6 +77,14 @@ public static class CombatMoveFactory
                 return new StrangleAttack(assailant, attack, target);
             case BuiltInCombatMoveType.TakedownMove:
                 return new TakedownMove(assailant, attack, target);
+			case BuiltInCombatMoveType.AquaticVehicleAttack:
+				var vehicle = VehicleCombatService.Instance.VehicleFor(target);
+				if (vehicle?.ExteriorItem is not null)
+				{
+					return new AquaticVehicleAttackMove(assailant, attack, vehicle.ExteriorItem);
+				}
+
+				break;
         }
 
         throw new ApplicationException(
@@ -96,6 +105,8 @@ public static class CombatMoveFactory
 				return new ExplosiveNaturalAttackMove(assailant, attack, target);
 			case BuiltInCombatMoveType.BuffetingNaturalAttack:
 				return new BuffetingRangedAttackMove(assailant, attack, target);
+			case BuiltInCombatMoveType.AquaticVehicleAttack:
+				return new AquaticVehicleAttackMove(assailant, attack, target);
 		}
 
 		throw new ApplicationException(

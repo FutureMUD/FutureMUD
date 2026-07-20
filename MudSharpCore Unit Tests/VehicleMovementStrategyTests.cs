@@ -109,6 +109,83 @@ public class VehicleMovementStrategyTests
 	}
 
 	[TestMethod]
+	public void CanMove_SurfaceWaterProfileBetweenSurfaceWaterCells_Succeeds()
+	{
+		var controller = new Mock<ICharacter>();
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large,
+			VehicleMovementEnvironment.SurfaceWater);
+		Mock.Get(vehicle.Location)
+		    .Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel))
+		    .Returns(true);
+		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
+		Mock.Get(exit.Destination)
+		    .Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel))
+		    .Returns(true);
+
+		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+
+		Assert.IsTrue(result, reason);
+		Assert.AreEqual(string.Empty, reason);
+	}
+
+	[TestMethod]
+	public void CanMove_SurfaceWaterProfileFromLand_Fails()
+	{
+		var controller = new Mock<ICharacter>();
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large,
+			VehicleMovementEnvironment.SurfaceWater);
+		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
+		Mock.Get(exit.Destination)
+		    .Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel))
+		    .Returns(true);
+
+		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+
+		Assert.IsFalse(result);
+		StringAssert.Contains(reason, "not at the surface of a water location");
+	}
+
+	[TestMethod]
+	public void CanMove_SurfaceWaterProfileToLand_Fails()
+	{
+		var controller = new Mock<ICharacter>();
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large,
+			VehicleMovementEnvironment.SurfaceWater);
+		Mock.Get(vehicle.Location)
+		    .Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel))
+		    .Returns(true);
+		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
+
+		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+
+		Assert.IsFalse(result);
+		StringAssert.Contains(reason, "only move to another surface-water location");
+	}
+
+	[TestMethod]
+	public void CanMove_SurfaceWaterProfileToUnderwaterLayer_Fails()
+	{
+		var controller = new Mock<ICharacter>();
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large,
+			VehicleMovementEnvironment.SurfaceWater);
+		Mock.Get(vehicle.Location)
+		    .Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel))
+		    .Returns(true);
+		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
+		Mock.Get(exit.Destination)
+		    .Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel))
+		    .Returns(true);
+		Mock.Get(exit)
+		    .Setup(x => x.MovementTransition(controller.Object))
+		    .Returns((CellMovementTransition.SwimOnly, RoomLayer.Underwater));
+
+		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+
+		Assert.IsFalse(result);
+		StringAssert.Contains(reason, "only move to another surface-water location");
+	}
+
+	[TestMethod]
 	public void CanMove_WhenExteriorItemPreventsMovement_Fails()
 	{
 		var strategy = new CellExitVehicleMovementStrategy();
@@ -496,7 +573,8 @@ public class VehicleMovementStrategyTests
 		Assert.IsTrue(vehicle.Changed);
 	}
 
-	private static IVehicle CreateVehicle(ICharacter controller, IEnumerable<VehicleMovementProfileType> movementTypes, SizeCategory exteriorSize)
+	private static IVehicle CreateVehicle(ICharacter controller, IEnumerable<VehicleMovementProfileType> movementTypes,
+		SizeCategory exteriorSize, VehicleMovementEnvironment environment = VehicleMovementEnvironment.Unrestricted)
 	{
 		var location = new Mock<ICell>();
 		var item = new Mock<IGameItem>();
@@ -510,6 +588,7 @@ public class VehicleMovementStrategyTests
 			var profile = new Mock<IVehicleMovementProfilePrototype>();
 			profile.SetupGet(x => x.Id).Returns(100 + profiles.Count);
 			profile.SetupGet(x => x.MovementType).Returns(movementType);
+			profile.SetupGet(x => x.MovementEnvironment).Returns(environment);
 			profiles.Add(profile.Object);
 		}
 
@@ -524,6 +603,8 @@ public class VehicleMovementStrategyTests
 		vehicle.SetupGet(x => x.Location).Returns(location.Object);
 		vehicle.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
+		vehicle.SetupGet(x => x.MovementProfile)
+		       .Returns(profiles.FirstOrDefault(x => x.MovementType == VehicleMovementProfileType.CellExit)!);
 		vehicle.SetupGet(x => x.ExteriorItem).Returns(item.Object);
 		return vehicle.Object;
 	}

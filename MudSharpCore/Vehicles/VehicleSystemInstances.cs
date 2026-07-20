@@ -1030,6 +1030,7 @@ public class VehicleDamageZone : FrameworkItem, IVehicleDamageZone
 
 	public void AddDamage(double amount)
 	{
+		var wasVehicleDestroyed = Vehicle.Destroyed;
 		_currentDamage = Math.Max(0.0, _currentDamage + amount);
 		if (_currentDamage >= Prototype.DestroyedThreshold)
 		{
@@ -1050,6 +1051,8 @@ public class VehicleDamageZone : FrameworkItem, IVehicleDamageZone
 				FMDB.Context.SaveChanges();
 			}
 		}
+
+		HandleVehicleDestroyedTransition(wasVehicleDestroyed);
 	}
 
 	public void SetStatus(VehicleSystemStatus status)
@@ -1059,6 +1062,7 @@ public class VehicleDamageZone : FrameworkItem, IVehicleDamageZone
 			return;
 		}
 
+		var wasVehicleDestroyed = Vehicle.Destroyed;
 		_status = status;
 		using (new FMDB())
 		{
@@ -1069,10 +1073,13 @@ public class VehicleDamageZone : FrameworkItem, IVehicleDamageZone
 				FMDB.Context.SaveChanges();
 			}
 		}
+
+		HandleVehicleDestroyedTransition(wasVehicleDestroyed);
 	}
 
 	public void RecalculateDamageFromWounds()
 	{
+		var wasVehicleDestroyed = Vehicle.Destroyed;
 		_wounds.RemoveAll(x => x.Severity == WoundSeverity.None);
 		_currentDamage = Math.Max(0.0, _wounds.Sum(x => x.CurrentDamage));
 		_status = _currentDamage >= Prototype.DestroyedThreshold
@@ -1090,6 +1097,16 @@ public class VehicleDamageZone : FrameworkItem, IVehicleDamageZone
 				dbitem.Status = (int)_status;
 				FMDB.Context.SaveChanges();
 			}
+		}
+
+		HandleVehicleDestroyedTransition(wasVehicleDestroyed);
+	}
+
+	private void HandleVehicleDestroyedTransition(bool wasVehicleDestroyed)
+	{
+		if (!wasVehicleDestroyed && Vehicle.Destroyed && Vehicle.IsSurfaceWaterVehicle())
+		{
+			Vehicle.ForceDisembarkAll();
 		}
 	}
 

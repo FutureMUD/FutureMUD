@@ -50,6 +50,7 @@ namespace MudSharp.Models
         public double RequiredMinimumAim { get; set; }
         public string MeleeAttackOrderPreference { get; set; }
         public int GrappleResponse { get; set; }
+		public bool PreferTerrestrialCombat { get; set; } = true;
 
         public virtual FutureProg AvailabilityProg { get; set; }
         public virtual Character CharacterOwner { get; set; }

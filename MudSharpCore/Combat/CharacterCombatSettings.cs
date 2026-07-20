@@ -70,6 +70,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
                 RequiredMinimumAim = 0,
                 MeleeAttackOrderPreference = "0 1 2 3 4",
                 GrappleResponse = (int)GrappleResponse.Avoidance,
+				PreferTerrestrialCombat = true,
             };
             FMDB.Context.CharacterCombatSettings.Add(dbitem);
             FMDB.Context.SaveChanges();
@@ -127,6 +128,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
                                                           .Select(x => ((int)x).ToString())
                                                           .ListToCommaSeparatedValues(" "),
                 GrappleResponse = (int)settingToCopy.GrappleResponse,
+				PreferTerrestrialCombat = settingToCopy.PreferTerrestrialCombat,
             };
             FMDB.Context.CharacterCombatSettings.Add(dbitem);
             FMDB.Context.SaveChanges();
@@ -257,6 +259,8 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 
     public bool MoveToMeleeIfCannotEngageInRangedCombat { get; set; }
 
+	public bool PreferTerrestrialCombat { get; set; }
+
     public PursuitMode PursuitMode { get; set; }
 
     public DefenseType DefaultPreferredDefenseType { get; set; }
@@ -365,6 +369,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
         PreferredWeaponSetup = (AttackHandednessOptions)setting.PreferredWeaponSetup;
         RequiredMinimumAim = setting.RequiredMinimumAim;
         GrappleResponse = (GrappleResponse)setting.GrappleResponse;
+		PreferTerrestrialCombat = setting.PreferTerrestrialCombat;
         foreach (string value in setting.MeleeAttackOrderPreference.Split(' '))
         {
             MeleeAttackOrderPreferences.Add((MeleeAttackOrderPreference)int.Parse(value));
@@ -424,6 +429,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
             dbitem.MeleeAttackOrderPreference = MeleeAttackOrderPreferences
                                                 .Select(x => ((int)x).ToString()).ListToCommaSeparatedValues(" ");
             dbitem.GrappleResponse = (int)GrappleResponse;
+			dbitem.PreferTerrestrialCombat = PreferTerrestrialCombat;
             List<CharacterCombatSettingsManualCombatCommands> existing =
                 FMDB.Context.CharacterCombatSettingsManualCombatCommands
                     .Where(x => x.CharacterCombatSettingId == Id)
@@ -547,6 +553,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
             $"Minimum Stamina to Attack: {MinimumStaminaToAttack.ToString("N2", voyeur).Colour(Telnet.Green)}",
             $"Grapple Response: {GrappleResponse.DescribeEnum(true).ColourValue()}");
         sb.AppendLine($"Unarmed if Weaponless: {(FallbackToUnarmedIfNoWeapon ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}");
+		sb.AppendLine($"Prefer Terrestrial Combat: {PreferTerrestrialCombat.ToColouredString()}");
         sb.AppendLine($"Required Intentions: {RequiredIntentions.Describe().Colour(Telnet.Cyan)}");
         sb.AppendLine($"Forbidden Intentions: {ForbiddenIntentions.Describe().Colour(Telnet.Red)}");
         sb.AppendLine($"Preferred Intentions: {PreferredIntentions.Describe().Colour(Telnet.Green)}");

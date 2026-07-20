@@ -73,6 +73,10 @@ Any component that changes where an item effectively "is" in the world needs to 
 - morph and destruction transfer
 - inventory change propagation
 
+Vehicle exteriors are a special location bridge. The exterior remains an ordinary cell-visible `IGameItem`, but the linked `IVehicle` owns canonical location, occupancy, movement environment, and destruction state. An occupied exterior cannot be picked up or contained. An unoccupied `ItemScale` surface-water craft such as a surfboard may still be carried or stored on land through ordinary item rules, while its vehicle movement profile prevents driven, dragged, or tow-train exit traversal outside surface water. At a valid water surface, intact exteriors remain floating and visible occupants are presented through the vehicle's rider-style room line rather than as duplicate item output.
+
+Propulsion presentation also belongs to the vehicle integration surface. `vehiclepropulsion` and `vehiclestatus` show the persisted active mode and supported modes; staff `vehicle show` adds formulas, rower slots, sampled wind, contributors, installed motors, resource candidates, and blockers. Oars and outboards decorate item evaluation with their efficiency/output configuration, but they do not claim that a whole vehicle is ready: readiness depends on occupancy, installation, condition, weather, and resources at the current vehicle.
+
 Common examples:
 - `IContainer`
 - `IBelt` and `IBeltable`
@@ -303,3 +307,9 @@ The strongest reference case is the new heater/cooler family:
 - fuel-fed items integrate with connectable fuel infrastructure through `IConnectable`, `ILiquidContainer`, and `IGasSupply`
 - consumable items integrate with timed-burn lifecycle and optional replacement-item morph-like behaviour
 - solid-fuel items integrate with normal item containment and tagged-content workflows
+
+## Vehicle Cover And Projectile Integration
+
+Physical ranged attacks against a vehicle occupant resolve the strongest applicable cover between the character's ordinary cover effect and the occupant slot's directional vehicle cover. Ammunition, thrown weapons, power-pack projectiles, and ranged natural attacks all use that shared result.
+
+When vehicle cover intercepts an attack, the exterior item is the visible cover provider for messaging only. The projectile does not call the exterior item's wound or damage path in this combat slice; boats are not damaged or capsized by occupant-directed attacks. Same-vehicle attackers bypass their own vehicle's cover, and aquatic hull assaults ignore ranged cover because they resolve an occupant stability effect rather than a projectile interception.

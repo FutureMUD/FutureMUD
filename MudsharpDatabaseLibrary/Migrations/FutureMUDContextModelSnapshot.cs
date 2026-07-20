@@ -5075,6 +5075,11 @@ namespace MudSharp.Migrations
                     b.Property<ulong>("PreferShieldUse")
                         .HasColumnType("bit(1)");
 
+                    b.Property<ulong>("PreferTerrestrialCombat")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValueSql("b'1'");
+
                     b.Property<ulong>("PreferToFightArmed")
                         .HasColumnType("bit(1)");
 
@@ -12937,15 +12942,15 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
-                    b.Property<ulong>("PreferOperatingTheatre")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit(1)")
-                        .HasDefaultValue(0ul);
-
                     b.Property<int>("OfferingMode")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int(11)")
                         .HasDefaultValue(0);
+
+                    b.Property<ulong>("PreferOperatingTheatre")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(58,29)");
@@ -13055,13 +13060,6 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OperationalNotes"), "utf8");
 
-                    b.Property<string>("ProcedureParameters")
-                        .IsRequired()
-                        .HasColumnType("mediumtext")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ProcedureParameters"), "utf8");
-
                     b.Property<long>("PatientId")
                         .HasColumnType("bigint(20)");
 
@@ -13083,6 +13081,13 @@ namespace MudSharp.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(58,29)");
+
+                    b.Property<string>("ProcedureParameters")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ProcedureParameters"), "utf8");
 
                     b.Property<long?>("RecoveryRoomCellId")
                         .HasColumnType("bigint(20)");
@@ -21055,6 +21060,9 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<long?>("ActivePropulsionProfileProtoId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<DateTime>("CreatedDateTime")
                         .HasColumnType("datetime");
 
@@ -21100,6 +21108,9 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id")
                         .HasName("PRIMARY");
+
+                    b.HasIndex("ActivePropulsionProfileProtoId")
+                        .HasDatabaseName("FK_Vehicles_PropulsionProfileProtos_idx");
 
                     b.HasIndex("CurrentCellId")
                         .HasDatabaseName("FK_Vehicles_Cells_Current_idx");
@@ -21822,6 +21833,9 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<ulong>("ExposesOccupantsToWater")
+                        .HasColumnType("bit(1)");
+
                     b.Property<long?>("FuelLiquidId")
                         .HasColumnType("bigint(20)");
 
@@ -21830,6 +21844,9 @@ namespace MudSharp.Migrations
 
                     b.Property<ulong>("IsDefault")
                         .HasColumnType("bit(1)");
+
+                    b.Property<int>("MovementEnvironment")
+                        .HasColumnType("int(11)");
 
                     b.Property<int>("MovementType")
                         .HasColumnType("int(11)");
@@ -21930,8 +21947,22 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<long?>("AboveRangedCoverId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("BelowRangedCoverId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("BoatStabilityDifficulty")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(5);
+
                     b.Property<int>("Capacity")
                         .HasColumnType("int(11)");
+
+                    b.Property<ulong>("ContributesToPropulsion")
+                        .HasColumnType("bit(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -21942,6 +21973,9 @@ namespace MudSharp.Migrations
 
                     b.Property<ulong>("RequiredForMovement")
                         .HasColumnType("bit(1)");
+
+                    b.Property<long?>("SameLevelRangedCoverId")
+                        .HasColumnType("bigint(20)");
 
                     b.Property<int>("SlotType")
                         .HasColumnType("int(11)");
@@ -21958,6 +21992,15 @@ namespace MudSharp.Migrations
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
+                    b.HasIndex("AboveRangedCoverId")
+                        .HasDatabaseName("FK_VehicleOccupantSlotProtos_AboveCover_idx");
+
+                    b.HasIndex("BelowRangedCoverId")
+                        .HasDatabaseName("FK_VehicleOccupantSlotProtos_BelowCover_idx");
+
+                    b.HasIndex("SameLevelRangedCoverId")
+                        .HasDatabaseName("FK_VehicleOccupantSlotProtos_SameLevelCover_idx");
+
                     b.HasIndex("VehicleCompartmentProtoId")
                         .HasDatabaseName("FK_VehicleOccupantSlotProtos_Compartments_idx");
 
@@ -21965,6 +22008,62 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_VehicleOccupantSlotProtos_VehicleProtos_idx");
 
                     b.ToTable("VehicleOccupantSlotProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehiclePropulsionProfileProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<double>("BaseMoveTimeMilliseconds")
+                        .HasColumnType("double");
+
+                    b.Property<int>("CheckDifficulty")
+                        .HasColumnType("int(11)");
+
+                    b.Property<ulong>("IsDefault")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long?>("PropulsionTraitDefinitionId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("PropulsionType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("SpeedMultiplierExpression")
+                        .IsRequired()
+                        .HasColumnType("varchar(1000)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SpeedMultiplierExpression"), "utf8");
+
+                    b.Property<string>("StaminaCostExpression")
+                        .IsRequired()
+                        .HasColumnType("varchar(1000)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("StaminaCostExpression"), "utf8");
+
+                    b.Property<long>("VehicleMovementProfileProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("PropulsionTraitDefinitionId")
+                        .HasDatabaseName("FK_VehiclePropulsionProfileProtos_Traits_idx");
+
+                    b.HasIndex("VehicleMovementProfileProtoId")
+                        .HasDatabaseName("FK_VehiclePropulsionProfileProtos_MovementProfiles_idx");
+
+                    b.HasIndex("VehicleMovementProfileProtoId", "PropulsionType")
+                        .IsUnique()
+                        .HasDatabaseName("UX_VehiclePropulsionProfileProtos_Profile_Type");
+
+                    b.ToTable("VehiclePropulsionProfileProtos", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleProto", b =>
@@ -32230,6 +32329,12 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Vehicle", b =>
                 {
+                    b.HasOne("MudSharp.Models.VehiclePropulsionProfileProto", "ActivePropulsionProfileProto")
+                        .WithMany()
+                        .HasForeignKey("ActivePropulsionProfileProtoId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Vehicles_PropulsionProfileProtos");
+
                     b.HasOne("MudSharp.Models.Cell", "CurrentCell")
                         .WithMany()
                         .HasForeignKey("CurrentCellId")
@@ -32266,6 +32371,8 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Vehicles_VehicleProtos");
+
+                    b.Navigation("ActivePropulsionProfileProto");
 
                     b.Navigation("CurrentCell");
 
@@ -32694,6 +32801,24 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.VehicleOccupantSlotProto", b =>
                 {
+                    b.HasOne("MudSharp.Models.RangedCover", "AboveRangedCover")
+                        .WithMany()
+                        .HasForeignKey("AboveRangedCoverId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleOccupantSlotProtos_AboveCover");
+
+                    b.HasOne("MudSharp.Models.RangedCover", "BelowRangedCover")
+                        .WithMany()
+                        .HasForeignKey("BelowRangedCoverId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleOccupantSlotProtos_BelowCover");
+
+                    b.HasOne("MudSharp.Models.RangedCover", "SameLevelRangedCover")
+                        .WithMany()
+                        .HasForeignKey("SameLevelRangedCoverId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleOccupantSlotProtos_SameLevelCover");
+
                     b.HasOne("MudSharp.Models.VehicleCompartmentProto", "VehicleCompartmentProto")
                         .WithMany()
                         .HasForeignKey("VehicleCompartmentProtoId")
@@ -32708,9 +32833,35 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_VehicleOccupantSlotProtos_VehicleProtos");
 
+                    b.Navigation("AboveRangedCover");
+
+                    b.Navigation("BelowRangedCover");
+
+                    b.Navigation("SameLevelRangedCover");
+
                     b.Navigation("VehicleCompartmentProto");
 
                     b.Navigation("VehicleProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehiclePropulsionProfileProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.TraitDefinition", "PropulsionTraitDefinition")
+                        .WithMany()
+                        .HasForeignKey("PropulsionTraitDefinitionId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehiclePropulsionProfileProtos_Traits");
+
+                    b.HasOne("MudSharp.Models.VehicleMovementProfileProto", "VehicleMovementProfileProto")
+                        .WithMany("PropulsionProfiles")
+                        .HasForeignKey("VehicleMovementProfileProtoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehiclePropulsionProfileProtos_MovementProfiles");
+
+                    b.Navigation("PropulsionTraitDefinition");
+
+                    b.Navigation("VehicleMovementProfileProto");
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleProto", b =>
@@ -35114,6 +35265,11 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.VehicleDamageZoneProto", b =>
                 {
                     b.Navigation("Effects");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleMovementProfileProto", b =>
+                {
+                    b.Navigation("PropulsionProfiles");
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleProto", b =>

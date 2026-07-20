@@ -5,6 +5,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Scheduling;
 using MudSharp.RPG.Checks;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat.Moves;
 
@@ -76,7 +77,7 @@ public class UnbalancingBlowUnarmedMove : NaturalAttackMove
                 {
                     Target.OutputHandler.Handle(new EmoteOutput(new Emote("@ are|is knocked prone by the attack!",
                         Target)));
-                    Target.DoCombatKnockdown();
+					Target.DoCombatKnockdown(cr.Outcome.FailureDegrees(), VehicleCombatDisplacementType.Unbalance);
                     Gameworld.Scheduler.DelayScheduleType(Target, ScheduleType.Combat,
                         TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("UnbalancingBlowReelTimeMinorFailure")));
                     Target.AddEffect(new Staggered(Target),
@@ -90,7 +91,7 @@ public class UnbalancingBlowUnarmedMove : NaturalAttackMove
                 {
                     Target.OutputHandler.Handle(
                         new EmoteOutput(new Emote("@ are|is sent sprawling to the ground by the attack!", Target)));
-                    Target.DoCombatKnockdown();
+					Target.DoCombatKnockdown(cr.Outcome.FailureDegrees(), VehicleCombatDisplacementType.Unbalance);
                     Gameworld.Scheduler.DelayScheduleType(Target, ScheduleType.Combat,
                         TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("UnbalancingBlowReelTimeFailure")));
                     Target.AddEffect(new Staggered(Target),
@@ -104,7 +105,7 @@ public class UnbalancingBlowUnarmedMove : NaturalAttackMove
                 {
                     Target.OutputHandler.Handle(
                         new EmoteOutput(new Emote("@ are|is sent sprawling to the ground by the attack!", Target)));
-                    Target.DoCombatKnockdown();
+					Target.DoCombatKnockdown(cr.Outcome.FailureDegrees(), VehicleCombatDisplacementType.Unbalance);
                     Gameworld.Scheduler.DelayScheduleType(Target, ScheduleType.Combat,
                         TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("UnbalancingBlowReelTimeMajorFailure")));
                     Target.AddEffect(new Staggered(Target),

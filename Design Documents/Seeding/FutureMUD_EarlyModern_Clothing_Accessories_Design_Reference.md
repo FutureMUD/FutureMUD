@@ -1,52 +1,60 @@
 # FutureMUD Early Modern Clothing and Accessories Design Reference
 
-> First-pass civilian outfit and item catalogue. Full descriptions are intentionally deferred.
+> Civilian first pass and military-uniform second pass. Full descriptions are intentionally deferred.
 
 ## Executive summary
 
-- Master-table cultures covered: **35**. The `Global maritime and chartered-company trade` overlay is deliberately deferred.
-- Complete civilian outfit manifests: **350** — **175 male** and **175 female**.
-- Unique item references used: **317** across **2551 outfit placements**.
-- Item-reference disposition: **133 new Early Modern prototypes**, **181 explicit Renaissance survivals/admissions**, and **3 implemented shared pre-industrial aliases**.
-- Scope is limited to rural and urban commoners, artisans, market workers, merchants, clerks, learned professionals, and bourgeois or locally equivalent prosperous households.
-- Military dress, uniforms, liveries, officer dress, court regalia, royal dress, aristocratic/noble dress, and the global-maritime overlay are outside this first pass.
-- Every outfit is authored as a complete wearable set rather than a one- or two-piece suggestion. Every manifest contains an upper-body garment, a lower- or full-body garment, footwear, and headwear or a head covering.
+- Master-table culture families covered: **36**. The global-maritime and chartered-company overlay is now included through officer and command dress.
+- Complete outfit manifests: **570** — **350 civilian** first-pass outfits and **220 military/naval** second-pass outfits.
+- The civilian pass retains its balanced **175 male / 175 female** manifest labels. Military role labels are deliberately ungendered.
+- Unique item references in this authority: **451** across **4423 outfit placements**.
+- Item-reference disposition: **266 new Early Modern prototypes**, **181 explicit Renaissance survivals/admissions**, and **4 implemented shared pre-industrial aliases**.
+- Second-pass military coverage uses **305** unique stable references across **1872** placements and adds **133** new uniform or appointment-accessory prototypes.
+- Regulated line, grenadier, dragoon, marine, artillery, and naval dress is represented where historically appropriate. Other cultures receive coherent guard, militia, retinue, martial, or command outfits without falsely implying European-style mass uniformity.
+- The clothing authority owns garments and worn rank/service accessories. Firearms, ammunition, armour, weapons, standards, instruments, naval stores, and other military equipment remain in `FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md`.
+- Every outfit is authored as a complete wearable set rather than a one- or two-piece suggestion.
 
 ## Scope and era model
 
 - Era token: `EarlyModern`.
 - Chronological band: approximately 1600-1750 CE, interpreted through the date and culture anchors in the Early Modern master reference rather than as one universal year.
-- Public item wording remains form-based and in-world. Historical culture labels occur only in builder-facing headings and notes.
-- Local names, colours, weave patterns, embroidery, trim, household marks, guild marks, maker marks, imported-textile presentation, and most status distinctions belong in skins.
-- Culture-family entries are coverage buckets, not assertions that an entire region wore one uniform style. Broad entries such as West African, Indigenous North American, Mesoamerican, Andean, South-east Asian, and colonial/contact families require a narrower local manifest before shop or craft placement.
-- Contact and colonial outfits must identify whether each adopted form is local continuity, imported, locally made from imported cloth, imposed, mission-associated, or genuinely hybrid. Clothing alone must not be used to infer legal status, ethnicity, enslavement, freedom, or cultural assimilation.
+- Public item wording remains form-based and in-world. Historical culture, polity, corps, and institution labels occur only in builder-facing headings and notes unless a term is itself a useful garment-form name.
+- Local names, colours, weave patterns, embroidery, trim, household marks, guild marks, maker marks, regimental or company marks, imported-textile presentation, and most rank distinctions belong in skins.
+- The civilian first pass covers rural and urban commoners, artisans, market workers, merchants, clerks, learned professionals, and bourgeois or locally equivalent households.
+- The military second pass covers regulated uniforms where they existed and coherent service, guard, retinue, militia, martial, marine, artillery, and command dress elsewhere. Catalogue presence does not prove universal issue or prevalence.
+- This document covers clothing and worn appointment accessories, including generic gorgets, epaulettes, shoulder knots, sashes, badges, cords, crossbelts, and sword belts. It does not author firearms, ammunition, armour harness, weapons, drums, standards, naval stores, or shipboard equipment.
+- Culture-family entries are coverage buckets, not assertions that an entire region shared one clothing or uniform system. Broad entries require a narrower local manifest before shop, craft, unit, or institutional placement.
+- Contact and colonial outfits must identify whether each adopted form is local continuity, imported, locally made from imported cloth, imposed, mission-associated, company-issued, diplomatic, or genuinely hybrid. Clothing alone must not be used to infer legal status, ethnicity, enslavement, freedom, military allegiance, or cultural assimilation.
 
 ## Relationship to shared and earlier-era catalogues
 
 - The implemented `preindustrial_clothing_*` belt and sash aliases are reused directly; they are not cloned under Early Modern references.
 - Renaissance stable references are admitted only where the underlying construction remains credible after 1600. An implementation should ensure each admitted source row idempotently rather than invoking the entire Renaissance branch.
-- A distinct `earlymodern_*` row is created where the silhouette, layering, primary material, component profile, production method, or culturally useful builder anchor changes.
-- Cross-era reuse is an admission decision, not a claim of equal prevalence. Culture manifests, shops, crafts, professions, climate, and local world-building govern availability.
+- A distinct `earlymodern_*` row is created where the silhouette, layering, primary material, component profile, production method, institutional role, or culturally useful builder anchor changes.
+- Cross-era reuse is an admission decision, not a claim of equal prevalence. Culture manifests, shops, crafts, units, professions, climate, date, and local world-building govern availability.
+- `FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md` remains the authority for firearms, ammunition, armour, weapons, standards, drums, naval stores, and other combat or shipboard equipment. This clothing reference is the authority for complete uniform manifests and the garments or worn appointment accessories inside them.
 
-## First-pass authoring contract
+## Catalogue authoring contract
 
 All catalogue rows in this document use the following shared implementation assumptions unless a later implementation note overrides them:
 
 - ordinary portable inventory item: `Holdable`;
-- finished clothing damage profile: `Destroyable_Clothing`;
+- finished textile or leather clothing damage profile: `Destroyable_Clothing`; small metal appointment accessories may use `Destroyable_Misc`;
 - exactly one wearable profile per item;
-- one clothing armour profile and one insulation profile;
+- one clothing armour profile and one insulation profile under the established historical-clothing convention;
 - an exact colour-variable component whenever `$colour`, `$colour1`, or `$colour2` appears in the sdesc;
 - `skinnable = true`, `hideFromPlayers = false`, `ldesc = null`;
 - no morph target, morph echo, morph timer, or destroyed-item reference;
 - cost is denominated in farthings;
-- no full description in this pass.
+- no full description in either pass.
 
-New Early Modern rows use `Era / Early Modern Era`. Reused Renaissance and pre-industrial references retain their source-era tag and are admitted by these outfit manifests. All market tags are exact live paths under `Market / Clothing`.
+New Early Modern civilian rows use `Era / Early Modern Era` plus live clothing market tags. New military-uniform rows additionally use `Functions / Military Equipment` and `Market / Clothing / Military Uniforms`. Reused Renaissance and pre-industrial references retain their source-era tags and are admitted by the outfit manifests rather than retagged or cloned.
 
 ## Dependency ledger
 
-Two new **Wearable component prototypes** are required: `Wear_Stays` and `Wear_Breeches`. No new component type and no new material are required. Their exact requirements, usage, and layering constraints are maintained in [FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Ledger.md](./FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Ledger.md). This first pass assumes both profiles will be seeded before item creation.
+The civilian first pass requires the two planned wearable profiles `Wear_Stays` and `Wear_Breeches`. The military second pass requires **no additional component type, seeded component prototype, or material**.
+
+The second pass uses existing exact wearable profiles for gorgets, epaulettes, paired shoulder pieces, badges, shoulder cords, bandoliers, sashes, waist belts, coats, robes, trousers, footwear, and headwear. Exact requirements and the unchanged two-item dependency list are maintained in [FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Ledger.md](./FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Ledger.md).
 
 ## Culture coverage and admission notes
 
@@ -88,7 +96,7 @@ Two new **Wearable component prototypes** are required: `Wear_Stays` and `Wear_B
 | 34 | Andean colonial and Indigenous | Andean colonial and Indigenous civilian clothing, c. 1600-1750, pairing camelid-textile continuities with locally adopted colonial forms. Each implementation must record community, altitude, season, and contact context. |
 | 35 | Caribbean / Atlantic plantation | Caribbean and Atlantic plantation-zone civilian clothing, c. 1600-1750, including local Caribbean, African-diasporic, and European-derived forms. Clothing does not encode legal status; local manifests must explicitly record free, enslaved, Indigenous, African, European, and mixed contexts. |
 
-## Outfit manifests
+## First-pass civilian outfit manifests
 
 The following manifests are builder-facing. They are ordered one outfit at a time and reference only items listed in the catalogue below. Repeated stable references are intentional reuse, not missing rows.
 
@@ -3833,7 +3841,3141 @@ The following manifests are builder-facing. They are ordered one outfit at a tim
 - `earlymodern_spanishcolonial_clothing_cotton_shoulder_wrap` — a long $colour cotton shoulder wrap
 - `renaissance_shared_clothing_leather_gloves` — a pair of leather gloves
 
-## Item catalogue
+## Second-pass military uniform and naval-officer manifests
+
+### Scope and interpretation
+
+- Culture families covered: **36**, including the previously deferred global-maritime overlay.
+- Complete military, guard, militia, marine, and officer outfits: **220**.
+- Item placements: **1872** across **305** unique stable references.
+- New second-pass prototypes: **133**; every new row is used by at least one complete manifest.
+- “Uniform” means regulated state dress where such regulation existed. Elsewhere it means a coherent service, guard, retinue, militia, martial, or command outfit; it does not assert mass standardisation.
+- Military role headings are builder-facing and intentionally not gendered. The item rows themselves remain form-based and mechanically wearable wherever their body and layering profile permits.
+- These manifests cover clothing and worn appointment accessories only. Firearms, ammunition, armour, weapons, standards, drums, naval stores, and other combat equipment remain in the military/firearms/naval authority.
+- Exact unit colours, facings, braid, lace, heraldry, company marks, dynastic signs, rank animals, badges, and personal honours belong in skins or narrower local manifests.
+- Broad African, Asian, Indigenous American, colonial, and contact-zone buckets require a narrower polity, community, ecology, date, and institutional admission before implementation.
+
+### Generic appointment-accessory policy
+
+The generic gorget, epaulettes, shoulder knots, sashes, badges, cords, crossbelt, sword belt, and command scarf below are complete player-facing items rather than placeholders. Their base descriptions name visible form and construction; skins carry the exact rank, unit, service, company, heraldic, dynastic, or shipboard identity.
+
+### 1. French / Baroque court and urban
+
+> French-facing military dress, c. 1650-1750. Regimental colour, lace, buttons, facing colour, household devices, and exact rank distinctions remain skins; the manifests distinguish line, grenadier, mounted, technical, marine, and naval-officer silhouettes.
+
+#### Military outfit 001 — French line fusilier
+
+*Design focus:* Long state-service coat, waistcoat, knee breeches, gaiters, crossbelt, and cocked hat.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_leather_neck_stock` — a stiff black leather neck stock
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+
+#### Military outfit 002 — French grenadier
+
+*Design focus:* Tall mitre-front cap and long coat distinguish a grenadier company without hard-coding regimental emblems.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_leather_neck_stock` — a stiff black leather neck stock
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_mitre_grenadier_cap` — a tall $colour cloth grenadier cap
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+
+#### Military outfit 003 — French dragoon
+
+*Design focus:* Split-skirt riding coat, high boots, dragoon cap, and sword belt form a mounted service outfit.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `renaissance_shared_clothing_high_riding_boots` — a pair of high leather boots
+- `earlymodern_western_military_split_skirt_riding_coat` — a split-skirt $colour riding coat
+- `earlymodern_western_military_dragoon_cap` — a tall $colour wool dragoon cap
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_braided_shoulder_cord` — a braided $colour shoulder cord
+
+#### Military outfit 004 — French artillery officer
+
+*Design focus:* Officer coat, shoulder knots, gorget, sash, and sword belt mark a technical command appointment.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_officer_frock_coat` — a finely laced $colour officer's coat
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_rank_braided_shoulder_knots` — a pair of braided $colour shoulder knots
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 005 — French marine officer
+
+*Design focus:* Short marine coat and practical gaiters retain shore-service utility while rank is carried by detachable accessories.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_marine_short_coat` — a short-skirted $colour marine coat
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+
+#### Military outfit 006 — French naval officer
+
+*Design focus:* Fine long naval coat and dress waistcoat represent an officer after regulated naval dress began to emerge.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_naval_officer_dress_waistcoat` — a fine $colour naval waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_officer_dress_coat` — a long $colour naval officer's coat
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_military_rank_paired_fringed_epaulettes` — a pair of fringed $colour epaulettes
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+### 2. Dutch Republic / Low Countries
+
+> Dutch and Low Countries military dress, c. 1600-1720, spanning company-era infantry, later state troops, mounted officers, garrison specialists, marines, and naval command. Company, province, and admiralty distinctions belong in skins.
+
+#### Military outfit 007 — Dutch company musketeer
+
+*Design focus:* Earlier seventeenth-century buff coat, full canvas breeches, broad hat, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_buff_leather_coat` — a heavy buff leather coat
+- `earlymodern_dutch_clothing_full_canvas_breeches` — a pair of full $colour canvas breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `renaissance_shared_clothing_felt_brimmed_hat` — a $colour brimmed felt hat
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+- `preindustrial_clothing_plain_leather_belt` — a plain leather belt
+
+#### Military outfit 008 — Dutch state infantryman
+
+*Design focus:* Later long coat, fitted waistcoat, full breeches, gaiters, and cocked service hat.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_dutch_clothing_full_canvas_breeches` — a pair of full $colour canvas breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+
+#### Military outfit 009 — Dutch grenadier
+
+*Design focus:* Tall cloth cap and service sash create a grenadier variant without fixed badge work.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_mitre_grenadier_cap` — a tall $colour cloth grenadier cap
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+
+#### Military outfit 010 — Dutch cavalry officer
+
+*Design focus:* Split riding coat, high boots, sword belt, officer sash, and single shoulder appointment mark.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `renaissance_shared_clothing_high_riding_boots` — a pair of high leather boots
+- `earlymodern_western_military_split_skirt_riding_coat` — a split-skirt $colour riding coat
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+
+#### Military outfit 011 — Dutch marine
+
+*Design focus:* Short marine coat, neck stock, gaiters, and broad crossbelt support shipboard and shore fighting.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_marine_short_coat` — a short-skirted $colour marine coat
+- `earlymodern_western_military_leather_neck_stock` — a stiff black leather neck stock
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+
+#### Military outfit 012 — Dutch naval officer
+
+*Design focus:* Practical undress frock and shipboard waistcoat suit a watch-standing officer; exact admiralty colours are skins.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_globalmaritime_officer_shipboard_waistcoat` — a plain $colour shipboard officer's waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_officer_undress_frock` — a plain $colour naval officer's frock
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+
+### 3. English / British Stuart-Georgian
+
+> British-facing military dress, c. 1600-1750, deliberately includes an earlier civil-war musketeer, later regular infantry and grenadiers, mounted service, marines, and the post-1748 naval-officer silhouette. Regimental and royal marks remain skins.
+
+#### Military outfit 013 — British civil-war musketeer
+
+*Design focus:* Buff coat, knee breeches, stockings, broad felt hat, sword belt, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_buff_leather_coat` — a heavy buff leather coat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_broad_service_bonnet` — a broad $colour wool military bonnet
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 014 — British regular infantryman
+
+*Design focus:* Long coat, waistcoat, gaiters, leather neck stock, crossbelt, and cocked hat.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_western_military_leather_neck_stock` — a stiff black leather neck stock
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+
+#### Military outfit 015 — British grenadier
+
+*Design focus:* Fur-fronted cap, long coat, gaiters, crossbelt, and service sash distinguish a grenadier company.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_fur_grenadier_cap` — a tall fur-fronted grenadier cap
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+
+#### Military outfit 016 — British dragoon officer
+
+*Design focus:* Split riding coat, high boots, dragoon cap, sash, sword belt, and shoulder cord.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `renaissance_shared_clothing_high_riding_boots` — a pair of high leather boots
+- `earlymodern_western_military_split_skirt_riding_coat` — a split-skirt $colour riding coat
+- `earlymodern_western_military_dragoon_cap` — a tall $colour wool dragoon cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_braided_shoulder_cord` — a braided $colour shoulder cord
+
+#### Military outfit 017 — British marine officer
+
+*Design focus:* Short marine coat, cocked hat, gorget, crossbelt, and single epaulette.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_marine_short_coat` — a short-skirted $colour marine coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+
+#### Military outfit 018 — British naval officer
+
+*Design focus:* Fine naval coat and dress waistcoat with paired shoulder appointments and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_naval_officer_dress_waistcoat` — a fine $colour naval waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_officer_dress_coat` — a long $colour naval officer's coat
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_military_rank_paired_fringed_epaulettes` — a pair of fringed $colour epaulettes
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+### 4. Iberian / Portuguese-Spanish empires
+
+> Iberian military dress, c. 1600-1750, covers tercios-era survivals, later line troops, mounted frontier service, fortress artillery, marines, and blue-water command. Exact crown, order, and colonial identifiers are skins.
+
+#### Military outfit 019 — Iberian early musketeer
+
+*Design focus:* Buff coat, broad-crowned hat, knee breeches, crossbelt, and sword belt retain an early-century silhouette.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_buff_leather_coat` — a heavy buff leather coat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_iberian_clothing_broad_crowned_felt_hat` — a broad-crowned $colour felt hat
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 020 — Iberian line infantryman
+
+*Design focus:* Long uniform coat, waistcoat, gaiters, cocked hat, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+
+#### Military outfit 021 — Iberian frontier cavalry officer
+
+*Design focus:* Split riding coat, high boots, broad hat, sash, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `renaissance_shared_clothing_high_riding_boots` — a pair of high leather boots
+- `earlymodern_western_military_split_skirt_riding_coat` — a split-skirt $colour riding coat
+- `earlymodern_iberian_clothing_broad_crowned_felt_hat` — a broad-crowned $colour felt hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_braided_shoulder_cord` — a braided $colour shoulder cord
+
+#### Military outfit 022 — Iberian fortress artillery officer
+
+*Design focus:* Officer frock, shoulder knots, gorget, sash, and cocked hat.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_officer_frock_coat` — a finely laced $colour officer's coat
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_rank_braided_shoulder_knots` — a pair of braided $colour shoulder knots
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 023 — Iberian marine officer
+
+*Design focus:* Short marine coat, cape, crossbelt, gorget, and cocked hat.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_marine_short_coat` — a short-skirted $colour marine coat
+- `earlymodern_iberian_clothing_short_wool_cape` — a short $colour wool cape
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+
+#### Military outfit 024 — Iberian naval officer
+
+*Design focus:* Long naval coat, dress waistcoat, cocked hat, paired epaulettes, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_naval_officer_dress_waistcoat` — a fine $colour naval waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_officer_dress_coat` — a long $colour naval officer's coat
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_military_rank_paired_fringed_epaulettes` — a pair of fringed $colour epaulettes
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+### 5. German / HRE / Austrian
+
+> Central-European military dress, c. 1600-1750, ranges from earlier buff-coated service to line infantry, grenadiers, cuirassier-adjacent riding dress, hussar-influenced light cavalry, and technical officers. State and regiment distinctions are skins.
+
+#### Military outfit 025 — Imperial early musketeer
+
+*Design focus:* Buff coat, leather knee breeches, round hat, crossbelt, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_buff_leather_coat` — a heavy buff leather coat
+- `earlymodern_centraleuropean_clothing_leather_knee_breeches` — a pair of leather knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_centraleuropean_clothing_round_felt_hat` — a round-crowned $colour felt hat
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 026 — Central-European line infantryman
+
+*Design focus:* Long coat, fitted waistcoat, gaiters, neck stock, crossbelt, and cocked hat.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_western_military_leather_neck_stock` — a stiff black leather neck stock
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+
+#### Military outfit 027 — Central-European grenadier
+
+*Design focus:* Tall fur-fronted cap and long state-service coat with service sash.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_fur_grenadier_cap` — a tall fur-fronted grenadier cap
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+
+#### Military outfit 028 — Central-European cuirassier officer
+
+*Design focus:* Buff coat beneath a split riding coat, high boots, sword belt, and officer sash.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_buff_leather_coat` — a heavy buff leather coat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `renaissance_shared_clothing_high_riding_boots` — a pair of high leather boots
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+
+#### Military outfit 029 — Hungarian-style hussar
+
+*Design focus:* Braided dolman, fur-trimmed shoulder pelisse, wide trousers, boots, fur cap, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_frontier_military_braided_dolman` — a braided $colour military dolman
+- `renaissance_frontier_wide_hungarian_trousers` — a pair of wide $colour wool trousers
+- `renaissance_frontier_split_skirt_riding_boots` — a pair of stiff high leather boots
+- `earlymodern_frontier_military_fur_trimmed_pelisse` — a fur-trimmed $colour shoulder pelisse
+- `earlymodern_frontier_military_tall_fur_cap` — a tall cylindrical fur military cap
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_braided_shoulder_cord` — a braided $colour shoulder cord
+
+#### Military outfit 030 — Imperial artillery officer
+
+*Design focus:* Officer coat, high felt service cap, shoulder knots, gorget, sash, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_officer_frock_coat` — a finely laced $colour officer's coat
+- `earlymodern_western_military_high_felt_service_cap` — a high-crowned $colour felt service cap
+- `earlymodern_military_rank_braided_shoulder_knots` — a pair of braided $colour shoulder knots
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+### 6. Italian states
+
+> Italian-state military clothing, c. 1600-1750, distinguishes urban guards, line troops, mounted officers, fortress artillery, Venetian-facing marines, and naval officers. Papal, ducal, republican, and maritime-state devices belong in skins.
+
+#### Military outfit 031 — Italian urban guard
+
+*Design focus:* Short service coat, fitted waistcoat, broad felt hat, crossbelt, and stamped badge.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_short_service_coat` — a short $colour military coat
+- `renaissance_shared_clothing_felt_brimmed_hat` — a $colour brimmed felt hat
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+- `earlymodern_military_rank_brass_breast_badge` — a stamped brass breast badge
+
+#### Military outfit 032 — Italian line infantryman
+
+*Design focus:* Long uniform coat, gaiters, neck stock, crossbelt, and cocked hat.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_western_military_leather_neck_stock` — a stiff black leather neck stock
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+
+#### Military outfit 033 — Italian cavalry officer
+
+*Design focus:* Light split-skirt riding coat, high boots, sash, sword belt, and single epaulette.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `renaissance_shared_clothing_high_riding_boots` — a pair of high leather boots
+- `earlymodern_western_military_split_skirt_riding_coat` — a split-skirt $colour riding coat
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+
+#### Military outfit 034 — Italian fortress artillery officer
+
+*Design focus:* Officer frock, shoulder knots, gorget, sword belt, and broad-crowned hat.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_officer_frock_coat` — a finely laced $colour officer's coat
+- `earlymodern_iberian_clothing_broad_crowned_felt_hat` — a broad-crowned $colour felt hat
+- `earlymodern_military_rank_braided_shoulder_knots` — a pair of braided $colour shoulder knots
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 035 — Italian marine officer
+
+*Design focus:* Short marine coat, short cape, crossbelt, cocked hat, and gorget.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_marine_short_coat` — a short-skirted $colour marine coat
+- `earlymodern_iberian_clothing_short_wool_cape` — a short $colour wool cape
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+
+#### Military outfit 036 — Venetian-facing naval officer
+
+*Design focus:* Fine naval coat, dress waistcoat, cocked hat, shoulder cord, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_naval_officer_dress_waistcoat` — a fine $colour naval waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_officer_dress_coat` — a long $colour naval officer's coat
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_military_rank_braided_shoulder_cord` — a braided $colour shoulder cord
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+### 7. Scandinavian / Baltic
+
+> Scandinavian and Baltic military dress, c. 1600-1750, covers line infantry, grenadiers, mounted officers, cold-weather guards, artillery command, and naval officers. National and provincial colour systems are skins.
+
+#### Military outfit 037 — Northern line infantryman
+
+*Design focus:* Long coat, wool knee breeches, gaiters, neck stock, crossbelt, and cocked hat.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_northern_clothing_wool_knee_breeches` — a pair of $colour wool knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_western_military_leather_neck_stock` — a stiff black leather neck stock
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+
+#### Military outfit 038 — Northern grenadier
+
+*Design focus:* Tall cloth cap, long uniform coat, gaiters, and service sash.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_northern_clothing_wool_knee_breeches` — a pair of $colour wool knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_mitre_grenadier_cap` — a tall $colour cloth grenadier cap
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+
+#### Military outfit 039 — Northern cavalry officer
+
+*Design focus:* Fur-lined military coat, high boots, cocked hat, sword belt, and officer sash.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `renaissance_shared_clothing_high_riding_boots` — a pair of high leather boots
+- `earlymodern_northern_clothing_fur_lined_wool_coat` — a $colour fur-lined wool coat
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+
+#### Military outfit 040 — Baltic cold-weather guard
+
+*Design focus:* Fur-lined coat, knitted cap, mittens, heavy stockings, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_northern_clothing_wool_knee_breeches` — a pair of $colour wool knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `renaissance_frontier_felted_winter_boots` — a pair of felted winter boots
+- `earlymodern_northern_clothing_fur_lined_wool_coat` — a $colour fur-lined wool coat
+- `earlymodern_northern_clothing_knitted_wool_cap` — a $colour knitted wool cap
+- `earlymodern_northern_clothing_wool_mittens` — a pair of $colour wool mittens
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+
+#### Military outfit 041 — Northern artillery officer
+
+*Design focus:* Officer coat, high felt cap, shoulder knots, gorget, sash, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_officer_frock_coat` — a finely laced $colour officer's coat
+- `earlymodern_western_military_high_felt_service_cap` — a high-crowned $colour felt service cap
+- `earlymodern_military_rank_braided_shoulder_knots` — a pair of braided $colour shoulder knots
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 042 — Scandinavian naval officer
+
+*Design focus:* Heavy watch coat, shipboard waistcoat, cocked hat, gloves, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_globalmaritime_officer_shipboard_waistcoat` — a plain $colour shipboard officer's waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_heavy_watch_coat` — a heavy $colour shipboard watch coat
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `renaissance_shared_clothing_leather_gloves` — a pair of leather gloves
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+
+### 8. Polish-Lithuanian / Hungarian frontier
+
+> Frontier military dress, c. 1600-1750, is treated as a family of infantry, cavalry, household-retainer, fortress, and command outfits rather than one national uniform. Braiding, fur, unit colours, devices, and magnate associations remain skins.
+
+#### Military outfit 043 — Frontier haiduk infantryman
+
+*Design focus:* Close-buttoned long coat, wide trousers, high boots, folded cap, sash, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `renaissance_frontier_close_buttoned_longcoat` — a close-buttoned $colour long coat
+- `renaissance_frontier_wide_hungarian_trousers` — a pair of wide $colour wool trousers
+- `renaissance_frontier_split_skirt_riding_boots` — a pair of stiff high leather boots
+- `earlymodern_frontier_military_folded_felt_cap` — a folded $colour felt frontier cap
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 044 — Frontier hussar
+
+*Design focus:* Braided dolman, fur-trimmed shoulder pelisse, wide trousers, riding boots, tall fur cap, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_frontier_military_braided_dolman` — a braided $colour military dolman
+- `renaissance_frontier_wide_hungarian_trousers` — a pair of wide $colour wool trousers
+- `renaissance_frontier_split_skirt_riding_boots` — a pair of stiff high leather boots
+- `earlymodern_frontier_military_fur_trimmed_pelisse` — a fur-trimmed $colour shoulder pelisse
+- `earlymodern_frontier_military_tall_fur_cap` — a tall cylindrical fur military cap
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_braided_shoulder_cord` — a braided $colour shoulder cord
+
+#### Military outfit 045 — Frontier mounted retainer
+
+*Design focus:* Split-skirt cavalry caftan, wide riding trousers, high boots, folded felt cap, and broad sash.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_frontier_military_split_skirt_cavalry_caftan` — a split-skirt $colour cavalry caftan
+- `renaissance_frontier_wide_hungarian_trousers` — a pair of wide $colour wool trousers
+- `renaissance_frontier_split_skirt_riding_boots` — a pair of stiff high leather boots
+- `earlymodern_frontier_military_folded_felt_cap` — a folded $colour felt frontier cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 046 — Frontier musketeer
+
+*Design focus:* Short dolman, wide trousers, high boots, folded cap, crossbelt, and service sash.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_frontier_military_braided_dolman` — a braided $colour military dolman
+- `renaissance_frontier_wide_hungarian_trousers` — a pair of wide $colour wool trousers
+- `renaissance_frontier_split_skirt_riding_boots` — a pair of stiff high leather boots
+- `earlymodern_frontier_military_folded_felt_cap` — a folded $colour felt frontier cap
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+
+#### Military outfit 047 — Frontier cavalry officer
+
+*Design focus:* Split-skirt caftan, shoulder pelisse, tall fur cap, silk sash, sword belt, and command scarf.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_frontier_military_split_skirt_cavalry_caftan` — a split-skirt $colour cavalry caftan
+- `renaissance_frontier_wide_hungarian_trousers` — a pair of wide $colour wool trousers
+- `renaissance_frontier_split_skirt_riding_boots` — a pair of stiff high leather boots
+- `earlymodern_frontier_military_fur_trimmed_pelisse` — a fur-trimmed $colour shoulder pelisse
+- `earlymodern_frontier_military_tall_fur_cap` — a tall cylindrical fur military cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+#### Military outfit 048 — Frontier fortress artillery officer
+
+*Design focus:* Long buttoned coat, narrow trousers, boots, high service cap, gorget, shoulder knots, and sash.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `renaissance_frontier_close_buttoned_longcoat` — a close-buttoned $colour long coat
+- `earlymodern_russian_clothing_narrow_wool_trousers` — a pair of narrow $colour wool trousers
+- `earlymodern_russian_clothing_high_leather_boots` — a pair of high leather boots
+- `earlymodern_western_military_high_felt_service_cap` — a high-crowned $colour felt service cap
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_braided_shoulder_knots` — a pair of braided $colour shoulder knots
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+### 9. Russian / Petrine and post-Petrine
+
+> Russian military dress, c. 1600-1750, explicitly shows the shift from long-lived streltsy service clothing to Petrine westernising uniforms, while retaining separate dragoon, grenadier, and naval command variants.
+
+#### Military outfit 049 — Streltsy musketeer
+
+*Design focus:* Long rubakha, narrow trousers, high boots, long service coat, tall guard cap, broad sash, and crossbelt.
+
+- `earlymodern_russian_clothing_long_linen_rubakha` — a long $colour linen shirt
+- `earlymodern_russian_clothing_narrow_wool_trousers` — a pair of narrow $colour wool trousers
+- `earlymodern_russian_clothing_high_leather_boots` — a pair of high leather boots
+- `earlymodern_russian_military_streltsy_service_coat` — a long $colour guard service coat
+- `earlymodern_russian_military_tall_guard_cap` — a tall $colour wool guard cap
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 050 — Streltsy officer
+
+*Design focus:* Long service coat and tall cap with silk sash, sword belt, command scarf, and embroidered appointment badge.
+
+- `earlymodern_russian_clothing_long_linen_rubakha` — a long $colour linen shirt
+- `earlymodern_russian_clothing_narrow_wool_trousers` — a pair of narrow $colour wool trousers
+- `earlymodern_russian_clothing_high_leather_boots` — a pair of high leather boots
+- `earlymodern_russian_military_streltsy_service_coat` — a long $colour guard service coat
+- `earlymodern_russian_military_tall_guard_cap` — a tall $colour wool guard cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 051 — Petrine line infantryman
+
+*Design focus:* Western-cut long coat, waistcoat, breeches, stockings, gaiters, crossbelt, and cocked hat.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+
+#### Military outfit 052 — Petrine grenadier
+
+*Design focus:* Long western coat, tall cloth cap, gaiters, crossbelt, and service sash.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_western_military_mitre_grenadier_cap` — a tall $colour cloth grenadier cap
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+
+#### Military outfit 053 — Russian dragoon officer
+
+*Design focus:* Split-skirt riding coat, high boots, dragoon cap, silk sash, sword belt, and shoulder cord.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_russian_clothing_high_leather_boots` — a pair of high leather boots
+- `earlymodern_western_military_split_skirt_riding_coat` — a split-skirt $colour riding coat
+- `earlymodern_western_military_dragoon_cap` — a tall $colour wool dragoon cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_braided_shoulder_cord` — a braided $colour shoulder cord
+
+#### Military outfit 054 — Russian Baltic naval officer
+
+*Design focus:* Heavy watch coat, shipboard waistcoat, cocked hat, gloves, epaulette, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_globalmaritime_officer_shipboard_waistcoat` — a plain $colour shipboard officer's waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_heavy_watch_coat` — a heavy $colour shipboard watch coat
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `renaissance_shared_clothing_leather_gloves` — a pair of leather gloves
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+### 10. Ottoman
+
+> Ottoman military dress, c. 1600-1750, distinguishes Janissary service, cavalry, artillery, provincial firearm troops, command, and naval-officer clothing. Corps marks, exact cap forms, braid, and colour placement remain skins or narrower date-gated variants.
+
+#### Military outfit 055 — Janissary infantryman
+
+*Design focus:* Long inner shirt, full trousers, pointed shoes, sleeveless service vest, long kaftan, tall white cap, and broad sash.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `renaissance_ottoman_full_salwar_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_ottoman_pointed_slippers` — a pair of pointed leather slippers
+- `earlymodern_ottoman_military_sleeveless_service_vest` — a fitted $colour sleeveless service vest
+- `earlymodern_ottoman_military_long_service_kaftan` — a long $colour military kaftan
+- `earlymodern_ottoman_military_tall_felt_service_cap` — a tall white felt service cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 056 — Janissary officer
+
+*Design focus:* Fine long kaftan and tall cap with silk sash, command scarf, sword belt, and embroidered badge.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `renaissance_ottoman_full_salwar_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_ottoman_pointed_slippers` — a pair of pointed leather slippers
+- `earlymodern_ottoman_military_long_service_kaftan` — a long $colour military kaftan
+- `earlymodern_ottoman_military_tall_felt_service_cap` — a tall white felt service cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 057 — Ottoman cavalryman
+
+*Design focus:* Braided cavalry jacket, full trousers, high riding boots, wrapped turban, sash, and sword belt.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `renaissance_ottoman_full_salwar_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_ottoman_military_braided_cavalry_jacket` — a close $colour braided cavalry jacket
+- `earlymodern_ottoman_military_wrapped_turban` — a compact $colour wrapped military turban
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 058 — Ottoman artilleryman
+
+*Design focus:* Long service kaftan, full trousers, rounded felt artillery cap, sash, and crossbelt.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `renaissance_ottoman_full_salwar_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_ottoman_pointed_slippers` — a pair of pointed leather slippers
+- `earlymodern_ottoman_military_long_service_kaftan` — a long $colour military kaftan
+- `earlymodern_ottoman_military_artillery_felt_cap` — a rounded $colour artillery felt cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 059 — Ottoman provincial musketeer
+
+*Design focus:* Short fitted coat, full trousers, compact military turban, broad sash, and crossbelt.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `renaissance_ottoman_full_salwar_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_ottoman_pointed_slippers` — a pair of pointed leather slippers
+- `renaissance_ottoman_short_entari_coat` — a short fitted $colour front-opening coat
+- `earlymodern_ottoman_military_wrapped_turban` — a compact $colour wrapped military turban
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 060 — Ottoman naval officer
+
+*Design focus:* Fine naval command kaftan, short service vest, full trousers, wrapped turban, silk sash, and sword belt.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `renaissance_ottoman_full_salwar_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_ottoman_pointed_slippers` — a pair of pointed leather slippers
+- `earlymodern_ottoman_military_sleeveless_service_vest` — a fitted $colour sleeveless service vest
+- `earlymodern_ottoman_naval_officer_command_kaftan` — a fine $colour naval command kaftan
+- `earlymodern_ottoman_military_wrapped_turban` — a compact $colour wrapped military turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+### 11. Maghrebi / North African
+
+> Maghrebi military clothing, c. 1600-1750, includes urban firearm troops, mounted service, corsair marines, coastal artillery, commanders, and naval officers. Local polity, port, tribal, and corsair-company identities require narrower skins and manifests.
+
+#### Military outfit 061 — Maghrebi urban musketeer
+
+*Design focus:* Long inner shirt, full trousers, short fitted caftan, round felt cap, slippers, sash, and crossbelt.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `earlymodern_maghrebi_clothing_full_cotton_trousers` — a pair of full $colour cotton trousers
+- `earlymodern_maghrebi_clothing_pointed_leather_slippers` — a pair of pointed leather slippers
+- `earlymodern_maghrebi_clothing_short_fitted_caftan` — a fitted $colour cotton caftan
+- `earlymodern_maghrebi_clothing_round_felt_cap` — a round $colour felt cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 062 — Maghrebi cavalryman
+
+*Design focus:* Short fitted caftan, full trousers, riding boots, compact turban, sash, and sword belt.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `earlymodern_maghrebi_clothing_full_cotton_trousers` — a pair of full $colour cotton trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_maghrebi_clothing_short_fitted_caftan` — a fitted $colour cotton caftan
+- `earlymodern_ottoman_military_wrapped_turban` — a compact $colour wrapped military turban
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 063 — Maghrebi corsair marine
+
+*Design focus:* Short corsair jacket, full trousers, slippers, round felt cap, crossbelt, and service sash.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `earlymodern_maghrebi_clothing_full_cotton_trousers` — a pair of full $colour cotton trousers
+- `earlymodern_maghrebi_clothing_pointed_leather_slippers` — a pair of pointed leather slippers
+- `earlymodern_maghrebi_military_corsair_jacket` — a short $colour corsair jacket
+- `earlymodern_maghrebi_clothing_round_felt_cap` — a round $colour felt cap
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+
+#### Military outfit 064 — Maghrebi coastal artilleryman
+
+*Design focus:* Hooded over-robe, full trousers, round felt cap, sash, and crossbelt for a cool-weather battery.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `earlymodern_maghrebi_clothing_full_cotton_trousers` — a pair of full $colour cotton trousers
+- `earlymodern_maghrebi_clothing_pointed_leather_slippers` — a pair of pointed leather slippers
+- `earlymodern_maghrebi_clothing_hooded_wool_djellaba` — a hooded $colour wool over-robe
+- `earlymodern_maghrebi_clothing_round_felt_cap` — a round $colour felt cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 065 — Maghrebi commander
+
+*Design focus:* Fitted command coat, full trousers, structured turban, silk sash, sword belt, and command scarf.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `earlymodern_maghrebi_clothing_full_cotton_trousers` — a pair of full $colour cotton trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_maghrebi_naval_officer_command_coat` — a fitted $colour naval command coat
+- `earlymodern_persianate_military_tall_turban` — a tall $colour structured military turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+#### Military outfit 066 — Maghrebi naval officer
+
+*Design focus:* Fitted naval command coat, short vest, full trousers, round cap, sash, sword belt, and embroidered appointment badge.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `earlymodern_maghrebi_clothing_full_cotton_trousers` — a pair of full $colour cotton trousers
+- `earlymodern_maghrebi_clothing_pointed_leather_slippers` — a pair of pointed leather slippers
+- `renaissance_ottoman_short_fitted_vest` — a short fitted $colour sleeveless vest
+- `earlymodern_maghrebi_naval_officer_command_coat` — a fitted $colour naval command coat
+- `earlymodern_maghrebi_clothing_round_felt_cap` — a round $colour felt cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 12. Safavid / post-Safavid Persianate
+
+> Persianate military dress, c. 1600-1750, covers firearm infantry, mounted service, household guards, artillery command, field officers, and coastal command. Courtly textile patterns and dynastic devices remain skins.
+
+#### Military outfit 067 — Persianate firearm infantryman
+
+*Design focus:* Long inner shirt, close trousers, quilted coat, round cap, boots, sash, and crossbelt.
+
+- `renaissance_persianate_long_inner_shirt` — a long $colour collarless inner shirt
+- `renaissance_persianate_close_ankle_trousers` — a pair of close $colour ankle trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_persianate_military_quilted_coat` — a quilted $colour military coat
+- `earlymodern_persianate_clothing_soft_round_cap` — a soft $colour cotton round cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 068 — Persianate cavalryman
+
+*Design focus:* Flared cavalry coat, wide trousers, high boots, structured turban, and sword belt.
+
+- `renaissance_persianate_long_inner_shirt` — a long $colour collarless inner shirt
+- `renaissance_persianate_wide_pleated_trousers` — a pair of wide pleated $colour wool trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_persianate_military_flared_cavalry_coat` — a flared $colour cavalry coat
+- `earlymodern_persianate_military_tall_turban` — a tall $colour structured military turban
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 069 — Persianate household guard
+
+*Design focus:* Quilted coat with long over-vest, close trousers, cap, boots, broad sash, and embroidered badge.
+
+- `renaissance_persianate_long_inner_shirt` — a long $colour collarless inner shirt
+- `renaissance_persianate_close_ankle_trousers` — a pair of close $colour ankle trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_persianate_military_quilted_coat` — a quilted $colour military coat
+- `earlymodern_persianate_military_guard_overvest` — a long $colour military over-vest
+- `earlymodern_persianate_clothing_soft_round_cap` — a soft $colour cotton round cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 070 — Persianate artillery officer
+
+*Design focus:* Flared coat, close trousers, tall turban, silk sash, command scarf, and embroidered appointment badge.
+
+- `renaissance_persianate_long_inner_shirt` — a long $colour collarless inner shirt
+- `renaissance_persianate_close_ankle_trousers` — a pair of close $colour ankle trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_persianate_military_flared_cavalry_coat` — a flared $colour cavalry coat
+- `earlymodern_persianate_military_tall_turban` — a tall $colour structured military turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 071 — Persianate field officer
+
+*Design focus:* Fine flared coat and guard over-vest with tall turban, sword belt, sash, and command scarf.
+
+- `renaissance_persianate_long_inner_shirt` — a long $colour collarless inner shirt
+- `renaissance_persianate_close_ankle_trousers` — a pair of close $colour ankle trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_persianate_military_flared_cavalry_coat` — a flared $colour cavalry coat
+- `earlymodern_persianate_military_guard_overvest` — a long $colour military over-vest
+- `earlymodern_persianate_military_tall_turban` — a tall $colour structured military turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+#### Military outfit 072 — Persianate coastal officer
+
+*Design focus:* Light silk command coat, close trousers, pointed slippers, tall turban, sash, and sword belt.
+
+- `renaissance_persianate_long_inner_shirt` — a long $colour collarless inner shirt
+- `renaissance_persianate_close_ankle_trousers` — a pair of close $colour ankle trousers
+- `renaissance_persianate_pointed_slippers` — a pair of pointed leather slippers
+- `earlymodern_persianate_naval_officer_command_coat` — a light $colour coastal command coat
+- `earlymodern_persianate_military_tall_turban` — a tall $colour structured military turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 13. Mughal / Indo-Persian
+
+> Mughal and Indo-Persian military clothing, c. 1600-1750, distinguishes matchlock infantry, mounted service, household guards, artillery command, senior field dress, and river or coastal command. Exact rank, mansab, textile, and court associations remain skins.
+
+#### Military outfit 073 — Mughal matchlockman
+
+*Design focus:* Short side-slit shirt, bunched trousers, quilted campaign jama, flat turban, curved shoes, and broad sash.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_mughal_military_quilted_jama` — a quilted $colour campaign jama
+- `renaissance_southasian_flat_wound_turban` — a broad flat-wound $colour cotton turban
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 074 — Mughal sowar
+
+*Design focus:* Flared military jama, bunched riding trousers, curved shoes, fan-crested turban, and sword belt.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_mughal_military_flared_jama` — a flared $colour military jama
+- `earlymodern_mughal_military_fan_crested_turban` — a fan-crested $colour officer's turban
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 075 — Mughal household guard
+
+*Design focus:* Quilted jama under a sleeveless command coat with fan-crested turban, sash, and embroidered badge.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_mughal_military_quilted_jama` — a quilted $colour campaign jama
+- `earlymodern_mughal_military_sleeveless_command_coat` — a sleeveless $colour command overcoat
+- `earlymodern_mughal_military_fan_crested_turban` — a fan-crested $colour officer's turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 076 — Mughal artillery officer
+
+*Design focus:* Fine flared jama, sleeveless command coat, fan-crested turban, silk sash, command scarf, and embroidered appointment badge.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_mughal_military_flared_jama` — a flared $colour military jama
+- `earlymodern_mughal_military_sleeveless_command_coat` — a sleeveless $colour command overcoat
+- `earlymodern_mughal_military_fan_crested_turban` — a fan-crested $colour officer's turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 077 — Mughal field officer
+
+*Design focus:* Flared jama, command overcoat, fan-crested turban, sword belt, sash, and command scarf.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_mughal_military_flared_jama` — a flared $colour military jama
+- `earlymodern_mughal_military_sleeveless_command_coat` — a sleeveless $colour command overcoat
+- `earlymodern_mughal_military_fan_crested_turban` — a fan-crested $colour officer's turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+#### Military outfit 078 — Mughal river-command officer
+
+*Design focus:* Light flared jama with command overcoat, flat turban, sash, sword belt, and embroidered appointment badge.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_mughal_military_flared_jama` — a flared $colour military jama
+- `earlymodern_mughal_military_sleeveless_command_coat` — a sleeveless $colour command overcoat
+- `renaissance_southasian_flat_wound_turban` — a broad flat-wound $colour cotton turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 14. Maratha / Rajput / Deccan
+
+> Regional South Asian martial clothing, c. 1650-1750, is divided into mounted, firearm, guard, artillery, command, and coastal-naval outfits. These are regional service silhouettes, not one pan-Indian uniform system.
+
+#### Military outfit 079 — Maratha light cavalryman
+
+*Design focus:* Short cavalry coat, bunched trousers, curved shoes, pointed turban, and sword belt.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_deccan_military_short_cavalry_coat` — a short $colour cavalry coat
+- `earlymodern_deccan_military_pointed_turban` — a pointed $colour military turban
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 080 — Rajput matchlockman
+
+*Design focus:* Long crossover robe, bunched trousers, curved shoes, pointed turban, sash, and crossbelt.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_deccan_military_long_angarkha` — a long $colour military crossover robe
+- `earlymodern_deccan_military_pointed_turban` — a pointed $colour military turban
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 081 — Deccan musketeer
+
+*Design focus:* Quilted campaign jama, close trousers, curved shoes, flat turban, broad sash, and crossbelt.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_persianate_close_ankle_trousers` — a pair of close $colour ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_mughal_military_quilted_jama` — a quilted $colour campaign jama
+- `renaissance_southasian_flat_wound_turban` — a broad flat-wound $colour cotton turban
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 082 — Regional cavalry officer
+
+*Design focus:* Fine short cavalry coat, bunched trousers, fan-crested turban, sash, sword belt, and embroidered appointment badge.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_deccan_military_short_cavalry_coat` — a short $colour cavalry coat
+- `earlymodern_mughal_military_fan_crested_turban` — a fan-crested $colour officer's turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 083 — Regional artillery officer
+
+*Design focus:* Long military angarkha, pointed turban, silk sash, command scarf, embroidered appointment badge, and sword belt.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_deccan_military_long_angarkha` — a long $colour military crossover robe
+- `earlymodern_deccan_military_pointed_turban` — a pointed $colour military turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 084 — Maratha coastal naval officer
+
+*Design focus:* Light naval coat over a short shirt and trousers with pointed turban, sash, sword belt, and command scarf.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_deccan_naval_officer_coastal_coat` — a light $colour cotton naval coat
+- `earlymodern_deccan_military_pointed_turban` — a pointed $colour military turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+### 15. South Indian / coastal trade
+
+> South Indian and coastal military clothing, c. 1600-1750, covers regional infantry, port firearm troops, household guards, artillery command, company-contact service, and naval officers. Local polity and company distinctions belong in skins and narrower admission notes.
+
+#### Military outfit 085 — South Indian regional infantryman
+
+*Design focus:* Long side-slit tunic, pleated waistcloth, short military jacket, sandals, folded turban, and sash.
+
+- `renaissance_southasian_long_sideslit_tunic` — a long $colour cotton side-slit tunic
+- `renaissance_southasian_pleated_waistcloth` — a long pleated $colour cotton waistcloth
+- `renaissance_southasian_toepost_woodensandals` — a pair of toe-post wooden sandals
+- `earlymodern_southindian_military_short_jacket` — a short $colour cotton military jacket
+- `earlymodern_southindian_military_folded_command_turban` — a broad folded $colour command turban
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+
+#### Military outfit 086 — South Indian coastal musketeer
+
+*Design focus:* Short side-slit tunic, divided riding waistcloth, short jacket, sandals, flat turban, and crossbelt.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_seasia_split_riding_waistcloth` — a divided $colour cotton riding waistcloth
+- `renaissance_southasian_toepost_woodensandals` — a pair of toe-post wooden sandals
+- `earlymodern_southindian_military_short_jacket` — a short $colour cotton military jacket
+- `renaissance_southasian_flat_wound_turban` — a broad flat-wound $colour cotton turban
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 087 — South Indian household guard
+
+*Design focus:* Long tunic and pleated waistcloth under a chintz jacket, with folded turban, sash, and badge.
+
+- `renaissance_southasian_long_sideslit_tunic` — a long $colour cotton side-slit tunic
+- `renaissance_southasian_pleated_waistcloth` — a long pleated $colour cotton waistcloth
+- `renaissance_southasian_toepost_woodensandals` — a pair of toe-post wooden sandals
+- `earlymodern_southasian_clothing_chintz_merchant_jacket` — a $colour patterned chintz jacket
+- `earlymodern_southindian_military_folded_command_turban` — a broad folded $colour command turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 088 — South Indian artillery officer
+
+*Design focus:* Fine coastal command robe, pleated waistcloth, folded turban, silk sash, command scarf, and embroidered appointment badge.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_pleated_waistcloth` — a long pleated $colour cotton waistcloth
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_southindian_naval_officer_command_robe` — a fine $colour coastal command robe
+- `earlymodern_southindian_military_folded_command_turban` — a broad folded $colour command turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 089 — Company-contact sepoy
+
+*Design focus:* Short military jacket, bunched trousers, curved shoes, folded turban, crossbelt, and service sash.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_southindian_military_short_jacket` — a short $colour cotton military jacket
+- `earlymodern_southindian_military_folded_command_turban` — a broad folded $colour command turban
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+
+#### Military outfit 090 — South Indian naval officer
+
+*Design focus:* Fine coastal command robe, bunched trousers, curved shoes, folded turban, sash, sword belt, and command scarf.
+
+- `renaissance_southasian_short_sideslit_tunic` — a short $colour cotton side-slit tunic
+- `renaissance_southasian_bunched_ankletrousers` — a pair of narrow $colour bunched ankle trousers
+- `renaissance_southasian_curvedtoe_shoes` — a pair of curved-toe leather shoes
+- `earlymodern_southindian_naval_officer_command_robe` — a fine $colour coastal command robe
+- `earlymodern_southindian_military_folded_command_turban` — a broad folded $colour command turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+### 16. Qing China
+
+> Early Qing military dress, c. 1644-1750, includes banner infantry and cavalry, Green Standard troops, artillery, military officers, and naval command. Banner colour, rank animals, plume treatment, and exact robe insignia remain skins.
+
+#### Military outfit 091 — Qing banner infantryman
+
+*Design focus:* Cross-collared under-robe, wide trousers, banner coat, sleeveless surcoat, cloth shoes, conical hat, and sash.
+
+- `earlymodern_qing_clothing_crosscollar_innerrobe` — a cross-collared $colour cotton inner robe
+- `earlymodern_qing_clothing_wide_cotton_trousers` — a pair of wide $colour cotton trousers
+- `earlymodern_qing_clothing_cloth_shoes` — a pair of $colour cloth shoes
+- `earlymodern_qing_military_banner_coat` — a side-fastened $colour banner coat
+- `earlymodern_qing_military_sleeveless_surcoat` — a sleeveless $colour military surcoat
+- `earlymodern_qing_military_conical_felt_hat` — a conical $colour felt military hat
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+
+#### Military outfit 092 — Qing banner cavalryman
+
+*Design focus:* Short riding jacket beneath a banner coat with wide trousers, cloth shoes, conical hat, and sword belt.
+
+- `earlymodern_qing_clothing_crosscollar_innerrobe` — a cross-collared $colour cotton inner robe
+- `earlymodern_qing_clothing_wide_cotton_trousers` — a pair of wide $colour cotton trousers
+- `earlymodern_qing_clothing_cloth_shoes` — a pair of $colour cloth shoes
+- `earlymodern_qing_clothing_short_riding_jacket` — a short $colour cotton riding jacket
+- `earlymodern_qing_military_banner_coat` — a side-fastened $colour banner coat
+- `earlymodern_qing_military_conical_felt_hat` — a conical $colour felt military hat
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 093 — Qing Green Standard musketeer
+
+*Design focus:* Long side-fastened robe, sleeveless surcoat, wide trousers, conical hat, cloth shoes, and crossbelt.
+
+- `earlymodern_qing_clothing_crosscollar_innerrobe` — a cross-collared $colour cotton inner robe
+- `earlymodern_qing_clothing_wide_cotton_trousers` — a pair of wide $colour cotton trousers
+- `earlymodern_qing_clothing_cloth_shoes` — a pair of $colour cloth shoes
+- `earlymodern_qing_clothing_long_sidefastened_robe` — a long side-fastened $colour cotton robe
+- `earlymodern_qing_military_sleeveless_surcoat` — a sleeveless $colour military surcoat
+- `earlymodern_qing_military_conical_felt_hat` — a conical $colour felt military hat
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 094 — Qing artilleryman
+
+*Design focus:* Padded winter coat, wide trousers, cloth shoes, conical service hat, sash, and crossbelt.
+
+- `earlymodern_qing_clothing_crosscollar_innerrobe` — a cross-collared $colour cotton inner robe
+- `earlymodern_qing_clothing_wide_cotton_trousers` — a pair of wide $colour cotton trousers
+- `earlymodern_qing_clothing_cloth_shoes` — a pair of $colour cloth shoes
+- `earlymodern_qing_clothing_padded_winter_coat` — a padded $colour cotton winter coat
+- `earlymodern_qing_military_conical_felt_hat` — a conical $colour felt military hat
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 095 — Qing military officer
+
+*Design focus:* Fine riding robe and sleeveless surcoat with conical hat, sword belt, command sash, and embroidered badge.
+
+- `earlymodern_qing_clothing_crosscollar_innerrobe` — a cross-collared $colour cotton inner robe
+- `earlymodern_qing_clothing_wide_cotton_trousers` — a pair of wide $colour cotton trousers
+- `earlymodern_qing_clothing_cloth_shoes` — a pair of $colour cloth shoes
+- `earlymodern_qing_military_officer_riding_robe` — a fine $colour military riding robe
+- `earlymodern_qing_military_sleeveless_surcoat` — a sleeveless $colour military surcoat
+- `earlymodern_qing_military_conical_felt_hat` — a conical $colour felt military hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 096 — Qing naval officer
+
+*Design focus:* Fine naval command coat over an inner robe and trousers with conical hat, sash, sword belt, and badge.
+
+- `earlymodern_qing_clothing_crosscollar_innerrobe` — a cross-collared $colour cotton inner robe
+- `earlymodern_qing_clothing_wide_cotton_trousers` — a pair of wide $colour cotton trousers
+- `earlymodern_qing_clothing_cloth_shoes` — a pair of $colour cloth shoes
+- `earlymodern_qing_naval_officer_command_coat` — a fine $colour naval command coat
+- `earlymodern_qing_military_conical_felt_hat` — a conical $colour felt military hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 17. Late Ming survival / transition
+
+> Late Ming and transition-period military clothing, c. 1600-1650, covers firearm troops, pikemen, cavalry, artillery, officers, and naval commanders. Exact unit signs, armour overlays, and transitional dynastic identifiers are kept out of the base sdescs.
+
+#### Military outfit 097 — Late Ming musketeer
+
+*Design focus:* Cross-collared under-robe, wide trousers, quilted jacket, cloth boots, broad military hat, sash, and crossbelt.
+
+- `renaissance_ming_crosscollar_innerrobe` — a cross-collared $colour ramie under-robe
+- `renaissance_ming_wide_drawstring_trousers` — a pair of wide $colour cotton drawstring trousers
+- `renaissance_ming_cloth_courtboots` — a pair of high $colour cloth boots
+- `earlymodern_ming_military_quilted_jacket` — a quilted $colour military jacket
+- `earlymodern_ming_military_brimmed_hat` — a broad-brimmed $colour military hat
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 098 — Late Ming pikeman
+
+*Design focus:* Round-collared service robe, wide trousers, cloth boots, broad military hat, and service sash.
+
+- `renaissance_ming_crosscollar_innerrobe` — a cross-collared $colour ramie under-robe
+- `renaissance_ming_wide_drawstring_trousers` — a pair of wide $colour cotton drawstring trousers
+- `renaissance_ming_cloth_courtboots` — a pair of high $colour cloth boots
+- `earlymodern_ming_military_roundcollar_service_robe` — a round-collared $colour service robe
+- `earlymodern_ming_military_brimmed_hat` — a broad-brimmed $colour military hat
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+
+#### Military outfit 099 — Late Ming cavalryman
+
+*Design focus:* Long side-fastened jacket over wide trousers with cloth boots, broad hat, sash, and sword belt.
+
+- `renaissance_ming_crosscollar_innerrobe` — a cross-collared $colour ramie under-robe
+- `renaissance_ming_wide_drawstring_trousers` — a pair of wide $colour cotton drawstring trousers
+- `renaissance_ming_cloth_courtboots` — a pair of high $colour cloth boots
+- `renaissance_ming_long_sidefastened_jacket` — a long side-fastened $colour cotton jacket
+- `earlymodern_ming_military_brimmed_hat` — a broad-brimmed $colour military hat
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 100 — Late Ming artilleryman
+
+*Design focus:* Quilted jacket beneath a round-collared service robe with broad hat, sash, and crossbelt.
+
+- `renaissance_ming_crosscollar_innerrobe` — a cross-collared $colour ramie under-robe
+- `renaissance_ming_wide_drawstring_trousers` — a pair of wide $colour cotton drawstring trousers
+- `renaissance_ming_cloth_courtboots` — a pair of high $colour cloth boots
+- `earlymodern_ming_military_quilted_jacket` — a quilted $colour military jacket
+- `earlymodern_ming_military_roundcollar_service_robe` — a round-collared $colour service robe
+- `earlymodern_ming_military_brimmed_hat` — a broad-brimmed $colour military hat
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 101 — Late Ming military officer
+
+*Design focus:* Fine round-collared robe with long sleeveless over-vest, scholar cap, sword belt, command sash, and badge.
+
+- `renaissance_ming_crosscollar_innerrobe` — a cross-collared $colour ramie under-robe
+- `renaissance_ming_wide_drawstring_trousers` — a pair of wide $colour cotton drawstring trousers
+- `renaissance_ming_cloth_courtboots` — a pair of high $colour cloth boots
+- `earlymodern_ming_military_roundcollar_service_robe` — a round-collared $colour service robe
+- `renaissance_ming_long_sleeveless_overvest` — a long sleeveless $colour silk over-vest
+- `renaissance_ming_soft_scholarcap` — a soft folded $colour scholar cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 102 — Late Ming naval officer
+
+*Design focus:* Straight-collared naval over-robe, wide trousers, cloth boots, broad hat, sash, sword belt, and embroidered appointment badge.
+
+- `renaissance_ming_crosscollar_innerrobe` — a cross-collared $colour ramie under-robe
+- `renaissance_ming_wide_drawstring_trousers` — a pair of wide $colour cotton drawstring trousers
+- `renaissance_ming_cloth_courtboots` — a pair of high $colour cloth boots
+- `earlymodern_ming_naval_officer_overrobe` — a straight-collared $colour naval over-robe
+- `earlymodern_ming_military_brimmed_hat` — a broad-brimmed $colour military hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 18. Joseon Korea
+
+> Joseon military clothing, c. 1600-1750, draws on central infantry, matchlock, cavalry, royal-guard, military-official, and naval-command silhouettes. Colour pairing, rank badges, and named office distinctions remain skins.
+
+#### Military outfit 103 — Joseon central infantryman
+
+*Design focus:* Long cross-front under-robe, full trousers, two-colour military robe, sleeveless over-vest, cloth socks and shoes, and brimmed felt hat.
+
+- `renaissance_joseon_long_crossfront_underrobe` — a long cross-front $colour ramie under-robe
+- `earlymodern_joseon_clothing_full_baji_trousers` — a pair of full $colour cotton trousers
+- `earlymodern_joseon_clothing_white_cloth_socks` — a pair of white cloth socks
+- `renaissance_joseon_white_clothshoes` — a pair of white cloth shoes
+- `earlymodern_joseon_military_two_colour_robe` — a two-coloured $colour1 and $colour2 military robe
+- `earlymodern_joseon_military_sleeveless_overvest` — a sleeveless black military over-vest
+- `earlymodern_joseon_military_brimmed_felt_hat` — a brimmed black felt military hat
+
+#### Military outfit 104 — Joseon matchlockman
+
+*Design focus:* Short cross-front jacket under a two-colour robe with full trousers, felt hat, and crossbelt.
+
+- `renaissance_joseon_long_crossfront_underrobe` — a long cross-front $colour ramie under-robe
+- `earlymodern_joseon_clothing_full_baji_trousers` — a pair of full $colour cotton trousers
+- `earlymodern_joseon_clothing_white_cloth_socks` — a pair of white cloth socks
+- `renaissance_joseon_white_clothshoes` — a pair of white cloth shoes
+- `renaissance_joseon_short_crossfront_jacket` — a short cross-front $colour ramie jacket
+- `earlymodern_joseon_military_two_colour_robe` — a two-coloured $colour1 and $colour2 military robe
+- `earlymodern_joseon_military_brimmed_felt_hat` — a brimmed black felt military hat
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 105 — Joseon cavalryman
+
+*Design focus:* Long cross-front jacket, full trousers, cloth shoes, brimmed felt military hat, sash, and sword belt.
+
+- `renaissance_joseon_long_crossfront_underrobe` — a long cross-front $colour ramie under-robe
+- `earlymodern_joseon_clothing_full_baji_trousers` — a pair of full $colour cotton trousers
+- `earlymodern_joseon_clothing_white_cloth_socks` — a pair of white cloth socks
+- `renaissance_joseon_white_clothshoes` — a pair of white cloth shoes
+- `renaissance_joseon_long_crossfront_jacket` — a long cross-front $colour silk jacket
+- `earlymodern_joseon_military_brimmed_felt_hat` — a brimmed black felt military hat
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 106 — Joseon royal guard
+
+*Design focus:* Two-colour military robe under a black sleeveless over-vest with brimmed hat, command sash, and badge.
+
+- `renaissance_joseon_long_crossfront_underrobe` — a long cross-front $colour ramie under-robe
+- `earlymodern_joseon_clothing_full_baji_trousers` — a pair of full $colour cotton trousers
+- `earlymodern_joseon_clothing_white_cloth_socks` — a pair of white cloth socks
+- `renaissance_joseon_white_clothshoes` — a pair of white cloth shoes
+- `earlymodern_joseon_military_two_colour_robe` — a two-coloured $colour1 and $colour2 military robe
+- `earlymodern_joseon_military_sleeveless_overvest` — a sleeveless black military over-vest
+- `earlymodern_joseon_military_brimmed_felt_hat` — a brimmed black felt military hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 107 — Joseon military official
+
+*Design focus:* Two-colour robe beneath a long officer overcoat with brimmed hat, sword belt, sash, and embroidered badge.
+
+- `renaissance_joseon_long_crossfront_underrobe` — a long cross-front $colour ramie under-robe
+- `earlymodern_joseon_clothing_full_baji_trousers` — a pair of full $colour cotton trousers
+- `earlymodern_joseon_clothing_white_cloth_socks` — a pair of white cloth socks
+- `renaissance_joseon_white_clothshoes` — a pair of white cloth shoes
+- `earlymodern_joseon_military_two_colour_robe` — a two-coloured $colour1 and $colour2 military robe
+- `earlymodern_joseon_military_officer_overcoat` — a long $colour military officer's coat
+- `earlymodern_joseon_military_brimmed_felt_hat` — a brimmed black felt military hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 108 — Joseon naval officer
+
+*Design focus:* Black military over-vest under a long officer coat with full trousers, cloth shoes, brimmed hat, sash, and sword belt.
+
+- `renaissance_joseon_long_crossfront_underrobe` — a long cross-front $colour ramie under-robe
+- `earlymodern_joseon_clothing_full_baji_trousers` — a pair of full $colour cotton trousers
+- `earlymodern_joseon_clothing_white_cloth_socks` — a pair of white cloth socks
+- `renaissance_joseon_white_clothshoes` — a pair of white cloth shoes
+- `earlymodern_joseon_military_sleeveless_overvest` — a sleeveless black military over-vest
+- `earlymodern_joseon_military_officer_overcoat` — a long $colour military officer's coat
+- `earlymodern_joseon_military_brimmed_felt_hat` — a brimmed black felt military hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 19. Edo Japan
+
+> Edo-period martial clothing, c. 1600-1750, distinguishes ashigaru firearm and spear service, mounted retainers, domain guards, senior field officers, and coastal command. Armour itself remains in the military-goods branch; this section covers garments worn beneath or above it.
+
+#### Military outfit 109 — Edo ashigaru arquebusier
+
+*Design focus:* Small-sleeved wrap robe, field trousers, split-toe socks, sandals, short foot-soldier jacket, field hat, obi, and crossbelt.
+
+- `renaissance_japanese_smallsleeve_wraprobe` — a small-sleeved $colour wrap robe
+- `renaissance_japanese_field_trousers` — a pair of close $colour ramie field trousers
+- `renaissance_japanese_splittoe_socks` — a pair of $colour split-toe socks
+- `earlymodern_edo_clothing_woven_sandals` — a pair of $colour woven sandals
+- `earlymodern_edo_military_ashigaru_jacket` — a short $colour foot-soldier jacket
+- `earlymodern_edo_military_lacquered_field_hat` — a broad lacquered conical field hat
+- `earlymodern_edo_clothing_narrow_woven_obi` — a narrow $colour woven waist sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 110 — Edo ashigaru spearman
+
+*Design focus:* Wrap robe, field trousers, socks, sandals, ashigaru jacket, conical field hat, and narrow obi.
+
+- `renaissance_japanese_smallsleeve_wraprobe` — a small-sleeved $colour wrap robe
+- `renaissance_japanese_field_trousers` — a pair of close $colour ramie field trousers
+- `renaissance_japanese_splittoe_socks` — a pair of $colour split-toe socks
+- `earlymodern_edo_clothing_woven_sandals` — a pair of $colour woven sandals
+- `earlymodern_edo_military_ashigaru_jacket` — a short $colour foot-soldier jacket
+- `earlymodern_edo_military_lacquered_field_hat` — a broad lacquered conical field hat
+- `earlymodern_edo_clothing_narrow_woven_obi` — a narrow $colour woven waist sash
+
+#### Military outfit 111 — Edo mounted retainer
+
+*Design focus:* Wrap robe, full pleated lower garment, socks, clogs, short open jacket, broad obi, and lacquered hat.
+
+- `renaissance_japanese_smallsleeve_wraprobe` — a small-sleeved $colour wrap robe
+- `renaissance_japanese_full_pleated_hakama` — a full pleated $colour lower garment
+- `renaissance_japanese_splittoe_socks` — a pair of $colour split-toe socks
+- `renaissance_japanese_wooden_clogs` — a pair of raised wooden clogs
+- `renaissance_japanese_short_openjacket` — a short open-front $colour jacket
+- `earlymodern_edo_clothing_wide_woven_obi` — a broad $colour woven waist sash
+- `renaissance_japanese_lacquered_conicalhat` — a lacquered wooden conical hat
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 112 — Edo domain guard
+
+*Design focus:* Wrap robe and field trousers beneath a battle surcoat with field hat, obi, and embroidered badge.
+
+- `renaissance_japanese_smallsleeve_wraprobe` — a small-sleeved $colour wrap robe
+- `renaissance_japanese_field_trousers` — a pair of close $colour ramie field trousers
+- `renaissance_japanese_splittoe_socks` — a pair of $colour split-toe socks
+- `earlymodern_edo_clothing_woven_sandals` — a pair of $colour woven sandals
+- `earlymodern_edo_military_jinbaori` — a sleeveless $colour battle surcoat
+- `earlymodern_edo_military_lacquered_field_hat` — a broad lacquered conical field hat
+- `earlymodern_edo_clothing_narrow_woven_obi` — a narrow $colour woven waist sash
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 113 — Edo military officer
+
+*Design focus:* Wrap robe and pleated lower garment under shoulder-wing vest, jinbaori, and long field coat with sword belt.
+
+- `renaissance_japanese_smallsleeve_wraprobe` — a small-sleeved $colour wrap robe
+- `renaissance_japanese_full_pleated_hakama` — a full pleated $colour lower garment
+- `renaissance_japanese_splittoe_socks` — a pair of $colour split-toe socks
+- `renaissance_japanese_wooden_clogs` — a pair of raised wooden clogs
+- `earlymodern_edo_military_shoulderwing_vest` — a stiff $colour shoulder-wing vest
+- `earlymodern_edo_military_jinbaori` — a sleeveless $colour battle surcoat
+- `earlymodern_edo_military_officer_field_coat` — a long $colour officer's field coat
+- `earlymodern_edo_military_lacquered_field_hat` — a broad lacquered conical field hat
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 114 — Edo coastal commander
+
+*Design focus:* Wrap robe, pleated lower garment, socks, clogs, naval command jacket, battle surcoat, broad obi, and badge.
+
+- `renaissance_japanese_smallsleeve_wraprobe` — a small-sleeved $colour wrap robe
+- `renaissance_japanese_full_pleated_hakama` — a full pleated $colour lower garment
+- `renaissance_japanese_splittoe_socks` — a pair of $colour split-toe socks
+- `renaissance_japanese_wooden_clogs` — a pair of raised wooden clogs
+- `earlymodern_edo_naval_officer_command_jacket` — a short $colour naval command jacket
+- `earlymodern_edo_military_jinbaori` — a sleeveless $colour battle surcoat
+- `earlymodern_edo_clothing_wide_woven_obi` — a broad $colour woven waist sash
+- `earlymodern_edo_military_lacquered_field_hat` — a broad lacquered conical field hat
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 20. Ryukyu and maritime East Asia
+
+> Ryukyuan and maritime East Asian military clothing, c. 1600-1750, is treated as palace guard, firearm guard, tribute escort, coastal watch, palace command, and naval command dress. Exact court and tribute ranks remain skins.
+
+#### Military outfit 115 — Ryukyuan palace guard
+
+*Design focus:* Broad-sleeved summer robe, short wrap jacket, pleated wrap skirt, sandals, broad sash, and structured cap.
+
+- `renaissance_ryukyu_widesleeve_summerrobe` — a broad-sleeved $colour ramie tropical robe
+- `renaissance_ryukyu_short_wrapjacket` — a short $colour cotton tropical wrap jacket
+- `renaissance_ryukyu_pleated_wrapskirt` — a pleated $colour cotton tropical wrap skirt
+- `earlymodern_ryukyu_clothing_woven_fibre_sandals` — a pair of $colour woven fibre sandals
+- `earlymodern_ryukyu_clothing_broad_woven_sash` — a broad $colour woven sash
+- `earlymodern_ryukyu_military_structured_cap` — a structured $colour service cap
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 116 — Ryukyuan firearm guard
+
+*Design focus:* Broad-sleeved guard robe over short maritime trousers with sandals, structured cap, sash, and crossbelt.
+
+- `earlymodern_ryukyu_military_guard_robe` — a broad-sleeved $colour guard robe
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `earlymodern_ryukyu_clothing_woven_fibre_sandals` — a pair of $colour woven fibre sandals
+- `earlymodern_ryukyu_military_structured_cap` — a structured $colour service cap
+- `earlymodern_ryukyu_clothing_broad_woven_sash` — a broad $colour woven sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 117 — Ryukyuan tribute escort
+
+*Design focus:* Summer robe beneath a guard robe with pleated skirt, sandals, structured cap, and silk command sash.
+
+- `earlymodern_maritimeseasia_clothing_loose_long_tunic` — a loose $colour cotton long tunic
+- `earlymodern_ryukyu_military_guard_robe` — a broad-sleeved $colour guard robe
+- `renaissance_ryukyu_pleated_wrapskirt` — a pleated $colour cotton tropical wrap skirt
+- `earlymodern_ryukyu_clothing_woven_fibre_sandals` — a pair of $colour woven fibre sandals
+- `earlymodern_ryukyu_military_structured_cap` — a structured $colour service cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+
+#### Military outfit 118 — Ryukyuan coastal watchman
+
+*Design focus:* Short wrap jacket, short maritime trousers, sandals, tied headcloth, broad sash, and shoulder mantle.
+
+- `renaissance_ryukyu_short_wrapjacket` — a short $colour cotton tropical wrap jacket
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `earlymodern_ryukyu_clothing_woven_fibre_sandals` — a pair of $colour woven fibre sandals
+- `earlymodern_ryukyu_clothing_tied_headcloth` — a tied $colour cotton headcloth
+- `earlymodern_ryukyu_clothing_broad_woven_sash` — a broad $colour woven sash
+- `earlymodern_seasia_clothing_light_shoulder_cloth` — a light $colour cotton shoulder cloth
+
+#### Military outfit 119 — Ryukyuan palace officer
+
+*Design focus:* Guard robe under a fine maritime overcoat with pleated skirt, cap, sash, sword belt, and badge.
+
+- `earlymodern_ryukyu_military_guard_robe` — a broad-sleeved $colour guard robe
+- `renaissance_ryukyu_pleated_wrapskirt` — a pleated $colour cotton tropical wrap skirt
+- `earlymodern_ryukyu_clothing_woven_fibre_sandals` — a pair of $colour woven fibre sandals
+- `earlymodern_ryukyu_naval_officer_overcoat` — a fine $colour maritime officer's coat
+- `earlymodern_ryukyu_military_structured_cap` — a structured $colour service cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 120 — Ryukyuan naval officer
+
+*Design focus:* Summer robe, short maritime trousers, sandals, fine maritime overcoat, structured cap, sash, and sword belt.
+
+- `renaissance_ryukyu_widesleeve_summerrobe` — a broad-sleeved $colour ramie tropical robe
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `earlymodern_ryukyu_clothing_woven_fibre_sandals` — a pair of $colour woven fibre sandals
+- `earlymodern_ryukyu_naval_officer_overcoat` — a fine $colour maritime officer's coat
+- `earlymodern_ryukyu_military_structured_cap` — a structured $colour service cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 21. Mainland South-east Asian courts
+
+> Mainland South-east Asian military clothing, c. 1600-1750, covers Ayutthaya-, Burmese-, Vietnamese-, and related riverine or court-service silhouettes without claiming one regional uniform. Exact polity, palace, elephant-corps, and river-force identities require narrower skins.
+
+#### Military outfit 121 — Mainland rice-country infantryman
+
+*Design focus:* Short collarless jacket, divided riding waistcloth, sandals, wrapped headcloth, and broad sash.
+
+- `renaissance_seasia_short_collarless_jacket` — a short collarless $colour cotton jacket
+- `renaissance_seasia_split_riding_waistcloth` — a divided $colour cotton riding waistcloth
+- `renaissance_shared_clothing_textile_sandals` — a pair of $colour woven sandals
+- `earlymodern_seasia_clothing_wrapped_headcloth` — a wrapped $colour cotton headcloth
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+
+#### Military outfit 122 — Mainland matchlockman
+
+*Design focus:* Short military jacket, short maritime trousers, sandals, conical hat, sash, and crossbelt.
+
+- `earlymodern_mainlandseasia_military_short_jacket` — a short $colour military jacket
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `renaissance_shared_clothing_textile_sandals` — a pair of $colour woven sandals
+- `renaissance_seasia_palmleaf_conicalhat` — a broad conical fibre hat
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 123 — Mainland court guard
+
+*Design focus:* Long cross-front service robe with command vest, pleated waistcloth, sandals, and crown-folded headcloth.
+
+- `earlymodern_mainlandseasia_military_crossfront_robe` — a long cross-front $colour service robe
+- `earlymodern_mainlandseasia_military_command_vest` — a long sleeveless $colour command vest
+- `renaissance_seasia_pleated_courtwaistcloth` — a pleated $colour silk waistcloth
+- `renaissance_shared_clothing_textile_sandals` — a pair of $colour woven sandals
+- `earlymodern_mainlandseasia_military_command_headcloth` — a crown-folded $colour command headcloth
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 124 — Mainland cavalry or elephant officer
+
+*Design focus:* Long cross-front robe over divided riding waistcloth with command vest, headcloth, sash, and sword belt.
+
+- `earlymodern_mainlandseasia_military_crossfront_robe` — a long cross-front $colour service robe
+- `renaissance_seasia_split_riding_waistcloth` — a divided $colour cotton riding waistcloth
+- `renaissance_shared_clothing_textile_sandals` — a pair of $colour woven sandals
+- `earlymodern_mainlandseasia_military_command_vest` — a long sleeveless $colour command vest
+- `earlymodern_mainlandseasia_military_command_headcloth` — a crown-folded $colour command headcloth
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 125 — Mainland river artillery officer
+
+*Design focus:* Short military jacket beneath a river-command coat with short trousers, headcloth, command scarf, and embroidered appointment badge.
+
+- `earlymodern_mainlandseasia_military_short_jacket` — a short $colour military jacket
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `renaissance_shared_clothing_textile_sandals` — a pair of $colour woven sandals
+- `earlymodern_mainlandseasia_naval_officer_river_coat` — a light $colour river-command coat
+- `earlymodern_mainlandseasia_military_command_headcloth` — a crown-folded $colour command headcloth
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 126 — Mainland river or naval officer
+
+*Design focus:* Cross-front service robe under a light river-command coat with short trousers, headcloth, sash, and sword belt.
+
+- `earlymodern_mainlandseasia_military_crossfront_robe` — a long cross-front $colour service robe
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `renaissance_shared_clothing_textile_sandals` — a pair of $colour woven sandals
+- `earlymodern_mainlandseasia_naval_officer_river_coat` — a light $colour river-command coat
+- `earlymodern_mainlandseasia_military_command_headcloth` — a crown-folded $colour command headcloth
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 22. Maritime South-east Asian trade worlds
+
+> Maritime South-east Asian military clothing, c. 1600-1750, covers Malay-, Acehnese-, Javanese-, Makassarese-, port-artillery-, and naval-command contexts as separate local admissions. Textile pattern, court affiliation, company contact, and Islamic or local insignia remain skins.
+
+#### Military outfit 127 — Malay coastal musketeer
+
+*Design focus:* Loose long tunic, patterned sarong, sandals, short coastal coat, folded headcloth, sash, and crossbelt.
+
+- `earlymodern_maritimeseasia_clothing_loose_long_tunic` — a loose $colour cotton long tunic
+- `earlymodern_maritimeseasia_clothing_patterned_sarong` — a $colour1 and $colour2 patterned cotton sarong
+- `renaissance_shared_clothing_textile_sandals` — a pair of $colour woven sandals
+- `earlymodern_maritimeseasia_military_short_coat` — a short $colour coastal military coat
+- `earlymodern_maritimeseasia_military_command_headcloth` — a folded $colour maritime command headcloth
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 128 — Acehnese guard
+
+*Design focus:* Long tunic and short trousers under a command over-robe with folded headcloth, sash, and sword belt.
+
+- `earlymodern_maritimeseasia_clothing_loose_long_tunic` — a loose $colour cotton long tunic
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `renaissance_shared_clothing_textile_sandals` — a pair of $colour woven sandals
+- `earlymodern_maritimeseasia_military_officer_overrobe` — a fine $colour maritime command over-robe
+- `earlymodern_maritimeseasia_military_command_headcloth` — a folded $colour maritime command headcloth
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 129 — Javanese court soldier
+
+*Design focus:* Light open blouse, patterned sarong, short coastal coat, folded headcloth, broad sash, and badge.
+
+- `earlymodern_maritimeseasia_clothing_loose_long_tunic` — a loose $colour cotton long tunic
+- `earlymodern_maritimeseasia_clothing_patterned_sarong` — a $colour1 and $colour2 patterned cotton sarong
+- `renaissance_shared_clothing_textile_sandals` — a pair of $colour woven sandals
+- `earlymodern_maritimeseasia_military_short_coat` — a short $colour coastal military coat
+- `earlymodern_maritimeseasia_military_command_headcloth` — a folded $colour maritime command headcloth
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 130 — Makassarese marine
+
+*Design focus:* Loose tunic, short maritime trousers, naval jacket, sandals, folded headcloth, and crossbelt.
+
+- `earlymodern_maritimeseasia_clothing_loose_long_tunic` — a loose $colour cotton long tunic
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `renaissance_shared_clothing_textile_sandals` — a pair of $colour woven sandals
+- `earlymodern_maritimeseasia_naval_officer_jacket` — a fitted $colour naval officer's jacket
+- `earlymodern_maritimeseasia_military_command_headcloth` — a folded $colour maritime command headcloth
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 131 — Maritime port artillery officer
+
+*Design focus:* Short coastal coat beneath a command over-robe with short trousers, headcloth, command scarf, embroidered appointment badge, and sash.
+
+- `earlymodern_maritimeseasia_clothing_loose_long_tunic` — a loose $colour cotton long tunic
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `renaissance_shared_clothing_textile_sandals` — a pair of $colour woven sandals
+- `earlymodern_maritimeseasia_military_short_coat` — a short $colour coastal military coat
+- `earlymodern_maritimeseasia_military_officer_overrobe` — a fine $colour maritime command over-robe
+- `earlymodern_maritimeseasia_military_command_headcloth` — a folded $colour maritime command headcloth
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+
+#### Military outfit 132 — Maritime South-east Asian naval officer
+
+*Design focus:* Fitted naval jacket beneath a command over-robe with short trousers, headcloth, sash, sword belt, and command scarf.
+
+- `earlymodern_maritimeseasia_clothing_loose_long_tunic` — a loose $colour cotton long tunic
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `renaissance_shared_clothing_textile_sandals` — a pair of $colour woven sandals
+- `earlymodern_maritimeseasia_naval_officer_jacket` — a fitted $colour naval officer's jacket
+- `earlymodern_maritimeseasia_military_officer_overrobe` — a fine $colour maritime command over-robe
+- `earlymodern_maritimeseasia_military_command_headcloth` — a folded $colour maritime command headcloth
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+### 23. Inner Asian / steppe frontier
+
+> Inner Asian and steppe-frontier military clothing, c. 1600-1750, covers mounted archery, firearm cavalry, caravan-fort service, Tatar- and Uzbek-facing guard dress, and frontier command. These are tactical silhouettes rather than a single uniform tradition.
+
+#### Military outfit 133 — Steppe mounted archer
+
+*Design focus:* Quilted riding robe, wide riding trousers, high boots, pointed felt cap, sash, and sword belt.
+
+- `renaissance_persianate_long_inner_shirt` — a long $colour collarless inner shirt
+- `renaissance_steppe_quilted_ridingrobe` — a quilted side-fastened $colour riding robe
+- `renaissance_steppe_wide_ridingtrousers` — a pair of wide $colour wool riding trousers
+- `renaissance_steppe_soft_highboots` — a pair of soft high leather boots
+- `renaissance_steppe_pointed_feltcap` — a pointed $colour felt riding cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 134 — Steppe musket horseman
+
+*Design focus:* Short frontier musket coat, wide riding trousers, high boots, pointed cap, sash, and crossbelt.
+
+- `renaissance_persianate_long_inner_shirt` — a long $colour collarless inner shirt
+- `earlymodern_steppe_military_frontier_musket_coat` — a short $colour frontier musket coat
+- `renaissance_steppe_wide_ridingtrousers` — a pair of wide $colour wool riding trousers
+- `renaissance_steppe_soft_highboots` — a pair of soft high leather boots
+- `renaissance_steppe_pointed_feltcap` — a pointed $colour felt riding cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 135 — Caravan-fort guard
+
+*Design focus:* Sleeveless riding vest, short riding coat, wide trousers, boots, folded felt cap, and heavy campaign cloak.
+
+- `renaissance_persianate_long_inner_shirt` — a long $colour collarless inner shirt
+- `renaissance_steppe_sleeveless_ridingvest` — a sleeveless leather riding vest
+- `renaissance_steppe_short_split_ridingcoat` — a short split-skirt $colour riding coat
+- `renaissance_steppe_wide_ridingtrousers` — a pair of wide $colour wool riding trousers
+- `renaissance_steppe_soft_highboots` — a pair of soft high leather boots
+- `earlymodern_frontier_military_folded_felt_cap` — a folded $colour felt frontier cap
+- `earlymodern_steppe_military_felt_campaign_cloak` — a heavy $colour felt campaign cloak
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+
+#### Military outfit 136 — Tatar cavalry officer
+
+*Design focus:* Fur-lined side-fastened coat, wide trousers, high boots, fur ear-flap hat, command sash, and sword belt.
+
+- `renaissance_persianate_long_inner_shirt` — a long $colour collarless inner shirt
+- `renaissance_steppe_sidefastened_furcoat` — a side-fastened $colour fur-lined long coat
+- `renaissance_steppe_wide_ridingtrousers` — a pair of wide $colour wool riding trousers
+- `renaissance_steppe_soft_highboots` — a pair of soft high leather boots
+- `renaissance_steppe_fur_earflaphat` — a furred ear-flap hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+#### Military outfit 137 — Uzbek guard officer
+
+*Design focus:* Quilted riding robe with sleeveless vest, wide trousers, boots, structured turban, badge, and sash.
+
+- `renaissance_persianate_long_inner_shirt` — a long $colour collarless inner shirt
+- `renaissance_steppe_quilted_ridingrobe` — a quilted side-fastened $colour riding robe
+- `renaissance_steppe_sleeveless_ridingvest` — a sleeveless leather riding vest
+- `renaissance_steppe_wide_ridingtrousers` — a pair of wide $colour wool riding trousers
+- `renaissance_steppe_soft_highboots` — a pair of soft high leather boots
+- `earlymodern_persianate_military_tall_turban` — a tall $colour structured military turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 138 — Steppe frontier commander
+
+*Design focus:* Short musket coat beneath heavy campaign cloak with wide trousers, boots, fur cap, sash, sword belt, and embroidered appointment badge.
+
+- `renaissance_persianate_long_inner_shirt` — a long $colour collarless inner shirt
+- `earlymodern_steppe_military_frontier_musket_coat` — a short $colour frontier musket coat
+- `renaissance_steppe_wide_ridingtrousers` — a pair of wide $colour wool riding trousers
+- `renaissance_steppe_soft_highboots` — a pair of soft high leather boots
+- `earlymodern_steppe_military_felt_campaign_cloak` — a heavy $colour felt campaign cloak
+- `earlymodern_frontier_military_tall_fur_cap` — a tall cylindrical fur military cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 24. West African court and Atlantic trade
+
+> West African military clothing, c. 1600-1750, is presented through narrower Akan/Asante-facing firearm service, Benin-facing palace guard, Oyo-facing cavalry, coastal artillery, command, and war-canoe contexts. None is a generic continental uniform; local admission is mandatory.
+
+#### Military outfit 139 — Akan-facing musketeer
+
+*Design focus:* Long strip-woven war tunic, narrow waist wrapper, sandals, tall woven cap, broad sash, and crossbelt.
+
+- `earlymodern_westafrican_military_stripwoven_war_tunic` — a long $colour strip-woven war tunic
+- `renaissance_africancourt_narrow_waistwrapper` — a narrow $colour cotton waist wrapper
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_westafrican_military_tall_woven_cap` — a tall $colour woven military cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 140 — Benin-facing palace guard
+
+*Design focus:* Long war tunic beneath a sleeveless military over-robe with broad wrapper, sandals, cap, and embroidered badge.
+
+- `earlymodern_westafrican_military_stripwoven_war_tunic` — a long $colour strip-woven war tunic
+- `earlymodern_westafrican_military_sleeveless_overrobe` — a sleeveless $colour military over-robe
+- `renaissance_africancourt_broad_waistwrapper` — a broad full-length $colour cotton waist wrapper
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_westafrican_military_tall_woven_cap` — a tall $colour woven military cap
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 141 — Oyo-facing cavalryman
+
+*Design focus:* Long side-slit tunic, full trousers, high boots, short guard jacket, tall woven cap, and sword belt.
+
+- `renaissance_africancourt_longsleeve_sideslit_tunic` — a long-sleeved $colour side-slit tunic
+- `renaissance_sahel_veryfull_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_westafrican_military_short_guard_jacket` — a short $colour military guard jacket
+- `earlymodern_westafrican_military_tall_woven_cap` — a tall $colour woven military cap
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 142 — West African coastal artilleryman
+
+*Design focus:* Long war tunic, full trousers, sandals, short guard jacket, tall cap, sash, and crossbelt.
+
+- `earlymodern_westafrican_military_stripwoven_war_tunic` — a long $colour strip-woven war tunic
+- `renaissance_sahel_veryfull_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_westafrican_military_short_guard_jacket` — a short $colour military guard jacket
+- `earlymodern_westafrican_military_tall_woven_cap` — a tall $colour woven military cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 143 — West African military captain
+
+*Design focus:* Long war tunic beneath a sleeveless over-robe with broad wrapper, tall cap, command sash, sword belt, and badge.
+
+- `earlymodern_westafrican_military_stripwoven_war_tunic` — a long $colour strip-woven war tunic
+- `earlymodern_westafrican_military_sleeveless_overrobe` — a sleeveless $colour military over-robe
+- `renaissance_africancourt_broad_waistwrapper` — a broad full-length $colour cotton waist wrapper
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_westafrican_military_tall_woven_cap` — a tall $colour woven military cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 144 — West African war-canoe commander
+
+*Design focus:* Long war tunic and narrow wrapper beneath a canoe-command mantle with cap, sash, sword belt, and embroidered appointment badge.
+
+- `earlymodern_westafrican_military_stripwoven_war_tunic` — a long $colour strip-woven war tunic
+- `renaissance_africancourt_narrow_waistwrapper` — a narrow $colour cotton waist wrapper
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_westafrican_military_canoe_command_mantle` — a broad $colour canoe-command mantle
+- `earlymodern_westafrican_military_tall_woven_cap` — a tall $colour woven military cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 25. Kongo / Angola / West Central Africa
+
+> West Central African military clothing, c. 1600-1750, separates local textile continuities, Portuguese-trained firearm troops, palace guards, frontier service, fort artillery, and river or coastal command. Imported coats are never treated as automatic cultural replacement.
+
+#### Military outfit 145 — West Central African infantryman
+
+*Design focus:* Trade-cloth shirt, broad waist wrapper, sandals, soft service cap, sash, and crossbelt.
+
+- `earlymodern_westcentralafrica_clothing_tradecloth_shirt` — a loose $colour cotton trade-cloth shirt
+- `renaissance_africancourt_broad_waistwrapper` — a broad full-length $colour cotton waist wrapper
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_westcentralafrica_military_service_cap` — a soft $colour military service cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 146 — Portuguese-trained musketeer
+
+*Design focus:* Trade-cloth shirt and broad wrapper beneath a long military coat with service cap, crossbelt, and sword belt.
+
+- `earlymodern_westcentralafrica_clothing_tradecloth_shirt` — a loose $colour cotton trade-cloth shirt
+- `renaissance_africancourt_broad_waistwrapper` — a broad full-length $colour cotton waist wrapper
+- `renaissance_shared_clothing_low_leather_shoes` — a pair of low leather shoes
+- `earlymodern_westcentralafrica_military_long_tradecloth_coat` — a long $colour trade-cloth military coat
+- `earlymodern_westcentralafrica_military_service_cap` — a soft $colour military service cap
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 147 — West Central African palace guard
+
+*Design focus:* Long side-slit tunic, sewn wrapper, short guard jacket, embroidered cap, command sash, and badge.
+
+- `renaissance_africancourt_longsleeve_sideslit_tunic` — a long-sleeved $colour side-slit tunic
+- `renaissance_africancourt_sewn_tubewrapper` — a sewn $colour cotton tubular wrapper
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_westafrican_military_short_guard_jacket` — a short $colour military guard jacket
+- `renaissance_africancourt_soft_embroideredcap` — a soft $colour embroidered round cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 148 — West Central African frontier troop
+
+*Design focus:* Barkcloth tunic and wrapper beneath a long trade-cloth military coat with headwrap and sword belt.
+
+- `renaissance_africancourt_barkcloth_straighttunic` — a straight $colour barkcloth tunic
+- `renaissance_africancourt_barkcloth_wrapskirt` — a broad $colour barkcloth wrap skirt
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_westcentralafrica_military_long_tradecloth_coat` — a long $colour trade-cloth military coat
+- `earlymodern_africanatlantic_clothing_full_headwrap` — a full $colour cotton headwrap
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 149 — West Central African fort officer
+
+*Design focus:* Trade-cloth shirt and broad wrapper beneath long military coat with service cap, command scarf, embroidered appointment badge, and sash.
+
+- `earlymodern_westcentralafrica_clothing_tradecloth_shirt` — a loose $colour cotton trade-cloth shirt
+- `renaissance_africancourt_broad_waistwrapper` — a broad full-length $colour cotton waist wrapper
+- `renaissance_shared_clothing_low_leather_shoes` — a pair of low leather shoes
+- `earlymodern_westcentralafrica_military_long_tradecloth_coat` — a long $colour trade-cloth military coat
+- `earlymodern_westcentralafrica_military_service_cap` — a soft $colour military service cap
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+
+#### Military outfit 150 — West Central African river officer
+
+*Design focus:* Trade-cloth shirt and sewn wrapper with short guard jacket, canoe-command mantle, cap, sash, and sword belt.
+
+- `earlymodern_westcentralafrica_clothing_tradecloth_shirt` — a loose $colour cotton trade-cloth shirt
+- `renaissance_africancourt_sewn_tubewrapper` — a sewn $colour cotton tubular wrapper
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_westafrican_military_short_guard_jacket` — a short $colour military guard jacket
+- `earlymodern_westafrican_military_canoe_command_mantle` — a broad $colour canoe-command mantle
+- `earlymodern_westcentralafrica_military_service_cap` — a soft $colour military service cap
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+### 26. Sahelian / Hausa / Islamic West Africa
+
+> Sahelian and Hausa-facing military clothing, c. 1600-1750, covers firearm infantry, cavalry, urban guards, emirate household service, fort command, and senior mounted officers. Every use requires a narrower state, city, or caravan context.
+
+#### Military outfit 151 — Sahelian musketeer
+
+*Design focus:* Narrow long tunic, very full trousers, leather sandals, scholar-style turban, broad sash, and crossbelt.
+
+- `renaissance_sahel_narrow_longtunic` — a narrow long $colour cotton tunic
+- `renaissance_sahel_veryfull_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `renaissance_sahel_scholar_turban` — a layered $colour cotton turban
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 152 — Sahelian cavalryman
+
+*Design focus:* Long leather riding coat, very full trousers, high boots, cavalry turban, and sword belt.
+
+- `renaissance_sahel_narrow_longtunic` — a narrow long $colour cotton tunic
+- `renaissance_sahel_veryfull_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_sahel_military_leather_riding_coat` — a long leather cavalry coat
+- `earlymodern_sahel_military_cavalry_turban` — a layered $colour cavalry turban
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 153 — Hausa-facing infantryman
+
+*Design focus:* Embroidered-neck tunic, full trousers, sandals, conical leather hat, sash, and crossbelt.
+
+- `renaissance_sahel_embroidered_necktunic` — a broad-necked $colour cotton tunic
+- `renaissance_sahel_veryfull_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `renaissance_sahel_conical_leatherhat` — a conical leather riding hat
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 154 — Sahelian household guard
+
+*Design focus:* Narrow tunic beneath broad military over-robe with full trousers, cavalry turban, command sash, and badge.
+
+- `renaissance_sahel_narrow_longtunic` — a narrow long $colour cotton tunic
+- `renaissance_sahel_veryfull_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_sahel_military_guard_overrobe` — a broad $colour military over-robe
+- `earlymodern_sahel_military_cavalry_turban` — a layered $colour cavalry turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 155 — Sahelian fort officer
+
+*Design focus:* Broad military over-robe, very full trousers, scholar turban, command scarf, embroidered appointment badge, sash, and sword belt.
+
+- `renaissance_sahel_narrow_longtunic` — a narrow long $colour cotton tunic
+- `renaissance_sahel_veryfull_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_sahel_military_guard_overrobe` — a broad $colour military over-robe
+- `renaissance_sahel_scholar_turban` — a layered $colour cotton turban
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 156 — Sahelian cavalry officer
+
+*Design focus:* Leather riding coat over full trousers with cavalry turban, command sash, sword belt, and embroidered appointment badge.
+
+- `renaissance_sahel_narrow_longtunic` — a narrow long $colour cotton tunic
+- `renaissance_sahel_veryfull_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_sahel_military_leather_riding_coat` — a long leather cavalry coat
+- `earlymodern_sahel_military_cavalry_turban` — a layered $colour cavalry turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 27. Ethiopian / Red Sea
+
+> Ethiopian highland and Red Sea military clothing, c. 1600-1750, covers infantry, firearm troops, cavalry, household guards, field officers, and Red Sea port command. Ecclesiastical and dynastic signs remain skins or separate regalia.
+
+#### Military outfit 157 — Ethiopian highland infantryman
+
+*Design focus:* Narrow cotton tunic, narrow trousers, sandals, white service headcloth, broad war cloak, and sash.
+
+- `renaissance_redsea_narrow_cotton_tunic` — a narrow long $colour cotton tunic
+- `earlymodern_redsea_clothing_narrow_cotton_trousers` — a pair of narrow $colour cotton trousers
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_ethiopian_military_service_headcloth` — a wrapped white cotton service headcloth
+- `earlymodern_ethiopian_military_highland_war_cloak` — a broad $colour highland war cloak
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+
+#### Military outfit 158 — Ethiopian musketeer
+
+*Design focus:* Narrow tunic and trousers with sandals, service headcloth, war cloak, sash, and crossbelt.
+
+- `renaissance_redsea_narrow_cotton_tunic` — a narrow long $colour cotton tunic
+- `earlymodern_redsea_clothing_narrow_cotton_trousers` — a pair of narrow $colour cotton trousers
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_ethiopian_military_service_headcloth` — a wrapped white cotton service headcloth
+- `earlymodern_ethiopian_military_highland_war_cloak` — a broad $colour highland war cloak
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 159 — Ethiopian cavalryman
+
+*Design focus:* Long court shirt, narrow trousers, high boots, service headcloth, leather highland cloak, and sword belt.
+
+- `renaissance_redsea_long_courtshirt` — a long full-sleeved $colour cotton shirt
+- `earlymodern_redsea_clothing_narrow_cotton_trousers` — a pair of narrow $colour cotton trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_ethiopian_military_service_headcloth` — a wrapped white cotton service headcloth
+- `renaissance_redsea_leather_highlandcloak` — a broad leather highland cloak
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 160 — Ethiopian household guard
+
+*Design focus:* Long court shirt and trousers under war cloak and embroidered officer cape with service headcloth and badge.
+
+- `renaissance_redsea_long_courtshirt` — a long full-sleeved $colour cotton shirt
+- `earlymodern_redsea_clothing_narrow_cotton_trousers` — a pair of narrow $colour cotton trousers
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_ethiopian_military_service_headcloth` — a wrapped white cotton service headcloth
+- `earlymodern_ethiopian_military_highland_war_cloak` — a broad $colour highland war cloak
+- `earlymodern_ethiopian_military_officer_cape` — an embroidered $colour officer's shoulder cape
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 161 — Ethiopian field officer
+
+*Design focus:* Long court shirt, trousers, boots, service headcloth, embroidered cape, command sash, sword belt, and command scarf.
+
+- `renaissance_redsea_long_courtshirt` — a long full-sleeved $colour cotton shirt
+- `earlymodern_redsea_clothing_narrow_cotton_trousers` — a pair of narrow $colour cotton trousers
+- `renaissance_persianate_soft_ridingboots` — a pair of soft high leather boots
+- `earlymodern_ethiopian_military_service_headcloth` — a wrapped white cotton service headcloth
+- `earlymodern_ethiopian_military_officer_cape` — an embroidered $colour officer's shoulder cape
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+#### Military outfit 162 — Red Sea port officer
+
+*Design focus:* Long court shirt beneath a light coastal command coat with trousers, service headcloth, sash, sword belt, and embroidered appointment badge.
+
+- `renaissance_redsea_long_courtshirt` — a long full-sleeved $colour cotton shirt
+- `earlymodern_redsea_clothing_narrow_cotton_trousers` — a pair of narrow $colour cotton trousers
+- `renaissance_shared_clothing_leather_sandals` — a pair of leather sandals
+- `earlymodern_swahili_naval_officer_command_coat` — a fine $colour coastal command coat
+- `earlymodern_ethiopian_military_service_headcloth` — a wrapped white cotton service headcloth
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+### 28. Swahili Coast / Indian Ocean Africa
+
+> Swahili and Indian Ocean African military clothing, c. 1600-1750, covers town guards, firearm troops, port artillery, merchant escorts, coastal officers, and naval command. Port, island, sultanate, and imported-textile distinctions remain skins.
+
+#### Military outfit 163 — Swahili town guard
+
+*Design focus:* Short coastal tunic, sewn wrap skirt, toe-loop sandals, coastal guard coat, embroidered cap, and sash.
+
+- `renaissance_indianocean_short_coastaltunic` — a short loose $colour cotton coastal tunic
+- `renaissance_indianocean_sewn_wrapskirt` — a sewn $colour cotton coastal wrap skirt
+- `renaissance_indianocean_toeloop_sandals` — a pair of toe-loop leather sandals
+- `earlymodern_swahili_military_coastal_guard_coat` — a light $colour coastal guard coat
+- `renaissance_indianocean_embroidered_roundcap` — a close $colour embroidered round cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+
+#### Military outfit 164 — Swahili musketeer
+
+*Design focus:* Long coastal robe, short maritime trousers, sandals, service turban, coastal guard coat, and crossbelt.
+
+- `renaissance_indianocean_long_coastalrobe` — a long collarless $colour cotton coastal robe
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `renaissance_indianocean_toeloop_sandals` — a pair of toe-loop leather sandals
+- `earlymodern_swahili_military_coastal_guard_coat` — a light $colour coastal guard coat
+- `earlymodern_swahili_military_service_turban` — a compact $colour coastal service turban
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 165 — Swahili port artilleryman
+
+*Design focus:* Short coastal tunic, short trousers, sandals, service turban, coastal guard coat, sash, and crossbelt.
+
+- `renaissance_indianocean_short_coastaltunic` — a short loose $colour cotton coastal tunic
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `renaissance_indianocean_toeloop_sandals` — a pair of toe-loop leather sandals
+- `earlymodern_swahili_military_coastal_guard_coat` — a light $colour coastal guard coat
+- `earlymodern_swahili_military_service_turban` — a compact $colour coastal service turban
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 166 — Swahili merchant escort
+
+*Design focus:* Long coastal robe beneath an open merchant coat with sewn wrapper, sandals, embroidered cap, and sword belt.
+
+- `renaissance_indianocean_long_coastalrobe` — a long collarless $colour cotton coastal robe
+- `renaissance_indianocean_sewn_wrapskirt` — a sewn $colour cotton coastal wrap skirt
+- `renaissance_indianocean_toeloop_sandals` — a pair of toe-loop leather sandals
+- `renaissance_indianocean_open_merchantcoat` — a light open-front $colour cotton merchant coat
+- `renaissance_indianocean_embroidered_roundcap` — a close $colour embroidered round cap
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 167 — Swahili coastal officer
+
+*Design focus:* Long coastal robe beneath a fine command coat with sewn wrapper, turban, sash, sword belt, and badge.
+
+- `renaissance_indianocean_long_coastalrobe` — a long collarless $colour cotton coastal robe
+- `renaissance_indianocean_sewn_wrapskirt` — a sewn $colour cotton coastal wrap skirt
+- `renaissance_indianocean_toeloop_sandals` — a pair of toe-loop leather sandals
+- `earlymodern_swahili_naval_officer_command_coat` — a fine $colour coastal command coat
+- `earlymodern_swahili_military_service_turban` — a compact $colour coastal service turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 168 — Swahili naval officer
+
+*Design focus:* Short coastal tunic and trousers under a fine Indian Ocean command coat with turban, sash, sword belt, and command scarf.
+
+- `renaissance_indianocean_short_coastaltunic` — a short loose $colour cotton coastal tunic
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `renaissance_indianocean_toeloop_sandals` — a pair of toe-loop leather sandals
+- `earlymodern_swahili_naval_officer_command_coat` — a fine $colour coastal command coat
+- `earlymodern_swahili_military_service_turban` — a compact $colour coastal service turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+### 29. Spanish colonial Americas
+
+> Spanish-colonial military clothing, c. 1600-1750, covers presidial infantry, local militia, mounted frontier service, artillery, commissioned officers, and naval command. Region, community, imported or local manufacture, and legal status must be recorded separately.
+
+#### Military outfit 169 — Spanish-colonial presidial infantryman
+
+*Design focus:* Plain shirt, knee breeches, stockings, shoes, tropical garrison coat, broad sunhat, sash, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_colonial_military_tropical_garrison_coat` — a light $colour tropical garrison coat
+- `earlymodern_colonial_clothing_broad_felt_sunhat` — a broad-brimmed $colour felt hat
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+
+#### Military outfit 170 — Spanish-colonial militia member
+
+*Design focus:* Plain shirt, loose canvas trousers, short militia coat, shoes, broad hat, sash, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_colonial_clothing_loose_canvas_trousers` — a pair of loose $colour canvas trousers
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_colonial_military_short_militia_coat` — a short $colour colonial militia coat
+- `earlymodern_colonial_clothing_broad_felt_sunhat` — a broad-brimmed $colour felt hat
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 171 — Spanish-colonial frontier cavalryman
+
+*Design focus:* Plain shirt, knee breeches, high boots, short wool jacket, broad hat, sash, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `renaissance_shared_clothing_high_riding_boots` — a pair of high leather boots
+- `earlymodern_colonial_clothing_short_wool_jacket` — a short $colour wool jacket
+- `earlymodern_colonial_clothing_broad_felt_sunhat` — a broad-brimmed $colour felt hat
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 172 — Spanish-colonial artillery officer
+
+*Design focus:* Tropical garrison coat, waistcoat, breeches, broad hat, gorget, shoulder knots, sash, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_colonial_military_tropical_garrison_coat` — a light $colour tropical garrison coat
+- `earlymodern_colonial_clothing_broad_felt_sunhat` — a broad-brimmed $colour felt hat
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_braided_shoulder_knots` — a pair of braided $colour shoulder knots
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 173 — Spanish-colonial field officer
+
+*Design focus:* Fine officer coat, waistcoat, breeches, cocked hat, sash, gorget, sword belt, and single epaulette.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_officer_frock_coat` — a finely laced $colour officer's coat
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+
+#### Military outfit 174 — Spanish-colonial naval officer
+
+*Design focus:* Light naval officer coat, dress waistcoat, breeches, cocked hat, paired epaulettes, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_western_naval_officer_dress_waistcoat` — a fine $colour naval waistcoat
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_officer_tropical_coat` — a light $colour cotton officer's coat
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_military_rank_paired_fringed_epaulettes` — a pair of fringed $colour epaulettes
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+### 30. Portuguese Brazil / Atlantic plantation
+
+> Brazilian and Portuguese-Atlantic military clothing, c. 1600-1750, includes colonial garrison, locally raised militia, mounted frontier service, artillery, command, and naval officers. Clothing does not encode ancestry, enslavement, freedom, or legal category.
+
+#### Military outfit 175 — Portuguese-Atlantic garrison infantryman
+
+*Design focus:* Plain shirt, loose trousers, tropical garrison coat, shoes, broad sunhat, sash, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_colonial_clothing_loose_canvas_trousers` — a pair of loose $colour canvas trousers
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_colonial_military_tropical_garrison_coat` — a light $colour tropical garrison coat
+- `earlymodern_colonial_clothing_broad_felt_sunhat` — a broad-brimmed $colour felt hat
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+
+#### Military outfit 176 — Brazilian local militia member
+
+*Design focus:* Plain shirt, loose trousers, light militia coat, woven sandals, cotton headwrap, sash, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_colonial_clothing_loose_canvas_trousers` — a pair of loose $colour canvas trousers
+- `earlymodern_iberian_clothing_woven_fibre_sandals` — a pair of $colour woven fibre sandals
+- `earlymodern_caribbean_military_light_militia_coat` — a light $colour cotton militia coat
+- `earlymodern_colonial_clothing_cotton_headwrap` — a full $colour cotton headwrap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 177 — Portuguese-Atlantic frontier cavalryman
+
+*Design focus:* Plain shirt, knee breeches, high boots, short militia coat, broad hat, sash, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `renaissance_shared_clothing_high_riding_boots` — a pair of high leather boots
+- `earlymodern_colonial_military_short_militia_coat` — a short $colour colonial militia coat
+- `earlymodern_colonial_clothing_broad_felt_sunhat` — a broad-brimmed $colour felt hat
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 178 — Brazilian fort artillery officer
+
+*Design focus:* Tropical garrison coat, waistcoat, breeches, broad hat, gorget, knots, sash, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_colonial_military_tropical_garrison_coat` — a light $colour tropical garrison coat
+- `earlymodern_colonial_clothing_broad_felt_sunhat` — a broad-brimmed $colour felt hat
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_braided_shoulder_knots` — a pair of braided $colour shoulder knots
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 179 — Portuguese-Atlantic field officer
+
+*Design focus:* Fine tropical officer coat with waistcoat, breeches, cocked hat, sash, sword belt, and epaulette.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_western_naval_officer_dress_waistcoat` — a fine $colour naval waistcoat
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_officer_tropical_coat` — a light $colour cotton officer's coat
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+
+#### Military outfit 180 — Portuguese-Atlantic naval officer
+
+*Design focus:* Light naval coat, dress waistcoat, breeches, cocked hat, paired epaulettes, boat cloak, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_western_naval_officer_dress_waistcoat` — a fine $colour naval waistcoat
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_officer_tropical_coat` — a light $colour cotton officer's coat
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_western_naval_officer_boat_cloak` — a full $colour naval boat cloak
+- `earlymodern_military_rank_paired_fringed_epaulettes` — a pair of fringed $colour epaulettes
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+### 31. English / French / Dutch colonial North America
+
+> Colonial North American military clothing, c. 1600-1750, covers regular troops, militia, ranger or frontier service, artillery, commissioned officers, and privateer or naval command. Colony, empire, community, season, and local manufacture remain explicit admission metadata.
+
+#### Military outfit 181 — Colonial regular infantryman
+
+*Design focus:* Long uniform coat, waistcoat, breeches, stockings, shoes, gaiters, cocked hat, neck stock, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_long_uniform_coat` — a long-skirted $colour uniform coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_western_military_leather_neck_stock` — a stiff black leather neck stock
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+
+#### Military outfit 182 — Colonial militia member
+
+*Design focus:* Plain shirt, loose canvas trousers, short militia coat, moccasins, work cap, sash, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_colonial_clothing_loose_canvas_trousers` — a pair of loose $colour canvas trousers
+- `earlymodern_colonialnorthamerica_clothing_soft_moccasins` — a pair of soft leather moccasins
+- `earlymodern_colonial_military_short_militia_coat` — a short $colour colonial militia coat
+- `earlymodern_colonialnorthamerica_clothing_linen_work_cap` — a $colour linen work cap
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 183 — Colonial ranger
+
+*Design focus:* Fringed hunting shirt, loose trousers, moccasins, hooded capote, work cap, belt, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_military_frontier_hunting_shirt` — a fringed $colour frontier hunting shirt
+- `earlymodern_colonial_clothing_loose_canvas_trousers` — a pair of loose $colour canvas trousers
+- `earlymodern_colonialnorthamerica_clothing_soft_moccasins` — a pair of soft leather moccasins
+- `earlymodern_colonialnorthamerica_clothing_hooded_wool_capote` — a hooded $colour wool capote
+- `earlymodern_colonialnorthamerica_clothing_linen_work_cap` — a $colour linen work cap
+- `preindustrial_clothing_iron_buckled_leather_belt` — an iron-buckled leather belt
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 184 — Colonial artillery officer
+
+*Design focus:* Officer frock, waistcoat, breeches, cocked hat, gorget, shoulder knots, sash, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_officer_frock_coat` — a finely laced $colour officer's coat
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_braided_shoulder_knots` — a pair of braided $colour shoulder knots
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 185 — Colonial field officer
+
+*Design focus:* Fine officer coat, dress waistcoat, breeches, cocked hat, sash, sword belt, and paired epaulettes.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_western_naval_officer_dress_waistcoat` — a fine $colour naval waistcoat
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_officer_frock_coat` — a finely laced $colour officer's coat
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_paired_fringed_epaulettes` — a pair of fringed $colour epaulettes
+
+#### Military outfit 186 — Colonial privateer or naval officer
+
+*Design focus:* Undress naval frock and shipboard waistcoat with breeches, cocked hat, boat cloak, sword belt, and command scarf.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_globalmaritime_officer_shipboard_waistcoat` — a plain $colour shipboard officer's waistcoat
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_officer_undress_frock` — a plain $colour naval officer's frock
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_western_naval_officer_boat_cloak` — a full $colour naval boat cloak
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+### 32. Indigenous North American regional families
+
+> These six manifests are broad regional martial-dress placeholders, not mass uniforms. Every implementation must name a specific community, ecology, season, and contact history, and must distinguish diplomatic gifts, trade clothing, personal honours, war-party dress, and locally made continuity.
+
+#### Military outfit 187 — Woodland hide-and-cloth martial outfit
+
+*Design focus:* Hide shirt, breechcloth, leggings, moccasins, tied trade-cloth headband, blanket coat, and belt.
+
+- `renaissance_northamerican_hide_shirt` — a loose hide shirt
+- `renaissance_northamerican_hide_breechcloth` — a long hide breechcloth
+- `renaissance_northamerican_paired_hideleggings` — a pair of long hide leggings
+- `renaissance_northamerican_soft_moccasins` — a pair of soft hide moccasins
+- `earlymodern_northamerican_clothing_tied_tradecloth_headband` — a tied $colour wool headband
+- `earlymodern_northamerican_clothing_wrapped_blanket_coat` — a wrapped $colour wool blanket coat
+- `preindustrial_clothing_plain_leather_belt` — a plain leather belt
+
+#### Military outfit 188 — Great Lakes trade-cloth war outfit
+
+*Design focus:* Trade-cloth shirt, hide breechcloth and leggings, moccasins, feathered headband, war coat, and silver command scarf.
+
+- `earlymodern_northamerican_clothing_tradecloth_shirt` — a loose $colour wool trade-cloth shirt
+- `renaissance_northamerican_hide_breechcloth` — a long hide breechcloth
+- `renaissance_northamerican_paired_hideleggings` — a pair of long hide leggings
+- `renaissance_northamerican_soft_moccasins` — a pair of soft hide moccasins
+- `earlymodern_northamerican_military_feathered_headband` — a feathered leather war headband
+- `earlymodern_northamerican_military_tradecloth_warcoat` — a wrapped $colour trade-cloth war coat
+- `earlymodern_northamerican_military_silver_gorget` — an engraved silver crescent gorget
+
+#### Military outfit 189 — Northern winter fighting outfit
+
+*Design focus:* Hide shirt, breechcloth, leggings, moccasins, fur robe, tied headband, and blanket coat.
+
+- `renaissance_northamerican_hide_shirt` — a loose hide shirt
+- `renaissance_northamerican_hide_breechcloth` — a long hide breechcloth
+- `renaissance_northamerican_paired_hideleggings` — a pair of long hide leggings
+- `renaissance_northamerican_soft_moccasins` — a pair of soft hide moccasins
+- `renaissance_northamerican_fur_robe` — a broad fur robe
+- `earlymodern_northamerican_clothing_tied_tradecloth_headband` — a tied $colour wool headband
+- `earlymodern_northamerican_clothing_wrapped_blanket_coat` — a wrapped $colour wool blanket coat
+
+#### Military outfit 190 — Contact-period mounted martial outfit
+
+*Design focus:* Trade-cloth shirt, breechcloth, leggings, moccasins, feathered headband, war coat, sash, and sword belt.
+
+- `earlymodern_northamerican_clothing_tradecloth_shirt` — a loose $colour wool trade-cloth shirt
+- `renaissance_northamerican_hide_breechcloth` — a long hide breechcloth
+- `renaissance_northamerican_paired_hideleggings` — a pair of long hide leggings
+- `renaissance_northamerican_soft_moccasins` — a pair of soft hide moccasins
+- `earlymodern_northamerican_military_feathered_headband` — a feathered leather war headband
+- `earlymodern_northamerican_military_tradecloth_warcoat` — a wrapped $colour trade-cloth war coat
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 191 — Diplomatic war captain outfit
+
+*Design focus:* Hide shirt and leggings with breechcloth, moccasins, blanket coat, silver command scarf, command sash, and feathered headband.
+
+- `renaissance_northamerican_hide_shirt` — a loose hide shirt
+- `renaissance_northamerican_hide_breechcloth` — a long hide breechcloth
+- `renaissance_northamerican_paired_hideleggings` — a pair of long hide leggings
+- `renaissance_northamerican_soft_moccasins` — a pair of soft hide moccasins
+- `earlymodern_northamerican_clothing_wrapped_blanket_coat` — a wrapped $colour wool blanket coat
+- `earlymodern_northamerican_military_silver_gorget` — an engraved silver crescent gorget
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_northamerican_military_feathered_headband` — a feathered leather war headband
+
+#### Military outfit 192 — Trade-post allied scout outfit
+
+*Design focus:* Trade-cloth shirt, hide breechcloth and leggings, moccasins, tied headband, blanket coat, crossbelt, and badge.
+
+- `earlymodern_northamerican_clothing_tradecloth_shirt` — a loose $colour wool trade-cloth shirt
+- `renaissance_northamerican_hide_breechcloth` — a long hide breechcloth
+- `renaissance_northamerican_paired_hideleggings` — a pair of long hide leggings
+- `renaissance_northamerican_soft_moccasins` — a pair of soft hide moccasins
+- `earlymodern_northamerican_clothing_tied_tradecloth_headband` — a tied $colour wool headband
+- `earlymodern_northamerican_clothing_wrapped_blanket_coat` — a wrapped $colour wool blanket coat
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+- `earlymodern_military_rank_brass_breast_badge` — a stamped brass breast badge
+
+### 33. Mesoamerican colonial and Indigenous
+
+> Mesoamerican colonial and Indigenous military clothing, c. 1600-1750, covers local militia, archery or spear auxiliaries, Indigenous officers, mounted auxiliaries, coastal watch, and militia captains. Local community, mission, municipal, and colonial relationships require explicit admission notes.
+
+#### Military outfit 193 — Mesoamerican local militia member
+
+*Design focus:* Panelled loin garment, quilted military tunic, fibre sandals, woven headcap, shoulder-tied cloak, and sash.
+
+- `renaissance_mesoamerican_panelled_loincloth` — a long panelled $colour cotton loin garment
+- `earlymodern_mesoamerican_military_quilted_tunic` — a quilted $colour cotton military tunic
+- `renaissance_mesoamerican_woven_fibresandals` — a pair of $colour woven fibre sandals
+- `renaissance_mesoamerican_woven_headcap` — a close $colour woven fibre cap
+- `renaissance_mesoamerican_shouldertied_cloak` — a shoulder-tied $colour cotton rectangular cloak
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+
+#### Military outfit 194 — Mesoamerican bow or spear auxiliary
+
+*Design focus:* Side-seamed tunic, short wrap skirt, fibre sandals, woven headcap, triangular shoulder garment, and sash.
+
+- `renaissance_mesoamerican_side_seamed_tunic` — a side-seamed sleeveless $colour cotton tunic
+- `renaissance_mesoamerican_short_wrapskirt` — a short $colour cotton wrap skirt
+- `renaissance_mesoamerican_woven_fibresandals` — a pair of $colour woven fibre sandals
+- `renaissance_mesoamerican_woven_headcap` — a close $colour woven fibre cap
+- `renaissance_mesoamerican_triangle_shouldergarment` — a triangular $colour cotton shoulder garment
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+
+#### Military outfit 195 — Mesoamerican firearm auxiliary
+
+*Design focus:* Panelled loin garment, quilted tunic under a militia jacket, sandals, woven cap, sash, and crossbelt.
+
+- `renaissance_mesoamerican_panelled_loincloth` — a long panelled $colour cotton loin garment
+- `earlymodern_mesoamerican_military_quilted_tunic` — a quilted $colour cotton military tunic
+- `earlymodern_mesoamerican_military_militia_jacket` — a short $colour cotton militia jacket
+- `renaissance_mesoamerican_woven_fibresandals` — a pair of $colour woven fibre sandals
+- `renaissance_mesoamerican_woven_headcap` — a close $colour woven fibre cap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 196 — Mesoamerican mounted auxiliary officer
+
+*Design focus:* Long wrap skirt, militia jacket, sandals, command headband, shoulder cloak, sash, and sword belt.
+
+- `renaissance_mesoamerican_rectangular_blouse` — a rectangular sleeveless $colour cotton blouse
+- `renaissance_mesoamerican_long_wrapskirt` — a long $colour cotton wrap skirt
+- `earlymodern_mesoamerican_military_militia_jacket` — a short $colour cotton militia jacket
+- `renaissance_mesoamerican_woven_fibresandals` — a pair of $colour woven fibre sandals
+- `earlymodern_mesoamerican_military_command_headband` — a broad $colour woven command headband
+- `renaissance_mesoamerican_shouldertied_cloak` — a shoulder-tied $colour cotton rectangular cloak
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 197 — Mesoamerican coastal watch officer
+
+*Design focus:* Quilted tunic, short wrap skirt, sandals, command headband, shoulder cloak, crossbelt, and badge.
+
+- `renaissance_mesoamerican_panelled_loincloth` — a long panelled $colour cotton loin garment
+- `earlymodern_mesoamerican_military_quilted_tunic` — a quilted $colour cotton military tunic
+- `renaissance_mesoamerican_short_wrapskirt` — a short $colour cotton wrap skirt
+- `renaissance_mesoamerican_woven_fibresandals` — a pair of $colour woven fibre sandals
+- `earlymodern_mesoamerican_military_command_headband` — a broad $colour woven command headband
+- `renaissance_mesoamerican_shouldertied_cloak` — a shoulder-tied $colour cotton rectangular cloak
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+
+#### Military outfit 198 — Mesoamerican militia captain
+
+*Design focus:* Quilted tunic under a short militia jacket with long wrap skirt, command headband, command sash, command scarf, and sword belt.
+
+- `renaissance_mesoamerican_panelled_loincloth` — a long panelled $colour cotton loin garment
+- `earlymodern_mesoamerican_military_quilted_tunic` — a quilted $colour cotton military tunic
+- `earlymodern_mesoamerican_military_militia_jacket` — a short $colour cotton militia jacket
+- `renaissance_mesoamerican_long_wrapskirt` — a long $colour cotton wrap skirt
+- `renaissance_mesoamerican_woven_fibresandals` — a pair of $colour woven fibre sandals
+- `earlymodern_mesoamerican_military_command_headband` — a broad $colour woven command headband
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+### 34. Andean colonial and Indigenous
+
+> Andean colonial and Indigenous military clothing, c. 1600-1750, covers highland militia, local auxiliaries, colonial firearm troops, mounted service, artillery, and officers. Community, altitude, season, imported or local cloth, and colonial relationship must be recorded separately.
+
+#### Military outfit 199 — Andean highland militia member
+
+*Design focus:* Wrapped loincloth, service tunic, pinned wrap skirt, fibre sandals, ear-flap cap, poncho, and sash.
+
+- `renaissance_shared_clothing_wrapped_loincloth` — a $colour wrapped loincloth
+- `earlymodern_andean_military_service_tunic` — a long $colour camelid-wool service tunic
+- `renaissance_andean_pinned_wrapskirt` — a pinned broad $colour camelid-wool wrap skirt
+- `renaissance_andean_braided_fibresandals` — a pair of $colour braided fibre sandals
+- `renaissance_andean_woven_earflapcap` — a woven $colour camelid-wool ear-flap cap
+- `earlymodern_andeancolonial_clothing_wool_poncho` — a $colour wool poncho
+- `earlymodern_andean_military_command_sash` — a broad $colour camelid-wool command sash
+
+#### Military outfit 200 — Andean local auxiliary
+
+*Design focus:* Straight sleeveless tunic, pinned wrap skirt, sandals, long headcloth, paired mantle, and broad sash.
+
+- `renaissance_andean_straight_sleevelesstunic` — a straight sleeveless $colour camelid-wool tunic
+- `renaissance_andean_pinned_wrapskirt` — a pinned broad $colour camelid-wool wrap skirt
+- `renaissance_andean_braided_fibresandals` — a pair of $colour braided fibre sandals
+- `renaissance_andean_long_headcloth` — a long $colour camelid-wool headcloth
+- `renaissance_andean_paired_shouldermantle` — a broad pinned $colour camelid-wool shoulder mantle
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+
+#### Military outfit 201 — Andean colonial musketeer
+
+*Design focus:* Service tunic under a short militia coat with pinned skirt, sandals, shaped hat, sash, and crossbelt.
+
+- `renaissance_shared_clothing_wrapped_loincloth` — a $colour wrapped loincloth
+- `earlymodern_andean_military_service_tunic` — a long $colour camelid-wool service tunic
+- `earlymodern_andean_military_short_militia_coat` — a short $colour wool militia coat
+- `renaissance_andean_pinned_wrapskirt` — a pinned broad $colour camelid-wool wrap skirt
+- `renaissance_andean_braided_fibresandals` — a pair of $colour braided fibre sandals
+- `earlymodern_andeancolonial_clothing_shaped_wool_hat` — a shaped $colour wool hat
+- `earlymodern_andean_military_command_sash` — a broad $colour camelid-wool command sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 202 — Andean mounted militia officer
+
+*Design focus:* Service tunic, narrow trousers, high boots, short militia coat, shaped hat, sash, and sword belt.
+
+- `renaissance_shared_clothing_wrapped_loincloth` — a $colour wrapped loincloth
+- `earlymodern_andean_military_service_tunic` — a long $colour camelid-wool service tunic
+- `earlymodern_redsea_clothing_narrow_cotton_trousers` — a pair of narrow $colour cotton trousers
+- `renaissance_shared_clothing_high_riding_boots` — a pair of high leather boots
+- `earlymodern_andean_military_short_militia_coat` — a short $colour wool militia coat
+- `earlymodern_andeancolonial_clothing_shaped_wool_hat` — a shaped $colour wool hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 203 — Andean artillery officer
+
+*Design focus:* Service tunic and pinned skirt under a short coat with shaped hat, command scarf, embroidered appointment badge, sash, and sword belt.
+
+- `renaissance_shared_clothing_wrapped_loincloth` — a $colour wrapped loincloth
+- `earlymodern_andean_military_service_tunic` — a long $colour camelid-wool service tunic
+- `renaissance_andean_pinned_wrapskirt` — a pinned broad $colour camelid-wool wrap skirt
+- `renaissance_andean_braided_fibresandals` — a pair of $colour braided fibre sandals
+- `earlymodern_andean_military_short_militia_coat` — a short $colour wool militia coat
+- `earlymodern_andeancolonial_clothing_shaped_wool_hat` — a shaped $colour wool hat
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 204 — Andean militia captain
+
+*Design focus:* Service tunic, full wool skirt, poncho, shaped hat, command sash, silver command scarf, and sword belt.
+
+- `renaissance_shared_clothing_wrapped_loincloth` — a $colour wrapped loincloth
+- `earlymodern_andean_military_service_tunic` — a long $colour camelid-wool service tunic
+- `earlymodern_andeancolonial_clothing_full_wool_pollera` — a full gathered $colour wool skirt
+- `renaissance_andean_braided_fibresandals` — a pair of $colour braided fibre sandals
+- `earlymodern_andeancolonial_clothing_wool_poncho` — a $colour wool poncho
+- `earlymodern_andeancolonial_clothing_shaped_wool_hat` — a shaped $colour wool hat
+- `earlymodern_andean_military_command_sash` — a broad $colour camelid-wool command sash
+- `earlymodern_northamerican_military_silver_gorget` — an engraved silver crescent gorget
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+### 35. Caribbean / Atlantic plantation
+
+> Caribbean and Atlantic plantation-zone military clothing, c. 1600-1750, covers garrison troops, locally raised militia, maroon martial dress, artillery, privateer or marine officers, and colonial field officers. Clothing never encodes free or enslaved legal status, ancestry, or assimilation.
+
+#### Military outfit 205 — Caribbean garrison infantryman
+
+*Design focus:* Plain shirt, loose trousers, tropical garrison coat, shoes, broad sunhat, sash, and crossbelt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_colonial_clothing_loose_canvas_trousers` — a pair of loose $colour canvas trousers
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_colonial_military_tropical_garrison_coat` — a light $colour tropical garrison coat
+- `earlymodern_colonial_clothing_broad_felt_sunhat` — a broad-brimmed $colour felt hat
+- `earlymodern_military_rank_wool_service_sash` — a broad $colour wool service sash
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+
+#### Military outfit 206 — Caribbean local militia member
+
+*Design focus:* Sleeveless cotton tunic, loin apron, woven sandals, light militia coat, headwrap, sash, and crossbelt.
+
+- `renaissance_caribbean_sleeveless_cottontunic` — a loose sleeveless $colour cotton tunic
+- `renaissance_caribbean_cotton_loinapron` — a panelled $colour cotton loin apron
+- `renaissance_caribbean_woven_fibresandals` — a pair of $colour woven fibre sandals
+- `earlymodern_caribbean_military_light_militia_coat` — a light $colour cotton militia coat
+- `earlymodern_colonial_clothing_cotton_headwrap` — a full $colour cotton headwrap
+- `earlymodern_shared_clothing_broad_wrapped_sash` — a broad $colour wrapped sash
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 207 — Caribbean maroon martial outfit
+
+*Design focus:* Sleeveless tunic, short wrap skirt, sandals, woven shoulder cape, headwrap, belt, and crossbelt.
+
+- `renaissance_caribbean_sleeveless_cottontunic` — a loose sleeveless $colour cotton tunic
+- `renaissance_caribbean_cotton_wrapskirt` — a short $colour cotton wrap skirt
+- `renaissance_caribbean_woven_fibresandals` — a pair of $colour woven fibre sandals
+- `renaissance_caribbean_woven_shouldercape` — a short $colour cotton shoulder cape
+- `earlymodern_colonial_clothing_cotton_headwrap` — a full $colour cotton headwrap
+- `preindustrial_clothing_plain_leather_belt` — a plain leather belt
+- `earlymodern_military_uniform_plain_leather_crossbelt` — a broad leather service crossbelt
+
+#### Military outfit 208 — Caribbean artillery officer
+
+*Design focus:* Light militia coat, loose trousers, shoes, broad hat, gorget, shoulder knots, sash, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_colonial_clothing_loose_canvas_trousers` — a pair of loose $colour canvas trousers
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_caribbean_military_light_militia_coat` — a light $colour cotton militia coat
+- `earlymodern_colonial_clothing_broad_felt_sunhat` — a broad-brimmed $colour felt hat
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_braided_shoulder_knots` — a pair of braided $colour shoulder knots
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 209 — Caribbean privateer or marine officer
+
+*Design focus:* Light island naval coat, shipboard waistcoat, loose trousers, cocked hat, sword belt, epaulette, and command scarf.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_globalmaritime_officer_shipboard_waistcoat` — a plain $colour shipboard officer's waistcoat
+- `earlymodern_colonial_clothing_loose_canvas_trousers` — a pair of loose $colour canvas trousers
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_caribbean_naval_officer_island_coat` — a light $colour island naval coat
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+#### Military outfit 210 — Caribbean colonial field officer
+
+*Design focus:* Light island naval coat over dress waistcoat and breeches with cocked hat, paired epaulettes, sash, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_colonial_clothing_plain_linen_shirt` — a plain $colour linen shirt
+- `earlymodern_western_naval_officer_dress_waistcoat` — a fine $colour naval waistcoat
+- `earlymodern_colonial_clothing_plain_knee_breeches` — a pair of plain $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_caribbean_naval_officer_island_coat` — a light $colour island naval coat
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_military_rank_paired_fringed_epaulettes` — a pair of fringed $colour epaulettes
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+### 36. Global maritime and chartered-company trade
+
+> This cross-cultural overlay contains naval, marine, privateer, and chartered-company officers rather than ordinary sailors. Every use must specify the employing navy, company, port, ship, climate, and date; colours, lace, buttons, company marks, rank, and ship identifiers remain skins.
+
+#### Military outfit 211 — Blue-water captain in dress uniform
+
+*Design focus:* Long naval dress coat, fine waistcoat, breeches, stockings, shoes, cocked hat, paired epaulettes, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_naval_officer_dress_waistcoat` — a fine $colour naval waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_officer_dress_coat` — a long $colour naval officer's coat
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_military_rank_paired_fringed_epaulettes` — a pair of fringed $colour epaulettes
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 212 — Watch-standing lieutenant in undress
+
+*Design focus:* Plain naval frock, shipboard waistcoat, breeches, cocked hat, single epaulette, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_globalmaritime_officer_shipboard_waistcoat` — a plain $colour shipboard officer's waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_officer_undress_frock` — a plain $colour naval officer's frock
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 213 — Marine officer
+
+*Design focus:* Short marine coat, waistcoat, breeches, gaiters, cocked hat, crossbelt, gorget, and shoulder knots.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_military_fitted_waistcoat` — a fitted $colour military waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_military_marine_short_coat` — a short-skirted $colour marine coat
+- `earlymodern_western_military_canvas_gaiters` — a pair of $colour canvas gaiters
+- `earlymodern_western_military_cocked_uniform_hat` — a military $colour cocked felt hat
+- `earlymodern_military_uniform_white_leather_crossbelt` — a broad white leather crossbelt
+- `earlymodern_military_rank_brass_officer_gorget` — a polished brass officer's gorget
+- `earlymodern_military_rank_braided_shoulder_knots` — a pair of braided $colour shoulder knots
+
+#### Military outfit 214 — Chartered-company captain
+
+*Design focus:* Long company frock, fine waistcoat, breeches, cocked hat, paired epaulettes, command scarf, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_western_naval_officer_dress_waistcoat` — a fine $colour naval waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_globalmaritime_officer_company_frock` — a long $colour company officer's frock
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_military_rank_paired_fringed_epaulettes` — a pair of fringed $colour epaulettes
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 215 — Tropical company officer
+
+*Design focus:* Light company coat, shipboard waistcoat, loose canvas trousers, shoes, broad sunhat, single epaulette, sash, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_globalmaritime_officer_shipboard_waistcoat` — a plain $colour shipboard officer's waistcoat
+- `earlymodern_colonial_clothing_loose_canvas_trousers` — a pair of loose $colour canvas trousers
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_globalmaritime_officer_tropical_company_coat` — a light $colour company officer's coat
+- `earlymodern_colonial_clothing_broad_felt_sunhat` — a broad-brimmed $colour felt hat
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 216 — Cold-watch officer
+
+*Design focus:* Heavy watch coat and full boat cloak over shipboard waistcoat, breeches, warm stockings, cocked hat, gloves, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_globalmaritime_officer_shipboard_waistcoat` — a plain $colour shipboard officer's waistcoat
+- `earlymodern_western_clothing_knee_breeches` — a pair of $colour knee breeches
+- `earlymodern_western_clothing_knitted_wool_stockings` — a pair of $colour knitted wool stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_heavy_watch_coat` — a heavy $colour shipboard watch coat
+- `earlymodern_western_naval_officer_boat_cloak` — a full $colour naval boat cloak
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `renaissance_shared_clothing_leather_gloves` — a pair of leather gloves
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+#### Military outfit 217 — Mediterranean galley commander
+
+*Design focus:* Fine command kaftan, short vest, full trousers, slippers, wrapped turban, command sash, sword belt, and command scarf.
+
+- `renaissance_ottoman_collarless_inner_shirt` — a $colour collarless long inner shirt
+- `renaissance_ottoman_full_salwar_trousers` — a pair of very full $colour cotton trousers
+- `renaissance_ottoman_pointed_slippers` — a pair of pointed leather slippers
+- `earlymodern_ottoman_military_sleeveless_service_vest` — a fitted $colour sleeveless service vest
+- `earlymodern_ottoman_naval_officer_command_kaftan` — a fine $colour naval command kaftan
+- `earlymodern_ottoman_military_wrapped_turban` — a compact $colour wrapped military turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+
+#### Military outfit 218 — Indian Ocean company officer
+
+*Design focus:* Light coastal command robe, short tunic, short trousers, sandals, folded turban, sash, sword belt, and epaulette.
+
+- `renaissance_indianocean_short_coastaltunic` — a short loose $colour cotton coastal tunic
+- `renaissance_seasia_short_maritime_trousers` — a pair of short full $colour cotton trousers
+- `renaissance_indianocean_toeloop_sandals` — a pair of toe-loop leather sandals
+- `earlymodern_southindian_naval_officer_command_robe` — a fine $colour coastal command robe
+- `earlymodern_southindian_military_folded_command_turban` — a broad folded $colour command turban
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+- `earlymodern_military_rank_single_fringed_epaulette` — a fringed $colour shoulder epaulette
+
+#### Military outfit 219 — East Asian maritime commander
+
+*Design focus:* Cross-collared inner robe and trousers beneath a fine naval command coat with conical hat, sash, badge, and sword belt.
+
+- `earlymodern_qing_clothing_crosscollar_innerrobe` — a cross-collared $colour cotton inner robe
+- `earlymodern_qing_clothing_wide_cotton_trousers` — a pair of wide $colour cotton trousers
+- `earlymodern_qing_clothing_cloth_shoes` — a pair of $colour cloth shoes
+- `earlymodern_qing_naval_officer_command_coat` — a fine $colour naval command coat
+- `earlymodern_qing_military_conical_felt_hat` — a conical $colour felt military hat
+- `earlymodern_military_rank_broad_officer_sash` — a broad $colour silk officer's sash
+- `earlymodern_military_rank_embroidered_cloth_badge` — an embroidered $colour cloth badge
+- `preindustrial_military_support_simple_sword_belt` — a simple sword belt
+
+#### Military outfit 220 — Privateer captain
+
+*Design focus:* Undress naval frock and shipboard waistcoat with loose trousers, cocked hat, boat cloak, command scarf, paired epaulettes, and sword belt.
+
+- `renaissance_shared_clothing_drawstring_drawers` — a pair of $colour loose drawstring drawers
+- `earlymodern_western_clothing_plain_linen_shirt` — a $colour plain linen shirt
+- `earlymodern_globalmaritime_officer_shipboard_waistcoat` — a plain $colour shipboard officer's waistcoat
+- `earlymodern_colonial_clothing_loose_canvas_trousers` — a pair of loose $colour canvas trousers
+- `earlymodern_western_clothing_buckled_leather_shoes` — a pair of buckled leather shoes
+- `earlymodern_western_naval_officer_undress_frock` — a plain $colour naval officer's frock
+- `earlymodern_western_naval_officer_boat_cloak` — a full $colour naval boat cloak
+- `earlymodern_western_naval_officer_cocked_hat` — a fine $colour cocked hat
+- `earlymodern_military_rank_silk_command_scarf` — a fine $colour silk command scarf
+- `earlymodern_military_rank_paired_fringed_epaulettes` — a pair of fringed $colour epaulettes
+- `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
+
+## First-pass civilian item catalogue
 
 This catalogue contains the **317 stable references actually used by the first-pass manifests**. Full descriptions are deferred. Usage count records how many of the 350 manifests include the reference.
 
@@ -3843,19 +6985,19 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_shared_clothing_drawstring_drawers` | a pair of $colour loose drawstring drawers | `drawers` | `linen` | `Small` / `Standard` | 140g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shorts`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 52 outfit(s). |
-| `renaissance_shared_clothing_low_leather_shoes` | a pair of low leather shoes | `shoes` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 54 outfit(s). |
+| `renaissance_shared_clothing_drawstring_drawers` | a pair of $colour loose drawstring drawers | `drawers` | `linen` | `Small` / `Standard` | 140g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shorts`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 52 outfit(s). Second-pass military admission; used in 81 military outfit(s). |
+| `renaissance_shared_clothing_low_leather_shoes` | a pair of low leather shoes | `shoes` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 54 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
 | `renaissance_shared_clothing_soft_brimless_cap` | a soft $colour brimless cap | `cap` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
 | `renaissance_shared_clothing_footed_stockings` | a pair of $colour footed wool stockings | `stockings` | `wool` | `Small` / `Standard` | 280g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Stockings`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 39 outfit(s). |
-| `renaissance_shared_clothing_felt_brimmed_hat` | a $colour brimmed felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 21 outfit(s). |
-| `renaissance_shared_clothing_leather_gloves` | a pair of leather gloves | `gloves` | `leather` | `Small` / `Standard` | 220g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gloves`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 22 outfit(s). |
+| `renaissance_shared_clothing_felt_brimmed_hat` | a $colour brimmed felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 21 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_shared_clothing_leather_gloves` | a pair of leather gloves | `gloves` | `leather` | `Small` / `Standard` | 220g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gloves`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 22 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
 | `renaissance_shared_clothing_neck_kerchief` | a tied $colour linen neck kerchief | `kerchief` | `linen` | `Small` / `Standard` | 90g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Scarf`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). |
 | `renaissance_shared_clothing_straight_trousers` | a pair of $colour straight wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
 | `renaissance_shared_clothing_ankle_boots` | a pair of ankle leather boots | `boots` | `leather` | `Small` / `Standard` | 950g / 51.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 13 outfit(s). |
 | `renaissance_shared_clothing_gathered_skirt` | a gathered $colour wool skirt | `skirt` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
 | `renaissance_shared_clothing_short_head_veil` | a short $colour head veil | `veil` | `linen` | `Small` / `Standard` | 120g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Head_Veil`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
 | `renaissance_shared_clothing_footwraps` | a pair of $colour cloth footwraps | `footwraps` | `linen` | `Small` / `Standard` | 200g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Stockings`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_shared_clothing_high_riding_boots` | a pair of high leather boots | `boots` | `leather` | `Small` / `Good` | 1220g / 151.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
+| `renaissance_shared_clothing_high_riding_boots` | a pair of high leather boots | `boots` | `leather` | `Small` / `Good` | 1220g / 151.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 10 military outfit(s). |
 | `renaissance_shared_clothing_rain_cape` | a close-woven $colour rain cape | `cape` | `wool` | `Normal` / `Standard` | 1260g / 50.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Closed)`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
 | `renaissance_shared_clothing_shoulder_shawl` | a broad $colour wool shoulder shawl | `shawl` | `wool` | `Normal` / `Standard` | 680g / 29.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 46 outfit(s). |
 | `renaissance_shared_clothing_long_undershirt` | a $colour long undershirt | `undershirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 26 outfit(s). |
@@ -3865,27 +7007,27 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | `renaissance_shared_clothing_mittens` | a pair of $colour wool mittens | `mittens` | `wool` | `Small` / `Standard` | 240g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mittens`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
 | `renaissance_shared_clothing_travelling_coat` | a loose $colour travelling coat | `coat` | `broadcloth` | `Normal` / `Standard` | 1340g / 94.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
 | `renaissance_shared_clothing_fur_lined_coat` | a $colour fur-lined travelling coat | `coat` | `wool` | `Normal` / `Good` | 1230g / 127.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_shared_clothing_leather_sandals` | a pair of leather sandals | `sandals` | `leather` | `Small` / `Standard` | 410g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 49 outfit(s). |
+| `renaissance_shared_clothing_leather_sandals` | a pair of leather sandals | `sandals` | `leather` | `Small` / `Standard` | 410g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 49 outfit(s). Second-pass military admission; used in 17 military outfit(s). |
 | `renaissance_shared_clothing_cloth_headwrap` | a long $colour cloth headwrap | `headwrap` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 49 outfit(s). |
 | `renaissance_shared_clothing_soft_slippers` | a pair of soft leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 24 outfit(s). |
 | `renaissance_shared_clothing_full_trousers` | a pair of full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 13 outfit(s). |
 | `renaissance_shared_clothing_wrap_jacket` | a $colour short wrap jacket | `jacket` | `linen` | `Normal` / `Standard` | 520g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
 | `renaissance_shared_clothing_breast_wrap` | a $colour folded breast wrap | `wrap` | `linen` | `Small` / `Standard` | 80g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Bra`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 65 outfit(s). |
-| `renaissance_shared_clothing_wrapped_loincloth` | a $colour wrapped loincloth | `loincloth` | `linen` | `Small` / `Standard` | 100g / 5.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Loincloth`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 21 outfit(s). |
+| `renaissance_shared_clothing_wrapped_loincloth` | a $colour wrapped loincloth | `loincloth` | `linen` | `Small` / `Standard` | 100g / 5.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Loincloth`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 21 outfit(s). Second-pass military admission; used in 5 military outfit(s). |
 | `renaissance_shared_clothing_short_undershirt` | a $colour short undershirt | `undershirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
-| `renaissance_shared_clothing_textile_sandals` | a pair of $colour woven sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 24 outfit(s). |
+| `renaissance_shared_clothing_textile_sandals` | a pair of $colour woven sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 24 outfit(s). Second-pass military admission; used in 12 military outfit(s). |
 | `renaissance_shared_clothing_close_cloth_cap` | a close-fitting $colour cloth cap | `cap` | `linen` | `Small` / `Standard` | 140g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
 
 ### 2. Shared Western European Early Modern — 22
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_western_clothing_plain_linen_shirt` | a $colour plain linen shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 38 outfit(s). |
+| `earlymodern_western_clothing_plain_linen_shirt` | a $colour plain linen shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 38 outfit(s). Second-pass military admission; used in 59 military outfit(s). |
 | `earlymodern_western_clothing_broadcloth_work_coat` | a $colour broadcloth work coat | `coat` | `broadcloth` | `Normal` / `Standard` | 1500g / 105.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
-| `earlymodern_western_clothing_knee_breeches` | a pair of $colour knee breeches | `breeches` | `broadcloth` | `Normal` / `Standard` | 560g / 41.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 27 outfit(s). Uses planned Wear_Breeches dependency. |
-| `earlymodern_western_clothing_knitted_wool_stockings` | a pair of $colour knitted wool stockings | `stockings` | `wool` | `Small` / `Standard` | 280g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Stockings`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 11 outfit(s). |
+| `earlymodern_western_clothing_knee_breeches` | a pair of $colour knee breeches | `breeches` | `broadcloth` | `Normal` / `Standard` | 560g / 41.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 27 outfit(s). Uses planned Wear_Breeches dependency. Second-pass military admission; used in 44 military outfit(s). |
+| `earlymodern_western_clothing_knitted_wool_stockings` | a pair of $colour knitted wool stockings | `stockings` | `wool` | `Small` / `Standard` | 280g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Stockings`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 11 outfit(s). Second-pass military admission; used in 62 military outfit(s). |
 | `earlymodern_western_clothing_plain_wool_waistcoat` | a plain $colour wool waistcoat | `waistcoat` | `wool` | `Normal` / `Standard` | 400g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 22 outfit(s). |
-| `earlymodern_western_clothing_buckled_leather_shoes` | a pair of buckled leather shoes | `shoes` | `leather` | `Small` / `Good` | 650g / 69.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 32 outfit(s). |
+| `earlymodern_western_clothing_buckled_leather_shoes` | a pair of buckled leather shoes | `shoes` | `leather` | `Small` / `Good` | 650g / 69.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 32 outfit(s). Second-pass military admission; used in 60 military outfit(s). |
 | `earlymodern_western_clothing_full_wool_cloak` | a full $colour wool cloak | `cloak` | `wool` | `Normal` / `Standard` | 1260g / 50.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Closed)`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 9 outfit(s). |
 | `earlymodern_western_clothing_linen_neckcloth` | a $colour linen neckcloth | `neckcloth` | `linen` | `Small` / `Standard` | 90g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Scarf`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 21 outfit(s). |
 | `earlymodern_western_clothing_linen_day_cap` | a $colour linen day cap | `cap` | `linen` | `Small` / `Standard` | 140g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). |
@@ -3907,8 +7049,8 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `preindustrial_clothing_plain_leather_belt` | a plain leather belt | `belt` | `leather` | `Small` / `Standard` | 180g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Waist`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Belt_2` | `Era / Pre-Industrial Era`<br>`Market / Clothing / Standard Clothing` | Implemented pre-industrial alias; used in 19 outfit(s). Implemented shared pre-industrial dependency. |
-| `preindustrial_clothing_iron_buckled_leather_belt` | an iron-buckled leather belt | `belt` | `leather` | `Small` / `Good` | 240g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Waist`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Belt_4` | `Era / Pre-Industrial Era`<br>`Market / Clothing / Standard Clothing` | Implemented pre-industrial alias; used in 51 outfit(s). Implemented shared pre-industrial dependency. |
+| `preindustrial_clothing_plain_leather_belt` | a plain leather belt | `belt` | `leather` | `Small` / `Standard` | 180g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Waist`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Belt_2` | `Era / Pre-Industrial Era`<br>`Market / Clothing / Standard Clothing` | Implemented pre-industrial alias; used in 19 outfit(s). Implemented shared pre-industrial dependency. Second-pass military admission; used in 3 military outfit(s). |
+| `preindustrial_clothing_iron_buckled_leather_belt` | an iron-buckled leather belt | `belt` | `leather` | `Small` / `Good` | 240g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Waist`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Belt_4` | `Era / Pre-Industrial Era`<br>`Market / Clothing / Standard Clothing` | Implemented pre-industrial alias; used in 51 outfit(s). Implemented shared pre-industrial dependency. Second-pass military admission; used in 1 military outfit(s). |
 | `preindustrial_clothing_simple_woven_sash` | a $colour woven sash | `sash` | `wool` | `Small` / `Standard` | 120g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Pre-Industrial Era`<br>`Market / Clothing / Standard Clothing` | Implemented pre-industrial alias; used in 96 outfit(s). Implemented shared pre-industrial dependency. |
 
 ### 4. French / Baroque urban — 3
@@ -3933,7 +7075,7 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `earlymodern_dutch_clothing_short_wool_work_jacket` | a short $colour wool work jacket | `jacket` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_dutch_clothing_full_canvas_breeches` | a pair of full $colour canvas breeches | `breeches` | `canvas` | `Normal` / `Standard` | 530g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Uses planned Wear_Breeches dependency. |
+| `earlymodern_dutch_clothing_full_canvas_breeches` | a pair of full $colour canvas breeches | `breeches` | `canvas` | `Normal` / `Standard` | 530g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Uses planned Wear_Breeches dependency. Second-pass military admission; used in 2 military outfit(s). |
 | `earlymodern_dutch_clothing_wooden_clogs` | a pair of plain wooden clogs | `clogs` | `wood` | `Small` / `Standard` | 700g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
 | `earlymodern_dutch_clothing_white_linen_cap` | a crisp white linen cap | `cap` | `linen` | `Small` / `Standard` | 140g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). |
 | `earlymodern_dutch_clothing_striped_wool_petticoat` | a $colour1 and $colour2 striped wool petticoat | `petticoat` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_2BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
@@ -3944,9 +7086,9 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `earlymodern_iberian_clothing_short_fitted_jacket` | a short fitted $colour wool jacket | `jacket` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_iberian_clothing_woven_fibre_sandals` | a pair of $colour woven fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). |
-| `earlymodern_iberian_clothing_broad_crowned_felt_hat` | a broad-crowned $colour felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). |
-| `earlymodern_iberian_clothing_short_wool_cape` | a short $colour wool cape | `cape` | `wool` | `Normal` / `Standard` | 720g / 31.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cape`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 1 outfit(s). |
+| `earlymodern_iberian_clothing_woven_fibre_sandals` | a pair of $colour woven fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_iberian_clothing_broad_crowned_felt_hat` | a broad-crowned $colour felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `earlymodern_iberian_clothing_short_wool_cape` | a short $colour wool cape | `cape` | `wool` | `Normal` / `Standard` | 720g / 31.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cape`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 1 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
 | `earlymodern_iberian_clothing_lace_head_veil` | a lace-edged $colour head veil | `veil` | `lace` | `Small` / `Good` | 80g / 67.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Head_Veil`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 8 outfit(s). |
 
 ### 8. Italian states — 5
@@ -3964,40 +7106,40 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `earlymodern_centraleuropean_clothing_short_wool_coat` | a short $colour wool coat | `coat` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_centraleuropean_clothing_leather_knee_breeches` | a pair of leather knee breeches | `breeches` | `leather` | `Normal` / `Standard` | 590g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Uses planned Wear_Breeches dependency. |
-| `earlymodern_centraleuropean_clothing_round_felt_hat` | a round-crowned $colour felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). |
+| `earlymodern_centraleuropean_clothing_leather_knee_breeches` | a pair of leather knee breeches | `breeches` | `leather` | `Normal` / `Standard` | 590g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Uses planned Wear_Breeches dependency. Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_centraleuropean_clothing_round_felt_hat` | a round-crowned $colour felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `earlymodern_centraleuropean_clothing_laced_wool_bodice` | a laced $colour wool bodice | `bodice` | `wool` | `Normal` / `Standard` | 620g / 35.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Doublet`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
 
 ### 10. Polish-Lithuanian / Hungarian frontier survivals — 2
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_frontier_close_buttoned_longcoat` | a close-buttoned $colour long coat | `coat` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_frontier_wide_hungarian_trousers` | a pair of wide $colour wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
+| `renaissance_frontier_close_buttoned_longcoat` | a close-buttoned $colour long coat | `coat` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_frontier_wide_hungarian_trousers` | a pair of wide $colour wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
 
 ### 11. Scandinavian / Baltic — 6
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `earlymodern_northern_clothing_fitted_wool_jacket` | a fitted $colour wool jacket | `jacket` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
-| `earlymodern_northern_clothing_wool_knee_breeches` | a pair of $colour wool knee breeches | `breeches` | `wool` | `Normal` / `Standard` | 520g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Uses planned Wear_Breeches dependency. |
-| `earlymodern_northern_clothing_knitted_wool_cap` | a $colour knitted wool cap | `cap` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). |
+| `earlymodern_northern_clothing_wool_knee_breeches` | a pair of $colour wool knee breeches | `breeches` | `wool` | `Normal` / `Standard` | 520g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Uses planned Wear_Breeches dependency. Second-pass military admission; used in 3 military outfit(s). |
+| `earlymodern_northern_clothing_knitted_wool_cap` | a $colour knitted wool cap | `cap` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `earlymodern_northern_clothing_striped_wool_skirt` | a $colour1 and $colour2 striped wool skirt | `skirt` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_2BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
-| `earlymodern_northern_clothing_wool_mittens` | a pair of $colour wool mittens | `mittens` | `wool` | `Small` / `Standard` | 240g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mittens`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 1 outfit(s). |
-| `earlymodern_northern_clothing_fur_lined_wool_coat` | a $colour fur-lined wool coat | `coat` | `wool` | `Normal` / `Good` | 1380g / 143.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 1 outfit(s). |
+| `earlymodern_northern_clothing_wool_mittens` | a pair of $colour wool mittens | `mittens` | `wool` | `Small` / `Standard` | 240g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mittens`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_northern_clothing_fur_lined_wool_coat` | a $colour fur-lined wool coat | `coat` | `wool` | `Normal` / `Good` | 1380g / 143.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 1 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
 
 ### 12. Northern/frontier survivals — 2
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `renaissance_frontier_knitted_northern_cap` | a long $colour knitted wool cap | `cap` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_frontier_felted_winter_boots` | a pair of felted winter boots | `boots` | `felt` | `Small` / `Standard` | 760g / 34.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Boots`<br>`Armour_LightClothing`<br>`Insulation_Moderate` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
+| `renaissance_frontier_felted_winter_boots` | a pair of felted winter boots | `boots` | `felt` | `Small` / `Standard` | 760g / 34.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Boots`<br>`Armour_LightClothing`<br>`Insulation_Moderate` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 13. Shared Early Modern cross-cultural forms — 1
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_shared_clothing_broad_wrapped_sash` | a broad $colour wrapped sash | `sash` | `cotton` | `Small` / `Standard` | 140g / 8.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 72 outfit(s). |
+| `earlymodern_shared_clothing_broad_wrapped_sash` | a broad $colour wrapped sash | `sash` | `cotton` | `Small` / `Standard` | 140g / 8.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 72 outfit(s). Second-pass military admission; used in 41 military outfit(s). |
 
 ### 14. Central/Eastern frontier survivals — 3
 
@@ -4005,7 +7147,7 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 |---|---|---|---|---|---:|---|---|---|
 | `renaissance_frontier_fur_brimmed_cap` | a soft $colour fur-brimmed cap | `cap` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
 | `renaissance_frontier_belted_wool_caftan` | a belted $colour wool caftan | `caftan` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_frontier_split_skirt_riding_boots` | a pair of stiff high leather boots | `boots` | `leather` | `Small` / `Good` | 1220g / 151.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
+| `renaissance_frontier_split_skirt_riding_boots` | a pair of stiff high leather boots | `boots` | `leather` | `Small` / `Good` | 1220g / 151.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
 
 ### 15. Russian / frontier survivals — 1
 
@@ -4017,10 +7159,10 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_russian_clothing_long_linen_rubakha` | a long $colour linen shirt | `shirt` | `linen` | `Normal` / `Standard` | 480g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_russian_clothing_narrow_wool_trousers` | a pair of narrow $colour wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
+| `earlymodern_russian_clothing_long_linen_rubakha` | a long $colour linen shirt | `shirt` | `linen` | `Normal` / `Standard` | 480g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `earlymodern_russian_clothing_narrow_wool_trousers` | a pair of narrow $colour wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
 | `earlymodern_russian_clothing_short_wool_zipun` | a close $colour short wool coat | `coat` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_russian_clothing_high_leather_boots` | a pair of high leather boots | `boots` | `leather` | `Small` / `Standard` | 1220g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
+| `earlymodern_russian_clothing_high_leather_boots` | a pair of high leather boots | `boots` | `leather` | `Small` / `Standard` | 1220g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
 | `earlymodern_russian_clothing_round_fur_cap` | a round fur cap | `cap` | `fur` | `Small` / `Standard` | 220g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 1 outfit(s). |
 | `earlymodern_russian_clothing_checked_wool_wrap_skirt` | a $colour1 and $colour2 checked wool wrap skirt | `skirt` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_2BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
 | `earlymodern_russian_clothing_linen_work_apron` | a $colour linen work apron | `apron` | `linen` | `Small` / `Standard` | 210g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Apron`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
@@ -4036,14 +7178,14 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_ottoman_collarless_inner_shirt` | a $colour collarless long inner shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
+| `renaissance_ottoman_collarless_inner_shirt` | a $colour collarless long inner shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 13 military outfit(s). |
 | `renaissance_ottoman_ankle_gathered_drawers` | a pair of full $colour ankle-gathered drawers | `drawers` | `linen` | `Normal` / `Standard` | 450g / 20.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_ottoman_short_entari_coat` | a short fitted $colour front-opening coat | `coat` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
+| `renaissance_ottoman_short_entari_coat` | a short fitted $colour front-opening coat | `coat` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `renaissance_ottoman_wrapped_cap_turban` | a compact $colour cap-wound turban | `turban` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_ottoman_full_salwar_trousers` | a pair of very full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). |
-| `renaissance_ottoman_short_fitted_vest` | a short fitted $colour sleeveless vest | `vest` | `silk` | `Normal` / `Good` | 230g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
+| `renaissance_ottoman_full_salwar_trousers` | a pair of very full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Second-pass military admission; used in 7 military outfit(s). |
+| `renaissance_ottoman_short_fitted_vest` | a short fitted $colour sleeveless vest | `vest` | `silk` | `Normal` / `Good` | 230g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `renaissance_ottoman_long_entari_robe` | a long fitted $colour front-opening robe | `robe` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Treated as the inner robe layer beneath a separate outdoor over-robe. |
-| `renaissance_ottoman_pointed_slippers` | a pair of pointed leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
+| `renaissance_ottoman_pointed_slippers` | a pair of pointed leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
 | `renaissance_ottoman_fitted_kaftan` | a fitted $colour long kaftan | `kaftan` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Treated as the inner robe layer beneath a separate outdoor over-robe. |
 | `renaissance_ottoman_sleeved_outer_robe` | a long-sleeved $colour outer robe | `robe` | `broadcloth` | `Normal` / `Good` | 1340g / 196.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
 | `renaissance_ottoman_loose_layered_gown` | a loose layered $colour long gown | `gown` | `cotton` | `Normal` / `Standard` | 830g / 44.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
@@ -4053,26 +7195,26 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_maghrebi_clothing_full_cotton_trousers` | a pair of full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). |
+| `earlymodern_maghrebi_clothing_full_cotton_trousers` | a pair of full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
 | `earlymodern_maghrebi_clothing_sleeveless_gandoura` | a long sleeveless $colour cotton robe | `robe` | `cotton` | `Normal` / `Standard` | 320g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). |
-| `earlymodern_maghrebi_clothing_round_felt_cap` | a round $colour felt cap | `cap` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_maghrebi_clothing_hooded_wool_djellaba` | a hooded $colour wool over-robe | `over-robe` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_maghrebi_clothing_pointed_leather_slippers` | a pair of pointed leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). |
-| `earlymodern_maghrebi_clothing_short_fitted_caftan` | a fitted $colour cotton caftan | `caftan` | `cotton` | `Normal` / `Good` | 1010g / 121.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 4 outfit(s). |
+| `earlymodern_maghrebi_clothing_round_felt_cap` | a round $colour felt cap | `cap` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
+| `earlymodern_maghrebi_clothing_hooded_wool_djellaba` | a hooded $colour wool over-robe | `over-robe` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_maghrebi_clothing_pointed_leather_slippers` | a pair of pointed leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
+| `earlymodern_maghrebi_clothing_short_fitted_caftan` | a fitted $colour cotton caftan | `caftan` | `cotton` | `Normal` / `Good` | 1010g / 121.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 4 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
 | `earlymodern_maghrebi_clothing_full_body_haik` | a full $colour cotton body wrap | `wrap` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). |
 
 ### 20. Persianate survivals — 10
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_persianate_long_inner_shirt` | a long $colour collarless inner shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_persianate_close_ankle_trousers` | a pair of close $colour ankle trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 9 outfit(s). |
+| `renaissance_persianate_long_inner_shirt` | a long $colour collarless inner shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 12 military outfit(s). |
+| `renaissance_persianate_close_ankle_trousers` | a pair of close $colour ankle trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 9 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
 | `renaissance_persianate_short_fitted_coat` | a short fitted $colour front-opening coat | `coat` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_persianate_wide_pleated_trousers` | a pair of wide pleated $colour wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
+| `renaissance_persianate_wide_pleated_trousers` | a pair of wide pleated $colour wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `renaissance_persianate_long_fitted_coat` | a long fitted $colour front-opening coat | `coat` | `broadcloth` | `Normal` / `Good` | 1340g / 196.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_persianate_soft_ridingboots` | a pair of soft high leather boots | `boots` | `leather` | `Small` / `Standard` | 1220g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
+| `renaissance_persianate_soft_ridingboots` | a pair of soft high leather boots | `boots` | `leather` | `Small` / `Standard` | 1220g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 13 military outfit(s). |
 | `renaissance_persianate_sleeveless_longvest` | a sleeveless $colour long vest | `vest` | `wool` | `Normal` / `Standard` | 400g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). |
-| `renaissance_persianate_pointed_slippers` | a pair of pointed leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). |
+| `renaissance_persianate_pointed_slippers` | a pair of pointed leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `renaissance_persianate_conical_turban` | a conical $colour structured turban | `turban` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
 | `renaissance_persianate_flared_skirt_coat` | a fitted $colour flared-skirt coat | `coat` | `broadcloth` | `Normal` / `Good` | 1340g / 196.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
 
@@ -4080,7 +7222,7 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_persianate_clothing_soft_round_cap` | a soft $colour cotton round cap | `cap` | `cotton` | `Normal` / `Standard` | 320g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skullcap`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
+| `earlymodern_persianate_clothing_soft_round_cap` | a soft $colour cotton round cap | `cap` | `cotton` | `Normal` / `Standard` | 320g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skullcap`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
 
 ### 22. Indo-Persian survivals — 2
 
@@ -4094,26 +7236,26 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `renaissance_southasian_stitched_loindrawers` | a pair of close $colour cotton loin drawers | `drawers` | `cotton` | `Small` / `Standard` | 150g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shorts`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 13 outfit(s). |
-| `renaissance_southasian_pleated_waistcloth` | a long pleated $colour cotton waistcloth | `waistcloth` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). |
-| `renaissance_southasian_short_sideslit_tunic` | a short $colour cotton side-slit tunic | `tunic` | `cotton` | `Normal` / `Standard` | 300g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
-| `renaissance_southasian_flat_wound_turban` | a broad flat-wound $colour cotton turban | `turban` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 12 outfit(s). |
-| `renaissance_southasian_bunched_ankletrousers` | a pair of narrow $colour bunched ankle trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). |
-| `renaissance_southasian_long_sideslit_tunic` | a long $colour cotton side-slit tunic | `tunic` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
-| `renaissance_southasian_curvedtoe_shoes` | a pair of curved-toe leather shoes | `shoes` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 16 outfit(s). |
+| `renaissance_southasian_pleated_waistcloth` | a long pleated $colour cotton waistcloth | `waistcloth` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_southasian_short_sideslit_tunic` | a short $colour cotton side-slit tunic | `tunic` | `cotton` | `Normal` / `Standard` | 300g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 16 military outfit(s). |
+| `renaissance_southasian_flat_wound_turban` | a broad flat-wound $colour cotton turban | `turban` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 12 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
+| `renaissance_southasian_bunched_ankletrousers` | a pair of narrow $colour bunched ankle trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Second-pass military admission; used in 13 military outfit(s). |
+| `renaissance_southasian_long_sideslit_tunic` | a long $colour cotton side-slit tunic | `tunic` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_southasian_curvedtoe_shoes` | a pair of curved-toe leather shoes | `shoes` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 16 outfit(s). Second-pass military admission; used in 15 military outfit(s). |
 | `renaissance_southasian_short_wrapjacket` | a short $colour cotton cross-tied jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
 | `renaissance_southasian_fitted_shortbodice` | a fitted $colour cotton short bodice | `bodice` | `cotton` | `Normal` / `Standard` | 500g / 34.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Doublet`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
 | `renaissance_southasian_gathered_longskirt` | a full gathered $colour cotton skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
 | `renaissance_southasian_backtied_bodice` | a back-tied $colour cotton bodice | `bodice` | `cotton` | `Normal` / `Standard` | 500g / 34.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Doublet`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
 | `renaissance_southasian_shoulderdraped_garment` | a full $colour cotton shoulder-draped garment | `garment` | `cotton` | `Normal` / `Standard` | 760g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Dress`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
 | `renaissance_southasian_panelled_longskirt` | a panelled flared $colour silk skirt | `skirt` | `silk` | `Normal` / `Good` | 460g / 168.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_southasian_toepost_woodensandals` | a pair of toe-post wooden sandals | `sandals` | `wood` | `Small` / `Standard` | 450g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
+| `renaissance_southasian_toepost_woodensandals` | a pair of toe-post wooden sandals | `sandals` | `wood` | `Small` / `Standard` | 450g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
 | `renaissance_southasian_long_crossover_robe` | a long $colour cotton cross-over robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
 
 ### 24. South Asian textile-trade Early Modern — 1
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_southasian_clothing_chintz_merchant_jacket` | a $colour patterned chintz jacket | `jacket` | `chintz` | `Normal` / `Good` | 580g / 113.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 8 outfit(s). |
+| `earlymodern_southasian_clothing_chintz_merchant_jacket` | a $colour patterned chintz jacket | `jacket` | `chintz` | `Normal` / `Good` | 580g / 113.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 8 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 25. South Asian Early Modern — 1
 
@@ -4125,44 +7267,44 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_qing_clothing_crosscollar_innerrobe` | a cross-collared $colour cotton inner robe | `robe` | `cotton` | `Normal` / `Standard` | 880g / 48.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Uses the under-gown layer beneath jackets and long robes. |
-| `earlymodern_qing_clothing_wide_cotton_trousers` | a pair of wide $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). |
-| `earlymodern_qing_clothing_short_riding_jacket` | a short $colour cotton riding jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
+| `earlymodern_qing_clothing_crosscollar_innerrobe` | a cross-collared $colour cotton inner robe | `robe` | `cotton` | `Normal` / `Standard` | 880g / 48.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Uses the under-gown layer beneath jackets and long robes. Second-pass military admission; used in 7 military outfit(s). |
+| `earlymodern_qing_clothing_wide_cotton_trousers` | a pair of wide $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 7 military outfit(s). |
+| `earlymodern_qing_clothing_short_riding_jacket` | a short $colour cotton riding jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `earlymodern_qing_clothing_head_kerchief` | a $colour cotton head kerchief | `kerchief` | `cotton` | `Small` / `Standard` | 80g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Kerchief`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). |
-| `earlymodern_qing_clothing_long_sidefastened_robe` | a long side-fastened $colour cotton robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
+| `earlymodern_qing_clothing_long_sidefastened_robe` | a long side-fastened $colour cotton robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `earlymodern_qing_clothing_sleeveless_long_vest` | a sleeveless $colour long vest | `vest` | `silk` | `Normal` / `Good` | 230g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 5 outfit(s). |
-| `earlymodern_qing_clothing_cloth_shoes` | a pair of $colour cloth shoes | `shoes` | `cotton` | `Small` / `Standard` | 470g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 13 outfit(s). |
+| `earlymodern_qing_clothing_cloth_shoes` | a pair of $colour cloth shoes | `shoes` | `cotton` | `Small` / `Standard` | 470g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 13 outfit(s). Second-pass military admission; used in 7 military outfit(s). |
 | `earlymodern_qing_clothing_round_skullcap` | a round $colour cloth skullcap | `cap` | `cotton` | `Normal` / `Standard` | 320g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skullcap`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
 | `earlymodern_qing_clothing_fine_sidefastened_robe` | a fine side-fastened $colour silk robe | `robe` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 1 outfit(s). |
 | `earlymodern_qing_clothing_sidefastened_womens_jacket` | a side-fastened $colour cotton jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). |
 | `earlymodern_qing_clothing_work_apron` | a $colour cotton work apron | `apron` | `cotton` | `Small` / `Standard` | 230g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Apron`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). |
 | `earlymodern_qing_clothing_pleated_long_skirt` | a pleated $colour cotton long skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
-| `earlymodern_qing_clothing_padded_winter_coat` | a padded $colour cotton winter coat | `coat` | `cotton` | `Normal` / `Standard` | 1120g / 65.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Winter Clothing` | New Early Modern prototype; used in 1 outfit(s). |
+| `earlymodern_qing_clothing_padded_winter_coat` | a padded $colour cotton winter coat | `coat` | `cotton` | `Normal` / `Standard` | 1120g / 65.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Winter Clothing` | New Early Modern prototype; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 27. Late Ming transition survivals — 11
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_ming_crosscollar_innerrobe` | a cross-collared $colour ramie under-robe | `under-robe` | `ramie cloth` | `Normal` / `Standard` | 780g / 55.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Mapped to a dedicated under-gown layer beneath jackets and robes. |
-| `renaissance_ming_wide_drawstring_trousers` | a pair of wide $colour cotton drawstring trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). |
+| `renaissance_ming_crosscollar_innerrobe` | a cross-collared $colour ramie under-robe | `under-robe` | `ramie cloth` | `Normal` / `Standard` | 780g / 55.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Mapped to a dedicated under-gown layer beneath jackets and robes. Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_ming_wide_drawstring_trousers` | a pair of wide $colour cotton drawstring trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
 | `renaissance_ming_narrowsleeve_workerrobe` | a narrow-sleeved $colour cotton work robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
 | `renaissance_ming_roundcollar_longrobe` | a round-collared $colour long robe | `robe` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_ming_long_sleeveless_overvest` | a long sleeveless $colour silk over-vest | `vest` | `silk` | `Normal` / `Good` | 230g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_ming_cloth_courtboots` | a pair of high $colour cloth boots | `boots` | `cotton` | `Small` / `Standard` | 680g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_ming_soft_scholarcap` | a soft folded $colour scholar cap | `cap` | `silk` | `Small` / `Good` | 110g / 81.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
+| `renaissance_ming_long_sleeveless_overvest` | a long sleeveless $colour silk over-vest | `vest` | `silk` | `Normal` / `Good` | 230g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_ming_cloth_courtboots` | a pair of high $colour cloth boots | `boots` | `cotton` | `Small` / `Standard` | 680g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_ming_soft_scholarcap` | a soft folded $colour scholar cap | `cap` | `silk` | `Small` / `Good` | 110g / 81.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `renaissance_ming_short_sidefastened_jacket` | a short side-fastened $colour cotton jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
 | `renaissance_ming_straightcollar_openrobe` | a straight-collared $colour open robe | `robe` | `silk` | `Normal` / `Good` | 730g / 370.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
 | `renaissance_ming_pleated_panelskirt` | a pleated $colour silk panel skirt | `skirt` | `silk` | `Normal` / `Good` | 460g / 168.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_ming_long_sidefastened_jacket` | a long side-fastened $colour cotton jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
+| `renaissance_ming_long_sidefastened_jacket` | a long side-fastened $colour cotton jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 28. Joseon survivals — 7
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_joseon_long_crossfront_underrobe` | a long cross-front $colour ramie under-robe | `under-robe` | `ramie cloth` | `Normal` / `Standard` | 780g / 55.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Mapped to a dedicated under-gown layer beneath jackets and over-robes. |
-| `renaissance_joseon_short_crossfront_jacket` | a short cross-front $colour ramie jacket | `jacket` | `ramie cloth` | `Normal` / `Standard` | 520g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
-| `renaissance_joseon_white_clothshoes` | a pair of white cloth shoes | `shoes` | `cotton` | `Small` / `Standard` | 470g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). |
-| `renaissance_joseon_long_crossfront_jacket` | a long cross-front $colour silk jacket | `jacket` | `silk` | `Normal` / `Good` | 420g / 202.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
+| `renaissance_joseon_long_crossfront_underrobe` | a long cross-front $colour ramie under-robe | `under-robe` | `ramie cloth` | `Normal` / `Standard` | 780g / 55.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Mapped to a dedicated under-gown layer beneath jackets and over-robes. Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_joseon_short_crossfront_jacket` | a short cross-front $colour ramie jacket | `jacket` | `ramie cloth` | `Normal` / `Standard` | 520g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_joseon_white_clothshoes` | a pair of white cloth shoes | `shoes` | `cotton` | `Small` / `Standard` | 470g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_joseon_long_crossfront_jacket` | a long cross-front $colour silk jacket | `jacket` | `silk` | `Normal` / `Good` | 420g / 202.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `renaissance_joseon_tall_horsehairhat` | a tall translucent brimmed hat | `hat` | `horsehair` | `Small` / `Good` | 170g / 25.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
 | `renaissance_joseon_broadsleeve_scholaroverrobe` | a broad-sleeved $colour scholar over-robe | `over-robe` | `silk` | `Normal` / `Good` | 730g / 370.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
 | `renaissance_joseon_full_gathered_wrapskirt` | a full gathered $colour wrap skirt | `skirt` | `silk` | `Normal` / `Good` | 460g / 168.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
@@ -4171,8 +7313,8 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_joseon_clothing_full_baji_trousers` | a pair of full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). |
-| `earlymodern_joseon_clothing_white_cloth_socks` | a pair of white cloth socks | `socks` | `cotton` | `Small` / `Standard` | 100g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Socks`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). |
+| `earlymodern_joseon_clothing_full_baji_trousers` | a pair of full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `earlymodern_joseon_clothing_white_cloth_socks` | a pair of white cloth socks | `socks` | `cotton` | `Small` / `Standard` | 100g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Socks`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
 | `earlymodern_joseon_clothing_tied_headcloth` | a tied $colour cotton headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 140g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Head_Veil`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). |
 | `earlymodern_joseon_clothing_plain_cotton_overcoat` | a plain $colour cotton overcoat | `coat` | `cotton` | `Normal` / `Standard` | 1010g / 58.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
 
@@ -4181,50 +7323,50 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `renaissance_japanese_unlined_summerrobe` | an unlined $colour ramie summer robe | `robe` | `ramie cloth` | `Normal` / `Standard` | 720g / 46.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_japanese_field_trousers` | a pair of close $colour ramie field trousers | `trousers` | `ramie cloth` | `Normal` / `Standard` | 450g / 24.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_japanese_splittoe_socks` | a pair of $colour split-toe socks | `socks` | `cotton` | `Small` / `Standard` | 100g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Socks`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). |
-| `renaissance_japanese_smallsleeve_wraprobe` | a small-sleeved $colour wrap robe | `robe` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). |
-| `renaissance_japanese_full_pleated_hakama` | a full pleated $colour lower garment | `hakama` | `silk` | `Normal` / `Good` | 360g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_japanese_wooden_clogs` | a pair of raised wooden clogs | `clogs` | `wood` | `Small` / `Standard` | 700g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
-| `renaissance_japanese_lacquered_conicalhat` | a lacquered wooden conical hat | `hat` | `wood` | `Small` / `Standard` | 230g / 8.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_japanese_short_openjacket` | a short open-front $colour jacket | `jacket` | `silk` | `Normal` / `Good` | 420g / 202.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
+| `renaissance_japanese_field_trousers` | a pair of close $colour ramie field trousers | `trousers` | `ramie cloth` | `Normal` / `Standard` | 450g / 24.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_japanese_splittoe_socks` | a pair of $colour split-toe socks | `socks` | `cotton` | `Small` / `Standard` | 100g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Socks`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_japanese_smallsleeve_wraprobe` | a small-sleeved $colour wrap robe | `robe` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_japanese_full_pleated_hakama` | a full pleated $colour lower garment | `hakama` | `silk` | `Normal` / `Good` | 360g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_japanese_wooden_clogs` | a pair of raised wooden clogs | `clogs` | `wood` | `Small` / `Standard` | 700g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_japanese_lacquered_conicalhat` | a lacquered wooden conical hat | `hat` | `wood` | `Small` / `Standard` | 230g / 8.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_japanese_short_openjacket` | a short open-front $colour jacket | `jacket` | `silk` | `Normal` / `Good` | 420g / 202.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 31. Edo Japan — 6
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_edo_clothing_narrow_woven_obi` | a narrow $colour woven waist sash | `sash` | `silk` | `Small` / `Good` | 100g / 54.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 7 outfit(s). |
-| `earlymodern_edo_clothing_woven_sandals` | a pair of $colour woven sandals | `sandals` | `hemp` | `Small` / `Standard` | 310g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
+| `earlymodern_edo_clothing_narrow_woven_obi` | a narrow $colour woven waist sash | `sash` | `silk` | `Small` / `Good` | 100g / 54.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `earlymodern_edo_clothing_woven_sandals` | a pair of $colour woven sandals | `sandals` | `hemp` | `Small` / `Standard` | 310g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
 | `earlymodern_edo_clothing_tied_cotton_headcloth` | a tied $colour cotton headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 80g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Kerchief`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). |
 | `earlymodern_edo_clothing_narrow_work_apron` | a narrow $colour cotton work apron | `apron` | `cotton` | `Small` / `Standard` | 230g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Apron`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). |
 | `earlymodern_edo_clothing_short_cotton_work_coat` | a short $colour cotton work coat | `coat` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_edo_clothing_wide_woven_obi` | a broad $colour woven waist sash | `sash` | `silk` | `Small` / `Good` | 100g / 54.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 3 outfit(s). |
+| `earlymodern_edo_clothing_wide_woven_obi` | a broad $colour woven waist sash | `sash` | `silk` | `Small` / `Good` | 100g / 54.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 3 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
 
 ### 32. Ryukyuan survivals — 3
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_ryukyu_widesleeve_summerrobe` | a broad-sleeved $colour ramie tropical robe | `robe` | `ramie cloth` | `Normal` / `Standard` | 720g / 46.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
-| `renaissance_ryukyu_short_wrapjacket` | a short $colour cotton tropical wrap jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). |
-| `renaissance_ryukyu_pleated_wrapskirt` | a pleated $colour cotton tropical wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
+| `renaissance_ryukyu_widesleeve_summerrobe` | a broad-sleeved $colour ramie tropical robe | `robe` | `ramie cloth` | `Normal` / `Standard` | 720g / 46.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_ryukyu_short_wrapjacket` | a short $colour cotton tropical wrap jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_ryukyu_pleated_wrapskirt` | a pleated $colour cotton tropical wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
 
 ### 33. Ryukyu and maritime East Asia — 3
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_ryukyu_clothing_broad_woven_sash` | a broad $colour woven sash | `sash` | `cotton` | `Small` / `Standard` | 140g / 8.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). |
-| `earlymodern_ryukyu_clothing_woven_fibre_sandals` | a pair of $colour woven fibre sandals | `sandals` | `hemp` | `Small` / `Standard` | 310g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). |
-| `earlymodern_ryukyu_clothing_tied_headcloth` | a tied $colour cotton headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 80g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Kerchief`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). |
+| `earlymodern_ryukyu_clothing_broad_woven_sash` | a broad $colour woven sash | `sash` | `cotton` | `Small` / `Standard` | 140g / 8.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `earlymodern_ryukyu_clothing_woven_fibre_sandals` | a pair of $colour woven fibre sandals | `sandals` | `hemp` | `Small` / `Standard` | 310g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `earlymodern_ryukyu_clothing_tied_headcloth` | a tied $colour cotton headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 80g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Kerchief`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 34. South-east Asian survivals — 8
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_seasia_short_maritime_trousers` | a pair of short full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). |
-| `renaissance_seasia_pleated_courtwaistcloth` | a pleated $colour silk waistcloth | `waistcloth` | `silk` | `Normal` / `Good` | 460g / 168.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_seasia_short_collarless_jacket` | a short collarless $colour cotton jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 9 outfit(s). |
-| `renaissance_seasia_palmleaf_conicalhat` | a broad conical fibre hat | `hat` | `barkcloth` | `Small` / `Standard` | 140g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_seasia_split_riding_waistcloth` | a divided $colour cotton riding waistcloth | `waistcloth` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
+| `renaissance_seasia_short_maritime_trousers` | a pair of short full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). Second-pass military admission; used in 14 military outfit(s). |
+| `renaissance_seasia_pleated_courtwaistcloth` | a pleated $colour silk waistcloth | `waistcloth` | `silk` | `Normal` / `Good` | 460g / 168.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_seasia_short_collarless_jacket` | a short collarless $colour cotton jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 9 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_seasia_palmleaf_conicalhat` | a broad conical fibre hat | `hat` | `barkcloth` | `Small` / `Standard` | 140g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_seasia_split_riding_waistcloth` | a divided $colour cotton riding waistcloth | `waistcloth` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
 | `renaissance_seasia_sleeveless_courtvest` | a long sleeveless $colour silk vest | `vest` | `silk` | `Normal` / `Good` | 230g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). |
 | `renaissance_seasia_long_crossfront_courtrobe` | a long cross-front $colour silk robe | `robe` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
 | `renaissance_seasia_sewn_tubeskirt` | a sewn $colour cotton tubular skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
@@ -4233,77 +7375,77 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_seasia_clothing_light_shoulder_cloth` | a light $colour cotton shoulder cloth | `cloth` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). |
-| `earlymodern_seasia_clothing_wrapped_headcloth` | a wrapped $colour cotton headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). |
+| `earlymodern_seasia_clothing_light_shoulder_cloth` | a light $colour cotton shoulder cloth | `cloth` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_seasia_clothing_wrapped_headcloth` | a wrapped $colour cotton headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 36. Maritime South-east Asian trade worlds — 3
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_maritimeseasia_clothing_patterned_sarong` | a $colour1 and $colour2 patterned cotton sarong | `sarong` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_2BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). |
-| `earlymodern_maritimeseasia_clothing_loose_long_tunic` | a loose $colour cotton long tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
+| `earlymodern_maritimeseasia_clothing_patterned_sarong` | a $colour1 and $colour2 patterned cotton sarong | `sarong` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_2BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `earlymodern_maritimeseasia_clothing_loose_long_tunic` | a loose $colour cotton long tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Second-pass military admission; used in 7 military outfit(s). |
 | `earlymodern_maritimeseasia_clothing_light_open_blouse` | a light $colour cotton open blouse | `blouse` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
 
 ### 37. Steppe survivals — 8
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_steppe_wide_ridingtrousers` | a pair of wide $colour wool riding trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_steppe_short_split_ridingcoat` | a short split-skirt $colour riding coat | `coat` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_steppe_soft_highboots` | a pair of soft high leather boots | `boots` | `leather` | `Small` / `Standard` | 1220g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). |
-| `renaissance_steppe_pointed_feltcap` | a pointed $colour felt riding cap | `cap` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
-| `renaissance_steppe_quilted_ridingrobe` | a quilted side-fastened $colour riding robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_steppe_fur_earflaphat` | a furred ear-flap hat | `hat` | `fur` | `Small` / `Standard` | 220g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_steppe_sleeveless_ridingvest` | a sleeveless leather riding vest | `vest` | `leather` | `Normal` / `Standard` | 450g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_steppe_sidefastened_furcoat` | a side-fastened $colour fur-lined long coat | `coat` | `wool` | `Normal` / `Good` | 990g / 88.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
+| `renaissance_steppe_wide_ridingtrousers` | a pair of wide $colour wool riding trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_steppe_short_split_ridingcoat` | a short split-skirt $colour riding coat | `coat` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_steppe_soft_highboots` | a pair of soft high leather boots | `boots` | `leather` | `Small` / `Standard` | 1220g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_steppe_pointed_feltcap` | a pointed $colour felt riding cap | `cap` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_steppe_quilted_ridingrobe` | a quilted side-fastened $colour riding robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_steppe_fur_earflaphat` | a furred ear-flap hat | `hat` | `fur` | `Small` / `Standard` | 220g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_steppe_sleeveless_ridingvest` | a sleeveless leather riding vest | `vest` | `leather` | `Normal` / `Standard` | 450g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_steppe_sidefastened_furcoat` | a side-fastened $colour fur-lined long coat | `coat` | `wool` | `Normal` / `Good` | 990g / 88.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 38. African court / Atlantic survivals — 7
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `renaissance_africancourt_shortsleeve_tunic` | a short-sleeved $colour straight cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 470g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_africancourt_soft_embroideredcap` | a soft $colour embroidered round cap | `cap` | `cotton` | `Small` / `Good` | 150g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
-| `renaissance_africancourt_narrow_waistwrapper` | a narrow $colour cotton waist wrapper | `wrapper` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
+| `renaissance_africancourt_soft_embroideredcap` | a soft $colour embroidered round cap | `cap` | `cotton` | `Small` / `Good` | 150g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_africancourt_narrow_waistwrapper` | a narrow $colour cotton waist wrapper | `wrapper` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
 | `renaissance_africancourt_sleeveless_straighttunic` | a sleeveless $colour straight cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_africancourt_broad_waistwrapper` | a broad full-length $colour cotton waist wrapper | `wrapper` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). |
-| `renaissance_africancourt_longsleeve_sideslit_tunic` | a long-sleeved $colour side-slit tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_africancourt_sewn_tubewrapper` | a sewn $colour cotton tubular wrapper | `wrapper` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
+| `renaissance_africancourt_broad_waistwrapper` | a broad full-length $colour cotton waist wrapper | `wrapper` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Second-pass military admission; used in 5 military outfit(s). |
+| `renaissance_africancourt_longsleeve_sideslit_tunic` | a long-sleeved $colour side-slit tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_africancourt_sewn_tubewrapper` | a sewn $colour cotton tubular wrapper | `wrapper` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
 
 ### 39. Kongo / Angola / West Central Africa — 2
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `earlymodern_westcentralafrica_clothing_short_tradecloth_coat` | a short $colour broadcloth coat | `coat` | `broadcloth` | `Normal` / `Good` | 780g / 107.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 4 outfit(s). |
-| `earlymodern_westcentralafrica_clothing_tradecloth_shirt` | a loose $colour cotton trade-cloth shirt | `shirt` | `cotton` | `Normal` / `Standard` | 300g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
+| `earlymodern_westcentralafrica_clothing_tradecloth_shirt` | a loose $colour cotton trade-cloth shirt | `shirt` | `cotton` | `Normal` / `Standard` | 300g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
 
 ### 40. West African / Atlantic — 2
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `earlymodern_africanatlantic_clothing_short_cotton_blouse` | a short $colour cotton blouse | `blouse` | `cotton` | `Normal` / `Standard` | 300g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). |
-| `earlymodern_africanatlantic_clothing_full_headwrap` | a full $colour cotton headwrap | `headwrap` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). |
+| `earlymodern_africanatlantic_clothing_full_headwrap` | a full $colour cotton headwrap | `headwrap` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 41. West/Central African survivals — 2
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_africancourt_barkcloth_straighttunic` | a straight $colour barkcloth tunic | `tunic` | `barkcloth` | `Normal` / `Standard` | 360g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_africancourt_barkcloth_wrapskirt` | a broad $colour barkcloth wrap skirt | `skirt` | `barkcloth` | `Normal` / `Standard` | 600g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
+| `renaissance_africancourt_barkcloth_straighttunic` | a straight $colour barkcloth tunic | `tunic` | `barkcloth` | `Normal` / `Standard` | 360g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_africancourt_barkcloth_wrapskirt` | a broad $colour barkcloth wrap skirt | `skirt` | `barkcloth` | `Normal` / `Standard` | 600g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 42. Shared colonial Atlantic — 10
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_colonial_clothing_plain_knee_breeches` | a pair of plain $colour knee breeches | `breeches` | `canvas` | `Normal` / `Standard` | 530g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 18 outfit(s). Uses planned Wear_Breeches dependency. |
-| `earlymodern_colonial_clothing_plain_linen_shirt` | a plain $colour linen shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 21 outfit(s). |
+| `earlymodern_colonial_clothing_plain_knee_breeches` | a pair of plain $colour knee breeches | `breeches` | `canvas` | `Normal` / `Standard` | 530g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 18 outfit(s). Uses planned Wear_Breeches dependency. Second-pass military admission; used in 14 military outfit(s). |
+| `earlymodern_colonial_clothing_plain_linen_shirt` | a plain $colour linen shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 21 outfit(s). Second-pass military admission; used in 21 military outfit(s). |
 | `earlymodern_colonial_clothing_long_linen_shift` | a long $colour linen shift | `shift` | `linen` | `Normal` / `Standard` | 740g / 42.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 21 outfit(s). |
 | `earlymodern_colonial_clothing_plain_wool_bodice` | a plain $colour wool bodice | `bodice` | `wool` | `Normal` / `Standard` | 620g / 35.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Doublet`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 15 outfit(s). |
 | `earlymodern_colonial_clothing_full_cotton_skirt` | a full $colour cotton skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 15 outfit(s). |
 | `earlymodern_colonial_clothing_linen_work_apron` | a $colour linen work apron | `apron` | `linen` | `Small` / `Standard` | 210g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Apron`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 13 outfit(s). |
-| `earlymodern_colonial_clothing_cotton_headwrap` | a full $colour cotton headwrap | `headwrap` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 18 outfit(s). |
-| `earlymodern_colonial_clothing_short_wool_jacket` | a short $colour wool jacket | `jacket` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). |
-| `earlymodern_colonial_clothing_loose_canvas_trousers` | a pair of loose $colour canvas trousers | `trousers` | `canvas` | `Normal` / `Standard` | 630g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). |
-| `earlymodern_colonial_clothing_broad_felt_sunhat` | a broad-brimmed $colour felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). |
+| `earlymodern_colonial_clothing_cotton_headwrap` | a full $colour cotton headwrap | `headwrap` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 18 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `earlymodern_colonial_clothing_short_wool_jacket` | a short $colour wool jacket | `jacket` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_colonial_clothing_loose_canvas_trousers` | a pair of loose $colour canvas trousers | `trousers` | `canvas` | `Normal` / `Standard` | 630g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 10 military outfit(s). |
+| `earlymodern_colonial_clothing_broad_felt_sunhat` | a broad-brimmed $colour felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 10 military outfit(s). |
 
 ### 43. Spanish colonial Americas — 1
 
@@ -4315,40 +7457,40 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_sahel_narrow_longtunic` | a narrow long $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_sahel_veryfull_trousers` | a pair of very full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_sahel_conical_leatherhat` | a conical leather riding hat | `hat` | `leather` | `Small` / `Standard` | 210g / 18.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
+| `renaissance_sahel_narrow_longtunic` | a narrow long $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 5 military outfit(s). |
+| `renaissance_sahel_veryfull_trousers` | a pair of very full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 8 military outfit(s). |
+| `renaissance_sahel_conical_leatherhat` | a conical leather riding hat | `hat` | `leather` | `Small` / `Standard` | 210g / 18.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `renaissance_sahel_broad_rectangular_robe` | a broad rectangular $colour cotton over-robe | `over-robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_sahel_scholar_turban` | a layered $colour cotton turban | `turban` | `cotton` | `Small` / `Good` | 220g / 31.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_sahel_embroidered_necktunic` | a broad-necked $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Good` | 540g / 49.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
+| `renaissance_sahel_scholar_turban` | a layered $colour cotton turban | `turban` | `cotton` | `Small` / `Good` | 220g / 31.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_sahel_embroidered_necktunic` | a broad-necked $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Good` | 540g / 49.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 45. Ethiopian / Red Sea survivals — 6
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_redsea_narrow_cotton_tunic` | a narrow long $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
+| `renaissance_redsea_narrow_cotton_tunic` | a narrow long $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
 | `renaissance_redsea_full_shoulderwrap` | a full $colour cotton body-and-shoulder wrap | `wrap` | `cotton` | `Normal` / `Standard` | 760g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Dress`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
-| `renaissance_redsea_leather_highlandcloak` | a broad leather highland cloak | `cloak` | `leather` | `Normal` / `Standard` | 1150g / 57.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
+| `renaissance_redsea_leather_highlandcloak` | a broad leather highland cloak | `cloak` | `leather` | `Normal` / `Standard` | 1150g / 57.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `renaissance_redsea_white_headhood` | a white head-draped cotton hood | `hood` | `cotton` | `Small` / `Standard` | 230g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hood`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_redsea_long_courtshirt` | a long full-sleeved $colour cotton shirt | `shirt` | `cotton` | `Normal` / `Good` | 810g / 84.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
+| `renaissance_redsea_long_courtshirt` | a long full-sleeved $colour cotton shirt | `shirt` | `cotton` | `Normal` / `Good` | 810g / 84.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
 | `renaissance_redsea_embroidered_shouldercape` | an embroidered $colour cotton shoulder cape | `cape` | `cotton` | `Normal` / `Good` | 560g / 57.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
 
 ### 46. Ethiopian / Red Sea — 1
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_redsea_clothing_narrow_cotton_trousers` | a pair of narrow $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). |
+| `earlymodern_redsea_clothing_narrow_cotton_trousers` | a pair of narrow $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 7 military outfit(s). |
 
 ### 47. Swahili / Indian Ocean survivals — 6
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_indianocean_short_coastaltunic` | a short loose $colour cotton coastal tunic | `tunic` | `cotton` | `Normal` / `Standard` | 470g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
-| `renaissance_indianocean_embroidered_roundcap` | a close $colour embroidered round cap | `cap` | `cotton` | `Small` / `Good` | 150g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_indianocean_toeloop_sandals` | a pair of toe-loop leather sandals | `sandals` | `leather` | `Small` / `Standard` | 410g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_indianocean_long_coastalrobe` | a long collarless $colour cotton coastal robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_indianocean_open_merchantcoat` | a light open-front $colour cotton merchant coat | `coat` | `cotton` | `Normal` / `Good` | 1010g / 121.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_indianocean_sewn_wrapskirt` | a sewn $colour cotton coastal wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
+| `renaissance_indianocean_short_coastaltunic` | a short loose $colour cotton coastal tunic | `tunic` | `cotton` | `Normal` / `Standard` | 470g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
+| `renaissance_indianocean_embroidered_roundcap` | a close $colour embroidered round cap | `cap` | `cotton` | `Small` / `Good` | 150g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_indianocean_toeloop_sandals` | a pair of toe-loop leather sandals | `sandals` | `leather` | `Small` / `Standard` | 410g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 7 military outfit(s). |
+| `renaissance_indianocean_long_coastalrobe` | a long collarless $colour cotton coastal robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_indianocean_open_merchantcoat` | a light open-front $colour cotton merchant coat | `coat` | `cotton` | `Normal` / `Good` | 1010g / 121.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_indianocean_sewn_wrapskirt` | a sewn $colour cotton coastal wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
 
 ### 48. Swahili Coast / Indian Ocean Africa — 1
 
@@ -4360,61 +7502,61 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_andeancolonial_clothing_wool_poncho` | a $colour wool poncho | `poncho` | `wool` | `Normal` / `Standard` | 940g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Poncho`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). |
-| `earlymodern_andeancolonial_clothing_full_wool_pollera` | a full gathered $colour wool skirt | `skirt` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). |
-| `earlymodern_andeancolonial_clothing_shaped_wool_hat` | a shaped $colour wool hat | `hat` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). |
+| `earlymodern_andeancolonial_clothing_wool_poncho` | a $colour wool poncho | `poncho` | `wool` | `Normal` / `Standard` | 940g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Poncho`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `earlymodern_andeancolonial_clothing_full_wool_pollera` | a full gathered $colour wool skirt | `skirt` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_andeancolonial_clothing_shaped_wool_hat` | a shaped $colour wool hat | `hat` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
 
 ### 50. Mesoamerican survivals — 9
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_mesoamerican_long_wrapskirt` | a long $colour cotton wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_mesoamerican_rectangular_blouse` | a rectangular sleeveless $colour cotton blouse | `blouse` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_mesoamerican_woven_fibresandals` | a pair of $colour woven fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 9 outfit(s). |
-| `renaissance_mesoamerican_panelled_loincloth` | a long panelled $colour cotton loin garment | `loincloth` | `cotton` | `Small` / `Standard` | 140g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breechcloth`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_mesoamerican_side_seamed_tunic` | a side-seamed sleeveless $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_mesoamerican_shouldertied_cloak` | a shoulder-tied $colour cotton rectangular cloak | `cloak` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_mesoamerican_woven_headcap` | a close $colour woven fibre cap | `cap` | `cotton` | `Small` / `Standard` | 150g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
-| `renaissance_mesoamerican_short_wrapskirt` | a short $colour cotton wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 510g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
-| `renaissance_mesoamerican_triangle_shouldergarment` | a triangular $colour cotton shoulder garment | `garment` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
+| `renaissance_mesoamerican_long_wrapskirt` | a long $colour cotton wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_mesoamerican_rectangular_blouse` | a rectangular sleeveless $colour cotton blouse | `blouse` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_mesoamerican_woven_fibresandals` | a pair of $colour woven fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 9 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_mesoamerican_panelled_loincloth` | a long panelled $colour cotton loin garment | `loincloth` | `cotton` | `Small` / `Standard` | 140g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breechcloth`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
+| `renaissance_mesoamerican_side_seamed_tunic` | a side-seamed sleeveless $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_mesoamerican_shouldertied_cloak` | a shoulder-tied $colour cotton rectangular cloak | `cloak` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_mesoamerican_woven_headcap` | a close $colour woven fibre cap | `cap` | `cotton` | `Small` / `Standard` | 150g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_mesoamerican_short_wrapskirt` | a short $colour cotton wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 510g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_mesoamerican_triangle_shouldergarment` | a triangular $colour cotton shoulder garment | `garment` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 51. Caribbean survivals — 5
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_caribbean_sleeveless_cottontunic` | a loose sleeveless $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_caribbean_cotton_wrapskirt` | a short $colour cotton wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 510g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_caribbean_cotton_loinapron` | a panelled $colour cotton loin apron | `apron` | `cotton` | `Small` / `Standard` | 140g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breechcloth`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
-| `renaissance_caribbean_woven_fibresandals` | a pair of $colour woven fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_caribbean_woven_shouldercape` | a short $colour cotton shoulder cape | `cape` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
+| `renaissance_caribbean_sleeveless_cottontunic` | a loose sleeveless $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_caribbean_cotton_wrapskirt` | a short $colour cotton wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 510g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_caribbean_cotton_loinapron` | a panelled $colour cotton loin apron | `apron` | `cotton` | `Small` / `Standard` | 140g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breechcloth`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_caribbean_woven_fibresandals` | a pair of $colour woven fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_caribbean_woven_shouldercape` | a short $colour cotton shoulder cape | `cape` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 
 ### 52. English / French / Dutch colonial North America — 4
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_colonialnorthamerica_clothing_hooded_wool_capote` | a hooded $colour wool capote | `coat` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_colonialnorthamerica_clothing_soft_moccasins` | a pair of soft leather moccasins | `moccasins` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_colonialnorthamerica_clothing_linen_work_cap` | a $colour linen work cap | `cap` | `linen` | `Small` / `Standard` | 140g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). |
+| `earlymodern_colonialnorthamerica_clothing_hooded_wool_capote` | a hooded $colour wool capote | `coat` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_colonialnorthamerica_clothing_soft_moccasins` | a pair of soft leather moccasins | `moccasins` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `earlymodern_colonialnorthamerica_clothing_linen_work_cap` | a $colour linen work cap | `cap` | `linen` | `Small` / `Standard` | 140g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
 | `earlymodern_colonialnorthamerica_clothing_wool_shortgown` | a $colour wool shortgown | `shortgown` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
 
 ### 53. North American Indigenous survivals — 6
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_northamerican_hide_breechcloth` | a long hide breechcloth | `breechcloth` | `leather` | `Small` / `Standard` | 200g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breechcloth`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_northamerican_paired_hideleggings` | a pair of long hide leggings | `leggings` | `leather` | `Normal` / `Standard` | 520g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Leggings`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). |
-| `renaissance_northamerican_hide_shirt` | a loose hide shirt | `shirt` | `leather` | `Normal` / `Standard` | 410g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_northamerican_soft_moccasins` | a pair of soft hide moccasins | `moccasins` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). |
-| `renaissance_northamerican_fur_robe` | a broad fur robe | `robe` | `fur` | `Normal` / `Standard` | 810g / 60.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_HeavyClothing`<br>`Insulation_Strong` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
+| `renaissance_northamerican_hide_breechcloth` | a long hide breechcloth | `breechcloth` | `leather` | `Small` / `Standard` | 200g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breechcloth`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_northamerican_paired_hideleggings` | a pair of long hide leggings | `leggings` | `leather` | `Normal` / `Standard` | 520g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Leggings`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_northamerican_hide_shirt` | a loose hide shirt | `shirt` | `leather` | `Normal` / `Standard` | 410g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_northamerican_soft_moccasins` | a pair of soft hide moccasins | `moccasins` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_northamerican_fur_robe` | a broad fur robe | `robe` | `fur` | `Normal` / `Standard` | 810g / 60.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_HeavyClothing`<br>`Insulation_Strong` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `renaissance_northamerican_hide_wrapdress` | a full hide wrap dress | `dress` | `leather` | `Normal` / `Standard` | 1060g / 51.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Dress`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
 
 ### 54. Indigenous North American regional families — 4
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_northamerican_clothing_tied_tradecloth_headband` | a tied $colour wool headband | `headband` | `wool` | `Normal` / `Standard` | 390g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Headband`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 9 outfit(s). |
-| `earlymodern_northamerican_clothing_tradecloth_shirt` | a loose $colour wool trade-cloth shirt | `shirt` | `wool` | `Normal` / `Standard` | 360g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
-| `earlymodern_northamerican_clothing_wrapped_blanket_coat` | a wrapped $colour wool blanket coat | `coat` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
+| `earlymodern_northamerican_clothing_tied_tradecloth_headband` | a tied $colour wool headband | `headband` | `wool` | `Normal` / `Standard` | 390g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Headband`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 9 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `earlymodern_northamerican_clothing_tradecloth_shirt` | a loose $colour wool trade-cloth shirt | `shirt` | `wool` | `Normal` / `Standard` | 360g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `earlymodern_northamerican_clothing_wrapped_blanket_coat` | a wrapped $colour wool blanket coat | `coat` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
 | `earlymodern_northamerican_clothing_tradecloth_wrap_skirt` | a $colour wool trade-cloth wrap skirt | `skirt` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
 
 ### 55. Andean survivals — 9
@@ -4422,42 +7564,247 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `renaissance_andean_short_worktunic` | a short coarse $colour camelid-wool tunic | `tunic` | `camelid wool` | `Normal` / `Standard` | 440g / 20.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
-| `renaissance_andean_braided_fibresandals` | a pair of $colour braided fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). |
-| `renaissance_andean_woven_earflapcap` | a woven $colour camelid-wool ear-flap cap | `cap` | `camelid wool` | `Small` / `Standard` | 180g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_andean_straight_sleevelesstunic` | a straight sleeveless $colour camelid-wool tunic | `tunic` | `camelid wool` | `Normal` / `Standard` | 440g / 20.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
+| `renaissance_andean_braided_fibresandals` | a pair of $colour braided fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Second-pass military admission; used in 5 military outfit(s). |
+| `renaissance_andean_woven_earflapcap` | a woven $colour camelid-wool ear-flap cap | `cap` | `camelid wool` | `Small` / `Standard` | 180g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_andean_straight_sleevelesstunic` | a straight sleeveless $colour camelid-wool tunic | `tunic` | `camelid wool` | `Normal` / `Standard` | 440g / 20.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `renaissance_andean_fringed_camelidshawl` | a fringed $colour camelid-wool shawl | `shawl` | `camelid wool` | `Normal` / `Standard` | 650g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_andean_paired_shouldermantle` | a broad pinned $colour camelid-wool shoulder mantle | `mantle` | `camelid wool` | `Normal` / `Standard` | 650g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
+| `renaissance_andean_paired_shouldermantle` | a broad pinned $colour camelid-wool shoulder mantle | `mantle` | `camelid wool` | `Normal` / `Standard` | 650g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
 | `renaissance_andean_wrapped_fulllengthdress` | a wrapped full-length $colour camelid-wool dress | `dress` | `camelid wool` | `Normal` / `Standard` | 890g / 42.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Dress`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_andean_long_headcloth` | a long $colour camelid-wool headcloth | `headcloth` | `camelid wool` | `Small` / `Standard` | 250g / 18.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_andean_pinned_wrapskirt` | a pinned broad $colour camelid-wool wrap skirt | `skirt` | `camelid wool` | `Normal` / `Standard` | 740g / 31.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
+| `renaissance_andean_long_headcloth` | a long $colour camelid-wool headcloth | `headcloth` | `camelid wool` | `Small` / `Standard` | 250g / 18.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_andean_pinned_wrapskirt` | a pinned broad $colour camelid-wool wrap skirt | `skirt` | `camelid wool` | `Normal` / `Standard` | 740g / 31.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
+
+## Second-pass military-uniform item catalogue
+
+This catalogue adds **133** Early Modern clothing and worn-accessory prototypes. It reuses **172** existing first-pass, Renaissance, or pre-industrial stable references rather than cloning their behaviour.
+
+All rows use the common authoring contract above: portable, skinnable, player-visible, no long description, no morph lifecycle, and no full description in this pass. Rank and appointment accessories are deliberately generic in behaviour while remaining credible standalone objects in player-facing text.
+
+### 1. Generic service, rank, and appointment accessories — 13
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_military_rank_brass_officer_gorget` | a polished brass officer's gorget | `gorget` | `brass` | `VerySmall` / `Good` | 320g / 96.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Gorget`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 16 military outfit(s). Exact appointment and insignia belong in skins. |
+| `earlymodern_military_rank_single_fringed_epaulette` | a fringed $colour shoulder epaulette | `epaulette` | `silk` | `Small` / `Good` | 110g / 52.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Epaulette`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 15 military outfit(s). Exact appointment and insignia belong in skins. |
+| `earlymodern_military_rank_paired_fringed_epaulettes` | a pair of fringed $colour epaulettes | `epaulettes` | `silk` | `Small` / `Good` | 220g / 96.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Spaulders`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 10 military outfit(s). Exact appointment and insignia belong in skins. |
+| `earlymodern_military_rank_braided_shoulder_knots` | a pair of braided $colour shoulder knots | `knots` | `ribbon` | `Small` / `Good` | 160g / 64.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoulders`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 11 military outfit(s). Exact appointment and insignia belong in skins. |
+| `earlymodern_military_rank_broad_officer_sash` | a broad $colour silk officer's sash | `sash` | `silk` | `Small` / `Good` | 320g / 88.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 79 military outfit(s). Exact appointment and insignia belong in skins. |
+| `earlymodern_military_rank_wool_service_sash` | a broad $colour wool service sash | `sash` | `wool` | `Small` / `Standard` | 360g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 20 military outfit(s). Exact appointment and insignia belong in skins. |
+| `earlymodern_military_rank_brass_breast_badge` | a stamped brass breast badge | `badge` | `brass` | `Tiny` / `Good` | 90g / 36.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Badge`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 2 military outfit(s). Exact appointment and insignia belong in skins. |
+| `earlymodern_military_rank_embroidered_cloth_badge` | an embroidered $colour cloth badge | `badge` | `silk` | `VerySmall` / `Good` | 45g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Badge`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 46 military outfit(s). Exact appointment and insignia belong in skins. |
+| `earlymodern_military_rank_braided_shoulder_cord` | a braided $colour shoulder cord | `cord` | `ribbon` | `Small` / `Good` | 100g / 44.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoulder`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 7 military outfit(s). Exact appointment and insignia belong in skins. |
+| `earlymodern_military_uniform_white_leather_crossbelt` | a broad white leather crossbelt | `crossbelt` | `leather` | `Small` / `Standard` | 420g / 38.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Bandolier`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Belt_2` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 25 military outfit(s). Exact appointment and insignia belong in skins. |
+| `earlymodern_military_uniform_plain_leather_crossbelt` | a broad leather service crossbelt | `crossbelt` | `leather` | `Small` / `Standard` | 400g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Bandolier`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Belt_2` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 50 military outfit(s). Exact appointment and insignia belong in skins. |
+| `earlymodern_military_rank_brass_buckled_sword_belt` | a brass-buckled leather sword belt | `belt` | `leather` | `Small` / `Good` | 520g / 74.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Waist`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Belt_Large` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 47 military outfit(s). Exact appointment and insignia belong in skins. |
+| `earlymodern_military_rank_silk_command_scarf` | a fine $colour silk command scarf | `scarf` | `silk` | `Small` / `Good` | 140g / 54.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Scarf`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Reusable skinnable service/rank accessory with valid base presentation; used in 28 military outfit(s). Exact appointment and insignia belong in skins. |
+
+### 2. Shared Western and Atlantic military clothing — 15
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_western_military_long_uniform_coat` | a long-skirted $colour uniform coat | `coat` | `broadcloth` | `Normal` / `Standard` | 1700g / 150.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 15 military outfit(s). |
+| `earlymodern_western_military_officer_frock_coat` | a finely laced $colour officer's coat | `coat` | `broadcloth` | `Normal` / `Good` | 1600g / 300.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 8 military outfit(s). |
+| `earlymodern_western_military_short_service_coat` | a short $colour military coat | `coat` | `wool` | `Normal` / `Standard` | 1100g / 90.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_western_military_fitted_waistcoat` | a fitted $colour military waistcoat | `waistcoat` | `broadcloth` | `Normal` / `Standard` | 520g / 55.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 39 military outfit(s). |
+| `earlymodern_western_military_buff_leather_coat` | a heavy buff leather coat | `coat` | `leather` | `Normal` / `Good` | 3500g / 260.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 5 military outfit(s). |
+| `earlymodern_western_military_split_skirt_riding_coat` | a split-skirt $colour riding coat | `coat` | `broadcloth` | `Normal` / `Good` | 1600g / 180.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 6 military outfit(s). |
+| `earlymodern_western_military_marine_short_coat` | a short-skirted $colour marine coat | `coat` | `broadcloth` | `Normal` / `Standard` | 1200g / 120.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 6 military outfit(s). |
+| `earlymodern_western_military_canvas_gaiters` | a pair of $colour canvas gaiters | `gaiters` | `canvas` | `Small` / `Standard` | 420g / 18.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Leg_Wraps`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 19 military outfit(s). |
+| `earlymodern_western_military_leather_neck_stock` | a stiff black leather neck stock | `stock` | `leather` | `Small` / `Standard` | 130g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Scarf`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 8 military outfit(s). |
+| `earlymodern_western_military_cocked_uniform_hat` | a military $colour cocked felt hat | `hat` | `felt` | `Small` / `Standard` | 230g / 24.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 25 military outfit(s). |
+| `earlymodern_western_military_mitre_grenadier_cap` | a tall $colour cloth grenadier cap | `cap` | `broadcloth` | `Small` / `Good` | 360g / 55.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_western_military_fur_grenadier_cap` | a tall fur-fronted grenadier cap | `cap` | `fur` | `Small` / `Good` | 480g / 80.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Strong` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_western_military_dragoon_cap` | a tall $colour wool dragoon cap | `cap` | `wool` | `Small` / `Standard` | 280g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_western_military_broad_service_bonnet` | a broad $colour wool military bonnet | `bonnet` | `wool` | `Small` / `Standard` | 240g / 20.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_western_military_high_felt_service_cap` | a high-crowned $colour felt service cap | `cap` | `felt` | `Small` / `Standard` | 230g / 25.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+
+### 3. Naval officer and shipboard command clothing — 10
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_western_naval_officer_dress_coat` | a long $colour naval officer's coat | `coat` | `broadcloth` | `Normal` / `Good` | 1650g / 320.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 5 military outfit(s). |
+| `earlymodern_western_naval_officer_undress_frock` | a plain $colour naval officer's frock | `frock` | `broadcloth` | `Normal` / `Good` | 1500g / 190.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_western_naval_officer_tropical_coat` | a light $colour cotton officer's coat | `coat` | `cotton` | `Normal` / `Good` | 900g / 130.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_western_naval_officer_dress_waistcoat` | a fine $colour naval waistcoat | `waistcoat` | `broadcloth` | `Normal` / `Good` | 480g / 100.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 11 military outfit(s). |
+| `earlymodern_western_naval_officer_cocked_hat` | a fine $colour cocked hat | `hat` | `felt` | `Small` / `Good` | 240g / 70.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 17 military outfit(s). |
+| `earlymodern_western_naval_heavy_watch_coat` | a heavy $colour shipboard watch coat | `coat` | `broadcloth` | `Normal` / `Standard` | 2100g / 160.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_western_naval_officer_boat_cloak` | a full $colour naval boat cloak | `cloak` | `broadcloth` | `Normal` / `Good` | 1800g / 180.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Closed)`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_globalmaritime_officer_company_frock` | a long $colour company officer's frock | `frock` | `broadcloth` | `Normal` / `Good` | 1580g / 230.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_globalmaritime_officer_tropical_company_coat` | a light $colour company officer's coat | `coat` | `cotton` | `Normal` / `Good` | 920g / 150.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_globalmaritime_officer_shipboard_waistcoat` | a plain $colour shipboard officer's waistcoat | `waistcoat` | `wool` | `Normal` / `Good` | 500g / 76.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 9 military outfit(s). |
+
+### 4. Central and eastern European frontier military clothing — 7
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_frontier_military_braided_dolman` | a braided $colour military dolman | `dolman` | `broadcloth` | `Normal` / `Good` | 950g / 150.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_frontier_military_fur_trimmed_pelisse` | a fur-trimmed $colour shoulder pelisse | `pelisse` | `wool` | `Normal` / `Good` | 900g / 160.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_frontier_military_split_skirt_cavalry_caftan` | a split-skirt $colour cavalry caftan | `caftan` | `broadcloth` | `Normal` / `Good` | 1400g / 180.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_frontier_military_tall_fur_cap` | a tall cylindrical fur military cap | `cap` | `fur` | `Small` / `Good` | 420g / 90.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Strong` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_frontier_military_folded_felt_cap` | a folded $colour felt frontier cap | `cap` | `felt` | `Small` / `Standard` | 230g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_russian_military_streltsy_service_coat` | a long $colour guard service coat | `coat` | `broadcloth` | `Normal` / `Standard` | 1500g / 110.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_russian_military_tall_guard_cap` | a tall $colour wool guard cap | `cap` | `wool` | `Small` / `Good` | 340g / 55.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+
+### 5. Ottoman and Maghrebi military clothing — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_ottoman_military_tall_felt_service_cap` | a tall white felt service cap | `cap` | `felt` | `Small` / `Standard` | 360g / 35.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_ottoman_military_long_service_kaftan` | a long $colour military kaftan | `kaftan` | `broadcloth` | `Normal` / `Standard` | 1300g / 100.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_ottoman_military_braided_cavalry_jacket` | a close $colour braided cavalry jacket | `jacket` | `wool` | `Normal` / `Good` | 900g / 120.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_ottoman_military_sleeveless_service_vest` | a fitted $colour sleeveless service vest | `vest` | `wool` | `Normal` / `Standard` | 500g / 45.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_ottoman_military_wrapped_turban` | a compact $colour wrapped military turban | `turban` | `cotton` | `Small` / `Standard` | 300g / 25.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 5 military outfit(s). |
+| `earlymodern_ottoman_military_artillery_felt_cap` | a rounded $colour artillery felt cap | `cap` | `felt` | `Small` / `Standard` | 230g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_ottoman_naval_officer_command_kaftan` | a fine $colour naval command kaftan | `kaftan` | `broadcloth` | `Normal` / `Good` | 1450g / 220.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_maghrebi_military_corsair_jacket` | a short $colour corsair jacket | `jacket` | `wool` | `Normal` / `Standard` | 850g / 75.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_maghrebi_naval_officer_command_coat` | a fitted $colour naval command coat | `coat` | `broadcloth` | `Normal` / `Good` | 1300g / 180.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+
+### 6. Persianate and South Asian military clothing — 16
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_persianate_military_quilted_coat` | a quilted $colour military coat | `coat` | `cotton` | `Normal` / `Standard` | 1700g / 85.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_persianate_military_flared_cavalry_coat` | a flared $colour cavalry coat | `coat` | `broadcloth` | `Normal` / `Good` | 1300g / 160.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_persianate_military_tall_turban` | a tall $colour structured military turban | `turban` | `silk` | `Small` / `Good` | 320g / 75.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 6 military outfit(s). |
+| `earlymodern_persianate_military_guard_overvest` | a long $colour military over-vest | `vest` | `wool` | `Normal` / `Standard` | 750g / 60.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_persianate_naval_officer_command_coat` | a light $colour coastal command coat | `coat` | `silk` | `Normal` / `Good` | 1050g / 170.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_mughal_military_flared_jama` | a flared $colour military jama | `jama` | `cotton` | `Normal` / `Good` | 1000g / 110.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_mughal_military_quilted_jama` | a quilted $colour campaign jama | `jama` | `cotton` | `Normal` / `Standard` | 1500g / 75.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_mughal_military_fan_crested_turban` | a fan-crested $colour officer's turban | `turban` | `silk` | `Small` / `Good` | 350g / 90.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 5 military outfit(s). |
+| `earlymodern_mughal_military_sleeveless_command_coat` | a sleeveless $colour command overcoat | `coat` | `silk` | `Normal` / `Good` | 700g / 140.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_deccan_military_long_angarkha` | a long $colour military crossover robe | `robe` | `cotton` | `Normal` / `Standard` | 950g / 75.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_deccan_military_pointed_turban` | a pointed $colour military turban | `turban` | `cotton` | `Small` / `Standard` | 300g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_deccan_military_short_cavalry_coat` | a short $colour cavalry coat | `coat` | `broadcloth` | `Normal` / `Good` | 900g / 120.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_deccan_naval_officer_coastal_coat` | a light $colour cotton naval coat | `coat` | `cotton` | `Normal` / `Good` | 850g / 100.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_southindian_military_short_jacket` | a short $colour cotton military jacket | `jacket` | `cotton` | `Normal` / `Standard` | 600g / 45.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_southindian_naval_officer_command_robe` | a fine $colour coastal command robe | `robe` | `silk` | `Normal` / `Good` | 900g / 150.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_southindian_military_folded_command_turban` | a broad folded $colour command turban | `turban` | `silk` | `Small` / `Good` | 300g / 65.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 6 military outfit(s). |
+
+### 7. East Asian military clothing — 22
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_qing_military_banner_coat` | a side-fastened $colour banner coat | `coat` | `broadcloth` | `Normal` / `Standard` | 1300g / 95.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_qing_military_sleeveless_surcoat` | a sleeveless $colour military surcoat | `surcoat` | `broadcloth` | `Normal` / `Standard` | 700g / 60.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_qing_military_conical_felt_hat` | a conical $colour felt military hat | `hat` | `felt` | `Small` / `Standard` | 300g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 7 military outfit(s). |
+| `earlymodern_qing_military_officer_riding_robe` | a fine $colour military riding robe | `robe` | `silk` | `Normal` / `Good` | 950g / 150.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_qing_naval_officer_command_coat` | a fine $colour naval command coat | `coat` | `silk` | `Normal` / `Good` | 1100g / 180.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_ming_military_quilted_jacket` | a quilted $colour military jacket | `jacket` | `cotton` | `Normal` / `Standard` | 1300g / 70.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_ming_military_roundcollar_service_robe` | a round-collared $colour service robe | `robe` | `cotton` | `Normal` / `Standard` | 900g / 65.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_ming_military_brimmed_hat` | a broad-brimmed $colour military hat | `hat` | `felt` | `Small` / `Standard` | 280g / 25.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 5 military outfit(s). |
+| `earlymodern_ming_naval_officer_overrobe` | a straight-collared $colour naval over-robe | `robe` | `silk` | `Normal` / `Good` | 1000g / 160.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_joseon_military_two_colour_robe` | a two-coloured $colour1 and $colour2 military robe | `robe` | `silk` | `Normal` / `Good` | 1050g / 145.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_2FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_joseon_military_sleeveless_overvest` | a sleeveless black military over-vest | `vest` | `broadcloth` | `Normal` / `Good` | 720g / 70.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Moderate` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_joseon_military_brimmed_felt_hat` | a brimmed black felt military hat | `hat` | `felt` | `Small` / `Good` | 320g / 42.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 6 military outfit(s). |
+| `earlymodern_joseon_military_officer_overcoat` | a long $colour military officer's coat | `coat` | `silk` | `Normal` / `Good` | 1150g / 175.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_edo_military_ashigaru_jacket` | a short $colour foot-soldier jacket | `jacket` | `cotton` | `Normal` / `Standard` | 620g / 42.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_edo_military_jinbaori` | a sleeveless $colour battle surcoat | `surcoat` | `broadcloth` | `Normal` / `Good` | 780g / 120.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_edo_military_shoulderwing_vest` | a stiff $colour shoulder-wing vest | `vest` | `broadcloth` | `Normal` / `Good` | 650g / 95.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoulders`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_edo_military_lacquered_field_hat` | a broad lacquered conical field hat | `hat` | `wood` | `Small` / `Good` | 520g / 65.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 5 military outfit(s). |
+| `earlymodern_edo_military_officer_field_coat` | a long $colour officer's field coat | `coat` | `silk` | `Normal` / `Good` | 1080g / 170.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_edo_naval_officer_command_jacket` | a short $colour naval command jacket | `jacket` | `silk` | `Normal` / `Good` | 680g / 110.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_ryukyu_military_guard_robe` | a broad-sleeved $colour guard robe | `robe` | `ramie cloth` | `Normal` / `Standard` | 820g / 60.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_ryukyu_naval_officer_overcoat` | a fine $colour maritime officer's coat | `coat` | `silk` | `Normal` / `Good` | 1020g / 160.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_ryukyu_military_structured_cap` | a structured $colour service cap | `cap` | `silk` | `Small` / `Good` | 220g / 48.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 5 military outfit(s). |
+
+### 8. South-east Asian and steppe military clothing — 11
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_mainlandseasia_military_short_jacket` | a short $colour military jacket | `jacket` | `cotton` | `Normal` / `Standard` | 600g / 44.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_mainlandseasia_military_crossfront_robe` | a long cross-front $colour service robe | `robe` | `cotton` | `Normal` / `Standard` | 900g / 68.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_mainlandseasia_military_command_headcloth` | a crown-folded $colour command headcloth | `headcloth` | `silk` | `Small` / `Good` | 280g / 58.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_mainlandseasia_military_command_vest` | a long sleeveless $colour command vest | `vest` | `silk` | `Normal` / `Good` | 680g / 110.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_mainlandseasia_naval_officer_river_coat` | a light $colour river-command coat | `coat` | `cotton` | `Normal` / `Good` | 900g / 120.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_maritimeseasia_military_short_coat` | a short $colour coastal military coat | `coat` | `cotton` | `Normal` / `Standard` | 650g / 50.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_maritimeseasia_military_officer_overrobe` | a fine $colour maritime command over-robe | `robe` | `silk` | `Normal` / `Good` | 950g / 150.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_maritimeseasia_military_command_headcloth` | a folded $colour maritime command headcloth | `headcloth` | `silk` | `Small` / `Good` | 280g / 60.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 6 military outfit(s). |
+| `earlymodern_maritimeseasia_naval_officer_jacket` | a fitted $colour naval officer's jacket | `jacket` | `broadcloth` | `Normal` / `Good` | 850g / 125.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_steppe_military_frontier_musket_coat` | a short $colour frontier musket coat | `coat` | `wool` | `Normal` / `Standard` | 900g / 68.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_steppe_military_felt_campaign_cloak` | a heavy $colour felt campaign cloak | `cloak` | `felt` | `Normal` / `Standard` | 1700g / 90.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Closed)`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+
+### 9. African military and naval clothing — 16
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_westafrican_military_stripwoven_war_tunic` | a long $colour strip-woven war tunic | `tunic` | `cotton` | `Normal` / `Standard` | 720g / 48.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 5 military outfit(s). |
+| `earlymodern_westafrican_military_sleeveless_overrobe` | a sleeveless $colour military over-robe | `robe` | `cotton` | `Normal` / `Good` | 760g / 75.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_westafrican_military_short_guard_jacket` | a short $colour military guard jacket | `jacket` | `cotton` | `Normal` / `Good` | 650g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_westafrican_military_tall_woven_cap` | a tall $colour woven military cap | `cap` | `cotton` | `Small` / `Good` | 230g / 45.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 6 military outfit(s). |
+| `earlymodern_westafrican_military_canoe_command_mantle` | a broad $colour canoe-command mantle | `mantle` | `cotton` | `Normal` / `Good` | 700g / 78.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_westcentralafrica_military_long_tradecloth_coat` | a long $colour trade-cloth military coat | `coat` | `broadcloth` | `Normal` / `Standard` | 1350g / 110.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_westcentralafrica_military_service_cap` | a soft $colour military service cap | `cap` | `cotton` | `Small` / `Standard` | 190g / 18.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_sahel_military_leather_riding_coat` | a long leather cavalry coat | `coat` | `leather` | `Normal` / `Good` | 2300g / 180.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_sahel_military_cavalry_turban` | a layered $colour cavalry turban | `turban` | `cotton` | `Small` / `Good` | 320g / 44.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_sahel_military_guard_overrobe` | a broad $colour military over-robe | `robe` | `cotton` | `Normal` / `Good` | 1000g / 90.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_ethiopian_military_highland_war_cloak` | a broad $colour highland war cloak | `cloak` | `cotton` | `Normal` / `Standard` | 1050g / 62.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_ethiopian_military_service_headcloth` | a wrapped white cotton service headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 240g / 18.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 6 military outfit(s). |
+| `earlymodern_ethiopian_military_officer_cape` | an embroidered $colour officer's shoulder cape | `cape` | `cotton` | `Normal` / `Good` | 620g / 85.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_swahili_military_coastal_guard_coat` | a light $colour coastal guard coat | `coat` | `cotton` | `Normal` / `Standard` | 880g / 62.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_swahili_naval_officer_command_coat` | a fine $colour coastal command coat | `coat` | `silk` | `Normal` / `Good` | 1030g / 165.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_swahili_military_service_turban` | a compact $colour coastal service turban | `turban` | `cotton` | `Small` / `Standard` | 260g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+
+### 10. Colonial and Indigenous American military clothing — 14
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_colonial_military_short_militia_coat` | a short $colour colonial militia coat | `coat` | `wool` | `Normal` / `Standard` | 980g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_colonial_military_frontier_hunting_shirt` | a fringed $colour frontier hunting shirt | `shirt` | `linen` | `Normal` / `Standard` | 620g / 38.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 1 military outfit(s). |
+| `earlymodern_colonial_military_tropical_garrison_coat` | a light $colour tropical garrison coat | `coat` | `cotton` | `Normal` / `Standard` | 980g / 78.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 5 military outfit(s). |
+| `earlymodern_northamerican_military_tradecloth_warcoat` | a wrapped $colour trade-cloth war coat | `coat` | `wool` | `Normal` / `Standard` | 1100g / 76.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+| `earlymodern_northamerican_military_feathered_headband` | a feathered leather war headband | `headband` | `leather` | `Small` / `Good` | 160g / 42.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Headband`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_northamerican_military_silver_gorget` | an engraved silver crescent gorget | `gorget` | `silver` | `VerySmall` / `Good` | 240g / 120.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Gorget`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_mesoamerican_military_quilted_tunic` | a quilted $colour cotton military tunic | `tunic` | `cotton` | `Normal` / `Standard` | 1100g / 58.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 4 military outfit(s). |
+| `earlymodern_mesoamerican_military_militia_jacket` | a short $colour cotton militia jacket | `jacket` | `cotton` | `Normal` / `Standard` | 600g / 42.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_mesoamerican_military_command_headband` | a broad $colour woven command headband | `headband` | `cotton` | `Small` / `Good` | 150g / 34.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Headband`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_andean_military_service_tunic` | a long $colour camelid-wool service tunic | `tunic` | `camelid wool` | `Normal` / `Standard` | 780g / 50.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 5 military outfit(s). |
+| `earlymodern_andean_military_command_sash` | a broad $colour camelid-wool command sash | `sash` | `camelid wool` | `Small` / `Good` | 360g / 48.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_andean_military_short_militia_coat` | a short $colour wool militia coat | `coat` | `wool` | `Normal` / `Standard` | 1000g / 70.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_caribbean_military_light_militia_coat` | a light $colour cotton militia coat | `coat` | `cotton` | `Normal` / `Standard` | 760g / 54.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 3 military outfit(s). |
+| `earlymodern_caribbean_naval_officer_island_coat` | a light $colour island naval coat | `coat` | `cotton` | `Normal` / `Good` | 900g / 125.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | New Early Modern military-uniform prototype; used in 2 military outfit(s). |
+
+### 11. Additional shared pre-industrial military-support admission — 1
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `preindustrial_military_support_simple_sword_belt` | a simple sword belt | `belt` | `leather` | `Small` / `Standard` | 420g / 32.0m | `Holdable`<br>`Wear_Waist`<br>`Belt_2`<br>`Destroyable_Clothing` | `Era / Pre-Industrial Era`<br>`Functions / Military Equipment`<br>`Functions / Worn Items / Belts`<br>`Market / Military Goods` | Implemented shared alias; admitted in 63 military outfit(s) rather than cloned as an Early Modern row. |
 
 ## Implementation order
 
 1. Seed or verify `Wear_Stays` and `Wear_Breeches` from the dependency ledger.
-2. Ensure the three implemented `preindustrial_clothing_*` aliases.
+2. Ensure the three implemented `preindustrial_clothing_*` aliases and `preindustrial_military_support_simple_sword_belt`.
 3. Ensure admitted Renaissance stable references individually and idempotently.
-4. Create new `earlymodern_*` rows in catalogue order.
-5. Add culture manifests and profession/shop admissions only after every referenced item exists.
-6. Add skins and full descriptions in the later presentation pass.
-7. Add crafts only after exact material, skill, tool, and product-tag dependencies resolve.
+4. Create first-pass civilian `earlymodern_*` rows in their existing catalogue order.
+5. Create second-pass military-uniform and appointment-accessory rows in the catalogue order above.
+6. Add civilian and military culture manifests only after every referenced item exists.
+7. Keep firearms, ammunition, armour, weapons, standards, drums, and non-clothing naval equipment in the military/firearms/naval branch.
+8. Add skins and full descriptions in the later presentation pass.
+9. Add crafts only after exact material, skill, tool, and product-tag dependencies resolve.
 
 ## Validation result
 
-- **PASS** — 35 expected cultures, no global-maritime culture.
-- **PASS** — 350 outfits, exactly ten per culture.
-- **PASS** — five male and five female outfits per culture.
-- **PASS** — no outfit heading contains military, uniform, or noble scope.
-- **PASS** — no duplicate complete manifest within a culture and no duplicate item within an outfit.
-- **PASS** — every outfit has upper-body, lower/full-body, footwear, and headwear/head-covering coverage.
-- **PASS** — no outfit uses the same exact wearable profile twice.
-- **PASS** — every sdesc begins with an article, is 3-10 words, and has matching variable components.
-- **PASS** — materials, live components, tags, weight, quality, size, and cost fields validate against the current project vocabulary plus the two declared component dependencies.
+### Civilian first pass retained
+
+- **PASS** — 35 civilian cultures, excluding the originally deferred global-maritime overlay.
+- **PASS** — 350 civilian outfits, exactly ten per culture and five male/five female labels per culture.
+- **PASS** — all original civilian manifests and catalogue rows remain present.
+
+### Military-uniform second pass
+
+- **PASS** — 36 master culture families, including global maritime.
+- **PASS** — 220 complete military/naval outfits: six for each regional culture and ten global-maritime officer variants.
+- **PASS** — 133 new military-uniform or appointment-accessory rows; every new row is used.
+- **PASS** — 1872 item placements across 305 unique references.
+- **PASS** — no duplicate manifest within a culture, no duplicate item within an outfit, and no repeated exact wearable profile within an outfit.
+- **PASS** — every outfit has upper-body, lower/full-body, footwear, and headwear coverage.
+- **PASS** — every new sdesc begins with an article, is 3-10 words, and has matching variable components.
+- **PASS** — stable references, materials, live components, tags, weight, quality, size, and cost validate against the maintained project vocabulary and the unchanged two-profile dependency ledger.
+- **PASS** — European-specific epaulettes, white crossbelts, shoulder knots, and officer gorgets are culturally gated; other groupings use neutral crossbelts, the shared simple sword belt, sashes, scarves, and badges.
 
 ## Deferred work
 
-- full descriptions;
-- military, naval-uniform, officer, livery, and regimental clothing;
-- noble, court, royal, and diplomatic regalia;
-- global maritime and chartered-company trade outfits;
-- profession-specific overlays beyond the civilian social range represented here;
-- skins, crafts, and shop/region prevalence manifests.
+- full descriptions for civilian and military rows;
+- skins for exact unit, rank, service, company, ship, polity, heraldic, dynastic, and textile presentation;
+- noble, court, royal, diplomatic, and ceremonial regalia outside ordinary military command dress;
+- firearms, ammunition, cartridges, bayonets, armour, weapons, standards, drums, and non-clothing naval equipment in the military/firearms/naval branch;
+- profession-specific civilian overlays beyond the first-pass social range;
+- crafts, unit/shop stock, and local region/date prevalence manifests.

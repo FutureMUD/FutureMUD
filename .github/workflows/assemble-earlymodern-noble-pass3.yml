@@ -33,10 +33,28 @@ jobs:
           set -euo pipefail
           temporary_directory='.tmp/earlymodern-noble-pass3'
           target='Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md'
-          mapfile -t parts < <(find "$temporary_directory" -maxdepth 1 -type f -name 'segment.part.*.b64' -print | sort)
-          test "${#parts[@]}" -eq 16
+          mapfile -t parts < <(find "$temporary_directory" -maxdepth 1 -type f -name 'payload.part.*.b64' -print | sort)
+          test "${#parts[@]}" -eq 4
           cat "${parts[@]}" | base64 --decode | gzip --decompress > "$target"
           test "$(git hash-object "$target")" = 'd0a38c5f364f1e4fe9b96b174fc0ab9dc5da68a2'
+          python - "$target" <<'PY'
+          from pathlib import Path
+          import re
+          import sys
+
+          text = Path(sys.argv[1]).read_text(encoding='utf-8')
+          assert text.count('#### Outfit ') == 786
+          noble_start = text.index('## Noble, royal, and court-equivalent outfit manifests')
+          catalogue_start = text.index('## Noble clothing, jewellery, and regalia catalogue')
+          noble = text[noble_start:catalogue_start]
+          catalogue = text[catalogue_start:]
+          assert noble.count('#### Outfit ') == 216
+          assert len(re.findall(r'^### \d+\. ', noble, re.MULTILINE)) == 36
+          assert len(re.findall(r'^\| `[^`]+` \|', catalogue, re.MULTILINE)) == 351
+          assert '**216 noble/court**' in text
+          assert '**351** new high-quality clothing, jewellery, or regalia prototypes' in text
+          assert 'every third-pass outfit includes at least two separately wearable jewellery or regalia items' in text.lower()
+          PY
           rm -rf "$temporary_directory"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

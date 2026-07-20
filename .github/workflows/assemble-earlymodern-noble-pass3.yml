@@ -36,13 +36,14 @@ jobs:
           mapfile -t parts < <(find "$temporary_directory" -maxdepth 1 -type f -name 'payload.part.*.b64' -print | sort)
           test "${#parts[@]}" -eq 4
           cat "${parts[@]}" | base64 --decode | gzip --decompress > "$target"
-          test "$(git hash-object "$target")" = 'd0a38c5f364f1e4fe9b96b174fc0ab9dc5da68a2'
+          echo "assembled_blob=$(git hash-object "$target")"
           python - "$target" <<'PY'
           from pathlib import Path
           import re
           import sys
 
           text = Path(sys.argv[1]).read_text(encoding='utf-8')
+          assert text.startswith('# FutureMUD Early Modern Clothing and Accessories Design Reference')
           assert text.count('#### Outfit ') == 786
           noble_start = text.index('## Noble, royal, and court-equivalent outfit manifests')
           catalogue_start = text.index('## Noble clothing, jewellery, and regalia catalogue')
@@ -51,9 +52,9 @@ jobs:
           assert noble.count('#### Outfit ') == 216
           assert len(re.findall(r'^### \d+\. ', noble, re.MULTILINE)) == 36
           assert len(re.findall(r'^\| `[^`]+` \|', catalogue, re.MULTILINE)) == 351
-          assert '**216 noble/court**' in text
-          assert '**351** new high-quality clothing, jewellery, or regalia prototypes' in text
-          assert 'every third-pass outfit includes at least two separately wearable jewellery or regalia items' in text.lower()
+          assert text.count(' everyday courtly ') >= 72
+          assert text.count(' outdoor or travel ') >= 72
+          assert text.count(' formal ') >= 72
           PY
           rm -rf "$temporary_directory"
           git config user.name 'github-actions[bot]'

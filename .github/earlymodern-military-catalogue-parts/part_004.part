@@ -1,0 +1,79 @@
+| `medieval_military_mail_mufflers` | a pair of mail mufflers | `mufflers` | `mild steel` | `Small` / `Good` | 980g / 180.0m | `Holdable`<br>`Wear_Mittens`<br>`Armour_Chainmail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_mail_chausses` | a pair of mail chausses | `chausses` | `mild steel` | `Normal` / `Good` | 6,700g / 940.0m | `Holdable`<br>`Wear_Chausses`<br>`Armour_Chainmail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_metal_scale_corselet` | a metal scale corselet | `corselet` | `mild steel` | `Normal` / `Standard` | 5,200g / 540.0m | `Holdable`<br>`Wear_Cuirass`<br>`Armour_MetalScale`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_metal_scale_skirt` | a metal scale armour skirt | `skirt` | `mild steel` | `Small` / `Standard` | 2,100g / 240.0m | `Holdable`<br>`Wear_Tassets`<br>`Armour_MetalScale`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_rawhide_lamellar_cuirass` | a rawhide lamellar cuirass | `cuirass` | `rawhide` | `Normal` / `Standard` | 4,200g / 260.0m | `Holdable`<br>`Wear_Cuirass`<br>`Armour_Lamellar`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_lacquered_lamellar_cuirass` | a lacquered leather lamellar cuirass | `cuirass` | `leather` | `Normal` / `Good` | 4,800g / 520.0m | `Holdable`<br>`Wear_Cuirass`<br>`Armour_Lamellar`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_iron_lamellar_cuirass` | an iron lamellar cuirass | `cuirass` | `mild steel` | `Normal` / `Good` | 6,500g / 900.0m | `Holdable`<br>`Wear_Cuirass`<br>`Armour_Lamellar`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_lamellar_spaulders` | a pair of lamellar shoulder guards | `spaulders` | `leather` | `Small` / `Good` | 1,350g / 210.0m | `Holdable`<br>`Wear_Spaulders`<br>`Armour_Lamellar`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_lamellar_skirt` | a lamellar armour skirt | `skirt` | `leather` | `Small` / `Good` | 2,400g / 320.0m | `Holdable`<br>`Wear_Tassets`<br>`Armour_Lamellar`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_laminar_cuirass` | a banded laminar cuirass | `cuirass` | `mild steel` | `Normal` / `Good` | 5,900g / 720.0m | `Holdable`<br>`Wear_Cuirass`<br>`Armour_Laminar`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_coat_of_plates` | a coat of plates | `coat` | `mild steel` | `Large` / `Good` | 7,600g / 1,800.0m | `Holdable`<br>`Wear_Faulded_Cuirass`<br>`Armour_Platemail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_simple_breastplate` | a simple metal breastplate | `breastplate` | `mild steel` | `Normal` / `Good` | 3,600g / 960.0m | `Holdable`<br>`Wear_Breastplate`<br>`Armour_Platemail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_simple_backplate` | a simple metal backplate | `backplate` | `mild steel` | `Normal` / `Good` | 2,900g / 720.0m | `Holdable`<br>`Wear_Backplate`<br>`Armour_Platemail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_laced_hip_plates` | a pair of laced hip plates | `tassets` | `mild steel` | `Small` / `Standard` | 1,550g / 280.0m | `Holdable`<br>`Wear_Tassets`<br>`Armour_Platemail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_early_metal_couters` | a pair of simple metal couters | `couters` | `mild steel` | `Small` / `Standard` | 720g / 140.0m | `Holdable`<br>`Wear_Couters`<br>`Armour_Platemail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_early_poleyns` | a pair of simple poleyns | `poleyns` | `mild steel` | `Small` / `Standard` | 820g / 150.0m | `Holdable`<br>`Wear_Poleyns`<br>`Armour_Platemail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_splinted_greaves` | a pair of splinted greaves | `greaves` | `leather` | `Small` / `Good` | 1,550g / 230.0m | `Holdable`<br>`Wear_Greaves`<br>`Armour_StuddedLeather`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_guarded_gauntlets` | a pair of simple guarded gauntlets | `gauntlets` | `leather` | `Small` / `Good` | 760g / 220.0m | `Holdable`<br>`Wear_Gauntlets`<br>`Armour_Platemail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_leather_war_cap` | a hardened leather war cap | `cap` | `leather` | `Small` / `Standard` | 620g / 48.0m | `Holdable`<br>`Wear_Half_Helmet`<br>`Armour_BoiledLeather`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_iron_skullcap` | an iron skullcap | `skullcap` | `wrought iron` | `Small` / `Standard` | 1,050g / 120.0m | `Holdable`<br>`Wear_Half_Helmet`<br>`Armour_Platemail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_conical_steel_helm` | a conical steel helm | `helm` | `mild steel` | `Small` / `Standard` | 1,350g / 180.0m | `Holdable`<br>`Wear_Helmet`<br>`Armour_Platemail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_kettle_style_helmet` | a broad-brimmed iron helmet | `helmet` | `wrought iron` | `Small` / `Standard` | 1,850g / 220.0m | `Holdable`<br>`Wear_Half_Helmet`<br>`Armour_Platemail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_plain_spangenhelm` | a plain spangenhelm | `spangenhelm` | `mild steel` | `Small` / `Standard` | 1,450g / 210.0m | `Holdable`<br>`Wear_Spangenhelm`<br>`Armour_Platemail`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_lamellar_helmet` | a lamellar helmet | `helmet` | `mild steel` | `Small` / `Good` | 1,700g / 340.0m | `Holdable`<br>`Wear_Helmet`<br>`Armour_Lamellar`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_padded_gorget` | a padded throat guard | `gorget` | `linen` | `Small` / `Standard` | 360g / 16.0m | `Holdable`<br>`Wear_Gorget`<br>`Armour_HeavyClothing`<br>`Destroyable_Armour`<br>`Insulation_Minor` | `SOURCE` |
+| `medieval_military_leather_gorget` | a hardened leather gorget | `gorget` | `leather` | `Small` / `Standard` | 540g / 56.0m | `Holdable`<br>`Wear_Gorget`<br>`Armour_BoiledLeather`<br>`Destroyable_Armour` | `SOURCE` |
+| `medieval_military_plain_round_shield` | a plain round shield | `shield` | `poplar` | `Normal` / `Standard` | 3,000g / 72.0m | `Holdable`<br>`Shield_Round`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_light_cavalry_round_shield` | a light cavalry round shield | `shield` | `willow` | `Normal` / `Standard` | 2,400g / 90.0m | `Holdable`<br>`Shield_Round`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_leather_faced_round_shield` | a leather-faced round shield | `shield` | `linden` | `Normal` / `Standard` | 3,600g / 120.0m | `Holdable`<br>`Shield_Round`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_lacquered_round_shield` | a lacquered round shield | `shield` | `wood` | `Normal` / `Good` | 3,100g / 220.0m | `Holdable`<br>`Shield_Round`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_plain_wooden_buckler` | a plain wooden buckler | `buckler` | `oak` | `Small` / `Standard` | 900g / 64.0m | `Holdable`<br>`Shield_Buckler`<br>`Destroyable_Shield`<br>`Beltable` | `SOURCE` |
+| `medieval_military_iron_buckler` | an iron buckler | `buckler` | `wrought iron` | `Small` / `Standard` | 1,250g / 160.0m | `Holdable`<br>`Shield_Buckler`<br>`Destroyable_Shield`<br>`Beltable` | `SOURCE` |
+| `medieval_military_crossbowmans_pavise` | a $colour crossbowman's pavise | `pavise` | `poplar` | `Large` / `Standard` | 6,500g / 240.0m | `Holdable`<br>`Shield_Pavise`<br>`Destroyable_Shield`<br>`Variable_BasicColour` | `SOURCE` |
+| `medieval_military_campaign_pavise` | a plain campaign pavise | `pavise` | `poplar` | `Large` / `Standard` | 7,200g / 300.0m | `Holdable`<br>`Shield_Pavise`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_plain_rawhide_shield` | a plain rawhide shield | `shield` | `rawhide` | `Normal` / `Standard` | 2,300g / 48.0m | `Holdable`<br>`Shield_Hide`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_tall_rawhide_shield` | a tall rawhide shield | `shield` | `rawhide` | `Large` / `Standard` | 3,600g / 72.0m | `Holdable`<br>`Shield_Hide`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_plain_wicker_shield` | a plain wicker shield | `shield` | `wicker` | `Normal` / `Standard` | 1,800g / 32.0m | `Holdable`<br>`Shield_Wicker`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_rattan_shield` | a rattan shield | `shield` | `rattan` | `Normal` / `Good` | 1,700g / 64.0m | `Holdable`<br>`Shield_Wicker`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_lacquered_wicker_shield` | a lacquered wicker shield | `shield` | `wicker` | `Normal` / `Good` | 1,900g / 90.0m | `Holdable`<br>`Shield_Wicker`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_plain_steel_dhal` | a plain steel dhal | `dhal` | `mild steel` | `Normal` / `Good` | 1,900g / 360.0m | `Holdable`<br>`Shield_Dhal`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_leather_dhal` | a leather dhal | `dhal` | `cow leather` | `Normal` / `Standard` | 1,200g / 120.0m | `Holdable`<br>`Shield_Dhal`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_fine_polished_dhal` | a fine polished dhal | `dhal` | `carbon steel` | `Normal` / `VeryGood` | 1,800g / 900.0m | `Holdable`<br>`Shield_Dhal`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_plain_adarga` | a plain adarga | `adarga` | `rawhide` | `Normal` / `Standard` | 1,800g / 120.0m | `Holdable`<br>`Shield_Adarga`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_heart_shaped_adarga` | a heart-shaped adarga | `adarga` | `cow leather` | `Normal` / `Good` | 1,600g / 220.0m | `Holdable`<br>`Shield_Adarga`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_cavalry_adarga` | a light cavalry adarga | `adarga` | `rawhide` | `Normal` / `Standard` | 1,500g / 160.0m | `Holdable`<br>`Shield_Adarga`<br>`Destroyable_Shield` | `SOURCE` |
+| `medieval_military_small_round_targe` | a small round targe | `targe` | `oak` | `Small` / `Standard` | 1,800g / 110.0m | `Holdable`<br>`Shield_Targe`<br>`Destroyable_Shield`<br>`Beltable` | `SOURCE` |
+| `medieval_military_leather_faced_targe` | a leather-faced targe | `targe` | `oak` | `Small` / `Good` | 1,600g / 190.0m | `Holdable`<br>`Shield_Targe`<br>`Destroyable_Shield`<br>`Beltable` | `SOURCE` |
+| `medieval_military_iron_bossed_targe` | an iron-bossed targe | `targe` | `oak` | `Small` / `Good` | 2,100g / 260.0m | `Holdable`<br>`Shield_Targe`<br>`Destroyable_Shield`<br>`Beltable` | `SOURCE` |
+
+### 2. New melee weapons — 420
+
+Quality bands are item-level; the primary weapon component remains constant within each form unless the table names a distinct mechanical family.
+
+#### 2.1. Knives, daggers, and bayonets — 48
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tag profile |
+|---|---|---|---|---|---:|---|---|
+| `earlymodern_military_melee_ballock_dagger_service` | a serviceable ballock dagger | `dagger` | `wrought iron` | `Small` / `Standard` | 430g / 70.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_ballock_dagger_fine` | a well-balanced ballock dagger | `dagger` | `carbon steel` | `Small` / `Good` | 415g / 158.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_ballock_dagger_ornate` | an ornate ballock dagger | `dagger` | `crucible steel` | `Small` / `VeryGood` | 410g / 350.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_left_hand_dagger_service` | a serviceable left-hand dagger | `dagger` | `carbon steel` | `Small` / `Standard` | 520g / 140.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_left_hand_dagger_fine` | a well-balanced left-hand dagger | `dagger` | `carbon steel` | `Small` / `Good` | 505g / 315.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_left_hand_dagger_ornate` | an ornate left-hand dagger | `dagger` | `crucible steel` | `Small` / `VeryGood` | 495g / 700.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_parrying_dagger_service` | a serviceable parrying dagger | `dagger` | `carbon steel` | `Small` / `Standard` | 560g / 170.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_parrying_dagger_fine` | a well-balanced parrying dagger | `dagger` | `carbon steel` | `Small` / `Good` | 545g / 382.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_parrying_dagger_ornate` | an ornate parrying dagger | `dagger` | `crucible steel` | `Small` / `VeryGood` | 530g / 850.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_stiletto_service` | a serviceable stiletto | `stiletto` | `carbon steel` | `Small` / `Standard` | 310g / 110.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_stiletto_fine` | a well-balanced stiletto | `stiletto` | `carbon steel` | `Small` / `Good` | 300g / 248.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_stiletto_ornate` | an ornate stiletto | `stiletto` | `crucible steel` | `Small` / `VeryGood` | 295g / 550.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_poniard_service` | a serviceable poniard | `poniard` | `carbon steel` | `Small` / `Standard` | 360g / 120.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_poniard_fine` | a well-balanced poniard | `poniard` | `carbon steel` | `Small` / `Good` | 350g / 270.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_poniard_ornate` | an ornate poniard | `poniard` | `crucible steel` | `Small` / `VeryGood` | 340g / 600.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_naval_dirk_service` | a serviceable naval dirk | `dirk` | `wrought iron` | `Small` / `Standard` | 470g / 95.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_naval_dirk_fine` | a well-balanced naval dirk | `dirk` | `carbon steel` | `Small` / `Good` | 455g / 214.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_naval_dirk_ornate` | an ornate naval dirk | `dirk` | `crucible steel` | `Small` / `VeryGood` | 445g / 475.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_highland_dirk_service` | a serviceable long broad-bladed dirk | `dirk` | `wrought iron` | `Small` / `Standard` | 590g / 125.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_highland_dirk_fine` | a well-balanced long broad-bladed dirk | `dirk` | `carbon steel` | `Small` / `Good` | 570g / 281.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_highland_dirk_ornate` | an ornate long broad-bladed dirk | `dirk` | `crucible steel` | `Small` / `VeryGood` | 560g / 625.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_plug_bayonet_service` | a serviceable plug bayonet | `bayonet` | `wrought iron` | `Small` / `Standard` | 520g / 105.0m | `Holdable`<br>`Melee_Bayonet`<br>`Bayonet_Plug`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |

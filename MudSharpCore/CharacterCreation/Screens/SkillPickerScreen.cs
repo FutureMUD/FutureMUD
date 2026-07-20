@@ -30,6 +30,17 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
                 x =>
                     x.FunctionName.Equals(definition.Element("FreeSkillsProg").Value,
                         StringComparison.InvariantCultureIgnoreCase));
+        XElement suggestedSkillsProg = definition.Element("SuggestedSkillsProg");
+        if (suggestedSkillsProg is not null &&
+            !string.IsNullOrWhiteSpace(suggestedSkillsProg.Value) &&
+            !suggestedSkillsProg.Value.EqualTo("none"))
+        {
+            SuggestedSkillsProg = long.TryParse(suggestedSkillsProg.Value, out value)
+                ? Gameworld.FutureProgs.Get(value)
+                : Gameworld.FutureProgs.FirstOrDefault(
+                    x => x.FunctionName.Equals(suggestedSkillsProg.Value,
+                        StringComparison.InvariantCultureIgnoreCase));
+        }
     }
 
     protected SkillPickerScreenStoryboard(IFuturemud gameworld, IChargenScreenStoryboard storyboard) : base(gameworld,
@@ -63,6 +74,7 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
 
     public IFutureProg NumberOfSkillPicksProg { get; protected set; }
     public IFutureProg FreeSkillsProg { get; protected set; }
+    public IFutureProg SuggestedSkillsProg { get; protected set; }
 
     public string Blurb { get; protected set; }
 
@@ -76,7 +88,8 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
         return new XElement("Definition",
             new XElement("Blurb", new XCData(Blurb)),
             new XElement("NumberOfSkillPicksProg", NumberOfSkillPicksProg?.Id ?? 0),
-            new XElement("FreeSkillsProg", FreeSkillsProg?.Id ?? 0)
+            new XElement("FreeSkillsProg", FreeSkillsProg?.Id ?? 0),
+            new XElement("SuggestedSkillsProg", SuggestedSkillsProg?.Id ?? 0)
         ).ToString();
     }
 
@@ -92,6 +105,7 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
                 .Wrap(voyeur.InnerLineFormatLength).ColourCommand());
         sb.AppendLine();
         sb.AppendLine($"Free Skills Prog: {FreeSkillsProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        sb.AppendLine($"Suggested Skills Prog: {SuggestedSkillsProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"# Picks Prog: {NumberOfSkillPicksProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine();
         sb.AppendLine("Skill Blurb".GetLineWithTitle(voyeur, Telnet.Cyan, Telnet.BoldWhite));
@@ -153,7 +167,33 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
                                 .ToList();
             Chargen.SelectedSkills.AddRange(FreeSkills);
             SetCurrentSelectables();
+            double maximumSkillPicks = Convert.ToDouble(storyboard.NumberOfSkillPicksProg.Execute(chargen));
+            foreach (ITraitDefinition skill in storyboard.SuggestedSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? [])
+            {
+                if (!CanSelectSuggestedSkill(skill, FreeSkills, CurrentSelectables, Chargen.SelectedSkills,
+                        maximumSkillPicks))
+                {
+                    continue;
+                }
+
+                Chargen.SelectedSkills.Add(skill);
+                SetCurrentSelectables();
+            }
+
             LastCurrentSelectables = CurrentSelectables;
+        }
+
+        internal static bool CanSelectSuggestedSkill(ITraitDefinition skill,
+            IEnumerable<ITraitDefinition> freeSkills, IEnumerable<ITraitDefinition> currentSelectables,
+            IEnumerable<ITraitDefinition> selectedSkills, double maximumSkillPicks)
+        {
+            return skill is not null &&
+                   skill.TraitType == TraitType.Skill &&
+                   !skill.Hidden &&
+                   !freeSkills.Contains(skill) &&
+                   currentSelectables.Contains(skill) &&
+                   !selectedSkills.Contains(skill) &&
+                   selectedSkills.Except(freeSkills).Count() < maximumSkillPicks;
         }
 
         public override ChargenStage AssociatedStage => ChargenStage.SelectSkills;
@@ -344,6 +384,7 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
     public override string HelpText => $@"{BaseHelpText}
 	#3blurb#0 - drops you into an editor to change the blurb
 	#3freeskills <prog>#0 - sets the free skills prog
+	#3suggestedskills <prog|none>#0 - sets or clears the suggested skills prog
 	#3picks <prog>#0 - sets a prog for how many skill picks the player gets";
 
     /// <inheritdoc />
@@ -362,6 +403,11 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
             case "skillsprog":
             case "skillprog":
                 return BuildingCommandFreeSkills(actor, command);
+            case "suggestedskills":
+            case "suggestedskillsprog":
+            case "suggestedskill":
+            case "suggestedskillprog":
+                return BuildingCommandSuggestedSkills(actor, command);
         }
 
         return BuildingCommandFallback(actor, command.GetUndo());
@@ -415,6 +461,41 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
         Changed = true;
         actor.OutputHandler.Send(
             $"The prog {prog.MXPClickableFunctionName()} will now be used to control which skills characters get for free.");
+        return true;
+    }
+
+    private bool BuildingCommandSuggestedSkills(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                "Which prog should suggest initially selected skills? Use #3none#0 to clear."
+                    .SubstituteANSIColour());
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
+        {
+            SuggestedSkillsProg = null;
+            Changed = true;
+            actor.OutputHandler.Send("Characters will no longer have skills suggested on this screen.");
+            return true;
+        }
+
+        IFutureProg prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+            ProgVariableTypes.Collection | ProgVariableTypes.Trait, new List<ProgVariableTypes>
+            {
+                ProgVariableTypes.Chargen
+            }).LookupProg();
+        if (prog is null)
+        {
+            return false;
+        }
+
+        SuggestedSkillsProg = prog;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"The prog {prog.MXPClickableFunctionName()} will now suggest initially selected skills.");
         return true;
     }
 

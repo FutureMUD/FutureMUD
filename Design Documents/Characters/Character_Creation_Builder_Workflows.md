@@ -79,6 +79,14 @@ Examples:
 
 This keeps the cost display and submit validation in sync.
 
+## Suggested Skills
+The `SkillPicker` storyboard can pre-select editable skill suggestions from earlier chargen choices. While editing that storyboard, use:
+
+- `chargen set suggestedskills <prog>` to configure a FutureProg returning a collection of traits from one `chargen` parameter
+- `chargen set suggestedskills none` to clear it
+
+Suggested skills are not free grants. They consume normal picks and resources and remain removable on the skill screen. Keep profession or background mapping in the prog; the screen itself only filters its results to distinct, currently selectable skills and applies them in returned order up to the pick limit.
+
 ## Resources
 Chargen resources are general-purpose account resources.
 

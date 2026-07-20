@@ -35,6 +35,20 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CombatStrategyRuntimeTests
 {
+	private static string GetCoreSourcePath(params string[] segments)
+	{
+		return Path.GetFullPath(Path.Combine(
+			new[]
+			{
+				AppContext.BaseDirectory,
+				"..",
+				"..",
+				"..",
+				"..",
+				"MudSharpCore"
+			}.Concat(segments).ToArray()));
+	}
+
 	private static Mock<IFuturemud> CreateGameworld()
 	{
 		Mock<IFuturemud> gameworld = new();

@@ -1,6 +1,6 @@
 # FutureMUD Early Modern Clothing and Accessories Dependency Ledger
 
-> Running dependency ledger for the civilian first pass, military-uniform second pass, and noble/jewellery third pass.
+> Running dependency ledger for the civilian first pass and military-uniform second pass.
 
 ## Status
 
@@ -8,7 +8,7 @@
 - New seeded component prototypes required: **2**.
 - New solid materials required: **0**.
 - This document assumes the two component prototypes below will be created by a later agent before item rows are seeded.
-- The military-uniform second pass and noble/jewellery third pass add no further component or material dependency.
+- The military-uniform second pass adds no further component or material dependency.
 
 ## Required seeded component prototypes
 
@@ -47,21 +47,9 @@
 
 The second pass therefore assumes only the same two unresolved wearable profiles as the civilian pass. It must not introduce substitute layering profiles for convenience.
 
-
-## Third-pass noble clothing and jewellery audit
-
-- New component types required by the third pass: **0**.
-- New seeded component prototypes required by the third pass: **0**.
-- New solid materials required by the third pass: **0**.
-- Noble clothing reuses ordinary robe, coat, jacket, gown, skirt, trouser, footwear, headwear, glove, sash, mantle, cloak, wig, `Wear_Stays`, and `Wear_Breeches` profiles already reconciled by the first two passes.
-- Jewellery and regalia use existing exact profiles including `Wear_Ring`, `Wear_Necklace`, `Wear_Earrings`, `Wear_Bracelets`, `Wear_Brooch`, `Wear_Brooches`, `Wear_Armlet`, `Wear_Neck_Ring`, `Wear_Waist_Chain`, `Wear_Waist_Ornament`, `Wear_Girdle_Ornament`, `Wear_Belt_Plaques`, `Wear_Hair_Ornament`, `Wear_Hair_Combs`, `Wear_Hairpins`, `Wear_Forehead_Ornament`, `Wear_Coronet`, `Wear_Diadem`, and `Wear_Crown`.
-- The functional noble signet ring uses the existing `SealStamp_Medieval_NobleSignetRing` component; despite its seed name, its pre-industrial signet behaviour remains suitable after 1600.
-- New jewellery rows use exact live jewellery function and market tags, and exact seeded materials including gold, silver, pearl, jade, ivory, glass, shell, turquoise, feather, and leather.
-- No jewellery item receives armour, insulation, container, identity-obscuring, or unsupported rank mechanics.
-
 ## Material audit
 
-No new material is requested by any of the three clothing/accessory passes. The current repository material export supplies every primary material used by the catalogue, including `barkcloth`, `camelid wool`, `chintz`, `horsehair`, and `ramie cloth` in addition to the established linen, wool, cotton, silk, leather, felt, canvas, broadcloth, velvet, lace, hemp, fur, and wood entries.
+No new material is requested by either clothing pass. The current repository material export supplies every primary material used by the catalogue, including `barkcloth`, `camelid wool`, `chintz`, `horsehair`, and `ramie cloth` in addition to the established linen, wool, cotton, silk, leather, felt, canvas, broadcloth, velvet, lace, hemp, fur, and wood entries.
 
 The older project snapshot supplied to the authoring environment predates several of those material rows. That snapshot mismatch is not a new-material request; the current repository export is the authority for implementation.
 
@@ -71,4 +59,4 @@ The current repository component export already supplies the Renaissance clothin
 
 ## Assumption contract
 
-The main design reference treats `Wear_Stays` and `Wear_Breeches` as available for all three passes. If either profile is renamed during implementation, update every affected catalogue row and this ledger together; do not silently substitute a conflicting wearable profile.
+The main design reference treats `Wear_Stays` and `Wear_Breeches` as available for both passes. If either profile is renamed during implementation, update every affected catalogue row and this ledger together; do not silently substitute a conflicting wearable profile.

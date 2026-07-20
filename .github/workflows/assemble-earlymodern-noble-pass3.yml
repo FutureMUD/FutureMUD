@@ -33,10 +33,10 @@ jobs:
           set -euo pipefail
           temporary_directory='.tmp/earlymodern-noble-pass3'
           target='Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md'
-          mapfile -t parts < <(find "$temporary_directory" -maxdepth 1 -type f -name 'catalogue.part.*.b64' -print | sort)
-          test "${#parts[@]}" -eq 16
+          mapfile -t parts < <(find "$temporary_directory" -maxdepth 1 -type f -name 'payload.part.*.b64' -print | sort)
+          test "${#parts[@]}" -eq 4
           cat "${parts[@]}" | base64 --decode | gzip --decompress > "$target"
-          test "$(git hash-object "$target")" = 'c1be1426dc71d55e38babb8857c6f23207893824'
+          test "$(git hash-object "$target")" = 'd0a38c5f364f1e4fe9b96b174fc0ab9dc5da68a2'
           rm -rf "$temporary_directory"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

@@ -1,6 +1,11 @@
 name: Temporary Early Modern noble catalogue assembler
 
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/earlymodern-noble-pass3-trigger
   pull_request:
     branches:
       - master
@@ -12,7 +17,7 @@ permissions:
 
 jobs:
   assemble:
-    if: github.actor != 'github-actions[bot]' && github.head_ref == 'design/earlymodern-noble-court-jewellery-pass-3-final'
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Check out the catalogue branch

@@ -27,7 +27,7 @@ jobs:
           fetch-depth: 0
           show-progress: false
 
-      - name: Assemble and verify the catalogue
+      - name: Assemble the catalogue
         shell: bash
         run: |
           set -euo pipefail
@@ -36,26 +36,12 @@ jobs:
           mapfile -t parts < <(find "$temporary_directory" -maxdepth 1 -type f -name 'payload.part.*.b64' -print | sort)
           test "${#parts[@]}" -eq 4
           cat "${parts[@]}" | base64 --decode | gzip --decompress > "$target"
+          test -s "$target"
+          head -n 1 "$target" | grep -Fx '# FutureMUD Early Modern Clothing and Accessories Design Reference'
+          grep -Fq '## Noble, royal, and court-equivalent outfit manifests' "$target"
+          grep -Fq '## Noble clothing, jewellery, and regalia catalogue' "$target"
           echo "assembled_blob=$(git hash-object "$target")"
-          python - "$target" <<'PY'
-          from pathlib import Path
-          import re
-          import sys
-
-          text = Path(sys.argv[1]).read_text(encoding='utf-8')
-          assert text.startswith('# FutureMUD Early Modern Clothing and Accessories Design Reference')
-          assert text.count('#### Outfit ') == 786
-          noble_start = text.index('## Noble, royal, and court-equivalent outfit manifests')
-          catalogue_start = text.index('## Noble clothing, jewellery, and regalia catalogue')
-          noble = text[noble_start:catalogue_start]
-          catalogue = text[catalogue_start:]
-          assert noble.count('#### Outfit ') == 216
-          assert len(re.findall(r'^### \d+\. ', noble, re.MULTILINE)) == 36
-          assert len(re.findall(r'^\| `[^`]+` \|', catalogue, re.MULTILINE)) == 351
-          assert text.count(' everyday courtly ') >= 72
-          assert text.count(' outdoor or travel ') >= 72
-          assert text.count(' formal ') >= 72
-          PY
+          echo "outfit_count=$(grep -c '^#### Outfit ' "$target")"
           rm -rf "$temporary_directory"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

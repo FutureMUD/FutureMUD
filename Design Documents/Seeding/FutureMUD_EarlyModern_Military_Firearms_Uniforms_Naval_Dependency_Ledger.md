@@ -395,7 +395,7 @@ Every new `MeleeWeapon`, `Bow`, `Crossbow`, `Blowgun`, `Thrown`, `Musket`, and `
 
 No new solid material is required. All primary materials used by the catalogue resolve to the maintained material export. Important existing materials include `mild steel`, `carbon steel`, `crucible steel`, `cast iron`, `bronze`, `bell bronze`, `brass`, `wrought iron`, `lead`, `tin`, `canvas`, `broadcloth`, `linen`, `wool`, `cotton`, `silk`, `satin`, `velvet`, `felt`, `cashmere`, `cow leather`, `deer leather`, `goat leather`, `rawhide`, `rattan`, `bamboo`, `horn`, `bone`, `horsehair`, `paper`, `hemp`, and the exact seeded woods used in the item rows.
 
-Do not create a new `buff leather` material for this pass. Buff coats use exact existing leather materials and the new `Armour_BuffLeather` protection profile.
+Do not create a new `buff leather` material for this catalogue. Buff coats use exact existing leather materials and the new `Armour_BuffLeather` protection profile.
 
 ## Tag audit
 

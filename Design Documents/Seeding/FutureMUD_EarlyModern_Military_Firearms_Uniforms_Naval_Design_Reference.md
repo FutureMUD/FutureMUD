@@ -1,6 +1,6 @@
 # FutureMUD Early Modern Military, Firearms, Armour, Ammunition, Accessories, and Naval Seeder Design Reference
 
-> First complete catalogue pass for the 1600-1750 Early Modern branch. Full descriptions are intentionally deferred; this document fixes stable references, short descriptions, nouns, materials, physical values, exact or planned component prototypes, tag profiles, reuse policy, and dependency requirements.
+> Complete catalogue for the 1600-1750 Early Modern branch. Full descriptions are intentionally deferred; this document fixes stable references, short descriptions, nouns, materials, physical values, exact or planned component prototypes, tag profiles, reuse policy, and dependency requirements.
 
 ## Executive summary
 
@@ -8,7 +8,7 @@
 - **New Early Modern item prototypes:** **1,661**.
 - **Live shared or earlier-era admissions:** **200**: 52 shared military-support aliases, 10 shared gunpowder-support rows, and 138 direct Medieval combat-equipment admissions.
 - **New-domain distribution:** 420 melee weapons; 480 ranged weapons, firearms, artillery, ammunition, and operating tools; 501 armour and shield items; and 260 accessories, standards, field-equipment, and naval-store items.
-- **Descriptions:** `sdesc` only in this pass. Ordinary portable rows should use `ldesc = null`; full descriptions remain a later implementation pass.
+- **Descriptions:** `sdesc` only in this catalogue. Ordinary portable rows should use `ldesc = null`; full descriptions remain a later implementation stage.
 - **Uniform authority:** worn uniforms, civilian garments, footwear, hats, rank sashes, badges, epaulettes, and generic dress sword-belts remain owned by `FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md`. This reference owns combat weapons, functional weapon carriers, firearm ammunition systems, armour, shields, artillery, standards, signal equipment, and naval weapon support.
 - **Dependency posture:** no new solid material or tag is required. The catalogue assumes 156 new seeded component prototypes, grouped in the companion dependency ledger; 98 use existing component types and 58 use seven new component types.
 
@@ -75,7 +75,7 @@ Skins should carry heraldry, unit colours, lacquer schemes, textile facings, off
 - Ordinary portable objects include `Holdable`. Artillery pieces are transportable catalogue prototypes and therefore remain holdable despite extreme weight; a permanently installed fort or ship copy may be a local non-holdable fixture variant.
 - Every weapon uses exactly one primary weapon component. Every armour row uses exactly one wearable coverage component and one armour component. Every shield uses exactly one shield component. Every dry or liquid container uses exactly one corresponding container interface.
 - Component-dependent claims must match components. Unresolved component names in the tables are assumed available only because they are declared in the dependency ledger.
-- No new row uses a morph target, morph timer, destroyed-item reference, hidden-player flag, or non-null long description in this pass.
+- No new row uses a morph target, morph timer, destroyed-item reference, hidden-player flag, or non-null long description in this catalogue.
 
 ## Historical and mechanical design policy
 
@@ -98,6 +98,41 @@ Armour is layered and body-part complete. The catalogue retains cloth, leather, 
 ### Military support and naval equipment
 
 Functional carrying gear belongs here when it directly carries weapons, ammunition, armour, or gun tools. Cosmetic belts and uniform crossbelts remain in the clothing branch. Naval rows cover shipboard weapon storage, gun operation, boarding, signalling, and protective handling; general ship construction and civilian maritime household goods remain outside this catalogue.
+
+## Current CombatSeeder integration audit
+
+The complete catalogue records the intended content surface, but the live firearm seeder and runtime do not yet implement that whole surface. The following audit preserves the implementation constraints developed alongside the clothing and uniform work and has been checked against the current repository.
+
+### Live seeded baseline
+
+`CombatSeeder.SeedDataMuskets()` currently creates only the `Flintlock Pistol` and `Flintlock Musket` ranged weapon types. When the optional musket package is selected, it creates three pistol components (`Pistol_Flintlock65`, `Pistol_Flintlock55`, and `Pistol_Flintlock45`), four musket components (`Musket_Flintlock80`, `Musket_Flintlock75`, `Musket_Flintlock70`, and `Musket_Flintlock60`), seven `Musket Ball` ammunition grades from 0.80 to 0.45 bore, loose-ball and preassembled-cartridge components, and the `Flintlocks`, `Pistols`, and `Muskets` skills.
+
+The current seed is not safe to extend as-is. Component XML embeds numeric ranged and melee weapon identifiers instead of the newly seeded `RangedWeaponTypes.Id` and corresponding melee type ID, the firearm rows use `AmmunitionLoadType.Magazine` for a single muzzle-loaded charge, several records are created without idempotent lookup or repair, and the preassembled musket cartridge is assigned a lead case material rather than paper.
+
+### Live runtime coverage and remaining gaps
+
+The `Musket` component already models loose powder, ball, optional wad, cartridge loading, ramrod or tap loading, cleaning, jamming, misfire, wet powder, condition-sensitive failure, and catastrophic failure. It also persists a bayonet slot, but the connection methods still leave bayonet attachment behaviour as a TODO.
+
+The runtime does not yet provide ignition-family state for burning match, wheel winding, pyrite or flint readiness, frizzen condition, or ignition-specific weather exposure. It also lacks complete plug/socket/sword-bayonet attachment rules, buckshot and buck-and-ball payload or spread behaviour, match-cord consumption, gunflint wear, lock-quality behaviour, and firearm-specific repair assemblies.
+
+### Implementation priorities
+
+1. Make the existing firearm package rerunnable and repair-capable; resolve newly seeded ranged and melee weapon identifiers into component XML instead of embedding database IDs; and replace the misleading single-charge `Magazine` model when a clearer muzzle-loading model is available.
+2. Add matchlock and wheellock operating traits and ignition-appropriate emotes, then add snaphaunce, doglock, miquelet, and flintlock variants through reusable helpers rather than bore-only component copies.
+3. Add arquebus, caliver, early musket, later musket, carbine, fowling-piece, blunderbuss, and period pistol distinctions where range, handling, bore, ignition, or spread differs.
+4. Represent paper cartridges as paper-cased ammunition and add measured-charge helpers, then implement shot, buckshot, and buck-and-ball payload semantics.
+5. Implement bayonet attachment or document a separate-weapon fallback; then add match-cord consumption, weather exposure, gunflint wear, lock quality, proofing, repair stock, and barrel-failure semantics.
+
+The catalogue already materializes the formerly planned firearm, ammunition, bayonet, sidearm, polearm, signal, field-equipment, naval-store, cuirass, buff-coat, helmet, and regional-shield rows. Those rows remain design targets until their declared component dependencies and runtime semantics are live.
+
+### Dependency and acceptance contract
+
+- Reuse the shared `preindustrial_firearms_*` rows. Exact skills, materials, and tags are audited in `FutureMUD_EarlyModern_PrimaryIndustry_UsefulSeeder_Impact_Reference.md`.
+- Historical firearm crafts use the live `Gunsmithing` / `Gunsmith` and `Powdermaking` / `Powdermaker` pairs. `Gunmaking` and `Munitioning` remain optional modern-package skills.
+- Every firearm prototype must resolve a live ranged type, operating trait, ammunition grade, and component without numeric database-ID assumptions; ignition and loading prose must match its selected family.
+- Firearm, ammunition, and powder chains must be optional, explicit, rerunnable, and repair-capable. Naval and military-equipment rows must remain usable when unsupported firearm mechanics are not installed.
+- Do not clone uniforms or worn appointment accessories from the clothing catalogue merely to obtain a military prefix.
+- Percussion caps, revolvers, metallic cartridges, repeating weapons, default mass rifling, modern shells or explosives, machine guns, ballistic armour, and modern uniforms remain excluded.
 
 ## Culture and institution admission matrix
 
@@ -146,7 +181,7 @@ Sensitive colonial, plantation, enslavement, mission, company, and contact-zone 
 
 ## Research anchors
 
-This first pass is grounded against the period policies in the Early Modern and Renaissance master references, the completed Medieval military catalogue, the live shared baseline, and museum object records. Particularly useful visual and chronological anchors include Metropolitan Museum of Art records for early-seventeenth-century cuirassier and pikeman armour, a seventeenth-century buff coat, a late-sixteenth-/early-seventeenth-century matchlock gun, a ca. 1660 flintlock pistol, seventeenth-century rapiers, and seventeenth-century smallswords. Exact local prevalence remains a manifest decision rather than a property of the generic base item.
+This catalogue is grounded against the period policies in the Early Modern and Renaissance master references, the completed Medieval military catalogue, the live shared baseline, and museum object records. Particularly useful visual and chronological anchors include Metropolitan Museum of Art records for early-seventeenth-century cuirassier and pikeman armour, a seventeenth-century buff coat, a late-sixteenth-/early-seventeenth-century matchlock gun, a ca. 1660 flintlock pistol, seventeenth-century rapiers, and seventeenth-century smallswords. Exact local prevalence remains a manifest decision rather than a property of the generic base item.
 
 ## Tag profiles
 
@@ -2335,10 +2370,10 @@ These rows provide functional military carrying, maintenance, field, standard, s
 - New-row primary materials: all exact names in the maintained solid-material export.
 - New-row tag profiles: all exact paths in the maintained tag hierarchy.
 - Existing component names: validated against the maintained component export.
-- Unresolved component names: exactly **156**, all declared in the companion dependency ledger and assumed available for this design pass.
+- Unresolved component names: exactly **156**, all declared in the companion dependency ledger and assumed available for this design reference.
 - New solid materials: **0**.
 - New tags: **0**.
-- Full descriptions: intentionally **0** in this pass.
+- Full descriptions: intentionally **0** in this catalogue.
 
 ## Implementation handoff
 

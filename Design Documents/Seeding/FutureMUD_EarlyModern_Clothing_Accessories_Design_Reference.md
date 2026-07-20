@@ -1,15 +1,16 @@
 # FutureMUD Early Modern Clothing and Accessories Design Reference
 
-> Civilian first pass and military-uniform second pass. Full descriptions are intentionally deferred.
+> Civilian, military-uniform, and noble/jewellery catalogues. Full descriptions are intentionally deferred.
 
 ## Executive summary
 
 - Master-table culture families covered: **36**. The global-maritime and chartered-company overlay is now included through officer and command dress.
-- Complete outfit manifests: **570** — **350 civilian** first-pass outfits and **220 military/naval** second-pass outfits.
-- The civilian pass retains its balanced **175 male / 175 female** manifest labels. Military role labels are deliberately ungendered.
-- Unique item references in this authority: **451** across **4423 outfit placements**.
-- Item-reference disposition: **266 new Early Modern prototypes**, **181 explicit Renaissance survivals/admissions**, and **4 implemented shared pre-industrial aliases**.
-- Second-pass military coverage uses **305** unique stable references across **1872** placements and adds **133** new uniform or appointment-accessory prototypes.
+- Complete outfit manifests: **786** — **350 civilian**, **220 military/naval**, and **216 noble/court** outfits.
+- The civilian catalogue retains its balanced **175 male / 175 female** manifest labels. The noble catalogue adds **108 male / 108 female** highest-echelon outfits. Military role labels remain deliberately ungendered.
+- Unique item references in this authority: **802** across **6479 outfit placements**.
+- Item-reference disposition: **617 new Early Modern prototypes**, **181 explicit Renaissance survivals/admissions**, and **4 implemented shared pre-industrial aliases**.
+- Military-uniform coverage uses **305** unique stable references across **1872** placements and adds **133** new uniform or appointment-accessory prototypes.
+- Noble/highest-echelon coverage uses **351** new stable references across **2056** placements and adds **216** complete outfits.
 - Regulated line, grenadier, dragoon, marine, artillery, and naval dress is represented where historically appropriate. Other cultures receive coherent guard, militia, retinue, martial, or command outfits without falsely implying European-style mass uniformity.
 - The clothing authority owns garments and worn rank/service accessories. Firearms, ammunition, armour, weapons, standards, instruments, naval stores, and other military equipment remain in `FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md`.
 - Every outfit is authored as a complete wearable set rather than a one- or two-piece suggestion.
@@ -20,8 +21,8 @@
 - Chronological band: approximately 1600-1750 CE, interpreted through the date and culture anchors in the Early Modern master reference rather than as one universal year.
 - Public item wording remains form-based and in-world. Historical culture, polity, corps, and institution labels occur only in builder-facing headings and notes unless a term is itself a useful garment-form name.
 - Local names, colours, weave patterns, embroidery, trim, household marks, guild marks, maker marks, regimental or company marks, imported-textile presentation, and most rank distinctions belong in skins.
-- The civilian first pass covers rural and urban commoners, artisans, market workers, merchants, clerks, learned professionals, and bourgeois or locally equivalent households.
-- The military second pass covers regulated uniforms where they existed and coherent service, guard, retinue, militia, martial, marine, artillery, and command dress elsewhere. Catalogue presence does not prove universal issue or prevalence.
+- The civilian catalogue covers rural and urban commoners, artisans, market workers, merchants, clerks, learned professionals, and bourgeois or locally equivalent households.
+- The military-uniform catalogue covers regulated uniforms where they existed and coherent service, guard, retinue, militia, martial, marine, artillery, and command dress elsewhere. The noble/court catalogue covers royal, princely, aristocratic, hereditary, patrician, court-office, diplomatic, and culturally equivalent highest-echelon dress. Catalogue presence does not prove universal prevalence or entitlement.
 - This document covers clothing and worn appointment accessories, including generic gorgets, epaulettes, shoulder knots, sashes, badges, cords, crossbelts, and sword belts. It does not author firearms, ammunition, armour harness, weapons, drums, standards, naval stores, or shipboard equipment.
 - Culture-family entries are coverage buckets, not assertions that an entire region shared one clothing or uniform system. Broad entries require a narrower local manifest before shop, craft, unit, or institutional placement.
 - Contact and colonial outfits must identify whether each adopted form is local continuity, imported, locally made from imported cloth, imposed, mission-associated, company-issued, diplomatic, or genuinely hybrid. Clothing alone must not be used to infer legal status, ethnicity, enslavement, freedom, military allegiance, or cultural assimilation.
@@ -32,7 +33,7 @@
 - Renaissance stable references are admitted only where the underlying construction remains credible after 1600. An implementation should ensure each admitted source row idempotently rather than invoking the entire Renaissance branch.
 - A distinct `earlymodern_*` row is created where the silhouette, layering, primary material, component profile, production method, institutional role, or culturally useful builder anchor changes.
 - Cross-era reuse is an admission decision, not a claim of equal prevalence. Culture manifests, shops, crafts, units, professions, climate, date, and local world-building govern availability.
-- `FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md` remains the authority for firearms, ammunition, armour, weapons, standards, drums, naval stores, and other combat or shipboard equipment. This clothing reference is the authority for complete uniform manifests and the garments or worn appointment accessories inside them.
+- `FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md` remains the authority for firearms, ammunition, armour, weapons, standards, drums, naval stores, and other combat or shipboard equipment. This clothing reference is the authority for civilian, uniform, noble, court, jewellery, and worn-regalia manifests.
 
 ## Catalogue authoring contract
 
@@ -46,19 +47,19 @@ All catalogue rows in this document use the following shared implementation assu
 - `skinnable = true`, `hideFromPlayers = false`, `ldesc = null`;
 - no morph target, morph echo, morph timer, or destroyed-item reference;
 - cost is denominated in farthings;
-- no full description in either pass.
+- no full description in any of the three catalogues.
 
 New Early Modern civilian rows use `Era / Early Modern Era` plus live clothing market tags. New military-uniform rows additionally use `Functions / Military Equipment` and `Market / Clothing / Military Uniforms`. Reused Renaissance and pre-industrial references retain their source-era tags and are admitted by the outfit manifests rather than retagged or cloned.
 
 ## Dependency ledger
 
-The civilian first pass requires the two planned wearable profiles `Wear_Stays` and `Wear_Breeches`. The military second pass requires **no additional component type, seeded component prototype, or material**.
+The civilian catalogue requires the two planned wearable profiles `Wear_Stays` and `Wear_Breeches`. The military-uniform catalogue requires **no additional component type, seeded component prototype, or material**.
 
-The second pass uses existing exact wearable profiles for gorgets, epaulettes, paired shoulder pieces, badges, shoulder cords, bandoliers, sashes, waist belts, coats, robes, trousers, footwear, and headwear. Exact requirements and the unchanged two-item dependency list are maintained in [FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Ledger.md](./FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Ledger.md).
+The military-uniform catalogue uses existing exact wearable profiles for gorgets, epaulettes, paired shoulder pieces, badges, shoulder cords, bandoliers, sashes, waist belts, coats, robes, trousers, footwear, and headwear. Exact requirements and the unchanged two-item dependency list are maintained in [FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Ledger.md](./FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Ledger.md).
 
 ## Culture coverage and admission notes
 
-| # | Master culture family | First-pass admission note |
+| # | Master culture family | Civilian admission note |
 |---:|---|---|
 | 1 | French / Baroque court and urban | Civilian French-facing dress, c. 1650-1750. Court and noble display are excluded; the prosperous outfits represent master artisans, shopkeepers, clerks, and other urban bourgeois households. |
 | 2 | Dutch Republic / Low Countries | Civilian Dutch and Low Countries dress, c. 1600-1720, emphasizing rural dairy and peat districts, urban crafts, market trade, and mercantile households without court or military clothing. |
@@ -70,7 +71,7 @@ The second pass uses existing exact wearable profiles for gorgets, epaulettes, p
 | 8 | Polish-Lithuanian / Hungarian frontier | Civilian eastern-central European frontier dress, c. 1600-1750. Riding-capable forms are used for travel and herding, not as military uniforms; noble and magnate display is omitted. |
 | 9 | Russian / Petrine and post-Petrine | Muscovite and early-imperial Russian civilian clothing, c. 1600-1750. The manifests deliberately include both long-lived local forms and selective urban westernising dress without making either universal. |
 | 10 | Ottoman | Ottoman civilian dress, c. 1600-1750, ranging from provincial agricultural work to urban craft, retail, scribal, and prosperous household settings. Rank kaftans, command dress, and military uniforms are excluded. |
-| 11 | Maghrebi / North African | Maghrebi civilian dress, c. 1600-1750, covering agrarian, pastoral, artisanal, market, mercantile, and learned urban contexts. Corsair and military dress are outside this pass. |
+| 11 | Maghrebi / North African | Maghrebi civilian dress, c. 1600-1750, covering agrarian, pastoral, artisanal, market, mercantile, and learned urban contexts. Corsair and military dress are outside this catalogue. |
 | 12 | Safavid / post-Safavid Persianate | Persianate civilian clothing, c. 1600-1750, with rural, caravan-adjacent, craft, mercantile, and scribal ensembles. Court robes and military command dress are excluded. |
 | 13 | Mughal / Indo-Persian | Mughal and Indo-Persian civilian clothing, c. 1600-1750, spanning cultivators, artisans, shopkeepers, scribes, merchants, textile workers, and prosperous urban households without court regalia. |
 | 14 | Maratha / Rajput / Deccan | Regional South Asian civilian dress, c. 1650-1750, emphasizing agricultural, textile, market, mercantile, and administrative settings. Warrior and courtly dress are deliberately omitted despite the master culture label. |
@@ -83,10 +84,10 @@ The second pass uses existing exact wearable profiles for gorgets, epaulettes, p
 | 21 | Mainland South-east Asian courts | Mainland South-east Asian civilian clothing, c. 1600-1750, stripped of court regalia despite the master label. The outfits cover rice cultivation, river work, crafts, markets, shops, and literate urban households. |
 | 22 | Maritime South-east Asian trade worlds | Maritime South-east Asian civilian clothing, c. 1600-1750, centered on spice cultivation, fishing, port crafts, retail, and mercantile households. Military and dynastic court clothing are excluded. |
 | 23 | Inner Asian / steppe frontier | Inner Asian and steppe-frontier civilian dress, c. 1600-1750, covering pastoral, caravan, felt-working, market, and merchant households. Military and princely attire are excluded. |
-| 24 | West African court and Atlantic trade | West African civilian and commercial clothing, c. 1600-1750. The master label includes court networks, but this pass retains only rural, artisan, market, merchant, and prosperous household dress; every implementation still requires a narrower local culture. |
+| 24 | West African court and Atlantic trade | West African civilian and commercial clothing, c. 1600-1750. The master label includes court networks, but this catalogue retains only rural, artisan, market, merchant, and prosperous household dress; every implementation still requires a narrower local culture. |
 | 25 | Kongo / Angola / West Central Africa | West Central African civilian clothing, c. 1600-1750, deliberately distinguishing local barkcloth and wrapper continuities from adopted trade-cloth forms. Legal status is not inferred from clothing; local manifests must record it separately. |
 | 26 | Sahelian / Hausa / Islamic West Africa | Sahelian and Hausa-facing civilian clothing, c. 1600-1750, covering cultivation, herding, urban crafts, market exchange, scholarship, and prosperous merchant households. Every outfit requires narrower local admission. |
-| 27 | Ethiopian / Red Sea | Ethiopian highland and Red Sea civilian clothing, c. 1600-1750, spanning cultivators, herders, artisans, merchants, scribes, and prosperous households. Ecclesiastical and military attire are outside this pass. |
+| 27 | Ethiopian / Red Sea | Ethiopian highland and Red Sea civilian clothing, c. 1600-1750, spanning cultivators, herders, artisans, merchants, scribes, and prosperous households. Ecclesiastical and military attire are outside this catalogue. |
 | 28 | Swahili Coast / Indian Ocean Africa | Swahili and Indian Ocean African civilian clothing, c. 1600-1750, covering coastal agriculture, fishing, port crafts, retail, scholarship, and merchant households. Court and military clothing are excluded. |
 | 29 | Spanish colonial Americas | Spanish-colonial civilian clothing, c. 1600-1750. The manifests mix local Indigenous continuities, locally made Iberian forms, and genuine hybrid garments; each implementation must identify region, community, and whether a form is local, imported, imposed, or hybrid. |
 | 30 | Portuguese Brazil / Atlantic plantation | Brazilian and Portuguese-Atlantic civilian clothing, c. 1600-1750, with local, African-diasporic, Indigenous, and Portuguese-derived forms. Clothing does not encode free, enslaved, Indigenous, African, European, or mixed legal identity; local manifests must record those contexts explicitly. |
@@ -96,7 +97,7 @@ The second pass uses existing exact wearable profiles for gorgets, epaulettes, p
 | 34 | Andean colonial and Indigenous | Andean colonial and Indigenous civilian clothing, c. 1600-1750, pairing camelid-textile continuities with locally adopted colonial forms. Each implementation must record community, altitude, season, and contact context. |
 | 35 | Caribbean / Atlantic plantation | Caribbean and Atlantic plantation-zone civilian clothing, c. 1600-1750, including local Caribbean, African-diasporic, and European-derived forms. Clothing does not encode legal status; local manifests must explicitly record free, enslaved, Indigenous, African, European, and mixed contexts. |
 
-## First-pass civilian outfit manifests
+## Civilian outfit manifests
 
 The following manifests are builder-facing. They are ordered one outfit at a time and reference only items listed in the catalogue below. Repeated stable references are intentional reuse, not missing rows.
 
@@ -1270,7 +1271,7 @@ The following manifests are builder-facing. They are ordered one outfit at a tim
 
 ### 11. Maghrebi / North African
 
-> Maghrebi civilian dress, c. 1600-1750, covering agrarian, pastoral, artisanal, market, mercantile, and learned urban contexts. Corsair and military dress are outside this pass.
+> Maghrebi civilian dress, c. 1600-1750, covering agrarian, pastoral, artisanal, market, mercantile, and learned urban contexts. Corsair and military dress are outside this catalogue.
 
 #### Outfit 101 — Maghrebi rural herder male
 
@@ -2595,7 +2596,7 @@ The following manifests are builder-facing. They are ordered one outfit at a tim
 
 ### 24. West African court and Atlantic trade
 
-> West African civilian and commercial clothing, c. 1600-1750. The master label includes court networks, but this pass retains only rural, artisan, market, merchant, and prosperous household dress; every implementation still requires a narrower local culture.
+> West African civilian and commercial clothing, c. 1600-1750. The master label includes court networks, but this catalogue retains only rural, artisan, market, merchant, and prosperous household dress; every implementation still requires a narrower local culture.
 
 #### Outfit 231 — West African rural farmer male
 
@@ -2898,7 +2899,7 @@ The following manifests are builder-facing. They are ordered one outfit at a tim
 
 ### 27. Ethiopian / Red Sea
 
-> Ethiopian highland and Red Sea civilian clothing, c. 1600-1750, spanning cultivators, herders, artisans, merchants, scribes, and prosperous households. Ecclesiastical and military attire are outside this pass.
+> Ethiopian highland and Red Sea civilian clothing, c. 1600-1750, spanning cultivators, herders, artisans, merchants, scribes, and prosperous households. Ecclesiastical and military attire are outside this catalogue.
 
 #### Outfit 261 — Ethiopian rural cultivator male
 
@@ -3841,14 +3842,14 @@ The following manifests are builder-facing. They are ordered one outfit at a tim
 - `earlymodern_spanishcolonial_clothing_cotton_shoulder_wrap` — a long $colour cotton shoulder wrap
 - `renaissance_shared_clothing_leather_gloves` — a pair of leather gloves
 
-## Second-pass military uniform and naval-officer manifests
+## Military uniform and naval-officer manifests
 
 ### Scope and interpretation
 
 - Culture families covered: **36**, including the previously deferred global-maritime overlay.
 - Complete military, guard, militia, marine, and officer outfits: **220**.
 - Item placements: **1872** across **305** unique stable references.
-- New second-pass prototypes: **133**; every new row is used by at least one complete manifest.
+- New military-uniform prototypes: **133**; every new row is used by at least one complete manifest.
 - “Uniform” means regulated state dress where such regulation existed. Elsewhere it means a coherent service, guard, retinue, militia, martial, or command outfit; it does not assert mass standardisation.
 - Military role headings are builder-facing and intentionally not gendered. The item rows themselves remain form-based and mechanically wearable wherever their body and layering profile permits.
 - These manifests cover clothing and worn appointment accessories only. Firearms, ammunition, armour, weapons, standards, drums, naval stores, and other combat equipment remain in the military/firearms/naval authority.
@@ -6975,9 +6976,9 @@ The generic gorget, epaulettes, shoulder knots, sashes, badges, cords, crossbelt
 - `earlymodern_military_rank_paired_fringed_epaulettes` — a pair of fringed $colour epaulettes
 - `earlymodern_military_rank_brass_buckled_sword_belt` — a brass-buckled leather sword belt
 
-## First-pass civilian item catalogue
+## Civilian item catalogue
 
-This catalogue contains the **317 stable references actually used by the first-pass manifests**. Full descriptions are deferred. Usage count records how many of the 350 manifests include the reference.
+This catalogue contains the **317 stable references actually used by the civilian manifests**. Full descriptions are deferred. Usage count records how many of the 350 manifests include the reference.
 
 Rows marked as cross-era admissions are not duplicate Early Modern prototypes. Their source references should be ensured idempotently when the Early Modern branch is installed.
 
@@ -6985,19 +6986,19 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_shared_clothing_drawstring_drawers` | a pair of $colour loose drawstring drawers | `drawers` | `linen` | `Small` / `Standard` | 140g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shorts`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 52 outfit(s). Second-pass military admission; used in 81 military outfit(s). |
-| `renaissance_shared_clothing_low_leather_shoes` | a pair of low leather shoes | `shoes` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 54 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_shared_clothing_drawstring_drawers` | a pair of $colour loose drawstring drawers | `drawers` | `linen` | `Small` / `Standard` | 140g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shorts`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 52 outfit(s). Military-uniform admission; used in 81 military outfit(s). |
+| `renaissance_shared_clothing_low_leather_shoes` | a pair of low leather shoes | `shoes` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 54 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
 | `renaissance_shared_clothing_soft_brimless_cap` | a soft $colour brimless cap | `cap` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
 | `renaissance_shared_clothing_footed_stockings` | a pair of $colour footed wool stockings | `stockings` | `wool` | `Small` / `Standard` | 280g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Stockings`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 39 outfit(s). |
-| `renaissance_shared_clothing_felt_brimmed_hat` | a $colour brimmed felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 21 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_shared_clothing_leather_gloves` | a pair of leather gloves | `gloves` | `leather` | `Small` / `Standard` | 220g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gloves`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 22 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_shared_clothing_felt_brimmed_hat` | a $colour brimmed felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 21 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_shared_clothing_leather_gloves` | a pair of leather gloves | `gloves` | `leather` | `Small` / `Standard` | 220g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gloves`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 22 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
 | `renaissance_shared_clothing_neck_kerchief` | a tied $colour linen neck kerchief | `kerchief` | `linen` | `Small` / `Standard` | 90g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Scarf`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). |
 | `renaissance_shared_clothing_straight_trousers` | a pair of $colour straight wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
 | `renaissance_shared_clothing_ankle_boots` | a pair of ankle leather boots | `boots` | `leather` | `Small` / `Standard` | 950g / 51.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 13 outfit(s). |
 | `renaissance_shared_clothing_gathered_skirt` | a gathered $colour wool skirt | `skirt` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
 | `renaissance_shared_clothing_short_head_veil` | a short $colour head veil | `veil` | `linen` | `Small` / `Standard` | 120g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Head_Veil`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
 | `renaissance_shared_clothing_footwraps` | a pair of $colour cloth footwraps | `footwraps` | `linen` | `Small` / `Standard` | 200g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Stockings`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_shared_clothing_high_riding_boots` | a pair of high leather boots | `boots` | `leather` | `Small` / `Good` | 1220g / 151.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 10 military outfit(s). |
+| `renaissance_shared_clothing_high_riding_boots` | a pair of high leather boots | `boots` | `leather` | `Small` / `Good` | 1220g / 151.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Military-uniform admission; used in 10 military outfit(s). |
 | `renaissance_shared_clothing_rain_cape` | a close-woven $colour rain cape | `cape` | `wool` | `Normal` / `Standard` | 1260g / 50.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Closed)`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
 | `renaissance_shared_clothing_shoulder_shawl` | a broad $colour wool shoulder shawl | `shawl` | `wool` | `Normal` / `Standard` | 680g / 29.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 46 outfit(s). |
 | `renaissance_shared_clothing_long_undershirt` | a $colour long undershirt | `undershirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 26 outfit(s). |
@@ -7007,27 +7008,27 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | `renaissance_shared_clothing_mittens` | a pair of $colour wool mittens | `mittens` | `wool` | `Small` / `Standard` | 240g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mittens`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
 | `renaissance_shared_clothing_travelling_coat` | a loose $colour travelling coat | `coat` | `broadcloth` | `Normal` / `Standard` | 1340g / 94.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
 | `renaissance_shared_clothing_fur_lined_coat` | a $colour fur-lined travelling coat | `coat` | `wool` | `Normal` / `Good` | 1230g / 127.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_shared_clothing_leather_sandals` | a pair of leather sandals | `sandals` | `leather` | `Small` / `Standard` | 410g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 49 outfit(s). Second-pass military admission; used in 17 military outfit(s). |
+| `renaissance_shared_clothing_leather_sandals` | a pair of leather sandals | `sandals` | `leather` | `Small` / `Standard` | 410g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 49 outfit(s). Military-uniform admission; used in 17 military outfit(s). |
 | `renaissance_shared_clothing_cloth_headwrap` | a long $colour cloth headwrap | `headwrap` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 49 outfit(s). |
 | `renaissance_shared_clothing_soft_slippers` | a pair of soft leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 24 outfit(s). |
 | `renaissance_shared_clothing_full_trousers` | a pair of full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 13 outfit(s). |
 | `renaissance_shared_clothing_wrap_jacket` | a $colour short wrap jacket | `jacket` | `linen` | `Normal` / `Standard` | 520g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
 | `renaissance_shared_clothing_breast_wrap` | a $colour folded breast wrap | `wrap` | `linen` | `Small` / `Standard` | 80g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Bra`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 65 outfit(s). |
-| `renaissance_shared_clothing_wrapped_loincloth` | a $colour wrapped loincloth | `loincloth` | `linen` | `Small` / `Standard` | 100g / 5.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Loincloth`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 21 outfit(s). Second-pass military admission; used in 5 military outfit(s). |
+| `renaissance_shared_clothing_wrapped_loincloth` | a $colour wrapped loincloth | `loincloth` | `linen` | `Small` / `Standard` | 100g / 5.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Loincloth`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 21 outfit(s). Military-uniform admission; used in 5 military outfit(s). |
 | `renaissance_shared_clothing_short_undershirt` | a $colour short undershirt | `undershirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
-| `renaissance_shared_clothing_textile_sandals` | a pair of $colour woven sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 24 outfit(s). Second-pass military admission; used in 12 military outfit(s). |
+| `renaissance_shared_clothing_textile_sandals` | a pair of $colour woven sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 24 outfit(s). Military-uniform admission; used in 12 military outfit(s). |
 | `renaissance_shared_clothing_close_cloth_cap` | a close-fitting $colour cloth cap | `cap` | `linen` | `Small` / `Standard` | 140g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
 
 ### 2. Shared Western European Early Modern — 22
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_western_clothing_plain_linen_shirt` | a $colour plain linen shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 38 outfit(s). Second-pass military admission; used in 59 military outfit(s). |
+| `earlymodern_western_clothing_plain_linen_shirt` | a $colour plain linen shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 38 outfit(s). Military-uniform admission; used in 59 military outfit(s). |
 | `earlymodern_western_clothing_broadcloth_work_coat` | a $colour broadcloth work coat | `coat` | `broadcloth` | `Normal` / `Standard` | 1500g / 105.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
-| `earlymodern_western_clothing_knee_breeches` | a pair of $colour knee breeches | `breeches` | `broadcloth` | `Normal` / `Standard` | 560g / 41.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 27 outfit(s). Uses planned Wear_Breeches dependency. Second-pass military admission; used in 44 military outfit(s). |
-| `earlymodern_western_clothing_knitted_wool_stockings` | a pair of $colour knitted wool stockings | `stockings` | `wool` | `Small` / `Standard` | 280g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Stockings`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 11 outfit(s). Second-pass military admission; used in 62 military outfit(s). |
+| `earlymodern_western_clothing_knee_breeches` | a pair of $colour knee breeches | `breeches` | `broadcloth` | `Normal` / `Standard` | 560g / 41.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 27 outfit(s). Uses planned Wear_Breeches dependency. Military-uniform admission; used in 44 military outfit(s). |
+| `earlymodern_western_clothing_knitted_wool_stockings` | a pair of $colour knitted wool stockings | `stockings` | `wool` | `Small` / `Standard` | 280g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Stockings`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 11 outfit(s). Military-uniform admission; used in 62 military outfit(s). |
 | `earlymodern_western_clothing_plain_wool_waistcoat` | a plain $colour wool waistcoat | `waistcoat` | `wool` | `Normal` / `Standard` | 400g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 22 outfit(s). |
-| `earlymodern_western_clothing_buckled_leather_shoes` | a pair of buckled leather shoes | `shoes` | `leather` | `Small` / `Good` | 650g / 69.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 32 outfit(s). Second-pass military admission; used in 60 military outfit(s). |
+| `earlymodern_western_clothing_buckled_leather_shoes` | a pair of buckled leather shoes | `shoes` | `leather` | `Small` / `Good` | 650g / 69.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 32 outfit(s). Military-uniform admission; used in 60 military outfit(s). |
 | `earlymodern_western_clothing_full_wool_cloak` | a full $colour wool cloak | `cloak` | `wool` | `Normal` / `Standard` | 1260g / 50.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Closed)`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 9 outfit(s). |
 | `earlymodern_western_clothing_linen_neckcloth` | a $colour linen neckcloth | `neckcloth` | `linen` | `Small` / `Standard` | 90g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Scarf`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 21 outfit(s). |
 | `earlymodern_western_clothing_linen_day_cap` | a $colour linen day cap | `cap` | `linen` | `Small` / `Standard` | 140g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). |
@@ -7049,8 +7050,8 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `preindustrial_clothing_plain_leather_belt` | a plain leather belt | `belt` | `leather` | `Small` / `Standard` | 180g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Waist`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Belt_2` | `Era / Pre-Industrial Era`<br>`Market / Clothing / Standard Clothing` | Implemented pre-industrial alias; used in 19 outfit(s). Implemented shared pre-industrial dependency. Second-pass military admission; used in 3 military outfit(s). |
-| `preindustrial_clothing_iron_buckled_leather_belt` | an iron-buckled leather belt | `belt` | `leather` | `Small` / `Good` | 240g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Waist`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Belt_4` | `Era / Pre-Industrial Era`<br>`Market / Clothing / Standard Clothing` | Implemented pre-industrial alias; used in 51 outfit(s). Implemented shared pre-industrial dependency. Second-pass military admission; used in 1 military outfit(s). |
+| `preindustrial_clothing_plain_leather_belt` | a plain leather belt | `belt` | `leather` | `Small` / `Standard` | 180g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Waist`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Belt_2` | `Era / Pre-Industrial Era`<br>`Market / Clothing / Standard Clothing` | Implemented pre-industrial alias; used in 19 outfit(s). Implemented shared pre-industrial dependency. Military-uniform admission; used in 3 military outfit(s). |
+| `preindustrial_clothing_iron_buckled_leather_belt` | an iron-buckled leather belt | `belt` | `leather` | `Small` / `Good` | 240g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Waist`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Belt_4` | `Era / Pre-Industrial Era`<br>`Market / Clothing / Standard Clothing` | Implemented pre-industrial alias; used in 51 outfit(s). Implemented shared pre-industrial dependency. Military-uniform admission; used in 1 military outfit(s). |
 | `preindustrial_clothing_simple_woven_sash` | a $colour woven sash | `sash` | `wool` | `Small` / `Standard` | 120g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Pre-Industrial Era`<br>`Market / Clothing / Standard Clothing` | Implemented pre-industrial alias; used in 96 outfit(s). Implemented shared pre-industrial dependency. |
 
 ### 4. French / Baroque urban — 3
@@ -7075,7 +7076,7 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `earlymodern_dutch_clothing_short_wool_work_jacket` | a short $colour wool work jacket | `jacket` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_dutch_clothing_full_canvas_breeches` | a pair of full $colour canvas breeches | `breeches` | `canvas` | `Normal` / `Standard` | 530g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Uses planned Wear_Breeches dependency. Second-pass military admission; used in 2 military outfit(s). |
+| `earlymodern_dutch_clothing_full_canvas_breeches` | a pair of full $colour canvas breeches | `breeches` | `canvas` | `Normal` / `Standard` | 530g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Uses planned Wear_Breeches dependency. Military-uniform admission; used in 2 military outfit(s). |
 | `earlymodern_dutch_clothing_wooden_clogs` | a pair of plain wooden clogs | `clogs` | `wood` | `Small` / `Standard` | 700g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
 | `earlymodern_dutch_clothing_white_linen_cap` | a crisp white linen cap | `cap` | `linen` | `Small` / `Standard` | 140g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). |
 | `earlymodern_dutch_clothing_striped_wool_petticoat` | a $colour1 and $colour2 striped wool petticoat | `petticoat` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_2BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
@@ -7086,9 +7087,9 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `earlymodern_iberian_clothing_short_fitted_jacket` | a short fitted $colour wool jacket | `jacket` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_iberian_clothing_woven_fibre_sandals` | a pair of $colour woven fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `earlymodern_iberian_clothing_broad_crowned_felt_hat` | a broad-crowned $colour felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `earlymodern_iberian_clothing_short_wool_cape` | a short $colour wool cape | `cape` | `wool` | `Normal` / `Standard` | 720g / 31.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cape`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 1 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `earlymodern_iberian_clothing_woven_fibre_sandals` | a pair of $colour woven fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `earlymodern_iberian_clothing_broad_crowned_felt_hat` | a broad-crowned $colour felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `earlymodern_iberian_clothing_short_wool_cape` | a short $colour wool cape | `cape` | `wool` | `Normal` / `Standard` | 720g / 31.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cape`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 1 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
 | `earlymodern_iberian_clothing_lace_head_veil` | a lace-edged $colour head veil | `veil` | `lace` | `Small` / `Good` | 80g / 67.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Head_Veil`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 8 outfit(s). |
 
 ### 8. Italian states — 5
@@ -7106,40 +7107,40 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `earlymodern_centraleuropean_clothing_short_wool_coat` | a short $colour wool coat | `coat` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_centraleuropean_clothing_leather_knee_breeches` | a pair of leather knee breeches | `breeches` | `leather` | `Normal` / `Standard` | 590g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Uses planned Wear_Breeches dependency. Second-pass military admission; used in 1 military outfit(s). |
-| `earlymodern_centraleuropean_clothing_round_felt_hat` | a round-crowned $colour felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_centraleuropean_clothing_leather_knee_breeches` | a pair of leather knee breeches | `breeches` | `leather` | `Normal` / `Standard` | 590g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Uses planned Wear_Breeches dependency. Military-uniform admission; used in 1 military outfit(s). |
+| `earlymodern_centraleuropean_clothing_round_felt_hat` | a round-crowned $colour felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `earlymodern_centraleuropean_clothing_laced_wool_bodice` | a laced $colour wool bodice | `bodice` | `wool` | `Normal` / `Standard` | 620g / 35.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Doublet`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
 
 ### 10. Polish-Lithuanian / Hungarian frontier survivals — 2
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_frontier_close_buttoned_longcoat` | a close-buttoned $colour long coat | `coat` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_frontier_wide_hungarian_trousers` | a pair of wide $colour wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_frontier_close_buttoned_longcoat` | a close-buttoned $colour long coat | `coat` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_frontier_wide_hungarian_trousers` | a pair of wide $colour wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
 
 ### 11. Scandinavian / Baltic — 6
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `earlymodern_northern_clothing_fitted_wool_jacket` | a fitted $colour wool jacket | `jacket` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
-| `earlymodern_northern_clothing_wool_knee_breeches` | a pair of $colour wool knee breeches | `breeches` | `wool` | `Normal` / `Standard` | 520g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Uses planned Wear_Breeches dependency. Second-pass military admission; used in 3 military outfit(s). |
-| `earlymodern_northern_clothing_knitted_wool_cap` | a $colour knitted wool cap | `cap` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_northern_clothing_wool_knee_breeches` | a pair of $colour wool knee breeches | `breeches` | `wool` | `Normal` / `Standard` | 520g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Uses planned Wear_Breeches dependency. Military-uniform admission; used in 3 military outfit(s). |
+| `earlymodern_northern_clothing_knitted_wool_cap` | a $colour knitted wool cap | `cap` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `earlymodern_northern_clothing_striped_wool_skirt` | a $colour1 and $colour2 striped wool skirt | `skirt` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_2BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
-| `earlymodern_northern_clothing_wool_mittens` | a pair of $colour wool mittens | `mittens` | `wool` | `Small` / `Standard` | 240g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mittens`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `earlymodern_northern_clothing_fur_lined_wool_coat` | a $colour fur-lined wool coat | `coat` | `wool` | `Normal` / `Good` | 1380g / 143.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 1 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `earlymodern_northern_clothing_wool_mittens` | a pair of $colour wool mittens | `mittens` | `wool` | `Small` / `Standard` | 240g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mittens`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 1 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `earlymodern_northern_clothing_fur_lined_wool_coat` | a $colour fur-lined wool coat | `coat` | `wool` | `Normal` / `Good` | 1380g / 143.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 1 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
 
 ### 12. Northern/frontier survivals — 2
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `renaissance_frontier_knitted_northern_cap` | a long $colour knitted wool cap | `cap` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_frontier_felted_winter_boots` | a pair of felted winter boots | `boots` | `felt` | `Small` / `Standard` | 760g / 34.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Boots`<br>`Armour_LightClothing`<br>`Insulation_Moderate` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_frontier_felted_winter_boots` | a pair of felted winter boots | `boots` | `felt` | `Small` / `Standard` | 760g / 34.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Boots`<br>`Armour_LightClothing`<br>`Insulation_Moderate` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 13. Shared Early Modern cross-cultural forms — 1
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_shared_clothing_broad_wrapped_sash` | a broad $colour wrapped sash | `sash` | `cotton` | `Small` / `Standard` | 140g / 8.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 72 outfit(s). Second-pass military admission; used in 41 military outfit(s). |
+| `earlymodern_shared_clothing_broad_wrapped_sash` | a broad $colour wrapped sash | `sash` | `cotton` | `Small` / `Standard` | 140g / 8.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 72 outfit(s). Military-uniform admission; used in 41 military outfit(s). |
 
 ### 14. Central/Eastern frontier survivals — 3
 
@@ -7147,7 +7148,7 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 |---|---|---|---|---|---:|---|---|---|
 | `renaissance_frontier_fur_brimmed_cap` | a soft $colour fur-brimmed cap | `cap` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
 | `renaissance_frontier_belted_wool_caftan` | a belted $colour wool caftan | `caftan` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_frontier_split_skirt_riding_boots` | a pair of stiff high leather boots | `boots` | `leather` | `Small` / `Good` | 1220g / 151.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_frontier_split_skirt_riding_boots` | a pair of stiff high leather boots | `boots` | `leather` | `Small` / `Good` | 1220g / 151.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
 
 ### 15. Russian / frontier survivals — 1
 
@@ -7159,10 +7160,10 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_russian_clothing_long_linen_rubakha` | a long $colour linen shirt | `shirt` | `linen` | `Normal` / `Standard` | 480g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `earlymodern_russian_clothing_narrow_wool_trousers` | a pair of narrow $colour wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `earlymodern_russian_clothing_long_linen_rubakha` | a long $colour linen shirt | `shirt` | `linen` | `Normal` / `Standard` | 480g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `earlymodern_russian_clothing_narrow_wool_trousers` | a pair of narrow $colour wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
 | `earlymodern_russian_clothing_short_wool_zipun` | a close $colour short wool coat | `coat` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_russian_clothing_high_leather_boots` | a pair of high leather boots | `boots` | `leather` | `Small` / `Standard` | 1220g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
+| `earlymodern_russian_clothing_high_leather_boots` | a pair of high leather boots | `boots` | `leather` | `Small` / `Standard` | 1220g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). Military-uniform admission; used in 4 military outfit(s). |
 | `earlymodern_russian_clothing_round_fur_cap` | a round fur cap | `cap` | `fur` | `Small` / `Standard` | 220g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 1 outfit(s). |
 | `earlymodern_russian_clothing_checked_wool_wrap_skirt` | a $colour1 and $colour2 checked wool wrap skirt | `skirt` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_2BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
 | `earlymodern_russian_clothing_linen_work_apron` | a $colour linen work apron | `apron` | `linen` | `Small` / `Standard` | 210g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Apron`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
@@ -7178,14 +7179,14 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_ottoman_collarless_inner_shirt` | a $colour collarless long inner shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 13 military outfit(s). |
+| `renaissance_ottoman_collarless_inner_shirt` | a $colour collarless long inner shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 13 military outfit(s). |
 | `renaissance_ottoman_ankle_gathered_drawers` | a pair of full $colour ankle-gathered drawers | `drawers` | `linen` | `Normal` / `Standard` | 450g / 20.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_ottoman_short_entari_coat` | a short fitted $colour front-opening coat | `coat` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_ottoman_short_entari_coat` | a short fitted $colour front-opening coat | `coat` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `renaissance_ottoman_wrapped_cap_turban` | a compact $colour cap-wound turban | `turban` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
-| `renaissance_ottoman_full_salwar_trousers` | a pair of very full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Second-pass military admission; used in 7 military outfit(s). |
-| `renaissance_ottoman_short_fitted_vest` | a short fitted $colour sleeveless vest | `vest` | `silk` | `Normal` / `Good` | 230g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_ottoman_full_salwar_trousers` | a pair of very full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Military-uniform admission; used in 7 military outfit(s). |
+| `renaissance_ottoman_short_fitted_vest` | a short fitted $colour sleeveless vest | `vest` | `silk` | `Normal` / `Good` | 230g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `renaissance_ottoman_long_entari_robe` | a long fitted $colour front-opening robe | `robe` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Treated as the inner robe layer beneath a separate outdoor over-robe. |
-| `renaissance_ottoman_pointed_slippers` | a pair of pointed leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_ottoman_pointed_slippers` | a pair of pointed leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
 | `renaissance_ottoman_fitted_kaftan` | a fitted $colour long kaftan | `kaftan` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Treated as the inner robe layer beneath a separate outdoor over-robe. |
 | `renaissance_ottoman_sleeved_outer_robe` | a long-sleeved $colour outer robe | `robe` | `broadcloth` | `Normal` / `Good` | 1340g / 196.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
 | `renaissance_ottoman_loose_layered_gown` | a loose layered $colour long gown | `gown` | `cotton` | `Normal` / `Standard` | 830g / 44.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
@@ -7195,26 +7196,26 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_maghrebi_clothing_full_cotton_trousers` | a pair of full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `earlymodern_maghrebi_clothing_full_cotton_trousers` | a pair of full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
 | `earlymodern_maghrebi_clothing_sleeveless_gandoura` | a long sleeveless $colour cotton robe | `robe` | `cotton` | `Normal` / `Standard` | 320g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). |
-| `earlymodern_maghrebi_clothing_round_felt_cap` | a round $colour felt cap | `cap` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
-| `earlymodern_maghrebi_clothing_hooded_wool_djellaba` | a hooded $colour wool over-robe | `over-robe` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `earlymodern_maghrebi_clothing_pointed_leather_slippers` | a pair of pointed leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
-| `earlymodern_maghrebi_clothing_short_fitted_caftan` | a fitted $colour cotton caftan | `caftan` | `cotton` | `Normal` / `Good` | 1010g / 121.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 4 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `earlymodern_maghrebi_clothing_round_felt_cap` | a round $colour felt cap | `cap` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Military-uniform admission; used in 4 military outfit(s). |
+| `earlymodern_maghrebi_clothing_hooded_wool_djellaba` | a hooded $colour wool over-robe | `over-robe` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `earlymodern_maghrebi_clothing_pointed_leather_slippers` | a pair of pointed leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Military-uniform admission; used in 4 military outfit(s). |
+| `earlymodern_maghrebi_clothing_short_fitted_caftan` | a fitted $colour cotton caftan | `caftan` | `cotton` | `Normal` / `Good` | 1010g / 121.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 4 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
 | `earlymodern_maghrebi_clothing_full_body_haik` | a full $colour cotton body wrap | `wrap` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). |
 
 ### 20. Persianate survivals — 10
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_persianate_long_inner_shirt` | a long $colour collarless inner shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 12 military outfit(s). |
-| `renaissance_persianate_close_ankle_trousers` | a pair of close $colour ankle trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 9 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_persianate_long_inner_shirt` | a long $colour collarless inner shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 12 military outfit(s). |
+| `renaissance_persianate_close_ankle_trousers` | a pair of close $colour ankle trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 9 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
 | `renaissance_persianate_short_fitted_coat` | a short fitted $colour front-opening coat | `coat` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_persianate_wide_pleated_trousers` | a pair of wide pleated $colour wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_persianate_wide_pleated_trousers` | a pair of wide pleated $colour wool trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `renaissance_persianate_long_fitted_coat` | a long fitted $colour front-opening coat | `coat` | `broadcloth` | `Normal` / `Good` | 1340g / 196.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_persianate_soft_ridingboots` | a pair of soft high leather boots | `boots` | `leather` | `Small` / `Standard` | 1220g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 13 military outfit(s). |
+| `renaissance_persianate_soft_ridingboots` | a pair of soft high leather boots | `boots` | `leather` | `Small` / `Standard` | 1220g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Military-uniform admission; used in 13 military outfit(s). |
 | `renaissance_persianate_sleeveless_longvest` | a sleeveless $colour long vest | `vest` | `wool` | `Normal` / `Standard` | 400g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). |
-| `renaissance_persianate_pointed_slippers` | a pair of pointed leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_persianate_pointed_slippers` | a pair of pointed leather slippers | `slippers` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `renaissance_persianate_conical_turban` | a conical $colour structured turban | `turban` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
 | `renaissance_persianate_flared_skirt_coat` | a fitted $colour flared-skirt coat | `coat` | `broadcloth` | `Normal` / `Good` | 1340g / 196.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
 
@@ -7222,7 +7223,7 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_persianate_clothing_soft_round_cap` | a soft $colour cotton round cap | `cap` | `cotton` | `Normal` / `Standard` | 320g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skullcap`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `earlymodern_persianate_clothing_soft_round_cap` | a soft $colour cotton round cap | `cap` | `cotton` | `Normal` / `Standard` | 320g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skullcap`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
 
 ### 22. Indo-Persian survivals — 2
 
@@ -7236,26 +7237,26 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `renaissance_southasian_stitched_loindrawers` | a pair of close $colour cotton loin drawers | `drawers` | `cotton` | `Small` / `Standard` | 150g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shorts`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 13 outfit(s). |
-| `renaissance_southasian_pleated_waistcloth` | a long pleated $colour cotton waistcloth | `waistcloth` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `renaissance_southasian_short_sideslit_tunic` | a short $colour cotton side-slit tunic | `tunic` | `cotton` | `Normal` / `Standard` | 300g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 16 military outfit(s). |
-| `renaissance_southasian_flat_wound_turban` | a broad flat-wound $colour cotton turban | `turban` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 12 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
-| `renaissance_southasian_bunched_ankletrousers` | a pair of narrow $colour bunched ankle trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Second-pass military admission; used in 13 military outfit(s). |
-| `renaissance_southasian_long_sideslit_tunic` | a long $colour cotton side-slit tunic | `tunic` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_southasian_curvedtoe_shoes` | a pair of curved-toe leather shoes | `shoes` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 16 outfit(s). Second-pass military admission; used in 15 military outfit(s). |
+| `renaissance_southasian_pleated_waistcloth` | a long pleated $colour cotton waistcloth | `waistcloth` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `renaissance_southasian_short_sideslit_tunic` | a short $colour cotton side-slit tunic | `tunic` | `cotton` | `Normal` / `Standard` | 300g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Military-uniform admission; used in 16 military outfit(s). |
+| `renaissance_southasian_flat_wound_turban` | a broad flat-wound $colour cotton turban | `turban` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 12 outfit(s). Military-uniform admission; used in 4 military outfit(s). |
+| `renaissance_southasian_bunched_ankletrousers` | a pair of narrow $colour bunched ankle trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Military-uniform admission; used in 13 military outfit(s). |
+| `renaissance_southasian_long_sideslit_tunic` | a long $colour cotton side-slit tunic | `tunic` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_southasian_curvedtoe_shoes` | a pair of curved-toe leather shoes | `shoes` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 16 outfit(s). Military-uniform admission; used in 15 military outfit(s). |
 | `renaissance_southasian_short_wrapjacket` | a short $colour cotton cross-tied jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
 | `renaissance_southasian_fitted_shortbodice` | a fitted $colour cotton short bodice | `bodice` | `cotton` | `Normal` / `Standard` | 500g / 34.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Doublet`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
 | `renaissance_southasian_gathered_longskirt` | a full gathered $colour cotton skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
 | `renaissance_southasian_backtied_bodice` | a back-tied $colour cotton bodice | `bodice` | `cotton` | `Normal` / `Standard` | 500g / 34.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Doublet`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
 | `renaissance_southasian_shoulderdraped_garment` | a full $colour cotton shoulder-draped garment | `garment` | `cotton` | `Normal` / `Standard` | 760g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Dress`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
 | `renaissance_southasian_panelled_longskirt` | a panelled flared $colour silk skirt | `skirt` | `silk` | `Normal` / `Good` | 460g / 168.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_southasian_toepost_woodensandals` | a pair of toe-post wooden sandals | `sandals` | `wood` | `Small` / `Standard` | 450g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_southasian_toepost_woodensandals` | a pair of toe-post wooden sandals | `sandals` | `wood` | `Small` / `Standard` | 450g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
 | `renaissance_southasian_long_crossover_robe` | a long $colour cotton cross-over robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
 
 ### 24. South Asian textile-trade Early Modern — 1
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_southasian_clothing_chintz_merchant_jacket` | a $colour patterned chintz jacket | `jacket` | `chintz` | `Normal` / `Good` | 580g / 113.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 8 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_southasian_clothing_chintz_merchant_jacket` | a $colour patterned chintz jacket | `jacket` | `chintz` | `Normal` / `Good` | 580g / 113.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 8 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 25. South Asian Early Modern — 1
 
@@ -7267,44 +7268,44 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_qing_clothing_crosscollar_innerrobe` | a cross-collared $colour cotton inner robe | `robe` | `cotton` | `Normal` / `Standard` | 880g / 48.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Uses the under-gown layer beneath jackets and long robes. Second-pass military admission; used in 7 military outfit(s). |
-| `earlymodern_qing_clothing_wide_cotton_trousers` | a pair of wide $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 7 military outfit(s). |
-| `earlymodern_qing_clothing_short_riding_jacket` | a short $colour cotton riding jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_qing_clothing_crosscollar_innerrobe` | a cross-collared $colour cotton inner robe | `robe` | `cotton` | `Normal` / `Standard` | 880g / 48.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Uses the under-gown layer beneath jackets and long robes. Military-uniform admission; used in 7 military outfit(s). |
+| `earlymodern_qing_clothing_wide_cotton_trousers` | a pair of wide $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Military-uniform admission; used in 7 military outfit(s). |
+| `earlymodern_qing_clothing_short_riding_jacket` | a short $colour cotton riding jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `earlymodern_qing_clothing_head_kerchief` | a $colour cotton head kerchief | `kerchief` | `cotton` | `Small` / `Standard` | 80g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Kerchief`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). |
-| `earlymodern_qing_clothing_long_sidefastened_robe` | a long side-fastened $colour cotton robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_qing_clothing_long_sidefastened_robe` | a long side-fastened $colour cotton robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `earlymodern_qing_clothing_sleeveless_long_vest` | a sleeveless $colour long vest | `vest` | `silk` | `Normal` / `Good` | 230g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 5 outfit(s). |
-| `earlymodern_qing_clothing_cloth_shoes` | a pair of $colour cloth shoes | `shoes` | `cotton` | `Small` / `Standard` | 470g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 13 outfit(s). Second-pass military admission; used in 7 military outfit(s). |
+| `earlymodern_qing_clothing_cloth_shoes` | a pair of $colour cloth shoes | `shoes` | `cotton` | `Small` / `Standard` | 470g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 13 outfit(s). Military-uniform admission; used in 7 military outfit(s). |
 | `earlymodern_qing_clothing_round_skullcap` | a round $colour cloth skullcap | `cap` | `cotton` | `Normal` / `Standard` | 320g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skullcap`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
 | `earlymodern_qing_clothing_fine_sidefastened_robe` | a fine side-fastened $colour silk robe | `robe` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 1 outfit(s). |
 | `earlymodern_qing_clothing_sidefastened_womens_jacket` | a side-fastened $colour cotton jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). |
 | `earlymodern_qing_clothing_work_apron` | a $colour cotton work apron | `apron` | `cotton` | `Small` / `Standard` | 230g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Apron`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). |
 | `earlymodern_qing_clothing_pleated_long_skirt` | a pleated $colour cotton long skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). |
-| `earlymodern_qing_clothing_padded_winter_coat` | a padded $colour cotton winter coat | `coat` | `cotton` | `Normal` / `Standard` | 1120g / 65.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Winter Clothing` | New Early Modern prototype; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_qing_clothing_padded_winter_coat` | a padded $colour cotton winter coat | `coat` | `cotton` | `Normal` / `Standard` | 1120g / 65.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Coat`<br>`Armour_HeavyClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Winter Clothing` | New Early Modern prototype; used in 1 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 27. Late Ming transition survivals — 11
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_ming_crosscollar_innerrobe` | a cross-collared $colour ramie under-robe | `under-robe` | `ramie cloth` | `Normal` / `Standard` | 780g / 55.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Mapped to a dedicated under-gown layer beneath jackets and robes. Second-pass military admission; used in 6 military outfit(s). |
-| `renaissance_ming_wide_drawstring_trousers` | a pair of wide $colour cotton drawstring trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `renaissance_ming_crosscollar_innerrobe` | a cross-collared $colour ramie under-robe | `under-robe` | `ramie cloth` | `Normal` / `Standard` | 780g / 55.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Mapped to a dedicated under-gown layer beneath jackets and robes. Military-uniform admission; used in 6 military outfit(s). |
+| `renaissance_ming_wide_drawstring_trousers` | a pair of wide $colour cotton drawstring trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
 | `renaissance_ming_narrowsleeve_workerrobe` | a narrow-sleeved $colour cotton work robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
 | `renaissance_ming_roundcollar_longrobe` | a round-collared $colour long robe | `robe` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_ming_long_sleeveless_overvest` | a long sleeveless $colour silk over-vest | `vest` | `silk` | `Normal` / `Good` | 230g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_ming_cloth_courtboots` | a pair of high $colour cloth boots | `boots` | `cotton` | `Small` / `Standard` | 680g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
-| `renaissance_ming_soft_scholarcap` | a soft folded $colour scholar cap | `cap` | `silk` | `Small` / `Good` | 110g / 81.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_ming_long_sleeveless_overvest` | a long sleeveless $colour silk over-vest | `vest` | `silk` | `Normal` / `Good` | 230g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_ming_cloth_courtboots` | a pair of high $colour cloth boots | `boots` | `cotton` | `Small` / `Standard` | 680g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
+| `renaissance_ming_soft_scholarcap` | a soft folded $colour scholar cap | `cap` | `silk` | `Small` / `Good` | 110g / 81.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `renaissance_ming_short_sidefastened_jacket` | a short side-fastened $colour cotton jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
 | `renaissance_ming_straightcollar_openrobe` | a straight-collared $colour open robe | `robe` | `silk` | `Normal` / `Good` | 730g / 370.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
 | `renaissance_ming_pleated_panelskirt` | a pleated $colour silk panel skirt | `skirt` | `silk` | `Normal` / `Good` | 460g / 168.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_ming_long_sidefastened_jacket` | a long side-fastened $colour cotton jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_ming_long_sidefastened_jacket` | a long side-fastened $colour cotton jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 28. Joseon survivals — 7
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_joseon_long_crossfront_underrobe` | a long cross-front $colour ramie under-robe | `under-robe` | `ramie cloth` | `Normal` / `Standard` | 780g / 55.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Mapped to a dedicated under-gown layer beneath jackets and over-robes. Second-pass military admission; used in 6 military outfit(s). |
-| `renaissance_joseon_short_crossfront_jacket` | a short cross-front $colour ramie jacket | `jacket` | `ramie cloth` | `Normal` / `Standard` | 520g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_joseon_white_clothshoes` | a pair of white cloth shoes | `shoes` | `cotton` | `Small` / `Standard` | 470g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
-| `renaissance_joseon_long_crossfront_jacket` | a long cross-front $colour silk jacket | `jacket` | `silk` | `Normal` / `Good` | 420g / 202.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_joseon_long_crossfront_underrobe` | a long cross-front $colour ramie under-robe | `under-robe` | `ramie cloth` | `Normal` / `Standard` | 780g / 55.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Mapped to a dedicated under-gown layer beneath jackets and over-robes. Military-uniform admission; used in 6 military outfit(s). |
+| `renaissance_joseon_short_crossfront_jacket` | a short cross-front $colour ramie jacket | `jacket` | `ramie cloth` | `Normal` / `Standard` | 520g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_joseon_white_clothshoes` | a pair of white cloth shoes | `shoes` | `cotton` | `Small` / `Standard` | 470g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
+| `renaissance_joseon_long_crossfront_jacket` | a long cross-front $colour silk jacket | `jacket` | `silk` | `Normal` / `Good` | 420g / 202.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `renaissance_joseon_tall_horsehairhat` | a tall translucent brimmed hat | `hat` | `horsehair` | `Small` / `Good` | 170g / 25.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
 | `renaissance_joseon_broadsleeve_scholaroverrobe` | a broad-sleeved $colour scholar over-robe | `over-robe` | `silk` | `Normal` / `Good` | 730g / 370.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
 | `renaissance_joseon_full_gathered_wrapskirt` | a full gathered $colour wrap skirt | `skirt` | `silk` | `Normal` / `Good` | 460g / 168.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
@@ -7313,8 +7314,8 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_joseon_clothing_full_baji_trousers` | a pair of full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
-| `earlymodern_joseon_clothing_white_cloth_socks` | a pair of white cloth socks | `socks` | `cotton` | `Small` / `Standard` | 100g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Socks`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
+| `earlymodern_joseon_clothing_full_baji_trousers` | a pair of full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
+| `earlymodern_joseon_clothing_white_cloth_socks` | a pair of white cloth socks | `socks` | `cotton` | `Small` / `Standard` | 100g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Socks`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
 | `earlymodern_joseon_clothing_tied_headcloth` | a tied $colour cotton headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 140g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Head_Veil`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). |
 | `earlymodern_joseon_clothing_plain_cotton_overcoat` | a plain $colour cotton overcoat | `coat` | `cotton` | `Normal` / `Standard` | 1010g / 58.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
 
@@ -7323,50 +7324,50 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `renaissance_japanese_unlined_summerrobe` | an unlined $colour ramie summer robe | `robe` | `ramie cloth` | `Normal` / `Standard` | 720g / 46.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_japanese_field_trousers` | a pair of close $colour ramie field trousers | `trousers` | `ramie cloth` | `Normal` / `Standard` | 450g / 24.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `renaissance_japanese_splittoe_socks` | a pair of $colour split-toe socks | `socks` | `cotton` | `Small` / `Standard` | 100g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Socks`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
-| `renaissance_japanese_smallsleeve_wraprobe` | a small-sleeved $colour wrap robe | `robe` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
-| `renaissance_japanese_full_pleated_hakama` | a full pleated $colour lower garment | `hakama` | `silk` | `Normal` / `Good` | 360g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `renaissance_japanese_wooden_clogs` | a pair of raised wooden clogs | `clogs` | `wood` | `Small` / `Standard` | 700g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `renaissance_japanese_lacquered_conicalhat` | a lacquered wooden conical hat | `hat` | `wood` | `Small` / `Standard` | 230g / 8.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_japanese_short_openjacket` | a short open-front $colour jacket | `jacket` | `silk` | `Normal` / `Good` | 420g / 202.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_japanese_field_trousers` | a pair of close $colour ramie field trousers | `trousers` | `ramie cloth` | `Normal` / `Standard` | 450g / 24.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `renaissance_japanese_splittoe_socks` | a pair of $colour split-toe socks | `socks` | `cotton` | `Small` / `Standard` | 100g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Socks`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
+| `renaissance_japanese_smallsleeve_wraprobe` | a small-sleeved $colour wrap robe | `robe` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
+| `renaissance_japanese_full_pleated_hakama` | a full pleated $colour lower garment | `hakama` | `silk` | `Normal` / `Good` | 360g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `renaissance_japanese_wooden_clogs` | a pair of raised wooden clogs | `clogs` | `wood` | `Small` / `Standard` | 700g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `renaissance_japanese_lacquered_conicalhat` | a lacquered wooden conical hat | `hat` | `wood` | `Small` / `Standard` | 230g / 8.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_japanese_short_openjacket` | a short open-front $colour jacket | `jacket` | `silk` | `Normal` / `Good` | 420g / 202.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 31. Edo Japan — 6
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_edo_clothing_narrow_woven_obi` | a narrow $colour woven waist sash | `sash` | `silk` | `Small` / `Good` | 100g / 54.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `earlymodern_edo_clothing_woven_sandals` | a pair of $colour woven sandals | `sandals` | `hemp` | `Small` / `Standard` | 310g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `earlymodern_edo_clothing_narrow_woven_obi` | a narrow $colour woven waist sash | `sash` | `silk` | `Small` / `Good` | 100g / 54.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 7 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `earlymodern_edo_clothing_woven_sandals` | a pair of $colour woven sandals | `sandals` | `hemp` | `Small` / `Standard` | 310g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
 | `earlymodern_edo_clothing_tied_cotton_headcloth` | a tied $colour cotton headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 80g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Kerchief`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). |
 | `earlymodern_edo_clothing_narrow_work_apron` | a narrow $colour cotton work apron | `apron` | `cotton` | `Small` / `Standard` | 230g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Apron`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). |
 | `earlymodern_edo_clothing_short_cotton_work_coat` | a short $colour cotton work coat | `coat` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
-| `earlymodern_edo_clothing_wide_woven_obi` | a broad $colour woven waist sash | `sash` | `silk` | `Small` / `Good` | 100g / 54.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 3 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `earlymodern_edo_clothing_wide_woven_obi` | a broad $colour woven waist sash | `sash` | `silk` | `Small` / `Good` | 100g / 54.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 3 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
 
 ### 32. Ryukyuan survivals — 3
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_ryukyu_widesleeve_summerrobe` | a broad-sleeved $colour ramie tropical robe | `robe` | `ramie cloth` | `Normal` / `Standard` | 720g / 46.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_ryukyu_short_wrapjacket` | a short $colour cotton tropical wrap jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_ryukyu_pleated_wrapskirt` | a pleated $colour cotton tropical wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_ryukyu_widesleeve_summerrobe` | a broad-sleeved $colour ramie tropical robe | `robe` | `ramie cloth` | `Normal` / `Standard` | 720g / 46.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_ryukyu_short_wrapjacket` | a short $colour cotton tropical wrap jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_ryukyu_pleated_wrapskirt` | a pleated $colour cotton tropical wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
 
 ### 33. Ryukyu and maritime East Asia — 3
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_ryukyu_clothing_broad_woven_sash` | a broad $colour woven sash | `sash` | `cotton` | `Small` / `Standard` | 140g / 8.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `earlymodern_ryukyu_clothing_woven_fibre_sandals` | a pair of $colour woven fibre sandals | `sandals` | `hemp` | `Small` / `Standard` | 310g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
-| `earlymodern_ryukyu_clothing_tied_headcloth` | a tied $colour cotton headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 80g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Kerchief`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_ryukyu_clothing_broad_woven_sash` | a broad $colour woven sash | `sash` | `cotton` | `Small` / `Standard` | 140g / 8.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `earlymodern_ryukyu_clothing_woven_fibre_sandals` | a pair of $colour woven fibre sandals | `sandals` | `hemp` | `Small` / `Standard` | 310g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
+| `earlymodern_ryukyu_clothing_tied_headcloth` | a tied $colour cotton headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 80g / 6.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Kerchief`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 34. South-east Asian survivals — 8
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_seasia_short_maritime_trousers` | a pair of short full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). Second-pass military admission; used in 14 military outfit(s). |
-| `renaissance_seasia_pleated_courtwaistcloth` | a pleated $colour silk waistcloth | `waistcloth` | `silk` | `Normal` / `Good` | 460g / 168.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_seasia_short_collarless_jacket` | a short collarless $colour cotton jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 9 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_seasia_palmleaf_conicalhat` | a broad conical fibre hat | `hat` | `barkcloth` | `Small` / `Standard` | 140g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_seasia_split_riding_waistcloth` | a divided $colour cotton riding waistcloth | `waistcloth` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_seasia_short_maritime_trousers` | a pair of short full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). Military-uniform admission; used in 14 military outfit(s). |
+| `renaissance_seasia_pleated_courtwaistcloth` | a pleated $colour silk waistcloth | `waistcloth` | `silk` | `Normal` / `Good` | 460g / 168.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_seasia_short_collarless_jacket` | a short collarless $colour cotton jacket | `jacket` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 9 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_seasia_palmleaf_conicalhat` | a broad conical fibre hat | `hat` | `barkcloth` | `Small` / `Standard` | 140g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_seasia_split_riding_waistcloth` | a divided $colour cotton riding waistcloth | `waistcloth` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
 | `renaissance_seasia_sleeveless_courtvest` | a long sleeveless $colour silk vest | `vest` | `silk` | `Normal` / `Good` | 230g / 134.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). |
 | `renaissance_seasia_long_crossfront_courtrobe` | a long cross-front $colour silk robe | `robe` | `silk` | `Normal` / `Good` | 580g / 255.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). |
 | `renaissance_seasia_sewn_tubeskirt` | a sewn $colour cotton tubular skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
@@ -7375,77 +7376,77 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_seasia_clothing_light_shoulder_cloth` | a light $colour cotton shoulder cloth | `cloth` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `earlymodern_seasia_clothing_wrapped_headcloth` | a wrapped $colour cotton headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_seasia_clothing_light_shoulder_cloth` | a light $colour cotton shoulder cloth | `cloth` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `earlymodern_seasia_clothing_wrapped_headcloth` | a wrapped $colour cotton headcloth | `headcloth` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 36. Maritime South-east Asian trade worlds — 3
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_maritimeseasia_clothing_patterned_sarong` | a $colour1 and $colour2 patterned cotton sarong | `sarong` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_2BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `earlymodern_maritimeseasia_clothing_loose_long_tunic` | a loose $colour cotton long tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Second-pass military admission; used in 7 military outfit(s). |
+| `earlymodern_maritimeseasia_clothing_patterned_sarong` | a $colour1 and $colour2 patterned cotton sarong | `sarong` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_2BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `earlymodern_maritimeseasia_clothing_loose_long_tunic` | a loose $colour cotton long tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Military-uniform admission; used in 7 military outfit(s). |
 | `earlymodern_maritimeseasia_clothing_light_open_blouse` | a light $colour cotton open blouse | `blouse` | `cotton` | `Normal` / `Standard` | 580g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). |
 
 ### 37. Steppe survivals — 8
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_steppe_wide_ridingtrousers` | a pair of wide $colour wool riding trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
-| `renaissance_steppe_short_split_ridingcoat` | a short split-skirt $colour riding coat | `coat` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_steppe_soft_highboots` | a pair of soft high leather boots | `boots` | `leather` | `Small` / `Standard` | 1220g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
-| `renaissance_steppe_pointed_feltcap` | a pointed $colour felt riding cap | `cap` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_steppe_quilted_ridingrobe` | a quilted side-fastened $colour riding robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_steppe_fur_earflaphat` | a furred ear-flap hat | `hat` | `fur` | `Small` / `Standard` | 220g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_steppe_sleeveless_ridingvest` | a sleeveless leather riding vest | `vest` | `leather` | `Normal` / `Standard` | 450g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_steppe_sidefastened_furcoat` | a side-fastened $colour fur-lined long coat | `coat` | `wool` | `Normal` / `Good` | 990g / 88.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_steppe_wide_ridingtrousers` | a pair of wide $colour wool riding trousers | `trousers` | `wool` | `Normal` / `Standard` | 620g / 22.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
+| `renaissance_steppe_short_split_ridingcoat` | a short split-skirt $colour riding coat | `coat` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_steppe_soft_highboots` | a pair of soft high leather boots | `boots` | `leather` | `Small` / `Standard` | 1220g / 72.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_High_Boots`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
+| `renaissance_steppe_pointed_feltcap` | a pointed $colour felt riding cap | `cap` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_steppe_quilted_ridingrobe` | a quilted side-fastened $colour riding robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_steppe_fur_earflaphat` | a furred ear-flap hat | `hat` | `fur` | `Small` / `Standard` | 220g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_HeavyClothing`<br>`Insulation_Strong` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_steppe_sleeveless_ridingvest` | a sleeveless leather riding vest | `vest` | `leather` | `Normal` / `Standard` | 450g / 30.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Vest`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_steppe_sidefastened_furcoat` | a side-fastened $colour fur-lined long coat | `coat` | `wool` | `Normal` / `Good` | 990g / 88.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 38. African court / Atlantic survivals — 7
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `renaissance_africancourt_shortsleeve_tunic` | a short-sleeved $colour straight cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 470g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_africancourt_soft_embroideredcap` | a soft $colour embroidered round cap | `cap` | `cotton` | `Small` / `Good` | 150g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_africancourt_narrow_waistwrapper` | a narrow $colour cotton waist wrapper | `wrapper` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_africancourt_soft_embroideredcap` | a soft $colour embroidered round cap | `cap` | `cotton` | `Small` / `Good` | 150g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_africancourt_narrow_waistwrapper` | a narrow $colour cotton waist wrapper | `wrapper` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
 | `renaissance_africancourt_sleeveless_straighttunic` | a sleeveless $colour straight cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_africancourt_broad_waistwrapper` | a broad full-length $colour cotton waist wrapper | `wrapper` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Second-pass military admission; used in 5 military outfit(s). |
-| `renaissance_africancourt_longsleeve_sideslit_tunic` | a long-sleeved $colour side-slit tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_africancourt_sewn_tubewrapper` | a sewn $colour cotton tubular wrapper | `wrapper` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_africancourt_broad_waistwrapper` | a broad full-length $colour cotton waist wrapper | `wrapper` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Military-uniform admission; used in 5 military outfit(s). |
+| `renaissance_africancourt_longsleeve_sideslit_tunic` | a long-sleeved $colour side-slit tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_africancourt_sewn_tubewrapper` | a sewn $colour cotton tubular wrapper | `wrapper` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
 
 ### 39. Kongo / Angola / West Central Africa — 2
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `earlymodern_westcentralafrica_clothing_short_tradecloth_coat` | a short $colour broadcloth coat | `coat` | `broadcloth` | `Normal` / `Good` | 780g / 107.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New Early Modern prototype; used in 4 outfit(s). |
-| `earlymodern_westcentralafrica_clothing_tradecloth_shirt` | a loose $colour cotton trade-cloth shirt | `shirt` | `cotton` | `Normal` / `Standard` | 300g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
+| `earlymodern_westcentralafrica_clothing_tradecloth_shirt` | a loose $colour cotton trade-cloth shirt | `shirt` | `cotton` | `Normal` / `Standard` | 300g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Military-uniform admission; used in 4 military outfit(s). |
 
 ### 40. West African / Atlantic — 2
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `earlymodern_africanatlantic_clothing_short_cotton_blouse` | a short $colour cotton blouse | `blouse` | `cotton` | `Normal` / `Standard` | 300g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). |
-| `earlymodern_africanatlantic_clothing_full_headwrap` | a full $colour cotton headwrap | `headwrap` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `earlymodern_africanatlantic_clothing_full_headwrap` | a full $colour cotton headwrap | `headwrap` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 41. West/Central African survivals — 2
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_africancourt_barkcloth_straighttunic` | a straight $colour barkcloth tunic | `tunic` | `barkcloth` | `Normal` / `Standard` | 360g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_africancourt_barkcloth_wrapskirt` | a broad $colour barkcloth wrap skirt | `skirt` | `barkcloth` | `Normal` / `Standard` | 600g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_africancourt_barkcloth_straighttunic` | a straight $colour barkcloth tunic | `tunic` | `barkcloth` | `Normal` / `Standard` | 360g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_africancourt_barkcloth_wrapskirt` | a broad $colour barkcloth wrap skirt | `skirt` | `barkcloth` | `Normal` / `Standard` | 600g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 42. Shared colonial Atlantic — 10
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_colonial_clothing_plain_knee_breeches` | a pair of plain $colour knee breeches | `breeches` | `canvas` | `Normal` / `Standard` | 530g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 18 outfit(s). Uses planned Wear_Breeches dependency. Second-pass military admission; used in 14 military outfit(s). |
-| `earlymodern_colonial_clothing_plain_linen_shirt` | a plain $colour linen shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 21 outfit(s). Second-pass military admission; used in 21 military outfit(s). |
+| `earlymodern_colonial_clothing_plain_knee_breeches` | a pair of plain $colour knee breeches | `breeches` | `canvas` | `Normal` / `Standard` | 530g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 18 outfit(s). Uses planned Wear_Breeches dependency. Military-uniform admission; used in 14 military outfit(s). |
+| `earlymodern_colonial_clothing_plain_linen_shirt` | a plain $colour linen shirt | `shirt` | `linen` | `Normal` / `Standard` | 260g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 21 outfit(s). Military-uniform admission; used in 21 military outfit(s). |
 | `earlymodern_colonial_clothing_long_linen_shift` | a long $colour linen shift | `shift` | `linen` | `Normal` / `Standard` | 740g / 42.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 21 outfit(s). |
 | `earlymodern_colonial_clothing_plain_wool_bodice` | a plain $colour wool bodice | `bodice` | `wool` | `Normal` / `Standard` | 620g / 35.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Doublet`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 15 outfit(s). |
 | `earlymodern_colonial_clothing_full_cotton_skirt` | a full $colour cotton skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 15 outfit(s). |
 | `earlymodern_colonial_clothing_linen_work_apron` | a $colour linen work apron | `apron` | `linen` | `Small` / `Standard` | 210g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Apron`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 13 outfit(s). |
-| `earlymodern_colonial_clothing_cotton_headwrap` | a full $colour cotton headwrap | `headwrap` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 18 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `earlymodern_colonial_clothing_short_wool_jacket` | a short $colour wool jacket | `jacket` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `earlymodern_colonial_clothing_loose_canvas_trousers` | a pair of loose $colour canvas trousers | `trousers` | `canvas` | `Normal` / `Standard` | 630g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Second-pass military admission; used in 10 military outfit(s). |
-| `earlymodern_colonial_clothing_broad_felt_sunhat` | a broad-brimmed $colour felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 10 military outfit(s). |
+| `earlymodern_colonial_clothing_cotton_headwrap` | a full $colour cotton headwrap | `headwrap` | `cotton` | `Small` / `Standard` | 220g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 18 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `earlymodern_colonial_clothing_short_wool_jacket` | a short $colour wool jacket | `jacket` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 10 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `earlymodern_colonial_clothing_loose_canvas_trousers` | a pair of loose $colour canvas trousers | `trousers` | `canvas` | `Normal` / `Standard` | 630g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 7 outfit(s). Military-uniform admission; used in 10 military outfit(s). |
+| `earlymodern_colonial_clothing_broad_felt_sunhat` | a broad-brimmed $colour felt hat | `hat` | `felt` | `Small` / `Standard` | 170g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Military-uniform admission; used in 10 military outfit(s). |
 
 ### 43. Spanish colonial Americas — 1
 
@@ -7457,40 +7458,40 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_sahel_narrow_longtunic` | a narrow long $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 5 military outfit(s). |
-| `renaissance_sahel_veryfull_trousers` | a pair of very full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 8 military outfit(s). |
-| `renaissance_sahel_conical_leatherhat` | a conical leather riding hat | `hat` | `leather` | `Small` / `Standard` | 210g / 18.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_sahel_narrow_longtunic` | a narrow long $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 5 military outfit(s). |
+| `renaissance_sahel_veryfull_trousers` | a pair of very full $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 8 military outfit(s). |
+| `renaissance_sahel_conical_leatherhat` | a conical leather riding hat | `hat` | `leather` | `Small` / `Standard` | 210g / 18.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `renaissance_sahel_broad_rectangular_robe` | a broad rectangular $colour cotton over-robe | `over-robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
-| `renaissance_sahel_scholar_turban` | a layered $colour cotton turban | `turban` | `cotton` | `Small` / `Good` | 220g / 31.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_sahel_embroidered_necktunic` | a broad-necked $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Good` | 540g / 49.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_sahel_scholar_turban` | a layered $colour cotton turban | `turban` | `cotton` | `Small` / `Good` | 220g / 31.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_sahel_embroidered_necktunic` | a broad-necked $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Good` | 540g / 49.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 45. Ethiopian / Red Sea survivals — 6
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_redsea_narrow_cotton_tunic` | a narrow long $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `renaissance_redsea_narrow_cotton_tunic` | a narrow long $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 540g / 23.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
 | `renaissance_redsea_full_shoulderwrap` | a full $colour cotton body-and-shoulder wrap | `wrap` | `cotton` | `Normal` / `Standard` | 760g / 36.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Dress`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). |
-| `renaissance_redsea_leather_highlandcloak` | a broad leather highland cloak | `cloak` | `leather` | `Normal` / `Standard` | 1150g / 57.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_redsea_leather_highlandcloak` | a broad leather highland cloak | `cloak` | `leather` | `Normal` / `Standard` | 1150g / 57.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `renaissance_redsea_white_headhood` | a white head-draped cotton hood | `hood` | `cotton` | `Small` / `Standard` | 230g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hood`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_redsea_long_courtshirt` | a long full-sleeved $colour cotton shirt | `shirt` | `cotton` | `Normal` / `Good` | 810g / 84.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
+| `renaissance_redsea_long_courtshirt` | a long full-sleeved $colour cotton shirt | `shirt` | `cotton` | `Normal` / `Good` | 810g / 84.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 4 military outfit(s). |
 | `renaissance_redsea_embroidered_shouldercape` | an embroidered $colour cotton shoulder cape | `cape` | `cotton` | `Normal` / `Good` | 560g / 57.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
 
 ### 46. Ethiopian / Red Sea — 1
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_redsea_clothing_narrow_cotton_trousers` | a pair of narrow $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 7 military outfit(s). |
+| `earlymodern_redsea_clothing_narrow_cotton_trousers` | a pair of narrow $colour cotton trousers | `trousers` | `cotton` | `Normal` / `Standard` | 500g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Military-uniform admission; used in 7 military outfit(s). |
 
 ### 47. Swahili / Indian Ocean survivals — 6
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_indianocean_short_coastaltunic` | a short loose $colour cotton coastal tunic | `tunic` | `cotton` | `Normal` / `Standard` | 470g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
-| `renaissance_indianocean_embroidered_roundcap` | a close $colour embroidered round cap | `cap` | `cotton` | `Small` / `Good` | 150g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_indianocean_toeloop_sandals` | a pair of toe-loop leather sandals | `sandals` | `leather` | `Small` / `Standard` | 410g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 7 military outfit(s). |
-| `renaissance_indianocean_long_coastalrobe` | a long collarless $colour cotton coastal robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `renaissance_indianocean_open_merchantcoat` | a light open-front $colour cotton merchant coat | `coat` | `cotton` | `Normal` / `Good` | 1010g / 121.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_indianocean_sewn_wrapskirt` | a sewn $colour cotton coastal wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
+| `renaissance_indianocean_short_coastaltunic` | a short loose $colour cotton coastal tunic | `tunic` | `cotton` | `Normal` / `Standard` | 470g / 19.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 6 outfit(s). Military-uniform admission; used in 4 military outfit(s). |
+| `renaissance_indianocean_embroidered_roundcap` | a close $colour embroidered round cap | `cap` | `cotton` | `Small` / `Good` | 150g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_indianocean_toeloop_sandals` | a pair of toe-loop leather sandals | `sandals` | `leather` | `Small` / `Standard` | 410g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 7 military outfit(s). |
+| `renaissance_indianocean_long_coastalrobe` | a long collarless $colour cotton coastal robe | `robe` | `cotton` | `Normal` / `Standard` | 810g / 40.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `renaissance_indianocean_open_merchantcoat` | a light open-front $colour cotton merchant coat | `coat` | `cotton` | `Normal` / `Good` | 1010g / 121.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Renaissance Era`<br>`Market / Clothing / Luxury Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_indianocean_sewn_wrapskirt` | a sewn $colour cotton coastal wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
 
 ### 48. Swahili Coast / Indian Ocean Africa — 1
 
@@ -7502,61 +7503,61 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_andeancolonial_clothing_wool_poncho` | a $colour wool poncho | `poncho` | `wool` | `Normal` / `Standard` | 940g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Poncho`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `earlymodern_andeancolonial_clothing_full_wool_pollera` | a full gathered $colour wool skirt | `skirt` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `earlymodern_andeancolonial_clothing_shaped_wool_hat` | a shaped $colour wool hat | `hat` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
+| `earlymodern_andeancolonial_clothing_wool_poncho` | a $colour wool poncho | `poncho` | `wool` | `Normal` / `Standard` | 940g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Poncho`<br>`Armour_HeavyClothing`<br>`Insulation_Strong`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `earlymodern_andeancolonial_clothing_full_wool_pollera` | a full gathered $colour wool skirt | `skirt` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 6 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `earlymodern_andeancolonial_clothing_shaped_wool_hat` | a shaped $colour wool hat | `hat` | `wool` | `Small` / `Standard` | 190g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 8 outfit(s). Military-uniform admission; used in 4 military outfit(s). |
 
 ### 50. Mesoamerican survivals — 9
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_mesoamerican_long_wrapskirt` | a long $colour cotton wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_mesoamerican_rectangular_blouse` | a rectangular sleeveless $colour cotton blouse | `blouse` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_mesoamerican_woven_fibresandals` | a pair of $colour woven fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 9 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
-| `renaissance_mesoamerican_panelled_loincloth` | a long panelled $colour cotton loin garment | `loincloth` | `cotton` | `Small` / `Standard` | 140g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breechcloth`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
-| `renaissance_mesoamerican_side_seamed_tunic` | a side-seamed sleeveless $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_mesoamerican_shouldertied_cloak` | a shoulder-tied $colour cotton rectangular cloak | `cloak` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `renaissance_mesoamerican_woven_headcap` | a close $colour woven fibre cap | `cap` | `cotton` | `Small` / `Standard` | 150g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `renaissance_mesoamerican_short_wrapskirt` | a short $colour cotton wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 510g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_mesoamerican_triangle_shouldergarment` | a triangular $colour cotton shoulder garment | `garment` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_mesoamerican_long_wrapskirt` | a long $colour cotton wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 630g / 26.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_mesoamerican_rectangular_blouse` | a rectangular sleeveless $colour cotton blouse | `blouse` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_mesoamerican_woven_fibresandals` | a pair of $colour woven fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 9 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
+| `renaissance_mesoamerican_panelled_loincloth` | a long panelled $colour cotton loin garment | `loincloth` | `cotton` | `Small` / `Standard` | 140g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breechcloth`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 4 military outfit(s). |
+| `renaissance_mesoamerican_side_seamed_tunic` | a side-seamed sleeveless $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_mesoamerican_shouldertied_cloak` | a shoulder-tied $colour cotton rectangular cloak | `cloak` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `renaissance_mesoamerican_woven_headcap` | a close $colour woven fibre cap | `cap` | `cotton` | `Small` / `Standard` | 150g / 13.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `renaissance_mesoamerican_short_wrapskirt` | a short $colour cotton wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 510g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_mesoamerican_triangle_shouldergarment` | a triangular $colour cotton shoulder garment | `garment` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 51. Caribbean survivals — 5
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_caribbean_sleeveless_cottontunic` | a loose sleeveless $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_caribbean_cotton_wrapskirt` | a short $colour cotton wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 510g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_caribbean_cotton_loinapron` | a panelled $colour cotton loin apron | `apron` | `cotton` | `Small` / `Standard` | 140g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breechcloth`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_caribbean_woven_fibresandals` | a pair of $colour woven fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `renaissance_caribbean_woven_shouldercape` | a short $colour cotton shoulder cape | `cape` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_caribbean_sleeveless_cottontunic` | a loose sleeveless $colour cotton tunic | `tunic` | `cotton` | `Normal` / `Standard` | 380g / 17.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_caribbean_cotton_wrapskirt` | a short $colour cotton wrap skirt | `skirt` | `cotton` | `Normal` / `Standard` | 510g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_caribbean_cotton_loinapron` | a panelled $colour cotton loin apron | `apron` | `cotton` | `Small` / `Standard` | 140g / 7.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breechcloth`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_caribbean_woven_fibresandals` | a pair of $colour woven fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `renaissance_caribbean_woven_shouldercape` | a short $colour cotton shoulder cape | `cape` | `cotton` | `Normal` / `Standard` | 560g / 27.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 
 ### 52. English / French / Dutch colonial North America — 4
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_colonialnorthamerica_clothing_hooded_wool_capote` | a hooded $colour wool capote | `coat` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `earlymodern_colonialnorthamerica_clothing_soft_moccasins` | a pair of soft leather moccasins | `moccasins` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
-| `earlymodern_colonialnorthamerica_clothing_linen_work_cap` | a $colour linen work cap | `cap` | `linen` | `Small` / `Standard` | 140g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). Second-pass military admission; used in 2 military outfit(s). |
+| `earlymodern_colonialnorthamerica_clothing_hooded_wool_capote` | a hooded $colour wool capote | `coat` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `earlymodern_colonialnorthamerica_clothing_soft_moccasins` | a pair of soft leather moccasins | `moccasins` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
+| `earlymodern_colonialnorthamerica_clothing_linen_work_cap` | a $colour linen work cap | `cap` | `linen` | `Small` / `Standard` | 140g / 12.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 5 outfit(s). Military-uniform admission; used in 2 military outfit(s). |
 | `earlymodern_colonialnorthamerica_clothing_wool_shortgown` | a $colour wool shortgown | `shortgown` | `wool` | `Normal` / `Standard` | 720g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
 
 ### 53. North American Indigenous survivals — 6
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `renaissance_northamerican_hide_breechcloth` | a long hide breechcloth | `breechcloth` | `leather` | `Small` / `Standard` | 200g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breechcloth`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
-| `renaissance_northamerican_paired_hideleggings` | a pair of long hide leggings | `leggings` | `leather` | `Normal` / `Standard` | 520g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Leggings`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
-| `renaissance_northamerican_hide_shirt` | a loose hide shirt | `shirt` | `leather` | `Normal` / `Standard` | 410g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `renaissance_northamerican_soft_moccasins` | a pair of soft hide moccasins | `moccasins` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Second-pass military admission; used in 6 military outfit(s). |
-| `renaissance_northamerican_fur_robe` | a broad fur robe | `robe` | `fur` | `Normal` / `Standard` | 810g / 60.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_HeavyClothing`<br>`Insulation_Strong` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_northamerican_hide_breechcloth` | a long hide breechcloth | `breechcloth` | `leather` | `Small` / `Standard` | 200g / 10.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breechcloth`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 5 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
+| `renaissance_northamerican_paired_hideleggings` | a pair of long hide leggings | `leggings` | `leather` | `Normal` / `Standard` | 520g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Leggings`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 7 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
+| `renaissance_northamerican_hide_shirt` | a loose hide shirt | `shirt` | `leather` | `Normal` / `Standard` | 410g / 21.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `renaissance_northamerican_soft_moccasins` | a pair of soft hide moccasins | `moccasins` | `leather` | `Small` / `Standard` | 650g / 33.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 10 outfit(s). Military-uniform admission; used in 6 military outfit(s). |
+| `renaissance_northamerican_fur_robe` | a broad fur robe | `robe` | `fur` | `Normal` / `Standard` | 810g / 60.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_HeavyClothing`<br>`Insulation_Strong` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `renaissance_northamerican_hide_wrapdress` | a full hide wrap dress | `dress` | `leather` | `Normal` / `Standard` | 1060g / 51.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Dress`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). |
 
 ### 54. Indigenous North American regional families — 4
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
-| `earlymodern_northamerican_clothing_tied_tradecloth_headband` | a tied $colour wool headband | `headband` | `wool` | `Normal` / `Standard` | 390g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Headband`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 9 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `earlymodern_northamerican_clothing_tradecloth_shirt` | a loose $colour wool trade-cloth shirt | `shirt` | `wool` | `Normal` / `Standard` | 360g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Second-pass military admission; used in 3 military outfit(s). |
-| `earlymodern_northamerican_clothing_wrapped_blanket_coat` | a wrapped $colour wool blanket coat | `coat` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
+| `earlymodern_northamerican_clothing_tied_tradecloth_headband` | a tied $colour wool headband | `headband` | `wool` | `Normal` / `Standard` | 390g / 16.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Headband`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 9 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `earlymodern_northamerican_clothing_tradecloth_shirt` | a loose $colour wool trade-cloth shirt | `shirt` | `wool` | `Normal` / `Standard` | 360g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 4 outfit(s). Military-uniform admission; used in 3 military outfit(s). |
+| `earlymodern_northamerican_clothing_wrapped_blanket_coat` | a wrapped $colour wool blanket coat | `coat` | `wool` | `Normal` / `Standard` | 1230g / 61.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Open_Robe`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 3 outfit(s). Military-uniform admission; used in 4 military outfit(s). |
 | `earlymodern_northamerican_clothing_tradecloth_wrap_skirt` | a $colour wool trade-cloth wrap skirt | `skirt` | `wool` | `Normal` / `Standard` | 770g / 28.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Early Modern Era`<br>`Market / Clothing / Standard Clothing` | New Early Modern prototype; used in 2 outfit(s). |
 
 ### 55. Andean survivals — 9
@@ -7564,20 +7565,20 @@ Rows marked as cross-era admissions are not duplicate Early Modern prototypes. T
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
 | `renaissance_andean_short_worktunic` | a short coarse $colour camelid-wool tunic | `tunic` | `camelid wool` | `Normal` / `Standard` | 440g / 20.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). |
-| `renaissance_andean_braided_fibresandals` | a pair of $colour braided fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Second-pass military admission; used in 5 military outfit(s). |
-| `renaissance_andean_woven_earflapcap` | a woven $colour camelid-wool ear-flap cap | `cap` | `camelid wool` | `Small` / `Standard` | 180g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_andean_straight_sleevelesstunic` | a straight sleeveless $colour camelid-wool tunic | `tunic` | `camelid wool` | `Normal` / `Standard` | 440g / 20.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_andean_braided_fibresandals` | a pair of $colour braided fibre sandals | `sandals` | `canvas` | `Small` / `Standard` | 370g / 11.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 8 outfit(s). Military-uniform admission; used in 5 military outfit(s). |
+| `renaissance_andean_woven_earflapcap` | a woven $colour camelid-wool ear-flap cap | `cap` | `camelid wool` | `Small` / `Standard` | 180g / 15.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_andean_straight_sleevelesstunic` | a straight sleeveless $colour camelid-wool tunic | `tunic` | `camelid wool` | `Normal` / `Standard` | 440g / 20.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sleeveless_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `renaissance_andean_fringed_camelidshawl` | a fringed $colour camelid-wool shawl | `shawl` | `camelid wool` | `Normal` / `Standard` | 650g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 4 outfit(s). |
-| `renaissance_andean_paired_shouldermantle` | a broad pinned $colour camelid-wool shoulder mantle | `mantle` | `camelid wool` | `Normal` / `Standard` | 650g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
+| `renaissance_andean_paired_shouldermantle` | a broad pinned $colour camelid-wool shoulder mantle | `mantle` | `camelid wool` | `Normal` / `Standard` | 650g / 32.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 3 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
 | `renaissance_andean_wrapped_fulllengthdress` | a wrapped full-length $colour camelid-wool dress | `dress` | `camelid wool` | `Normal` / `Standard` | 890g / 42.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Dress`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). |
-| `renaissance_andean_long_headcloth` | a long $colour camelid-wool headcloth | `headcloth` | `camelid wool` | `Small` / `Standard` | 250g / 18.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Second-pass military admission; used in 1 military outfit(s). |
-| `renaissance_andean_pinned_wrapskirt` | a pinned broad $colour camelid-wool wrap skirt | `skirt` | `camelid wool` | `Normal` / `Standard` | 740g / 31.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Second-pass military admission; used in 4 military outfit(s). |
+| `renaissance_andean_long_headcloth` | a long $colour camelid-wool headcloth | `headcloth` | `camelid wool` | `Small` / `Standard` | 250g / 18.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 2 outfit(s). Military-uniform admission; used in 1 military outfit(s). |
+| `renaissance_andean_pinned_wrapskirt` | a pinned broad $colour camelid-wool wrap skirt | `skirt` | `camelid wool` | `Normal` / `Standard` | 740g / 31.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_BasicColour` | `Era / Renaissance Era`<br>`Market / Clothing / Standard Clothing` | Cross-era Renaissance stable-reference admission; used in 1 outfit(s). Military-uniform admission; used in 4 military outfit(s). |
 
-## Second-pass military-uniform item catalogue
+## Military-uniform item catalogue
 
-This catalogue adds **133** Early Modern clothing and worn-accessory prototypes. It reuses **172** existing first-pass, Renaissance, or pre-industrial stable references rather than cloning their behaviour.
+This catalogue adds **133** Early Modern clothing and worn-accessory prototypes. It reuses **172** existing civilian, Renaissance, or pre-industrial stable references rather than cloning their behaviour.
 
-All rows use the common authoring contract above: portable, skinnable, player-visible, no long description, no morph lifecycle, and no full description in this pass. Rank and appointment accessories are deliberately generic in behaviour while remaining credible standalone objects in player-facing text.
+All rows use the common authoring contract above: portable, skinnable, player-visible, no long description, no morph lifecycle, and no full description in this catalogue. Rank and appointment accessories are deliberately generic in behaviour while remaining credible standalone objects in player-facing text.
 
 ### 1. Generic service, rank, and appointment accessories — 13
 
@@ -7768,43 +7769,3889 @@ All rows use the common authoring contract above: portable, skinnable, player-vi
 |---|---|---|---|---|---:|---|---|---|
 | `preindustrial_military_support_simple_sword_belt` | a simple sword belt | `belt` | `leather` | `Small` / `Standard` | 420g / 32.0m | `Holdable`<br>`Wear_Waist`<br>`Belt_2`<br>`Destroyable_Clothing` | `Era / Pre-Industrial Era`<br>`Functions / Military Equipment`<br>`Functions / Worn Items / Belts`<br>`Market / Military Goods` | Implemented shared alias; admitted in 63 military outfit(s) rather than cloned as an Early Modern row. |
 
+## Noble, royal, and court-equivalent authority
+
+- Culture families covered: **36**, including the global-maritime overlay.
+- Complete highest-echelon outfits: **216** — exactly **108 male** and **108 female**.
+- Each culture has one everyday courtly, one outdoor/travel, and one formal/state-occasion outfit for each gender.
+- New noble/court prototypes: **351** — **27 shared foundations or jewellery forms** and **324 culture-family garments, jewels, or regalia**.
+- Every outfit includes separately wearable jewellery. Formal outfits add culture-appropriate regalia without assuming that every society used a Western crown, coronet, or peerage system.
+- Noble/court clothing quality is `Great` or `Excellent`; all new jewellery and regalia are `Excellent`.
+- Rank, dynasty, heraldry, exact gemstones, office insignia, devotional symbols, household marks, and culturally specific motif programmes remain skins or narrower local manifests.
+- Broad African, Indigenous American, South-east Asian, steppe, colonial, and contact-zone headings require a narrower polity, people, date, ecology, and legal or diplomatic context before implementation.
+- Clothing and jewellery do not encode ethnicity, freedom, enslavement, legal estate, office, religion, or political allegiance by themselves. Those contexts belong in the manifest and world data.
+
+### Jewellery and regalia policy
+
+The shared jewellery forms and culture-family pieces below are complete player-facing items, not placeholders. Their unskinned short descriptions identify visible construction and material. Skins may carry the exact gemstone, dynasty, office, household, heraldic, devotional, diplomatic, or ceremonial identity. Crowns and coronets appear only in culture families where an appropriate sovereign or aristocratic head ornament is represented; other families use diadems, forehead ornaments, court chains, neck rings, armlets, belt plaques, hair ornaments, or waist regalia.
+
+## Noble, royal, and court-equivalent outfit manifests
+
+### 1. French / Baroque court and urban
+
+> Bourbon-facing royal and princely households, c. 1650-1750; exact order insignia, dynastic devices, lace pattern, and court colour remain skins.
+
+#### Noble outfit 001 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_french_noble_male_court_garment` — an embroidered $colour silk court coat
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_french_noble_court_headwear` — a plumed $colour felt court hat
+- `earlymodern_french_noble_jewellery` — a gem-set gold cravat brooch
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 002 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_french_noble_male_court_garment` — an embroidered $colour silk court coat
+- `earlymodern_french_noble_male_travel_outerwear` — a fur-lined $colour broadcloth riding cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_french_noble_court_headwear` — a plumed $colour felt court hat
+- `earlymodern_french_noble_jewellery` — a gem-set gold cravat brooch
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 003 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_french_noble_male_court_garment` — an embroidered $colour silk court coat
+- `earlymodern_french_noble_male_formal_mantle` — a sweeping $colour velvet state mantle
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_french_noble_jewellery` — a gem-set gold cravat brooch
+- `earlymodern_french_noble_regalia` — a pearl-set gold coronet
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 004 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_french_noble_female_court_gown` — a finely draped $colour silk mantua gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_french_noble_jewellery` — a gem-set gold cravat brooch
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 005 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_french_noble_female_court_gown` — a finely draped $colour silk mantua gown
+- `earlymodern_french_noble_female_travel_outerwear` — a hooded $colour velvet travelling cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_french_noble_jewellery` — a gem-set gold cravat brooch
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 006 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_french_noble_female_formal_gown` — a trained $colour silk court gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_french_noble_jewellery` — a gem-set gold cravat brooch
+- `earlymodern_french_noble_regalia` — a pearl-set gold coronet
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 2. Dutch Republic / Low Countries
+
+> Regent, stadtholderly, and princely households, c. 1600-1720; the dark formal palette and civic chains are presentation skins rather than hard-coded office.
+
+#### Noble outfit 007 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_dutch_noble_male_court_garment` — a restrained $colour silk court coat
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_dutch_noble_court_headwear` — a broad-crowned $colour felt court hat
+- `earlymodern_dutch_noble_jewellery` — a heavy gold civic neck chain
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 008 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_dutch_noble_male_court_garment` — a restrained $colour silk court coat
+- `earlymodern_dutch_noble_male_travel_outerwear` — a weathered-fur lined $colour riding cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_dutch_noble_court_headwear` — a broad-crowned $colour felt court hat
+- `earlymodern_dutch_noble_jewellery` — a heavy gold civic neck chain
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 009 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_dutch_noble_male_court_garment` — a restrained $colour silk court coat
+- `earlymodern_dutch_noble_male_formal_mantle` — a broad black velvet civic mantle
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_dutch_noble_jewellery` — a heavy gold civic neck chain
+- `earlymodern_dutch_noble_regalia` — a pearl-set gold diadem
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 010 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_dutch_noble_female_court_gown` — a high-waisted $colour silk court gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_dutch_noble_jewellery` — a heavy gold civic neck chain
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 011 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_dutch_noble_female_court_gown` — a high-waisted $colour silk court gown
+- `earlymodern_dutch_noble_female_travel_outerwear` — a hooded $colour wool travelling cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_dutch_noble_jewellery` — a heavy gold civic neck chain
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 012 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_dutch_noble_female_formal_gown` — a pearl-trimmed $colour silk formal gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_dutch_noble_jewellery` — a heavy gold civic neck chain
+- `earlymodern_dutch_noble_regalia` — a pearl-set gold diadem
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 3. English / British Stuart-Georgian
+
+> Royal, ducal, and governor-facing British court dress, c. 1600-1750; order stars, household badges, and exact coronet forms remain skins.
+
+#### Noble outfit 013 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_british_noble_male_court_garment` — an embroidered $colour silk court coat
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_british_noble_court_headwear` — a feathered $colour felt cocked hat
+- `earlymodern_british_noble_jewellery` — a diamond-set gold breast brooch
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 014 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_british_noble_male_court_garment` — an embroidered $colour silk court coat
+- `earlymodern_british_noble_male_travel_outerwear` — a long $colour broadcloth riding greatcloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_british_noble_court_headwear` — a feathered $colour felt cocked hat
+- `earlymodern_british_noble_jewellery` — a diamond-set gold breast brooch
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 015 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_british_noble_male_court_garment` — an embroidered $colour silk court coat
+- `earlymodern_british_noble_male_formal_mantle` — a fur-edged $colour velvet state mantle
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_british_noble_jewellery` — a diamond-set gold breast brooch
+- `earlymodern_british_noble_regalia` — a gem-set gold coronet
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 016 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_british_noble_female_court_gown` — a fitted $colour silk court gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_british_noble_jewellery` — a diamond-set gold breast brooch
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 017 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_british_noble_female_court_gown` — a fitted $colour silk court gown
+- `earlymodern_british_noble_female_travel_outerwear` — a hooded $colour broadcloth riding cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_british_noble_jewellery` — a diamond-set gold breast brooch
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 018 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_british_noble_female_formal_gown` — a long-trained $colour silk court gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_british_noble_jewellery` — a diamond-set gold breast brooch
+- `earlymodern_british_noble_regalia` — a gem-set gold coronet
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 4. Iberian / Portuguese-Spanish empires
+
+> Royal, grandee, viceregal, and high court households, c. 1600-1750; exact dynastic collars, religious orders, and sumptuary colours remain skins.
+
+#### Noble outfit 019 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_iberian_noble_male_court_garment` — a dark $colour silk court doublet-coat
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_iberian_noble_court_headwear` — a broad $colour felt court hat
+- `earlymodern_iberian_noble_jewellery` — a gem-set gold collar chain
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 020 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_iberian_noble_male_court_garment` — a dark $colour silk court doublet-coat
+- `earlymodern_iberian_noble_male_travel_outerwear` — a full $colour broadcloth riding cape
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_iberian_noble_court_headwear` — a broad $colour felt court hat
+- `earlymodern_iberian_noble_jewellery` — a gem-set gold collar chain
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 021 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_iberian_noble_male_court_garment` — a dark $colour silk court doublet-coat
+- `earlymodern_iberian_noble_male_formal_mantle` — a gold-guarded $colour velvet state mantle
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_iberian_noble_jewellery` — a gem-set gold collar chain
+- `earlymodern_iberian_noble_regalia` — a high gem-set gold coronet
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 022 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_iberian_noble_female_court_gown` — a stiff-bodied $colour silk court gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_iberian_noble_jewellery` — a gem-set gold collar chain
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 023 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_iberian_noble_female_court_gown` — a stiff-bodied $colour silk court gown
+- `earlymodern_iberian_noble_female_travel_outerwear` — a long hooded $colour velvet mantle
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_iberian_noble_jewellery` — a gem-set gold collar chain
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 024 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_iberian_noble_female_formal_gown` — a wide-skirted $colour silk formal gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_iberian_noble_jewellery` — a gem-set gold collar chain
+- `earlymodern_iberian_noble_regalia` — a high gem-set gold coronet
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 5. German / HRE / Austrian
+
+> Imperial, electoral, princely, and high noble households, c. 1600-1750; electoral insignia and house colours remain skins.
+
+#### Noble outfit 025 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_german_noble_male_court_garment` — a braid-guarded $colour silk court coat
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_german_noble_court_headwear` — a plumed $colour felt court hat
+- `earlymodern_german_noble_jewellery` — a gemmed gold chain of estate
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 026 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_german_noble_male_court_garment` — a braid-guarded $colour silk court coat
+- `earlymodern_german_noble_male_travel_outerwear` — a fur-collared $colour broadcloth riding cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_german_noble_court_headwear` — a plumed $colour felt court hat
+- `earlymodern_german_noble_jewellery` — a gemmed gold chain of estate
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 027 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_german_noble_male_court_garment` — a braid-guarded $colour silk court coat
+- `earlymodern_german_noble_male_formal_mantle` — a fur-edged $colour velvet princely mantle
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_german_noble_jewellery` — a gemmed gold chain of estate
+- `earlymodern_german_noble_regalia` — a gem-set gold princely coronet
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 028 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_german_noble_female_court_gown` — a square-necked $colour silk court gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_german_noble_jewellery` — a gemmed gold chain of estate
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 029 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_german_noble_female_court_gown` — a square-necked $colour silk court gown
+- `earlymodern_german_noble_female_travel_outerwear` — a fur-lined $colour velvet travelling cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_german_noble_jewellery` — a gemmed gold chain of estate
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 030 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_german_noble_female_formal_gown` — an embroidered $colour silk state gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_german_noble_jewellery` — a gemmed gold chain of estate
+- `earlymodern_german_noble_regalia` — a gem-set gold princely coronet
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 6. Italian states
+
+> Ducal, papal-princely, patrician, and sovereign city-state households, c. 1600-1750; exact civic and dynastic devices remain skins.
+
+#### Noble outfit 031 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_italian_noble_male_court_garment` — a fitted $colour satin court coat
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_italian_noble_court_headwear` — a feathered $colour velvet court cap
+- `earlymodern_italian_noble_jewellery` — a gem-set gold pendant necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 032 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_italian_noble_male_court_garment` — a fitted $colour satin court coat
+- `earlymodern_italian_noble_male_travel_outerwear` — a full $colour velvet travelling cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_italian_noble_court_headwear` — a feathered $colour velvet court cap
+- `earlymodern_italian_noble_jewellery` — a gem-set gold pendant necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 033 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_italian_noble_male_court_garment` — a fitted $colour satin court coat
+- `earlymodern_italian_noble_male_formal_mantle` — a long $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_italian_noble_jewellery` — a gem-set gold pendant necklace
+- `earlymodern_italian_noble_regalia` — a pearl-set gold ducal coronet
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 034 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_italian_noble_female_court_gown` — a low-necked $colour silk court gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_italian_noble_jewellery` — a gem-set gold pendant necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 035 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_italian_noble_female_court_gown` — a low-necked $colour silk court gown
+- `earlymodern_italian_noble_female_travel_outerwear` — a hooded $colour satin travelling cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_italian_noble_jewellery` — a gem-set gold pendant necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 036 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_italian_noble_female_formal_gown` — a long-trained $colour silk festival gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_italian_noble_jewellery` — a gem-set gold pendant necklace
+- `earlymodern_italian_noble_regalia` — a pearl-set gold ducal coronet
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 7. Scandinavian / Baltic
+
+> Royal, ducal, and high aristocratic households around Baltic courts, c. 1600-1750; exact orders and dynastic colours remain skins.
+
+#### Noble outfit 037 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_northern_noble_male_court_garment` — a silver-guarded $colour silk court coat
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_northern_noble_court_headwear` — a fur-trimmed $colour felt court hat
+- `earlymodern_northern_noble_jewellery` — an amber-set gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 038 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_northern_noble_male_court_garment` — a silver-guarded $colour silk court coat
+- `earlymodern_northern_noble_male_travel_outerwear` — a deep-furred $colour broadcloth travel cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_northern_noble_court_headwear` — a fur-trimmed $colour felt court hat
+- `earlymodern_northern_noble_jewellery` — an amber-set gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 039 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_northern_noble_male_court_garment` — a silver-guarded $colour silk court coat
+- `earlymodern_northern_noble_male_formal_mantle` — a fur-edged $colour velvet royal mantle
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_northern_noble_jewellery` — an amber-set gold court necklace
+- `earlymodern_northern_noble_regalia` — a silver-gilt gemmed coronet
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 040 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_northern_noble_female_court_gown` — a high-waisted $colour silk court gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_northern_noble_jewellery` — an amber-set gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 041 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_northern_noble_female_court_gown` — a high-waisted $colour silk court gown
+- `earlymodern_northern_noble_female_travel_outerwear` — a deep-furred $colour wool travelling cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_northern_noble_jewellery` — an amber-set gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 042 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_northern_noble_female_formal_gown` — an embroidered $colour silk state gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_northern_noble_jewellery` — an amber-set gold court necklace
+- `earlymodern_northern_noble_regalia` — a silver-gilt gemmed coronet
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 8. Polish-Lithuanian / Hungarian frontier
+
+> Royal, magnate, princely, and frontier aristocratic households, c. 1600-1750; exact sash patterns, offices, and heraldry remain skins.
+
+#### Noble outfit 043 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_frontier_noble_male_court_garment` — a long $colour silk split-sleeved court coat
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_frontier_noble_court_headwear` — a fur-brimmed $colour velvet court cap
+- `earlymodern_frontier_noble_jewellery` — a set of gemmed gold belt plaques
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 044 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_frontier_noble_male_court_garment` — a long $colour silk split-sleeved court coat
+- `earlymodern_frontier_noble_male_travel_outerwear` — a fur-lined $colour wool riding coat
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_frontier_noble_court_headwear` — a fur-brimmed $colour velvet court cap
+- `earlymodern_frontier_noble_jewellery` — a set of gemmed gold belt plaques
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 045 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_frontier_noble_male_court_garment` — a long $colour silk split-sleeved court coat
+- `earlymodern_frontier_noble_male_formal_mantle` — a broad $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_frontier_noble_jewellery` — a set of gemmed gold belt plaques
+- `earlymodern_frontier_noble_regalia` — a pearl-set gold diadem
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 046 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_frontier_noble_female_court_gown` — a long $colour silk court gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_frontier_noble_jewellery` — a set of gemmed gold belt plaques
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 047 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_frontier_noble_female_court_gown` — a long $colour silk court gown
+- `earlymodern_frontier_noble_female_travel_outerwear` — a fur-lined $colour velvet riding cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_frontier_noble_jewellery` — a set of gemmed gold belt plaques
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 048 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_frontier_noble_female_formal_gown` — a panelled $colour silk state gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_frontier_noble_jewellery` — a set of gemmed gold belt plaques
+- `earlymodern_frontier_noble_regalia` — a pearl-set gold diadem
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 9. Russian / Petrine and post-Petrine
+
+> Tsarist, princely, boyar, and westernising imperial households, c. 1600-1750; local versus westernising presentation is controlled by outfit/date skins.
+
+#### Noble outfit 049 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_russian_noble_male_court_garment` — a full-skirted $colour silk court caftan
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_russian_noble_court_headwear` — a tall fur-brimmed $colour court cap
+- `earlymodern_russian_noble_jewellery` — a heavy gem-set gold neck chain
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 050 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_russian_noble_male_court_garment` — a full-skirted $colour silk court caftan
+- `earlymodern_russian_noble_male_travel_outerwear` — a deep-furred $colour wool travelling caftan
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_russian_noble_court_headwear` — a tall fur-brimmed $colour court cap
+- `earlymodern_russian_noble_jewellery` — a heavy gem-set gold neck chain
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 051 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_russian_noble_male_court_garment` — a full-skirted $colour silk court caftan
+- `earlymodern_russian_noble_male_formal_mantle` — a gem-guarded $colour velvet state mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_russian_noble_jewellery` — a heavy gem-set gold neck chain
+- `earlymodern_russian_noble_regalia` — a high gem-set gold crown
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 052 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_russian_noble_female_court_gown` — a sleeveless $colour silk court overgown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_russian_noble_jewellery` — a heavy gem-set gold neck chain
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 053 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_russian_noble_female_court_gown` — a sleeveless $colour silk court overgown
+- `earlymodern_russian_noble_female_travel_outerwear` — a deep-furred $colour velvet travelling cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_russian_noble_jewellery` — a heavy gem-set gold neck chain
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 054 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_russian_noble_female_formal_gown` — a long $colour silk state gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_russian_noble_jewellery` — a heavy gem-set gold neck chain
+- `earlymodern_russian_noble_regalia` — a high gem-set gold crown
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 10. Ottoman
+
+> Sultanic, dynastic, vizierial, and high household dress, c. 1600-1750; office-specific kaftan gifts, aigrettes, and textile patterns remain skins.
+
+#### Noble outfit 055 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_ottoman_noble_male_court_garment` — a fitted $colour silk court kaftan
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_ottoman_noble_court_headwear` — a high-wound $colour silk court turban
+- `earlymodern_ottoman_noble_jewellery` — a gem-set gold sash clasp
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 056 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_ottoman_noble_male_court_garment` — a fitted $colour silk court kaftan
+- `earlymodern_ottoman_noble_male_travel_outerwear` — a fur-lined $colour broadcloth travelling kaftan
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_ottoman_noble_court_headwear` — a high-wound $colour silk court turban
+- `earlymodern_ottoman_noble_jewellery` — a gem-set gold sash clasp
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 057 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_ottoman_noble_male_court_garment` — a fitted $colour silk court kaftan
+- `earlymodern_ottoman_noble_male_formal_mantle` — a broad $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_ottoman_noble_jewellery` — a gem-set gold sash clasp
+- `earlymodern_ottoman_noble_regalia` — a jewelled gold forehead aigrette
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 058 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_ottoman_noble_female_court_gown` — a fitted $colour silk court gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_ottoman_noble_jewellery` — a gem-set gold sash clasp
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 059 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_ottoman_noble_female_court_gown` — a fitted $colour silk court gown
+- `earlymodern_ottoman_noble_female_travel_outerwear` — a full $colour broadcloth outdoor overrobe
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_ottoman_noble_jewellery` — a gem-set gold sash clasp
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 060 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_ottoman_noble_female_formal_gown` — a layered $colour silk ceremonial gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_ottoman_noble_jewellery` — a gem-set gold sash clasp
+- `earlymodern_ottoman_noble_regalia` — a jewelled gold forehead aigrette
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 11. Maghrebi / North African
+
+> Sultanic, dynastic, gubernatorial, corsair-princely, and learned aristocratic households; narrower polity and date are required.
+
+#### Noble outfit 061 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_maghrebi_noble_male_court_garment` — a flowing $colour silk court robe
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_maghrebi_noble_court_headwear` — a full-wound $colour silk court turban
+- `earlymodern_maghrebi_noble_jewellery` — a pair of gem-set gold mantle brooches
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 062 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_maghrebi_noble_male_court_garment` — a flowing $colour silk court robe
+- `earlymodern_maghrebi_noble_male_travel_outerwear` — a hooded $colour wool travelling burnous
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_maghrebi_noble_court_headwear` — a full-wound $colour silk court turban
+- `earlymodern_maghrebi_noble_jewellery` — a pair of gem-set gold mantle brooches
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 063 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_maghrebi_noble_male_court_garment` — a flowing $colour silk court robe
+- `earlymodern_maghrebi_noble_male_formal_mantle` — a gold-edged $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_maghrebi_noble_jewellery` — a pair of gem-set gold mantle brooches
+- `earlymodern_maghrebi_noble_regalia` — a jewelled gold forehead band
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 064 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_maghrebi_noble_female_court_gown` — a layered $colour silk court gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_maghrebi_noble_jewellery` — a pair of gem-set gold mantle brooches
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 065 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_maghrebi_noble_female_court_gown` — a layered $colour silk court gown
+- `earlymodern_maghrebi_noble_female_travel_outerwear` — a hooded $colour broadcloth outdoor mantle
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_maghrebi_noble_jewellery` — a pair of gem-set gold mantle brooches
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 066 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_maghrebi_noble_female_formal_gown` — an embroidered $colour silk formal gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_maghrebi_noble_jewellery` — a pair of gem-set gold mantle brooches
+- `earlymodern_maghrebi_noble_regalia` — a jewelled gold forehead band
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 12. Safavid / post-Safavid Persianate
+
+> Shahly, princely, gubernatorial, and high Persianate court households, c. 1600-1750; exact dynasty, turban form, and robe-of-honour motifs remain skins.
+
+#### Noble outfit 067 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_persianate_noble_male_court_garment` — a fitted $colour silk flared court coat
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_persianate_noble_court_headwear` — a tall-structured $colour silk court turban
+- `earlymodern_persianate_noble_jewellery` — a gem-set gold sash ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 068 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_persianate_noble_male_court_garment` — a fitted $colour silk flared court coat
+- `earlymodern_persianate_noble_male_travel_outerwear` — a fur-edged $colour wool riding coat
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_persianate_noble_court_headwear` — a tall-structured $colour silk court turban
+- `earlymodern_persianate_noble_jewellery` — a gem-set gold sash ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 069 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_persianate_noble_male_court_garment` — a fitted $colour silk flared court coat
+- `earlymodern_persianate_noble_male_formal_mantle` — a broad-skirted $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_persianate_noble_jewellery` — a gem-set gold sash ornament
+- `earlymodern_persianate_noble_regalia` — a pearl-set gold diadem
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 070 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_persianate_noble_female_court_gown` — a long $colour silk court robe-gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_persianate_noble_jewellery` — a gem-set gold sash ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 071 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_persianate_noble_female_court_gown` — a long $colour silk court robe-gown
+- `earlymodern_persianate_noble_female_travel_outerwear` — a fringed $colour wool travelling mantle
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_persianate_noble_jewellery` — a gem-set gold sash ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 072 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_persianate_noble_female_formal_gown` — a broad-sleeved $colour silk formal gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_persianate_noble_jewellery` — a gem-set gold sash ornament
+- `earlymodern_persianate_noble_regalia` — a pearl-set gold diadem
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 13. Mughal / Indo-Persian
+
+> Imperial, princely, nawabi, and high Indo-Persian court households; exact rank, dynasty, and turban jewels remain skins.
+
+#### Noble outfit 073 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mughal_noble_male_court_garment` — a full-skirted $colour silk court jama
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_mughal_noble_court_headwear` — a fan-crested $colour silk court turban
+- `earlymodern_mughal_noble_jewellery` — a pearl-and-gem gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 074 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mughal_noble_male_court_garment` — a full-skirted $colour silk court jama
+- `earlymodern_mughal_noble_male_travel_outerwear` — a quilted $colour silk riding coat
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_mughal_noble_court_headwear` — a fan-crested $colour silk court turban
+- `earlymodern_mughal_noble_jewellery` — a pearl-and-gem gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 075 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mughal_noble_male_court_garment` — a full-skirted $colour silk court jama
+- `earlymodern_mughal_noble_male_formal_mantle` — a wide $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_mughal_noble_jewellery` — a pearl-and-gem gold court necklace
+- `earlymodern_mughal_noble_regalia` — a jewelled gold turban ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 076 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_mughal_noble_female_court_gown` — a layered $colour silk court gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_mughal_noble_jewellery` — a pearl-and-gem gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 077 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_mughal_noble_female_court_gown` — a layered $colour silk court gown
+- `earlymodern_mughal_noble_female_travel_outerwear` — an embroidered $colour silk travelling cloak
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_mughal_noble_jewellery` — a pearl-and-gem gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 078 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_mughal_noble_female_formal_gown` — a full-panelled $colour silk formal gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_mughal_noble_jewellery` — a pearl-and-gem gold court necklace
+- `earlymodern_mughal_noble_regalia` — a jewelled gold turban ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 14. Maratha / Rajput / Deccan
+
+> Royal, princely, sardari, and high regional court households, c. 1650-1750; narrower polity and local textile admission are mandatory.
+
+#### Noble outfit 079 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_deccan_noble_male_court_garment` — a diagonally tied $colour silk court robe
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_deccan_noble_court_headwear` — a fan-folded $colour silk court turban
+- `earlymodern_deccan_noble_jewellery` — a gem-set gold upper-arm armlet
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 080 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_deccan_noble_male_court_garment` — a diagonally tied $colour silk court robe
+- `earlymodern_deccan_noble_male_travel_outerwear` — a quilted $colour cotton riding coat
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_deccan_noble_court_headwear` — a fan-folded $colour silk court turban
+- `earlymodern_deccan_noble_jewellery` — a gem-set gold upper-arm armlet
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 081 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_deccan_noble_male_court_garment` — a diagonally tied $colour silk court robe
+- `earlymodern_deccan_noble_male_formal_mantle` — a full $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_deccan_noble_jewellery` — a gem-set gold upper-arm armlet
+- `earlymodern_deccan_noble_regalia` — a jewelled gold forehead ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 082 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_deccan_noble_female_court_gown` — a fitted $colour silk bodice-and-skirt gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_deccan_noble_jewellery` — a gem-set gold upper-arm armlet
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 083 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_deccan_noble_female_court_gown` — a fitted $colour silk bodice-and-skirt gown
+- `earlymodern_deccan_noble_female_travel_outerwear` — a broad $colour silk travelling shawl-cloak
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_deccan_noble_jewellery` — a gem-set gold upper-arm armlet
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 084 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_deccan_noble_female_formal_gown` — a panelled $colour silk formal gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_deccan_noble_jewellery` — a gem-set gold upper-arm armlet
+- `earlymodern_deccan_noble_regalia` — a jewelled gold forehead ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 15. South Indian / coastal trade
+
+> Royal, temple-patron, ministerial, and maritime court households; exact court, temple, and regional terms remain builder-facing.
+
+#### Noble outfit 085 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_southindian_noble_male_court_garment` — a long $colour silk side-slit court tunic
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_southindian_noble_court_headwear` — a jewel-bound $colour silk headwrap
+- `earlymodern_southindian_noble_jewellery` — a heavy gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 086 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_southindian_noble_male_court_garment` — a long $colour silk side-slit court tunic
+- `earlymodern_southindian_noble_male_travel_outerwear` — a broad $colour silk travelling shoulder cloak
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_southindian_noble_court_headwear` — a jewel-bound $colour silk headwrap
+- `earlymodern_southindian_noble_jewellery` — a heavy gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 087 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_southindian_noble_male_court_garment` — a long $colour silk side-slit court tunic
+- `earlymodern_southindian_noble_male_formal_mantle` — a gold-bordered $colour silk ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_southindian_noble_court_headwear` — a jewel-bound $colour silk headwrap
+- `earlymodern_southindian_noble_jewellery` — a heavy gold court necklace
+- `earlymodern_southindian_noble_regalia` — a gemmed gold waist ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 088 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_southindian_noble_female_court_gown` — a full $colour silk shoulder-draped court gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_southindian_noble_jewellery` — a heavy gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 089 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_southindian_noble_female_court_gown` — a full $colour silk shoulder-draped court gown
+- `earlymodern_southindian_noble_female_travel_outerwear` — a broad $colour silk travelling shawl
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_southindian_noble_jewellery` — a heavy gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 090 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_southindian_noble_female_formal_gown` — a gold-bordered $colour silk formal gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_southindian_noble_jewellery` — a heavy gold court necklace
+- `earlymodern_southindian_noble_regalia` — a gemmed gold waist ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 16. Qing China
+
+> Imperial, princely, banner-aristocratic, and highest official households, c. 1644-1750; rank badges and dynastic motifs remain skins.
+
+#### Noble outfit 091 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_qing_noble_male_court_garment` — a round-collared $colour silk court robe
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_qing_noble_court_headwear` — a domed $colour velvet court hat
+- `earlymodern_qing_noble_jewellery` — a long jade-and-gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 092 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_qing_noble_male_court_garment` — a round-collared $colour silk court robe
+- `earlymodern_qing_noble_male_travel_outerwear` — a fur-lined $colour silk travelling robe
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_qing_noble_court_headwear` — a domed $colour velvet court hat
+- `earlymodern_qing_noble_jewellery` — a long jade-and-gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 093 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_qing_noble_male_court_garment` — a round-collared $colour silk court robe
+- `earlymodern_qing_noble_male_formal_mantle` — a full $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_qing_noble_jewellery` — a long jade-and-gold court necklace
+- `earlymodern_qing_noble_regalia` — a gem-set gold head ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 094 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_qing_noble_female_court_gown` — a long $colour silk court robe-gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_qing_noble_jewellery` — a long jade-and-gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 095 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_qing_noble_female_court_gown` — a long $colour silk court robe-gown
+- `earlymodern_qing_noble_female_travel_outerwear` — a fur-edged $colour silk travelling cloak
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_qing_noble_jewellery` — a long jade-and-gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 096 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_qing_noble_female_formal_gown` — an embroidered $colour silk formal robe-gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_qing_noble_jewellery` — a long jade-and-gold court necklace
+- `earlymodern_qing_noble_regalia` — a gem-set gold head ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 17. Late Ming survival / transition
+
+> Imperial-remnant, princely, high official, and elite transition households, c. 1600-1650; exact loyalist or successor context must be recorded.
+
+#### Noble outfit 097 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_ming_noble_male_court_garment` — a round-collared $colour silk court robe
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_ming_noble_court_headwear` — a structured black silk court hat
+- `earlymodern_ming_noble_jewellery` — a set of carved jade belt plaques
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 098 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_ming_noble_male_court_garment` — a round-collared $colour silk court robe
+- `earlymodern_ming_noble_male_travel_outerwear` — a straight-collared $colour silk travelling cloak
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_ming_noble_court_headwear` — a structured black silk court hat
+- `earlymodern_ming_noble_jewellery` — a set of carved jade belt plaques
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 099 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_ming_noble_male_court_garment` — a round-collared $colour silk court robe
+- `earlymodern_ming_noble_male_formal_mantle` — a broad-sleeved $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_ming_noble_jewellery` — a set of carved jade belt plaques
+- `earlymodern_ming_noble_regalia` — a chased-gold court diadem
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 100 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_ming_noble_female_court_gown` — a panel-skirted $colour silk court gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_ming_noble_jewellery` — a set of carved jade belt plaques
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 101 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_ming_noble_female_court_gown` — a panel-skirted $colour silk court gown
+- `earlymodern_ming_noble_female_travel_outerwear` — a long $colour silk travelling cloak
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_ming_noble_jewellery` — a set of carved jade belt plaques
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 102 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_ming_noble_female_formal_gown` — a broad-sleeved $colour silk formal gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_ming_noble_jewellery` — a set of carved jade belt plaques
+- `earlymodern_ming_noble_regalia` — a chased-gold court diadem
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 18. Joseon Korea
+
+> Royal, yangban-aristocratic, consort, and highest official households, c. 1600-1750; rank and mourning colours remain skins.
+
+#### Noble outfit 103 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_joseon_noble_male_court_garment` — a broad-sleeved $colour silk court robe
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_joseon_noble_court_headwear` — a tall black horsehair court hat
+- `earlymodern_joseon_noble_jewellery` — a carved jade court pendant
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 104 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_joseon_noble_male_court_garment` — a broad-sleeved $colour silk court robe
+- `earlymodern_joseon_noble_male_travel_outerwear` — a fur-lined $colour silk travelling robe
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_joseon_noble_court_headwear` — a tall black horsehair court hat
+- `earlymodern_joseon_noble_jewellery` — a carved jade court pendant
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 105 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_joseon_noble_male_court_garment` — a broad-sleeved $colour silk court robe
+- `earlymodern_joseon_noble_male_formal_mantle` — a wide $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_joseon_noble_jewellery` — a carved jade court pendant
+- `earlymodern_joseon_noble_regalia` — a chased-gold hair ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 106 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_joseon_noble_female_court_gown` — a short-jacketed $colour silk court gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_joseon_noble_jewellery` — a carved jade court pendant
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 107 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_joseon_noble_female_court_gown` — a short-jacketed $colour silk court gown
+- `earlymodern_joseon_noble_female_travel_outerwear` — a hooded $colour silk travelling cloak
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_joseon_noble_jewellery` — a carved jade court pendant
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 108 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_joseon_noble_female_formal_gown` — a full-skirted $colour silk formal gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_joseon_noble_jewellery` — a carved jade court pendant
+- `earlymodern_joseon_noble_regalia` — a chased-gold hair ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 19. Edo Japan
+
+> Shogunal, daimyo, high court, and great-house dress, c. 1600-1750; crests, house marks, and exact sumptuary textiles remain skins.
+
+#### Noble outfit 109 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_edo_noble_male_court_garment` — a patterned $colour silk court kosode
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_edo_noble_court_headwear` — a tall folded black silk court cap
+- `earlymodern_edo_noble_jewellery` — a chased-gold waist ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 110 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_edo_noble_male_court_garment` — a patterned $colour silk court kosode
+- `earlymodern_edo_noble_male_travel_outerwear` — a lined $colour silk travelling coat
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_edo_noble_court_headwear` — a tall folded black silk court cap
+- `earlymodern_edo_noble_jewellery` — a chased-gold waist ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 111 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_edo_noble_male_court_garment` — a patterned $colour silk court kosode
+- `earlymodern_edo_noble_male_formal_mantle` — a stiff-shouldered $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_edo_noble_court_headwear` — a tall folded black silk court cap
+- `earlymodern_edo_noble_jewellery` — a chased-gold waist ornament
+- `earlymodern_edo_noble_regalia` — a gem-set gold hair comb
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 112 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_edo_noble_female_court_gown` — a layered $colour silk court kosode-gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_edo_noble_jewellery` — a chased-gold waist ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 113 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_edo_noble_female_court_gown` — a layered $colour silk court kosode-gown
+- `earlymodern_edo_noble_female_travel_outerwear` — a hooded $colour silk travelling cloak
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_edo_noble_jewellery` — a chased-gold waist ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 114 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_edo_noble_female_formal_gown` — an embroidered $colour silk formal overgown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_edo_noble_jewellery` — a chased-gold waist ornament
+- `earlymodern_edo_noble_regalia` — a gem-set gold hair comb
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 20. Ryukyu and maritime East Asia
+
+> Royal, princely, tribute-embassy, and highest island court households; rank colours and tribute symbols remain skins.
+
+#### Noble outfit 115 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_ryukyu_noble_male_court_garment` — a broad-sleeved $colour silk island court robe
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_ryukyu_noble_court_headwear` — a structured $colour silk island court cap
+- `earlymodern_ryukyu_noble_jewellery` — a gem-set gold hairpin
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 116 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_ryukyu_noble_male_court_garment` — a broad-sleeved $colour silk island court robe
+- `earlymodern_ryukyu_noble_male_travel_outerwear` — a light $colour silk maritime travelling cloak
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_ryukyu_noble_court_headwear` — a structured $colour silk island court cap
+- `earlymodern_ryukyu_noble_jewellery` — a gem-set gold hairpin
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 117 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_ryukyu_noble_male_court_garment` — a broad-sleeved $colour silk island court robe
+- `earlymodern_ryukyu_noble_male_formal_mantle` — a long $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_ryukyu_noble_court_headwear` — a structured $colour silk island court cap
+- `earlymodern_ryukyu_noble_jewellery` — a gem-set gold hairpin
+- `earlymodern_ryukyu_noble_regalia` — a chased-gold waist ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 118 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_ryukyu_noble_female_court_gown` — a wrapped $colour silk court gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_ryukyu_noble_jewellery` — a gem-set gold hairpin
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 119 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_ryukyu_noble_female_court_gown` — a wrapped $colour silk court gown
+- `earlymodern_ryukyu_noble_female_travel_outerwear` — a light $colour silk travelling mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_ryukyu_noble_jewellery` — a gem-set gold hairpin
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 120 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_ryukyu_noble_female_formal_gown` — a broad-sleeved $colour silk formal gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_ryukyu_noble_jewellery` — a gem-set gold hairpin
+- `earlymodern_ryukyu_noble_regalia` — a chased-gold waist ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 21. Mainland South-east Asian courts
+
+> Royal, princely, ministerial, temple-patron, and highest court households; every use requires a narrower polity and date.
+
+#### Noble outfit 121 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mainlandseasia_noble_male_court_garment` — a long cross-front $colour silk court robe
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_mainlandseasia_noble_court_headwear` — a crown-folded $colour silk court headcloth
+- `earlymodern_mainlandseasia_noble_jewellery` — a pair of gem-set gold upper-arm armlets
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 122 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mainlandseasia_noble_male_court_garment` — a long cross-front $colour silk court robe
+- `earlymodern_mainlandseasia_noble_male_travel_outerwear` — a light $colour silk river-travel cloak
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_mainlandseasia_noble_court_headwear` — a crown-folded $colour silk court headcloth
+- `earlymodern_mainlandseasia_noble_jewellery` — a pair of gem-set gold upper-arm armlets
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 123 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mainlandseasia_noble_male_court_garment` — a long cross-front $colour silk court robe
+- `earlymodern_mainlandseasia_noble_male_formal_mantle` — a gold-bordered $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_mainlandseasia_noble_court_headwear` — a crown-folded $colour silk court headcloth
+- `earlymodern_mainlandseasia_noble_jewellery` — a pair of gem-set gold upper-arm armlets
+- `earlymodern_mainlandseasia_noble_regalia` — a chased-gold waist ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 124 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mainlandseasia_noble_female_court_gown` — a fitted $colour silk court gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_mainlandseasia_noble_jewellery` — a pair of gem-set gold upper-arm armlets
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 125 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mainlandseasia_noble_female_court_gown` — a fitted $colour silk court gown
+- `earlymodern_mainlandseasia_noble_female_travel_outerwear` — a broad $colour silk travelling shawl-cloak
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_mainlandseasia_noble_jewellery` — a pair of gem-set gold upper-arm armlets
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 126 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mainlandseasia_noble_female_formal_gown` — a full-panelled $colour silk formal gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_mainlandseasia_noble_jewellery` — a pair of gem-set gold upper-arm armlets
+- `earlymodern_mainlandseasia_noble_regalia` — a chased-gold waist ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 22. Maritime South-east Asian trade worlds
+
+> Royal, sultanic, princely, port-governor, and merchant-aristocratic households; narrower island or port admission is mandatory.
+
+#### Noble outfit 127 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_maritimeseasia_noble_male_court_garment` — a long $colour silk port-court jacket
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_maritimeseasia_noble_court_headwear` — a jewelled $colour silk folded headcloth
+- `earlymodern_maritimeseasia_noble_jewellery` — a heavy gold pendant necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 128 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_maritimeseasia_noble_male_court_garment` — a long $colour silk port-court jacket
+- `earlymodern_maritimeseasia_noble_male_travel_outerwear` — a light $colour silk rain-travel cloak
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_maritimeseasia_noble_court_headwear` — a jewelled $colour silk folded headcloth
+- `earlymodern_maritimeseasia_noble_jewellery` — a heavy gold pendant necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 129 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_maritimeseasia_noble_male_court_garment` — a long $colour silk port-court jacket
+- `earlymodern_maritimeseasia_noble_male_formal_mantle` — a broad $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_maritimeseasia_noble_court_headwear` — a jewelled $colour silk folded headcloth
+- `earlymodern_maritimeseasia_noble_jewellery` — a heavy gold pendant necklace
+- `earlymodern_maritimeseasia_noble_regalia` — a gemmed gold waist chain
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 130 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_maritimeseasia_noble_female_court_gown` — a tubular-skirted $colour silk court gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_maritimeseasia_noble_jewellery` — a heavy gold pendant necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 131 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_maritimeseasia_noble_female_court_gown` — a tubular-skirted $colour silk court gown
+- `earlymodern_maritimeseasia_noble_female_travel_outerwear` — a fringed $colour silk travelling shoulder cloth
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_maritimeseasia_noble_jewellery` — a heavy gold pendant necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 132 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_maritimeseasia_noble_female_formal_gown` — a panelled $colour silk formal gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_maritimeseasia_noble_jewellery` — a heavy gold pendant necklace
+- `earlymodern_maritimeseasia_noble_regalia` — a gemmed gold waist chain
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 23. Inner Asian / steppe frontier
+
+> Khanly, princely, clan-aristocratic, and diplomatic households; narrower people, ecology, and political setting are required.
+
+#### Noble outfit 133 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_steppe_noble_male_court_garment` — a side-fastened $colour silk court robe
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_steppe_noble_court_headwear` — a tall fur-edged $colour court hat
+- `earlymodern_steppe_noble_jewellery` — a turquoise-set gold neck ring
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 134 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_steppe_noble_male_court_garment` — a side-fastened $colour silk court robe
+- `earlymodern_steppe_noble_male_travel_outerwear` — a deep-furred $colour wool riding coat
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_steppe_noble_court_headwear` — a tall fur-edged $colour court hat
+- `earlymodern_steppe_noble_jewellery` — a turquoise-set gold neck ring
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 135 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_steppe_noble_male_court_garment` — a side-fastened $colour silk court robe
+- `earlymodern_steppe_noble_male_formal_mantle` — a full $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_steppe_noble_court_headwear` — a tall fur-edged $colour court hat
+- `earlymodern_steppe_noble_jewellery` — a turquoise-set gold neck ring
+- `earlymodern_steppe_noble_regalia` — a set of gemmed gold belt plaques
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 136 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_steppe_noble_female_court_gown` — a long $colour silk court robe-gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_steppe_noble_jewellery` — a turquoise-set gold neck ring
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 137 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_steppe_noble_female_court_gown` — a long $colour silk court robe-gown
+- `earlymodern_steppe_noble_female_travel_outerwear` — a fur-lined $colour wool travelling coat
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_steppe_noble_jewellery` — a turquoise-set gold neck ring
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 138 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_trousers` — a pair of fine $colour silk trousers
+- `earlymodern_steppe_noble_female_formal_gown` — a broad $colour silk formal gown
+- `earlymodern_noble_shared_embroidered_slippers` — a pair of embroidered silk court slippers
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_steppe_noble_jewellery` — a turquoise-set gold neck ring
+- `earlymodern_steppe_noble_regalia` — a set of gemmed gold belt plaques
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 24. West African court and Atlantic trade
+
+> Royal, queenly, court-office, merchant-princely, and diplomatic households; every implementation requires a narrower polity and textile context.
+
+#### Noble outfit 139 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_westafrican_noble_male_court_garment` — a broad $colour silk court robe
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_westafrican_noble_court_headwear` — a tall woven $colour silk court cap
+- `earlymodern_westafrican_noble_jewellery` — a heavy gold beadwork necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 140 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_westafrican_noble_male_court_garment` — a broad $colour silk court robe
+- `earlymodern_westafrican_noble_male_travel_outerwear` — a full $colour wool travelling mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_westafrican_noble_court_headwear` — a tall woven $colour silk court cap
+- `earlymodern_westafrican_noble_jewellery` — a heavy gold beadwork necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 141 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_westafrican_noble_male_court_garment` — a broad $colour silk court robe
+- `earlymodern_westafrican_noble_male_formal_mantle` — a wide $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_westafrican_noble_court_headwear` — a tall woven $colour silk court cap
+- `earlymodern_westafrican_noble_jewellery` — a heavy gold beadwork necklace
+- `earlymodern_westafrican_noble_regalia` — a broad chased-gold neck ring
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 142 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_westafrican_noble_female_court_gown` — a layered $colour silk wrapper-gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_westafrican_noble_jewellery` — a heavy gold beadwork necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 143 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_westafrican_noble_female_court_gown` — a layered $colour silk wrapper-gown
+- `earlymodern_westafrican_noble_female_travel_outerwear` — a broad $colour silk travelling shoulder mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_westafrican_noble_jewellery` — a heavy gold beadwork necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 144 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_westafrican_noble_female_formal_gown` — a full-layered $colour silk formal gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_westafrican_noble_jewellery` — a heavy gold beadwork necklace
+- `earlymodern_westafrican_noble_regalia` — a broad chased-gold neck ring
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 25. Kongo / Angola / West Central Africa
+
+> Royal, provincial, Christian-court, diplomatic, and highest household dress; local continuity and imported cloth status must be recorded.
+
+#### Noble outfit 145 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_kongo_noble_male_court_garment` — a long $colour silk court robe
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_kongo_noble_court_headwear` — a crown-folded $colour silk court headcloth
+- `earlymodern_kongo_noble_jewellery` — an ivory-and-gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 146 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_kongo_noble_male_court_garment` — a long $colour silk court robe
+- `earlymodern_kongo_noble_male_travel_outerwear` — a broad $colour wool travelling mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_kongo_noble_court_headwear` — a crown-folded $colour silk court headcloth
+- `earlymodern_kongo_noble_jewellery` — an ivory-and-gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 147 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_kongo_noble_male_court_garment` — a long $colour silk court robe
+- `earlymodern_kongo_noble_male_formal_mantle` — a gold-edged $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_kongo_noble_court_headwear` — a crown-folded $colour silk court headcloth
+- `earlymodern_kongo_noble_jewellery` — an ivory-and-gold court necklace
+- `earlymodern_kongo_noble_regalia` — a chased-gold girdle ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 148 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_kongo_noble_female_court_gown` — a layered $colour silk wrapper-gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_kongo_noble_jewellery` — an ivory-and-gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 149 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_kongo_noble_female_court_gown` — a layered $colour silk wrapper-gown
+- `earlymodern_kongo_noble_female_travel_outerwear` — a full $colour silk travelling mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_kongo_noble_jewellery` — an ivory-and-gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 150 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_kongo_noble_female_formal_gown` — a long $colour velvet formal gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_kongo_noble_jewellery` — an ivory-and-gold court necklace
+- `earlymodern_kongo_noble_regalia` — a chased-gold girdle ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 26. Sahelian / Hausa / Islamic West Africa
+
+> Royal, emirial, scholarly-aristocratic, cavalry-princely, and merchant households; narrower polity and institution are mandatory.
+
+#### Noble outfit 151 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_sahel_noble_male_court_garment` — a broad $colour silk court robe
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_sahel_noble_court_headwear` — a layered $colour silk court turban
+- `earlymodern_sahel_noble_jewellery` — a gem-set gold pendant necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 152 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_sahel_noble_male_court_garment` — a broad $colour silk court robe
+- `earlymodern_sahel_noble_male_travel_outerwear` — a long $colour leather riding cloak
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_sahel_noble_court_headwear` — a layered $colour silk court turban
+- `earlymodern_sahel_noble_jewellery` — a gem-set gold pendant necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 153 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_sahel_noble_male_court_garment` — a broad $colour silk court robe
+- `earlymodern_sahel_noble_male_formal_mantle` — an embroidered $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_sahel_noble_court_headwear` — a layered $colour silk court turban
+- `earlymodern_sahel_noble_jewellery` — a gem-set gold pendant necklace
+- `earlymodern_sahel_noble_regalia` — a pair of chased-gold armlets
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 154 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_sahel_noble_female_court_gown` — a layered $colour silk court gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_sahel_noble_jewellery` — a gem-set gold pendant necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 155 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_sahel_noble_female_court_gown` — a layered $colour silk court gown
+- `earlymodern_sahel_noble_female_travel_outerwear` — a broad $colour wool travelling shawl-cloak
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_sahel_noble_jewellery` — a gem-set gold pendant necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 156 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_sahel_noble_female_formal_gown` — a full $colour silk formal robe-gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_sahel_noble_jewellery` — a gem-set gold pendant necklace
+- `earlymodern_sahel_noble_regalia` — a pair of chased-gold armlets
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 27. Ethiopian / Red Sea
+
+> Royal, provincial, highland aristocratic, church-adjacent court, and Red Sea diplomatic households; exact office and confession remain builder-facing.
+
+#### Noble outfit 157 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_ethiopian_noble_male_court_garment` — a long $colour silk court robe
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_ethiopian_noble_court_headwear` — a gold-edged $colour silk court hood
+- `earlymodern_ethiopian_noble_jewellery` — a filigree gold pendant necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 158 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_ethiopian_noble_male_court_garment` — a long $colour silk court robe
+- `earlymodern_ethiopian_noble_male_travel_outerwear` — a broad $colour leather highland cloak
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_ethiopian_noble_court_headwear` — a gold-edged $colour silk court hood
+- `earlymodern_ethiopian_noble_jewellery` — a filigree gold pendant necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 159 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_ethiopian_noble_male_court_garment` — a long $colour silk court robe
+- `earlymodern_ethiopian_noble_male_formal_mantle` — an embroidered $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_ethiopian_noble_jewellery` — a filigree gold pendant necklace
+- `earlymodern_ethiopian_noble_regalia` — a chased-gold forehead band
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 160 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_ethiopian_noble_female_court_gown` — a full-wrapped $colour silk court gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_ethiopian_noble_jewellery` — a filigree gold pendant necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 161 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_ethiopian_noble_female_court_gown` — a full-wrapped $colour silk court gown
+- `earlymodern_ethiopian_noble_female_travel_outerwear` — a broad $colour wool travelling mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_ethiopian_noble_jewellery` — a filigree gold pendant necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 162 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_ethiopian_noble_female_formal_gown` — a bordered $colour silk formal wrap-gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_ethiopian_noble_jewellery` — a filigree gold pendant necklace
+- `earlymodern_ethiopian_noble_regalia` — a chased-gold forehead band
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 28. Swahili Coast / Indian Ocean Africa
+
+> Sultanic, patrician, merchant-princely, scholarly, and diplomatic port households; narrower town and imported-textile context are required.
+
+#### Noble outfit 163 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_swahili_noble_male_court_garment` — a long $colour silk coastal court robe
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_swahili_noble_court_headwear` — an embroidered $colour silk court cap
+- `earlymodern_swahili_noble_jewellery` — a pearl-and-gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 164 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_swahili_noble_male_court_garment` — a long $colour silk coastal court robe
+- `earlymodern_swahili_noble_male_travel_outerwear` — a light $colour silk travelling coat
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_swahili_noble_court_headwear` — an embroidered $colour silk court cap
+- `earlymodern_swahili_noble_jewellery` — a pearl-and-gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 165 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_swahili_noble_male_court_garment` — a long $colour silk coastal court robe
+- `earlymodern_swahili_noble_male_formal_mantle` — a broad $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_swahili_noble_court_headwear` — an embroidered $colour silk court cap
+- `earlymodern_swahili_noble_jewellery` — a pearl-and-gold court necklace
+- `earlymodern_swahili_noble_regalia` — a fine gold waist chain
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 166 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_swahili_noble_female_court_gown` — a wrapped $colour silk court gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_swahili_noble_jewellery` — a pearl-and-gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 167 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_swahili_noble_female_court_gown` — a wrapped $colour silk court gown
+- `earlymodern_swahili_noble_female_travel_outerwear` — a fringed $colour silk travelling shawl
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_swahili_noble_jewellery` — a pearl-and-gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 168 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_swahili_noble_female_formal_gown` — a layered $colour silk formal gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_swahili_noble_jewellery` — a pearl-and-gold court necklace
+- `earlymodern_swahili_noble_regalia` — a fine gold waist chain
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 29. Spanish colonial Americas
+
+> Viceregal, gubernatorial, titled, Indigenous-noble, and high urban court settings; every outfit must record region, community, and adoption status.
+
+#### Noble outfit 169 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_spanishcolonial_noble_male_court_garment` — an embroidered $colour silk colonial court coat
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_spanishcolonial_noble_court_headwear` — a plumed $colour felt court hat
+- `earlymodern_spanishcolonial_noble_jewellery` — a gem-set gold collar chain
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 170 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_spanishcolonial_noble_male_court_garment` — an embroidered $colour silk colonial court coat
+- `earlymodern_spanishcolonial_noble_male_travel_outerwear` — a full $colour broadcloth riding cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_spanishcolonial_noble_court_headwear` — a plumed $colour felt court hat
+- `earlymodern_spanishcolonial_noble_jewellery` — a gem-set gold collar chain
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 171 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_spanishcolonial_noble_male_court_garment` — an embroidered $colour silk colonial court coat
+- `earlymodern_spanishcolonial_noble_male_formal_mantle` — a gold-edged $colour velvet viceregal mantle
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_spanishcolonial_noble_jewellery` — a gem-set gold collar chain
+- `earlymodern_spanishcolonial_noble_regalia` — a pearl-set gold coronet
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 172 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_spanishcolonial_noble_female_court_gown` — a fitted $colour silk colonial court gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_spanishcolonial_noble_jewellery` — a gem-set gold collar chain
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 173 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_spanishcolonial_noble_female_court_gown` — a fitted $colour silk colonial court gown
+- `earlymodern_spanishcolonial_noble_female_travel_outerwear` — a hooded $colour velvet travelling cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_spanishcolonial_noble_jewellery` — a gem-set gold collar chain
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 174 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_spanishcolonial_noble_female_formal_gown` — a wide-skirted $colour silk formal gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_spanishcolonial_noble_jewellery` — a gem-set gold collar chain
+- `earlymodern_spanishcolonial_noble_regalia` — a pearl-set gold coronet
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 30. Portuguese Brazil / Atlantic plantation
+
+> Gubernatorial, titled, plantation-zone elite, Indigenous-allied, and African-descended high-status settings; clothing never determines legal identity.
+
+#### Noble outfit 175 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_brazil_noble_male_court_garment` — a light embroidered $colour silk court coat
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_brazil_noble_court_headwear` — a broad $colour felt sun hat
+- `earlymodern_brazil_noble_jewellery` — a pearl-and-gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 176 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_brazil_noble_male_court_garment` — a light embroidered $colour silk court coat
+- `earlymodern_brazil_noble_male_travel_outerwear` — a broad $colour cotton riding cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_brazil_noble_court_headwear` — a broad $colour felt sun hat
+- `earlymodern_brazil_noble_jewellery` — a pearl-and-gold court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 177 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_brazil_noble_male_court_garment` — a light embroidered $colour silk court coat
+- `earlymodern_brazil_noble_male_formal_mantle` — a gold-edged $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_brazil_noble_court_headwear` — a broad $colour felt sun hat
+- `earlymodern_brazil_noble_jewellery` — a pearl-and-gold court necklace
+- `earlymodern_brazil_noble_regalia` — a heavy gold chain of office
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 178 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_brazil_noble_female_court_gown` — a light $colour silk court gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_brazil_noble_jewellery` — a pearl-and-gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 179 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_brazil_noble_female_court_gown` — a light $colour silk court gown
+- `earlymodern_brazil_noble_female_travel_outerwear` — a hooded $colour silk travelling mantle
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_brazil_noble_jewellery` — a pearl-and-gold court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 180 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_brazil_noble_female_formal_gown` — a pearl-trimmed $colour silk formal gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_brazil_noble_jewellery` — a pearl-and-gold court necklace
+- `earlymodern_brazil_noble_regalia` — a heavy gold chain of office
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 31. English / French / Dutch colonial North America
+
+> Gubernatorial, proprietary, seigneurial, great-merchant, and diplomatic households; imported, local, and Indigenous-derived forms require explicit admission.
+
+#### Noble outfit 181 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_colonialnorthamerica_noble_male_court_garment` — a long embroidered $colour court coat
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_colonialnorthamerica_noble_court_headwear` — a feathered $colour felt cocked hat
+- `earlymodern_colonialnorthamerica_noble_jewellery` — a gem-set silver breast brooch
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 182 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_colonialnorthamerica_noble_male_court_garment` — a long embroidered $colour court coat
+- `earlymodern_colonialnorthamerica_noble_male_travel_outerwear` — a heavy $colour broadcloth riding cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_colonialnorthamerica_noble_court_headwear` — a feathered $colour felt cocked hat
+- `earlymodern_colonialnorthamerica_noble_jewellery` — a gem-set silver breast brooch
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 183 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_colonialnorthamerica_noble_male_court_garment` — a long embroidered $colour court coat
+- `earlymodern_colonialnorthamerica_noble_male_formal_mantle` — a fur-edged $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_colonialnorthamerica_noble_court_headwear` — a feathered $colour felt cocked hat
+- `earlymodern_colonialnorthamerica_noble_jewellery` — a gem-set silver breast brooch
+- `earlymodern_colonialnorthamerica_noble_regalia` — a heavy gold chain of office
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 184 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_colonialnorthamerica_noble_female_court_gown` — a fitted $colour silk court gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_colonialnorthamerica_noble_jewellery` — a gem-set silver breast brooch
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 185 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_colonialnorthamerica_noble_female_court_gown` — a fitted $colour silk court gown
+- `earlymodern_colonialnorthamerica_noble_female_travel_outerwear` — a hooded $colour broadcloth travelling cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_colonialnorthamerica_noble_jewellery` — a gem-set silver breast brooch
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 186 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_colonialnorthamerica_noble_female_formal_gown` — a long-trained $colour silk formal gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_colonialnorthamerica_noble_jewellery` — a gem-set silver breast brooch
+- `earlymodern_colonialnorthamerica_noble_regalia` — a heavy gold chain of office
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 32. Indigenous North American regional families
+
+> A broad placeholder for hereditary leaders, clan authorities, diplomatic envoys, and high-status households. Every use requires a specific people, ecology, season, and contact history.
+
+#### Noble outfit 187 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_fine_hide_leggings` — a pair of finely dressed hide leggings
+- `earlymodern_northamerican_noble_male_court_garment` — a tailored $colour wool trade-cloth court coat
+- `earlymodern_noble_shared_soft_hide_moccasins` — a pair of finely worked hide moccasins
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_northamerican_noble_court_headwear` — a broad feather-and-shell headband
+- `earlymodern_northamerican_noble_jewellery` — a long shell-bead prestige necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 188 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_fine_hide_leggings` — a pair of finely dressed hide leggings
+- `earlymodern_northamerican_noble_male_court_garment` — a tailored $colour wool trade-cloth court coat
+- `earlymodern_northamerican_noble_male_travel_outerwear` — a broad fur-lined $colour travelling robe
+- `earlymodern_noble_shared_soft_hide_moccasins` — a pair of finely worked hide moccasins
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_northamerican_noble_court_headwear` — a broad feather-and-shell headband
+- `earlymodern_northamerican_noble_jewellery` — a long shell-bead prestige necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 189 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_fine_hide_leggings` — a pair of finely dressed hide leggings
+- `earlymodern_northamerican_noble_male_court_garment` — a tailored $colour wool trade-cloth court coat
+- `earlymodern_northamerican_noble_male_formal_mantle` — a decorated $colour wool diplomatic mantle
+- `earlymodern_noble_shared_soft_hide_moccasins` — a pair of finely worked hide moccasins
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_northamerican_noble_court_headwear` — a broad feather-and-shell headband
+- `earlymodern_northamerican_noble_jewellery` — a long shell-bead prestige necklace
+- `earlymodern_northamerican_noble_regalia` — a broad polished-silver neck plate
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 190 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_fine_wool_wrap_lower` — a fine $colour wool wrap skirt
+- `earlymodern_northamerican_noble_female_court_gown` — a full $colour wool trade-cloth wrap dress
+- `earlymodern_noble_shared_soft_hide_moccasins` — a pair of finely worked hide moccasins
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_northamerican_noble_jewellery` — a long shell-bead prestige necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 191 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_fine_wool_wrap_lower` — a fine $colour wool wrap skirt
+- `earlymodern_northamerican_noble_female_court_gown` — a full $colour wool trade-cloth wrap dress
+- `earlymodern_northamerican_noble_female_travel_outerwear` — a broad fur-lined $colour travelling robe
+- `earlymodern_noble_shared_soft_hide_moccasins` — a pair of finely worked hide moccasins
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_northamerican_noble_jewellery` — a long shell-bead prestige necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 192 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_fine_wool_wrap_lower` — a fine $colour wool wrap skirt
+- `earlymodern_northamerican_noble_female_formal_gown` — a decorated $colour leather formal dress
+- `earlymodern_noble_shared_soft_hide_moccasins` — a pair of finely worked hide moccasins
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_northamerican_noble_jewellery` — a long shell-bead prestige necklace
+- `earlymodern_northamerican_noble_regalia` — a broad polished-silver neck plate
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 33. Mesoamerican colonial and Indigenous
+
+> Indigenous royal, cacique, municipal-noble, colonial court, and high household settings; local continuity, imposed forms, and genuine hybrids must be distinguished.
+
+#### Noble outfit 193 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mesoamerican_noble_male_court_garment` — a long embroidered $colour cotton court tunic
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_mesoamerican_noble_court_headwear` — a close-woven $colour court cap
+- `earlymodern_mesoamerican_noble_jewellery` — a gold-and-jade court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 194 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mesoamerican_noble_male_court_garment` — a long embroidered $colour cotton court tunic
+- `earlymodern_mesoamerican_noble_male_travel_outerwear` — a broad $colour wool travelling mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_mesoamerican_noble_court_headwear` — a close-woven $colour court cap
+- `earlymodern_mesoamerican_noble_jewellery` — a gold-and-jade court necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 195 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_loin_drawers` — a pair of fine $colour cotton loin drawers
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mesoamerican_noble_male_court_garment` — a long embroidered $colour cotton court tunic
+- `earlymodern_mesoamerican_noble_male_formal_mantle` — a gold-bordered $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_mesoamerican_noble_jewellery` — a gold-and-jade court necklace
+- `earlymodern_mesoamerican_noble_regalia` — a gem-set gold forehead ornament
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 196 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mesoamerican_noble_female_court_gown` — an embroidered $colour cotton court gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_mesoamerican_noble_jewellery` — a gold-and-jade court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 197 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mesoamerican_noble_female_court_gown` — an embroidered $colour cotton court gown
+- `earlymodern_mesoamerican_noble_female_travel_outerwear` — a broad $colour wool travelling mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_mesoamerican_noble_jewellery` — a gold-and-jade court necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 198 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_silk_waistcloth` — a long fine $colour silk waistcloth
+- `earlymodern_mesoamerican_noble_female_formal_gown` — a panelled $colour silk formal gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_mesoamerican_noble_jewellery` — a gold-and-jade court necklace
+- `earlymodern_mesoamerican_noble_regalia` — a gem-set gold forehead ornament
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 34. Andean colonial and Indigenous
+
+> Indigenous royal-descended, kuraka, colonial-noble, municipal, and highest household settings; community, altitude, season, and contact status are mandatory.
+
+#### Noble outfit 199 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_fine_wool_wrap_lower` — a fine $colour wool wrap skirt
+- `earlymodern_andean_noble_male_court_garment` — a fine tapestry-woven $colour wool court tunic
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_andean_noble_court_headwear` — a finely woven $colour royal headband
+- `earlymodern_andean_noble_jewellery` — a broad chased-gold pectoral necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 200 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_fine_wool_wrap_lower` — a fine $colour wool wrap skirt
+- `earlymodern_andean_noble_male_court_garment` — a fine tapestry-woven $colour wool court tunic
+- `earlymodern_andean_noble_male_travel_outerwear` — a long fringed $colour wool travelling mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_andean_noble_court_headwear` — a finely woven $colour royal headband
+- `earlymodern_andean_noble_jewellery` — a broad chased-gold pectoral necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 201 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_cotton_inner_tunic` — a fine $colour cotton inner tunic
+- `earlymodern_noble_shared_fine_wool_wrap_lower` — a fine $colour wool wrap skirt
+- `earlymodern_andean_noble_male_court_garment` — a fine tapestry-woven $colour wool court tunic
+- `earlymodern_andean_noble_male_formal_mantle` — a broad tapestry-woven $colour ceremonial mantle
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_andean_noble_jewellery` — a broad chased-gold pectoral necklace
+- `earlymodern_andean_noble_regalia` — a narrow chased-gold diadem
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 202 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_fine_wool_wrap_lower` — a fine $colour wool wrap skirt
+- `earlymodern_andean_noble_female_court_gown` — a wrapped full-length $colour wool court gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_andean_noble_jewellery` — a broad chased-gold pectoral necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 203 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_fine_wool_wrap_lower` — a fine $colour wool wrap skirt
+- `earlymodern_andean_noble_female_court_gown` — a wrapped full-length $colour wool court gown
+- `earlymodern_andean_noble_female_travel_outerwear` — a broad fringed $colour wool travelling shawl
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_andean_noble_jewellery` — a broad chased-gold pectoral necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 204 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_silk_inner_robe` — a fine $colour silk inner robe
+- `earlymodern_noble_shared_fine_wool_wrap_lower` — a fine $colour wool wrap skirt
+- `earlymodern_andean_noble_female_formal_gown` — a tapestry-woven $colour formal wrap-gown
+- `earlymodern_noble_shared_fine_leather_sandals` — a pair of finely worked leather sandals
+- `earlymodern_andean_noble_jewellery` — a broad chased-gold pectoral necklace
+- `earlymodern_andean_noble_regalia` — a narrow chased-gold diadem
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 35. Caribbean / Atlantic plantation
+
+> Colonial governor, planter-aristocratic, free port elite, African-descended, and Indigenous high-status contexts; clothing never encodes enslavement, freedom, or ethnicity.
+
+#### Noble outfit 205 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_caribbean_noble_male_court_garment` — a light embroidered $colour silk court coat
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_caribbean_noble_court_headwear` — a broad $colour felt sun hat
+- `earlymodern_caribbean_noble_jewellery` — a pearl-and-gold prestige necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 206 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_caribbean_noble_male_court_garment` — a light embroidered $colour silk court coat
+- `earlymodern_caribbean_noble_male_travel_outerwear` — a loose $colour cotton travelling cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_caribbean_noble_court_headwear` — a broad $colour felt sun hat
+- `earlymodern_caribbean_noble_jewellery` — a pearl-and-gold prestige necklace
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 207 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_caribbean_noble_male_court_garment` — a light embroidered $colour silk court coat
+- `earlymodern_caribbean_noble_male_formal_mantle` — a gold-edged $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_caribbean_noble_court_headwear` — a broad $colour felt sun hat
+- `earlymodern_caribbean_noble_jewellery` — a pearl-and-gold prestige necklace
+- `earlymodern_caribbean_noble_regalia` — a heavy gold chain of office
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 208 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_caribbean_noble_female_court_gown` — a light $colour silk court gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_caribbean_noble_jewellery` — a pearl-and-gold prestige necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 209 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_caribbean_noble_female_court_gown` — a light $colour silk court gown
+- `earlymodern_caribbean_noble_female_travel_outerwear` — a broad $colour silk travelling mantle
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_caribbean_noble_jewellery` — a pearl-and-gold prestige necklace
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 210 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_caribbean_noble_female_formal_gown` — a pearl-trimmed $colour silk formal gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_caribbean_noble_jewellery` — a pearl-and-gold prestige necklace
+- `earlymodern_caribbean_noble_regalia` — a heavy gold chain of office
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+### 36. Global maritime and chartered-company trade
+
+> Company-director, admiralty, governor, ambassadorial, and great-merchant households across maritime networks; exact company, ship, port, and rank are skins.
+
+#### Noble outfit 211 — male everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, meals, councils, and routine elite sociability.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_globalmaritime_noble_male_court_garment` — a gold-laced $colour silk command coat
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_globalmaritime_noble_court_headwear` — a feathered $colour felt command hat
+- `earlymodern_globalmaritime_noble_jewellery` — a gem-set gold command brooch
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+- `earlymodern_noble_jewellery_pearl_necklace` — a lustrous graduated pearl necklace
+
+#### Noble outfit 212 — male outdoor or travel attire
+
+*Design focus:* A high-status riding, procession, hunting, diplomatic, or long-distance ensemble with practical outerwear.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_globalmaritime_noble_male_court_garment` — a gold-laced $colour silk command coat
+- `earlymodern_globalmaritime_noble_male_travel_outerwear` — a long $colour broadcloth sea-travel cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_globalmaritime_noble_court_headwear` — a feathered $colour felt command hat
+- `earlymodern_globalmaritime_noble_jewellery` — a gem-set gold command brooch
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 213 — male formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_drawers` — a pair of fine $colour linen drawers
+- `earlymodern_noble_shared_fine_linen_shirt` — a fine $colour linen court shirt
+- `earlymodern_noble_shared_silk_knee_breeches` — a pair of fine $colour silk knee breeches
+- `earlymodern_noble_shared_silk_stockings` — a pair of fine $colour silk stockings
+- `earlymodern_globalmaritime_noble_male_court_garment` — a gold-laced $colour silk command coat
+- `earlymodern_globalmaritime_noble_male_formal_mantle` — a gold-edged $colour velvet ceremonial mantle
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_fine_silk_sash` — a broad fine $colour silk sash
+- `earlymodern_globalmaritime_noble_court_headwear` — a feathered $colour felt command hat
+- `earlymodern_globalmaritime_noble_jewellery` — a gem-set gold command brooch
+- `earlymodern_globalmaritime_noble_regalia` — a heavy gold charter chain
+- `earlymodern_noble_jewellery_gold_signet_ring` — a deeply engraved gold signet ring
+
+#### Noble outfit 214 — female everyday courtly wear
+
+*Design focus:* A complete household-court ensemble for audiences, household government, learned or devotional sociability, and daily elite display.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_globalmaritime_noble_female_court_gown` — a fitted $colour silk director-household gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_globalmaritime_noble_jewellery` — a gem-set gold command brooch
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 215 — female outdoor or travel attire
+
+*Design focus:* A high-status procession, carriage, riding, pilgrimage, diplomatic, or estate-travel ensemble with protective outerwear.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_globalmaritime_noble_female_court_gown` — a fitted $colour silk director-household gown
+- `earlymodern_globalmaritime_noble_female_travel_outerwear` — a hooded $colour broadcloth sea-travel cloak
+- `earlymodern_noble_shared_high_riding_boots` — a pair of polished high riding boots
+- `earlymodern_noble_shared_dress_gloves` — a pair of fine $colour dress gloves
+- `earlymodern_noble_shared_lace_head_veil` — a fine $colour lace head veil
+- `earlymodern_globalmaritime_noble_jewellery` — a gem-set gold command brooch
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+#### Noble outfit 216 — female formal or state-occasion dress
+
+*Design focus:* An ostentatious ensemble for enthronement, marriage diplomacy, embassy, dynastic ceremony, great festival, or the most formal court appearance.
+
+- `earlymodern_noble_shared_fine_linen_shift` — a fine long $colour linen shift
+- `earlymodern_noble_shared_silk_faced_stays` — a pair of silk-faced $colour stays
+- `earlymodern_noble_shared_silk_petticoat` — a full fine $colour silk petticoat
+- `earlymodern_globalmaritime_noble_female_formal_gown` — a long-trained $colour silk formal gown
+- `earlymodern_noble_shared_buckled_court_shoes` — a pair of fine buckled court shoes
+- `earlymodern_noble_jewellery_hair_ornament` — a gem-set gold hair ornament
+- `earlymodern_globalmaritime_noble_jewellery` — a gem-set gold command brooch
+- `earlymodern_globalmaritime_noble_regalia` — a heavy gold charter chain
+- `earlymodern_noble_jewellery_gem_earrings` — a pair of gem-set gold earrings
+- `earlymodern_noble_jewellery_gold_bracelets` — a pair of chased gold bracelets
+
+
+## Noble clothing, jewellery, and regalia catalogue
+
+All rows below are new Early Modern prototypes. Full descriptions remain deferred. The shared authoring contract defined above applies: portable, skinnable, player-visible, one wearable profile, exact variable component, no morph or destroyed-item link, and farthing-denominated cost. Jewellery is intentionally inert apart from wear behaviour, except for the functional noble signet ring, which uses the existing seal-stamp component.
+
+### 1. Shared noble foundations and jewellery — 27
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_noble_shared_fine_linen_drawers` | a pair of fine $colour linen drawers | `drawers` | `linen` | `Small` / `Great` | 160g / 120.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shorts`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 36 noble/court outfit(s). |
+| `earlymodern_noble_shared_fine_linen_shirt` | a fine $colour linen court shirt | `shirt` | `linen` | `Normal` / `Great` | 360g / 220.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 36 noble/court outfit(s). |
+| `earlymodern_noble_shared_fine_cotton_loin_drawers` | a pair of fine $colour cotton loin drawers | `drawers` | `cotton` | `Small` / `Great` | 150g / 110.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shorts`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 27 noble/court outfit(s). |
+| `earlymodern_noble_shared_fine_cotton_inner_tunic` | a fine $colour cotton inner tunic | `tunic` | `cotton` | `Normal` / `Great` | 420g / 260.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Tunic`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 57 noble/court outfit(s). |
+| `earlymodern_noble_shared_fine_silk_inner_robe` | a fine $colour silk inner robe | `robe` | `silk` | `Normal` / `Great` | 620g / 540.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 87 noble/court outfit(s). |
+| `earlymodern_noble_shared_fine_linen_shift` | a fine long $colour linen shift | `shift` | `linen` | `Normal` / `Great` | 620g / 300.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long-Sleeved_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 36 noble/court outfit(s). |
+| `earlymodern_noble_shared_silk_faced_stays` | a pair of silk-faced $colour stays | `stays` | `silk` | `Normal` / `Great` | 760g / 620.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Stays`<br>`Armour_HeavyClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 36 noble/court outfit(s). |
+| `earlymodern_noble_shared_silk_knee_breeches` | a pair of fine $colour silk knee breeches | `breeches` | `silk` | `Normal` / `Great` | 520g / 460.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Breeches`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 36 noble/court outfit(s). |
+| `earlymodern_noble_shared_silk_trousers` | a pair of fine $colour silk trousers | `trousers` | `silk` | `Normal` / `Great` | 500g / 440.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Trousers`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 51 noble/court outfit(s). |
+| `earlymodern_noble_shared_silk_petticoat` | a full fine $colour silk petticoat | `petticoat` | `silk` | `Normal` / `Great` | 620g / 500.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 60 noble/court outfit(s). |
+| `earlymodern_noble_shared_silk_waistcloth` | a long fine $colour silk waistcloth | `waistcloth` | `silk` | `Normal` / `Great` | 500g / 430.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 57 noble/court outfit(s). |
+| `earlymodern_noble_shared_fine_wool_wrap_lower` | a fine $colour wool wrap skirt | `skirt` | `wool` | `Normal` / `Great` | 720g / 360.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Long_Skirt`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 9 noble/court outfit(s). |
+| `earlymodern_noble_shared_fine_hide_leggings` | a pair of finely dressed hide leggings | `leggings` | `leather` | `Normal` / `Great` | 620g / 380.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Leggings`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 3 noble/court outfit(s). |
+| `earlymodern_noble_shared_silk_stockings` | a pair of fine $colour silk stockings | `stockings` | `silk` | `Small` / `Great` | 230g / 320.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Stockings`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 36 noble/court outfit(s). |
+| `earlymodern_noble_shared_buckled_court_shoes` | a pair of fine buckled court shoes | `shoes` | `leather` | `Small` / `Great` | 720g / 420.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 48 noble/court outfit(s). |
+| `earlymodern_noble_shared_embroidered_slippers` | a pair of embroidered silk court slippers | `slippers` | `silk` | `Small` / `Great` | 420g / 380.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 66 noble/court outfit(s). |
+| `earlymodern_noble_shared_high_riding_boots` | a pair of polished high riding boots | `boots` | `leather` | `Normal` / `Great` | 1650g / 620.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Boots`<br>`Armour_LightClothing`<br>`Insulation_Moderate` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 36 noble/court outfit(s). |
+| `earlymodern_noble_shared_fine_leather_sandals` | a pair of finely worked leather sandals | `sandals` | `leather` | `Small` / `Great` | 440g / 260.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sandals`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 60 noble/court outfit(s). |
+| `earlymodern_noble_shared_soft_hide_moccasins` | a pair of finely worked hide moccasins | `moccasins` | `leather` | `Small` / `Great` | 560g / 300.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 6 noble/court outfit(s). |
+| `earlymodern_noble_shared_dress_gloves` | a pair of fine $colour dress gloves | `gloves` | `leather` | `Small` / `Great` | 240g / 300.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gloves`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 72 noble/court outfit(s). |
+| `earlymodern_noble_shared_fine_silk_sash` | a broad fine $colour silk sash | `sash` | `silk` | `Small` / `Great` | 260g / 340.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Sash`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 72 noble/court outfit(s). |
+| `earlymodern_noble_shared_lace_head_veil` | a fine $colour lace head veil | `veil` | `lace` | `Small` / `Great` | 90g / 360.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Head_Veil`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | Shared highest-echelon foundation or jewellery prototype. Used in 34 noble/court outfit(s). |
+| `earlymodern_noble_jewellery_gold_signet_ring` | a deeply engraved gold signet ring | `ring` | `gold` | `Tiny` / `Excellent` | 24g / 1800.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Ring`<br>`SealStamp_Medieval_NobleSignetRing` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Noble Jewellery` | Shared highest-echelon foundation or jewellery prototype. Used in 108 noble/court outfit(s). |
+| `earlymodern_noble_jewellery_pearl_necklace` | a lustrous graduated pearl necklace | `necklace` | `pearl` | `VerySmall` / `Excellent` | 95g / 2600.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | Shared highest-echelon foundation or jewellery prototype. Used in 19 noble/court outfit(s). |
+| `earlymodern_noble_jewellery_gem_earrings` | a pair of gem-set gold earrings | `earrings` | `gold` | `Tiny` / `Excellent` | 32g / 2200.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Earrings` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Noble Jewellery` | Shared highest-echelon foundation or jewellery prototype. Used in 108 noble/court outfit(s). |
+| `earlymodern_noble_jewellery_gold_bracelets` | a pair of chased gold bracelets | `bracelets` | `gold` | `VerySmall` / `Excellent` | 180g / 2400.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Bracelets` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Noble Jewellery` | Shared highest-echelon foundation or jewellery prototype. Used in 108 noble/court outfit(s). |
+| `earlymodern_noble_jewellery_hair_ornament` | a gem-set gold hair ornament | `ornament` | `gold` | `VerySmall` / `Excellent` | 85g / 2000.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Hair_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Noble Jewellery` | Shared highest-echelon foundation or jewellery prototype. Used in 53 noble/court outfit(s). |
+
+### 2. French / Baroque court and urban — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_french_noble_male_court_garment` | an embroidered $colour silk court coat | `coat` | `silk` | `Normal` / `Great` | 857g / 1028.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for French / Baroque court and urban; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_french_noble_male_travel_outerwear` | a fur-lined $colour broadcloth riding cloak | `cloak` | `broadcloth` | `Normal` / `Great` | 1258g / 1120.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for French / Baroque court and urban; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_french_noble_male_formal_mantle` | a sweeping $colour velvet state mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1057g / 2635.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for French / Baroque court and urban; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_french_noble_female_court_gown` | a finely draped $colour silk mantua gown | `gown` | `silk` | `Normal` / `Great` | 1127g / 1280.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for French / Baroque court and urban; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_french_noble_female_travel_outerwear` | a hooded $colour velvet travelling cloak | `cloak` | `velvet` | `Normal` / `Great` | 1258g / 1120.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for French / Baroque court and urban; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_french_noble_female_formal_gown` | a trained $colour silk court gown | `gown` | `silk` | `Normal` / `Excellent` | 1127g / 3030.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for French / Baroque court and urban; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_french_noble_court_headwear` | a plumed $colour felt court hat | `hat` | `felt` | `Small` / `Great` | 232g / 712.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for French / Baroque court and urban; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_french_noble_jewellery` | a gem-set gold cravat brooch | `brooch` | `gold` | `VerySmall` / `Excellent` | 93g / 2245.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Brooch` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for French / Baroque court and urban. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_french_noble_regalia` | a pearl-set gold coronet | `coronet` | `gold` | `Small` / `Excellent` | 225g / 3645.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Coronet` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Coronets`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for French / Baroque court and urban. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 3. Dutch Republic / Low Countries — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_dutch_noble_male_court_garment` | a restrained $colour silk court coat | `coat` | `silk` | `Normal` / `Great` | 864g / 1056.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Dutch Republic / Low Countries; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_dutch_noble_male_travel_outerwear` | a weathered-fur lined $colour riding cloak | `cloak` | `broadcloth` | `Normal` / `Great` | 1266g / 1140.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Dutch Republic / Low Countries; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_dutch_noble_male_formal_mantle` | a broad black velvet civic mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1064g / 2670.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Dutch Republic / Low Countries; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_dutch_noble_female_court_gown` | a high-waisted $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1134g / 1310.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Dutch Republic / Low Countries; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_dutch_noble_female_travel_outerwear` | a hooded $colour wool travelling cloak | `cloak` | `wool` | `Normal` / `Great` | 1266g / 1140.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Dutch Republic / Low Countries; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_dutch_noble_female_formal_gown` | a pearl-trimmed $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1134g / 3060.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Dutch Republic / Low Countries; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_dutch_noble_court_headwear` | a broad-crowned $colour felt court hat | `hat` | `felt` | `Small` / `Great` | 234g / 724.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Dutch Republic / Low Countries; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_dutch_noble_jewellery` | a heavy gold civic neck chain | `chain` | `gold` | `Small` / `Excellent` | 230g / 2290.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Neck_Ring` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Dutch Republic / Low Countries. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_dutch_noble_regalia` | a pearl-set gold diadem | `diadem` | `gold` | `Small` / `Excellent` | 230g / 3690.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Diadem` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Diadems`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Dutch Republic / Low Countries. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 4. English / British Stuart-Georgian — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_british_noble_male_court_garment` | an embroidered $colour silk court coat | `coat` | `silk` | `Normal` / `Great` | 871g / 1084.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / British Stuart-Georgian; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_british_noble_male_travel_outerwear` | a long $colour broadcloth riding greatcloak | `cloak` | `broadcloth` | `Normal` / `Great` | 1274g / 1160.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / British Stuart-Georgian; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_british_noble_male_formal_mantle` | a fur-edged $colour velvet state mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1071g / 2705.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / British Stuart-Georgian; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_british_noble_female_court_gown` | a fitted $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1141g / 1340.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / British Stuart-Georgian; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_british_noble_female_travel_outerwear` | a hooded $colour broadcloth riding cloak | `cloak` | `broadcloth` | `Normal` / `Great` | 1274g / 1160.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / British Stuart-Georgian; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_british_noble_female_formal_gown` | a long-trained $colour silk court gown | `gown` | `silk` | `Normal` / `Excellent` | 1141g / 3090.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / British Stuart-Georgian; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_british_noble_court_headwear` | a feathered $colour felt cocked hat | `hat` | `felt` | `Small` / `Great` | 236g / 736.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / British Stuart-Georgian; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_british_noble_jewellery` | a diamond-set gold breast brooch | `brooch` | `gold` | `VerySmall` / `Excellent` | 99g / 2335.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Brooch` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for English / British Stuart-Georgian. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_british_noble_regalia` | a gem-set gold coronet | `coronet` | `gold` | `Small` / `Excellent` | 235g / 3735.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Coronet` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Coronets`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for English / British Stuart-Georgian. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 5. Iberian / Portuguese-Spanish empires — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_iberian_noble_male_court_garment` | a dark $colour silk court doublet-coat | `coat` | `silk` | `Normal` / `Great` | 878g / 1112.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Iberian / Portuguese-Spanish empires; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_iberian_noble_male_travel_outerwear` | a full $colour broadcloth riding cape | `cape` | `broadcloth` | `Normal` / `Great` | 1282g / 1180.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Iberian / Portuguese-Spanish empires; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_iberian_noble_male_formal_mantle` | a gold-guarded $colour velvet state mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1078g / 2740.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Iberian / Portuguese-Spanish empires; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_iberian_noble_female_court_gown` | a stiff-bodied $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1148g / 1370.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Iberian / Portuguese-Spanish empires; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_iberian_noble_female_travel_outerwear` | a long hooded $colour velvet mantle | `mantle` | `velvet` | `Normal` / `Great` | 1282g / 1180.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Iberian / Portuguese-Spanish empires; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_iberian_noble_female_formal_gown` | a wide-skirted $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1148g / 3120.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Iberian / Portuguese-Spanish empires; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_iberian_noble_court_headwear` | a broad $colour felt court hat | `hat` | `felt` | `Small` / `Great` | 238g / 748.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Iberian / Portuguese-Spanish empires; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_iberian_noble_jewellery` | a gem-set gold collar chain | `chain` | `gold` | `Small` / `Excellent` | 240g / 2380.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Neck_Ring` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Iberian / Portuguese-Spanish empires. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_iberian_noble_regalia` | a high gem-set gold coronet | `coronet` | `gold` | `Small` / `Excellent` | 240g / 3780.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Coronet` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Coronets`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Iberian / Portuguese-Spanish empires. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 6. German / HRE / Austrian — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_german_noble_male_court_garment` | a braid-guarded $colour silk court coat | `coat` | `silk` | `Normal` / `Great` | 885g / 1140.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for German / HRE / Austrian; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_german_noble_male_travel_outerwear` | a fur-collared $colour broadcloth riding cloak | `cloak` | `broadcloth` | `Normal` / `Great` | 1290g / 1200.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for German / HRE / Austrian; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_german_noble_male_formal_mantle` | a fur-edged $colour velvet princely mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1085g / 2775.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for German / HRE / Austrian; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_german_noble_female_court_gown` | a square-necked $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1155g / 1400.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for German / HRE / Austrian; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_german_noble_female_travel_outerwear` | a fur-lined $colour velvet travelling cloak | `cloak` | `velvet` | `Normal` / `Great` | 1290g / 1200.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for German / HRE / Austrian; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_german_noble_female_formal_gown` | an embroidered $colour silk state gown | `gown` | `silk` | `Normal` / `Excellent` | 1155g / 3150.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for German / HRE / Austrian; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_german_noble_court_headwear` | a plumed $colour felt court hat | `hat` | `felt` | `Small` / `Great` | 240g / 760.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for German / HRE / Austrian; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_german_noble_jewellery` | a gemmed gold chain of estate | `chain` | `gold` | `Small` / `Excellent` | 245g / 2425.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Neck_Ring` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for German / HRE / Austrian. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_german_noble_regalia` | a gem-set gold princely coronet | `coronet` | `gold` | `Small` / `Excellent` | 245g / 3825.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Coronet` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Coronets`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for German / HRE / Austrian. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 7. Italian states — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_italian_noble_male_court_garment` | a fitted $colour satin court coat | `coat` | `satin` | `Normal` / `Great` | 892g / 1168.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Italian states; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_italian_noble_male_travel_outerwear` | a full $colour velvet travelling cloak | `cloak` | `velvet` | `Normal` / `Great` | 1298g / 1220.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Italian states; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_italian_noble_male_formal_mantle` | a long $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1092g / 2810.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Italian states; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_italian_noble_female_court_gown` | a low-necked $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1162g / 1430.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Italian states; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_italian_noble_female_travel_outerwear` | a hooded $colour satin travelling cloak | `cloak` | `satin` | `Normal` / `Great` | 1298g / 1220.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Italian states; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_italian_noble_female_formal_gown` | a long-trained $colour silk festival gown | `gown` | `silk` | `Normal` / `Excellent` | 1162g / 3180.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Italian states; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_italian_noble_court_headwear` | a feathered $colour velvet court cap | `cap` | `velvet` | `Small` / `Great` | 242g / 772.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Italian states; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_italian_noble_jewellery` | a gem-set gold pendant necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 108g / 2470.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Italian states. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_italian_noble_regalia` | a pearl-set gold ducal coronet | `coronet` | `gold` | `Small` / `Excellent` | 250g / 3870.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Coronet` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Coronets`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Italian states. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 8. Scandinavian / Baltic — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_northern_noble_male_court_garment` | a silver-guarded $colour silk court coat | `coat` | `silk` | `Normal` / `Great` | 899g / 1196.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Scandinavian / Baltic; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_northern_noble_male_travel_outerwear` | a deep-furred $colour broadcloth travel cloak | `cloak` | `broadcloth` | `Normal` / `Great` | 1306g / 1240.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Scandinavian / Baltic; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_northern_noble_male_formal_mantle` | a fur-edged $colour velvet royal mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1099g / 2845.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Scandinavian / Baltic; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_northern_noble_female_court_gown` | a high-waisted $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1169g / 1460.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Scandinavian / Baltic; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_northern_noble_female_travel_outerwear` | a deep-furred $colour wool travelling cloak | `cloak` | `wool` | `Normal` / `Great` | 1306g / 1240.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Scandinavian / Baltic; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_northern_noble_female_formal_gown` | an embroidered $colour silk state gown | `gown` | `silk` | `Normal` / `Excellent` | 1169g / 3210.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Scandinavian / Baltic; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_northern_noble_court_headwear` | a fur-trimmed $colour felt court hat | `hat` | `felt` | `Small` / `Great` | 244g / 784.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Scandinavian / Baltic; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_northern_noble_jewellery` | an amber-set gold court necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 111g / 2515.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Scandinavian / Baltic. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_northern_noble_regalia` | a silver-gilt gemmed coronet | `coronet` | `silver` | `Small` / `Excellent` | 255g / 3915.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Coronet` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Coronets`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Scandinavian / Baltic. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 9. Polish-Lithuanian / Hungarian frontier — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_frontier_noble_male_court_garment` | a long $colour silk split-sleeved court coat | `coat` | `silk` | `Normal` / `Great` | 906g / 1224.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Polish-Lithuanian / Hungarian frontier; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_frontier_noble_male_travel_outerwear` | a fur-lined $colour wool riding coat | `coat` | `wool` | `Normal` / `Great` | 1314g / 1260.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Polish-Lithuanian / Hungarian frontier; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_frontier_noble_male_formal_mantle` | a broad $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1106g / 2880.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Polish-Lithuanian / Hungarian frontier; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_frontier_noble_female_court_gown` | a long $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1176g / 1490.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Polish-Lithuanian / Hungarian frontier; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_frontier_noble_female_travel_outerwear` | a fur-lined $colour velvet riding cloak | `cloak` | `velvet` | `Normal` / `Great` | 1314g / 1260.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Polish-Lithuanian / Hungarian frontier; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_frontier_noble_female_formal_gown` | a panelled $colour silk state gown | `gown` | `silk` | `Normal` / `Excellent` | 1176g / 3240.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Polish-Lithuanian / Hungarian frontier; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_frontier_noble_court_headwear` | a fur-brimmed $colour velvet court cap | `cap` | `velvet` | `Small` / `Great` | 246g / 796.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Polish-Lithuanian / Hungarian frontier; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_frontier_noble_jewellery` | a set of gemmed gold belt plaques | `plaques` | `gold` | `Small` / `Excellent` | 260g / 2560.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Belt_Plaques` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Belt Plaques`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Polish-Lithuanian / Hungarian frontier. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_frontier_noble_regalia` | a pearl-set gold diadem | `diadem` | `gold` | `Small` / `Excellent` | 260g / 3960.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Diadem` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Diadems`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Polish-Lithuanian / Hungarian frontier. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 10. Russian / Petrine and post-Petrine — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_russian_noble_male_court_garment` | a full-skirted $colour silk court caftan | `caftan` | `silk` | `Normal` / `Great` | 913g / 1252.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Russian / Petrine and post-Petrine; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_russian_noble_male_travel_outerwear` | a deep-furred $colour wool travelling caftan | `caftan` | `wool` | `Normal` / `Great` | 1322g / 1280.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Russian / Petrine and post-Petrine; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_russian_noble_male_formal_mantle` | a gem-guarded $colour velvet state mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1113g / 2915.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Russian / Petrine and post-Petrine; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_russian_noble_female_court_gown` | a sleeveless $colour silk court overgown | `gown` | `silk` | `Normal` / `Great` | 1183g / 1520.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Russian / Petrine and post-Petrine; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_russian_noble_female_travel_outerwear` | a deep-furred $colour velvet travelling cloak | `cloak` | `velvet` | `Normal` / `Great` | 1322g / 1280.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Russian / Petrine and post-Petrine; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_russian_noble_female_formal_gown` | a long $colour silk state gown | `gown` | `silk` | `Normal` / `Excellent` | 1183g / 3270.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Russian / Petrine and post-Petrine; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_russian_noble_court_headwear` | a tall fur-brimmed $colour court cap | `cap` | `fur` | `Small` / `Great` | 248g / 808.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Russian / Petrine and post-Petrine; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_russian_noble_jewellery` | a heavy gem-set gold neck chain | `chain` | `gold` | `Small` / `Excellent` | 265g / 2605.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Neck_Ring` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Russian / Petrine and post-Petrine. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_russian_noble_regalia` | a high gem-set gold crown | `crown` | `gold` | `Small` / `Excellent` | 265g / 4005.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Crown` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Crowns`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Russian / Petrine and post-Petrine. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 11. Ottoman — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_ottoman_noble_male_court_garment` | a fitted $colour silk court kaftan | `kaftan` | `silk` | `Normal` / `Great` | 920g / 1280.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ottoman; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_ottoman_noble_male_travel_outerwear` | a fur-lined $colour broadcloth travelling kaftan | `kaftan` | `broadcloth` | `Normal` / `Great` | 1330g / 1300.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ottoman; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_ottoman_noble_male_formal_mantle` | a broad $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1120g / 2950.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ottoman; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_ottoman_noble_female_court_gown` | a fitted $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1190g / 1550.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ottoman; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_ottoman_noble_female_travel_outerwear` | a full $colour broadcloth outdoor overrobe | `overrobe` | `broadcloth` | `Normal` / `Great` | 1330g / 1300.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ottoman; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_ottoman_noble_female_formal_gown` | a layered $colour silk ceremonial gown | `gown` | `silk` | `Normal` / `Excellent` | 1190g / 3300.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ottoman; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_ottoman_noble_court_headwear` | a high-wound $colour silk court turban | `turban` | `silk` | `Small` / `Great` | 250g / 820.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ottoman; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_ottoman_noble_jewellery` | a gem-set gold sash clasp | `clasp` | `gold` | `VerySmall` / `Excellent` | 120g / 2650.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Waist_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Waist Ornaments`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Ottoman. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_ottoman_noble_regalia` | a jewelled gold forehead aigrette | `aigrette` | `gold` | `VerySmall` / `Excellent` | 120g / 4050.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Forehead_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Forehead Ornaments`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Ottoman. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 12. Maghrebi / North African — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_maghrebi_noble_male_court_garment` | a flowing $colour silk court robe | `robe` | `silk` | `Normal` / `Great` | 927g / 1308.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maghrebi / North African; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_maghrebi_noble_male_travel_outerwear` | a hooded $colour wool travelling burnous | `burnous` | `wool` | `Normal` / `Great` | 1338g / 1320.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maghrebi / North African; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_maghrebi_noble_male_formal_mantle` | a gold-edged $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1127g / 2985.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maghrebi / North African; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_maghrebi_noble_female_court_gown` | a layered $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1197g / 1580.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maghrebi / North African; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_maghrebi_noble_female_travel_outerwear` | a hooded $colour broadcloth outdoor mantle | `mantle` | `broadcloth` | `Normal` / `Great` | 1338g / 1320.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maghrebi / North African; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_maghrebi_noble_female_formal_gown` | an embroidered $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1197g / 3330.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maghrebi / North African; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_maghrebi_noble_court_headwear` | a full-wound $colour silk court turban | `turban` | `silk` | `Small` / `Great` | 252g / 832.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maghrebi / North African; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_maghrebi_noble_jewellery` | a pair of gem-set gold mantle brooches | `brooches` | `gold` | `VerySmall` / `Excellent` | 123g / 2695.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Brooches` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Maghrebi / North African. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_maghrebi_noble_regalia` | a jewelled gold forehead band | `band` | `gold` | `VerySmall` / `Excellent` | 123g / 4095.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Forehead_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Forehead Ornaments`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Maghrebi / North African. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 13. Safavid / post-Safavid Persianate — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_persianate_noble_male_court_garment` | a fitted $colour silk flared court coat | `coat` | `silk` | `Normal` / `Great` | 934g / 1336.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Safavid / post-Safavid Persianate; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_persianate_noble_male_travel_outerwear` | a fur-edged $colour wool riding coat | `coat` | `wool` | `Normal` / `Great` | 1346g / 1340.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Safavid / post-Safavid Persianate; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_persianate_noble_male_formal_mantle` | a broad-skirted $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1134g / 3020.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Safavid / post-Safavid Persianate; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_persianate_noble_female_court_gown` | a long $colour silk court robe-gown | `gown` | `silk` | `Normal` / `Great` | 1204g / 1610.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Safavid / post-Safavid Persianate; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_persianate_noble_female_travel_outerwear` | a fringed $colour wool travelling mantle | `mantle` | `wool` | `Normal` / `Great` | 1346g / 1340.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Safavid / post-Safavid Persianate; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_persianate_noble_female_formal_gown` | a broad-sleeved $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1204g / 3360.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Safavid / post-Safavid Persianate; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_persianate_noble_court_headwear` | a tall-structured $colour silk court turban | `turban` | `silk` | `Small` / `Great` | 254g / 844.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Safavid / post-Safavid Persianate; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_persianate_noble_jewellery` | a gem-set gold sash ornament | `ornament` | `gold` | `VerySmall` / `Excellent` | 126g / 2740.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Waist_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Waist Ornaments`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Safavid / post-Safavid Persianate. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_persianate_noble_regalia` | a pearl-set gold diadem | `diadem` | `gold` | `Small` / `Excellent` | 280g / 4140.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Diadem` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Diadems`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Safavid / post-Safavid Persianate. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 14. Mughal / Indo-Persian — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_mughal_noble_male_court_garment` | a full-skirted $colour silk court jama | `jama` | `silk` | `Normal` / `Great` | 941g / 1364.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mughal / Indo-Persian; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_mughal_noble_male_travel_outerwear` | a quilted $colour silk riding coat | `coat` | `silk` | `Normal` / `Great` | 1354g / 1360.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mughal / Indo-Persian; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_mughal_noble_male_formal_mantle` | a wide $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1141g / 3055.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mughal / Indo-Persian; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_mughal_noble_female_court_gown` | a layered $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1211g / 1640.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mughal / Indo-Persian; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_mughal_noble_female_travel_outerwear` | an embroidered $colour silk travelling cloak | `cloak` | `silk` | `Normal` / `Great` | 1354g / 1360.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mughal / Indo-Persian; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_mughal_noble_female_formal_gown` | a full-panelled $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1211g / 3390.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mughal / Indo-Persian; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_mughal_noble_court_headwear` | a fan-crested $colour silk court turban | `turban` | `silk` | `Small` / `Great` | 256g / 856.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mughal / Indo-Persian; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_mughal_noble_jewellery` | a pearl-and-gem gold court necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 129g / 2785.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Mughal / Indo-Persian. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_mughal_noble_regalia` | a jewelled gold turban ornament | `ornament` | `gold` | `VerySmall` / `Excellent` | 129g / 4185.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Forehead_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Forehead Ornaments`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Mughal / Indo-Persian. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 15. Maratha / Rajput / Deccan — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_deccan_noble_male_court_garment` | a diagonally tied $colour silk court robe | `robe` | `silk` | `Normal` / `Great` | 948g / 1392.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maratha / Rajput / Deccan; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_deccan_noble_male_travel_outerwear` | a quilted $colour cotton riding coat | `coat` | `cotton` | `Normal` / `Great` | 1362g / 1380.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maratha / Rajput / Deccan; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_deccan_noble_male_formal_mantle` | a full $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1148g / 3090.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maratha / Rajput / Deccan; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_deccan_noble_female_court_gown` | a fitted $colour silk bodice-and-skirt gown | `gown` | `silk` | `Normal` / `Great` | 1218g / 1670.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maratha / Rajput / Deccan; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_deccan_noble_female_travel_outerwear` | a broad $colour silk travelling shawl-cloak | `cloak` | `silk` | `Normal` / `Great` | 1362g / 1380.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maratha / Rajput / Deccan; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_deccan_noble_female_formal_gown` | a panelled $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1218g / 3420.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maratha / Rajput / Deccan; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_deccan_noble_court_headwear` | a fan-folded $colour silk court turban | `turban` | `silk` | `Small` / `Great` | 258g / 868.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maratha / Rajput / Deccan; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_deccan_noble_jewellery` | a gem-set gold upper-arm armlet | `armlet` | `gold` | `VerySmall` / `Excellent` | 132g / 2830.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Armlet` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Maratha / Rajput / Deccan. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_deccan_noble_regalia` | a jewelled gold forehead ornament | `ornament` | `gold` | `VerySmall` / `Excellent` | 132g / 4230.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Forehead_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Forehead Ornaments`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Maratha / Rajput / Deccan. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 16. South Indian / coastal trade — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_southindian_noble_male_court_garment` | a long $colour silk side-slit court tunic | `tunic` | `silk` | `Normal` / `Great` | 955g / 1420.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for South Indian / coastal trade; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_southindian_noble_male_travel_outerwear` | a broad $colour silk travelling shoulder cloak | `cloak` | `silk` | `Normal` / `Great` | 1370g / 1400.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for South Indian / coastal trade; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_southindian_noble_male_formal_mantle` | a gold-bordered $colour silk ceremonial mantle | `mantle` | `silk` | `Normal` / `Excellent` | 1155g / 3125.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for South Indian / coastal trade; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_southindian_noble_female_court_gown` | a full $colour silk shoulder-draped court gown | `gown` | `silk` | `Normal` / `Great` | 1225g / 1700.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for South Indian / coastal trade; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_southindian_noble_female_travel_outerwear` | a broad $colour silk travelling shawl | `shawl` | `silk` | `Normal` / `Great` | 1370g / 1400.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for South Indian / coastal trade; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_southindian_noble_female_formal_gown` | a gold-bordered $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1225g / 3450.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for South Indian / coastal trade; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_southindian_noble_court_headwear` | a jewel-bound $colour silk headwrap | `headwrap` | `silk` | `Small` / `Great` | 260g / 880.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for South Indian / coastal trade; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_southindian_noble_jewellery` | a heavy gold court necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 135g / 2875.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for South Indian / coastal trade. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_southindian_noble_regalia` | a gemmed gold waist ornament | `ornament` | `gold` | `VerySmall` / `Excellent` | 135g / 4275.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Waist_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Waist Ornaments`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for South Indian / coastal trade. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 17. Qing China — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_qing_noble_male_court_garment` | a round-collared $colour silk court robe | `robe` | `silk` | `Normal` / `Great` | 962g / 1448.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Qing China; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_qing_noble_male_travel_outerwear` | a fur-lined $colour silk travelling robe | `robe` | `silk` | `Normal` / `Great` | 1378g / 1420.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Qing China; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_qing_noble_male_formal_mantle` | a full $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1162g / 3160.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Qing China; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_qing_noble_female_court_gown` | a long $colour silk court robe-gown | `gown` | `silk` | `Normal` / `Great` | 1232g / 1730.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Qing China; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_qing_noble_female_travel_outerwear` | a fur-edged $colour silk travelling cloak | `cloak` | `silk` | `Normal` / `Great` | 1378g / 1420.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Qing China; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_qing_noble_female_formal_gown` | an embroidered $colour silk formal robe-gown | `gown` | `silk` | `Normal` / `Excellent` | 1232g / 3480.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Qing China; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_qing_noble_court_headwear` | a domed $colour velvet court hat | `hat` | `velvet` | `Small` / `Great` | 262g / 892.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Qing China; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_qing_noble_jewellery` | a long jade-and-gold court necklace | `necklace` | `jade` | `VerySmall` / `Excellent` | 138g / 2920.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Qing China. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_qing_noble_regalia` | a gem-set gold head ornament | `ornament` | `gold` | `Small` / `Excellent` | 300g / 4320.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Diadem` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Diadems`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Qing China. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 18. Late Ming survival / transition — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_ming_noble_male_court_garment` | a round-collared $colour silk court robe | `robe` | `silk` | `Normal` / `Great` | 969g / 1476.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Late Ming survival / transition; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_ming_noble_male_travel_outerwear` | a straight-collared $colour silk travelling cloak | `cloak` | `silk` | `Normal` / `Great` | 1386g / 1440.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Late Ming survival / transition; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_ming_noble_male_formal_mantle` | a broad-sleeved $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1169g / 3195.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Late Ming survival / transition; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_ming_noble_female_court_gown` | a panel-skirted $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1239g / 1760.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Late Ming survival / transition; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_ming_noble_female_travel_outerwear` | a long $colour silk travelling cloak | `cloak` | `silk` | `Normal` / `Great` | 1386g / 1440.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Late Ming survival / transition; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_ming_noble_female_formal_gown` | a broad-sleeved $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1239g / 3510.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Late Ming survival / transition; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_ming_noble_court_headwear` | a structured black silk court hat | `hat` | `silk` | `Small` / `Great` | 264g / 904.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Late Ming survival / transition; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_ming_noble_jewellery` | a set of carved jade belt plaques | `plaques` | `jade` | `Small` / `Excellent` | 305g / 2965.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Belt_Plaques` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Belt Plaques`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Late Ming survival / transition. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_ming_noble_regalia` | a chased-gold court diadem | `diadem` | `gold` | `Small` / `Excellent` | 305g / 4365.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Diadem` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Diadems`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Late Ming survival / transition. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 19. Joseon Korea — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_joseon_noble_male_court_garment` | a broad-sleeved $colour silk court robe | `robe` | `silk` | `Normal` / `Great` | 976g / 1504.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Joseon Korea; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_joseon_noble_male_travel_outerwear` | a fur-lined $colour silk travelling robe | `robe` | `silk` | `Normal` / `Great` | 1394g / 1460.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Joseon Korea; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_joseon_noble_male_formal_mantle` | a wide $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1176g / 3230.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Joseon Korea; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_joseon_noble_female_court_gown` | a short-jacketed $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1246g / 1790.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Joseon Korea; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_joseon_noble_female_travel_outerwear` | a hooded $colour silk travelling cloak | `cloak` | `silk` | `Normal` / `Great` | 1394g / 1460.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Joseon Korea; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_joseon_noble_female_formal_gown` | a full-skirted $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1246g / 3540.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Joseon Korea; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_joseon_noble_court_headwear` | a tall black horsehair court hat | `hat` | `horsehair` | `Small` / `Great` | 266g / 916.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Joseon Korea; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_joseon_noble_jewellery` | a carved jade court pendant | `pendant` | `jade` | `VerySmall` / `Excellent` | 144g / 3010.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Pendants`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Joseon Korea. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_joseon_noble_regalia` | a chased-gold hair ornament | `ornament` | `gold` | `VerySmall` / `Excellent` | 144g / 4410.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Hair_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Joseon Korea. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 20. Edo Japan — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_edo_noble_male_court_garment` | a patterned $colour silk court kosode | `kosode` | `silk` | `Normal` / `Great` | 983g / 1532.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Edo Japan; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_edo_noble_male_travel_outerwear` | a lined $colour silk travelling coat | `coat` | `silk` | `Normal` / `Great` | 1402g / 1480.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Edo Japan; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_edo_noble_male_formal_mantle` | a stiff-shouldered $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1183g / 3265.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Edo Japan; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_edo_noble_female_court_gown` | a layered $colour silk court kosode-gown | `gown` | `silk` | `Normal` / `Great` | 1253g / 1820.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Edo Japan; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_edo_noble_female_travel_outerwear` | a hooded $colour silk travelling cloak | `cloak` | `silk` | `Normal` / `Great` | 1402g / 1480.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Edo Japan; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_edo_noble_female_formal_gown` | an embroidered $colour silk formal overgown | `gown` | `silk` | `Normal` / `Excellent` | 1253g / 3570.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Edo Japan; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_edo_noble_court_headwear` | a tall folded black silk court cap | `cap` | `silk` | `Small` / `Great` | 268g / 928.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Edo Japan; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_edo_noble_jewellery` | a chased-gold waist ornament | `ornament` | `gold` | `VerySmall` / `Excellent` | 147g / 3055.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Waist_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Waist Ornaments`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Edo Japan. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_edo_noble_regalia` | a gem-set gold hair comb | `comb` | `gold` | `VerySmall` / `Excellent` | 147g / 4455.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Hair_Comb` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Edo Japan. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 21. Ryukyu and maritime East Asia — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_ryukyu_noble_male_court_garment` | a broad-sleeved $colour silk island court robe | `robe` | `silk` | `Normal` / `Great` | 990g / 1560.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ryukyu and maritime East Asia; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_ryukyu_noble_male_travel_outerwear` | a light $colour silk maritime travelling cloak | `cloak` | `silk` | `Normal` / `Great` | 1410g / 1500.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ryukyu and maritime East Asia; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_ryukyu_noble_male_formal_mantle` | a long $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1190g / 3300.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ryukyu and maritime East Asia; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_ryukyu_noble_female_court_gown` | a wrapped $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1260g / 1850.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ryukyu and maritime East Asia; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_ryukyu_noble_female_travel_outerwear` | a light $colour silk travelling mantle | `mantle` | `silk` | `Normal` / `Great` | 1410g / 1500.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ryukyu and maritime East Asia; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_ryukyu_noble_female_formal_gown` | a broad-sleeved $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1260g / 3600.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ryukyu and maritime East Asia; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_ryukyu_noble_court_headwear` | a structured $colour silk island court cap | `cap` | `silk` | `Small` / `Great` | 270g / 940.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ryukyu and maritime East Asia; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_ryukyu_noble_jewellery` | a gem-set gold hairpin | `hairpin` | `gold` | `VerySmall` / `Excellent` | 150g / 3100.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Hairpin` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Ryukyu and maritime East Asia. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_ryukyu_noble_regalia` | a chased-gold waist ornament | `ornament` | `gold` | `VerySmall` / `Excellent` | 150g / 4500.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Waist_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Waist Ornaments`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Ryukyu and maritime East Asia. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 22. Mainland South-east Asian courts — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_mainlandseasia_noble_male_court_garment` | a long cross-front $colour silk court robe | `robe` | `silk` | `Normal` / `Great` | 997g / 1588.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mainland South-east Asian courts; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_mainlandseasia_noble_male_travel_outerwear` | a light $colour silk river-travel cloak | `cloak` | `silk` | `Normal` / `Great` | 1418g / 1520.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mainland South-east Asian courts; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_mainlandseasia_noble_male_formal_mantle` | a gold-bordered $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1197g / 3335.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mainland South-east Asian courts; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_mainlandseasia_noble_female_court_gown` | a fitted $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1267g / 1880.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mainland South-east Asian courts; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_mainlandseasia_noble_female_travel_outerwear` | a broad $colour silk travelling shawl-cloak | `cloak` | `silk` | `Normal` / `Great` | 1418g / 1520.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mainland South-east Asian courts; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_mainlandseasia_noble_female_formal_gown` | a full-panelled $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1267g / 3630.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mainland South-east Asian courts; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_mainlandseasia_noble_court_headwear` | a crown-folded $colour silk court headcloth | `headcloth` | `silk` | `Small` / `Great` | 272g / 952.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mainland South-east Asian courts; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_mainlandseasia_noble_jewellery` | a pair of gem-set gold upper-arm armlets | `armlets` | `gold` | `VerySmall` / `Excellent` | 153g / 3145.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Armlet` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Mainland South-east Asian courts. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_mainlandseasia_noble_regalia` | a chased-gold waist ornament | `ornament` | `gold` | `VerySmall` / `Excellent` | 153g / 4545.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Waist_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Waist Ornaments`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Mainland South-east Asian courts. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 23. Maritime South-east Asian trade worlds — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_maritimeseasia_noble_male_court_garment` | a long $colour silk port-court jacket | `jacket` | `silk` | `Normal` / `Great` | 1004g / 1616.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maritime South-east Asian trade worlds; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_maritimeseasia_noble_male_travel_outerwear` | a light $colour silk rain-travel cloak | `cloak` | `silk` | `Normal` / `Great` | 1426g / 1540.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maritime South-east Asian trade worlds; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_maritimeseasia_noble_male_formal_mantle` | a broad $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1204g / 3370.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maritime South-east Asian trade worlds; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_maritimeseasia_noble_female_court_gown` | a tubular-skirted $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1274g / 1910.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maritime South-east Asian trade worlds; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_maritimeseasia_noble_female_travel_outerwear` | a fringed $colour silk travelling shoulder cloth | `cloth` | `silk` | `Normal` / `Great` | 1426g / 1540.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maritime South-east Asian trade worlds; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_maritimeseasia_noble_female_formal_gown` | a panelled $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1274g / 3660.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maritime South-east Asian trade worlds; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_maritimeseasia_noble_court_headwear` | a jewelled $colour silk folded headcloth | `headcloth` | `silk` | `Small` / `Great` | 274g / 964.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Maritime South-east Asian trade worlds; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_maritimeseasia_noble_jewellery` | a heavy gold pendant necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 156g / 3190.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Maritime South-east Asian trade worlds. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_maritimeseasia_noble_regalia` | a gemmed gold waist chain | `chain` | `gold` | `VerySmall` / `Excellent` | 156g / 4590.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Waist_Chain` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Waist Chains`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Maritime South-east Asian trade worlds. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 24. Inner Asian / steppe frontier — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_steppe_noble_male_court_garment` | a side-fastened $colour silk court robe | `robe` | `silk` | `Normal` / `Great` | 1011g / 1644.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Inner Asian / steppe frontier; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_steppe_noble_male_travel_outerwear` | a deep-furred $colour wool riding coat | `coat` | `wool` | `Normal` / `Great` | 1434g / 1560.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Inner Asian / steppe frontier; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_steppe_noble_male_formal_mantle` | a full $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1211g / 3405.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Inner Asian / steppe frontier; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_steppe_noble_female_court_gown` | a long $colour silk court robe-gown | `gown` | `silk` | `Normal` / `Great` | 1281g / 1940.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Inner Asian / steppe frontier; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_steppe_noble_female_travel_outerwear` | a fur-lined $colour wool travelling coat | `coat` | `wool` | `Normal` / `Great` | 1434g / 1560.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Inner Asian / steppe frontier; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_steppe_noble_female_formal_gown` | a broad $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1281g / 3690.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Inner Asian / steppe frontier; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_steppe_noble_court_headwear` | a tall fur-edged $colour court hat | `hat` | `fur` | `Small` / `Great` | 276g / 976.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Inner Asian / steppe frontier; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_steppe_noble_jewellery` | a turquoise-set gold neck ring | `ring` | `gold` | `Small` / `Excellent` | 335g / 3235.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Neck_Ring` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Inner Asian / steppe frontier. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_steppe_noble_regalia` | a set of gemmed gold belt plaques | `plaques` | `gold` | `Small` / `Excellent` | 335g / 4635.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Belt_Plaques` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Belt Plaques`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Inner Asian / steppe frontier. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 25. West African court and Atlantic trade — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_westafrican_noble_male_court_garment` | a broad $colour silk court robe | `robe` | `silk` | `Normal` / `Great` | 1018g / 1672.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for West African court and Atlantic trade; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_westafrican_noble_male_travel_outerwear` | a full $colour wool travelling mantle | `mantle` | `wool` | `Normal` / `Great` | 1442g / 1580.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for West African court and Atlantic trade; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_westafrican_noble_male_formal_mantle` | a wide $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1218g / 3440.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for West African court and Atlantic trade; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_westafrican_noble_female_court_gown` | a layered $colour silk wrapper-gown | `gown` | `silk` | `Normal` / `Great` | 1288g / 1970.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for West African court and Atlantic trade; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_westafrican_noble_female_travel_outerwear` | a broad $colour silk travelling shoulder mantle | `mantle` | `silk` | `Normal` / `Great` | 1442g / 1580.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for West African court and Atlantic trade; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_westafrican_noble_female_formal_gown` | a full-layered $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1288g / 3720.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for West African court and Atlantic trade; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_westafrican_noble_court_headwear` | a tall woven $colour silk court cap | `cap` | `silk` | `Small` / `Great` | 278g / 988.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for West African court and Atlantic trade; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_westafrican_noble_jewellery` | a heavy gold beadwork necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 162g / 3280.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for West African court and Atlantic trade. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_westafrican_noble_regalia` | a broad chased-gold neck ring | `ring` | `gold` | `Small` / `Excellent` | 340g / 4680.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Neck_Ring` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for West African court and Atlantic trade. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 26. Kongo / Angola / West Central Africa — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_kongo_noble_male_court_garment` | a long $colour silk court robe | `robe` | `silk` | `Normal` / `Great` | 1025g / 1700.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Kongo / Angola / West Central Africa; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_kongo_noble_male_travel_outerwear` | a broad $colour wool travelling mantle | `mantle` | `wool` | `Normal` / `Great` | 1450g / 1600.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Kongo / Angola / West Central Africa; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_kongo_noble_male_formal_mantle` | a gold-edged $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1225g / 3475.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Kongo / Angola / West Central Africa; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_kongo_noble_female_court_gown` | a layered $colour silk wrapper-gown | `gown` | `silk` | `Normal` / `Great` | 1295g / 2000.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Kongo / Angola / West Central Africa; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_kongo_noble_female_travel_outerwear` | a full $colour silk travelling mantle | `mantle` | `silk` | `Normal` / `Great` | 1450g / 1600.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Kongo / Angola / West Central Africa; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_kongo_noble_female_formal_gown` | a long $colour velvet formal gown | `gown` | `velvet` | `Normal` / `Excellent` | 1295g / 3750.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Kongo / Angola / West Central Africa; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_kongo_noble_court_headwear` | a crown-folded $colour silk court headcloth | `headcloth` | `silk` | `Small` / `Great` | 280g / 1000.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Kongo / Angola / West Central Africa; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_kongo_noble_jewellery` | an ivory-and-gold court necklace | `necklace` | `ivory` | `VerySmall` / `Excellent` | 165g / 3325.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Kongo / Angola / West Central Africa. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_kongo_noble_regalia` | a chased-gold girdle ornament | `ornament` | `gold` | `VerySmall` / `Excellent` | 165g / 4725.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Girdle_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Girdle Ornaments`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Kongo / Angola / West Central Africa. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 27. Sahelian / Hausa / Islamic West Africa — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_sahel_noble_male_court_garment` | a broad $colour silk court robe | `robe` | `silk` | `Normal` / `Great` | 1032g / 1728.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Sahelian / Hausa / Islamic West Africa; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_sahel_noble_male_travel_outerwear` | a long $colour leather riding cloak | `cloak` | `leather` | `Normal` / `Great` | 1458g / 1620.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Sahelian / Hausa / Islamic West Africa; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_sahel_noble_male_formal_mantle` | an embroidered $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1232g / 3510.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Sahelian / Hausa / Islamic West Africa; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_sahel_noble_female_court_gown` | a layered $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1302g / 2030.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Sahelian / Hausa / Islamic West Africa; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_sahel_noble_female_travel_outerwear` | a broad $colour wool travelling shawl-cloak | `cloak` | `wool` | `Normal` / `Great` | 1458g / 1620.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Sahelian / Hausa / Islamic West Africa; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_sahel_noble_female_formal_gown` | a full $colour silk formal robe-gown | `gown` | `silk` | `Normal` / `Excellent` | 1302g / 3780.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Sahelian / Hausa / Islamic West Africa; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_sahel_noble_court_headwear` | a layered $colour silk court turban | `turban` | `silk` | `Small` / `Great` | 282g / 1012.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Turban`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Sahelian / Hausa / Islamic West Africa; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_sahel_noble_jewellery` | a gem-set gold pendant necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 168g / 3370.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Sahelian / Hausa / Islamic West Africa. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_sahel_noble_regalia` | a pair of chased-gold armlets | `armlets` | `gold` | `VerySmall` / `Excellent` | 168g / 4770.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Armlet` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Sahelian / Hausa / Islamic West Africa. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 28. Ethiopian / Red Sea — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_ethiopian_noble_male_court_garment` | a long $colour silk court robe | `robe` | `silk` | `Normal` / `Great` | 1039g / 1756.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ethiopian / Red Sea; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_ethiopian_noble_male_travel_outerwear` | a broad $colour leather highland cloak | `cloak` | `leather` | `Normal` / `Great` | 1466g / 1640.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ethiopian / Red Sea; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_ethiopian_noble_male_formal_mantle` | an embroidered $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1239g / 3545.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ethiopian / Red Sea; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_ethiopian_noble_female_court_gown` | a full-wrapped $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1309g / 2060.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ethiopian / Red Sea; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_ethiopian_noble_female_travel_outerwear` | a broad $colour wool travelling mantle | `mantle` | `wool` | `Normal` / `Great` | 1466g / 1640.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ethiopian / Red Sea; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_ethiopian_noble_female_formal_gown` | a bordered $colour silk formal wrap-gown | `gown` | `silk` | `Normal` / `Excellent` | 1309g / 3810.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ethiopian / Red Sea; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_ethiopian_noble_court_headwear` | a gold-edged $colour silk court hood | `hood` | `silk` | `Small` / `Great` | 284g / 1024.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Ethiopian / Red Sea; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_ethiopian_noble_jewellery` | a filigree gold pendant necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 171g / 3415.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Pendants`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Ethiopian / Red Sea. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_ethiopian_noble_regalia` | a chased-gold forehead band | `band` | `gold` | `VerySmall` / `Excellent` | 171g / 4815.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Forehead_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Forehead Ornaments`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Ethiopian / Red Sea. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 29. Swahili Coast / Indian Ocean Africa — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_swahili_noble_male_court_garment` | a long $colour silk coastal court robe | `robe` | `silk` | `Normal` / `Great` | 1046g / 1784.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Swahili Coast / Indian Ocean Africa; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_swahili_noble_male_travel_outerwear` | a light $colour silk travelling coat | `coat` | `silk` | `Normal` / `Great` | 1474g / 1660.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Swahili Coast / Indian Ocean Africa; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_swahili_noble_male_formal_mantle` | a broad $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1246g / 3580.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Swahili Coast / Indian Ocean Africa; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_swahili_noble_female_court_gown` | a wrapped $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1316g / 2090.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Swahili Coast / Indian Ocean Africa; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_swahili_noble_female_travel_outerwear` | a fringed $colour silk travelling shawl | `shawl` | `silk` | `Normal` / `Great` | 1474g / 1660.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Swahili Coast / Indian Ocean Africa; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_swahili_noble_female_formal_gown` | a layered $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1316g / 3840.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Swahili Coast / Indian Ocean Africa; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_swahili_noble_court_headwear` | an embroidered $colour silk court cap | `cap` | `silk` | `Small` / `Great` | 286g / 1036.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Swahili Coast / Indian Ocean Africa; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_swahili_noble_jewellery` | a pearl-and-gold court necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 174g / 3460.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Swahili Coast / Indian Ocean Africa. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_swahili_noble_regalia` | a fine gold waist chain | `chain` | `gold` | `VerySmall` / `Excellent` | 174g / 4860.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Waist_Chain` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Waist Chains`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Swahili Coast / Indian Ocean Africa. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 30. Spanish colonial Americas — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_spanishcolonial_noble_male_court_garment` | an embroidered $colour silk colonial court coat | `coat` | `silk` | `Normal` / `Great` | 1053g / 1812.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Spanish colonial Americas; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_spanishcolonial_noble_male_travel_outerwear` | a full $colour broadcloth riding cloak | `cloak` | `broadcloth` | `Normal` / `Great` | 1482g / 1680.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Spanish colonial Americas; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_spanishcolonial_noble_male_formal_mantle` | a gold-edged $colour velvet viceregal mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1253g / 3615.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Spanish colonial Americas; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_spanishcolonial_noble_female_court_gown` | a fitted $colour silk colonial court gown | `gown` | `silk` | `Normal` / `Great` | 1323g / 2120.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Spanish colonial Americas; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_spanishcolonial_noble_female_travel_outerwear` | a hooded $colour velvet travelling cloak | `cloak` | `velvet` | `Normal` / `Great` | 1482g / 1680.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Spanish colonial Americas; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_spanishcolonial_noble_female_formal_gown` | a wide-skirted $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1323g / 3870.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Spanish colonial Americas; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_spanishcolonial_noble_court_headwear` | a plumed $colour felt court hat | `hat` | `felt` | `Small` / `Great` | 288g / 1048.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Spanish colonial Americas; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_spanishcolonial_noble_jewellery` | a gem-set gold collar chain | `chain` | `gold` | `Small` / `Excellent` | 365g / 3505.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Neck_Ring` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Spanish colonial Americas. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_spanishcolonial_noble_regalia` | a pearl-set gold coronet | `coronet` | `gold` | `Small` / `Excellent` | 365g / 4905.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Coronet` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Coronets`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Spanish colonial Americas. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 31. Portuguese Brazil / Atlantic plantation — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_brazil_noble_male_court_garment` | a light embroidered $colour silk court coat | `coat` | `silk` | `Normal` / `Great` | 1060g / 1840.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Portuguese Brazil / Atlantic plantation; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_brazil_noble_male_travel_outerwear` | a broad $colour cotton riding cloak | `cloak` | `cotton` | `Normal` / `Great` | 1490g / 1700.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Portuguese Brazil / Atlantic plantation; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_brazil_noble_male_formal_mantle` | a gold-edged $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1260g / 3650.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Portuguese Brazil / Atlantic plantation; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_brazil_noble_female_court_gown` | a light $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1330g / 2150.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Portuguese Brazil / Atlantic plantation; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_brazil_noble_female_travel_outerwear` | a hooded $colour silk travelling mantle | `mantle` | `silk` | `Normal` / `Great` | 1490g / 1700.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Portuguese Brazil / Atlantic plantation; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_brazil_noble_female_formal_gown` | a pearl-trimmed $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1330g / 3900.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Portuguese Brazil / Atlantic plantation; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_brazil_noble_court_headwear` | a broad $colour felt sun hat | `hat` | `felt` | `Small` / `Great` | 290g / 1060.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Portuguese Brazil / Atlantic plantation; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_brazil_noble_jewellery` | a pearl-and-gold court necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 180g / 3550.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Portuguese Brazil / Atlantic plantation. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_brazil_noble_regalia` | a heavy gold chain of office | `chain` | `gold` | `Small` / `Excellent` | 370g / 4950.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Neck_Ring` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Portuguese Brazil / Atlantic plantation. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 32. English / French / Dutch colonial North America — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_colonialnorthamerica_noble_male_court_garment` | a long embroidered $colour court coat | `coat` | `silk` | `Normal` / `Great` | 1067g / 1868.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / French / Dutch colonial North America; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_colonialnorthamerica_noble_male_travel_outerwear` | a heavy $colour broadcloth riding cloak | `cloak` | `broadcloth` | `Normal` / `Great` | 1498g / 1720.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / French / Dutch colonial North America; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_colonialnorthamerica_noble_male_formal_mantle` | a fur-edged $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1267g / 3685.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / French / Dutch colonial North America; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_colonialnorthamerica_noble_female_court_gown` | a fitted $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1337g / 2180.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / French / Dutch colonial North America; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_colonialnorthamerica_noble_female_travel_outerwear` | a hooded $colour broadcloth travelling cloak | `cloak` | `broadcloth` | `Normal` / `Great` | 1498g / 1720.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / French / Dutch colonial North America; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_colonialnorthamerica_noble_female_formal_gown` | a long-trained $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1337g / 3930.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / French / Dutch colonial North America; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_colonialnorthamerica_noble_court_headwear` | a feathered $colour felt cocked hat | `hat` | `felt` | `Small` / `Great` | 292g / 1072.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for English / French / Dutch colonial North America; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_colonialnorthamerica_noble_jewellery` | a gem-set silver breast brooch | `brooch` | `silver` | `VerySmall` / `Excellent` | 183g / 3595.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Brooch` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for English / French / Dutch colonial North America. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_colonialnorthamerica_noble_regalia` | a heavy gold chain of office | `chain` | `gold` | `Small` / `Excellent` | 375g / 4995.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Neck_Ring` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for English / French / Dutch colonial North America. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 33. Indigenous North American regional families — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_northamerican_noble_male_court_garment` | a tailored $colour wool trade-cloth court coat | `coat` | `wool` | `Normal` / `Great` | 1074g / 1896.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Indigenous North American regional families; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_northamerican_noble_male_travel_outerwear` | a broad fur-lined $colour travelling robe | `robe` | `fur` | `Normal` / `Great` | 1506g / 1740.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Indigenous North American regional families; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_northamerican_noble_male_formal_mantle` | a decorated $colour wool diplomatic mantle | `mantle` | `wool` | `Normal` / `Excellent` | 1274g / 3720.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Indigenous North American regional families; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_northamerican_noble_female_court_gown` | a full $colour wool trade-cloth wrap dress | `dress` | `wool` | `Normal` / `Great` | 1344g / 2210.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Indigenous North American regional families; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_northamerican_noble_female_travel_outerwear` | a broad fur-lined $colour travelling robe | `robe` | `fur` | `Normal` / `Great` | 1506g / 1740.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Indigenous North American regional families; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_northamerican_noble_female_formal_gown` | a decorated $colour leather formal dress | `dress` | `leather` | `Normal` / `Excellent` | 1344g / 3960.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Indigenous North American regional families; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_northamerican_noble_court_headwear` | a broad feather-and-shell headband | `headband` | `feather` | `Small` / `Great` | 294g / 1084.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Headband`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Indigenous North American regional families; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_northamerican_noble_jewellery` | a long shell-bead prestige necklace | `necklace` | `shell` | `VerySmall` / `Excellent` | 186g / 3640.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Indigenous North American regional families. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_northamerican_noble_regalia` | a broad polished-silver neck plate | `plate` | `silver` | `Small` / `Excellent` | 380g / 5040.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Neck_Ring` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Indigenous North American regional families. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 34. Mesoamerican colonial and Indigenous — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_mesoamerican_noble_male_court_garment` | a long embroidered $colour cotton court tunic | `tunic` | `cotton` | `Normal` / `Great` | 1081g / 1924.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mesoamerican colonial and Indigenous; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_mesoamerican_noble_male_travel_outerwear` | a broad $colour wool travelling mantle | `mantle` | `wool` | `Normal` / `Great` | 1514g / 1760.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mesoamerican colonial and Indigenous; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_mesoamerican_noble_male_formal_mantle` | a gold-bordered $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1281g / 3755.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mesoamerican colonial and Indigenous; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_mesoamerican_noble_female_court_gown` | an embroidered $colour cotton court gown | `gown` | `cotton` | `Normal` / `Great` | 1351g / 2240.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mesoamerican colonial and Indigenous; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_mesoamerican_noble_female_travel_outerwear` | a broad $colour wool travelling mantle | `mantle` | `wool` | `Normal` / `Great` | 1514g / 1760.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mesoamerican colonial and Indigenous; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_mesoamerican_noble_female_formal_gown` | a panelled $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1351g / 3990.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mesoamerican colonial and Indigenous; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_mesoamerican_noble_court_headwear` | a close-woven $colour court cap | `cap` | `cotton` | `Small` / `Great` | 296g / 1096.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Mesoamerican colonial and Indigenous; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_mesoamerican_noble_jewellery` | a gold-and-jade court necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 189g / 3685.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Mesoamerican colonial and Indigenous. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_mesoamerican_noble_regalia` | a gem-set gold forehead ornament | `ornament` | `gold` | `VerySmall` / `Excellent` | 189g / 5085.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Forehead_Ornament` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Forehead Ornaments`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Mesoamerican colonial and Indigenous. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 35. Andean colonial and Indigenous — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_andean_noble_male_court_garment` | a fine tapestry-woven $colour wool court tunic | `tunic` | `wool` | `Normal` / `Great` | 1088g / 1952.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Robe`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Andean colonial and Indigenous; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_andean_noble_male_travel_outerwear` | a long fringed $colour wool travelling mantle | `mantle` | `wool` | `Normal` / `Great` | 1522g / 1780.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Andean colonial and Indigenous; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_andean_noble_male_formal_mantle` | a broad tapestry-woven $colour ceremonial mantle | `mantle` | `wool` | `Normal` / `Excellent` | 1288g / 3790.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Andean colonial and Indigenous; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_andean_noble_female_court_gown` | a wrapped full-length $colour wool court gown | `gown` | `wool` | `Normal` / `Great` | 1358g / 2270.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Andean colonial and Indigenous; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_andean_noble_female_travel_outerwear` | a broad fringed $colour wool travelling shawl | `shawl` | `wool` | `Normal` / `Great` | 1522g / 1780.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Andean colonial and Indigenous; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_andean_noble_female_formal_gown` | a tapestry-woven $colour formal wrap-gown | `gown` | `wool` | `Normal` / `Excellent` | 1358g / 4020.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Andean colonial and Indigenous; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_andean_noble_court_headwear` | a finely woven $colour royal headband | `headband` | `wool` | `Small` / `Great` | 298g / 1108.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Headband`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Andean colonial and Indigenous; headwear. Used in 2 noble/court outfit(s). |
+| `earlymodern_andean_noble_jewellery` | a broad chased-gold pectoral necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 192g / 3730.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Andean colonial and Indigenous. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_andean_noble_regalia` | a narrow chased-gold diadem | `diadem` | `gold` | `Small` / `Excellent` | 390g / 5130.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Diadem` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Diadems`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Andean colonial and Indigenous. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 36. Caribbean / Atlantic plantation — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_caribbean_noble_male_court_garment` | a light embroidered $colour silk court coat | `coat` | `silk` | `Normal` / `Great` | 1095g / 1980.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Caribbean / Atlantic plantation; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_caribbean_noble_male_travel_outerwear` | a loose $colour cotton travelling cloak | `cloak` | `cotton` | `Normal` / `Great` | 1530g / 1800.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Caribbean / Atlantic plantation; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_caribbean_noble_male_formal_mantle` | a gold-edged $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1295g / 3825.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Caribbean / Atlantic plantation; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_caribbean_noble_female_court_gown` | a light $colour silk court gown | `gown` | `silk` | `Normal` / `Great` | 1365g / 2300.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Caribbean / Atlantic plantation; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_caribbean_noble_female_travel_outerwear` | a broad $colour silk travelling mantle | `mantle` | `silk` | `Normal` / `Great` | 1530g / 1800.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Caribbean / Atlantic plantation; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_caribbean_noble_female_formal_gown` | a pearl-trimmed $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1365g / 4050.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Caribbean / Atlantic plantation; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_caribbean_noble_court_headwear` | a broad $colour felt sun hat | `hat` | `felt` | `Small` / `Great` | 300g / 1120.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Caribbean / Atlantic plantation; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_caribbean_noble_jewellery` | a pearl-and-gold prestige necklace | `necklace` | `gold` | `VerySmall` / `Excellent` | 195g / 3775.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Necklace` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Caribbean / Atlantic plantation. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_caribbean_noble_regalia` | a heavy gold chain of office | `chain` | `gold` | `Small` / `Excellent` | 395g / 5175.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Neck_Ring` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Caribbean / Atlantic plantation. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
+### 37. Global maritime and chartered-company trade — 9
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+|---|---|---|---|---|---:|---|---|---|
+| `earlymodern_globalmaritime_noble_male_court_garment` | a gold-laced $colour silk command coat | `coat` | `silk` | `Normal` / `Great` | 1102g / 2008.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Jacket`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Global maritime and chartered-company trade; male court. Used in 3 noble/court outfit(s). |
+| `earlymodern_globalmaritime_noble_male_travel_outerwear` | a long $colour broadcloth sea-travel cloak | `cloak` | `broadcloth` | `Normal` / `Great` | 1538g / 1820.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Global maritime and chartered-company trade; male travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_globalmaritime_noble_male_formal_mantle` | a gold-edged $colour velvet ceremonial mantle | `mantle` | `velvet` | `Normal` / `Excellent` | 1302g / 3860.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Mantle`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Global maritime and chartered-company trade; male formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_globalmaritime_noble_female_court_gown` | a fitted $colour silk director-household gown | `gown` | `silk` | `Normal` / `Great` | 1372g / 2330.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Global maritime and chartered-company trade; female court. Used in 2 noble/court outfit(s). |
+| `earlymodern_globalmaritime_noble_female_travel_outerwear` | a hooded $colour broadcloth sea-travel cloak | `cloak` | `broadcloth` | `Normal` / `Great` | 1538g / 1820.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Cloak_(Open)`<br>`Armour_HeavyClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Global maritime and chartered-company trade; female travel. Used in 1 noble/court outfit(s). |
+| `earlymodern_globalmaritime_noble_female_formal_gown` | a long-trained $colour silk formal gown | `gown` | `silk` | `Normal` / `Excellent` | 1372g / 4080.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Gown`<br>`Armour_LightClothing`<br>`Insulation_Minor`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Global maritime and chartered-company trade; female formal. Used in 1 noble/court outfit(s). |
+| `earlymodern_globalmaritime_noble_court_headwear` | a feathered $colour felt command hat | `hat` | `felt` | `Small` / `Great` | 302g / 1132.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Market / Clothing / Luxury Clothing` | New culture-family highest-echelon prototype for Global maritime and chartered-company trade; headwear. Used in 3 noble/court outfit(s). |
+| `earlymodern_globalmaritime_noble_jewellery` | a gem-set gold command brooch | `brooch` | `gold` | `VerySmall` / `Excellent` | 198g / 3820.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Brooch` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Noble Jewellery` | New culture-family highest-echelon jewel prototype for Global maritime and chartered-company trade. Exact rank, dynasty, office, and motif are skins. Used in 6 noble/court outfit(s). |
+| `earlymodern_globalmaritime_noble_regalia` | a heavy gold charter chain | `chain` | `gold` | `Small` / `Excellent` | 400g / 5220.0m | `Holdable`<br>`Destroyable_Misc`<br>`Wear_Neck_Ring` | `Era / Early Modern Era`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Regalia` | New culture-family highest-echelon regalia prototype for Global maritime and chartered-company trade. Exact rank, dynasty, office, and motif are skins. Used in 2 noble/court outfit(s). |
+
 ## Implementation order
 
 1. Seed or verify `Wear_Stays` and `Wear_Breeches` from the dependency ledger.
-2. Ensure the three implemented `preindustrial_clothing_*` aliases and `preindustrial_military_support_simple_sword_belt`.
-3. Ensure admitted Renaissance stable references individually and idempotently.
-4. Create first-pass civilian `earlymodern_*` rows in their existing catalogue order.
-5. Create second-pass military-uniform and appointment-accessory rows in the catalogue order above.
-6. Add civilian and military culture manifests only after every referenced item exists.
-7. Keep firearms, ammunition, armour, weapons, standards, drums, and non-clothing naval equipment in the military/firearms/naval branch.
-8. Add skins and full descriptions in the later presentation pass.
-9. Add crafts only after exact material, skill, tool, and product-tag dependencies resolve.
+2. Ensure the implemented shared aliases and admitted Renaissance stable references individually and idempotently.
+3. Create civilian and military-uniform rows in their established order.
+4. Create the 27 shared noble foundations and jewellery forms, then the 324 culture-family noble rows in the catalogue order above.
+5. Add civilian, military, and noble culture manifests only after every referenced item exists.
+6. Keep firearms, ammunition, armour, weapons, standards, drums, and non-clothing naval equipment in the military/firearms/naval branch.
+7. Add skins and full descriptions in the later presentation work.
+8. Add crafts only after exact material, skill, tool, and product-tag dependencies resolve.
 
 ## Validation result
 
-### Civilian first pass retained
+### Civilian catalogue retained
 
-- **PASS** — 35 civilian cultures, excluding the originally deferred global-maritime overlay.
-- **PASS** — 350 civilian outfits, exactly ten per culture and five male/five female labels per culture.
-- **PASS** — all original civilian manifests and catalogue rows remain present.
+- **VALIDATED** — 35 civilian cultures, excluding the originally deferred global-maritime overlay.
+- **VALIDATED** — 350 civilian outfits, exactly ten per culture and five male/five female labels per culture.
+- **VALIDATED** — all original civilian manifests and catalogue rows remain present.
 
-### Military-uniform second pass
+### Military-uniform catalogue retained
 
-- **PASS** — 36 master culture families, including global maritime.
-- **PASS** — 220 complete military/naval outfits: six for each regional culture and ten global-maritime officer variants.
-- **PASS** — 133 new military-uniform or appointment-accessory rows; every new row is used.
-- **PASS** — 1872 item placements across 305 unique references.
-- **PASS** — no duplicate manifest within a culture, no duplicate item within an outfit, and no repeated exact wearable profile within an outfit.
-- **PASS** — every outfit has upper-body, lower/full-body, footwear, and headwear coverage.
-- **PASS** — every new sdesc begins with an article, is 3-10 words, and has matching variable components.
-- **PASS** — stable references, materials, live components, tags, weight, quality, size, and cost validate against the maintained project vocabulary and the unchanged two-profile dependency ledger.
-- **PASS** — European-specific epaulettes, white crossbelts, shoulder knots, and officer gorgets are culturally gated; other groupings use neutral crossbelts, the shared simple sword belt, sashes, scarves, and badges.
+- **VALIDATED** — 36 master culture families, including global maritime.
+- **VALIDATED** — 220 complete military/naval outfits and 133 new military-uniform or appointment-accessory rows.
+- **VALIDATED** — all original military-uniform manifests and catalogue rows remain present.
+
+### Noble and jewellery catalogue
+
+- **Attachment provenance** — source catalogue blob `940af2af6492bcb9f9a78a36cdd1602d8f3159d8`; expanded catalogue blob `e0727744d6348d815426d530d6f3eb2afa3d4783`. These identify the supplied pre-reconciliation artefacts; the canonical file changed during naming normalization.
+- **VALIDATED** — 36 culture families and 216 complete highest-echelon outfits.
+- **VALIDATED** — exactly three male and three female outfits per culture.
+- **VALIDATED** — exactly 72 everyday courtly, 72 outdoor/travel, and 72 formal/state-occasion outfits.
+- **VALIDATED** — 351 new prototypes: 27 shared and 324 culture-family rows; all 351 are used across 2,056 placements.
+- **VALIDATED** — zero unknown manifest references, unused new rows, duplicate references within an outfit, or exact wearable-profile collisions.
+- **VALIDATED** — zero invalid materials, tags, or components beyond the declared dependencies and current-repository reconciliations.
+- **VALIDATED** — every new item is `Great` or `Excellent`; all jewellery and regalia are `Excellent`.
+- **VALIDATED** — every outfit includes upper or full-body clothing, lower/full-body coverage, footwear, a head covering or head ornament, and at least two jewellery or regalia pieces.
+- **VALIDATED** — no duplicate manifest within a culture, no duplicate item within an outfit, and no repeated exact wearable profile within an outfit.
+- **VALIDATED** — all new materials, components, tags, variables, weights, sizes, qualities, and costs resolve against the maintained project vocabulary plus the unchanged dependency ledger.
+- **VALIDATED** — broad cultural buckets carry explicit narrower-admission and sensitivity notes; Western crowns and coronets are not imposed as a universal regalia model.
 
 ## Deferred work
 
-- full descriptions for civilian and military rows;
-- skins for exact unit, rank, service, company, ship, polity, heraldic, dynastic, and textile presentation;
-- noble, court, royal, diplomatic, and ceremonial regalia outside ordinary military command dress;
+- full descriptions for civilian, military, noble, jewellery, and regalia rows;
+- skins for exact unit, rank, dynasty, office, household, heraldic, devotional, diplomatic, ship, polity, gemstone, and textile presentation;
 - firearms, ammunition, cartridges, bayonets, armour, weapons, standards, drums, and non-clothing naval equipment in the military/firearms/naval branch;
-- profession-specific civilian overlays beyond the first-pass social range;
-- crafts, unit/shop stock, and local region/date prevalence manifests.
+- profession-specific civilian overlays beyond the civilian social range;
+- crafts, unit/shop stock, court stock, and local region/date prevalence manifests.

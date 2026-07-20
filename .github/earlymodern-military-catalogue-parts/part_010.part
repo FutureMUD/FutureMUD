@@ -1,0 +1,84 @@
+| `earlymodern_military_melee_naginata_fine` | a well-balanced naginata | `naginata` | `carbon steel` | `Large` / `Good` | 2,420g / 1,035.0m | `Holdable`<br>`Melee_Poleblade`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_melee_naginata_ornate` | an ornate naginata | `naginata` | `crucible steel` | `Large` / `VeryGood` | 2,380g / 2,300.0m | `Holdable`<br>`Melee_Poleblade`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_melee_long_bladed_yari_service` | a serviceable long-bladed yari | `yari` | `carbon steel` | `Large` / `Standard` | 2,700g / 440.0m | `Holdable`<br>`Melee_Poleblade`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_melee_long_bladed_yari_fine` | a well-balanced long-bladed yari | `yari` | `carbon steel` | `Large` / `Good` | 2,620g / 990.0m | `Holdable`<br>`Melee_Poleblade`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_melee_long_bladed_yari_ornate` | an ornate long-bladed yari | `yari` | `crucible steel` | `Large` / `VeryGood` | 2,560g / 2,200.0m | `Holdable`<br>`Melee_Poleblade`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_melee_tiger_fork_service` | a serviceable tiger fork | `fork` | `carbon steel` | `Large` / `Standard` | 3,900g / 310.0m | `Holdable`<br>`Melee_HookedPolearm`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_melee_tiger_fork_fine` | a well-balanced tiger fork | `fork` | `carbon steel` | `Large` / `Good` | 3,780g / 698.0m | `Holdable`<br>`Melee_HookedPolearm`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_melee_tiger_fork_ornate` | an ornate tiger fork | `fork` | `crucible steel` | `Large` / `VeryGood` | 3,700g / 1,550.0m | `Holdable`<br>`Melee_HookedPolearm`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_melee_monks_spade_service` | a serviceable monk's spade | `spade` | `carbon steel` | `Large` / `Standard` | 3,700g / 300.0m | `Holdable`<br>`Melee_Poleblade`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_melee_monks_spade_fine` | a well-balanced monk's spade | `spade` | `carbon steel` | `Large` / `Good` | 3,590g / 675.0m | `Holdable`<br>`Melee_Poleblade`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_melee_monks_spade_ornate` | an ornate monk's spade | `spade` | `crucible steel` | `Large` / `VeryGood` | 3,520g / 1,500.0m | `Holdable`<br>`Melee_Poleblade`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+
+#### 2.8. Wooden and blunted training weapons — 40
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tag profile |
+|---|---|---|---|---|---:|---|---|
+| `earlymodern_military_training_practice_knife_rough` | a rough wooden practice knife | `knife` | `ash` | `Small` / `Substandard` | 335g / 12.0m | `Holdable`<br>`Melee_Training Knife`<br>`Destroyable_Weapon` | `EM-WPN-DAGGER` |
+| `earlymodern_military_training_practice_knife_sound` | a sound wooden practice knife | `knife` | `hickory` | `Small` / `Standard` | 320g / 18.0m | `Holdable`<br>`Melee_Training Knife`<br>`Destroyable_Weapon` | `EM-WPN-DAGGER` |
+| `earlymodern_military_training_practice_dagger_rough` | a rough wooden practice dagger | `dagger` | `ash` | `Small` / `Substandard` | 440g / 16.0m | `Holdable`<br>`Melee_Training Dagger`<br>`Destroyable_Weapon` | `EM-WPN-DAGGER` |
+| `earlymodern_military_training_practice_dagger_sound` | a sound wooden practice dagger | `dagger` | `hickory` | `Small` / `Standard` | 420g / 24.0m | `Holdable`<br>`Melee_Training Dagger`<br>`Destroyable_Weapon` | `EM-WPN-DAGGER` |
+| `earlymodern_military_training_practice_rapier_rough` | a rough wooden practice rapier | `rapier` | `ash` | `Normal` / `Substandard` | 890g / 31.0m | `Holdable`<br>`Melee_Training Rapier`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_training_practice_rapier_sound` | a sound wooden practice rapier | `rapier` | `hickory` | `Normal` / `Standard` | 850g / 48.0m | `Holdable`<br>`Melee_Training Rapier`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_training_practice_smallsword_rough` | a rough wooden practice smallsword | `smallsword` | `ash` | `Normal` / `Substandard` | 755g / 29.0m | `Holdable`<br>`Melee_Training_Smallsword`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_training_practice_smallsword_sound` | a sound wooden practice smallsword | `smallsword` | `hickory` | `Normal` / `Standard` | 720g / 44.0m | `Holdable`<br>`Melee_Training_Smallsword`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_training_practice_backsword_rough` | a rough wooden practice backsword | `backsword` | `ash` | `Normal` / `Substandard` | 1,100g / 34.0m | `Holdable`<br>`Melee_Training Longsword`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_training_practice_backsword_sound` | a sound wooden practice backsword | `backsword` | `hickory` | `Normal` / `Standard` | 1,050g / 52.0m | `Holdable`<br>`Melee_Training Longsword`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_training_practice_broadsword_rough` | a rough wooden practice broadsword | `broadsword` | `ash` | `Normal` / `Substandard` | 1,210g / 36.0m | `Holdable`<br>`Melee_Training Longsword`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_training_practice_broadsword_sound` | a sound wooden practice broadsword | `broadsword` | `hickory` | `Normal` / `Standard` | 1,150g / 56.0m | `Holdable`<br>`Melee_Training Longsword`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_training_practice_sabre_rough` | a rough wooden practice sabre | `sabre` | `ash` | `Normal` / `Substandard` | 945g / 32.0m | `Holdable`<br>`Melee_Training_Sabre`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_training_practice_sabre_sound` | a sound wooden practice sabre | `sabre` | `hickory` | `Normal` / `Standard` | 900g / 50.0m | `Holdable`<br>`Melee_Training_Sabre`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_training_practice_cutlass_rough` | a rough wooden practice cutlass | `cutlass` | `ash` | `Normal` / `Substandard` | 1,030g / 34.0m | `Holdable`<br>`Melee_Training_Sabre`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_training_practice_cutlass_sound` | a sound wooden practice cutlass | `cutlass` | `hickory` | `Normal` / `Standard` | 980g / 52.0m | `Holdable`<br>`Melee_Training_Sabre`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_training_practice_axe_rough` | a rough wooden practice axe | `axe` | `ash` | `Normal` / `Substandard` | 1,000g / 29.0m | `Holdable`<br>`Melee_Training Axe`<br>`Destroyable_Weapon` | `EM-WPN-AXE` |
+| `earlymodern_military_training_practice_axe_sound` | a sound wooden practice axe | `axe` | `hickory` | `Normal` / `Standard` | 950g / 44.0m | `Holdable`<br>`Melee_Training Axe`<br>`Destroyable_Weapon` | `EM-WPN-AXE` |
+| `earlymodern_military_training_practice_mace_rough` | a rough wooden practice mace | `mace` | `ash` | `Normal` / `Substandard` | 1,100g / 30.0m | `Holdable`<br>`Melee_Training Mace`<br>`Destroyable_Weapon` | `EM-WPN-MACE` |
+| `earlymodern_military_training_practice_mace_sound` | a sound wooden practice mace | `mace` | `hickory` | `Normal` / `Standard` | 1,050g / 46.0m | `Holdable`<br>`Melee_Training Mace`<br>`Destroyable_Weapon` | `EM-WPN-MACE` |
+| `earlymodern_military_training_practice_war_hammer_rough` | a rough wooden practice war hammer | `hammer` | `ash` | `Normal` / `Substandard` | 1,100g / 31.0m | `Holdable`<br>`Melee_Training Warhammer`<br>`Destroyable_Weapon` | `EM-WPN-HAMMER` |
+| `earlymodern_military_training_practice_war_hammer_sound` | a sound wooden practice war hammer | `hammer` | `hickory` | `Normal` / `Standard` | 1,050g / 48.0m | `Holdable`<br>`Melee_Training Warhammer`<br>`Destroyable_Weapon` | `EM-WPN-HAMMER` |
+| `earlymodern_military_training_practice_military_pick_rough` | a rough wooden practice military pick | `pick` | `ash` | `Normal` / `Substandard` | 1,050g / 31.0m | `Holdable`<br>`Melee_Training Military Pick`<br>`Destroyable_Weapon` | `EM-WPN-HAMMER` |
+| `earlymodern_military_training_practice_military_pick_sound` | a sound wooden practice military pick | `pick` | `hickory` | `Normal` / `Standard` | 1,000g / 48.0m | `Holdable`<br>`Melee_Training Military Pick`<br>`Destroyable_Weapon` | `EM-WPN-HAMMER` |
+| `earlymodern_military_training_practice_flail_rough` | a rough wooden practice flail | `flail` | `ash` | `Normal` / `Substandard` | 1,210g / 36.0m | `Holdable`<br>`Melee_Training Flail`<br>`Destroyable_Weapon` | `EM-WPN-MACE` |
+| `earlymodern_military_training_practice_flail_sound` | a sound wooden practice flail | `flail` | `hickory` | `Normal` / `Standard` | 1,150g / 56.0m | `Holdable`<br>`Melee_Training Flail`<br>`Destroyable_Weapon` | `EM-WPN-MACE` |
+| `earlymodern_military_training_practice_short_spear_rough` | a rough wooden practice short spear | `spear` | `ash` | `Large` / `Substandard` | 1,520g / 31.0m | `Holdable`<br>`Melee_Training Spear`<br>`Destroyable_Weapon` | `EM-WPN-SPEAR` |
+| `earlymodern_military_training_practice_short_spear_sound` | a sound wooden practice short spear | `spear` | `hickory` | `Large` / `Standard` | 1,450g / 48.0m | `Holdable`<br>`Melee_Training Spear`<br>`Destroyable_Weapon` | `EM-WPN-SPEAR` |
+| `earlymodern_military_training_practice_pike_rough` | a rough wooden practice pike | `pike` | `ash` | `Large` / `Substandard` | 3,150g / 47.0m | `Holdable`<br>`Melee_Training Pike`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_training_practice_pike_sound` | a sound wooden practice pike | `pike` | `hickory` | `Large` / `Standard` | 3,000g / 72.0m | `Holdable`<br>`Melee_Training Pike`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_training_practice_halberd_rough` | a rough wooden practice halberd | `halberd` | `ash` | `Large` / `Substandard` | 2,520g / 46.0m | `Holdable`<br>`Melee_Training Halberd`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_training_practice_halberd_sound` | a sound wooden practice halberd | `halberd` | `hickory` | `Large` / `Standard` | 2,400g / 70.0m | `Holdable`<br>`Melee_Training Halberd`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_training_practice_glaive_rough` | a rough wooden practice glaive | `glaive` | `ash` | `Large` / `Substandard` | 2,420g / 44.0m | `Holdable`<br>`Melee_Training_Poleblade`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_training_practice_glaive_sound` | a sound wooden practice glaive | `glaive` | `hickory` | `Large` / `Standard` | 2,300g / 68.0m | `Holdable`<br>`Melee_Training_Poleblade`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_training_practice_lance_rough` | a rough wooden practice lance | `lance` | `pine` | `Large` / `Substandard` | 3,150g / 51.0m | `Holdable`<br>`Melee_Training_Lance`<br>`Destroyable_Weapon` | `EM-WPN-SPEAR` |
+| `earlymodern_military_training_practice_lance_sound` | a sound wooden practice lance | `lance` | `ash` | `Large` / `Standard` | 3,000g / 78.0m | `Holdable`<br>`Melee_Training_Lance`<br>`Destroyable_Weapon` | `EM-WPN-SPEAR` |
+| `earlymodern_military_training_practice_quarterstaff_rough` | a rough wooden practice quarterstaff | `quarterstaff` | `ash` | `Large` / `Substandard` | 1,580g / 21.0m | `Holdable`<br>`Melee_Training Quarterstaff`<br>`Destroyable_Weapon` | `EM-WPN-CLUB` |
+| `earlymodern_military_training_practice_quarterstaff_sound` | a sound wooden practice quarterstaff | `quarterstaff` | `hickory` | `Large` / `Standard` | 1,500g / 32.0m | `Holdable`<br>`Melee_Training Quarterstaff`<br>`Destroyable_Weapon` | `EM-WPN-CLUB` |
+| `earlymodern_military_training_practice_bayonet_musket_rough` | a rough wooden practice bayonet musket | `musket` | `pine` | `Large` / `Substandard` | 3,570g / 57.0m | `Holdable`<br>`Melee_Training_Bayonet`<br>`Destroyable_Weapon` | `EM-WPN-DAGGER` |
+| `earlymodern_military_training_practice_bayonet_musket_sound` | a sound wooden practice bayonet musket | `musket` | `ash` | `Large` / `Standard` | 3,400g / 88.0m | `Holdable`<br>`Melee_Training_Bayonet`<br>`Destroyable_Weapon` | `EM-WPN-DAGGER` |
+
+#### 2.9. Ceremonial, presentation, and office weapons — 8
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tag profile |
+|---|---|---|---|---|---:|---|---|
+| `earlymodern_military_melee_state_sword` | a gilded state sword | `sword` | `crucible steel` | `Normal` / `Great` | 1,450g / 5,400.0m | `Holdable`<br>`Melee_Longsword`<br>`Destroyable_Weapon` | `EM-WPN-SWORD` |
+| `earlymodern_military_melee_presentation_smallsword` | a silver-mounted presentation smallsword | `smallsword` | `crucible steel` | `Normal` / `Great` | 760g / 4,200.0m | `Holdable`<br>`Melee_Smallsword`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-SWORD` |
+| `earlymodern_military_melee_court_sabre` | a gem-set court sabre | `sabre` | `crucible steel` | `Normal` / `Great` | 990g / 4,800.0m | `Holdable`<br>`Melee_Sabre`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-SWORD` |
+| `earlymodern_military_melee_ceremonial_mace` | a gilded ceremonial mace | `mace` | `bronze` | `Normal` / `Great` | 1,750g / 3,500.0m | `Holdable`<br>`Melee_Mace`<br>`Destroyable_Weapon` | `EM-WPN-MACE` |
+| `earlymodern_military_melee_staff_of_office` | a silver-headed staff of office | `staff` | `ebony` | `Large` / `VeryGood` | 1,900g / 2,600.0m | `Holdable`<br>`Melee_Quarterstaff`<br>`Destroyable_Weapon` | `EM-WPN-CLUB` |
+| `earlymodern_military_melee_parade_halberd` | an etched parade halberd | `halberd` | `crucible steel` | `Large` / `VeryGood` | 3,100g / 2,400.0m | `Holdable`<br>`Melee_Halberd`<br>`Destroyable_Weapon` | `EM-WPN-POLEARM` |
+| `earlymodern_military_melee_honour_dagger` | a gold-inlaid honour dagger | `dagger` | `crucible steel` | `Small` / `Great` | 520g / 2,800.0m | `Holdable`<br>`Melee_Dagger`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-DAGGER` |
+| `earlymodern_military_melee_trophy_axe` | an engraved trophy axe | `axe` | `crucible steel` | `Normal` / `VeryGood` | 1,250g / 2,200.0m | `Holdable`<br>`Melee_Axe`<br>`Destroyable_Weapon`<br>`Beltable` | `EM-WPN-AXE` |
+
+### 3. New ranged weapons, firearms, artillery, ammunition, and operating tools — 480
+
+Firearm, artillery, ammunition, and specialist ranged components named here are assumed available through the dependency ledger. Shared gunpowder-support stock is not duplicated.
+
+#### 3.1. Bows — 72
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tag profile |
+|---|---|---|---|---|---:|---|---|
+| `earlymodern_military_ranged_ash_shortbow_service` | a serviceable ash shortbow | `shortbow` | `ash` | `Large` / `Standard` | 850g / 120.0m | `Holdable`<br>`Shortbow`<br>`Destroyable_Weapon` | `EM-WPN-BOW` |
+| `earlymodern_military_ranged_ash_shortbow_fine` | a well-balanced ash shortbow | `shortbow` | `ash` | `Large` / `Good` | 825g / 270.0m | `Holdable`<br>`Shortbow`<br>`Destroyable_Weapon` | `EM-WPN-BOW` |
+| `earlymodern_military_ranged_ash_shortbow_ornate` | an ornate ash shortbow | `shortbow` | `yew` | `Large` / `VeryGood` | 810g / 600.0m | `Holdable`<br>`Shortbow`<br>`Destroyable_Weapon` | `EM-WPN-BOW` |
+| `earlymodern_military_ranged_hunting_shortbow_service` | a serviceable hunting shortbow | `shortbow` | `elm` | `Large` / `Standard` | 780g / 150.0m | `Holdable`<br>`Shortbow`<br>`Destroyable_Weapon` | `EM-WPN-BOW` |
+| `earlymodern_military_ranged_hunting_shortbow_fine` | a well-balanced hunting shortbow | `shortbow` | `yew` | `Large` / `Good` | 755g / 338.0m | `Holdable`<br>`Shortbow`<br>`Destroyable_Weapon` | `EM-WPN-BOW` |
+| `earlymodern_military_ranged_hunting_shortbow_ornate` | an ornate hunting shortbow | `shortbow` | `yew` | `Large` / `VeryGood` | 740g / 750.0m | `Holdable`<br>`Shortbow`<br>`Destroyable_Weapon` | `EM-WPN-BOW` |

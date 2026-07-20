@@ -1,0 +1,124 @@
+| English / French / Dutch colonial North America | c. 1600-1750 | Muskets, fowling pieces, axes, bows, militia gear, trade firearms, fort artillery, and winter or frontier field equipment. |
+| Indigenous North American regional families | c. 1600-1750 | Bows, clubs, tomahawk forms, spears, shields where local, trade firearms, shot pouches, and region-specific carrying gear. |
+| Mesoamerican colonial and Indigenous | c. 1600-1750 | Bows, slings, clubs, spears, colonial firearms, cavalry contact, local shields, and deliberately contextual armour admissions. |
+| Andean colonial and Indigenous | c. 1600-1750 | Slings, clubs, spears, shields where local, adopted firearms, cavalry contact, and highland campaign equipment. |
+| Caribbean / Atlantic plantation | c. 1600-1750 | Bows, spears and clubs alongside colonial firearms, naval and fort equipment, militia stores, and sensitive contact-zone admissions. |
+| Global maritime and chartered-company trade | c. 1600-1750 | Naval guns, muskets, pistols, cutlasses, boarding axes, cartridge gear, standards, signal instruments, and shipboard weapon support. |
+
+Sensitive colonial, plantation, enslavement, mission, company, and contact-zone contexts must be named deliberately in manifests and world content. The catalogue does not encode social status, ethnicity, coercion, or ownership into a generic weapon prototype.
+
+## Research anchors
+
+This first pass is grounded against the period policies in the Early Modern and Renaissance master references, the completed Medieval military catalogue, the live shared baseline, and museum object records. Particularly useful visual and chronological anchors include Metropolitan Museum of Art records for early-seventeenth-century cuirassier and pikeman armour, a seventeenth-century buff coat, a late-sixteenth-/early-seventeenth-century matchlock gun, a ca. 1660 flintlock pistol, seventeenth-century rapiers, and seventeenth-century smallswords. Exact local prevalence remains a manifest decision rather than a property of the generic base item.
+
+## Tag profiles
+
+Every new row uses the exact tags in its named profile. `SOURCE` means retain the direct source row's existing tags. `SHARED` means use the tags supplied by the live shared alias or shared stock row.
+
+| Profile | Exact tags |
+|---|---|
+| `SOURCE` | Retain exact existing source-row tags; no Early Modern retagging. |
+| `SHARED` | Retain exact live shared-row tags and shared-era handling. |
+| `EM-WPN-SWORD` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Weapons`<br>`Market / Military Goods`<br>`Market / Military Goods / Weapons`<br>`Market / Military Goods / Weapons / Swords` |
+| `EM-WPN-DAGGER` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Weapons`<br>`Market / Military Goods`<br>`Market / Military Goods / Weapons`<br>`Market / Military Goods / Weapons / Daggers` |
+| `EM-WPN-AXE` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Weapons`<br>`Market / Military Goods`<br>`Market / Military Goods / Weapons`<br>`Market / Military Goods / Weapons / Axes` |
+| `EM-WPN-CLUB` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Weapons`<br>`Market / Military Goods`<br>`Market / Military Goods / Weapons`<br>`Market / Military Goods / Weapons / Clubs` |
+| `EM-WPN-MACE` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Weapons`<br>`Market / Military Goods`<br>`Market / Military Goods / Weapons`<br>`Market / Military Goods / Weapons / Maces` |
+| `EM-WPN-HAMMER` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Weapons`<br>`Market / Military Goods`<br>`Market / Military Goods / Weapons`<br>`Market / Military Goods / Weapons / Hammers` |
+| `EM-WPN-SPEAR` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Weapons`<br>`Market / Military Goods`<br>`Market / Military Goods / Weapons`<br>`Market / Military Goods / Weapons / Spears` |
+| `EM-WPN-POLEARM` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Weapons`<br>`Market / Military Goods`<br>`Market / Military Goods / Weapons`<br>`Market / Military Goods / Weapons / Polearms` |
+| `EM-WPN-BOW` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Weapons`<br>`Market / Military Goods`<br>`Market / Military Goods / Weapons`<br>`Market / Military Goods / Weapons / Bows` |
+| `EM-WPN-CROSSBOW` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Weapons`<br>`Market / Military Goods`<br>`Market / Military Goods / Weapons`<br>`Market / Military Goods / Weapons / Crossbows` |
+| `EM-WPN-GUN` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Weapons`<br>`Market / Military Goods`<br>`Market / Military Goods / Weapons`<br>`Market / Military Goods / Weapons / Guns` |
+| `EM-WPN-OTHER` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Weapons`<br>`Market / Military Goods`<br>`Market / Military Goods / Weapons`<br>`Market / Military Goods / Weapons / Other Weapons` |
+| `EM-AMMO-ARROW` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Ammunition`<br>`Market / Military Goods`<br>`Market / Military Goods / Ammunition`<br>`Market / Military Goods / Ammunition / Arrows` |
+| `EM-AMMO-BOLT` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Ammunition`<br>`Market / Military Goods`<br>`Market / Military Goods / Ammunition`<br>`Market / Military Goods / Ammunition / Bolts` |
+| `EM-AMMO-BULLET` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Ammunition`<br>`Market / Military Goods`<br>`Market / Military Goods / Ammunition`<br>`Market / Military Goods / Ammunition / Bullets` |
+| `EM-AMMO-BLACKPOWDER` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Ammunition`<br>`Market / Military Goods`<br>`Market / Military Goods / Ammunition`<br>`Market / Military Goods / Ammunition / Bullets`<br>`Market / Military Goods / Ammunition / Blackpowder` |
+| `EM-AMMO-OTHER` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Ammunition`<br>`Market / Military Goods`<br>`Market / Military Goods / Ammunition` |
+| `EM-TOOL-BLACKPOWDER` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Military Goods`<br>`Functions / Tools`<br>`Market / Military Goods / Ammunition / Blackpowder` |
+| `EM-ARMOUR-PLATE` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Armour`<br>`Market / Military Goods`<br>`Market / Military Goods / Armour`<br>`Market / Military Goods / Armour / Plate Armour` |
+| `EM-ARMOUR-MAIL` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Armour`<br>`Market / Military Goods`<br>`Market / Military Goods / Armour`<br>`Market / Military Goods / Armour / Mail Armour` |
+| `EM-ARMOUR-LEATHER` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Armour`<br>`Market / Military Goods`<br>`Market / Military Goods / Armour`<br>`Market / Military Goods / Armour / Leather Armour` |
+| `EM-ARMOUR-PRIMITIVE` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Armour`<br>`Market / Military Goods`<br>`Market / Military Goods / Armour`<br>`Market / Military Goods / Armour / Primitive Armour` |
+| `EM-ARMOUR-GENERAL` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Armour`<br>`Market / Military Goods`<br>`Market / Military Goods / Armour` |
+| `EM-ARMOUR-HORSE` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Armour`<br>`Market / Military Goods`<br>`Market / Military Goods / Armour`<br>`Market / Military Goods / Armour / Horse Armour` |
+| `EM-SHIELD` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Military Equipment / Military Armour`<br>`Market / Military Goods`<br>`Market / Military Goods / Armour`<br>`Functions / Military Equipment / Military Armour / Military Shields`<br>`Market / Military Goods / Armour / Shields` |
+| `EM-SUPPORT` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Military Goods` |
+| `EM-SUPPORT-CONTAINER` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Military Goods`<br>`Functions / Container` |
+| `EM-SUPPORT-CANTEEN` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Military Goods`<br>`Functions / Container`<br>`Functions / Container / Watertight Container` |
+| `EM-SUPPORT-TOOL` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Military Goods`<br>`Functions / Tools` |
+
+## Catalogue distribution
+
+### New rows by subcategory
+
+| Domain | Subcategory | Rows |
+|---|---|---:|
+| New melee weapons | Knives, daggers, and bayonets | 48 |
+| New melee weapons | Straight swords and thrusting sidearms | 72 |
+| New melee weapons | Curved swords and cutting sidearms | 84 |
+| New melee weapons | Axes and chopping weapons | 36 |
+| New melee weapons | Clubs, maces, flails, hammers, and picks | 42 |
+| New melee weapons | Spears, half-pikes, and lances | 36 |
+| New melee weapons | Pikes and polearms | 54 |
+| New melee weapons | Wooden and blunted training weapons | 40 |
+| New melee weapons | Ceremonial, presentation, and office weapons | 8 |
+| New ranged weapons, firearms, artillery, ammunition, and operating tools | Bows | 72 |
+| New ranged weapons, firearms, artillery, ammunition, and operating tools | Crossbows and stonebows | 54 |
+| New ranged weapons, firearms, artillery, ammunition, and operating tools | Slings, staff slings, and blowguns | 30 |
+| New ranged weapons, firearms, artillery, ammunition, and operating tools | Thrown weapons | 48 |
+| New ranged weapons, firearms, artillery, ammunition, and operating tools | Matchlock, wheellock, snaphaunce, doglock, miquelet, and flintlock firearms | 126 |
+| New ranged weapons, firearms, artillery, ammunition, and operating tools | Arrows, bolts, sling shot, and blowgun darts | 32 |
+| New ranged weapons, firearms, artillery, ammunition, and operating tools | Firearm ammunition | 18 |
+| New ranged weapons, firearms, artillery, ammunition, and operating tools | Firearm operating, loading, and maintenance equipment | 20 |
+| New ranged weapons, firearms, artillery, ammunition, and operating tools | Field, siege, and naval artillery | 60 |
+| New ranged weapons, firearms, artillery, ammunition, and operating tools | Artillery ammunition and special shot | 20 |
+| New armour, shields, and protective equipment | Padded and heavy-cloth armour | 54 |
+| New armour, shields, and protective equipment | Leather, buff, rattan, and brigandine armour | 60 |
+| New armour, shields, and protective equipment | Mail, scale, lamellar, laminar, and chain-and-plate armour | 75 |
+| New armour, shields, and protective equipment | Plate torso armour and complete harnesses | 90 |
+| New armour, shields, and protective equipment | Helmets and head protection | 66 |
+| New armour, shields, and protective equipment | Neck, shoulder, arm, hand, hip, leg, and foot armour | 90 |
+| New armour, shields, and protective equipment | Horse armour and protective barding | 30 |
+| New armour, shields, and protective equipment | Shields and hand defences | 36 |
+| New military accessories, field equipment, standards, and naval stores | Scabbards, sheaths, holsters, and edge covers | 45 |
+| New military accessories, field equipment, standards, and naval stores | Firearm slings, loops, cases, cartridge gear, and weather covers | 45 |
+| New military accessories, field equipment, standards, and naval stores | Bow cases, quivers, bolt boxes, dart cases, and throwing-weapon carriers | 30 |
+| New military accessories, field equipment, standards, and naval stores | Armour maintenance, transport, and armoury support | 35 |
+| New military accessories, field equipment, standards, and naval stores | Personal field gear, canteens, packs, and camp equipment | 35 |
+| New military accessories, field equipment, standards, and naval stores | Standards, flags, drums, fifes, and signal instruments | 30 |
+| New military accessories, field equipment, standards, and naval stores | Naval stores, boarding equipment, and shipboard weapon support | 40 |
+| **Total new rows** |  | **1,661** |
+
+### Reused and admitted rows
+
+| Disposition | Rows |
+|---|---:|
+| Shared pre-industrial military-support aliases | 52 |
+| Shared pre-industrial gunpowder-support stock | 10 |
+| Direct Medieval admissions — melee and training weapons | 35 |
+| Direct Medieval admissions — ranged weapons and ammunition | 35 |
+| Direct Medieval admissions — armour and shields | 68 |
+| **Total reused/shared rows** | **200** |
+
+## Item catalogue
+
+Full descriptions are deferred. Rows marked `SOURCE` or `SHARED` are dependencies, not new Early Modern clones.
+
+### 1. Shared and direct admissions — 200
+
+#### 1.1. Shared pre-industrial military-support aliases — 52
+
+These are live `preindustrial_military_support_*` aliases. The source Medieval row is recorded in the alias catalogue; do not create another Early Modern copy.
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tag profile |
+|---|---|---|---|---|---:|---|---|
+| `preindustrial_military_support_archers_utility_belt` | an archer's utility belt | `belt` | `leather` | `Small` / `Standard` | 460g / 40.0m | `Holdable`<br>`Wear_Waist`<br>`Belt_4`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_back_arrow_quiver` | a back-worn arrow quiver | `quiver` | `leather` | `Normal` / `Standard` | 760g / 40.0m | `Holdable`<br>`Container_Quiver`<br>`Wear_Backpack`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_barding_trestle` | a barding trestle | `trestle` | `oak` | `VeryLarge` / `Good` | 32,000g / 220.0m | `Container_Armor_Stand`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_belt_bolt_case` | a belt-hung bolt case | `case` | `cow leather` | `Small` / `Standard` | 440g / 28.0m | `Holdable`<br>`Container_Quiver`<br>`Beltable`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_bow_rack` | a bow rack | `rack` | `ash` | `VeryLarge` / `Standard` | 16,000g / 100.0m | `Container_Weapon_Rack`<br>`Destroyable_WoodenHeavy` | `SHARED` |
+| `preindustrial_military_support_broad_seax_sheath` | a broad seax sheath | `sheath` | `leather` | `Normal` / `Good` | 260g / 36.0m | `Holdable`<br>`Sheath_Small`<br>`Beltable`<br>`Destroyable_Weapon` | `SHARED` |
+| `preindustrial_military_support_broad_war_arrow_quiver` | a broad war-arrow quiver | `quiver` | `cow leather` | `Large` / `Good` | 980g / 80.0m | `Holdable`<br>`Container_Quiver`<br>`Wear_Shoulder`<br>`Destroyable_Clothing` | `SHARED` |
+| `preindustrial_military_support_broad_weapon_baldric` | a broad weapon baldric | `baldric` | `cow leather` | `Normal` / `Good` | 720g / 72.0m | `Holdable`<br>`Wear_Sash`<br>`Belt_4`<br>`Destroyable_Clothing` | `SHARED` |

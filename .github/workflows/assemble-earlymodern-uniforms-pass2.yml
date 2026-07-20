@@ -6,6 +6,11 @@ on:
       - design/earlymodern-military-uniforms-pass-2
     paths:
       - .tmp/earlymodern-uniforms-pass2/READY
+  pull_request:
+    branches:
+      - master
+    paths:
+      - .tmp/earlymodern-uniforms-pass2/READY
 
 permissions:
   contents: write

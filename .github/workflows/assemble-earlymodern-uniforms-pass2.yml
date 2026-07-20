@@ -1,0 +1,38 @@
+name: Assemble Early Modern military-uniform catalogue
+
+on:
+  push:
+    branches:
+      - design/earlymodern-military-uniforms-pass-2
+    paths:
+      - .tmp/earlymodern-uniforms-pass2/READY
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the working branch
+        uses: actions/checkout@v4
+        with:
+          ref: design/earlymodern-military-uniforms-pass-2
+          fetch-depth: 0
+
+      - name: Assemble and verify the catalogue
+        shell: bash
+        run: |
+          set -euo pipefail
+          temporary_directory='.tmp/earlymodern-uniforms-pass2'
+          target='Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md'
+          mapfile -t parts < <(find "$temporary_directory" -maxdepth 1 -type f -name 'clothing.part.*.txt' -print | sort)
+          test "${#parts[@]}" -eq 26
+          cat "${parts[@]}" > "$target"
+          test "$(git hash-object "$target")" = '940af2af6492bcb9f9a78a36cdd1602d8f3159d8'
+          rm -rf "$temporary_directory"
+          git config user.name 'OpenAI ChatGPT'
+          git config user.email 'noreply@openai.com'
+          git add -A -- "$target" "$temporary_directory"
+          git commit -m 'Add Early Modern military uniform catalogue pass'
+          git push origin HEAD:design/earlymodern-military-uniforms-pass-2

@@ -1,0 +1,137 @@
+# FutureMUD Early Modern Military, Firearms, Armour, Ammunition, Accessories, and Naval Seeder Design Reference
+
+> First complete catalogue pass for the 1600-1750 Early Modern branch. Full descriptions are intentionally deferred; this document fixes stable references, short descriptions, nouns, materials, physical values, exact or planned component prototypes, tag profiles, reuse policy, and dependency requirements.
+
+## Executive summary
+
+- **Total catalogue references:** **1,861**.
+- **New Early Modern item prototypes:** **1,661**.
+- **Live shared or earlier-era admissions:** **200**: 52 shared military-support aliases, 10 shared gunpowder-support rows, and 138 direct Medieval combat-equipment admissions.
+- **New-domain distribution:** 420 melee weapons; 480 ranged weapons, firearms, artillery, ammunition, and operating tools; 501 armour and shield items; and 260 accessories, standards, field-equipment, and naval-store items.
+- **Descriptions:** `sdesc` only in this pass. Ordinary portable rows should use `ldesc = null`; full descriptions remain a later implementation pass.
+- **Uniform authority:** worn uniforms, civilian garments, footwear, hats, rank sashes, badges, epaulettes, and generic dress sword-belts remain owned by `FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md`. This reference owns combat weapons, functional weapon carriers, firearm ammunition systems, armour, shields, artillery, standards, signal equipment, and naval weapon support.
+- **Dependency posture:** no new solid material or tag is required. The catalogue assumes 156 new seeded component prototypes, grouped in the companion dependency ledger; 98 use existing component types and 58 use seven new component types.
+
+| Catalogue domain | New rows | Reused/shared rows | Total references |
+|---|---:|---:|---:|
+| Melee weapons | 420 | 35 | 455 |
+| Ranged weapons, firearms, artillery, ammunition, and firearm support | 480 | 45 | 525 |
+| Armour, shields, and protective equipment | 501 | 68 | 569 |
+| Military accessories, field equipment, standards, and naval stores | 260 | 52 | 312 |
+| **Total** | **1,661** | **200** | **1,861** |
+
+## Scope and authority
+
+### Chronological boundary
+
+The catalogue covers approximately **1600-1750 CE**. The date band is a family of culture and institution anchors rather than a universal equipment year. Early-seventeenth-century pike-and-shot, matchlock, wheellock, proofed cuirassier armour, and surviving polearm systems coexist in the branch with later doglock, miquelet, flintlock, paper-cartridge, socket-bayonet, state-infantry, and mature naval-gunnery systems. Local manifests must gate prevalence by date, institution, trade route, and military system.
+
+The presence of an item in the catalogue means that builders may admit it where historically and culturally credible. It does not mean that every settlement, culture, unit, shop, fort, ship, or character has ordinary access to it.
+
+### Included
+
+- Melee weapons across major knife, dagger, sword, sabre, axe, impact, spear, lance, pike, polearm, training, ceremonial, and bayonet families.
+- Bows, composite bows, yumi, crossbows, stonebows, slings, staff slings, blowguns, thrown weapons, matching projectile ammunition, and carrying equipment.
+- Matchlock, wheellock, snaphaunce, doglock, miquelet, and flintlock pistols and long guns; loose shot, paper cartridges, buckshot, buck-and-ball, loading tools, cleaning tools, cartridge gear, and weather protection.
+- Field, siege, fortress, and naval artillery; round shot, stone shot, grapeshot, case shot, mortar shells, carcass shells, bar shot, artillery tools, mounts, and shipboard gun support.
+- Padded, heavy-cloth, leather, buff, brigandine, mail, scale, lamellar, laminar, chain-and-plate, rattan, light plate, medium plate, and proofed plate armour; full body-part coverage; horse armour and barding; shields.
+- Scabbards, sheaths, holsters, weapon slings and loops, quivers, cartridge boxes, canteens, haversacks, knapsacks, maintenance gear, standards, flags, drums, fifes, speaking trumpets, naval stores, and boarding equipment.
+
+### Excluded or separately owned
+
+- Uniform coats, waistcoats, breeches, trousers, robes, skirts, footwear, ordinary headwear, and cosmetic rank accessories are in the clothing reference.
+- Exact explosive recipes, powder manufacture instructions, gunsmithing procedures, and artillery drill instructions are not item-catalogue content.
+- Post-1750 percussion, caplock, revolver, breechloading-cartridge, industrial artillery, and modern ballistic systems are excluded.
+- Named historical persons, exact regiments, ship names, heraldry, dynastic inscriptions, unit numbers, and setting-specific marks belong in skins, manifests, writing, or local world content.
+
+## Relationship to other seeder references
+
+- [Early Modern master era reference](./FutureMUD_EarlyModern_Master_Era_Design_Reference.md): chronology, culture families, cross-domain policy, and shared-baseline admission.
+- [Early Modern clothing and accessories reference](./FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md): uniforms, dress accessories, rank insignia, and outfit manifests.
+- [Renaissance military reference](./FutureMUD_Renaissance_Military_Firearms_Armour_Design_Reference.md): Renaissance-side survivals and predecessor systems. Reuse from this future catalogue must be explicit rather than invoking the whole Renaissance branch.
+- [Medieval military reference](./Medieval_Military_Seeder_Design_Reference.md): source of the 138 direct admissions and the 52 source rows promoted through shared military-support aliases.
+- [Shared pre-industrial baseline reference](./PreIndustrial_Item_Seeder_Design_Reference.md) and [alias catalogue](./PreIndustrial_Item_Seeder_Alias_Catalogue.md): live `preindustrial_*` dependencies.
+- [Military dependency ledger](./FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Dependency_Ledger.md): every new component type and component prototype assumed by this catalogue.
+
+## Reuse architecture
+
+### Shared baseline first
+
+Use the live `preindustrial_military_support_*` and `preindustrial_firearms_*` stable references wherever listed. Do not clone them to obtain an `earlymodern_*` prefix, a different builder note, or cosmetic variation. Shared aliases keep their live source-derived fields and `Era / Pre-Industrial Era` treatment.
+
+### Direct Medieval admissions
+
+The 138 direct Medieval rows are deliberately limited to durable combat forms for which the shared baseline has no combat-equipment alias. They retain their existing stable references and source fields. Admission must be controlled by culture/date/unit manifests; direct admission is not a claim that the form is universal or newly manufactured everywhere after 1600.
+
+### Skin boundary
+
+Skins should carry heraldry, unit colours, lacquer schemes, textile facings, officer embellishment, engraved scenes, inscriptions, local names, maker marks, arsenal marks, ship marks, and exact regional decoration. Separate prototypes are reserved for material, coverage, weapon profile, ammunition grade, ignition system, carriage, carry behaviour, or major silhouette changes.
+
+## Seeder and authoring contract
+
+- New stable references use lowercase snake case and the `earlymodern_military_` namespace.
+- All costs are in farthings. All weights are inherent empty weights in grams.
+- Finished goods are player-visible and normally skinnable. Shared rows preserve their live skin policy.
+- Ordinary portable objects include `Holdable`. Artillery pieces are transportable catalogue prototypes and therefore remain holdable despite extreme weight; a permanently installed fort or ship copy may be a local non-holdable fixture variant.
+- Every weapon uses exactly one primary weapon component. Every armour row uses exactly one wearable coverage component and one armour component. Every shield uses exactly one shield component. Every dry or liquid container uses exactly one corresponding container interface.
+- Component-dependent claims must match components. Unresolved component names in the tables are assumed available only because they are declared in the dependency ledger.
+- No new row uses a morph target, morph timer, destroyed-item reference, hidden-player flag, or non-null long description in this pass.
+
+## Historical and mechanical design policy
+
+### Melee weapons
+
+Major battlefield and sidearm families receive serviceable, fine, and ornate quality bands where manufacture and status meaningfully vary. Wooden or blunted training weapons receive rough and sound bands. Cultural distinction is concentrated in real form changes—blade geometry, hilt, guard, curvature, shafting, head shape, or tactical use—rather than decorative naming alone.
+
+### Firearms
+
+Ignition families are mechanically distinct. Matchlock, wheellock, snaphaunce, doglock, miquelet, and flintlock rows must not collapse into identical bore-only components. Quality changes the item prototype, while ignition, bore, long-gun/pistol class, barrel treatment, spread load, and handling belong in component or ranged-weapon data. Plug bayonets must obstruct firing while mounted; socket and sword bayonets must use explicit compatibility and attachment rules.
+
+### Artillery
+
+Artillery is included because it is a defining military and naval system of the era. Gun, mortar, swivel, carriage, and ammunition components require crew-scale loading, emplacement, recoil, elevation, shot-family, and fuse semantics; they must not be implemented as oversized handheld muskets.
+
+### Armour
+
+Armour is layered and body-part complete. The catalogue retains cloth, leather, buff, mail, scale, lamellar, chain-and-plate, rattan, and shield systems alongside light, medium, and proofed plate. Full harness remains available for early-century, elite, ceremonial, siege, and specialist use, while local date and unit manifests determine when lighter cuirasses, buff coats, or no armour become ordinary.
+
+### Military support and naval equipment
+
+Functional carrying gear belongs here when it directly carries weapons, ammunition, armour, or gun tools. Cosmetic belts and uniform crossbelts remain in the clothing branch. Naval rows cover shipboard weapon storage, gun operation, boarding, signalling, and protective handling; general ship construction and civilian maritime household goods remain outside this catalogue.
+
+## Culture and institution admission matrix
+
+Builder-facing labels follow the Early Modern master reference. Public item text remains form-based; regional labels in stable references or notes exist for coverage and do not need to appear in `sdesc`.
+
+| Inspiration family | Anchor | Military-material focus |
+|---|---:|---|
+| French / Baroque court and urban | c. 1650-1750 | Flintlock infantry, cuirassiers, smallswords, artillery, officer weapons, state colours, and naval stores. |
+| Dutch Republic / Low Countries | c. 1600-1720 | Snaphaunce and flintlock arms, urban militia weapons, maritime artillery, boarding gear, and commercial armoury support. |
+| English / British Stuart-Georgian | c. 1600-1750 | Doglock-to-flintlock transition, pike-and-shot survivals, socket bayonets, naval gunnery, militia gear, and colonial service arms. |
+| Iberian / Portuguese-Spanish empires | c. 1600-1750 | Miquelet firearms, swords and polearms, cavalry equipment, fortress artillery, naval arms, and Atlantic/Pacific colonial military stores. |
+| German / HRE / Austrian | c. 1600-1750 | Matchlock and flintlock infantry arms, cuirassier harness, pikes, sabres, artillery, town armouries, and proofed plate. |
+| Italian states | c. 1600-1750 | Rapiers, smallswords, polearms, firearms, surviving armour, galley and fortress equipment, and ceremonial arms. |
+| Scandinavian / Baltic | c. 1600-1750 | State infantry muskets and pikes, cavalry swords, cold-weather field gear, Baltic naval artillery, and armoury storage. |
+| Polish-Lithuanian / Hungarian frontier | c. 1600-1750 | Sabres, lances, horse bows, cavalry firearms, mail-and-plate and cuirasses, horse gear, and campaign standards. |
+| Russian / Petrine and post-Petrine | c. 1600-1750 | Matchlocks and flintlocks, bardiches, pikes, sabres, cavalry arms, reform-era state equipment, and fortress artillery. |
+| Ottoman | c. 1600-1750 | Matchlock and miquelet firearms, composite bows, kilij and pala sidearms, mail-and-plate, shields, cavalry equipment, and artillery. |
+| Maghrebi / North African | c. 1600-1750 | Miquelet firearms, nimcha and saif sidearms, adarga-like shields, cavalry gear, corsair boarding arms, and coastal artillery. |
+| Safavid / post-Safavid Persianate | c. 1600-1750 | Matchlocks, composite bows, shamshir-family sidearms, lances, mail-and-plate armour, dhal-like shields, and artillery. |
+| Mughal / Indo-Persian | c. 1600-1750 | Toradar matchlocks, composite bows, tulwar and katar families, mail-and-plate, dhal shields, cavalry gear, and heavy artillery. |
+| Maratha / Rajput / Deccan | c. 1650-1750 | Matchlocks, swords, spears and lances, shields, mail and plate combinations, cavalry equipment, and regional artillery. |
+| South Indian / coastal trade | c. 1600-1750 | Matchlocks, swords and spears, shields, light armour, coastal-fort artillery, and Indian Ocean naval stores. |
+| Qing China | c. 1644-1750 | Heavy composite bows, matchlocks, polearms, sabres, brigandine and lamellar survivals, banner equipment, and artillery. |
+| Late Ming survival / transition | c. 1600-1650 | Matchlocks, crossbows, polearms, swords, shields, scale or lamellar survivals, fortress guns, and naval weapons. |
+| Joseon Korea | c. 1600-1750 | Horn bows, matchlocks, polearms, swords, lamellar or brigandine armour, signal equipment, and fortress or naval artillery. |
+| Edo Japan | c. 1600-1750 | Tanegashima matchlocks, yari, naginata, swords, bows, tosei-gusoku armour families, jingasa, standards, and castle stores. |
+| Ryukyu and maritime East Asia | c. 1600-1750 | Maritime swords and spears, bows, adopted firearms, light armour, shipboard gear, and tribute-route military stores. |
+| Mainland South-east Asian courts | c. 1600-1750 | Matchlocks, swords and polearms, bamboo and rattan equipment, shields, light armour, artillery, and court standards. |
+| Maritime South-east Asian trade worlds | c. 1600-1750 | Matchlocks, kris and kampilan forms, spears, shields, boarding arms, shipboard stores, and coastal artillery. |
+| Inner Asian / steppe frontier | c. 1600-1750 | Composite bows, sabres, lances, matchlocks, lamellar survivals, horse equipment, quivers, and caravan military gear. |
+| West African court and Atlantic trade | c. 1600-1750 | Spears, swords, throwing knives, shields, court weapons, cavalry where locally appropriate, and controlled firearm admissions. |
+| Kongo / Angola / West Central Africa | c. 1600-1750 | Spears, swords, shields, court and contact-zone arms, imported firearms, ammunition support, and fort or shipboard stores. |
+| Sahelian / Hausa / Islamic West Africa | c. 1600-1750 | Cavalry lances and sabres, mail, shields, bows, matchlocks, horse equipment, standards, and trans-Saharan military supply. |
+| Ethiopian / Red Sea | c. 1600-1750 | Matchlocks, spears, swords, shields, mail survivals, cavalry gear, standards, and Red Sea contact equipment. |
+| Swahili Coast / Indian Ocean Africa | c. 1600-1750 | Firearms, swords and spears, shields, coastal-fort artillery, boarding gear, and Indian Ocean military trade stores. |
+| Spanish colonial Americas | c. 1600-1750 | Pike-and-shot and cavalry equipment, swords, muskets, armour survivals, frontier artillery, and deliberate local Indigenous admissions. |
+| Portuguese Brazil / Atlantic plantation | c. 1600-1750 | Firearms, swords, polearms, fort and naval stores, colonial militia gear, and deliberately gated Indigenous or African continuities. |

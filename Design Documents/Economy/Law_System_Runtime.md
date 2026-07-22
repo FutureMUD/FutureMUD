@@ -125,6 +125,10 @@ Automated trial effects persist their current phase, manual-trial flag, remainin
 
 Automated trials use separate judge and prosecutor roles. The judge AI can read charges, collect pleas, move phases, announce verdicts, and sentence, but it does not argue the prosecution case. A prosecutor patrol member in the court claims the prosecution role and presents prosecution arguments; if no valid prosecutor patrol member is present, the trial waits rather than having the judge fill both roles.
 
+In a RouteCell, courtroom participation is coordinate-local rather than cell-wide. Judges, prosecutors, defenders, defendants, and characters using `argue` or viewing the active proceeding must be within Immediate proximity on the same layer. The court cell itself remains the legal venue for docket, availability, and single-active-trial checks; sharing that potentially long cell does not allow a participant to conduct the hearing from kilometres away.
+
+Lawyer AI pathing targets the active defendant's effective spatial position, so a lawyer already elsewhere in the same RouteCell travels longitudinally to the hearing rather than treating cell identity as arrival. A configured RouteCell home or court without a perceivable target resolves to that cell's authored default coordinate; ordinary-cell lawyer paths retain their exit-only behavior.
+
 While a defendant has an `OnTrial` effect, the trial is treated as courtroom custody: the defendant cannot voluntarily quit or walk out of the proceeding. Trial start paths apply the effect only after the defendant has arrived in court so automated remand-to-court transfers do not trip the movement blocker. If a lawyer or prosecutor disappears during automated case arguments, the judge waits instead of advancing with a missing role. After the grace period, a missing defender is cleared and the defendant falls back to self-defense; a missing prosecutor is cleared so the next valid prosecutor patrol member can reclaim the role.
 
 A PC judge is any enforcer whose enforcement authority has `CanConvict` for the jurisdiction and whose authority can judge the defendant's legal class.
@@ -171,6 +175,8 @@ Active patrol enforcers immediately hand an arrestable active-enforcement target
 
 On-duty enforcers who are not currently assigned to a patrol can still take immediate custody of a helpless nearby criminal when the legal authority has a known, unfinalised, arrestable crime for that person. The enforcer begins dragging the criminal, clears any enforcer-side grapple or clinch state used to subdue them, paths to the authority prison location, and then uses the normal incarceration flow. This fallback is intentionally limited to arrestable detention cases; kill-on-sight enforcement and ordinary active fights remain patrol/combat behavior.
 
+Patrol awareness and visible-corpse reporting use bounded spatial queries in RouteCells. General enforcement and visible reporting use the configured local perception range, while taking, transferring, releasing, restraining, and dragging custody require Immediate proximity. Legal authority cells, remand-cell lists, court/prison locations, patrol nodes, and evidence-storage rooms remain topology identities rather than proximity tests.
+
 ## Legal Status Diagnostics
 
 The `legal status [authority]` admin command and the player-facing `legalstatus [authority]` / `lawstatus [authority]` command report legal-system setup health. Administrators can view every legal authority, or their currently edited authority when using `legal status` with an editor open. PC enforcers can view only authorities for which they currently have an enforcement authority.
@@ -203,6 +209,8 @@ The same order applies independently to the distant alert echo. Race and AI defa
 
 On-duty NPC enforcers, meaning enforcers with an active `PatrolMemberEffect`, respond to heard alerts by pathing toward the alert origin when they are generally able to move, not already in combat, and not already pursuing an active enforcement target. If they arrive at a room where another enforcer from the same legal authority is already fighting, they attempt to engage that enforcer's current combat target. Enforcers also emit their own `ALERT` when they enter combat, allowing nearby on-duty enforcers who hear the alert to converge.
 
+Inside RouteCells, alert responders path to the alerter's effective layer and longitudinal coordinate through the typed spatial-path system. Merely sharing the alert's RouteCell is not treated as arrival. Ordinary-cell alerts continue using the same friendly door-aware exit traversal policy.
+
 ## Crime-Driven Patrol Dispatch
 
 Most patrol routes are scheduled from their route readiness, time-of-day, priority, and enforcer-number requirements. Crime-driven patrol strategies use the same route and enforcer configuration, but the patrol controller only dispatches them when a matching reported crime exists. These patrols are not launched as ordinary scheduled patrols.
@@ -214,6 +222,8 @@ Crime-driven routes still require:
 - required enforcer numbers
 - current time of day matching the route
 - the reported crime location to be within the strategy coverage radius of at least one patrol node
+
+Coverage is measured with weighted room-equivalent spatial paths when a RouteCell lies between the patrol node and crime location. Because v1 crime records identify a cell but do not persist an exact longitudinal crime-scene coordinate, a RouteCell crime location resolves to its authored default coordinate. Arrival requires reaching that coordinate; entering or already sharing the RouteCell is not sufficient.
 
 The patrol remembers the reported crime as its runtime target. This target is transient patrol state, matching existing active-enforcement state; if a patrol is reloaded without that target, the crime-driven strategy concludes rather than enforcing an unknown target.
 
@@ -256,6 +266,8 @@ For administered drugs, the configured drug is dosed directly into the condemned
 For firing squads, patrol members try to wield, load, ready, and fire ranged weapons. The method succeeds for the tick if at least one available shooter fires.
 
 Restraints are collected from the equipment room and then applied in the execution room when useful. The patrol first prefers guards already holding valid restraints, but can also use restraint items available locally in the execution room. Restraints are treated as a securing aid rather than a magic execution flag: if the applied restraint does not actually make the condemned helpless, guards return to subduing or rely on an existing voluntary submission/drag state before the killing method proceeds.
+
+For RouteCells, configured equipment and execution cells resolve to the cell's authored default coordinate on the mover's layer. Execution patrols use typed spatial paths to converge on that coordinate and use the condemned character's exact effective coordinate while retrieving them. Loose restraints and restraint targets must remain within Immediate proximity of the restrainer, and ceremony/killing readiness requires both the executioner and condemned prisoner to have reached the configured execution coordinate and remain colocated. Corpse-recovery patrols likewise follow a typed spatial path to the reported corpse's exact effective coordinate; sharing the same long RouteCell is neither treated as arrival nor grounds for failing the recovery.
 
 ## Player Constraint
 

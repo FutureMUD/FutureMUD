@@ -1,6 +1,7 @@
 ﻿using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.Form.Characteristics;
+using MudSharp.Form.Shape;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.Models;
@@ -57,6 +58,17 @@ public class UnusedInputProduct : BaseProduct
             {
                 item.RoomLayer = layer;
                 location.Insert(item);
+                item.HandleEvent(EventType.ItemFinishedLoading, item);
+                item.Login();
+            }
+        }
+
+        public void ReleaseProducts(ILocateable source, ICell location, RoomLayer layer)
+        {
+            foreach (IGameItem item in Products)
+            {
+                item.RoomLayer = layer;
+                item.InsertAtSource(source);
                 item.HandleEvent(EventType.ItemFinishedLoading, item);
                 item.Login();
             }

@@ -87,13 +87,13 @@ class CreateNPCEffect : IMagicSpellEffectTemplate
         }
 
         ICell cell = target as ICell ?? caster.Location;
+		var casterLocation = RouteSpatialService.Instance.GetEffectiveLocation(caster);
+		var spawnLocation = ReferenceEquals(cell, casterLocation.Cell)
+			? casterLocation
+			: CharacterInstanceService.CreateDefaultSpawnLocation(cell, RoomLayer.GroundLevel);
 
-        ICharacter newCharacter = template.CreateNewCharacter(cell);
+        ICharacter newCharacter = template.CreateNewCharacter(spawnLocation);
         Gameworld.Add(newCharacter, true);
-        if (cell == caster.Location)
-        {
-            newCharacter.RoomLayer = caster.RoomLayer;
-        }
 
         template.ApplyTemplateLoadAdditions(newCharacter);
         template.OnLoadProg?.Execute(newCharacter);

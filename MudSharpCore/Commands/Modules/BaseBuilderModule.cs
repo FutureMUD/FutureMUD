@@ -1,6 +1,7 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Trees;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Events;
 using MudSharp.Form.Characteristics;
@@ -1014,7 +1015,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
                 else
                 {
                     item.RoomLayer = actor.RoomLayer;
-                    actor.Location.Insert(item);
+                    item.InsertAtSource(actor);
                 }
 
                 item.HandleEvent(EventType.ItemFinishedLoading, item);
@@ -1041,7 +1042,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
                     else
                     {
                         item.RoomLayer = actor.RoomLayer;
-                        actor.Location.Insert(item);
+                        item.InsertAtSource(actor);
                     }
 
                     item.HandleEvent(EventType.ItemFinishedLoading, item);
@@ -1065,7 +1066,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
             else
             {
                 item.RoomLayer = actor.RoomLayer;
-                actor.Location.Insert(item);
+                item.InsertAtSource(actor);
             }
 
             item.HandleEvent(EventType.ItemFinishedLoading, item);

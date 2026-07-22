@@ -71,13 +71,15 @@ public class GuardItem : Effect, IGuardItemEffect, ILDescSuffixEffect, IAffectPr
         ReleaseEvents();
     }
 
-    private void LoadFromXml(XElement root)
-    {
-        IncludeVicinity = bool.Parse(root.Element("Vicinity").Value);
-        long id = long.Parse(root.Element("Id").Value);
-        CharacterOwner = Owner as ICharacter;
-        TargetItem = Owner.Location.LayerGameItems(CharacterOwner.RoomLayer).FirstOrDefault(x => x.Id == id);
-        LoadErrors = TargetItem == null || CharacterOwner == null;
+	private void LoadFromXml(XElement root)
+	{
+		IncludeVicinity = bool.Parse(root.Element("Vicinity").Value);
+		long id = long.Parse(root.Element("Id").Value);
+		CharacterOwner = Owner as ICharacter;
+		TargetItem = CharacterOwner?.Location is { } location
+			? location.GameItemsInImmediateVicinity(CharacterOwner).FirstOrDefault(x => x.Id == id)
+			: null;
+		LoadErrors = TargetItem == null || CharacterOwner == null;
     }
 
     protected override XElement SaveDefinition()
@@ -95,10 +97,12 @@ public class GuardItem : Effect, IGuardItemEffect, ILDescSuffixEffect, IAffectPr
     {
         TargetItem.OnRemovedFromLocation += InvalidateEffect;
         TargetItem.OnQuit += InvalidateEffect;
-        TargetItem.OnDeleted += InvalidateEffect;
-        TargetItem.OnDeath += InvalidateEffect;
-        CharacterOwner.OnWantsToMove += CharacterOwner_OnWantsToMove;
-        CharacterOwner.OnMoved += CharacterOwner_OnMoved;
+		TargetItem.OnDeleted += InvalidateEffect;
+		TargetItem.OnDeath += InvalidateEffect;
+		TargetItem.OnSpatialPositionChanged += TargetItem_OnSpatialPositionChanged;
+		CharacterOwner.OnWantsToMove += CharacterOwner_OnWantsToMove;
+		CharacterOwner.OnMoved += CharacterOwner_OnMoved;
+		CharacterOwner.OnSpatialPositionChanged += CharacterOwner_OnSpatialPositionChanged;
         CharacterOwner.OnEngagedInMelee += InvalidateEffect;
         CharacterOwner.OnDeath += InvalidateEffect;
         CharacterOwner.OnStateChanged += CharacterOwner_OnStateChanged;
@@ -113,10 +117,28 @@ public class GuardItem : Effect, IGuardItemEffect, ILDescSuffixEffect, IAffectPr
         }
     }
 
-    private void CharacterOwner_OnMoved(object sender, MoveEventArgs e)
-    {
-        InvalidateEffect(CharacterOwner);
-    }
+	private void CharacterOwner_OnMoved(object sender, MoveEventArgs e)
+	{
+		InvalidateEffect(CharacterOwner);
+	}
+
+	private void CharacterOwner_OnSpatialPositionChanged(ILocateable locatable, SpatialLocation previousLocation,
+		SpatialLocation currentLocation)
+	{
+		if (!CharacterOwner.ColocatedWith(TargetItem))
+		{
+			InvalidateEffect(CharacterOwner);
+		}
+	}
+
+	private void TargetItem_OnSpatialPositionChanged(ILocateable locatable, SpatialLocation previousLocation,
+		SpatialLocation currentLocation)
+	{
+		if (!CharacterOwner.ColocatedWith(TargetItem))
+		{
+			InvalidateEffect(TargetItem);
+		}
+	}
 
     private void CharacterOwner_OnWantsToMove(IPerceivable owner, PerceivableRejectionResponse response)
     {
@@ -128,10 +150,12 @@ public class GuardItem : Effect, IGuardItemEffect, ILDescSuffixEffect, IAffectPr
     {
         TargetItem.OnRemovedFromLocation -= InvalidateEffect;
         TargetItem.OnQuit -= InvalidateEffect;
-        TargetItem.OnDeleted -= InvalidateEffect;
-        TargetItem.OnDeath -= InvalidateEffect;
-        CharacterOwner.OnWantsToMove -= CharacterOwner_OnWantsToMove;
-        CharacterOwner.OnMoved -= CharacterOwner_OnMoved;
+		TargetItem.OnDeleted -= InvalidateEffect;
+		TargetItem.OnDeath -= InvalidateEffect;
+		TargetItem.OnSpatialPositionChanged -= TargetItem_OnSpatialPositionChanged;
+		CharacterOwner.OnWantsToMove -= CharacterOwner_OnWantsToMove;
+		CharacterOwner.OnMoved -= CharacterOwner_OnMoved;
+		CharacterOwner.OnSpatialPositionChanged -= CharacterOwner_OnSpatialPositionChanged;
         CharacterOwner.OnEngagedInMelee -= InvalidateEffect;
         CharacterOwner.OnDeath -= InvalidateEffect;
         CharacterOwner.OnStateChanged -= CharacterOwner_OnStateChanged;

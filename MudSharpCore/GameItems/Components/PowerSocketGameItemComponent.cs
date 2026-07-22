@@ -107,7 +107,7 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
             IConnectable newItemConnectable = newItem?.GetItemType<IConnectable>();
             if (newItemConnectable == null)
             {
-                location?.Insert(connectedItem.Parent);
+                InsertAtParentSpatialLocation(connectedItem.Parent, location);
             }
             else
             {
@@ -117,7 +117,7 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
                 }
                 else
                 {
-                    location?.Insert(connectedItem.Parent);
+                    InsertAtParentSpatialLocation(connectedItem.Parent, location);
                 }
             }
         }
@@ -219,7 +219,7 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
                 continue;
             }
 
-            if (gitem.Location != Parent.Location)
+            if (!Parent.ColocatedWith(gitem))
             {
                 continue;
             }

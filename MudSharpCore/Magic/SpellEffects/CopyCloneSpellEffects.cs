@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using MudSharp.Character.Heritage;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Framework.Revision;
@@ -175,8 +176,7 @@ public partial class CopySpellEffect : IMagicSpellEffectTemplate
 			CharacterInstanceService.CreateMagicalCopySpawnOptions(
 				anchor,
 				form,
-				anchor.Location,
-				anchor.RoomLayer,
+				RouteSpatialService.Instance.GetEffectiveLocation(anchor),
 				EffectivePlaneId(),
 				Spell.Id,
 				FormKey,
@@ -782,8 +782,7 @@ public class CloneSpellEffect : IMagicSpellEffectTemplate
 			CharacterInstanceService.CreatePhysicalCloneSpawnOptions(
 				anchor,
 				form,
-				anchor.Location,
-				anchor.RoomLayer,
+				RouteSpatialService.Instance.GetEffectiveLocation(anchor),
 				Spell.Id,
 				FormKey,
 				_playerFocusable,

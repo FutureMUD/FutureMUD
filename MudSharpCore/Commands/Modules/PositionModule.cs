@@ -552,7 +552,7 @@ For example, if you set the omote of #2a white cotton shirt#0 to #6folded in a n
         output.Append(emote);
         chair.SetTable(null);
         chairitem.RoomLayer = character.RoomLayer;
-        character.Location.Insert(chairitem, true);
+        chairitem.InsertAtSource(character, true);
         chairitem.SetModifier(PositionModifier.None);
         chairitem.SetTarget(null);
         character.OutputHandler.Handle(output);

@@ -1,0 +1,234 @@
+ ____                              _   _
+|  _ \  __ _ _ __ ___  _ __   __ _| |_(_) ___
+| | | |/ _` | '_ ` _ \| '_ \ / _` | __| |/ _ \
+| |_| | (_| | | | | | | | | | (_| | |_| | (_) |
+|____/_\__,_|_| |_| |_|_| |_|\__,_|\__|_|\___/
+|  \/  | ___ _ __ ___   ___  _ __(_) __ _  ___
+| |\/| |/ _ \ '_ ` _ \ / _ \| '__| |/ _` |/ _ \
+| |  | |  __/ | | | | | (_) | |  | | (_| |  __/
+|_|  |_|\___|_| |_| |_|\___/|_|  |_|\__,_|\___|
+       __
+      <  \
+[\\\\\\(\ (:::<======================================-
+\<      >  \
+ \\    /    |       Powered by the FutureMUD Engine v2.0.1.0000
+  `==='____/               Copyright 2008-2026
+
+ Join us on Discord! https://discord.gg/yjYtBr8ZkY
+
+ Select an Option:
+
+ C) Create an Account
+ L) Login to an Account
+ R) Recover a Lost Account
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+                   _
+                ,''/., _            Welcome, Japheth!
+        `.-._\`/. ( //'/'`.
+      _.-`-. ``' ` `(   -. \        ========== Options ===========
+    ,'  ,    ,-:._ _..-.. \/
+   / ,'/ ,`.( _.'-'.     )/         C) Connect to a character
+   `.\ '(   ,'      `.              G) Login as a guest
+      `._\ /'       \ \             N) Create a new character
+          /:         \ \-.          E) Change your email address
+        ,;':._______...-'_)         P) Change your [REDACTED]
+        \:/-.._______..-_|
+         : :\   `----'|'-;          X) Disconnect from the game
+          \ :\    : : ;:/
+           \ ``.   ; /;/
+            )   `.  /,'
+          ,'      `-' \
+         /  .--.       )
+        /_.---._`._   /
+                `.__.'
+
+
+Your Choice:
+> c
+You have the following characters:
+  1: Japheth (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+QA Intertown Linear Corridor
+ID[2] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits:
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, it is pitch black here.
+
+A QA scheduled train hull is here.
+A QA final fast scheduled train hull is here.
+A QA universal hitch harness is here.
+A QA universal hitch harness is here.
+A QA horse drawn wagon is here.
+A QA draught horse is standing here, dragging a QA horse drawn wagon.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are riding a QA horse drawn wagon>
+> look
+QA Intertown Linear Corridor
+ID[2] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits:
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, it is pitch black here.
+
+A QA scheduled train hull is here.
+A QA final fast scheduled train hull is here.
+A QA universal hitch harness is here.
+A QA universal hitch harness is here.
+A QA horse drawn wagon is here.
+A QA draught horse is standing here, dragging a QA horse drawn wagon.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are riding a QA horse drawn wagon>
+> vehiclestatus
+=======[ QA Route Wagon - Vehicle Status ]==========================================================================================================================================
+Movement: Stationary
+Controller: you
+Crew: 1 occupying 1 configured slot type
+Access: none
+Cargo: none
+Modules: none
+Damage: serviceable
+RouteCell readiness: ready
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are riding a QA horse drawn wagon>
+> vehicle show 8
+=======[ Vehicle #8 - QA Route Wagon ]==============================================================================================================================================
+Prototype: QA Route Wagon (#3r1)
+Scale: RoomContainer
+Canonical Location: Route QA Intertown Linear Corridor [GroundLevel]
+Movement: Stationary
+Transit: Exit #none, Destination #none
+RouteCell: 10,000.000m long, topology 10, room equivalent 100.000m
+Route Position: durable 234.225m; effective 234.225m
+Route Profiles: #7 RouteCell Movement / 4.000m/s / ExternallyPulled
+
+Item Projection:
+  Exterior Item Id: 12
+  Loaded Item: a QA horse drawn wagon
+  Component Link: 8
+  Projection In Sync: True
+
+Occupants:
+  a hollow-eyed hag with curly sideburns | identity #1 | instance #1 | body #1 | Primary | cell #2 GroundLevel in Driver controlling
+
+Hosted Compartments:
+  #11 Wagonbox interior #missing [terrain missing, Indoors] links 0
+
+Dockings:
+  None
+
+Access Points:
+  None
+
+Cargo Spaces:
+  None
+
+Installations:
+  None
+
+Tow Links:
+  #1 QA Route Wagon:Rear -> QA Route Wagon:Front hitch a QA universal hitch harness
+
+Mixed Hitch Links:
+  #1 a QA draught horse | identity #2 | instance #2 | body #2 | Primary | cell #2 GroundLevel -> QA Route Wagon:Shafts hitch a QA universal hitch harness
+
+Damage Zones:
+  None
+
+Operational Readiness:
+  Access: default permissive (no explicit grants).
+  Movement Profile: RouteCell Movement (#7)
+  Environment: Unrestricted
+  No readiness warnings or blockers detected.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are riding a QA horse drawn wagon>
+> vehicle show 9
+=======[ Vehicle #9 - QA Route Wagon ]==============================================================================================================================================
+Prototype: QA Route Wagon (#3r1)
+Scale: RoomContainer
+Canonical Location: Route QA Intertown Linear Corridor [GroundLevel]
+Movement: Stationary
+Transit: Exit #none, Destination #none
+RouteCell: 10,000.000m long, topology 10, room equivalent 100.000m
+Route Position: durable 234.225m; effective 234.225m
+Route Profiles: #7 RouteCell Movement / 4.000m/s / ExternallyPulled
+
+Item Projection:
+  Exterior Item Id: 13
+  Loaded Item: a QA horse drawn wagon
+  Component Link: 9
+  Projection In Sync: True
+
+Occupants:
+  None
+
+Hosted Compartments:
+  #12 Wagonbox interior #missing [terrain missing, Indoors] links 0
+
+Dockings:
+  None
+
+Access Points:
+  None
+
+Cargo Spaces:
+  None
+
+Installations:
+  None
+
+Tow Links:
+  #1 QA Route Wagon:Rear -> QA Route Wagon:Front hitch a QA universal hitch harness
+
+Mixed Hitch Links:
+  None
+
+Damage Zones:
+  None
+
+Operational Readiness:
+  Access: default permissive (no explicit grants).
+  Movement Profile: RouteCell Movement (#7)
+  Environment: Unrestricted
+  No readiness warnings or blockers detected.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are riding a QA horse drawn wagon>
+> vehicle audit 8 hitch
+Vehicle Hitch audit for 1 vehicle:
+  No findings.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are riding a QA horse drawn wagon>

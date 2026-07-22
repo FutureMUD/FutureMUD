@@ -60,6 +60,17 @@ public class BloodTypingProduct : BaseProduct
         }
 
         public void ReleaseProducts(ICell location, RoomLayer layer)
+		{
+			ReleaseProductsTo(location.LayerCharacters(layer));
+		}
+
+		public void ReleaseProducts(ILocateable source, ICell location, RoomLayer layer)
+		{
+			ReleaseProductsTo(location.CharactersInImmediateVicinity(source)
+				.Where(x => x.RoomLayer == layer));
+		}
+
+		private void ReleaseProductsTo(IEnumerable<ICharacter> witnesses)
         {
             List<BloodLiquidInstance> bloods = Mixture.Instances
                                 .OfType<BloodLiquidInstance>()
@@ -120,7 +131,7 @@ public class BloodTypingProduct : BaseProduct
                     $"Based on the antigen results, this sample is a match for the {match.Name.Colour(Telnet.BoldRed)} blood type.");
             }
 
-            foreach (ICharacter ch in location.LayerCharacters(layer))
+			foreach (ICharacter ch in witnesses)
             {
                 ch.OutputHandler.Send(sb.ToString());
             }

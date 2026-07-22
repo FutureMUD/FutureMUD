@@ -383,7 +383,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
                     continue;
                 }
 
-                location.Insert(thelock.Parent);
+                InsertAtParentSpatialLocation(thelock.Parent, location);
                 thelock.Parent.ContainedIn = null;
             }
         }
@@ -449,7 +449,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
                 continue;
             }
 
-            if (gitem.Location != Parent.Location)
+            if (!Parent.ColocatedWith(gitem))
             {
                 continue;
             }

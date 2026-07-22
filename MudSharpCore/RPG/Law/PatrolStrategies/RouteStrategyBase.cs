@@ -55,30 +55,26 @@ public abstract class RouteStrategyBase : PatrolStrategyBase
                 return;
             }
 
-            List<ICellExit> path = patrol.PatrolLeader
-                             .PathBetween(patrol.NextMajorNode, 20,
-                                 PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader))
-                             .ToList();
-            // If we can't find a path, try to get closer at least
-            if (path.Count == 0)
-            {
-                path = patrol.PatrolLeader.PathBetween(patrol.NextMajorNode, 50,
-                    PathSearch.IgnorePresenceOfDoors).ToList();
-                if (path.Count == 0)
-                {
-                    if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
-                    {
-                        // Abort patrol
-                        patrol.AbortPatrol();
-                        return;
-                    }
+			if (TryBeginPatrolPath(
+					patrol.PatrolLeader,
+					patrol.NextMajorNode,
+					20.0,
+					PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader)) ||
+				TryBeginPatrolPath(
+					patrol.PatrolLeader,
+					patrol.NextMajorNode,
+					50.0,
+					PathSearch.IgnorePresenceOfDoors))
+			{
+				return;
+			}
 
-                    return;
-                }
-            }
+			if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+			{
+				patrol.AbortPatrol();
+			}
 
-            BeginPatrolPath(patrol.PatrolLeader, path);
-            return;
+			return;
         }
     }
 }

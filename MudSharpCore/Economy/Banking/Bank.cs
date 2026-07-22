@@ -678,7 +678,7 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
                 }
                 else
                 {
-                    actor.Location.Insert(changeItem, true);
+                    changeItem.InsertAtSource(actor, true);
                     actor.OutputHandler.Send("You couldn't hold your change, so it is on the ground.");
                 }
             }
@@ -742,7 +742,7 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
         }
         else
         {
-            actor.Location.Insert(currencyItem, true);
+            currencyItem.InsertAtSource(actor, true);
             actor.OutputHandler.Send("You couldn't hold your money, so it is on the ground.");
         }
 

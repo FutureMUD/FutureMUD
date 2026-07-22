@@ -120,7 +120,7 @@ public partial class Character
     private void HandleMountEvent(EventType characterEvent, EventType witnessEvent, ICharacter rider)
     {
         rider.HandleEvent(characterEvent, rider, this);
-        foreach (IHandleEvents witness in Location.EventHandlers.Where(x => x != rider))
+        foreach (IHandleEvents witness in Location.EventHandlersFor(this).Where(x => x != rider))
         {
             witness.HandleEvent(witnessEvent, rider, this, witness);
         }

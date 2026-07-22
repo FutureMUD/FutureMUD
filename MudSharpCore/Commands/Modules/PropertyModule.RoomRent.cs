@@ -1,5 +1,6 @@
 ﻿using MudSharp.Character.Name;
 using MudSharp.Commands.Helpers;
+using MudSharp.Construction;
 using MudSharp.Community;
 using MudSharp.Economy;
 using MudSharp.Economy.Banking;
@@ -488,7 +489,7 @@ Economic zone manager commands:
 			return;
 		}
 
-		actor.Location.Insert(item, true);
+		item.InsertAtSource(actor, true);
 		actor.OutputHandler.Send(groundMessage);
 	}
 

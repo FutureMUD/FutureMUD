@@ -5,6 +5,7 @@ using MudSharp.Combat.ScatterStrategies;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
+using MudSharp.Framework;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
@@ -99,7 +100,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 
         if (RandomUtilities.Roll(1.0, hit ? AmmoType.BreakChanceOnHit : AmmoType.BreakChanceOnMiss))
         {
-            target.Location.Insert(ammo, true);
+            ammo.InsertAtSource(target, true);
             if (emoteOnBreak != null)
             {
                 target.OutputHandler.Handle(emoteOnBreak);
@@ -109,7 +110,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
             if (result != null)
             {
                 result.RoomLayer = target.RoomLayer;
-                target.Location.Insert(result);
+                result.InsertAtSource(target);
                 if (!result.Deleted)
                 {
                     result.AddEffect(new CombatNoGetEffect(result, actor.Combat), TimeSpan.FromSeconds(20));
@@ -120,7 +121,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
             return;
         }
 
-        target.Location.Insert(ammo);
+        ammo.InsertAtSource(target);
         ammo.PositionTarget = target;
         if (emoteOnFallToGround != null)
         {
@@ -135,24 +136,24 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         }
     }
 
-    private void HandleAmmunitionScatterToCell(ICharacter actor, ICell cell, RoomLayer roomLayer, IGameItem ammo,
+    private void HandleAmmunitionScatterToCell(ICharacter actor, SpatialLocation impactLocation, IGameItem ammo,
         IEmoteOutput emoteOnBreak = null, IEmoteOutput emoteOnFallToGround = null)
     {
-        ammo.RoomLayer = roomLayer;
+        ammo.RoomLayer = impactLocation.Layer;
 
         if (RandomUtilities.Roll(1.0, AmmoType.BreakChanceOnMiss))
         {
-            cell.Insert(ammo, true);
+			ammo.InsertAtSpatialLocation(impactLocation, true);
             if (emoteOnBreak != null)
             {
-                cell.Handle(emoteOnBreak);
+				impactLocation.Cell.Handle(emoteOnBreak);
             }
 
             IGameItem result = ammo.Die();
             if (result != null)
             {
-                result.RoomLayer = roomLayer;
-                cell.Insert(result);
+				result.RoomLayer = impactLocation.Layer;
+				result.InsertAtSpatialLocation(impactLocation);
                 if (!result.Deleted && actor.Combat != null)
                 {
                     result.AddEffect(new CombatNoGetEffect(result, actor.Combat), TimeSpan.FromSeconds(20));
@@ -162,11 +163,11 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
             return;
         }
 
-        cell.Insert(ammo);
+		ammo.InsertAtSpatialLocation(impactLocation);
         ammo.PositionTarget = null;
         if (emoteOnFallToGround != null)
         {
-            cell.Handle(emoteOnFallToGround);
+			impactLocation.Cell.Handle(emoteOnFallToGround);
         }
 
         if (actor.Combat != null && !ammo.Deleted)
@@ -311,7 +312,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         EmoteOutput fallOutput = new(
             new Emote($"$0 ricochets{directionText} and falls to the ground.", dummy, ammo),
             style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap);
-        HandleAmmunitionScatterToCell(actor, scatterResult.Cell, scatterResult.RoomLayer, ammo, breakOutput,
+		HandleAmmunitionScatterToCell(actor, scatterResult.ImpactLocation, ammo, breakOutput,
             fallOutput);
         Gameworld.DebugMessage(
             $"[Scatter:{context}] Ricochet landed in {scatterResult.Cell.HowSeen(actor)}{directionText} without hitting a new target.");

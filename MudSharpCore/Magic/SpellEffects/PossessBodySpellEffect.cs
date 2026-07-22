@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using MudSharp.Character.Heritage;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.RPG.Checks;
@@ -160,8 +161,7 @@ public class PossessBodySpellEffect : IMagicSpellEffectTemplate
 			CharacterInstanceService.CreatePossessedBodySpawnOptions(
 				anchor,
 				form,
-				targetCharacter.Location,
-				targetCharacter.RoomLayer,
+				RouteSpatialService.Instance.GetEffectiveLocation(targetCharacter),
 				CharacterInstanceIdentityComparer.IdentityId(targetCharacter),
 				targetCharacter.InstanceId,
 				Spell.Id,

@@ -79,6 +79,57 @@ public class LegalPatrolStrategyTests
 		Assert.IsFalse(InvestigationPatrolStrategy.NeedsInvestigation(crime.Object));
 	}
 
+	[TestMethod]
+	public void LawyerAI_RoutePathing_ShouldTargetTheTrialDefendantsExactSpatialLocation()
+	{
+		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "NPC", "AI", "LawyerAI.cs"));
+
+		StringAssert.Contains(source, "protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath");
+		StringAssert.Contains(source, "RouteSpatialService.Instance.GetEffectiveLocation(defendant)");
+		StringAssert.Contains(source, "TryFindSpatialPath(");
+		StringAssert.Contains(source, "AffectedBy<OnTrial>(lawyering.LegalAuthority)");
+	}
+
+	[TestMethod]
+	public void CrimeTargetedPatrol_RoutePathing_ShouldUseWeightedPathsAndDefaultCoordinateArrival()
+	{
+		var source = File.ReadAllText(GetSourcePath(
+			"MudSharpCore", "RPG", "Law", "PatrolStrategies", "CrimeTargetedPatrolStrategyBase.cs"));
+
+		StringAssert.Contains(source, "origin.RouteDefinition?.DefaultPositionMetres");
+		StringAssert.Contains(source, "destination.RouteDefinition?.DefaultPositionMetres");
+		StringAssert.Contains(source, "pathfinder.TryFindPath(");
+		StringAssert.Contains(source, "HasReachedPatrolDestination(patrol.PatrolLeader, destination)");
+		StringAssert.Contains(source, "TryBeginPatrolPath(");
+	}
+
+	[TestMethod]
+	public void ExecutionAndCorpseRecovery_RoutePathing_ShouldConvergeOnSpatialTargets()
+	{
+		var execution = File.ReadAllText(GetSourcePath(
+			"MudSharpCore", "RPG", "Law", "PatrolStrategies", "ExecutionPatrolStrategy.cs"));
+		var corpseRecovery = File.ReadAllText(GetSourcePath(
+			"MudSharpCore", "RPG", "Law", "PatrolStrategies", "CorpseRecoveryPatrolStrategy.cs"));
+
+		StringAssert.Contains(execution, "HasReachedPatrolDestination(character, target)");
+		StringAssert.Contains(execution, "HasReachedPatrolDestination(leader, target)");
+		StringAssert.Contains(execution,
+			"HasReachedPatrolDestination(patrol.PatrolLeader, executionLocation)");
+		StringAssert.Contains(execution, "HasReachedPatrolDestination(_condemned, executionLocation)");
+		StringAssert.Contains(execution, "TryBeginPatrolPath(");
+		Assert.IsFalse(execution.Contains(".PathBetween("),
+			"Execution patrol convergence must not flatten a RouteCell into an exit-only path.");
+
+		StringAssert.Contains(corpseRecovery,
+			"HasReachedPatrolDestination(patrol.PatrolLeader, report.Corpse)");
+		StringAssert.Contains(corpseRecovery,
+			"HasReachedPatrolDestination(patrol.PatrolLeader, corpseItem)");
+		StringAssert.Contains(corpseRecovery, "TryBeginPatrolPath(");
+		StringAssert.Contains(corpseRecovery, "report.Corpse,");
+		Assert.IsFalse(corpseRecovery.Contains(".PathBetween("),
+			"Corpse recovery must follow the corpse's spatial target rather than a cell-only path.");
+	}
+
 	private static Mock<ICrime> CreateCrime(CrimeTypes crimeType, DateTime realTime, bool known)
 	{
 		var law = new Mock<ILaw>();
@@ -95,6 +146,17 @@ public class LegalPatrolStrategyTests
 		crime.SetupGet(x => x.RealTimeOfCrime).Returns(realTime);
 		crime.SetupGet(x => x.Law).Returns(law.Object);
 		return crime;
+	}
+
+	private static string GetSourcePath(params string[] parts)
+	{
+		return Path.GetFullPath(Path.Combine(
+			AppContext.BaseDirectory,
+			"..",
+			"..",
+			"..",
+			"..",
+			Path.Combine(parts)));
 	}
 
 }

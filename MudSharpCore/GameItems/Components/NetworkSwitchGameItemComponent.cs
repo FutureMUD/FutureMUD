@@ -134,7 +134,7 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 		foreach (var item in _pendingLoadTimeConnections.ToList())
 		{
 			var gitem = Gameworld.Items.Get(item.Item1);
-			if (gitem == null || gitem.Location != Parent.Location)
+			if (gitem == null || !Parent.ColocatedWith(gitem))
 			{
 				continue;
 			}
@@ -299,7 +299,7 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 			var newItemConnectable = newItem?.GetItemType<IConnectable>();
 			if (newItemConnectable == null)
 			{
-				location?.Insert(connectedItem.Parent);
+				InsertAtParentSpatialLocation(connectedItem.Parent, location);
 				continue;
 			}
 
@@ -309,7 +309,7 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 			}
 			else
 			{
-				location?.Insert(connectedItem.Parent);
+				InsertAtParentSpatialLocation(connectedItem.Parent, location);
 			}
 		}
 

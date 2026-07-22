@@ -12,6 +12,7 @@ public class VehicleExteriorGameItemComponent : GameItemComponent, IVehicleExter
 	private VehicleExteriorGameItemComponentProto _prototype;
 	private long? _vehicleId;
 	private string _repairNote = string.Empty;
+	private bool _synchronisingCanonicalRoutePosition;
 
 	public VehicleExteriorGameItemComponent(VehicleExteriorGameItemComponentProto proto, IGameItem parent, bool temporary = false)
 		: base(parent, proto, temporary)
@@ -56,6 +57,26 @@ public class VehicleExteriorGameItemComponent : GameItemComponent, IVehicleExter
 		Changed = true;
 	}
 
+	public bool TrySynchroniseRoutePosition(IVehicle vehicle, double? positionMetres)
+	{
+		if (vehicle is null || _vehicleId != vehicle.Id)
+		{
+			return false;
+		}
+
+		var previous = _synchronisingCanonicalRoutePosition;
+		_synchronisingCanonicalRoutePosition = true;
+		try
+		{
+			Parent.SetRoutePosition(positionMetres);
+			return true;
+		}
+		finally
+		{
+			_synchronisingCanonicalRoutePosition = previous;
+		}
+	}
+
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
 	{
 		return new VehicleExteriorGameItemComponent(this, newParent, temporary);
@@ -63,7 +84,7 @@ public class VehicleExteriorGameItemComponent : GameItemComponent, IVehicleExter
 
 	public override bool PreventsRepositioning()
 	{
-		return Vehicle?.Occupants.Any() == true;
+		return Vehicle?.Prototype.Scale != VehicleScale.RoomScale && Vehicle?.Occupants.Any() == true;
 	}
 
 	public override string WhyPreventsRepositioning()
@@ -73,11 +94,24 @@ public class VehicleExteriorGameItemComponent : GameItemComponent, IVehicleExter
 
 	public override void ForceMove()
 	{
+		if (_synchronisingCanonicalRoutePosition)
+		{
+			return;
+		}
+
 		Vehicle?.HandleExteriorItemForceMoved();
 	}
 
 	public override void Delete()
 	{
+		if (Vehicle?.Prototype.Scale == VehicleScale.RoomScale)
+		{
+			var vehicle = Vehicle;
+			base.Delete();
+			vehicle.HandleExteriorItemForceMoved();
+			return;
+		}
+
 		Vehicle?.ForceDisembarkAll();
 		base.Delete();
 	}

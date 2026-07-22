@@ -30,7 +30,7 @@ using ProgSchedule = MudSharp.FutureProg.ProgSchedule;
 
 namespace MudSharp.Commands.Modules;
 
-internal class RoomBuilderModule : Module<ICharacter>
+internal partial class RoomBuilderModule : Module<ICharacter>
 {
     private RoomBuilderModule()
         : base("Room Builder")
@@ -168,6 +168,7 @@ These commands all require you to have an open overlay package:
 	#3cell set forage <id|name>#0 - sets the forage profile to the specified profile
 	#3cell set atmosphere liquid|gas <id|name>#0 - sets the atmosphere to the specified
 	#3cell set atmosphere none#0 - sets the location to have no atmosphere
+	#3cell set route ...#0 - creates, edits, maps and validates linear RouteCell geometry
 	#3cell set safequit#0 - toggles whether the current room is a safe quit room
 
 #6** Note: You can use the alternate syntax @n instead of the room ID for this.
@@ -1842,6 +1843,13 @@ You can use the following subcommands:
             CellSetRegister(actor, input);
             return;
         }
+
+		if (input.Peek().Equals("route", StringComparison.InvariantCultureIgnoreCase))
+		{
+			input.PopSpeech();
+			CellSetRoute(actor, input);
+			return;
+		}
 
         if (actor.CurrentOverlayPackage == null)
         {

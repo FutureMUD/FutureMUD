@@ -386,7 +386,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
                     {
                         if (location != null)
                         {
-                            location.Insert(item);
+                            InsertAtParentSpatialLocation(item, location);
                             item.ContainedIn = null;
                         }
                         else
@@ -411,7 +411,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
                     {
                         if (location != null)
                         {
-                            location.Insert(item);
+                            InsertAtParentSpatialLocation(item, location);
                             item.ContainedIn = null;
                         }
                         else
@@ -430,7 +430,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             {
                 if (location != null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location);
                 }
                 else
                 {
@@ -442,7 +442,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             {
                 if (location != null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location);
                     item.ContainedIn = null;
                 }
                 else
@@ -691,10 +691,9 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             if (proto.Components.Any(x => x is StackableGameItemComponentProto))
             {
                 IGameItem newItem = proto.CreateNew(butcher);
-                newItem.RoomLayer = Parent.RoomLayer;
                 newItem.GetItemType<IStackable>().Quantity = quantity;
                 Gameworld.Add(newItem);
-                butcher.Location.Insert(newItem);
+                ButcherySpatialPlacement.Place(newItem, butcher, Parent.RoomLayer);
                 newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
                 newItem.Login();
                 productSB.AppendLine($"\t${count++} has been produced.");
@@ -705,9 +704,8 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             for (int i = 0; i < quantity; i++)
             {
                 IGameItem newItem = proto.CreateNew(butcher);
-                newItem.RoomLayer = Parent.RoomLayer;
                 Gameworld.Add(newItem);
-                butcher.Location.Insert(newItem);
+                ButcherySpatialPlacement.Place(newItem, butcher, Parent.RoomLayer);
                 newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
                 newItem.Login();
                 productSB.AppendLine($"\t${count++} has been produced.");
@@ -754,7 +752,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
                                           .ToList())
             {
                 _implants.Remove(item);
-                butcher.Location.Insert(item);
+                ButcherySpatialPlacement.Place(item, butcher, Parent.RoomLayer);
             }
 
             foreach (ITattoo tattoo in Tattoos.Where(x => affectedParts.Contains(x.Bodypart)).ToList())
@@ -784,12 +782,12 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
         foreach (IGameItem item in Contents.ToList())
         {
-            butcher.Location.Insert(item);
+            ButcherySpatialPlacement.Place(item, butcher, Parent.RoomLayer);
         }
 
         foreach (IGameItem item in _implants.ToList())
         {
-            butcher.Location.Insert(item);
+            ButcherySpatialPlacement.Place(item, butcher, Parent.RoomLayer);
         }
 
         _contents.Clear();
@@ -893,7 +891,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
                 }
                 else if (location != null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location, preferredSource: emptier);
                     emptier?.OutputHandler.Handle(new EmoteOutput(new Emote(
                             "@ cannot put $1 into $2, so #0 set|sets it down on the ground.", emptier, emptier, item,
                             intoContainer.Parent)));
@@ -908,7 +906,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
             if (location != null)
             {
-                location.Insert(item);
+                InsertAtParentSpatialLocation(item, location, preferredSource: emptier);
             }
             else
             {

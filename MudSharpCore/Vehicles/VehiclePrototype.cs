@@ -8,6 +8,9 @@ using ExpressionEngine;
 using MudSharp.Body.Traits;
 using MudSharp.RPG.Checks;
 using MudSharp.Combat;
+using MudSharp.Construction;
+using MudSharp.Framework.Units;
+using MudSharp.TimeAndDate;
 using DB = MudSharp.Models;
 
 namespace MudSharp.Vehicles;
@@ -15,6 +18,7 @@ namespace MudSharp.Vehicles;
 public class VehiclePrototype : EditableItem, IVehiclePrototype
 {
 	private readonly List<IVehicleCompartmentPrototype> _compartments = new();
+	private readonly List<IVehicleCompartmentLinkPrototype> _compartmentLinks = new();
 	private readonly List<IVehicleOccupantSlotPrototype> _occupantSlots = new();
 	private readonly List<IVehicleControlStationPrototype> _controlStations = new();
 	private readonly List<IVehicleMovementProfilePrototype> _movementProfiles = new();
@@ -40,7 +44,12 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 		foreach (var item in dbitem.Compartments.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Id))
 		{
-			_compartments.Add(new VehicleCompartmentPrototype(item));
+			_compartments.Add(new VehicleCompartmentPrototype(item, gameworld));
+		}
+
+		foreach (var item in dbitem.CompartmentLinks.OrderBy(x => x.Id))
+		{
+			_compartmentLinks.Add(new VehicleCompartmentLinkPrototype(item, _compartments));
 		}
 
 		foreach (var item in dbitem.OccupantSlots.OrderBy(x => x.Id))
@@ -123,6 +132,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			? Gameworld.ItemProtos.Get(_exteriorItemPrototypeId.Value)
 			: Gameworld.ItemProtos.Get(_exteriorItemPrototypeId.Value, _exteriorItemPrototypeRevision.Value);
 	public IEnumerable<IVehicleCompartmentPrototype> Compartments => _compartments;
+	public IEnumerable<IVehicleCompartmentLinkPrototype> CompartmentLinks => _compartmentLinks;
 	public IEnumerable<IVehicleOccupantSlotPrototype> OccupantSlots => _occupantSlots;
 	public IEnumerable<IVehicleControlStationPrototype> ControlStations => _controlStations;
 	public IEnumerable<IVehicleMovementProfilePrototype> MovementProfiles => _movementProfiles;
@@ -144,12 +154,6 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 	public bool CanCreateVehicle(out string reason)
 	{
-		if (Scale == VehicleScale.RoomScale)
-		{
-			reason = "Room-scale vehicles are not supported by the MudSharp 2.0 cell-exit vehicle boundary.";
-			return false;
-		}
-
 		if (ExteriorItemPrototype is null)
 		{
 			reason = "This vehicle prototype does not have an exterior item prototype.";
@@ -160,6 +164,12 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		                          .Any(x => x.VehiclePrototypeId == Id))
 		{
 			reason = "The exterior item prototype does not have a vehicle exterior component linked to this vehicle prototype.";
+			return false;
+		}
+
+		if (Scale == VehicleScale.RoomScale &&
+		    !ValidateRoomScaleTopology(_compartments, _compartmentLinks, _accessPoints, out reason))
+		{
 			return false;
 		}
 
@@ -187,9 +197,10 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			return false;
 		}
 
-		if (!_movementProfiles.Any(x => x.MovementType == VehicleMovementProfileType.CellExit))
+		if (!_movementProfiles.Any(x => x.MovementType is VehicleMovementProfileType.CellExit or
+			    VehicleMovementProfileType.Route))
 		{
-			reason = "This vehicle prototype does not define a cell-exit movement profile.";
+			reason = "This vehicle prototype does not define a cell-exit or RouteCell movement profile.";
 			return false;
 		}
 
@@ -206,6 +217,28 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 		foreach (var movementProfile in _movementProfiles)
 		{
+			if (movementProfile.MovementType == VehicleMovementProfileType.Route)
+			{
+				if (!double.IsFinite(movementProfile.RouteSpeedMetresPerSecond) ||
+				    movementProfile.RouteSpeedMetresPerSecond <= 0.0 ||
+				    !Enum.IsDefined(movementProfile.RoutePropulsionMode) ||
+				    !double.IsFinite(movementProfile.RouteFuelVolumePerMetre) ||
+				    movementProfile.RouteFuelVolumePerMetre < 0.0 ||
+				    !double.IsFinite(movementProfile.RoutePowerDrawWatts) ||
+				    movementProfile.RoutePowerDrawWatts < 0.0)
+				{
+					reason = $"The {movementProfile.Name} RouteCell movement profile has invalid speed, propulsion, fuel, or power settings.";
+					return false;
+				}
+
+				if (movementProfile.AutomaticOperationCapable &&
+				    movementProfile.RoutePropulsionMode != RouteVehiclePropulsionMode.Powered)
+				{
+					reason = $"The {movementProfile.Name} RouteCell movement profile can only be automatic-capable when powered.";
+					return false;
+				}
+			}
+
 			var propulsionProfiles = movementProfile.PropulsionProfiles.ToList();
 			if (movementProfile.MovementEnvironment == VehicleMovementEnvironment.SurfaceWater &&
 			    movementProfile.MovementType != VehicleMovementProfileType.CellExit)
@@ -340,6 +373,106 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		return true;
 	}
 
+	public static bool ValidateRoomScaleTopology(
+		IEnumerable<IVehicleCompartmentPrototype> compartments,
+		IEnumerable<IVehicleCompartmentLinkPrototype> links,
+		IEnumerable<IVehicleAccessPointPrototype> accessPoints,
+		out string reason)
+	{
+		var compartmentList = compartments.ToList();
+		var linkList = links.ToList();
+		if (!compartmentList.Any())
+		{
+			reason = "A room-scale vehicle must define at least one hosted compartment.";
+			return false;
+		}
+
+		var missingInterior = compartmentList.FirstOrDefault(x => x.InteriorTerrain is null);
+		if (missingInterior is not null)
+		{
+			reason = $"The {missingInterior.Name} compartment does not define an interior terrain and exposure.";
+			return false;
+		}
+
+		if (!accessPoints.Any())
+		{
+			reason = "A room-scale vehicle must define at least one external access point.";
+			return false;
+		}
+
+		var unboundAccess = accessPoints.FirstOrDefault(x => x.Compartment is null);
+		if (unboundAccess is not null)
+		{
+			reason = $"The {unboundAccess.Name} access point must lead to a compartment on a room-scale vehicle.";
+			return false;
+		}
+
+		var invalidLink = linkList.FirstOrDefault(x =>
+			x.SourceCompartment is null || x.DestinationCompartment is null ||
+			x.SourceCompartment.Id == x.DestinationCompartment.Id ||
+			string.IsNullOrWhiteSpace(x.OutboundDirection) ||
+			string.IsNullOrWhiteSpace(x.InboundDirection) ||
+			string.IsNullOrWhiteSpace(x.OutboundDescription) ||
+			string.IsNullOrWhiteSpace(x.InboundDescription));
+		if (invalidLink is not null)
+		{
+			reason = $"Compartment link #{invalidLink.Id:N0} is incomplete or links a compartment to itself.";
+			return false;
+		}
+
+		var duplicatePair = linkList
+			.GroupBy(x => string.Join(":", new[] { x.SourceCompartment.Id, x.DestinationCompartment.Id }.Order()))
+			.FirstOrDefault(x => x.Count() > 1);
+		if (duplicatePair is not null)
+		{
+			reason = "A pair of hosted compartments has more than one internal link.";
+			return false;
+		}
+
+		var duplicateDirection = linkList
+			.SelectMany(x => new[]
+			{
+				(x.SourceCompartment.Id, Direction: x.OutboundDirection),
+				(x.DestinationCompartment.Id, Direction: x.InboundDirection)
+			})
+			.GroupBy(x => (x.Id, x.Direction.ToLowerInvariant()))
+			.FirstOrDefault(x => x.Count() > 1);
+		if (duplicateDirection is not null)
+		{
+			reason = $"A hosted compartment has more than one internal exit named {duplicateDirection.Key.Item2}.";
+			return false;
+		}
+
+		if (compartmentList.Count > 1)
+		{
+			var reachable = new HashSet<long> { compartmentList[0].Id };
+			var queue = new Queue<long>(reachable);
+			while (queue.TryDequeue(out var current))
+			{
+				foreach (var next in linkList
+					         .Where(x => x.SourceCompartment.Id == current || x.DestinationCompartment.Id == current)
+					         .Select(x => x.SourceCompartment.Id == current
+						         ? x.DestinationCompartment.Id
+						         : x.SourceCompartment.Id))
+				{
+					if (reachable.Add(next))
+					{
+						queue.Enqueue(next);
+					}
+				}
+			}
+
+			if (reachable.Count != compartmentList.Count)
+			{
+				reason = "All room-scale vehicle compartments must be connected by internal links.";
+				return false;
+			}
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
 	private bool ValidateDamageZoneEffect(VehicleDamageEffectTargetType targetType, long? targetPrototypeId,
 		VehicleSystemStatus minimumStatus, out string reason)
 	{
@@ -404,7 +537,12 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		sb.AppendLine();
 		sb.AppendLine("Compartments:");
 		sb.AppendLine(_compartments.Any()
-			? _compartments.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} - {x.Description}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			? _compartments.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} - {x.Description}{(Scale == VehicleScale.RoomScale ? $" [terrain {(x.InteriorTerrain?.Name.ColourName() ?? "unset".ColourError())}, {x.InteriorOutdoorsType.Describe().ColourValue()}]" : string.Empty)}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			: "\tNone");
+		sb.AppendLine();
+		sb.AppendLine("Compartment Links:");
+		sb.AppendLine(_compartmentLinks.Any()
+			? _compartmentLinks.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.SourceCompartment.Name.ColourName()} {x.OutboundDirection.ColourCommand()} -> {x.DestinationCompartment.Name.ColourName()} {x.InboundDirection.ColourCommand()} [{x.OutboundDescription} / {x.InboundDescription}]").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
 			: "\tNone");
 		sb.AppendLine();
 		sb.AppendLine("Occupant Slots:");
@@ -493,7 +631,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+			switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "name":
 				return BuildingCommandName(actor, command);
@@ -547,6 +685,9 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 	#3exterior <item proto>#0 - links the exterior item prototype
 	#3compartment add <name>#0 - adds a compartment
 	#3compartment remove <id>#0 - removes a compartment
+	#3compartment interior <id> <terrain id|name> <indoors|windows|outdoors|dark|climateexposed>#0 - sets hosted-cell terrain and exposure
+	#3compartment link add <source id> <destination id> <out direction> <in direction> ""<out target>"" ""<in target>""#0 - links two hosted compartments
+	#3compartment link remove <id>#0 - removes a hosted compartment link
 	#3slot add <compartment id> <driver|passenger|crew> <capacity> <name>#0 - adds an occupant slot
 	#3slot propulsion <id>#0 - toggles whether occupants in a slot contribute to rowing
 	#3slot cover <id> <same|above|below|all> <cover id|name|none>#0 - sets directional ranged cover
@@ -556,6 +697,12 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 	#3station primary <id>#0 - toggles a primary station
 	#3station remove <id>#0 - removes a control station
 	#3movement cell#0 - ensures a cell-exit movement profile
+	#3movement route#0 - ensures a longitudinal RouteCell movement profile
+	#3movement route speed <distance>/<time>#0 - sets longitudinal route speed
+	#3movement route propulsion <powered|externallypulled>#0 - sets route propulsion
+	#3movement route fuel <liquid id|none> <volume>/<distance>#0 - sets route fuel use
+	#3movement route power <watts>#0 - sets continuous route power draw
+	#3movement route automatic#0 - toggles automatic-operation capability
 	#3movement fuel <id> <liquid id|none> <volume>#0 - configures movement fuel use
 	#3movement power <id> <watts>#0 - configures movement power spike use
 	#3movement role <id> <role|none>#0 - configures required installed module role
@@ -697,11 +844,15 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 					};
 					FMDB.Context.VehicleCompartmentProtos.Add(dbitem);
 					FMDB.Context.SaveChanges();
-					_compartments.Add(new VehicleCompartmentPrototype(dbitem));
+					_compartments.Add(new VehicleCompartmentPrototype(dbitem, Gameworld));
 				}
 
 				actor.OutputHandler.Send("You add a new vehicle compartment.");
 				return true;
+			case "interior":
+				return BuildingCommandCompartmentInterior(actor, command);
+			case "link":
+				return BuildingCommandCompartmentLink(actor, command);
 			case "remove":
 			case "delete":
 				if (!long.TryParse(command.PopSpeech(), out var id))
@@ -723,6 +874,18 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 					return false;
 				}
 
+				if (_compartmentLinks.Any(x => x.SourceCompartment.Id == id || x.DestinationCompartment.Id == id))
+				{
+					actor.OutputHandler.Send("You must remove internal links from that compartment first.");
+					return false;
+				}
+
+				if (_accessPoints.Any(x => x.Compartment?.Id == id) || _cargoSpaces.Any(x => x.Compartment?.Id == id))
+				{
+					actor.OutputHandler.Send("You must remove access points and cargo spaces from that compartment first.");
+					return false;
+				}
+
 				using (new FMDB())
 				{
 					var dbitem = FMDB.Context.VehicleCompartmentProtos.Find(id);
@@ -740,6 +903,180 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 		actor.OutputHandler.Send(BuildingHelp.SubstituteANSIColour());
 		return false;
+	}
+
+	private bool BuildingCommandCompartmentInterior(ICharacter actor, StringStack command)
+	{
+		if (!long.TryParse(command.PopSpeech(), out var id))
+		{
+			actor.OutputHandler.Send("Which compartment ID do you want to configure?");
+			return false;
+		}
+
+		var index = _compartments.FindIndex(x => x.Id == id);
+		if (index < 0)
+		{
+			actor.OutputHandler.Send("There is no such compartment.");
+			return false;
+		}
+
+		var terrain = actor.Gameworld.Terrains.GetByIdOrName(command.PopSpeech());
+		if (terrain is null)
+		{
+			actor.OutputHandler.Send("There is no such terrain.");
+			return false;
+		}
+
+		if (!TryParseInteriorOutdoorsType(command.PopSpeech(), out var outdoorsType))
+		{
+			actor.OutputHandler.Send("Exposure must be indoors, windows, outdoors, dark, or climateexposed.");
+			return false;
+		}
+
+		using (new FMDB())
+		{
+			var dbitem = FMDB.Context.VehicleCompartmentProtos.Find(id);
+			if (dbitem is null)
+			{
+				actor.OutputHandler.Send("That compartment no longer exists in the database.");
+				return false;
+			}
+
+			dbitem.InteriorTerrainId = terrain.Id;
+			dbitem.InteriorOutdoorsType = (int)outdoorsType;
+			FMDB.Context.SaveChanges();
+			_compartments[index] = new VehicleCompartmentPrototype(dbitem, Gameworld);
+		}
+
+		Changed = true;
+		actor.OutputHandler.Send($"The {_compartments[index].Name.ColourName()} hosted interior now uses {terrain.Name.ColourName()} and {outdoorsType.Describe().ColourValue()} exposure.");
+		return true;
+	}
+
+	private bool BuildingCommandCompartmentLink(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant())
+		{
+			case "add":
+			case "new":
+				if (!long.TryParse(command.PopSpeech(), out var sourceId) ||
+				    !long.TryParse(command.PopSpeech(), out var destinationId))
+				{
+					actor.OutputHandler.Send("You must specify source and destination compartment IDs.");
+					return false;
+				}
+
+				var source = _compartments.FirstOrDefault(x => x.Id == sourceId);
+				var destination = _compartments.FirstOrDefault(x => x.Id == destinationId);
+				if (source is null || destination is null)
+				{
+					actor.OutputHandler.Send("One or both compartment IDs do not exist on this prototype.");
+					return false;
+				}
+
+				if (source.Id == destination.Id)
+				{
+					actor.OutputHandler.Send("A compartment cannot link to itself.");
+					return false;
+				}
+
+				if (_compartmentLinks.Any(x =>
+					    x.SourceCompartment.Id == source.Id && x.DestinationCompartment.Id == destination.Id ||
+					    x.SourceCompartment.Id == destination.Id && x.DestinationCompartment.Id == source.Id))
+				{
+					actor.OutputHandler.Send("Those two compartments are already linked.");
+					return false;
+				}
+
+				var outboundDirection = command.PopSpeech().ToLowerInvariant();
+				var inboundDirection = command.PopSpeech().ToLowerInvariant();
+				var outboundDescription = command.PopSpeech();
+				var inboundDescription = command.PopSpeech();
+				if (new[] { outboundDirection, inboundDirection, outboundDescription, inboundDescription }
+					.Any(string.IsNullOrWhiteSpace))
+				{
+					actor.OutputHandler.Send("You must specify both directions and both quoted destination descriptions.");
+					return false;
+				}
+
+				if (_compartmentLinks.Any(x =>
+					    x.SourceCompartment.Id == source.Id && x.OutboundDirection.EqualTo(outboundDirection) ||
+					    x.DestinationCompartment.Id == source.Id && x.InboundDirection.EqualTo(outboundDirection) ||
+					    x.SourceCompartment.Id == destination.Id && x.OutboundDirection.EqualTo(inboundDirection) ||
+					    x.DestinationCompartment.Id == destination.Id && x.InboundDirection.EqualTo(inboundDirection)))
+				{
+					actor.OutputHandler.Send("One of those compartment directions is already in use.");
+					return false;
+				}
+
+				using (new FMDB())
+				{
+					var dbitem = new DB.VehicleCompartmentLinkProto
+					{
+						VehicleProtoId = Id,
+						VehicleProtoRevision = RevisionNumber,
+						SourceVehicleCompartmentProtoId = source.Id,
+						DestinationVehicleCompartmentProtoId = destination.Id,
+						OutboundDirection = outboundDirection,
+						InboundDirection = inboundDirection,
+						OutboundDescription = outboundDescription,
+						InboundDescription = inboundDescription
+					};
+					FMDB.Context.VehicleCompartmentLinkProtos.Add(dbitem);
+					FMDB.Context.SaveChanges();
+					_compartmentLinks.Add(new VehicleCompartmentLinkPrototype(dbitem, _compartments));
+				}
+
+				Changed = true;
+				actor.OutputHandler.Send($"You link {source.Name.ColourName()} to {destination.Name.ColourName()}.");
+				return true;
+			case "remove":
+			case "delete":
+				if (!long.TryParse(command.PopSpeech(), out var linkId))
+				{
+					actor.OutputHandler.Send("Which compartment link ID do you want to remove?");
+					return false;
+				}
+
+				var link = _compartmentLinks.FirstOrDefault(x => x.Id == linkId);
+				if (link is null)
+				{
+					actor.OutputHandler.Send("There is no such compartment link.");
+					return false;
+				}
+
+				using (new FMDB())
+				{
+					var dbitem = FMDB.Context.VehicleCompartmentLinkProtos.Find(linkId);
+					if (dbitem is not null)
+					{
+						FMDB.Context.VehicleCompartmentLinkProtos.Remove(dbitem);
+						FMDB.Context.SaveChanges();
+					}
+				}
+
+				_compartmentLinks.Remove(link);
+				Changed = true;
+				actor.OutputHandler.Send("You remove that compartment link.");
+				return true;
+			default:
+				actor.OutputHandler.Send("Use #3compartment link add ...#0 or #3compartment link remove <id>#0.".SubstituteANSIColour());
+				return false;
+		}
+	}
+
+	public static bool TryParseInteriorOutdoorsType(string text, out CellOutdoorsType outdoorsType)
+	{
+		outdoorsType = text.ToLowerInvariant() switch
+		{
+			"indoors" or "indoor" => CellOutdoorsType.Indoors,
+			"windows" or "window" or "indoorswithwindows" => CellOutdoorsType.IndoorsWithWindows,
+			"outdoors" or "outdoor" => CellOutdoorsType.Outdoors,
+			"dark" or "nolight" or "indoorsnolight" => CellOutdoorsType.IndoorsNoLight,
+			"climateexposed" or "exposed" or "indoorsclimateexposed" => CellOutdoorsType.IndoorsClimateExposed,
+			_ => (CellOutdoorsType)(-1)
+		};
+		return Enum.IsDefined(outdoorsType);
 	}
 
 	private bool BuildingCommandSlot(ICharacter actor, StringStack command)
@@ -1009,6 +1346,8 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 				actor.OutputHandler.Send("You add a cell-exit movement profile.");
 				return true;
+			case "route":
+				return BuildingCommandMovementRoute(actor, command);
 			case "remove":
 			case "delete":
 				if (!long.TryParse(command.PopSpeech(), out var id))
@@ -1060,6 +1399,253 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 		actor.OutputHandler.Send(BuildingHelp.SubstituteANSIColour());
 		return false;
+	}
+
+	private bool BuildingCommandMovementRoute(ICharacter actor, StringStack command)
+	{
+		var profile = _movementProfiles.FirstOrDefault(x => x.MovementType == VehicleMovementProfileType.Route);
+		if (command.IsFinished)
+		{
+			if (profile is not null)
+			{
+				actor.OutputHandler.Send("This vehicle prototype already has a RouteCell movement profile.");
+				return false;
+			}
+
+			using (new FMDB())
+			{
+				var dbitem = new DB.VehicleMovementProfileProto
+				{
+					VehicleProtoId = Id,
+					VehicleProtoRevision = RevisionNumber,
+					Name = "RouteCell Movement",
+					MovementType = (int)VehicleMovementProfileType.Route,
+					MovementEnvironment = (int)VehicleMovementEnvironment.Unrestricted,
+					IsDefault = !_movementProfiles.Any(),
+					RequiredInstalledRole = string.Empty,
+					RouteSpeedMetresPerSecond = 1.0,
+					RoutePropulsionMode = (int)RouteVehiclePropulsionMode.Powered
+				};
+				FMDB.Context.VehicleMovementProfileProtos.Add(dbitem);
+				FMDB.Context.SaveChanges();
+				_movementProfiles.Add(new VehicleMovementProfilePrototype(dbitem, Gameworld));
+			}
+
+			actor.OutputHandler.Send("You add a RouteCell movement profile with a default speed of one metre per second.");
+			return true;
+		}
+
+		if (profile is null)
+		{
+			actor.OutputHandler.Send("Add the RouteCell movement profile with #3movement route#0 first."
+				.SubstituteANSIColour());
+			return false;
+		}
+
+		var option = command.PopSpeech().ToLowerInvariant();
+		switch (option)
+		{
+			case "speed":
+				if (!TryParseRouteSpeed(actor, command.SafeRemainingArgument, out var speed))
+				{
+					actor.OutputHandler.Send("Specify a positive longitudinal speed as #3<distance>/<time>#0, for example #310m/2s#0."
+						.SubstituteANSIColour());
+					return false;
+				}
+
+				using (new FMDB())
+				{
+					FMDB.Context.VehicleMovementProfileProtos.Find(profile.Id)!.RouteSpeedMetresPerSecond = speed;
+					FMDB.Context.SaveChanges();
+				}
+				ReloadChildDefinitions();
+				actor.OutputHandler.Send($"That vehicle now travels along RouteCells at {speed.ToString("N3", actor).ColourValue()} metres per second.");
+				return true;
+			case "propulsion":
+			case "propel":
+				var propulsion = command.PopSpeech().ToLowerInvariant() switch
+				{
+					"powered" or "power" => RouteVehiclePropulsionMode.Powered,
+					"externallypulled" or "externally-pulled" or "pulled" or "tow" => RouteVehiclePropulsionMode.ExternallyPulled,
+					_ => (RouteVehiclePropulsionMode?)null
+				};
+				if (propulsion is null)
+				{
+					actor.OutputHandler.Send("Specify either #3powered#0 or #3externallypulled#0."
+						.SubstituteANSIColour());
+					return false;
+				}
+
+				using (new FMDB())
+				{
+					var dbitem = FMDB.Context.VehicleMovementProfileProtos.Find(profile.Id)!;
+					dbitem.RoutePropulsionMode = (int)propulsion.Value;
+					if (propulsion == RouteVehiclePropulsionMode.ExternallyPulled)
+					{
+						dbitem.AutomaticOperationCapable = false;
+					}
+					FMDB.Context.SaveChanges();
+				}
+				ReloadChildDefinitions();
+				actor.OutputHandler.Send($"That RouteCell movement profile is now {propulsion.Value.DescribeEnum().ColourName()}.");
+				return true;
+			case "fuel":
+				return BuildingCommandMovementRouteFuel(actor, command, profile);
+			case "power":
+				if (!double.TryParse(command.SafeRemainingArgument, actor, out var watts) ||
+				    !double.IsFinite(watts) || watts < 0.0)
+				{
+					actor.OutputHandler.Send("Specify a non-negative continuous power draw in watts.");
+					return false;
+				}
+
+				using (new FMDB())
+				{
+					FMDB.Context.VehicleMovementProfileProtos.Find(profile.Id)!.RoutePowerDrawWatts = watts;
+					FMDB.Context.SaveChanges();
+				}
+				ReloadChildDefinitions();
+				actor.OutputHandler.Send($"That RouteCell movement profile now draws {watts.ToString("N2", actor).ColourValue()} watts while moving.");
+				return true;
+			case "automatic":
+			case "auto":
+				if (profile.RoutePropulsionMode != RouteVehiclePropulsionMode.Powered)
+				{
+					actor.OutputHandler.Send("Only powered RouteCell movement profiles can be automatic-capable.");
+					return false;
+				}
+
+				using (new FMDB())
+				{
+					var dbitem = FMDB.Context.VehicleMovementProfileProtos.Find(profile.Id)!;
+					dbitem.AutomaticOperationCapable = !dbitem.AutomaticOperationCapable;
+					FMDB.Context.SaveChanges();
+				}
+				ReloadChildDefinitions();
+				actor.OutputHandler.Send($"That RouteCell movement profile is {(profile.AutomaticOperationCapable ? "no longer" : "now")} automatic-capable.");
+				return true;
+			default:
+				actor.OutputHandler.Send(BuildingHelp.SubstituteANSIColour());
+				return false;
+		}
+	}
+
+	private bool BuildingCommandMovementRouteFuel(ICharacter actor, StringStack command,
+		IVehicleMovementProfilePrototype profile)
+	{
+		var liquidText = command.PopSpeech();
+		if (string.IsNullOrWhiteSpace(liquidText))
+		{
+			actor.OutputHandler.Send("Specify a fuel liquid, or #3none#0 to clear route fuel use."
+				.SubstituteANSIColour());
+			return false;
+		}
+
+		if (liquidText.EqualTo("none"))
+		{
+			using (new FMDB())
+			{
+				var dbitem = FMDB.Context.VehicleMovementProfileProtos.Find(profile.Id)!;
+				dbitem.FuelLiquidId = null;
+				dbitem.RouteFuelVolumePerMetre = 0.0;
+				FMDB.Context.SaveChanges();
+			}
+			ReloadChildDefinitions();
+			actor.OutputHandler.Send("That RouteCell movement profile no longer consumes liquid fuel.");
+			return true;
+		}
+
+		var liquid = actor.Gameworld.Liquids.GetByIdOrName(liquidText);
+		if (liquid is null || !TryParseFuelPerDistance(actor, command.SafeRemainingArgument, out var volumePerMetre))
+		{
+			actor.OutputHandler.Send("Specify a valid liquid and a positive #3<volume>/<distance>#0 rate, for example #31L/100km#0."
+				.SubstituteANSIColour());
+			return false;
+		}
+
+		using (new FMDB())
+		{
+			var dbitem = FMDB.Context.VehicleMovementProfileProtos.Find(profile.Id)!;
+			dbitem.FuelLiquidId = liquid.Id;
+			dbitem.RouteFuelVolumePerMetre = volumePerMetre;
+			FMDB.Context.SaveChanges();
+		}
+		ReloadChildDefinitions();
+		actor.OutputHandler.Send($"That RouteCell movement profile now consumes {volumePerMetre.ToString("N8", actor).ColourValue()} base-volume units per metre of {liquid.Name.ColourName()}.");
+		return true;
+	}
+
+	internal static bool TryParseRouteSpeed(ICharacter actor, string text, out double metresPerSecond)
+	{
+		metresPerSecond = 0.0;
+		if (!TrySplitRate(text, out var distanceText, out var durationText) ||
+		    !actor.Gameworld.UnitManager.TryGetBaseUnits(distanceText, UnitType.Length, actor,
+			    out var baseDistance) ||
+		    !TryParseRouteSpeedDuration(actor, durationText, out var duration))
+		{
+			return false;
+		}
+
+		metresPerSecond = baseDistance * actor.Gameworld.UnitManager.BaseHeightToMetres /
+		                  duration.TotalSeconds;
+		return double.IsFinite(metresPerSecond) && metresPerSecond > 0.0;
+	}
+
+	private static bool TryParseRouteSpeedDuration(ICharacter actor, string text, out TimeSpan duration)
+	{
+		duration = TimeSpan.Zero;
+		var durationText = text.Trim();
+		if (!MudTimeSpan.TryParse(durationText, actor, out var mudDuration))
+		{
+			if (!durationText.ToLowerInvariant().EqualToAny(
+				    "ms", "millisecond", "milliseconds",
+				    "s", "sec", "secs", "second", "seconds",
+				    "m", "min", "mins", "minute", "minutes",
+				    "h", "hr", "hrs", "hour", "hours",
+				    "d", "day", "days",
+				    "w", "week", "weeks",
+				    "mo", "mon", "mons", "month", "months",
+				    "y", "year", "years") ||
+			    !MudTimeSpan.TryParse($"1{durationText}", actor, out mudDuration))
+			{
+				return false;
+			}
+		}
+
+		duration = mudDuration;
+		return duration > TimeSpan.Zero;
+	}
+
+	private static bool TryParseFuelPerDistance(ICharacter actor, string text, out double volumePerMetre)
+	{
+		volumePerMetre = 0.0;
+		if (!TrySplitRate(text, out var volumeText, out var distanceText) ||
+		    !actor.Gameworld.UnitManager.TryGetBaseUnits(volumeText, UnitType.FluidVolume, actor,
+			    out var volume) ||
+		    !actor.Gameworld.UnitManager.TryGetBaseUnits(distanceText, UnitType.Length, actor,
+			    out var baseDistance))
+		{
+			return false;
+		}
+
+		var metres = baseDistance * actor.Gameworld.UnitManager.BaseHeightToMetres;
+		volumePerMetre = volume / metres;
+		return volume > 0.0 && metres > 0.0 && double.IsFinite(volumePerMetre);
+	}
+
+	private static bool TrySplitRate(string text, out string numerator, out string denominator)
+	{
+		var index = text?.LastIndexOf('/') ?? -1;
+		if (index <= 0 || index >= text!.Length - 1)
+		{
+			numerator = string.Empty;
+			denominator = string.Empty;
+			return false;
+		}
+
+		numerator = text[..index].Trim();
+		denominator = text[(index + 1)..].Trim();
+		return numerator.Length > 0 && denominator.Length > 0;
 	}
 
 	private bool BuildingCommandSlotCover(ICharacter actor, StringStack command)
@@ -1789,6 +2375,11 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 	{
 		var sb = new StringBuilder();
 		sb.Append($"\t#{profile.Id.ToString("N0", actor)} {profile.Name.ColourName()} [{profile.MovementType.DescribeEnum().ColourValue()}] environment {profile.MovementEnvironment.DescribeEnum(true).ColourName()}{(profile.MovementEnvironment == VehicleMovementEnvironment.SurfaceWater ? profile.ExposesOccupantsToWater ? " occupants exposed".Colour(Telnet.Yellow) : " occupants protected".Colour(Telnet.Green) : "")}{(profile.IsDefault ? " default".Colour(Telnet.Green) : "")}{(string.IsNullOrWhiteSpace(profile.RequiredInstalledRole) ? "" : $" role {profile.RequiredInstalledRole.ColourCommand()}")}{(profile.FuelLiquidId is null ? "" : $" fuel {profile.FuelVolumePerMove.ToString("N2", actor).ColourValue()}")}{(profile.RequiredPowerSpikeInWatts > 0.0 ? $" power {profile.RequiredPowerSpikeInWatts.ToString("N2", actor).ColourValue()}W" : "")}");
+		if (profile.MovementType == VehicleMovementProfileType.Route)
+		{
+			sb.Append($" speed {profile.RouteSpeedMetresPerSecond.ToString("N3", actor).ColourValue()}m/s propulsion {profile.RoutePropulsionMode.DescribeEnum().ColourName()}{(profile.FuelLiquidId is null ? "" : $" route-fuel {profile.RouteFuelVolumePerMetre.ToString("N8", actor).ColourValue()}/m")}{(profile.RoutePowerDrawWatts > 0.0 ? $" route-power {profile.RoutePowerDrawWatts.ToString("N2", actor).ColourValue()}W" : "")}{(profile.AutomaticOperationCapable ? " automatic-capable".Colour(Telnet.Green) : "")}");
+			return sb.ToString();
+		}
 		if (profile.MovementEnvironment != VehicleMovementEnvironment.SurfaceWater)
 		{
 			return sb.ToString();
@@ -2705,6 +3296,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		{
 			var dbitem = FMDB.Context.VehicleProtos
 			                 .Include(x => x.Compartments)
+			                 .Include(x => x.CompartmentLinks)
 			                 .Include(x => x.OccupantSlots)
 			                 .Include(x => x.ControlStations)
 				                 .Include(x => x.MovementProfiles).ThenInclude(x => x.PropulsionProfiles)
@@ -2715,6 +3307,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			                 .Include(x => x.DamageZones).ThenInclude(x => x.Effects)
 			                 .First(x => x.Id == Id && x.RevisionNumber == RevisionNumber);
 			_compartments.Clear();
+			_compartmentLinks.Clear();
 			_occupantSlots.Clear();
 			_controlStations.Clear();
 			_movementProfiles.Clear();
@@ -2723,7 +3316,8 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			_installationPoints.Clear();
 			_towPoints.Clear();
 			_damageZones.Clear();
-			_compartments.AddRange(dbitem.Compartments.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Id).Select(x => new VehicleCompartmentPrototype(x)));
+			_compartments.AddRange(dbitem.Compartments.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Id).Select(x => new VehicleCompartmentPrototype(x, Gameworld)));
+			_compartmentLinks.AddRange(dbitem.CompartmentLinks.OrderBy(x => x.Id).Select(x => new VehicleCompartmentLinkPrototype(x, _compartments)));
 			_occupantSlots.AddRange(dbitem.OccupantSlots.OrderBy(x => x.Id).Select(x => new VehicleOccupantSlotPrototype(x, _compartments, Gameworld)));
 			_controlStations.AddRange(dbitem.ControlStations.OrderBy(x => x.Id).Select(x => new VehicleControlStationPrototype(x, _occupantSlots)));
 			_movementProfiles.AddRange(dbitem.MovementProfiles.OrderBy(x => x.Id).Select(x => new VehicleMovementProfilePrototype(x, Gameworld)));
@@ -2779,12 +3373,30 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 					VehicleProtoRevision = dbnew.RevisionNumber,
 					Name = compartment.Name,
 					Description = compartment.Description,
-					DisplayOrder = compartment.DisplayOrder
+					DisplayOrder = compartment.DisplayOrder,
+					InteriorTerrainId = compartment.InteriorTerrainId,
+					InteriorOutdoorsType = (int)compartment.InteriorOutdoorsType
 				});
 			}
 
 			FMDB.Context.SaveChanges();
 			var newCompartments = FMDB.Context.VehicleCompartmentProtos.Where(x => x.VehicleProtoId == dbnew.Id && x.VehicleProtoRevision == dbnew.RevisionNumber).ToList();
+			foreach (var link in _compartmentLinks)
+			{
+				FMDB.Context.VehicleCompartmentLinkProtos.Add(new DB.VehicleCompartmentLinkProto
+				{
+					VehicleProtoId = dbnew.Id,
+					VehicleProtoRevision = dbnew.RevisionNumber,
+					SourceVehicleCompartmentProtoId = newCompartments.First(x => x.Name == link.SourceCompartment.Name).Id,
+					DestinationVehicleCompartmentProtoId = newCompartments.First(x => x.Name == link.DestinationCompartment.Name).Id,
+					OutboundDirection = link.OutboundDirection,
+					InboundDirection = link.InboundDirection,
+					OutboundDescription = link.OutboundDescription,
+					InboundDescription = link.InboundDescription
+				});
+			}
+
+			FMDB.Context.SaveChanges();
 			foreach (var slot in _occupantSlots)
 			{
 				var newCompartment = newCompartments.First(x => x.Name == slot.Compartment.Name);
@@ -2836,7 +3448,12 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 					FuelVolumePerMove = profile.FuelVolumePerMove,
 					RequiredInstalledRole = profile.RequiredInstalledRole,
 					RequiresTowLinksClosed = profile.RequiresTowLinksClosed,
-					RequiresAccessPointsClosed = profile.RequiresAccessPointsClosed
+					RequiresAccessPointsClosed = profile.RequiresAccessPointsClosed,
+					RouteSpeedMetresPerSecond = profile.RouteSpeedMetresPerSecond,
+					RoutePropulsionMode = (int)profile.RoutePropulsionMode,
+					RouteFuelVolumePerMetre = profile.RouteFuelVolumePerMetre,
+					RoutePowerDrawWatts = profile.RoutePowerDrawWatts,
+					AutomaticOperationCapable = profile.AutomaticOperationCapable
 				};
 				FMDB.Context.VehicleMovementProfileProtos.Add(dbprofile);
 				movementProfileMap[profile.Id] = dbprofile;
@@ -3017,6 +3634,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 				FMDB.Context.VehicleProtos
 				    .Include(x => x.EditableItem)
 				    .Include(x => x.Compartments)
+				    .Include(x => x.CompartmentLinks)
 				    .Include(x => x.OccupantSlots)
 				    .Include(x => x.ControlStations)
 				    .Include(x => x.MovementProfiles).ThenInclude(x => x.PropulsionProfiles)
@@ -3051,17 +3669,49 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 public class VehicleCompartmentPrototype : FrameworkItem, IVehicleCompartmentPrototype
 {
-	public VehicleCompartmentPrototype(DB.VehicleCompartmentProto dbitem)
+	public VehicleCompartmentPrototype(DB.VehicleCompartmentProto dbitem, IFuturemud gameworld)
 	{
 		_id = dbitem.Id;
 		_name = dbitem.Name;
 		Description = dbitem.Description;
 		DisplayOrder = dbitem.DisplayOrder;
+		InteriorTerrainId = dbitem.InteriorTerrainId;
+		InteriorTerrain = dbitem.InteriorTerrainId is null
+			? null
+			: gameworld.Terrains.Get(dbitem.InteriorTerrainId.Value);
+		InteriorOutdoorsType = (CellOutdoorsType)dbitem.InteriorOutdoorsType;
 	}
 
 	public override string FrameworkItemType => "VehicleCompartmentPrototype";
 	public string Description { get; }
 	public int DisplayOrder { get; }
+	public long? InteriorTerrainId { get; }
+	public ITerrain InteriorTerrain { get; }
+	public CellOutdoorsType InteriorOutdoorsType { get; }
+}
+
+public class VehicleCompartmentLinkPrototype : FrameworkItem, IVehicleCompartmentLinkPrototype
+{
+	public VehicleCompartmentLinkPrototype(DB.VehicleCompartmentLinkProto dbitem,
+		IEnumerable<IVehicleCompartmentPrototype> compartments)
+	{
+		_id = dbitem.Id;
+		SourceCompartment = compartments.FirstOrDefault(x => x.Id == dbitem.SourceVehicleCompartmentProtoId);
+		DestinationCompartment = compartments.FirstOrDefault(x => x.Id == dbitem.DestinationVehicleCompartmentProtoId);
+		_name = $"{SourceCompartment?.Name ?? "missing"} to {DestinationCompartment?.Name ?? "missing"}";
+		OutboundDirection = dbitem.OutboundDirection;
+		InboundDirection = dbitem.InboundDirection;
+		OutboundDescription = dbitem.OutboundDescription;
+		InboundDescription = dbitem.InboundDescription;
+	}
+
+	public override string FrameworkItemType => "VehicleCompartmentLinkPrototype";
+	public IVehicleCompartmentPrototype SourceCompartment { get; }
+	public IVehicleCompartmentPrototype DestinationCompartment { get; }
+	public string OutboundDirection { get; }
+	public string InboundDirection { get; }
+	public string OutboundDescription { get; }
+	public string InboundDescription { get; }
 }
 
 public class VehicleOccupantSlotPrototype : FrameworkItem, IVehicleOccupantSlotPrototype
@@ -3131,6 +3781,11 @@ public class VehicleMovementProfilePrototype : FrameworkItem, IVehicleMovementPr
 		RequiredInstalledRole = dbitem.RequiredInstalledRole ?? string.Empty;
 		RequiresTowLinksClosed = dbitem.RequiresTowLinksClosed;
 		RequiresAccessPointsClosed = dbitem.RequiresAccessPointsClosed;
+		RouteSpeedMetresPerSecond = dbitem.RouteSpeedMetresPerSecond;
+		RoutePropulsionMode = (RouteVehiclePropulsionMode)dbitem.RoutePropulsionMode;
+		RouteFuelVolumePerMetre = dbitem.RouteFuelVolumePerMetre;
+		RoutePowerDrawWatts = dbitem.RoutePowerDrawWatts;
+		AutomaticOperationCapable = dbitem.AutomaticOperationCapable;
 		_propulsionProfiles.AddRange(dbitem.PropulsionProfiles
 			.OrderBy(x => x.Id)
 			.Select(x => new VehiclePropulsionProfilePrototype(x, gameworld)));
@@ -3147,6 +3802,11 @@ public class VehicleMovementProfilePrototype : FrameworkItem, IVehicleMovementPr
 	public string RequiredInstalledRole { get; }
 	public bool RequiresTowLinksClosed { get; }
 	public bool RequiresAccessPointsClosed { get; }
+	public double RouteSpeedMetresPerSecond { get; }
+	public RouteVehiclePropulsionMode RoutePropulsionMode { get; }
+	public double RouteFuelVolumePerMetre { get; }
+	public double RoutePowerDrawWatts { get; }
+	public bool AutomaticOperationCapable { get; }
 	public IEnumerable<IVehiclePropulsionProfilePrototype> PropulsionProfiles => _propulsionProfiles;
 }
 

@@ -341,6 +341,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
             game.LoadGameItemGroups(); // Depends on LoadWorld
             game.LoadGameItemProtos(); // Depends on LoadHealthStrategies, LoadGameItemComponentProtos and LoadGameItemGroups
             game.LoadVehiclePrototypes(); // Depends on LoadGameItemProtos and Vehicle Exterior item components
+			game.LoadVehicleRoutes(); // Depends on world cells/exits and vehicle access-point prototypes
             game.LoadGameItemSkins();
             game.LoadOutfitTemplates();
 
@@ -384,11 +385,14 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
             game.LoadMarkets(); // Should come after LoadEconomy as late as possible
             game.LoadLegal(); // Should come after LoadWorld, LoadEconomy and after LoadFutureProgs
             game.LoadJobs(); // Needs to come after LoadEconomy
+			DatabaseRouteMotionPersistence.FreezeInterruptedCharacterMotions();
+			DatabaseVehicleRouteMotionPersistence.FreezeInterruptedVehicleMotions();
             game.LoadWorldItems(); // Depends on LoadWorld and LoadGameItemProtos and LoadRaces
             SetCharacterMaterialisationBootPhase(CharacterMaterialisationBootPhase.Allowed);
             game.LoadNPCs(); // Needs to come after InitialiseCharacterClass and LightModel loading
             game.LoadVehicles(); // Needs world items and characters available for exterior/occupant recovery
             game.LoadVehicleHitchLinks(); // Needs vehicles, world items and NPCs available for endpoint recovery
+			game.LoadVehicleOperations(); // Needs routes, vehicles and hitch links before recovery/scheduling
             game.LoadMagicPortalTopology(); // Needs world items and cells available before exit pathing preload
             FinalisePostCharacterLoadObjects();
             game.LoadGroupAIs(); // Needs to come after LoadNPCs
@@ -3503,6 +3507,10 @@ For information on the syntax to use in emotes (such as those included in bracke
                              .Include(x => x.CellsRangedCovers)
                              .Include(x => x.CellsTags)
                              .Include(x => x.HooksPerceivables)
+							 .Include(x => x.RouteCell)
+							 .ThenInclude(x => x.Landmarks)
+							 .Include(x => x.RouteCell)
+							 .ThenInclude(x => x.ExitAnchors)
                              .AsSplitQuery()
                              .AsNoTracking()
                                    select cell).ToList();
@@ -4053,6 +4061,7 @@ For information on the syntax to use in emotes (such as those included in bracke
         List<Models.VehicleProto> protos = (from proto in FMDB.Context.VehicleProtos
                                             .Include(x => x.EditableItem)
                                             .Include(x => x.Compartments)
+											.Include(x => x.CompartmentLinks)
                                             .Include(x => x.OccupantSlots)
                                             .Include(x => x.ControlStations)
                                             .Include(x => x.MovementProfiles).ThenInclude(x => x.PropulsionProfiles)
@@ -4083,6 +4092,7 @@ For information on the syntax to use in emotes (such as those included in bracke
         sw.Start();
 #endif
         List<Models.Vehicle> vehicles = (from vehicle in FMDB.Context.Vehicles
+										 .Include(x => x.Compartments)
                                          .Include(x => x.Occupancies)
                                          .Include(x => x.AccessStates)
                                          .Include(x => x.AccessPoints).ThenInclude(x => x.Locks)
@@ -4091,15 +4101,45 @@ For information on the syntax to use in emotes (such as those included in bracke
                                          .Include(x => x.SourceTowLinks)
                                          .Include(x => x.TargetTowLinks)
                                          .Include(x => x.DamageZones).ThenInclude(x => x.Wounds)
+										 .Include(x => x.Dockings)
                                          .AsNoTracking()
                                          select vehicle).ToList();
+        var repairedProjectionLinks = 0;
         foreach (Models.Vehicle vehicle in vehicles)
         {
             var newVehicle = new MudSharp.Vehicles.Vehicle(vehicle, this);
             _vehicles.Add(newVehicle);
+			if (!newVehicle.EnsureExteriorProjectionLink(out var projectionRepaired, out var projectionReason))
+			{
+				ConsoleUtilities.WriteLine(
+					$"#1Warning: Vehicle #{newVehicle.Id:N0} ({newVehicle.Name}) has an invalid exterior projection link: {projectionReason} Use vehicle audit {newVehicle.Id:N0} recovery.#0");
+			}
+			else if (projectionRepaired)
+			{
+				repairedProjectionLinks++;
+				ConsoleUtilities.WriteLine(
+					$"#3Recovered the missing exterior component link for Vehicle #{newVehicle.Id:N0} ({newVehicle.Name}) from its canonical exterior item ID.#0");
+			}
+
+			if (newVehicle.Prototype.Scale == VehicleScale.RoomScale)
+			{
+				foreach (var compartment in newVehicle.Compartments.Where(x => x.InteriorCell is null))
+				{
+					var missingCell = compartment.InteriorCellId is null
+						? "has no hosted interior cell assigned"
+						: $"points to missing hosted cell #{compartment.InteriorCellId:N0}";
+					ConsoleUtilities.WriteLine(
+						$"#1Warning: Vehicle #{newVehicle.Id:N0} ({newVehicle.Name}) compartment {compartment.Name} {missingCell}. Normal load did not create a replacement; use vehicle audit {newVehicle.Id:N0} interior and vehicle recover {newVehicle.Id:N0} interior fix.#0");
+				}
+			}
+
             newVehicle.RecoverInterruptedMovement();
             newVehicle.SynchroniseExteriorItemToLocation();
         }
+		if (repairedProjectionLinks > 0)
+		{
+			SaveManager.Flush();
+		}
 #if DEBUG
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");

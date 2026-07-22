@@ -428,6 +428,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                 Thread.Sleep(Math.Max(1, 250 - (int)totalTime.ElapsedMilliseconds));
             }
 
+			LinearRouteMovement.MaterialiseAllForShutdown(this);
+			RouteVehicleMovementStrategy.MaterialiseAllForShutdown(this);
             SaveManager.Flush();
         }
         finally
@@ -1394,6 +1396,21 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     {
         _vehicleHitchLinks.Add(link);
     }
+
+	public void Add(IVehicleRoute route)
+	{
+		_vehicleRoutes.Add(route);
+	}
+
+	public void Add(IVehicleService service)
+	{
+		_vehicleServices.Add(service);
+	}
+
+	public void Add(IVehicleJourney journey)
+	{
+		_vehicleJourneys.Add(journey);
+	}
 
     public void Add(IMagicPortalNetwork network)
     {
@@ -2385,6 +2402,21 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     {
         _vehicleHitchLinks.Remove(link);
     }
+
+	public void Destroy(IVehicleRoute route)
+	{
+		_vehicleRoutes.Remove(route);
+	}
+
+	public void Destroy(IVehicleService service)
+	{
+		_vehicleServices.Remove(service);
+	}
+
+	public void Destroy(IVehicleJourney journey)
+	{
+		_vehicleJourneys.Remove(journey);
+	}
 
     public void Destroy(IMagicPortalNetwork network)
     {

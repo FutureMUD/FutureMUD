@@ -53,7 +53,7 @@ public partial class GameItem : IHaveWounds
         OnWounded?.Invoke(this, wound);
 
         HandleEvent(EventType.ItemDamaged, this, wound.ToolOrigin, wound.ActorOrigin);
-        foreach (IHandleEvents witness in TrueLocations.SelectMany(x => x.EventHandlers))
+        foreach (IHandleEvents witness in TrueLocations.SelectMany(x => x.EventHandlersFor(this)))
         {
             witness.HandleEvent(EventType.ItemDamagedWitness, this, wound.ToolOrigin, wound.ActorOrigin, witness);
         }
@@ -552,6 +552,9 @@ public partial class GameItem : IHaveWounds
         newItem?.CopyOwnerFrom(this);
         // Component.Die can affect TrueLocation, so save it beforehand
         ICell originalTrueLocation = TrueLocations.FirstOrDefault();
+		var originalSpatialLocation = originalTrueLocation is null
+			? (SpatialLocation?)null
+			: CaptureComponentLifecycleSpatialLocation(originalTrueLocation);
         if (originalTrueLocation == null)
         {
             Console.WriteLine($"Item {Id} ({HowSeen(this, colour: false)}) did not have a location.");
@@ -560,7 +563,7 @@ public partial class GameItem : IHaveWounds
         bool locationChanged = false;
         foreach (IGameItemComponent component in Components.OrderBy(x => x.ComponentDieOrder))
         {
-            if (component.HandleDieOrMorph(newItem, originalTrueLocation))
+            if (component.HandleDieOrMorph(newItem, originalTrueLocation, originalSpatialLocation))
             {
                 locationChanged = true;
             }
@@ -595,7 +598,10 @@ public partial class GameItem : IHaveWounds
 
         Delete();
         newItem.RoomLayer = RoomLayer;
-        originalTrueLocation?.Insert(newItem);
+		if (originalSpatialLocation.HasValue)
+		{
+			newItem.InsertAtSpatialLocation(originalSpatialLocation.Value);
+		}
         newItem.Login();
         newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
         return newItem;

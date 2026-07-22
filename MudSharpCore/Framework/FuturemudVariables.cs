@@ -190,6 +190,9 @@ public sealed partial class Futuremud : IDisposable
     private readonly RevisableAll<IVehiclePrototype> _vehiclePrototypes = new();
     private readonly All<IVehicle> _vehicles = new();
     private readonly All<IVehicleHitchLink> _vehicleHitchLinks = new();
+	private readonly RevisableAll<IVehicleRoute> _vehicleRoutes = new();
+	private readonly All<IVehicleService> _vehicleServices = new();
+	private readonly All<IVehicleJourney> _vehicleJourneys = new();
     private readonly RevisableAll<IGameItemSkin> _itemSkins = new();
     private readonly All<IJobListing> _jobListings = new();
     private readonly All<IActiveJob> _activeJobs = new();
@@ -464,6 +467,9 @@ public sealed partial class Futuremud : IDisposable
     public IUneditableRevisableAll<IVehiclePrototype> VehiclePrototypes => _vehiclePrototypes;
     public IUneditableAll<IVehicle> Vehicles => _vehicles;
     public IUneditableAll<IVehicleHitchLink> VehicleHitchLinks => _vehicleHitchLinks;
+	public IUneditableRevisableAll<IVehicleRoute> VehicleRoutes => _vehicleRoutes;
+	public IUneditableAll<IVehicleService> VehicleServices => _vehicleServices;
+	public IUneditableAll<IVehicleJourney> VehicleJourneys => _vehicleJourneys;
     public IUneditableRevisableAll<IGameItemSkin> ItemSkins => _itemSkins;
 
     public IUneditableAll<IJobListing> JobListings => _jobListings;

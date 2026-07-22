@@ -59,7 +59,7 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
         IConnectable newItemConnectable = newItem?.GetItemType<IConnectable>();
         if (newItemConnectable == null)
         {
-            location?.Insert(connectedItem.Parent);
+            InsertAtParentSpatialLocation(connectedItem.Parent, location);
         }
         else
         {
@@ -69,7 +69,7 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
             }
             else
             {
-                location?.Insert(connectedItem.Parent);
+                InsertAtParentSpatialLocation(connectedItem.Parent, location);
             }
         }
 
@@ -199,7 +199,7 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
             return;
         }
 
-        actor.Location.Insert(Parent);
+        Parent.InsertAtSource(actor);
         actor.Send($"You drop {Parent.HowSeen(actor)} as your {actor.Body.WielderDescriptionPlural} are full.");
     }
 

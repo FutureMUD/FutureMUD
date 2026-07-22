@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body;
 using MudSharp.Events;
+using MudSharp.Construction;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
 
@@ -130,7 +131,7 @@ public class AmputationProcedure : SurgicalProcedure
         else
         {
             severedPart.RoomLayer = surgeon.RoomLayer;
-            surgeon.Location.Insert(severedPart);
+            severedPart.InsertAtSource(surgeon);
         }
 
         severedPart.Login();

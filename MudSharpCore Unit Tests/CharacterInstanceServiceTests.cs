@@ -4,10 +4,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Commands.Modules;
 using MudSharp.Construction;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Form.Shape;
+using MudSharp.Framework;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
+using System.IO;
 using System.Linq;
 
 namespace MudSharp_Unit_Tests;
@@ -132,6 +136,205 @@ public class CharacterInstanceServiceTests
 		Assert.AreEqual("clone", metadata.FormKey);
 		Assert.IsFalse(metadata.PlayerFocusable);
 		Assert.AreEqual(CharacterInstancePersistencePolicy.Persistent, metadata.PersistencePolicy);
+	}
+
+	[TestMethod]
+	public void CreatePhysicalCloneSpawnOptions_PersistentSpawn_PreservesExactRouteCoordinate()
+	{
+		var pc = BuildPlayerCharacter();
+		var form = BuildForm(232, "persistent clone");
+		var routeCell = BuildRouteCell(42, 10_000.0, 125.0);
+		var location = new SpatialLocation(routeCell.Cell.Object, RoomLayer.GroundLevel, 7_150.125);
+
+		var options = CharacterInstanceService.CreatePhysicalCloneSpawnOptions(
+			pc.Object,
+			form.Object,
+			location,
+			454,
+			"persistent-clone",
+			false,
+			CharacterInstancePersistencePolicy.Persistent);
+
+		Assert.AreEqual(CharacterInstancePersistencePolicy.Persistent, options.PersistencePolicy);
+		Assert.AreEqual(location, options.SpawnLocation);
+		Assert.IsTrue(CharacterInstanceService.TryGetPersistedSpatialLocation(
+			options.SpawnLocation,
+			out var persisted,
+			out var error), error);
+		Assert.AreEqual(42L, persisted.LocationId);
+		Assert.AreEqual((int)RoomLayer.GroundLevel, persisted.RoomLayerValue);
+		Assert.IsTrue(persisted.RoutePosition.HasValue);
+		Assert.AreEqual(7_150.125m, persisted.RoutePosition.Value);
+	}
+
+	[TestMethod]
+	public void CreateScriptedAiSpawnOptions_TemporarySpawn_PreservesAndRoundsExactRouteCoordinate()
+	{
+		var pc = BuildPlayerCharacter();
+		var form = BuildForm(242, "temporary double");
+		var routeCell = BuildRouteCell(43, 10_000.0, 125.0);
+		var location = new SpatialLocation(routeCell.Cell.Object, RoomLayer.InTrees, 7_150.1236);
+
+		var options = CharacterInstanceService.CreateScriptedAiSpawnOptions(
+			pc.Object,
+			form.Object,
+			location,
+			persistencePolicy: CharacterInstancePersistencePolicy.DespawnOnReboot);
+
+		Assert.AreEqual(CharacterInstancePersistencePolicy.DespawnOnReboot, options.PersistencePolicy);
+		Assert.AreEqual(location, options.SpawnLocation);
+		Assert.IsTrue(CharacterInstanceService.TryGetPersistedSpatialLocation(
+			options.SpawnLocation,
+			out var persisted,
+			out var error), error);
+		Assert.IsTrue(persisted.RoutePosition.HasValue);
+		Assert.AreEqual(7_150.124m, persisted.RoutePosition.Value);
+	}
+
+	[TestMethod]
+	public void CreateDefaultSpawnLocation_RouteCell_UsesAuthoredDefault()
+	{
+		var routeCell = BuildRouteCell(44, 10_000.0, 3_750.5);
+
+		var location = CharacterInstanceService.CreateDefaultSpawnLocation(
+			routeCell.Cell.Object,
+			RoomLayer.GroundLevel);
+
+		Assert.AreSame(routeCell.Cell.Object, location.Cell);
+		Assert.AreEqual(RoomLayer.GroundLevel, location.Layer);
+		Assert.IsTrue(location.RoutePositionMetres.HasValue);
+		Assert.AreEqual(3_750.5, location.RoutePositionMetres.Value);
+	}
+
+	[TestMethod]
+	public void CreateDefaultSpawnLocation_OrdinaryCell_PreservesLegacyNullCoordinate()
+	{
+		var cell = new Mock<ICell>();
+
+		var location = CharacterInstanceService.CreateDefaultSpawnLocation(cell.Object, RoomLayer.OnRooftops);
+
+		Assert.AreSame(cell.Object, location.Cell);
+		Assert.AreEqual(RoomLayer.OnRooftops, location.Layer);
+		Assert.IsNull(location.RoutePositionMetres);
+	}
+
+	[TestMethod]
+	public void ValidateSecondarySpawnOptions_InvalidRouteCoordinates_FailBeforePersistence()
+	{
+		var pc = BuildPlayerCharacter();
+		var form = BuildForm();
+		var routeCell = BuildRouteCell(45, 10_000.0, 100.0);
+		var missingCoordinate = new SecondaryCharacterInstanceSpawnOptions
+		{
+			Owner = pc.Object,
+			Form = form.Object,
+			SpawnLocation = new SpatialLocation(routeCell.Cell.Object, RoomLayer.GroundLevel),
+			ControlPolicy = CharacterInstanceControlPolicy.NotControllable
+		};
+		var outOfBounds = missingCoordinate with
+		{
+			SpawnLocation = new SpatialLocation(routeCell.Cell.Object, RoomLayer.GroundLevel, 10_000.001)
+		};
+
+		var missingResult = CharacterInstanceService.ValidateSecondarySpawnOptions(missingCoordinate);
+		var outOfBoundsResult = CharacterInstanceService.ValidateSecondarySpawnOptions(outOfBounds);
+
+		Assert.IsFalse(missingResult.Success);
+		StringAssert.Contains(missingResult.Message, "requires a route coordinate");
+		Assert.IsFalse(outOfBoundsResult.Success);
+		StringAssert.Contains(outOfBoundsResult.Message, "outside RouteCell");
+	}
+
+	[TestMethod]
+	public void TryGetPersistedSpatialLocation_CoordinateOutsideDecimalSchema_FailsClosed()
+	{
+		var routeCell = BuildRouteCell(49, 2_000_000_000_000_000.0, 0.0);
+		var location = new SpatialLocation(
+			routeCell.Cell.Object,
+			RoomLayer.GroundLevel,
+			2_000_000_000_000_000.0);
+
+		var success = CharacterInstanceService.TryGetPersistedSpatialLocation(
+			location,
+			out _,
+			out var error);
+
+		Assert.IsFalse(success);
+		StringAssert.Contains(error, "decimal(18,3)");
+	}
+
+	[TestMethod]
+	public void ResolvePersistedSpatialLocation_RebootLoad_RestoresExactCoordinate()
+	{
+		var routeCell = BuildRouteCell(46, 10_000.0, 100.0);
+		var instance = new MudSharp.Models.CharacterInstance
+		{
+			Id = 601,
+			LocationId = 46,
+			RoomLayer = (int)RoomLayer.GroundLevel,
+			RoutePosition = 7_150.125m
+		};
+
+		var location = CharacterInstanceService.ResolvePersistedSpatialLocation(instance, routeCell.Cell.Object);
+
+		Assert.AreSame(routeCell.Cell.Object, location.Cell);
+		Assert.AreEqual(RoomLayer.GroundLevel, location.Layer);
+		Assert.IsTrue(location.RoutePositionMetres.HasValue);
+		Assert.AreEqual(7_150.125, location.RoutePositionMetres.Value);
+	}
+
+	[TestMethod]
+	public void ResolvePersistedSpatialLocation_InvalidRebootRow_ReportsInstanceAndReason()
+	{
+		var routeCell = BuildRouteCell(47, 10_000.0, 100.0);
+		var instance = new MudSharp.Models.CharacterInstance
+		{
+			Id = 602,
+			LocationId = 47,
+			RoomLayer = (int)RoomLayer.GroundLevel,
+			RoutePosition = null
+		};
+
+		var exception = Assert.ThrowsException<InvalidDataException>(() =>
+			CharacterInstanceService.ResolvePersistedSpatialLocation(instance, routeCell.Cell.Object));
+
+		StringAssert.Contains(exception.Message, "Character instance #602");
+		StringAssert.Contains(exception.Message, "requires a route coordinate");
+	}
+
+	[TestMethod]
+	public void NpcLoadHere_ResolvesActorsExactEffectiveRouteCoordinate()
+	{
+		var routeCell = BuildRouteCell(48, 10_000.0, 100.0);
+		var actorLocation = new SpatialLocation(routeCell.Cell.Object, RoomLayer.GroundLevel, 7_150.75);
+		var actor = BuildPlayerCharacter();
+		actor.SetupGet(x => x.SpatialLocation).Returns(actorLocation);
+
+		var success = NPCBuilderModule.TryResolveNpcLoadSpatialLocation(
+			actor.Object,
+			out var resolved,
+			out var error);
+
+		Assert.IsTrue(success, error);
+		Assert.AreEqual(actorLocation, resolved);
+	}
+
+	[TestMethod]
+	public void NpcLoadHere_OrdinaryCell_PreservesLegacyCellAndLayer()
+	{
+		var cell = new Mock<ICell>();
+		var actorLocation = new SpatialLocation(cell.Object, RoomLayer.InTrees);
+		var actor = BuildPlayerCharacter();
+		actor.SetupGet(x => x.SpatialLocation).Returns(actorLocation);
+
+		var success = NPCBuilderModule.TryResolveNpcLoadSpatialLocation(
+			actor.Object,
+			out var resolved,
+			out var error);
+
+		Assert.IsTrue(success, error);
+		Assert.AreEqual(actorLocation, resolved);
+		Assert.IsNull(resolved.RoutePositionMetres);
 	}
 
 	[TestMethod]
@@ -281,8 +484,7 @@ public class CharacterInstanceServiceTests
 		{
 			Owner = npc.Object,
 			Form = form.Object,
-			Location = location.Object,
-			RoomLayer = RoomLayer.GroundLevel,
+			SpawnLocation = new SpatialLocation(location.Object, RoomLayer.GroundLevel, null),
 			ControlPolicy = CharacterInstanceControlPolicy.PlayerFocusable
 		};
 
@@ -365,8 +567,7 @@ public class CharacterInstanceServiceTests
 		{
 			Owner = pc.Object,
 			Form = form.Object,
-			Location = location.Object,
-			RoomLayer = RoomLayer.GroundLevel,
+			SpawnLocation = new SpatialLocation(location.Object, RoomLayer.GroundLevel, null),
 			InstanceKind = CharacterInstanceKind.AnimatedCorpse,
 			ControlPolicy = CharacterInstanceControlPolicy.ScriptOnly
 		};
@@ -413,5 +614,20 @@ public class CharacterInstanceServiceTests
 		ai.SetupGet(x => x.Name).Returns($"AI {id}");
 		ai.SetupGet(x => x.IsReadyToBeUsed).Returns(true);
 		return ai;
+	}
+
+	private static (Mock<ICell> Cell, Mock<IRouteCellDefinition> Definition) BuildRouteCell(
+		long id,
+		double lengthMetres,
+		double defaultPositionMetres)
+	{
+		var cell = new Mock<ICell>();
+		var definition = new Mock<IRouteCellDefinition>();
+		cell.SetupGet(x => x.Id).Returns(id);
+		cell.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
+		definition.SetupGet(x => x.Cell).Returns(cell.Object);
+		definition.SetupGet(x => x.LengthMetres).Returns(lengthMetres);
+		definition.SetupGet(x => x.DefaultPositionMetres).Returns(defaultPositionMetres);
+		return (cell, definition);
 	}
 }

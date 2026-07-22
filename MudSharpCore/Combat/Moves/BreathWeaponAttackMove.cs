@@ -1,4 +1,5 @@
 ﻿using MudSharp.Body;
+using MudSharp.Combat.ScatterStrategies;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
@@ -77,12 +78,31 @@ public class BreathWeaponAttackMove : NaturalRangedAttackMoveBase
 			.Take(Math.Max(0, additionalTargetLimit) + 1);
 	}
 
+	internal static IEnumerable<ICharacter> SelectScatterBreathVictims(
+		RangedScatterResult scatter,
+		ICharacter assailant,
+		int additionalTargetLimit)
+	{
+		var candidates = ScatterStrategyUtilities
+			.GetPerceivablesNearImpact(
+				scatter,
+				assailant.Gameworld,
+				Proximity.Proximate,
+				true)
+			.OfType<ICharacter>();
+
+		return candidates
+			.Where(x => x != assailant)
+			.Distinct()
+			.Take(Math.Max(0, additionalTargetLimit) + 1);
+	}
+
     protected override void HandleScatterImpact(RangedScatterResult scatter, CheckOutcome attackOutcome)
     {
-        List<ICharacter> victims = scatter.Cell.LayerCharacters(scatter.RoomLayer)
-                           .Where(x => x != Assailant)
-                           .Take(BreathAttack.AdditionalTargetLimit + 1)
-                           .ToList();
+		List<ICharacter> victims = SelectScatterBreathVictims(
+			scatter,
+			Assailant,
+			BreathAttack.AdditionalTargetLimit).ToList();
         ApplyBreathToVictims(victims, attackOutcome, OpposedOutcomeDegree.None).ProcessPassiveWounds();
     }
 }

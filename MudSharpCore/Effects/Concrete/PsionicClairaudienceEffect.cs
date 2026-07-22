@@ -62,6 +62,31 @@ public sealed class PsionicClairaudienceEffect : Effect, IMagicEffect, IRemoteOb
 			$"[{TargetCharacter.HowSeen(Observer, flags: PerceiveIgnoreFlags.IgnoreConsciousness)}] {text}");
 	}
 
+	public bool Observes(SpatialLocation source)
+	{
+		if (source.Cell.RouteDefinition is null)
+		{
+			return true;
+		}
+
+		var target = RouteSpatialService.Instance.GetEffectiveLocation(TargetCharacter);
+		if (!ReferenceEquals(source.Cell, target.Cell) ||
+		    source.Layer != target.Layer ||
+		    !source.RoutePositionMetres.HasValue ||
+		    !target.RoutePositionMetres.HasValue)
+		{
+			return false;
+		}
+
+		var maximumDistance = Gameworld.GetStaticDouble("RouteCellVeryDistantDistanceMetres");
+		if (!double.IsFinite(maximumDistance) || maximumDistance <= 0.0)
+		{
+			maximumDistance = RouteSpatialConfiguration.Default.VeryDistantDistanceMetres;
+		}
+
+		return Math.Abs(source.RoutePositionMetres.Value - target.RoutePositionMetres.Value) <= maximumDistance;
+	}
+
 	public void HandleOutput(string text, ILocation location)
 	{
 		// String-only room output has no channel flags, so clairaudience refuses it by policy.

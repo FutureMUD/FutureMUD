@@ -245,6 +245,15 @@ public interface IHoldablePrototype : IExclusiveGameItemComponentPrototype<IHold
 {
 }
 
+/// <summary>
+/// Marks projection components whose parent inherits its effective world position from another
+/// item. Multiple projection components may coexist on one prototype, so this capability is
+/// aggregate rather than exclusive.
+/// </summary>
+public interface IProvideItemSpatialHostPrototype : IAggregateGameItemComponentPrototype<IProvideItemSpatialHost>
+{
+}
+
 public interface IImmobilisePrototype : IExclusiveGameItemComponentPrototype<IImmobilise>
 {
 }
@@ -577,11 +586,13 @@ public interface IVehicleExteriorPrototype : IExclusiveGameItemComponentPrototyp
 {
 }
 
-public interface IVehicleAccessPointItemPrototype : IExclusiveGameItemComponentPrototype<IVehicleAccessPointItem>, IOpenablePrototype, ILockablePrototype
+public interface IVehicleAccessPointItemPrototype : IExclusiveGameItemComponentPrototype<IVehicleAccessPointItem>,
+	IOpenablePrototype, ILockablePrototype, IProvideItemSpatialHostPrototype
 {
 }
 
-public interface IVehicleCargoSpaceItemPrototype : IExclusiveGameItemComponentPrototype<IVehicleCargoSpaceItem>
+public interface IVehicleCargoSpaceItemPrototype : IExclusiveGameItemComponentPrototype<IVehicleCargoSpaceItem>,
+	IProvideItemSpatialHostPrototype
 {
 }
 

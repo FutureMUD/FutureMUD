@@ -225,7 +225,7 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
             return false;
         }
 
-        foreach (ICharacter tch in ch.Location.Characters.Except(ch).Shuffle())
+        foreach (ICharacter tch in ch.Location.CharactersInSpatialVicinity(ch, false).Except(ch).Shuffle())
         {
             if (CheckForAttack(ch, tch))
             {
@@ -418,4 +418,24 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
 
         return (target.Item1.Location, target.Item2);
     }
+
+	protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+	{
+		var target = ch.AcquireTargetAndPath(
+			GetTargetFunction(ch),
+			MaximumRange,
+			GetSuitabilityFunction(ch)).Item1;
+		if (target is null ||
+		    !TryFindSpatialPath(
+			    ch,
+			    RouteSpatialService.Instance.GetEffectiveLocation(target),
+			    MaximumRange,
+			    GetSuitabilityFunction(ch),
+			    out var path))
+		{
+			return (null, null);
+		}
+
+		return (target.Location, path);
+	}
 }

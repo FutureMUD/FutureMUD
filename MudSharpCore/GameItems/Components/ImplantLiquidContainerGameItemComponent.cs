@@ -485,7 +485,7 @@ public class ImplantLiquidContainerGameItemComponent : ImplantBaseGameItemCompon
             {
                 if (location != null)
                 {
-                    location.Insert(thelock.Parent);
+                    InsertAtParentSpatialLocation(thelock.Parent, location);
                     thelock.Parent.ContainedIn = null;
                 }
                 else

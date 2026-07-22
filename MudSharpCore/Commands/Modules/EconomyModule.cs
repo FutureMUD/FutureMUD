@@ -612,7 +612,7 @@ internal partial class EconomyModule : Module<ICharacter>
             List<(string ItemDescription, string ValueDescription, int Levels)> results = new();
             decimal minTotal = 0.0M;
             decimal maxTotal = 0.0M;
-            foreach (IGameItem item in actor.Location.LayerGameItems(actor.RoomLayer))
+			foreach (IGameItem item in actor.Location.GameItemsInImmediateVicinity(actor))
             {
                 if (!actor.CanSee(item))
                 {
@@ -1068,8 +1068,8 @@ Finally, you can filter the output of list by a keyword with #3list <keyword>#0.
     protected static void List(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
-        List<IListable> listables = actor.Location
-            .LayerGameItems(actor.RoomLayer)
+		List<IListable> listables = actor.Location
+			.GameItemsInImmediateVicinity(actor)
             .SelectNotNull(x => x.GetItemType<IListable>())
             .Where(x => actor.IsAdministrator() || x.Parent.GetItemType<IOnOff>()?.SwitchedOn != false)
             .ToList();
@@ -1082,10 +1082,10 @@ Finally, you can filter the output of list by a keyword with #3list <keyword>#0.
         }
         else
         {
-            IShopStall stall = actor.Location.
-            LayerGameItems(actor.RoomLayer).
-            SelectNotNull(x => x.GetItemType<IShopStall>()).
-            FirstOrDefault(x => x.Shop is not null);
+			IShopStall stall = actor.Location
+				.GameItemsInImmediateVicinity(actor)
+				.SelectNotNull(x => x.GetItemType<IShopStall>())
+				.FirstOrDefault(x => x.Shop is not null);
             shop = stall?.Shop;
         }
 
@@ -2303,7 +2303,10 @@ Additionally, you can use the following shop admin subcommands:
         ITransientShop tShop = shop as ITransientShop;
         if (tShop is not null)
         {
-            IShopStall stall = actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<IShopStall>()).FirstOrDefault(x => x.Shop == shop);
+			IShopStall stall = actor.Location
+				.GameItemsInImmediateVicinity(actor)
+				.SelectNotNull(x => x.GetItemType<IShopStall>())
+				.FirstOrDefault(x => x.Shop == shop);
             if (stall is null)
             {
                 actor.OutputHandler.Send($"There is no stall for {shop.Name.TitleCase().ColourName()} in this location.");
@@ -2351,7 +2354,10 @@ Additionally, you can use the following shop admin subcommands:
         ITransientShop tShop = shop as ITransientShop;
         if (tShop is not null)
         {
-            IShopStall stall = actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<IShopStall>()).FirstOrDefault(x => x.Shop == shop);
+			IShopStall stall = actor.Location
+				.GameItemsInImmediateVicinity(actor)
+				.SelectNotNull(x => x.GetItemType<IShopStall>())
+				.FirstOrDefault(x => x.Shop == shop);
             if (stall is null)
             {
                 actor.OutputHandler.Send($"There is no stall for {shop.Name.TitleCase().ColourName()} in this location.");
@@ -2471,10 +2477,10 @@ Additionally, you can use the following shop admin subcommands:
             return true;
         }
 
-        IShopStall stall = actor.Location.
-            LayerGameItems(actor.RoomLayer).
-            SelectNotNull(x => x.GetItemType<IShopStall>()).
-            FirstOrDefault(x => x.Shop is not null);
+		IShopStall stall = actor.Location
+			.GameItemsInImmediateVicinity(actor)
+			.SelectNotNull(x => x.GetItemType<IShopStall>())
+			.FirstOrDefault(x => x.Shop is not null);
         if (stall is null)
         {
             actor.OutputHandler.Send("You are not currently at a shop or in the presence of a market stall.");
@@ -5660,7 +5666,7 @@ Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full action and
         else
         {
             item.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(item, true);
+            item.InsertAtSource(actor, true);
             item.SetPosition(PositionUndefined.Instance, PositionModifier.None, actor, null);
             actor.OutputHandler.Send(
                 $"Your {actor.Body.Prototype.WielderDescriptionPlural.ToLowerInvariant()} were full so you set the item on the ground.");
@@ -5771,7 +5777,7 @@ Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full action and
             }
             else
             {
-                actor.Location.Insert(changeItem, true);
+                changeItem.InsertAtSource(actor, true);
                 actor.OutputHandler.Send("You couldn't hold your change, so it is on the ground.");
             }
         }
@@ -5919,7 +5925,7 @@ Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full action and
         else
         {
             currencyItem.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(currencyItem, true);
+            currencyItem.InsertAtSource(actor, true);
             actor.OutputHandler.Send("You couldn't hold your money, so it is on the ground.");
         }
     }
@@ -6379,7 +6385,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
         else
         {
             givenItem.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(givenItem);
+            givenItem.InsertAtSource(actor);
             givenItem.SetPosition(PositionUndefined.Instance, PositionModifier.Before, actor, null);
             actor.OutputHandler.Send(
                 $"You were unable to pick up {givenItem.HowSeen(actor)}, so it is on the ground at your feet.");
@@ -6764,7 +6770,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             else
             {
                 changeItem.RoomLayer = actor.RoomLayer;
-                actor.Location.Insert(changeItem, true);
+                changeItem.InsertAtSource(actor, true);
                 actor.OutputHandler.Send("You couldn't hold your change, so it is on the ground.");
             }
         }
@@ -6802,7 +6808,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
         else
         {
             currencyItem.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(currencyItem, true);
+            currencyItem.InsertAtSource(actor, true);
             actor.OutputHandler.Send("You couldn't hold your money, so it is on the ground.");
         }
     }
@@ -6962,7 +6968,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             else
             {
                 changeItem.RoomLayer = actor.RoomLayer;
-                actor.Location.Insert(changeItem, true);
+                changeItem.InsertAtSource(actor, true);
                 actor.OutputHandler.Send("You couldn't hold your change, so it is on the ground.");
             }
         }
@@ -7321,8 +7327,8 @@ The syntax for this command is as follows:
         AppendOwnershipRows(actor, onPersonRows, actor.Body.ExternalItems, "Person");
 
         List<List<string>> roomRows = new();
-        AppendOwnershipRows(actor, roomRows,
-            actor.Location.LayerGameItems(actor.RoomLayer).Where(x => actor.CanSee(x)),
+		AppendOwnershipRows(actor, roomRows,
+			actor.Location.GameItemsInImmediateVicinity(actor).Where(x => actor.CanSee(x)),
             "Room");
 
         StringBuilder sb = new();
@@ -8003,7 +8009,7 @@ The syntax for this command is as follows:
         else
         {
             currencyItem.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(currencyItem, true);
+            currencyItem.InsertAtSource(actor, true);
             actor.OutputHandler.Send("You cannot carry the payout, so probate sets it down at your feet.");
         }
 
@@ -8874,7 +8880,7 @@ The syntax for this command is as follows:
         corpse.RemoveEffect(effect, true);
         zone.MorgueStorageCell.Extract(corpse);
         corpse.RoomLayer = actor.RoomLayer;
-        actor.Location.Insert(corpse, true);
+        corpse.InsertAtSource(actor, true);
         actor.OutputHandler.Send(
             $"{corpse.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings).ColourName()} has been released from storage into this office.");
     }
@@ -8906,7 +8912,7 @@ The syntax for this command is as follows:
         IGameItem bundle = item.ContainedIn;
         item.ContainedIn?.Take(item);
         item.RoomLayer = actor.RoomLayer;
-        actor.Location.Insert(item, true);
+        item.InsertAtSource(actor, true);
         if (bundle?.GetItemType<IContainer>()?.Contents.Any() == false)
         {
             bundle.Delete();
@@ -9423,7 +9429,7 @@ Note: There may be additional properties that can be edited depending on the typ
                     else
                     {
                         pile.RoomLayer = actor.RoomLayer;
-                        actor.Location.Insert(pile, true);
+                        pile.InsertAtSource(actor, true);
                         pile.PositionTarget = actor;
                         sb.AppendLine($"You couldn't hold {pile.HowSeen(actor)}, so it is on the ground.");
                     }
@@ -9550,7 +9556,7 @@ Note: There may be additional properties that can be edited depending on the typ
 		else
 		{
 			pile.RoomLayer = actor.RoomLayer;
-			actor.Location.Insert(pile, true);
+			pile.InsertAtSource(actor, true);
 			pile.PositionTarget = actor;
 			actor.OutputHandler.Send($"You couldn't hold {pile.HowSeen(actor)}, so it is on the ground.");
 		}

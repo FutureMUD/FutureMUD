@@ -44,6 +44,18 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
     protected readonly List<IGameItemComponent> _components = new();
 
+	internal static IGameItem? ResolveSpatialHost(IEnumerable<IGameItemComponent> components, IGameItem? parent = null)
+	{
+		return components
+		       .OfType<IProvideItemSpatialHost>()
+		       .Select(x => x.SpatialHost)
+		       .FirstOrDefault(x => x is not null && !ReferenceEquals(x, parent));
+	}
+
+	private bool IsSpatiallyHosted => _components.Any(x => x is IProvideItemSpatialHost);
+	private IGameItem? SpatialHost => ResolveSpatialHost(_components, this);
+	private double? PersistedRoutePositionMetres => IsSpatiallyHosted ? null : RoutePositionMetres;
+
     #endregion
 
     public override InitialisationPhase InitialisationPhase => InitialisationPhase.First;
@@ -197,6 +209,25 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             component.ForceMove();
         }
     }
+
+	public override bool TrySetRoutePosition(double? metres, out string error, bool noSave = false)
+	{
+		var previousPosition = RoutePositionMetres;
+		if (!base.TrySetRoutePosition(metres, out error, noSave))
+		{
+			return false;
+		}
+
+		if (!Nullable.Equals(previousPosition, RoutePositionMetres))
+		{
+			// Longitudinal movement is real movement even though the containing cell does not change.
+			// Independent cables, hoses and other ordinary connectors must therefore revalidate and
+			// disconnect just as they do for a cell transition.
+			ForceMove();
+		}
+
+		return true;
+	}
 
     public override bool CanBePositionedAgainst(IPositionState state, PositionModifier modifier)
     {
@@ -403,7 +434,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         dbitem.OwnerId = _ownerReference?.Id;
         dbitem.OwnerType = _ownerReference?.FrameworkItemType;
         dbitem.Condition = Condition;
-        dbitem.RoomLayer = (int)RoomLayer;
+        dbitem.RoomLayer = (int)(IsSpatiallyHosted ? _roomLayer : RoomLayer);
+		dbitem.RoutePosition = PersistedRoutePositionMetres.HasValue
+			? (decimal)PersistedRoutePositionMetres.Value
+			: null;
         dbitem.SkinId = _skinId;
         if (PositionChanged)
         {
@@ -616,6 +650,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             Size = (int)Size,
             PositionId = (int)PositionUndefined.Instance.Id,
             PositionModifier = (int)PositionModifier.None,
+			RoomLayer = (int)(IsSpatiallyHosted ? _roomLayer : RoomLayer),
+			RoutePosition = PersistedRoutePositionMetres.HasValue
+				? (decimal)PersistedRoutePositionMetres.Value
+				: null,
             EffectData = SaveEffects().ToString(),
             SurfaceLiquidData = SaveSurfaceLiquidState(),
             OwnerId = _ownerReference?.Id,
@@ -1394,7 +1432,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
     /// <summary>
     /// This returns an IPerceivable (which may be this item) that represents the perceivable "thing" that is actually in the room, for purposes of working out proximity of this item irrespestive of whether it is sitting in the room, being carried, in a container, attached to something etc.
     /// </summary>
-    public IPerceivable LocationLevelPerceivable => ContainedIn?.LocationLevelPerceivable ??
+    public IPerceivable LocationLevelPerceivable => SpatialHost?.LocationLevelPerceivable ??
+                   ContainedIn?.LocationLevelPerceivable ??
                    InInventoryOf?.Actor ??
                    GetItemType<IChair>()?.Table?.Parent.LocationLevelPerceivable ??
                    (GetItemType<IDoor>()?.InstalledExit != null ? this : null) ??
@@ -1482,14 +1521,29 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
     public override ICell Location
     {
-        get => base.Location ?? TrueLocations?.FirstOrDefault();
+        get => SpatialHost?.Location ?? base.Location ?? TrueLocations?.FirstOrDefault();
         protected set => base.Location = value;
     }
+
+	public override RoomLayer RoomLayer
+	{
+		get => SpatialHost?.RoomLayer ?? base.RoomLayer;
+		set => base.RoomLayer = value;
+	}
+
+	public override double? RoutePositionMetres => SpatialHost?.RoutePositionMetres ?? base.RoutePositionMetres;
 
     #endregion
 
     public IEnumerable<ICell> TrueLocationsExcept(List<IGameItem> itemsConsidered)
     {
+		var spatialHost = SpatialHost;
+		if (spatialHost is not null && !itemsConsidered.Contains(spatialHost))
+		{
+			itemsConsidered.Add(spatialHost);
+			return spatialHost.TrueLocationsExcept(itemsConsidered);
+		}
+
         if (base.Location != null)
         {
             return new[] { Location };
@@ -1550,6 +1604,12 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
     {
         get
         {
+			var spatialHost = SpatialHost;
+			if (spatialHost is not null)
+			{
+				return spatialHost.TrueLocationsExcept([this, spatialHost]);
+			}
+
             if (base.Location != null)
             {
                 return new[] { Location };
@@ -1615,7 +1675,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             case OutputRange.Local:
                 foreach (ICell location in TrueLocations)
                 {
-                    location.Handle(text);
+					location.HandleLocal(this, RoomLayer, text);
                 }
 
                 break;
@@ -1660,7 +1720,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             case OutputRange.Local:
                 foreach (ICell location in TrueLocations)
                 {
-                    location.Handle(output);
+					location.HandleLocal(this, RoomLayer, output);
                 }
 
                 break;
@@ -2295,6 +2355,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         }
 
         Location?.Extract(this);
+		ClearRoutePositionForDetachment();
         Location = null;
         InvalidatePositionTargets();
         EffectHandler.RemoveAllEffects(x => x.IsEffectType<IRemoveOnGet>(), true);
@@ -2331,7 +2392,12 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         IHoldable holdable = GetItemType<IHoldable>();
         holdable?.HeldBy = null;
 
-        Location = location;
+		if (location is null)
+		{
+			ClearRoutePositionForDetachment();
+		}
+
+		Location = location;
         return this;
     }
 
@@ -2702,6 +2768,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
     {
         IGameItem newItem = Prototype.LoadMorphedItem(this);
         ICell location = TrueLocations.FirstOrDefault();
+		var originalSpatialLocation = location is null
+			? (SpatialLocation?)null
+			: CaptureComponentLifecycleSpatialLocation(location);
         if (!string.IsNullOrEmpty(Prototype.MorphEmote))
         {
             OutputHandler.Handle(new EmoteOutput(new Emote(Prototype.MorphEmote.SubstituteANSIColour(), this, this, newItem)));
@@ -2713,7 +2782,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             InInventoryOf?.SwapInPlace(this, newItem);
             ContainedIn?.SwapInPlace(this, newItem);
             newItem.RoomLayer = RoomLayer;
-            Location?.Insert(newItem);
+			if (Location is not null && originalSpatialLocation.HasValue)
+			{
+				newItem.InsertAtSpatialLocation(originalSpatialLocation.Value);
+			}
             foreach (IEffect effect in Effects)
             {
                 IEffect newEffect = effect.NewEffectOnItemMorph(this, newItem);
@@ -2732,7 +2804,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
             foreach (IGameItemComponent comp in Components)
             {
-                comp.HandleDieOrMorph(newItem, location);
+                comp.HandleDieOrMorph(newItem, location, originalSpatialLocation);
             }
 
             newItem.Login();
@@ -2740,6 +2812,32 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
         Delete();
     }
+
+	private SpatialLocation CaptureComponentLifecycleSpatialLocation(ICell selectedCell)
+	{
+		var spatialService = RouteSpatialService.Instance;
+		var currentLocation = spatialService.GetEffectiveLocation(LocationLevelPerceivable);
+		if (ReferenceEquals(currentLocation.Cell, selectedCell) &&
+			spatialService.TryValidateLocation(currentLocation, out _))
+		{
+			return currentLocation;
+		}
+
+		var installedExit = GetItemType<IDoor>()?.InstalledExit;
+		var selectedExit = installedExit?.CellExitFor(selectedCell);
+		if (selectedCell.RouteDefinition is not null &&
+			selectedExit is not null &&
+			spatialService.TryGetExitAnchor(selectedExit, selectedCell, out var anchor) &&
+			anchor is not null)
+		{
+			return new SpatialLocation(selectedCell, RoomLayer, anchor.ArrivalPositionMetres);
+		}
+
+		spatialService.TryValidateLocation(currentLocation, out var error);
+		throw new InvalidOperationException(
+			$"Cannot capture the destruction or morph position of item #{Id:N0} in Cell #{selectedCell.Id:N0}: " +
+			$"{error} Installed RouteCell doors require an anchor on the selected exit side.");
+	}
 
     #endregion
 
@@ -2763,61 +2861,45 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
     public override IEnumerable<(IPerceivable Thing, Proximity Proximity)> LocalThingsAndProximities()
     {
-        List<IAffectProximity> proximityEffects = EffectsOfType<IAffectProximity>().ToList();
-        foreach (IGameItem item in TrueLocations.SelectMany(x => x.GameItems).ToList())
-        {
-            if (item.RoomLayer != RoomLayer)
-            {
-                yield return (item, Proximity.VeryDistant);
-            }
+		var effectiveLocation = RouteSpatialService.Instance.GetEffectiveLocation(this);
+		IEnumerable<IPerceivable> candidates;
+		if (effectiveLocation.Cell?.RouteDefinition is null)
+		{
+			candidates = TrueLocations.SelectMany(x => x.Perceivables);
+		}
+		else
+		{
+			var maximumDistance = Gameworld.GetStaticDouble("RouteCellVeryDistantDistanceMetres");
+			if (!double.IsFinite(maximumDistance) || maximumDistance <= 0.0)
+			{
+				maximumDistance = RouteSpatialConfiguration.Default.VeryDistantDistanceMetres;
+			}
 
-            if (Cover?.CoverItem?.Parent == item)
-            {
-                yield return (item, Proximity.Immediate);
-            }
+			candidates = RouteSpatialService.Instance.GetPerceivablesWithinAcrossLayers(
+				effectiveLocation,
+				maximumDistance);
+		}
 
-            if (PositionTarget == item || item.PositionTarget == this)
-            {
-                yield return (item, Proximity.Immediate);
-            }
-
-            if (InVicinity(item))
-            {
-                yield return (item, Proximity.Immediate);
-            }
-
-            List<(bool Affects, Proximity Proximity)> proximities = proximityEffects.Select(x => x.GetProximityFor(item)).Where(x => x.Affects).ToList();
-            if (proximities.Any())
-            {
-                yield return (item, proximities.Select(x => x.Proximity).Min());
-            }
-
-            yield return (item, Proximity.Distant);
-        }
-
-        foreach (ICharacter actor in Location.Characters)
-        {
-            if (actor.RoomLayer != RoomLayer)
-            {
-                yield return (actor, Proximity.VeryDistant);
-            }
-
-            if (PositionTarget == actor || actor.PositionTarget == this)
-            {
-                yield return (actor, Proximity.Immediate);
-            }
-
-            if (InVicinity(actor))
-            {
-                yield return (actor, Proximity.Immediate);
-            }
-
-            List<(bool Affects, Proximity Proximity)> proximities = proximityEffects.Select(x => x.GetProximityFor(actor)).Where(x => x.Affects).ToList();
-            if (proximities.Any())
-            {
-                yield return (actor, proximities.Select(x => x.Proximity).Min());
-            }
-        }
+		var proximityEffects = EffectsOfType<IAffectProximity>().ToList();
+		foreach (var candidate in candidates
+			         .Where(x => !ReferenceEquals(x, this))
+			         .Distinct())
+		{
+			var proximity = InVicinity(candidate)
+				? Proximity.Immediate
+				: GetProximity(candidate);
+			var affectedProximity = proximityEffects
+				.Select(x => x.GetProximityFor(candidate))
+				.Where(x => x.Affects)
+				.Select(x => x.Proximity)
+				.DefaultIfEmpty(Proximity.Unapproximable)
+				.Min();
+			proximity = (Proximity)Math.Min((int)proximity, (int)affectedProximity);
+			if (proximity != Proximity.Unapproximable)
+			{
+				yield return (candidate, proximity);
+			}
+		}
 
         foreach (AdjacentToExit effect in EffectsOfType<AdjacentToExit>().Where(x => x.Exit.Exit.Door != null).ToList())
         {

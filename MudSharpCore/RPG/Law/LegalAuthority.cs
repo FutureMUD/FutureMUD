@@ -702,7 +702,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
             }
 
             List<ICharacter> witnesses = explicitWitnesses is null
-                ? location.LayerCharacters(criminal.RoomLayer).Except(criminal)
+	                ? location.CharactersInSpatialVicinity(criminal).Except(criminal)
                           .Where(x => x.CanSee(criminal)).ToList()
                 : explicitWitnesses.Except(criminal).Distinct().ToList();
             Crime newCrime = new(criminal, victim, witnesses, law, item, additionalInformation, location);

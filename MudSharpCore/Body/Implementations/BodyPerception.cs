@@ -11,6 +11,7 @@ using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
+using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Prototypes;
@@ -153,6 +154,22 @@ public partial class Body
         bool visionExemptThing = thing is IExit || (thing is IGameItem gi && IsInInventory(gi));
         IPerceiver perceiverThing = thing as IPerceiver;
         bool hasSensorArrays = Bodyparts.OfType<SensorArray>().Any();
+
+		if (!visionExemptThing && Actor.Location?.RouteDefinition is not null &&
+			ReferenceEquals(Actor.Location, thing.Location))
+		{
+			var observerLocation = RouteSpatialService.Instance.GetEffectiveLocation(Actor);
+			var targetLocation = RouteSpatialService.Instance.GetEffectiveLocation(thing);
+			var maximumDistance = RouteSpatialConfiguration.FromGameworld(Actor.Gameworld)
+				.VeryDistantDistanceMetres;
+			if (!observerLocation.RoutePositionMetres.HasValue ||
+				!targetLocation.RoutePositionMetres.HasValue ||
+				Math.Abs(observerLocation.RoutePositionMetres.Value - targetLocation.RoutePositionMetres.Value) >
+				maximumDistance)
+			{
+				return false;
+			}
+		}
 
         if (!visionExemptThing)
         {
@@ -602,7 +619,14 @@ public partial class Body
         StringBuilder sb = new();
         sb.AppendLine(Location.HowSeen(Actor,
             type: fromMovement && Actor.BriefRoomDescs ? DescriptionType.Long : DescriptionType.Full));
-        var visibleMovements = Location.Characters
+        var localPerceivables = PerceivablesInVisualRouteRange().ToList();
+        var localCharacters = localPerceivables
+                              .OfType<ICharacter>()
+                              .ToList();
+        var localItems = localPerceivables
+                         .OfType<IGameItem>()
+                         .ToList();
+        var visibleMovements = localCharacters
                                        .Where(x => x != Actor && x.Movement != null && x.RoomLayer == RoomLayer)
                                        .Select(x => x.Movement)
                                        .Distinct()
@@ -619,7 +643,7 @@ public partial class Body
             sb.AppendLine($"There is graffiti in this location. Use LOOK GRAFFITI to view it.".Colour(Telnet.BoldCyan));
         }
 
-        var visibleCharacters = Location.Characters
+        var visibleCharacters = localCharacters
                                         .Where(x => x != Actor && x.Movement == null && x.RoomLayer == RoomLayer && CanSee(x))
                                         .ToList();
         var movementTargets = visibleMovements
@@ -635,7 +659,8 @@ public partial class Body
                                                     .Select(x => x.ExteriorItem)
                                                     .ToHashSet();
         Location.ResolveRoomWeatherExposure(Actor);
-        List<IGameItem> items = Location.LayerGameItems(RoomLayer)
+        List<IGameItem> items = localItems
+                                        .Where(x => x.RoomLayer == RoomLayer)
                                         .Where(x => CanSee(x))
                                         .Where(x => !movementTargets.Contains(x))
                                         .Where(x => !vehiclesDescribedByOccupants.Contains(x))
@@ -697,12 +722,73 @@ public partial class Body
             }
         }
 
+		foreach (var dockingLine in DockedVehicleLookLines(Actor))
+		{
+			sb.AppendLine(dockingLine.Wrap(InnerLineFormatLength));
+		}
+
         foreach (ICharacter ch in visibleCharacters)
         {
             sb.AppendLine(ch.HowSeen(Actor, true, DescriptionType.Long).Wrap(InnerLineFormatLength));
         }
 
         return sb.ToString().Wrap(Account.LineFormatLength);
+    }
+
+	internal static IEnumerable<string> DockedVehicleLookLines(ICharacter actor)
+	{
+		if (actor?.Gameworld?.Vehicles is null || actor.Location is null)
+		{
+			yield break;
+		}
+
+		foreach (var vehicle in actor.Gameworld.Vehicles.OrderBy(x => x.Id))
+		{
+			if (vehicle.ExteriorItem?.Location?.Id == actor.Location.Id &&
+			    vehicle.ExteriorItem.RoomLayer == actor.RoomLayer)
+			{
+				continue;
+			}
+
+			var accessPoints = vehicle.Dockings
+				.Where(x => x.State == VehicleDockingState.BoardingOpen)
+				.Where(x => x.ExteriorCell.Id == actor.Location.Id && x.ExteriorLayer == actor.RoomLayer)
+				.Where(x => x is not VehicleDocking runtime || runtime.IsRegistered)
+				.Select(x => x.AccessPoint.Name.ColourName())
+				.Distinct(StringComparer.InvariantCultureIgnoreCase)
+				.ToList();
+			if (!accessPoints.Any())
+			{
+				continue;
+			}
+
+			yield return
+				$"{vehicle.Name.ColourName()} is docked here with boarding open via {accessPoints.ListToString()}.";
+		}
+	}
+
+    /// <summary>
+    /// Ordinary cells retain their existing whole-layer look semantics. A RouteCell can span
+    /// kilometres, so a normal look is deliberately bounded at the configured visual-locality
+    /// ceiling and uses the RouteCell's ordered spatial index.
+    /// </summary>
+    private IEnumerable<IPerceivable> PerceivablesInVisualRouteRange()
+    {
+        if (Location?.RouteDefinition is null)
+        {
+            return Location?.Perceivables.Where(x => x.RoomLayer == RoomLayer) ?? [];
+        }
+
+        var maximumDistance = Gameworld.GetStaticDouble("RouteCellVeryDistantDistanceMetres");
+        if (!double.IsFinite(maximumDistance) || maximumDistance <= 0.0)
+        {
+            maximumDistance = RouteSpatialConfiguration.Default.VeryDistantDistanceMetres;
+        }
+
+        return RouteSpatialService.Instance.GetPerceivablesWithin(
+            Actor.SpatialLocation,
+            maximumDistance,
+            x => x.RoomLayer == RoomLayer);
     }
 
     public string LookText(IPerceivable thing, bool fromLookCommand = false)

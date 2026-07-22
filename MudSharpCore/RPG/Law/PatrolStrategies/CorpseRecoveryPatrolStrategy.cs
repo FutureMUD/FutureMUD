@@ -68,7 +68,7 @@ public class CorpseRecoveryPatrolStrategy : PatrolStrategyBase
             return;
         }
 
-        if (patrol.PatrolLeader.Location == report.SourceCell)
+        if (HasReachedPatrolDestination(patrol.PatrolLeader, report.Corpse))
         {
             patrol.PatrolPhase = PatrolPhase.Patrol;
             patrol.LastArrivedTime = DateTime.UtcNow;
@@ -80,25 +80,30 @@ public class CorpseRecoveryPatrolStrategy : PatrolStrategyBase
             return;
         }
 
-        List<ICellExit> path = patrol.PatrolLeader.PathBetween(report.SourceCell, 50,
-            PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader)).ToList();
-        if (!path.Any())
+        if (TryBeginPatrolPath(
+                patrol.PatrolLeader,
+                report.Corpse,
+                50.0,
+                PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader)))
         {
-            path = patrol.PatrolLeader.PathBetween(report.SourceCell, 50, PathSearch.IgnorePresenceOfDoors).ToList();
-            if (!path.Any())
-            {
-                if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
-                {
-                    report.MarkFailed();
-                    patrol.ActiveCorpseRecoveryReport = null;
-                    patrol.ConcludePatrol();
-                }
-
-                return;
-            }
+            return;
         }
 
-        BeginPatrolPath(patrol.PatrolLeader, path);
+        if (TryBeginPatrolPath(
+                patrol.PatrolLeader,
+                report.Corpse,
+                50.0,
+                PathSearch.IgnorePresenceOfDoors))
+        {
+            return;
+        }
+
+        if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+        {
+            report.MarkFailed();
+            patrol.ActiveCorpseRecoveryReport = null;
+            patrol.ConcludePatrol();
+        }
     }
 
     private void HandleRecovery(IPatrol patrol)
@@ -127,7 +132,7 @@ public class CorpseRecoveryPatrolStrategy : PatrolStrategyBase
             return;
         }
 
-        if (patrol.PatrolLeader.Location != report.SourceCell)
+        if (!HasReachedPatrolDestination(patrol.PatrolLeader, corpseItem))
         {
             patrol.PatrolPhase = PatrolPhase.Deployment;
             return;

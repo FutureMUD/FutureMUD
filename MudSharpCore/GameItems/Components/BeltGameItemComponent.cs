@@ -68,7 +68,7 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
                 if (location != null)
                 {
                     item.ConnectedTo = null;
-                    location.Insert(item.Parent);
+                    InsertAtParentSpatialLocation(item.Parent, location);
                 }
                 else
                 {
@@ -87,7 +87,7 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
                 else if (location != null)
                 {
                     item.ConnectedTo = null;
-                    location.Insert(item.Parent);
+                    InsertAtParentSpatialLocation(item.Parent, location);
                 }
                 else
                 {

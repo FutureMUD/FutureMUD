@@ -129,7 +129,8 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
                 }
                 else
                 {
-                    tch.Location.Insert(item, true);
+                    item.RoomLayer = tch.RoomLayer;
+                    item.InsertAtSource(tch, true);
                 }
                 item.HandleEvent(EventType.ItemFinishedLoading, item);
                 item.Login();
@@ -144,7 +145,15 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
             foreach (IGameItem item in items)
             {
                 item.SetOwner(caster);
-                cell.Insert(item, true);
+                if (ReferenceEquals(caster.Location, cell))
+                {
+                    item.RoomLayer = caster.RoomLayer;
+                    item.InsertAtSource(caster, true);
+                }
+                else
+                {
+                    cell.Insert(item, true);
+                }
                 item.HandleEvent(EventType.ItemFinishedLoading, item);
                 item.Login();
             }
@@ -158,7 +167,6 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
             ISheath sheathe = gitem.GetItemType<ISheath>();
             IBelt belt = gitem.GetItemType<IBelt>();
             IEnumerable<IGameItem> items = prototype.CreateNew(caster, skin, Quantity, LoadString);
-            ICell location = gitem.TrueLocations.FirstOrDefault() ?? caster.Location;
             foreach (IGameItem item in items)
             {
                 item.SetOwner(caster);
@@ -186,7 +194,8 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
                     continue;
                 }
 
-                location.Insert(item, true);
+                item.RoomLayer = gitem.RoomLayer;
+                item.InsertAtSource(gitem.LocationLevelPerceivable, true);
                 item.HandleEvent(EventType.ItemFinishedLoading, item);
                 item.Login();
             }

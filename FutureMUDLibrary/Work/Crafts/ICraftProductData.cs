@@ -1,6 +1,7 @@
 ﻿using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.Form.Shape;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
@@ -12,6 +13,10 @@ public interface ICraftProductData
     XElement SaveToXml();
     void FinaliseLoadTimeTasks();
     void ReleaseProducts(ICell location, RoomLayer layer);
+    void ReleaseProducts(ILocateable source, ICell location, RoomLayer layer)
+    {
+        ReleaseProducts(location, layer);
+    }
     void Delete();
     void Quit();
 }

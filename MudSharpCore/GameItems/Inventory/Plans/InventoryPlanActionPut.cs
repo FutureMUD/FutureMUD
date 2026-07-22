@@ -1,4 +1,6 @@
 ﻿
+using MudSharp.Construction;
+
 namespace MudSharp.GameItems.Inventory.Plans;
 
 public class InventoryPlanActionPut : InventoryPlanAction
@@ -53,7 +55,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
 
         return
             executor.Inventory.SelectNotNull(x => x.GetItemType<IContainer>())
-                    .Concat(executor.Location.LayerGameItems(executor.RoomLayer)
+                    .Concat(executor.Location.GameItemsInImmediateVicinity(executor)
                                     .SelectNotNull(x => x.GetItemType<IContainer>()))
                     .FirstOrDefault(
                         x =>
@@ -65,7 +67,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
     {
         List<IContainer> containers =
             executor.Inventory.SelectNotNull(x => x.GetItemType<IContainer>())
-                    .Concat(executor.Location.LayerGameItems(executor.RoomLayer)
+                    .Concat(executor.Location.GameItemsInImmediateVicinity(executor)
                                     .SelectNotNull(x => x.GetItemType<IContainer>()))
                     .Where(x => x.Parent.IsA(DesiredSecondaryTag) &&
                                 (x.Parent.GetItemType<IOpenable>()?.IsOpen ?? true))
@@ -143,7 +145,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
 
         // In location
         item =
-            executor.Location.LayerGameItems(executor.RoomLayer).FirstOrDefault(
+            executor.Location.GameItemsInImmediateVicinity(executor).FirstOrDefault(
                 x =>
                     x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
                     containers.Any(y => y.CanPut(x)));
@@ -154,7 +156,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
 
         // Attached to room items next
         item =
-            executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<IBelt>())
+            executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<IBelt>())
                     .Select(
                         x =>
                             x.ConnectedItems.FirstOrDefault(
@@ -169,7 +171,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
 
         // Sheathed in room item next
         item =
-            executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<ISheath>())
+            executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<ISheath>())
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>

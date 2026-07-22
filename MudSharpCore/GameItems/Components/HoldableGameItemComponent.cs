@@ -54,7 +54,7 @@ public class HoldableGameItemComponent : GameItemComponent, IHoldable
 
         else if (newItem != null)
         {
-            location.Insert(newItem);
+            InsertAtParentSpatialLocation(newItem, location);
         }
 
 

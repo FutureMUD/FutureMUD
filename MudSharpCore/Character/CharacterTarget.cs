@@ -9,6 +9,62 @@ namespace MudSharp.Character;
 
 public partial class Character : ITarget
 {
+	internal IEnumerable<IPerceivable> SpatiallyTargetablePerceivables(bool ignoreLayers = false)
+	{
+		if (Location?.RouteDefinition is null)
+		{
+			return ignoreLayers
+				? Location?.Perceivables ?? []
+				: Location?.Perceivables.Where(x => x.RoomLayer == RoomLayer) ?? [];
+		}
+
+		var maximumDistance = Gameworld.GetStaticDouble("RouteCellVeryDistantDistanceMetres");
+		if (!double.IsFinite(maximumDistance) || maximumDistance <= 0.0)
+		{
+			maximumDistance = RouteSpatialConfiguration.Default.VeryDistantDistanceMetres;
+		}
+
+		if (!ignoreLayers)
+		{
+			return RouteSpatialService.Instance.GetPerceivablesWithin(
+				SpatialLocation,
+				maximumDistance,
+				x => x.RoomLayer == RoomLayer);
+		}
+
+		var origin = RouteSpatialService.Instance.GetEffectiveLocation(this);
+		return origin.RoutePositionMetres.HasValue
+			? RouteSpatialService.Instance.GetPerceivablesWithinAcrossLayers(origin, maximumDistance)
+			: [];
+	}
+
+	internal IEnumerable<ICharacter> SpatiallyTargetableCharacters(bool ignoreLayers = false)
+	{
+		return SpatiallyTargetablePerceivables(ignoreLayers).OfType<ICharacter>();
+	}
+
+	internal IEnumerable<IGameItem> SpatiallyTargetableItems(bool ignoreLayers = false)
+	{
+		return IncludeTargetProjections(SpatiallyTargetablePerceivables(ignoreLayers).OfType<IGameItem>());
+	}
+
+	internal static IEnumerable<IGameItem> IncludeTargetProjections(IEnumerable<IGameItem> localItems)
+	{
+		var items = localItems
+		            .Where(x => x is not null && !x.Deleted && !x.Destroyed)
+		            .Distinct()
+		            .ToList();
+		var projections = items
+		                  .SelectMany(x => x.Components
+		                                    .OfType<IProvideItemTargetProjections>()
+		                                    .SelectMany(y => y.TargetProjections))
+		                  .Where(x => x is not null && !x.Deleted && !x.Destroyed);
+
+		return items
+		       .Concat(projections)
+		       .Distinct();
+	}
+
     private IGameItem? TargetItemWithinItem(IGameItem itemTarget, string keyword)
     {
         List<IGameItem> contents = new();
@@ -71,9 +127,9 @@ public partial class Character : ITarget
             return targetExit.Exit.Door.Parent;
         }
 
-        List<IPerceiver> targets = Location.LayerCharacters(RoomLayer).Except(this)
+        List<IPerceiver> targets = SpatiallyTargetableCharacters().Except(this)
                               .Cast<IPerceiver>()
-                              .Concat(Body.ExternalItems.Concat(Location.LayerGameItems(RoomLayer)))
+                              .Concat(Body.ExternalItems.Concat(SpatiallyTargetableItems()))
                               .Where(x => CanSee(x))
                               .ToList();
         return targets.GetFromItemListByKeyword(keyword, this);
@@ -87,10 +143,10 @@ public partial class Character : ITarget
             return this;
         }
 
-        List<IPerceiver> targets = Location.LayerCharacters(RoomLayer)
+        List<IPerceiver> targets = SpatiallyTargetableCharacters()
                               .Where(x => x != this)
                               .Cast<IPerceiver>()
-                              .Concat(Location.LayerGameItems(RoomLayer))
+                              .Concat(SpatiallyTargetableItems())
                               .Where(x => CanSee(x))
                               .ToList();
 
@@ -107,15 +163,13 @@ public partial class Character : ITarget
 
         if (ignoreFlags.HasFlag(PerceiveIgnoreFlags.IgnoreLayers))
         {
-            return Location
-                   .Characters
+            return SpatiallyTargetableCharacters(true)
                    .Except(this)
                    .Where(x => CanSee(x, ignoreFlags))
                    .GetFromItemListByKeyword(keyword, this);
         }
 
-        return Location
-               .LayerCharacters(RoomLayer)
+        return SpatiallyTargetableCharacters()
                .Except(this)
                .Where(x => CanSee(x, ignoreFlags))
                .GetFromItemListByKeyword(keyword, this);
@@ -131,11 +185,10 @@ public partial class Character : ITarget
 
         if (ignoreFlags.HasFlag(PerceiveIgnoreFlags.IgnoreLayers))
         {
-            var location = Location!;
             var body = Body!;
-            return location.Characters
+            return SpatiallyTargetableCharacters(true)
                            .Except(this)
-                           .Concat(location.GameItems.Select(x => x.GetItemType<ICorpse>())
+                           .Concat(SpatiallyTargetableItems(true).Select(x => x.GetItemType<ICorpse>())
                                            .Where(x => x is { RepresentsFinalCharacterDeath: true })
                                            .Select(x => x!.OriginalCharacter))
                            .Concat(body.ExternalItems.Select(x => x.GetItemType<ICorpse>())
@@ -145,11 +198,10 @@ public partial class Character : ITarget
                            .GetFromItemListByKeyword(keyword, this);
         }
 
-        var localLocation = Location!;
         var localBody = Body!;
-        return localLocation.LayerCharacters(RoomLayer)
+        return SpatiallyTargetableCharacters()
                        .Except(this)
-                       .Concat(localLocation.LayerGameItems(RoomLayer)
+                       .Concat(SpatiallyTargetableItems()
                                        .Select(x => x.GetItemType<ICorpse>())
                                        .Where(x => x is { RepresentsFinalCharacterDeath: true })
                                        .Select(x => x!.OriginalCharacter))
@@ -169,7 +221,7 @@ public partial class Character : ITarget
                     .ExternalItems
                     .OfType<IGameItem>()
                     .Where(x => x.GetItemType<ICorpse>() is not null)
-                    .Concat(Location!.GameItems)
+                    .Concat(SpatiallyTargetableItems(true))
                     .Where(x => CanSee(x, ignoreFlags))
                     .GetFromItemListByKeyword(keyword, this)
                     ?.GetItemType<ICorpse>();
@@ -180,7 +232,7 @@ public partial class Character : ITarget
                 .ExternalItems
                 .OfType<IGameItem>()
                 .Where(x => x.GetItemType<ICorpse>() is not null)
-                .Concat(Location!.LayerGameItems(RoomLayer))
+                .Concat(SpatiallyTargetableItems())
                 .Where(x => CanSee(x, ignoreFlags))
                 .GetFromItemListByKeyword(keyword, this)
                 ?.GetItemType<ICorpse>();
@@ -188,16 +240,14 @@ public partial class Character : ITarget
 
     public ICharacter? TargetAlly(string keyword)
     {
-        return Location
-               .LayerCharacters(RoomLayer)
+        return SpatiallyTargetableCharacters()
                .Where(x => IsAlly(x) && CanSee(x))
                .GetFromItemListByKeyword(keyword, this);
     }
 
     public virtual ICharacter? TargetNonAlly(string keyword)
     {
-        return Location
-               .LayerCharacters(RoomLayer)
+        return SpatiallyTargetableCharacters()
                .Where(x => !IsAlly(x) && CanSee(x))
                .GetFromItemListByKeyword(keyword, this);
     }
@@ -223,7 +273,7 @@ public partial class Character : ITarget
         }
 
         return Body.ExternalItems
-                   .Concat(Location.LayerGameItems(RoomLayer))
+                   .Concat(SpatiallyTargetableItems())
                    .Where(x => CanSee(x))
                    .GetFromItemListByKeyword(keyword, this);
     }
@@ -236,8 +286,7 @@ public partial class Character : ITarget
             return targetExit.Exit.Door.Parent;
         }
 
-        return Location
-               .LayerGameItems(RoomLayer)
+        return SpatiallyTargetableItems()
                .Where(x => CanSee(x))
                .GetFromItemListByKeyword(keyword, this);
     }
@@ -280,7 +329,7 @@ public partial class Character : ITarget
 
     public IGameItem? TargetLocalOrHeldItem(string keyword)
     {
-        return Body.ItemsInHands.Concat(Location.LayerGameItems(RoomLayer)).Where(x => CanSee(x))
+        return Body.ItemsInHands.Concat(SpatiallyTargetableItems()).Where(x => CanSee(x))
                    .GetFromItemListByKeyword(keyword, this);
     }
 
@@ -291,7 +340,7 @@ public partial class Character : ITarget
 
     public IGameItem? TargetWornItem(string keyword)
     {
-        return Body.ItemsInHands.Concat(Location.LayerGameItems(RoomLayer)).Where(x => CanSee(x))
+        return Body.ItemsInHands.Concat(SpatiallyTargetableItems()).Where(x => CanSee(x))
                    .GetFromItemListByKeyword(keyword, this);
     }
 
@@ -303,9 +352,9 @@ public partial class Character : ITarget
     public string BestKeywordFor(IPerceivable target)
     {
         IEnumerable<string> keywords = target.GetKeywordsFor(this);
-        List<IPerceivable> targets = Location.LayerCharacters(RoomLayer).Except(this)
+        List<IPerceivable> targets = SpatiallyTargetableCharacters().Except(this)
                               .Cast<IPerceivable>()
-                              .Concat(Body.ExternalItems.Concat(Location.LayerGameItems(RoomLayer)))
+                              .Concat(Body.ExternalItems.Concat(SpatiallyTargetableItems()))
                               .Where(x => CanSee(x)).ToList();
         return
             $"{targets.IndexOf(target) + 1}.{keywords.ListToString(separator: ".", conjunction: "", twoItemJoiner: ".")}";
@@ -314,7 +363,7 @@ public partial class Character : ITarget
     public string BestKeywordFor(ICharacter target)
     {
         IEnumerable<string> keywords = target.GetKeywordsFor(this);
-        List<ICharacter> targets = Location.LayerCharacters(RoomLayer).Except(this)
+        List<ICharacter> targets = SpatiallyTargetableCharacters().Except(this)
                               .Where(x => CanSee(x)).ToList();
         return
             $"{targets.IndexOf(target) + 1}.{keywords.ListToString(separator: ".", conjunction: "", twoItemJoiner: ".")}";
@@ -324,7 +373,7 @@ public partial class Character : ITarget
     {
         IEnumerable<string> keywords = target.GetKeywordsFor(this);
         List<IGameItem> targets = Body.ExternalItems
-                          .Concat(Location.LayerGameItems(RoomLayer))
+                          .Concat(SpatiallyTargetableItems())
                           .Where(x => CanSee(x))
                           .ToList();
         return

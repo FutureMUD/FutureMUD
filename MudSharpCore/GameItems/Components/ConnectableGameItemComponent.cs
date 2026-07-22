@@ -37,7 +37,7 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
             IConnectable newItemConnectable = newItem?.GetItemType<IConnectable>();
             if (newItemConnectable == null)
             {
-                location?.Insert(connectedItem.Parent);
+                InsertAtParentSpatialLocation(connectedItem.Parent, location);
             }
             else
             {
@@ -47,7 +47,7 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
                 }
                 else
                 {
-                    location?.Insert(connectedItem.Parent);
+                    InsertAtParentSpatialLocation(connectedItem.Parent, location);
                 }
             }
         }
@@ -97,7 +97,7 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
             return parent.ContainedIn == other.ContainedIn;
         }
 
-        return parent.Location == other.Location && parent.RoomLayer == other.RoomLayer;
+		return parent.ColocatedWith(other);
     }
 
     public override bool DescriptionDecorator(DescriptionType type)
@@ -168,6 +168,12 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
 
     public bool CanConnect(ICharacter? actor, IConnectable other)
     {
+		if (Parent.Location is not null && other.Parent.Location is not null &&
+			!Parent.ColocatedWith(other.Parent))
+		{
+			return false;
+		}
+
         if (!FreeConnections.Any())
         {
             return false;
@@ -205,6 +211,12 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
 
     public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
+		if (Parent.Location is not null && other.Parent.Location is not null &&
+			!Parent.ColocatedWith(other.Parent))
+		{
+			return $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} because they are too far apart.";
+		}
+
         if (!FreeConnections.Any())
         {
             return
@@ -348,7 +360,7 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
                 continue;
             }
 
-            if (gitem.Location != Parent.Location)
+            if (!Parent.ColocatedWith(gitem))
             {
                 continue;
             }

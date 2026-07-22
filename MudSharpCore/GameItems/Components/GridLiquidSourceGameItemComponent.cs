@@ -125,7 +125,7 @@ public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidConta
         foreach (Tuple<long, ConnectorType>? item in _pendingLoadTimeConnections.ToList())
         {
             IGameItem? gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null || gitem.Location != Parent.Location)
+            if (gitem == null || !Parent.ColocatedWith(gitem))
             {
                 continue;
             }

@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using MudSharp.Arenas;
 using MudSharp.Economy.Currency;
+using MudSharp.Construction;
 using MudSharp.Economy.Payment;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
@@ -72,7 +73,7 @@ public class ArenaBetPaymentService : IArenaBetPaymentService
         else
         {
             pile.RoomLayer = bettor.RoomLayer;
-            bettor.Location.Insert(pile, true);
+            pile.InsertAtSource(bettor, true);
             bettor.OutputHandler.Send("You couldn't hold your payout, so it has been placed at your feet.".Colour(Telnet.Yellow));
         }
 

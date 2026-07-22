@@ -2933,7 +2933,7 @@ public static class HospitalMedicalServiceRunner
 		else if (donor.Location is not null)
 		{
 			cash.RoomLayer = donor.RoomLayer;
-			donor.Location.Insert(cash, true);
+			cash.InsertAtSource(donor, true);
 		}
 
 		donor.OutputHandler.Send($"{request.Hospital.Name.ColourName()} pays you {request.Hospital.Currency.Describe(payout, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} for your blood donation.");
@@ -3282,7 +3282,10 @@ public static class HospitalMedicalServiceRunner
 			}
 			else
 			{
-				employee.Location?.Insert(implant, true);
+				if (employee.Location is not null)
+				{
+					implant.InsertAtSource(employee, true);
+				}
 			}
 
 			yield return HeldItemSelector(employee, implant);

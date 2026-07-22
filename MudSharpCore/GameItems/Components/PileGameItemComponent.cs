@@ -85,7 +85,7 @@ public class PileGameItemComponent : GameItemComponent, IContainer
         {
             if (location != null)
             {
-                location.Insert(item);
+                InsertAtParentSpatialLocation(item, location);
                 item.ContainedIn = null;
             }
             else
@@ -329,7 +329,7 @@ public class PileGameItemComponent : GameItemComponent, IContainer
             else
             {
                 content.RoomLayer = Parent.RoomLayer;
-                Parent.Location.Insert(content);
+                content.InsertAtSource(Parent);
             }
 
             Parent.Delete();
@@ -386,7 +386,7 @@ public class PileGameItemComponent : GameItemComponent, IContainer
                 }
                 else if (location != null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location, preferredSource: emptier);
                     emptier?.OutputHandler.Handle(new EmoteOutput(new Emote(
                             "@ cannot put $1 into $2, so #0 set|sets it down on the ground.", emptier, emptier, item,
                             intoContainer.Parent)));
@@ -401,7 +401,7 @@ public class PileGameItemComponent : GameItemComponent, IContainer
 
             if (location != null)
             {
-                location.Insert(item);
+                InsertAtParentSpatialLocation(item, location, preferredSource: emptier);
             }
             else
             {

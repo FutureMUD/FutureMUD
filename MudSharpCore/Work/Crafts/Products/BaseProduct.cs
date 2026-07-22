@@ -2,6 +2,7 @@
 using MudSharp.Database;
 using MudSharp.Events;
 using MudSharp.Form.Material;
+using MudSharp.Form.Shape;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
@@ -61,6 +62,17 @@ public abstract class BaseProduct : LateInitialisingItem, ICraftProduct
             {
                 item.RoomLayer = layer;
                 location.Insert(item);
+                item.HandleEvent(EventType.ItemFinishedLoading, item);
+                item.Login();
+            }
+        }
+
+        public void ReleaseProducts(ILocateable source, ICell location, RoomLayer layer)
+        {
+            foreach (IGameItem item in Products)
+            {
+                item.RoomLayer = layer;
+                item.InsertAtSource(source);
                 item.HandleEvent(EventType.ItemFinishedLoading, item);
                 item.Login();
             }

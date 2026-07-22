@@ -6,6 +6,7 @@ using MudSharp.CharacterCreation;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Health;
 using MudSharp.Models;
@@ -535,8 +536,22 @@ public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate
 
     public ICharacter CreateNewCharacter(ICell location)
     {
-        ICharacterTemplate template = CharacterTemplate(location);
+        return CreateNewCharacter(new SpatialLocation(
+            location,
+            RoomLayer.GroundLevel,
+            location.RouteDefinition?.DefaultPositionMetres));
+    }
+
+    public ICharacter CreateNewCharacter(SpatialLocation location)
+    {
+        if (!RouteSpatialService.Instance.TryValidateLocation(location, out var error))
+        {
+            throw new ArgumentException(error, nameof(location));
+        }
+
+        ICharacterTemplate template = CharacterTemplate(location.Cell);
         NPC npc = new(Gameworld, template, this);
+        npc.MoveTo(location, noSave: true);
         return npc;
     }
 

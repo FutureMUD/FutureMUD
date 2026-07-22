@@ -132,7 +132,7 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
             IConnectable newItemConnectable = newItem?.GetItemType<IConnectable>();
             if (newItemConnectable == null)
             {
-                location?.Insert(connectedItem.Parent);
+                InsertAtParentSpatialLocation(connectedItem.Parent, location);
             }
             else
             {
@@ -142,7 +142,7 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
                 }
                 else
                 {
-                    location?.Insert(connectedItem.Parent);
+                    InsertAtParentSpatialLocation(connectedItem.Parent, location);
                 }
             }
         }
@@ -244,7 +244,7 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
                 continue;
             }
 
-            if (gitem.Location != Parent.Location)
+            if (!Parent.ColocatedWith(gitem))
             {
                 continue;
             }

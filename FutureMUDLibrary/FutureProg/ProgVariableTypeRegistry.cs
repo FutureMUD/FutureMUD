@@ -101,6 +101,9 @@ public static class ProgVariableTypeRegistry
 		RegisterExact(ProgTypeKind.Area, ProgVariableTypes.Area, "Area", "area");
 		RegisterExact(ProgTypeKind.LegalClass, ProgVariableTypes.LegalClass, "LegalClass", "legalclass");
 		RegisterExact(ProgTypeKind.AgricultureField, ProgVariableTypes.AgricultureField, "AgricultureField", "agriculturefield", "field");
+		RegisterExact(ProgTypeKind.VehicleRoute, ProgVariableTypes.VehicleRoute, "VehicleRoute", "vehicleroute", "route");
+		RegisterExact(ProgTypeKind.VehicleService, ProgVariableTypes.VehicleService, "VehicleService", "vehicleservice", "service");
+		RegisterExact(ProgTypeKind.VehicleJourney, ProgVariableTypes.VehicleJourney, "VehicleJourney", "vehiclejourney", "journey");
 
         RegisterNamed(ProgVariableTypes.CollectionItem, "CollectionItem", false, "collectionitem");
         RegisterNamed(ProgVariableTypes.Perceivable, "Perceivable", false, "perceivable");

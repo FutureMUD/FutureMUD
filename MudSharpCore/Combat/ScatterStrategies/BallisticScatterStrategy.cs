@@ -53,18 +53,13 @@ public class BallisticScatterStrategy : IRangedScatterStrategy
         }
 
         (CellScatterInfo Info, double Weight) chosen = cells.GetWeightedRandom(x => x.Weight);
-        ICell chosenCell = chosen.Info.Cell;
-        List<IPerceiver> candidates = chosenCell.Characters.Cast<IPerceiver>()
-            .Concat(chosenCell.GameItems)
-            .Where(x => !x.Equals(shooter) && !x.Equals(originalTarget) && x.RoomLayer == originalTarget.RoomLayer)
+		List<IPerceiver> candidates = ScatterStrategyUtilities
+			.GetCandidatesAtImpact(chosen.Info, originalTarget, true)
+			.Where(x => !x.Equals(shooter) && !x.Equals(originalTarget))
             .ToList();
 
         IPerceiver? target = candidates.GetWeightedRandom(x => Weight(x, originalTarget));
-        return target != null
-            ? new RangedScatterResult(chosenCell, target.RoomLayer, chosen.Info.DirectionFromOrigin, chosen.Info.Distance,
-                target)
-            : new RangedScatterResult(chosenCell, originalTarget.RoomLayer, chosen.Info.DirectionFromOrigin,
-                chosen.Info.Distance, null);
+		return ScatterStrategyUtilities.CreateResult(chosen.Info, originalTarget, target);
     }
 
     private static double CellWeight(CellScatterInfo info, HashSet<CardinalDirection> preferredDirections,

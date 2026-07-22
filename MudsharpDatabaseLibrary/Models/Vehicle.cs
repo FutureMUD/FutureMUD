@@ -16,6 +16,9 @@ public class Vehicle
 		SourceTowLinks = new HashSet<VehicleTowLink>();
 		TargetTowLinks = new HashSet<VehicleTowLink>();
 		DamageZones = new HashSet<VehicleDamageZone>();
+		HostedCells = new HashSet<Cell>();
+		Dockings = new HashSet<VehicleDocking>();
+		Tracks = new HashSet<Track>();
 	}
 
 	public long Id { get; set; }
@@ -26,6 +29,7 @@ public class Vehicle
 	public int LocationType { get; set; }
 	public long? CurrentCellId { get; set; }
 	public int CurrentRoomLayer { get; set; }
+	public decimal? CurrentRoutePosition { get; set; }
 	public int MovementStatus { get; set; }
 	public long? CurrentExitId { get; set; }
 	public long? DestinationCellId { get; set; }
@@ -50,4 +54,7 @@ public class Vehicle
 	public virtual ICollection<VehicleTowLink> SourceTowLinks { get; set; }
 	public virtual ICollection<VehicleTowLink> TargetTowLinks { get; set; }
 	public virtual ICollection<VehicleDamageZone> DamageZones { get; set; }
+	public virtual ICollection<Cell> HostedCells { get; set; }
+	public virtual ICollection<VehicleDocking> Dockings { get; set; }
+	public virtual ICollection<Track> Tracks { get; set; }
 }

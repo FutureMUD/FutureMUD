@@ -60,9 +60,8 @@ public class ProjectLabourQueueEntry : IProjectLabourQueueEntry
 			return ProjectLabourQueueStatus.Stale;
 		}
 
-		if (_project is ActiveProject activeProject &&
-		    _project is ILocalProject &&
-		    activeProject.Location != character.Location)
+		if (_project is ILocalProject localProject &&
+		    !localProject.IsAtProjectSite(character))
 		{
 			return ProjectLabourQueueStatus.WaitingForLocation;
 		}

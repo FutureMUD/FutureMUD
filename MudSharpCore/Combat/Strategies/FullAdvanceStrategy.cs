@@ -75,6 +75,13 @@ public class FullAdvanceStrategy : RangeBaseStrategy
                     return null;
                 }
 
+				if (ch.Location.RouteDefinition is not null && !ch.ColocatedWith(ch.CombatTarget))
+				{
+					return ch.CanSpendStamina(MoveToMeleeMove.MoveStaminaCost(ch))
+						? new AdvanceAlongRouteMove { Assailant = ch }
+						: new TooExhaustedMove { Assailant = ch };
+				}
+
                 if (ch.CanSpendStamina(ChargeToMeleeMove.MoveStaminaCost(ch)))
                 {
                     return new ChargeToMeleeMove { Assailant = ch };

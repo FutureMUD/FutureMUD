@@ -1274,7 +1274,7 @@ public partial class Body
         {
             IGameItem item = SeverBodypart(wound.SeveredBodypart);
             item.RoomLayer = RoomLayer;
-            Location.Insert(item);
+            item.InsertAtSource(Actor);
             item.Login();
             item.HandleEvent(EventType.ItemFinishedLoading, item);
         }
@@ -1282,7 +1282,7 @@ public partial class Body
         OnWounded?.Invoke(this, wound);
         wound.OnWoundSuffered();
         HandleEvent(EventType.CharacterDamaged, Actor, wound.ToolOrigin, wound.ActorOrigin);
-        foreach (IHandleEvents witness in Location.EventHandlers)
+        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor))
         {
             witness.HandleEvent(EventType.CharacterDamagedWitness, Actor, wound.ToolOrigin, wound.ActorOrigin, witness);
         }
@@ -1709,7 +1709,7 @@ public partial class Body
 
                 HandleTargetEvent(EventType.TargetIncapacitated);
                 Actor.HandleEvent(EventType.CharacterIncapacitated, Actor);
-                foreach (IHandleEvents witness in Actor.Location.EventHandlers)
+                foreach (IHandleEvents witness in Actor.Location.EventHandlersFor(Actor))
                 {
                     if (witness == Actor)
                     {
@@ -1832,7 +1832,7 @@ public partial class Body
                     new Emote("@ can no longer wear $0, and so it falls to the ground.", Actor, mandatory.Item)));
                 Take(mandatory.Item);
                 mandatory.Item.RoomLayer = RoomLayer;
-                Location.Insert(mandatory.Item);
+                mandatory.Item.InsertAtSource(Actor);
             }
         }
 

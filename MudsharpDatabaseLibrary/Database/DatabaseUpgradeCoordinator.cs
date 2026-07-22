@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Text.Json;
 
 namespace MudSharp.Database;
@@ -198,6 +199,11 @@ public sealed class DatabaseUpgradeCoordinator : IDatabaseUpgradeCoordinator
             string databaseName = new MySqlConnectionStringBuilder(request.ConnectionString).Database;
             string snapshotContents = File.ReadAllText(exportedPath)
                 .Replace(databaseName, databaseNamePlaceholder, StringComparison.Ordinal);
+			snapshotContents = Regex.Replace(
+				snapshotContents,
+				@"[ \t]+(?=\r?$)",
+				string.Empty,
+				RegexOptions.Multiline);
             File.WriteAllText(snapshotPath, snapshotContents);
         }
         finally

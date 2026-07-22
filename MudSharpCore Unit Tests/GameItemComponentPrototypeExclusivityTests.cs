@@ -33,7 +33,8 @@ public class GameItemComponentPrototypeExclusivityTests
 		typeof(ISignalSourceComponent),
 		typeof(ISwitchable),
 		typeof(ITelephoneNumberOwner),
-		typeof(IProvideItemTargetProjections)
+		typeof(IProvideItemTargetProjections),
+		typeof(IProvideItemSpatialHost)
 	];
 
 	[TestMethod]

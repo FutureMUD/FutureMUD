@@ -1,5 +1,7 @@
 ﻿using MudSharp.RPG.Checks;
 
+using MudSharp.Construction;
+
 namespace MudSharp.Effects.Concrete;
 
 public class Searching : CharacterAction
@@ -59,10 +61,20 @@ public class Searching : CharacterAction
     private void SearchAction(IPerceivable dummy)
     {
         ICheck check = Gameworld.GetCheck(CheckType.ActiveSearchCheck);
-        List<ICharacter> hiders = CharacterOwner.Location.Characters.Except(CharacterOwner).Where(x =>
-            x.EffectsOfType<IHideEffect>().Any() && !CharacterOwner.AffectedBy<SawHider>(x)).ToList();
-        List<GameItems.IGameItem> hiddenItems = CharacterOwner.Location.LayerGameItems(CharacterOwner.RoomLayer).Where(x =>
-            x.EffectsOfType<IItemHiddenEffect>().Any() && !CharacterOwner.AffectedBy<SawHiddenItem>(x)).ToList();
+		var nearby = CharacterOwner.LocalThingsAndProximities()
+			.Where(x => x.Proximity <= Proximity.Immediate)
+			.Select(x => x.Thing)
+			.Distinct()
+			.ToList();
+		List<ICharacter> hiders = nearby
+			.OfType<ICharacter>()
+			.Where(x => x != CharacterOwner)
+			.Where(x => x.EffectsOfType<IHideEffect>().Any() && !CharacterOwner.AffectedBy<SawHider>(x))
+			.ToList();
+		List<GameItems.IGameItem> hiddenItems = nearby
+			.OfType<GameItems.IGameItem>()
+			.Where(x => x.EffectsOfType<IItemHiddenEffect>().Any() && !CharacterOwner.AffectedBy<SawHiddenItem>(x))
+			.ToList();
         double hitsPerSkill = Gameworld.GetStaticDouble("ActiveSearchRequiredHitsPerSkill");
         CharacterOwner.OutputHandler.Send("You continue searching the area...");
         CheckOutcome result = check.Check(CharacterOwner, CurrentDifficulty);

@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body;
 using MudSharp.Effects.Concrete;
+using MudSharp.Construction;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.RPG.Checks;
@@ -207,7 +208,7 @@ public class RemoveImplantProcedure : BodypartSpecificSurgicalProcedure
         else
         {
             implantItem.RoomLayer = surgeon.RoomLayer;
-            surgeon.Location.Insert(implantItem);
+            implantItem.InsertAtSource(surgeon);
         }
     }
 

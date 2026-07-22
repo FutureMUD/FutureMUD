@@ -20,5 +20,6 @@ public class VehicleAccessPoint
 	public virtual Vehicle Vehicle { get; set; }
 	public virtual VehicleAccessPointProto VehicleAccessPointProto { get; set; }
 	public virtual GameItem ProjectionItem { get; set; }
+	public virtual VehicleDocking Docking { get; set; }
 	public virtual ICollection<VehicleAccessPointLock> Locks { get; set; }
 }

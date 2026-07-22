@@ -165,7 +165,7 @@ public class AmmoClipGameItemComponent : GameItemComponent, IAmmoClip
                 else if (location != null)
                 {
                     item.RoomLayer = emptier.RoomLayer;
-                    location.Insert(item);
+					item.InsertAtSource(emptier is null ? Parent.LocationLevelPerceivable : emptier);
                     emptier?.OutputHandler.Handle(new EmoteOutput(new Emote(
                             "@ cannot put $1 into $2, so #0 set|sets it down on the ground.", emptier, emptier, item,
                             intoContainer.Parent)));
@@ -181,7 +181,7 @@ public class AmmoClipGameItemComponent : GameItemComponent, IAmmoClip
             if (location != null)
             {
                 item.RoomLayer = emptier.RoomLayer;
-                location.Insert(item);
+				item.InsertAtSource(emptier is null ? Parent.LocationLevelPerceivable : emptier);
             }
             else
             {
@@ -333,7 +333,7 @@ public class AmmoClipGameItemComponent : GameItemComponent, IAmmoClip
                     }
                     else if (location != null)
                     {
-                        location.Insert(item);
+						item.InsertAtSource(Parent.LocationLevelPerceivable);
                         item.ContainedIn = null;
                     }
                     else
@@ -351,7 +351,7 @@ public class AmmoClipGameItemComponent : GameItemComponent, IAmmoClip
             {
                 if (location != null)
                 {
-                    location.Insert(item);
+					item.InsertAtSource(Parent.LocationLevelPerceivable);
                     item.ContainedIn = null;
                 }
                 else

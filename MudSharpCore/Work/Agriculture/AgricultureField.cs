@@ -1137,7 +1137,11 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
         for (var i = 0; i < count; i++)
         {
-            var npc = definition.NpcTemplate.CreateNewCharacter(Cell);
+			var actorLocation = RouteSpatialService.Instance.GetEffectiveLocation(actor);
+			var spawnLocation = ReferenceEquals(actorLocation.Cell, Cell)
+				? actorLocation
+				: CharacterInstanceService.CreateDefaultSpawnLocation(Cell, RoomLayer.GroundLevel);
+            var npc = definition.NpcTemplate.CreateNewCharacter(spawnLocation);
             Gameworld.Add(npc, true);
             definition.NpcTemplate.ApplyTemplateLoadAdditions(npc);
             definition.NpcTemplate.OnLoadProg?.Execute(npc);

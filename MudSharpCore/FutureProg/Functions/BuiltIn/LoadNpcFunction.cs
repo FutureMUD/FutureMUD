@@ -80,9 +80,9 @@ internal class LoadNpcFunction : BuiltInFunction
             }
         }
 
-        ICharacter npc = proto.CreateNewCharacter(location);
+		var spawnLocation = CharacterInstanceService.CreateDefaultSpawnLocation(location, layer);
+        ICharacter npc = proto.CreateNewCharacter(spawnLocation);
         _gameworld.Add(npc, true);
-        npc.RoomLayer = layer;
         proto.ApplyTemplateLoadAdditions(npc);
         proto.OnLoadProg?.Execute(npc);
         location.Login(npc);

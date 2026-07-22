@@ -10,6 +10,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.PerceptionEngine;
 using MudSharp.Vehicles;
 using System.Collections.Generic;
 using System.Linq;
@@ -106,6 +107,98 @@ public class VehicleMovementStrategyTests
 
 		Assert.IsTrue(result);
 		Assert.AreEqual(string.Empty, reason);
+	}
+
+	[TestMethod]
+	public void CanMove_WhenExitDoorIsClosed_FailsBeforeReadiness()
+	{
+		var readiness = new Mock<IVehicleOperationalReadinessService>();
+		var strategy = new CellExitVehicleMovementStrategy(new Mock<IVehicleTowService>().Object,
+			new Mock<IVehicleHitchGraphService>().Object, readiness.Object);
+		var controller = new Mock<ICharacter>();
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Normal);
+		var exit = CreateExit(vehicle.Location, SizeCategory.Normal);
+		var door = new Mock<IDoor>();
+		door.SetupGet(x => x.IsOpen).Returns(false);
+		Mock.Get(exit.Exit).SetupGet(x => x.Door).Returns(door.Object);
+
+		var result = strategy.CanMove(vehicle, controller.Object, exit, out var reason);
+
+		Assert.IsFalse(result);
+		Assert.AreEqual("The door through that exit is closed.", reason);
+		readiness.Verify(x => x.BuildMovementReadiness(It.IsAny<VehicleMovementReadinessRequest>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void CellExitEchoes_SeparateExteriorAndHostedInteriorAudiences()
+	{
+		var originObserverOutput = new Mock<IOutputHandler>();
+		var originObserver = new Mock<ICharacter>();
+		originObserver.SetupGet(x => x.OutputHandler).Returns(originObserverOutput.Object);
+		originObserver.SetupGet(x => x.Effects).Returns([]);
+		var destinationObserverOutput = new Mock<IOutputHandler>();
+		var destinationObserver = new Mock<ICharacter>();
+		destinationObserver.SetupGet(x => x.OutputHandler).Returns(destinationObserverOutput.Object);
+		destinationObserver.SetupGet(x => x.Effects).Returns([]);
+		var origin = new Mock<ICell>();
+		origin.SetupGet(x => x.Cells).Returns([origin.Object]);
+		origin.SetupGet(x => x.Characters).Returns([originObserver.Object]);
+		origin.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([originObserver.Object]);
+		origin.SetupGet(x => x.Effects).Returns([]);
+		var destination = new Mock<ICell>();
+		destination.SetupGet(x => x.Cells).Returns([destination.Object]);
+		destination.SetupGet(x => x.Characters).Returns([destinationObserver.Object]);
+		destination.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([destinationObserver.Object]);
+		destination.SetupGet(x => x.Effects).Returns([]);
+
+		ICell exteriorLocation = origin.Object;
+		var exteriorOutput = new Mock<IOutputHandler>();
+		var exterior = new Mock<IGameItem>();
+		exterior.SetupGet(x => x.Location).Returns(() => exteriorLocation);
+		exterior.SetupGet(x => x.TrueLocations).Returns(() => [exteriorLocation]);
+		exterior.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		exterior.SetupGet(x => x.OutputHandler).Returns(exteriorOutput.Object);
+		exterior.SetupGet(x => x.Effects).Returns([]);
+		exteriorOutput.SetupGet(x => x.Perceiver).Returns(exterior.Object);
+
+		var interiorOutput = new Mock<IOutputHandler>();
+		var interiorOccupant = new Mock<ICharacter>();
+		interiorOccupant.SetupGet(x => x.OutputHandler).Returns(interiorOutput.Object);
+		interiorOccupant.SetupGet(x => x.Effects).Returns([]);
+		var interior = new Mock<ICell>();
+		interior.SetupGet(x => x.Cells).Returns([interior.Object]);
+		interior.SetupGet(x => x.Characters).Returns([interiorOccupant.Object]);
+		interior.SetupGet(x => x.Effects).Returns([]);
+		var compartment = new Mock<IVehicleCompartment>();
+		compartment.SetupGet(x => x.InteriorCell).Returns(interior.Object);
+		var prototype = new Mock<IVehiclePrototype>();
+		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.RoomScale);
+		var vehicle = new Mock<IVehicle>();
+		vehicle.SetupGet(x => x.Name).Returns("test train");
+		vehicle.SetupGet(x => x.ExteriorItem).Returns(exterior.Object);
+		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
+		vehicle.SetupGet(x => x.Compartments).Returns([compartment.Object]);
+		var exitModel = new Mock<IExit>();
+		var exit = new Mock<ICellExit>();
+		exit.SetupGet(x => x.Exit).Returns(exitModel.Object);
+		exit.SetupGet(x => x.Origin).Returns(origin.Object);
+		exit.SetupGet(x => x.Destination).Returns(destination.Object);
+		exit.SetupGet(x => x.OutboundMovementSuffix).Returns("east");
+		exit.SetupGet(x => x.InboundMovementSuffix).Returns("from the west");
+		var actor = new Mock<ICharacter>();
+		var strategy = new CellExitVehicleMovementStrategy(new Mock<IVehicleTowService>().Object,
+			new Mock<IVehicleHitchGraphService>().Object, new Mock<IVehicleOperationalReadinessService>().Object);
+
+		strategy.EchoDeparture(vehicle.Object, actor.Object, exit.Object, [vehicle.Object]);
+		exteriorLocation = destination.Object;
+		strategy.EchoArrival(vehicle.Object, actor.Object, exit.Object, [vehicle.Object], RoomLayer.GroundLevel);
+
+		originObserverOutput.Verify(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);
+		destinationObserverOutput.Verify(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);
+		interiorOutput.Verify(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Exactly(2));
+		interiorOutput.Verify(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
+		originObserverOutput.Verify(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
+		destinationObserverOutput.Verify(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
 	}
 
 	[TestMethod]
@@ -619,7 +712,7 @@ public class VehicleMovementStrategyTests
 		cellExit.SetupGet(x => x.Origin).Returns(origin);
 		cellExit.SetupGet(x => x.Destination).Returns(destination.Object);
 		cellExit.SetupGet(x => x.Exit).Returns(exit.Object);
-		cellExit.Setup(x => x.MovementTransition(It.IsAny<ICharacter>()))
+		cellExit.Setup(x => x.MovementTransition(It.IsAny<IPerceiver>()))
 		        .Returns((CellMovementTransition.GroundToGround, RoomLayer.GroundLevel));
 		return cellExit.Object;
 	}

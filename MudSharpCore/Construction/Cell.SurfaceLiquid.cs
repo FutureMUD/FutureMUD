@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.IO;
 using MudSharp.Character.Heritage;
 using MudSharp.Climate;
 using MudSharp.Climate.WeatherEvents;
@@ -13,12 +14,21 @@ namespace MudSharp.Construction;
 
 public partial class Cell
 {
-	private readonly Dictionary<RoomLayer, SurfaceLiquidState> _surfaceLiquidStates = new();
+	private readonly Dictionary<SurfaceLiquidLocation, SurfaceLiquidState> _surfaceLiquidStates = new();
 	private readonly Dictionary<RoomLayer, System.DateTime> _lastWeatherExposureByLayer = new();
 	private bool _surfaceLiquidChanged;
 
 	public IEnumerable<(RoomLayer Layer, ISurfaceLiquidState State)> SurfaceLiquidStates =>
-		_surfaceLiquidStates.Select(x => (x.Key, (ISurfaceLiquidState)x.Value));
+		_surfaceLiquidStates.Select(x => (x.Key.Layer, (ISurfaceLiquidState)x.Value));
+
+	internal bool HasPointSurfaceLiquid => _surfaceLiquidStates.Any(x =>
+		x.Key.RoutePositionMetres.HasValue && !x.Value.IsEmpty);
+
+	internal bool HasPointSurfaceLiquidBeyond(double maximumPositionMetres)
+	{
+		return _surfaceLiquidStates.Any(x =>
+			x.Key.RoutePositionMetres > maximumPositionMetres && !x.Value.IsEmpty);
+	}
 
 	public void AddLiquidToSurface(LiquidMixture mixture, RoomLayer layer, IPerceivable? referenceItem)
 	{
@@ -35,7 +45,7 @@ public partial class Cell
 				return;
 			case SurfaceLiquidRoute.Surface:
 				SurfaceLiquidTransferService.TransferToSurface(
-					GetOrCreateSurfaceState(layer),
+					GetOrCreateSurfaceState(layer, SurfaceCoordinateFor(referenceItem)),
 					mixture,
 					Gameworld.GetStaticDouble("EnormousPoolLiquidQuantity"));
 				return;
@@ -47,24 +57,29 @@ public partial class Cell
 	public string DescribeLiquidSurface(RoomLayer layer, IPerceiver voyeur, bool colour)
 	{
 		ResolveSurfaceDrying(layer);
-		if (!Gameworld.GetStaticBool("PuddlesEnabled") || !_surfaceLiquidStates.TryGetValue(layer, out var state) || state.IsEmpty)
+		if (!Gameworld.GetStaticBool("PuddlesEnabled"))
 		{
 			return string.Empty;
 		}
 
 		var sb = new StringBuilder();
-		if (state.LiquidVolume >= Gameworld.GetStaticDouble("SplashLiquidQuantity"))
+		foreach (var state in VisibleSurfaceStates(layer, voyeur))
 		{
-			var text = $"{PuddleDescription(state.LiquidVolume).A_An()} of {state.ContaminatingLiquid.LiquidDescription} is here.";
-			sb.AppendLine(colour ? text.Colour(state.ContaminatingLiquid.LiquidColour) : text);
-		}
+			if (state.LiquidVolume >= Gameworld.GetStaticDouble("SplashLiquidQuantity"))
+			{
+				var text = $"{PuddleDescription(state.LiquidVolume).A_An()} of {state.ContaminatingLiquid.LiquidDescription} is here.";
+				sb.AppendLine(colour ? text.Colour(state.ContaminatingLiquid.LiquidColour) : text);
+			}
 
-		foreach (var residue in state.Residues.Where(x => x.Weight > 0.0))
-		{
-			var text = string.IsNullOrWhiteSpace(residue.Material.ResidueDesc)
-				? $"There are traces of {residue.Material.MaterialDescription.ToLowerInvariant()} here."
-				: string.Format(residue.Material.ResidueDesc, "some");
-			sb.AppendLine(colour && residue.Material.ResidueColour is not null ? text.Colour(residue.Material.ResidueColour) : text);
+			foreach (var residue in state.Residues.Where(x => x.Weight > 0.0))
+			{
+				var text = string.IsNullOrWhiteSpace(residue.Material.ResidueDesc)
+					? $"There are traces of {residue.Material.MaterialDescription.ToLowerInvariant()} here."
+					: string.Format(residue.Material.ResidueDesc, "some");
+				sb.AppendLine(colour && residue.Material.ResidueColour is not null
+					? text.Colour(residue.Material.ResidueColour)
+					: text);
+			}
 		}
 
 		return sb.ToString().TrimEnd();
@@ -112,7 +127,8 @@ public partial class Cell
 		_lastWeatherExposureByLayer[layer] = now;
 		if (Gameworld.GetStaticBool("PuddlesEnabled"))
 		{
-			var state = GetOrCreateSurfaceState(layer);
+			// Precipitation is uniform RouteCell environment state rather than a point spill.
+			var state = GetOrCreateSurfaceState(layer, null);
 			state.AddLiquid(new LiquidMixture(rainLiquid, amountPerTick * elapsed / 5.0, Gameworld));
 			CapSurfaceLiquid(state);
 		}
@@ -175,18 +191,17 @@ public partial class Cell
 			return;
 		}
 
-		var state = GetOrCreateSurfaceState(layer);
 		foreach (var (item, puddle) in legacyPuddles)
 		{
 			if (puddle!.LiquidMixture?.IsEmpty == false)
 			{
+				var state = GetOrCreateSurfaceState(layer, SurfaceCoordinateFor(item));
 				state.AddLiquid(puddle.LiquidMixture);
+				CapSurfaceLiquid(state);
 			}
 
 			item.Delete();
 		}
-
-		CapSurfaceLiquid(state);
 	}
 
 	private void LoadSurfaceLiquidState(string? xml)
@@ -202,7 +217,37 @@ public partial class Cell
 		foreach (var element in root.Elements("Layer"))
 		{
 			var layer = (RoomLayer)int.Parse(element.Attribute("id")?.Value ?? "0", CultureInfo.InvariantCulture);
-			_surfaceLiquidStates[layer] = new SurfaceLiquidState(Gameworld, element.Element("Surface"), SurfaceLiquidChanged);
+			var positionAttribute = element.Attribute("position");
+			double? coordinate = null;
+			if (positionAttribute is not null)
+			{
+				if (!double.TryParse(positionAttribute.Value, NumberStyles.Float, CultureInfo.InvariantCulture,
+						out var parsedCoordinate))
+				{
+					throw new InvalidDataException(
+						$"Cell #{Id:N0} has an invalid persisted surface-liquid RouteCell coordinate '{positionAttribute.Value}'.");
+				}
+
+				coordinate = parsedCoordinate;
+			}
+
+			double? normalisedCoordinate;
+			try
+			{
+				normalisedCoordinate = NormaliseSurfaceCoordinate(coordinate);
+			}
+			catch (ArgumentException exception)
+			{
+				throw new InvalidDataException(
+					$"Cell #{Id:N0} has invalid persisted surface-liquid spatial data: {exception.Message}",
+					exception);
+			}
+
+			var key = new SurfaceLiquidLocation(layer, normalisedCoordinate);
+			_surfaceLiquidStates[key] = new SurfaceLiquidState(
+				Gameworld,
+				element.Element("Surface"),
+				SurfaceLiquidChanged);
 		}
 
 		_surfaceLiquidChanged = false;
@@ -210,7 +255,7 @@ public partial class Cell
 
 	private string? SaveSurfaceLiquidState()
 	{
-		foreach (var layer in _surfaceLiquidStates.Keys.ToList())
+		foreach (var layer in _surfaceLiquidStates.Keys.Select(x => x.Layer).Distinct().ToList())
 		{
 			ResolveSurfaceDrying(layer);
 		}
@@ -224,21 +269,25 @@ public partial class Cell
 			_surfaceLiquidStates
 				.Where(x => !x.Value.IsEmpty)
 				.Select(x => new XElement("Layer",
-					new XAttribute("id", (int)x.Key),
+					new XAttribute("id", (int)x.Key.Layer),
+					x.Key.RoutePositionMetres.HasValue
+						? new XAttribute("position", x.Key.RoutePositionMetres.Value.ToString("R", CultureInfo.InvariantCulture))
+						: null,
 					x.Value.SaveToXml()
 				))
 		).ToString();
 	}
 
-	private SurfaceLiquidState GetOrCreateSurfaceState(RoomLayer layer)
+	private SurfaceLiquidState GetOrCreateSurfaceState(RoomLayer layer, double? routePositionMetres)
 	{
-		if (_surfaceLiquidStates.TryGetValue(layer, out var state))
+		var key = new SurfaceLiquidLocation(layer, NormaliseSurfaceCoordinate(routePositionMetres));
+		if (_surfaceLiquidStates.TryGetValue(key, out var state))
 		{
 			return state;
 		}
 
 		state = new SurfaceLiquidState(Gameworld, SurfaceLiquidChanged);
-		_surfaceLiquidStates[layer] = state;
+		_surfaceLiquidStates[key] = state;
 		return state;
 	}
 
@@ -255,16 +304,69 @@ public partial class Cell
 
 	private void ResolveSurfaceDrying(RoomLayer layer)
 	{
-		if (!_surfaceLiquidStates.TryGetValue(layer, out var state) || state.ContaminatingLiquid.IsEmpty)
+		foreach (var state in _surfaceLiquidStates
+			.Where(x => x.Key.Layer == layer)
+			.Select(x => x.Value)
+			.Where(x => !x.ContaminatingLiquid.IsEmpty))
 		{
-			return;
+			var duration = TimeSpan.FromSeconds(Math.Max(1.0,
+				Gameworld.GetStaticDouble("LiquidContaminationEffectDuration") *
+				Math.Max(state.ContaminatingLiquid.RelativeEnthalpy, double.Epsilon)));
+			state.ResolveDrying(duration, 0.02 / Gameworld.UnitManager.BaseFluidToLitres, 0.1, roomSurface: true);
+		}
+	}
+
+	private double? SurfaceCoordinateFor(IPerceivable? referenceItem)
+	{
+		if (RouteDefinition is null)
+		{
+			return null;
 		}
 
-		var duration = TimeSpan.FromSeconds(Math.Max(1.0,
-			Gameworld.GetStaticDouble("LiquidContaminationEffectDuration") *
-			Math.Max(state.ContaminatingLiquid.RelativeEnthalpy, double.Epsilon)));
-		state.ResolveDrying(duration, 0.02 / Gameworld.UnitManager.BaseFluidToLitres, 0.1, roomSurface: true);
+		if (referenceItem is not null && ReferenceEquals(referenceItem.Location, this))
+		{
+			var sourceCoordinate = RouteSpatialService.Instance
+				.GetEffectiveLocation(referenceItem)
+				.RoutePositionMetres;
+			return NormaliseSurfaceCoordinate(sourceCoordinate ?? RouteDefinition.DefaultPositionMetres);
+		}
+
+		return NormaliseSurfaceCoordinate(RouteDefinition.DefaultPositionMetres);
 	}
+
+	private IEnumerable<SurfaceLiquidState> VisibleSurfaceStates(RoomLayer layer, IPerceiver? voyeur)
+	{
+		var states = _surfaceLiquidStates
+			.Where(x => x.Key.Layer == layer && !x.Value.IsEmpty);
+		if (RouteDefinition is null)
+		{
+			return states.Select(x => x.Value).ToArray();
+		}
+
+		var coordinate = voyeur is not null && ReferenceEquals(voyeur.Location, this)
+			? RouteSpatialService.Instance.GetEffectiveLocation(voyeur).RoutePositionMetres
+			: null;
+		if (!coordinate.HasValue)
+		{
+			return states.Where(x => !x.Key.RoutePositionMetres.HasValue).Select(x => x.Value).ToArray();
+		}
+
+		var immediate = RouteSpatialConfiguration.FromGameworld(Gameworld).ImmediateDistanceMetres;
+		return states
+			.Where(x => SurfaceLiquidSpatialRules.IsVisible(
+				x.Key.RoutePositionMetres,
+				coordinate,
+				immediate))
+			.Select(x => x.Value)
+			.ToArray();
+	}
+
+	private double? NormaliseSurfaceCoordinate(double? coordinate)
+	{
+		return SurfaceLiquidSpatialRules.Normalise(RouteDefinition, coordinate);
+	}
+
+	private readonly record struct SurfaceLiquidLocation(RoomLayer Layer, double? RoutePositionMetres);
 
 	private void CapSurfaceLiquid(SurfaceLiquidState state)
 	{

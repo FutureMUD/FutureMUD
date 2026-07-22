@@ -335,11 +335,15 @@ internal sealed class SpawnBodyInstanceFunction : BuiltInFunction
 			artificialIntelligences = ais;
 		}
 
+		var ownerLocation = RouteSpatialService.Instance.GetEffectiveLocation(owner);
+		var spawnLocation = ReferenceEquals(ownerLocation.Cell, location)
+			? ownerLocation
+			: CharacterInstanceService.CreateDefaultSpawnLocation(location, owner.RoomLayer);
+
 		var result = CharacterInstanceService.SpawnBodyInstance(
 			owner,
 			form,
-			location,
-			owner.RoomLayer,
+			spawnLocation,
 			mode,
 			CharacterInstancePersistencePolicy.DespawnOnReboot,
 			artificialIntelligences,

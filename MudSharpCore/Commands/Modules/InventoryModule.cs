@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
 using MudSharp.Body;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.FutureProg.Statements;
 using MudSharp.GameItems;
@@ -425,7 +426,7 @@ The syntax is as follows:
         else
         {
             item.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(item);
+            item.InsertAtSource(actor);
         }
     }
 
@@ -2267,7 +2268,7 @@ The possible syntaxes for this command are:
                 else
                 {
                     item.RoomLayer = actor.RoomLayer;
-                    actor.Location.Insert(item);
+                    item.InsertAtSource(actor);
                 }
 
                 problemItem = null;

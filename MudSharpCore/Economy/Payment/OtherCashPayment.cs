@@ -1,5 +1,6 @@
 ﻿using MudSharp.Economy.Currency;
 using MudSharp.GameItems;
+using MudSharp.Construction;
 
 namespace MudSharp.Economy.Payment;
 
@@ -72,7 +73,7 @@ public class OtherCashPayment : CashPayment
             }
             else
             {
-                Actor.Location.Insert(changeItem, true);
+                changeItem.InsertAtSource(Actor, true);
                 Actor.OutputHandler.Send("You couldn't hold your change, so it is on the ground.");
             }
         }

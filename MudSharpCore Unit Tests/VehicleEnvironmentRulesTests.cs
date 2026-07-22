@@ -79,11 +79,21 @@ public class VehicleEnvironmentRulesTests
 			MovementType = (int)VehicleMovementProfileType.CellExit,
 			MovementEnvironment = (int)VehicleMovementEnvironment.SurfaceWater,
 			ExposesOccupantsToWater = true,
+			RouteSpeedMetresPerSecond = 12.5,
+			RoutePropulsionMode = (int)RouteVehiclePropulsionMode.Powered,
+			RouteFuelVolumePerMetre = 0.04,
+			RoutePowerDrawWatts = 300.0,
+			AutomaticOperationCapable = true,
 			RequiredInstalledRole = string.Empty
 		});
 
 		Assert.AreEqual(VehicleMovementEnvironment.SurfaceWater, profile.MovementEnvironment);
 		Assert.IsTrue(profile.ExposesOccupantsToWater);
+		Assert.AreEqual(12.5, profile.RouteSpeedMetresPerSecond, 0.000001);
+		Assert.AreEqual(RouteVehiclePropulsionMode.Powered, profile.RoutePropulsionMode);
+		Assert.AreEqual(0.04, profile.RouteFuelVolumePerMetre, 0.000001);
+		Assert.AreEqual(300.0, profile.RoutePowerDrawWatts, 0.000001);
+		Assert.IsTrue(profile.AutomaticOperationCapable);
 	}
 
 	[TestMethod]
@@ -93,6 +103,11 @@ public class VehicleEnvironmentRulesTests
 
 		Assert.AreEqual((int)VehicleMovementEnvironment.Unrestricted, profile.MovementEnvironment);
 		Assert.IsFalse(profile.ExposesOccupantsToWater);
+		Assert.AreEqual(0.0, profile.RouteSpeedMetresPerSecond);
+		Assert.AreEqual((int)RouteVehiclePropulsionMode.Powered, profile.RoutePropulsionMode);
+		Assert.AreEqual(0.0, profile.RouteFuelVolumePerMetre);
+		Assert.AreEqual(0.0, profile.RoutePowerDrawWatts);
+		Assert.IsFalse(profile.AutomaticOperationCapable);
 	}
 
 	[TestMethod]

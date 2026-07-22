@@ -266,7 +266,7 @@ public class ImplantContainerGameItemComponent : ImplantBaseGameItemComponent, I
                 }
                 else if (location != null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location, preferredSource: emptier);
                     emptier?.OutputHandler.Handle(new EmoteOutput(new Emote(
                             "@ cannot put $1 into $2, so #0 set|sets it down on the ground.", emptier, emptier, item,
                             intoContainer.Parent)));
@@ -281,7 +281,7 @@ public class ImplantContainerGameItemComponent : ImplantBaseGameItemComponent, I
 
             if (location != null)
             {
-                location.Insert(item);
+                InsertAtParentSpatialLocation(item, location, preferredSource: emptier);
             }
             else
             {
@@ -567,7 +567,7 @@ public class ImplantContainerGameItemComponent : ImplantBaseGameItemComponent, I
             {
                 if (location != null)
                 {
-                    location.Insert(thelock.Parent);
+                    InsertAtParentSpatialLocation(thelock.Parent, location);
                     thelock.Parent.ContainedIn = null;
                 }
                 else
@@ -605,7 +605,7 @@ public class ImplantContainerGameItemComponent : ImplantBaseGameItemComponent, I
                     }
                     else if (location != null)
                     {
-                        location.Insert(item);
+                        InsertAtParentSpatialLocation(item, location);
                         item.ContainedIn = null;
                     }
                     else
@@ -623,7 +623,7 @@ public class ImplantContainerGameItemComponent : ImplantBaseGameItemComponent, I
             {
                 if (location != null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location);
                     item.ContainedIn = null;
                 }
                 else

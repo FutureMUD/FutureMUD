@@ -133,7 +133,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         foreach (Tuple<long, ConnectorType>? item in _pendingLoadTimeConnections.ToList())
         {
             IGameItem? gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null || gitem.Location != Parent.Location)
+            if (gitem == null || !Parent.ColocatedWith(gitem))
             {
                 continue;
             }
@@ -985,7 +985,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
             IConnectable? newItemConnectable = newItem?.GetItemType<IConnectable>();
             if (newItemConnectable == null)
             {
-                location?.Insert(connectedItem.Parent);
+                InsertAtParentSpatialLocation(connectedItem.Parent, location);
                 continue;
             }
 
@@ -995,7 +995,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
             }
             else
             {
-                location?.Insert(connectedItem.Parent);
+                InsertAtParentSpatialLocation(connectedItem.Parent, location);
             }
         }
 

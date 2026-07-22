@@ -1,5 +1,5 @@
 {
-  "ProductVersion": "3.0.0.0",
-  "LatestMigrationId": "20260721125028_MultiTargetCombatActions",
-  "GeneratedUtc": "2026-07-21T13:01:19.8751808Z"
+  "ProductVersion": "3.0.1.0",
+  "LatestMigrationId": "20260722100951_VehicleRoutesAndServices",
+  "GeneratedUtc": "2026-07-22T10:54:44.847583Z"
 }

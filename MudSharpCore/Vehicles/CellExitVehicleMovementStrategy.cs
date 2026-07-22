@@ -1,6 +1,8 @@
 ﻿using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Movement;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
 
 namespace MudSharp.Vehicles;
 
@@ -36,6 +38,12 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		if (exit is null)
 		{
 			reason = "There is no such exit.";
+			return false;
+		}
+
+		if (exit.Exit.Door?.IsOpen == false)
+		{
+			reason = "The door through that exit is closed.";
 			return false;
 		}
 
@@ -77,7 +85,10 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		out IReadOnlyList<IVehicle> towTrain,
 		out (CellMovementTransition TransitionType, RoomLayer TargetLayer) transition,
 		out VehicleMovementReadinessResult readiness, out string reason,
-		VehiclePropulsionMovePlan committedPropulsionPlan = null)
+		VehiclePropulsionMovePlan committedPropulsionPlan = null,
+		IReadOnlyCollection<ICharacter> externalPullers = null,
+		IVehicleMovementProfilePrototype movementProfile = null,
+		bool automaticOperation = false)
 	{
 		towTrain = [];
 		transition = (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
@@ -88,23 +99,44 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 			return false;
 		}
 
-		var profile = vehicle is null ? null : MovementProfile(vehicle);
+		if (exit.Exit.Door?.IsOpen == false)
+		{
+			reason = "The door through that exit is closed.";
+			return false;
+		}
+
+		var profile = movementProfile ?? (vehicle is null ? null : MovementProfile(vehicle));
 		readiness = _readinessService.BuildMovementReadiness(new VehicleMovementReadinessRequest(vehicle, actor, exit,
-			profile, committedPropulsionPlan));
+			profile, committedPropulsionPlan, externalPullers, automaticOperation));
 		if (!readiness.CanMove || readiness.MovePlan is null)
 		{
 			reason = readiness.Reason;
 			return false;
 		}
 
-		transition = exit.MovementTransition(actor);
+		IPerceiver transitionPerceiver = externalPullers?.FirstOrDefault();
+		transitionPerceiver ??= vehicle.Prototype.Scale == VehicleScale.RoomScale
+			? vehicle.ExteriorItem
+			: actor ?? (IPerceiver)vehicle.ExteriorItem;
+		transitionPerceiver ??= actor;
+		if (transitionPerceiver is null)
+		{
+			reason = "That vehicle has no exterior projection with which to resolve the exit transition.";
+			return false;
+		}
+
+		transition = exit.MovementTransition(transitionPerceiver);
 		if (rollTowCatastrophe)
 		{
-			var catastrophe = _readinessService.RollTowCatastrophe(readiness.MovePlan, actor);
+			var catastropheActor = actor ?? externalPullers?.FirstOrDefault() ?? vehicle.Controller;
+			var catastrophe = _readinessService.RollTowCatastrophe(readiness.MovePlan, catastropheActor);
 			if (catastrophe.Catastrophe)
 			{
 				reason = catastrophe.Reason;
-				exit.Origin.HandleRoomEcho(catastrophe.Reason, vehicle.RoomLayer);
+				if (vehicle.ExteriorItem?.OutputHandler is { } outputHandler)
+				{
+					outputHandler.Handle(catastrophe.Reason, OutputRange.Local);
+				}
 				return false;
 			}
 		}
@@ -129,13 +161,41 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 
 	public void EchoDeparture(IVehicle vehicle, ICharacter actor, ICellExit exit, IReadOnlyList<IVehicle> towTrain)
 	{
-		exit.Origin.HandleRoomEcho($"{vehicle.ExteriorItem?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf) ?? vehicle.Name} moves {exit.OutboundMovementSuffix}{TowEchoSuffix(towTrain.Skip(1), actor)}.", vehicle.RoomLayer);
+		var exterior = vehicle.ExteriorItem;
+		if (exterior?.OutputHandler is { } outputHandler)
+		{
+			outputHandler.Handle(
+				new EmoteOutput(new Emote(
+					$"@ move|moves {exit.OutboundMovementSuffix}{TowEchoSuffix(towTrain.Skip(1), exterior)}.",
+					exterior)),
+				OutputRange.Local);
+		}
+		else
+		{
+			exit.Origin.HandleRoomEcho($"{vehicle.Name} moves {exit.OutboundMovementSuffix}.", vehicle.RoomLayer);
+		}
+
+		EchoHostedInteriors(vehicle, "The vehicle shudders as it begins moving.");
 	}
 
 	public void EchoArrival(IVehicle vehicle, ICharacter actor, ICellExit exit, IReadOnlyList<IVehicle> towTrain,
 		RoomLayer targetLayer)
 	{
-		exit.Destination.HandleRoomEcho($"{vehicle.ExteriorItem?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf) ?? vehicle.Name} arrives {exit.InboundMovementSuffix}{TowEchoSuffix(towTrain.Skip(1), actor)}.", targetLayer);
+		var exterior = vehicle.ExteriorItem;
+		if (exterior?.OutputHandler is { } outputHandler)
+		{
+			outputHandler.Handle(
+				new EmoteOutput(new Emote(
+					$"@ arrive|arrives {exit.InboundMovementSuffix}{TowEchoSuffix(towTrain.Skip(1), exterior)}.",
+					exterior)),
+				OutputRange.Local);
+		}
+		else
+		{
+			exit.Destination.HandleRoomEcho($"{vehicle.Name} arrives {exit.InboundMovementSuffix}.", targetLayer);
+		}
+
+		EchoHostedInteriors(vehicle, "The vehicle settles as it arrives at its next location.");
 	}
 
 	public void BeginMove(IVehicle vehicle, ICellExit exit, IReadOnlyList<IVehicle> towTrain,
@@ -170,11 +230,27 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		return vehicle.MovementProfile;
 	}
 
-	private static string TowEchoSuffix(IEnumerable<IVehicle> towedVehicles, ICharacter actor)
+	private static string TowEchoSuffix(IEnumerable<IVehicle> towedVehicles, IPerceiver voyeur)
 	{
 		var vehicles = towedVehicles.ToList();
 		return vehicles.Any()
-			? $" towing {vehicles.Select(x => x.ExteriorItem?.HowSeen(actor) ?? x.Name).ListToString()}"
+			? $" towing {vehicles.Select(x => x.ExteriorItem?.HowSeen(voyeur) ?? x.Name).ListToString()}"
 			: string.Empty;
+	}
+
+	private static void EchoHostedInteriors(IVehicle vehicle, string message)
+	{
+		if (vehicle.Prototype.Scale != VehicleScale.RoomScale)
+		{
+			return;
+		}
+
+		foreach (var cell in vehicle.Compartments
+			         .Select(x => x.InteriorCell)
+			         .Where(x => x is not null)
+			         .Distinct())
+		{
+			cell.Handle(message);
+		}
 	}
 }

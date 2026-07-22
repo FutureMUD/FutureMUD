@@ -113,4 +113,58 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 
         return (null, Enumerable.Empty<ICellExit>());
     }
+
+	protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+	{
+		var primary = TargetLocationProg?.Execute<ICell>(ch);
+		if (TryFindHybridCandidate(ch, primary, out var primaryPath))
+		{
+			return (primary, primaryPath);
+		}
+
+		var fallback = FallbackLocationProg?.Execute<ICell>(ch);
+		if (TryFindHybridCandidate(ch, fallback, out var fallbackPath))
+		{
+			return (fallback, fallbackPath);
+		}
+
+		if (WayPointsProg is null)
+		{
+			return (null, null);
+		}
+
+		var waypointPaths = WayPointsProg.ExecuteCollection<ICell>(ch)
+			.Where(x => x is not null)
+			.Select(x => (Target: x, Found: TryFindHybridCandidate(ch, x, out var path), Path: path))
+			.Where(x => x.Found && x.Path is not null)
+			.OrderBy(x => x.Path!.RoomEquivalentCost)
+			.ToList();
+		return waypointPaths.Count == 0
+			? (null, null)
+			: (waypointPaths[0].Target, waypointPaths[0].Path);
+	}
+
+	private bool TryFindHybridCandidate(ICharacter ch, ICell? target, out ISpatialPath? path)
+	{
+		path = null;
+		if (target is null)
+		{
+			return false;
+		}
+
+		if (TryFindSpatialPath(ch, target, 12.0, GetSuitabilityFunction(ch), out path) &&
+			path is not null && path.Steps.Count > 0 && RequiresSpatialFollowing(path))
+		{
+			return true;
+		}
+
+		if (!MoveEvenIfObstructionInWay)
+		{
+			path = null;
+			return false;
+		}
+
+		return TryFindSpatialPath(ch, target, 12.0, GetSuitabilityFunction(ch, false), out path) &&
+		       path is not null && path.Steps.Count > 0 && RequiresSpatialFollowing(path);
+	}
 }

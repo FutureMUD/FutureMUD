@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body;
 using MudSharp.Effects.Concrete;
+using MudSharp.Construction;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
@@ -151,7 +152,7 @@ public class OrganExtractionProcedure : OrganViaBodypartProcedure
         else
         {
             severedOrgan.RoomLayer = surgeon.RoomLayer;
-            surgeon.Location.Insert(severedOrgan);
+            severedOrgan.InsertAtSource(surgeon);
         }
 
         if (patient.Corpse != null)

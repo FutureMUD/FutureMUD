@@ -1,10 +1,13 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Arenas;
+using System.IO;
 using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Form.Shape;
+using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.NPC;
@@ -37,12 +40,25 @@ public sealed record CharacterInstanceInventoryCloneResult(
 	int FailedCloned
 );
 
+internal readonly record struct CharacterInstancePersistedSpatialLocation(
+	long LocationId,
+	int RoomLayerValue,
+	decimal? RoutePosition)
+{
+	public SpatialLocation ToSpatialLocation(ICell cell)
+	{
+		return new SpatialLocation(
+			cell,
+			(RoomLayer)RoomLayerValue,
+			RoutePosition.HasValue ? (double)RoutePosition.Value : null);
+	}
+}
+
 public sealed record SecondaryCharacterInstanceSpawnOptions
 {
 	public required ICharacter Owner { get; init; }
 	public required ICharacterForm Form { get; init; }
-	public required ICell Location { get; init; }
-	public required RoomLayer RoomLayer { get; init; }
+	public required SpatialLocation SpawnLocation { get; init; }
 	public CharacterInstanceKind InstanceKind { get; init; } = CharacterInstanceKind.Other;
 	public CharacterInstanceControlPolicy ControlPolicy { get; init; } = CharacterInstanceControlPolicy.NotControllable;
 	public CharacterInstanceDeathPolicy DeathPolicy { get; init; } = CharacterInstanceDeathPolicy.DestroyInstanceOnly;
@@ -61,11 +77,92 @@ public sealed record SecondaryCharacterInstanceSpawnOptions
 
 public static class CharacterInstanceService
 {
+	public static SpatialLocation CreateDefaultSpawnLocation(ICell location, RoomLayer roomLayer)
+	{
+		ArgumentNullException.ThrowIfNull(location);
+		return new SpatialLocation(location, roomLayer, location.RouteDefinition?.DefaultPositionMetres);
+	}
+
+	public static bool TryGetSourceAwareSpawnLocation(
+		ILocateable source,
+		out SpatialLocation location,
+		out string error)
+	{
+		if (source is null)
+		{
+			location = default;
+			error = "A source-aware spawn requires a physical source.";
+			return false;
+		}
+
+		location = RouteSpatialService.Instance.GetEffectiveLocation(source);
+		return RouteSpatialService.Instance.TryValidateLocation(location, out error);
+	}
+
+	internal static bool TryGetPersistedSpatialLocation(
+		SpatialLocation location,
+		out CharacterInstancePersistedSpatialLocation persisted,
+		out string error)
+	{
+		if (!RouteSpatialService.Instance.TryValidateLocation(location, out error))
+		{
+			persisted = default;
+			return false;
+		}
+
+		decimal? routePosition = null;
+		if (location.RoutePositionMetres.HasValue)
+		{
+			try
+			{
+				routePosition = Math.Round(
+					(decimal)location.RoutePositionMetres.Value,
+					3,
+					MidpointRounding.AwayFromZero);
+			}
+			catch (OverflowException)
+			{
+				persisted = default;
+				error = "The route coordinate cannot be represented by the persisted decimal(18,3) format.";
+				return false;
+			}
+
+			if (routePosition > 999_999_999_999_999.999m)
+			{
+				persisted = default;
+				error = "The route coordinate exceeds the persisted decimal(18,3) range.";
+				return false;
+			}
+		}
+
+		persisted = new CharacterInstancePersistedSpatialLocation(
+			location.Cell.Id,
+			(int)location.Layer,
+			routePosition);
+		return true;
+	}
+
+	internal static SpatialLocation ResolvePersistedSpatialLocation(
+		MudSharp.Models.CharacterInstance instance,
+		ICell? cell)
+	{
+		var location = new SpatialLocation(
+			cell!,
+			(RoomLayer)instance.RoomLayer,
+			instance.RoutePosition.HasValue ? (double)instance.RoutePosition.Value : null);
+		if (!RouteSpatialService.Instance.TryValidateLocation(location, out var error))
+		{
+			throw new InvalidDataException(
+				$"Character instance #{instance.Id:N0} has an invalid persisted spatial location: {error}");
+		}
+
+		return location;
+	}
+
 	public static SecondaryCharacterInstanceSpawnOptions CreateSpawnOptionsForMode(
 		ICharacter owner,
 		ICharacterForm form,
-		ICell location,
-		RoomLayer roomLayer,
+		SpatialLocation spawnLocation,
 		CharacterInstancePersistencePolicy persistencePolicy,
 		SecondaryCharacterInstanceSpawnMode mode)
 	{
@@ -81,8 +178,7 @@ public static class CharacterInstanceService
 		{
 			Owner = owner,
 			Form = form,
-			Location = location,
-			RoomLayer = roomLayer,
+			SpawnLocation = spawnLocation,
 			InstanceKind = mode == SecondaryCharacterInstanceSpawnMode.ScriptAiControlled
 				? CharacterInstanceKind.ScriptedAi
 				: CharacterInstanceKind.Other,
@@ -94,11 +190,26 @@ public static class CharacterInstanceService
 		};
 	}
 
-	public static SecondaryCharacterInstanceSpawnOptions CreateScriptedAiSpawnOptions(
+	public static SecondaryCharacterInstanceSpawnOptions CreateSpawnOptionsForMode(
 		ICharacter owner,
 		ICharacterForm form,
 		ICell location,
 		RoomLayer roomLayer,
+		CharacterInstancePersistencePolicy persistencePolicy,
+		SecondaryCharacterInstanceSpawnMode mode)
+	{
+		return CreateSpawnOptionsForMode(
+			owner,
+			form,
+			CreateDefaultSpawnLocation(location, roomLayer),
+			persistencePolicy,
+			mode);
+	}
+
+	public static SecondaryCharacterInstanceSpawnOptions CreateScriptedAiSpawnOptions(
+		ICharacter owner,
+		ICharacterForm form,
+		SpatialLocation spawnLocation,
 		IEnumerable<IArtificialIntelligence>? artificialIntelligences = null,
 		bool cloneInventory = false,
 		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot)
@@ -109,8 +220,7 @@ public static class CharacterInstanceService
 		{
 			Owner = owner,
 			Form = form,
-			Location = location,
-			RoomLayer = roomLayer,
+			SpawnLocation = spawnLocation,
 			InstanceKind = CharacterInstanceKind.ScriptedAi,
 			ControlPolicy = CharacterInstanceControlPolicy.ScriptOnly,
 			DeathPolicy = CharacterInstanceDeathPolicy.DestroyInstanceOnly,
@@ -129,11 +239,28 @@ public static class CharacterInstanceService
 		};
 	}
 
-	public static SecondaryCharacterInstanceSpawnOptions CreateAstralProjectionSpawnOptions(
+	public static SecondaryCharacterInstanceSpawnOptions CreateScriptedAiSpawnOptions(
 		ICharacter owner,
 		ICharacterForm form,
 		ICell location,
 		RoomLayer roomLayer,
+		IEnumerable<IArtificialIntelligence>? artificialIntelligences = null,
+		bool cloneInventory = false,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot)
+	{
+		return CreateScriptedAiSpawnOptions(
+			owner,
+			form,
+			CreateDefaultSpawnLocation(location, roomLayer),
+			artificialIntelligences,
+			cloneInventory,
+			persistencePolicy);
+	}
+
+	public static SecondaryCharacterInstanceSpawnOptions CreateAstralProjectionSpawnOptions(
+		ICharacter owner,
+		ICharacterForm form,
+		SpatialLocation spawnLocation,
 		long planeId,
 		AstralProjectionAnchorPolicy anchorPolicy,
 		long sourceSpellId,
@@ -143,8 +270,7 @@ public static class CharacterInstanceService
 		{
 			Owner = owner,
 			Form = form,
-			Location = location,
-			RoomLayer = roomLayer,
+			SpawnLocation = spawnLocation,
 			InstanceKind = CharacterInstanceKind.AstralProjection,
 			ControlPolicy = CharacterInstanceControlPolicy.PlayerFocusable,
 			DeathPolicy = CharacterInstanceDeathPolicy.CollapseToAnchor,
@@ -162,11 +288,30 @@ public static class CharacterInstanceService
 		};
 	}
 
-	public static SecondaryCharacterInstanceSpawnOptions CreateMagicalCopySpawnOptions(
+	public static SecondaryCharacterInstanceSpawnOptions CreateAstralProjectionSpawnOptions(
 		ICharacter owner,
 		ICharacterForm form,
 		ICell location,
 		RoomLayer roomLayer,
+		long planeId,
+		AstralProjectionAnchorPolicy anchorPolicy,
+		long sourceSpellId,
+		string formKey)
+	{
+		return CreateAstralProjectionSpawnOptions(
+			owner,
+			form,
+			CreateDefaultSpawnLocation(location, roomLayer),
+			planeId,
+			anchorPolicy,
+			sourceSpellId,
+			formKey);
+	}
+
+	public static SecondaryCharacterInstanceSpawnOptions CreateMagicalCopySpawnOptions(
+		ICharacter owner,
+		ICharacterForm form,
+		SpatialLocation spawnLocation,
 		long planeId,
 		long sourceSpellId,
 		string formKey,
@@ -178,8 +323,7 @@ public static class CharacterInstanceService
 		{
 			Owner = owner,
 			Form = form,
-			Location = location,
-			RoomLayer = roomLayer,
+			SpawnLocation = spawnLocation,
 			InstanceKind = CharacterInstanceKind.MagicalCopy,
 			ControlPolicy = playerFocusable
 				? CharacterInstanceControlPolicy.PlayerFocusable
@@ -203,11 +347,34 @@ public static class CharacterInstanceService
 		};
 	}
 
-	public static SecondaryCharacterInstanceSpawnOptions CreatePhysicalCloneSpawnOptions(
+	public static SecondaryCharacterInstanceSpawnOptions CreateMagicalCopySpawnOptions(
 		ICharacter owner,
 		ICharacterForm form,
 		ICell location,
 		RoomLayer roomLayer,
+		long planeId,
+		long sourceSpellId,
+		string formKey,
+		bool playerFocusable,
+		bool intangible,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot)
+	{
+		return CreateMagicalCopySpawnOptions(
+			owner,
+			form,
+			CreateDefaultSpawnLocation(location, roomLayer),
+			planeId,
+			sourceSpellId,
+			formKey,
+			playerFocusable,
+			intangible,
+			persistencePolicy);
+	}
+
+	public static SecondaryCharacterInstanceSpawnOptions CreatePhysicalCloneSpawnOptions(
+		ICharacter owner,
+		ICharacterForm form,
+		SpatialLocation spawnLocation,
 		long sourceSpellId,
 		string formKey,
 		bool playerFocusable,
@@ -217,8 +384,7 @@ public static class CharacterInstanceService
 		{
 			Owner = owner,
 			Form = form,
-			Location = location,
-			RoomLayer = roomLayer,
+			SpawnLocation = spawnLocation,
 			InstanceKind = CharacterInstanceKind.PhysicalClone,
 			ControlPolicy = playerFocusable
 				? CharacterInstanceControlPolicy.PlayerFocusable
@@ -238,11 +404,30 @@ public static class CharacterInstanceService
 		};
 	}
 
-	public static SecondaryCharacterInstanceSpawnOptions CreatePossessedBodySpawnOptions(
+	public static SecondaryCharacterInstanceSpawnOptions CreatePhysicalCloneSpawnOptions(
 		ICharacter owner,
 		ICharacterForm form,
 		ICell location,
 		RoomLayer roomLayer,
+		long sourceSpellId,
+		string formKey,
+		bool playerFocusable,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot)
+	{
+		return CreatePhysicalCloneSpawnOptions(
+			owner,
+			form,
+			CreateDefaultSpawnLocation(location, roomLayer),
+			sourceSpellId,
+			formKey,
+			playerFocusable,
+			persistencePolicy);
+	}
+
+	public static SecondaryCharacterInstanceSpawnOptions CreatePossessedBodySpawnOptions(
+		ICharacter owner,
+		ICharacterForm form,
+		SpatialLocation spawnLocation,
 		long sourceTargetCharacterId,
 		long sourceTargetInstanceId,
 		long sourceSpellId,
@@ -253,8 +438,7 @@ public static class CharacterInstanceService
 		{
 			Owner = owner,
 			Form = form,
-			Location = location,
-			RoomLayer = roomLayer,
+			SpawnLocation = spawnLocation,
 			InstanceKind = CharacterInstanceKind.PossessedBody,
 			ControlPolicy = CharacterInstanceControlPolicy.PlayerFocusable,
 			DeathPolicy = CharacterInstanceDeathPolicy.CollapseToAnchor,
@@ -273,11 +457,32 @@ public static class CharacterInstanceService
 		};
 	}
 
+	public static SecondaryCharacterInstanceSpawnOptions CreatePossessedBodySpawnOptions(
+		ICharacter owner,
+		ICharacterForm form,
+		ICell location,
+		RoomLayer roomLayer,
+		long sourceTargetCharacterId,
+		long sourceTargetInstanceId,
+		long sourceSpellId,
+		string formKey,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot)
+	{
+		return CreatePossessedBodySpawnOptions(
+			owner,
+			form,
+			CreateDefaultSpawnLocation(location, roomLayer),
+			sourceTargetCharacterId,
+			sourceTargetInstanceId,
+			sourceSpellId,
+			formKey,
+			persistencePolicy);
+	}
+
 	public static CharacterInstanceOperationResult SpawnPossessedCorpseInstance(
 		ICharacter owner,
 		IBody body,
-		ICell location,
-		RoomLayer roomLayer,
+		SpatialLocation spawnLocation,
 		long anchorCharacterId,
 		long anchorInstanceId,
 		long corpseItemId,
@@ -294,9 +499,11 @@ public static class CharacterInstanceService
 			return new CharacterInstanceOperationResult(false, "The corpse does not have an original body.");
 		}
 
-		if (location is null)
+		if (!TryGetPersistedSpatialLocation(spawnLocation, out var persistedLocation, out var spatialError))
 		{
-			return new CharacterInstanceOperationResult(false, "There is no valid location for the possessed corpse.");
+			return new CharacterInstanceOperationResult(
+				false,
+				$"There is no valid location for the possessed corpse: {spatialError}");
 		}
 
 		foreach (var loaded in identity.Instances.OfType<Character>()
@@ -349,8 +556,9 @@ public static class CharacterInstanceService
 				DeathPolicy = (int)CharacterInstanceDeathPolicy.CollapseToAnchor,
 				PerceptionPolicy = (int)CharacterInstancePerceptionPolicy.OrdinaryEmbodied,
 				PersistencePolicy = (int)persistencePolicy,
-				LocationId = location.Id,
-				RoomLayer = (int)roomLayer,
+				LocationId = persistedLocation.LocationId,
+				RoomLayer = persistedLocation.RoomLayerValue,
+				RoutePosition = persistedLocation.RoutePosition,
 				PositionId = (int)PositionStanding.Instance.Id,
 				PositionModifier = (int)PositionModifier.None,
 				PositionEmote = string.Empty,
@@ -377,11 +585,32 @@ public static class CharacterInstanceService
 		}
 	}
 
-	public static CharacterInstanceOperationResult SpawnAnimatedCorpseInstance(
+	public static CharacterInstanceOperationResult SpawnPossessedCorpseInstance(
 		ICharacter owner,
 		IBody body,
 		ICell location,
 		RoomLayer roomLayer,
+		long anchorCharacterId,
+		long anchorInstanceId,
+		long corpseItemId,
+		long sourceSpellId,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.TemporaryEffectBound)
+	{
+		return SpawnPossessedCorpseInstance(
+			owner,
+			body,
+			CreateDefaultSpawnLocation(location, roomLayer),
+			anchorCharacterId,
+			anchorInstanceId,
+			corpseItemId,
+			sourceSpellId,
+			persistencePolicy);
+	}
+
+	public static CharacterInstanceOperationResult SpawnAnimatedCorpseInstance(
+		ICharacter owner,
+		IBody body,
+		SpatialLocation spawnLocation,
 		long anchorCharacterId,
 		long anchorInstanceId,
 		long corpseItemId,
@@ -399,9 +628,11 @@ public static class CharacterInstanceService
 			return new CharacterInstanceOperationResult(false, "The corpse does not have an original body.");
 		}
 
-		if (location is null)
+		if (!TryGetPersistedSpatialLocation(spawnLocation, out var persistedLocation, out var spatialError))
 		{
-			return new CharacterInstanceOperationResult(false, "There is no valid location for the animated corpse.");
+			return new CharacterInstanceOperationResult(
+				false,
+				$"There is no valid location for the animated corpse: {spatialError}");
 		}
 
 		var ais = artificialIntelligences.Where(x => x is not null).Distinct().ToList();
@@ -455,8 +686,9 @@ public static class CharacterInstanceService
 				DeathPolicy = (int)CharacterInstanceDeathPolicy.CollapseToAnchor,
 				PerceptionPolicy = (int)CharacterInstancePerceptionPolicy.OrdinaryEmbodied,
 				PersistencePolicy = (int)persistencePolicy,
-				LocationId = location.Id,
-				RoomLayer = (int)roomLayer,
+				LocationId = persistedLocation.LocationId,
+				RoomLayer = persistedLocation.RoomLayerValue,
+				RoutePosition = persistedLocation.RoutePosition,
 				PositionId = (int)PositionStanding.Instance.Id,
 				PositionModifier = (int)PositionModifier.None,
 				PositionEmote = string.Empty,
@@ -482,6 +714,30 @@ public static class CharacterInstanceService
 			var materialised = identity.MaterialiseSecondaryInstance(dbinstance, body);
 			return new CharacterInstanceOperationResult(true, "Animated corpse instance spawned.", materialised);
 		}
+	}
+
+	public static CharacterInstanceOperationResult SpawnAnimatedCorpseInstance(
+		ICharacter owner,
+		IBody body,
+		ICell location,
+		RoomLayer roomLayer,
+		long anchorCharacterId,
+		long anchorInstanceId,
+		long corpseItemId,
+		long sourceSpellId,
+		IEnumerable<IArtificialIntelligence> artificialIntelligences,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.TemporaryEffectBound)
+	{
+		return SpawnAnimatedCorpseInstance(
+			owner,
+			body,
+			CreateDefaultSpawnLocation(location, roomLayer),
+			anchorCharacterId,
+			anchorInstanceId,
+			corpseItemId,
+			sourceSpellId,
+			artificialIntelligences,
+			persistencePolicy);
 	}
 
 	public static CharacterInstanceOperationResult ValidateSecondarySpawnMode(ICharacter owner,
@@ -515,6 +771,13 @@ public static class CharacterInstanceService
 	public static CharacterInstanceOperationResult ValidateSecondarySpawnOptions(
 		SecondaryCharacterInstanceSpawnOptions options)
 	{
+		if (!TryGetPersistedSpatialLocation(options.SpawnLocation, out _, out var spatialError))
+		{
+			return new CharacterInstanceOperationResult(
+				false,
+				$"The secondary instance has an invalid spatial location: {spatialError}");
+		}
+
 		if (options.ControlPolicy == CharacterInstanceControlPolicy.PlayerFocusable)
 		{
 			return options.Owner.IsPlayerCharacter && !options.Owner.IsGuest
@@ -543,8 +806,7 @@ public static class CharacterInstanceService
 	public static CharacterInstanceOperationResult SpawnPassiveInstance(
 		ICharacter owner,
 		ICharacterForm form,
-		ICell location,
-		RoomLayer roomLayer,
+		SpatialLocation spawnLocation,
 		CharacterInstancePersistencePolicy persistencePolicy,
 		bool playerFocusable = false)
 	{
@@ -552,12 +814,38 @@ public static class CharacterInstanceService
 			CreateSpawnOptionsForMode(
 				owner,
 				form,
-				location,
-				roomLayer,
+				spawnLocation,
 				persistencePolicy,
 				playerFocusable
 					? SecondaryCharacterInstanceSpawnMode.PlayerFocusable
 					: SecondaryCharacterInstanceSpawnMode.Passive));
+	}
+
+	public static CharacterInstanceOperationResult SpawnPassiveInstance(
+		ICharacter owner,
+		ICharacterForm form,
+		ICell location,
+		RoomLayer roomLayer,
+		CharacterInstancePersistencePolicy persistencePolicy,
+		bool playerFocusable = false)
+	{
+		return SpawnPassiveInstance(
+			owner,
+			form,
+			CreateDefaultSpawnLocation(location, roomLayer),
+			persistencePolicy,
+			playerFocusable);
+	}
+
+	public static CharacterInstanceOperationResult SpawnSecondaryInstance(
+		ICharacter owner,
+		ICharacterForm form,
+		SpatialLocation spawnLocation,
+		CharacterInstancePersistencePolicy persistencePolicy,
+		SecondaryCharacterInstanceSpawnMode mode)
+	{
+		return SpawnSecondaryInstance(CreateSpawnOptionsForMode(owner, form, spawnLocation, persistencePolicy,
+			mode));
 	}
 
 	public static CharacterInstanceOperationResult SpawnSecondaryInstance(
@@ -568,8 +856,35 @@ public static class CharacterInstanceService
 		CharacterInstancePersistencePolicy persistencePolicy,
 		SecondaryCharacterInstanceSpawnMode mode)
 	{
-		return SpawnSecondaryInstance(CreateSpawnOptionsForMode(owner, form, location, roomLayer, persistencePolicy,
-			mode));
+		return SpawnSecondaryInstance(
+			owner,
+			form,
+			CreateDefaultSpawnLocation(location, roomLayer),
+			persistencePolicy,
+			mode);
+	}
+
+	public static CharacterInstanceOperationResult SpawnBodyInstance(
+		ICharacter owner,
+		ICharacterForm form,
+		SpatialLocation spawnLocation,
+		SecondaryCharacterInstanceSpawnMode mode,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot,
+		IEnumerable<IArtificialIntelligence>? artificialIntelligences = null,
+		bool cloneInventory = false)
+	{
+		var ais = artificialIntelligences?.Where(x => x is not null).Distinct().ToList() ??
+		          new List<IArtificialIntelligence>();
+		var options = mode == SecondaryCharacterInstanceSpawnMode.ScriptAiControlled
+			? CreateScriptedAiSpawnOptions(owner, form, spawnLocation, ais, cloneInventory,
+				persistencePolicy)
+			: CreateSpawnOptionsForMode(owner, form, spawnLocation, persistencePolicy, mode) with
+			{
+				ArtificialIntelligences = ais,
+				CloneInventoryFromPrimary = cloneInventory
+			};
+
+		return SpawnSecondaryInstance(options);
 	}
 
 	public static CharacterInstanceOperationResult SpawnBodyInstance(
@@ -582,18 +897,14 @@ public static class CharacterInstanceService
 		IEnumerable<IArtificialIntelligence>? artificialIntelligences = null,
 		bool cloneInventory = false)
 	{
-		var ais = artificialIntelligences?.Where(x => x is not null).Distinct().ToList() ??
-		          new List<IArtificialIntelligence>();
-		var options = mode == SecondaryCharacterInstanceSpawnMode.ScriptAiControlled
-			? CreateScriptedAiSpawnOptions(owner, form, location, roomLayer, ais, cloneInventory,
-				persistencePolicy)
-			: CreateSpawnOptionsForMode(owner, form, location, roomLayer, persistencePolicy, mode) with
-			{
-				ArtificialIntelligences = ais,
-				CloneInventoryFromPrimary = cloneInventory
-			};
-
-		return SpawnSecondaryInstance(options);
+		return SpawnBodyInstance(
+			owner,
+			form,
+			CreateDefaultSpawnLocation(location, roomLayer),
+			mode,
+			persistencePolicy,
+			artificialIntelligences,
+			cloneInventory);
 	}
 
 	public static CharacterInstanceOperationResult SpawnSecondaryInstance(
@@ -601,7 +912,6 @@ public static class CharacterInstanceService
 	{
 		var owner = options.Owner;
 		var form = options.Form;
-		var location = options.Location;
 		if (owner.Identity is not Character identity)
 		{
 			return new CharacterInstanceOperationResult(false, "The target character is not loaded in this game world.");
@@ -622,15 +932,20 @@ public static class CharacterInstanceService
 			return new CharacterInstanceOperationResult(false, "That form already has a live embodied instance.");
 		}
 
-		if (location is null)
-		{
-			return new CharacterInstanceOperationResult(false, "There is no valid location for the instance.");
-		}
-
 		var modeValidation = ValidateSecondarySpawnOptions(options);
 		if (!modeValidation.Success)
 		{
 			return modeValidation;
+		}
+
+		if (!TryGetPersistedSpatialLocation(
+			    options.SpawnLocation,
+			    out var persistedLocation,
+			    out var spatialError))
+		{
+			return new CharacterInstanceOperationResult(
+				false,
+				$"The secondary instance has an invalid spatial location: {spatialError}");
 		}
 
 		using (new FMDB())
@@ -652,8 +967,9 @@ public static class CharacterInstanceService
 				DeathPolicy = (int)options.DeathPolicy,
 				PerceptionPolicy = (int)options.PerceptionPolicy,
 				PersistencePolicy = (int)options.PersistencePolicy,
-				LocationId = location.Id,
-				RoomLayer = (int)options.RoomLayer,
+				LocationId = persistedLocation.LocationId,
+				RoomLayer = persistedLocation.RoomLayerValue,
+				RoutePosition = persistedLocation.RoutePosition,
 				PositionId = (int)PositionStanding.Instance.Id,
 				PositionModifier = (int)PositionModifier.None,
 				PositionEmote = string.Empty,
@@ -820,7 +1136,7 @@ public static class CharacterInstanceService
 	{
 		clone.Location?.Extract(clone);
 		clone.RoomLayer = target.RoomLayer;
-		target.Location?.Insert(clone);
+		clone.InsertAtSource(target);
 	}
 
 	private static bool DropIfNotCarried(ICharacterInstance target, IGameItem clone)
@@ -834,7 +1150,9 @@ public static class CharacterInstanceService
 		return true;
 	}
 
-	public static CharacterInstanceOperationResult Move(ICharacterInstance instance, ICell location, RoomLayer roomLayer)
+	public static CharacterInstanceOperationResult Move(
+		ICharacterInstance instance,
+		SpatialLocation destination)
 	{
 		if (instance is not Character secondary || instance.IsPrimaryInstance)
 		{
@@ -846,28 +1164,45 @@ public static class CharacterInstanceService
 			return new CharacterInstanceOperationResult(false, "That instance is not currently embodied.");
 		}
 
-		if (location is null)
+		if (!TryGetPersistedSpatialLocation(destination, out _, out var spatialError))
 		{
-			return new CharacterInstanceOperationResult(false, "There is no valid destination location.");
+			return new CharacterInstanceOperationResult(
+				false,
+				$"There is no valid destination location: {spatialError}");
 		}
 
 		secondary.Combat?.LeaveCombat(secondary);
 		secondary.Movement?.CancelForMoverOnly(secondary);
 		secondary.CombatTarget = null;
 		secondary.Location?.Leave(secondary);
-		location.Enter(secondary, noSave: true, roomLayer: roomLayer);
+		secondary.MoveTo(destination, noSave: true);
+		destination.Cell.Enter(secondary, noSave: true, roomLayer: destination.Layer);
 		secondary.SetPosition(PositionStanding.Instance, PositionModifier.None, null, null);
 		secondary.Changed = true;
 		secondary.Save();
 		return new CharacterInstanceOperationResult(true, "Secondary instance moved.", secondary);
 	}
 
-	public static CharacterInstanceOperationResult RestorePersistentSecondaryInstance(
-		ICharacter owner,
-		long instanceId,
+	public static CharacterInstanceOperationResult Move(
+		ICharacterInstance instance,
 		ICell location,
 		RoomLayer roomLayer)
 	{
+		return Move(instance, CreateDefaultSpawnLocation(location, roomLayer));
+	}
+
+	public static CharacterInstanceOperationResult RestorePersistentSecondaryInstance(
+		ICharacter owner,
+		long instanceId,
+		SpatialLocation destination)
+	{
+		if (!TryGetPersistedSpatialLocation(destination, out var persistedLocation, out var spatialError))
+		{
+			return new CharacterInstanceOperationResult(
+				false,
+				$"There is no valid destination location: {spatialError}");
+		}
+
 		if (owner.Identity is not Character identity)
 		{
 			return new CharacterInstanceOperationResult(false, "The owner identity is not loaded.");
@@ -886,7 +1221,8 @@ public static class CharacterInstanceService
 			if (loaded is Character loadedCharacter)
 			{
 				loadedCharacter.Location?.Leave(loadedCharacter);
-				location.Enter(loadedCharacter, noSave: true, roomLayer: roomLayer);
+				loadedCharacter.MoveTo(destination, noSave: true);
+				destination.Cell.Enter(loadedCharacter, noSave: true, roomLayer: destination.Layer);
 				loadedCharacter.SetInstanceEmbodied(true);
 				loadedCharacter.SetInstanceControllable(loadedCharacter.ControlPolicy != CharacterInstanceControlPolicy.NotControllable);
 				loadedCharacter.SetInstanceStateAndStatus(loadedCharacter.State & ~CharacterState.Stasis, loadedCharacter.Status);
@@ -926,8 +1262,9 @@ public static class CharacterInstanceService
 				return new CharacterInstanceOperationResult(false, "The secondary instance body could not be found.");
 			}
 
-			dbinstance.LocationId = location.Id;
-			dbinstance.RoomLayer = (int)roomLayer;
+			dbinstance.LocationId = persistedLocation.LocationId;
+			dbinstance.RoomLayer = persistedLocation.RoomLayerValue;
+			dbinstance.RoutePosition = persistedLocation.RoutePosition;
 			dbinstance.IsEmbodied = true;
 			dbinstance.IsControllable = (CharacterInstanceControlPolicy)dbinstance.ControlPolicy !=
 			                            CharacterInstanceControlPolicy.NotControllable;
@@ -937,6 +1274,18 @@ public static class CharacterInstanceService
 			var materialised = identity.MaterialiseSecondaryInstance(dbinstance, body);
 			return new CharacterInstanceOperationResult(true, "Secondary instance restored.", materialised);
 		}
+	}
+
+	public static CharacterInstanceOperationResult RestorePersistentSecondaryInstance(
+		ICharacter owner,
+		long instanceId,
+		ICell location,
+		RoomLayer roomLayer)
+	{
+		return RestorePersistentSecondaryInstance(
+			owner,
+			instanceId,
+			CreateDefaultSpawnLocation(location, roomLayer));
 	}
 
 	public static bool Retire(ICharacterInstance instance, out string whyNot, bool deleteTemporaryRows = true,

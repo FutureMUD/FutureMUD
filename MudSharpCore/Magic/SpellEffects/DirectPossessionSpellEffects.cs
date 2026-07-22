@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using MudSharp.Accounts;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.GameItems;
@@ -482,11 +483,11 @@ public sealed class PossessCorpseSpellEffect : IMagicSpellEffectTemplate
 		}
 
 		var originalLayer = corpseItem.RoomLayer;
+		var spawnLocation = RouteSpatialService.Instance.GetEffectiveLocation(corpseItem);
 		var spawn = CharacterInstanceService.SpawnPossessedCorpseInstance(
 			corpse.OriginalCharacter,
 			corpse.OriginalBody,
-			location,
-			originalLayer,
+			spawnLocation,
 			CharacterInstanceIdentityComparer.IdentityId(anchor),
 			anchor.InstanceId,
 			corpseItem.Id,
@@ -826,11 +827,11 @@ public sealed class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
 		}
 
 		var originalLayer = corpseItem.RoomLayer;
+		var spawnLocation = RouteSpatialService.Instance.GetEffectiveLocation(corpseItem);
 		var spawn = CharacterInstanceService.SpawnAnimatedCorpseInstance(
 			corpse.OriginalCharacter,
 			corpse.OriginalBody,
-			location,
-			originalLayer,
+			spawnLocation,
 			CharacterInstanceIdentityComparer.IdentityId(caster),
 			caster.InstanceId,
 			corpseItem.Id,

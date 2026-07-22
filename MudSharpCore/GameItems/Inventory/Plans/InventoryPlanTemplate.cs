@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body;
 using MudSharp.Combat;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Units;
@@ -391,7 +392,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                                                   x.DesiredState != DesiredItemState.Wielded &&
                                                   x.DesiredState != DesiredItemState.Worn))
             {
-                if (item.TargetItem.TrueLocations.All(x => x != executor.Location) ||
+				if (!item.TargetItem.ColocatedWith(executor) ||
                     item.TargetItem.Destroyed)
                 {
                     continue;
@@ -403,7 +404,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             //Now items to wear
             foreach (IInventoryPlanItemEffect item in items.Where(x => x.DesiredState == DesiredItemState.Worn).ToList())
             {
-                if (item.TargetItem.TrueLocations.All(x => x != executor.Location) ||
+				if (!item.TargetItem.ColocatedWith(executor) ||
                     item.TargetItem.Destroyed)
                 {
                     continue;
@@ -418,7 +419,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                                                   x.DesiredState == DesiredItemState.WieldedOneHandedOnly ||
                                                   x.DesiredState == DesiredItemState.WieldedTwoHandedOnly).ToList())
             {
-                if (item.TargetItem.TrueLocations.All(x => x != executor.Location) ||
+				if (!item.TargetItem.ColocatedWith(executor) ||
                     item.TargetItem.Destroyed)
                 {
                     continue;
@@ -1275,7 +1276,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
     private InventoryPlanActionResult AttachItem(ICharacter actor, IGameItem item, IGameItem target, bool silent,
         object originalReference)
     {
-        if (!actor.Location.LayerGameItems(actor.RoomLayer).Contains(target) && !actor.Inventory.Contains(target))
+		if (!actor.Location.GameItemsInImmediateVicinity(actor).Contains(target) && !actor.Inventory.Contains(target))
         {
             return new InventoryPlanActionResult
             {
@@ -1356,7 +1357,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             }
         }
 
-        if (actor.Location.LayerGameItems(actor.RoomLayer).Contains(item) &&
+		if (actor.Location.GameItemsInImmediateVicinity(actor).Contains(item) &&
             actor.Body.CanGet(item, quantity, ItemCanGetIgnore.IgnoreInventoryPlans))
         {
             actor.Body.Get(item, quantity, silent: silent, ignoreFlags: ItemCanGetIgnore.IgnoreInventoryPlans);
@@ -1369,7 +1370,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         }
 
         IContainer container =
-            actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<IContainer>())
+			actor.Location.GameItemsInImmediateVicinity(actor).SelectNotNull(x => x.GetItemType<IContainer>())
                  .FirstOrDefault(x =>
                      x.Contents.Contains(item) &&
                      actor.Body.CanGet(item, x.Parent, quantity, ItemCanGetIgnore.IgnoreInventoryPlans)) ??

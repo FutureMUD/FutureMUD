@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MudSharp.Character.Name;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
+using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
 
@@ -67,8 +69,7 @@ public static class ProjectPaymentService
 
 		if (actor.Location is not null)
 		{
-			pile.RoomLayer = actor.RoomLayer;
-			actor.Location.Insert(pile, true);
+			PlaceCashAtActor(pile, actor);
 			message = "You couldn't hold the cash, so it has been placed at your feet.";
 			return true;
 		}
@@ -76,6 +77,12 @@ public static class ProjectPaymentService
 		pile.Delete();
 		message = "You couldn't receive the cash right now.";
 		return false;
+	}
+
+	internal static void PlaceCashAtActor(IGameItem pile, ICharacter actor)
+	{
+		pile.RoomLayer = actor.RoomLayer;
+		pile.InsertAtSource(actor, true);
 	}
 
 	public static void CreateLabourPayable(IActiveProject project, ICharacter worker, IProjectLabourRequirement labour,

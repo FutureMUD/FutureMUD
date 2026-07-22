@@ -27,6 +27,7 @@ namespace MudSharp.Models
         public long GameItemProtoId { get; set; }
         public int GameItemProtoRevision { get; set; }
         public int RoomLayer { get; set; }
+        public decimal? RoutePosition { get; set; }
         public double Condition { get; set; }
         public long MaterialId { get; set; }
         public int Size { get; set; }

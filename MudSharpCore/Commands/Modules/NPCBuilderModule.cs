@@ -26,6 +26,14 @@ namespace MudSharp.Commands.Modules
 
         #region NPCs
 
+        internal static bool TryResolveNpcLoadSpatialLocation(
+            ICharacter character,
+            out SpatialLocation location,
+            out string error)
+        {
+            return CharacterInstanceService.TryGetSourceAwareSpawnLocation(character, out location, out error);
+        }
+
         private static void NPCLoad(ICharacter character, StringStack command)
         {
             if (command.IsFinished)
@@ -48,9 +56,14 @@ namespace MudSharp.Commands.Modules
                 return;
             }
 
-            ICharacter newCharacter = template.CreateNewCharacter(character.Location);
+            if (!TryResolveNpcLoadSpatialLocation(character, out var spawnLocation, out var spatialError))
+            {
+                character.OutputHandler.Send($"You do not have a valid NPC load location: {spatialError}");
+                return;
+            }
+
+            ICharacter newCharacter = template.CreateNewCharacter(spawnLocation);
             character.Gameworld.Add(newCharacter, true);
-            newCharacter.RoomLayer = character.RoomLayer;
             var warnings = template.ApplyTemplateLoadAdditions(newCharacter, false).ToList();
             if (warnings.Any())
             {
@@ -168,7 +181,7 @@ The core syntax to use this command is as follows:
 	#3npc clone <id|unique name>#0 - clones an existing prototype to a new one (also opens for editing)
 	#3npc set <parameters>#0 - makes a specific edit to an NPC. See NPC SET HELP for more info
 	#3npc make <id>|<target>#0 - clones a PC into a simple NPC Template (also opens for editing)
-	#3npc load <id|unique name>#0 - creates a new NPC character from the specified template
+	#3npc load <id|unique name>#0 - creates a new NPC character from the specified template at your exact current location
 	#3npc instances <template>#0 - lists all NPCs that have the specified template
 	#3npc list [<filters>]#0 - lists all NPC prototypes. See below for filters:
 

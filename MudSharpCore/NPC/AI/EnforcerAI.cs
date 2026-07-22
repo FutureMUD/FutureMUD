@@ -10,6 +10,7 @@ using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.Movement;
 using MudSharp.RPG.Law;
+using MudSharp.RPG.Law.PatrolStrategies;
 using System.ComponentModel.Design;
 
 namespace MudSharp.NPC.AI;
@@ -515,7 +516,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
     private void ReportVisibleCorpses(ICharacter enforcer)
     {
         bool reportedAny = false;
-        foreach (IGameItem corpseItem in enforcer.Location.LayerGameItems(enforcer.RoomLayer)
+        foreach (IGameItem corpseItem in enforcer.Location.GameItemsInSpatialVicinity(enforcer)
                                              .Where(x => enforcer.CanSee(x))
                                              .Where(x => x.GetItemType<ICorpse>() is { RepresentsFinalCharacterDeath: true }))
         {
@@ -544,7 +545,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
 			return true;
 		}
 
-		foreach (var criminal in enforcer.Location.LayerCharacters(enforcer.RoomLayer))
+		foreach (var criminal in enforcer.Location.CharactersInImmediateVicinity(enforcer))
 		{
 			if (TryBeginIndependentCustody(enforcer, criminal, effect))
 			{
@@ -725,19 +726,22 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
             return false;
         }
 
-        if (enforcer.Location == origin)
+        if (enforcer.ColocatedWith(alerter))
         {
             return AssistNearbyEnforcerInCombat(enforcer, EnforcerEffect(enforcer));
         }
 
-        var path = enforcer.PathBetween(origin, 20, PathSearch.PathIncludeUnlockableDoors(enforcer)).ToList();
-        if (!path.Any())
+        if (!PatrolStrategyBase.TryCreatePatrolPath(
+                enforcer,
+                alerter,
+                20.0,
+                PathSearch.PathIncludeUnlockableDoors(enforcer),
+                out var fp))
         {
             return false;
         }
 
         enforcer.RemoveAllEffects<FollowingPath>(fireRemovalAction: true);
-        var fp = FollowingPath.CreateFullFriendlyPath(enforcer, path, closeDoorsBehind: true);
         enforcer.AddEffect(fp);
         fp.FollowPathAction();
         return true;
@@ -750,7 +754,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
             return false;
         }
 
-        var ally = enforcer.Location.Characters
+        var ally = enforcer.Location.CharactersInSpatialVicinity(enforcer)
                            .Except(enforcer)
                            .Where(x => x.Combat is not null)
                            .FirstOrDefault(x =>

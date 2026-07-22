@@ -1408,6 +1408,12 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public override object DatabaseInsert()
     {
+		if (!RouteSpatialService.Instance.TryValidateLocation(SpatialLocation, out var spatialError))
+		{
+			throw new InvalidOperationException(
+				$"Character {PersonalName.GetName(NameStyle.FullName)} cannot be inserted with an invalid spatial location: {spatialError}");
+		}
+
         Models.Character dbitem = new()
         {
             Location = base.Location?.Id ?? 1L,
@@ -1428,6 +1434,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             State = (int)State,
             Status = (int)_status,
             RoomLayer = (int)RoomLayer,
+			RoutePosition = RoutePositionMetres.HasValue ? (decimal)RoutePositionMetres.Value : null,
             PositionId = (int)PositionStanding.Instance.Id,
             PositionModifier = (int)PositionModifier.None,
             PositionEmote = string.Empty,
@@ -1635,6 +1642,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
         LoadForms(character);
         var primaryInstance = LoadPrimaryInstance(character);
+		LoadRoutePosition(primaryInstance.RoutePosition);
         LoadCharacterTraits(character);
         EnsureProvisionedFormsFromMerits();
         LoadPosition(primaryInstance.PositionId, primaryInstance.PositionModifier, primaryInstance.PositionEmote,
@@ -2866,6 +2874,11 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
         if (item.InInventoryOf != null && item.InInventoryOf != Body)
         {
+			if (!ColocatedWith(item.InInventoryOf.Actor))
+			{
+				return (false, $"{item.HowSeen(this, true)} is too far away for you to reach.");
+			}
+
             if (!this.CanInteractPlanar(item.InInventoryOf.Actor, PlanarInteractionKind.Inventory, out planarMessage))
             {
                 return (false, planarMessage);

@@ -66,5 +66,8 @@ public enum ProgTypeKind
 	Writing,
 	Area,
 	LegalClass,
-	AgricultureField
+	AgricultureField,
+	VehicleRoute,
+	VehicleService,
+	VehicleJourney
 }

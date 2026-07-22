@@ -6,6 +6,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Events;
 using MudSharp.Form.Characteristics;
+using MudSharp.Framework;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.RPG.Checks;
 
@@ -229,7 +230,7 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 					continue;
 				}
 
-				location.Insert(theLock.Parent);
+				InsertAtParentSpatialLocation(theLock.Parent, location);
 				theLock.Parent.ContainedIn = null;
 			}
 		}
@@ -243,7 +244,7 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 					continue;
 				}
 
-				location.Insert(theLock.Parent);
+				InsertAtParentSpatialLocation(theLock.Parent, location);
 				theLock.Parent.ContainedIn = null;
 			}
 		}
@@ -358,10 +359,23 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 		actor.OutputHandler.Handle(
 			new MixedEmoteOutput(new Emote("@ knock|knocks upon $0", actor, Parent)).Append(playerEmote));
 		var oppositeExit = targetExit.Exit.CellExitFor(targetExit.Destination);
-		targetExit.Destination.Handle(new EmoteOutput(new Emote(
+		var otherSideOutput = new EmoteOutput(new Emote(
 			$"You hear a knocking coming from the other side of $0 to {oppositeExit.OutboundDirectionDescription}.",
-			actor, Parent), flags: OutputFlags.PurelyAudible));
-		foreach (var witness in targetExit.Origin.EventHandlers.Except(actor))
+			actor, Parent), flags: OutputFlags.PurelyAudible);
+		if (targetExit.Destination.RouteDefinition is null)
+		{
+			targetExit.Destination.Handle(otherSideOutput);
+		}
+		else
+		{
+			foreach (var character in ExitSideEventHandlers(targetExit.Destination, oppositeExit, actor)
+				         .OfType<ICharacter>())
+			{
+				character.OutputHandler.Send(otherSideOutput);
+			}
+		}
+
+		foreach (var witness in targetExit.Origin.EventHandlersFor(actor).Except(actor))
 		{
 			witness.HandleEvent(EventType.CharacterDoorKnockedSameSide, actor, actor.Location, targetExit, witness);
 		}
@@ -371,12 +385,38 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 			witness.HandleEvent(EventType.CharacterDoorKnockedSameSide, actor, actor.Location, targetExit, witness);
 		}
 
-		foreach (var witness in targetExit.Destination.EventHandlers)
+		foreach (var witness in ExitSideEventHandlers(targetExit.Destination, oppositeExit, actor))
 		{
 			witness.HandleEvent(EventType.CharacterDoorKnockedOtherSide, actor, actor.Location, targetExit, witness);
 		}
 
 		Parent.HandleEvent(EventType.DoorKnocked, actor, actor.Location, targetExit, Parent);
+	}
+
+	private static IEnumerable<IHandleEvents> ExitSideEventHandlers(ICell cell, ICellExit exit, ICharacter actor)
+	{
+		if (cell.RouteDefinition is null)
+		{
+			return cell.EventHandlers;
+		}
+
+		if (!RouteSpatialService.Instance.TryGetExitAnchor(exit, cell, out var anchor))
+		{
+			return new IHandleEvents[] { cell };
+		}
+
+		var maximumDistance = actor.Gameworld.GetStaticDouble("RouteCellVeryDistantDistanceMetres");
+		if (!double.IsFinite(maximumDistance) || maximumDistance <= 0.0)
+		{
+			maximumDistance = RouteSpatialConfiguration.Default.VeryDistantDistanceMetres;
+		}
+
+		var origin = new SpatialLocation(cell, actor.RoomLayer, anchor!.ArrivalPositionMetres);
+		return RouteSpatialService.Instance
+			.GetPerceivablesWithinAcrossLayers(origin, maximumDistance)
+			.OfType<IHandleEvents>()
+			.Concat(new IHandleEvents[] { cell })
+			.Distinct();
 	}
 
 	public bool CanCross(IBody body)

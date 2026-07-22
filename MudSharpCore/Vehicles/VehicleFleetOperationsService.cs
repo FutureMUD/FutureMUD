@@ -1,6 +1,8 @@
 ﻿#nullable enable
 
+using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.GameItems;
 using DB = MudSharp.Models;
 
 namespace MudSharp.Vehicles;
@@ -140,9 +142,61 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 					"vehicle access <vehicle> apply <preset> <character>"));
 			}
 
-			if (mode is VehicleFleetAuditMode.All or VehicleFleetAuditMode.Recovery)
+			if (mode is VehicleFleetAuditMode.All or VehicleFleetAuditMode.Route)
 			{
-				findings.AddRange(Recover(vehicle, VehicleRecoveryMode.All, false).Findings.Select(x =>
+				var routeProfiles = vehicle.Prototype.MovementProfiles
+					.Where(x => x.MovementType == VehicleMovementProfileType.Route)
+					.ToList();
+				if (!routeProfiles.Any())
+				{
+					findings.Add(new VehicleFleetAuditFinding(vehicle, VehicleOperationalSubsystem.Route,
+						VehicleOperationalSeverity.Warning,
+						"The vehicle prototype has no longitudinal RouteCell movement profile.",
+						"vehicleproto set movement route"));
+				}
+
+				if (vehicle.Location?.RouteDefinition is { } route &&
+				    (!vehicle.RoutePositionMetres.HasValue ||
+				     !double.IsFinite(vehicle.RoutePositionMetres.Value) ||
+				     vehicle.RoutePositionMetres.Value < 0.0 ||
+				     vehicle.RoutePositionMetres.Value > route.LengthMetres))
+				{
+					findings.Add(new VehicleFleetAuditFinding(vehicle, VehicleOperationalSubsystem.Route,
+						VehicleOperationalSeverity.Blocking,
+						"The vehicle has no valid durable coordinate in its current RouteCell.",
+						"vehicle recover <vehicle> projection fix, then transfer it to a valid route coordinate"));
+				}
+			}
+
+			if ((mode is VehicleFleetAuditMode.All or VehicleFleetAuditMode.Journey) &&
+			    vehicle.ActiveJourney is { } journey)
+			{
+				if (journey.Route is VehicleRoute route && !route.TopologyIsCurrent)
+				{
+					findings.Add(new VehicleFleetAuditFinding(vehicle, VehicleOperationalSubsystem.Journey,
+						VehicleOperationalSeverity.Blocking,
+						$"Active journey #{journey.Id:N0} has stale RouteCell topology pins.",
+						"cancel the journey and recompile/approve a new route revision"));
+				}
+				else if (journey.State == VehicleJourneyState.Held)
+				{
+					findings.Add(new VehicleFleetAuditFinding(vehicle, VehicleOperationalSubsystem.Journey,
+						VehicleOperationalSeverity.Warning,
+						$"Active journey #{journey.Id:N0} is held: {journey.StatusReason}",
+						"resolve the readiness reason before the maximum hold expires"));
+				}
+			}
+
+			var recoveryMode = mode switch
+			{
+				VehicleFleetAuditMode.All or VehicleFleetAuditMode.Recovery => VehicleRecoveryMode.All,
+				VehicleFleetAuditMode.Interior => VehicleRecoveryMode.Interior,
+				VehicleFleetAuditMode.Docking => VehicleRecoveryMode.Docking,
+				_ => (VehicleRecoveryMode?)null
+			};
+			if (recoveryMode is { } selectedRecoveryMode)
+			{
+				findings.AddRange(Recover(vehicle, selectedRecoveryMode, false).Findings.Select(x =>
 					new VehicleFleetAuditFinding(vehicle, x.Subsystem, x.Severity, x.Reason, x.Hint)));
 			}
 		}
@@ -161,6 +215,94 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 				findings.Add(new VehicleRecoveryFinding(vehicle, VehicleOperationalSubsystem.Repair,
 					VehicleOperationalSeverity.Blocking, "The exterior projection item is missing or not linked back to this vehicle.",
 					"vehicle relink <vehicle> <item>", VehicleRecoveryAction.Warning));
+			}
+
+			foreach (var access in vehicle.AccessPoints)
+			{
+				IGameItem? projection;
+				try
+				{
+					projection = access.ProjectionItem;
+				}
+				catch (Exception ex)
+				{
+					findings.Add(new VehicleRecoveryFinding(vehicle, VehicleOperationalSubsystem.Access,
+						VehicleOperationalSeverity.Blocking,
+						$"{access.Name} projection could not be inspected safely: {ex.Message}",
+						"check the engine log and persisted projection item before retrying recovery",
+						VehicleRecoveryAction.Warning));
+					continue;
+				}
+
+				if (projection is { Deleted: false, Destroyed: false })
+				{
+					continue;
+				}
+
+				var action = VehicleRecoveryAction.Warning;
+				var reason = $"{access.Name} has no usable authored access-point projection item.";
+				var hint = "vehicle recover <vehicle> projection fix";
+				var repairReason = string.Empty;
+				if (apply && VehicleFactory.TryCreateAccessProjectionItem(access, null, out var created,
+					    out repairReason))
+				{
+					action = VehicleRecoveryAction.Repaired;
+					reason = created
+						? $"{access.Name} was assigned replacement projection item #{access.ProjectionItemId:N0}."
+						: $"{access.Name} already has a usable projection item.";
+					hint = string.Empty;
+				}
+				else if (apply)
+				{
+					hint = repairReason;
+				}
+
+				findings.Add(new VehicleRecoveryFinding(vehicle, VehicleOperationalSubsystem.Access,
+					VehicleOperationalSeverity.Blocking, reason, hint, action));
+			}
+
+			foreach (var cargo in vehicle.CargoSpaces)
+			{
+				IGameItem? projection;
+				try
+				{
+					projection = cargo.ProjectionItem;
+				}
+				catch (Exception ex)
+				{
+					findings.Add(new VehicleRecoveryFinding(vehicle, VehicleOperationalSubsystem.Module,
+						VehicleOperationalSeverity.Warning,
+						$"{cargo.Name} projection could not be inspected safely: {ex.Message}",
+						"check the engine log and persisted projection item before retrying recovery",
+						VehicleRecoveryAction.Warning));
+					continue;
+				}
+
+				if (projection is { Deleted: false, Destroyed: false })
+				{
+					continue;
+				}
+
+				var action = VehicleRecoveryAction.Warning;
+				var reason = $"{cargo.Name} has no usable authored cargo projection item.";
+				var hint = "vehicle recover <vehicle> projection fix";
+				var repairReason = string.Empty;
+				if (apply && VehicleFactory.TryCreateCargoProjectionItem(cargo, null, out var created,
+					    out repairReason))
+				{
+					action = VehicleRecoveryAction.Repaired;
+					reason = created
+						? $"{cargo.Name} was assigned replacement projection item #{cargo.ProjectionItemId:N0}."
+						: $"{cargo.Name} already has a usable projection item.";
+					hint = string.Empty;
+				}
+				else if (apply)
+				{
+					hint = repairReason;
+				}
+
+				findings.Add(new VehicleRecoveryFinding(vehicle, VehicleOperationalSubsystem.Module,
+					VehicleOperationalSeverity.Warning, reason, hint, action));
 			}
 		}
 
@@ -200,6 +342,130 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 
 				findings.Add(new VehicleRecoveryFinding(vehicle, VehicleOperationalSubsystem.HitchTow,
 					VehicleOperationalSeverity.Warning, reason, hint, action));
+			}
+		}
+
+		if (Matches(mode, VehicleRecoveryMode.Interior) &&
+		    vehicle.Prototype.Scale == VehicleScale.RoomScale && vehicle is Vehicle concreteVehicle)
+		{
+			foreach (var compartment in vehicle.Compartments)
+			{
+				if (compartment.InteriorCell is null)
+				{
+					var occupied = concreteVehicle.IsInteriorOccupied(compartment);
+					var action = VehicleRecoveryAction.Warning;
+					var reason = compartment.InteriorCellId is null
+						? $"{compartment.Name} has no hosted interior cell assigned."
+						: $"{compartment.Name} points to missing hosted cell #{compartment.InteriorCellId:N0}.";
+					var hint = occupied
+						? "restore the missing cell from backup before moving its recorded occupants"
+						: "vehicle recover <vehicle> interior fix";
+					var repairReason = string.Empty;
+					if (apply && !occupied && compartment is VehicleCompartment runtime &&
+					    RoomScaleVehicleInteriorService.TryRecoverInterior(concreteVehicle, runtime,
+						    out var recoveryAction, out repairReason))
+					{
+						action = VehicleRecoveryAction.Repaired;
+						reason = recoveryAction == RoomScaleVehicleInteriorService.RecoveryAction.Relinked
+							? $"{compartment.Name} was relinked to persisted hosted cell #{compartment.InteriorCellId:N0}."
+							: $"{compartment.Name} was assigned a new hosted interior cell.";
+						hint = string.Empty;
+					}
+					else if (apply && !occupied && !string.IsNullOrWhiteSpace(repairReason))
+					{
+						hint = repairReason;
+					}
+
+					findings.Add(new VehicleRecoveryFinding(vehicle, VehicleOperationalSubsystem.Interior,
+						occupied ? VehicleOperationalSeverity.Blocking : VehicleOperationalSeverity.Warning,
+						reason, hint, action));
+					continue;
+				}
+
+				if (compartment.InteriorCell is Cell hostedCell &&
+				    (hostedCell.HostedVehicleId != vehicle.Id ||
+				     hostedCell.HostedVehicleCompartmentId != compartment.Id))
+				{
+					var action = VehicleRecoveryAction.Warning;
+					if (apply && compartment is VehicleCompartment runtime)
+					{
+						RoomScaleVehicleInteriorService.RepairHostMetadata(concreteVehicle, runtime);
+						action = VehicleRecoveryAction.Repaired;
+					}
+
+					findings.Add(new VehicleRecoveryFinding(vehicle, VehicleOperationalSubsystem.Interior,
+						VehicleOperationalSeverity.Warning,
+						$"{compartment.Name} cell #{hostedCell.Id:N0} has incorrect hosted-vehicle ownership metadata.",
+						apply ? string.Empty : "vehicle recover <vehicle> interior fix", action));
+				}
+			}
+
+			var brokenLinks = vehicle.Compartments
+				.SelectMany(x => x.Links)
+				.DistinctBy(x => x.Id)
+				.Where(x => x.Exit is null)
+				.ToList();
+			if (brokenLinks.Any() || vehicle.Prototype.CompartmentLinks.Count() !=
+			    vehicle.Compartments.SelectMany(x => x.Links).DistinctBy(x => x.Id).Count())
+			{
+				if (apply)
+				{
+					concreteVehicle.RebuildCompartmentLinks();
+				}
+
+				findings.Add(new VehicleRecoveryFinding(vehicle, VehicleOperationalSubsystem.Interior,
+					VehicleOperationalSeverity.Warning,
+					"One or more authored compartment links are missing their live transient exit.",
+					apply ? string.Empty : "vehicle recover <vehicle> interior fix",
+					apply ? VehicleRecoveryAction.Repaired : VehicleRecoveryAction.Warning));
+			}
+		}
+
+		if (Matches(mode, VehicleRecoveryMode.Docking) &&
+		    vehicle.Prototype.Scale == VehicleScale.RoomScale && vehicle is Vehicle dockingVehicle)
+		{
+			var expectedAccess = (vehicle.Location?.RouteDefinition is not null
+					? vehicle.ActiveJourney?.BoardingOpen == true
+						? vehicle.ActiveJourney.CurrentStop?.PlatformBindings
+							.Select(binding => vehicle.AccessPoints.FirstOrDefault(x =>
+								x.Prototype.Id == binding.AccessPoint.Id))
+							.Where(x => x is not null)
+							.Cast<IVehicleAccessPoint>() ?? []
+						: []
+					: vehicle.AccessPoints)
+				.Where(x => dockingVehicle.CompartmentFor(x.Prototype.Compartment)?.InteriorCell is not null)
+				.ToList();
+			var faults = expectedAccess.Where(x =>
+				vehicle.Dockings.All(docking => docking.AccessPoint.Id != x.Id) ||
+				vehicle.Dockings.Any(docking =>
+				{
+					if (docking.AccessPoint.Id != x.Id)
+					{
+						return false;
+					}
+
+					var staleLocation = docking is VehicleDocking routeDocking &&
+					                    vehicle.Location?.RouteDefinition is not null
+						? !VehicleDockingService.IsAtBoundRouteStop(vehicle, routeDocking)
+						: docking.ExteriorCell != vehicle.Location || docking.ExteriorLayer != vehicle.RoomLayer;
+					return staleLocation || x.IsOpen && !x.IsDisabled && !x.IsLocked &&
+						docking is VehicleDocking runtime && !runtime.IsRegistered;
+				}))
+				.ToList();
+			if (faults.Any())
+			{
+				var repaired = false;
+				if (apply && vehicle.ExteriorItem is not null && vehicle.Location is not null)
+				{
+					dockingVehicle.RebuildDockings();
+					repaired = true;
+				}
+
+				findings.Add(new VehicleRecoveryFinding(vehicle, VehicleOperationalSubsystem.Docking,
+					vehicle.ExteriorItem is null ? VehicleOperationalSeverity.Blocking : VehicleOperationalSeverity.Warning,
+					$"{faults.Count:N0} access point{(faults.Count == 1 ? " has" : "s have")} missing, stale, or inactive docking topology.",
+					repaired ? string.Empty : "restore/relink the exterior, then use vehicle recover <vehicle> docking fix",
+					repaired ? VehicleRecoveryAction.Repaired : VehicleRecoveryAction.Warning));
 			}
 		}
 

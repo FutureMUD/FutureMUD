@@ -228,7 +228,7 @@ public partial class Body : IHaveNeeds, IEat
         double bitesLeft = edible.BitesRemaining - bites;
         Actor.HandleEvent(EventType.CharacterEat, Actor, edible.Parent, bites, bitesLeft);
         edible.Parent.HandleEvent(EventType.ItemEaten, Actor, edible.Parent, bites, bitesLeft);
-        foreach (IHandleEvents witness in Actor.Location.EventHandlers.Except(Actor))
+        foreach (IHandleEvents witness in Actor.Location.EventHandlersFor(Actor).Except(Actor))
         {
             witness.HandleEvent(EventType.CharacterEatWitness, Actor, witness, edible.Parent, bites, bitesLeft);
         }
@@ -273,7 +273,7 @@ public partial class Body : IHaveNeeds, IEat
         double bitesLeft = edible.BitesRemaining - bites;
         Actor.HandleEvent(EventType.CharacterEat, Actor, edible.Parent, bites, bitesLeft);
         edible.Parent.HandleEvent(EventType.ItemEaten, Actor, edible.Parent, bites, bitesLeft);
-        foreach (IHandleEvents witness in Actor.Location.EventHandlers.Except(Actor))
+        foreach (IHandleEvents witness in Actor.Location.EventHandlersFor(Actor).Except(Actor))
         {
             witness.HandleEvent(EventType.CharacterEatWitness, Actor, witness, edible.Parent, bites, bitesLeft);
         }
@@ -319,7 +319,7 @@ public partial class Body : IHaveNeeds, IEat
         bitesLeft -= bites;
         Actor.HandleEvent(EventType.CharacterEat, Actor, corpse.Parent, bites, bitesLeft);
         corpse.Parent.HandleEvent(EventType.ItemEaten, Actor, corpse.Parent, bites, bitesLeft);
-        foreach (IHandleEvents witness in Actor.Location.EventHandlers.Except(Actor))
+        foreach (IHandleEvents witness in Actor.Location.EventHandlersFor(Actor).Except(Actor))
         {
             witness.HandleEvent(EventType.CharacterEatWitness, Actor, witness, corpse.Parent, bites, bitesLeft);
         }
@@ -367,7 +367,7 @@ public partial class Body : IHaveNeeds, IEat
         bitesLeft -= bites;
         Actor.HandleEvent(EventType.CharacterEat, Actor, bodypart.Parent, bites, bitesLeft);
         bodypart.Parent.HandleEvent(EventType.ItemEaten, Actor, bodypart.Parent, bites, bitesLeft);
-        foreach (IHandleEvents witness in Actor.Location.EventHandlers.Except(Actor))
+        foreach (IHandleEvents witness in Actor.Location.EventHandlersFor(Actor).Except(Actor))
         {
             witness.HandleEvent(EventType.CharacterEatWitness, Actor, witness, bodypart.Parent, bites, bitesLeft);
         }
@@ -706,7 +706,7 @@ public partial class Body : IHaveNeeds, IEat
 
         Actor.HandleEvent(EventType.CharacterSwallow, Actor, swallowable.Parent);
         swallowable.Parent.HandleEvent(EventType.ItemSwallowed, Actor, swallowable.Parent);
-        foreach (IHandleEvents witness in Actor.Location.EventHandlers.Except(Actor))
+        foreach (IHandleEvents witness in Actor.Location.EventHandlersFor(Actor).Except(Actor))
         {
             witness.HandleEvent(EventType.CharacterSwallowWitness, Actor, swallowable.Parent, witness);
         }
@@ -757,7 +757,7 @@ public partial class Body : IHaveNeeds, IEat
 
         Actor.HandleEvent(EventType.CharacterSwallow, Actor, swallowable.Parent);
         swallowable.Parent.HandleEvent(EventType.ItemSwallowed, Actor, swallowable.Parent);
-        foreach (IHandleEvents witness in Actor.Location.EventHandlers.Except(Actor))
+        foreach (IHandleEvents witness in Actor.Location.EventHandlersFor(Actor).Except(Actor))
         {
             witness.HandleEvent(EventType.CharacterSwallowWitness, Actor, swallowable.Parent, witness);
         }

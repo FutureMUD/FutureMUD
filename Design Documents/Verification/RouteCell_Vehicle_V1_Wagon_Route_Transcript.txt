@@ -1,0 +1,179 @@
+ ____                              _   _
+|  _ \  __ _ _ __ ___  _ __   __ _| |_(_) ___
+| | | |/ _` | '_ ` _ \| '_ \ / _` | __| |/ _ \
+| |_| | (_| | | | | | | | | | (_| | |_| | (_) |
+|____/_\__,_|_| |_| |_|_| |_|\__,_|\__|_|\___/
+|  \/  | ___ _ __ ___   ___  _ __(_) __ _  ___
+| |\/| |/ _ \ '_ ` _ \ / _ \| '__| |/ _` |/ _ \
+| |  | |  __/ | | | | | (_) | |  | | (_| |  __/
+|_|  |_|\___|_| |_| |_|\___/|_|  |_|\__,_|\___|
+       __
+      <  \
+[\\\\\\(\ (:::<======================================-
+\<      >  \
+ \\    /    |       Powered by the FutureMUD Engine v2.0.1.0000
+  `==='____/               Copyright 2008-2026
+
+ Join us on Discord! https://discord.gg/yjYtBr8ZkY
+
+ Select an Option:
+
+ C) Create an Account
+ L) Login to an Account
+ R) Recover a Lost Account
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+                   _
+                ,''/., _            Welcome, Japheth!
+        `.-._\`/. ( //'/'`.
+      _.-`-. ``' ` `(   -. \        ========== Options ===========
+    ,'  ,    ,-:._ _..-.. \/
+   / ,'/ ,`.( _.'-'.     )/         C) Connect to a character
+   `.\ '(   ,'      `.              G) Login as a guest
+      `._\ /'       \ \             N) Create a new character
+          /:         \ \-.          E) Change your email address
+        ,;':._______...-'_)         P) Change your [REDACTED]
+        \:/-.._______..-_|
+         : :\   `----'|'-;          X) Disconnect from the game
+          \ :\    : : ;:/
+           \ ``.   ; /;/
+            )   `.  /,'
+          ,'      `-' \
+         /  .--.       )
+        /_.---._`._   /
+                `.__.'
+
+
+Your Choice:
+> c
+You have the following characters:
+  1: Japheth (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+QA West Station Platform
+ID[3] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: North and East
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, it is pitch black here.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleroute edit new QA Wagon Road
+You create and begin editing Vehicle Route [QA Wagon Road] (#2r0).
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleroute set stop add "West Town" 3 GroundLevel
+You add the West Town stop.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleroute set stop dwell "West Town" 30s
+The West Town dwell is now 30 seconds.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleroute set stop add "East Town" 4 GroundLevel
+You add the East Town stop.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleroute set stop dwell "East Town" 30s
+The East Town dwell is now 30 seconds.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleroute set leg compile "West Town" "East Town"
+You compile the pinned spatial leg from West Town to East Town.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleroute preview
+Vehicle Route #2r0 - QA Wagon Road
+Status: Under Design
+Description: An undescribed vehicle route.
+Topology: current
+Stops:
+  1. #3 West Town - cell #3 / GroundLevel; dwell 30 seconds
+  2. #4 East Town - cell #4 / GroundLevel; dwell 30 seconds
+Compiled Legs:
+  #2 West Town -> East Town: 9,998.00m, 101.98 room-equivalents, 3 steps
+Validation: ready
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleroute validate
+This route passes structural and topology validation.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleroute submit RouteCell v1 wagon road
+You submit Vehicle Route [QA Wagon Road] (#2r0) for review.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleroute approve 2 RouteCell v1 wagon road
+You approve Vehicle Route [QA Wagon Road] (#2r0); its compiled steps and topology pins are now immutable.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleroute show 2
+Vehicle Route #2r0 - QA Wagon Road
+Status: Current
+Description: An undescribed vehicle route.
+Topology: current
+Stops:
+  1. #3 West Town - cell #3 / GroundLevel; dwell 30 seconds
+  2. #4 East Town - cell #4 / GroundLevel; dwell 30 seconds
+Compiled Legs:
+  #2 West Town -> East Town: 9,998.00m, 101.98 room-equivalents, 3 steps
+Validation: ready
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleroute list
+Vehicle Routes:
+  #1r0 QA Intertown Line [Current] 2 stops / topology current
+  #2r0 QA Wagon Road [Current] 2 stops / topology current
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>

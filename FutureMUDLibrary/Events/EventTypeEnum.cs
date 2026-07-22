@@ -702,6 +702,36 @@ namespace MudSharp.Events
         OfferingBurnedWitness = 128,
 
         [EventInfo("Fires on a character when they hear an alert.", ["character", "perceivable", "location", "text", "number", "text"], ["alerter", "witness", "origin", "direction", "range", "emote"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
-        CharacterAlertHeard = 129
+        CharacterAlertHeard = 129,
+
+        [EventInfo("Fires on each character or vehicle exterior when longitudinal RouteCell movement begins.", ["perceivable", "location", "number", "number", "text", "number", "text"], ["mover", "routecell", "originmetres", "destinationmetres", "direction", "speedmetrespersecond", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        RouteMovementBegin = 130,
+
+        [EventInfo("Fires on each character or vehicle exterior after a longitudinal RouteCell movement checkpoint advances its durable position.", ["perceivable", "location", "number", "number", "number", "text", "number", "text"], ["mover", "routecell", "previousmetres", "currentmetres", "destinationmetres", "direction", "speedmetrespersecond", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        RouteMovementProgress = 131,
+
+        [EventInfo("Fires on each character or vehicle exterior when longitudinal RouteCell movement reaches its destination.", ["perceivable", "location", "number", "number", "text", "text"], ["mover", "routecell", "originmetres", "destinationmetres", "direction", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
+        RouteMovementComplete = 132,
+
+        [EventInfo("Fires on each character or vehicle exterior when longitudinal RouteCell movement stops before its destination.", ["perceivable", "location", "number", "number", "number", "text", "text", "text"], ["mover", "routecell", "originmetres", "currentmetres", "destinationmetres", "direction", "reason", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
+        RouteMovementCancelled = 133,
+
+        [EventInfo("Fires on each character or vehicle exterior when a longitudinal RouteCell checkpoint changes its exact coordinate.", ["perceivable", "location", "number", "number", "text"], ["mover", "routecell", "previousmetres", "currentmetres", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        RoutePositionChanged = 134,
+
+        [EventInfo("Fires on a vehicle exterior when its journey departs a stop. A stop position of -1 means an ordinary cell.", ["item", "number", "number", "number", "number", "location", "number", "text"], ["vehicle", "journeyid", "routeid", "serviceid", "vehicleid", "stopcell", "stoppositionmetres", "message"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        VehicleJourneyDeparted = 135,
+
+        [EventInfo("Fires on a vehicle exterior when its journey arrives at a stop. A stop position of -1 means an ordinary cell.", ["item", "number", "number", "number", "number", "location", "number", "text"], ["vehicle", "journeyid", "routeid", "serviceid", "vehicleid", "stopcell", "stoppositionmetres", "message"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        VehicleJourneyArrived = 136,
+
+        [EventInfo("Fires on a vehicle exterior when its journey's accumulated delay changes.", ["item", "number", "number", "number", "number", "timespan", "text"], ["vehicle", "journeyid", "routeid", "serviceid", "vehicleid", "delay", "message"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.TimeSpan, ProgVariableTypeCode.Text])]
+        VehicleJourneyDelayChanged = 137,
+
+        [EventInfo("Fires on a vehicle exterior when its journey is cancelled.", ["item", "number", "number", "number", "number", "text"], ["vehicle", "journeyid", "routeid", "serviceid", "vehicleid", "reason"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        VehicleJourneyCancelled = 138,
+
+        [EventInfo("Fires on a vehicle exterior when its journey faults.", ["item", "number", "number", "number", "number", "text"], ["vehicle", "journeyid", "routeid", "serviceid", "vehicleid", "reason"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        VehicleJourneyFaulted = 139
     }
 }

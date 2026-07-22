@@ -1,5 +1,6 @@
 ﻿using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
+using MudSharp.Construction;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.AuxiliaryEffects;
@@ -137,8 +138,7 @@ If omitted, the defense trait defaults to the auxiliary action's check trait and
 		}
 
 		tch.Body.Take(item);
-		item.RoomLayer = tch.RoomLayer;
-		tch.Location.Insert(item);
+		PlaceDisarmedItem(item, tch);
 		var duration = CalculateAmount(opposed);
 		if (duration > 0.0)
 		{
@@ -147,5 +147,11 @@ If omitted, the defense trait defaults to the auxiliary action's check trait and
 
 		tch.AddEffect(new CombatGetItemEffect(tch, item));
 		SendEcho(SuccessEcho, attacker, tch, item);
+	}
+
+	internal static void PlaceDisarmedItem(IGameItem item, ICharacter target)
+	{
+		item.RoomLayer = target.RoomLayer;
+		item.InsertAtSource(target);
 	}
 }

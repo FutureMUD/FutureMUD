@@ -132,7 +132,7 @@ public partial class Character
 				BodyBackupEffect.NormaliseBackupRemainsContext(backup.RemainsContext));
 			Gameworld.Add(remains);
 			remains.RoomLayer = oldLayer;
-			oldLocation.Insert(remains);
+			remains.InsertAtSource(this);
 		}
 
 		EmitBodyBackupEcho(BodyBackupEffect.OldLocationEchoForRemains(backup.OldLocationEcho, remains is not null),

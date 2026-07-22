@@ -316,7 +316,7 @@ internal class TakeCurrencyFunction : BuiltInFunction
                 else
                 {
                     changeItem.RoomLayer = character.RoomLayer;
-                    character.Location.Insert(changeItem);
+                    changeItem.InsertAtSource(character);
                 }
             }
             else if (gameitem != null)
@@ -328,7 +328,8 @@ internal class TakeCurrencyFunction : BuiltInFunction
                 }
                 else
                 {
-                    gameitem.TrueLocations.FirstOrDefault()?.Insert(changeItem);
+					changeItem.RoomLayer = gameitem.RoomLayer;
+					changeItem.InsertAtSource(gameitem.LocationLevelPerceivable);
                 }
             }
         }

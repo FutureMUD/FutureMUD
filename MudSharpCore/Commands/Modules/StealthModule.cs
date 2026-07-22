@@ -9,6 +9,8 @@ using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
 using Org.BouncyCastle.Asn1.X509;
 
+using MudSharp.Construction;
+
 namespace MudSharp.Commands.Modules;
 
 public class StealthModule : Module<ICharacter>
@@ -62,13 +64,18 @@ Note - anyone in the room at the time you hide yourself or an item will be able 
                     CheckOutcome result = actor.Gameworld.GetCheck(CheckType.HideCheck)
                                       .Check(actor, actor.Location.Terrain(actor).HideDifficulty);
                     actor.AddEffect(new HideInvis(actor, result.TargetNumber));
-                    foreach (ICharacter witness in actor.Location.Characters.Except(actor))
+					foreach (ICharacter witness in actor.LocalThingsAndProximities()
+						         .Where(x => x.Proximity <= Proximity.VeryDistant)
+						         .Select(x => x.Thing)
+						         .OfType<ICharacter>()
+						         .Except(actor)
+						         .Distinct())
                     {
                         witness.AddEffect(new SawHider(witness, actor), TimeSpan.FromSeconds(300));
                     }
 
                     actor.HandleEvent(EventType.CharacterHidden, actor);
-                    foreach (IHandleEvents witness in actor.Location.EventHandlers)
+                    foreach (IHandleEvents witness in actor.Location.EventHandlersFor(actor))
                     {
                         witness.HandleEvent(EventType.CharacterHidesWitness, actor, witness);
                     }
@@ -103,7 +110,7 @@ Note - anyone in the room at the time you hide yourself or an item will be able 
         {
             actor.Body.Take(target);
             target.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(target, true);
+            target.InsertAtSource(actor, true);
         }
 
         actor.OutputHandler.Handle(new EmoteOutput(
@@ -117,7 +124,12 @@ Note - anyone in the room at the time you hide yourself or an item will be able 
                                   .Check(actor, actor.Location.Terrain(actor).HideDifficulty);
                 ItemHidden effect = new(target, result.TargetNumber);
                 target.AddEffect(effect);
-                foreach (ICharacter witness in actor.Location.Characters)
+				foreach (ICharacter witness in actor.LocalThingsAndProximities()
+					         .Where(x => x.Proximity <= Proximity.VeryDistant)
+						         .Select(x => x.Thing)
+						         .OfType<ICharacter>()
+						         .Concat(new[] { actor })
+						         .Distinct())
                 {
                     witness.AddEffect(new SawHiddenItem(witness, target), TimeSpan.FromSeconds(300));
                     effect.OriginalWitnesses.Add(CharacterInstanceIdentityComparer.IdentityId(witness));
@@ -196,7 +208,13 @@ The syntax is as follows:
         {
             successAction = () =>
             {
-                foreach (ICharacter person in actor.Location.LayerCharacters(actor.RoomLayer).Except(actor).AsEnumerable())
+				foreach (ICharacter person in actor.LocalThingsAndProximities()
+					         .Where(x => x.Proximity <= Proximity.VeryDistant)
+					         .Select(x => x.Thing)
+					         .OfType<ICharacter>()
+					         .Where(x => x.RoomLayer == actor.RoomLayer)
+					         .Except(actor)
+					         .Distinct())
                 {
                     person.AddEffect(new SawHider(person, actor), TimeSpan.FromSeconds(600));
                 }

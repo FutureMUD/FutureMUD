@@ -49,6 +49,8 @@ namespace MudSharp.Framework
         void LoadVehiclePrototypes();
         void LoadVehicles();
         void LoadVehicleHitchLinks();
+		void LoadVehicleRoutes();
+		void LoadVehicleOperations();
         void LoadMagicPortalTopology();
         void LoadGameItemSkins();
         void LoadGameItemGroups();

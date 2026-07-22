@@ -12,6 +12,7 @@ using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Form.Material;
+using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Models;
@@ -32,6 +33,14 @@ public partial class Character
     public double MaximumDragWeight => Race.GetMaximumDragWeight(this);
 
     public void TransferTo(ICell target, RoomLayer layer)
+	{
+		TransferTo(new SpatialLocation(
+			target,
+			layer,
+			target.RouteDefinition?.DefaultPositionMetres));
+	}
+
+	public void TransferTo(SpatialLocation target)
     {
         OutputHandler.Handle(
             new EmoteOutput(
@@ -40,7 +49,7 @@ public partial class Character
         OutputHandler.Send(
             "You open a swirling vortex of magical energies, stepping through and emerging somewhere new.");
 
-        Teleport(target, layer, true, false);
+        Teleport(target.Cell, target.Layer, true, false, routePositionMetres: target.RoutePositionMetres);
 
         OutputHandler.Handle(
             new EmoteOutput(new Emote("A swirling vortex of energy opens up briefly, and @ steps through.", this),
@@ -53,8 +62,46 @@ public partial class Character
         string playerEchoSelf = "",
         string followerEchoLeave = "@ leaves the area.",
         string followerEchoArrive = "@ enters the area.",
-        string followerEchoSelf = "")
+		string followerEchoSelf = "")
+	{
+		Teleport(
+			target,
+			layer,
+			includeFollowers,
+			echo,
+			null,
+			playerEchoLeave,
+			playerEchoArrive,
+			playerEchoSelf,
+			followerEchoLeave,
+			followerEchoArrive,
+			followerEchoSelf);
+	}
+
+	public void Teleport(
+		ICell target,
+		RoomLayer layer,
+		bool includeFollowers,
+		bool echo,
+		double? routePositionMetres,
+		string playerEchoLeave = "@ leaves the area.",
+		string playerEchoArrive = "@ enters the area.",
+		string playerEchoSelf = "",
+		string followerEchoLeave = "@ leaves the area.",
+		string followerEchoArrive = "@ enters the area.",
+		string followerEchoSelf = "")
     {
+		var spatialTarget = new SpatialLocation(
+			target,
+			layer,
+			target.RouteDefinition is null
+				? routePositionMetres
+				: routePositionMetres ?? target.RouteDefinition.DefaultPositionMetres);
+		if (!RouteSpatialService.Instance.TryValidateLocation(spatialTarget, out var spatialError))
+		{
+			throw new ArgumentException(spatialError, nameof(routePositionMetres));
+		}
+
         ICell sourceLocation = Location;
         Movement?.CancelForMoverOnly(this);
         RemoveAllEffects(x => x.IsEffectType<IActionEffect>(), true);
@@ -160,6 +207,17 @@ public partial class Character
             target.Insert(item, true);
         }
 
+		SetRoutePosition(spatialTarget.RoutePositionMetres);
+		foreach (var mover in otherMovers)
+		{
+			mover.SetRoutePosition(spatialTarget.RoutePositionMetres);
+		}
+
+		foreach (var item in otherItems)
+		{
+			item.SetRoutePosition(spatialTarget.RoutePositionMetres);
+		}
+
         ReconcileTeleportCellMembership(this, target, sourceLocation);
         foreach (ICharacter mover in otherMovers)
         {
@@ -218,7 +276,7 @@ public partial class Character
         }
 
         ICharacter guardCharacter = null;
-        foreach (ICharacter ch in exit.Origin.LayerCharacters(RoomLayer))
+        foreach (ICharacter ch in exit.Origin.CharactersInImmediateVicinity(this))
         {
             if (ch == this || ch == RidingMount || _riders.Contains(ch))
             {
@@ -667,10 +725,11 @@ public partial class Character
         };
     }
 
-    private CanMoveResponse CanMoveInternal(CanMoveFlags flags, IPositionState movingPositionOverride)
+    private CanMoveResponse CanMoveInternal(CanMoveFlags flags, IPositionState movingPositionOverride,
+		ICellExit vehicleInteriorExit = null)
     {
         var vehicle = Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(this));
-        if (vehicle is not null)
+        if (vehicle is not null && !IsPermittedVehicleInteriorExit(vehicle, Location, vehicleInteriorExit))
         {
             return new CanMoveResponse
             {
@@ -834,13 +893,13 @@ public partial class Character
 
     public CanMoveResponse CanMove(CanMoveFlags flags)
     {
-        return CanMoveInternal(flags, null);
+        return CanMoveInternal(flags, null, null);
     }
 
     public CanMoveResponse CanMove(ICellExit exit, CanMoveFlags flags)
     {
         IPositionState requiredPosition = GetRequiredMovementPosition(exit);
-        CanMoveResponse response = CanMoveInternal(flags, requiredPosition);
+        CanMoveResponse response = CanMoveInternal(flags, requiredPosition, exit);
         if (!response.Result)
         {
             return response;
@@ -939,7 +998,7 @@ public partial class Character
         IPositionState fixedPosition)
     {
         var vehicle = Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(this));
-        if (vehicle is not null)
+        if (vehicle is not null && !HasPermittedVehicleInteriorExit(vehicle, Location))
         {
             _cannotMoveReason = $"You cannot move while you are aboard {vehicle.Name.ColourName()}. Use {"disembark".ColourCommand()} first.";
             return (false, null, null);
@@ -1105,6 +1164,31 @@ public partial class Character
                 return (false, null, null);
         }
     }
+
+	internal static bool HasPermittedVehicleInteriorExit(IVehicle vehicle, ICell actorLocation)
+	{
+		return actorLocation?.ExitsFor(null)
+		                    .Any(x => IsPermittedVehicleInteriorExit(vehicle, actorLocation, x)) == true;
+	}
+
+	internal static bool IsPermittedVehicleInteriorExit(IVehicle vehicle, ICell actorLocation, ICellExit exit)
+	{
+		if (vehicle?.Prototype.Scale != VehicleScale.RoomScale ||
+			actorLocation is null ||
+			exit?.Origin is null ||
+			exit.Destination is null ||
+			exit.Origin.Id != actorLocation.Id)
+		{
+			return false;
+		}
+
+		var hostedCellIds = vehicle.Compartments
+		                           .Select(x => x.InteriorCell?.Id)
+		                           .Where(x => x.HasValue)
+		                           .Select(x => x!.Value)
+		                           .ToHashSet();
+		return hostedCellIds.Contains(actorLocation.Id) && hostedCellIds.Contains(exit.Destination.Id);
+	}
 
     private IMovement _movement;
 
@@ -1332,6 +1416,13 @@ public partial class Character
 
     protected void TargetMoved(object sender, MoveEventArgs args)
     {
+		if (args.Movement.Exit is null)
+		{
+			// Linear RouteCell movements form their following/party cohort before OnStartMove.
+			// There is no boundary direction to replay as an ordinary movement command.
+			return;
+		}
+
         if (ColocatedWith(Following) && CanSee(Following) && Body.CanSee(Location, args.Movement.Exit))
         {
             // TODO - check trespassing
@@ -1544,7 +1635,8 @@ public partial class Character
                 break;
         }
 
-        foreach (ICharacter character in movement?.Exit?.Origin?.Characters.Where(x => x.Movement != movement) ??
+		foreach (ICharacter character in movement?.Exit?.Origin?.CharactersInImmediateVicinity(this)
+		                                  .Where(x => x.Movement != movement) ??
                                   Enumerable.Empty<ICharacter>())
         {
             character.RemoveAllEffects(x => x.GetSubtype<ISawHiderEffect>()?.Hider == this);

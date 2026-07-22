@@ -1,5 +1,6 @@
 ﻿using MudSharp.Database;
 using MudSharp.Events;
+using MudSharp.Construction;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems.Prototypes;
@@ -914,7 +915,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			item.SetOwner(target);
 			Gameworld.Add(item);
 			item.RoomLayer = target.RoomLayer;
-			target.Location.Insert(item);
+			item.InsertAtSource(target);
 			item.HandleEvent(EventType.ItemFinishedLoading, item);
 			item.Login();
 			createdItems[templateItem.TemplateKey] = item;

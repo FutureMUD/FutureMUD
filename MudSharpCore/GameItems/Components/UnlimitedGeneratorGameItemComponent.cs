@@ -154,6 +154,11 @@ public class UnlimitedGeneratorGameItemComponent : GameItemComponent, IProducePo
         : 0.0;
 
     private double _spikeDrawdown;
+    internal double RouteCheckpointSpikeDrawdown
+    {
+        get => _spikeDrawdown;
+        set => _spikeDrawdown = value;
+    }
 
     public bool CanBeginDrawDown(double wattage)
     {

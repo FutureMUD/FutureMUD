@@ -110,7 +110,7 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
         {
             if (location != null)
             {
-                location.Insert(Content.Parent);
+                InsertAtParentSpatialLocation(Content.Parent, location);
                 Content.Parent.ContainedIn = null;
                 Content = null;
             }
@@ -372,7 +372,7 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
                 }
                 else if (location != null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location, preferredSource: emptier);
                     emptier?.OutputHandler.Handle(new EmoteOutput(new Emote(
                             "@ cannot put $1 into $2, so #0 set|sets it down on the ground.", emptier, emptier, item,
                             intoContainer.Parent)));
@@ -387,7 +387,7 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
 
             if (location != null)
             {
-                location.Insert(item);
+                InsertAtParentSpatialLocation(item, location, preferredSource: emptier);
             }
             else
             {

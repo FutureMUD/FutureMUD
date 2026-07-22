@@ -406,10 +406,9 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             if (proto.Components.Any(x => x is StackableGameItemComponentProto))
             {
                 IGameItem newItem = proto.CreateNew(butcher);
-                newItem.RoomLayer = Parent.RoomLayer;
                 newItem.GetItemType<IStackable>().Quantity = quantity;
                 Gameworld.Add(newItem);
-                butcher.Location.Insert(newItem);
+                ButcherySpatialPlacement.Place(newItem, butcher, Parent.RoomLayer);
                 newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
                 newItem.Login();
                 productSB.AppendLine($"\t${count++} has been produced.");
@@ -420,9 +419,8 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             for (int i = 0; i < quantity; i++)
             {
                 IGameItem newItem = proto.CreateNew(butcher);
-                newItem.RoomLayer = Parent.RoomLayer;
                 Gameworld.Add(newItem);
-                butcher.Location.Insert(newItem);
+                ButcherySpatialPlacement.Place(newItem, butcher, Parent.RoomLayer);
                 newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
                 newItem.Login();
                 productSB.AppendLine($"\t${count++} has been produced.");
@@ -465,7 +463,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
                 foreach (IGameItem item in OriginalBody.AllItemsAtOrDownstreamOfPart(part).ToList())
                 {
                     OriginalBody.Take(item);
-                    butcher.Location.Insert(item);
+                    ButcherySpatialPlacement.Place(item, butcher, Parent.RoomLayer);
                 }
             }
         }
@@ -486,7 +484,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         foreach (IGameItem item in OriginalBody.AllItems.ToList())
         {
             OriginalBody.Take(item);
-            butcher.Location.Insert(item);
+            ButcherySpatialPlacement.Place(item, butcher, Parent.RoomLayer);
         }
 
         return true;
@@ -499,10 +497,9 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             if (proto.Components.Any(x => x is StackableGameItemComponentProto))
             {
                 IGameItem newItem = proto.CreateNew(skinner);
-                newItem.RoomLayer = Parent.RoomLayer;
                 newItem.GetItemType<IStackable>().Quantity = quantity;
                 Gameworld.Add(newItem);
-                skinner.Location.Insert(newItem);
+                ButcherySpatialPlacement.Place(newItem, skinner, Parent.RoomLayer);
                 newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
                 newItem.Login();
                 return;
@@ -511,9 +508,8 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             for (int i = 0; i < quantity; i++)
             {
                 IGameItem newItem = proto.CreateNew(skinner);
-                newItem.RoomLayer = Parent.RoomLayer;
                 Gameworld.Add(newItem);
-                skinner.Location.Insert(newItem);
+                ButcherySpatialPlacement.Place(newItem, skinner, Parent.RoomLayer);
                 newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
                 newItem.Login();
             }

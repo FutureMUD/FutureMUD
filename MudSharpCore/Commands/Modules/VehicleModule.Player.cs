@@ -93,12 +93,14 @@ Syntax:
 		sb.AppendLine($"Cargo: {(vehicle.CargoSpaces.Any() ? vehicle.CargoSpaces.Select(x => x.Name).ListToString() : "none")}");
 		sb.AppendLine($"Modules: {(vehicle.Installations.Any() ? vehicle.Installations.Select(x => $"{x.Prototype.Name} ({(x.InstalledItem is null ? "empty" : "installed")})").ListToString() : "none")}");
 		sb.AppendLine($"Damage: {(vehicle.Destroyed ? "destroyed".ColourError() : vehicle.Disabled ? "disabled".ColourError() : vehicle.DamageZones.Any(x => x.CurrentDamage > 0.0) ? "damaged".Colour(Telnet.Yellow) : "serviceable".Colour(Telnet.Green))}");
+		if (vehicle.ActiveJourney is { } journey)
+		{
+			AppendActiveJourneyStatus(sb, actor, journey);
+		}
 
 		if (vehicle.Controller?.SamePhysicalInstance(actor) == true)
 		{
-			var readiness = OperationalReadinessService.BuildMovementReadiness(
-				new VehicleMovementReadinessRequest(vehicle, actor, null));
-			sb.AppendLine($"Cell-exit readiness: {(readiness.CanMove ? "ready".Colour(Telnet.Green) : readiness.Reason.ColourError())}");
+			AppendMovementReadiness(sb, actor, vehicle, OperationalReadinessService);
 		}
 		else
 		{
@@ -106,5 +108,49 @@ Syntax:
 		}
 
 		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	internal static void AppendMovementReadiness(StringBuilder sb, ICharacter actor, IVehicle vehicle,
+		IVehicleOperationalReadinessService readinessService)
+	{
+		var routeProfile = vehicle.Location?.RouteDefinition is null
+			? null
+			: vehicle.Prototype.MovementProfiles
+				.Where(x => x.MovementType == VehicleMovementProfileType.Route)
+				.OrderByDescending(x => x.IsDefault)
+				.ThenBy(x => x.Id)
+				.FirstOrDefault();
+		if (routeProfile is not null)
+		{
+			var continuingMovement = vehicle.MovementState.MovementStatus == VehicleMovementStatus.Moving
+				? actor.Movement
+				: null;
+			var readiness = readinessService.BuildLongitudinalMovementReadiness(
+				new VehicleLongitudinalReadinessRequest(
+					vehicle,
+					actor,
+					routeProfile,
+					0.0,
+					TimeSpan.Zero,
+					ContinuingMovement: continuingMovement));
+			sb.AppendLine($"RouteCell readiness: {(readiness.CanMove ? "ready".Colour(Telnet.Green) : readiness.Reason.ColourError())}");
+			return;
+		}
+
+		var cellExitReadiness = readinessService.BuildMovementReadiness(
+			new VehicleMovementReadinessRequest(vehicle, actor, null));
+		sb.AppendLine($"Cell-exit readiness: {(cellExitReadiness.CanMove ? "ready".Colour(Telnet.Green) : cellExitReadiness.Reason.ColourError())}");
+	}
+
+	internal static void AppendActiveJourneyStatus(StringBuilder sb, ICharacter actor, IVehicleJourney journey)
+	{
+		var platforms = journey.CurrentStop?.PlatformBindings
+			.Select(x => x.PlatformCell.HowSeen(actor))
+			.ToList() ?? [];
+		sb.AppendLine($"Journey: {journey.State.DescribeEnum().ColourName()} on {journey.Service.Name.ColourName()}");
+		sb.AppendLine($"Timetable: scheduled {journey.ScheduledDeparture.ToString().ColourValue()}, expected {journey.ExpectedDeparture.ToString().ColourValue()}, delay {journey.Delay.Describe(actor).ColourValue()}");
+		sb.AppendLine($"Stops: current {journey.CurrentStop?.Name.ColourName() ?? "none"}, next {journey.NextStop?.Name.ColourName() ?? "none"}");
+		sb.AppendLine($"Platform: {(platforms.Any() ? platforms.ListToString() : "none")}");
+		sb.AppendLine($"Boarding: {(journey.BoardingOpen ? "open".Colour(Telnet.Green) : "closed".Colour(Telnet.Yellow))}{(string.IsNullOrWhiteSpace(journey.StatusReason) ? string.Empty : $"; {journey.StatusReason.ColourError()}")}");
 	}
 }

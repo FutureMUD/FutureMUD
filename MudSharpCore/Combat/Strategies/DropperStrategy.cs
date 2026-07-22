@@ -59,7 +59,7 @@ public class DropperStrategy : StandardMeleeStrategy
 	{
 		return ch.CanFly().Truth &&
 		       ch.MaximumDragWeight >= target.Weight &&
-		       target.Location == ch.Location;
+		       ch.ColocatedWith(target);
 	}
 
 	private static ICombatMove TryCarryHigher(ICharacter ch, ICharacter target)

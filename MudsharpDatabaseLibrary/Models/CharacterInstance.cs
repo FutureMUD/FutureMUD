@@ -27,6 +27,7 @@ public partial class CharacterInstance
 	public double CurrentProjectHours { get; set; }
 	public double CurrentProjectProjectHours { get; set; }
 	public int RoomLayer { get; set; }
+	public decimal? RoutePosition { get; set; }
 	public int PositionId { get; set; }
 	public int PositionModifier { get; set; }
 	public long? PositionTargetId { get; set; }

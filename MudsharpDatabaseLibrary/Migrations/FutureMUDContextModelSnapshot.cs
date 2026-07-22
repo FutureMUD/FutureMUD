@@ -660,6 +660,12 @@ namespace MudSharp.Migrations
                     b.Property<int>("ProjectRevisionNumber")
                         .HasColumnType("int(11)");
 
+                    b.Property<int>("RoomLayer")
+                        .HasColumnType("int(11)");
+
+                    b.Property<decimal?>("RoutePosition")
+                        .HasColumnType("decimal(18,3)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CellId")
@@ -723,6 +729,110 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_ActiveProjectMaterials_ProjectMaterialRequirements_idx");
 
                     b.ToTable("ActiveProjectMaterials");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ActiveRouteMotion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("CheckpointPositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<long>("CheckpointSequence")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Direction")
+                        .HasColumnType("int(11)");
+
+                    b.Property<DateTime>("LastCheckpointDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("MoverId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("MoverType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("OperationId")
+                        .IsRequired()
+                        .HasColumnType("varchar(64)")
+                        .UseCollation("ascii_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OperationId"), "ascii");
+
+                    b.Property<long>("RemainingDurationMilliseconds")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("RoomLayer")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("RouteCellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("SelectedExitId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("SpeedMetresPerSecond")
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<string>("StateData")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("StateData"), "utf8mb4");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.Property<decimal>("TargetMaximumPositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("TargetMinimumPositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<long>("TopologyVersion")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("OperationId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ActiveRouteMotions_Operation");
+
+                    b.HasIndex("SelectedExitId")
+                        .HasDatabaseName("FK_ActiveRouteMotions_Exits_idx");
+
+                    b.HasIndex("MoverType", "MoverId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ActiveRouteMotions_Mover");
+
+                    b.HasIndex("RouteCellId", "RoomLayer", "Status")
+                        .HasDatabaseName("IX_ActiveRouteMotions_RouteCell_Layer_Status");
+
+                    b.ToTable("ActiveRouteMotions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ActiveRouteMotions_Checkpoint", "`CheckpointPositionMetres` >= 0");
+
+                            t.HasCheckConstraint("CK_ActiveRouteMotions_Direction", "`Direction` IN (-1, 1)");
+
+                            t.HasCheckConstraint("CK_ActiveRouteMotions_RemainingDuration", "`RemainingDurationMilliseconds` >= 0");
+
+                            t.HasCheckConstraint("CK_ActiveRouteMotions_Sequence", "`CheckpointSequence` >= 0");
+
+                            t.HasCheckConstraint("CK_ActiveRouteMotions_Speed", "`SpeedMetresPerSecond` > 0");
+
+                            t.HasCheckConstraint("CK_ActiveRouteMotions_TargetBand", "`TargetMinimumPositionMetres` >= 0 AND `TargetMaximumPositionMetres` >= `TargetMinimumPositionMetres`");
+
+                            t.HasCheckConstraint("CK_ActiveRouteMotions_TopologyVersion", "`TopologyVersion` >= 1");
+                        });
                 });
 
             modelBuilder.Entity("MudSharp.Models.AgricultureCropDefinition", b =>
@@ -4214,6 +4324,12 @@ namespace MudSharp.Migrations
                     b.Property<long?>("ForagableProfileId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<long?>("HostedVehicleCompartmentId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("HostedVehicleId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
@@ -4233,10 +4349,20 @@ namespace MudSharp.Migrations
                     b.HasIndex("CurrentOverlayId")
                         .HasDatabaseName("FK_Cells_CellOverlays");
 
+                    b.HasIndex("HostedVehicleCompartmentId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Cells_HostedVehicleCompartments");
+
+                    b.HasIndex("HostedVehicleId")
+                        .HasDatabaseName("FK_Cells_HostedVehicles_idx");
+
                     b.HasIndex("RoomId")
                         .HasDatabaseName("FK_Cells_Rooms");
 
-                    b.ToTable("Cells");
+                    b.ToTable("Cells", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Cells_HostedVehicleOwnership", "(`HostedVehicleId` IS NULL AND `HostedVehicleCompartmentId` IS NULL) OR (`HostedVehicleId` IS NOT NULL AND `HostedVehicleCompartmentId` IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("MudSharp.Models.CellMagicResource", b =>
@@ -4768,6 +4894,9 @@ namespace MudSharp.Migrations
                     b.Property<int>("RoomLayer")
                         .HasColumnType("int(11)");
 
+                    b.Property<decimal?>("RoutePosition")
+                        .HasColumnType("decimal(18,3)");
+
                     b.Property<double>("SatiationReserve")
                         .HasColumnType("double");
 
@@ -4836,6 +4965,9 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("Location")
                         .HasDatabaseName("FK_Characters_Cells");
+
+                    b.HasIndex("Location", "RoomLayer", "RoutePosition")
+                        .HasDatabaseName("IX_Characters_Location_Layer_RoutePosition");
 
                     b.ToTable("Characters");
                 });
@@ -5487,6 +5619,9 @@ namespace MudSharp.Migrations
                     b.Property<int>("RoomLayer")
                         .HasColumnType("int(11)");
 
+                    b.Property<decimal?>("RoutePosition")
+                        .HasColumnType("decimal(18,3)");
+
                     b.Property<int>("State")
                         .HasColumnType("int(11)");
 
@@ -5524,6 +5659,9 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("LocationId", "RoomLayer")
                         .HasDatabaseName("IX_CharacterInstances_Location_Layer");
+
+                    b.HasIndex("LocationId", "RoomLayer", "RoutePosition")
+                        .HasDatabaseName("IX_CharacterInstances_Location_Layer_RoutePosition");
 
                     b.ToTable("CharacterInstances");
                 });
@@ -11678,6 +11816,9 @@ namespace MudSharp.Migrations
                     b.Property<int>("RoomLayer")
                         .HasColumnType("int(11)");
 
+                    b.Property<decimal?>("RoutePosition")
+                        .HasColumnType("decimal(18,3)");
+
                     b.Property<int>("Size")
                         .HasColumnType("int(11)");
 
@@ -11694,6 +11835,9 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("ContainerId")
                         .HasDatabaseName("FK_GameItems_GameItems_Containers_idx");
+
+                    b.HasIndex("RoutePosition")
+                        .HasDatabaseName("IX_GameItems_RoutePosition");
 
                     b.ToTable("GameItems");
                 });
@@ -18960,6 +19104,208 @@ namespace MudSharp.Migrations
                     b.ToTable("Rooms");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.RouteCell", b =>
+                {
+                    b.Property<long>("CellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("DefaultPositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("LengthMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("MetresPerRoomEquivalent")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<string>("NegativeDirectionName")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("NegativeDirectionName"), "utf8mb4");
+
+                    b.Property<string>("PositiveDirectionName")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PositiveDirectionName"), "utf8mb4");
+
+                    b.Property<long>("TopologyVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)")
+                        .HasDefaultValue(1L);
+
+                    b.HasKey("CellId")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("RouteCells", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RouteCells_DefaultPosition", "`DefaultPositionMetres` >= 0 AND `DefaultPositionMetres` <= `LengthMetres`");
+
+                            t.HasCheckConstraint("CK_RouteCells_Length", "`LengthMetres` > 0");
+
+                            t.HasCheckConstraint("CK_RouteCells_RoomEquivalent", "`MetresPerRoomEquivalent` > 0");
+
+                            t.HasCheckConstraint("CK_RouteCells_TopologyVersion", "`TopologyVersion` >= 1");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RouteCellLandmark", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8mb4");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Keywords")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Keywords"), "utf8mb4");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8mb4");
+
+                    b.Property<decimal>("PositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<long>("RouteCellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RouteCellId", "PositionMetres")
+                        .HasDatabaseName("IX_RouteCellLandmarks_RouteCell_Position");
+
+                    b.ToTable("RouteCellLandmarks", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RouteCellLandmarks_Position", "`PositionMetres` >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RouteExitAnchor", b =>
+                {
+                    b.Property<long>("ExitId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("RouteCellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("ArrivalPositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("MaximumPositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("MinimumPositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.HasKey("ExitId", "RouteCellId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RouteCellId", "MinimumPositionMetres", "MaximumPositionMetres")
+                        .HasDatabaseName("IX_RouteExitAnchors_RouteCell_Band");
+
+                    b.ToTable("RouteExitAnchors", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RouteExitAnchors_Arrival", "`ArrivalPositionMetres` >= `MinimumPositionMetres` AND `ArrivalPositionMetres` <= `MaximumPositionMetres`");
+
+                            t.HasCheckConstraint("CK_RouteExitAnchors_Band", "`MinimumPositionMetres` >= 0 AND `MaximumPositionMetres` >= `MinimumPositionMetres`");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RouteMotionResourceLedger", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ActiveRouteMotionId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("CheckpointSequence")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime?>("CommittedDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("ConsumedAmount")
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("ascii_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("IdempotencyKey"), "ascii");
+
+                    b.Property<decimal>("ReservedAmount")
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<string>("ResourceKey")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ResourceKey"), "utf8mb4");
+
+                    b.Property<long>("ResourceOwnerId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("ResourceOwnerType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("ResourceReferenceId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("ResourceType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique()
+                        .HasDatabaseName("UX_RouteMotionResourceLedgers_Idempotency");
+
+                    b.HasIndex("ActiveRouteMotionId", "CheckpointSequence")
+                        .HasDatabaseName("IX_RouteMotionResourceLedgers_Motion_Sequence");
+
+                    b.ToTable("RouteMotionResourceLedgers", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RouteMotionResourceLedgers_Amounts", "`ReservedAmount` >= 0 AND `ConsumedAmount` >= 0 AND `ConsumedAmount` <= `ReservedAmount`");
+
+                            t.HasCheckConstraint("CK_RouteMotionResourceLedgers_Sequence", "`CheckpointSequence` >= 0");
+                        });
+                });
+
             modelBuilder.Entity("MudSharp.Models.Script", b =>
                 {
                     b.Property<long>("Id")
@@ -20566,13 +20912,13 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("BodyPrototypeId")
+                    b.Property<long?>("BodyPrototypeId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long>("CellId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CharacterId")
+                    b.Property<long?>("CharacterId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<int>("ExertionLevel")
@@ -20593,6 +20939,12 @@ namespace MudSharp.Migrations
                     b.Property<int>("RoomLayer")
                         .HasColumnType("int(11)");
 
+                    b.Property<int?>("RouteDirection")
+                        .HasColumnType("int(11)");
+
+                    b.Property<decimal?>("RoutePosition")
+                        .HasColumnType("decimal(18,3)");
+
                     b.Property<long?>("ToDirectionExitId")
                         .HasColumnType("bigint(20)");
 
@@ -20611,12 +20963,13 @@ namespace MudSharp.Migrations
                     b.Property<ulong>("TurnedAround")
                         .HasColumnType("bit(1)");
 
+                    b.Property<long?>("VehicleId")
+                        .HasColumnType("bigint(20)");
+
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
                     b.HasIndex("BodyPrototypeId");
-
-                    b.HasIndex("CellId");
 
                     b.HasIndex("CharacterId");
 
@@ -20628,7 +20981,16 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("ToMoveSpeedId");
 
-                    b.ToTable("Tracks", (string)null);
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("FK_Tracks_Vehicles_idx");
+
+                    b.HasIndex("CellId", "RoomLayer", "RoutePosition")
+                        .HasDatabaseName("IX_Tracks_Cell_Layer_RoutePosition");
+
+                    b.ToTable("Tracks", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Tracks_Owner", "(`VehicleId` IS NULL AND `CharacterId` IS NOT NULL AND `BodyPrototypeId` IS NOT NULL) OR (`VehicleId` IS NOT NULL AND `CharacterId` IS NULL AND `BodyPrototypeId` IS NULL)");
+                        });
                 });
 
             modelBuilder.Entity("MudSharp.Models.Trait", b =>
@@ -21080,6 +21442,9 @@ namespace MudSharp.Migrations
                     b.Property<int>("CurrentRoomLayer")
                         .HasColumnType("int(11)");
 
+                    b.Property<decimal?>("CurrentRoutePosition")
+                        .HasColumnType("decimal(18,3)");
+
                     b.Property<long?>("DestinationCellId")
                         .HasColumnType("bigint(20)");
 
@@ -21135,6 +21500,9 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
                         .HasDatabaseName("FK_Vehicles_VehicleProtos_idx");
+
+                    b.HasIndex("CurrentCellId", "CurrentRoomLayer", "CurrentRoutePosition")
+                        .HasDatabaseName("IX_Vehicles_Cell_Layer_RoutePosition");
 
                     b.ToTable("Vehicles", (string)null);
                 });
@@ -21424,6 +21792,9 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<long?>("InteriorCellId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(200)")
@@ -21440,6 +21811,10 @@ namespace MudSharp.Migrations
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
+                    b.HasIndex("InteriorCellId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_VehicleCompartments_InteriorCell");
+
                     b.HasIndex("VehicleCompartmentProtoId")
                         .HasDatabaseName("FK_VehicleCompartments_Protos_idx");
 
@@ -21447,6 +21822,69 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_VehicleCompartments_Vehicles_idx");
 
                     b.ToTable("VehicleCompartments", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleCompartmentLinkProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("DestinationVehicleCompartmentProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("InboundDescription")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("InboundDescription"), "utf8mb4");
+
+                    b.Property<string>("InboundDirection")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("InboundDirection"), "utf8mb4");
+
+                    b.Property<string>("OutboundDescription")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OutboundDescription"), "utf8mb4");
+
+                    b.Property<string>("OutboundDirection")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OutboundDirection"), "utf8mb4");
+
+                    b.Property<long>("SourceVehicleCompartmentProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("DestinationVehicleCompartmentProtoId")
+                        .HasDatabaseName("FK_VehicleCompartmentLinkProtos_Destination_idx");
+
+                    b.HasIndex("SourceVehicleCompartmentProtoId")
+                        .HasDatabaseName("FK_VehicleCompartmentLinkProtos_Source_idx");
+
+                    b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
+                        .HasDatabaseName("FK_VehicleCompartmentLinkProtos_VehicleProtos_idx");
+
+                    b.ToTable("VehicleCompartmentLinkProtos", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleCompartmentProto", b =>
@@ -21467,6 +21905,14 @@ namespace MudSharp.Migrations
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int(11)");
 
+                    b.Property<int>("InteriorOutdoorsType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(0);
+
+                    b.Property<long?>("InteriorTerrainId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(200)")
@@ -21482,6 +21928,9 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id")
                         .HasName("PRIMARY");
+
+                    b.HasIndex("InteriorTerrainId")
+                        .HasDatabaseName("FK_VehicleCompartmentProtos_Terrains_idx");
 
                     b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
                         .HasDatabaseName("FK_VehicleCompartmentProtos_VehicleProtos_idx");
@@ -21649,6 +22098,59 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_VehicleDamageZoneProtos_VehicleProtos_idx");
 
                     b.ToTable("VehicleDamageZoneProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleDocking", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ExteriorCellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("ExteriorRoomLayer")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("State")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(0);
+
+                    b.Property<long>("VehicleAccessPointId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleCompartmentId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("VehicleRouteStopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("VehicleAccessPointId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_VehicleDockings_AccessPoint");
+
+                    b.HasIndex("VehicleCompartmentId")
+                        .HasDatabaseName("FK_VehicleDockings_Compartments_idx");
+
+                    b.HasIndex("VehicleRouteStopId")
+                        .HasDatabaseName("FK_VehicleDockings_VehicleRouteStops_idx");
+
+                    b.HasIndex("ExteriorCellId", "ExteriorRoomLayer")
+                        .HasDatabaseName("IX_VehicleDockings_ExteriorCell_Layer");
+
+                    b.HasIndex("VehicleId", "State")
+                        .HasDatabaseName("IX_VehicleDockings_Vehicle_State");
+
+                    b.ToTable("VehicleDockings", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleHitchLink", b =>
@@ -21830,6 +22332,167 @@ namespace MudSharp.Migrations
                     b.ToTable("VehicleInstallationPointProtos", (string)null);
                 });
 
+            modelBuilder.Entity("MudSharp.Models.VehicleJourney", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CurrentStopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("DelayMilliseconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)")
+                        .HasDefaultValue(0L);
+
+                    b.Property<string>("ExpectedDeparture")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ExpectedDeparture"), "utf8");
+
+                    b.Property<DateTime>("LastCheckpointUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long?>("NextStopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("OperationId")
+                        .IsRequired()
+                        .HasColumnType("varchar(64)")
+                        .UseCollation("ascii_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OperationId"), "ascii");
+
+                    b.Property<string>("ScheduledDeparture")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ScheduledDeparture"), "utf8");
+
+                    b.Property<int>("State")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(0);
+
+                    b.Property<long>("VehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleRouteId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleRouteRevision")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("VehicleServiceId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("OperationId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_VehicleJourneys_Operation");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("FK_VehicleJourneys_Vehicles_idx");
+
+                    b.HasIndex("VehicleServiceId")
+                        .HasDatabaseName("FK_VehicleJourneys_VehicleServices_idx");
+
+                    b.HasIndex("VehicleRouteId", "VehicleRouteRevision")
+                        .HasDatabaseName("FK_VehicleJourneys_VehicleRoutes_idx");
+
+                    b.HasIndex("VehicleServiceId", "ScheduledDeparture")
+                        .IsUnique()
+                        .HasDatabaseName("UX_VehicleJourneys_Service_ScheduledDeparture");
+
+                    b.HasIndex("VehicleServiceId", "State")
+                        .HasDatabaseName("IX_VehicleJourneys_Service_State");
+
+                    b.HasIndex("CurrentStopId", "VehicleRouteId", "VehicleRouteRevision")
+                        .HasDatabaseName("FK_VehicleJourneys_CurrentStops_idx");
+
+                    b.HasIndex("NextStopId", "VehicleRouteId", "VehicleRouteRevision")
+                        .HasDatabaseName("FK_VehicleJourneys_NextStops_idx");
+
+                    b.ToTable("VehicleJourneys", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_VehicleJourneys_Delay", "`DelayMilliseconds` >= 0");
+
+                            t.HasCheckConstraint("CK_VehicleJourneys_State", "`State` BETWEEN 0 AND 8");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleJourneyEvent", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasColumnType("varchar(128)")
+                        .UseCollation("ascii_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("IdempotencyKey"), "ascii");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Message"), "utf8mb4");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("Sequence")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("State")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("VehicleJourneyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("WorldTime")
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("WorldTime"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique()
+                        .HasDatabaseName("UX_VehicleJourneyEvents_Idempotency");
+
+                    b.HasIndex("VehicleJourneyId", "Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("UX_VehicleJourneyEvents_Journey_Sequence");
+
+                    b.ToTable("VehicleJourneyEvents", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_VehicleJourneyEvents_EventType", "`EventType` BETWEEN 0 AND 11");
+
+                            t.HasCheckConstraint("CK_VehicleJourneyEvents_Sequence", "`Sequence` >= 0");
+
+                            t.HasCheckConstraint("CK_VehicleJourneyEvents_State", "`State` BETWEEN 0 AND 8");
+                        });
+                });
+
             modelBuilder.Entity("MudSharp.Models.VehicleMovementProfileProto", b =>
                 {
                     b.Property<long>("Id")
@@ -21837,6 +22500,9 @@ namespace MudSharp.Migrations
                         .HasColumnType("bigint(20)");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<ulong>("AutomaticOperationCapable")
+                        .HasColumnType("bit(1)");
 
                     b.Property<ulong>("ExposesOccupantsToWater")
                         .HasColumnType("bit(1)");
@@ -21878,6 +22544,18 @@ namespace MudSharp.Migrations
 
                     b.Property<ulong>("RequiresTowLinksClosed")
                         .HasColumnType("bit(1)");
+
+                    b.Property<double>("RouteFuelVolumePerMetre")
+                        .HasColumnType("double");
+
+                    b.Property<double>("RoutePowerDrawWatts")
+                        .HasColumnType("double");
+
+                    b.Property<int>("RoutePropulsionMode")
+                        .HasColumnType("int(11)");
+
+                    b.Property<double>("RouteSpeedMetresPerSecond")
+                        .HasColumnType("double");
 
                     b.Property<long>("VehicleProtoId")
                         .HasColumnType("bigint(20)");
@@ -22115,6 +22793,417 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_VehicleProtos_GameItemProtos_idx");
 
                     b.ToTable("VehicleProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRoute", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("RevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8mb4");
+
+                    b.Property<long>("EditableItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8mb4");
+
+                    b.HasKey("Id", "RevisionNumber")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EditableItemId")
+                        .HasDatabaseName("FK_VehicleRoutes_EditableItems_idx");
+
+                    b.ToTable("VehicleRoutes", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRouteLeg", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("DestinationStopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("OriginStopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("RoomEquivalentCost")
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<decimal>("RouteDistanceMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("VehicleRouteId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleRouteRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("DestinationStopId", "VehicleRouteId", "VehicleRouteRevision")
+                        .HasDatabaseName("FK_VehicleRouteLegs_DestinationStops_idx");
+
+                    b.HasIndex("OriginStopId", "VehicleRouteId", "VehicleRouteRevision")
+                        .HasDatabaseName("FK_VehicleRouteLegs_OriginStops_idx");
+
+                    b.HasIndex("VehicleRouteId", "VehicleRouteRevision", "Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("UX_VehicleRouteLegs_Route_Sequence");
+
+                    b.ToTable("VehicleRouteLegs", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_VehicleRouteLegs_Distance", "`RouteDistanceMetres` >= 0");
+
+                            t.HasCheckConstraint("CK_VehicleRouteLegs_DistinctStops", "`OriginStopId` <> `DestinationStopId`");
+
+                            t.HasCheckConstraint("CK_VehicleRouteLegs_RoomEquivalentCost", "`RoomEquivalentCost` >= 0");
+
+                            t.HasCheckConstraint("CK_VehicleRouteLegs_Sequence", "`Sequence` >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRoutePlatformBinding", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("DockingToleranceMetres")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,3)")
+                        .HasDefaultValue(2.0m);
+
+                    b.Property<long>("PlatformCellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleAccessPointProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleRouteStopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("PlatformCellId")
+                        .HasDatabaseName("FK_VehicleRoutePlatformBindings_Cells_idx");
+
+                    b.HasIndex("VehicleAccessPointProtoId")
+                        .HasDatabaseName("FK_VehicleRoutePlatformBindings_AccessPointProtos_idx");
+
+                    b.HasIndex("VehicleRouteStopId", "PlatformCellId", "VehicleAccessPointProtoId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_VehicleRoutePlatformBindings_Stop_Platform_AccessPoint");
+
+                    b.ToTable("VehicleRoutePlatformBindings", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_VehicleRoutePlatformBindings_Tolerance", "`DockingToleranceMetres` >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRouteStep", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("DestinationCellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("DestinationRoomLayer")
+                        .HasColumnType("int(11)");
+
+                    b.Property<decimal?>("DestinationRoutePositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<long?>("DestinationTopologyVersion")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int?>("Direction")
+                        .HasColumnType("int(11)");
+
+                    b.Property<decimal?>("DistanceMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<long?>("ExitId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("OriginCellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("OriginRoomLayer")
+                        .HasColumnType("int(11)");
+
+                    b.Property<decimal?>("OriginRoutePositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<long?>("PinnedTopologyVersion")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("RoomEquivalentCost")
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("StepType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("VehicleRouteLegId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("DestinationCellId")
+                        .HasDatabaseName("FK_VehicleRouteSteps_DestinationCells_idx");
+
+                    b.HasIndex("ExitId")
+                        .HasDatabaseName("FK_VehicleRouteSteps_Exits_idx");
+
+                    b.HasIndex("OriginCellId")
+                        .HasDatabaseName("FK_VehicleRouteSteps_OriginCells_idx");
+
+                    b.HasIndex("VehicleRouteLegId", "Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("UX_VehicleRouteSteps_Leg_Sequence");
+
+                    b.ToTable("VehicleRouteSteps", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_VehicleRouteSteps_Positions", "(`OriginRoutePositionMetres` IS NULL OR `OriginRoutePositionMetres` >= 0) AND (`DestinationRoutePositionMetres` IS NULL OR `DestinationRoutePositionMetres` >= 0) AND ((`OriginRoutePositionMetres` IS NULL AND `PinnedTopologyVersion` IS NULL) OR (`OriginRoutePositionMetres` IS NOT NULL AND `PinnedTopologyVersion` IS NOT NULL AND `PinnedTopologyVersion` >= 1)) AND ((`DestinationRoutePositionMetres` IS NULL AND `DestinationTopologyVersion` IS NULL) OR (`DestinationRoutePositionMetres` IS NOT NULL AND `DestinationTopologyVersion` IS NOT NULL AND `DestinationTopologyVersion` >= 1))");
+
+                            t.HasCheckConstraint("CK_VehicleRouteSteps_RoomEquivalentCost", "`RoomEquivalentCost` >= 0");
+
+                            t.HasCheckConstraint("CK_VehicleRouteSteps_Sequence", "`Sequence` >= 0");
+
+                            t.HasCheckConstraint("CK_VehicleRouteSteps_TypedPayload", "(`StepType` = 0 AND `ExitId` IS NULL AND `Direction` IS NOT NULL AND `Direction` IN (-1, 1) AND `PinnedTopologyVersion` IS NOT NULL AND `DestinationTopologyVersion` = `PinnedTopologyVersion` AND `DistanceMetres` IS NOT NULL AND `DistanceMetres` >= 0 AND `OriginRoutePositionMetres` IS NOT NULL AND `DestinationRoutePositionMetres` IS NOT NULL AND `OriginCellId` = `DestinationCellId` AND `OriginRoomLayer` = `DestinationRoomLayer`) OR (`StepType` = 1 AND `ExitId` IS NOT NULL AND `Direction` IS NULL AND `DistanceMetres` IS NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRouteStop", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("DwellDurationMilliseconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)")
+                        .HasDefaultValue(0L);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8mb4");
+
+                    b.Property<int>("RoomLayer")
+                        .HasColumnType("int(11)");
+
+                    b.Property<decimal?>("RoutePositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("VehicleRouteId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleRouteRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasAlternateKey("Id", "VehicleRouteId", "VehicleRouteRevision")
+                        .HasName("AK_VehicleRouteStops_Id_Route");
+
+                    b.HasIndex("CellId")
+                        .HasDatabaseName("FK_VehicleRouteStops_Cells_idx");
+
+                    b.HasIndex("VehicleRouteId", "VehicleRouteRevision", "Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("UX_VehicleRouteStops_Route_Sequence");
+
+                    b.ToTable("VehicleRouteStops", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_VehicleRouteStops_Dwell", "`DwellDurationMilliseconds` >= 0");
+
+                            t.HasCheckConstraint("CK_VehicleRouteStops_RoutePosition", "`RoutePositionMetres` IS NULL OR `RoutePositionMetres` >= 0");
+
+                            t.HasCheckConstraint("CK_VehicleRouteStops_Sequence", "`Sequence` >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRouteTopologyPin", b =>
+                {
+                    b.Property<long>("VehicleRouteId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleRouteRevision")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("RouteCellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("TopologyVersion")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("VehicleRouteId", "VehicleRouteRevision", "RouteCellId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RouteCellId")
+                        .HasDatabaseName("FK_VehicleRouteTopologyPins_RouteCells_idx");
+
+                    b.ToTable("VehicleRouteTopologyPins", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_VehicleRouteTopologyPins_Version", "`TopologyVersion` >= 1");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleService", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<ulong>("Enabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(1ul);
+
+                    b.Property<string>("Keywords")
+                        .IsRequired()
+                        .HasColumnType("varchar(1000)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Keywords"), "utf8mb4");
+
+                    b.Property<long>("MaximumHoldMilliseconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)")
+                        .HasDefaultValue(900000L);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8mb4");
+
+                    b.Property<int>("OperatorMode")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("RetryIntervalMilliseconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)")
+                        .HasDefaultValue(30000L);
+
+                    b.Property<long>("VehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleRouteId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleRouteRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("IX_VehicleServices_Name");
+
+                    b.HasIndex("VehicleId", "Enabled")
+                        .HasDatabaseName("IX_VehicleServices_Vehicle_Enabled");
+
+                    b.HasIndex("VehicleRouteId", "VehicleRouteRevision")
+                        .HasDatabaseName("FK_VehicleServices_VehicleRoutes_idx");
+
+                    b.ToTable("VehicleServices", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_VehicleServices_MaximumHold", "`MaximumHoldMilliseconds` >= 0");
+
+                            t.HasCheckConstraint("CK_VehicleServices_OperatorMode", "`OperatorMode` IN (0, 1)");
+
+                            t.HasCheckConstraint("CK_VehicleServices_RetryInterval", "`RetryIntervalMilliseconds` > 0");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleServiceSchedule", b =>
+                {
+                    b.Property<long>("VehicleServiceId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("NextDeparture")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("NextDeparture"), "utf8");
+
+                    b.Property<int>("RecurrenceFallbackMode")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("RecurrenceIntervalAmount")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("RecurrenceModifier")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("RecurrenceSecondaryModifier")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("RecurrenceType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("ReferenceDeparture")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ReferenceDeparture"), "utf8");
+
+                    b.HasKey("VehicleServiceId")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("VehicleServiceSchedules", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_VehicleServiceSchedules_RecurrenceInterval", "`RecurrenceIntervalAmount` > 0");
+                        });
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleTowLink", b =>
@@ -23674,6 +24763,26 @@ namespace MudSharp.Migrations
                     b.Navigation("ActiveProject");
 
                     b.Navigation("ProjectMaterialRequirements");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ActiveRouteMotion", b =>
+                {
+                    b.HasOne("MudSharp.Models.RouteCell", "RouteCell")
+                        .WithMany("ActiveMotions")
+                        .HasForeignKey("RouteCellId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ActiveRouteMotions_RouteCells");
+
+                    b.HasOne("MudSharp.Models.Exit", "SelectedExit")
+                        .WithMany()
+                        .HasForeignKey("SelectedExitId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_ActiveRouteMotions_Exits");
+
+                    b.Navigation("RouteCell");
+
+                    b.Navigation("SelectedExit");
                 });
 
             modelBuilder.Entity("MudSharp.Models.AgricultureField", b =>
@@ -25270,6 +26379,18 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Cells_CellOverlays");
 
+                    b.HasOne("MudSharp.Models.VehicleCompartment", "HostedVehicleCompartment")
+                        .WithMany()
+                        .HasForeignKey("HostedVehicleCompartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Cells_HostedVehicleCompartments");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "HostedVehicle")
+                        .WithMany("HostedCells")
+                        .HasForeignKey("HostedVehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Cells_HostedVehicles");
+
                     b.HasOne("MudSharp.Models.Room", "Room")
                         .WithMany("Cells")
                         .HasForeignKey("RoomId")
@@ -25278,6 +26399,10 @@ namespace MudSharp.Migrations
                         .HasConstraintName("FK_Cells_Rooms");
 
                     b.Navigation("CurrentOverlay");
+
+                    b.Navigation("HostedVehicle");
+
+                    b.Navigation("HostedVehicleCompartment");
 
                     b.Navigation("Room");
                 });
@@ -31437,6 +32562,63 @@ namespace MudSharp.Migrations
                     b.Navigation("Zone");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.RouteCell", b =>
+                {
+                    b.HasOne("MudSharp.Models.Cell", "Cell")
+                        .WithOne("RouteCell")
+                        .HasForeignKey("MudSharp.Models.RouteCell", "CellId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RouteCells_Cells");
+
+                    b.Navigation("Cell");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RouteCellLandmark", b =>
+                {
+                    b.HasOne("MudSharp.Models.RouteCell", "RouteCell")
+                        .WithMany("Landmarks")
+                        .HasForeignKey("RouteCellId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RouteCellLandmarks_RouteCells");
+
+                    b.Navigation("RouteCell");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RouteExitAnchor", b =>
+                {
+                    b.HasOne("MudSharp.Models.Exit", "Exit")
+                        .WithMany("RouteExitAnchors")
+                        .HasForeignKey("ExitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RouteExitAnchors_Exits");
+
+                    b.HasOne("MudSharp.Models.RouteCell", "RouteCell")
+                        .WithMany("ExitAnchors")
+                        .HasForeignKey("RouteCellId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RouteExitAnchors_RouteCells");
+
+                    b.Navigation("Exit");
+
+                    b.Navigation("RouteCell");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RouteMotionResourceLedger", b =>
+                {
+                    b.HasOne("MudSharp.Models.ActiveRouteMotion", "ActiveRouteMotion")
+                        .WithMany("ResourceLedger")
+                        .HasForeignKey("ActiveRouteMotionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RouteMotionResourceLedgers_ActiveRouteMotions");
+
+                    b.Navigation("ActiveRouteMotion");
+                });
+
             modelBuilder.Entity("MudSharp.Models.Script", b =>
                 {
                     b.HasOne("MudSharp.Models.Knowledge", "Knowledge")
@@ -32186,7 +33368,6 @@ namespace MudSharp.Migrations
                         .WithMany()
                         .HasForeignKey("BodyPrototypeId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("FK_Tracks_BodyProtos");
 
                     b.HasOne("MudSharp.Models.Cell", "Cell")
@@ -32200,7 +33381,6 @@ namespace MudSharp.Migrations
                         .WithMany("Tracks")
                         .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("FK_Tracks_Characters");
 
                     b.HasOne("MudSharp.Models.Exit", "FromDirectionExit")
@@ -32227,6 +33407,12 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_Tracks_MoveSpeeds_To");
 
+                    b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
+                        .WithMany("Tracks")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK_Tracks_Vehicles");
+
                     b.Navigation("BodyPrototype");
 
                     b.Navigation("Cell");
@@ -32240,6 +33426,8 @@ namespace MudSharp.Migrations
                     b.Navigation("ToDirectionExit");
 
                     b.Navigation("ToMoveSpeed");
+
+                    b.Navigation("Vehicle");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Trait", b =>
@@ -32562,6 +33750,12 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.VehicleCompartment", b =>
                 {
+                    b.HasOne("MudSharp.Models.Cell", "InteriorCell")
+                        .WithMany()
+                        .HasForeignKey("InteriorCellId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_VehicleCompartments_InteriorCells");
+
                     b.HasOne("MudSharp.Models.VehicleCompartmentProto", "VehicleCompartmentProto")
                         .WithMany()
                         .HasForeignKey("VehicleCompartmentProtoId")
@@ -32576,19 +33770,59 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_VehicleCompartments_Vehicles");
 
+                    b.Navigation("InteriorCell");
+
                     b.Navigation("Vehicle");
 
                     b.Navigation("VehicleCompartmentProto");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.VehicleCompartmentLinkProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleCompartmentProto", "DestinationVehicleCompartmentProto")
+                        .WithMany("DestinationLinks")
+                        .HasForeignKey("DestinationVehicleCompartmentProtoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleCompartmentLinkProtos_Destination");
+
+                    b.HasOne("MudSharp.Models.VehicleCompartmentProto", "SourceVehicleCompartmentProto")
+                        .WithMany("SourceLinks")
+                        .HasForeignKey("SourceVehicleCompartmentProtoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleCompartmentLinkProtos_Source");
+
+                    b.HasOne("MudSharp.Models.VehicleProto", "VehicleProto")
+                        .WithMany("CompartmentLinks")
+                        .HasForeignKey("VehicleProtoId", "VehicleProtoRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleCompartmentLinkProtos_VehicleProtos");
+
+                    b.Navigation("DestinationVehicleCompartmentProto");
+
+                    b.Navigation("SourceVehicleCompartmentProto");
+
+                    b.Navigation("VehicleProto");
+                });
+
             modelBuilder.Entity("MudSharp.Models.VehicleCompartmentProto", b =>
                 {
+                    b.HasOne("MudSharp.Models.Terrain", "InteriorTerrain")
+                        .WithMany()
+                        .HasForeignKey("InteriorTerrainId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_VehicleCompartmentProtos_Terrains");
+
                     b.HasOne("MudSharp.Models.VehicleProto", "VehicleProto")
                         .WithMany("Compartments")
                         .HasForeignKey("VehicleProtoId", "VehicleProtoRevision")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_VehicleCompartmentProtos_VehicleProtos");
+
+                    b.Navigation("InteriorTerrain");
 
                     b.Navigation("VehicleProto");
                 });
@@ -32657,6 +33891,53 @@ namespace MudSharp.Migrations
                         .HasConstraintName("FK_VehicleDamageZoneProtos_VehicleProtos");
 
                     b.Navigation("VehicleProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleDocking", b =>
+                {
+                    b.HasOne("MudSharp.Models.Cell", "ExteriorCell")
+                        .WithMany("VehicleDockings")
+                        .HasForeignKey("ExteriorCellId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleDockings_ExteriorCells");
+
+                    b.HasOne("MudSharp.Models.VehicleAccessPoint", "VehicleAccessPoint")
+                        .WithOne("Docking")
+                        .HasForeignKey("MudSharp.Models.VehicleDocking", "VehicleAccessPointId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleDockings_AccessPoints");
+
+                    b.HasOne("MudSharp.Models.VehicleCompartment", "VehicleCompartment")
+                        .WithMany("Dockings")
+                        .HasForeignKey("VehicleCompartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleDockings_Compartments");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
+                        .WithMany("Dockings")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleDockings_Vehicles");
+
+                    b.HasOne("MudSharp.Models.VehicleRouteStop", "VehicleRouteStop")
+                        .WithMany("Dockings")
+                        .HasForeignKey("VehicleRouteStopId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_VehicleDockings_VehicleRouteStops");
+
+                    b.Navigation("ExteriorCell");
+
+                    b.Navigation("Vehicle");
+
+                    b.Navigation("VehicleAccessPoint");
+
+                    b.Navigation("VehicleCompartment");
+
+                    b.Navigation("VehicleRouteStop");
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleHitchLink", b =>
@@ -32765,6 +34046,66 @@ namespace MudSharp.Migrations
                     b.Navigation("RequiredAccessPointProto");
 
                     b.Navigation("VehicleProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleJourney", b =>
+                {
+                    b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleJourneys_Vehicles");
+
+                    b.HasOne("MudSharp.Models.VehicleService", "VehicleService")
+                        .WithMany("Journeys")
+                        .HasForeignKey("VehicleServiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleJourneys_VehicleServices");
+
+                    b.HasOne("MudSharp.Models.VehicleRoute", "VehicleRoute")
+                        .WithMany("Journeys")
+                        .HasForeignKey("VehicleRouteId", "VehicleRouteRevision")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleJourneys_VehicleRoutes");
+
+                    b.HasOne("MudSharp.Models.VehicleRouteStop", "CurrentStop")
+                        .WithMany("CurrentJourneys")
+                        .HasForeignKey("CurrentStopId", "VehicleRouteId", "VehicleRouteRevision")
+                        .HasPrincipalKey("Id", "VehicleRouteId", "VehicleRouteRevision")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_VehicleJourneys_CurrentStops");
+
+                    b.HasOne("MudSharp.Models.VehicleRouteStop", "NextStop")
+                        .WithMany("NextJourneys")
+                        .HasForeignKey("NextStopId", "VehicleRouteId", "VehicleRouteRevision")
+                        .HasPrincipalKey("Id", "VehicleRouteId", "VehicleRouteRevision")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_VehicleJourneys_NextStops");
+
+                    b.Navigation("CurrentStop");
+
+                    b.Navigation("NextStop");
+
+                    b.Navigation("Vehicle");
+
+                    b.Navigation("VehicleRoute");
+
+                    b.Navigation("VehicleService");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleJourneyEvent", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleJourney", "VehicleJourney")
+                        .WithMany("Events")
+                        .HasForeignKey("VehicleJourneyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleJourneyEvents_VehicleJourneys");
+
+                    b.Navigation("VehicleJourney");
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleMovementProfileProto", b =>
@@ -32892,6 +34233,193 @@ namespace MudSharp.Migrations
                     b.Navigation("EditableItem");
 
                     b.Navigation("ExteriorItemProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRoute", b =>
+                {
+                    b.HasOne("MudSharp.Models.EditableItem", "EditableItem")
+                        .WithMany()
+                        .HasForeignKey("EditableItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRoutes_EditableItems");
+
+                    b.Navigation("EditableItem");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRouteLeg", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleRoute", "VehicleRoute")
+                        .WithMany("Legs")
+                        .HasForeignKey("VehicleRouteId", "VehicleRouteRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRouteLegs_VehicleRoutes");
+
+                    b.HasOne("MudSharp.Models.VehicleRouteStop", "DestinationStop")
+                        .WithMany("DestinationLegs")
+                        .HasForeignKey("DestinationStopId", "VehicleRouteId", "VehicleRouteRevision")
+                        .HasPrincipalKey("Id", "VehicleRouteId", "VehicleRouteRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRouteLegs_DestinationStops");
+
+                    b.HasOne("MudSharp.Models.VehicleRouteStop", "OriginStop")
+                        .WithMany("OriginLegs")
+                        .HasForeignKey("OriginStopId", "VehicleRouteId", "VehicleRouteRevision")
+                        .HasPrincipalKey("Id", "VehicleRouteId", "VehicleRouteRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRouteLegs_OriginStops");
+
+                    b.Navigation("DestinationStop");
+
+                    b.Navigation("OriginStop");
+
+                    b.Navigation("VehicleRoute");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRoutePlatformBinding", b =>
+                {
+                    b.HasOne("MudSharp.Models.Cell", "PlatformCell")
+                        .WithMany()
+                        .HasForeignKey("PlatformCellId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRoutePlatformBindings_Cells");
+
+                    b.HasOne("MudSharp.Models.VehicleAccessPointProto", "VehicleAccessPointProto")
+                        .WithMany()
+                        .HasForeignKey("VehicleAccessPointProtoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRoutePlatformBindings_AccessPointProtos");
+
+                    b.HasOne("MudSharp.Models.VehicleRouteStop", "VehicleRouteStop")
+                        .WithMany("PlatformBindings")
+                        .HasForeignKey("VehicleRouteStopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRoutePlatformBindings_VehicleRouteStops");
+
+                    b.Navigation("PlatformCell");
+
+                    b.Navigation("VehicleAccessPointProto");
+
+                    b.Navigation("VehicleRouteStop");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRouteStep", b =>
+                {
+                    b.HasOne("MudSharp.Models.Cell", "DestinationCell")
+                        .WithMany()
+                        .HasForeignKey("DestinationCellId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRouteSteps_DestinationCells");
+
+                    b.HasOne("MudSharp.Models.Exit", "Exit")
+                        .WithMany()
+                        .HasForeignKey("ExitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_VehicleRouteSteps_Exits");
+
+                    b.HasOne("MudSharp.Models.Cell", "OriginCell")
+                        .WithMany()
+                        .HasForeignKey("OriginCellId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRouteSteps_OriginCells");
+
+                    b.HasOne("MudSharp.Models.VehicleRouteLeg", "VehicleRouteLeg")
+                        .WithMany("Steps")
+                        .HasForeignKey("VehicleRouteLegId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRouteSteps_VehicleRouteLegs");
+
+                    b.Navigation("DestinationCell");
+
+                    b.Navigation("Exit");
+
+                    b.Navigation("OriginCell");
+
+                    b.Navigation("VehicleRouteLeg");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRouteStop", b =>
+                {
+                    b.HasOne("MudSharp.Models.Cell", "Cell")
+                        .WithMany()
+                        .HasForeignKey("CellId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRouteStops_Cells");
+
+                    b.HasOne("MudSharp.Models.VehicleRoute", "VehicleRoute")
+                        .WithMany("Stops")
+                        .HasForeignKey("VehicleRouteId", "VehicleRouteRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRouteStops_VehicleRoutes");
+
+                    b.Navigation("Cell");
+
+                    b.Navigation("VehicleRoute");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRouteTopologyPin", b =>
+                {
+                    b.HasOne("MudSharp.Models.RouteCell", "RouteCell")
+                        .WithMany()
+                        .HasForeignKey("RouteCellId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRouteTopologyPins_RouteCells");
+
+                    b.HasOne("MudSharp.Models.VehicleRoute", "VehicleRoute")
+                        .WithMany("TopologyPins")
+                        .HasForeignKey("VehicleRouteId", "VehicleRouteRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleRouteTopologyPins_VehicleRoutes");
+
+                    b.Navigation("RouteCell");
+
+                    b.Navigation("VehicleRoute");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleService", b =>
+                {
+                    b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleServices_Vehicles");
+
+                    b.HasOne("MudSharp.Models.VehicleRoute", "VehicleRoute")
+                        .WithMany("Services")
+                        .HasForeignKey("VehicleRouteId", "VehicleRouteRevision")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleServices_VehicleRoutes");
+
+                    b.Navigation("Vehicle");
+
+                    b.Navigation("VehicleRoute");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleServiceSchedule", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleService", "VehicleService")
+                        .WithOne("Schedule")
+                        .HasForeignKey("MudSharp.Models.VehicleServiceSchedule", "VehicleServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleServiceSchedules_VehicleServices");
+
+                    b.Navigation("VehicleService");
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleTowLink", b =>
@@ -33423,6 +34951,11 @@ namespace MudSharp.Migrations
                     b.Navigation("ProjectLabourQueues");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.ActiveRouteMotion", b =>
+                {
+                    b.Navigation("ResourceLedger");
+                });
+
             modelBuilder.Entity("MudSharp.Models.AgricultureField", b =>
                 {
                     b.Navigation("AgricultureFieldCrop");
@@ -33777,6 +35310,8 @@ namespace MudSharp.Migrations
 
                     b.Navigation("HooksPerceivables");
 
+                    b.Navigation("RouteCell");
+
                     b.Navigation("ShopsStockroomCell");
 
                     b.Navigation("ShopsStoreroomCells");
@@ -33784,6 +35319,8 @@ namespace MudSharp.Migrations
                     b.Navigation("ShopsWorkshopCell");
 
                     b.Navigation("Tracks");
+
+                    b.Navigation("VehicleDockings");
 
                     b.Navigation("Zones");
                 });
@@ -34370,6 +35907,8 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.Exit", b =>
                 {
                     b.Navigation("CellOverlaysExits");
+
+                    b.Navigation("RouteExitAnchors");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ExternalClanControl", b =>
@@ -35062,6 +36601,15 @@ namespace MudSharp.Migrations
                     b.Navigation("Cells");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.RouteCell", b =>
+                {
+                    b.Navigation("ActiveMotions");
+
+                    b.Navigation("ExitAnchors");
+
+                    b.Navigation("Landmarks");
+                });
+
             modelBuilder.Entity("MudSharp.Models.Script", b =>
                 {
                     b.Navigation("Characters");
@@ -35253,6 +36801,10 @@ namespace MudSharp.Migrations
 
                     b.Navigation("DamageZones");
 
+                    b.Navigation("Dockings");
+
+                    b.Navigation("HostedCells");
+
                     b.Navigation("Installations");
 
                     b.Navigation("Occupancies");
@@ -35260,11 +36812,27 @@ namespace MudSharp.Migrations
                     b.Navigation("SourceTowLinks");
 
                     b.Navigation("TargetTowLinks");
+
+                    b.Navigation("Tracks");
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleAccessPoint", b =>
                 {
+                    b.Navigation("Docking");
+
                     b.Navigation("Locks");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleCompartment", b =>
+                {
+                    b.Navigation("Dockings");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleCompartmentProto", b =>
+                {
+                    b.Navigation("DestinationLinks");
+
+                    b.Navigation("SourceLinks");
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleDamageZone", b =>
@@ -35277,6 +36845,11 @@ namespace MudSharp.Migrations
                     b.Navigation("Effects");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.VehicleJourney", b =>
+                {
+                    b.Navigation("Events");
+                });
+
             modelBuilder.Entity("MudSharp.Models.VehicleMovementProfileProto", b =>
                 {
                     b.Navigation("PropulsionProfiles");
@@ -35287,6 +36860,8 @@ namespace MudSharp.Migrations
                     b.Navigation("AccessPoints");
 
                     b.Navigation("CargoSpaces");
+
+                    b.Navigation("CompartmentLinks");
 
                     b.Navigation("Compartments");
 
@@ -35303,6 +36878,47 @@ namespace MudSharp.Migrations
                     b.Navigation("TowPoints");
 
                     b.Navigation("Vehicles");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRoute", b =>
+                {
+                    b.Navigation("Journeys");
+
+                    b.Navigation("Legs");
+
+                    b.Navigation("Services");
+
+                    b.Navigation("Stops");
+
+                    b.Navigation("TopologyPins");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRouteLeg", b =>
+                {
+                    b.Navigation("Steps");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleRouteStop", b =>
+                {
+                    b.Navigation("CurrentJourneys");
+
+                    b.Navigation("DestinationLegs");
+
+                    b.Navigation("Dockings");
+
+                    b.Navigation("NextJourneys");
+
+                    b.Navigation("OriginLegs");
+
+                    b.Navigation("PlatformBindings");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleService", b =>
+                {
+                    b.Navigation("Journeys");
+
+                    b.Navigation("Schedule")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MudSharp.Models.WeaponAttack", b =>

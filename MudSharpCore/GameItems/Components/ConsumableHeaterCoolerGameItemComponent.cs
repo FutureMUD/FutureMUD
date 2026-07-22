@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using MudSharp.Construction;
 using MudSharp.Effects;
+using MudSharp.Framework;
 using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
@@ -129,10 +130,16 @@ public class ConsumableHeaterCoolerGameItemComponent : ThermalSourceGameItemComp
         IGameItem newItem = _prototype.SpentItemProto.CreateNew();
         newItem.CopyOwnerFrom(Parent);
         ICell? location = Parent.TrueLocations.FirstOrDefault();
+		var originalSpatialLocation = location is null
+			? (SpatialLocation?)null
+			: RouteSpatialService.Instance.GetEffectiveLocation(Parent.LocationLevelPerceivable ?? Parent);
         Parent.InInventoryOf?.SwapInPlace(Parent, newItem);
         Parent.ContainedIn?.SwapInPlace(Parent, newItem);
         newItem.RoomLayer = Parent.RoomLayer;
-        Parent.Location?.Insert(newItem);
+        if (originalSpatialLocation.HasValue)
+        {
+			newItem.InsertAtSpatialLocation(originalSpatialLocation.Value);
+        }
         foreach (IEffect? effect in Parent.Effects)
         {
             IEffect newEffect = effect.NewEffectOnItemMorph(Parent, newItem);
@@ -153,7 +160,7 @@ public class ConsumableHeaterCoolerGameItemComponent : ThermalSourceGameItemComp
 
         foreach (IGameItemComponent? comp in Parent.Components)
         {
-            comp.HandleDieOrMorph(newItem, location);
+			comp.HandleDieOrMorph(newItem, location!, originalSpatialLocation);
         }
 
         newItem.Login();

@@ -1,0 +1,496 @@
+ ____                              _   _
+|  _ \  __ _ _ __ ___  _ __   __ _| |_(_) ___
+| | | |/ _` | '_ ` _ \| '_ \ / _` | __| |/ _ \
+| |_| | (_| | | | | | | | | | (_| | |_| | (_) |
+|____/_\__,_|_| |_| |_|_| |_|\__,_|\__|_|\___/
+|  \/  | ___ _ __ ___   ___  _ __(_) __ _  ___
+| |\/| |/ _ \ '_ ` _ \ / _ \| '__| |/ _` |/ _ \
+| |  | |  __/ | | | | | (_) | |  | | (_| |  __/
+|_|  |_|\___|_| |_| |_|\___/|_|  |_|\__,_|\___|
+       __
+      <  \
+[\\\\\\(\ (:::<======================================-
+\<      >  \
+ \\    /    |       Powered by the FutureMUD Engine v2.0.1.0000
+  `==='____/               Copyright 2008-2026
+
+ Join us on Discord! https://discord.gg/yjYtBr8ZkY
+
+ Select an Option:
+
+ C) Create an Account
+ L) Login to an Account
+ R) Recover a Lost Account
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+                   _
+                ,''/., _            Welcome, Japheth!
+        `.-._\`/. ( //'/'`.
+      _.-`-. ``' ` `(   -. \        ========== Options ===========
+    ,'  ,    ,-:._ _..-.. \/
+   / ,'/ ,`.( _.'-'.     )/         C) Connect to a character
+   `.\ '(   ,'      `.              G) Login as a guest
+      `._\ /'       \ \             N) Create a new character
+          /:         \ \-.          E) Change your email address
+        ,;':._______...-'_)         P) Change your [REDACTED]
+        \:/-.._______..-_|
+         : :\   `----'|'-;          X) Disconnect from the game
+          \ :\    : : ;:/
+           \ ``.   ; /;/
+            )   `.  /,'
+          ,'      `-' \
+         /  .--.       )
+        /_.---._`._   /
+                `.__.'
+
+
+Your Choice:
+> c
+You have the following characters:
+  1: Japheth (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+QA West Station Platform
+ID[3] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: North and East
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, it is pitch black here.
+
+A QA massive mobile platform is here.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> goto 4
+You open a swirling vortex of magical energies, stepping through and emerging somewhere new.
+
+QA East Station Platform
+ID[4] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: West and 'Enter Passenger doors'
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, it is pitch black here.
+
+QA Final Fast Scheduled Train is docked here with boarding open via Passenger
+Doors.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> embark 2 passenger via passenger
+QA Final Fast Scheduled Train - Carriage
+ID[16] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: 'Enter Backward' and 'Enter Outside'
+
+  An undescribed compartment.
+
+  Currently, it is pitch black here.
+
+
+You board QA Final Fast Scheduled Train through the platform docking.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Final Fast Scheduled Train - Vehicle Status ]===========================================================================================================================
+Movement: Stationary
+Controller: none
+Crew: 1 occupying 2 configured slot types
+Access: Passenger Doors (open)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: take control from a driver slot to perform a full preflight check.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> look
+QA Final Fast Scheduled Train - Carriage
+ID[16] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: 'Enter Backward' and 'Enter Outside'
+
+  An undescribed compartment.
+
+  Currently, it is pitch black here.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleservice edit 4
+You are now editing service #4 QA Boardable Train Live Service.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleservice set enabled false
+The vehicle service has been updated.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleservice edit 5
+You are now editing service #5 QA-Boardable-Train-Reverse-Live-Service.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleservice set enabled true
+The vehicle service has been updated.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicleservice show 5
+Vehicle Service #5 - QA-Boardable-Train-Reverse-Live-Service
+Route: #6r0 QA-Boardable-Train-Reverse-Live-Smoke
+Vehicle: #2 QA Final Fast Scheduled Train
+Operator: Automatic
+Schedule: every minute from 1/1/1511 2:00:00 a.m
+Next departure: 1/1/1511 3:17:00 a.m
+Retry: 2 seconds; maximum hold: 30 seconds
+Enabled: True
+Audit: ready
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Final Fast Scheduled Train - Vehicle Status ]===========================================================================================================================
+Movement: Stationary
+Controller: none
+Crew: 1 occupying 2 configured slot types
+Access: Passenger Doors (open)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: take control from a driver slot to perform a full preflight check.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Final Fast Scheduled Train - Vehicle Status ]===========================================================================================================================
+Movement: Stationary
+Controller: none
+Crew: 1 occupying 2 configured slot types
+Access: Passenger Doors (open)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: take control from a driver slot to perform a full preflight check.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Final Fast Scheduled Train - Vehicle Status ]===========================================================================================================================
+Movement: Stationary
+Controller: none
+Crew: 1 occupying 2 configured slot types
+Access: Passenger Doors (open)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: take control from a driver slot to perform a full preflight check.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Final Fast Scheduled Train - Vehicle Status ]===========================================================================================================================
+Movement: Stationary
+Controller: none
+Crew: 1 occupying 2 configured slot types
+Access: Passenger Doors (open)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: take control from a driver slot to perform a full preflight check.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Final Fast Scheduled Train - Vehicle Status ]===========================================================================================================================
+Movement: Stationary
+Controller: none
+Crew: 1 occupying 2 configured slot types
+Access: Passenger Doors (open)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: take control from a driver slot to perform a full preflight check.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Final Fast Scheduled Train - Vehicle Status ]===========================================================================================================================
+Movement: Stationary
+Controller: none
+Crew: 1 occupying 2 configured slot types
+Access: Passenger Doors (open)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: take control from a driver slot to perform a full preflight check.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+The vehicle shudders as it begins travelling westbound along the route.
+
+=======[ QA Final Fast Scheduled Train - Vehicle Status ]===========================================================================================================================
+Movement: Moving
+Controller: none
+Crew: 1 occupying 2 configured slot types
+Access: Passenger Doors (closed)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: take control from a driver slot to perform a full preflight check.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+The vehicle continues travelling westbound along the route.
+
+The vehicle settles as it arrives at its requested route position.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Final Fast Scheduled Train - Vehicle Status ]===========================================================================================================================
+Movement: Stationary
+Controller: none
+Crew: 1 occupying 2 configured slot types
+Access: Passenger Doors (open)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: take control from a driver slot to perform a full preflight check.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Final Fast Scheduled Train - Vehicle Status ]===========================================================================================================================
+Movement: Stationary
+Controller: none
+Crew: 1 occupying 2 configured slot types
+Access: Passenger Doors (open)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: take control from a driver slot to perform a full preflight check.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Final Fast Scheduled Train - Vehicle Status ]===========================================================================================================================
+Movement: Stationary
+Controller: none
+Crew: 1 occupying 2 configured slot types
+Access: Passenger Doors (open)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: take control from a driver slot to perform a full preflight check.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Final Fast Scheduled Train - Vehicle Status ]===========================================================================================================================
+Movement: Stationary
+Controller: none
+Crew: 1 occupying 2 configured slot types
+Access: Passenger Doors (open)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: take control from a driver slot to perform a full preflight check.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> transit status 5
+QA-Boardable-Train-Reverse-Live-Service: Arrived, scheduled 1/1/1511 3:21:00 a.m, expected 1/1/1511 3:21:02 a.m, current stop WestReturn, next stop none, platform cell #3 via
+Passenger Doors, delay 2 seconds, boarding open.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> disembark
+QA West Station Platform
+ID[3] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: North, East, 'Enter Passenger doors', and 'Enter Passenger doors'
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, it is pitch black here.
+
+A QA massive mobile platform is here.
+QA Scheduled Train is docked here with boarding open via Passenger Doors.
+QA Final Fast Scheduled Train is docked here with boarding open via Passenger
+Doors.
+
+QA West Station Platform
+ID[3] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: North, East, 'Enter Passenger doors', and 'Enter Passenger doors'
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, it is pitch black here.
+
+A QA massive mobile platform is here.
+QA Scheduled Train is docked here with boarding open via Passenger Doors.
+QA Final Fast Scheduled Train is docked here with boarding open via Passenger
+Doors.
+
+You disembark from QA Final Fast Scheduled Train through the open docking.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> look
+QA West Station Platform
+ID[3] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: North, East, and 'Enter Passenger doors'
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, it is pitch black here.
+
+A QA massive mobile platform is here.
+QA Final Fast Scheduled Train is docked here with boarding open via Passenger
+Doors.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicle show 2
+=======[ Vehicle #2 - QA Final Fast Scheduled Train ]===============================================================================================================================
+Prototype: QA Final Fast Scheduled Train (#5r0)
+Scale: RoomScale
+Canonical Location: Route QA Intertown Linear Corridor [GroundLevel]
+Movement: Stationary
+Transit: Exit #none, Destination #none
+RouteCell: 10,000.000m long, topology 10, room equivalent 100.000m
+Route Position: durable 0.000m; effective 0.000m
+Route Profiles: #6 RouteCell Movement / 20.000m/s / Powered / automatic
+
+Item Projection:
+  Exterior Item Id: 2
+  Loaded Item: a QA final fast scheduled train hull
+  Component Link: 2
+  Projection In Sync: True
+
+Occupants:
+  None
+
+Hosted Compartments:
+  #3 Cab interior #15 [Residence, Indoors] links 1
+  #4 Carriage interior #16 [Residence, Indoors] links 1
+
+Dockings:
+  #2 Passenger Doors -> Carriage at cell #3 [GroundLevel] BoardingOpen exit #-29
+
+Access Points:
+  #2 Passenger Doors [Door] open projection 3
+
+Cargo Spaces:
+  None
+
+Installations:
+  None
+
+Tow Links:
+  None
+
+Mixed Hitch Links:
+  None
+
+Damage Zones:
+  None
+
+Operational Readiness:
+  Access: default permissive (no explicit grants).
+  Movement Profile: RouteCell Movement (#6)
+  Environment: Unrestricted
+  No readiness warnings or blockers detected.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicle audit 2 all
+Vehicle All audit for 1 vehicle:
+  #2 QA Final Fast Scheduled Train:
+    Information Access: No explicit access grants; access is permissive. Hint: vehicle access <vehicle> apply <preset> <character>
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>

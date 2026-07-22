@@ -100,8 +100,10 @@ public static class AutomaticCrimeExtensions
 		var minimumSeverity = MinimumMurderWoundSeverity(victim.Gameworld);
 		var attributionWindow = MurderWoundAttributionWindow(victim.Gameworld);
 		var includeFriendlyWounds = IncludeFriendlyMurderWounds(victim.Gameworld);
-		var presentCharacters = deathLocation
-			.LayerCharacters(victim.RoomLayer)
+		var presentCharacters = victim.LocalThingsAndProximities()
+			.Where(x => x.Proximity <= Proximity.VeryDistant)
+			.Select(x => x.Thing)
+			.OfType<ICharacter>()
 			.Except(victim)
 			.ToList();
 

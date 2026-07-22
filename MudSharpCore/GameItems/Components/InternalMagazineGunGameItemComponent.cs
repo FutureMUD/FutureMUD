@@ -151,7 +151,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
                 new Emote("$1 is ejected from $0 by the action.", loader, Parent,
                     ChamberedRound.Parent), flags: OutputFlags.Insigificant));
             ChamberedRound.Parent.RoomLayer = loader.RoomLayer;
-            loader.Location.Insert(ChamberedRound.Parent);
+            ChamberedRound.Parent.InsertAtSource(loader);
             ChamberedRound.Parent.ContainedIn = null;
         }
 
@@ -160,7 +160,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
             loader.OutputHandler.Handle(new EmoteOutput(
                 new Emote("@ tumble|tumbles to the ground.", ChamberedCasing), flags: OutputFlags.Insigificant));
             ChamberedCasing.RoomLayer = loader.RoomLayer;
-            loader.Location.Insert(ChamberedCasing);
+            ChamberedCasing.InsertAtSource(loader);
             ChamberedCasing.ContainedIn = null;
             ChamberedCasing = null;
         }
@@ -279,7 +279,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
             else
             {
                 item.RoomLayer = loader.RoomLayer;
-                loader.Location.Insert(item);
+                item.InsertAtSource(loader);
             }
         }
 
@@ -301,16 +301,15 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
     #region Overrides of FirearmBaseGameItemComponent
 
     /// <inheritdoc />
-    protected override void HandleShellCasingOnFire(ICharacter actor, ICell originalLocation, IGameItem casing)
+    protected override void HandleShellCasingOnFire(ICharacter actor, SpatialLocation originalLocation, IGameItem casing)
     {
         if (casing != null)
         {
             if (_prototype.EjectOnFire)
             {
-                originalLocation.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", casing),
+                originalLocation.Cell.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", casing),
                     flags: OutputFlags.Insigificant));
-                casing.RoomLayer = actor.RoomLayer;
-                originalLocation.Insert(casing);
+				casing.InsertAtSpatialLocation(originalLocation);
             }
             else
             {
@@ -345,7 +344,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
             else
             {
                 ChamberedRound.Parent.RoomLayer = readier.RoomLayer;
-                readier.Location.Insert(ChamberedRound.Parent);
+                ChamberedRound.Parent.InsertAtSource(readier);
             }
 
             ChamberedRound = null;
@@ -363,7 +362,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
             else
             {
                 ChamberedCasing.RoomLayer = readier.RoomLayer;
-                readier.Location.Insert(ChamberedCasing);
+                ChamberedCasing.InsertAtSource(readier);
             }
 
             ChamberedCasing = null;

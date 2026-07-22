@@ -556,7 +556,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
                 }
                 else if (location != null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location, preferredSource: emptier);
                 }
                 else
                 {
@@ -568,7 +568,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
 
             if (location != null)
             {
-                location.Insert(item);
+                InsertAtParentSpatialLocation(item, location, preferredSource: emptier);
             }
             else
             {
@@ -703,7 +703,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
                     else
                     {
                         spent.RoomLayer = ch.RoomLayer;
-                        ch.Location.Insert(spent);
+                        spent.InsertAtSource(ch);
                     }
 
                     spent.Login();
@@ -744,7 +744,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
             {
                 if (location != null)
                 {
-                    location.Insert(thelock.Parent);
+                    InsertAtParentSpatialLocation(thelock.Parent, location);
                     thelock.Parent.ContainedIn = null;
                 }
                 else
@@ -780,7 +780,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
                 }
                 else if (location != null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location);
                     item.ContainedIn = null;
                 }
                 else
@@ -797,7 +797,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
             {
                 if (location != null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location);
                     item.ContainedIn = null;
                 }
                 else
@@ -951,7 +951,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
             if (location != null)
             {
                 page.RoomLayer = Parent.RoomLayer;
-                location.Insert(page, true);
+                InsertAtParentSpatialLocation(page, location, true);
                 continue;
             }
 

@@ -86,7 +86,44 @@ public abstract class CrimeTargetedPatrolStrategyBase : ArmedPatrolStrategy, ICr
 		}
 
 		List<ICellExit> path = origin.PathBetween(destination, (uint)maximumDistance, PathSearch.IgnorePresenceOfDoors).ToList();
-		return path.Any() ? path.Count : null;
+		if (path.Any())
+		{
+			return path.Count;
+		}
+
+		var originLocation = new SpatialLocation(
+			origin,
+			RoomLayer.GroundLevel,
+			origin.RouteDefinition?.DefaultPositionMetres);
+		var destinationLocation = new SpatialLocation(
+			destination,
+			RoomLayer.GroundLevel,
+			destination.RouteDefinition?.DefaultPositionMetres);
+		if (!RouteSpatialService.Instance.TryValidateLocation(originLocation, out _) ||
+		    !RouteSpatialService.Instance.TryValidateLocation(destinationLocation, out _))
+		{
+			return null;
+		}
+
+		ISpatialPathfinder pathfinder;
+		try
+		{
+			pathfinder = origin.Gameworld.ExitManager.SpatialPathfinder;
+		}
+		catch (NotSupportedException)
+		{
+			return null;
+		}
+
+		return pathfinder.TryFindPath(
+			originLocation,
+			destinationLocation,
+			PathSearch.IgnorePresenceOfDoors,
+			false,
+			maximumDistance,
+			out var spatialPath) && spatialPath is not null
+			? (int)Math.Ceiling(spatialPath.RoomEquivalentCost)
+			: null;
 	}
 
 	protected List<ICell> PatrolAreaNodes(IPatrol patrol, ICrime crime)
@@ -195,7 +232,7 @@ public abstract class CrimeTargetedPatrolStrategyBase : ArmedPatrolStrategy, ICr
 			return;
 		}
 
-		if (patrol.PatrolLeader.Location == destination)
+		if (HasReachedPatrolDestination(patrol.PatrolLeader, destination))
 		{
 			patrol.PatrolPhase = PatrolPhase.Patrol;
 			HandleArrivedAtTargetNode(patrol, destination);
@@ -207,23 +244,24 @@ public abstract class CrimeTargetedPatrolStrategyBase : ArmedPatrolStrategy, ICr
 			return;
 		}
 
-		List<ICellExit> path = patrol.PatrolLeader.PathBetween(destination, 50,
-			PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader)).ToList();
-		if (!path.Any())
+		if (TryBeginPatrolPath(
+				patrol.PatrolLeader,
+				destination,
+				50.0,
+				PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader)) ||
+		    TryBeginPatrolPath(
+			    patrol.PatrolLeader,
+			    destination,
+			    50.0,
+			    PathSearch.IgnorePresenceOfDoors))
 		{
-			path = patrol.PatrolLeader.PathBetween(destination, 50, PathSearch.IgnorePresenceOfDoors).ToList();
-			if (!path.Any())
-			{
-				if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
-				{
-					patrol.CompletePatrol();
-				}
-
-				return;
-			}
+			return;
 		}
 
-		BeginPatrolPath(patrol.PatrolLeader, path);
+		if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+		{
+			patrol.CompletePatrol();
+		}
 	}
 
 	protected virtual void HandleArrivedAtTargetNode(IPatrol patrol, ICell node)

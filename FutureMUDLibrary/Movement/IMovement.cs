@@ -1,9 +1,12 @@
 ﻿using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
+
+#nullable enable
 
 namespace MudSharp.Movement
 {
@@ -33,7 +36,11 @@ namespace MudSharp.Movement
         bool Cancelled { get; }
 
         bool CanBeVoluntarilyCancelled { get; }
-        ICellExit Exit { get; }
+        /// <summary>
+        /// The boundary crossed by an ordinary cell movement. Longitudinal RouteCell movement
+        /// deliberately has no exit because it remains inside one cell.
+        /// </summary>
+        ICellExit? Exit { get; }
         MovementPhase Phase { get; }
         IEnumerable<ICharacter> CharacterMovers { get; }
         public IParty Party { get; }
@@ -76,5 +83,17 @@ namespace MudSharp.Movement
         void InitialAction();
         double StaminaMultiplier { get; }
         MovementType MovementTypeForMover(ICharacter mover);
+    }
+
+    /// <summary>
+    /// A movement that changes only the one-dimensional coordinate inside a RouteCell.
+    /// </summary>
+    public interface ILinearRouteMovement : IMovement
+    {
+        SpatialLocation Origin { get; }
+        SpatialLocation Destination { get; }
+        RouteCellDirection Direction { get; }
+        double SpeedMetresPerSecond { get; }
+        Guid OperationId { get; }
     }
 }

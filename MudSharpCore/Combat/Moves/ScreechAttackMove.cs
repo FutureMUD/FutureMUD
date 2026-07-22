@@ -3,6 +3,8 @@ using MudSharp.Body.PartProtos;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 
+using MudSharp.Construction;
+
 namespace MudSharp.Combat.Moves;
 
 public class ScreechAttackMove : NaturalAttackMove
@@ -35,8 +37,13 @@ public class ScreechAttackMove : NaturalAttackMove
 
 
         Form.Shape.IBodypartShape shape = ((IFixedBodypartWeaponAttack)Attack).Bodypart;
-        List<ICharacter> targets = Assailant.Location.LayerCharacters(Assailant.RoomLayer)
+		List<ICharacter> targets = Assailant.LocalThingsAndProximities()
+		                       .Where(x => x.Proximity <= Proximity.VeryDistant)
+		                       .Select(x => x.Thing)
+		                       .OfType<ICharacter>()
+		                       .Where(x => x.RoomLayer == Assailant.RoomLayer)
                                .Where(x => x.Body.Bodyparts.Any(y => y.Organs.Any(z => z is EarProto)))
+		                       .Distinct()
                                .ToList();
         Attack.Profile.DamageExpression.Formula.Parameters["degree"] = attackRoll.Outcome.CheckDegrees();
         Attack.Profile.DamageExpression.Formula.Parameters["quality"] =

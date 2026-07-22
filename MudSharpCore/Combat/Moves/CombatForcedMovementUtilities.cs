@@ -27,6 +27,8 @@ public sealed class ForcedMovementAttackChoice
 
 public static class CombatForcedMovementUtilities
 {
+	private const double DefaultRouteCellPushbackMetresPerSuccessDegree = 1.0;
+
 	public static ForcedMovementAttackChoice FindBestForcedMovementAttack(
 		ICharacter actor,
 		ICharacter target,
@@ -138,6 +140,11 @@ public static class CombatForcedMovementUtilities
 			return;
 		}
 
+		if (!overboard.WasApplicable)
+		{
+			TryApplyRouteCellPushback(actor, target, degrees);
+		}
+
 		BreakCloseContact(actor, target);
 		target.MeleeRange = false;
 		if (actor.CombatTarget == target)
@@ -165,6 +172,51 @@ public static class CombatForcedMovementUtilities
 		            Math.Max(1, degrees) * actor.Gameworld.GetStaticDouble("PushbackCombatDelayPerDegreeSeconds");
 		actor.Gameworld.Scheduler.DelayScheduleType(target, ScheduleType.Combat,
 			TimeSpan.FromSeconds(delay * CombatBase.CombatSpeedMultiplier));
+	}
+
+	internal static bool TryApplyRouteCellPushback(ICharacter actor, ICharacter target, int degrees)
+	{
+		var actorLocation = RouteSpatialService.Instance.GetEffectiveLocation(actor);
+		var targetLocation = RouteSpatialService.Instance.GetEffectiveLocation(target);
+		if (actorLocation.Cell is null ||
+			targetLocation.Cell is null ||
+			!ReferenceEquals(actorLocation.Cell, targetLocation.Cell) ||
+			actorLocation.Layer != targetLocation.Layer ||
+			actorLocation.Cell.RouteDefinition is not { } route ||
+			!actorLocation.RoutePositionMetres.HasValue ||
+			!targetLocation.RoutePositionMetres.HasValue ||
+			!double.IsFinite(route.LengthMetres) ||
+			route.LengthMetres <= 0.0)
+		{
+			return false;
+		}
+
+		var metresPerDegree = actor.Gameworld?.GetStaticDouble(
+			"RouteCellPushbackMetresPerSuccessDegree") ?? 0.0;
+		if (!double.IsFinite(metresPerDegree) || metresPerDegree <= 0.0)
+		{
+			metresPerDegree = DefaultRouteCellPushbackMetresPerSuccessDegree;
+		}
+
+		var actorPosition = actorLocation.RoutePositionMetres.Value;
+		var targetPosition = targetLocation.RoutePositionMetres.Value;
+		var direction = targetPosition > actorPosition
+			? 1.0
+			: targetPosition < actorPosition
+				? -1.0
+				// Exact overlap has no natural away vector. Choose the farther endpoint;
+				// the positive endpoint wins an exact midpoint tie.
+				: route.LengthMetres - targetPosition >= targetPosition
+					? 1.0
+					: -1.0;
+		var distance = Math.Max(1, degrees) * metresPerDegree;
+		var destination = RouteSpatialService.Instance.ClampPosition(
+			route,
+			targetPosition + direction * distance);
+
+		RouteSpatialService.Instance.MaterialiseActiveMovement(target);
+		target.SetRoutePosition(destination);
+		return true;
 	}
 
 	public static void BreakCloseContact(ICharacter actor, ICharacter target)

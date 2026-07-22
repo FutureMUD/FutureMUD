@@ -253,7 +253,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
             }
             else
             {
-                readier.Location.Insert(ChamberedRound.Parent);
+                ChamberedRound.Parent.InsertAtSource(readier);
             }
 
             ChamberedRound = null;
@@ -317,8 +317,8 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
 
         Changed = true;
 
-        ICell originalLocation =
-            actor.Location; // If the character is firing at themselves, their location can be changed by the ammo.Fire call.
+		var originalLocation = RouteSpatialService.Instance.GetEffectiveLocation(actor);
+		// If the character fires at themselves, ammo.Fire can relocate them before the casing is ejected.
         ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, bullet, WeaponType, defenseEmote);
         UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
             (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
@@ -331,13 +331,12 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
         }
     }
 
-    protected virtual void HandleShellCasingOnFire(ICharacter actor, ICell originalLocation, IGameItem shell)
+    protected virtual void HandleShellCasingOnFire(ICharacter actor, SpatialLocation originalLocation, IGameItem shell)
     {
         if (shell != null)
         {
-            originalLocation.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", shell), flags: OutputFlags.Insigificant));
-            shell.RoomLayer = actor.RoomLayer;
-            originalLocation.Insert(shell);
+            originalLocation.Cell.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", shell), flags: OutputFlags.Insigificant));
+			shell.InsertAtSpatialLocation(originalLocation);
         }
     }
 

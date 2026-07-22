@@ -2,6 +2,8 @@
 using MudSharp.Framework.Units;
 using System.Security.Cryptography;
 
+using MudSharp.Construction;
+
 namespace MudSharp.GameItems.Inventory.Plans;
 
 public class InventoryPlanActionConsumeCommodity : InventoryPlanAction
@@ -99,7 +101,7 @@ public class InventoryPlanActionConsumeCommodity : InventoryPlanAction
 
         // In location
         item =
-            executor.Location.LayerGameItems(executor.RoomLayer)
+            executor.Location.GameItemsInImmediateVicinity(executor)
                     .SelectNotNull(x => x.GetItemType<ICommodity>())
                     .FirstOrDefault(x => x.Material == Material && (DesiredTag is null && x.Tag is null) || (x.Tag?.IsA(DesiredTag) == true) && x.Weight >= Weight)
                     ?.Parent;
@@ -111,7 +113,7 @@ public class InventoryPlanActionConsumeCommodity : InventoryPlanAction
 
         // In containers in location
         item =
-            executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<IContainer>())
+            executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<IContainer>())
                     .Where(x => x.Parent.GetItemType<IOpenable>()?.IsOpen ?? true)
                     .SelectMany(x => x.Contents)
                     .SelectNotNull(x => x.GetItemType<ICommodity>())

@@ -235,11 +235,20 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 			}
 
 			var difficulty = _prototype.ScentDifficulty.StageUp(distance);
+			double? routePosition = cell.RouteDefinition is not null && ReferenceEquals(cell, Parent.Location)
+				? RouteSpatialService.Instance.GetEffectiveLocation(Parent).RoutePositionMetres
+				: null;
+			double? maximumRouteDistance = cell.RouteDefinition is { } route
+				? Math.Max(
+					RouteSpatialConfiguration.FromGameworld(Gameworld).ImmediateDistanceMetres,
+					_prototype.ScentRange * route.MetresPerRoomEquivalent)
+				: null;
 			var existing = cell.EffectsOfType<IScentTrailEffect>()
 			                   .FirstOrDefault(x => x.SourceItemId == Parent.Id && x.RoomLayer == Parent.RoomLayer);
 			var duration = TimeSpan.FromSeconds(Math.Max(1.0, seconds * _prototype.LingeringMultiplier + 2.0));
 			if (existing is AmbientScent ambientScent &&
-			    ambientScent.Matches(sourceDescription, text, Parent.RoomLayer, distance, difficulty))
+			    ambientScent.Matches(sourceDescription, text, Parent.RoomLayer, distance, difficulty,
+				    routePosition, maximumRouteDistance))
 			{
 				Gameworld.EffectScheduler.ExtendSchedule(ambientScent, duration);
 				continue;
@@ -247,7 +256,8 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 
 			existing?.ExpireEffect();
 			var effect = new AmbientScent(cell, Parent.Id, sourceDescription, text, Parent.RoomLayer, distance,
-				difficulty);
+				difficulty, routePositionMetres: routePosition,
+				maximumRouteDistanceMetres: maximumRouteDistance);
 			cell.AddEffect(effect, duration);
 		}
 	}
@@ -278,7 +288,15 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 		foreach (var (cell, distance) in AffectedCells(Math.Min(_prototype.DrugRange, _prototype.ScentRange)))
 		{
 			var dose = _prototype.GramsPerPulse / (distance + 1.0);
-			foreach (var character in cell.LayerCharacters(Parent.RoomLayer))
+			var range = Math.Min(_prototype.DrugRange, _prototype.ScentRange);
+			var recipients = cell.RouteDefinition is { } route && ReferenceEquals(cell, Parent.Location)
+				? cell.CharactersInSpatialVicinity(
+					Parent,
+					maximumDistanceMetres: Math.Max(
+						RouteSpatialConfiguration.FromGameworld(Gameworld).ImmediateDistanceMetres,
+						range * route.MetresPerRoomEquivalent))
+				: cell.LayerCharacters(Parent.RoomLayer);
+			foreach (var character in recipients)
 			{
 				character.Body.Dose(_prototype.Drug, DrugVector.Inhaled, dose, Parent);
 			}
@@ -332,7 +350,7 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 			}
 			else if (location is not null)
 			{
-				location.Insert(item);
+				InsertAtParentSpatialLocation(item, location);
 				item.ContainedIn = null;
 			}
 			else
@@ -461,7 +479,7 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 				continue;
 			}
 
-			(emptier?.Location ?? Parent.TrueLocations.FirstOrDefault())?.Insert(item);
+			item.InsertAtSource(emptier is null ? Parent.LocationLevelPerceivable : emptier);
 		}
 
 		Changed = true;

@@ -6,6 +6,7 @@ using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Health;
@@ -55,6 +56,53 @@ public class NaturalRangedAttackRuntimeTests
 		Assert.AreEqual(Proximity.Intimate, victims[0].Proximity);
 		Assert.AreSame(nearby.Object, victims[1].Target);
 		Assert.AreEqual(Proximity.Immediate, victims[1].Proximity);
+	}
+
+	[TestMethod]
+	public void BreathScatterVictimSelection_RouteCellExcludesKilometreSeparatedCharacters()
+	{
+		var route = ScatterTestHelpers.CreateRouteCell("long road", 10_000.0);
+		var assailant = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 95.0);
+		var nearby = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 105.0);
+		var distant = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 5_000.0);
+		route.Characters.AddRange([assailant.Object, nearby.Object, distant.Object]);
+		var scatter = new RangedScatterResult(
+			route.Cell.Object,
+			RoomLayer.GroundLevel,
+			CardinalDirection.Unknown,
+			0,
+			null,
+			100.0);
+
+		var victims = BreathWeaponAttackMove
+			.SelectScatterBreathVictims(scatter, assailant.Object, 5)
+			.ToList();
+
+		CollectionAssert.AreEqual(new[] { nearby.Object }, victims);
+	}
+
+	[TestMethod]
+	public void ExplosionScatterVictimSelection_RouteCellExcludesKilometreSeparatedPerceivables()
+	{
+		var route = ScatterTestHelpers.CreateRouteCell("long road", 10_000.0);
+		var nearby = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 105.0);
+		var distant = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 5_000.0);
+		route.Characters.AddRange([nearby.Object, distant.Object]);
+		var scatter = new RangedScatterResult(
+			route.Cell.Object,
+			RoomLayer.GroundLevel,
+			CardinalDirection.Unknown,
+			0,
+			null,
+			100.0);
+
+		var victims = ExplosiveNaturalAttackMove
+			.SelectScatterExplosionVictims(scatter, null, Proximity.Proximate)
+			.ToList();
+
+		Assert.AreEqual(1, victims.Count);
+		Assert.AreSame(nearby.Object, victims[0].Target);
+		Assert.AreEqual(Proximity.Proximate, victims[0].Proximity);
 	}
 
 	[TestMethod]

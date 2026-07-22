@@ -1,5 +1,5 @@
 -- MySqlBackup.NET 2.6.5.0
--- Dump Time: 2026-07-16 23:34:13
+-- Dump Time: 2026-07-22 20:54:42
 -- --------------------------------------
 -- Server version 8.0.45 MySQL Community Server - GPL
 
@@ -39,8 +39,7 @@ CREATE TABLE IF NOT EXISTS `__efmigrationshistory` (
 --
 
 /*!40000 ALTER TABLE `__efmigrationshistory` DISABLE KEYS */;
-INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20200626070704_InitialDatabase','9.0.11'),('20200728125151_MoveChargenToTables','9.0.11'),('20200807044450_EnforcementUpdate','9.0.11'),('20200810141606_ClanVoting','9.0.11'),('20200817061844_Elections','9.0.11'),('20200830233741_TerrainUpdate','9.0.11'),('20200905062837_CurrencyPatternEnhancement','9.0.11'),('20200928025908_KnowledgeBuilding','9.0.11'),('20201013213328_CheckFixing','9.0.11'),('20201014230837_FixingEmailTemplates','9.0.11'),('20201106014706_LineOfCreditAccounts','9.0.11'),('20201106040133_AttributesUpdate','9.0.11'),('20201108122141_EconomicZoneUpdate','9.0.11'),('20201113050353_EconomicZonesTouchup','9.0.11'),('20201120022913_EnforcermentAndMisc','9.0.11'),('20201120045951_MinorFixForCrime','9.0.11'),('20201129225407_SafeQuit','9.0.11'),('20201130014025_JournalUpdates','9.0.11'),('20201130041538_JournalUpdate','9.0.11'),('20201201052916_DrugReform','9.0.11'),('20201217051236_Changes','9.0.11'),('20201217051726_ExtraDescriptions','9.0.11'),('20201218014631_RacialBreathingChange','9.0.11'),('20201221031703_ClanFame','9.0.11'),('20201227120935_CantRemember','9.0.11'),('20210113052107_IndexFixForBodyparts','9.0.11'),('20210114010706_IndexAdditions','9.0.11'),('20210116210204_MagicSpells','9.0.11'),('20210118053537_MoreSpellStuff','9.0.11'),('20210119034150_MoreSpellStuff2','9.0.11'),('20210119035740_MoreSpellStuff3','9.0.11'),('20210120031933_MoreSpellStuff4','9.0.11'),('20210127032929_Jan21EnforcementWorkaround','9.0.11'),('20210202002906_RemovingChildClans','9.0.11'),('20210211035327_GameStatistics','9.0.11'),('20210224105856_NewSun','9.0.11'),('20210302112347_OngoingCheckForCharacteristics','9.0.11'),('20210331025006_BanksV1','9.0.11'),('20210423014825_WeaponAttackAddPositionRequirement','9.0.11'),('20210626110830_AuctionHouses','9.0.11'),('20210810123837_PropertyV1','9.0.11'),('20210902052233_PropertyV2','9.0.11'),('20210914132733_Sep21LawUpdate','9.0.11'),('20211025020630_JusticeOverhaulOct21','9.0.11'),('20211217034326_TerrainMapColourAddition','9.0.11'),('20211220045847_Skins','9.0.11'),('20211222033658_Skins-Pt2','9.0.11'),('20211226134159_ClanBankAccounts','9.0.11'),('20211229004501_PlayerBoards','9.0.11'),('20220104134109_JobsV1','9.0.11'),('20220105004035_ProjectsJobsUpdate','9.0.11'),('20220108004307_BoardBugFix','9.0.11'),('20220117102755_BoardsDescriptions','9.0.11'),('20220210215752_LongerAuthorFullDescs','9.0.11'),('20220225125641_ClanFKFixing','9.0.11'),('20220327052829_NPCSpawners','9.0.11'),('20220421132846_BodyCharacteristicsFix','9.0.11'),('20220625122517_ClanDiscordUpdate','9.0.11'),('20220625125136_ChargenResourcesAsDouble','9.0.11'),('20220718132632_MaterialsRefactor','9.0.11'),('20220731064708_TheoreticalCraftChecks','9.0.11'),('20220807101509_IntToDoubleParryBonus','9.0.11'),('20220814231930_RaceDefaultHwModels','9.0.11'),('20221030044209_ShopBankAccountsAndFinance','9.0.11'),('20221030125929_BankPaymentsAtShops','9.0.11'),('20221031113757_MagicSpellExclusivity','9.0.11'),('20221201081057_NameCulturesGenderExpansion','9.0.11'),('20221201133628_NameCulturesChargenExpansion','9.0.11'),('20230101133831_CurrencyPatternRegexCaseFix','9.0.11'),('20230110120837_RelativeEnthalpyForLiquids','9.0.11'),('20230124124618_SurgicalProcedureCheckTraits','9.0.11'),('20230311060208_SurgeryBodyUpdate','9.0.11'),('20230407151210_OpenAIv1','9.0.11'),('20230428004425_GlobalCurrencyChanges','9.0.11'),('20230603125906_CraftUseToolDuration','9.0.11'),('20230706055610_AuxiliaryMoves','9.0.11'),('20230714035824_AuxiliaryMoves2','9.0.11'),('20230727121209_SeasonsDisplayUpdate','9.0.11'),('20230731055842_SeederChoices','9.0.11'),('20230810071403_CellForeignKeyUpdates','9.0.11'),('20230825052231_NpcSpawnerMulti','9.0.11'),('20230825061651_ShopTypes','9.0.11'),('20230914142042_ScriptedEvents','9.0.11'),('20230917131132_ClanForeignKeyUpdate','9.0.11'),('20231031085439_MagicResourceColours','9.0.11'),('20231102120820_NewPlayerHints','9.0.11'),('20231110224309_HungerThirstRatesForRaces','9.0.11'),('20231125084220_ClimateModelSimplification','9.0.11'),('20231208235024_HeritageChargenCostBugFix','9.0.11'),('20240112055830_ChargenResourcesControlProg','9.0.11'),('20240119120217_CoinsChangeFlag','9.0.11'),('20240129025113_CurrencyForeignKeyUpdateJan24','9.0.11'),('20240305110906_BuyingMerchandise','9.0.11'),('20240325104238_MarketsV1','9.0.11'),('20240418112441_MarketsShopIntegration','9.0.11'),('20240427013621_MarketPopulations','9.0.11'),('20240601141550_DiscordOutputForChannels','9.0.11'),('20240615065145_ShopAutopayTaxes','9.0.11'),('20240730123726_TrackingV1','9.0.11'),('20240804070126_FixDatabaseAutoTrueBug','9.0.11'),('20240808232211_TrackingNameForBodyProtos','9.0.11'),('20240809155707_BMIUnits','9.0.11'),('20240816134208_ArmourPenaltyToDouble','9.0.11'),('20240817112644_HeightWeightModelDirectSetWeights','9.0.11'),('20240828105208_AutoReacquireTargetsSetting','9.0.11'),('20240828124859_CombatSettingsAugust24','9.0.11'),('20240831005804_BodypartGroupDescribersAugust2024','9.0.11'),('20240925062238_CrimesUpdate2024Sep25','9.0.11'),('20241011073405_StockroomNonMorphing','9.0.11'),('20241016054103_ItemProtoIsHiddenFromPlayers','9.0.11'),('20241016123415_BodyOverrideHealthStrategy','9.0.11'),('20241018071518_LiquidLeaveResidueInRooms','9.0.11'),('20241121010653_RemovingBreathableFluidsRaces','9.0.11'),('20241129002416_CriminalDescUpdates','9.0.11'),('20241216062012_RandomNamesBinaryUnicodeSort','9.0.11'),('20241220091815_EthnicitiesNameCultures','9.0.11'),('20241231030836_TagsForTerrains','9.0.11'),('20250101232454_SkewnessForHWModels','9.0.11'),('20250210095915_Shoppers','9.0.11'),('20250210233555_ShopsFeb25','9.0.11'),('20250211100238_ShopsFeb25P2','9.0.11'),('20250304042559_PreserveRegisterVariablesItemFlag','9.0.11'),('20250304104024_CraftPhaseExertionAndStamina','9.0.11'),('20250304114440_MerchandiseTransactionRecordsFix','9.0.11'),('20250424052852_SpellTriggerNullTargets','9.0.11'),('20250628230040_PropertyRekeyOnLeaseEnd','9.0.11'),('20251110082110_CombatArenaSchema','9.0.11'),('20251115120000_ArenaSignupEcho','9.0.11'),('20260211095519_AIStorytellers','9.0.11'),('20260211124139_AIStorytellerEventSubscriptions','9.0.11'),('20260216092441_AIStorytellerTimeSystemPrompt','9.0.11'),('20260216095426_AIStorytellerScopedModelReasoning','9.0.11'),('20260218120142_ArenaAutoScheduling','9.0.11'),('20260221112947_AIStorytellerSituationScopes','9.0.11'),('20260222081900_ArenaEventTypeEliminationModes','9.0.11'),('20260222112522_ArenaNpcCompletionRestore','9.0.11'),('20260225115630_ArenaStageNameProfile','9.0.11'),('20260225233442_ArenaEloStrategyOptions','9.0.11'),('20260226124500_ArenaSideRatingRanges','9.0.11'),('20260227120000_ArenaPhaseProgAppearancePayouts','9.0.11'),('20260308065322_ClimateDescriptions','9.0.11'),('20260309072751_WeatherModelSimplification','9.0.11'),('20260309222608_ReplaceCharacterCaloriesWithSatiationReserve','9.0.11'),('20260309225356_DropObsoleteNutritionCalories','9.0.11'),('20260310122815_InfectionVirulenceMultiplier','9.0.11'),('20260316112529_NaturalRangedAttacksAndElementalContact','9.0.11'),('20260320180000_CombatSettingPriorityAndRaceDefault','9.0.11'),('20260321102002_FutureProgTypeDefinitionsStage1','9.0.11'),('20260321102139_FutureProgTypeDefinitionsStage2','9.0.11'),('20260327103014_ShopDeals','9.0.11'),('20260327124234_EstateProbateAuctionLiquidation','9.0.11'),('20260328123631_EstateProbateMorgueWorkflow','9.0.11'),('20260329110346_EconomicZoneEstatesEnabledToggle','9.0.11'),('20260329223130_EstateWillsPayoutsAndPropertyShares','9.0.11'),('20260331222122_AddSolidMaterialAliases','9.0.11'),('20260402053811_RemoveOldSunCelestialDefault','9.0.11'),('20260415122407_MarketPopulationIncomeAndPricePressure','9.0.11'),('20260415225956_MarketCombinationCategoriesAndStressHysteresisReady','9.0.11'),('20260416225128_AddCharacterComputerWorkspace','9.0.11'),('20260418111319_AddComputerMailService','9.0.11'),('20260420105205_AddBodypartSeverFormula','9.0.11'),('20260421064024_ProjectQueueAndCancellationContinuity','9.0.11'),('20260422035105_Phase1MultiBodyForms','9.0.11'),('20260423090353_Phase15BodyFormProvisioning','9.0.11'),('20260423093000_CharacterBodyTraumaMode','9.0.11'),('20260423114308_Phase15FormTransformationEcho','9.0.11'),('20260424000000_RaceAttributeAlterations','9.0.11'),('20260424035904_RaceSatiationLimits','9.0.11'),('20260424040025_PlanesAndPlanarData','9.0.11'),('20260424044647_PlaneRoomPresentation','9.0.11'),('20260425131140_HotelRoomRentals','9.0.11'),('20260425131520_StableMountStabling','9.0.11'),('20260425132107_AddTerrainGravity','9.0.11'),('20260426114113_DefaultFormTransformationEchoNonSelf','9.0.11'),('20260427110022_RecurringIntervalOrdinalFields','9.0.11'),('20260501090000_PlaneRemoteObservationTag','9.0.11'),('20260501132243_RaceAgeColumnsNoDatabaseDefaults','9.0.11'),('20260506102652_PrintedWritingAuthorNullable','9.0.11'),('20260506103358_ClanBudgetsAndPayrollHistory','9.0.11'),('20260507091523_VirtualCashLedgerAndBanklessSettlement','9.0.11'),('20260507092824_ClanBudgetVirtualTreasuryFallback','9.0.11'),('20260510212610_PatrolRouteStrategyData','9.0.11'),('20260513234412_ManualCombatCommands','9.0.11'),('20260515130602_VehiclesHybridModel','9.0.11'),('20260515232922_VehicleSystemsPhase2','9.0.11'),('20260519132419_VehicleCharacterHitchPullMultiplier','9.0.11'),('20260520000533_VehiclePersistentHitchLinks','9.0.11'),('20260520011927_AgricultureSystem','9.0.11'),('20260523000000_CommoditySpoilageRules','9.0.11'),('20260523125349_ItemProtoUniqueNameBuilderNotes','9.0.11'),('20260523134149_NpcTemplateUniqueNameBuilderNotes','9.0.11'),('20260523205847_ForagableCommodityOutput','9.0.11'),('20260526091744_UnifiedEmploymentPersistence','9.0.11'),('20260526120456_SurfaceLiquidState','9.0.11'),('20260529001356_EmploymentPayrollLiabilities','9.0.11'),('20260529025718_EmploymentActionStepOperationalState','9.0.11'),('20260529230237_MagicPortalTopology','9.0.11'),('20260530235915_EmploymentScheduledRuleStatus','9.0.11'),('20260601012012_AutomaticCrimeContext','9.0.11'),('20260601111355_HotelNormalizedPersistence','9.0.11'),('20260601122909_CommodityMerchandiseWeightedSales','9.0.11'),('20260606072630_RichEmploymentScheduledRuleExpressions','9.0.11'),('20260606103736_OutfitTemplates','9.0.11'),('20260612134150_CharacterInstances','9.0.11'),('20260614233932_CharacterInstanceNpcPatrolStableInstances','9.0.11'),('20260615024353_CharacterInstanceActorReferences','9.0.11'),('20260615120000_CharacterInstanceProjectLabour','9.0.11'),('20260616135417_DrugExpansionDependenceExposures','9.0.11'),('20260620054424_EmploymentApplicationSnapshots','9.0.11'),('20260627000000_VehicleTowStressPolicy','9.0.11'),('20260701121756_AlertEmotes','9.0.11'),('20260701122720_ClanHallCellsForEmploymentHosts','9.0.11'),('20260703095705_WritingCollections','9.0.11'),('20260703125041_HospitalServicesAndEmploymentHosts','9.0.11'),('20260703143217_HospitalAnesthesiaBloodStockPolicies','9.0.11'),('20260703232840_HospitalCannulationAndCombinedServices','9.0.11'),('20260706141430_ActiveProjectPaymentSettings','9.0.11'),('20260708120000_HospitalClinicalPlanning','9.0.11');
-INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20260719104654_VehicleSurfaceWaterMovementProfiles','9.0.11');
+INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20200626070704_InitialDatabase','9.0.11'),('20200728125151_MoveChargenToTables','9.0.11'),('20200807044450_EnforcementUpdate','9.0.11'),('20200810141606_ClanVoting','9.0.11'),('20200817061844_Elections','9.0.11'),('20200830233741_TerrainUpdate','9.0.11'),('20200905062837_CurrencyPatternEnhancement','9.0.11'),('20200928025908_KnowledgeBuilding','9.0.11'),('20201013213328_CheckFixing','9.0.11'),('20201014230837_FixingEmailTemplates','9.0.11'),('20201106014706_LineOfCreditAccounts','9.0.11'),('20201106040133_AttributesUpdate','9.0.11'),('20201108122141_EconomicZoneUpdate','9.0.11'),('20201113050353_EconomicZonesTouchup','9.0.11'),('20201120022913_EnforcermentAndMisc','9.0.11'),('20201120045951_MinorFixForCrime','9.0.11'),('20201129225407_SafeQuit','9.0.11'),('20201130014025_JournalUpdates','9.0.11'),('20201130041538_JournalUpdate','9.0.11'),('20201201052916_DrugReform','9.0.11'),('20201217051236_Changes','9.0.11'),('20201217051726_ExtraDescriptions','9.0.11'),('20201218014631_RacialBreathingChange','9.0.11'),('20201221031703_ClanFame','9.0.11'),('20201227120935_CantRemember','9.0.11'),('20210113052107_IndexFixForBodyparts','9.0.11'),('20210114010706_IndexAdditions','9.0.11'),('20210116210204_MagicSpells','9.0.11'),('20210118053537_MoreSpellStuff','9.0.11'),('20210119034150_MoreSpellStuff2','9.0.11'),('20210119035740_MoreSpellStuff3','9.0.11'),('20210120031933_MoreSpellStuff4','9.0.11'),('20210127032929_Jan21EnforcementWorkaround','9.0.11'),('20210202002906_RemovingChildClans','9.0.11'),('20210211035327_GameStatistics','9.0.11'),('20210224105856_NewSun','9.0.11'),('20210302112347_OngoingCheckForCharacteristics','9.0.11'),('20210331025006_BanksV1','9.0.11'),('20210423014825_WeaponAttackAddPositionRequirement','9.0.11'),('20210626110830_AuctionHouses','9.0.11'),('20210810123837_PropertyV1','9.0.11'),('20210902052233_PropertyV2','9.0.11'),('20210914132733_Sep21LawUpdate','9.0.11'),('20211025020630_JusticeOverhaulOct21','9.0.11'),('20211217034326_TerrainMapColourAddition','9.0.11'),('20211220045847_Skins','9.0.11'),('20211222033658_Skins-Pt2','9.0.11'),('20211226134159_ClanBankAccounts','9.0.11'),('20211229004501_PlayerBoards','9.0.11'),('20220104134109_JobsV1','9.0.11'),('20220105004035_ProjectsJobsUpdate','9.0.11'),('20220108004307_BoardBugFix','9.0.11'),('20220117102755_BoardsDescriptions','9.0.11'),('20220210215752_LongerAuthorFullDescs','9.0.11'),('20220225125641_ClanFKFixing','9.0.11'),('20220327052829_NPCSpawners','9.0.11'),('20220421132846_BodyCharacteristicsFix','9.0.11'),('20220625122517_ClanDiscordUpdate','9.0.11'),('20220625125136_ChargenResourcesAsDouble','9.0.11'),('20220718132632_MaterialsRefactor','9.0.11'),('20220731064708_TheoreticalCraftChecks','9.0.11'),('20220807101509_IntToDoubleParryBonus','9.0.11'),('20220814231930_RaceDefaultHwModels','9.0.11'),('20221030044209_ShopBankAccountsAndFinance','9.0.11'),('20221030125929_BankPaymentsAtShops','9.0.11'),('20221031113757_MagicSpellExclusivity','9.0.11'),('20221201081057_NameCulturesGenderExpansion','9.0.11'),('20221201133628_NameCulturesChargenExpansion','9.0.11'),('20230101133831_CurrencyPatternRegexCaseFix','9.0.11'),('20230110120837_RelativeEnthalpyForLiquids','9.0.11'),('20230124124618_SurgicalProcedureCheckTraits','9.0.11'),('20230311060208_SurgeryBodyUpdate','9.0.11'),('20230407151210_OpenAIv1','9.0.11'),('20230428004425_GlobalCurrencyChanges','9.0.11'),('20230603125906_CraftUseToolDuration','9.0.11'),('20230706055610_AuxiliaryMoves','9.0.11'),('20230714035824_AuxiliaryMoves2','9.0.11'),('20230727121209_SeasonsDisplayUpdate','9.0.11'),('20230731055842_SeederChoices','9.0.11'),('20230810071403_CellForeignKeyUpdates','9.0.11'),('20230825052231_NpcSpawnerMulti','9.0.11'),('20230825061651_ShopTypes','9.0.11'),('20230914142042_ScriptedEvents','9.0.11'),('20230917131132_ClanForeignKeyUpdate','9.0.11'),('20231031085439_MagicResourceColours','9.0.11'),('20231102120820_NewPlayerHints','9.0.11'),('20231110224309_HungerThirstRatesForRaces','9.0.11'),('20231125084220_ClimateModelSimplification','9.0.11'),('20231208235024_HeritageChargenCostBugFix','9.0.11'),('20240112055830_ChargenResourcesControlProg','9.0.11'),('20240119120217_CoinsChangeFlag','9.0.11'),('20240129025113_CurrencyForeignKeyUpdateJan24','9.0.11'),('20240305110906_BuyingMerchandise','9.0.11'),('20240325104238_MarketsV1','9.0.11'),('20240418112441_MarketsShopIntegration','9.0.11'),('20240427013621_MarketPopulations','9.0.11'),('20240601141550_DiscordOutputForChannels','9.0.11'),('20240615065145_ShopAutopayTaxes','9.0.11'),('20240730123726_TrackingV1','9.0.11'),('20240804070126_FixDatabaseAutoTrueBug','9.0.11'),('20240808232211_TrackingNameForBodyProtos','9.0.11'),('20240809155707_BMIUnits','9.0.11'),('20240816134208_ArmourPenaltyToDouble','9.0.11'),('20240817112644_HeightWeightModelDirectSetWeights','9.0.11'),('20240828105208_AutoReacquireTargetsSetting','9.0.11'),('20240828124859_CombatSettingsAugust24','9.0.11'),('20240831005804_BodypartGroupDescribersAugust2024','9.0.11'),('20240925062238_CrimesUpdate2024Sep25','9.0.11'),('20241011073405_StockroomNonMorphing','9.0.11'),('20241016054103_ItemProtoIsHiddenFromPlayers','9.0.11'),('20241016123415_BodyOverrideHealthStrategy','9.0.11'),('20241018071518_LiquidLeaveResidueInRooms','9.0.11'),('20241121010653_RemovingBreathableFluidsRaces','9.0.11'),('20241129002416_CriminalDescUpdates','9.0.11'),('20241216062012_RandomNamesBinaryUnicodeSort','9.0.11'),('20241220091815_EthnicitiesNameCultures','9.0.11'),('20241231030836_TagsForTerrains','9.0.11'),('20250101232454_SkewnessForHWModels','9.0.11'),('20250210095915_Shoppers','9.0.11'),('20250210233555_ShopsFeb25','9.0.11'),('20250211100238_ShopsFeb25P2','9.0.11'),('20250304042559_PreserveRegisterVariablesItemFlag','9.0.11'),('20250304104024_CraftPhaseExertionAndStamina','9.0.11'),('20250304114440_MerchandiseTransactionRecordsFix','9.0.11'),('20250424052852_SpellTriggerNullTargets','9.0.11'),('20250628230040_PropertyRekeyOnLeaseEnd','9.0.11'),('20251110082110_CombatArenaSchema','9.0.11'),('20251115120000_ArenaSignupEcho','9.0.11'),('20260211095519_AIStorytellers','9.0.11'),('20260211124139_AIStorytellerEventSubscriptions','9.0.11'),('20260216092441_AIStorytellerTimeSystemPrompt','9.0.11'),('20260216095426_AIStorytellerScopedModelReasoning','9.0.11'),('20260218120142_ArenaAutoScheduling','9.0.11'),('20260221112947_AIStorytellerSituationScopes','9.0.11'),('20260222081900_ArenaEventTypeEliminationModes','9.0.11'),('20260222112522_ArenaNpcCompletionRestore','9.0.11'),('20260225115630_ArenaStageNameProfile','9.0.11'),('20260225233442_ArenaEloStrategyOptions','9.0.11'),('20260226124500_ArenaSideRatingRanges','9.0.11'),('20260227120000_ArenaPhaseProgAppearancePayouts','9.0.11'),('20260308065322_ClimateDescriptions','9.0.11'),('20260309072751_WeatherModelSimplification','9.0.11'),('20260309222608_ReplaceCharacterCaloriesWithSatiationReserve','9.0.11'),('20260309225356_DropObsoleteNutritionCalories','9.0.11'),('20260310122815_InfectionVirulenceMultiplier','9.0.11'),('20260316112529_NaturalRangedAttacksAndElementalContact','9.0.11'),('20260320180000_CombatSettingPriorityAndRaceDefault','9.0.11'),('20260321102002_FutureProgTypeDefinitionsStage1','9.0.11'),('20260321102139_FutureProgTypeDefinitionsStage2','9.0.11'),('20260327103014_ShopDeals','9.0.11'),('20260327124234_EstateProbateAuctionLiquidation','9.0.11'),('20260328123631_EstateProbateMorgueWorkflow','9.0.11'),('20260329110346_EconomicZoneEstatesEnabledToggle','9.0.11'),('20260329223130_EstateWillsPayoutsAndPropertyShares','9.0.11'),('20260331222122_AddSolidMaterialAliases','9.0.11'),('20260402053811_RemoveOldSunCelestialDefault','9.0.11'),('20260415122407_MarketPopulationIncomeAndPricePressure','9.0.11'),('20260415225956_MarketCombinationCategoriesAndStressHysteresisReady','9.0.11'),('20260416225128_AddCharacterComputerWorkspace','9.0.11'),('20260418111319_AddComputerMailService','9.0.11'),('20260420105205_AddBodypartSeverFormula','9.0.11'),('20260421064024_ProjectQueueAndCancellationContinuity','9.0.11'),('20260422035105_Phase1MultiBodyForms','9.0.11'),('20260423090353_Phase15BodyFormProvisioning','9.0.11'),('20260423093000_CharacterBodyTraumaMode','9.0.11'),('20260423114308_Phase15FormTransformationEcho','9.0.11'),('20260424000000_RaceAttributeAlterations','9.0.11'),('20260424035904_RaceSatiationLimits','9.0.11'),('20260424040025_PlanesAndPlanarData','9.0.11'),('20260424044647_PlaneRoomPresentation','9.0.11'),('20260425131140_HotelRoomRentals','9.0.11'),('20260425131520_StableMountStabling','9.0.11'),('20260425132107_AddTerrainGravity','9.0.11'),('20260426114113_DefaultFormTransformationEchoNonSelf','9.0.11'),('20260427110022_RecurringIntervalOrdinalFields','9.0.11'),('20260501090000_PlaneRemoteObservationTag','9.0.11'),('20260501132243_RaceAgeColumnsNoDatabaseDefaults','9.0.11'),('20260506102652_PrintedWritingAuthorNullable','9.0.11'),('20260506103358_ClanBudgetsAndPayrollHistory','9.0.11'),('20260507091523_VirtualCashLedgerAndBanklessSettlement','9.0.11'),('20260507092824_ClanBudgetVirtualTreasuryFallback','9.0.11'),('20260510212610_PatrolRouteStrategyData','9.0.11'),('20260513234412_ManualCombatCommands','9.0.11'),('20260515130602_VehiclesHybridModel','9.0.11'),('20260515232922_VehicleSystemsPhase2','9.0.11'),('20260519132419_VehicleCharacterHitchPullMultiplier','9.0.11'),('20260520000533_VehiclePersistentHitchLinks','9.0.11'),('20260520011927_AgricultureSystem','9.0.11'),('20260523000000_CommoditySpoilageRules','9.0.11'),('20260523125349_ItemProtoUniqueNameBuilderNotes','9.0.11'),('20260523134149_NpcTemplateUniqueNameBuilderNotes','9.0.11'),('20260523205847_ForagableCommodityOutput','9.0.11'),('20260526091744_UnifiedEmploymentPersistence','9.0.11'),('20260526120456_SurfaceLiquidState','9.0.11'),('20260529001356_EmploymentPayrollLiabilities','9.0.11'),('20260529025718_EmploymentActionStepOperationalState','9.0.11'),('20260529230237_MagicPortalTopology','9.0.11'),('20260530235915_EmploymentScheduledRuleStatus','9.0.11'),('20260601012012_AutomaticCrimeContext','9.0.11'),('20260601111355_HotelNormalizedPersistence','9.0.11'),('20260601122909_CommodityMerchandiseWeightedSales','9.0.11'),('20260606072630_RichEmploymentScheduledRuleExpressions','9.0.11'),('20260606103736_OutfitTemplates','9.0.11'),('20260612134150_CharacterInstances','9.0.11'),('20260614233932_CharacterInstanceNpcPatrolStableInstances','9.0.11'),('20260615024353_CharacterInstanceActorReferences','9.0.11'),('20260615120000_CharacterInstanceProjectLabour','9.0.11'),('20260616135417_DrugExpansionDependenceExposures','9.0.11'),('20260620054424_EmploymentApplicationSnapshots','9.0.11'),('20260627000000_VehicleTowStressPolicy','9.0.11'),('20260701121756_AlertEmotes','9.0.11'),('20260701122720_ClanHallCellsForEmploymentHosts','9.0.11'),('20260703095705_WritingCollections','9.0.11'),('20260703125041_HospitalServicesAndEmploymentHosts','9.0.11'),('20260703143217_HospitalAnesthesiaBloodStockPolicies','9.0.11'),('20260703232840_HospitalCannulationAndCombinedServices','9.0.11'),('20260706141430_ActiveProjectPaymentSettings','9.0.11'),('20260708120000_HospitalClinicalPlanning','9.0.11'),('20260719104654_VehicleSurfaceWaterMovementProfiles','9.0.11'),('20260719124626_VehicleSurfaceWaterPropulsion','9.0.11'),('20260720063425_VehicleBoatCombat','9.0.11'),('20260721125028_MultiTargetCombatActions','9.0.11'),('20260722063400_RouteCellSpatialFoundation','9.0.11'),('20260722071041_RoomScaleVehicleInteriors','9.0.11'),('20260722100951_VehicleRoutesAndServices','9.0.11');
 /*!40000 ALTER TABLE `__efmigrationshistory` ENABLE KEYS */;
 
 --
@@ -696,6 +695,7 @@ CREATE TABLE IF NOT EXISTS `characterinstances` (
   `CurrentProjectLabourId` bigint DEFAULT NULL,
   `CurrentProjectHours` double NOT NULL DEFAULT '0',
   `CurrentProjectProjectHours` double NOT NULL DEFAULT '0',
+  `RoutePosition` decimal(18,3) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UQ_CharacterInstances_EmbodiedBody` (`EmbodiedBodyId`),
   UNIQUE KEY `UQ_CharacterInstances_PrimaryCharacter` (`PrimaryCharacterId`),
@@ -705,7 +705,8 @@ CREATE TABLE IF NOT EXISTS `characterinstances` (
   KEY `FK_CharacterInstances_Characters_idx` (`CharacterId`),
   KEY `IX_CharacterInstances_Location_Layer` (`LocationId`,`RoomLayer`),
   KEY `FK_CharacterInstances_ActiveProjects_idx` (`CurrentProjectId`),
-  KEY `FK_CharacterInstances_ProjectLabourRequirements_idx` (`CurrentProjectLabourId`)
+  KEY `FK_CharacterInstances_ProjectLabourRequirements_idx` (`CurrentProjectLabourId`),
+  KEY `IX_CharacterInstances_Location_Layer_RoutePosition` (`LocationId`,`RoomLayer`,`RoutePosition`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -3105,6 +3106,7 @@ CREATE TABLE IF NOT EXISTS `charactercombatsettings` (
   `GrappleResponse` int NOT NULL,
   `AttackHelpless` bit(1) NOT NULL DEFAULT b'0',
   `PriorityProgId` bigint DEFAULT NULL,
+  `PreferTerrestrialCombat` bit(1) NOT NULL DEFAULT b'1',
   PRIMARY KEY (`Id`),
   KEY `FK_CharacterCombatSettings_FutureProgs_idx` (`AvailabilityProgId`),
   KEY `FK_CharacterCombatSettings_Characters_idx` (`CharacterOwnerId`),
@@ -4117,8 +4119,10 @@ CREATE TABLE IF NOT EXISTS `gameitems` (
   `OwnerId` bigint DEFAULT NULL,
   `OwnerType` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `SurfaceLiquidData` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `RoutePosition` decimal(18,3) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `FK_GameItems_GameItems_Containers_idx` (`ContainerId`),
+  KEY `IX_GameItems_RoutePosition` (`RoutePosition`),
   CONSTRAINT `FK_GameItems_GameItems_Containers` FOREIGN KEY (`ContainerId`) REFERENCES `gameitems` (`Id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -6179,6 +6183,8 @@ CREATE TABLE IF NOT EXISTS `activeprojects` (
   `CharacterId` bigint DEFAULT NULL,
   `CellId` bigint DEFAULT NULL,
   `PaymentCurrencyId` bigint DEFAULT NULL,
+  `RoomLayer` int NOT NULL DEFAULT '0',
+  `RoutePosition` decimal(18,3) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `FK_ActiveProjects_Cells_idx` (`CellId`),
   KEY `FK_ActiveProjects_Characters_idx` (`CharacterId`),
@@ -7530,6 +7536,7 @@ CREATE TABLE IF NOT EXISTS `characters` (
   `CurrentProjectProjectHours` double NOT NULL DEFAULT '0',
   `CustomAlertEmote` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `CustomDistantAlertEmote` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `RoutePosition` decimal(18,3) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `FK_Characters_Accounts` (`AccountId`),
   KEY `FK_Characters_Bodies` (`BodyId`),
@@ -7543,6 +7550,7 @@ CREATE TABLE IF NOT EXISTS `characters` (
   KEY `FK_Characters_Scripts_idx` (`CurrentScriptId`),
   KEY `FK_Characters_Languages_Written_idx` (`CurrentWritingLanguageId`),
   KEY `FK_Characters_Cells` (`Location`),
+  KEY `IX_Characters_Location_Layer_RoutePosition` (`Location`,`RoomLayer`,`RoutePosition`),
   CONSTRAINT `FK_Characters_Accents` FOREIGN KEY (`CurrentAccentId`) REFERENCES `accents` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Characters_Accounts` FOREIGN KEY (`AccountId`) REFERENCES `accounts` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Characters_ActiveProjects` FOREIGN KEY (`CurrentProjectId`) REFERENCES `activeprojects` (`Id`) ON DELETE SET NULL,
@@ -10334,6 +10342,7 @@ CREATE TABLE IF NOT EXISTS `combatactions` (
   `RequiredPositionStateIds` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   `MoveDifficulty` int NOT NULL,
   `TraitDefinitionId` bigint NOT NULL,
+  `MaximumTargets` int NOT NULL DEFAULT '1',
   PRIMARY KEY (`Id`),
   KEY `IX_CombatActions_TraitDefinitionId` (`TraitDefinitionId`),
   KEY `IX_CombatActions_UsabilityProgId` (`UsabilityProgId`),
@@ -11147,6 +11156,36 @@ CREATE TABLE IF NOT EXISTS `vehicleaccesspointlocks` (
 /*!40000 ALTER TABLE `vehicleaccesspointlocks` ENABLE KEYS */;
 
 --
+-- Definition of vehiclepropulsionprofileprotos
+--
+
+DROP TABLE IF EXISTS `vehiclepropulsionprofileprotos`;
+CREATE TABLE IF NOT EXISTS `vehiclepropulsionprofileprotos` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `VehicleMovementProfileProtoId` bigint NOT NULL,
+  `PropulsionType` int NOT NULL,
+  `IsDefault` bit(1) NOT NULL,
+  `BaseMoveTimeMilliseconds` double NOT NULL,
+  `PropulsionTraitDefinitionId` bigint DEFAULT NULL,
+  `CheckDifficulty` int NOT NULL,
+  `SpeedMultiplierExpression` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `StaminaCostExpression` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_VehiclePropulsionProfileProtos_Profile_Type` (`VehicleMovementProfileProtoId`,`PropulsionType`),
+  KEY `FK_VehiclePropulsionProfileProtos_MovementProfiles_idx` (`VehicleMovementProfileProtoId`),
+  KEY `FK_VehiclePropulsionProfileProtos_Traits_idx` (`PropulsionTraitDefinitionId`),
+  CONSTRAINT `FK_VehiclePropulsionProfileProtos_MovementProfiles` FOREIGN KEY (`VehicleMovementProfileProtoId`) REFERENCES `vehiclemovementprofileprotos` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_VehiclePropulsionProfileProtos_Traits` FOREIGN KEY (`PropulsionTraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehiclepropulsionprofileprotos
+--
+
+/*!40000 ALTER TABLE `vehiclepropulsionprofileprotos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehiclepropulsionprofileprotos` ENABLE KEYS */;
+
+--
 -- Definition of vehicleprotos
 --
 
@@ -11243,6 +11282,37 @@ CREATE TABLE IF NOT EXISTS `vehiclecargospaceprotos` (
 /*!40000 ALTER TABLE `vehiclecargospaceprotos` ENABLE KEYS */;
 
 --
+-- Definition of vehiclecompartmentlinkprotos
+--
+
+DROP TABLE IF EXISTS `vehiclecompartmentlinkprotos`;
+CREATE TABLE IF NOT EXISTS `vehiclecompartmentlinkprotos` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `VehicleProtoId` bigint NOT NULL,
+  `VehicleProtoRevision` int NOT NULL,
+  `SourceVehicleCompartmentProtoId` bigint NOT NULL,
+  `DestinationVehicleCompartmentProtoId` bigint NOT NULL,
+  `OutboundDirection` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `InboundDirection` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `OutboundDescription` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `InboundDescription` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_VehicleCompartmentLinkProtos_Destination_idx` (`DestinationVehicleCompartmentProtoId`),
+  KEY `FK_VehicleCompartmentLinkProtos_Source_idx` (`SourceVehicleCompartmentProtoId`),
+  KEY `FK_VehicleCompartmentLinkProtos_VehicleProtos_idx` (`VehicleProtoId`,`VehicleProtoRevision`),
+  CONSTRAINT `FK_VehicleCompartmentLinkProtos_Destination` FOREIGN KEY (`DestinationVehicleCompartmentProtoId`) REFERENCES `vehiclecompartmentprotos` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleCompartmentLinkProtos_Source` FOREIGN KEY (`SourceVehicleCompartmentProtoId`) REFERENCES `vehiclecompartmentprotos` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleCompartmentLinkProtos_VehicleProtos` FOREIGN KEY (`VehicleProtoId`, `VehicleProtoRevision`) REFERENCES `vehicleprotos` (`Id`, `RevisionNumber`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehiclecompartmentlinkprotos
+--
+
+/*!40000 ALTER TABLE `vehiclecompartmentlinkprotos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehiclecompartmentlinkprotos` ENABLE KEYS */;
+
+--
 -- Definition of vehiclecompartmentprotos
 --
 
@@ -11254,8 +11324,12 @@ CREATE TABLE IF NOT EXISTS `vehiclecompartmentprotos` (
   `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Description` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `DisplayOrder` int NOT NULL,
+  `InteriorOutdoorsType` int NOT NULL DEFAULT '0',
+  `InteriorTerrainId` bigint DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `FK_VehicleCompartmentProtos_VehicleProtos_idx` (`VehicleProtoId`,`VehicleProtoRevision`),
+  KEY `FK_VehicleCompartmentProtos_Terrains_idx` (`InteriorTerrainId`),
+  CONSTRAINT `FK_VehicleCompartmentProtos_Terrains` FOREIGN KEY (`InteriorTerrainId`) REFERENCES `terrains` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_VehicleCompartmentProtos_VehicleProtos` FOREIGN KEY (`VehicleProtoId`, `VehicleProtoRevision`) REFERENCES `vehicleprotos` (`Id`, `RevisionNumber`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -11385,8 +11459,6 @@ CREATE TABLE IF NOT EXISTS `vehiclemovementprofileprotos` (
   `VehicleProtoRevision` int NOT NULL,
   `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `MovementType` int NOT NULL,
-  `MovementEnvironment` int NOT NULL DEFAULT '0',
-  `ExposesOccupantsToWater` bit(1) NOT NULL DEFAULT b'0',
   `IsDefault` bit(1) NOT NULL,
   `FuelLiquidId` bigint DEFAULT NULL,
   `FuelVolumePerMove` double NOT NULL DEFAULT '0',
@@ -11394,6 +11466,13 @@ CREATE TABLE IF NOT EXISTS `vehiclemovementprofileprotos` (
   `RequiredPowerSpikeInWatts` double NOT NULL DEFAULT '0',
   `RequiresAccessPointsClosed` bit(1) NOT NULL DEFAULT b'0',
   `RequiresTowLinksClosed` bit(1) NOT NULL DEFAULT b'0',
+  `ExposesOccupantsToWater` bit(1) NOT NULL DEFAULT b'0',
+  `MovementEnvironment` int NOT NULL DEFAULT '0',
+  `AutomaticOperationCapable` bit(1) NOT NULL DEFAULT b'0',
+  `RouteFuelVolumePerMetre` double NOT NULL DEFAULT '0',
+  `RoutePowerDrawWatts` double NOT NULL DEFAULT '0',
+  `RoutePropulsionMode` int NOT NULL DEFAULT '0',
+  `RouteSpeedMetresPerSecond` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
   KEY `FK_VehicleMovementProfileProtos_VehicleProtos_idx` (`VehicleProtoId`,`VehicleProtoRevision`),
   CONSTRAINT `FK_VehicleMovementProfileProtos_VehicleProtos` FOREIGN KEY (`VehicleProtoId`, `VehicleProtoRevision`) REFERENCES `vehicleprotos` (`Id`, `RevisionNumber`) ON DELETE CASCADE
@@ -11420,10 +11499,21 @@ CREATE TABLE IF NOT EXISTS `vehicleoccupantslotprotos` (
   `SlotType` int NOT NULL,
   `Capacity` int NOT NULL,
   `RequiredForMovement` bit(1) NOT NULL,
+  `ContributesToPropulsion` bit(1) NOT NULL DEFAULT b'0',
+  `AboveRangedCoverId` bigint DEFAULT NULL,
+  `BelowRangedCoverId` bigint DEFAULT NULL,
+  `BoatStabilityDifficulty` int NOT NULL DEFAULT '5',
+  `SameLevelRangedCoverId` bigint DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `FK_VehicleOccupantSlotProtos_Compartments_idx` (`VehicleCompartmentProtoId`),
   KEY `FK_VehicleOccupantSlotProtos_VehicleProtos_idx` (`VehicleProtoId`,`VehicleProtoRevision`),
+  KEY `FK_VehicleOccupantSlotProtos_AboveCover_idx` (`AboveRangedCoverId`),
+  KEY `FK_VehicleOccupantSlotProtos_BelowCover_idx` (`BelowRangedCoverId`),
+  KEY `FK_VehicleOccupantSlotProtos_SameLevelCover_idx` (`SameLevelRangedCoverId`),
+  CONSTRAINT `FK_VehicleOccupantSlotProtos_AboveCover` FOREIGN KEY (`AboveRangedCoverId`) REFERENCES `rangedcovers` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_VehicleOccupantSlotProtos_BelowCover` FOREIGN KEY (`BelowRangedCoverId`) REFERENCES `rangedcovers` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_VehicleOccupantSlotProtos_Compartments` FOREIGN KEY (`VehicleCompartmentProtoId`) REFERENCES `vehiclecompartmentprotos` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_VehicleOccupantSlotProtos_SameLevelCover` FOREIGN KEY (`SameLevelRangedCoverId`) REFERENCES `rangedcovers` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_VehicleOccupantSlotProtos_VehicleProtos` FOREIGN KEY (`VehicleProtoId`, `VehicleProtoRevision`) REFERENCES `vehicleprotos` (`Id`, `RevisionNumber`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -11433,6 +11523,192 @@ CREATE TABLE IF NOT EXISTS `vehicleoccupantslotprotos` (
 
 /*!40000 ALTER TABLE `vehicleoccupantslotprotos` DISABLE KEYS */;
 /*!40000 ALTER TABLE `vehicleoccupantslotprotos` ENABLE KEYS */;
+
+--
+-- Definition of vehicleroutes
+--
+
+DROP TABLE IF EXISTS `vehicleroutes`;
+CREATE TABLE IF NOT EXISTS `vehicleroutes` (
+  `Id` bigint NOT NULL,
+  `RevisionNumber` int NOT NULL,
+  `EditableItemId` bigint NOT NULL,
+  `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Description` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`Id`,`RevisionNumber`),
+  KEY `FK_VehicleRoutes_EditableItems_idx` (`EditableItemId`),
+  CONSTRAINT `FK_VehicleRoutes_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehicleroutes
+--
+
+/*!40000 ALTER TABLE `vehicleroutes` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehicleroutes` ENABLE KEYS */;
+
+--
+-- Definition of vehicleroutelegs
+--
+
+DROP TABLE IF EXISTS `vehicleroutelegs`;
+CREATE TABLE IF NOT EXISTS `vehicleroutelegs` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `VehicleRouteId` bigint NOT NULL,
+  `VehicleRouteRevision` int NOT NULL,
+  `Sequence` int NOT NULL,
+  `OriginStopId` bigint NOT NULL,
+  `DestinationStopId` bigint NOT NULL,
+  `RouteDistanceMetres` decimal(18,3) NOT NULL,
+  `RoomEquivalentCost` decimal(18,6) NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_VehicleRouteLegs_Route_Sequence` (`VehicleRouteId`,`VehicleRouteRevision`,`Sequence`),
+  KEY `FK_VehicleRouteLegs_DestinationStops_idx` (`DestinationStopId`,`VehicleRouteId`,`VehicleRouteRevision`),
+  KEY `FK_VehicleRouteLegs_OriginStops_idx` (`OriginStopId`,`VehicleRouteId`,`VehicleRouteRevision`),
+  CONSTRAINT `FK_VehicleRouteLegs_DestinationStops` FOREIGN KEY (`DestinationStopId`, `VehicleRouteId`, `VehicleRouteRevision`) REFERENCES `vehicleroutestops` (`Id`, `VehicleRouteId`, `VehicleRouteRevision`) ON DELETE CASCADE,
+  CONSTRAINT `FK_VehicleRouteLegs_OriginStops` FOREIGN KEY (`OriginStopId`, `VehicleRouteId`, `VehicleRouteRevision`) REFERENCES `vehicleroutestops` (`Id`, `VehicleRouteId`, `VehicleRouteRevision`) ON DELETE CASCADE,
+  CONSTRAINT `FK_VehicleRouteLegs_VehicleRoutes` FOREIGN KEY (`VehicleRouteId`, `VehicleRouteRevision`) REFERENCES `vehicleroutes` (`Id`, `RevisionNumber`) ON DELETE CASCADE,
+  CONSTRAINT `CK_VehicleRouteLegs_Distance` CHECK ((`RouteDistanceMetres` >= 0)),
+  CONSTRAINT `CK_VehicleRouteLegs_DistinctStops` CHECK ((`OriginStopId` <> `DestinationStopId`)),
+  CONSTRAINT `CK_VehicleRouteLegs_RoomEquivalentCost` CHECK ((`RoomEquivalentCost` >= 0)),
+  CONSTRAINT `CK_VehicleRouteLegs_Sequence` CHECK ((`Sequence` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehicleroutelegs
+--
+
+/*!40000 ALTER TABLE `vehicleroutelegs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehicleroutelegs` ENABLE KEYS */;
+
+--
+-- Definition of vehicleroutesteps
+--
+
+DROP TABLE IF EXISTS `vehicleroutesteps`;
+CREATE TABLE IF NOT EXISTS `vehicleroutesteps` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `VehicleRouteLegId` bigint NOT NULL,
+  `Sequence` int NOT NULL,
+  `StepType` int NOT NULL,
+  `OriginCellId` bigint NOT NULL,
+  `OriginRoomLayer` int NOT NULL,
+  `OriginRoutePositionMetres` decimal(18,3) DEFAULT NULL,
+  `DestinationCellId` bigint NOT NULL,
+  `DestinationRoomLayer` int NOT NULL,
+  `DestinationRoutePositionMetres` decimal(18,3) DEFAULT NULL,
+  `DistanceMetres` decimal(18,3) DEFAULT NULL,
+  `RoomEquivalentCost` decimal(18,6) NOT NULL,
+  `Direction` int DEFAULT NULL,
+  `PinnedTopologyVersion` bigint DEFAULT NULL,
+  `DestinationTopologyVersion` bigint DEFAULT NULL,
+  `ExitId` bigint DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_VehicleRouteSteps_Leg_Sequence` (`VehicleRouteLegId`,`Sequence`),
+  KEY `FK_VehicleRouteSteps_DestinationCells_idx` (`DestinationCellId`),
+  KEY `FK_VehicleRouteSteps_Exits_idx` (`ExitId`),
+  KEY `FK_VehicleRouteSteps_OriginCells_idx` (`OriginCellId`),
+  CONSTRAINT `FK_VehicleRouteSteps_DestinationCells` FOREIGN KEY (`DestinationCellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleRouteSteps_Exits` FOREIGN KEY (`ExitId`) REFERENCES `exits` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleRouteSteps_OriginCells` FOREIGN KEY (`OriginCellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleRouteSteps_VehicleRouteLegs` FOREIGN KEY (`VehicleRouteLegId`) REFERENCES `vehicleroutelegs` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `CK_VehicleRouteSteps_Positions` CHECK ((((`OriginRoutePositionMetres` is null) or (`OriginRoutePositionMetres` >= 0)) and ((`DestinationRoutePositionMetres` is null) or (`DestinationRoutePositionMetres` >= 0)) and (((`OriginRoutePositionMetres` is null) and (`PinnedTopologyVersion` is null)) or ((`OriginRoutePositionMetres` is not null) and (`PinnedTopologyVersion` is not null) and (`PinnedTopologyVersion` >= 1))) and (((`DestinationRoutePositionMetres` is null) and (`DestinationTopologyVersion` is null)) or ((`DestinationRoutePositionMetres` is not null) and (`DestinationTopologyVersion` is not null) and (`DestinationTopologyVersion` >= 1))))),
+  CONSTRAINT `CK_VehicleRouteSteps_RoomEquivalentCost` CHECK ((`RoomEquivalentCost` >= 0)),
+  CONSTRAINT `CK_VehicleRouteSteps_Sequence` CHECK ((`Sequence` >= 0)),
+  CONSTRAINT `CK_VehicleRouteSteps_TypedPayload` CHECK ((((`StepType` = 0) and (`ExitId` is null) and (`Direction` is not null) and (`Direction` in (-(1),1)) and (`PinnedTopologyVersion` is not null) and (`DestinationTopologyVersion` = `PinnedTopologyVersion`) and (`DistanceMetres` is not null) and (`DistanceMetres` >= 0) and (`OriginRoutePositionMetres` is not null) and (`DestinationRoutePositionMetres` is not null) and (`OriginCellId` = `DestinationCellId`) and (`OriginRoomLayer` = `DestinationRoomLayer`)) or ((`StepType` = 1) and (`ExitId` is not null) and (`Direction` is null) and (`DistanceMetres` is null))))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehicleroutesteps
+--
+
+/*!40000 ALTER TABLE `vehicleroutesteps` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehicleroutesteps` ENABLE KEYS */;
+
+--
+-- Definition of vehicleroutestops
+--
+
+DROP TABLE IF EXISTS `vehicleroutestops`;
+CREATE TABLE IF NOT EXISTS `vehicleroutestops` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `VehicleRouteId` bigint NOT NULL,
+  `VehicleRouteRevision` int NOT NULL,
+  `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Sequence` int NOT NULL,
+  `CellId` bigint NOT NULL,
+  `RoomLayer` int NOT NULL,
+  `RoutePositionMetres` decimal(18,3) DEFAULT NULL,
+  `DwellDurationMilliseconds` bigint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `AK_VehicleRouteStops_Id_Route` (`Id`,`VehicleRouteId`,`VehicleRouteRevision`),
+  UNIQUE KEY `UX_VehicleRouteStops_Route_Sequence` (`VehicleRouteId`,`VehicleRouteRevision`,`Sequence`),
+  KEY `FK_VehicleRouteStops_Cells_idx` (`CellId`),
+  CONSTRAINT `FK_VehicleRouteStops_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleRouteStops_VehicleRoutes` FOREIGN KEY (`VehicleRouteId`, `VehicleRouteRevision`) REFERENCES `vehicleroutes` (`Id`, `RevisionNumber`) ON DELETE CASCADE,
+  CONSTRAINT `CK_VehicleRouteStops_Dwell` CHECK ((`DwellDurationMilliseconds` >= 0)),
+  CONSTRAINT `CK_VehicleRouteStops_RoutePosition` CHECK (((`RoutePositionMetres` is null) or (`RoutePositionMetres` >= 0))),
+  CONSTRAINT `CK_VehicleRouteStops_Sequence` CHECK ((`Sequence` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehicleroutestops
+--
+
+/*!40000 ALTER TABLE `vehicleroutestops` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehicleroutestops` ENABLE KEYS */;
+
+--
+-- Definition of vehiclerouteplatformbindings
+--
+
+DROP TABLE IF EXISTS `vehiclerouteplatformbindings`;
+CREATE TABLE IF NOT EXISTS `vehiclerouteplatformbindings` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `VehicleRouteStopId` bigint NOT NULL,
+  `PlatformCellId` bigint NOT NULL,
+  `VehicleAccessPointProtoId` bigint NOT NULL,
+  `DockingToleranceMetres` decimal(18,3) NOT NULL DEFAULT '2.000',
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_VehicleRoutePlatformBindings_Stop_Platform_AccessPoint` (`VehicleRouteStopId`,`PlatformCellId`,`VehicleAccessPointProtoId`),
+  KEY `FK_VehicleRoutePlatformBindings_AccessPointProtos_idx` (`VehicleAccessPointProtoId`),
+  KEY `FK_VehicleRoutePlatformBindings_Cells_idx` (`PlatformCellId`),
+  CONSTRAINT `FK_VehicleRoutePlatformBindings_AccessPointProtos` FOREIGN KEY (`VehicleAccessPointProtoId`) REFERENCES `vehicleaccesspointprotos` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleRoutePlatformBindings_Cells` FOREIGN KEY (`PlatformCellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleRoutePlatformBindings_VehicleRouteStops` FOREIGN KEY (`VehicleRouteStopId`) REFERENCES `vehicleroutestops` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `CK_VehicleRoutePlatformBindings_Tolerance` CHECK ((`DockingToleranceMetres` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehiclerouteplatformbindings
+--
+
+/*!40000 ALTER TABLE `vehiclerouteplatformbindings` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehiclerouteplatformbindings` ENABLE KEYS */;
+
+--
+-- Definition of vehicleroutetopologypins
+--
+
+DROP TABLE IF EXISTS `vehicleroutetopologypins`;
+CREATE TABLE IF NOT EXISTS `vehicleroutetopologypins` (
+  `VehicleRouteId` bigint NOT NULL,
+  `VehicleRouteRevision` int NOT NULL,
+  `RouteCellId` bigint NOT NULL,
+  `TopologyVersion` bigint NOT NULL,
+  PRIMARY KEY (`VehicleRouteId`,`VehicleRouteRevision`,`RouteCellId`),
+  KEY `FK_VehicleRouteTopologyPins_RouteCells_idx` (`RouteCellId`),
+  CONSTRAINT `FK_VehicleRouteTopologyPins_RouteCells` FOREIGN KEY (`RouteCellId`) REFERENCES `routecells` (`CellId`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleRouteTopologyPins_VehicleRoutes` FOREIGN KEY (`VehicleRouteId`, `VehicleRouteRevision`) REFERENCES `vehicleroutes` (`Id`, `RevisionNumber`) ON DELETE CASCADE,
+  CONSTRAINT `CK_VehicleRouteTopologyPins_Version` CHECK ((`TopologyVersion` >= 1))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehicleroutetopologypins
+--
+
+/*!40000 ALTER TABLE `vehicleroutetopologypins` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehicleroutetopologypins` ENABLE KEYS */;
 
 --
 -- Definition of vehicles
@@ -11454,6 +11730,8 @@ CREATE TABLE IF NOT EXISTS `vehicles` (
   `MovementProfileProtoId` bigint DEFAULT NULL,
   `CreatedDateTime` datetime NOT NULL,
   `LastMovementDateTime` datetime DEFAULT NULL,
+  `ActivePropulsionProfileProtoId` bigint DEFAULT NULL,
+  `CurrentRoutePosition` decimal(18,3) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `FK_Vehicles_GameItems_Exterior_idx` (`ExteriorItemId`),
   KEY `FK_Vehicles_Cells_Current_idx` (`CurrentCellId`),
@@ -11461,11 +11739,14 @@ CREATE TABLE IF NOT EXISTS `vehicles` (
   KEY `FK_Vehicles_Exits_idx` (`CurrentExitId`),
   KEY `FK_Vehicles_MovementProfileProtos_idx` (`MovementProfileProtoId`),
   KEY `FK_Vehicles_VehicleProtos_idx` (`VehicleProtoId`,`VehicleProtoRevision`),
+  KEY `FK_Vehicles_PropulsionProfileProtos_idx` (`ActivePropulsionProfileProtoId`),
+  KEY `IX_Vehicles_Cell_Layer_RoutePosition` (`CurrentCellId`,`CurrentRoomLayer`,`CurrentRoutePosition`),
   CONSTRAINT `FK_Vehicles_Cells_Current` FOREIGN KEY (`CurrentCellId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Vehicles_Cells_Destination` FOREIGN KEY (`DestinationCellId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Vehicles_Exits` FOREIGN KEY (`CurrentExitId`) REFERENCES `exits` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Vehicles_GameItems_Exterior` FOREIGN KEY (`ExteriorItemId`) REFERENCES `gameitems` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Vehicles_MovementProfileProtos` FOREIGN KEY (`MovementProfileProtoId`) REFERENCES `vehiclemovementprofileprotos` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Vehicles_PropulsionProfileProtos` FOREIGN KEY (`ActivePropulsionProfileProtoId`) REFERENCES `vehiclepropulsionprofileprotos` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Vehicles_VehicleProtos` FOREIGN KEY (`VehicleProtoId`, `VehicleProtoRevision`) REFERENCES `vehicleprotos` (`Id`, `RevisionNumber`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -11475,6 +11756,57 @@ CREATE TABLE IF NOT EXISTS `vehicles` (
 
 /*!40000 ALTER TABLE `vehicles` DISABLE KEYS */;
 /*!40000 ALTER TABLE `vehicles` ENABLE KEYS */;
+
+--
+-- Definition of tracks
+--
+
+DROP TABLE IF EXISTS `tracks`;
+CREATE TABLE IF NOT EXISTS `tracks` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `CharacterId` bigint DEFAULT NULL,
+  `BodyPrototypeId` bigint DEFAULT NULL,
+  `CellId` bigint NOT NULL,
+  `RoomLayer` int NOT NULL,
+  `MudDateTime` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `FromDirectionExitId` bigint DEFAULT NULL,
+  `ToDirectionExitId` bigint DEFAULT NULL,
+  `TrackCircumstances` int NOT NULL,
+  `FromMoveSpeedId` bigint DEFAULT NULL,
+  `ToMoveSpeedId` bigint DEFAULT NULL,
+  `ExertionLevel` int NOT NULL,
+  `TrackIntensityVisual` double NOT NULL,
+  `TrackIntensityOlfactory` double NOT NULL,
+  `TurnedAround` bit(1) NOT NULL,
+  `RouteDirection` int DEFAULT NULL,
+  `RoutePosition` decimal(18,3) DEFAULT NULL,
+  `VehicleId` bigint DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `IX_Tracks_BodyPrototypeId` (`BodyPrototypeId`),
+  KEY `IX_Tracks_CharacterId` (`CharacterId`),
+  KEY `IX_Tracks_FromDirectionExitId` (`FromDirectionExitId`),
+  KEY `IX_Tracks_FromMoveSpeedId` (`FromMoveSpeedId`),
+  KEY `IX_Tracks_ToDirectionExitId` (`ToDirectionExitId`),
+  KEY `IX_Tracks_ToMoveSpeedId` (`ToMoveSpeedId`),
+  KEY `IX_Tracks_Cell_Layer_RoutePosition` (`CellId`,`RoomLayer`,`RoutePosition`),
+  KEY `FK_Tracks_Vehicles_idx` (`VehicleId`),
+  CONSTRAINT `FK_Tracks_BodyProtos` FOREIGN KEY (`BodyPrototypeId`) REFERENCES `bodyprotos` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Tracks_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Tracks_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Tracks_Exits_From` FOREIGN KEY (`FromDirectionExitId`) REFERENCES `exits` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Tracks_Exits_To` FOREIGN KEY (`ToDirectionExitId`) REFERENCES `exits` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Tracks_MoveSpeeds_From` FOREIGN KEY (`FromMoveSpeedId`) REFERENCES `movespeeds` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Tracks_MoveSpeeds_To` FOREIGN KEY (`ToMoveSpeedId`) REFERENCES `movespeeds` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Tracks_Vehicles` FOREIGN KEY (`VehicleId`) REFERENCES `vehicles` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `CK_Tracks_Owner` CHECK ((((`VehicleId` is null) and (`CharacterId` is not null) and (`BodyPrototypeId` is not null)) or ((`VehicleId` is not null) and (`CharacterId` is null) and (`BodyPrototypeId` is null))))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table tracks
+--
+
+/*!40000 ALTER TABLE `tracks` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tracks` ENABLE KEYS */;
 
 --
 -- Definition of vehicleaccesspoints
@@ -11568,9 +11900,12 @@ CREATE TABLE IF NOT EXISTS `vehiclecompartments` (
   `VehicleId` bigint NOT NULL,
   `VehicleCompartmentProtoId` bigint NOT NULL,
   `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `InteriorCellId` bigint DEFAULT NULL,
   PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_VehicleCompartments_InteriorCell` (`InteriorCellId`),
   KEY `FK_VehicleCompartments_Protos_idx` (`VehicleCompartmentProtoId`),
   KEY `FK_VehicleCompartments_Vehicles_idx` (`VehicleId`),
+  CONSTRAINT `FK_VehicleCompartments_InteriorCells` FOREIGN KEY (`InteriorCellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_VehicleCompartments_Protos` FOREIGN KEY (`VehicleCompartmentProtoId`) REFERENCES `vehiclecompartmentprotos` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_VehicleCompartments_Vehicles` FOREIGN KEY (`VehicleId`) REFERENCES `vehicles` (`Id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -11607,6 +11942,40 @@ CREATE TABLE IF NOT EXISTS `vehicledamagezones` (
 
 /*!40000 ALTER TABLE `vehicledamagezones` DISABLE KEYS */;
 /*!40000 ALTER TABLE `vehicledamagezones` ENABLE KEYS */;
+
+--
+-- Definition of vehicledockings
+--
+
+DROP TABLE IF EXISTS `vehicledockings`;
+CREATE TABLE IF NOT EXISTS `vehicledockings` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `VehicleId` bigint NOT NULL,
+  `VehicleAccessPointId` bigint NOT NULL,
+  `VehicleCompartmentId` bigint NOT NULL,
+  `ExteriorCellId` bigint NOT NULL,
+  `ExteriorRoomLayer` int NOT NULL,
+  `State` int NOT NULL DEFAULT '0',
+  `VehicleRouteStopId` bigint DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_VehicleDockings_AccessPoint` (`VehicleAccessPointId`),
+  KEY `FK_VehicleDockings_Compartments_idx` (`VehicleCompartmentId`),
+  KEY `IX_VehicleDockings_ExteriorCell_Layer` (`ExteriorCellId`,`ExteriorRoomLayer`),
+  KEY `IX_VehicleDockings_Vehicle_State` (`VehicleId`,`State`),
+  KEY `FK_VehicleDockings_VehicleRouteStops_idx` (`VehicleRouteStopId`),
+  CONSTRAINT `FK_VehicleDockings_AccessPoints` FOREIGN KEY (`VehicleAccessPointId`) REFERENCES `vehicleaccesspoints` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleDockings_Compartments` FOREIGN KEY (`VehicleCompartmentId`) REFERENCES `vehiclecompartments` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleDockings_ExteriorCells` FOREIGN KEY (`ExteriorCellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleDockings_VehicleRouteStops` FOREIGN KEY (`VehicleRouteStopId`) REFERENCES `vehicleroutestops` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleDockings_Vehicles` FOREIGN KEY (`VehicleId`) REFERENCES `vehicles` (`Id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehicledockings
+--
+
+/*!40000 ALTER TABLE `vehicledockings` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehicledockings` ENABLE KEYS */;
 
 --
 -- Definition of vehiclehitchlinks
@@ -11711,6 +12080,141 @@ CREATE TABLE IF NOT EXISTS `vehicleoccupancies` (
 
 /*!40000 ALTER TABLE `vehicleoccupancies` DISABLE KEYS */;
 /*!40000 ALTER TABLE `vehicleoccupancies` ENABLE KEYS */;
+
+--
+-- Definition of vehicleservices
+--
+
+DROP TABLE IF EXISTS `vehicleservices`;
+CREATE TABLE IF NOT EXISTS `vehicleservices` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Keywords` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `VehicleRouteId` bigint NOT NULL,
+  `VehicleRouteRevision` int NOT NULL,
+  `VehicleId` bigint NOT NULL,
+  `OperatorMode` int NOT NULL,
+  `RetryIntervalMilliseconds` bigint NOT NULL DEFAULT '30000',
+  `MaximumHoldMilliseconds` bigint NOT NULL DEFAULT '900000',
+  `Enabled` bit(1) NOT NULL DEFAULT b'1',
+  PRIMARY KEY (`Id`),
+  KEY `FK_VehicleServices_VehicleRoutes_idx` (`VehicleRouteId`,`VehicleRouteRevision`),
+  KEY `IX_VehicleServices_Name` (`Name`),
+  KEY `IX_VehicleServices_Vehicle_Enabled` (`VehicleId`,`Enabled`),
+  CONSTRAINT `FK_VehicleServices_VehicleRoutes` FOREIGN KEY (`VehicleRouteId`, `VehicleRouteRevision`) REFERENCES `vehicleroutes` (`Id`, `RevisionNumber`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleServices_Vehicles` FOREIGN KEY (`VehicleId`) REFERENCES `vehicles` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `CK_VehicleServices_MaximumHold` CHECK ((`MaximumHoldMilliseconds` >= 0)),
+  CONSTRAINT `CK_VehicleServices_OperatorMode` CHECK ((`OperatorMode` in (0,1))),
+  CONSTRAINT `CK_VehicleServices_RetryInterval` CHECK ((`RetryIntervalMilliseconds` > 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehicleservices
+--
+
+/*!40000 ALTER TABLE `vehicleservices` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehicleservices` ENABLE KEYS */;
+
+--
+-- Definition of vehiclejourneys
+--
+
+DROP TABLE IF EXISTS `vehiclejourneys`;
+CREATE TABLE IF NOT EXISTS `vehiclejourneys` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `OperationId` varchar(64) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `VehicleServiceId` bigint NOT NULL,
+  `VehicleRouteId` bigint NOT NULL,
+  `VehicleRouteRevision` int NOT NULL,
+  `VehicleId` bigint NOT NULL,
+  `State` int NOT NULL DEFAULT '0',
+  `CurrentStopId` bigint DEFAULT NULL,
+  `NextStopId` bigint DEFAULT NULL,
+  `ScheduledDeparture` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `ExpectedDeparture` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `DelayMilliseconds` bigint NOT NULL DEFAULT '0',
+  `LastCheckpointUtc` datetime(6) NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_VehicleJourneys_Operation` (`OperationId`),
+  UNIQUE KEY `UX_VehicleJourneys_Service_ScheduledDeparture` (`VehicleServiceId`,`ScheduledDeparture`),
+  KEY `FK_VehicleJourneys_CurrentStops_idx` (`CurrentStopId`,`VehicleRouteId`,`VehicleRouteRevision`),
+  KEY `FK_VehicleJourneys_NextStops_idx` (`NextStopId`,`VehicleRouteId`,`VehicleRouteRevision`),
+  KEY `FK_VehicleJourneys_VehicleRoutes_idx` (`VehicleRouteId`,`VehicleRouteRevision`),
+  KEY `FK_VehicleJourneys_Vehicles_idx` (`VehicleId`),
+  KEY `FK_VehicleJourneys_VehicleServices_idx` (`VehicleServiceId`),
+  KEY `IX_VehicleJourneys_Service_State` (`VehicleServiceId`,`State`),
+  CONSTRAINT `FK_VehicleJourneys_CurrentStops` FOREIGN KEY (`CurrentStopId`, `VehicleRouteId`, `VehicleRouteRevision`) REFERENCES `vehicleroutestops` (`Id`, `VehicleRouteId`, `VehicleRouteRevision`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleJourneys_NextStops` FOREIGN KEY (`NextStopId`, `VehicleRouteId`, `VehicleRouteRevision`) REFERENCES `vehicleroutestops` (`Id`, `VehicleRouteId`, `VehicleRouteRevision`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleJourneys_VehicleRoutes` FOREIGN KEY (`VehicleRouteId`, `VehicleRouteRevision`) REFERENCES `vehicleroutes` (`Id`, `RevisionNumber`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleJourneys_Vehicles` FOREIGN KEY (`VehicleId`) REFERENCES `vehicles` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleJourneys_VehicleServices` FOREIGN KEY (`VehicleServiceId`) REFERENCES `vehicleservices` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `CK_VehicleJourneys_Delay` CHECK ((`DelayMilliseconds` >= 0)),
+  CONSTRAINT `CK_VehicleJourneys_State` CHECK ((`State` between 0 and 8))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehiclejourneys
+--
+
+/*!40000 ALTER TABLE `vehiclejourneys` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehiclejourneys` ENABLE KEYS */;
+
+--
+-- Definition of vehiclejourneyevents
+--
+
+DROP TABLE IF EXISTS `vehiclejourneyevents`;
+CREATE TABLE IF NOT EXISTS `vehiclejourneyevents` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `VehicleJourneyId` bigint NOT NULL,
+  `Sequence` bigint NOT NULL,
+  `IdempotencyKey` varchar(128) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `EventType` int NOT NULL,
+  `State` int NOT NULL,
+  `OccurredAtUtc` datetime(6) NOT NULL,
+  `WorldTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `Message` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_VehicleJourneyEvents_Idempotency` (`IdempotencyKey`),
+  UNIQUE KEY `UX_VehicleJourneyEvents_Journey_Sequence` (`VehicleJourneyId`,`Sequence`),
+  CONSTRAINT `FK_VehicleJourneyEvents_VehicleJourneys` FOREIGN KEY (`VehicleJourneyId`) REFERENCES `vehiclejourneys` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `CK_VehicleJourneyEvents_EventType` CHECK ((`EventType` between 0 and 11)),
+  CONSTRAINT `CK_VehicleJourneyEvents_Sequence` CHECK ((`Sequence` >= 0)),
+  CONSTRAINT `CK_VehicleJourneyEvents_State` CHECK ((`State` between 0 and 8))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehiclejourneyevents
+--
+
+/*!40000 ALTER TABLE `vehiclejourneyevents` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehiclejourneyevents` ENABLE KEYS */;
+
+--
+-- Definition of vehicleserviceschedules
+--
+
+DROP TABLE IF EXISTS `vehicleserviceschedules`;
+CREATE TABLE IF NOT EXISTS `vehicleserviceschedules` (
+  `VehicleServiceId` bigint NOT NULL,
+  `ReferenceDeparture` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `NextDeparture` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `RecurrenceType` int NOT NULL,
+  `RecurrenceIntervalAmount` int NOT NULL,
+  `RecurrenceModifier` int NOT NULL,
+  `RecurrenceSecondaryModifier` int NOT NULL,
+  `RecurrenceFallbackMode` int NOT NULL,
+  PRIMARY KEY (`VehicleServiceId`),
+  CONSTRAINT `FK_VehicleServiceSchedules_VehicleServices` FOREIGN KEY (`VehicleServiceId`) REFERENCES `vehicleservices` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `CK_VehicleServiceSchedules_RecurrenceInterval` CHECK ((`RecurrenceIntervalAmount` > 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table vehicleserviceschedules
+--
+
+/*!40000 ALTER TABLE `vehicleserviceschedules` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehicleserviceschedules` ENABLE KEYS */;
 
 --
 -- Definition of vehicletowlinks
@@ -11910,6 +12414,7 @@ CREATE TABLE IF NOT EXISTS `weaponattacks` (
   `HandednessOptions` int NOT NULL,
   `RequiredPositionStateIds` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '1 16 17 18',
   `OnUseProgId` bigint DEFAULT NULL,
+  `MaximumTargets` int NOT NULL DEFAULT '1',
   PRIMARY KEY (`Id`),
   KEY `FK_WeaponAttacks_TraitExpression_Damage_idx` (`DamageExpressionId`),
   KEY `FK_WeaponAttacks_FutureProgs_idx` (`FutureProgId`),
@@ -12283,51 +12788,6 @@ CREATE TABLE IF NOT EXISTS `movespeeds` (
 
 /*!40000 ALTER TABLE `movespeeds` DISABLE KEYS */;
 /*!40000 ALTER TABLE `movespeeds` ENABLE KEYS */;
-
---
--- Definition of tracks
---
-
-DROP TABLE IF EXISTS `tracks`;
-CREATE TABLE IF NOT EXISTS `tracks` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `CharacterId` bigint NOT NULL,
-  `BodyPrototypeId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  `RoomLayer` int NOT NULL,
-  `MudDateTime` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `FromDirectionExitId` bigint DEFAULT NULL,
-  `ToDirectionExitId` bigint DEFAULT NULL,
-  `TrackCircumstances` int NOT NULL,
-  `FromMoveSpeedId` bigint DEFAULT NULL,
-  `ToMoveSpeedId` bigint DEFAULT NULL,
-  `ExertionLevel` int NOT NULL,
-  `TrackIntensityVisual` double NOT NULL,
-  `TrackIntensityOlfactory` double NOT NULL,
-  `TurnedAround` bit(1) NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `IX_Tracks_BodyPrototypeId` (`BodyPrototypeId`),
-  KEY `IX_Tracks_CellId` (`CellId`),
-  KEY `IX_Tracks_CharacterId` (`CharacterId`),
-  KEY `IX_Tracks_FromDirectionExitId` (`FromDirectionExitId`),
-  KEY `IX_Tracks_FromMoveSpeedId` (`FromMoveSpeedId`),
-  KEY `IX_Tracks_ToDirectionExitId` (`ToDirectionExitId`),
-  KEY `IX_Tracks_ToMoveSpeedId` (`ToMoveSpeedId`),
-  CONSTRAINT `FK_Tracks_BodyProtos` FOREIGN KEY (`BodyPrototypeId`) REFERENCES `bodyprotos` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Tracks_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Tracks_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Tracks_Exits_From` FOREIGN KEY (`FromDirectionExitId`) REFERENCES `exits` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Tracks_Exits_To` FOREIGN KEY (`ToDirectionExitId`) REFERENCES `exits` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Tracks_MoveSpeeds_From` FOREIGN KEY (`FromMoveSpeedId`) REFERENCES `movespeeds` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Tracks_MoveSpeeds_To` FOREIGN KEY (`ToMoveSpeedId`) REFERENCES `movespeeds` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table tracks
---
-
-/*!40000 ALTER TABLE `tracks` DISABLE KEYS */;
-/*!40000 ALTER TABLE `tracks` ENABLE KEYS */;
 
 --
 -- Definition of wearablesizes
@@ -13103,11 +13563,18 @@ CREATE TABLE IF NOT EXISTS `cells` (
   `Temporary` bit(1) NOT NULL DEFAULT b'0',
   `EffectData` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `SurfaceLiquidData` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `HostedVehicleCompartmentId` bigint DEFAULT NULL,
+  `HostedVehicleId` bigint DEFAULT NULL,
   PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_Cells_HostedVehicleCompartments` (`HostedVehicleCompartmentId`),
   KEY `FK_Cells_CellOverlays` (`CurrentOverlayId`),
   KEY `FK_Cells_Rooms` (`RoomId`),
+  KEY `FK_Cells_HostedVehicles_idx` (`HostedVehicleId`),
   CONSTRAINT `FK_Cells_CellOverlays` FOREIGN KEY (`CurrentOverlayId`) REFERENCES `celloverlays` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Cells_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+  CONSTRAINT `FK_Cells_HostedVehicleCompartments` FOREIGN KEY (`HostedVehicleCompartmentId`) REFERENCES `vehiclecompartments` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_Cells_HostedVehicles` FOREIGN KEY (`HostedVehicleId`) REFERENCES `vehicles` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_Cells_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `CK_Cells_HostedVehicleOwnership` CHECK ((((`HostedVehicleId` is null) and (`HostedVehicleCompartmentId` is null)) or ((`HostedVehicleId` is not null) and (`HostedVehicleCompartmentId` is not null))))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -13703,6 +14170,169 @@ CREATE TABLE IF NOT EXISTS `patrolmembers` (
 /*!40000 ALTER TABLE `patrolmembers` ENABLE KEYS */;
 
 --
+-- Definition of routecells
+--
+
+DROP TABLE IF EXISTS `routecells`;
+CREATE TABLE IF NOT EXISTS `routecells` (
+  `CellId` bigint NOT NULL,
+  `LengthMetres` decimal(18,3) NOT NULL,
+  `DefaultPositionMetres` decimal(18,3) NOT NULL,
+  `PositiveDirectionName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `NegativeDirectionName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `MetresPerRoomEquivalent` decimal(18,3) NOT NULL,
+  `TopologyVersion` bigint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`CellId`),
+  CONSTRAINT `FK_RouteCells_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `CK_RouteCells_DefaultPosition` CHECK (((`DefaultPositionMetres` >= 0) and (`DefaultPositionMetres` <= `LengthMetres`))),
+  CONSTRAINT `CK_RouteCells_Length` CHECK ((`LengthMetres` > 0)),
+  CONSTRAINT `CK_RouteCells_RoomEquivalent` CHECK ((`MetresPerRoomEquivalent` > 0)),
+  CONSTRAINT `CK_RouteCells_TopologyVersion` CHECK ((`TopologyVersion` >= 1))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table routecells
+--
+
+/*!40000 ALTER TABLE `routecells` DISABLE KEYS */;
+/*!40000 ALTER TABLE `routecells` ENABLE KEYS */;
+
+--
+-- Definition of activeroutemotions
+--
+
+DROP TABLE IF EXISTS `activeroutemotions`;
+CREATE TABLE IF NOT EXISTS `activeroutemotions` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `MoverType` int NOT NULL,
+  `MoverId` bigint NOT NULL,
+  `RouteCellId` bigint NOT NULL,
+  `RoomLayer` int NOT NULL,
+  `CheckpointPositionMetres` decimal(18,3) NOT NULL,
+  `TargetMinimumPositionMetres` decimal(18,3) NOT NULL,
+  `TargetMaximumPositionMetres` decimal(18,3) NOT NULL,
+  `Direction` int NOT NULL,
+  `SpeedMetresPerSecond` decimal(18,6) NOT NULL,
+  `RemainingDurationMilliseconds` bigint NOT NULL,
+  `TopologyVersion` bigint NOT NULL,
+  `Status` int NOT NULL,
+  `OperationId` varchar(64) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `CheckpointSequence` bigint NOT NULL,
+  `SelectedExitId` bigint DEFAULT NULL,
+  `StateData` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `CreatedDateTime` datetime(6) NOT NULL,
+  `LastCheckpointDateTime` datetime(6) NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_ActiveRouteMotions_Mover` (`MoverType`,`MoverId`),
+  UNIQUE KEY `UX_ActiveRouteMotions_Operation` (`OperationId`),
+  KEY `FK_ActiveRouteMotions_Exits_idx` (`SelectedExitId`),
+  KEY `IX_ActiveRouteMotions_RouteCell_Layer_Status` (`RouteCellId`,`RoomLayer`,`Status`),
+  CONSTRAINT `FK_ActiveRouteMotions_Exits` FOREIGN KEY (`SelectedExitId`) REFERENCES `exits` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_ActiveRouteMotions_RouteCells` FOREIGN KEY (`RouteCellId`) REFERENCES `routecells` (`CellId`) ON DELETE CASCADE,
+  CONSTRAINT `CK_ActiveRouteMotions_Checkpoint` CHECK ((`CheckpointPositionMetres` >= 0)),
+  CONSTRAINT `CK_ActiveRouteMotions_Direction` CHECK ((`Direction` in (-(1),1))),
+  CONSTRAINT `CK_ActiveRouteMotions_RemainingDuration` CHECK ((`RemainingDurationMilliseconds` >= 0)),
+  CONSTRAINT `CK_ActiveRouteMotions_Sequence` CHECK ((`CheckpointSequence` >= 0)),
+  CONSTRAINT `CK_ActiveRouteMotions_Speed` CHECK ((`SpeedMetresPerSecond` > 0)),
+  CONSTRAINT `CK_ActiveRouteMotions_TargetBand` CHECK (((`TargetMinimumPositionMetres` >= 0) and (`TargetMaximumPositionMetres` >= `TargetMinimumPositionMetres`))),
+  CONSTRAINT `CK_ActiveRouteMotions_TopologyVersion` CHECK ((`TopologyVersion` >= 1))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table activeroutemotions
+--
+
+/*!40000 ALTER TABLE `activeroutemotions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `activeroutemotions` ENABLE KEYS */;
+
+--
+-- Definition of routecelllandmarks
+--
+
+DROP TABLE IF EXISTS `routecelllandmarks`;
+CREATE TABLE IF NOT EXISTS `routecelllandmarks` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RouteCellId` bigint NOT NULL,
+  `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Keywords` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `PositionMetres` decimal(18,3) NOT NULL,
+  `DisplayOrder` int NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `IX_RouteCellLandmarks_RouteCell_Position` (`RouteCellId`,`PositionMetres`),
+  CONSTRAINT `FK_RouteCellLandmarks_RouteCells` FOREIGN KEY (`RouteCellId`) REFERENCES `routecells` (`CellId`) ON DELETE CASCADE,
+  CONSTRAINT `CK_RouteCellLandmarks_Position` CHECK ((`PositionMetres` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table routecelllandmarks
+--
+
+/*!40000 ALTER TABLE `routecelllandmarks` DISABLE KEYS */;
+/*!40000 ALTER TABLE `routecelllandmarks` ENABLE KEYS */;
+
+--
+-- Definition of routeexitanchors
+--
+
+DROP TABLE IF EXISTS `routeexitanchors`;
+CREATE TABLE IF NOT EXISTS `routeexitanchors` (
+  `ExitId` bigint NOT NULL,
+  `RouteCellId` bigint NOT NULL,
+  `MinimumPositionMetres` decimal(18,3) NOT NULL,
+  `MaximumPositionMetres` decimal(18,3) NOT NULL,
+  `ArrivalPositionMetres` decimal(18,3) NOT NULL,
+  PRIMARY KEY (`ExitId`,`RouteCellId`),
+  KEY `IX_RouteExitAnchors_RouteCell_Band` (`RouteCellId`,`MinimumPositionMetres`,`MaximumPositionMetres`),
+  CONSTRAINT `FK_RouteExitAnchors_Exits` FOREIGN KEY (`ExitId`) REFERENCES `exits` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_RouteExitAnchors_RouteCells` FOREIGN KEY (`RouteCellId`) REFERENCES `routecells` (`CellId`) ON DELETE CASCADE,
+  CONSTRAINT `CK_RouteExitAnchors_Arrival` CHECK (((`ArrivalPositionMetres` >= `MinimumPositionMetres`) and (`ArrivalPositionMetres` <= `MaximumPositionMetres`))),
+  CONSTRAINT `CK_RouteExitAnchors_Band` CHECK (((`MinimumPositionMetres` >= 0) and (`MaximumPositionMetres` >= `MinimumPositionMetres`)))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table routeexitanchors
+--
+
+/*!40000 ALTER TABLE `routeexitanchors` DISABLE KEYS */;
+/*!40000 ALTER TABLE `routeexitanchors` ENABLE KEYS */;
+
+--
+-- Definition of routemotionresourceledgers
+--
+
+DROP TABLE IF EXISTS `routemotionresourceledgers`;
+CREATE TABLE IF NOT EXISTS `routemotionresourceledgers` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `ActiveRouteMotionId` bigint NOT NULL,
+  `CheckpointSequence` bigint NOT NULL,
+  `IdempotencyKey` varchar(200) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `ResourceOwnerType` int NOT NULL,
+  `ResourceOwnerId` bigint NOT NULL,
+  `ResourceType` int NOT NULL,
+  `ResourceReferenceId` bigint DEFAULT NULL,
+  `ResourceKey` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ReservedAmount` decimal(18,6) NOT NULL,
+  `ConsumedAmount` decimal(18,6) NOT NULL,
+  `Status` int NOT NULL,
+  `CreatedDateTime` datetime(6) NOT NULL,
+  `CommittedDateTime` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_RouteMotionResourceLedgers_Idempotency` (`IdempotencyKey`),
+  KEY `IX_RouteMotionResourceLedgers_Motion_Sequence` (`ActiveRouteMotionId`,`CheckpointSequence`),
+  CONSTRAINT `FK_RouteMotionResourceLedgers_ActiveRouteMotions` FOREIGN KEY (`ActiveRouteMotionId`) REFERENCES `activeroutemotions` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `CK_RouteMotionResourceLedgers_Amounts` CHECK (((`ReservedAmount` >= 0) and (`ConsumedAmount` >= 0) and (`ConsumedAmount` <= `ReservedAmount`))),
+  CONSTRAINT `CK_RouteMotionResourceLedgers_Sequence` CHECK ((`CheckpointSequence` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table routemotionresourceledgers
+--
+
+/*!40000 ALTER TABLE `routemotionresourceledgers` DISABLE KEYS */;
+/*!40000 ALTER TABLE `routemotionresourceledgers` ENABLE KEYS */;
+
+--
 -- Definition of zones_timezones
 --
 
@@ -14137,382 +14767,6 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 /*!40000 ALTER TABLE `propertysalesorders` ENABLE KEYS */;
 
 
---
--- EF-generated idempotent delta for 20260719124626_VehicleSurfaceWaterPropulsion
---
-
-START TRANSACTION;
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260719124626_VehicleSurfaceWaterPropulsion') THEN
-
-    ALTER TABLE `vehicles` ADD `ActivePropulsionProfileProtoId` bigint(20) NULL;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260719124626_VehicleSurfaceWaterPropulsion') THEN
-
-    ALTER TABLE `vehicleoccupantslotprotos` ADD `ContributesToPropulsion` bit(1) NOT NULL DEFAULT 0;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260719124626_VehicleSurfaceWaterPropulsion') THEN
-
-    CREATE TABLE `vehiclepropulsionprofileprotos` (
-        `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-        `VehicleMovementProfileProtoId` bigint(20) NOT NULL,
-        `PropulsionType` int(11) NOT NULL,
-        `IsDefault` bit(1) NOT NULL,
-        `BaseMoveTimeMilliseconds` double NOT NULL,
-        `PropulsionTraitDefinitionId` bigint(20) NULL,
-        `CheckDifficulty` int(11) NOT NULL,
-        `SpeedMultiplierExpression` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-        `StaminaCostExpression` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
-        CONSTRAINT `FK_VehiclePropulsionProfileProtos_MovementProfiles` FOREIGN KEY (`VehicleMovementProfileProtoId`) REFERENCES `vehiclemovementprofileprotos` (`Id`) ON DELETE CASCADE,
-        CONSTRAINT `FK_VehiclePropulsionProfileProtos_Traits` FOREIGN KEY (`PropulsionTraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE SET NULL
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260719124626_VehicleSurfaceWaterPropulsion') THEN
-
-    CREATE INDEX `FK_Vehicles_PropulsionProfileProtos_idx` ON `vehicles` (`ActivePropulsionProfileProtoId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260719124626_VehicleSurfaceWaterPropulsion') THEN
-
-    CREATE INDEX `FK_VehiclePropulsionProfileProtos_MovementProfiles_idx` ON `vehiclepropulsionprofileprotos` (`VehicleMovementProfileProtoId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260719124626_VehicleSurfaceWaterPropulsion') THEN
-
-    CREATE INDEX `FK_VehiclePropulsionProfileProtos_Traits_idx` ON `vehiclepropulsionprofileprotos` (`PropulsionTraitDefinitionId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260719124626_VehicleSurfaceWaterPropulsion') THEN
-
-    CREATE UNIQUE INDEX `UX_VehiclePropulsionProfileProtos_Profile_Type` ON `vehiclepropulsionprofileprotos` (`VehicleMovementProfileProtoId`, `PropulsionType`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260719124626_VehicleSurfaceWaterPropulsion') THEN
-
-    ALTER TABLE `vehicles` ADD CONSTRAINT `FK_Vehicles_PropulsionProfileProtos` FOREIGN KEY (`ActivePropulsionProfileProtoId`) REFERENCES `vehiclepropulsionprofileprotos` (`Id`) ON DELETE SET NULL;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260719124626_VehicleSurfaceWaterPropulsion') THEN
-
-    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
-    VALUES ('20260719124626_VehicleSurfaceWaterPropulsion', '9.0.11');
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-COMMIT;
-
-
---
--- EF-generated idempotent delta for 20260720063425_VehicleBoatCombat
---
-
-START TRANSACTION;
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260720063425_VehicleBoatCombat') THEN
-
-    ALTER TABLE `vehicleoccupantslotprotos` ADD `AboveRangedCoverId` bigint(20) NULL;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260720063425_VehicleBoatCombat') THEN
-
-    ALTER TABLE `vehicleoccupantslotprotos` ADD `BelowRangedCoverId` bigint(20) NULL;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260720063425_VehicleBoatCombat') THEN
-
-    ALTER TABLE `vehicleoccupantslotprotos` ADD `BoatStabilityDifficulty` int(11) NOT NULL DEFAULT 5;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260720063425_VehicleBoatCombat') THEN
-
-    ALTER TABLE `vehicleoccupantslotprotos` ADD `SameLevelRangedCoverId` bigint(20) NULL;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260720063425_VehicleBoatCombat') THEN
-
-    ALTER TABLE `charactercombatsettings` ADD `PreferTerrestrialCombat` bit(1) NOT NULL DEFAULT b'1';
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260720063425_VehicleBoatCombat') THEN
-
-    CREATE INDEX `FK_VehicleOccupantSlotProtos_AboveCover_idx` ON `vehicleoccupantslotprotos` (`AboveRangedCoverId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260720063425_VehicleBoatCombat') THEN
-
-    CREATE INDEX `FK_VehicleOccupantSlotProtos_BelowCover_idx` ON `vehicleoccupantslotprotos` (`BelowRangedCoverId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260720063425_VehicleBoatCombat') THEN
-
-    CREATE INDEX `FK_VehicleOccupantSlotProtos_SameLevelCover_idx` ON `vehicleoccupantslotprotos` (`SameLevelRangedCoverId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260720063425_VehicleBoatCombat') THEN
-
-    ALTER TABLE `vehicleoccupantslotprotos` ADD CONSTRAINT `FK_VehicleOccupantSlotProtos_AboveCover` FOREIGN KEY (`AboveRangedCoverId`) REFERENCES `rangedcovers` (`Id`) ON DELETE SET NULL;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260720063425_VehicleBoatCombat') THEN
-
-    ALTER TABLE `vehicleoccupantslotprotos` ADD CONSTRAINT `FK_VehicleOccupantSlotProtos_BelowCover` FOREIGN KEY (`BelowRangedCoverId`) REFERENCES `rangedcovers` (`Id`) ON DELETE SET NULL;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260720063425_VehicleBoatCombat') THEN
-
-    ALTER TABLE `vehicleoccupantslotprotos` ADD CONSTRAINT `FK_VehicleOccupantSlotProtos_SameLevelCover` FOREIGN KEY (`SameLevelRangedCoverId`) REFERENCES `rangedcovers` (`Id`) ON DELETE SET NULL;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260720063425_VehicleBoatCombat') THEN
-
-    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
-    VALUES ('20260720063425_VehicleBoatCombat', '9.0.11');
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-COMMIT;
-
-
---
--- EF-generated idempotent delta for 20260721125028_MultiTargetCombatActions
---
-
-START TRANSACTION;
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260721125028_MultiTargetCombatActions') THEN
-
-    ALTER TABLE `weaponattacks` ADD `MaximumTargets` int(11) NOT NULL DEFAULT '1';
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260721125028_MultiTargetCombatActions') THEN
-
-    ALTER TABLE `combatactions` ADD `MaximumTargets` int(11) NOT NULL DEFAULT '1';
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260721125028_MultiTargetCombatActions') THEN
-
-    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
-    VALUES ('20260721125028_MultiTargetCombatActions', '9.0.11');
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-COMMIT;
-
-
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
@@ -14523,5 +14777,5 @@ COMMIT;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 
--- Dump completed on 2026-07-16 23:34:14
--- Total time: 0:0:0:1:355 (d:h:m:s:ms)
+-- Dump completed on 2026-07-22 20:54:44
+-- Total time: 0:0:0:1:986 (d:h:m:s:ms)

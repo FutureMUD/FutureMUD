@@ -184,6 +184,11 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.RequiredInstalledRole).IsRequired().HasColumnType("varchar(200)").HasCharSet("utf8").UseCollation("utf8_general_ci");
 			entity.Property(e => e.RequiresTowLinksClosed).HasColumnType("bit(1)");
 			entity.Property(e => e.RequiresAccessPointsClosed).HasColumnType("bit(1)");
+			entity.Property(e => e.RouteSpeedMetresPerSecond).HasColumnType("double");
+			entity.Property(e => e.RoutePropulsionMode).HasColumnType("int(11)");
+			entity.Property(e => e.RouteFuelVolumePerMetre).HasColumnType("double");
+			entity.Property(e => e.RoutePowerDrawWatts).HasColumnType("double");
+			entity.Property(e => e.AutomaticOperationCapable).HasColumnType("bit(1)");
 
 			entity.HasOne(d => d.VehicleProto)
 			      .WithMany(p => p.MovementProfiles)

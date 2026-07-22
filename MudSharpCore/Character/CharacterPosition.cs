@@ -285,71 +285,44 @@ public partial class Character
 
     public override IEnumerable<(IPerceivable Thing, Proximity Proximity)> LocalThingsAndProximities()
     {
-        List<IAffectProximity> proximityEffects = CombinedEffectsOfType<IAffectProximity>().ToList();
-        foreach (IGameItem item in Location.GameItems)
-        {
-            if (item.RoomLayer != RoomLayer)
-            {
-                yield return (item, Proximity.VeryDistant);
-            }
+		IEnumerable<IPerceivable> candidates;
+		if (Location.RouteDefinition is null)
+		{
+			candidates = Location.Perceivables;
+		}
+		else
+		{
+			var maximumDistance = Gameworld.GetStaticDouble("RouteCellVeryDistantDistanceMetres");
+			if (!double.IsFinite(maximumDistance) || maximumDistance <= 0.0)
+			{
+				maximumDistance = RouteSpatialConfiguration.Default.VeryDistantDistanceMetres;
+			}
 
-            if (Cover?.CoverItem?.Parent == item)
-            {
-                yield return (item, Proximity.Immediate);
-            }
+			candidates = RouteSpatialService.Instance.GetPerceivablesWithinAcrossLayers(
+				SpatialLocation,
+				maximumDistance);
+		}
 
-            if (PositionTarget == item || item.PositionTarget == this)
-            {
-                yield return (item, Proximity.Immediate);
-            }
-
-            if (InVicinity(item))
-            {
-                yield return (item, Proximity.Immediate);
-            }
-
-            List<(bool Affects, Proximity Proximity)> proximities = proximityEffects.Select(x => x.GetProximityFor(item)).Where(x => x.Affects).ToList();
-            if (proximities.Any())
-            {
-                yield return (item, proximities.Select(x => x.Proximity).Min());
-            }
-
-            yield return (item, Proximity.Distant);
-        }
-
-        foreach (ICharacter actor in Location.Characters)
-        {
-            if (actor == this)
-            {
-                continue;
-            }
-
-            if (actor.RoomLayer != RoomLayer)
-            {
-                yield return (actor, Proximity.VeryDistant);
-            }
-
-            if (PositionTarget == actor || actor.PositionTarget == this)
-            {
-                yield return (actor, Proximity.Immediate);
-            }
-
-            if (InVicinity(actor))
-            {
-                yield return (actor, Proximity.Immediate);
-            }
-
-            if (Party != null && actor.Party == Party)
-            {
-                yield return (actor, Proximity.Proximate);
-            }
-
-            List<(bool Affects, Proximity Proximity)> proximities = proximityEffects.Select(x => x.GetProximityFor(actor)).Where(x => x.Affects).ToList();
-            if (proximities.Any())
-            {
-                yield return (actor, proximities.Select(x => x.Proximity).Min());
-            }
-        }
+		var proximityEffects = CombinedEffectsOfType<IAffectProximity>().ToList();
+		foreach (var candidate in candidates
+			         .Where(x => !ReferenceEquals(x, this))
+			         .Distinct())
+		{
+			var proximity = InVicinity(candidate)
+				? Proximity.Immediate
+				: GetProximity(candidate);
+			var affectedProximity = proximityEffects
+				.Select(x => x.GetProximityFor(candidate))
+				.Where(x => x.Affects)
+				.Select(x => x.Proximity)
+				.DefaultIfEmpty(Proximity.Unapproximable)
+				.Min();
+			proximity = (Proximity)Math.Min((int)proximity, (int)affectedProximity);
+			if (proximity != Proximity.Unapproximable)
+			{
+				yield return (candidate, proximity);
+			}
+		}
 
         foreach (AdjacentToExit effect in CombinedEffectsOfType<AdjacentToExit>().Where(x => x.Exit.Exit.Door != null).ToList())
         {

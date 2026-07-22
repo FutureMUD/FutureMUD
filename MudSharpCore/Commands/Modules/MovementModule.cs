@@ -7,7 +7,7 @@ using MudSharp.Movement;
 
 namespace MudSharp.Commands.Modules;
 
-internal class MovementModule : Module<ICharacter>
+internal partial class MovementModule : Module<ICharacter>
 {
     private MovementModule()
         : base("Movement")
@@ -48,7 +48,8 @@ internal class MovementModule : Module<ICharacter>
             if (Constants.CardinalDirectionStringToDirection.ContainsKey(direction) && !actor.QueuedMoveCommands.Any())
             {
                 CardinalDirection targetDirection = Constants.CardinalDirectionStringToDirection[direction];
-                if (targetDirection.IsOpposingDirection(actor.Movement.Exit.OutboundDirection) &&
+                if (actor.Movement.Exit is { } currentExit &&
+					targetDirection.IsOpposingDirection(currentExit.OutboundDirection) &&
                     actor.Movement.CanBeVoluntarilyCancelled && actor.Movement.IsMovementLeader(actor))
                 {
                     actor.Movement.Cancel();

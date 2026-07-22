@@ -109,3 +109,56 @@ public enum VehicleHitchEndpointType
 	Vehicle = 0,
 	Character = 1
 }
+
+public enum RouteVehiclePropulsionMode
+{
+	Powered = 0,
+	ExternallyPulled = 1
+}
+
+public enum VehicleRouteStepType
+{
+	LinearRoute = 0,
+	CellExit = 1
+}
+
+public enum VehicleServiceOperatorMode
+{
+	Automatic = 0,
+	Onboard = 1
+}
+
+public enum VehicleJourneyState
+{
+	Scheduled = 0,
+	Boarding = 1,
+	Held = 2,
+	Departing = 3,
+	EnRoute = 4,
+	Dwelling = 5,
+	Arrived = 6,
+	Cancelled = 7,
+	Faulted = 8
+}
+
+public enum VehicleJourneyEventType
+{
+	Scheduled = 0,
+	BoardingOpened = 1,
+	Held = 2,
+	Departed = 3,
+	Checkpointed = 4,
+	StopArrived = 5,
+	Dwelling = 6,
+	BoardingClosed = 7,
+	Completed = 8,
+	DelayChanged = 9,
+	Cancelled = 10,
+	Faulted = 11
+}
+
+public enum VehicleDockingState
+{
+	DockedClosed = 0,
+	BoardingOpen = 1
+}

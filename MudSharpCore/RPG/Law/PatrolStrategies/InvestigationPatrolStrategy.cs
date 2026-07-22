@@ -69,7 +69,7 @@ public class InvestigationPatrolStrategy : CrimeTargetedPatrolStrategyBase
 		ICharacter criminal = crime.Criminal;
 		bool identityKnown = criminal is not null &&
 		                     patrol.PatrolLeader.CanSee(criminal) &&
-		                     patrol.PatrolLeader.Location == criminal.Location;
+		                     patrol.PatrolLeader.GetProximity(criminal) <= Proximity.VeryDistant;
 		crime.RecordInvestigationEvidence(patrol.PatrolLeader, EvidenceReliability, identityKnown);
 		patrol.PatrolLeader.OutputHandler.Handle(new EmoteOutput(new Emote(
 			"@ inspect|inspects the area carefully, collecting evidence about a reported crime.",

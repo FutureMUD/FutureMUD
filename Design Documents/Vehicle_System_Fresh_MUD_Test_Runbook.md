@@ -9,10 +9,13 @@ The goal is to verify the supported vehicle shapes end to end:
 - `ItemScale` vehicles with an exterior item, one driver slot, one control station, boarding, driving, and disembarking.
 - `RoomContainer` vehicles with compartments, access points, cargo projections, install points, damage effects, towing, and operational readiness diagnostics.
 - `CellExit` movement through ordinary adjacent cell exits, using either `drive <direction>` or normal movement commands while controlling a vehicle.
+- linear RouteCell movement with exact coordinates, named landmarks, and coordinate-banded portals.
+- `RoomScale` vehicles with stable hosted interior cells, internal links, docking, boarding, and occupied movement.
+- revisioned `VehicleRoute` services with stops, platforms, recurring departures, delay, and reboot recovery.
 - Active character/mount hitches where a person, animal, or mount pulls a vehicle tow point, leads another hitched character, or pulls a vehicle that itself has downstream vehicle tow links.
 - Operational readiness checks for access grants, module condition, fuel/power candidates, player repair, and tow-stress catastrophe recovery.
 
-`RoomScale`, route movement, coordinate movement, rich ownership or lease policy, rich parked-harness administration, and broad fuel or power network topology are not fully supported by this runbook.
+Coordinate 2D/3D movement, collision/signalling/dispatch, consist length, overtaking, fares, reservations, rich ownership or lease policy, rich parked-harness administration, and broad fuel or power network topology are outside this runbook.
 
 ## Prerequisites
 
@@ -701,6 +704,243 @@ Expected result:
 - The towbar and any loose character-hitch item move with the chain unless they are worn/carried by an endpoint.
 - If the combined train is too heavy, a hitch item is missing/destroyed, a linked vehicle cannot fit through the exit, or a valid stressed link catastrophically fails, movement is blocked before any vehicle or hitch item moves.
 
+## RouteCell Topology Fixture
+
+Build this fixture once for the train and wagon tests. Use two ordinary platform/town cells and one or more linear cells between them. Create each RouteCell before linking exits into it.
+
+In the first linear cell:
+
+```text
+cell set route create 10km
+cell set route direction positive eastbound
+cell set route direction negative westbound
+cell set route roomequivalent 100m
+cell set route landmark add 0m "West Terminus"
+cell set route landmark add 7150m "Old Quarry Turn-Off"
+cell set route landmark add 10km "East Terminus"
+cell set route show
+cell set route map
+```
+
+Create/link the west platform, east platform, and optional quarry side cell using the normal room builder. Back in the RouteCell, anchor all three route-side exits:
+
+```text
+cell set route exit west band 0m 2m arrival 0m
+cell set route exit quarry band 7100m 7200m arrival 7150m
+cell set route exit east band 9998m 10km arrival 10km
+cell set route validate
+```
+
+Expected result:
+
+- `travel forward` at 5,000m moves toward the positive endpoint but does not traverse the east exit merely because the movement reaches its band.
+- `look forward` and `scan forward` can describe visible landmarks/exits with localised distances.
+- `travel to quarry` reaches the nearest point in the 7,100-7,200m band and stops; an ordinary exit command then traverses it.
+- Entering from the quarry side arrives at 7,150m.
+- `cell set route validate` reports no unanchored topology and the map orders endpoints, landmarks, and portal bands by coordinate.
+
+For chained RouteCells, create the second cell before linking it. Anchor the shared exit independently on both sides, then validate both cells. The shared portal must never make either long cell cost one ordinary room.
+
+## Scheduled RoomScale Train Test
+
+Create a train prototype using the existing exterior/slot/access patterns, then add persistent interior settings, a compartment link, and an automatic-capable Route profile:
+
+```text
+vehicleproto new QA Scheduled Train
+vehicleproto set scale roomscale
+vehicleproto set exterior <train-hull-proto>
+vehicleproto set compartment add cab
+vehicleproto set compartment add carriage
+vehicleproto show <train-proto-id>
+vehicleproto set compartment interior <cab-id> <indoor-terrain> indoors
+vehicleproto set compartment interior <carriage-id> <indoor-terrain> indoors
+vehicleproto set compartment link add <cab-id> <carriage-id> forward backward "the passenger carriage" "the driver's cab"
+vehicleproto set slot add <cab-id> driver 1 controls
+vehicleproto show <train-proto-id>
+vehicleproto set station add <driver-slot-id> controls
+vehicleproto set slot add <carriage-id> passenger 20 seats
+vehicleproto set access add <carriage-id> door <train-door-proto> passenger doors
+vehicleproto set movement route
+vehicleproto set movement route speed 20m/s
+vehicleproto set movement route propulsion powered
+vehicleproto set movement route power 50000
+vehicleproto set movement route automatic
+vehicleproto submit fresh runbook scheduled train
+vehicleproto approve <train-proto-id> fresh runbook scheduled train
+```
+
+Stand in the RouteCell at the west terminus and create the train. Record the vehicle id and verify `vehicle show` lists stable interior cell ids, a connected interior graph, exterior coordinate `0m`, and no docking faults.
+
+Author the operational route and service:
+
+```text
+vehicleroute edit new QA Intertown Line
+vehicleroute set stop add "West Station" <route-cell-id> GroundLevel at 0m
+vehicleroute set stop platform add "West Station" <west-platform-cell-id> <train-access-point-id> 2m
+vehicleroute set stop dwell "West Station" 2m
+vehicleroute set stop add "East Station" <route-cell-id> GroundLevel at 10km
+vehicleroute set stop platform add "East Station" <east-platform-cell-id> <train-access-point-id> 2m
+vehicleroute set stop dwell "East Station" 2m
+vehicleroute set leg compile "West Station" "East Station"
+vehicleroute preview <route-id>
+vehicleroute validate
+vehicleroute submit fresh runbook intertown route
+vehicleroute approve <route-id> fresh runbook intertown route
+vehicleservice new QA Intertown Service | <approved-route-id> | <train-vehicle-id> | <game-clock departure> | every 15 minutes
+vehicleservice set operator automatic
+vehicleservice set maxhold 15m
+vehicleservice set enabled true
+vehicleservice audit "QA Intertown Service"
+vehicleservice show "QA Intertown Service"
+```
+
+`vehicleroute` stop positions and docking tolerances accept either numeric metres or normal length expressions such as `10km` and `2m`. The service reference departure must use the current location's game clock/calendar syntax. Replace the example recurrence if a 15-minute service is unsuitable for that calendar.
+
+From the west platform, verify:
+
+```text
+transit departures east
+transit services east
+transit status "QA Intertown Service"
+look
+embark train passenger
+vehiclestatus
+```
+
+Expected result:
+
+- The platform shows one docked train supplied by the docking service, not a duplicate exterior item.
+- `embark train passenger` resolves the open platform docking even though the train exterior item remains in the RouteCell. Embarking crosses that transient docking exit into the persistent carriage cell; `disembark` is available only while the matching compartment docking is open and returns the passenger to the authored platform cell.
+- The journey transitions Scheduled -> Boarding -> Departing -> EnRoute -> Dwelling/Arrived and reports scheduled time, expected time, next stop, platform, and delay.
+- The exterior coordinate interpolates continuously while carriage and cab cell ids/occupants remain unchanged.
+- Disabling a required module before departure enters Held, retries every 30 seconds, and cancels after maximum hold; repairing it within the hold window permits departure.
+- A graceful reboot commits the exact coordinate. A crash-style restart resumes the last durable checkpoint without downtime travel and adds downtime to journey delay. Fuel/power for an already committed checkpoint is not charged twice.
+- Editing RouteCell topology invalidates later departures until a new route revision is compiled/submitted; an active journey never silently reroutes.
+- Submitting a newer route revision does not invalidate a service pinned to the older approved (`Revised`) revision. Disable the service and finish or cancel its active journey before deliberately assigning a different route revision or vehicle.
+
+## Massive Mobile Platform Test
+
+Create a RoomScale platform with at least two linked interior compartments, one external ramp, a driver/control station, and a normal CellExit profile. Create it in the first of two ordinary adjacent cells.
+
+```text
+vehicleproto new QA Massive Platform
+vehicleproto set scale roomscale
+vehicleproto set exterior <platform-hull-proto>
+vehicleproto set compartment add control
+vehicleproto set compartment add deckhouse
+vehicleproto show <platform-proto-id>
+vehicleproto set compartment interior <control-id> <indoor-terrain> indoors
+vehicleproto set compartment interior <deckhouse-id> <indoor-terrain> indoors
+vehicleproto set compartment link add <control-id> <deckhouse-id> aft forward "the deckhouse" "the control room"
+vehicleproto set slot add <control-id> driver 1 controls
+vehicleproto show <platform-proto-id>
+vehicleproto set station add <driver-slot-id> controls
+vehicleproto set slot add <deckhouse-id> passenger 20 berths
+vehicleproto set access add <deckhouse-id> ramp <platform-ramp-proto> loading ramp
+vehicleproto set movement cell
+vehicleproto submit fresh runbook massive platform
+vehicleproto approve <platform-proto-id> fresh runbook massive platform
+vehicleproto create <platform-proto-id>
+```
+
+Board the control station and place a second character and a loose item in the deckhouse. Record both interior cell ids, then:
+
+```text
+vehicle show <platform-vehicle-id>
+look ramp
+embark platform driver via ramp
+enter forward
+vehiclecontrol
+drive north
+vehicle show <platform-vehicle-id>
+vehicle audit <platform-vehicle-id> interior
+vehicle audit <platform-vehicle-id> docking
+```
+
+Expected result:
+
+- The ramp projection is targetable by the ordinary `ramp` keyword while the projection itself remains out of the cell's top-level item list. It inherits the platform exterior's cell, layer, and RouteCell coordinate after every move; `ramp@platform` remains a valid disambiguating form.
+- The Deckhouse ramp is allowed to reach the driver slot through the live explicit Deckhouse-Control link. Embarking lands in Deckhouse, the ramp's authored docking destination, and reserves the driver assignment without granting control there. Moving `enter forward` into Control and using `vehiclecontrol` establishes a physically valid controller.
+- Ordinary movement accepts the explicit `enter forward` because both ends of that link are hosted cells of the same RoomScale vehicle. Attempting to walk through the transient docking exit remains blocked; leaving through it requires `disembark`. ItemScale and RoomContainer occupants remain unable to walk while boarded. A current controller should use `enter <internal-exit>` for compartment movement because a bare direction is intentionally interpreted as a request to drive the vehicle.
+- A controller in the interior control cell can resolve and traverse the exterior's north exit.
+- Only the exterior projection and exterior hitch cohort change ordinary cells.
+- Both interior ids, occupants, and loose contents remain stable; internal and external movement messages have separate scopes.
+- Docking links disappear before movement and rebuild at arrival.
+- Destroying or unlinking the exterior stops further movement without deleting interiors. `vehicle recover <vehicle> interior|docking|all [fix]` reports and safely repairs recoverable faults. To exercise interrupted-creation recovery, clear a compartment's live `InteriorCellId` while retaining its cell's hosted-vehicle/compartment ownership in a disposable database: `interior fix` must relink that same cell id, never create another cell. If the owned cell is not loaded or is claimed by another compartment, recovery must fail closed with an actionable reason.
+- If factory creation is interrupted after the live access/cargo rows exist but before their authored item projections are linked, `vehicle recover <vehicle> projection` must list each missing projection and `vehicle recover <vehicle> projection fix` must create and link it. Record the new item ids, run the same fix again, and verify that it reports no projection finding and creates no additional items. A missing exterior is intentionally not recreated by this action; repair it with `vehicle relink`.
+- Vehicle deletion/retirement is refused while an interior is occupied, a journey is active, any service still references the vehicle, or a hitch remains.
+
+## Horse-Drawn Route Wagon Train Test
+
+Create two RoomContainer wagons with externally pulled Route profiles and compatible recursive tow points. Use physical yoke/harness/towbar items as required by the authored tow types. Place the lead wagon and mount in the west town/platform cell.
+
+If the fresh world has no suitable mount, this minimal builder sequence creates a functional mount fixture. The maintained blank snapshot contains only the Humanoid, Organic Humanoid, and Human races, so the exact fresh-world fixture clones the admin character and presents it as a draught horse while exercising the real mount AI, stamina, speed, and hitch systems. A game with an authored horse race should select that race and its matching culture/ethnicity instead. Keep every attribute within the selected race's individual cap; `30` is valid for the seeded Human race. `ai edit new` creates a non-revisioned AI and `npc make` creates a current template immediately, so a correct first-pass fixture does not need review. If an already-current NPC template is revised later, submit and approve that new NPC revision normally.
+
+```text
+ai edit new mount "QA Wagon Horse Mount"
+ai set permit AlwaysTrue
+ai set control AlwaysTrue
+ai close
+npc make 1 QA-Horse
+npc set unique qa-draught-horse
+npc set gender male
+npc set randomise
+npc set name Japheth
+npc set sdesc a QA draught horse
+npc set attribute str 30
+npc set ai add "QA Wagon Horse Mount"
+npc edit close
+npc load qa-draught-horse
+mount horse
+dismount
+force horse speed gallop
+```
+
+```text
+vehicleproto set movement route
+vehicleproto set movement route propulsion externallypulled
+vehicleproto set movement route speed 4m/s
+vehicleproto set tow add none harness towed 1000000 pull 2 shafts
+vehicleproto set tow add none towbar tow 1000000 rear
+vehicleproto set tow add none towbar towed 1000000 front
+vehicleproto submit fresh runbook route wagon
+vehicleproto approve <wagon-proto-id> fresh runbook route wagon
+vehicleproto create <wagon-proto-id>
+vehicleproto create <wagon-proto-id>
+hitch rear@lead-wagon front@rear-wagon with towbar
+hitch horse shafts@lead-wagon with harness
+embark lead-wagon driver
+```
+
+Build the vehicle-to-vehicle chain before attaching the motive character. A character-to-vehicle hitch deliberately marks the lead vehicle as dragged; subsequently trying to add a downstream vehicle from that already-dragged root is rejected. The tow-point builder currently stores maximum weights in engine base mass units, so size the number against the item prototype's displayed base weight and the complete downstream train; the `1000000` fixture values above safely exceed two `200000`-unit QA wagon exteriors. A tow-point character pull multiplier greater than `1` increases effective pull capacity by dividing the train's effective weight; values below `1` are accepted as authored data but clamp to `1` at runtime and provide no benefit. The authored Route-profile speed is used only for powered propulsion; an externally pulled train uses the mount's current movement speed.
+
+Author/approve a two-stop wagon route from the west town cell, through the anchored RouteCell exits, to the east town cell. Compile the leg so its preview contains `CellExitStep`, exact `LinearRouteStep` metres, and the terminal `CellExitStep`.
+
+```text
+drive route <approved-wagon-route>
+vehiclestatus
+drive stop
+vehiclestatus
+drive route <approved-wagon-route>
+drive stop
+drive forward 1km
+drive to "Old Quarry Turn-Off"
+drive route <approved-wagon-route>
+```
+
+After each `drive route`, wait until `vehiclestatus` shows that the coordinate has advanced before issuing `drive stop`. A ten-kilometre acceptance trip runs in real time at the mount's speed; for a short checkpoint smoke, use a controlled fast mount, travel at least 300m, and allow more than the default 30-second checkpoint interval before stopping. Do not record that smoke as a completed intertown arrival.
+
+Expected result:
+
+- The mount is the motive root; the driver may remain aboard the wagon.
+- Horse, rider/driver, physical hitch gear, lead wagon, downstream wagon, and exterior contents share one reference coordinate during longitudinal movement.
+- `drive stop` commits an exact mid-route coordinate. Reissuing `drive route <approved-wagon-route>` starts a new durable operation at that coordinate and resumes the unique remaining pinned step rather than rewinding to an ordinary-room boundary. A coordinate outside the compiled leg, matching multiple continuations, already at the terminal end, or using an invalidated topology fails closed with an actionable reason.
+- Portal traversal occurs only as the compiled explicit exit step; passing the quarry band does not take its exit. At a compiled portal the mount, party/riders, physical gear, and recursive vehicle train cross atomically. The exact graph/readiness reason is shown if the portal preflight fails.
+- Stamina and tow stress are charged by committed distance. Exhaustion, damaged connectors, over-capacity tow points, missing gear, fuel/power policy, or a catastrophe stops the whole cohort at one committed coordinate with an actionable reason and no duplicate charge.
+- Arrival through the terminal anchor places the complete cohort in the east town cell and preserves the recursive hitch graph.
+
+The compiled route is directional. Author and approve a separate reverse route (and, if desired, a separate service) for the east-to-west journey; V1 does not infer or dynamically reverse service legs.
+
 ## Negative Tests
 
 Run these as separate checks after the positive path:
@@ -810,12 +1050,11 @@ The current implementation should be considered fully supported for:
 - active mount/character-pulled carts, wagons, rickshaws, hand carts, and similar vehicle exteriors, including carts with downstream vehicle tow links, while the hitch is a live movement effect or an eligible NPC-only persistent hitch;
 - player-facing exterior repair through ordinary repair kits, admin damage/hitch recovery, and tow catastrophe recovery for the current cell-exit movement model.
 - explicit driver control handoff, player-facing readiness/status checks, required-crew enforcement, and fail-closed movement when an exterior projection is missing or out of sync.
+- continuous RouteCell driving for powered and externally pulled vehicles, including exact stops, landmark/visible-exit targets, explicit compiled portal steps, durable checkpoints, and recursive hitch cohorts;
+- persistent `RoomScale` hosted interiors that remain stable while their exterior moves through ordinary exits or along RouteCells, with transient ordinary-cell and scheduled-platform docking;
+- revisioned, topology-pinned `VehicleRoute` definitions, recurring `VehicleService` schedules, restart-safe journeys, holds/cancellation/faults, player timetable/status output, and automatic or onboard operation;
+- the scheduled multi-compartment train, ordinary-exit massive mobile platform, and mount-drawn route wagon-train acceptance scenarios in this runbook.
 
-The current implementation should not yet be considered fully supported for:
+The current implementation should not yet be considered fully supported for coordinate 2D/3D movement, collision/dispatch/signalling, physical consist length, overtaking, automatic reverse-route generation, dynamic rerouting, fares/reservations, rich ownership or lease policy, rich parked-harness administration, or detailed fuel/power network topology beyond installed module candidates. Aircraft, spacecraft, free-moving ships, and coordinate-positioned elevators therefore remain outside this boundary; a large vehicle whose hosted interior moves by the supported cell-exit or RouteCell models is inside it.
 
-- route-based buses, trains, or ferries;
-- coordinate-positioned vehicles;
-- aircraft, spacecraft, elevators, or ships with large moving interiors;
-- vehicles that need rich ownership or lease policy, rich parked-harness administration, or detailed fuel/power topology beyond installed module candidates.
-
-This list is the MudSharp 2.0 Vehicle V1 boundary. Route, coordinate, and moving-interior work is post-V1 rather than an incomplete part of this test contract.
+This list is the MudSharp 2.0 Vehicle V1 boundary. The train, massive-platform, and recursive wagon-train workflows above were executed through the live telnet runtime on the migrated development world; the wagon evidence includes multiple durable checkpoints, reboot reload, explicit RouteCell portal traversal in both directions, and completion of the terminal route steps into the far-town platform. The maintained blank-database snapshot includes the final Vehicle V1 migration. Exact transcripts, automated totals, and fixture provenance are recorded in the [V1.0 acceptance evidence](./Verification/RouteCell_Vehicle_V1_Acceptance_Evidence.md). An upgraded production-world soak remains a separate release-candidate gate.

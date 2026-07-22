@@ -19,6 +19,8 @@ namespace MudSharp.Models
         public long CurrentPhaseId { get; set; }
         public long? CharacterId { get; set; }
         public long? CellId { get; set; }
+		public int RoomLayer { get; set; }
+		public decimal? RoutePosition { get; set; }
         public long? PaymentCurrencyId { get; set; }
 
         public virtual Cell Cell { get; set; }

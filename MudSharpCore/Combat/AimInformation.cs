@@ -5,6 +5,7 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Economy.Currency;
 using MudSharp.GameItems;
 using MudSharp.Health;
+using MudSharp.Form.Shape;
 using MudSharp.RPG.Checks;
 using MudSharp.Vehicles;
 
@@ -60,6 +61,7 @@ public class AimInformation : IAimInformation
             Target.OnQuit += Target_NoLongerValid;
             Target.OnDeleted += Target_NoLongerValid;
             Target.OnLocationChanged += Target_OnLocationChanged;
+			Target.OnSpatialPositionChanged += Target_OnSpatialPositionChanged;
             if (Target is IMortalPerceiver mp)
             {
                 mp.OnDeath += Target_NoLongerValid;
@@ -82,6 +84,7 @@ public class AimInformation : IAimInformation
         if (Shooter is ICharacter characterOwner)
         {
             characterOwner.OnMoved += CharacterOwner_OnMoved;
+			characterOwner.OnSpatialPositionChanged += Shooter_OnSpatialPositionChanged;
             characterOwner.Body.OnInventoryChange += WeaponInventoryStateChange;
         }
 
@@ -106,7 +109,7 @@ public class AimInformation : IAimInformation
         RecalculatePath();
 
         // Can't aim at the target any more
-        if ((!Path.Any() && Shooter.Location != Target.Location) || !Shooter.CanSee(Target))
+		if (!AimRemainsValid())
         {
             Shooter.OutputHandler.Handle(
                 new EmoteOutput(new Emote(
@@ -171,6 +174,60 @@ public class AimInformation : IAimInformation
         RegisterPathEvents();
     }
 
+	private bool AimRemainsValid()
+	{
+		if (Target is null || !Shooter.CanSee(Target))
+		{
+			return false;
+		}
+
+		if (Shooter.Location?.RouteDefinition is not null || Target.Location?.RouteDefinition is not null)
+		{
+			var range = Shooter.RoomEquivalentDistanceBetween(Target);
+			return range >= 0.0 && range <= Weapon.WeaponType.DefaultRangeInRooms;
+		}
+
+		return Shooter.Location == Target.Location || Path.Any();
+	}
+
+	private void Target_OnSpatialPositionChanged(
+		ILocateable locatable,
+		SpatialLocation previousLocation,
+		SpatialLocation currentLocation)
+	{
+		HandleSpatialPositionChange("as your target moves", 0.33);
+	}
+
+	private void Shooter_OnSpatialPositionChanged(
+		ILocateable locatable,
+		SpatialLocation previousLocation,
+		SpatialLocation currentLocation)
+	{
+		HandleSpatialPositionChange("as you move", 0.33);
+	}
+
+	private void HandleSpatialPositionChange(string reason, double aimLoss)
+	{
+		RecalculatePath();
+		if (!AimRemainsValid())
+		{
+			Shooter.OutputHandler.Handle(new EmoteOutput(new Emote(
+				"You stop aiming $2 at $1=0 because &1 has moved out of range.",
+				Shooter,
+				Shooter,
+				Target,
+				Weapon.Parent)), OutputRange.Personal);
+			ReleaseEvents();
+			return;
+		}
+
+		if (AimPercentage > 0.0)
+		{
+			Shooter.OutputHandler.Send($"You lose some of your aim {reason}.");
+			AimPercentage = Math.Max(0.0, AimPercentage - aimLoss);
+		}
+	}
+
     protected void WeaponDestroyed(IPerceivable perceivable)
     {
         Shooter.OutputHandler.Handle(
@@ -222,7 +279,7 @@ public class AimInformation : IAimInformation
         RecalculatePath();
 
         // Can't aim at the target any more
-        if ((!Path.Any() && Shooter.Location != Target.Location) || !Shooter.CanSee(Target))
+		if (!AimRemainsValid())
         {
             Shooter.OutputHandler.Handle(
                 new EmoteOutput(new Emote(
@@ -274,7 +331,7 @@ public class AimInformation : IAimInformation
         if (!door.CanFireThrough)
         {
             RecalculatePath();
-            if ((!Path.Any() && Shooter.Location != Target.Location) || !Shooter.CanSee(Target))
+			if (!AimRemainsValid())
             {
                 Shooter.OutputHandler.Handle(
                     new EmoteOutput(new Emote(
@@ -327,6 +384,7 @@ public class AimInformation : IAimInformation
                 Target.OnQuit -= Target_NoLongerValid;
                 Target.OnDeleted -= Target_NoLongerValid;
                 Target.OnLocationChanged -= Target_OnLocationChanged;
+				Target.OnSpatialPositionChanged -= Target_OnSpatialPositionChanged;
                 if (Target is IMortalPerceiver mp)
                 {
                     mp.OnDeath -= Target_NoLongerValid;
@@ -348,6 +406,7 @@ public class AimInformation : IAimInformation
             if (Shooter is ICharacter characterOwner)
             {
                 characterOwner.OnMoved -= CharacterOwner_OnMoved;
+				characterOwner.OnSpatialPositionChanged -= Shooter_OnSpatialPositionChanged;
                 characterOwner.Body.OnInventoryChange -= WeaponInventoryStateChange;
             }
 

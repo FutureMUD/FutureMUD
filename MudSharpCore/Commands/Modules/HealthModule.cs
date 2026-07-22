@@ -3,6 +3,7 @@ using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Combat;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Framework.Units;
@@ -1227,7 +1228,7 @@ The syntaxes available include:
             else
             {
                 targetLodged.RoomLayer = actor.RoomLayer;
-                actor.Location.Insert(targetLodged);
+                targetLodged.InsertAtSource(actor);
                 actor.Send($"You set {targetLodged.HowSeen(actor)} on the ground as you have nowhere to put it.");
             }
 
@@ -1352,7 +1353,7 @@ The syntaxes available include:
             else
             {
                 targetLodged.RoomLayer = actor.RoomLayer;
-                actor.Location.Insert(targetLodged);
+                targetLodged.InsertAtSource(actor);
                 actor.Send($"You set {targetLodged.HowSeen(actor)} on the ground as you have nowhere to put it.");
             }
 
@@ -2854,7 +2855,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
         {
             actor.Gameworld.Add(item);
             item.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(item);
+            item.InsertAtSource(target.Perceivable);
             item.Login();
             item.HandleEvent(EventType.ItemFinishedLoading, item);
         }

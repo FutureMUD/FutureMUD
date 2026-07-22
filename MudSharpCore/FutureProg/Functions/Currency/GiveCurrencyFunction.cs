@@ -68,7 +68,7 @@ internal class GiveCurrencyFunction : BuiltInFunction
                     if (targetContainer == null)
                     {
                         newItem.RoomLayer = character.RoomLayer;
-                        character.Location.Insert(newItem, true);
+                        newItem.InsertAtSource(character, true);
                     }
                     else
                     {
@@ -188,7 +188,7 @@ internal class GiveCurrencyFunction : BuiltInFunction
                                           x.CanPut(newItem)));
                     if (targetContainer == null)
                     {
-                        character.Location.Insert(newItem, true);
+                        newItem.InsertAtSource(character, true);
                     }
                     else
                     {

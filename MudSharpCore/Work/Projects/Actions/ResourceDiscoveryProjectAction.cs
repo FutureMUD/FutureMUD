@@ -115,17 +115,17 @@ public class ResourceDiscoveryProjectAction : BaseAction
 		{
 			if (!string.IsNullOrWhiteSpace(FailureEcho))
 			{
-				location.HandleRoomEcho(FailureEcho, roomLayer);
+				HandleProjectEcho(project, location, FailureEcho, roomLayer);
 			}
 
 			return;
 		}
 
-		if (MatchingResourceAlreadyPresent(location))
+		if (MatchingResourceAlreadyPresent(project, location))
 		{
 			if (!string.IsNullOrWhiteSpace(AlreadyPresentEcho))
 			{
-				location.HandleRoomEcho(AlreadyPresentEcho, roomLayer);
+				HandleProjectEcho(project, location, AlreadyPresentEcho, roomLayer);
 			}
 
 			return;
@@ -138,14 +138,37 @@ public class ResourceDiscoveryProjectAction : BaseAction
 		}
 		item.RoomLayer = roomLayer;
 		Gameworld.Add(item);
-		location.Insert(item, true);
-		location.HandleRoomEcho(Echo ?? $"Signs of {OutputItemPrototype.ShortDescription} are revealed by the project.",
-			roomLayer);
+		if (project is ILocalProject localProject)
+		{
+			item.MoveTo(localProject.SpatialLocation, noSave: true);
+			location.Insert(item, true);
+		}
+		else
+		{
+			var placementSource = project.ActiveLabour
+				.Select(x => x.Character)
+				.FirstOrDefault(x => ReferenceEquals(x?.Location, location)) ??
+				(ReferenceEquals(project.CharacterOwner?.Location, location) ? project.CharacterOwner : null);
+			if (placementSource is not null)
+			{
+				item.InsertAtSource(placementSource, true);
+			}
+			else
+			{
+				location.Insert(item, true);
+			}
+		}
+
+		HandleProjectEcho(project, location,
+			Echo ?? $"Signs of {OutputItemPrototype.ShortDescription} are revealed by the project.", roomLayer);
 	}
 
-	private bool MatchingResourceAlreadyPresent(ICell location)
+	private bool MatchingResourceAlreadyPresent(IActiveProject project, ICell location)
 	{
-		return location.GameItems.Any(item =>
+		var candidates = project is ILocalProject localProject
+			? LocalProjectSpatialRules.GameItemsAtSite(localProject.SpatialLocation)
+			: location.GameItems;
+		return candidates.Any(item =>
 			(DuplicatePreventionTag is not null && item.IsA(DuplicatePreventionTag)) ||
 			(OutputItemPrototype is not null &&
 			 item.Prototype.Id == OutputItemPrototype.Id &&
@@ -159,12 +182,31 @@ public class ResourceDiscoveryProjectAction : BaseAction
 
 	private static RoomLayer ResolveRoomLayer(IActiveProject project, ICell location)
 	{
+		if (project is ILocalProject localProject)
+		{
+			return localProject.RoomLayer;
+		}
+
 		return project.ActiveLabour
 		              .Select(x => x.Character)
 		              .FirstOrDefault(x => x?.Location == location)
 		              ?.RoomLayer ??
 		       project.CharacterOwner?.RoomLayer ??
 		       RoomLayer.GroundLevel;
+	}
+
+	private static void HandleProjectEcho(IActiveProject project, ICell location, string text, RoomLayer layer)
+	{
+		if (project is not ILocalProject localProject || location.RouteDefinition is null)
+		{
+			location.HandleRoomEcho(text, layer);
+			return;
+		}
+
+		foreach (var character in LocalProjectSpatialRules.CharactersAtSite(localProject.SpatialLocation))
+		{
+			character.OutputHandler.Send(text);
+		}
 	}
 
 	public override IProjectAction Duplicate(IProjectPhase newPhase)

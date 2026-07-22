@@ -131,7 +131,7 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
             loader.OutputHandler.Handle(new EmoteOutput(new Emote("$1 is ejected from $0 by the action.", loader,
                 Parent, ChamberedRound.Parent)));
             ChamberedRound.Parent.RoomLayer = loader.RoomLayer;
-            loader.Location.Insert(ChamberedRound.Parent);
+            ChamberedRound.Parent.InsertAtSource(loader);
             ChamberedRound.Parent.ContainedIn = null;
         }
 
@@ -213,7 +213,7 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
         else
         {
             Magazine.Parent.RoomLayer = loader.RoomLayer;
-            loader.Location.Insert(Magazine.Parent);
+            Magazine.Parent.InsertAtSource(loader);
         }
 
         Magazine = null;

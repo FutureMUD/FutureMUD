@@ -93,7 +93,7 @@ public sealed class PassiveCharacterInstance : Character
 			remains = CorpseGameItemComponentProto.CreateNewBodyRemains(this, Body, remainsContext);
 			Gameworld.Add(remains);
 			remains.RoomLayer = oldLayer;
-			oldLocation.Insert(remains);
+			remains.InsertAtSource(this);
 		}
 
 		Combat?.LeaveCombat(this);

@@ -128,8 +128,29 @@ public class CommodityOutputProjectAction : BaseAction
 		}
 		item.RoomLayer = roomLayer;
 		Gameworld.Add(item);
-		location.Insert(item, true);
-		location.HandleRoomEcho(Echo ?? $"A new pile of {Material.Name.Colour(Material.ResidueColour)} is produced by the project.",
+		if (project is ILocalProject localProject)
+		{
+			item.MoveTo(localProject.SpatialLocation, noSave: true);
+			location.Insert(item, true);
+		}
+		else
+		{
+			var placementSource = project.ActiveLabour
+				.Select(x => x.Character)
+				.FirstOrDefault(x => ReferenceEquals(x?.Location, location)) ??
+				(ReferenceEquals(project.CharacterOwner?.Location, location) ? project.CharacterOwner : null);
+			if (placementSource is not null)
+			{
+				item.InsertAtSource(placementSource, true);
+			}
+			else
+			{
+				location.Insert(item, true);
+			}
+		}
+
+		HandleProjectEcho(project, location,
+			Echo ?? $"A new pile of {Material.Name.Colour(Material.ResidueColour)} is produced by the project.",
 			roomLayer);
 	}
 
@@ -140,12 +161,31 @@ public class CommodityOutputProjectAction : BaseAction
 
 	private static RoomLayer ResolveRoomLayer(IActiveProject project, ICell location)
 	{
+		if (project is ILocalProject localProject)
+		{
+			return localProject.RoomLayer;
+		}
+
 		return project.ActiveLabour
 		              .Select(x => x.Character)
 		              .FirstOrDefault(x => x?.Location == location)
 		              ?.RoomLayer ??
 		       project.CharacterOwner?.RoomLayer ??
 		       RoomLayer.GroundLevel;
+	}
+
+	private static void HandleProjectEcho(IActiveProject project, ICell location, string text, RoomLayer layer)
+	{
+		if (project is not ILocalProject localProject || location.RouteDefinition is null)
+		{
+			location.HandleRoomEcho(text, layer);
+			return;
+		}
+
+		foreach (var character in LocalProjectSpatialRules.CharactersAtSite(localProject.SpatialLocation))
+		{
+			character.OutputHandler.Send(text);
+		}
 	}
 
 	public override IProjectAction Duplicate(IProjectPhase newPhase)

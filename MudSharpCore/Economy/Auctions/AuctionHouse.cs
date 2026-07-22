@@ -857,7 +857,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
         else
         {
             cash.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(cash, true);
+            cash.InsertAtSource(actor, true);
             actor.OutputHandler.Send("You couldn't hold the money, so it is on the ground.");
         }
 

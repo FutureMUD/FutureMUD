@@ -50,6 +50,12 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
 			return false;
 		}
 
+		if (assailant.Location.RouteDefinition is not null || target.Location.RouteDefinition is not null)
+		{
+			var distance = assailant.RoomEquivalentDistanceBetween(target);
+			return distance >= 0.0 && distance <= rangeInRooms;
+		}
+
 		if (assailant.Location == target.Location)
 		{
 			return true;

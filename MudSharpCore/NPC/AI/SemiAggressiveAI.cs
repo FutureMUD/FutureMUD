@@ -653,7 +653,10 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
         if (WillHandleAttackOrPosture(aggressor))
         {
-            List<ICharacter> loctargets = aggressor.Location.Characters.Except(aggressor).ToList();
+            List<ICharacter> loctargets = aggressor.Location
+				.CharactersInSpatialVicinity(aggressor, false)
+				.Except(aggressor)
+				.ToList();
             foreach (ICharacter ch in loctargets)
             {
                 if (WillAttack(aggressor, aggressor.Location, ch, targets))

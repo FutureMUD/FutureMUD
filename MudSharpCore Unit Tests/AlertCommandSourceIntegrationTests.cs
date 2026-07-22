@@ -85,7 +85,10 @@ public class AlertCommandSourceIntegrationTests
 		StringAssert.Contains(source, "case EventType.EngagedInCombat:");
 		StringAssert.Contains(source, "AlertUtilities.DoAlert(enforcer, echoFailure: false);");
 		StringAssert.Contains(source, "patrolMember is null || patrolMember.Patrol.ActiveEnforcementTarget is not null");
-		StringAssert.Contains(source, "enforcer.PathBetween(origin, 20, PathSearch.PathIncludeUnlockableDoors(enforcer))");
+		StringAssert.Contains(source, "enforcer.ColocatedWith(alerter)");
+		StringAssert.Contains(source, "PatrolStrategyBase.TryCreatePatrolPath(");
+		StringAssert.Contains(source, "PathSearch.PathIncludeUnlockableDoors(enforcer)");
+		Assert.IsFalse(source.Contains("enforcer.PathBetween(origin, 20", StringComparison.Ordinal));
 		StringAssert.Contains(source, "AssistNearbyEnforcerInCombat(enforcer, effect)");
 	}
 

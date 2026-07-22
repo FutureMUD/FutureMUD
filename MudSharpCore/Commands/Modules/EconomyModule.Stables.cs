@@ -636,7 +636,7 @@ Administrators can also use:
 		else
 		{
 			cash.RoomLayer = actor.RoomLayer;
-			actor.Location.Insert(cash, true);
+			cash.InsertAtSource(actor, true);
 			actor.OutputHandler.Send("You couldn't hold the money, so it is on the ground.");
 		}
 
@@ -1785,7 +1785,7 @@ Administrators can also use:
 			}
 			else
 			{
-				actor.Location.Insert(changePile);
+				changePile.InsertAtSource(actor);
 			}
 		}
 	}
@@ -1798,6 +1798,6 @@ Administrators can also use:
 			return;
 		}
 
-		actor.Location.Insert(ticket);
+		ticket.InsertAtSource(actor);
 	}
 }

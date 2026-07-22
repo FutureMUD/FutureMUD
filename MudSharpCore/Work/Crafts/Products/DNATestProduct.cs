@@ -57,6 +57,17 @@ public class DNATestProduct : BaseProduct
         }
 
         public void ReleaseProducts(ICell location, RoomLayer layer)
+		{
+			ReleaseProductsTo(location.LayerCharacters(layer));
+		}
+
+		public void ReleaseProducts(ILocateable source, ICell location, RoomLayer layer)
+		{
+			ReleaseProductsTo(location.CharactersInImmediateVicinity(source)
+				.Where(x => x.RoomLayer == layer));
+		}
+
+		private void ReleaseProductsTo(IEnumerable<ICharacter> witnesses)
         {
             List<BloodLiquidInstance> bloods1 = Mixture1.Instances
                                   .OfType<BloodLiquidInstance>()
@@ -76,7 +87,7 @@ public class DNATestProduct : BaseProduct
             string result = match
                 ? "The DNA test results show that the two samples are a genetic match."
                 : "The DNA test results show that the two samples are not a genetic match.";
-            foreach (ICharacter ch in location.LayerCharacters(layer))
+			foreach (ICharacter ch in witnesses)
             {
                 ch.OutputHandler.Send(result);
             }

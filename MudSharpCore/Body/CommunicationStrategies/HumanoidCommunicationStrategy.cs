@@ -395,7 +395,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             foreach (RoomLayer layer in body.Location.Terrain(null).TerrainLayers.Except(body.RoomLayer))
             {
                 string layerText = layer.IsHigherThan(body.RoomLayer) ? "from below" : "from above";
-                foreach (ICharacter character in body.Location.LayerCharacters(layer))
+                foreach (ICharacter character in AudibleLayerCharacters(body, layer))
                 {
                     character.OutputHandler.Send(new EmoteOutput(
                         new Emote($"You hear a muffled shout {layerText}.", body.Actor),
@@ -403,7 +403,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
                 }
             }
 
-            foreach (ICell cell in body.Location.Surrounds)
+            foreach (ICell cell in AudibleSurrounds(body))
             {
                 foreach (ICharacter character in cell.Characters)
                 {
@@ -449,7 +449,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         foreach (RoomLayer layer in body.Location.Terrain(null).TerrainLayers.Except(body.RoomLayer))
         {
             string layerText = layer.IsHigherThan(body.RoomLayer) ? "from below" : "from above";
-            foreach (ICharacter character in body.Location.LayerCharacters(layer))
+            foreach (ICharacter character in AudibleLayerCharacters(body, layer))
             {
                 character.OutputHandler.Send(new LanguageOutput(new Emote(
                     $"You hear a {body.ApparentGender(character).GenderClass()} voice {layerText} yell",
@@ -457,7 +457,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             }
         }
 
-        foreach (ICell cell in body.Location.Surrounds)
+        foreach (ICell cell in AudibleSurrounds(body))
         {
             foreach (ICharacter character in cell.Characters)
             {
@@ -571,7 +571,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             foreach (RoomLayer layer in body.Location.Terrain(null).TerrainLayers.Except(body.RoomLayer))
             {
                 string layerText = layer.IsHigherThan(body.RoomLayer) ? "from below" : "from above";
-                foreach (ICharacter character in body.Location.LayerCharacters(layer))
+                foreach (ICharacter character in AudibleLayerCharacters(body, layer))
                 {
                     character.OutputHandler.Send(new EmoteOutput(
                         new Emote($"You hear a muffled shout {layerText}.", body.Actor),
@@ -579,7 +579,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
                 }
             }
 
-            foreach (ICell cell in body.Location.Surrounds)
+            foreach (ICell cell in AudibleSurrounds(body))
             {
                 foreach (ICharacter character in cell.Characters)
                 {
@@ -631,7 +631,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         foreach (RoomLayer layer in body.Location.Terrain(null).TerrainLayers.Except(body.RoomLayer))
         {
             string layerText = layer.IsHigherThan(body.RoomLayer) ? "from below" : "from above";
-            foreach (ICharacter character in body.Location.LayerCharacters(layer))
+            foreach (ICharacter character in AudibleLayerCharacters(body, layer))
             {
                 character.OutputHandler.Send(new LanguageOutput(new Emote(
                     $"You hear a {body.Gender.GenderClass()} voice {layerText} shout",
@@ -639,8 +639,8 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             }
         }
 
-        List<ICell> allCells = body.Location.CellsInVicinity(2, exit => true, cell => true).ToList();
-        List<ICell> surrounds = body.Location.Surrounds.ToList();
+        List<ICell> allCells = CellsInAudibleVicinity(body, 2).ToList();
+        List<ICell> surrounds = AudibleSurrounds(body).ToList();
         foreach (ICell cell in allCells)
         {
             if (cell == body.Location)
@@ -724,7 +724,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         if (target == null)
         {
             body.Actor.HandleEvent(EventType.CharacterSpeaks, body.Actor, volume, language, accent, message);
-            foreach (IHandleEvents witness in body.Location.EventHandlers.Except(body.Actor))
+            foreach (IHandleEvents witness in LocalSpeechEventHandlers(body).Except(body.Actor))
             {
                 witness.HandleEvent(EventType.CharacterSpeaksWitness, body.Actor, witness, volume, language, accent,
                     message);
@@ -742,7 +742,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
                 message);
             target.HandleEvent(EventType.CharacterSpeaksDirectTarget, body.Actor, target, volume, language, accent,
                 message);
-            foreach (IHandleEvents witness in body.Location.EventHandlers.Except(body.Actor))
+            foreach (IHandleEvents witness in LocalSpeechEventHandlers(body).Except(body.Actor))
             {
                 witness.HandleEvent(EventType.CharacterSpeaksDirectWitness, body.Actor, target, witness, volume,
                     language, accent,
@@ -759,4 +759,88 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 
         AIStoryteller.HandleCharacterSpeechInRoomEvent(body.Actor, target, message, volume, language, accent);
     }
+
+	private static double RouteAudibleDistance(IBody body)
+	{
+		var distance = body.Gameworld.GetStaticDouble("RouteCellVeryDistantDistanceMetres");
+		return double.IsFinite(distance) && distance > 0.0
+			? distance
+			: RouteSpatialConfiguration.Default.VeryDistantDistanceMetres;
+	}
+
+	private static IEnumerable<ICharacter> AudibleLayerCharacters(IBody body, RoomLayer layer)
+	{
+		if (body.Location.RouteDefinition is null)
+		{
+			return body.Location.LayerCharacters(layer);
+		}
+
+		var origin = RouteSpatialService.Instance.GetEffectiveLocation(body.Actor);
+		return RouteSpatialService.Instance
+			.GetPerceivablesWithinAcrossLayers(
+				origin,
+				RouteAudibleDistance(body),
+				x => x.RoomLayer == layer)
+			.OfType<ICharacter>()
+			.ToArray();
+	}
+
+	private static IEnumerable<IHandleEvents> LocalSpeechEventHandlers(IBody body)
+	{
+		if (body.Location.RouteDefinition is null)
+		{
+			return body.Location.EventHandlers;
+		}
+
+		var origin = RouteSpatialService.Instance.GetEffectiveLocation(body.Actor);
+		return RouteSpatialService.Instance
+			.GetPerceivablesWithinAcrossLayers(origin, RouteAudibleDistance(body))
+			.OfType<IHandleEvents>()
+			.Concat(new IHandleEvents[] { body.Location })
+			.Distinct();
+	}
+
+	private static IEnumerable<ICell> AudibleSurrounds(IBody body)
+	{
+		return body.Location.RouteDefinition is null
+			? body.Location.Surrounds
+			: body.Location.ExitsFor(body.Actor)
+				.Select(x => x.Destination)
+				.Distinct();
+	}
+
+	private static IEnumerable<ICell> CellsInAudibleVicinity(IBody body, uint range)
+	{
+		if (body.Location.RouteDefinition is null)
+		{
+			return body.Location.CellsInVicinity(range, exit => true, cell => true);
+		}
+
+		var visited = new HashSet<ICell>(ReferenceEqualityComparer.Instance) { body.Location };
+		var frontier = new HashSet<ICell>(AudibleSurrounds(body), ReferenceEqualityComparer.Instance);
+		for (var step = 0U; step < range && frontier.Count > 0; step++)
+		{
+			var current = frontier.ToArray();
+			frontier.Clear();
+			foreach (var cell in current)
+			{
+				if (!visited.Add(cell))
+				{
+					continue;
+				}
+
+				if (step + 1 >= range)
+				{
+					continue;
+				}
+
+				foreach (var adjacent in cell.Surrounds.Where(x => !visited.Contains(x)))
+				{
+					frontier.Add(adjacent);
+				}
+			}
+		}
+
+		return visited;
+	}
 }

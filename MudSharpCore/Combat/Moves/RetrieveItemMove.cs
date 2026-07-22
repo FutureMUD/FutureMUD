@@ -26,7 +26,7 @@ public class RetrieveItemMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
-        if (TargetItem.Location != Assailant.Location || TargetItem.Destroyed || TargetItem.InInventoryOf != null)
+		if (!TargetItem.ColocatedWith(Assailant) || TargetItem.Destroyed || TargetItem.InInventoryOf != null)
         {
             Assailant.Send("The item that you wanted to get is no longer there.");
             return new CombatMoveResult();

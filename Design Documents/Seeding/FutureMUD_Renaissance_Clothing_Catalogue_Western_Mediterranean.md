@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This volume defines **130 unique clothing prototypes** for the following Renaissance Shared material-culture groupings:
+This volume defines **154 unique clothing prototypes** for the following Renaissance Shared material-culture groupings:
 
 - Shared Western European Renaissance, including Italian, Franco-Flemish, British Isles, and German/HRE/Swiss admissions;
 - Shared Iberian / Atlantic;
@@ -215,6 +215,37 @@ Public names remain form-based. Builder notes may record Ottoman terms such as g
 | `renaissance_ottoman_pointed_slippers` | pair of pointed soft slippers | leather | `WP-FOOT-SHOE` | backless/heeled-back, plain/embroidered/velvet-covered skins |
 | `renaissance_ottoman_high_bath_sandals` | pair of high wooden bath sandals | wood | `WP-OVERSHOE` | bathhouse and elite household gate; strap decoration as skins |
 
+## E. Headwear and footwear expansion — 24
+
+These rows are additional construction-level options. They do not alter the existing outfit minimums or first-pass shared-placement count; a builder should admit them only where status, work, route, climate, institution, or local dress practice justifies the distinct form.
+
+| Stable reference | Public form | Material | Wear profile | Variation and admission notes |
+| --- | --- | --- | --- | --- |
+| `renaissance_western_slashed_puffed_cap` | slashed and puffed court cap | velvet | `WP-HEAD-CAP` | Early- and mid-sixteenth-century court, mercenary-influenced, pageant, and prosperous urban gate; lining colours are skins. |
+| `renaissance_western_feathered_velvet_bonnet` | feathered velvet bonnet | velvet | `WP-HEAD-CAP` | Court, merchant, diplomatic, and performance skins; feather placement remains cosmetic. |
+| `renaissance_western_sugarloaf_felthat` | sugarloaf-crowned felt hat | felt | `WP-HEAD-HAT` | Late-sixteenth-century Western and Central European town, traveller, religious-dissenter precursor, and colonial-contact admission. |
+| `renaissance_western_broad_plumed_ridinghat` | broad plumed riding hat | felt | `WP-HEAD-HAT` | Mounted court, hunting, courier, officer-presentation, and pageant use; plume and hatband are skins. |
+| `renaissance_western_embroidered_linen_nightcap` | embroidered linen nightcap | linen | `WP-HEAD-CAP` | Late-sixteenth-century prosperous and elite informal indoor wear; simpler quilted skins may admit scholars and merchants. |
+| `renaissance_western_quilted_silk_dressingcap` | quilted silk dressing cap | silk | `WP-HEAD-CAP` | Luxury undress cap for private chambers, learned households, convalescence, and informal audiences. |
+| `renaissance_western_wired_linen_coif` | wired-front linen coif | linen | `WP-HEAD-CAP` | Structured female head cap with wired or stiffened front edge; date, region, and veil combination require local admission. |
+| `renaissance_western_rolled_velvet_balzo` | rolled velvet court headdress | velvet | `WP-HEAD-HAT` | Italian and Mediterranean court-facing rolled headdress; jewels, caul, and exact profile are skins where silhouette remains stable. |
+| `renaissance_western_pointed_attifet_hood` | pointed-front court hood | velvet | `WP-HEAD-HAT` | Late-sixteenth-century French-facing court and mourning gate; distinct pointed front from the crescent French hood. |
+| `renaissance_institution_academic_squarecap` | structured academic square cap | broadcloth | `WP-HEAD-HAT` | University, legal, medical, clerical, and learned-office gate; faculty colours and tassels are skins. |
+| `renaissance_institution_physicians_roundcap` | full round physician cap | velvet | `WP-HEAD-CAP` | Physician, senior scholar, jurist, and civic learned-office dress where a round cap is locally supported. |
+| `renaissance_iberian_folded_montera_cap` | folded felt riding cap | felt | `WP-HEAD-CAP` | Iberian rural, riding, courier, guard, pastoral, and travel admission; exact folds are skins. |
+| `renaissance_maritime_tarred_brimhat` | tarred canvas brimmed seaman hat | canvas | `WP-HEAD-HAT` | Atlantic and Mediterranean shipboard, fishing, dock, and coastal-weather admission; no waterproof mechanic. |
+| `renaissance_frontier_furlined_ridingcap` | fur-lined riding cap | wool | `WP-HEAD-CAP` | Central/Eastern frontier, Muscovite, Baltic, courier, and mounted winter dress; distinguish from tall ceremonial fur hats. |
+| `renaissance_western_laced_buskins` | pair of calf-laced leather buskins | leather | `WP-FOOT-BOOT` | Calf-high laced footwear for travel, hunting, pageant, theatre, and classical-revival court presentation; distinct from low square-toed shoes. |
+| `renaissance_western_side_laced_halfboots` | pair of side-laced leather half-boots | leather | `WP-FOOT-BOOT` | Ankle-to-lower-calf town and travel boots with a visible side closure; merchant, courier, guard, and country-household admissions. |
+| `renaissance_western_fine_latchet_shoes` | pair of fine latchet shoes | leather | `WP-FOOT-SHOE` | Prosperous town, court, legal, diplomatic, and formal household footwear; tie or buckle skin. |
+| `renaissance_western_furlined_lowshoes` | pair of fur-lined leather low shoes | leather | `WP-FOOT-SHOE` | Warm low footwear for northern and central European winter town, court, household, coach, and road use; lining is structural rather than cosmetic. |
+| `renaissance_western_heeled_courtshoes` | pair of low-heeled court shoes | leather | `WP-FOOT-SHOE` | Late-sixteenth-century court and elite urban gate; heel remains moderate and period-bound. |
+| `renaissance_western_hardsole_merchantshoes` | pair of hard-soled merchant shoes | leather | `WP-FOOT-SHOE` | Durable but respectable footwear for merchants, factors, notaries, travellers, and masters of craft. |
+| `renaissance_western_hobnailed_fieldshoes` | pair of hobnailed field shoes | leather | `WP-FOOT-SHOE` | Agricultural, military-camp, mining, building, and long-road use; nails are visible reinforcement only. |
+| `renaissance_western_shortcuff_ridingboots` | pair of short-cuffed riding boots | leather | `WP-FOOT-BOOT` | Calf-height riding, hunting, messenger, and country-gentry form distinct from high frontier boots. |
+| `renaissance_maritime_tarred_highshoes` | pair of tarred high deck shoes | leather | `WP-FOOT-SHOE` | Ankle-covering deck, dock, fishing, and coastal-weather footwear; tar treatment is descriptive. |
+| `renaissance_institution_closed_monastic_sandals` | pair of closed monastic sandals | leather | `WP-FOOT-SANDAL` | Institution-gated hybrid of strapped sandal and protective closed upper for mendicant or monastic travel; not universal order dress. |
+
 ## Shared admissions — 12 placements, no new prototypes
 
 | Existing stable reference | Admitted grouping/context | Reason no clone is needed |
@@ -246,7 +277,7 @@ No prototype needs every tier. Fur, brocade, damask, lace, metallic-thread, and 
 
 ## Volume acceptance
 
-- Exactly 130 unique stable references are defined here.
+- Exactly 154 unique stable references are defined here.
 - The 12 shared admissions create no item prototype.
 - Ottoman, Eastern European, and Iberian forms are not reduced to cosmetic Western skins where silhouette differs.
 - Religious rows require a concrete institution and do not create a universal priest costume.

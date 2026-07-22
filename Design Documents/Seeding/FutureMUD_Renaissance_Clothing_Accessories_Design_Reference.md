@@ -4,17 +4,17 @@
 
 This document is the design authority for the Renaissance clothing branch, approximately 1400-1600 CE. It replaces the former catalogue scaffold with an implementation-oriented shared-culture catalogue. The branch owns clothing, underlayers, footwear, headwear, textile accessories, profession overlays, skins, outfits, and clothing crafts that are not supplied by the shared pre-industrial baseline.
 
-The shared dependency foundation is implemented. HumanSeeder now supplies the nine clothing-specific profiles `Leg Wraps`, `Overshoes`, `Head Veil`, `Hood`, `Detachable Sleeves`, `Skirt Support`, `Partlet`, `Long Open Robe`, and the optional `Breechcloth`, with matching `Wear_*` components. UsefulSeeder supplies the complete Renaissance Shared culture hierarchy, clothing market/function tags, and institution tags. CoreDataSeeder and AgricultureSeeder supply the four exact textile materials and their production sources. The Renaissance clothing entry point validates these profiles, materials, full tag paths, and seeded components before any catalogue item can be authored. The 395 finished prototypes, skins, outfits, and crafts remain later implementation work.
+The shared dependency foundation is implemented. HumanSeeder now supplies the nine clothing-specific profiles `Leg Wraps`, `Overshoes`, `Head Veil`, `Hood`, `Detachable Sleeves`, `Skirt Support`, `Partlet`, `Long Open Robe`, and the optional `Breechcloth`, with matching `Wear_*` components. UsefulSeeder supplies the complete Renaissance Shared culture hierarchy, clothing market/function tags, and institution tags. CoreDataSeeder and AgricultureSeeder supply the four exact textile materials and their production sources. The Renaissance clothing entry point validates these profiles, materials, full tag paths, and seeded components before any catalogue item can be authored. The 471 finished prototypes, skins, outfits, and crafts remain later implementation work.
 
-The completed first-pass catalogue contains **395 unique proposed prototypes** and **436 culture placements**. Forty-one placements deliberately admit an existing shared prototype into another culture grouping rather than cloning the same silhouette. The catalogue is split into this authority document and three regional volumes:
+The expanded catalogue contains **471 unique proposed prototypes** and retains the **436 explicitly enumerated first-pass culture placements**. The 76 headwear/footwear expansion rows carry admission notes but are not counted as placements until a culture or outfit manifest explicitly adopts them. Forty-one placements deliberately admit an existing shared prototype into another culture grouping rather than cloning the same silhouette. The catalogue is split into this authority document and three regional volumes:
 
 | Volume | Unique prototypes | Primary coverage |
 | --- | ---: | --- |
-| This authority and common-form catalogue | 55 | forms credible across several Shared groupings, dependency contracts, outfit rules |
-| [Western, Mediterranean, and European Frontier Catalogue](./FutureMUD_Renaissance_Clothing_Catalogue_Western_Mediterranean.md) | 130 | Western European, Iberian Atlantic, Northern/Central/Eastern European, Ottoman-Islamicate |
-| [Asian and Steppe Catalogue](./FutureMUD_Renaissance_Clothing_Catalogue_Asia_Steppe.md) | 110 | Persianate, Indo-Persian, South Asian, Ming/Joseon, Japanese/Ryukyuan, South-east Asian, steppe/caravan |
-| [African, American, Contact, and Maritime Catalogue](./FutureMUD_Renaissance_Clothing_Catalogue_Africa_Americas_Maritime.md) | 100 | African court/Atlantic, Sahel/Red Sea/Swahili, Mesoamerican, Andean, Caribbean, North American contact, colonial and maritime overlays |
-| **Total** | **395** | all Shared Renaissance material-culture groupings in the master culture manifest |
+| This authority and common-form catalogue | 71 | forms credible across several Shared groupings, dependency contracts, outfit rules |
+| [Western, Mediterranean, and European Frontier Catalogue](./FutureMUD_Renaissance_Clothing_Catalogue_Western_Mediterranean.md) | 154 | Western European, Iberian Atlantic, Northern/Central/Eastern European, Ottoman-Islamicate |
+| [Asian and Steppe Catalogue](./FutureMUD_Renaissance_Clothing_Catalogue_Asia_Steppe.md) | 130 | Persianate, Indo-Persian, South Asian, Ming/Joseon, Japanese/Ryukyuan, South-east Asian, steppe/caravan |
+| [African, American, Contact, and Maritime Catalogue](./FutureMUD_Renaissance_Clothing_Catalogue_Africa_Americas_Maritime.md) | 116 | African court/Atlantic, Sahel/Red Sea/Swahili, Mesoamerican, Andean, Caribbean, North American contact, colonial and maritime overlays |
+| **Total** | **471** | all Shared Renaissance material-culture groupings in the master culture manifest |
 
 This is a design catalogue, not a claim that every listed form is common in every place between 1400 and 1600. Culture manifests, date gates, institutions, professions, crafts, shops, and outfit definitions control actual admission.
 
@@ -197,7 +197,21 @@ Institution / Service Household
 
 Status and profession tags must not replace culture/date admission. A court garment can be locally made, imported, gifted, or inherited; those distinctions belong in skins, shops, manifests, and builder notes.
 
-## Common-form prototype catalogue — 55 unique prototypes
+## Headwear and footwear expansion policy
+
+This pass adds **76** proposed prototypes across the authority and regional volumes: **42 headwear** and **34 footwear** forms. It does not assign a quota to every culture or rewrite the outfit minimums. The new rows exist to let builders distinguish:
+
+- field, workshop, port, shipboard, and domestic work;
+- ordinary town and merchant dress;
+- road, pilgrimage, mounted, caravan, and winter travel;
+- court, diplomatic, academic, official, religious, and ceremonial dress;
+- footwear worn directly from overshoes used to protect another shoe;
+- soft indoor footwear from hard road, field, riding, and maritime footwear;
+- caps, hoods, headwraps, structured hats, and status headdresses that cannot honestly be represented by one generic skin.
+
+No new component type, wearable component, tag, or solid material is requested. The existing `WP-HEAD-CAP`, `WP-HEAD-HAT`, `WP-HEADWRAP`, `WP-HEAD-VEIL`, `WP-HOOD`, `WP-FOOT-SANDAL`, `WP-FOOT-SHOE`, `WP-FOOT-BOOT`, and `WP-OVERSHOE` mappings cover all rows. Existing outfit and placement counts remain unchanged until an explicit manifest admits a new reference.
+
+## Common-form prototype catalogue — 71 unique prototypes
 
 These forms are shared only in the catalogue sense: several culture families can plausibly use the same underlying construction. Each culture still requires an admission decision.
 
@@ -286,6 +300,27 @@ These forms are shared only in the catalogue sense: several culture families can
 | `renaissance_shared_clothing_half_mask` | shaped half mask | leather | `WP-FACE-MASK` | eye/upper-face; plain/painted; velvet skin | theatre, pageant, festival, court entertainment, disguise-support only if a component is later added |
 | `renaissance_shared_clothing_detachable_sleeves` | pair of detachable sleeves | silk | `WP-SLEEVES` | tight/full; tied/laced; linen/wool/velvet skins | Western European, Ottoman, Persianate, South Asian and courtly layered admissions where construction supports it |
 
+### Headwear and footwear expansion — 16
+
+| Stable reference | Public form | Material | Wear profile | Variation and admission notes |
+| --- | --- | --- | --- | --- |
+| `renaissance_shared_clothing_quilted_nightcap` | quilted linen nightcap | linen | `WP-HEAD-CAP` | Indoor, sleeping, scholar, invalid, and under-hat skins; embroidery may make a luxury undress version without changing the cap profile. |
+| `renaissance_shared_clothing_leather_work_skullcap` | close leather work skullcap | leather | `WP-HEAD-CAP` | Close fitted cap for mining, smithing, shipboard labour, riding, and other work where a loose brim is inconvenient; no armour claim. |
+| `renaissance_shared_clothing_tarred_canvas_deckcap` | close tarred canvas deck cap | canvas | `WP-HEAD-CAP` | Shipboard and dockside gate; tarred appearance is descriptive and grants no waterproof mechanic. |
+| `renaissance_shared_clothing_chincord_ridinghat` | chin-cord riding hat | felt | `WP-HEAD-HAT` | Low or moderate crown with securing cord; courier, hunting, caravan, and mounted-work admissions. |
+| `renaissance_shared_clothing_tallcrown_felthat` | tall-crowned felt hat | felt | `WP-HEAD-HAT` | Late-fifteenth through sixteenth-century town, merchant, court-contact, and frontier admissions; crown and brim proportions are skins. |
+| `renaissance_shared_clothing_brimmed_leather_travelhat` | brimmed leather travel hat | leather | `WP-HEAD-HAT` | Hard-wearing travel, hunting, courier, pastoral, and maritime-contact form; no weatherproof mechanic. |
+| `renaissance_shared_clothing_folded_pilgrimhat` | folded-brim pilgrim hat | felt | `WP-HEAD-HAT` | Road, shrine, confraternity, and long-distance travel admission; badges and shells remain separate accessories. |
+| `renaissance_shared_clothing_furlined_winterhood` | fur-lined winter hood | wool | `WP-HOOD` | Deep separate hood for northern, mountain, caravan, and winter travel; exact fur and shoulder cape are skins where profile-compatible. |
+| `renaissance_shared_clothing_thicksoled_workshoes` | pair of thick-soled work shoes | leather | `WP-FOOT-SHOE` | Field, workshop, building, stable, mine, and dock labour; hobnails or extra sole layers are skins unless behaviour changes. |
+| `renaissance_shared_clothing_latchet_walkingshoes` | pair of latchet walking shoes | leather | `WP-FOOT-SHOE` | One- or two-latchet town, road, merchant, and pilgrim form; buckle and tie closures remain skins. |
+| `renaissance_shared_clothing_sidelaced_townshoes` | pair of side-laced town shoes | leather | `WP-FOOT-SHOE` | Close ankle-height urban form distinct from low latchet shoes; ordinary, fine, and court-servant skins. |
+| `renaissance_shared_clothing_frontlaced_ankleboots` | pair of front-laced ankle boots | leather | `WP-FOOT-BOOT` | Travel, work, guard, courier, and mounted admissions; lower and more fitted than high riding boots. |
+| `renaissance_shared_clothing_low_ridingshoes` | pair of heeled low riding shoes | leather | `WP-FOOT-SHOE` | Riding, hunting, messenger, and prosperous travel form where tall boots are unnecessary; spur fittings remain separate equipment. |
+| `renaissance_shared_clothing_ropesole_deckshoes` | pair of rope-soled deck shoes | canvas | `WP-FOOT-SHOE` | Warm-water maritime, fishing, galley, dock, and boatman admission; woven sole and closed upper distinguish them from sandals. |
+| `renaissance_shared_clothing_felt_overshoes` | pair of felt overshoes | felt | `WP-OVERSHOE` | Northern, steppe, mountain, and winter-household layer worn over shoes or footwraps. |
+| `renaissance_shared_clothing_fine_velvet_slippers` | pair of fine velvet slippers | velvet | `WP-FOOT-SHOE` | Court, prosperous household, diplomatic, scholar, and ceremonial indoor footwear; embroidery and jewels are skins. |
+
 ## Shared placement table — 41 deliberate reuses
 
 The regional volumes contain 41 placements that point back to common or another regional prototype. They are admissions, not aliases and not additional item rows. Examples include low leather shoes admitted into colonial Atlantic outfits, shoulder shawls admitted into Andean elite/contact outfits, quilted jackets admitted into Japanese and steppe military underlayers, and cloth headwraps admitted across Ottoman, Persianate, South Asian, African, and maritime cultures. Each regional volume records its reuse count; all stable references remain unique.
@@ -333,7 +368,7 @@ Crafts must consume exact material stock and exact tools. Decorative skins shoul
 1. Seed or resolve culture and functional tags.
 2. Audit live wearable components and add the blocking profiles from the dependency ledger.
 3. Seed high-priority materials where prototypes cannot be represented honestly by live stock.
-4. Implement the 55 common forms and verify stable-reference idempotence.
+4. Implement the 71 common forms and verify stable-reference idempotence.
 5. Implement regional volumes in dependency order: common admissions first, then distinct silhouettes.
 6. Add skins, beginning with plain/work, standard urban, luxury/court, religious/institutional, and imported/contact variants.
 7. Add authored outfits and shop/culture/date manifests.
@@ -341,8 +376,8 @@ Crafts must consume exact material stock and exact tools. Decorative skins shoul
 
 ## Acceptance criteria
 
-- All 395 stable references are unique and every one has an explicit culture/date admission.
-- The 41 shared placements reuse an existing stable reference rather than cloning it.
+- All 471 stable references are unique and every one has an explicit culture/date admission.
+- The 41 first-pass shared placements reuse an existing stable reference rather than cloning it. The 76 expansion rows remain uncounted as placements until explicit admission.
 - Every portable item has `Holdable`; every garment has a valid exact wearable and destroyable component.
 - No item uses a material, tag, component, skill, or stable reference that is absent at implementation time.
 - Public descriptions are form-based and do not universalise a local historical name.

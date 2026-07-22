@@ -1,14 +1,13 @@
 # FutureMUD Early Modern Clothing and Accessories Dependency Ledger
 
-> Running dependency ledger for the civilian, military-uniform, and noble/jewellery catalogues.
+> Running dependency ledger for the civilian first pass, military-uniform second pass, noble/jewellery third pass, and religious clothing/accessories fourth pass.
 
 ## Status
 
 - New component types required: **0**.
 - New seeded component prototypes required: **2**.
 - New solid materials required: **0**.
-- This document assumes the two component prototypes below will be created by a later seeder implementation before item rows are seeded.
-- The military-uniform and noble/jewellery catalogues add no further component or material dependencies.
+- This document assumes the two component prototypes below will be created by a later agent before item rows are seeded. The fourth pass introduces no additional dependency.
 
 ## Required seeded component prototypes
 
@@ -21,8 +20,8 @@
 - **Layering intent:** above a shift or chemise; below bodices, jackets, gowns, coats, capes, and cloaks.
 - **Removal/visibility intent:** normally covered in a complete public outfit but still a distinct removable wearable.
 - **Armour/insulation:** supplied separately by the item row; the component itself should only define wearable coverage and layering.
-- **Civilian item references:** `earlymodern_western_clothing_canvas_stays`.
-- **Civilian outfit use:** 48 of 350 manifests.
+- **First-pass item references:** `earlymodern_western_clothing_canvas_stays`.
+- **First-pass outfit use:** 48 of 350 manifests.
 
 ### `Wear_Breeches`
 
@@ -32,24 +31,12 @@
 - **Coverage intent:** waist, hips, seat, groin, and thighs to knee or upper calf; lower legs and feet excluded.
 - **Layering intent:** above drawers; compatible with separate stockings, shoes, coats, waistcoats, belts, and sashes.
 - **Armour/insulation:** supplied separately by the item row; the component itself should only define wearable coverage and layering.
-- **Civilian item references:** `earlymodern_western_clothing_knee_breeches`, `earlymodern_dutch_clothing_full_canvas_breeches`, `earlymodern_centraleuropean_clothing_leather_knee_breeches`, `earlymodern_northern_clothing_wool_knee_breeches`, `earlymodern_colonial_clothing_plain_knee_breeches`.
-- **Civilian outfit use:** 53 of 350 manifests.
-
-## Military-uniform catalogue audit
-
-- New component types required by the military-uniform catalogue: **0**.
-- New seeded component prototypes required by the military-uniform catalogue: **0**.
-- New solid materials required by the military-uniform catalogue: **0**.
-- Generic rank and appointment accessories resolve to existing `Wear_Gorget`, `Wear_Epaulette`, `Wear_Spaulders`, `Wear_Shoulders`, `Wear_Badge`, `Wear_Shoulder`, `Wear_Bandolier`, `Wear_Sash`, `Wear_Waist`, and `Wear_Scarf` profiles.
-- Uniform garments resolve to existing coat, jacket, vest, robe, trouser, skirt, footwear, and headwear profiles plus the already-declared `Wear_Breeches` dependency.
-- The exact live tags `Functions / Military Equipment`, `Market / Clothing / Military Uniforms`, and `Era / Early Modern Era` support new rows.
-- The current material export supplies every military-uniform primary material, including broadcloth, ribbon, silk, felt, fur, leather, cotton, ramie cloth, camelid wool, brass, and silver.
-
-The military-uniform catalogue therefore assumes only the same two unresolved wearable profiles as the civilian catalogue. It must not introduce substitute layering profiles for convenience.
+- **First-pass item references:** `earlymodern_western_clothing_knee_breeches`, `earlymodern_dutch_clothing_full_canvas_breeches`, `earlymodern_centraleuropean_clothing_leather_knee_breeches`, `earlymodern_northern_clothing_wool_knee_breeches`, `earlymodern_colonial_clothing_plain_knee_breeches`.
+- **First-pass outfit use:** 53 of 350 manifests.
 
 ## Material audit
 
-No new material is requested by any clothing catalogue. The current repository material export supplies every primary material used by the catalogue, including `barkcloth`, `camelid wool`, `chintz`, `horsehair`, and `ramie cloth` in addition to the established linen, wool, cotton, silk, leather, felt, canvas, broadcloth, velvet, lace, hemp, fur, and wood entries.
+No new material is requested by this pass. The current repository material export supplies every primary material used by the catalogue, including `barkcloth`, `camelid wool`, `chintz`, `horsehair`, and `ramie cloth` in addition to the established linen, wool, cotton, silk, leather, felt, canvas, broadcloth, velvet, lace, hemp, fur, and wood entries.
 
 The older project snapshot supplied to the authoring environment predates several of those material rows. That snapshot mismatch is not a new-material request; the current repository export is the authority for implementation.
 
@@ -59,14 +46,31 @@ The current repository component export already supplies the Renaissance clothin
 
 ## Assumption contract
 
-The main design reference treats `Wear_Stays` and `Wear_Breeches` as available across the civilian, military-uniform, and noble/court catalogues. If either profile is renamed during implementation, update every affected catalogue row and this ledger together; do not silently substitute a conflicting wearable profile.
+The main design reference treats `Wear_Stays` and `Wear_Breeches` as available. If either profile is renamed during implementation, update every affected catalogue row and this ledger together; do not silently substitute a conflicting wearable profile.
 
-## Noble clothing and jewellery catalogue audit
 
-- New component types required by the noble/jewellery catalogue: **0**.
-- New seeded component prototypes required by the noble/jewellery catalogue: **0**.
-- New solid materials required by the noble/jewellery catalogue: **0**.
+## Third-pass noble clothing and jewellery audit
+
+- New component types required by the third pass: **0**.
+- New seeded component prototypes required by the third pass: **0**.
+- New solid materials required by the third pass: **0**.
 - Noble clothing reuses established robe, coat, jacket, gown, skirt, trouser, footwear, headwear, glove, sash, mantle, cloak, `Wear_Stays`, and `Wear_Breeches` profiles.
 - Jewellery and regalia use existing ring, necklace, earring, bracelet, brooch, neck-ring, armlet, belt-plaque, waist-ornament, hair-ornament, forehead-ornament, diadem, coronet, and crown wearable profiles.
 - The functional noble signet ring uses `SealStamp_Medieval_NobleSignetRing`; all other jewellery remains inert apart from wear and destruction behaviour.
-- The noble/jewellery catalogue adds no armour, identity-obscuring, container, rank, or office mechanics to jewellery.
+- The third pass adds no armour, identity-obscuring, container, rank, or office mechanics to jewellery.
+
+
+## Fourth-pass religious clothing and accessories audit
+
+- New component types required by the fourth pass: **0**.
+- New seeded component prototypes required by the fourth pass: **0**.
+- New solid materials required by the fourth pass: **0**.
+- New fourth-pass rows: **73**.
+- Earlier-era religious stable references admitted: **74**.
+- The pass uses established robe, open-robe, tabard, poncho, cloak, cape, mantle, scarf, sash, shoulders, headwear, veil, coif, mask, headband, bandolier, bracer, bracelet, ring, necklace, neck-ring, hair-comb, girdle-ornament, skirt, vest, trouser, shorts, shoe, sandal, boot, and long-coat profiles.
+- `Wear_Mask` is used for the Jain mouthcloth without `Gag`, `IdentityObscurer`, or `Obscurer`; the item therefore has no unsupported speech or disguise behaviour.
+- Sikh kachera, kara, and kanga use existing `Wear_Shorts`, `Wear_Bracelet`, and `Wear_Hair_Comb`. The kirpan is a weapon dependency owned by the military/weapons branch, not a missing clothing component.
+- Quaker plain-dress manifests reuse ordinary current-authority clothing and require no new prototype; plainness is carried by skins and stock admission.
+- Zoroastrian sudreh, kusti, prayer cap, priestly robe, and padan use existing shirt, sash, skullcap, robe, and mask profiles. The padan has no gag, identity-obscuring, or breathing component.
+- Religious bead strings, the Eastern prayer rope, crosses, medallions, rings, and collars use existing wearable jewellery/accessory profiles and remain inert apart from wear and destruction behaviour.
+- No new special ritual, ordination, sect, rank, performance, or legal-status mechanic is requested.

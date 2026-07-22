@@ -23,7 +23,8 @@ public partial class AnimalSeeder
 			return true;
 		}
 
-		if (!context.WeaponAttacks.Any(x => x.Name == "Acid Spit"))
+		if (!context.WeaponAttacks.Any(x => x.Name == "Acid Spit") ||
+		    !context.WeaponAttacks.Any(x => x.Name == "Massive Claw Sweep"))
 		{
 			return true;
 		}

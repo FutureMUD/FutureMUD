@@ -23,6 +23,7 @@ public class CombatAction
     public long Intentions { get; set; }
     public int ExertionLevel { get; set; }
     public double Weighting { get; set; }
+	public int MaximumTargets { get; set; }
     public double StaminaCost { get; set; }
     public double BaseDelay { get; set; }
     public string AdditionalInfo { get; set; }

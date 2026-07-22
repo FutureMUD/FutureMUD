@@ -38,6 +38,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
         StaminaCost = dbitem.StaminaCost;
         BaseDelay = dbitem.BaseDelay;
         Weighting = dbitem.Weighting;
+		MaximumTargets = Math.Max(1, dbitem.MaximumTargets);
         BodypartShape = Gameworld.BodypartShapes.Get(dbitem.BodypartShapeId ?? 0);
         ExertionLevel = (ExertionLevel)dbitem.ExertionLevel;
         Orientation = (Orientation)dbitem.Orientation;
@@ -68,6 +69,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
                 Verb = (int)MeleeWeaponVerb.Bash,
                 Name = "New Attack",
                 Weighting = 100,
+				MaximumTargets = 1,
                 HandednessOptions = (int)AttackHandednessOptions.Any,
                 RecoveryDifficultyFailure = (int)Difficulty.Hard,
                 RecoveryDifficultySuccess = (int)Difficulty.Normal,
@@ -163,6 +165,8 @@ public class WeaponAttack : CombatAction, IWeaponAttack
             case BuiltInCombatMoveType.Pushback:
             case BuiltInCombatMoveType.PushbackUnarmed:
             case BuiltInCombatMoveType.PushbackClinch:
+			case BuiltInCombatMoveType.PullToMelee:
+			case BuiltInCombatMoveType.PullToMeleeUnarmed:
 			case BuiltInCombatMoveType.AquaticVehicleAttack:
                 return new SecondaryDifficultyWeaponAttack(attack, gameworld);
             case BuiltInCombatMoveType.ForcedMovement:
@@ -208,6 +212,8 @@ public class WeaponAttack : CombatAction, IWeaponAttack
             case BuiltInCombatMoveType.Pushback:
             case BuiltInCombatMoveType.PushbackUnarmed:
             case BuiltInCombatMoveType.PushbackClinch:
+			case BuiltInCombatMoveType.PullToMelee:
+			case BuiltInCombatMoveType.PullToMeleeUnarmed:
 			case BuiltInCombatMoveType.AquaticVehicleAttack:
                 return new SecondaryDifficultyWeaponAttack(gameworld, type);
             case BuiltInCombatMoveType.ForcedMovement:
@@ -273,6 +279,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
         IWeaponType weaponType = Gameworld.WeaponTypes.FirstOrDefault(x => x.Attacks.Contains(this));
         dbitem.WeaponTypeId = weaponType?.Id;
         dbitem.Weighting = Weighting;
+		dbitem.MaximumTargets = MaximumTargets;
         dbitem.RequiredPositionStateIds =
             _requiredPositionStates.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues(" ");
         SaveAttackSpecificData(dbitem);
@@ -289,6 +296,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 	#3weapon <type|none>#0 - set or clear the weapon type this attack belongs to
 	#3delay <number>#0 - the number of seconds delay after using this attack
 	#3weight <number>#0 - the relative weighting of the engine selecting this attack
+	#3multitargets <number>#0 - the maximum number of opponents struck (1-100; #3targets#0 is an alias except for breath attacks)
 	#3verb <verb>#0 - the general verb of the attack
 	#3handedness <any|1h|2h|dual|shield>#0 - sets the handedness required
 	#3alignment <alignment>#0 - the alignment of attacks from a right-handed individual to someone face to face
@@ -864,6 +872,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
             $"Bodypart: {BodypartShape?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}"
         );
         sb.AppendLine($"On Use Prog: {(OnUseAttackProg != null ? $"{OnUseAttackProg.FunctionName}".FluentTagMXP("send", $"href='show futureprog {OnUseAttackProg.Id}'") : "None".Colour(Telnet.Red))}");
+		sb.AppendLine($"Maximum Targets: {MaximumTargets.ToString("N0", actor).ColourValue()}");
         sb.AppendLine($"Intentions: {Intentions.Describe()}");
         sb.AppendLine();
         sb.AppendLine(
@@ -926,6 +935,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
                 StunExpressionId = Profile.StunExpression.Id,
                 WeaponTypeId = weaponType?.Id,
                 Weighting = Weighting,
+				MaximumTargets = MaximumTargets,
                 RequiredPositionStateIds = _requiredPositionStates.Select(x => x.Id.ToString("F0"))
                                                                   .ListToCommaSeparatedValues(" ")
             };

@@ -1664,6 +1664,10 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.Intentions).HasColumnType("bigint(20)");
 
+                entity.Property(e => e.MaximumTargets)
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'1'");
+
                 entity.Property(e => e.MoveType).HasColumnType("int(11)");
 
                 entity.Property(e => e.OnUseProgId).HasColumnType("bigint(20)");

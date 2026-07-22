@@ -53,7 +53,8 @@ internal static class CombatAuxiliarySeederHelper
 		double StaminaCost = 1.0,
 		double BaseDelay = 1.0,
 		double Weighting = 100.0,
-		Difficulty MoveDifficulty = Difficulty.Normal);
+		Difficulty MoveDifficulty = Difficulty.Normal,
+		int MaximumTargets = 1);
 
 	private static readonly string[] HumanAuxiliaryMoveNames =
 	[
@@ -385,12 +386,12 @@ internal static class CombatAuxiliarySeederHelper
 		yield return Def("Avian Wing Buffet", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Distraction, t => [Delay(t), Facing(t)], "@ buffet|buffets $1 with beating wings.", "@ beat|beats wings at $1, but $1 weathers it.");
 		yield return Def("Serpent Coil Feint", CombatMoveIntentions.Advantage | CombatMoveIntentions.Distraction, t => [AttackerAdvantage(t, 0.3, 0.0), Delay(t, 0.5, 0.3, 3.0)], "@ coil|coils and feint|feints at $1.", "@ coil|coils in a feint, but $1 reads it.");
 		yield return Def("Ursine Maul-Feint", CombatMoveIntentions.Advantage | CombatMoveIntentions.Savage, t => [Stamina(t, 4.0, 1.0, 12.0), AttackerAdvantage(t, 0.2, 0.0)], "@ rear|rears and feint|feints a mauling rush at $1.", "@ feint|feints a mauling rush, but $1 stands firm.");
-		yield return Def("Dragon Wing Shadow", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Flashy | CombatMoveIntentions.Distraction, t => [Delay(t, 2.0, 0.5, 7.0), Facing(t)], "@ cast|casts a sudden wing-shadow over $1.", "@ spread|spreads wings dramatically, but $1 is not wrong-footed.");
-		yield return Def("Gryphon Buffet", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Hinder, t => [Delay(t), PositionChange(t, 1.0, 0.4, 4.0)], "@ buffet|buffets $1 with a hard wing and shoulder rush.", "@ buffet|buffets at $1, but $1 keeps balance.");
+		yield return Def("Dragon Wing Shadow", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Flashy | CombatMoveIntentions.Distraction, t => [Delay(t, 2.0, 0.5, 7.0), Facing(t)], "@ cast|casts a sudden wing-shadow over $1.", "@ spread|spreads wings dramatically, but $1 is not wrong-footed.", maximumTargets: 4);
+		yield return Def("Gryphon Buffet", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Hinder, t => [Delay(t), PositionChange(t, 1.0, 0.4, 4.0)], "@ buffet|buffets $1 with a hard wing and shoulder rush.", "@ buffet|buffets at $1, but $1 keeps balance.", maximumTargets: 3);
 		yield return Def("Unicorn Dazzling Feint", CombatMoveIntentions.Advantage | CombatMoveIntentions.Flashy | CombatMoveIntentions.Distraction, t => [AttackerAdvantage(t, 0.3, 0.1), Delay(t)], "@ toss|tosses a dazzling horn-feint toward $1.", "@ toss|tosses a glittering feint, but $1 sees through it.");
-		yield return Def("Hydra Many-Head Feint", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Distraction, t => [Delay(t, 2.0, 0.5, 8.0), Stamina(t)], "@ feint|feints with a confusion of snapping heads around $1.", "@ feint|feints with many heads, but $1 tracks the danger.");
+		yield return Def("Hydra Many-Head Feint", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Distraction, t => [Delay(t, 2.0, 0.5, 8.0), Stamina(t)], "@ feint|feints with a confusion of snapping heads around $1.", "@ feint|feints with many heads, but $1 tracks the danger.", maximumTargets: 5);
 		yield return Def("Basilisk Glare Feint", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Distraction, t => [Delay(t, 2.0, 0.5, 6.0)], "@ fix|fixes $1 with a terrible glare.", "@ glare|glares at $1, but $1 refuses the stare.");
-		yield return Def("Myconid Spore Cloud", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Hinder, t => [Delay(t, 2.0, 0.5, 7.0), Stamina(t, 3.0, 1.0, 9.0)], "@ puff|puffs a distracting spore cloud toward $1.", "@ release|releases spores, but $1 avoids the cloud.");
+		yield return Def("Myconid Spore Cloud", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Hinder, t => [Delay(t, 2.0, 0.5, 7.0), Stamina(t, 3.0, 1.0, 9.0)], "@ puff|puffs a distracting spore cloud toward $1.", "@ release|releases spores, but $1 avoids the cloud.", maximumTargets: 5);
 		yield return Def("Servo Jostle", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Hinder, t => [Stamina(t), Delay(t)], "@ jostle|jostles $1 with precise servo pressure.", "@ jostle|jostles at $1, but cannot disrupt them.");
 		yield return Def("Hydraulic Shove", CombatMoveIntentions.Trip | CombatMoveIntentions.Hinder, t => [PositionChange(t, 1.5, 0.5, 5.0)], "@ shove|shoves $1 with hydraulic force.", "@ shove|shoves hydraulically at $1, but $1 holds position.");
 		yield return Def("Sensor Flash", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Distraction, t => [Delay(t, 1.5, 0.5, 5.0)], "@ pulse|pulses a sensor flash at $1.", "@ pulse|pulses a sensor flash, but $1 is not caught.");
@@ -404,9 +405,9 @@ internal static class CombatAuxiliarySeederHelper
 	}
 
 	private static ActionDefinition Def(string name, CombatMoveIntentions intentions, Func<TraitDefinition, IEnumerable<XElement>> effects,
-		string success, string failure, string? prog = null)
+		string success, string failure, string? prog = null, int maximumTargets = 1)
 	{
-		return new ActionDefinition(name, intentions, effects, success, failure, prog);
+		return new ActionDefinition(name, intentions, effects, success, failure, prog, MaximumTargets: maximumTargets);
 	}
 
 	private static XElement Common(string type, TraitDefinition trait, Difficulty difficulty, double flat, double perDegree,
@@ -494,6 +495,7 @@ internal static class CombatAuxiliarySeederHelper
 			action.RecoveryDifficultySuccess = (int)Difficulty.Easy;
 			action.StaminaCost = definition.StaminaCost;
 			action.Weighting = definition.Weighting;
+			action.MaximumTargets = definition.MaximumTargets;
 			action.MoveDifficulty = (int)definition.MoveDifficulty;
 			action.RequiredPositionStateIds =
 				$"{PositionStandingId} {PositionFlyingId} {PositionFloatingInWaterId} {PositionSwimmingId}";

@@ -828,8 +828,11 @@ public abstract class StrategyBase : ICombatStrategy
                          BuiltInCombatMoveType.RangedNaturalAttack,
                          BuiltInCombatMoveType.BreathWeaponAttack,
 						  BuiltInCombatMoveType.SpitNaturalAttack,
-						  BuiltInCombatMoveType.ExplosiveNaturalAttack,
-						  BuiltInCombatMoveType.BuffetingNaturalAttack)
+                         BuiltInCombatMoveType.ExplosiveNaturalAttack,
+						  BuiltInCombatMoveType.BuffetingNaturalAttack,
+						  BuiltInCombatMoveType.PullToMeleeUnarmed)
+					 .Where(x => x.Attack.MoveType != BuiltInCombatMoveType.PullToMeleeUnarmed ||
+					             combatant.ColocatedWith(combatant.CombatTarget))
 					 .Where(x => x.Attack.GetAttackType<IRangedNaturalAttack>() is not { } rangedAttack ||
 					             NaturalRangedAttackMoveBase.TargetIsInRange(combatant, combatant.CombatTarget,
 						             rangedAttack.RangeInRooms))
@@ -925,7 +928,8 @@ public abstract class StrategyBase : ICombatStrategy
             return null;
         }
 
-        return new AuxiliaryMove(combatant, tch, move);
+		return MultiTargetCombatMove.WrapAuxiliaryAction(combatant, tch, move,
+			target => new AuxiliaryMove(combatant, target, move));
     }
 
     protected virtual ICombatMove CheckWeaponryLoadout(ICharacter ch)

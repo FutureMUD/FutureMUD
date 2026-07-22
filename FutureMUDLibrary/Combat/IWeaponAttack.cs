@@ -21,6 +21,7 @@ namespace MudSharp.Combat
         double StaminaCost { get; set; }
         double BaseDelay { get; set; }
         double Weighting { get; set; }
+		int MaximumTargets { get; set; }
         IBodypartShape BodypartShape { get; set; }
         IDamageProfile Profile { get; set; }
         IFutureProg UsabilityProg { get; set; }

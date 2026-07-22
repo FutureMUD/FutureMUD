@@ -30,6 +30,7 @@ namespace MudSharp.Models
         public long StunExpressionId { get; set; }
         public long PainExpressionId { get; set; }
         public double Weighting { get; set; }
+		public int MaximumTargets { get; set; }
         public long? BodypartShapeId { get; set; }
         public double StaminaCost { get; set; }
         public double BaseDelay { get; set; }

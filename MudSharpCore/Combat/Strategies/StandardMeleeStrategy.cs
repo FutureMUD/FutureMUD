@@ -991,6 +991,7 @@ public class StandardMeleeStrategy : StrategyBase
             BuiltInCombatMoveType.StaggeringBlowUnarmed,
             BuiltInCombatMoveType.UnbalancingBlowUnarmed,
             BuiltInCombatMoveType.PushbackUnarmed,
+			BuiltInCombatMoveType.PullToMeleeUnarmed,
             BuiltInCombatMoveType.ScreechAttack,
             BuiltInCombatMoveType.EnvenomingAttack
         };
@@ -1103,6 +1104,7 @@ public class StandardMeleeStrategy : StrategyBase
                         BuiltInCombatMoveType.StaggeringBlowUnarmed,
                         BuiltInCombatMoveType.UnbalancingBlowUnarmed,
                         BuiltInCombatMoveType.PushbackUnarmed,
+						BuiltInCombatMoveType.PullToMeleeUnarmed,
                         BuiltInCombatMoveType.ScreechAttack,
                         BuiltInCombatMoveType.EnvenomingAttack
                 };

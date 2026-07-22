@@ -266,6 +266,17 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         public bool HasChanges => ShieldTypes > 0 || WeaponTypes > 0 || WeaponAttacks > 0 || Components > 0;
     }
 
+	internal static bool ApplySeededMaximumTargets(WeaponAttack attack, int maximumTargets)
+	{
+		if (maximumTargets <= 1 || attack.MaximumTargets == maximumTargets)
+		{
+			return false;
+		}
+
+		attack.MaximumTargets = maximumTargets;
+		return true;
+	}
+
     private CombatStockExpansionResult EnsureExpandedStockCombatContent(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> questionAnswers,
         IReadOnlyDictionary<string, TraitDefinition>? seededSkills = null)
@@ -535,14 +546,21 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             DamageType damageType = DamageType.Crushing, double weighting = 100,
             CombatMoveIntentions intentions =
                 CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill,
-            string? additionalInfo = null, AttackHandednessOptions handedness = AttackHandednessOptions.Any)
+			string? additionalInfo = null, AttackHandednessOptions handedness = AttackHandednessOptions.Any,
+			int maximumTargets = 1)
         {
-            if (context.WeaponAttacks.Any(x =>
-                    x.WeaponTypeId == type.Id &&
-                    x.Name == name &&
-                    x.MoveType == (int)moveType &&
-                    x.HandednessOptions == (int)handedness))
+            WeaponAttack? existingAttack = context.WeaponAttacks.FirstOrDefault(x =>
+                x.WeaponTypeId == type.Id &&
+                x.Name == name &&
+                x.MoveType == (int)moveType &&
+                x.HandednessOptions == (int)handedness);
+            if (existingAttack is not null)
             {
+				if (ApplySeededMaximumTargets(existingAttack, maximumTargets))
+				{
+					context.SaveChanges();
+				}
+
                 return;
             }
 
@@ -558,6 +576,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                 RecoveryDifficultyFailure = (int)Difficulty.Hard,
                 Intentions = (long)intentions,
                 Weighting = weighting,
+				MaximumTargets = maximumTargets,
                 ExertionLevel = (int)ExertionLevel.Heavy,
                 DamageType = (int)damageType,
                 DamageExpression = damage,
@@ -603,7 +622,22 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             Orientation.Low, 4.0, 1.0, quarterstaff, poorDamage,
             "@ sweep|sweeps $2 low toward $1's legs", DamageType.Crushing,
             intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Hinder | CombatMoveIntentions.Disadvantage,
-            additionalInfo: SecondaryDifficulty(Difficulty.Normal));
+			additionalInfo: SecondaryDifficulty(Difficulty.Normal), maximumTargets: 3);
+		AddAttack("Quarterstaff Whirling Strike", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Whirl,
+			Difficulty.Hard, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.Front,
+			Orientation.Centre, 5.5, 1.3, quarterstaff, normalDamage,
+			"@ whirl|whirls $2 in a broad arc through $1's position", DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Flashy |
+			            CombatMoveIntentions.Slow,
+			handedness: AttackHandednessOptions.TwoHandedOnly, maximumTargets: 3);
+		AddAttack("Quarterstaff Hook and Pull", BuiltInCombatMoveType.PullToMelee, MeleeWeaponVerb.Sweep,
+			Difficulty.Hard, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.Front,
+			Orientation.Centre, 5.0, 1.1, quarterstaff, poorDamage,
+			"@ hook|hooks $2 around $1 and haul|hauls &1 into close reach", DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Hinder |
+			            CombatMoveIntentions.Disadvantage,
+			additionalInfo: SecondaryDifficulty(Difficulty.Hard),
+			handedness: AttackHandednessOptions.TwoHandedOnly, maximumTargets: 2);
         AddAttack("Quarterstaff Counter-Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
             Difficulty.Normal, Difficulty.Hard, Difficulty.Normal, Difficulty.Easy, Alignment.Front,
             Orientation.High, 3.5, 0.6, quarterstaff, normalDamage,

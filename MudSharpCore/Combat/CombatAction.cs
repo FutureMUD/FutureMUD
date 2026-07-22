@@ -19,6 +19,7 @@ public abstract class CombatAction : SaveableItem
     public double StaminaCost { get; set; }
     public double BaseDelay { get; set; }
     public double Weighting { get; set; }
+	public int MaximumTargets { get; set; } = 1;
     public IFutureProg UsabilityProg { get; set; }
     public IFutureProg OnUseAttackProg { get; set; }
     protected readonly List<IPositionState> _requiredPositionStates = new();
@@ -37,6 +38,12 @@ public abstract class CombatAction : SaveableItem
                 return BuildingCommandPosition(actor, command);
             case "weight":
                 return BuildingCommandWeight(actor, command);
+			case "targets":
+			case "targetcount":
+			case "maxtargets":
+			case "multitargets":
+			case "opponents":
+				return BuildingCommandTargets(actor, command);
             case "exertion":
                 return BuildingCommandExertion(actor, command);
             case "recover":
@@ -67,6 +74,21 @@ public abstract class CombatAction : SaveableItem
                 return false;
         }
     }
+
+	private bool BuildingCommandTargets(ICharacter actor, StringStack command)
+	{
+		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 1 || value > 100)
+		{
+			actor.OutputHandler.Send("You must enter a number of targets between 1 and 100.");
+			return false;
+		}
+
+		MaximumTargets = value;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This {ActionTypeName} can now affect up to {MaximumTargets.ToString("N0", actor).ColourValue()} target{(MaximumTargets == 1 ? "" : "s")}.");
+		return true;
+	}
 
     private bool BuildingCommandPosition(ICharacter actor, StringStack command)
     {

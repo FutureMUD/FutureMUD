@@ -107,7 +107,7 @@ public partial class AnimalSeeder
                     ShapeAttack("carnivoredownbite", ItemQuality.Good)
                 ],
                 [
-                    AliasAttack("clawswipe", ItemQuality.Standard, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
+					AliasAttack("massiveclawsweep", ItemQuality.Standard, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
                     AliasAttack("clawhighswipe", ItemQuality.Standard, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
                     AliasAttack("treehaul", ItemQuality.Standard, "rfclaw", "lfclaw", "rrclaw", "lrclaw")
                 ]
@@ -120,7 +120,7 @@ public partial class AnimalSeeder
                     ShapeAttack("bargesmash", ItemQuality.Standard)
                 ],
                 [
-                    AliasAttack("clawswipe", ItemQuality.VeryGood, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
+					AliasAttack("massiveclawsweep", ItemQuality.VeryGood, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
                     AliasAttack("clawhighswipe", ItemQuality.VeryGood, "rfclaw", "lfclaw", "rrclaw", "lrclaw")
                 ]
             ),

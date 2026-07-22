@@ -23,6 +23,7 @@ public interface IAuxiliaryCombatAction : IKeywordedItem
     double StaminaCost { get; set; }
     double BaseDelay { get; set; }
     double Weighting { get; set; }
+	int MaximumTargets { get; set; }
     IFutureProg UsabilityProg { get; set; }
     IEnumerable<IPositionState> RequiredPositionStates { get; }
     string ShowBuilder(ICharacter actor);

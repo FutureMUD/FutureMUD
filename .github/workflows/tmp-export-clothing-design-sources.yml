@@ -7,6 +7,12 @@ on:
     paths:
       - .github/workflows/tmp-export-clothing-design-sources.yml
       - .tmp/headwear-footwear-export-trigger
+  pull_request:
+    branches:
+      - master
+    paths:
+      - .github/workflows/tmp-export-clothing-design-sources.yml
+      - .tmp/headwear-footwear-export-trigger
 
 permissions:
   contents: read

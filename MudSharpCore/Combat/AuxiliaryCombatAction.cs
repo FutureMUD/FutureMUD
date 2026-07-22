@@ -47,6 +47,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
             dbitem.RecoveryDifficultySuccess = (int)rhs.RecoveryDifficultySuccess;
             dbitem.StaminaCost = rhs.StaminaCost;
             dbitem.Weighting = rhs.Weighting;
+			dbitem.MaximumTargets = rhs.MaximumTargets;
             dbitem.MoveDifficulty = (int)rhs.MoveDifficulty;
             dbitem.TraitDefinitionId = rhs.CheckTrait.Id;
             dbitem.RequiredPositionStateIds =
@@ -80,6 +81,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
             dbitem.RecoveryDifficultySuccess = (int)Difficulty.Easy;
             dbitem.StaminaCost = 1.0;
             dbitem.Weighting = 100;
+			dbitem.MaximumTargets = 1;
             dbitem.MoveDifficulty = (int)Difficulty.Normal;
             dbitem.RequiredPositionStateIds =
                 $"{PositionStanding.Instance.Id} {PositionFlying.Instance.Id} {PositionFloatingInWater.Instance.Id} {PositionSwimming.Instance.Id}";
@@ -104,6 +106,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
         StaminaCost = dbitem.StaminaCost;
         BaseDelay = dbitem.BaseDelay;
         Weighting = dbitem.Weighting;
+		MaximumTargets = Math.Max(1, dbitem.MaximumTargets);
         MoveDifficulty = (Difficulty)dbitem.MoveDifficulty;
         ExertionLevel = (ExertionLevel)dbitem.ExertionLevel;
         _requiredPositionStates.AddRange(dbitem.RequiredPositionStateIds.Split(' ').Select(x => long.Parse(x))
@@ -131,6 +134,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
         dbitem.RecoveryDifficultySuccess = (int)RecoveryDifficultySuccess;
         dbitem.StaminaCost = StaminaCost;
         dbitem.Weighting = Weighting;
+		dbitem.MaximumTargets = MaximumTargets;
         dbitem.MoveDifficulty = (int)MoveDifficulty;
         dbitem.RequiredPositionStateIds =
             _requiredPositionStates.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues(" ");
@@ -236,6 +240,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
             $"Difficulty: {MoveDifficulty.DescribeColoured()}"
         );
         sb.AppendLine($"Intentions: {Intentions.Describe()}");
+		sb.AppendLine($"Maximum Targets: {MaximumTargets.ToString("N0", actor).ColourValue()}");
         sb.AppendLine();
         sb.AppendLine("Effects:");
         sb.AppendLine();
@@ -505,6 +510,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 	#3name#0 - the name of the attack
 	#3delay <number>#0 - the number of seconds delay after using this attack
 	#3weight <number>#0 - the relative weighting of the engine selecting this attack
+	#3targets <number>#0 - the maximum number of opponents affected (1-100)
 	#3trait <which>#0 - sets the trait which this move checks against
 	#3difficulty <difficulty>#0 - the difficulty of the attack roll
 	#3exertion <exertion>#0 - the minimum exertion level to set (if not already higher) when the attack is used

@@ -122,7 +122,8 @@ public static class ManualCombatCommandResolver
 				: ManualCombatMoveResolution.Failed("You are too exhausted to use that auxiliary move right now.");
 		}
 
-		return ManualCombatMoveResolution.Resolved(new AuxiliaryMove(actor, target, available));
+		return ManualCombatMoveResolution.Resolved(MultiTargetCombatMove.WrapAuxiliaryAction(actor, target, available,
+			secondaryTarget => new AuxiliaryMove(actor, secondaryTarget, available)));
 	}
 
 	private static ManualCombatMoveResolution ResolveWeaponAttack(

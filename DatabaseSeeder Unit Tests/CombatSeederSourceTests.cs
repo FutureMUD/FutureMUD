@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DatabaseSeeder.Seeders;
 using MudSharp.GameItems;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,18 @@ public class CombatSeederSourceTests
         string WeaponVariable,
         string DamageVariable
     );
+
+	[TestMethod]
+	public void ApplySeededMaximumTargets_RepairsNonDefaultCapsAndIsIdempotent()
+	{
+		var attack = new MudSharp.Models.WeaponAttack { MaximumTargets = 1 };
+
+		Assert.IsTrue(CombatSeeder.ApplySeededMaximumTargets(attack, 3));
+		Assert.AreEqual(3, attack.MaximumTargets);
+		Assert.IsFalse(CombatSeeder.ApplySeededMaximumTargets(attack, 3));
+		Assert.IsFalse(CombatSeeder.ApplySeededMaximumTargets(attack, 1));
+		Assert.AreEqual(3, attack.MaximumTargets);
+	}
 
     [TestMethod]
     public void LiveWeaponSuites_ExpectedChassis_HaveRequiredMoveCoverage()
@@ -182,6 +195,39 @@ public class CombatSeederSourceTests
         StringAssert.Contains(source, "\"Shield Shove\"");
         StringAssert.Contains(source, "ForcedMovementAttackData(Difficulty.Normal, ForcedMovementTypes.All");
     }
+
+	[TestMethod]
+	public void MultiTargetAttackSeeders_ProvideWeaponNaturalRangedAndAuxiliaryExamples()
+	{
+		string combatSource = GetCombatSeederSource();
+		string animalSource = SeederSourceTestHelper.ReadPartialFamily("AnimalSeeder");
+		string auxiliarySource = File.ReadAllText(GetSeederSourcePath("CombatAuxiliarySeederHelper.cs"));
+
+		StringAssert.Contains(combatSource,
+			"AddAttack(\"Quarterstaff Whirling Strike\", BuiltInCombatMoveType.UseWeaponAttack");
+		StringAssert.Contains(combatSource,
+			"AddAttack(\"Quarterstaff Hook and Pull\", BuiltInCombatMoveType.PullToMelee");
+		StringAssert.Contains(combatSource, "maximumTargets: 3");
+		StringAssert.Contains(combatSource, "maximumTargets: 2");
+
+		StringAssert.Contains(animalSource, "EnsureMultiTargetAttackSeedData();");
+		StringAssert.Contains(animalSource, "(\"Massive Claw Sweep\", 3, null)");
+		StringAssert.Contains(animalSource, "EnsureMassiveClawSweepRaceLinks();");
+		StringAssert.Contains(animalSource, "AliasAttack(\"massiveclawsweep\", ItemQuality.Standard");
+		StringAssert.Contains(animalSource, "AliasAttack(\"massiveclawsweep\", ItemQuality.VeryGood");
+		StringAssert.Contains(animalSource, "(\"Tusk Sweep\", 3, null)");
+		StringAssert.Contains(animalSource, "(\"Tail Slap\", 3, null)");
+		StringAssert.Contains(animalSource, "(\"Animal Barge Pushback\", 3, null)");
+		StringAssert.Contains(animalSource,
+			"(\"Tendril Lash\", 4, BuiltInCombatMoveType.PullToMeleeUnarmed)");
+		StringAssert.Contains(animalSource, "(\"Wing Buffet\", 4, null)");
+
+		StringAssert.Contains(auxiliarySource, "MaximumTargets = definition.MaximumTargets");
+		StringAssert.Contains(auxiliarySource, "Def(\"Dragon Wing Shadow\"");
+		StringAssert.Contains(auxiliarySource, "Def(\"Hydra Many-Head Feint\"");
+		StringAssert.Contains(auxiliarySource, "Def(\"Myconid Spore Cloud\"");
+		StringAssert.Contains(auxiliarySource, "maximumTargets: 5");
+	}
 
 	[TestMethod]
 	public void CombatAuxiliarySeederSource_HumanCatalogue_HasTwentyNamedMovesAndNewEffectTypes()

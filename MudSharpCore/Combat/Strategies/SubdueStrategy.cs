@@ -265,7 +265,8 @@ public class SubdueStrategy : StandardMeleeStrategy
 				continue;
 			}
 
-			candidates.Add((() => new AuxiliaryMove(combatant, target, action), weight));
+			candidates.Add((() => MultiTargetCombatMove.WrapAuxiliaryAction(combatant, target, action,
+				secondaryTarget => new AuxiliaryMove(combatant, secondaryTarget, action)), weight));
 		}
 	}
 

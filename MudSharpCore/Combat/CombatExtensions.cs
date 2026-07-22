@@ -15,7 +15,8 @@ public static class CombatExtensions
             BuiltInCombatMoveType.UseWeaponAttack,
             BuiltInCombatMoveType.StaggeringBlow,
             BuiltInCombatMoveType.UnbalancingBlow,
-            BuiltInCombatMoveType.Pushback
+			BuiltInCombatMoveType.Pushback,
+			BuiltInCombatMoveType.PullToMelee
     };
 
     private const string MovementSpeedExpressionConfig = "CombatMovementSpeedExpression";
@@ -1090,6 +1091,8 @@ public static class CombatExtensions
             case BuiltInCombatMoveType.ForcedMovement:
             case BuiltInCombatMoveType.ForcedMovementUnarmed:
             case BuiltInCombatMoveType.ForcedMovementClinch:
+			case BuiltInCombatMoveType.PullToMelee:
+			case BuiltInCombatMoveType.PullToMeleeUnarmed:
 			case BuiltInCombatMoveType.AquaticVehicleAttack:
                 return true;
             default:
@@ -1117,6 +1120,10 @@ public static class CombatExtensions
                 return "Retrieve Item";
             case BuiltInCombatMoveType.UseWeaponAttack:
                 return "Weapon Attack";
+			case BuiltInCombatMoveType.PullToMelee:
+				return "Pull to Melee";
+			case BuiltInCombatMoveType.PullToMeleeUnarmed:
+				return "Pull to Melee (Natural)";
 			case BuiltInCombatMoveType.AquaticVehicleAttack:
 				return "Aquatic Vehicle Attack";
             case BuiltInCombatMoveType.ChargeToMelee:

@@ -1,7 +1,7 @@
 # Natural Ranged Attacks Design
 
 Status: **Ready for Release**
-Release review completed: 14 July 2026
+Release review completed: 21 July 2026
 
 ## Overview
 
@@ -69,6 +69,7 @@ The return value is ignored. This is intended for cooldowns, state-setting, comb
 `WeaponAttacks` now store:
 
 - `OnUseProgId`
+- `MaximumTargets`, the inclusive cap for generic multi-target resolution; the database default is `1`
 - `AdditionalInfo` XML for the new ranged-natural subclasses
 
 ### Gases
@@ -144,11 +145,12 @@ All ranged-natural attack definitions expose:
 
 - `range <rooms>`
 - `scatter <arcing|ballistic|light|spread>`
+- `multitargets <number>` for the inclusive generic target cap
 
 ### Specialised Fields
 
 - `BreathWeaponAttack`
-  - `targets <number>`
+  - `targets <number>` for its existing payload-specific additional-target limit
   - `bodyparts <number>`
   - `ignite <percentage>`
   - `fire <option>`
@@ -167,6 +169,8 @@ All ranged-natural attack definitions expose:
 All attacks also expose:
 
 - `onuse <prog|none>`
+
+Generic ranged-natural multi-target resolution creates an independent normal attack and defense for each visible hostile combatant within `RangeInRooms`. Breath, explosive, and screech attacks retain their payload-specific area processing and are deliberately not wrapped a second time.
 
 Breath fire profiles expose `name`, `type`, `damage`, `pain`, `stun`, `thermal`, `spread`,
 `oxidation`, `selfoxidising`, `interval`, and `extinguish` subcommands. Liquid builders expose

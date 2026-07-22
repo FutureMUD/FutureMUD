@@ -352,9 +352,21 @@ public abstract class CombatBase : ICombat
     {
         if (perceiver is ICharacter attacker)
         {
-            ArenaScoringHelper.TryRecordCombatResolution(attacker, move, response, result);
+			foreach (var resolution in ScoringResolutionsFor(move, response, result))
+			{
+				ArenaScoringHelper.TryRecordCombatResolution(attacker, resolution.Move, resolution.Response,
+					resolution.Result);
+			}
         }
     }
+
+	internal static IEnumerable<MultiTargetCombatResolution> ScoringResolutionsFor(ICombatMove move,
+		ICombatMove response, CombatMoveResult result)
+	{
+		return move is MultiTargetCombatMove multiTargetMove
+			? multiTargetMove.Resolutions
+			: [new MultiTargetCombatResolution(move, response, result)];
+	}
 
     protected virtual void FireOnUseProg(ICombatMove move)
     {
@@ -391,7 +403,9 @@ public abstract class CombatBase : ICombat
         }
 
 		perceiver.RemoveAllEffects(x => x.IsEffectType<IdleCombatant>());
-		ICombatMove targetResponse = move.CharacterTargets.FirstOrDefault()?.ResponseToMove(move, perceiver);
+		ICombatMove targetResponse = move is MultiTargetCombatMove
+			? null
+			: move.CharacterTargets.FirstOrDefault()?.ResponseToMove(move, perceiver);
 		CombatMoveResult result = move.ResolveMove(targetResponse);
 		if (!ReferenceEquals(result, CombatMoveResult.Irrelevant))
 		{

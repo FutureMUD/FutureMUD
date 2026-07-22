@@ -68,7 +68,8 @@ public partial class CombatSeeder
             DamageType damageType = DamageType.Crushing, double weighting = 100,
             CombatMoveIntentions intentions =
                 CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill,
-			string? additionalInfo = null, AttackHandednessOptions handedness = AttackHandednessOptions.Any)
+			string? additionalInfo = null, AttackHandednessOptions handedness = AttackHandednessOptions.Any,
+			int maximumTargets = 1)
         {
             WeaponAttack attack = new()
             {
@@ -82,6 +83,7 @@ public partial class CombatSeeder
                 RecoveryDifficultyFailure = (int)Difficulty.Hard,
                 Intentions = (long)intentions,
                 Weighting = weighting,
+				MaximumTargets = maximumTargets,
                 ExertionLevel = (int)ExertionLevel.Heavy,
                 DamageType = (int)damageType,
                 DamageExpression = damage,

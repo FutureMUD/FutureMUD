@@ -605,6 +605,13 @@ namespace MudSharp.Database
                 entity.Property(e => e.Red).HasColumnType("int(11)");
             });
 
+            modelBuilder.Entity<CombatAction>(entity =>
+            {
+                entity.Property(e => e.MaximumTargets)
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'1'");
+            });
+
             modelBuilder.Entity<CombatMessage>(entity =>
             {
                 entity.HasIndex(e => e.ProgId)

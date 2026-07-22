@@ -1,5 +1,6 @@
 #nullable enable
 
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Body.Traits;
 using MudSharp.Body;
 using MudSharp.Combat;
@@ -157,7 +158,7 @@ public partial class AnimalSeeder
         BodypartShape shape, TraitExpression damage, string attackMessage,
         DamageType damageType = DamageType.Crushing, double weighting = 100,
         CombatMoveIntentions intentions = CombatMoveIntentions.Attack | CombatMoveIntentions.Wound,
-		string? additionalInfo = null)
+		string? additionalInfo = null, int maximumTargets = 1)
     {
         string formattedAttackMessage = CombatSeederMessageStyleHelper.FormatAttackMessage(
             attackMessage,
@@ -175,6 +176,7 @@ public partial class AnimalSeeder
             RecoveryDifficultyFailure = (int)Difficulty.Hard,
             Intentions = (long)intentions,
             Weighting = weighting,
+			MaximumTargets = maximumTargets,
             ExertionLevel = (int)ExertionLevel.Heavy,
             DamageType = (int)damageType,
             DamageExpression = damage,
@@ -666,6 +668,14 @@ public partial class AnimalSeeder
                     MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
                     Alignment.FrontRight, Orientation.Centre, 2.5, 0.8, clawShape, clawDamage,
                     $"@ lash|lashes out with &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
+			_attacks["massiveclawsweep"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Massive Claw Sweep") ??
+				AddAttack("Massive Claw Sweep", BuiltInCombatMoveType.NaturalWeaponAttack,
+					MeleeWeaponVerb.Sweep, Difficulty.Hard, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy,
+					Alignment.Front, Orientation.Centre, 6.0, 1.4, clawShape, clawDamage,
+					$"@ sweep|sweeps &0's {{0}} in a massive arc through $1{attackAddendum}", DamageType.Claw,
+					intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
+					            CombatMoveIntentions.Savage | CombatMoveIntentions.Slow,
+					maximumTargets: 3);
             _attacks["treehaul"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Tree Haul") ??
                 AddAttack("Tree Haul", BuiltInCombatMoveType.ForcedMovementUnarmed,
                     MeleeWeaponVerb.Claw, Difficulty.Hard, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard,
@@ -699,10 +709,11 @@ public partial class AnimalSeeder
                     $"@ whip|whips &0's tail around at $1{attackAddendum}", DamageType.Crushing,
                     additionalInfo: ((int)Difficulty.Normal).ToString());
             _attacks["tendrillash"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Tendril Lash") ??
-                AddAttack("Tendril Lash", BuiltInCombatMoveType.NaturalWeaponAttack,
+                AddAttack("Tendril Lash", BuiltInCombatMoveType.PullToMeleeUnarmed,
                     MeleeWeaponVerb.Sweep, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy,
                     Alignment.Front, Orientation.Centre, 3.5, 0.5, tendrilShape, peckDamage,
-                    $"@ lash|lashes a tendril at $1{attackAddendum}", DamageType.Cellular);
+                    $"@ lash|lashes a tendril at $1{attackAddendum}", DamageType.Cellular,
+                    additionalInfo: ((int)Difficulty.Hard).ToString());
             _attacks["waterdrag"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Water Drag") ??
                 AddAttack("Water Drag", BuiltInCombatMoveType.ForcedMovementUnarmed,
                     MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
@@ -1085,6 +1096,14 @@ public partial class AnimalSeeder
                 MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
                 Alignment.FrontRight, Orientation.High, 4.0, 1.3, clawShape, clawDamage,
                 $"@ rear|rears up and rake|rakes &0's {{0}} across $1{attackAddendum}", DamageType.Claw);
+			_attacks["massiveclawsweep"] = AddAttack("Massive Claw Sweep",
+				BuiltInCombatMoveType.NaturalWeaponAttack, MeleeWeaponVerb.Sweep, Difficulty.Hard,
+				Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.Front, Orientation.Centre,
+				6.0, 1.4, clawShape, clawDamage,
+				$"@ sweep|sweeps &0's {{0}} in a massive arc through $1{attackAddendum}", DamageType.Claw,
+				intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
+				            CombatMoveIntentions.Savage | CombatMoveIntentions.Slow,
+				maximumTargets: 3);
             _attacks["clawsmashswipe"] = AddAttack("Claw Swipe Smash", BuiltInCombatMoveType.UnarmedSmashItem,
                 MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
                 Alignment.FrontRight, Orientation.High, 4.0, 1.3, clawShape, clawDamage,
@@ -1246,10 +1265,11 @@ public partial class AnimalSeeder
                 $"@ whip|whips &0's tail across $1{attackAddendum}", DamageType.Crushing,
                 additionalInfo: ((int)Difficulty.Normal).ToString());
             _attacks["tendrillash"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Tendril Lash") ??
-                AddAttack("Tendril Lash", BuiltInCombatMoveType.NaturalWeaponAttack,
+                AddAttack("Tendril Lash", BuiltInCombatMoveType.PullToMeleeUnarmed,
                     MeleeWeaponVerb.Sweep, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy,
                     Alignment.Front, Orientation.Centre, 3.5, 0.5, tendrilShape, peckDamage,
-                    $"@ lash|lashes a tendril at $1{attackAddendum}", DamageType.Cellular);
+                    $"@ lash|lashes a tendril at $1{attackAddendum}", DamageType.Cellular,
+                    additionalInfo: ((int)Difficulty.Hard).ToString());
             _attacks["llamaspit"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Llama Spit") ??
                 AddAttack("Llama Spit", BuiltInCombatMoveType.SpitNaturalAttack,
                     MeleeWeaponVerb.Blast, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
@@ -1296,8 +1316,114 @@ public partial class AnimalSeeder
         }
 
 		EnsureNaturalRangedAttackSeedData(damageExpressions);
+		EnsureMultiTargetAttackSeedData();
 		EnsureAquaticVehicleAttackSeedData();
     }
+
+	private void EnsureMultiTargetAttackSeedData()
+	{
+		var definitions = new (string Name, int MaximumTargets, BuiltInCombatMoveType? MoveType)[]
+		{
+			("Massive Claw Sweep", 3, null),
+			("Tusk Sweep", 3, null),
+			("Tail Slap", 3, null),
+			("Animal Barge Pushback", 3, null),
+			("Tendril Lash", 4, BuiltInCombatMoveType.PullToMeleeUnarmed),
+			("Wing Buffet", 4, null)
+		};
+
+		foreach (var definition in definitions)
+		{
+			var attack = _context.WeaponAttacks.FirstOrDefault(x => x.Name == definition.Name);
+			if (attack is null)
+			{
+				continue;
+			}
+
+			ApplyMultiTargetAttackDefinition(_context, attack, definition.MaximumTargets, definition.MoveType);
+		}
+
+		EnsureMassiveClawSweepRaceLinks();
+		_context.SaveChanges();
+	}
+
+	internal static void ApplyMultiTargetAttackDefinition(FuturemudDatabaseContext context, WeaponAttack attack,
+		int maximumTargets, BuiltInCombatMoveType? moveType)
+	{
+		attack.MaximumTargets = maximumTargets;
+		if (moveType is null)
+		{
+			return;
+		}
+
+		var previousMoveType = attack.MoveType;
+		var updatedMoveType = (int)moveType.Value;
+		attack.MoveType = updatedMoveType;
+		attack.AdditionalInfo = ((int)Difficulty.Hard).ToString();
+
+		var legacyMessageTypes = new[]
+		{
+			previousMoveType,
+			(int)BuiltInCombatMoveType.NaturalWeaponAttack
+		};
+		foreach (var link in context.CombatMessagesWeaponAttacks
+		         .Include(x => x.CombatMessage)
+		         .Where(x => x.WeaponAttackId == attack.Id &&
+		                     x.CombatMessage.Type != updatedMoveType &&
+		                     legacyMessageTypes.Contains(x.CombatMessage.Type))
+		         .ToList())
+		{
+			link.CombatMessage.Type = updatedMoveType;
+		}
+	}
+
+	private void EnsureMassiveClawSweepRaceLinks()
+	{
+		if (!_attacks.TryGetValue("massiveclawsweep", out var attack))
+		{
+			return;
+		}
+
+		var raceQualities = RaceTemplates.Values
+			.Where(x => x.AttackLoadoutKey.In("big-cat", "bear"))
+			.ToDictionary(
+				x => x.Name,
+				x => x.AttackLoadoutKey.EqualTo("bear") ? ItemQuality.VeryGood : ItemQuality.Standard,
+				StringComparer.OrdinalIgnoreCase);
+		var raceNames = raceQualities.Keys.ToList();
+		foreach (var race in _context.Races
+			         .Where(x => raceNames.Contains(x.Name))
+			         .ToList())
+		{
+			var bodyIds = new List<long> { race.BaseBodyId };
+			var body = race.BaseBody.CountsAs;
+			while (body is not null)
+			{
+				bodyIds.Add(body.Id);
+				body = body.CountsAs;
+			}
+
+			foreach (var bodypart in _context.BodypartProtos
+			         .Where(x => bodyIds.Contains(x.BodyId) && x.BodypartShapeId == attack.BodypartShapeId)
+			         .ToList())
+			{
+				if (_context.RacesWeaponAttacks.Any(x => x.RaceId == race.Id &&
+				                                        x.WeaponAttackId == attack.Id &&
+				                                        x.BodypartId == bodypart.Id))
+				{
+					continue;
+				}
+
+				_context.RacesWeaponAttacks.Add(new RacesWeaponAttacks
+				{
+					Race = race,
+					WeaponAttack = attack,
+					Bodypart = bodypart,
+					Quality = (int)raceQualities[race.Name]
+				});
+			}
+		}
+	}
 
 	private void EnsureAquaticVehicleAttackSeedData()
 	{

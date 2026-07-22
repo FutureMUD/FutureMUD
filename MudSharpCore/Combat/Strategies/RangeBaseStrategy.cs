@@ -250,12 +250,45 @@ public abstract class RangeBaseStrategy : StrategyBase
         return null;
     }
 
+	private ICombatMove AttemptUsePullToMeleeWeaponAttack(ICharacter combatant)
+	{
+		if (combatant.CombatTarget is not ICharacter target || combatant.MeleeRange ||
+		    !combatant.ColocatedWith(target))
+		{
+			return null;
+		}
+
+		var attacks = combatant.Body.WieldedItems
+			.SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
+			.SelectMany(weapon => weapon.WeaponType
+				.UsableAttacks(combatant, weapon.Parent, target, weapon.HandednessForWeapon(combatant), false,
+					BuiltInCombatMoveType.PullToMelee)
+				.Select(attack => (Weapon: weapon, Attack: attack)))
+			.Where(x => combatant.CanSpendStamina(MeleeWeaponAttack.MoveStaminaCost(combatant, x.Attack)))
+			.Where(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x.Attack) > 0.0)
+			.ToList();
+		if (attacks.Count == 0)
+		{
+			return null;
+		}
+
+		var selected = attacks.GetWeightedRandom(x =>
+			x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x.Attack));
+		return CombatMoveFactory.CreateWeaponAttack(combatant, selected.Weapon, selected.Attack, target);
+	}
+
     protected virtual ICombatMove HandleGeneralAttacks(ICharacter combatant)
     {
         double roll = Constants.Random.NextDouble();
         if (combatant.CombatSettings.WeaponUsePercentage > 0 &&
             roll <= combatant.CombatSettings.WeaponUsePercentage)
         {
+			var pullMove = AttemptUsePullToMeleeWeaponAttack(combatant);
+			if (pullMove is not null)
+			{
+				return pullMove;
+			}
+
             ICombatMove move = DoRangedWeaponAttack(combatant);
             if (move != null)
             {

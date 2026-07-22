@@ -12,6 +12,7 @@ using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.NPC.AI;
+using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +26,46 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class AnimalSeederTemplateTests
 {
+	[TestMethod]
+	public void ApplyMultiTargetAttackDefinition_RetagsLegacyTendrilMessage()
+	{
+		using var context = BuildContext();
+		var attack = new MudSharp.Models.WeaponAttack
+		{
+			Id = 1,
+			Name = "Tendril Lash",
+			MoveType = (int)BuiltInCombatMoveType.NaturalWeaponAttack,
+			MaximumTargets = 1,
+			RequiredPositionStateIds = string.Empty
+		};
+		var message = new MudSharp.Models.CombatMessage
+		{
+			Id = 1,
+			Type = (int)BuiltInCombatMoveType.NaturalWeaponAttack,
+			Message = "@ lash|lashes at $1.",
+			FailureMessage = "@ miss|misses $1.",
+			Chance = 1.0
+		};
+		context.WeaponAttacks.Add(attack);
+		context.CombatMessages.Add(message);
+		context.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
+		{
+			WeaponAttack = attack,
+			CombatMessage = message
+		});
+		context.SaveChanges();
+
+		AnimalSeeder.ApplyMultiTargetAttackDefinition(context, attack, 4,
+			BuiltInCombatMoveType.PullToMeleeUnarmed);
+		context.SaveChanges();
+
+		Assert.AreEqual(4, attack.MaximumTargets);
+		Assert.AreEqual((int)BuiltInCombatMoveType.PullToMeleeUnarmed, attack.MoveType);
+		Assert.AreEqual(((int)Difficulty.Hard).ToString(), attack.AdditionalInfo);
+		Assert.AreEqual((int)BuiltInCombatMoveType.PullToMeleeUnarmed,
+			context.CombatMessages.Single().Type);
+	}
+
     private static FuturemudDatabaseContext BuildContext()
     {
         DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -122,6 +163,7 @@ public class AnimalSeederTemplateTests
         bool includeBeetleBody = true,
         bool includeCentipedeBody = true,
         bool includeAcidSpit = true,
+		bool includeMassiveClawSweep = true,
         string? omittedRaceName = null,
         bool beetleOnCorrectBody = true,
         bool includeDietSettings = false,
@@ -201,6 +243,17 @@ public class AnimalSeederTemplateTests
                 RequiredPositionStateIds = string.Empty
             });
         }
+
+		if (includeMassiveClawSweep)
+		{
+			context.WeaponAttacks.Add(new MudSharp.Models.WeaponAttack
+			{
+				Name = "Massive Claw Sweep",
+				AdditionalInfo = string.Empty,
+				RequiredPositionStateIds = string.Empty,
+				MaximumTargets = 3
+			});
+		}
 
         BodyProto fallbackBody = bodies.TryGetValue("Insectoid", out BodyProto? insectoidBody)
             ? insectoidBody
@@ -1462,6 +1515,16 @@ public class AnimalSeederTemplateTests
         Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, new AnimalSeeder().ShouldSeedData(context),
             "Rerunnable animal seeders should advertise the expanded catalogue when beetle and centipede bodies or new races are missing.");
     }
+
+	[TestMethod]
+	public void ShouldSeedData_ExistingCatalogueMissingMassiveClawSweep_ReturnsExtraPackagesAvailable()
+	{
+		using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext(
+			includeMassiveClawSweep: false);
+
+		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, new AnimalSeeder().ShouldSeedData(context),
+			"The multi-target natural attack should make the rerunnable animal combat package available.");
+	}
 
     [TestMethod]
     public void ShouldSeedData_ExistingCatalogueWithBeetleStillUsingInsectoid_ReturnsExtraPackagesAvailable()

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This volume defines **110 unique clothing prototypes** for:
+This volume defines **130 unique clothing prototypes** for:
 
 - Shared Persianate / Indo-Persian;
 - Shared South Asian;
@@ -208,6 +208,33 @@ Use an exact live wearable component where coverage and layering match. Otherwis
 | `renaissance_steppe_fur_earflaphat` | furred ear-flap hat | fur | `WP-HEAD-HAT` | **exact material required**; tied-up/down is descriptive unless component supports state |
 | `renaissance_steppe_soft_highboots` | pair of soft high riding boots | leather | `WP-FOOT-BOOT` | knee/calf, turned/plain cuff, felt-lined winter skin |
 
+## G. Headwear and footwear expansion — 20
+
+These rows are additional construction-level options. They do not alter the existing outfit minimums or first-pass shared-placement count; a builder should admit them only where status, work, route, climate, institution, or local dress practice justifies the distinct form.
+
+| Stable reference | Public form | Material | Wear profile | Variation and admission notes |
+| --- | --- | --- | --- | --- |
+| `renaissance_persianate_twelvegore_tallcap` | twelve-gored tall felt cap | felt | `WP-HEAD-HAT` | Safavid-facing military, court, devotional, and diplomatic anchor; gore count, colour, and attached winding require local date and institution. |
+| `renaissance_persianate_furedge_domedcap` | fur-edged domed court cap | velvet | `WP-HEAD-CAP` | Northern Persianate, merchant, court, diplomatic, and winter skins; distinct fur edge from the existing plain domed cap. |
+| `renaissance_persianate_quilted_ridingturban` | quilted riding turban | cotton | `WP-STRUCTURED-HEADWRAP` | Cavalry, courier, caravan, and cold-weather admission; no armour claim. |
+| `renaissance_southasian_chintied_ridingturban` | chin-tied riding turban | cotton | `WP-STRUCTURED-HEADWRAP` | Mounted courier, hunting, military-retainer, and long-road use; chin tie is integral silhouette. |
+| `renaissance_southasian_beaded_silk_hairnet` | beaded silk court hairnet | silk | `WP-HEAD-CAP` | Netted court hair covering for locally admitted women in court, dance, ceremonial, and prosperous household settings; bead and pearl patterns are skins. |
+| `renaissance_ming_fourcorner_scholarcap` | four-cornered scholar cap | silk | `WP-HEAD-HAT` | Scholar, teacher, ritual, court, and theatrical gate; exact corner and wing treatment locally admitted. |
+| `renaissance_ming_woven_bamboo_rainhat` | broad ribbed bamboo rain hat | bamboo | `WP-HEAD-HAT` | Farmer, boatman, courier, porter, soldier, and traveller admission; closely set ribs and a tied crown distinguish it from the simpler medieval travel form; no waterproof mechanic. |
+| `renaissance_joseon_narrowbrim_horsehairhat` | narrow-brim horsehair scholar hat | horsehair | `WP-HEAD-HAT` | Less formal and less expansive than the tall broad-brim official form; scholar, town, and travel gate. |
+| `renaissance_joseon_padded_winterhood` | padded winter head hood | cotton | `WP-HOOD` | Women, children, household, travel, and cold-season town dress; exact shape and status locally gated. |
+| `renaissance_japanese_stiff_lacquered_eboshi` | stiff lacquered folded cap | silk | `WP-HEAD-CAP` | Warrior, court, shrine, official, and formal household gate; distinct rigid treatment from the soft court cap. |
+| `renaissance_japanese_broad_sedge_travelhat` | broad sedge travel hat | straw | `WP-HEAD-HAT` | Traveller, pilgrim, courier, rural, river, and foot-soldier contexts; ties and crown depth are skins. |
+| `renaissance_persianate_hardsole_ridingshoes` | pair of hard-soled riding shoes | leather | `WP-FOOT-SHOE` | Low heeled or flat mounted footwear for court, caravan, courier, and military-retainer use where high boots are unnecessary. |
+| `renaissance_persianate_closedback_embroideredslippers` | pair of closed-back embroidered slippers | leather | `WP-FOOT-SHOE` | Prosperous urban, court, scholarly, and diplomatic footwear distinct from backless pointed slippers. |
+| `renaissance_southasian_leather_fieldsandals` | pair of hard-wearing field sandals | leather | `WP-FOOT-SANDAL` | Agricultural, porter, messenger, martial, and long-road use; broad straps and stout sole distinguish them from fine sandals. |
+| `renaissance_ming_black_cloth_scholarshoes` | pair of black cloth scholar shoes | cotton | `WP-FOOT-SHOE` | Scholar, teacher, merchant, ritual, and household dress; padded and fine silk skins where locally credible. |
+| `renaissance_ming_woven_straw_rainovershoes` | pair of woven straw rain overshoes | straw | `WP-OVERSHOE` | Slip-over woven protection for cloth shoes during field, river, porter, and wet-road use; no waterproof mechanic. |
+| `renaissance_joseon_straw_everydayshoes` | pair of woven straw everyday shoes | straw | `WP-FOOT-SHOE` | Common rural, market, porter, and travel footwear for locally admitted Joseon contexts. |
+| `renaissance_joseon_white_leather_courtboots` | pair of white leather court boots | leather | `WP-FOOT-BOOT` | Court, guard, ritual, diplomatic, and formal riding gate; colour and office require local admission. |
+| `renaissance_japanese_tied_straw_travelsandals` | pair of tightly braided straw road sandals | straw | `WP-FOOT-SANDAL` | Road, pilgrimage, courier, field, and foot-soldier use; dense braid and long securing cords distinguish this form from generic woven sandals. |
+| `renaissance_seasia_embroidered_silk_courtshoes` | pair of embroidered silk court shoes | silk | `WP-FOOT-SHOE` | Closed court footwear for mainland and maritime South-east Asian court, temple-service, dance, diplomatic, and elite household admission. |
+
 ## Shared admissions — 14 placements, no new prototypes
 
 | Existing stable reference | Admitted grouping/context | Reason no clone is needed |
@@ -242,7 +269,7 @@ Outfits use local admission and date gates. They must not automatically attach m
 
 ## Volume acceptance
 
-- Exactly 110 unique stable references are defined here.
+- Exactly 130 unique stable references are defined here.
 - The 14 shared admissions create no prototype.
 - Wrapped, side-fastened, cross-collared, and pleated forms are not forced into Western dress profiles.
 - Ming, Joseon, Japanese, Ryukyuan, Persianate, South Asian, South-east Asian, and steppe rows retain distinct silhouettes where a skin would misrepresent construction.

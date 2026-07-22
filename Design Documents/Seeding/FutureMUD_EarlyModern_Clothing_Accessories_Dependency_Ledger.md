@@ -1,13 +1,13 @@
 # FutureMUD Early Modern Clothing and Accessories Dependency Ledger
 
-> Running dependency ledger for the civilian first pass, military-uniform second pass, noble/jewellery third pass, and religious clothing/accessories fourth pass.
+> Running dependency ledger for the civilian first pass, military-uniform second pass, noble/jewellery third pass, religious clothing/accessories fourth pass, and headwear/footwear fifth pass.
 
 ## Status
 
 - New component types required: **0**.
 - New seeded component prototypes required: **2**.
 - New solid materials required: **0**.
-- This document assumes the two component prototypes below will be created by a later agent before item rows are seeded. The fourth pass introduces no additional dependency.
+- This document assumes the two component prototypes below will be created by a later agent before item rows are seeded. The fourth and fifth passes introduce no additional dependency.
 
 ## Required seeded component prototypes
 
@@ -74,3 +74,17 @@ The main design reference treats `Wear_Stays` and `Wear_Breeches` as available. 
 - Zoroastrian sudreh, kusti, prayer cap, priestly robe, and padan use existing shirt, sash, skullcap, robe, and mask profiles. The padan has no gag, identity-obscuring, or breathing component.
 - Religious bead strings, the Eastern prayer rope, crosses, medallions, rings, and collars use existing wearable jewellery/accessory profiles and remain inert apart from wear and destruction behaviour.
 - No new special ritual, ordination, sect, rank, performance, or legal-status mechanic is requested.
+
+
+## Fifth-pass headwear and footwear audit
+
+- New component types required by the fifth pass: **0**.
+- New seeded component prototypes required by the fifth pass: **0**.
+- New solid materials required by the fifth pass: **0**.
+- New fifth-pass rows: **84** — **48 headwear** and **36 footwear**.
+- Headwear uses existing `Wear_Hat`, `Wear_Hood`, `Wear_Turban`, `Wear_Kerchief`, and `Wear_Wig` profiles. Wigs also use the existing `Wig` presentation component.
+- Footwear uses existing `Wear_Shoes`, `Wear_Boots`, `Wear_High_Boots`, `Wear_Sandals`, and `Wear_Overshoes` profiles.
+- The pass reuses exact live materials including leather, rawhide, linen, cotton, wool, felt, broadcloth, silk, velvet, lace, canvas, straw, bamboo, wood, fur, horsehair, camelid wool, and raffia cloth.
+- Every row uses exact maintained Early Modern era, headwear/footwear function, and clothing-market tags.
+- No row requests waterproofing, disguise, rank, office, mount-control, weapon, armour-harness, or legal-status behaviour.
+- The fifth pass does not alter `Wear_Stays` or `Wear_Breeches` and therefore leaves the two-item unresolved dependency list unchanged.

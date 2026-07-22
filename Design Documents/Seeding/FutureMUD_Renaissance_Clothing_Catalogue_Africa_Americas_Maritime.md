@@ -2,7 +2,7 @@
 
 ## Purpose and sensitivity boundary
 
-This volume defines **100 unique clothing prototypes** for:
+This volume defines **116 unique clothing prototypes** for:
 
 - Shared African court / Atlantic;
 - Shared Sahelian Islamic;
@@ -220,6 +220,29 @@ These rows exist only where construction creates a distinct prototype. Most impo
 | `renaissance_contact_tradecloth_panelskirt` | pieced trade-cloth panel skirt | cotton | `WP-SKIRT` | imported cloth/local construction recorded explicitly; panel piecing integral |
 | `renaissance_contact_broadbrim_sunhood` | broad-brimmed cloth sun hood | canvas | `WP-HOOD` | colonial/contact labour, maritime, mission, travel gate; never universal local continuity |
 
+## Headwear and footwear expansion — 16
+
+These rows are additional construction-level options. They do not alter the existing outfit minimums or first-pass shared-placement count; a builder should admit them only where status, work, route, climate, institution, or local dress practice justifies the distinct form.
+
+| Stable reference | Public form | Material | Wear profile | Variation and admission notes |
+| --- | --- | --- | --- | --- |
+| `renaissance_sahel_quilted_ridingcap` | quilted cotton riding cap | cotton | `WP-HEAD-CAP` | Close quilted cap for Sahelian cavalry, courier, caravan, herder, and long-road contexts; every admission requires a narrower local anchor. |
+| `renaissance_redsea_quilted_white_ridinghood` | quilted white cotton riding hood | cotton | `WP-HOOD` | Close highland and Red Sea hood for mounted travel, courier work, cool uplands, and locally admitted military-road use; distinct from the unquilted ceremonial head hood. |
+| `renaissance_indianocean_port_turban` | compact coastal port turban | cotton | `WP-STRUCTURED-HEADWRAP` | Indian Ocean merchant, sailor, broker, scholar, and mosque-associated admission; not universal coastal dress. |
+| `renaissance_mesoamerican_tied_cotton_headcloth` | tied woven cotton headcloth | cotton | `WP-HEAD-CAP` | Market, agricultural, porter, warrior-status, and household contexts; exact knot and community require local admission. |
+| `renaissance_mesoamerican_featheredge_crown` | feather-edged woven crown | feather | `WP-FEATHER-CROWN` | Court, military-status, ritual, diplomatic, or performance gate only; species, colour, rank, and sacred meaning are local. |
+| `renaissance_andean_fourcorner_wovencap` | four-cornered camelid-wool cap | camelid wool | `WP-HEAD-CAP` | Locally woven cap with a visibly four-cornered crown for Andean regional, office, festival, and status admissions; tassels and motifs remain skins. |
+| `renaissance_globalmaritime_knotted_headscarf` | knotted cotton deck headscarf | cotton | `WP-HEADWRAP` | Cross-cultural shipboard, fishing, dock, boat, and hot-weather port form; knot, stripe, and local terminology remain skins. |
+| `renaissance_northamerican_soft_hide_winterhood` | soft hide winter hood | animal skin | `WP-HOOD` | Cold-weather travel, hunting, camp, and local ceremonial skins only where the specific community supports a separate hood form. |
+| `renaissance_africancourt_raffia_brimhat` | structured raffia brimmed hat | raffia cloth | `WP-HEAD-HAT` | Court, office, market, diplomatic, festival, or ritual gate under a narrower African culture manifest; trim is skin presentation. |
+| `renaissance_sahel_soft_ridingboots` | pair of soft leather riding boots | leather | `WP-FOOT-BOOT` | Cavalry, courier, caravan, court-retainer, and long-road contexts; distinct softer shaft from European frontier boots. |
+| `renaissance_redsea_rawhide_sandals` | pair of rawhide highland sandals | rawhide | `WP-FOOT-SANDAL` | Highland, pastoral, military-road, rural, and pilgrimage use; local cut and hide source required. |
+| `renaissance_indianocean_stitched_coastal_slippers` | pair of stitched coastal slippers | leather | `WP-FOOT-SHOE` | Port, merchant, scholar, household, and ceremonial skins; distinct stitched closed upper from toe-loop sandals. |
+| `renaissance_mesoamerican_heelstrap_sandals` | pair of heel-strapped woven sandals | leather | `WP-FOOT-SANDAL` | Road, market, warrior-status, court, agricultural, and porter contexts where a heel strap materially changes the form. |
+| `renaissance_andean_rawhide_roadsandals` | pair of rawhide road sandals | rawhide | `WP-FOOT-SANDAL` | Highland road, agricultural, porter, courier, and military-support contexts; altitude and local community required. |
+| `renaissance_caribbean_gathered_rawhide_shoes` | pair of side-stitched rawhide shoes | rawhide | `WP-FOOT-SHOE` | Soft closed footwear for narrower Caribbean and Atlantic-contact admissions where a side-stitched hide upper is locally supported; not universal island dress. |
+| `renaissance_northamerican_furlined_moccasins` | pair of fur-lined soft moccasins | deer leather | `WP-MOCCASIN` | Cold-weather local form distinct from the existing unlined moccasin; ecology, community, season, and contact history required. |
+
 ## Shared admissions — 15 placements, no new prototypes
 
 | Existing stable reference | Admitted grouping/context | Reason no clone is needed |
@@ -268,7 +291,7 @@ Every implementation manifest entry in this volume must record:
 
 ## Volume acceptance
 
-- Exactly 100 unique stable references are defined here.
+- Exactly 116 unique stable references are defined here.
 - The 15 shared admissions create no new prototype.
 - Every row has a narrower inspiration and date/context gate before implementation.
 - Ritual, royal, office, sacred, military-status, and diplomatic regalia is not ordinary market stock.

@@ -23,6 +23,7 @@ namespace MudSharp.NPC.Templates
         List<IArtificialIntelligence> ArtificialIntelligences { get; }
         ICharacterTemplate GetCharacterTemplate(ICell? cell = null);
         ICharacter CreateNewCharacter(ICell location);
+        ICharacter CreateNewCharacter(SpatialLocation location);
         IEnumerable<string> ApplyTemplateLoadAdditions(ICharacter character, bool logWarnings = true);
         INPCTemplate Clone(ICharacter builder);
         string ReferenceDescription(IPerceiver voyeur);

@@ -15,13 +15,17 @@ public class Track
 
     public long Id { get; set; }
 
-    public long CharacterId { get; set; }
+    public long? CharacterId { get; set; }
     public virtual Character Character { get; set; }
-    public long BodyPrototypeId { get; set; }
+    public long? BodyPrototypeId { get; set; }
     public virtual BodyProto BodyPrototype { get; set; }
+    public long? VehicleId { get; set; }
+    public virtual Vehicle Vehicle { get; set; }
     public long CellId { get; set; }
     public virtual Cell Cell { get; set; }
     public int RoomLayer { get; set; }
+    public decimal? RoutePosition { get; set; }
+    public int? RouteDirection { get; set; }
     public string MudDateTime { get; set; }
     public long? FromDirectionExitId { get; set; }
     public virtual Exit FromDirectionExit { get; set; }

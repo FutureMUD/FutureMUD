@@ -305,7 +305,7 @@ public class CompressorGameItemComponent : PoweredMachineBaseGameItemComponent, 
             IConnectable newItemConnectable = newItem?.GetItemType<IConnectable>();
             if (newItemConnectable == null)
             {
-                location?.Insert(connectedItem.Parent);
+                InsertAtParentSpatialLocation(connectedItem.Parent, location);
             }
             else
             {
@@ -315,7 +315,7 @@ public class CompressorGameItemComponent : PoweredMachineBaseGameItemComponent, 
                 }
                 else
                 {
-                    location?.Insert(connectedItem.Parent);
+                    InsertAtParentSpatialLocation(connectedItem.Parent, location);
                 }
             }
         }
@@ -417,7 +417,7 @@ public class CompressorGameItemComponent : PoweredMachineBaseGameItemComponent, 
                 continue;
             }
 
-            if (gitem.Location != Parent.Location)
+            if (!Parent.ColocatedWith(gitem))
             {
                 continue;
             }

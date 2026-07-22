@@ -639,7 +639,7 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
         }
         else if (actor.Location is not null)
         {
-            actor.Location.Insert(pile, true);
+            pile.InsertAtSource(actor, true);
             actor.OutputHandler.Send("You couldn't hold that money, so it is on the ground.".Colour(Telnet.Yellow));
         }
         else

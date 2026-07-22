@@ -5,6 +5,8 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Movement;
+using System;
 using System.Collections.Generic;
 
 namespace MudSharp.Vehicles;
@@ -20,7 +22,11 @@ public enum VehicleOperationalSubsystem
 	Repair,
 	HitchTow,
 	Movement,
-	Propulsion
+	Propulsion,
+	Interior,
+	Docking,
+	Route,
+	Journey
 }
 
 public enum VehicleOperationalSeverity
@@ -102,10 +108,21 @@ public sealed record VehicleResourceReadinessPlan(
 
 public sealed record VehicleMovementReadinessRequest(
 	IVehicle Vehicle,
-	ICharacter Actor,
+	ICharacter? Actor,
 	ICellExit? Exit,
 	IVehicleMovementProfilePrototype? MovementProfile = null,
-	VehiclePropulsionMovePlan? CommittedPropulsionPlan = null);
+	VehiclePropulsionMovePlan? CommittedPropulsionPlan = null,
+	IReadOnlyCollection<ICharacter>? ExternalPullers = null,
+	bool AutomaticOperation = false);
+
+public sealed record VehicleLongitudinalReadinessRequest(
+	IVehicle Vehicle,
+	ICharacter? Actor,
+	IVehicleMovementProfilePrototype MovementProfile,
+	double DistanceMetres,
+	TimeSpan Duration,
+	bool AutomaticOperation = false,
+	IMovement? ContinuingMovement = null);
 
 public sealed record VehicleMovementReadinessResult(
 	bool CanMove,
@@ -143,15 +160,19 @@ public interface IVehicleOperationalReadinessService
 	bool HasPower(IVehicle vehicle, IVehicleMovementProfilePrototype profile,
 		out IReadOnlyList<VehicleResourceCandidate> candidates, out string reason);
 	VehicleResourceReadinessPlan BuildResourcePlan(IVehicle vehicle, IVehicleMovementProfilePrototype profile);
+	VehicleResourceReadinessPlan BuildLongitudinalResourcePlan(IVehicle vehicle,
+		IVehicleMovementProfilePrototype profile, double distanceMetres, TimeSpan duration);
 	void ConsumeMovementResources(IVehicle vehicle, IVehicleMovementProfilePrototype profile);
 	void ConsumeMovementResources(VehicleResourceReadinessPlan plan);
 	bool TryCommitPropulsion(VehiclePropulsionReadinessResult readiness, out VehiclePropulsionMovePlan? plan,
 		out string reason);
 	VehicleMovementReadinessResult BuildMovementReadiness(VehicleMovementReadinessRequest request);
+	VehicleMovementReadinessResult BuildLongitudinalMovementReadiness(
+		VehicleLongitudinalReadinessRequest request);
 	VehicleTowStressPolicy TowStressPolicy(IFuturemud? gameworld);
 	VehicleOperationalReadinessReport BuildReport(IVehicle vehicle, ICharacter voyeur,
 		VehicleHitchGraphMovePlan? movePlan = null, IVehicleMovementProfilePrototype? movementProfile = null);
-	VehicleTowCatastropheResult RollTowCatastrophe(VehicleHitchGraphMovePlan movePlan, ICharacter actor);
+	VehicleTowCatastropheResult RollTowCatastrophe(VehicleHitchGraphMovePlan movePlan, ICharacter? actor);
 	bool DisableLinkForCatastrophe(VehicleHitchGraphLink link, out string reason);
 	bool RepairHitchLink(VehicleHitchGraphLink link, out string reason);
 }

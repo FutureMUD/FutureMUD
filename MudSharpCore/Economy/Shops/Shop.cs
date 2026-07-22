@@ -1096,7 +1096,7 @@ public abstract partial class Shop : SaveableItem, IShop
             }
             else
             {
-                actor.Location.Insert(item);
+                item.InsertAtSource(actor);
                 couldnothold = true;
             }
         }
@@ -1112,7 +1112,7 @@ public abstract partial class Shop : SaveableItem, IShop
         }
 
         actor.HandleEvent(EventType.BuyItemInShop, actor, this, merchandise, boughtItems);
-        foreach (IHandleEvents witness in actor.Location.EventHandlers)
+        foreach (IHandleEvents witness in actor.Location.EventHandlersFor(actor))
         {
             witness.HandleEvent(EventType.WitnessBuyItemInShop, actor, witness, this, merchandise, boughtItems);
         }
@@ -1202,7 +1202,7 @@ public abstract partial class Shop : SaveableItem, IShop
             }
             else
             {
-                actor.Location.Insert(item);
+                item.InsertAtSource(actor);
                 couldnothold = true;
             }
         }
@@ -1218,7 +1218,7 @@ public abstract partial class Shop : SaveableItem, IShop
         }
 
         actor.HandleEvent(EventType.BuyItemInShop, actor, this, merchandise, boughtItems);
-        foreach (IHandleEvents witness in actor.Location.EventHandlers)
+        foreach (IHandleEvents witness in actor.Location.EventHandlersFor(actor))
         {
             witness.HandleEvent(EventType.WitnessBuyItemInShop, actor, witness, this, merchandise, boughtItems);
         }

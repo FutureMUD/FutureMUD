@@ -878,7 +878,7 @@ internal static class EmploymentFinanceService
 			amount.Currency.FindCoinsForAmount(amount.Amount, out _));
 		pile.RoomLayer = actor.RoomLayer;
 		pile.SetOwner(context.Employer);
-		actor.Location.Insert(pile, true);
+		pile.InsertAtSource(actor, true);
 		if (!context.TryCollectTaskItem(actor, pile, actor.Location, out reason))
 		{
 			pile.Delete();

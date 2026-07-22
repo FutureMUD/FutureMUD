@@ -1,4 +1,5 @@
 ﻿using MudSharp.Database;
+using MudSharp.Construction;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.Work.Agriculture;
@@ -61,16 +62,28 @@ public class AgricultureOperationAction : BaseAction
 						field.Cell.GameItems.Where(x => !existingItems.Contains(x)),
 						project.CharacterOwner);
 				}
-				field.Cell.Handle(result);
+				HandleCompletionOutput(project, field.Cell, result);
 			}
 			else
 			{
-				field.Cell.Handle($"The {operation.Name.ColourName()} agriculture operation could not be applied: {result}");
+				HandleCompletionOutput(project, field.Cell,
+					$"The {operation.Name.ColourName()} agriculture operation could not be applied: {result}");
 			}
 
 			FMDB.Context.AgricultureProjectContexts.Remove(context);
 			FMDB.Context.SaveChanges();
 		}
+	}
+
+	private static void HandleCompletionOutput(IActiveProject project, ICell fieldCell, string text)
+	{
+		if (project is ILocalProject localProject)
+		{
+			localProject.HandleAtProjectSite(text);
+			return;
+		}
+
+		fieldCell.Handle(text);
 	}
 
 	private ICharacter ResolveCompletionActor(IActiveProject project, AgricultureProjectContext context)

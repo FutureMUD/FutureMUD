@@ -88,8 +88,7 @@ public class FireAndAdvanceToMeleeMove : CombatMoveBase
                                 BuiltInCombatMoveType.AdvanceAndFire, Outcome.MajorPass, null), fireAction),
                         Assailant, Assailant, target, Weapon.Parent), style: OutputStyle.CombatMessage,
                     flags: OutputFlags.InnerWrap));
-            Assailant.MeleeRange = true;
-            target.MeleeRange = true;
+			RouteCombatMovementUtilities.TryEnterMelee(Assailant, target);
             return;
         }
 
@@ -171,8 +170,7 @@ public class FireAndAdvanceToMeleeMove : CombatMoveBase
                         Gameworld.CombatMessageManager.GetMessageFor(Assailant, target, null, null,
                             BuiltInCombatMoveType.AdvanceAndFire, Outcome.MajorPass, null), Assailant, Assailant,
                         target), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            Assailant.MeleeRange = true;
-            target.MeleeRange = true;
+			RouteCombatMovementUtilities.TryEnterMelee(Assailant, target);
             return;
         }
 

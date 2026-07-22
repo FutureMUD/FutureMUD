@@ -110,6 +110,38 @@ public class Watch : Effect, IRemoteObservationEffect, IScoreAddendumEffect
         CharacterOwner.OutputHandler.Send($"[{location.HowSeen(CharacterOwner)} ({$"to {ExitDescription}".Colour(Telnet.Green)})]\r\n{text}");
     }
 
+	public bool Observes(SpatialLocation source)
+	{
+		if (source.Cell.RouteDefinition is null)
+		{
+			return true;
+		}
+
+		if (!ReferenceEquals(source.Cell, CellOwner) || !source.RoutePositionMetres.HasValue)
+		{
+			return false;
+		}
+
+		var watchedExit = CellOwner.GetExitTo(CharacterOwner.Location, CharacterOwner);
+		if (watchedExit is null ||
+		    !RouteSpatialService.Instance.TryGetExitAnchor(watchedExit, CellOwner, out var anchor))
+		{
+			return false;
+		}
+
+		var maximumDistance = Gameworld.GetStaticDouble("RouteCellVeryDistantDistanceMetres");
+		if (!double.IsFinite(maximumDistance) || maximumDistance <= 0.0)
+		{
+			maximumDistance = RouteSpatialConfiguration.Default.VeryDistantDistanceMetres;
+		}
+
+		var nearest = Math.Clamp(
+			source.RoutePositionMetres.Value,
+			anchor!.MinimumPositionMetres,
+			anchor.MaximumPositionMetres);
+		return Math.Abs(source.RoutePositionMetres.Value - nearest) <= maximumDistance;
+	}
+
     public void HandleOutput(IOutput output, ILocation location)
     {
         if (CharacterOwner.EffectsOfType<WatchMaster>().All(x => x.WatchEffects.Contains(this)))

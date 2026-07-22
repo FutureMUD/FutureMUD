@@ -781,7 +781,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         LoadStage = 0;
         if (removed is not null)
         {
-            loader.Location.Insert(removed);
+            removed.InsertAtSource(loader);
             removed.RoomLayer = loader.RoomLayer;
             removed.SetPosition(PositionUndefined.Instance, PositionModifier.Behind, loader, null);
         }

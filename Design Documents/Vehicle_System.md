@@ -7,13 +7,15 @@ FutureMUD vehicles use a hybrid model:
 - The vehicle domain owns canonical authored and live state.
 - The item system owns the visible, targetable exterior projection.
 
-Every vehicle has one `IVehiclePrototype`, one live `IVehicle`, and one exterior `IGameItem` with a `VehicleExteriorGameItemComponent`. Players interact with the exterior item, but movement, occupancy, control stations, compartments, access state, and future route/coordinate behaviour belong to the vehicle domain.
+Every vehicle has one `IVehiclePrototype`, one live `IVehicle`, and one exterior `IGameItem` with a `VehicleExteriorGameItemComponent`. Players interact with the exterior item, but movement, occupancy, control stations, compartments, access state, RouteCell position, and operational route behaviour belong to the vehicle domain.
+
+Authored access-point and cargo-space items are logical target projections, not additional top-level room items. Their effective cell, layer, and RouteCell coordinate are inherited from the canonical exterior item, and ordinary local targeting expands a visible exterior into its live projections. Consequently `open ramp` and `put crate in hold` remain usable after exterior movement without inserting duplicate projection objects into the cell; qualified forms such as `ramp@platform` remain available for disambiguation.
 
 This keeps vehicle logic out of component XML while preserving normal item-world affordances such as seeing, targeting, damaging, locking, towing, examining, and scripting against the exterior shell.
 
 ## Current Implementation Status
 
-Phase 1 and the Phase 2 route-ready vehicle-systems slices are present:
+Phases 1, 2, 3, and 3B are present for the V1.0 vehicle boundary:
 
 - Vehicle domain interfaces: `IVehiclePrototype`, `IVehicle`, `IVehicleMovementStrategy`, `IVehicleMovementState`, `IVehicleOccupancy`, and `IVehicleAccessState`.
 - Vehicle enums: `VehicleScale`, `VehicleLocationType`, `VehicleOccupantSlotType`, `VehicleMovementProfileType`, `VehicleMovementEnvironment`, and `VehicleMovementStatus`.
@@ -24,8 +26,8 @@ Phase 1 and the Phase 2 route-ready vehicle-systems slices are present:
 - Projection components for access points, cargo spaces, and installable vehicle modules.
 - `thing@vehicle` targeting for projected access/cargo/module items through the exterior item.
 - `ItemScale` and `RoomContainer` authoring through compartments, slots, stations, and cell-visible exterior item projection.
-- Player commands: `embark`, `disembark`, `vehiclecontrol`, `vehiclestatus`, `drive`, and ordinary movement commands while controlling a vehicle.
-- Admin/builder commands: `vehicleproto` for prototype authoring and creation, `vehicle` for live diagnostics and relinking.
+- Player commands: `embark`, `disembark`, `vehiclecontrol`, `vehiclestatus`, `drive`, route-aware ordinary movement commands, and `transit` timetable/status queries.
+- Admin/builder commands: `vehicleproto` for prototype authoring and creation, `vehicle` for live diagnostics/recovery/retirement, `vehicleroute` for revisioned itineraries, and `vehicleservice` for recurring operations.
 - Cell-exit movement strategy with controller, location, profile, exit-size, transition, disabled/destroyed, closed-access, required installation, required role, fuel, power, and recursive tow-train validation.
 - Surface-water cell-exit profiles for `ItemScale` and `RoomContainer` craft, including surface-only traversal, hull floating, occupant swim support, configurable occupant water exposure, explicit selectable propulsion, and water-safe disembark/destruction cleanup.
 - Tow-train service for hitch validation, cycle prevention, tow-point usage checks, recursive train weight checks, required `IHitchGear`/legacy `IDragAid` connector item validity, in-use item reservation, and loaded broken-link diagnostics.
@@ -45,31 +47,28 @@ Phase 1 and the Phase 2 route-ready vehicle-systems slices are present:
 - Exterior relocation hardening for dragged or force-moved vehicle items, including carrying visible occupants with a still-cell-present exterior and clearing occupancy when the exterior is contained, inventoried, deleted, or destroyed.
 - Reboot recovery through persisted vehicle location, movement status, exterior item id, occupancies, and projection resynchronisation on load.
 
-The following areas are deliberately scaffolded rather than fully built:
+The following areas remain deliberately narrower than a complete engineering simulation:
 
 - Rich physical access-device authoring, ownership, and lease systems beyond explicit persisted access rows, reusable access presets, fleet helper commands, and existing projection locks.
 - Fuller fuel, power, electrical, and liquid network topology beyond installed candidate modules.
-- Route, coordinate, and `RoomScale` movement.
-- Full route, coordinate, and RoomScale scripting APIs beyond the implemented cell-exit readiness predicates.
-- Interior cell networks for `RoomScale` vehicles.
+- Coordinate 2D/3D movement outside the linear RouteCell model.
+- Collision, physical consist length, overtaking, signalling, and dispatch.
+- Fares, tickets, reservations, and full electrical/liquid network topology.
 
-### MudSharp 2.0 Vehicle V1 Boundary
+### RouteCell and RoomScale Vehicle V1.0 Boundary
 
-Vehicle V1 is the complete manual cell-exit vehicle system. Its supported vehicle scales are `ItemScale` and `RoomContainer`, represented by one cell-visible exterior item. The stable contract includes occupancy and explicit control handoff, compartments and control stations, access and locks, cargo, installed modules, damage and repair, fuel and power preflight, hitches and recursive towing, persistence/reboot recovery, player commands, builder authoring, staff diagnostics, and the existing vehicle FutureProg predicates.
+Vehicle V1.0 includes `ItemScale`, `RoomContainer`, and `RoomScale` vehicles. The stable contract includes manual cell-exit movement, continuous longitudinal RouteCell movement, persistent RoomScale interior cells, transient docking links, revisioned `VehicleRoute` itineraries, recurring services, restart-safe journeys, occupancy and control, access and locks, cargo, installed modules, damage and repair, fuel and power preflight, mounts and recursive hitch cohorts, builder/player/admin workflows, and scripting diagnostics.
 
-The following are explicitly post-V1 and are not part of the MudSharp 2.0 stable promise: authored or scheduled routes, coordinate 2D/3D movement, `RoomScale` moving interiors, rich ownership/lease policy, and full electrical/liquid network simulation. Builders cannot submit a `RoomScale` prototype under the V1 validator.
+The spatial and operational meanings of “route” are separate:
 
-Route movement is not a moderately trivial extension. Existing cell-exit readiness and hitch-graph services are reusable foundations, but a production route system still requires all of the following cohesive work:
+- [`RouteCell`](./World/Route_Cell_System.md) is a linear cell in which entities have exact metre coordinates.
+- `VehicleRoute` is a revisioned operational itinerary containing pinned longitudinal and exit-traversal steps.
 
-| Required route slice | New work beyond cell-exit driving |
-| --- | --- |
-| Domain and persistence | Revisioned routes, ordered stops/legs, schedules, delays, active journey state, and migrations/load order |
-| Runtime orchestration | Scheduler ownership, boarding windows, dwell/departure state, path invalidation, cancellation, and reboot resumption |
-| Builder workflow | Route/stop/schedule authoring, previews, validation, diagnostics, and safe revision/deletion behaviour |
-| Player workflow | Discoverable services, destinations, boarding/alighting rules, departure information, delay/cancellation presentation, and access failures |
-| Integration and verification | Resource charging per leg, damage/tow interruption, automation/employment hooks, persistence tests, live timetable tests, and failure recovery |
+An ordinary-cell vehicle route is not a substitute for RouteCell geometry, and entry into a long RouteCell is never treated as one ordinary room of travel.
 
-That work is a distinct subsystem-sized patch. Shipping it merely to change the V1 label would increase pre-release risk; deferring it preserves a coherent, testable manual vehicle contract without pretending the route scaffolding is complete.
+The following remain post-V1.0: coordinate 2D/3D movement, collision/dispatch/signalling, physical consist length, overtaking, fares, reservations, rich ownership/lease policy, and full electrical/liquid network simulation. V1.0 also does not generate reverse/bidirectional services automatically or dynamically reroute an active journey around changed topology; builders author the required route directions explicitly and topology changes fail closed.
+
+Automated coverage exercises the spatial contracts, longitudinal motion, route compilation, service/journey state rules, persistent RoomScale interiors, docking topology, platform embark/disembark resolution, and route-vehicle command parsing. The scheduled train, ordinary-exit massive platform, and mount-drawn recursive wagon train were also built and driven through the live telnet runtime, including docking, occupied travel, multiple wagon checkpoints, explicit mid-route portal traversal, far-terminal arrival, and reboot reload. The maintained blank-database snapshot includes the final migration. See the [V1.0 acceptance evidence](./Verification/RouteCell_Vehicle_V1_Acceptance_Evidence.md). An upgraded production-world soak remains a release-candidate gate rather than an unimplemented V1 behavior.
 
 ## Domain Model
 
@@ -326,7 +325,7 @@ Driving rules currently check:
 - the selected explicit propulsion mode is ready; an authored mode never silently falls back to another mode
 - recursive tow-train links are valid, tow points are not damage-disabled, hitch items are co-located, all towed vehicles fit through the exit, and any valid strained link survives the tow-stress catastrophe preflight
 
-The first occupant to board an eligible driver slot with a configured control station takes control automatically. A controller can release it with `vehiclecontrol release`; another occupant in an eligible driver slot can then use `vehiclecontrol` to take over. `vehiclestatus` gives players a compact view of controller, crew, access, cargo, modules, damage, and—when they control it—the full cell-exit preflight result.
+The first occupant to board an eligible driver slot with a configured control station takes control automatically when they are physically at that station. A controller can release it with `vehiclecontrol release`; another occupant in an eligible driver slot can then use `vehiclecontrol` to take over. For RoomScale vehicles, selecting a driver slot through an access point in another explicitly linked compartment boards successfully into the access point's authored docking compartment, but does not grant control until the driver walks to the hosted control compartment and uses `vehiclecontrol`. `vehiclestatus` gives players a compact view of controller, crew, access, cargo, modules, damage, and—when they control it—the full cell-exit preflight result.
 
 When a controller enters an ordinary movement command, character movement redirects it to vehicle movement before walking movement is attempted. This means a bicycle rider can type `north` instead of `drive north`; the explicit `drive` command remains available for clarity. Vehicle movement uses the normal movement pipeline shape: it sets the actor's current `IMovement`, applies a movement delay, supports turn-around cancellation and queued follow-up movement commands, marks the vehicle as moving while in transit, and resolves the movement after the scheduled step. Delayed movement revalidates at departure commit, rolls tow catastrophe exactly once at that commit, and completes the exact validated hitch/resource plan rather than rebuilding or failing open.
 
@@ -450,9 +449,9 @@ The implementation sequence is:
 
 ### Operational Readiness And Repair
 
-Status: implemented for the cell-exit vehicle slice.
+Status: implemented as the shared readiness authority for cell-exit movement, longitudinal RouteCell movement, compiled route steps, and scheduled departure/recovery.
 
-`IVehicleOperationalReadinessService` is the shared runtime preflight for vehicle operation. It is intentionally narrow: it does not add new access tables, new repair commands for players, route movement, coordinate movement, or `RoomScale` behaviour. Instead, it normalises existing access rows, projection locks, install points, damage zones, hitch graph links, fuel modules, power modules, and repair-kit flows into one set of actionable diagnostics.
+`IVehicleOperationalReadinessService` is the shared runtime preflight for vehicle operation. It intentionally does not add new access tables, coordinate movement, or a second route-specific readiness model. Instead, it normalises existing access rows, projection locks, install points, damage zones, hitch graph links, fuel modules, power modules, and repair-kit flows into one set of actionable diagnostics used by manual cell exits, longitudinal checkpoints, compiled portal steps, scheduled departures, and journey recovery.
 
 Access readiness uses `VehicleAccessStates` as character grants:
 
@@ -507,9 +506,15 @@ The current implementation tracks distinct slots and stations, moves all occupan
 
 ### RoomScale
 
-Planned.
+Implemented for V1.0 as persistent hosted interior cells.
 
-`RoomScale` vehicles will support large moving interiors, docking or attachment behaviour, and eventually coordinate or route movement. They are not implemented in this slice beyond the enum value and prototype scale.
+Each live RoomScale compartment owns one stable interior `Cell`. Prototype compartment links become normal internal exits, and access-point prototypes map exterior docking to the appropriate compartment. Exterior movement never relocates or regenerates interior cells or their occupants. Hosted cells retain authored terrain and atmosphere while resolving effective zone, shard, time, and external environmental context through the vehicle exterior.
+
+RoomScale submission requires valid interior terrain/exposure settings, a connected compartment graph, at least one external access point, valid control stations, and at least one CellExit or Route movement profile. Retirement is blocked while an interior is occupied, a journey is active, or a hitch remains.
+
+An access point can serve a slot in another compartment only when the live hosted interiors are connected by usable explicit compartment links. The docking exit itself always terminates in the access point's authored compartment. Occupant-slot assignment does not collapse that interior geography: a RoomScale controller must be physically present in the hosted compartment containing their configured control station, and movement readiness fails closed if the link or station interior is unavailable.
+
+Normal character movement remains blocked for vehicle occupants except for one narrow RoomScale case: an exit may be traversed when its origin and destination are both persistent hosted interiors belonging to that same vehicle. This permits ordinary movement through explicit compartment links. A docking exit has an exterior cell on one side and therefore never satisfies the exception; occupants must use `disembark`, while outside characters use `embark`. `ItemScale` and `RoomContainer` occupants retain the existing blanket walking restriction.
 
 ## Cell-Exit Movement
 
@@ -557,6 +562,137 @@ Current movement behaviour:
 
 This intentionally keeps route validation and vehicle state changes in the vehicle movement strategy, while player-driven cell-exit driving is represented as an `IMovement` so it cooperates with movement delay, movement blocking, queued movement commands, group movement state, and room movement diagnostics.
 
+For RoomScale vehicles the controller may be in the hosted interior cell attached to the primary control station. Exit resolution still uses the exterior projection's cell and layer. Only that exterior and the recursively linked exterior hitch cohort cross the exit; interior occupants remain in stable cells. Docking links are removed before departure and rebuilt only after arrival. External departure/arrival echoes and internal movement announcements use separate output scopes.
+
+## RouteCell Vehicle Movement
+
+`RouteVehicleMovementStrategy` delegates longitudinal travel to the shared RouteCell movement service. Route movement profiles author:
+
+```text
+vehicleproto set movement route
+vehicleproto set movement route speed <distance>/<time>
+vehicleproto set movement route propulsion powered|externallypulled
+vehicleproto set movement route fuel <liquid> <volume>/<distance>
+vehicleproto set movement route power <watts>
+vehicleproto set movement route automatic
+```
+
+Powered vehicles use their authored speed. Externally pulled vehicles use the motive hitch-graph root's speed and stamina. The vehicle, its exterior, party/mount/drag participants, hitch gear, and downstream vehicles move atomically at one v1 reference coordinate. The canonical vehicle coordinate drives the exterior item's persisted projection.
+
+A compiled `CellExitStep` uses the same operational-readiness and hitch-graph preflight as longitudinal movement. For an externally pulled train, the incoming character/mount hitch is an explicitly allowed motive link rather than an ordinary “this vehicle is already being towed” blocker. The preflight validates the motive character, every recursive vehicle and connector, the transition, size/environment constraints, stamina, and tow stress before anything crosses. The motive character and its party/mount/drag cohort then traverse with the validated vehicle train and physical hitch gear as one synchronous operation; RoomScale interior occupants remain in their hosted cells. Entry into a RouteCell materialises the step's pinned arrival coordinate for the vehicles and every top-level cohort member. If preparation fails, the exact readiness reason is returned to `drive route` and the cohort remains at the source side.
+
+Every longitudinal begin, durable-progress/checkpoint, arrival, and stop/cancellation phase has two deliberately separate presentation channels. The exterior echo is sourced from the exterior projection and uses RouteCell `Local` scope, so nearby same-layer observers can perceive it while kilometre-distant occupants of the same RouteCell cannot. A RoomScale vehicle additionally sends a plain internal movement announcement to each hosted compartment cell; that message reaches interior occupants without moving them or leaking into the exterior RouteCell. Controller acknowledgements remain personal, and FutureProg movement events remain independent of both presentation channels.
+
+Route checkpoints re-use `IVehicleOperationalReadinessService`. Common readiness is separated from CellExit-only and longitudinal-step checks, but there is one source of truth for access, control, required crew, installations, damage, propulsion, hitches, tow capacity, and tow stress. Coordinate, resource-ledger entries, and newly applied stamina/fuel/power mutations commit in one database transaction, saving only the affected bodies and resource components. Successful commits restore their prior changed/save-queue state; rollback keeps any queue entry required to persist a restored value. Checkpointing never performs a global flush or drains unrelated work. A readiness failure commits the current coordinate, stops the cohort, leaves uncommitted resources untouched, and reports the failed readiness fact. An apply, save, or failed commit instead restores the cohort and every reversible resource snapshot to the preceding durable checkpoint and stops without emitting progress for the failed sequence. An ambiguous commit exception is reconciled by reading back and validating the full durable checkpoint payload, while failure to remove a completed motion row is recoverable and never causes a charge to be replayed.
+
+Player driving adds:
+
+```text
+drive forward|backward [<distance>]
+drive to <distance|landmark|exit|stop>
+drive route <approved vehicle route>
+drive stop
+```
+
+An exit target reaches the nearest point in its authored portal band and stops. Portal traversal is a separate typed step.
+
+`drive stop` materialises the current coordinate and ends the active manual execution. A later `drive route <approved route>` may resume only when that coordinate lies on exactly one remaining pinned linear step (or at exactly one pending pinned exit-step origin). It starts a fresh durable motion operation at the current coordinate and continues from that step; it never rewinds to the leg's authored origin. No matching continuation, more than one matching continuation, a changed topology version, or a coordinate already at the terminal end fails closed with an actionable message rather than choosing or recomputing a path.
+
+## Persistent RoomScale Interiors
+
+The compartment prototype is the RoomScale interior blueprint. It stores interior terrain, exposure, atmosphere behavior, and the existing compartment description. Explicit compartment-link prototypes generate normal internal exits. Every live compartment stores the id of its persistent hosted `Cell`; the cell stores its vehicle host identity.
+
+The factory creates hosted cells and internal links once. It first durably links the canonical vehicle record to its exterior component, so an interrupted factory run leaves a visible partial vehicle rather than an anonymous exterior item. Reboot loads existing hosted cells and restores a null item-side exterior link from the canonical vehicle record; it reports conflicting exterior links rather than silently stealing them. Missing hosted cells are reported as boot warnings and by `vehicle audit <vehicle> interior`. Normal load never invents a replacement. `vehicle recover <vehicle> interior fix` first relinks the uniquely persisted cell whose hosted-compartment ownership matches the live compartment. If that cell exists but is not loaded or is claimed elsewhere, recovery fails closed instead of creating a duplicate. Only when no persisted hosted cell exists may recovery create a replacement, and only when the affected live compartment has no recorded occupants or contents; an occupied missing interior must be restored from backup. A missing or destroyed exterior stops movement but preserves interiors and their contents.
+
+Hosted cells derive effective zone, shard, clock, and external weather/environment context from the exterior while retaining their own indoor terrain and atmosphere. Access-point prototypes already name a compartment and therefore provide the bridge used for ordinary docking and scheduled platform docking.
+
+Prototype submission validates:
+
+- interior settings on every compartment;
+- a connected interior graph;
+- at least one usable external access point;
+- driver/control station integrity;
+- at least one CellExit or Route movement profile.
+
+Vehicle deletion or retirement is blocked while an interior contains characters or top-level items, a journey is active, any vehicle service still references it, or any hitch remains. The database teardown of docking rows, hosted-cell ownership and the vehicle record is one transaction; transient docking and compartment exits are removed only after it commits. Staff recovery supports `vehicle recover <vehicle> interior|docking|all [fix]`.
+
+## VehicleRoutes, Services, And Journeys
+
+`VehicleRoute` is revisioned operational data and is never confused with RouteCell topology. An approved revision owns ordered stops and compiled legs. A stop can be an ordinary cell or an exact RouteCell coordinate; it may bind one or more ordinary platform cells, a dwell time, and a docking tolerance. A leg pins ordered `LinearRouteStep` and `CellExitStep` records plus every referenced RouteCell topology version. Each compiled step records the topology version independently for its origin and destination when that endpoint is a RouteCell, so an exit-only leg and both sides of a RouteCell-to-RouteCell portal become stale when an anchor band or arrival coordinate changes.
+
+Builder workflow:
+
+```text
+vehicleroute edit new <name>
+vehicleroute edit clone <id|name>
+vehicleroute edit <id|name>
+vehicleroute close
+vehicleroute set stop add <name> [<cell id> [<layer>] [at <route distance>]]
+vehicleroute set stop remove <stop>
+vehicleroute set stop move <stop> <one-based position>
+vehicleroute set stop location <stop> <cell id> [<layer>] [at <route distance>]
+vehicleroute set stop dwell <stop> <duration>
+vehicleroute set stop platform add <stop> <cell id> <access-point prototype id> [tolerance metres]
+vehicleroute set stop platform remove <stop> <binding id>
+vehicleroute set leg compile <from-stop> <to-stop>
+vehicleroute show <id|name>
+vehicleroute preview [id|name]
+vehicleroute validate
+vehicleroute submit <comment>
+vehicleroute approve <id|name> <comment>
+```
+
+Submission requires at least two valid stops, a compiled path for every adjacent stop pair, matching topology versions, unique stop ordering, valid platform bindings, and a compatible vehicle route profile. Approved revisions are immutable. Editing or cloning creates a new revision.
+
+A `VehicleService` pins an approved route revision, one live vehicle, operator mode, recurring clock/calendar specification, maximum hold, and enabled state:
+
+```text
+vehicleservice new <name> | <route> | <vehicle> | <reference departure> | <recurrence>
+vehicleservice edit <id|name>
+vehicleservice clone <id|name> <new name>
+vehicleservice close
+vehicleservice set route <id|name> [revision]
+vehicleservice set vehicle <vehicle>
+vehicleservice set operator automatic|onboard
+vehicleservice set schedule <reference departure> | <recurrence>
+vehicleservice set retry <duration>
+vehicleservice set maxhold <duration>
+vehicleservice set enabled [true|false]
+vehicleservice show|audit <id|name>
+vehicleservice cancel <id|name> [reason]
+vehicleservice resume <id|name>
+```
+
+Route or vehicle reassignment is allowed only while the service is disabled and has no active journey. Journey rows reference the stable service id while retaining their own immutable route-revision and vehicle references, so historical journeys remain valid after a later reassignment. When a newer route revision is approved, the formerly current revision becomes `Revised`; an existing service pinned to that still-approved immutable revision remains valid, subject to its topology pins. New manual route selection continues to choose a current revision.
+
+Automatic operation requires an automatic-capable route profile and substitutes only for the primary driver. Other required crew and every physical readiness check remain enforced. Onboard mode requires a valid controller. At an authored RoomScale platform, the journey coordinator opens an unlocked, enabled access point before it exposes the transient boarding link, then removes that link and closes the same access point before automatic departure readiness is evaluated. A disabled or locked access point fails boarding closed; an access point that cannot be closed fails departure into `Held`. Onboard services do not operate physical access points for their controller: the applicable access point must already be open to start boarding and must be closed manually before movement readiness can pass.
+
+Service audit also validates every platform binding against the assigned vehicle. Its access-point prototype must belong to the assigned vehicle prototype, and the live vehicle must contain the corresponding access-point instance. A mismatched binding or missing live access point fails readiness with the affected stop and binding ids rather than waiting for boarding to fail silently.
+
+Journey states are `Scheduled`, `Boarding`, `Held`, `Departing`, `EnRoute`, `Dwelling`, `Arrived`, `Cancelled`, and `Faulted`. A failed departure enters Held, retries every 30 seconds by default, and cancels after the configured maximum hold (default 15 minutes). The maximum-hold clock begins at the first durable `Held` event in the current departure episode. Intermediate retry transitions through `Departing` and later `Held` events do not reset it; only a successfully started leg's durable `Departed` event resets the clock for a later stop. This derivation from ordered journey events makes the same inclusive timeout apply immediately after reboot instead of granting a fresh hold window. Consuming a recurrence, advancing the durable next-departure value, and inserting the uniquely keyed `(service, scheduled departure)` journey plus its first event occur in one transaction; a crash cannot advance the timetable while losing that departure. Each later journey state snapshot and its ordered event append likewise commit in the same database operation. Recovery reconciles legacy rows to the latest durable event and resolves `Departing` or `EnRoute` progress from the vehicle's physical checkpoint; the checkpoint timestamp is carried forward before interrupted motion rows are removed. Journeys record ordered events for state transitions, delays, faults, and checkpoint recovery. Durable motion rejects a same-sequence replay with a different coordinate, duration, or aggregate resource payload as an idempotency conflict and reports it through the terminal movement-fault/system diagnostic path.
+
+Active journeys pin their revision and never silently reroute. A topology change invalidates dependent drafts and makes approved services fail closed until revalidated. Missed departures during downtime are not backfilled; the scheduler creates the next future recurrence. An interrupted active journey resumes at its durable coordinate and adds the offline duration to accumulated delay.
+
+## Docking And Transit UX
+
+Docking is represented by transient exits, not duplicate vehicle items. An ordinary-cell RoomScale vehicle docks between its exterior cell and mapped compartments. A scheduled train within its stop tolerance docks from authored platform cells directly into mapped compartments. Links exist only while the vehicle is stationary, boarding is open, and the access point is usable.
+
+The platform `look` output obtains docked-vehicle and boarding state from the docking service. Opening or retaining a platform docking requires the vehicle to match the stop's authored cell, layer and, for a RouteCell stop, coordinate tolerance. Player commands are:
+
+```text
+transit departures [destination]
+transit services [destination]
+transit status [service]
+embark <vehicle> [slot] [via <access id|name>]
+disembark
+vehicleaccess [open|close <access id|name>]
+vehiclestatus
+```
+
+Transit output includes scheduled and expected time, platform, destination, boarding state, delay, cancellation or hold reason, and next stop. An occupant with control access can use `vehicleaccess` from a stable RoomScale interior to inspect or operate the canonical live access points without targeting an exterior projection in another cell. The vehicle must be stationary; disabled access points fail closed and locked access points cannot be opened. V1.0 does not add fares, tickets, reservations, or seat allocation.
+
+`transit departures` treats an authored ordinary platform cell as local exactly as ordinary cell topology does. A stop located directly in a RouteCell is local only when the actor's effective lazy-movement coordinate is on the stop's layer and within at least one authored docking tolerance, or within `VehicleRouteDefaultDockingToleranceMetres` when the stop has no binding. Merely sharing a ten-kilometre RouteCell does not make a departure local; when tolerances overlap, the nearest stop is selected.
+
 ## Admin Diagnostics
 
 `vehicle` commands inspect and repair live instances.
@@ -571,10 +707,11 @@ Current commands:
 - `vehicle access <id|name> apply <preset> <character>`
 - `vehicle access <id|name> clone <source vehicle>`
 - `vehicle access preset list|show|set|remove|delete|reset`
-- `vehicle audit <here|zone|prototype <id|name>|all> [readiness|access|resources|hitch|damage|recovery|all]`
-- `vehicle recover <id|name> [projection|install|hitch|all] [fix]`
+- `vehicle retire <id|name>`
+- `vehicle audit <id|name|here|zone|prototype <id|name>|all> [readiness|access|resources|hitch|damage|interior|docking|recovery|all]`
+- `vehicle recover <id|name> [projection|install|hitch|interior|docking|all] [fix]`
 - `vehicle fleet <scope> access apply|grant|revoke|clone ...`
-- `vehicle fleet <scope> recover <projection|install|hitch|all> [fix]`
+- `vehicle fleet <scope> recover <projection|install|hitch|interior|docking|all> [fix]`
 - `vehicle repair <id|name>`
 - `vehicle repair <id|name> damage <zone|all>`
 - `vehicle repair <id|name> hitch <link|all>`
@@ -598,7 +735,7 @@ Current commands:
 
 `vehicle repair <vehicle> hitch <link|all>` re-enables persistent tow or hitch links after physical repairs only if unified graph validation passes. Invalid links stay disabled and report the validation reason.
 
-`vehicle access <vehicle>` manages persisted character grants. Use `list` to see current rows, `grant` to add or update an action tag and level, `revoke` to remove by row id or by character and optional tag, `apply` to apply a reusable preset to a character, and `clone` to copy grant rows from another vehicle. `vehicle access preset` manages the semicolon-delimited `VehicleAccessPresets` static configuration without adding schema. `vehicle audit`, `vehicle recover`, and `vehicle fleet` provide staff scan and batch helpers for readiness, access, resource, hitch, damage, projection, and install-state support.
+`vehicle access <vehicle>` manages persisted character grants. Use `list` to see current rows, `grant` to add or update an action tag and level, `revoke` to remove by row id or by character and optional tag, `apply` to apply a reusable preset to a character, and `clone` to copy grant rows from another vehicle. `vehicle access preset` manages the semicolon-delimited `VehicleAccessPresets` static configuration without adding schema. `vehicle audit`, `vehicle recover`, and `vehicle fleet` provide staff scan and batch helpers for readiness, access, resource, hitch, damage, projection, and install-state support. Projection recovery distinguishes the canonical exterior from authored secondary projections: a missing exterior requires an explicit `vehicle relink`, while `vehicle recover <vehicle> projection fix` idempotently recreates missing or destroyed access-point and cargo-space items from their pinned authored prototypes. It validates the required component before registering an item, persists both sides of each link, reports per-projection failures, and does nothing when the usable projection already exists.
 
 `vehicle relink` allows an admin to attach a vehicle to a replacement exterior item that already has the vehicle exterior component.
 
@@ -606,7 +743,7 @@ Current commands:
 
 The exterior item is already accessible to existing item-oriented FutureProg surfaces because it is an ordinary `IGameItem`.
 
-The closeout slice adds cell-exit readiness predicates that take vehicle exterior items so route and scheduling progs can gate work before full route movement exists:
+The shared operational FutureProg surface takes vehicle exterior items and is used by both cell-exit and route/service automation:
 
 - `isvehicle(item)`
 - `vehiclecanboard(character, item)`
@@ -619,7 +756,19 @@ The closeout slice adds cell-exit readiness predicates that take vehicle exterio
 - `vehicletrainweight(item)`
 - `vehicletowstress(item)`
 
-The exterior item remains the public FutureProg argument for now because the vehicle object itself is not yet a first-class prog variable. Future route/coordinate work can add route-specific commands, schedule predicates, occupancy/controller projections, and route state queries on top of these readiness checks.
+The exterior item remains a supported public FutureProg argument. V1.0 additionally exposes RouteCell identity, exact coordinate/distance, room-equivalent distance, direction, nearest landmark and portal accessibility, plus vehicle route/service identity, journey state, next stop, delay, boarding state, and readiness reason. The [RouteCell movement contract](./World/Route_Cell_System.md#longitudinal-movement) defines the begin, checkpoint position-change/progress, completion, and cancellation hooks fired on vehicle exteriors and external motive characters.
+
+Durable journey transitions fire these hooks on the vehicle exterior:
+
+| Event type | Ordered parameters |
+| --- | --- |
+| `VehicleJourneyDeparted` | `vehicle`, `journeyid`, `routeid`, `serviceid`, `vehicleid`, `stopcell`, `stoppositionmetres`, `message` |
+| `VehicleJourneyArrived` | `vehicle`, `journeyid`, `routeid`, `serviceid`, `vehicleid`, `stopcell`, `stoppositionmetres`, `message` |
+| `VehicleJourneyDelayChanged` | `vehicle`, `journeyid`, `routeid`, `serviceid`, `vehicleid`, `delay`, `message` |
+| `VehicleJourneyCancelled` | `vehicle`, `journeyid`, `routeid`, `serviceid`, `vehicleid`, `reason` |
+| `VehicleJourneyFaulted` | `vehicle`, `journeyid`, `routeid`, `serviceid`, `vehicleid`, `reason` |
+
+Departure and arrival fire once per stop transition; arrival includes intermediate stops as well as the terminal. `delay` is the total accumulated `timespan`. An ordinary-cell stop uses `-1` for `stoppositionmetres`. The numeric journey, route, and service ids are deliberately legacy-compatible and can be passed directly to `vehiclejourney(number)`, `vehicleroute(number)`, and `vehicleservice(number)`.
 
 ## Acceptance Scenarios
 
@@ -627,7 +776,7 @@ Currently covered by implementation:
 
 - Creating a vehicle prototype can link a valid exterior item prototype and automatically attach the internal vehicle exterior component.
 - Vehicle prototype creation/submission requires an exterior item component linked to the vehicle prototype.
-- Vehicle prototype submission rejects `RoomScale`, missing driver control stations, ambiguous primary control stations, and non-finite/invalid movement, tow, stress, or damage values.
+- Vehicle prototype submission validates RoomScale interior settings/connectivity/access, driver control stations, movement support, and finite movement, tow, stress, and damage values.
 - Generic item loading is blocked for vehicle exterior shells through `PreventManualLoad`.
 - Creating a vehicle instance creates a live `Vehicle` and exterior `GameItem`.
 - Vehicle and exterior item have bidirectional links after factory creation.
@@ -641,7 +790,7 @@ Currently covered by implementation:
 - Vehicle cell-exit movement honours exterior item movement blockers and disconnects independent `IConnectable` links that would otherwise span cells.
 - RoomContainer vehicles support multiple authored compartments, slots, and stations.
 - Invalid cell-exit movement is blocked for controller mismatch, missing movement profile, too-small exit, invalid origin, and non-viable transition.
-- Reboot recovery resynchronises the exterior item projection to the vehicle's canonical cell and layer.
+- Reboot recovery resynchronises the exterior item projection to the vehicle's canonical cell and layer; staff projection recovery recreates missing authored access/cargo projections without duplicating healthy ones.
 - Builder/admin output distinguishes canonical vehicle state from item projection state.
 - Factory creation builds and links access/cargo projection items.
 - `hatch@vehicle`, `trunk@vehicle`, and installed module targeting resolves through normal item targeting.
@@ -657,6 +806,9 @@ Currently covered by implementation:
 - Active character/mount hitches let characters or mounts pull another character or a vehicle tow point through ordinary cell-exit movement, with `IHitchGear` or legacy `IDragAid` items for non-direct tow points and tow-point pull multipliers.
 - Character/mount hitches can pull a vehicle that itself has downstream vehicle tow links; capacity, tow-point limits, hitch gear, exit size, damage, duplicate incoming links, and cycle checks use the whole unified train.
 - Dragging a vehicle exterior through an ordinary movement command moves downstream towed vehicles and co-located hitch items exactly once, while the root vehicle still reconciles from the exterior item's movement.
+- A scheduled multi-compartment RoomScale train boards from an ordinary platform, travels through one or more ten-kilometre RouteCells, reports holds and delay, docks at its destination, and resumes from a durable checkpoint after reboot.
+- An occupied massive RoomScale platform moves manually through ordinary cell exits while all hosted interior cell ids and occupants remain stable.
+- A mount-driven wagon and recursively hitched wagon train travels through chained RouteCells between distant towns, can stop at an exact mid-route coordinate, uses portal bands explicitly, and charges stamina/tow stress without duplicate checkpoint commits.
 
 Still to implement:
 
@@ -665,7 +817,7 @@ Still to implement:
 - Waves, swell, currents, weather-driven vessel motion, and other dynamic water-state effects.
 - Damage to boats, capsizing, and boat-targeted weapon damage. The current boat-combat slice affects occupants only.
 - Richer hitch item mechanics, broader recovery UX, and fuller fuel/power network topologies.
-- Route, coordinate 2D, coordinate 3D, and RoomScale systems.
+- Coordinate 2D and coordinate 3D systems.
 
 For a fresh-world manual verification path, including the supporting item and component prototype authoring steps, see [Vehicle System Fresh MUD Test Runbook](./Vehicle_System_Fresh_MUD_Test_Runbook.md).
 
@@ -709,7 +861,7 @@ Scope:
 
 ### Phase 2: Vehicle Systems
 
-Status: complete for the MudSharp 2.0 manual cell-exit V1 boundary. Broader post-V1 movement families remain planned.
+Status: complete for the shared operational-readiness and cell-exit foundation used by V1.0.
 
 Implemented scope:
 
@@ -747,24 +899,36 @@ Deliberate post-V1 extensions:
 - richer hitch item mechanics and broader recovery UX beyond the current stress-policy and staff recovery commands
 - deletion/destruction lifecycle polish and deeper builder diagnostics for all system records
 
-Recommended post-release major slice: **Phase 3 - Route Movement Foundations**. The route slice should build authored route networks, stops, schedules, boarding windows, route previews, and automated transit on top of the existing route-ready readiness predicates. Acceptance should focus on one simple scheduled route that can explain access, start, fuel/power, tow, and damage failures before departure, consume resources only on successful movement, recover cleanly after reboot, and avoid starting coordinate or RoomScale movement.
-
-This is post-V1 because the cell-exit operational base can already answer whether a vehicle can board, start, move, consume resources, recover from damage, and report why not, while route state requires its own persistence, scheduler, builder, player timetable, reboot, and integration contract. Phase 3 should reuse those diagnostics rather than adding a second preflight path.
+Phase 3 builds on this readiness service rather than introducing a second preflight path. A route departure, checkpoint, portal crossing, or resumed journey revalidates the same access, crew, damage, installation, propulsion, hitch, and tow-stress facts used by cell-exit movement.
 
 Cargo and installed systems should reuse existing item/container/component infrastructure, but the vehicle decides which compartment or attachment point exposes each item capability.
 
 ### Phase 3: Route Movement
 
-Status: planned.
+Status: V1.0.
 
 Scope:
 
-- authored route networks
-- stops and schedules
-- boarding windows
-- delays
-- automated transit
-- builder route previews and diagnostics
+- first-class linear RouteCells with exact longitudinal coordinates and anchored exits
+- continuous character, mount, hitch-cohort, and vehicle travel
+- weighted hybrid spatial paths
+- revisioned VehicleRoutes with ordered stops and pinned typed steps
+- recurring schedules, boarding windows, holds, delays, cancellation, and restart-safe journeys
+- builder route previews, validation, dependency invalidation, and diagnostics
+- scheduled-train and horse-drawn wagon-train acceptance scenarios
+
+### Phase 3B: RoomScale Interiors And Docking
+
+Status: V1.0.
+
+Scope:
+
+- persistent hosted cells per compartment
+- authored internal links and external access-point mappings
+- stable occupants during exterior CellExit and RouteCell movement
+- transient docking exits and platform presentation
+- interior/docking recovery and deletion guards
+- massive mobile-platform acceptance scenario
 
 ### Phase 4: Coordinate 2D Movement
 
@@ -777,14 +941,13 @@ Scope:
 - speed, heading, and surface constraints
 - transition between cell-exit and coordinate movement where needed
 
-### Phase 5: Coordinate 3D And RoomScale
+### Phase 5: Coordinate 3D
 
 Status: planned.
 
 Scope:
 
-- aircraft, spacecraft, ships, elevators, and other large moving interiors
-- multi-cell interiors
+- aircraft, spacecraft, ships, elevators, and other freely positioned vehicles
 - docking, berthing, attachment, and disconnection
 - coordinate 3D movement and layered projection
 

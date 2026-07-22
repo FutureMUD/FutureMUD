@@ -6,6 +6,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate;
+using MudSharp.Vehicles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,10 +29,13 @@ public enum TrackCircumstances
 
 public interface ITrack : IFrameworkItem, ISaveable
 {
-    ICharacter Character { get; }
-    IBodyPrototype BodyProtoType { get; }
+    ICharacter? Character { get; }
+    IBodyPrototype? BodyProtoType { get; }
+    IVehicle? Vehicle { get; }
     ICell Cell { get; }
     RoomLayer RoomLayer { get; }
+	double? RoutePositionMetres => null;
+	RouteCellDirection? RouteDirection => null;
     IExit? FromExit { get; }
     IExit? ToExit { get; }
     ICellExit? FromCellExit { get; }

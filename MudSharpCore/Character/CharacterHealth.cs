@@ -86,7 +86,7 @@ public partial class Character
 
         OnDeath?.Invoke(this);
         HandleEvent(Events.EventType.CharacterDies, this);
-        foreach (IHandleEvents witness in Location.EventHandlers)
+        foreach (IHandleEvents witness in Location.EventHandlersFor(this))
         {
             if (witness == this)
             {
@@ -137,7 +137,7 @@ public partial class Character
             Corpse = corpse.GetItemType<ICorpse>();
             Gameworld.Add(corpse);
             corpse.RoomLayer = RoomLayer;
-            Location.Insert(corpse);
+            corpse.InsertAtSource(this);
         }
 
         MudSharp.Economy.Estates.Estate.CreateEstatesForCharacterDeath(this).ToList();

@@ -21,6 +21,7 @@ using MudSharp.Events.Hooks;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Colour;
 using MudSharp.Form.Material;
+using MudSharp.Framework;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
@@ -55,7 +56,7 @@ internal class StorytellerModule : Module<ICharacter>
 
 Use this command to inspect, spawn, move, retire and audit non-primary character instances. Instance owners and instances can generally be resolved by visible target, loaded character name or ID, while forms are resolved from the owner's known forms.
 
-The #3spawn#0 options after the form can be supplied in any order. #3ai#0 chooses NPC AI for NPC identities and script AI for other identities, while #3npcai#0 and #3scriptai#0 force a specific AI mode. #3cloneinventory#0 copies inventory to the new body where supported.
+The #3spawn#0 options after the form can be supplied in any order. #3ai#0 chooses NPC AI for NPC identities and script AI for other identities, while #3npcai#0 and #3scriptai#0 force a specific AI mode. #3cloneinventory#0 copies inventory to the new body where supported. In a RouteCell, #3here#0 preserves your exact coordinate while #3room <cell id>#0 uses that cell's authored default coordinate.
 Use #3audit all#0 for persisted instance row and global actor-cache diagnostics. Use #3audit <character>#0 for the loaded identity currently in memory.
 
 The syntax is as follows:
@@ -154,11 +155,13 @@ The syntax is as follows:
                    x.Body.Prototype.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private static bool TryPopInstanceDestination(ICharacter actor, StringStack ss, out ICell location,
-        out RoomLayer layer, out string error)
+    private static bool TryPopInstanceDestination(
+        ICharacter actor,
+        StringStack ss,
+        out SpatialLocation destination,
+        out string error)
     {
-        location = null;
-        layer = actor.RoomLayer;
+        destination = default;
         error = string.Empty;
 
         if (ss.IsFinished)
@@ -170,9 +173,7 @@ The syntax is as follows:
         var keyword = ss.PopSpeech();
         if (keyword.EqualTo("here"))
         {
-            location = actor.Location;
-            layer = actor.RoomLayer;
-            return true;
+            return CharacterInstanceService.TryGetSourceAwareSpawnLocation(actor, out destination, out error);
         }
 
         if (!keyword.EqualTo("room"))
@@ -187,10 +188,12 @@ The syntax is as follows:
             return false;
         }
 
-        location = RoomBuilderModule.LookupCell(actor.Gameworld, ss.PopSpeech());
-        layer = RoomLayer.GroundLevel;
+        var location = RoomBuilderModule.LookupCell(actor.Gameworld, ss.PopSpeech());
         if (location is not null)
         {
+            destination = CharacterInstanceService.CreateDefaultSpawnLocation(
+                location,
+                RoomLayer.GroundLevel);
             return true;
         }
 
@@ -315,8 +318,15 @@ The syntax is as follows:
             return;
         }
 
-        var location = actor.Location;
-        var layer = actor.RoomLayer;
+        if (!CharacterInstanceService.TryGetSourceAwareSpawnLocation(
+                actor,
+                out var spawnLocation,
+                out var spatialError))
+        {
+            actor.OutputHandler.Send($"You do not have a valid spawn location: {spatialError}");
+            return;
+        }
+
         var persistence = CharacterInstancePersistencePolicy.DespawnOnReboot;
         var mode = SecondaryCharacterInstanceSpawnMode.Passive;
         var cloneInventory = false;
@@ -326,7 +336,7 @@ The syntax is as follows:
             {
                 case "here":
                 case "room":
-                    if (!TryPopInstanceDestination(actor, ss, out location, out layer, out var error))
+                    if (!TryPopInstanceDestination(actor, ss, out spawnLocation, out var error))
                     {
                         actor.OutputHandler.Send(error);
                         return;
@@ -374,7 +384,7 @@ The syntax is as follows:
             }
         }
 
-        var result = CharacterInstanceService.SpawnBodyInstance(target, form, location!, layer, mode, persistence,
+        var result = CharacterInstanceService.SpawnBodyInstance(target, form, spawnLocation, mode, persistence,
             cloneInventory: cloneInventory);
         if (!result.Success || result.Instance is null)
         {
@@ -412,13 +422,13 @@ The syntax is as follows:
             return;
         }
 
-        if (!TryPopInstanceDestination(actor, ss, out var location, out var layer, out var error))
+        if (!TryPopInstanceDestination(actor, ss, out var destination, out var error))
         {
             actor.OutputHandler.Send(error);
             return;
         }
 
-        var result = CharacterInstanceService.Move(target, location!, layer);
+        var result = CharacterInstanceService.Move(target, destination);
         if (!result.Success)
         {
             actor.OutputHandler.Send(result.Message);
@@ -426,7 +436,7 @@ The syntax is as follows:
         }
 
         actor.OutputHandler.Send(
-            $"Moved secondary instance #{target.InstanceId.ToString("N0", actor).ColourValue()} to {location!.HowSeen(actor)}.");
+            $"Moved secondary instance #{target.InstanceId.ToString("N0", actor).ColourValue()} to {destination.Cell.HowSeen(actor)}.");
     }
 
     private static void InstanceRetire(ICharacter actor, StringStack ss)
@@ -1234,9 +1244,10 @@ The syntax is as follows:
             return;
         }
 
-        if (targetText.Equals("here", StringComparison.InvariantCultureIgnoreCase))
-        {
-            character.OutputHandler.Handle(new EmoteOutput(new Emote(
+		if (targetText.Equals("here", StringComparison.InvariantCultureIgnoreCase))
+		{
+			// FORCE HERE is an explicit administrative whole-cell scope, including for RouteCells.
+			character.OutputHandler.Handle(new EmoteOutput(new Emote(
                     $"@ force|forces everyone in the room to do the command '{ss.RemainingArgument}'", character),
                 flags: OutputFlags.WizOnly));
             foreach (ICharacter person in character.Location.Characters
@@ -1251,9 +1262,10 @@ The syntax is as follows:
             return;
         }
 
-        if (targetText.Equals("npcshere", StringComparison.InvariantCultureIgnoreCase))
-        {
-            character.OutputHandler.Handle(new EmoteOutput(new Emote(
+		if (targetText.Equals("npcshere", StringComparison.InvariantCultureIgnoreCase))
+		{
+			// NPCSHERE intentionally shares FORCE HERE's administrative whole-cell scope.
+			character.OutputHandler.Handle(new EmoteOutput(new Emote(
                     $"@ force|forces all NPCs in the room to do the command '{ss.RemainingArgument}'", character),
                 flags: OutputFlags.WizOnly));
             foreach (ICharacter person in character.Location.Characters.Where(x => !x.AffectedBy<IIgnoreForceEffect>())
@@ -1469,7 +1481,7 @@ The syntax is as follows:
         {
             newItem.RoomLayer = character.RoomLayer;
             character.OutputHandler.Send("Your hands are full, so you loaded the item to the ground.");
-            character.Location.Insert(newItem);
+            newItem.InsertAtSource(character);
         }
     }
 
@@ -1630,7 +1642,7 @@ The syntax is as follows:
         {
             actor.OutputHandler.Send("Your hands are full, so you loaded the item to the ground.");
             commodity.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(commodity);
+            commodity.InsertAtSource(actor);
         }
 
         commodity.Login();
@@ -2295,7 +2307,8 @@ Use this to bring an online or loaded actor to you by name or keyword.
 The target is resolved from loaded actors, not offline character records. The command refuses targets already colocated with you.
 
 The syntax is as follows:
-	#3transfer <target>#0 - transfers a loaded actor to your location";
+	#3transfer <target>#0 - transfers a loaded actor to your exact spatial location
+	#3transfer <target> at <distance|landmark>#0 - transfers a loaded actor to another coordinate in your RouteCell";
 
     [PlayerCommand("Transfer", "transfer")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -2303,7 +2316,8 @@ The syntax is as follows:
     protected static void Transfer(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
-        string targetText = ss.SafeRemainingArgument;
+        string rawTargetText = ss.SafeRemainingArgument;
+		RouteCommandUtilities.TrySplitAtClause(rawTargetText, out var targetText, out var routePositionText);
         if (string.IsNullOrEmpty(targetText))
         {
             actor.OutputHandler.Send("Who do you want to transfer?");
@@ -2318,7 +2332,26 @@ The syntax is as follows:
             return;
         }
 
-        if (target.ColocatedWith(actor))
+		var destination = RouteSpatialService.Instance.GetEffectiveLocation(actor);
+		if (routePositionText is not null)
+		{
+			if (!RouteCommandUtilities.TryResolveRoutePosition(
+					actor,
+					actor.Location,
+					routePositionText,
+					out var explicitPosition,
+					out var positionError))
+			{
+				actor.OutputHandler.Send(positionError);
+				return;
+			}
+
+			destination = new SpatialLocation(actor.Location, actor.RoomLayer, explicitPosition);
+		}
+
+		var targetLocation = RouteSpatialService.Instance.GetEffectiveLocation(target);
+        if (ReferenceEquals(targetLocation.Cell, destination.Cell) && targetLocation.Layer == destination.Layer &&
+			Nullable.Equals(targetLocation.RoutePositionMetres, destination.RoutePositionMetres))
         {
             actor.OutputHandler.Send("They are already in the same location as you.");
             return;
@@ -2326,7 +2359,12 @@ The syntax is as follows:
 
         target.OutputHandler.Send(new EmoteOutput(new Emote("$0 transfers you to &0's location.", target, actor)));
         actor.OutputHandler.Send(new EmoteOutput(new Emote("You transfer $0 to your location.", actor, target)));
-        target.Teleport(actor.Location, actor.RoomLayer, true, true);
+        target.Teleport(
+			destination.Cell,
+			destination.Layer,
+			true,
+			true,
+			routePositionMetres: destination.RoutePositionMetres);
     }
 
     public const string SkillCommandHelp =
@@ -2808,7 +2846,8 @@ The syntax is as follows:
             }
         }
 
-        foreach (ICorpse item in
+		// This storyteller maintenance command deliberately modifies every corpse in the cell.
+		foreach (ICorpse item in
                  actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<ICorpse>()))
         {
             item.DecayPoints += decay;

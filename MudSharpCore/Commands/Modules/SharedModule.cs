@@ -1,6 +1,7 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
+using MudSharp.Framework;
 using MudSharp.NPC;
 using MudSharp.RPG.Checks;
 using System.Text.RegularExpressions;
@@ -176,6 +177,7 @@ There are several different ways you can use this command, as per below:
 	#3goto <character keywords>#0 - Go to the location of a character by keywords
 	#3goto #<room keywords>#0 - Override for room descriptions when there is a clash with a character
 	#3goto @<number>#0 - Go to a recently created room. See below for explanation:
+	#3goto <destination> at <distance|landmark>#0 - Go to an exact coordinate in a RouteCell
 
 #6For example, @1 is the most recently created new room, @2 is the 2nd most recently created room etc.
 This only works for rooms created since the last reboot.
@@ -200,7 +202,8 @@ This command is useful when you write-up a bunch of room creation commands in a 
         }
 
         StringStack ss = new(input.RemoveFirstWord());
-        string cmd = ss.SafeRemainingArgument;
+        string rawCommand = ss.SafeRemainingArgument;
+		RouteCommandUtilities.TrySplitAtClause(rawCommand, out var cmd, out var routePositionText);
         RoomLayer destinationLayer = actor.RoomLayer;
         ICharacter target = actor.Gameworld.Actors
                           .Where(x => !x.State.HasFlag(CharacterState.Dead))
@@ -241,13 +244,40 @@ This command is useful when you write-up a bunch of room creation commands in a 
             }
         }
 
-        if (destination == actor.Location && destinationLayer == actor.RoomLayer)
+		double? destinationPosition = null;
+		if (routePositionText is not null)
+		{
+			if (!RouteCommandUtilities.TryResolveRoutePosition(
+					actor,
+					destination,
+					routePositionText,
+					out var explicitPosition,
+					out var positionError))
+			{
+				actor.OutputHandler.Send(positionError);
+				return;
+			}
+
+			destinationPosition = explicitPosition;
+		}
+		else if (destination.RouteDefinition is not null)
+		{
+			destinationPosition = target is not null && ReferenceEquals(target.Location, destination)
+				? RouteSpatialService.Instance.GetEffectiveLocation(target).RoutePositionMetres
+				: destination.RouteDefinition.DefaultPositionMetres;
+		}
+
+		var destinationSpatial = new SpatialLocation(destination, destinationLayer, destinationPosition);
+        if (destination == actor.Location && destinationLayer == actor.RoomLayer &&
+			(!destinationPosition.HasValue ||
+			 Math.Abs((RouteSpatialService.Instance.GetEffectiveLocation(actor).RoutePositionMetres ?? double.NaN) -
+			          destinationPosition.Value) < 0.0005))
         {
             actor.OutputHandler.Send("You are already there!");
             return;
         }
 
-        actor.TransferTo(destination, destinationLayer);
+        actor.TransferTo(destinationSpatial);
     }
 
     [PlayerCommand("Echo", "echo")]

@@ -582,24 +582,154 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return false;
         }
 
-        (ICell? target, IEnumerable<ICellExit> pathEnumerables) = GetPath(ch);
-        List<ICellExit> path = pathEnumerables.ToList();
-        if (target is null || !path.Any())
-        {
-            return false;
-        }
+		(ICell? target, IEnumerable<ICellExit> pathEnumerables) = GetPath(ch);
+		var path = pathEnumerables.ToList();
+		var shouldTrySpatialPath = target?.RouteDefinition is not null || path.Count == 0;
+		if (shouldTrySpatialPath)
+		{
+			var (spatialTarget, spatialPath) = ResolveSpatialPath(ch, target);
+			if (spatialTarget is not null && spatialPath is not null && spatialPath.Steps.Count > 0 &&
+				RequiresSpatialFollowing(spatialPath))
+			{
+				var spatialEffect = CreatePathingEffect(ch, spatialPath);
+				ch.AddEffect(spatialEffect);
+				OnBeginPathing(ch, spatialTarget, spatialPath.TraversedExits);
+				FollowPathAction(ch, spatialEffect);
+				return true;
+			}
+		}
 
-        FollowingPath effect = CreatePathingEffect(ch, path);
-        ch.AddEffect(effect);
-        OnBeginPathing(ch, target, path);
-        FollowPathAction(ch, effect);
-        return true;
+		if (target is null || path.Count == 0 || target.RouteDefinition is not null)
+		{
+			return false;
+		}
+
+		FollowingPath effect = CreatePathingEffect(ch, path);
+		ch.AddEffect(effect);
+		OnBeginPathing(ch, target, path);
+		FollowPathAction(ch, effect);
+		return true;
     }
 
     protected virtual FollowingPath CreatePathingEffect(ICharacter ch, IEnumerable<ICellExit> path)
     {
         return new FollowingPath(ch, path);
     }
+
+	protected virtual FollowingPath CreatePathingEffect(ICharacter ch, ISpatialPath path)
+	{
+		return new FollowingPath(ch, path, exit => GetSuitabilityFunction(ch)(exit));
+	}
+
+	/// <summary>
+	/// Gives route-aware AIs a typed fallback after their existing exit-only search cannot produce a path.
+	/// Ordinary paths continue through <see cref="GetPath"/> and the legacy FollowingPath queue.
+	/// </summary>
+	protected virtual (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+	{
+		return (null, null);
+	}
+
+	private (ICell? Target, ISpatialPath? Path) ResolveSpatialPath(ICharacter ch, ICell? legacyTarget)
+	{
+		var specialised = GetSpatialPath(ch);
+		if (specialised.Target is not null && specialised.Path is not null)
+		{
+			return specialised;
+		}
+
+		if (ch.CombatTarget is IPerceivable combatTarget &&
+		    (ch.Location.RouteDefinition is not null || combatTarget.Location?.RouteDefinition is not null))
+		{
+			var exactTarget = RouteSpatialService.Instance.GetEffectiveLocation(combatTarget);
+			if (TryFindSpatialPath(ch, exactTarget, 50.0, GetSuitabilityFunction(ch), out var combatPath))
+			{
+				return (combatTarget.Location, combatPath);
+			}
+		}
+
+		if (legacyTarget is not null &&
+		    (ch.Location.RouteDefinition is not null || legacyTarget.RouteDefinition is not null) &&
+		    TryFindSpatialPath(ch, legacyTarget, 50.0, GetSuitabilityFunction(ch), out var path))
+		{
+			return (legacyTarget, path);
+		}
+
+		return (null, null);
+	}
+
+	protected bool TryFindSpatialPath(
+		ICharacter ch,
+		ICell target,
+		double maximumRoomEquivalentCost,
+		Func<ICellExit, bool> suitabilityFunction,
+		out ISpatialPath? path)
+	{
+		path = null;
+		if (ch.Location is null || target is null ||
+			!double.IsFinite(maximumRoomEquivalentCost) || maximumRoomEquivalentCost <= 0.0)
+		{
+			return false;
+		}
+
+		var origin = RouteSpatialService.Instance.GetEffectiveLocation(ch);
+		var destination = new SpatialLocation(
+			target,
+			origin.Layer,
+			target.RouteDefinition?.DefaultPositionMetres);
+		return TryFindSpatialPath(
+			ch,
+			destination,
+			maximumRoomEquivalentCost,
+			suitabilityFunction,
+			out path);
+	}
+
+	/// <summary>
+	/// Finds a typed path to an exact spatial destination. Unlike the cell overload, this preserves
+	/// the target's RouteCell coordinate and layer rather than resolving to the cell default.
+	/// </summary>
+	protected bool TryFindSpatialPath(
+		ICharacter ch,
+		SpatialLocation destination,
+		double maximumRoomEquivalentCost,
+		Func<ICellExit, bool> suitabilityFunction,
+		out ISpatialPath? path)
+	{
+		path = null;
+		if (ch.Location is null || destination.Cell is null ||
+			!double.IsFinite(maximumRoomEquivalentCost) || maximumRoomEquivalentCost <= 0.0 ||
+			!RouteSpatialService.Instance.TryValidateLocation(destination, out _))
+		{
+			return false;
+		}
+
+		var origin = RouteSpatialService.Instance.GetEffectiveLocation(ch);
+		ISpatialPathfinder pathfinder;
+		try
+		{
+			pathfinder = ch.Gameworld.ExitManager.SpatialPathfinder;
+		}
+		catch (NotSupportedException)
+		{
+			return false;
+		}
+
+		return pathfinder.TryFindPath(
+			origin,
+			destination,
+			suitabilityFunction,
+			false,
+			maximumRoomEquivalentCost,
+			out path) && path is not null;
+	}
+
+	protected static bool RequiresSpatialFollowing(ISpatialPath path)
+	{
+		return path.Origin.Cell.RouteDefinition is not null ||
+		       path.Destination.Cell.RouteDefinition is not null ||
+		       path.Steps.Any(x => x is ILinearRoutePathStep);
+	}
 
     public void FollowPathAction(ICharacter ch, FollowingPath path)
     {

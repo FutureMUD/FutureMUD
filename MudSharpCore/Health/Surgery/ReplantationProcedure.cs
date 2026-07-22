@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory.Plans;
@@ -183,7 +184,7 @@ public class ReplantationProcedure : BodypartSpecificSurgicalProcedure
         foreach (IGameItem content in item.Contents)
         {
             content.RoomLayer = patient.RoomLayer;
-            patient.Location.Insert(content);
+            content.InsertAtSource(patient);
         }
 
         item.SeveredBodypartWasInstalledInABody();

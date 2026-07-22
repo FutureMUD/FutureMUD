@@ -39,10 +39,15 @@ The syntax for this command is simply #3targets#0.", AutoHelp.HelpArg)]
     {
         StringBuilder sb = new();
         sb.AppendLine("You have eyes on the following targets:");
-        List<IMortalPerceiver> targets = actor.Location.LayerCharacters(actor.RoomLayer).Except(actor)
-                           .Concat<IMortalPerceiver>(actor.Location.LayerGameItems(actor.RoomLayer))
-                           .Where(x => actor.CanSee(x))
-                           .Concat(actor.SeenTargets).ToList();
+		List<IMortalPerceiver> targets = actor.LocalThingsAndProximities()
+		                   .Where(x => x.Proximity <= Proximity.VeryDistant)
+		                   .Select(x => x.Thing)
+		                   .OfType<IMortalPerceiver>()
+		                   .Except(actor)
+		                   .Where(x => actor.CanSee(x))
+		                   .Concat(actor.SeenTargets)
+		                   .Distinct()
+		                   .ToList();
         foreach (IMortalPerceiver thing in targets)
         {
             sb.AppendLine($"\t{thing.HowSeen(actor)}");
@@ -2747,10 +2752,15 @@ The syntax is as follows:
                 return;
             }
 
-            List<IMortalPerceiver> targets = actor.Location.LayerCharacters(actor.RoomLayer).Except(actor)
-                               .Concat<IMortalPerceiver>(actor.Location.LayerGameItems(actor.RoomLayer))
+			List<IMortalPerceiver> targets = actor.LocalThingsAndProximities()
+			                   .Where(x => x.Proximity <= Proximity.VeryDistant)
+			                   .Select(x => x.Thing)
+			                   .OfType<IMortalPerceiver>()
+			                   .Except(actor)
                                .Where(x => actor.CanSee(x))
-                               .Concat(actor.SeenTargets).ToList();
+			                   .Concat(actor.SeenTargets.OfType<IMortalPerceiver>())
+			                   .Distinct()
+			                   .ToList();
             target = targets.GetFromItemListByKeyword(targetText, actor);
             if (target == null)
             {
@@ -2759,7 +2769,16 @@ The syntax is as follows:
             }
 
             path = actor.PathBetween(target, 20, PathSearch.IncludeFireableDoors).ToList();
-            if (actor.Location != target.Location)
+			if (actor.Location.RouteDefinition is not null || target.Location?.RouteDefinition is not null)
+			{
+				var spatialRange = actor.RoomEquivalentDistanceBetween(target);
+				if (spatialRange < 0.0 || spatialRange > weapon.WeaponType.DefaultRangeInRooms)
+				{
+					actor.OutputHandler.Send($"You're not in range of {target.HowSeen(actor)}.");
+					return;
+				}
+			}
+			else if (actor.Location != target.Location)
             {
                 if (!path.Any())
                 {
@@ -2968,9 +2987,9 @@ The syntax is as follows:
             return;
         }
 
-        List<IKeywordedItem> targets = new();
-        targets.AddRange(actor.Location.LayerGameItems(actor.RoomLayer)
-                              .Where(x => x.GetItemType<IProvideCover>()?.Cover != null));
+		List<IKeywordedItem> targets = new();
+		targets.AddRange(actor.Location.GameItemsInImmediateVicinity(actor)
+		                              .Where(x => x.GetItemType<IProvideCover>()?.Cover != null));
         targets.AddRange(actor.Location.GetCoverFor(actor));
         IKeywordedItem target = targets.GetFromItemListByKeyword(ss.PopSpeech(), actor);
         if (target == null)
@@ -3209,8 +3228,8 @@ The syntax for this command is as follows:
         sb.AppendLine($"Combat settings attack information:");
         sb.AppendLine();
         ICombatStrategy setting = CombatStrategyFactory.GetStrategy(actor.CombatStrategyMode);
-        foreach (ICharacter tch in actor.Location.LayerCharacters(actor.RoomLayer)
-                                       .Where(x => !CharacterInstanceIdentityComparer.SamePhysicalInstance(x, actor) &&
+		foreach (ICharacter tch in actor.Location.CharactersInSpatialVicinity(actor)
+		                               .Where(x => !CharacterInstanceIdentityComparer.SamePhysicalInstance(x, actor) &&
                                                    actor.CanSee(x)))
         {
             string why = setting.WhyWontAttack(actor, tch);

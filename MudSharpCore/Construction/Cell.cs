@@ -43,6 +43,9 @@ namespace MudSharp.Construction;
 public partial class Cell : Location, IDisposable, ICell
 {
     private readonly List<IRangedCover> _localCover = new();
+	private RouteCellDefinition _routeDefinition;
+	private long? _hostedVehicleId;
+	private long? _hostedVehicleCompartmentId;
 
     private bool _contentsChanged;
 
@@ -165,16 +168,65 @@ public partial class Cell : Location, IDisposable, ICell
         }
     }
 
-    public int? X => Room?.X;
+	private IVehicle HostedVehicle => _hostedVehicleId is null
+		? null
+		: Gameworld.Vehicles.Get(_hostedVehicleId.Value);
 
-    public int? Y => Room?.Y;
+	private ICell HostedExteriorContext => HostedVehicle?.Location is { } exterior && exterior.Id != Id
+		? exterior
+		: null;
 
-    public int? Z => Room?.Z;
+	public int? X => HostedExteriorContext?.Room.X ?? Room?.X;
+
+	public int? Y => HostedExteriorContext?.Room.Y ?? Room?.Y;
+
+	public int? Z => HostedExteriorContext?.Room.Z ?? Room?.Z;
 
     /// <summary>
     /// If a cell is temporary, it may disappear at any time.
     /// </summary>
     public bool Temporary { get; set; }
+
+	public CellSpatialType SpatialType => _routeDefinition is null
+		? CellSpatialType.Ordinary
+		: CellSpatialType.LinearRoute;
+
+	public IRouteCellDefinition RouteDefinition => _routeDefinition;
+
+	/// <summary>
+	/// The persistent room-scale vehicle that owns this hosted interior cell, if any.
+	/// Hosted cells remain ordinary cells; this metadata prevents their identity from
+	/// being inferred from the vehicle's current exterior location.
+	/// </summary>
+	public long? HostedVehicleId => _hostedVehicleId;
+
+	/// <summary>
+	/// The live vehicle compartment row that owns this hosted interior cell, if any.
+	/// </summary>
+	public long? HostedVehicleCompartmentId => _hostedVehicleCompartmentId;
+
+	public void SetHostedVehicle(long? vehicleId, long? compartmentId)
+	{
+		_hostedVehicleId = vehicleId;
+		_hostedVehicleCompartmentId = compartmentId;
+	}
+
+	/// <summary>
+	/// Replaces the immutable runtime RouteCell snapshot after a persisted builder mutation.
+	/// </summary>
+	public void ReloadRouteDefinition(Models.RouteCell routeCell)
+	{
+		_routeDefinition = routeCell is null ? null : new RouteCellDefinition(this, routeCell);
+		if (_routeDefinition is not null)
+		{
+			RouteSpatialConfiguration.FromGameworld(Gameworld).Validate();
+		}
+
+		foreach (var perceivable in Perceivables.ToList())
+		{
+			RouteSpatialService.Instance.TrackPerceivable(perceivable);
+		}
+	}
 
     #region Overrides of Location
 
@@ -222,14 +274,30 @@ public partial class Cell : Location, IDisposable, ICell
         }
 
         RoomLayer newLayer = HandleEnterLayers(thing);
+		var explicitlyAssignedPosition = _routeDefinition is not null && ReferenceEquals(thing.Location, this)
+			? thing.RoutePositionMetres
+			: null;
+		var inheritedPosition = _routeDefinition is null
+			? null
+			: RouteSpatialService.Instance.GetInheritedRoutePosition(
+				thing,
+				thing.InInventoryOf ?? (ILocateable)thing.ContainedIn);
+		double? insertionPosition = _routeDefinition is null
+			? null
+			: inheritedPosition ?? explicitlyAssignedPosition ?? _routeDefinition.DefaultPositionMetres;
+		thing.MoveTo(new SpatialLocation(this, newLayer, insertionPosition));
 
         if (!newStack)
         {
-            IGameItem mergeTarget = LayerGameItems(newLayer).FirstOrDefault(thing.CanMerge);
+			IGameItem mergeTarget = LayerGameItems(newLayer)
+				.Where(x => _routeDefinition is null ||
+				            RouteSpatialService.Instance.GetProximity(thing, x) <= Proximity.Immediate)
+				.FirstOrDefault(thing.CanMerge);
             if (mergeTarget != null)
             {
                 mergeTarget.Merge(thing);
                 new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, thing);
+				RouteSpatialService.Instance.UntrackPerceivable(thing);
                 thing.Delete();
                 return;
             }
@@ -237,7 +305,6 @@ public partial class Cell : Location, IDisposable, ICell
 
 
         thing.ContainedIn = null;
-        thing.MoveTo(this, newLayer);
         base.Insert(thing, newStack);
         Room.Insert(thing, newStack);
         _gameItems = _gameItems.OrderBy(x => !x.HighPriority).ToList();
@@ -285,6 +352,7 @@ public partial class Cell : Location, IDisposable, ICell
         }
 
         base.Extract(thing);
+		RouteSpatialService.Instance.UntrackPerceivable(thing);
         Room.Extract(thing);
         ContentsChanged = true;
         CheckFallExitStatus();
@@ -293,10 +361,10 @@ public partial class Cell : Location, IDisposable, ICell
 
     public IRoom Room { get; }
 
-    public IZone Zone => Room.Zone;
-    public IShard Shard => Room.Zone.Shard;
+    public IZone Zone => HostedExteriorContext?.Zone ?? Room.Zone;
+    public IShard Shard => Zone.Shard;
 
-    public IEnumerable<IArea> Areas => Room.Areas;
+    public IEnumerable<IArea> Areas => HostedExteriorContext?.Areas ?? Room.Areas;
 
     public IHearingProfile HearingProfile(IPerceiver voyeur)
     {
@@ -324,6 +392,7 @@ public partial class Cell : Location, IDisposable, ICell
             }
 
             gitem.Drop(this);
+			gitem.SetRoutePosition(item.RoutePosition.HasValue ? (double)item.RoutePosition.Value : null);
             stagingTable.Add(new Tuple<Models.GameItem, IGameItem>(item, gitem));
             _gameItems.Add(gitem);
             Room.Insert(gitem);
@@ -341,31 +410,47 @@ public partial class Cell : Location, IDisposable, ICell
 
     public IEnumerable<ICellExit> ExitsFor(IPerceiver voyeur, bool ignoreLayers = false)
     {
-        return Gameworld.ExitManager.GetExitsFor(this, GetOverlayFor(voyeur),
-            ignoreLayers ? default : voyeur?.RoomLayer);
+		return Gameworld.ExitManager
+			.GetExitsFor(this, GetOverlayFor(voyeur), ignoreLayers ? default : voyeur?.RoomLayer)
+			.Where(x => IsSpatiallyAccessibleExit(voyeur, x));
     }
 
     public ICellExit GetExit(CardinalDirection direction, IPerceiver voyeur)
     {
-        return Gameworld.ExitManager.GetExit(this, direction, voyeur);
+		var exit = Gameworld.ExitManager.GetExit(this, direction, voyeur);
+		return exit is not null && IsSpatiallyAccessibleExit(voyeur, exit) ? exit : null;
     }
 
     public ICellExit GetExit(string direction, string target, IPerceiver voyeur)
     {
-        return Gameworld.ExitManager.GetExit(this, direction, target, voyeur, GetOverlayFor(voyeur));
+		var exit = Gameworld.ExitManager.GetExit(this, direction, target, voyeur, GetOverlayFor(voyeur));
+		return exit is not null && IsSpatiallyAccessibleExit(voyeur, exit) ? exit : null;
     }
 
     public ICellExit GetExitKeyword(string direction, IPerceiver voyeur)
     {
-        return Gameworld.ExitManager.GetExitKeyword(this, direction, voyeur, GetOverlayFor(voyeur));
+		var exit = Gameworld.ExitManager.GetExitKeyword(this, direction, voyeur, GetOverlayFor(voyeur));
+		return exit is not null && IsSpatiallyAccessibleExit(voyeur, exit) ? exit : null;
     }
 
     public ICellExit GetExitTo(ICell otherCell, IPerceiver voyeur, bool ignoreLayers = false)
     {
         return
             Gameworld.ExitManager.GetExitsFor(this, GetOverlayFor(voyeur), ignoreLayers ? default : voyeur?.RoomLayer)
+					 .Where(x => IsSpatiallyAccessibleExit(voyeur, x))
                      .FirstOrDefault(x => x.Destination == otherCell);
     }
+
+	private bool IsSpatiallyAccessibleExit(IPerceiver voyeur, ICellExit exit)
+	{
+		if (_routeDefinition is null || voyeur is null)
+		{
+			return true;
+		}
+
+		return ReferenceEquals(voyeur.Location, this) &&
+		       RouteSpatialService.Instance.IsExitAccessible(voyeur, exit);
+	}
 
     public ITerrain Terrain(IPerceiver voyeur)
     {
@@ -465,7 +550,7 @@ public partial class Cell : Location, IDisposable, ICell
                                 .Sum();
 
         CellOutdoorsType outdoorsType = OutdoorsType(voyeur);
-        double ambientTemperature = ThermalSourceTemperatureModel.AmbientHeatForCell(this, outdoorsType);
+        double ambientTemperature = ThermalSourceTemperatureModel.AmbientHeatForCell(this, outdoorsType, voyeur);
         double proximityTemperature = ThermalSourceTemperatureModel.ProximityHeatForTarget(this, voyeur);
 
         return baseTemperature + effectTemperature + ambientTemperature + proximityTemperature;
@@ -481,9 +566,30 @@ public partial class Cell : Location, IDisposable, ICell
         ICellOverlay overlay = GetOverlayFor(voyeur);
         double environmentalLight = (Room.Zone.CurrentLightLevel * overlay.AmbientLightFactor + overlay.AddedLight) *
                                  (CurrentWeather(voyeur)?.LightLevelMultiplier ?? 1.0);
+        IEnumerable<IPerceivable> localLightSources;
+        if (RouteDefinition is not null && ReferenceEquals(voyeur.Location, this) &&
+            voyeur.RoutePositionMetres.HasValue)
+        {
+            var maximumDistance = Gameworld.GetStaticDouble("RouteCellVeryDistantDistanceMetres");
+            if (!double.IsFinite(maximumDistance) || maximumDistance <= 0.0)
+            {
+                maximumDistance = RouteSpatialConfiguration.Default.VeryDistantDistanceMetres;
+            }
+
+            localLightSources = RouteSpatialService.Instance.GetPerceivablesWithin(
+                voyeur.SpatialLocation,
+                maximumDistance,
+                x => x.RoomLayer == voyeur.RoomLayer);
+        }
+        else
+        {
+            localLightSources = LayerCharacters(voyeur.RoomLayer)
+                .Cast<IPerceivable>()
+                .Concat(LayerGameItems(voyeur.RoomLayer));
+        }
+
         double ambientLight = environmentalLight +
-                           LayerCharacters(voyeur.RoomLayer).Sum(x => x.IlluminationProvided) +
-                           LayerGameItems(voyeur.RoomLayer).Sum(x => x.IlluminationProvided) +
+                           localLightSources.Sum(x => x.IlluminationProvided) +
                            EffectsOfType<IAreaLightEffect>(x => x.Applies()).Sum(x => x.AddedLight);
         return ambientLight;
     }
@@ -654,8 +760,22 @@ public partial class Cell : Location, IDisposable, ICell
     public override void Enter(ICharacter movingCharacter, ICellExit exit = null, bool noSave = false,
         RoomLayer roomLayer = RoomLayer.GroundLevel)
     {
+		var explicitlyAssignedPosition = _routeDefinition is not null &&
+		                                 ReferenceEquals(movingCharacter.Location, this)
+			? movingCharacter.RoutePositionMetres
+			: null;
         base.Enter(movingCharacter, exit);
-        movingCharacter.MoveTo(this, roomLayer, exit, noSave);
+		if (explicitlyAssignedPosition.HasValue)
+		{
+			movingCharacter.MoveTo(
+				new SpatialLocation(this, roomLayer, explicitlyAssignedPosition),
+				exit,
+				noSave);
+		}
+		else
+		{
+			movingCharacter.MoveTo(this, roomLayer, exit, noSave);
+		}
         Room.Enter(movingCharacter, exit);
         DoEnterEvent(movingCharacter);
 
@@ -667,7 +787,7 @@ public partial class Cell : Location, IDisposable, ICell
 
         movingCharacter.HandleEvent(EventType.CharacterEnterCell, movingCharacter, this,
             movingCharacter.Movement?.Exit);
-        foreach (IHandleEvents witness in EventHandlers.Except(movingCharacter))
+        foreach (IHandleEvents witness in SpatialEventHandlersFor(movingCharacter, exit).Except(movingCharacter))
         {
             witness.HandleEvent(EventType.CharacterEnterCellWitness, movingCharacter, this,
                 movingCharacter.Movement?.Exit, witness);
@@ -715,11 +835,13 @@ public partial class Cell : Location, IDisposable, ICell
     {
         ForceDisembarkVehicleOccupantLeavingWithoutVehicle(movingCharacter);
         base.Leave(movingCharacter);
+		RouteSpatialService.Instance.UntrackPerceivable(movingCharacter);
         Room.Leave(movingCharacter);
         DoLeaveEvent(movingCharacter);
         movingCharacter.HandleEvent(EventType.CharacterLeaveCell, movingCharacter, this,
             movingCharacter.Movement?.Exit);
-        foreach (IHandleEvents witness in EventHandlers.Except(movingCharacter))
+        foreach (IHandleEvents witness in SpatialEventHandlersFor(movingCharacter, movingCharacter.Movement?.Exit)
+		         .Except(movingCharacter))
         {
             witness.HandleEvent(EventType.CharacterLeaveCellWitness, movingCharacter, this,
                 movingCharacter.Movement?.Exit, witness);
@@ -760,18 +882,58 @@ public partial class Cell : Location, IDisposable, ICell
 
     public IFluid Atmosphere => CurrentOverlay.Atmosphere;
 
-    public override IEnumerable<ICalendar> Calendars => Room.Calendars;
+    public override IEnumerable<ICalendar> Calendars => HostedExteriorContext?.Calendars ?? Room.Calendars;
 
-    public override IEnumerable<IClock> Clocks => Room.Clocks;
+    public override IEnumerable<IClock> Clocks => HostedExteriorContext?.Clocks ?? Room.Clocks;
 
     public IPermanentShop Shop { get; set; }
 
     public override IMudTimeZone TimeZone(IClock whichClock)
     {
-        return Room.TimeZone(whichClock);
+		return HostedExteriorContext?.TimeZone(whichClock) ?? Room.TimeZone(whichClock);
     }
 
-    public override IEnumerable<ICelestialObject> Celestials => Room.Celestials;
+	private IEnumerable<IHandleEvents> SpatialEventHandlersFor(ILocateable source, ICellExit exit = null)
+	{
+		if (RouteDefinition is null)
+		{
+			return EventHandlers;
+		}
+
+		SpatialLocation origin;
+		if (ReferenceEquals(source.Location, this) && source.RoutePositionMetres.HasValue)
+		{
+			origin = RouteSpatialService.Instance.GetEffectiveLocation(source);
+		}
+		else if (exit is not null &&
+		         RouteSpatialService.Instance.TryGetExitAnchor(exit, this, out var anchor))
+		{
+			origin = new SpatialLocation(this, source.RoomLayer, anchor!.ArrivalPositionMetres);
+		}
+		else
+		{
+			origin = new SpatialLocation(this, source.RoomLayer, RouteDefinition.DefaultPositionMetres);
+		}
+
+		var maximumDistance = Gameworld.GetStaticDouble("RouteCellVeryDistantDistanceMetres");
+		if (!double.IsFinite(maximumDistance) || maximumDistance <= 0.0)
+		{
+			maximumDistance = RouteSpatialConfiguration.Default.VeryDistantDistanceMetres;
+		}
+
+		return RouteSpatialService.Instance
+			.GetPerceivablesWithinAcrossLayers(origin, maximumDistance)
+			.OfType<IHandleEvents>()
+			.Concat(new IHandleEvents[] { this })
+			.Distinct();
+	}
+
+	public IEnumerable<IHandleEvents> EventHandlersFor(IPerceivable source)
+	{
+		return SpatialEventHandlersFor(source);
+	}
+
+    public override IEnumerable<ICelestialObject> Celestials => HostedExteriorContext?.Celestials ?? Room.Celestials;
     public IEnumerable<IRangedCover> LocalCover => _localCover;
 
     public IEnumerable<IRangedCover> GetCoverFor(IPerceiver voyeur)
@@ -806,16 +968,16 @@ public partial class Cell : Location, IDisposable, ICell
                          Math.Pow(Room.Z - otherCell.Room.Z, 2));
     }
 
-    public TimeOfDay CurrentTimeOfDay => Zone.CurrentTimeOfDay;
+    public TimeOfDay CurrentTimeOfDay => HostedExteriorContext?.CurrentTimeOfDay ?? Zone.CurrentTimeOfDay;
 
     public override MudDate Date(ICalendar whichCalendar)
     {
-        return Room.Date(whichCalendar);
+		return HostedExteriorContext?.Date(whichCalendar) ?? Room.Date(whichCalendar);
     }
 
     public override MudTime Time(IClock whichClock)
     {
-        return Room.Time(whichClock);
+		return HostedExteriorContext?.Time(whichClock) ?? Room.Time(whichClock);
     }
 
     public void RegisterMovement(IMovement move)
@@ -831,7 +993,7 @@ public partial class Cell : Location, IDisposable, ICell
 				}
 
                 member.HandleEvent(EventType.CharacterEnterCell, member, this, move.Exit);
-                foreach (IHandleEvents witness in EventHandlers.Except(member))
+                foreach (IHandleEvents witness in SpatialEventHandlersFor(member, move.Exit).Except(member))
                 {
                     witness.HandleEvent(EventType.CharacterEnterCellWitness, member, this, move.Exit, witness);
                 }
@@ -852,7 +1014,7 @@ public partial class Cell : Location, IDisposable, ICell
 				}
 
                 member.HandleEvent(EventType.CharacterBeginMovement, member, this, move.Exit);
-                foreach (IHandleEvents witness in EventHandlers.Except(member))
+                foreach (IHandleEvents witness in SpatialEventHandlersFor(member, move.Exit).Except(member))
                 {
                     witness.HandleEvent(EventType.CharacterBeginMovementWitness, member, this, move.Exit, witness);
                 }
@@ -881,7 +1043,7 @@ public partial class Cell : Location, IDisposable, ICell
 					}
 
                     member.HandleEvent(EventType.CharacterEnterCellFinish, member, this, move.Exit);
-                    foreach (IHandleEvents witness in EventHandlers.Except(member))
+                    foreach (IHandleEvents witness in SpatialEventHandlersFor(member, move.Exit).Except(member))
                     {
                         witness.HandleEvent(EventType.CharacterEnterCellFinishWitness, member, this, move.Exit,
                             witness);
@@ -904,7 +1066,7 @@ public partial class Cell : Location, IDisposable, ICell
 					}
 
                     member.HandleEvent(EventType.CharacterEnterCell, member, this, move.Exit);
-                    foreach (IHandleEvents witness in EventHandlers.Except(member))
+                    foreach (IHandleEvents witness in SpatialEventHandlersFor(member, move.Exit).Except(member))
                     {
                         witness.HandleEvent(EventType.CharacterEnterCellWitness, member, this, move.Exit, witness);
                     }
@@ -1035,6 +1197,9 @@ public partial class Cell : Location, IDisposable, ICell
     {
         _noSave = true;
         _id = cell.Id;
+		_hostedVehicleId = cell.HostedVehicleId;
+		_hostedVehicleCompartmentId = cell.HostedVehicleCompartmentId;
+		ReloadRouteDefinition(cell.RouteCell);
         Room.Register(this);
         foreach (Models.CellOverlay overlay in cell.CellOverlays)
         {
@@ -1686,8 +1851,19 @@ public partial class Cell : Location, IDisposable, ICell
 
     public bool CanGetAccess(IGameItem item, ICharacter getter)
     {
-        List<IGameItem> vicinity = LayerGameItems(getter.RoomLayer).Except(item).Where(x => x.InVicinity(item)).ToList();
-        return !LayerCharacters(getter.RoomLayer).Where(x => !x.SamePhysicalInstance(getter))
+		if (RouteDefinition is not null && getter.GetProximity(item) > Proximity.Immediate)
+		{
+			return false;
+		}
+
+		List<IGameItem> vicinity = LayerGameItems(getter.RoomLayer)
+			.Except(item)
+			.Where(x => x.InVicinity(item))
+			.Where(x => RouteDefinition is null || x.GetProximity(item) <= Proximity.Immediate)
+			.ToList();
+		return !LayerCharacters(getter.RoomLayer)
+			.Where(x => !x.SamePhysicalInstance(getter))
+			.Where(x => RouteDefinition is null || x.GetProximity(item) <= Proximity.Immediate)
                                                  .Any(
                                                      x =>
                                                          x.EffectsOfType<IGuardItemEffect>()
@@ -1699,9 +1875,21 @@ public partial class Cell : Location, IDisposable, ICell
 
     public string WhyCannotGetAccess(IGameItem item, ICharacter getter)
     {
-        List<IGameItem> vicinity = LayerGameItems(getter.RoomLayer).Except(item).Where(x => x.InVicinity(item)).ToList();
+		if (RouteDefinition is not null && getter.GetProximity(item) > Proximity.Immediate)
+		{
+			return $"{item.HowSeen(getter, true)} is too far away for you to reach.";
+		}
+
+		List<IGameItem> vicinity = LayerGameItems(getter.RoomLayer)
+			.Except(item)
+			.Where(x => x.InVicinity(item))
+			.Where(x => RouteDefinition is null || x.GetProximity(item) <= Proximity.Immediate)
+			.ToList();
         List<ICharacter> guarders =
-            LayerCharacters(getter.RoomLayer).Where(x => !x.SamePhysicalInstance(getter))
+			LayerCharacters(getter.RoomLayer)
+			                                 .Where(x => !x.SamePhysicalInstance(getter))
+			                                 .Where(x => RouteDefinition is null ||
+			                                             x.GetProximity(item) <= Proximity.Immediate)
                                              .Where(
                                                  x =>
                                                      x.EffectsOfType<IGuardItemEffect>()
@@ -1747,6 +1935,22 @@ public partial class Cell : Location, IDisposable, ICell
         {
             return;
         }
+
+		if (RouteCellAudioPropagation.Instance.RequiresSpatialPropagation(this, volume))
+		{
+			// Any bounded audio graph that touches RouteCell topology uses the spatial audio
+			// service. It resolves an exact source coordinate, uses indexed longitudinal
+			// candidates and follows only reachable anchored portals. Missing RouteCell source
+			// coordinates fail closed.
+			RouteCellAudioPropagation.Instance.Propagate(
+				this,
+				audioText,
+				volume,
+				source,
+				originalLayer,
+				ignoreOriginLayer);
+			return;
+		}
 
         List<ICell> vicinity = this.CellsInVicinity((uint)volume, false, false)
                                        .Except(this)

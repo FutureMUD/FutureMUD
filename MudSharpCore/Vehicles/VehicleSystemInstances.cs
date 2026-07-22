@@ -105,6 +105,8 @@ public class VehicleAccessPoint : FrameworkItem, IVehicleAccessPoint
 				FMDB.Context.SaveChanges();
 			}
 		}
+
+		(Vehicle as Vehicle)?.RebuildDockings();
 	}
 
 	public bool InstallLock(ILock theLock, ICharacter? actor = null)
@@ -128,6 +130,7 @@ public class VehicleAccessPoint : FrameworkItem, IVehicleAccessPoint
 		theLock.Parent.ContainedIn = ProjectionItem;
 		theLock.InstallLock(ProjectionItem?.GetItemType<IVehicleAccessPointItem>() as ILockable, null,
 			actor?.Location ?? Vehicle.Location);
+		(Vehicle as Vehicle)?.RebuildDockings();
 		return true;
 	}
 
@@ -156,22 +159,28 @@ public class VehicleAccessPoint : FrameworkItem, IVehicleAccessPoint
 
 		theLock.Parent.ContainedIn = null;
 		theLock.InstallLock(null, null, null);
+		(Vehicle as Vehicle)?.RebuildDockings();
 		return true;
 	}
 
 	public void LinkProjectionItem(IGameItem item)
 	{
-		_projectionItem = item;
-		_projectionItemId = item?.Id;
 		using (new FMDB())
 		{
 			var dbitem = FMDB.Context.VehicleAccessPoints.Find(Id);
-			if (dbitem is not null)
+			if (dbitem is null)
 			{
-				dbitem.ProjectionItemId = item?.Id;
-				FMDB.Context.SaveChanges();
+				throw new InvalidOperationException(
+					$"Vehicle access point #{Id:N0} disappeared while its projection item was being linked.");
 			}
+
+			dbitem.ProjectionItemId = item?.Id;
+			FMDB.Context.SaveChanges();
 		}
+
+		_projectionItem = item;
+		_projectionItemId = item?.Id;
+		(Vehicle as Vehicle)?.RebuildDockings();
 	}
 
 	public void SetDisabled(bool disabled)
@@ -191,6 +200,8 @@ public class VehicleAccessPoint : FrameworkItem, IVehicleAccessPoint
 				FMDB.Context.SaveChanges();
 			}
 		}
+
+		(Vehicle as Vehicle)?.RebuildDockings();
 	}
 }
 
@@ -263,17 +274,21 @@ public class VehicleCargoSpace : FrameworkItem, IVehicleCargoSpace
 
 	public void LinkProjectionItem(IGameItem item)
 	{
-		_projectionItem = item;
-		_projectionItemId = item?.Id;
 		using (new FMDB())
 		{
 			var dbitem = FMDB.Context.VehicleCargoSpaces.Find(Id);
-			if (dbitem is not null)
+			if (dbitem is null)
 			{
-				dbitem.ProjectionItemId = item?.Id;
-				FMDB.Context.SaveChanges();
+				throw new InvalidOperationException(
+					$"Vehicle cargo space #{Id:N0} disappeared while its projection item was being linked.");
 			}
+
+			dbitem.ProjectionItemId = item?.Id;
+			FMDB.Context.SaveChanges();
 		}
+
+		_projectionItem = item;
+		_projectionItemId = item?.Id;
 	}
 
 	public void SetDisabled(bool disabled)

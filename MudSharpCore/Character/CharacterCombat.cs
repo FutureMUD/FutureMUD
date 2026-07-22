@@ -1,6 +1,7 @@
 ﻿using MudSharp.Body;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
@@ -451,7 +452,7 @@ public partial class Character
             .Any(
                 x =>
                     x.Rescued == target && x.Rescuer.Combat == Combat &&
-                    x.Rescuer.Location == Location && CharacterState.Able.HasFlag(x.Rescuer.State));
+					x.Rescuer.ColocatedWith(this) && CharacterState.Able.HasFlag(x.Rescuer.State));
     }
 
     public override string WhyCannotEngage(IPerceiver target)
@@ -465,6 +466,12 @@ public partial class Character
         {
             return $"You are already engaged with {target.HowSeen(this)}.";
         }
+
+		if (Location?.RouteDefinition is not null && ReferenceEquals(Location, target.Location) &&
+			GetProximity(target) == Proximity.Unapproximable)
+		{
+			return $"{target.HowSeen(this, true)} is too far away along the route for you to engage.";
+		}
 
         if (!this.CanInteractPlanar((IPerceivable)target, PlanarInteractionKind.Combat, out var planarMessage))
         {
@@ -509,7 +516,7 @@ public partial class Character
             .Any(
                 x =>
                     x.Rescued == target && x.Rescuer.Combat == Combat &&
-                    x.Rescuer.Location == Location && CharacterState.Able.HasFlag(x.Rescuer.State))
+					x.Rescuer.ColocatedWith(this) && CharacterState.Able.HasFlag(x.Rescuer.State))
             ? $"You cannot switch back to {target.HowSeen(this)} so soon after they were rescued from you, at least while their rescuers are still here."
             : "You cannot initiate combat for an unknown reason.";
     }
@@ -561,7 +568,7 @@ public partial class Character
                 new EmoteOutput(new Emote("@ engage|engages $0 in combat!", this, target), flags: engageFlags));
             target.HandleEvent(EventType.EngagedInCombat, this, target);
             HandleEvent(EventType.EngageInCombat, this, target);
-            foreach (IHandleEvents witness in Location.EventHandlers)
+            foreach (IHandleEvents witness in Location.EventHandlersFor(this))
             {
                 witness.HandleEvent(EventType.EngagedInCombatWitness, this, target, witness);
             }

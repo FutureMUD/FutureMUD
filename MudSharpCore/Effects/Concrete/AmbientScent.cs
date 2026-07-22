@@ -1,4 +1,5 @@
 ﻿using MudSharp.Construction;
+using MudSharp.Form.Shape;
 using MudSharp.RPG.Checks;
 
 #nullable enable
@@ -8,7 +9,8 @@ namespace MudSharp.Effects.Concrete;
 public class AmbientScent : Effect, IScentTrailEffect
 {
 	public AmbientScent(IPerceivable owner, long sourceItemId, string sourceDescription, string description,
-		RoomLayer roomLayer, int distance, Difficulty scentDifficulty, ANSIColour? colour = null)
+		RoomLayer roomLayer, int distance, Difficulty scentDifficulty, ANSIColour? colour = null,
+		double? routePositionMetres = null, double? maximumRouteDistanceMetres = null)
 		: base(owner)
 	{
 		SourceItemId = sourceItemId;
@@ -18,6 +20,8 @@ public class AmbientScent : Effect, IScentTrailEffect
 		Distance = distance;
 		BaseScentDifficulty = scentDifficulty;
 		Colour = colour ?? Telnet.Yellow;
+		RoutePositionMetres = routePositionMetres;
+		MaximumRouteDistanceMetres = maximumRouteDistanceMetres;
 	}
 
 	public AmbientScent(XElement effect, IPerceivable owner) : base(effect, owner)
@@ -30,6 +34,8 @@ public class AmbientScent : Effect, IScentTrailEffect
 		Distance = int.Parse(definition.Element("Distance")?.Value ?? "0");
 		BaseScentDifficulty = (Difficulty)int.Parse(definition.Element("ScentDifficulty")?.Value ?? ((int)Difficulty.Normal).ToString());
 		Colour = Telnet.GetColour(definition.Element("Colour")?.Value) ?? Telnet.Yellow;
+		RoutePositionMetres = (double?)definition.Element("RoutePositionMetres");
+		MaximumRouteDistanceMetres = (double?)definition.Element("MaximumRouteDistanceMetres");
 	}
 
 	public static void InitialiseEffectType()
@@ -47,6 +53,8 @@ public class AmbientScent : Effect, IScentTrailEffect
 	public int Distance { get; private set; }
 	public Difficulty BaseScentDifficulty { get; private set; }
 	public ANSIColour Colour { get; private set; }
+	public double? RoutePositionMetres { get; private set; }
+	public double? MaximumRouteDistanceMetres { get; private set; }
 
 	protected override XElement SaveDefinition()
 	{
@@ -57,13 +65,35 @@ public class AmbientScent : Effect, IScentTrailEffect
 			new XElement("RoomLayer", (int)RoomLayer),
 			new XElement("Distance", Distance),
 			new XElement("ScentDifficulty", (int)BaseScentDifficulty),
-			new XElement("Colour", Colour.Name));
+			new XElement("Colour", Colour.Name),
+			RoutePositionMetres.HasValue
+				? new XElement("RoutePositionMetres", RoutePositionMetres.Value)
+				: null,
+			MaximumRouteDistanceMetres.HasValue
+				? new XElement("MaximumRouteDistanceMetres", MaximumRouteDistanceMetres.Value)
+				: null);
 	}
 
 	public override bool Applies(object target)
 	{
-		return base.Applies(target) &&
-		       (target is not IPerceiver perceiver || perceiver.RoomLayer == RoomLayer);
+		if (!base.Applies(target) || target is IPerceiver perceiver && perceiver.RoomLayer != RoomLayer)
+		{
+			return false;
+		}
+
+		if (Owner is not ICell { RouteDefinition: not null } cell ||
+			!RoutePositionMetres.HasValue ||
+			!MaximumRouteDistanceMetres.HasValue ||
+			target is not ILocateable locateable)
+		{
+			return true;
+		}
+
+		var location = RouteSpatialService.Instance.GetEffectiveLocation(locateable);
+		return ReferenceEquals(location.Cell, cell) &&
+		       location.RoutePositionMetres.HasValue &&
+		       Math.Abs(location.RoutePositionMetres.Value - RoutePositionMetres.Value) <=
+		       MaximumRouteDistanceMetres.Value;
 	}
 
 	public override string Describe(IPerceiver voyeur)
@@ -77,13 +107,15 @@ public class AmbientScent : Effect, IScentTrailEffect
 	}
 
 	public bool Matches(string sourceDescription, string additionalText, RoomLayer roomLayer, int distance,
-		Difficulty scentDifficulty)
+		Difficulty scentDifficulty, double? routePositionMetres = null, double? maximumRouteDistanceMetres = null)
 	{
 		return SourceDescription == sourceDescription &&
 		       AdditionalText == additionalText &&
 		       RoomLayer == roomLayer &&
 		       Distance == distance &&
-		       BaseScentDifficulty == scentDifficulty;
+		       BaseScentDifficulty == scentDifficulty &&
+		       Nullable.Equals(RoutePositionMetres, routePositionMetres) &&
+		       Nullable.Equals(MaximumRouteDistanceMetres, maximumRouteDistanceMetres);
 	}
 
 	public Difficulty ScentDifficulty(ICharacter actor)

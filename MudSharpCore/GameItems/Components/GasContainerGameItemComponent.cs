@@ -102,7 +102,7 @@ public class GasContainerGameItemComponent : GameItemComponent, IGasSupply, ICon
             IConnectable newItemConnectable = newItem?.GetItemType<IConnectable>();
             if (newItemConnectable == null)
             {
-                location?.Insert(connectedItem.Parent);
+                InsertAtParentSpatialLocation(connectedItem.Parent, location);
             }
             else
             {
@@ -112,7 +112,7 @@ public class GasContainerGameItemComponent : GameItemComponent, IGasSupply, ICon
                 }
                 else
                 {
-                    location?.Insert(connectedItem.Parent);
+                    InsertAtParentSpatialLocation(connectedItem.Parent, location);
                 }
             }
         }
@@ -235,7 +235,7 @@ public class GasContainerGameItemComponent : GameItemComponent, IGasSupply, ICon
                 continue;
             }
 
-            if (gitem.Location != Parent.Location)
+            if (!Parent.ColocatedWith(gitem))
             {
                 continue;
             }

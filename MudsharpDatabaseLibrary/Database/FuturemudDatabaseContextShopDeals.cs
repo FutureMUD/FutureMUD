@@ -15,11 +15,14 @@ namespace MudSharp.Database
             ConfigureVirtualCash(modelBuilder);
 			ConfigureAgriculture(modelBuilder);
 			ConfigureVehicles(modelBuilder);
+			ConfigureRoomScaleVehicleInteriors(modelBuilder);
 			ConfigureEmployment(modelBuilder);
 			ConfigureMagicPortalTopology(modelBuilder);
 			ConfigureOutfitTemplates(modelBuilder);
 			ConfigureCharacterInstances(modelBuilder);
 			ConfigureWritingCollections(modelBuilder);
+			ConfigureRouteCells(modelBuilder);
+			ConfigureVehicleRoutesAndServices(modelBuilder);
 
 			modelBuilder.Entity<ShopDeal>(entity =>
             {

@@ -31,6 +31,47 @@ internal class PerceptionModule : Module<ICharacter>
 
     public static PerceptionModule Instance { get; } = new();
 
+	private static IEnumerable<T> PerceivablesWithinRouteRange<T>(
+		IPerceiver source,
+		double maximumDistanceMetres,
+		bool includeOtherLayers = false)
+		where T : class, IPerceivable
+	{
+		if (source.Location?.RouteDefinition is null)
+		{
+			return (source.Location?.Perceivables ?? [])
+				.OfType<T>()
+				.Where(x => includeOtherLayers || x.RoomLayer == source.RoomLayer);
+		}
+
+		if (!includeOtherLayers)
+		{
+			return RouteSpatialService.Instance.GetPerceivablesWithin(
+				source.SpatialLocation,
+				maximumDistanceMetres,
+				x => x.RoomLayer == source.RoomLayer)
+				.OfType<T>();
+		}
+
+		var origin = RouteSpatialService.Instance.GetEffectiveLocation(source);
+		return source.Location.Perceivables
+			.OfType<T>()
+			.Where(x =>
+			{
+				var target = RouteSpatialService.Instance.GetEffectiveLocation(x);
+				return target.RoutePositionMetres.HasValue &&
+				       origin.RoutePositionMetres.HasValue &&
+				       Math.Abs(target.RoutePositionMetres.Value - origin.RoutePositionMetres.Value) <=
+				       maximumDistanceMetres;
+			});
+	}
+
+	private static double RouteRange(ICharacter actor, string setting, double fallback)
+	{
+		var value = actor.Gameworld.GetStaticDouble(setting);
+		return double.IsFinite(value) && value > 0.0 ? value : fallback;
+	}
+
     [PlayerCommand("Exits", "exits")]
     [RequiredCharacterState(CharacterState.Conscious)]
     [HelpInfo("Exits", @"This command allows you to see what exits are present at the location you're in. The syntax is #3exits#0.", AutoHelp.HelpArg)]
@@ -77,7 +118,10 @@ See the #6cover#0 command for how to take cover. Your combat settings may also a
     {
         IEnumerable<IRangedCover> covers = actor.Location.GetCoverFor(actor);
         List<IProvideCover> coverItems =
-            actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<IProvideCover>())
+            PerceivablesWithinRouteRange<IGameItem>(actor,
+                    RouteRange(actor, "RouteCellImmediateDistanceMetres",
+                        RouteSpatialConfiguration.Default.ImmediateDistanceMetres))
+                .SelectNotNull(x => x.GetItemType<IProvideCover>())
                  .Where(x => actor.CanSee(x.Parent) && x.Cover != null)
                  .ToList();
 
@@ -327,19 +371,24 @@ The syntax is either:
         StringBuilder sb = new();
         sb.AppendLine($"The following things are in {(target == actor ? "your" : target.HowSeen(actor, type: DescriptionType.Possessive))} vicinity:");
         sb.AppendLine();
-        foreach (ICharacter thing in target.Location.LayerCharacters(target.RoomLayer).Where(x => x.InVicinity(target) && actor.CanSee(x)))
+        var vicinityRange = RouteRange(actor, "RouteCellImmediateDistanceMetres",
+            RouteSpatialConfiguration.Default.ImmediateDistanceMetres);
+        foreach (ICharacter thing in PerceivablesWithinRouteRange<ICharacter>(target, vicinityRange)
+                     .Where(x => (x.ColocatedWith(target) || x.InVicinity(target)) && actor.CanSee(x)))
         {
             sb.AppendLine(thing.HowSeen(actor));
         }
 
-        foreach (IGameItem thing in target.Location.LayerGameItems(target.RoomLayer).Where(x => x.InVicinity(target) && actor.CanSee(x)))
+        foreach (IGameItem thing in PerceivablesWithinRouteRange<IGameItem>(target, vicinityRange)
+                     .Where(x => (x.ColocatedWith(target) || x.InVicinity(target)) && actor.CanSee(x)))
         {
             sb.AppendLine(thing.HowSeen(actor));
         }
 
         foreach (
             IGameItem thing in
-            actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<ITable>())
+            PerceivablesWithinRouteRange<IGameItem>(actor, vicinityRange)
+                 .SelectNotNull(x => x.GetItemType<ITable>())
                  .SelectMany(x => x.Chairs)
                  .Select(x => x.Parent)
                  .Where(x => x.InVicinity(actor) && actor.CanSee(x)))
@@ -364,6 +413,7 @@ To look at a person's tattoos: #3look <person> tattoos [<bodypart>]#0
 To look at a person's scars: #3look <person> scars [<bodypart>]
 To look at graffiti in a location: #3look graffiti [<which>]#0
 To look at graffiti on an object: #3look <item> graffiti [<which>]#0
+In a RouteCell, to look longitudinally: #3look forward|backward#0
 
 The use of the look command is affected by various factors such as the ambient light level, the relative skill and attribute levels of you and the things you could potentially see, magical effects, and damage to your eyes.
 
@@ -378,6 +428,15 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
             actor.Body.Look();
             return;
         }
+
+		if (ss.IsFinished && TryRouteDirection(actor, arg, out var routeDirection))
+		{
+			ShowRouteDirection(actor, routeDirection,
+				RouteRange(actor, "RouteCellVeryDistantDistanceMetres",
+					RouteSpatialConfiguration.Default.VeryDistantDistanceMetres),
+				"look");
+			return;
+		}
 
         bool lookin = false;
 
@@ -403,8 +462,11 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
         if (target == null)
         {
-            List<IGameItem> localItems = actor.Location.LayerGameItems(actor.RoomLayer).Where(x => actor.CanSee(x)).ToList();
-            List<IGameItemGroup> groups = actor.Location.LayerGameItems(actor.RoomLayer).Where(x => actor.CanSee(x))
+            var visualRange = RouteRange(actor, "RouteCellVeryDistantDistanceMetres",
+                RouteSpatialConfiguration.Default.VeryDistantDistanceMetres);
+            List<IGameItem> localItems = PerceivablesWithinRouteRange<IGameItem>(actor, visualRange)
+                .Where(x => actor.CanSee(x)).ToList();
+            List<IGameItemGroup> groups = localItems
                               .SelectNotNull(x => x.ItemGroup)
                               .Distinct()
                               .ConcatIfNotNull(localItems.Count > 25 ? GameItemProto.TooManyItemsGroup : null)
@@ -445,7 +507,7 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
                     not null when PuddleGameItemComponentProto.PuddleGroup == targetGroup => puddles.Select(x => x.Parent),
                     not null when PuddleGameItemComponentProto.BloodGroup == targetGroup => bloodPuddles.Select(x => x.Parent),
                     not null when PuddleGameItemComponentProto.ResidueGroup == targetGroup => residues.Select(x => x.Parent),
-                    _ => actor.Location.LayerGameItems(actor.RoomLayer).Where(x => x.ItemGroup == targetGroup)
+                    _ => localItems.Where(x => x.ItemGroup == targetGroup)
                 },
                 actor.Location));
             return;
@@ -551,6 +613,149 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
         }
     }
 
+	private static bool TryHandleDirectionalRouteScan(
+		ICharacter actor,
+		string argument,
+		double roomEquivalentRange,
+		string verb)
+	{
+		if (!TryRouteDirection(actor, argument, out var direction))
+		{
+			return false;
+		}
+
+		var route = actor.Location.RouteDefinition!;
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote(
+			$"@ {verb}|{verb}s {DirectionLabel(route, direction)}.", actor),
+			flags: OutputFlags.Insigificant));
+		ShowRouteDirection(
+			actor,
+			direction,
+			Math.Max(0.0, roomEquivalentRange * route.MetresPerRoomEquivalent),
+			"scan");
+		return true;
+	}
+
+	private static bool TryRouteDirection(
+		ICharacter actor,
+		string argument,
+		out RouteCellDirection direction)
+	{
+		direction = RouteCellDirection.Positive;
+		if (actor.Location.RouteDefinition is not { } route || string.IsNullOrWhiteSpace(argument))
+		{
+			return false;
+		}
+
+		var text = argument.Trim();
+		if (text.EqualToAny("forward", "forwards", "positive") ||
+			text.EqualTo(route.PositiveDirectionName))
+		{
+			direction = RouteCellDirection.Positive;
+			return true;
+		}
+
+		if (text.EqualToAny("backward", "backwards", "negative") ||
+			text.EqualTo(route.NegativeDirectionName))
+		{
+			direction = RouteCellDirection.Negative;
+			return true;
+		}
+
+		return false;
+	}
+
+	private static void ShowRouteDirection(
+		ICharacter actor,
+		RouteCellDirection direction,
+		double maximumDistanceMetres,
+		string action)
+	{
+		var route = actor.Location.RouteDefinition;
+		var origin = RouteSpatialService.Instance.GetEffectiveLocation(actor);
+		if (route is null || !origin.RoutePositionMetres.HasValue)
+		{
+			actor.OutputHandler.Send("You are not positioned in a RouteCell.");
+			return;
+		}
+
+		var positive = direction == RouteCellDirection.Positive;
+		var originPosition = origin.RoutePositionMetres.Value;
+		var candidates = RouteSpatialService.Instance.GetPerceivablesWithin(
+				origin,
+				maximumDistanceMetres,
+				x => !ReferenceEquals(x, actor) && x.RoomLayer == actor.RoomLayer && actor.CanSee(x))
+			.Select(x => (Perceivable: x, Location: RouteSpatialService.Instance.GetEffectiveLocation(x)))
+			.Where(x => x.Location.RoutePositionMetres.HasValue)
+			.Where(x => positive
+				? x.Location.RoutePositionMetres!.Value > originPosition + 0.0005
+				: x.Location.RoutePositionMetres!.Value < originPosition - 0.0005)
+			.OrderBy(x => Math.Abs(x.Location.RoutePositionMetres!.Value - originPosition))
+			.ToList();
+
+		var landmarks = route.Landmarks
+			.Where(x => positive
+				? x.PositionMetres > originPosition + 0.0005
+				: x.PositionMetres < originPosition - 0.0005)
+			.Where(x => Math.Abs(x.PositionMetres - originPosition) <= maximumDistanceMetres)
+			.OrderBy(x => Math.Abs(x.PositionMetres - originPosition))
+			.ToList();
+		var portals = route.ExitAnchors
+			.Select(x => (Anchor: x, Position: positive ? x.MinimumPositionMetres : x.MaximumPositionMetres))
+			.Where(x => RouteSpatialService.Instance.IsExitVisible(
+				actor,
+				x.Anchor.Exit,
+				maximumDistanceMetres))
+			.Where(x => positive ? x.Position > originPosition + 0.0005 : x.Position < originPosition - 0.0005)
+			.Where(x => Math.Abs(x.Position - originPosition) <= maximumDistanceMetres)
+			.OrderBy(x => Math.Abs(x.Position - originPosition))
+			.ToList();
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"You {action} {DirectionLabel(route, direction).ColourName()} along the route:");
+		foreach (var landmark in landmarks)
+		{
+			sb.AppendLine($"\t{landmark.Name.ColourName()} lies {DescribeRouteDistance(actor, Math.Abs(landmark.PositionMetres - originPosition)).ColourValue()} ahead in that direction.{landmark.Description.LeadingSpaceIfNotEmpty()}");
+		}
+
+		foreach (var portal in portals)
+		{
+			sb.AppendLine($"\t{portal.Anchor.Exit.DescribeFor(actor).ColourName()} is {DescribeRouteDistance(actor, Math.Abs(portal.Position - originPosition)).ColourValue()} ahead in that direction.");
+		}
+
+		foreach (var candidate in candidates)
+		{
+			var distance = Math.Abs(candidate.Location.RoutePositionMetres!.Value - originPosition);
+			sb.AppendLine($"\t{candidate.Perceivable.HowSeen(actor, true, DescriptionType.Long)} [{DescribeRouteDistance(actor, distance).ColourValue()}]");
+			if (candidate.Perceivable is IMortalPerceiver mortal)
+			{
+				actor.SeeTarget(mortal);
+			}
+		}
+
+		if (landmarks.Count == 0 && portals.Count == 0 && candidates.Count == 0)
+		{
+			sb.AppendLine("\tYou see nothing worth taking notice of.");
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static string DirectionLabel(IRouteCellDefinition route, RouteCellDirection direction)
+	{
+		return direction == RouteCellDirection.Positive
+			? route.PositiveDirectionName
+			: route.NegativeDirectionName;
+	}
+
+	private static string DescribeRouteDistance(ICharacter actor, double metres)
+	{
+		return actor.Gameworld.UnitManager.DescribeMostSignificantExact(
+			metres / actor.Gameworld.UnitManager.BaseHeightToMetres,
+			Framework.Units.UnitType.Length,
+			actor);
+	}
+
     private static void DisplayForScan(ICharacter actor, IEnumerable<ICharacter> characters, StringBuilder sb,
         bool useLayerTags)
     {
@@ -655,11 +860,17 @@ There are several syntaxes you can use with this command:
 	#3qs <size>#0 - show only items and people equal or larger than a particular size
 	#3qs <exit>#0 - show only a particular exit
 	#3qs <size> <exit>#0 - combination of the previous two options.
+	#3qs forward|backward#0 - scan longitudinally in a RouteCell.
 
 See also the #3scan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.HelpArg)]
     protected static void QuickScan(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
+		if (TryHandleDirectionalRouteScan(actor, ss.SafeRemainingArgument, 1.0, "quickly scan"))
+		{
+			return;
+		}
+
         List<ICellExit> exits = null;
         SizeCategory userSetSize = SizeCategory.Nanoscopic;
         List<RoomLayer> layers = actor.Location.Terrain(actor).TerrainLayers.ToList();
@@ -735,12 +946,14 @@ See also the #3scan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.HelpArg)
         }
 
         StringBuilder sb = new();
-        List<IGameItem> sameCellItems = actor.Location.GameItems.Where(x =>
+        var quickScanRange = RouteRange(actor, "RouteCellVeryDistantDistanceMetres",
+            RouteSpatialConfiguration.Default.VeryDistantDistanceMetres);
+        List<IGameItem> sameCellItems = PerceivablesWithinRouteRange<IGameItem>(actor, quickScanRange, true).Where(x =>
             x.RoomLayer != actor.RoomLayer &&
             x.Size >= minSize &&
             actor.CanSee(x, PerceiveIgnoreFlags.IgnoreObscured)
         ).ToList();
-        List<ICharacter> sameCellCharacters = actor.Location.Characters.Where(x =>
+        List<ICharacter> sameCellCharacters = PerceivablesWithinRouteRange<ICharacter>(actor, quickScanRange, true).Where(x =>
             x.RoomLayer != actor.RoomLayer &&
             x.CurrentContextualSize(SizeContext.Scan) >= minSize &&
             actor.CanSee(x, PerceiveIgnoreFlags.IgnoreObscured)
@@ -844,6 +1057,7 @@ There are several syntaxes you can use with this command:
 	#3scan <size>#0 - show only items and people equal or larger than a particular size
 	#3scan <exit>#0 - show only a particular exit
 	#3scan <size> <exit>#0 - combination of the previous two options.
+	#3scan forward|backward#0 - scan longitudinally in a RouteCell.
 
 See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.HelpArg)]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
@@ -851,6 +1065,11 @@ See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.Hel
     protected static void Scan(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
+		if (TryHandleDirectionalRouteScan(actor, ss.SafeRemainingArgument, 2.0, "scan"))
+		{
+			return;
+		}
+
         List<ICellExit> exits = null;
         List<RoomLayer> layers = actor.Location.Terrain(actor).TerrainLayers.ToList();
         SizeCategory userSetSize = SizeCategory.Nanoscopic;
@@ -928,13 +1147,15 @@ See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.Hel
             minSize = userSetSize;
         }
 
-        List<IGameItem> sameCellItems = actor.Location.GameItems.Where(x =>
+        var scanRange = RouteRange(actor, "RouteCellVeryDistantDistanceMetres",
+            RouteSpatialConfiguration.Default.VeryDistantDistanceMetres);
+        List<IGameItem> sameCellItems = PerceivablesWithinRouteRange<IGameItem>(actor, scanRange, true).Where(x =>
             x.RoomLayer != actor.RoomLayer &&
             x.RoomLayer.CanBeSeenFromLayer(actor.RoomLayer) &&
             x.Size >= minSize &&
             actor.CanSee(x, PerceiveIgnoreFlags.IgnoreObscured)
         ).ToList();
-        List<ICharacter> sameCellCharacters = actor.Location.Characters.Where(x =>
+        List<ICharacter> sameCellCharacters = PerceivablesWithinRouteRange<ICharacter>(actor, scanRange, true).Where(x =>
             x.RoomLayer != actor.RoomLayer &&
             x.RoomLayer.CanBeSeenFromLayer(actor.RoomLayer) &&
             x.CurrentContextualSize(SizeContext.Scan) >= minSize &&
@@ -1106,6 +1327,7 @@ There are several syntaxes you can use with this command:
 	#3ls <size>#0 - show only items and people equal or larger than a particular size
 	#3ls <exit>#0 - show only a particular exit
 	#3ls <size> <exit>#0 - combination of the previous two options.
+	#3ls forward|backward#0 - scan longitudinally in a RouteCell.
 
 See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
         AutoHelp.HelpArg)]
@@ -1115,6 +1337,11 @@ See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
     protected static void LongScan(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
+		if (TryHandleDirectionalRouteScan(actor, ss.SafeRemainingArgument, 5.0, "thoroughly scan"))
+		{
+			return;
+		}
+
         List<ICellExit> exits = null;
         List<RoomLayer> layers = actor.Location.Terrain(actor).TerrainLayers.ToList();
         SizeCategory userSetSize = SizeCategory.Nanoscopic;
@@ -1195,13 +1422,15 @@ See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
             minSize = userSetSize;
         }
 
-        List<IGameItem> sameCellItems = actor.Location.GameItems.Where(x =>
+        var longScanRange = RouteRange(actor, "RouteCellVeryDistantDistanceMetres",
+            RouteSpatialConfiguration.Default.VeryDistantDistanceMetres);
+        List<IGameItem> sameCellItems = PerceivablesWithinRouteRange<IGameItem>(actor, longScanRange, true).Where(x =>
             x.RoomLayer != actor.RoomLayer &&
             x.RoomLayer.CanBeSeenFromLayer(actor.RoomLayer) &&
             x.Size >= minSize &&
             actor.CanSee(x, PerceiveIgnoreFlags.IgnoreObscured)
         ).ToList();
-        List<ICharacter> sameCellCharacters = actor.Location.Characters.Where(x =>
+        List<ICharacter> sameCellCharacters = PerceivablesWithinRouteRange<ICharacter>(actor, longScanRange, true).Where(x =>
             x.RoomLayer != actor.RoomLayer &&
             x.RoomLayer.CanBeSeenFromLayer(actor.RoomLayer) &&
             x.CurrentContextualSize(SizeContext.Scan) >= minSize &&
@@ -1521,7 +1750,9 @@ Note: The targets are ordered in the same order that they appear in the #3target
         }
 
 
-        foreach (ICharacter person in actor.Location.LayerCharacters(actor.RoomLayer))
+        foreach (ICharacter person in PerceivablesWithinRouteRange<ICharacter>(actor,
+                     RouteRange(actor, "RouteCellImmediateDistanceMetres",
+                         RouteSpatialConfiguration.Default.ImmediateDistanceMetres)))
         {
             person.SeeTarget(target);
         }

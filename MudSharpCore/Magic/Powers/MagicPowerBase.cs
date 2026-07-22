@@ -154,14 +154,18 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 					     .Where(x => TargetIsValid(actor, x)));
 				break;
 			case MagicPowerDistance.SameLocationOnly:
-				targets.AddRange(actor.Location.Characters.Except(actor).Where(x => TargetIsValid(actor, x)));
+				targets.AddRange(MagicPowerSpatialTargeting
+					.AcquireTargets(actor, distance)
+					.OfType<ICharacter>()
+					.Except(actor)
+					.Where(x => TargetIsValid(actor, x)));
 				break;
 			case MagicPowerDistance.AdjacentLocationsOnly:
-				targets.AddRange(actor.Location.Characters
-				                      .Except(actor)
-				                      .Concat(actor.Location.ExitsFor(actor).Select(x => x.Destination)
-				                                   .SelectMany(x => x.Characters))
-				                      .Where(x => TargetIsValid(actor, x)));
+				targets.AddRange(MagicPowerSpatialTargeting
+					.AcquireTargets(actor, distance)
+					.OfType<ICharacter>()
+					.Except(actor)
+					.Where(x => TargetIsValid(actor, x)));
 				break;
 			case MagicPowerDistance.SameAreaOnly:
 				if (!actor.Location.Areas.Any())
@@ -225,14 +229,16 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 				            .Where(x => TargetIsValid(owner, x))
 				            .GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SameLocationOnly:
-				return owner.Location.Characters
+				return MagicPowerSpatialTargeting
+				            .AcquireTargets(owner, distance)
+				            .OfType<ICharacter>()
 				            .Where(x => TargetIsValid(owner, x))
 				            .GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.AdjacentLocationsOnly:
-				return owner.Location.Characters
+				return MagicPowerSpatialTargeting
+				            .AcquireTargets(owner, distance)
+				            .OfType<ICharacter>()
 				            .Except(owner)
-				            .Concat(owner.Location.ExitsFor(owner).Select(x => x.Destination)
-				                         .SelectMany(x => x.Characters))
 				            .Where(x => TargetIsValid(owner, x))
 				            .GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SameAreaOnly:
@@ -304,10 +310,9 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
                        owner.CombinedEffectsOfType<MindConnectedToEffect>().Any(x => x.OriginatorCharacter == target)
                     ;
             case MagicPowerDistance.SameLocationOnly:
-                return owner.Location == target.Location;
+				return MagicPowerSpatialTargeting.IsInRange(owner, target, distance);
             case MagicPowerDistance.AdjacentLocationsOnly:
-                return owner.Location.CellsInVicinity(1, x => true, x => true)
-                            .Any(x => x == target.Location);
+				return MagicPowerSpatialTargeting.IsInRange(owner, target, distance);
             case MagicPowerDistance.SameAreaOnly:
                 return owner.Location.Areas.Any(x => target.Location.Areas.Contains(x)) ||
                        owner.Location == target.Location;

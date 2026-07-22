@@ -186,7 +186,7 @@ public partial class Body
     {
         Actor.HandleEvent(characterEvent, Actor, item);
         item.HandleEvent(itemEvent, Actor, item);
-        foreach (IHandleEvents witness in Location.EventHandlers)
+        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor))
         {
             witness.HandleEvent(witnessEvent, Actor, item, witness);
         }

@@ -26,7 +26,7 @@ public class Room : Location, IDisposable, IRoom
             FMDB.Context.SaveChanges();
             _id = dbroom.Id;
             _name = string.Empty;
-            _cells.Add(new Cell(package, this));
+			_ = new Cell(package, this);
         }
 
         Gameworld.Add(this);
@@ -46,7 +46,7 @@ public class Room : Location, IDisposable, IRoom
             FMDB.Context.SaveChanges();
             _id = dbroom.Id;
             _name = string.Empty;
-            _cells.Add(new Cell(package, this, templateCell, temporary));
+			_ = new Cell(package, this, templateCell, temporary);
         }
 
         Gameworld.Add(this);

@@ -66,7 +66,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         }
 
         // Check for presence of criminals
-        foreach (ICharacter person in patrol.PatrolLeader.Location.LayerCharacters(patrol.PatrolLeader.RoomLayer))
+        foreach (ICharacter person in patrol.PatrolLeader.Location.CharactersInSpatialVicinity(patrol.PatrolLeader))
         {
             var beingDraggedByPatrol = IsBeingDraggedByPatrol(patrol, person);
             if (!PatrolEnforcementPolicy.CanConsiderCandidate(
@@ -413,14 +413,11 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 
         if (!patrol.PatrolLeader.AffectedBy<FollowingPath>())
         {
-            IEnumerable<ICellExit> path = patrol.PatrolLeader.PathBetween(patrol.OriginLocation, 50,
-                PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader));
-            if (!path.Any())
-            {
-                return;
-            }
-
-            BeginPatrolPath(patrol.PatrolLeader, path);
+			TryBeginPatrolPath(
+				patrol.PatrolLeader,
+				patrol.OriginLocation,
+				50.0,
+				PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader));
         }
     }
 
@@ -438,12 +435,11 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         if (leader.Location != patrol.LegalAuthority.MarshallingLocation &&
             !leader.CombinedEffectsOfType<FollowingPath>().Any())
         {
-            List<ICellExit> path = leader.PathBetween(patrol.LegalAuthority.MarshallingLocation, 50,
-                PathSearch.PathIncludeUnlockableDoors(leader)).ToList();
-            if (path.Count > 0)
-            {
-                BeginPatrolPath(leader, path);
-            }
+			TryBeginPatrolPath(
+				leader,
+				patrol.LegalAuthority.MarshallingLocation,
+				50.0,
+				PathSearch.PathIncludeUnlockableDoors(leader));
 
             return;
         }
@@ -451,28 +447,24 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         if (patrol.PatrolMembers.All(x => x.Location == patrol.LegalAuthority.MarshallingLocation) &&
             !patrol.PatrolLeader.AffectedBy<FollowingPath>())
         {
-            List<ICellExit> path = patrol.PatrolLeader.PathBetween(patrol.NextMajorNode, 50,
-                PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader)).ToList();
+			if (TryBeginPatrolPath(
+					patrol.PatrolLeader,
+					patrol.NextMajorNode,
+					50.0,
+					PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader)) ||
+				TryBeginPatrolPath(
+					patrol.PatrolLeader,
+					patrol.NextMajorNode,
+					50.0,
+					PathSearch.IgnorePresenceOfDoors))
+			{
+				return;
+			}
 
-            // If we can't find a path, try to get closer at least
-            if (path.Count == 0)
-            {
-                path = patrol.PatrolLeader.PathBetween(patrol.NextMajorNode, 50,
-                    PathSearch.IgnorePresenceOfDoors).ToList();
-                if (path.Count == 0)
-                {
-                    if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
-                    {
-                        // Abort patrol
-                        patrol.AbortPatrol();
-                        return;
-                    }
-
-                    return;
-                }
-            }
-
-            BeginPatrolPath(patrol.PatrolLeader, path);
+			if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+			{
+				patrol.AbortPatrol();
+			}
         }
     }
 
@@ -614,11 +606,244 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 		return FollowingPath.CreateFullFriendlyPath(member, path, closeDoorsBehind: true);
 	}
 
+	protected static FollowingPath CreatePatrolPath(
+		ICharacter member,
+		ISpatialPath path,
+		Func<ICellExit, bool> suitabilityFunction)
+	{
+		return FollowingPath.CreateFullFriendlyPath(
+			member,
+			path,
+			suitabilityFunction,
+			closeDoorsBehind: true);
+	}
+
 	protected static void BeginPatrolPath(ICharacter member, IEnumerable<ICellExit> path)
 	{
 		FollowingPath fp = CreatePatrolPath(member, path);
 		member.AddEffect(fp);
 		fp.FollowPathAction();
+	}
+
+	internal static bool TryCreatePatrolPath(
+		ICharacter member,
+		ICell target,
+		double maximumRoomEquivalentCost,
+		Func<ICellExit, bool> suitabilityFunction,
+		out FollowingPath path)
+	{
+		path = null;
+		if (member?.Location is null || target is null)
+		{
+			return false;
+		}
+
+		if (!TryResolvePatrolDestination(member, target, out var destination))
+		{
+			return false;
+		}
+
+		return TryCreatePatrolPath(
+			member,
+			destination,
+			maximumRoomEquivalentCost,
+			suitabilityFunction,
+			out path);
+	}
+
+	internal static bool TryResolvePatrolDestination(
+		ICharacter member,
+		ICell target,
+		out SpatialLocation destination)
+	{
+		destination = default;
+		if (member?.Location is null || target is null)
+		{
+			return false;
+		}
+
+		var origin = RouteSpatialService.Instance.GetEffectiveLocation(member);
+		destination = new SpatialLocation(
+			target,
+			origin.Layer,
+			target.RouteDefinition?.DefaultPositionMetres);
+		return RouteSpatialService.Instance.TryValidateLocation(destination, out _);
+	}
+
+	internal static bool HasReachedPatrolDestination(ICharacter member, ICell target)
+	{
+		if (member?.Location is null || target is null || !ReferenceEquals(member.Location, target))
+		{
+			return false;
+		}
+
+		if (target.RouteDefinition is null)
+		{
+			return true;
+		}
+
+		if (!TryResolvePatrolDestination(member, target, out var destination))
+		{
+			return false;
+		}
+
+		var current = RouteSpatialService.Instance.GetEffectiveLocation(member);
+		return RouteSpatialService.Instance.GetExactSeparation(current, destination) is { } separation &&
+		       separation <= 0.0005;
+	}
+
+	internal static bool HasReachedPatrolDestination(ICharacter member, IPerceivable target)
+	{
+		return member is not null && target is not null && member.ColocatedWith(target);
+	}
+
+	internal static bool TryCreatePatrolPath(
+		ICharacter member,
+		IPerceivable target,
+		double maximumRoomEquivalentCost,
+		Func<ICellExit, bool> suitabilityFunction,
+		out FollowingPath path)
+	{
+		path = null;
+		if (target?.Location is null)
+		{
+			return false;
+		}
+
+		return TryCreatePatrolPath(
+			member,
+			RouteSpatialService.Instance.GetEffectiveLocation(target),
+			maximumRoomEquivalentCost,
+			suitabilityFunction,
+			out path);
+	}
+
+	internal static bool TryCreatePatrolPath(
+		ICharacter member,
+		SpatialLocation destination,
+		double maximumRoomEquivalentCost,
+		Func<ICellExit, bool> suitabilityFunction,
+		out FollowingPath path)
+	{
+		path = null;
+		if (member?.Location is null || destination.Cell is null ||
+			!double.IsFinite(maximumRoomEquivalentCost) || maximumRoomEquivalentCost <= 0.0)
+		{
+			return false;
+		}
+		if (!RouteSpatialService.Instance.TryValidateLocation(destination, out _))
+		{
+			return false;
+		}
+
+		var ordinaryExits = member
+			.PathBetween(destination.Cell, (uint)Math.Ceiling(maximumRoomEquivalentCost), suitabilityFunction)
+			.ToList();
+		if (member.Location.RouteDefinition is null &&
+			destination.Cell.RouteDefinition is null &&
+			ordinaryExits.Count > 0)
+		{
+			path = CreatePatrolPath(member, ordinaryExits);
+			return true;
+		}
+
+		var origin = RouteSpatialService.Instance.GetEffectiveLocation(member);
+		ISpatialPathfinder pathfinder;
+		try
+		{
+			pathfinder = member.Gameworld.ExitManager.SpatialPathfinder;
+		}
+		catch (NotSupportedException)
+		{
+			return false;
+		}
+
+		if (!pathfinder.TryFindPath(
+				origin,
+				destination,
+				suitabilityFunction,
+				false,
+				maximumRoomEquivalentCost,
+				out var spatialPath) ||
+			spatialPath is null ||
+			spatialPath.Steps.Count == 0 ||
+			!RequiresSpatialFollowing(spatialPath))
+		{
+			return false;
+		}
+
+		path = CreatePatrolPath(member, spatialPath, suitabilityFunction);
+		return true;
+	}
+
+	protected static bool TryBeginPatrolPath(
+		ICharacter member,
+		ICell target,
+		double maximumRoomEquivalentCost,
+		Func<ICellExit, bool> suitabilityFunction)
+	{
+		if (!TryCreatePatrolPath(
+				member,
+				target,
+				maximumRoomEquivalentCost,
+				suitabilityFunction,
+				out var path))
+		{
+			return false;
+		}
+
+		member.AddEffect(path);
+		path.FollowPathAction();
+		return true;
+	}
+
+	protected static bool TryBeginPatrolPath(
+		ICharacter member,
+		IPerceivable target,
+		double maximumRoomEquivalentCost,
+		Func<ICellExit, bool> suitabilityFunction)
+	{
+		if (!TryCreatePatrolPath(
+				member,
+				target,
+				maximumRoomEquivalentCost,
+				suitabilityFunction,
+				out var path))
+		{
+			return false;
+		}
+
+		member.AddEffect(path);
+		path.FollowPathAction();
+		return true;
+	}
+
+	protected static bool TryBeginPatrolPath(
+		ICharacter member,
+		SpatialLocation target,
+		double maximumRoomEquivalentCost,
+		Func<ICellExit, bool> suitabilityFunction)
+	{
+		if (!TryCreatePatrolPath(
+				member,
+				target,
+				maximumRoomEquivalentCost,
+				suitabilityFunction,
+				out var path))
+		{
+			return false;
+		}
+
+		member.AddEffect(path);
+		path.FollowPathAction();
+		return true;
+	}
+
+	private static bool RequiresSpatialFollowing(ISpatialPath path)
+	{
+		return path.Origin.Cell.RouteDefinition is not null ||
+		       path.Destination.Cell.RouteDefinition is not null ||
+		       path.Steps.Any(x => x is ILinearRoutePathStep);
 	}
 
     protected virtual void PatrolTickPreparationPhase(IPatrol patrol)
@@ -628,12 +853,11 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
             if (member.Location != patrol.LegalAuthority.PreparingLocation &&
                 !member.CombinedEffectsOfType<FollowingPath>().Any())
             {
-                IEnumerable<ICellExit> path = member.PathBetween(patrol.LegalAuthority.PreparingLocation, 25,
-                    PathSearch.PathIncludeUnlockableDoors(member));
-                if (path != null)
-                {
-                    BeginPatrolPath(member, path);
-                }
+				TryBeginPatrolPath(
+					member,
+					patrol.LegalAuthority.PreparingLocation,
+					25.0,
+					PathSearch.PathIncludeUnlockableDoors(member));
 
                 continue;
             }

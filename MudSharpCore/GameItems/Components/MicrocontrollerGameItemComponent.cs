@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using MudSharp.Computers;
+using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 using System.Collections.ObjectModel;
 
@@ -556,7 +557,12 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 			return;
 		}
 
-		(actor?.Location ?? Parent.TrueLocations.FirstOrDefault())?.Insert(Parent);
+		var placementSource = actor is not null
+			? (ILocateable)actor
+			: Parent.LocationLevelPerceivable is { } locationSource
+				? locationSource
+				: Parent;
+		Parent.InsertAtSource(placementSource);
 	}
 
 	public void RawDisconnect(IConnectable other, bool handleEvents)

@@ -360,6 +360,7 @@ CharacterInstances
 
     LocationId bigint null,
     RoomLayer int not null,
+    RoutePosition decimal(18,3) null,
     PositionId int not null,
     PositionModifier int not null,
     PositionTargetId bigint null,
@@ -476,17 +477,18 @@ For each active instance row:
 
 1. Resolve identity.
 2. Resolve body from owned forms/bodies.
-3. Validate that no other live instance has the same body.
-4. Attach body to instance.
-5. Load instance effects.
-6. Insert persistent instances into their locations during login/world load.
-7. For temporary effect-bound instances, validate the owning effect still exists. If the effect no longer exists, retire/despawn the instance.
+3. Resolve and validate the complete spatial location. Ordinary cells require a null `RoutePosition`; RouteCells require a finite coordinate inside their inclusive bounds. Invalid rows fail with an instance-specific boot diagnostic rather than being materialised or normalised.
+4. Validate that no other live instance has the same body.
+5. Attach body to instance.
+6. Load instance effects.
+7. Insert persistent instances into their locations during login/world load.
+8. For temporary effect-bound instances, validate the owning effect still exists. If the effect no longer exists, retire/despawn the instance.
 
 ### 7.3 Saving
 
 Each active instance should save:
 
-- location and room layer
+- location, room layer, and nullable RouteCell coordinate
 - position state/target/modifier/emote
 - state/status
 - effect data
@@ -521,6 +523,8 @@ DespawnOnLogout:
 DespawnOnReboot:
   do not reload after server restart.
 ```
+
+Every spawn policy resolves and validates its `SpatialLocation` before the first database commit. This includes temporary rows that will later be pruned. Persistent rows reload at the exact saved coordinate; source-aware character and NPC factories inherit the physical source coordinate, while deliberately cell-only authored spawners use the RouteCell's default coordinate. Character compatibility fields and the primary `CharacterInstances` row are written from the same prevalidated location.
 
 Astral projections probably start as `TemporaryEffectBound` or `DespawnOnLogout`. Physical clones may be `Persistent` or `TemporaryEffectBound` depending game design.
 

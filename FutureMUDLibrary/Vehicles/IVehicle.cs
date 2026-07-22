@@ -8,6 +8,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Movement;
+using System;
 using System.Collections.Generic;
 
 namespace MudSharp.Vehicles;
@@ -24,6 +25,8 @@ public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable
 	VehicleLocationType LocationType { get; }
 	ICell Location { get; }
 	RoomLayer RoomLayer { get; }
+	double? RoutePositionMetres => MovementState.RoutePositionMetres;
+	SpatialLocation SpatialLocation => new(Location, RoomLayer, RoutePositionMetres);
 	IEnumerable<IVehicleOccupancy> Occupancies { get; }
 	IEnumerable<ICharacter> Occupants { get; }
 	IEnumerable<IVehicleAccessState> AccessStates { get; }
@@ -32,6 +35,11 @@ public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable
 	IEnumerable<IVehicleInstallation> Installations { get; }
 	IEnumerable<IVehicleTowLink> TowLinks { get; }
 	IEnumerable<IVehicleDamageZone> DamageZones { get; }
+	IEnumerable<IVehicleCompartment> Compartments => Array.Empty<IVehicleCompartment>();
+	IEnumerable<IVehicleDocking> Dockings => Array.Empty<IVehicleDocking>();
+#nullable enable annotations
+	IVehicleJourney? ActiveJourney => null;
+#nullable restore annotations
 	IEnumerable<IGameItem> ProjectedTargetItems { get; }
 	bool Disabled { get; }
 	bool Destroyed { get; }
@@ -53,6 +61,8 @@ public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable
 	bool Move(ICharacter actor, ICellExit exit);
 	bool SetActivePropulsionProfile(IVehiclePropulsionProfilePrototype profile, out string reason);
 	void BeginMoveToCell(ICell destination, RoomLayer layer, ICellExit exit);
+	void BeginMoveAlongRoute(double destinationMetres);
+	void MaterialiseRoutePosition(double positionMetres, bool stationary = false);
 	void MoveToCell(ICell destination, RoomLayer layer, ICellExit exit, IMovement movement = null);
 	void RecoverInterruptedMovement();
 	void HandleExteriorItemForceMoved();
@@ -85,6 +95,31 @@ public interface IVehicleMovementState
 	VehicleMovementStatus MovementStatus { get; }
 	long? CurrentExitId { get; }
 	long? DestinationCellId { get; }
+	double? RoutePositionMetres => null;
+	double? DestinationRoutePositionMetres => null;
+}
+
+public interface IVehicleCompartment : IFrameworkItem
+{
+	IVehicle Vehicle { get; }
+	IVehicleCompartmentPrototype Prototype { get; }
+	long? InteriorCellId { get; }
+#nullable enable annotations
+	ICell? InteriorCell { get; }
+#nullable restore annotations
+	IEnumerable<IVehicleCompartmentLink> Links { get; }
+}
+
+public interface IVehicleCompartmentLink : IFrameworkItem
+{
+	IVehicle Vehicle { get; }
+	IVehicleCompartmentLinkPrototype Prototype { get; }
+	IVehicleCompartment SourceCompartment { get; }
+	IVehicleCompartment DestinationCompartment { get; }
+	long? ExitId { get; }
+#nullable enable annotations
+	IExit? Exit { get; }
+#nullable restore annotations
 }
 
 public interface IVehicleAccessState : IFrameworkItem

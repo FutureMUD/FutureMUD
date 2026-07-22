@@ -18,6 +18,7 @@
         CrimeReport = 10,
         ArenaEvent = 11,
         ArenaRecurringEvent = 12,
-        ComputerProgram = 13
+		ComputerProgram = 13,
+		VehicleJourney = 14
     }
 }

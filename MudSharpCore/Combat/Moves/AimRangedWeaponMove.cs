@@ -84,6 +84,17 @@ public class AimRangedWeaponMove : CombatMoveBase
         bool firstTimeAim = false;
         if (Assailant.Aim == null)
         {
+			if (target is not null &&
+				(Assailant.Location.RouteDefinition is not null || target.Location?.RouteDefinition is not null))
+			{
+				var spatialRange = Assailant.RoomEquivalentDistanceBetween(target);
+				if (spatialRange < 0.0 || spatialRange > Weapon.WeaponType.DefaultRangeInRooms)
+				{
+					Assailant.OutputHandler.Send("Your target is outside the effective range of that weapon.");
+					return CombatMoveResult.Irrelevant;
+				}
+			}
+
             firstTimeAim = true;
             Assailant.Aim = new AimInformation(target, Assailant,
                 target == null

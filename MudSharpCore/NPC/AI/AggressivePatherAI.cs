@@ -85,7 +85,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
             return false;
         }
 
-        foreach (ICharacter tch in ch.Location.Characters.Except(ch).Shuffle())
+        foreach (ICharacter tch in ch.Location.CharactersInSpatialVicinity(ch, false).Except(ch).Shuffle())
         {
             if (CheckForAttack(ch, tch))
             {
@@ -340,6 +340,40 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 
         return (null, Enumerable.Empty<ICellExit>());
     }
+
+	protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+	{
+		if (ch.Effects.Any(x => x.IsBlockingEffect("movement")))
+		{
+			return (null, null);
+		}
+
+		var target = ch.AcquireTargetAndPath(GetTargetFunction(ch), 5, GetSuitabilityFunction(ch)).Item1;
+		if (target is not null &&
+		    TryFindSpatialPath(
+			    ch,
+			    RouteSpatialService.Instance.GetEffectiveLocation(target),
+			    5.0,
+			    GetSuitabilityFunction(ch),
+			    out var targetPath))
+		{
+			return (target.Location, targetPath);
+		}
+
+		foreach (var location in new[]
+		{
+			TargetLocationProg?.Execute<ICell>(ch),
+			FallbackLocationProg?.Execute<ICell>(ch)
+		}.Where(x => x is not null && !ReferenceEquals(x, ch.Location)))
+		{
+			if (TryFindSpatialPath(ch, location!, 12.0, GetSuitabilityFunction(ch), out var path))
+			{
+				return (location, path);
+			}
+		}
+
+		return (null, null);
+	}
 
     /// <inheritdoc />
     public override string Show(ICharacter actor)

@@ -27,6 +27,7 @@ namespace MudSharp.Models
             ShopsWorkshopCell = new HashSet<Shop>();
             Zones = new HashSet<Zone>();
             Tracks = new HashSet<Track>();
+            VehicleDockings = new HashSet<VehicleDocking>();
         }
 
         public long Id { get; set; }
@@ -35,10 +36,15 @@ namespace MudSharp.Models
         public long? ForagableProfileId { get; set; }
         public bool Temporary { get; set; }
         public string EffectData { get; set; }
+        public long? HostedVehicleId { get; set; }
+        public long? HostedVehicleCompartmentId { get; set; }
 
         public virtual CellOverlay CurrentOverlay { get; set; }
         public virtual Room Room { get; set; }
         public virtual AgricultureField AgricultureField { get; set; }
+        public virtual RouteCell RouteCell { get; set; }
+        public virtual Vehicle HostedVehicle { get; set; }
+        public virtual VehicleCompartment HostedVehicleCompartment { get; set; }
         public virtual ICollection<ActiveProject> ActiveProjects { get; set; }
         public virtual ICollection<CellOverlay> CellOverlays { get; set; }
         public virtual ICollection<CellsForagableYield> CellsForagableYields { get; set; }
@@ -59,5 +65,6 @@ namespace MudSharp.Models
         public virtual ICollection<Shop> ShopsWorkshopCell { get; set; }
         public virtual ICollection<Zone> Zones { get; set; }
         public virtual ICollection<Track> Tracks { get; set; }
+        public virtual ICollection<VehicleDocking> VehicleDockings { get; set; }
     }
 }

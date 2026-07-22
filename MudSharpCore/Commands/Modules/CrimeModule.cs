@@ -400,7 +400,8 @@ The syntax for this command is as follows:
 
         ILegalAuthority authority = crime.LegalAuthority;
         if (actor.Location != authority.PrisonLocation &&
-            actor.Location.LayerCharacters(actor.RoomLayer).All(x => !x.AffectedBy<EnforcerEffect>(authority)) &&
+            actor.Location.CharactersInImmediateVicinity(actor)
+                 .All(x => !x.AffectedBy<EnforcerEffect>(authority)) &&
             authority.GetEnforcementAuthority(actor) == null)
         {
             actor.OutputHandler.Send(
@@ -746,7 +747,10 @@ The syntax for this command is simply #3argue defense#0 or #3argue prosecution#0
     protected static void Argue(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
-        OnTrial trialEffect = actor.Location.LayerCharacters(actor.RoomLayer).SelectNotNull(x => x.EffectsOfType<OnTrial>().FirstOrDefault()).FirstOrDefault();
+        OnTrial trialEffect = actor.Location
+                                         .CharactersInImmediateVicinity(actor)
+                                         .SelectNotNull(x => x.EffectsOfType<OnTrial>().FirstOrDefault())
+                                         .FirstOrDefault();
         if (trialEffect is null)
         {
             actor.OutputHandler.Send("There are no trials taking place at your location.");
@@ -913,6 +917,12 @@ You can use the following options for punishments, can can include multiples in 
         if (target == actor)
         {
             actor.OutputHandler.Send("You cannot convict yourself of crimes.");
+            return;
+        }
+
+        if (!target.ColocatedWith(actor))
+        {
+            actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not close enough to be judged by you.");
             return;
         }
 
@@ -1176,6 +1186,12 @@ There are the following syntaxes for this command:
             return;
         }
 
+        if (!target.ColocatedWith(actor))
+        {
+            actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not close enough to be judged by you.");
+            return;
+        }
+
         if (!CanManuallyJudge(actor, target, jurisdiction, out string judgementError))
         {
             actor.OutputHandler.Send(judgementError);
@@ -1269,6 +1285,12 @@ There are the following syntaxes for this command:
         if (target == actor)
         {
             actor.OutputHandler.Send("You cannot take custody of yourself.");
+            return;
+        }
+
+        if (!target.ColocatedWith(actor))
+        {
+            actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not close enough for you to take custody of them.");
             return;
         }
 
@@ -1388,6 +1410,12 @@ The syntax is #3transfercustody <prisoner> <enforcer>#0.", AutoHelp.HelpArg)]
             return;
         }
 
+        if (!target.ColocatedWith(actor) || !newEnforcer.ColocatedWith(actor))
+        {
+            actor.OutputHandler.Send("The prisoner and receiving enforcer must both be close enough to transfer custody.");
+            return;
+        }
+
         List<InCustodyOfEnforcer> effects = target.CombinedEffectsOfType<InCustodyOfEnforcer>()
                                                  .Where(x => x.Enforcer == actor || actor.IsAdministrator())
                                                  .ToList();
@@ -1435,6 +1463,12 @@ The syntax is #3transfercustody <prisoner> <enforcer>#0.", AutoHelp.HelpArg)]
         if (target == null)
         {
             actor.OutputHandler.Send("You don't see anyone like that here.");
+            return;
+        }
+
+        if (!target.ColocatedWith(actor))
+        {
+            actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not close enough for you to release from custody.");
             return;
         }
 
@@ -2972,7 +3006,12 @@ The syntax is as follows:
             }
         }
 
-        OnTrial trial = actor.Location.Characters.SelectNotNull(x => x.EffectsOfType<OnTrial>().FirstOrDefault()).FirstOrDefault();
+        List<ICharacter> localCharacters = actor.Location
+                                                .CharactersInImmediateVicinity(actor)
+                                                .ToList();
+        OnTrial trial = localCharacters
+                        .SelectNotNull(x => x.EffectsOfType<OnTrial>().FirstOrDefault())
+                        .FirstOrDefault();
         if (trial is null)
         {
             actor.OutputHandler.Send("There aren't currently any trials going on at your location.");
@@ -2983,7 +3022,7 @@ The syntax is as follows:
         sb.AppendLine("Trial in Progress".GetLineWithTitleInner(actor, Telnet.BoldOrange, Telnet.BoldWhite));
         sb.AppendLine();
         sb.AppendLine($"Defendant: {trial.Owner.HowSeen(actor)}");
-        ICharacter judge = actor.Location.Characters
+        ICharacter judge = localCharacters
                          .FirstOrDefault(x =>
                              x.EffectsOfType<PatrolMemberEffect>()
                               .Any(y =>

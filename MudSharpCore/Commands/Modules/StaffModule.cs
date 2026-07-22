@@ -2337,15 +2337,16 @@ There are three forms for this command:
         List<IGameItem> items = new();
         Emote emote;
 
-        if (ss.IsFinished)
-        {
-            items = actor.Location.LayerGameItems(actor.RoomLayer).ToList();
+		if (ss.IsFinished)
+		{
+			// PURGE LOCATION is an explicit administrative whole-cell operation, including for RouteCells.
+			items = actor.Location.LayerGameItems(actor.RoomLayer).ToList();
             emote = new Emote("@ purge|purges the location of all items.", actor);
         }
         else
         {
-            if (ss.Peek().Equals("all", StringComparison.InvariantCultureIgnoreCase))
-            {
+			if (ss.Peek().Equals("all", StringComparison.InvariantCultureIgnoreCase))
+			{
                 ss.PopSpeech();
                 if (ss.IsFinished)
                 {
@@ -2353,8 +2354,9 @@ There are three forms for this command:
                     return;
                 }
 
-                string keyword = ss.PopSpeech();
-                items = actor.Location.LayerGameItems(actor.RoomLayer).Where(x => x.HasKeyword(keyword, actor, true))
+				string keyword = ss.PopSpeech();
+				// PURGE ALL is likewise deliberately cell-wide rather than actor-local.
+				items = actor.Location.LayerGameItems(actor.RoomLayer).Where(x => x.HasKeyword(keyword, actor, true))
                              .ToList();
                 emote = new Emote(
                     $"@ purge|purges the location of all items with the {keyword.ColourValue()} keyword.",
@@ -4273,7 +4275,7 @@ The syntax for this command is simply #3summonitem <id>#0.", AutoHelp.HelpArgOrN
         else
         {
             item.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(item);
+            item.InsertAtSource(actor);
             sb.AppendLine($"You couldn't hold it, so it is now on the ground.");
         }
 

@@ -1,3 +1,5 @@
+#nullable enable annotations
+
 using ExpressionEngine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -280,10 +282,69 @@ public class SpreadScatterStrategyTests
         target.SetupGet(x => x.Location).Returns((ICell)null);
         Assert.IsNull(SpreadScatterStrategy.Instance.GetScatterTarget(shooter.Object, target.Object, null));
     }
+
+	[TestMethod]
+	public void GetScatterTarget_RouteCellWithoutNearbyCandidate_PreservesOriginalCoordinate()
+	{
+		ScatterTestHelpers.SetWeightExpression(
+			typeof(SpreadScatterStrategy),
+			"_weightExpression",
+			"size + proximity + 1");
+		var route = ScatterTestHelpers.CreateRouteCell("long road", 10_000.0);
+		var shooter = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 90.0);
+		var target = ScatterTestHelpers.CreateRoutePerceiver(route.Cell.Object, 100.0);
+		var farCandidate = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 5_000.0);
+		route.Characters.Add(shooter.Object);
+		route.Characters.Add(farCandidate.Object);
+		ScatterTestHelpers.SeedRandom(31);
+
+		var result = SpreadScatterStrategy.Instance.GetScatterTarget(
+			shooter.Object,
+			target.Object,
+			Array.Empty<ICellExit>());
+
+		Assert.IsNotNull(result);
+		Assert.IsNull(result.Target);
+		Assert.AreEqual(100.0, result.RoutePositionMetres!.Value, 0.000001);
+		Assert.AreEqual(result.RoutePositionMetres, result.ImpactLocation.RoutePositionMetres);
+	}
+
+	[TestMethod]
+	public void GetScatterTarget_RouteCellNearbyCandidate_UsesStruckTargetCoordinate()
+	{
+		ScatterTestHelpers.SetWeightExpression(
+			typeof(SpreadScatterStrategy),
+			"_weightExpression",
+			"size + proximity + 1");
+		var route = ScatterTestHelpers.CreateRouteCell("long road", 10_000.0);
+		var shooter = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 90.0);
+		var target = ScatterTestHelpers.CreateRoutePerceiver(route.Cell.Object, 100.0);
+		var nearbyCandidate = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 102.5);
+		route.Characters.Add(shooter.Object);
+		route.Characters.Add(nearbyCandidate.Object);
+		ScatterTestHelpers.SeedRandom(37);
+
+		var result = SpreadScatterStrategy.Instance.GetScatterTarget(
+			shooter.Object,
+			target.Object,
+			Array.Empty<ICellExit>());
+
+		Assert.IsNotNull(result);
+		Assert.AreSame(nearbyCandidate.Object, result.Target);
+		Assert.AreEqual(102.5, result.RoutePositionMetres!.Value, 0.000001);
+	}
 }
 
 internal static class ScatterTestHelpers
 {
+	internal sealed record RouteCellData(
+		Mock<ICell> Cell,
+		Mock<IRouteCellDefinition> Route,
+		List<ICharacter> Characters,
+		List<IGameItem> GameItems);
+
+	private static long _nextRouteCellId = 10_000;
+
     internal sealed class CellNetworkBuilder
     {
         internal sealed class CellData
@@ -329,6 +390,8 @@ internal static class ScatterTestHelpers
             List<IGameItem> items = new();
             cell.SetupGet(x => x.GameItems).Returns(items);
             cell.Setup(x => x.LayerGameItems(It.IsAny<RoomLayer>())).Returns((RoomLayer _) => items);
+			cell.SetupGet(x => x.Perceivables)
+				.Returns(() => characters.Cast<IPerceivable>().Concat(items));
 
             CellData data = new(cell, characters, items);
             _cells[name] = data;
@@ -414,6 +477,49 @@ internal static class ScatterTestHelpers
         return character;
     }
 
+	internal static RouteCellData CreateRouteCell(string name, double lengthMetres)
+	{
+		var characters = new List<ICharacter>();
+		var items = new List<IGameItem>();
+		var cell = new Mock<ICell>();
+		var route = new Mock<IRouteCellDefinition>();
+		cell.SetupGet(x => x.Id).Returns(_nextRouteCellId++);
+		cell.SetupGet(x => x.Name).Returns(name);
+		cell.SetupGet(x => x.RouteDefinition).Returns(route.Object);
+		cell.SetupGet(x => x.SpatialType).Returns(CellSpatialType.LinearRoute);
+		cell.SetupGet(x => x.Characters).Returns(characters);
+		cell.SetupGet(x => x.GameItems).Returns(items);
+		cell.SetupGet(x => x.Perceivables)
+			.Returns(() => characters.Cast<IPerceivable>().Concat(items));
+		cell.Setup(x => x.LayerCharacters(It.IsAny<RoomLayer>()))
+			.Returns((RoomLayer layer) => characters.Where(x => x.RoomLayer == layer));
+		cell.Setup(x => x.LayerGameItems(It.IsAny<RoomLayer>()))
+			.Returns((RoomLayer layer) => items.Where(x => x.RoomLayer == layer));
+		route.SetupGet(x => x.Cell).Returns(cell.Object);
+		route.SetupGet(x => x.LengthMetres).Returns(lengthMetres);
+		route.SetupGet(x => x.DefaultPositionMetres).Returns(0.0);
+		route.SetupGet(x => x.MetresPerRoomEquivalent).Returns(100.0);
+		route.SetupGet(x => x.TopologyVersion).Returns(1L);
+		route.SetupGet(x => x.Landmarks).Returns([]);
+		route.SetupGet(x => x.ExitAnchors).Returns([]);
+		return new RouteCellData(cell, route, characters, items);
+	}
+
+	internal static Mock<ICharacter> CreateRouteCharacter(
+		ICell location,
+		double routePositionMetres,
+		IFuturemud? gameworld = null)
+	{
+		var character = CreateCharacter(location);
+		character.SetupGet(x => x.RoutePositionMetres).Returns(routePositionMetres);
+		character.SetupGet(x => x.SpatialLocation).Returns(() => new SpatialLocation(
+			location,
+			character.Object.RoomLayer,
+			routePositionMetres));
+		character.SetupGet(x => x.Gameworld).Returns(gameworld!);
+		return character;
+	}
+
     internal static Mock<IPerceiver> CreatePerceiver(ICell location)
     {
         Mock<IPerceiver> perceiver = new();
@@ -424,6 +530,21 @@ internal static class ScatterTestHelpers
         perceiver.Setup(x => x.Equals(It.IsAny<object>())).Returns<object>(o => ReferenceEquals(o, perceiver.Object));
         return perceiver;
     }
+
+	internal static Mock<IPerceiver> CreateRoutePerceiver(
+		ICell location,
+		double routePositionMetres,
+		IFuturemud? gameworld = null)
+	{
+		var perceiver = CreatePerceiver(location);
+		perceiver.SetupGet(x => x.RoutePositionMetres).Returns(routePositionMetres);
+		perceiver.SetupGet(x => x.SpatialLocation).Returns(() => new SpatialLocation(
+			location,
+			perceiver.Object.RoomLayer,
+			routePositionMetres));
+		perceiver.SetupGet(x => x.Gameworld).Returns(gameworld!);
+		return perceiver;
+	}
 
     internal static List<ICellExit> CreatePath(params CardinalDirection[] directions)
     {

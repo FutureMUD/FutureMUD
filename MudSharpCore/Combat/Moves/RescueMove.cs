@@ -19,7 +19,7 @@ public class RescueMove : CombatMoveBase
         List<ICharacter> targets =
             Target.Combat.Combatants.Where(
                       x => x.CombatTarget == Target && x.MeleeRange && x.ColocatedWith(Target) &&
-                           x.Location == Assailant.Location)
+						   x.ColocatedWith(Assailant))
                   .OfType<ICharacter>()
                   .ToList();
         ICharacter targetAssailant = targets.GetRandomElement();

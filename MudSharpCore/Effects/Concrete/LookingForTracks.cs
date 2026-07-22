@@ -3,6 +3,9 @@ using MudSharp.Body.Traits;
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
 
+using MudSharp.Construction;
+using MudSharp.Framework.Units;
+
 namespace MudSharp.Effects.Concrete;
 
 public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemoveOnStateChange
@@ -87,9 +90,16 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
         Dictionary<Difficulty, CheckOutcome> visionResult = checkVision.CheckAgainstAllDifficulties(actor, Difficulty.Normal, null);
         Dictionary<Difficulty, CheckOutcome> smellResult = checkSmell.CheckAgainstAllDifficulties(actor, Difficulty.Normal, null);
 
-        List<ITrack> tracks = actor.Location.Tracks
+		var spatialLocation = RouteSpatialService.Instance.GetEffectiveLocation(actor);
+		var trackSearchRadius = RouteSpatialConfiguration.FromGameworld(actor.Gameworld).ProximateDistanceMetres;
+		List<ITrack> tracks = actor.Location.Tracks
                           .Except(_alreadyFoundTracks)
                           .Where(x => x.RoomLayer == actor.RoomLayer)
+		                  .Where(x => actor.Location.RouteDefinition is null ||
+		                              spatialLocation.RoutePositionMetres.HasValue &&
+		                              x.RoutePositionMetres.HasValue &&
+		                              Math.Abs(x.RoutePositionMetres.Value -
+		                                       spatialLocation.RoutePositionMetres.Value) <= trackSearchRadius)
                           .ToList();
         List<(ITrack Track, Difficulty Visual, Difficulty Olfactory)> difficulties = tracks
                            .Select(x => (Track: x, Visual: x.VisualTrackDifficulty(actor), Olfactory: x.OlfactoryTrackDifficulty(actor)))
@@ -97,10 +107,11 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
         List<(ITrack Track, Difficulty Visual, Difficulty Olfactory)> successfulTracks = difficulties
                                .Where(x => visionResult[x.Visual].IsPass() || smellResult[x.Olfactory].IsPass())
                                .ToList();
-        List<IScentTrailEffect> scents = actor.Location.EffectsOfType<IScentTrailEffect>()
-                                              .Except(_alreadyFoundScents)
-                                              .Where(x => x.RoomLayer == actor.RoomLayer)
-                                              .ToList();
+        List<IScentTrailEffect> scents = ApplicableScentTrails(
+                actor,
+                actor.Location.EffectsOfType<IScentTrailEffect>()
+                    .Except(_alreadyFoundScents))
+            .ToList();
         List<IScentTrailEffect> successfulScents = scents
                                                    .Where(x => smellResult[x.ScentDifficulty(actor)].IsPass())
                                                    .ToList();
@@ -126,31 +137,53 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
 
         StringBuilder sb = new();
         sb.AppendLine("You found a track...");
-        if (passedSmell)
+		var vehicle = track.Track.Vehicle;
+		var character = track.Track.Character;
+		if (vehicle is not null)
+		{
+			sb.AppendLine($"...It was left by {vehicle.Name.ColourName()}.");
+		}
+        else if (passedSmell && character is not null)
         {
-            sb.AppendLine($"...It was left by a #5{track.Track.Character.Gender.GenderClass()} {track.Track.Character.Race.Name}#0.".SubstituteANSIColour());
+            sb.AppendLine($"...It was left by a #5{character.Gender.GenderClass()} {character.Race.Name}#0.".SubstituteANSIColour());
             sb.AppendLine($"...You can smell that its exertion level was {track.Track.ExertionLevel.DescribeEnum()} at the time.");
             if (smellResult[track.Olfactory].Outcome == Outcome.MajorPass)
             {
-                IDub dub = actor.Dubs.FirstOrDefault(x => x.Owner == track.Track.Character);
+                IDub dub = actor.Dubs.FirstOrDefault(x => x.Owner == character);
                 if (dub is not null)
                 {
                     sb.AppendLine($"...It smells like {dub.HowSeen(actor).ColourIncludingReset(Telnet.Magenta)}.");
                 }
             }
         }
-        else if (visionResult[track.Visual].Outcome == Outcome.MajorPass)
+        else if (visionResult[track.Visual].Outcome == Outcome.MajorPass && character is not null)
         {
-            sb.AppendLine($"...It was left by {track.Track.Character.Race.Name.A_An_RespectPlurals().ColourCharacter()}.");
+            sb.AppendLine($"...It was left by {character.Race.Name.A_An_RespectPlurals().ColourCharacter()}.");
         }
-        else
+		else if (track.Track.BodyProtoType is not null)
         {
             sb.AppendLine($"...It was left by {track.Track.BodyProtoType.NameForTracking.A_An_RespectPlurals(true).ColourCharacter()}.");
         }
+		else
+		{
+			sb.AppendLine("...Its source could not be identified.");
+		}
 
         if (passedVisual)
         {
-            if (track.Track.TrackCircumstances.HasFlag(TrackCircumstances.Dragged))
+			if (track.Track.RoutePositionMetres.HasValue && track.Track.RouteDirection.HasValue)
+			{
+				var route = track.Track.Cell.RouteDefinition;
+				var direction = track.Track.RouteDirection == RouteCellDirection.Positive
+					? route?.PositiveDirectionName ?? "forward"
+					: route?.NegativeDirectionName ?? "backward";
+				var distance = actor.Gameworld.UnitManager.DescribeMostSignificantExact(
+					track.Track.RoutePositionMetres.Value / actor.Gameworld.UnitManager.BaseHeightToMetres,
+					UnitType.Length,
+					actor);
+				sb.AppendLine($"...It travelled {direction} past {distance}.");
+			}
+            else if (track.Track.TrackCircumstances.HasFlag(TrackCircumstances.Dragged))
             {
                 if (track.Track.TurnedAround)
                 {
@@ -164,13 +197,17 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
             else
             {
                 IMoveSpeed speed = track.Track.FromSpeed ?? track.Track.ToSpeed;
-                if (track.Track.TurnedAround)
+				if (speed is null)
+				{
+					sb.AppendLine("...Its exact movement gait could not be determined.");
+				}
+                else if (track.Track.TurnedAround)
                 {
-                    sb.AppendLine($"...It {speed!.PresentParticiple} {track.Track.FromCellExit?.InboundMovementSuffix ?? track.Track.ToCellExit?.OutboundMovementSuffix} but turned around.");
+                    sb.AppendLine($"...It {speed.PresentParticiple} {track.Track.FromCellExit?.InboundMovementSuffix ?? track.Track.ToCellExit?.OutboundMovementSuffix} but turned around.");
                 }
                 else
                 {
-                    sb.AppendLine($"...It {speed!.PresentParticiple} {track.Track.FromCellExit?.InboundMovementSuffix ?? track.Track.ToCellExit?.OutboundMovementSuffix}.");
+                    sb.AppendLine($"...It {speed.PresentParticiple} {track.Track.FromCellExit?.InboundMovementSuffix ?? track.Track.ToCellExit?.OutboundMovementSuffix}.");
                 }
             }
 
@@ -187,7 +224,15 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
         }
         else
         {
-            if (track.Track.TurnedAround)
+			if (track.Track.RoutePositionMetres.HasValue && track.Track.RouteDirection.HasValue)
+			{
+				var route = track.Track.Cell.RouteDefinition;
+				var direction = track.Track.RouteDirection == RouteCellDirection.Positive
+					? route?.PositiveDirectionName ?? "forward"
+					: route?.NegativeDirectionName ?? "backward";
+				sb.AppendLine($"...It went {direction} along the route.");
+			}
+            else if (track.Track.TurnedAround)
             {
                 sb.AppendLine($"...It went {track.Track.FromCellExit?.InboundMovementSuffix ?? track.Track.ToCellExit?.OutboundMovementSuffix} but turned around.");
             }
@@ -211,4 +256,13 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
         actor.OutputHandler.Send(sb.ToString());
 
     }
+
+	internal static IEnumerable<IScentTrailEffect> ApplicableScentTrails(
+		ICharacter actor,
+		IEnumerable<IScentTrailEffect> scents)
+	{
+		return scents
+			.Where(x => x.RoomLayer == actor.RoomLayer)
+			.Where(x => x.Applies(actor));
+	}
 }

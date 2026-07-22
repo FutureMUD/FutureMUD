@@ -8,6 +8,7 @@ using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Events;
+using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.NPC.Templates;
@@ -1154,12 +1155,15 @@ public class CorpseSpawnEffect : IMagicSpellEffectTemplate
 		var cell = item.TrueLocations.FirstOrDefault() ?? caster.Location;
 		if (NPCPrototypeId > 0 && Gameworld.NpcTemplates.Get(NPCPrototypeId) is INPCTemplate template)
 		{
-            var ch = template.CreateNewCharacter(cell);
-            Gameworld.Add(ch, true);
-            ch.RoomLayer = item.RoomLayer;
-            template.ApplyTemplateLoadAdditions(ch);
-            template.OnLoadProg?.Execute(ch);
-            if (ch.Location.IsSwimmingLayer(ch.RoomLayer) && ch.Race.CanSwim)
+			var sourceLocation = RouteSpatialService.Instance.GetEffectiveLocation(item.LocationLevelPerceivable);
+			var spawnLocation = ReferenceEquals(sourceLocation.Cell, cell)
+				? new SpatialLocation(cell, item.RoomLayer, sourceLocation.RoutePositionMetres)
+				: CharacterInstanceService.CreateDefaultSpawnLocation(cell, item.RoomLayer);
+			var ch = template.CreateNewCharacter(spawnLocation);
+			Gameworld.Add(ch, true);
+			template.ApplyTemplateLoadAdditions(ch);
+			template.OnLoadProg?.Execute(ch);
+			if (ch.Location.IsSwimmingLayer(ch.RoomLayer) && ch.Race.CanSwim)
 			{
 				ch.PositionState = PositionSwimming.Instance;
 			}
@@ -1177,7 +1181,8 @@ public class CorpseSpawnEffect : IMagicSpellEffectTemplate
 			foreach (var newItem in proto.CreateNew(caster, null!, Quantity, string.Empty))
 			{
 				newItem.SetOwner(caster);
-				cell.Insert(newItem, true);
+				newItem.RoomLayer = item.RoomLayer;
+				newItem.InsertAtSource(item.LocationLevelPerceivable, true);
 				newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 				newItem.Login();
 			}

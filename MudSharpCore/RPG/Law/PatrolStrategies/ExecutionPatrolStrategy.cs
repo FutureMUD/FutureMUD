@@ -347,7 +347,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 	private bool MoveCharacterTo(ICharacter character, ICell target, int maximumDistance = 50)
 	{
-		if (character.Location == target)
+		if (HasReachedPatrolDestination(character, target))
 		{
 			return true;
 		}
@@ -357,25 +357,27 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			return false;
 		}
 
-		List<ICellExit> path = character.PathBetween(target, (uint)maximumDistance,
-			PathSearch.PathIncludeUnlockableDoors(character)).ToList();
-		if (!path.Any())
+		if (TryBeginPatrolPath(
+				character,
+				target,
+				maximumDistance,
+				PathSearch.PathIncludeUnlockableDoors(character)))
 		{
-			path = character.PathBetween(target, (uint)maximumDistance, PathSearch.IgnorePresenceOfDoors).ToList();
-			if (!path.Any())
-			{
-				return false;
-			}
+			return false;
 		}
 
-		BeginPatrolPath(character, path);
+		TryBeginPatrolPath(
+			character,
+			target,
+			maximumDistance,
+			PathSearch.IgnorePresenceOfDoors);
 		return false;
 	}
 
 	private bool MoveLeaderToCharacter(IPatrol patrol, ICharacter target)
 	{
 		ICharacter leader = patrol.PatrolLeader;
-		if (leader.ColocatedWith(target))
+		if (HasReachedPatrolDestination(leader, target))
 		{
 			return true;
 		}
@@ -385,17 +387,20 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			return false;
 		}
 
-		List<ICellExit> path = leader.PathBetween(target, 50, PathSearch.PathIncludeUnlockableDoors(leader)).ToList();
-		if (!path.Any())
+		if (TryBeginPatrolPath(
+				leader,
+				target,
+				50.0,
+				PathSearch.PathIncludeUnlockableDoors(leader)))
 		{
-			path = leader.PathBetween(target, 50, PathSearch.IgnorePresenceOfDoors).ToList();
-			if (!path.Any())
-			{
-				return false;
-			}
+			return false;
 		}
 
-		BeginPatrolPath(leader, path);
+		TryBeginPatrolPath(
+			leader,
+			target,
+			50.0,
+			PathSearch.IgnorePresenceOfDoors);
 		return false;
 	}
 
@@ -413,9 +418,8 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			return;
 		}
 
-		if (patrol.PatrolLeader.Location != equipment)
+		if (!MoveCharacterTo(patrol.PatrolLeader, equipment, 25))
 		{
-			MoveCharacterTo(patrol.PatrolLeader, equipment, 25);
 			if (DateTime.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
 			{
 				AbortExecution(patrol);
@@ -426,16 +430,15 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 		foreach (ICharacter member in patrol.PatrolMembers)
 		{
-			if (member.Location != equipment)
+			if (!MoveCharacterTo(member, equipment, 25))
 			{
-				MoveCharacterTo(member, equipment, 25);
 				continue;
 			}
 
 			DoPreparationRoomAction(member, member == patrol.PatrolLeader);
 		}
 
-		if (patrol.PatrolMembers.Any(x => x.Location != equipment))
+		if (patrol.PatrolMembers.Any(x => !HasReachedPatrolDestination(x, equipment)))
 		{
 			if (DateTime.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
 			{
@@ -504,13 +507,20 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			return Enumerable.Empty<ICellExit>();
 		}
 
-		List<ICellExit> path = member.PathBetween(_condemned, 50, PathSearch.IgnorePresenceOfDoors).ToList();
-		if (!path.Any() && _condemned.Location is not null)
+		IEnumerable<ICellExit> pathExits = Enumerable.Empty<ICellExit>();
+		if (TryCreatePatrolPath(
+				member,
+				_condemned,
+				50.0,
+				PathSearch.IgnorePresenceOfDoors,
+				out var retrievalPath))
 		{
-			path = member.PathBetween(_condemned.Location, 50, PathSearch.IgnorePresenceOfDoors).ToList();
+			pathExits = retrievalPath.IsSpatialPath
+				? retrievalPath.SpatialSteps.OfType<IExitTraversalPathStep>().Select(x => x.Exit)
+				: retrievalPath.Exits;
 		}
 
-		return path
+		return pathExits
 		       .Concat(_condemned.Location?.ExitsFor(member, true) ?? Enumerable.Empty<ICellExit>())
 		       .Where(x => x.Exit.Door?.Locks.Any() == true)
 		       .DistinctBy(x => x.Exit)
@@ -747,7 +757,8 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			return;
 		}
 
-		if (!IsBeingDraggedByPatrol(patrol) && _condemned.Location != executionLocation)
+		if (!IsBeingDraggedByPatrol(patrol) &&
+		    !HasReachedPatrolDestination(_condemned, executionLocation))
 		{
 			if (!patrol.PatrolLeader.ColocatedWith(_condemned))
 			{
@@ -762,7 +773,9 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			}
 		}
 
-		if (patrol.PatrolLeader.Location == executionLocation && _condemned.Location == executionLocation)
+		if (HasReachedPatrolDestination(patrol.PatrolLeader, executionLocation) &&
+		    HasReachedPatrolDestination(_condemned, executionLocation) &&
+		    patrol.PatrolLeader.ColocatedWith(_condemned))
 		{
 			if (!_arrivalEmoteSent)
 			{
@@ -786,7 +799,8 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 	private void HandleRestrainingPrisoner(IPatrol patrol)
 	{
 		ICell executionLocation = GetExecutionLocation(patrol.PatrolRoute);
-		if (_condemned.Location != executionLocation)
+		if (!HasReachedPatrolDestination(_condemned, executionLocation) ||
+		    !patrol.PatrolLeader.ColocatedWith(_condemned))
 		{
 			SetStage(ExecutionPatrolStage.TakingToExecutionRoom);
 			return;
@@ -834,7 +848,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		IGameItem item = restrainer.Body.HeldItems.FirstOrDefault(x => x.IsItemType<IRestraint>());
 		if (item is null)
 		{
-			item = restrainer.Location.LayerGameItems(restrainer.RoomLayer)
+			item = restrainer.Location.GameItemsInImmediateVicinity(restrainer)
 			                 .FirstOrDefault(x => x.IsItemType<IRestraint>() &&
 			                                      restrainer.Body.CanGet(x, 0,
 				                                      ItemCanGetIgnore.IgnoreInventoryPlans |
@@ -877,7 +891,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		if (profile.AllProfiles.Select(x => _condemned.Body.GetLimbFor(x.Key)?.LimbType)
 		           .Any(x => x == LimbType.Head || x == LimbType.Torso))
 		{
-			targetItem = restrainer.Location.LayerGameItems(restrainer.RoomLayer)
+			targetItem = restrainer.Location.GameItemsInImmediateVicinity(restrainer)
 			                       .Where(x => x != item)
 			                       .Where(x => !x.IsItemType<IRestraint>())
 			                       .Where(x => !x.IsItemType<IHoldable>() || x.Size >= _condemned.SizeSitting)
@@ -901,8 +915,9 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			return false;
 		}
 
-		if (_condemned.Location != executionLocation ||
-		    patrol.PatrolLeader.Location != executionLocation)
+		if (!HasReachedPatrolDestination(_condemned, executionLocation) ||
+		    !HasReachedPatrolDestination(patrol.PatrolLeader, executionLocation) ||
+		    !patrol.PatrolLeader.ColocatedWith(_condemned))
 		{
 			ResetCeremonyProgress();
 			SetStage(ExecutionPatrolStage.TakingToExecutionRoom);

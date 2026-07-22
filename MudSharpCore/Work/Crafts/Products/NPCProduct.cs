@@ -2,7 +2,9 @@
 using MudSharp.CharacterCreation;
 using MudSharp.Construction;
 using MudSharp.Events;
+using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.Form.Shape;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.NPC.Templates;
@@ -41,13 +43,40 @@ internal class NPCProduct : BaseProduct
 
         /// <inheritdoc />
         public void ReleaseProducts(ICell location, RoomLayer layer)
+		{
+			ReleaseProductsCore(null, location, layer);
+		}
+
+		public void ReleaseProducts(ILocateable source, ICell location, RoomLayer layer)
+		{
+			ReleaseProductsCore(source, location, layer);
+		}
+
+        private void ReleaseProductsCore(ILocateable source, ICell location, RoomLayer layer)
         {
+			var spawnLocation = CharacterInstanceService.CreateDefaultSpawnLocation(location, layer);
+			if (source is not null)
+			{
+				var sourceLocation = RouteSpatialService.Instance.GetEffectiveLocation(source);
+				if (ReferenceEquals(sourceLocation.Cell, location))
+				{
+					spawnLocation = new SpatialLocation(location, layer, sourceLocation.RoutePositionMetres);
+				}
+			}
+
+			if (!RouteSpatialService.Instance.TryValidateLocation(spawnLocation, out var spatialError))
+			{
+				throw new InvalidOperationException(
+					$"The NPC craft product has an invalid spawn location: {spatialError}");
+			}
+
             foreach (SimpleCharacterTemplate template in CharacterTemplates)
             {
-                NPC.NPC newCharacter = new(location.Gameworld, template with { SelectedStartingLocation = location }, NPCTemplate)
-                {
-                    RoomLayer = layer
-                };
+				NPC.NPC newCharacter = new(
+					location.Gameworld,
+					template with { SelectedStartingLocation = location },
+					NPCTemplate);
+				newCharacter.MoveTo(spawnLocation, noSave: true);
                 location.Gameworld.Add(newCharacter, true);
                 NPCTemplate.ApplyTemplateLoadAdditions(newCharacter);
                 NPCTemplate.OnLoadProg?.Execute(newCharacter);

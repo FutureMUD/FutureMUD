@@ -23,7 +23,8 @@ public partial class Character
 		int PositionModifier,
 		string? PositionEmote,
 		long? PositionTargetId,
-		string? PositionTargetType
+		string? PositionTargetType,
+		decimal? RoutePosition
 	);
 
 	private long _instanceId;
@@ -102,7 +103,12 @@ public partial class Character
 		PermissionLevel = canUsePlayerCommandTree ? identity.PermissionLevel : PermissionLevel.NPC;
 		CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
 		Location = instance.LocationId.HasValue ? Gameworld.Cells.Get(instance.LocationId.Value) : identity.Location;
-		_roomLayer = (RoomLayer)instance.RoomLayer;
+		var persistedLocation = CharacterInstanceService.ResolvePersistedSpatialLocation(instance, Location);
+		_roomLayer = persistedLocation.Layer;
+		LoadRoutePosition(
+			persistedLocation.RoutePositionMetres.HasValue
+				? (decimal)persistedLocation.RoutePositionMetres.Value
+				: null);
 		EnsureSecondaryBodyInventoryLoaded(instance);
 		Body.ActivateForCharacter();
 		_handedness = Body.Handedness;
@@ -218,7 +224,8 @@ public partial class Character
 				character.PositionModifier,
 				character.PositionEmote,
 				character.PositionTargetId,
-				character.PositionTargetType
+				character.PositionTargetType,
+				character.RoutePosition
 			);
 		}
 
@@ -259,7 +266,8 @@ public partial class Character
 			primary.PositionModifier,
 			primary.PositionEmote,
 			primary.PositionTargetId,
-			primary.PositionTargetType
+			primary.PositionTargetType,
+			primary.RoutePosition ?? character.RoutePosition
 		);
 	}
 
@@ -451,6 +459,7 @@ public partial class Character
 		primary.PersistencePolicy = (int)_persistencePolicy;
 		primary.LocationId = Location?.Id;
 		primary.RoomLayer = (int)RoomLayer;
+		primary.RoutePosition = RoutePositionMetres.HasValue ? (decimal)RoutePositionMetres.Value : null;
 		primary.PositionId = (int)(PositionState?.Id ?? PositionStanding.Instance.Id);
 		primary.PositionModifier = (int)PositionModifier;
 		primary.PositionTargetId = PositionTarget?.Id;
@@ -495,6 +504,7 @@ public partial class Character
 		// Legacy Characters world-presence columns mirror only the primary instance during the transition.
 		dbchar.Location = Location?.Id ?? 1L;
 		dbchar.RoomLayer = (int)RoomLayer;
+		dbchar.RoutePosition = RoutePositionMetres.HasValue ? (decimal)RoutePositionMetres.Value : null;
 		dbchar.State = (int)(stateOverride ?? State);
 		dbchar.Status = (int)_status;
 		dbchar.BodyId = Body.Id;
@@ -522,6 +532,7 @@ public partial class Character
 		instance.PersistencePolicy = (int)_persistencePolicy;
 		instance.LocationId = Location?.Id;
 		instance.RoomLayer = (int)RoomLayer;
+		instance.RoutePosition = RoutePositionMetres.HasValue ? (decimal)RoutePositionMetres.Value : null;
 		instance.PositionId = (int)(PositionState?.Id ?? PositionStanding.Instance.Id);
 		instance.PositionModifier = (int)PositionModifier;
 		instance.PositionTargetId = PositionTarget?.Id;
@@ -555,6 +566,7 @@ public partial class Character
 			PersistencePolicy = (int)_persistencePolicy,
 			LocationId = dbitem.Location,
 			RoomLayer = (int)RoomLayer,
+			RoutePosition = RoutePositionMetres.HasValue ? (decimal)RoutePositionMetres.Value : null,
 			PositionId = (int)(PositionState?.Id ?? PositionStanding.Instance.Id),
 			PositionModifier = (int)PositionModifier,
 			PositionTargetId = PositionTarget?.Id,

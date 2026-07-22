@@ -464,7 +464,10 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 			return false;
 		}
 
-		if (!ValidateTrain(root, exit, members, links, root.Controller, out reason))
+		var transitionPerceiver = root.Prototype.Scale == VehicleScale.RoomScale
+			? (IPerceiver?)root.ExteriorItem
+			: root.Controller ?? (IPerceiver?)root.ExteriorItem;
+		if (!ValidateTrain(root, exit, members, links, transitionPerceiver, out reason))
 		{
 			return false;
 		}
@@ -559,12 +562,12 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 	}
 
 	private bool ValidateTrain(IVehicle root, ICellExit exit, IReadOnlyList<VehicleHitchGraphTrainMember> members,
-		IReadOnlyList<VehicleHitchGraphLink> links, ICharacter? transitionActor, out string reason,
+		IReadOnlyList<VehicleHitchGraphLink> links, IPerceiver? transitionPerceiver, out string reason,
 		bool allowRootIncoming = false)
 	{
-		var targetLayer = transitionActor is null
+		var targetLayer = transitionPerceiver is null
 			? root.RoomLayer
-			: exit.MovementTransition(transitionActor).TargetLayer;
+			: exit.MovementTransition(transitionPerceiver).TargetLayer;
 		foreach (var member in members)
 		{
 			var vehicle = member.Vehicle;

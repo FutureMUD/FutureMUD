@@ -110,9 +110,16 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<Track>(entity =>
             {
-                entity.ToTable("Tracks");
+                entity.ToTable("Tracks", table =>
+                {
+                    table.HasCheckConstraint("CK_Tracks_Owner",
+                        "(`VehicleId` IS NULL AND `CharacterId` IS NOT NULL AND `BodyPrototypeId` IS NOT NULL) OR " +
+                        "(`VehicleId` IS NOT NULL AND `CharacterId` IS NULL AND `BodyPrototypeId` IS NULL)");
+                });
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
-                entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
+                entity.Property(e => e.CharacterId).HasColumnType("bigint(20)").IsRequired(false);
+                entity.Property(e => e.BodyPrototypeId).HasColumnType("bigint(20)").IsRequired(false);
+                entity.Property(e => e.VehicleId).HasColumnType("bigint(20)").IsRequired(false);
                 entity.Property(e => e.CellId).HasColumnType("bigint(20)");
                 entity.Property(e => e.FromDirectionExitId).HasColumnType("bigint(20)").IsRequired(false);
                 entity.Property(e => e.ToDirectionExitId).HasColumnType("bigint(20)").IsRequired(false);
@@ -129,6 +136,7 @@ namespace MudSharp.Database
                       .HasCharSet("utf8")
                       .UseCollation("utf8_general_ci");
                 entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.HasIndex(e => e.VehicleId).HasDatabaseName("FK_Tracks_Vehicles_idx");
 
                 entity
                     .HasOne(e => e.Cell)
@@ -149,6 +157,13 @@ namespace MudSharp.Database
                     .WithMany()
                     .HasForeignKey(e => e.BodyPrototypeId)
                     .HasConstraintName("FK_Tracks_BodyProtos")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity
+                    .HasOne(e => e.Vehicle)
+                    .WithMany(x => x.Tracks)
+                    .HasForeignKey(e => e.VehicleId)
+                    .HasConstraintName("FK_Tracks_Vehicles")
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity

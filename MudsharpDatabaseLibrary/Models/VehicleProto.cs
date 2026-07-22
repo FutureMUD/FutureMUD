@@ -7,6 +7,7 @@ public class VehicleProto
 	public VehicleProto()
 	{
 		Compartments = new HashSet<VehicleCompartmentProto>();
+		CompartmentLinks = new HashSet<VehicleCompartmentLinkProto>();
 		OccupantSlots = new HashSet<VehicleOccupantSlotProto>();
 		ControlStations = new HashSet<VehicleControlStationProto>();
 		MovementProfiles = new HashSet<VehicleMovementProfileProto>();
@@ -30,6 +31,7 @@ public class VehicleProto
 	public virtual EditableItem EditableItem { get; set; }
 	public virtual GameItemProto ExteriorItemProto { get; set; }
 	public virtual ICollection<VehicleCompartmentProto> Compartments { get; set; }
+	public virtual ICollection<VehicleCompartmentLinkProto> CompartmentLinks { get; set; }
 	public virtual ICollection<VehicleOccupantSlotProto> OccupantSlots { get; set; }
 	public virtual ICollection<VehicleControlStationProto> ControlStations { get; set; }
 	public virtual ICollection<VehicleMovementProfileProto> MovementProfiles { get; set; }

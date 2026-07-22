@@ -103,7 +103,7 @@ public class CannulaGameItemComponent : GameItemComponent, ICannula
             IConnectable newItemConnectable = newItem?.GetItemType<IConnectable>();
             if (newItemConnectable == null)
             {
-                location?.Insert(connectedItem.Parent);
+                InsertAtParentSpatialLocation(connectedItem.Parent, location);
             }
             else
             {
@@ -113,7 +113,7 @@ public class CannulaGameItemComponent : GameItemComponent, ICannula
                 }
                 else
                 {
-                    location?.Insert(connectedItem.Parent);
+                    InsertAtParentSpatialLocation(connectedItem.Parent, location);
                 }
             }
         }
@@ -150,7 +150,7 @@ public class CannulaGameItemComponent : GameItemComponent, ICannula
                 continue;
             }
 
-            if (gitem.Location != Parent.Location)
+            if (!Parent.ColocatedWith(gitem))
             {
                 continue;
             }

@@ -2,6 +2,7 @@
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
 using MudSharp.Combat;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
@@ -235,7 +236,7 @@ public partial class Body
                 {
                     gitem.Get(null);
                     gitem.RoomLayer = RoomLayer;
-                    Location.Insert(gitem);
+                    gitem.InsertAtSource(Actor);
                 }
             }
             else if (item.Wielded.HasValue && item.Wielded.Value == 1)
@@ -245,7 +246,7 @@ public partial class Body
                 {
                     gitem.Get(null);
                     gitem.RoomLayer = RoomLayer;
-                    Location.Insert(gitem);
+                    gitem.InsertAtSource(Actor);
                 }
             }
             else
@@ -254,7 +255,7 @@ public partial class Body
                 {
                     gitem.Get(null);
                     gitem.RoomLayer = RoomLayer;
-                    Location.Insert(gitem);
+                    gitem.InsertAtSource(Actor);
                 }
             }
         }
@@ -530,7 +531,7 @@ public partial class Body
         item.InvokeInventoryChange(InventoryState.Held, InventoryState.Wielded);
         CheckConsequences();
         item.HandleEvent(EventType.ItemWielded, item, Actor);
-        foreach (IHandleEvents witness in Location.EventHandlers)
+        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor))
         {
             witness.HandleEvent(EventType.ItemWieldedWitness, item, Actor, witness);
         }
@@ -626,7 +627,7 @@ public partial class Body
         item.InvokeInventoryChange(InventoryState.Held, InventoryState.Wielded);
         CheckConsequences();
         item.HandleEvent(EventType.ItemWielded, item, Actor);
-        foreach (IHandleEvents witness in Location.EventHandlers)
+        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor))
         {
             witness.HandleEvent(EventType.ItemWieldedWitness, item, Actor, witness);
         }
@@ -1154,7 +1155,7 @@ public partial class Body
         Actor.HandleEvent(EventType.CharacterSheatheItem, Actor, item, sheath);
         item.HandleEvent(EventType.ItemSheathed, Actor, item, sheath);
         sheath.HandleEvent(EventType.ItemSheathItemSheathed, Actor, item, sheath);
-        foreach (IHandleEvents witness in Location.EventHandlers.Except(Actor))
+        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor).Except(Actor))
         {
             witness.HandleEvent(EventType.CharacterSheatheItemWitness, Actor, item, sheath, witness);
         }
@@ -1245,6 +1246,11 @@ public partial class Body
 
     public bool CanGet(IGameItem item, int quantity, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
+		if (item?.Location?.RouteDefinition is not null && Actor.GetProximity(item) > Proximity.Immediate)
+		{
+			return false;
+		}
+
         if (item.GetItemType<IDoor>()?.InstalledExit != null)
         {
             return false;
@@ -1359,6 +1365,11 @@ public partial class Body
 
     public string WhyCannotGet(IGameItem item, int quantity, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
+		if (item?.Location?.RouteDefinition is not null && Actor.GetProximity(item) > Proximity.Immediate)
+		{
+			return $"You are too far away from {item.HowSeen(Actor)} to pick it up.";
+		}
+
         if (item.GetItemType<IDoor>()?.InstalledExit != null)
         {
             return "You cannot get installed doors directly. You must uninstall them first.";
@@ -1538,7 +1549,7 @@ public partial class Body
         params IHandleEvents[] excluded)
     {
         return explicitWitnessHandlers is null
-            ? Location.EventHandlers.Except(excluded)
+            ? Location.EventHandlersFor(Actor).Except(excluded)
             : explicitWitnessHandlers.Except(excluded);
     }
 
@@ -1745,6 +1756,11 @@ public partial class Body
     public bool CanPut(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity,
         bool allowLesserAmounts)
     {
+		if (container?.Location?.RouteDefinition is not null && Actor.GetProximity(container) > Proximity.Immediate)
+		{
+			return false;
+		}
+
         if (Actor.RidingMount != null)
         {
             return false;
@@ -1764,6 +1780,11 @@ public partial class Body
     public string WhyCannotPut(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity,
         bool allowLesserAmounts)
     {
+		if (container?.Location?.RouteDefinition is not null && Actor.GetProximity(container) > Proximity.Immediate)
+		{
+			return $"You are too far away from {container.HowSeen(Actor)} to put anything into it.";
+		}
+
         if (Actor.RidingMount != null)
         {
             return new QuickEmote("@ cannot put items into containers while riding $0.", Actor, Actor.RidingMount);
@@ -2092,7 +2113,7 @@ public partial class Body
             item.Drop(Location);
             _heldItems.RemoveAll(x => x.Item1 == item);
             _wieldedItems.RemoveAll(x => x.Item1 == item);
-            Location.Insert(item, newStack);
+            droppedItem.InsertAtSource(Actor, newStack);
             output = new MixedEmoteOutput(new Emote("@ drop|drops $0", this, item),
                 flags: OutputFlags.SuppressObscured);
         }
@@ -2101,7 +2122,7 @@ public partial class Body
             IGameItem newItem = item.Drop(Location, quantity);
             droppedItem = newItem;
             droppedItem.RoomLayer = RoomLayer;
-            Location.Insert(newItem, newStack);
+            newItem.InsertAtSource(Actor, newStack);
             output = new MixedEmoteOutput(new Emote("@ drop|drops $0", this, newItem),
                 flags: OutputFlags.SuppressObscured);
         }
@@ -2120,7 +2141,7 @@ public partial class Body
         // Handle Events
         HandleEvent(EventType.CharacterDroppedItem, Actor, droppedItem);
         droppedItem.HandleEvent(EventType.ItemDropped, Actor, droppedItem);
-        foreach (IHandleEvents witness in Location.EventHandlers.Except(new IHandleEvents[] { Actor, droppedItem }))
+        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor).Except(new IHandleEvents[] { Actor, droppedItem }))
         {
             witness.HandleEvent(EventType.CharacterDroppedItemWitness, Actor, droppedItem, witness);
         }
@@ -2206,7 +2227,7 @@ public partial class Body
         HandleEvent(EventType.CharacterGiveItemGiver, Actor, target.Actor, givenItem);
         target.HandleEvent(EventType.CharacterGiveItemReceiver, Actor, target.Actor, givenItem);
         givenItem.HandleEvent(EventType.ItemGiven, Actor, target.Actor, givenItem);
-        foreach (IHandleEvents witness in Location.EventHandlers.Except(new IHandleEvents[] { Actor, target.Actor }))
+        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor).Except(new IHandleEvents[] { Actor, target.Actor }))
         {
             witness.HandleEvent(EventType.CharacterGiveItemWitness, Actor, target.Actor, givenItem, witness);
         }
@@ -2297,7 +2318,7 @@ public partial class Body
             target.OriginalCharacter.HandleEvent(EventType.CharacterGiveItemReceiver, Actor, target.OriginalCharacter,
                 givenItem);
             givenItem.HandleEvent(EventType.ItemGiven, Actor, target.OriginalCharacter, givenItem);
-            foreach (IHandleEvents witness in Location.EventHandlers.Except(new IHandleEvents[] { Actor, target.OriginalCharacter })
+            foreach (IHandleEvents witness in Location.EventHandlersFor(Actor).Except(new IHandleEvents[] { Actor, target.OriginalCharacter })
                     )
             {
                 witness.HandleEvent(EventType.CharacterGiveItemWitness, Actor, target.OriginalCharacter, givenItem,
@@ -2443,7 +2464,7 @@ public partial class Body
                                 $"You set {item.HowSeen(Actor)} down as you can't figure out a way to hold it.");
                             Take(item);
                             item.RoomLayer = RoomLayer;
-                            Actor.Location.Insert(item);
+                            item.InsertAtSource(Actor);
                             return;
                         }
                         else
@@ -2467,7 +2488,7 @@ public partial class Body
                         $"You set {item.HowSeen(Actor)} down as you can't figure out a way to hold it.");
                     Take(item);
                     item.RoomLayer = RoomLayer;
-                    Actor.Location.Insert(item);
+                    item.InsertAtSource(Actor);
                     return;
                 }
                 else
@@ -2626,7 +2647,7 @@ public partial class Body
     {
         Actor.HandleEvent(EventType.CharacterWornItemRemoved, Actor, remover, item);
         item.HandleEvent(EventType.ItemRemovedFromWear, Actor, remover, item);
-        foreach (IHandleEvents witness in Location.EventHandlers)
+        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor))
         {
             witness.HandleEvent(EventType.CharacterWornItemRemovedWitness, Actor, remover, item, witness);
         }
@@ -2894,7 +2915,7 @@ public partial class Body
         item.InvokeInventoryChange(wasWielded ? InventoryState.Wielded : InventoryState.Held, InventoryState.Worn);
         CheckConsequences();
         item.HandleEvent(EventType.ItemWorn, item, Actor);
-        foreach (IHandleEvents witness in Location.EventHandlers)
+        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor))
         {
             witness.HandleEvent(EventType.ItemWornWitness, item, Actor, witness);
         }

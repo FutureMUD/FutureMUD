@@ -335,12 +335,12 @@ public abstract class StrategyBase : ICombatStrategy
                 IGuardCharacterEffect guardEffect = ch.EffectsOfType<IGuardCharacterEffect>().FirstOrDefault();
                 ICharacter targetNeedsRescuing =
                     guardEffect?.Targets.FirstOrDefault(guardedCh =>
-                        guardedCh.Location == ch.Location &&
+						guardedCh.ColocatedWith(ch) &&
                         ch.CombatTarget != guardedCh &&
                         ch.Combat.Combatants.Any(
                             combatCh => combatCh != ch &&
                                         combatCh.CombatTarget == guardedCh &&
-                                        combatCh.Location == guardedCh.Location &&
+										combatCh.ColocatedWith(guardedCh) &&
                                         combatCh.MeleeRange));
                 if (targetNeedsRescuing != null)
                 {
@@ -360,8 +360,8 @@ public abstract class StrategyBase : ICombatStrategy
                 if (ch.Combat.Combatants.Any(
                         x => x != ch &&
                              x.CombatTarget == rescueEffect.RescueTarget &&
-                             x.Location == rescueEffect.RescueTarget.Location &&
-                             x.Location == ch.Location &&
+							 x.ColocatedWith(rescueEffect.RescueTarget) &&
+							 x.ColocatedWith(ch) &&
                              x.MeleeRange))
                 {
                     return new RescueMove { Assailant = ch, Target = rescueEffect.RescueTarget };
@@ -752,8 +752,17 @@ public abstract class StrategyBase : ICombatStrategy
             {
                 if (combatant.CombatTarget.Location == combatant.Location)
                 {
-                    combatant.Aim = new AimInformation(combatant.CombatTarget, combatant, Enumerable.Empty<ICellExit>(),
-                        readyRangedWeapons.FirstMax(x => x.Parent.Quality));
+					var weapon = combatant.Location.RouteDefinition is null
+						? readyRangedWeapons.FirstMax(x => x.Parent.Quality)
+						: readyRangedWeapons
+							.Where(x => combatant.RoomEquivalentDistanceBetween(combatant.CombatTarget) <=
+							            x.WeaponType.DefaultRangeInRooms)
+							.FirstMax(x => x.Parent.Quality);
+					if (weapon is not null)
+					{
+						combatant.Aim = new AimInformation(combatant.CombatTarget, combatant,
+							Enumerable.Empty<ICellExit>(), weapon);
+					}
                 }
                 else
                 {
@@ -977,7 +986,7 @@ public abstract class StrategyBase : ICombatStrategy
         {
             ICombatMove move;
             if (getEffects.Any(x =>
-                    x.TargetItem.Location == ch.Location &&
+					x.TargetItem.ColocatedWith(ch) &&
                     IsUseableWeapon(ch, x.TargetItem.GetItemType<IMeleeWeapon>())))
             {
                 if ((move = AttemptGetWeapon(ch)) != null)
@@ -987,7 +996,7 @@ public abstract class StrategyBase : ICombatStrategy
             }
 
             if (getEffects.Any(x =>
-                    x.TargetItem.Location == ch.Location &&
+					x.TargetItem.ColocatedWith(ch) &&
                     IsUseableWeapon(ch, x.TargetItem.GetItemType<IRangedWeapon>())))
             {
                 if ((move = AttemptGetRangedWeapon(ch)) != null)
@@ -997,7 +1006,7 @@ public abstract class StrategyBase : ICombatStrategy
             }
 
             if (getEffects.Any(x =>
-                    x.TargetItem.Location == ch.Location && IsUseableWeapon(ch, x.TargetItem.GetItemType<IShield>())))
+					x.TargetItem.ColocatedWith(ch) && IsUseableWeapon(ch, x.TargetItem.GetItemType<IShield>())))
             {
                 if ((move = AttemptGetShield(ch)) != null)
                 {

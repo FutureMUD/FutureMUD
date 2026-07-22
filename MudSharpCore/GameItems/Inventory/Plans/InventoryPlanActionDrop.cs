@@ -1,4 +1,6 @@
 ﻿
+using MudSharp.Construction;
+
 namespace MudSharp.GameItems.Inventory.Plans;
 
 public class InventoryPlanActionDrop : InventoryPlanAction
@@ -56,7 +58,7 @@ public class InventoryPlanActionDrop : InventoryPlanAction
     {
         // In location
         IGameItem item =
-            executor.Location.LayerGameItems(executor.RoomLayer).FirstOrDefault(
+            executor.Location.GameItemsInImmediateVicinity(executor).FirstOrDefault(
                 x => x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true));
         if (item != null)
         {
@@ -127,7 +129,7 @@ public class InventoryPlanActionDrop : InventoryPlanAction
 
         // Attached to room items next
         item =
-            executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<IBelt>())
+            executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<IBelt>())
                     .Select(
                         x =>
                             x.ConnectedItems.FirstOrDefault(
@@ -141,7 +143,7 @@ public class InventoryPlanActionDrop : InventoryPlanAction
 
         // Sheathed in room item next
         item =
-            executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<ISheath>())
+            executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<ISheath>())
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(x => x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true));
         if (item != null)
@@ -151,7 +153,7 @@ public class InventoryPlanActionDrop : InventoryPlanAction
 
         // In containers in location
         item =
-            executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<IContainer>())
+            executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<IContainer>())
                     .Where(x => x.Parent.GetItemType<IOpenable>()?.IsOpen ?? true)
                     .SelectMany(x => x.Contents)
                     .FirstOrDefault(x => x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true));

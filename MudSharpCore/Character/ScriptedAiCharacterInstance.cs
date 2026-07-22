@@ -2,6 +2,7 @@
 using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Events;
 using MudSharp.GameItems;
@@ -268,7 +269,7 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 			remains = CorpseGameItemComponentProto.CreateNewBodyRemains(this, Body, BodyRemainsContext.AbandonedBody);
 			Gameworld.Add(remains);
 			remains.RoomLayer = oldLayer;
-			oldLocation.Insert(remains);
+			remains.InsertAtSource(this);
 		}
 
 		Combat?.LeaveCombat(this);

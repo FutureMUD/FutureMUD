@@ -7,6 +7,9 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Functions.DateTime;
 using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate;
+using MudSharp.Framework.Units;
+using MudSharp.Vehicles;
+using System.IO;
 using System.Threading;
 
 #nullable enable
@@ -35,8 +38,44 @@ public class Track : LateInitialisingItem, ITrack
         TrackIntensityOlfactory = track.TrackIntensityOlfactory;
         TurnedAround = track.TurnedAround;
         _characterId = track.CharacterId;
+		_vehicleId = track.VehicleId;
         _mudDateTimeText = track.MudDateTime;
+		RoutePositionMetres = track.RoutePosition.HasValue ? (double)track.RoutePosition.Value : null;
+		RouteDirection = track.RouteDirection.HasValue
+			? (RouteCellDirection)track.RouteDirection.Value
+			: null;
+		ValidateLoadedSpatialState(track);
     }
+
+	private void ValidateLoadedSpatialState(Models.Track track)
+	{
+		var cell = Gameworld.Cells.Get(track.CellId) ??
+			throw new InvalidDataException($"Track #{track.Id:N0} references missing Cell #{track.CellId:N0}.");
+		var route = cell.RouteDefinition;
+		if (route is null)
+		{
+			if (RoutePositionMetres.HasValue || RouteDirection.HasValue)
+			{
+				throw new InvalidDataException(
+					$"Track #{track.Id:N0} has RouteCell position or direction data but Cell #{track.CellId:N0} is ordinary.");
+			}
+
+			return;
+		}
+
+		if (!RoutePositionMetres.HasValue || !double.IsFinite(RoutePositionMetres.Value) ||
+			RoutePositionMetres.Value < 0.0 || RoutePositionMetres.Value > route.LengthMetres)
+		{
+			throw new InvalidDataException(
+				$"Track #{track.Id:N0} has an invalid or missing coordinate in RouteCell #{track.CellId:N0}; valid coordinates are 0-{route.LengthMetres:N3}m.");
+		}
+
+		if (RouteDirection is not (RouteCellDirection.Negative or RouteCellDirection.Positive))
+		{
+			throw new InvalidDataException(
+				$"Track #{track.Id:N0} has an invalid or missing longitudinal direction in RouteCell #{track.CellId:N0}.");
+		}
+	}
 
     public Track(IFuturemud gameworld, ICharacter who, ICellExit exit, TrackCircumstances circumstances, bool isLeaving, double visual, double olfactory)
     {
@@ -44,6 +83,7 @@ public class Track : LateInitialisingItem, ITrack
         _character = who;
         _characterId = who.Id;
         _bodyProtoType = who.Body.Prototype;
+		_bodyProtoTypeId = who.Body.Prototype.Id;
         ExertionLevel = who.Body.CurrentExertion;
         TrackCircumstances = circumstances;
         _mudDateTime = who.Location.DateTime();
@@ -64,6 +104,58 @@ public class Track : LateInitialisingItem, ITrack
 
         gameworld.SaveManager.AddInitialisation(this);
     }
+
+	public Track(
+		IFuturemud gameworld,
+		ICharacter who,
+		double routePositionMetres,
+		RouteCellDirection routeDirection,
+		TrackCircumstances circumstances,
+		double visual,
+		double olfactory)
+	{
+		Gameworld = gameworld;
+		_character = who;
+		_characterId = who.Id;
+		_bodyProtoType = who.Body.Prototype;
+		_bodyProtoTypeId = who.Body.Prototype.Id;
+		ExertionLevel = who.Body.CurrentExertion;
+		TrackCircumstances = circumstances;
+		_mudDateTime = who.Location.DateTime();
+		RoomLayer = who.RoomLayer;
+		TrackIntensityOlfactory = olfactory;
+		TrackIntensityVisual = visual;
+		_cell = who.Location;
+		RoutePositionMetres = routePositionMetres;
+		RouteDirection = routeDirection;
+		_toSpeed = who.CurrentSpeed;
+
+		gameworld.SaveManager.AddInitialisation(this);
+	}
+
+	public Track(
+		IFuturemud gameworld,
+		IVehicle vehicle,
+		double routePositionMetres,
+		RouteCellDirection routeDirection,
+		double visual,
+		double olfactory)
+	{
+		Gameworld = gameworld;
+		_vehicle = vehicle;
+		_vehicleId = vehicle.Id;
+		ExertionLevel = ExertionLevel.Normal;
+		TrackCircumstances = TrackCircumstances.None;
+		_mudDateTime = vehicle.Location.DateTime();
+		RoomLayer = vehicle.RoomLayer;
+		TrackIntensityOlfactory = olfactory;
+		TrackIntensityVisual = visual;
+		_cell = vehicle.Location;
+		RoutePositionMetres = routePositionMetres;
+		RouteDirection = routeDirection;
+
+		gameworld.SaveManager.AddInitialisation(this);
+	}
 
     /// <inheritdoc />
     public override void Save()
@@ -86,12 +178,17 @@ public class Track : LateInitialisingItem, ITrack
         dbitem.TrackCircumstances = (int)TrackCircumstances;
         dbitem.CellId = Cell.Id;
         dbitem.CharacterId = _characterId;
+		dbitem.VehicleId = _vehicleId;
         dbitem.MudDateTime = MudDateTime.GetDateTimeString();
         dbitem.FromMoveSpeedId = FromSpeed?.Id;
         dbitem.ToMoveSpeedId = ToSpeed?.Id;
         dbitem.FromDirectionExitId = FromExit?.Id;
         dbitem.ToDirectionExitId = ToExit?.Id;
-        dbitem.BodyPrototypeId = BodyProtoType.Id;
+		dbitem.BodyPrototypeId = _bodyProtoTypeId ?? BodyProtoType?.Id;
+		dbitem.RoutePosition = RoutePositionMetres.HasValue
+			? Math.Round((decimal)RoutePositionMetres.Value, 3, MidpointRounding.AwayFromZero)
+			: null;
+		dbitem.RouteDirection = RouteDirection.HasValue ? (int)RouteDirection.Value : null;
     }
 
     /// <inheritdoc />
@@ -107,12 +204,17 @@ public class Track : LateInitialisingItem, ITrack
             TrackCircumstances = (int)TrackCircumstances,
             CellId = Cell.Id,
             CharacterId = _characterId,
+			VehicleId = _vehicleId,
             MudDateTime = MudDateTime.GetDateTimeString(),
             FromMoveSpeedId = FromSpeed?.Id,
             ToMoveSpeedId = ToSpeed?.Id,
             FromDirectionExitId = FromExit?.Id,
             ToDirectionExitId = ToExit?.Id,
-            BodyPrototypeId = BodyProtoType.Id
+			BodyPrototypeId = _bodyProtoTypeId ?? BodyProtoType?.Id,
+			RoutePosition = RoutePositionMetres.HasValue
+				? Math.Round((decimal)RoutePositionMetres.Value, 3, MidpointRounding.AwayFromZero)
+				: null,
+			RouteDirection = RouteDirection.HasValue ? (int)RouteDirection.Value : null
         };
         FMDB.Context.Tracks.Add(dbitem);
         return dbitem;
@@ -159,17 +261,29 @@ public class Track : LateInitialisingItem, ITrack
         };
     }
 
-    private readonly long _characterId;
+	private readonly long? _characterId;
     private ICharacter? _character;
 
     /// <inheritdoc />
-    public ICharacter Character => _character ??= Gameworld.TryGetCharacter(_characterId, true);
+	public ICharacter? Character => _character ??= _characterId.HasValue
+		? Gameworld.TryGetCharacter(_characterId.Value, true)
+		: null;
 
-    private readonly long _bodyProtoTypeId;
+	private readonly long? _bodyProtoTypeId;
     private IBodyPrototype? _bodyProtoType;
 
     /// <inheritdoc />
-    public IBodyPrototype BodyProtoType => _bodyProtoType ??= Gameworld.BodyPrototypes.Get(_bodyProtoTypeId)!;
+	public IBodyPrototype? BodyProtoType => _bodyProtoType ??= _bodyProtoTypeId.HasValue
+		? Gameworld.BodyPrototypes.Get(_bodyProtoTypeId.Value)
+		: null;
+
+	private readonly long? _vehicleId;
+	private IVehicle? _vehicle;
+
+	/// <inheritdoc />
+	public IVehicle? Vehicle => _vehicle ??= _vehicleId.HasValue
+		? Gameworld.Vehicles.Get(_vehicleId.Value)
+		: null;
 
     private long _cellId;
     private ICell? _cell;
@@ -256,6 +370,8 @@ public class Track : LateInitialisingItem, ITrack
     public double TrackIntensityVisual { get; set; }
     public double TrackIntensityOlfactory { get; set; }
     public bool TurnedAround { get; set; }
+	public double? RoutePositionMetres { get; private set; }
+	public RouteCellDirection? RouteDirection { get; private set; }
 
     public Difficulty VisualTrackDifficulty(ICharacter actor)
     {
@@ -308,20 +424,51 @@ public class Track : LateInitialisingItem, ITrack
     public string DescribeForTracksCommand(ICharacter actor)
     {
         StringBuilder sb = new();
-        sb.Append(BodyProtoType.NameForTracking.A_An_RespectPlurals(true).ColourCharacter());
+		var vehicle = Vehicle;
+		if (vehicle is not null)
+		{
+			sb.Append($"vehicle tracks from {vehicle.Name.ColourName()}");
+		}
+		else if (BodyProtoType is not null)
+		{
+			sb.Append(BodyProtoType.NameForTracking.A_An_RespectPlurals(true).ColourCharacter());
+		}
+		else
+		{
+			sb.Append("unidentifiable tracks".ColourCharacter());
+		}
         IMoveSpeed? speed = FromSpeed ?? ToSpeed;
         sb.Append(" ");
         if (TrackCircumstances.HasFlag(TrackCircumstances.Dragged))
         {
             sb.Append("dragged ");
         }
-        else
+        else if (speed is not null)
         {
-            sb.Append(speed!.PresentParticiple);
+            sb.Append(speed.PresentParticiple);
             sb.Append(" ");
         }
+		else if (vehicle is not null)
+		{
+			sb.Append("travelled ");
+		}
 
-        sb.Append((FromCellExit?.InboundMovementSuffix ?? ToCellExit?.OutboundMovementSuffix));
+		if (RoutePositionMetres.HasValue && RouteDirection.HasValue)
+		{
+			var route = Cell.RouteDefinition;
+			var directionName = RouteDirection == RouteCellDirection.Positive
+				? route?.PositiveDirectionName ?? "forward"
+				: route?.NegativeDirectionName ?? "backward";
+			var distance = actor.Gameworld.UnitManager.DescribeMostSignificantExact(
+				RoutePositionMetres.Value / actor.Gameworld.UnitManager.BaseHeightToMetres,
+				UnitType.Length,
+				actor);
+			sb.Append($"{directionName} past {distance}");
+		}
+		else
+		{
+			sb.Append(FromCellExit?.InboundMovementSuffix ?? ToCellExit?.OutboundMovementSuffix);
+		}
         if (TurnedAround)
         {
             sb.Append(" and looped back");

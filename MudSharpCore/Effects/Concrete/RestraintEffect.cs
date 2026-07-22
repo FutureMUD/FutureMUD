@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body;
 using MudSharp.GameItems;
+using MudSharp.Construction;
 
 namespace MudSharp.Effects.Concrete;
 
@@ -23,7 +24,8 @@ public class RestraintEffect : Effect, IRestraintEffect
     {
         Owner.OutputHandler.Handle(new EmoteOutput(new Emote("@ are|is freed from $0.", BodyOwner.Actor, TargetItem)));
         BodyOwner.Take(RestraintItem);
-        BodyOwner.Location.Insert(RestraintItem);
+        RestraintItem.RoomLayer = BodyOwner.Actor.RoomLayer;
+        RestraintItem.InsertAtSource(BodyOwner.Actor);
         BodyOwner.RemoveEffect(this);
     }
 

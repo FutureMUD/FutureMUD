@@ -5,7 +5,8 @@ using MudSharp.Vehicles;
 
 namespace MudSharp.GameItems.Components;
 
-public class VehicleCargoSpaceGameItemComponent : GameItemComponent, IVehicleCargoSpaceItem, IContainer
+public class VehicleCargoSpaceGameItemComponent : GameItemComponent, IVehicleCargoSpaceItem, IContainer,
+	IProvideItemSpatialHost
 {
 	private VehicleCargoSpaceGameItemComponentProto _prototype;
 	private long? _vehicleId;
@@ -44,6 +45,7 @@ public class VehicleCargoSpaceGameItemComponent : GameItemComponent, IVehicleCar
 	public IVehicleCargoSpace? CargoSpace => _vehicleId is null || _cargoSpaceId is null
 		? null
 		: Gameworld.Vehicles.Get(_vehicleId.Value)?.CargoSpaces.FirstOrDefault(x => x.Id == _cargoSpaceId.Value);
+	public IGameItem? SpatialHost => CargoSpace?.Vehicle.ExteriorItem;
 
 	private IContainer? BackingContainer => Parent.Components
 	                                             .OfType<IContainer>()

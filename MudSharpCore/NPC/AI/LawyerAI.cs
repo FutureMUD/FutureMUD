@@ -93,7 +93,20 @@ public class LawyerAI : PathingAIBase
             return false;
         }
 
-        if (!ch.PathBetween(authority.CourtLocation, 50, GetSuitabilityFunction(ch)).Any())
+        if (!ch.PathBetween(authority.CourtLocation, 50, GetSuitabilityFunction(ch)).Any() &&
+            ch.Location.RouteDefinition is null &&
+            authority.CourtLocation.RouteDefinition is null)
+        {
+            return false;
+        }
+
+        if ((ch.Location.RouteDefinition is not null || authority.CourtLocation.RouteDefinition is not null) &&
+            !TryFindSpatialPath(
+                ch,
+                authority.CourtLocation,
+                50.0,
+                GetSuitabilityFunction(ch),
+                out _))
         {
             return false;
         }
@@ -127,13 +140,56 @@ public class LawyerAI : PathingAIBase
             return (null, []);
         }
 
-        if (lawyering.LegalAuthority.CourtLocation.Characters.Any(x => x.AffectedBy<OnTrial>() && (lawyering.EngagedByCharacter is null || lawyering.EngagedByCharacter == x)))
+        ICharacter? defendant = TrialDefendant(lawyering);
+        if (defendant is not null)
         {
-            List<ICellExit> path = ch.PathBetween(lawyering.LegalAuthority.CourtLocation, 50, GetSuitabilityFunction(ch)).ToList();
-            return path.Count == 0 ? (null, []) : (lawyering.LegalAuthority.CourtLocation, path);
+            List<ICellExit> path = ch.PathBetween(defendant.Location, 50, GetSuitabilityFunction(ch)).ToList();
+            return path.Count == 0 ? (null, []) : (defendant.Location, path);
         }
 
         return (null, []);
+    }
+
+    protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+    {
+        Lawyering? lawyering = ch.EffectsOfType<Lawyering>().FirstOrDefault();
+        if (lawyering is null)
+        {
+            ICell? home = HomeBaseProg?.Execute(ch) as ICell;
+            return home is not null &&
+                   TryFindSpatialPath(ch, home, 50.0, GetSuitabilityFunction(ch), out ISpatialPath? homePath)
+                ? (home, homePath)
+                : (null, null);
+        }
+
+        ICharacter? defendant = TrialDefendant(lawyering);
+        if (defendant is null)
+        {
+            return (null, null);
+        }
+
+        SpatialLocation destination = RouteSpatialService.Instance.GetEffectiveLocation(defendant);
+        return TryFindSpatialPath(
+            ch,
+            destination,
+            50.0,
+            GetSuitabilityFunction(ch),
+            out ISpatialPath? path)
+            ? (destination.Cell, path)
+            : (null, null);
+    }
+
+    private static ICharacter? TrialDefendant(Lawyering lawyering)
+    {
+        if (lawyering.EngagedByCharacter is not null)
+        {
+            return lawyering.EngagedByCharacter.AffectedBy<OnTrial>(lawyering.LegalAuthority)
+                ? lawyering.EngagedByCharacter
+                : null;
+        }
+
+        return lawyering.LegalAuthority.CourtLocation?.Characters.FirstOrDefault(x =>
+            x.AffectedBy<OnTrial>(lawyering.LegalAuthority));
     }
 
     /// <inheritdoc />
@@ -150,13 +206,25 @@ public class LawyerAI : PathingAIBase
             return false;
         }
 
-        OnTrial? trial = lawyering.EngagedByCharacter is null ? lawyering.LegalAuthority.CourtLocation.Characters.SelectMany(x => x.EffectsOfType<OnTrial>()).FirstOrDefault() : lawyering.EngagedByCharacter.EffectsOfType<OnTrial>(x => x.LegalAuthority == lawyering.LegalAuthority).FirstOrDefault();
+        OnTrial? trial = lawyering.EngagedByCharacter is null
+            ? ch.Location
+                .CharactersInImmediateVicinity(ch)
+                .SelectMany(x => x.EffectsOfType<OnTrial>())
+                .FirstOrDefault()
+            : lawyering.EngagedByCharacter
+                .EffectsOfType<OnTrial>(x => x.LegalAuthority == lawyering.LegalAuthority)
+                .FirstOrDefault();
         if (trial is null)
         {
             return false;
         }
 
         if (ch.Location != lawyering.LegalAuthority.CourtLocation)
+        {
+            return false;
+        }
+
+        if (!ch.ColocatedWith(trial.CharacterOwner))
         {
             return false;
         }

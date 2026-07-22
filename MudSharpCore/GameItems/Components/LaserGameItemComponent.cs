@@ -241,7 +241,7 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
         }
         else
         {
-            loader.Location.Insert(PowerPack.Parent);
+            PowerPack.Parent.InsertAtSource(loader);
         }
 
         PowerPack = null;

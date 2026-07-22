@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body;
 using MudSharp.GameItems;
+using MudSharp.Construction;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
 
@@ -122,7 +123,7 @@ public class DecannulationProcedure : BodypartSpecificSurgicalProcedure
             else
             {
                 cannulaItem.RoomLayer = surgeon.RoomLayer;
-                surgeon.Location.Insert(cannulaItem);
+                cannulaItem.InsertAtSource(surgeon);
             }
         }
     }

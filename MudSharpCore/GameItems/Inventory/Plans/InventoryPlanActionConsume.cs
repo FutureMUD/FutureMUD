@@ -1,4 +1,6 @@
 ﻿
+using MudSharp.Construction;
+
 namespace MudSharp.GameItems.Inventory.Plans;
 
 public class InventoryPlanActionConsume : InventoryPlanAction
@@ -134,7 +136,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 
         // In location
         item =
-            executor.Location.LayerGameItems(executor.RoomLayer).FirstOrDefault(
+            executor.Location.GameItemsInImmediateVicinity(executor).FirstOrDefault(
                 x =>
                     x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
                     x.IsItemType<IHoldable>() &&
@@ -147,7 +149,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 
         // Attached to room items next
         item =
-            executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<IBelt>())
+            executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<IBelt>())
                     .Select(
                         x =>
                             x.ConnectedItems.FirstOrDefault(
@@ -162,7 +164,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 
         // Sheathed in room item next
         item =
-            executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<ISheath>())
+            executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<ISheath>())
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>
@@ -175,7 +177,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 
         // In containers in location
         item =
-            executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<IContainer>())
+            executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<IContainer>())
                     .Where(x => x.Parent.GetItemType<IOpenable>()?.IsOpen ?? true)
                     .SelectMany(x => x.Contents)
                     .FirstOrDefault(

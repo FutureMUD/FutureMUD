@@ -1,4 +1,5 @@
 ﻿using MudSharp.Body;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction;
@@ -6,6 +7,7 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Health.Wounds;
 using MudSharp.Movement;
@@ -16,6 +18,9 @@ namespace MudSharp.Vehicles;
 public class Vehicle : SaveableItem, IVehicle
 {
 	private readonly List<IVehicleOccupancy> _occupancies = new();
+	private readonly List<IVehicleCompartment> _compartments = new();
+	private readonly List<IVehicleCompartmentLink> _compartmentLinks = new();
+	private readonly List<VehicleDocking> _dockings = new();
 	private readonly List<IVehicleAccessState> _accessStates = new();
 	private readonly List<IVehicleAccessPoint> _accessPoints = new();
 	private readonly List<IVehicleCargoSpace> _cargoSpaces = new();
@@ -24,6 +29,7 @@ public class Vehicle : SaveableItem, IVehicle
 	private readonly List<IVehicleDamageZone> _damageZones = new();
 	private readonly CellExitVehicleMovementStrategy _cellExitMovementStrategy = new();
 	private readonly IVehicleOperationalReadinessService _operationalReadinessService = new VehicleOperationalReadinessService();
+	private readonly VehicleDockingService _dockingService = new();
 	private bool _forceDisembarking;
 	private long _prototypeId;
 	private int _prototypeRevision;
@@ -37,6 +43,8 @@ public class Vehicle : SaveableItem, IVehicle
 	private long? _destinationCellId;
 	private long? _movementProfileId;
 	private long? _activePropulsionProfileId;
+	private double? _routePositionMetres;
+	private double? _destinationRoutePositionMetres;
 
 	public Vehicle(DB.Vehicle dbitem, IFuturemud gameworld)
 	{
@@ -54,6 +62,44 @@ public class Vehicle : SaveableItem, IVehicle
 		_destinationCellId = dbitem.DestinationCellId;
 		_movementProfileId = dbitem.MovementProfileProtoId;
 		_activePropulsionProfileId = dbitem.ActivePropulsionProfileProtoId;
+		if (dbitem.CurrentRoutePosition is { } persistedRoutePosition)
+		{
+			var route = Location?.RouteDefinition;
+			var position = (double)persistedRoutePosition;
+			if (route is null)
+			{
+				throw new System.IO.InvalidDataException(
+					$"Vehicle #{dbitem.Id:N0} has a persisted RouteCell coordinate but is not located in a RouteCell.");
+			}
+
+			if (!double.IsFinite(position) || position < 0.0 || position > route.LengthMetres)
+			{
+				throw new System.IO.InvalidDataException(
+					$"Vehicle #{dbitem.Id:N0} has invalid RouteCell coordinate {position:N3}m in Cell #{route.Cell.Id:N0}; valid coordinates are 0-{route.LengthMetres:N3}m.");
+			}
+
+			_routePositionMetres = position;
+		}
+		else
+		{
+			if (Location?.RouteDefinition is { } route)
+			{
+				throw new System.IO.InvalidDataException(
+					$"Vehicle #{dbitem.Id:N0} is located in RouteCell #{route.Cell.Id:N0} but has no persisted route coordinate; use vehicle recovery to assign an explicit position.");
+			}
+
+			// Null is the legacy value for an ordinary-cell vehicle.
+			_routePositionMetres = null;
+		}
+
+		foreach (var compartment in dbitem.Compartments.OrderBy(x => x.Id))
+		{
+			var runtimeCompartment = new VehicleCompartment(this, compartment);
+			if (runtimeCompartment.Prototype is not null)
+			{
+				_compartments.Add(runtimeCompartment);
+			}
+		}
 
 		foreach (var occupancy in dbitem.Occupancies)
 		{
@@ -75,6 +121,19 @@ public class Vehicle : SaveableItem, IVehicle
 			if (runtime.Prototype is not null)
 			{
 				_accessPoints.Add(runtime);
+			}
+		}
+
+		RebuildCompartmentLinks();
+
+		foreach (var docking in dbitem.Dockings.OrderBy(x => x.Id))
+		{
+			var runtime = new VehicleDocking(this, docking);
+			if (runtime.AccessPoint is not null && runtime.Compartment is not null &&
+			    runtime.ExteriorCell is not null)
+			{
+				_dockings.Add(runtime);
+				runtime.BuildAndRegisterIfOpen();
 			}
 		}
 
@@ -143,10 +202,13 @@ public class Vehicle : SaveableItem, IVehicle
 		MovementProfile?.PropulsionProfiles
 		               .OrderByDescending(x => x.IsDefault)
 		               .FirstOrDefault();
-	public IVehicleMovementState MovementState => new VehicleMovementState(_locationType, Location, _roomLayer, _movementStatus, _currentExitId, _destinationCellId);
+	public IVehicleMovementState MovementState => new VehicleMovementState(_locationType, Location, _roomLayer,
+		_movementStatus, _currentExitId, _destinationCellId, _routePositionMetres,
+		_destinationRoutePositionMetres);
 	public VehicleLocationType LocationType => _locationType;
 	public ICell Location => _currentCellId is null ? null : Gameworld.Cells.Get(_currentCellId.Value);
 	public RoomLayer RoomLayer => _roomLayer;
+	public double? RoutePositionMetres => _routePositionMetres;
 	public IEnumerable<IVehicleOccupancy> Occupancies => _occupancies;
 	public IEnumerable<ICharacter> Occupants => _occupancies.Select(x => x.Occupant).Where(x => x is not null);
 	public IEnumerable<IVehicleAccessState> AccessStates => _accessStates;
@@ -155,16 +217,250 @@ public class Vehicle : SaveableItem, IVehicle
 	public IEnumerable<IVehicleInstallation> Installations => _installations;
 	public IEnumerable<IVehicleTowLink> TowLinks => _towLinks;
 	public IEnumerable<IVehicleDamageZone> DamageZones => _damageZones;
+	public IEnumerable<IVehicleCompartment> Compartments => _compartments;
+	public IEnumerable<IVehicleDocking> Dockings => _dockings;
+	internal IEnumerable<VehicleDocking> DockingsInternal => _dockings;
 	public IEnumerable<IGameItem> ProjectedTargetItems => _accessPoints.Select(x => x.ProjectionItem)
 	                                                                   .Concat(_cargoSpaces.Select(x => x.ProjectionItem))
 	                                                                   .Concat(_installations.Select(x => x.InstalledItem))
-	                                                                   .Where(x => x is not null);
+	                                                                   .Where(x => x is not null && !x.Deleted && !x.Destroyed);
 	public bool Destroyed => _movementStatus == VehicleMovementStatus.Destroyed ||
 	                         _damageZones.Any(x => x.Status == VehicleSystemStatus.Destroyed && x.Prototype.DisablesMovement);
 	public bool Disabled => Destroyed ||
 	                        _damageZones.Any(x => x.Status != VehicleSystemStatus.Functional && x.Prototype.DisablesMovement) ||
 	                        IsDisabledByDamage(VehicleDamageEffectTargetType.WholeVehicleMovement, null);
 	public ICharacter Controller => _occupancies.FirstOrDefault(x => x.IsController)?.Occupant;
+
+	internal VehicleCompartment CompartmentFor(IVehicleCompartmentPrototype prototype)
+	{
+		return prototype is null
+			? null
+			: _compartments
+				.OfType<VehicleCompartment>()
+				.FirstOrDefault(x => x.Prototype.Id == prototype.Id);
+	}
+
+	internal void AddDocking(VehicleDocking docking)
+	{
+		if (docking is not null && _dockings.All(x => x.Id != docking.Id))
+		{
+			_dockings.Add(docking);
+		}
+	}
+
+	internal void RemoveDocking(long id)
+	{
+		_dockings.RemoveAll(x => x.Id == id);
+	}
+
+	public void SuspendDockings()
+	{
+		foreach (var docking in _dockings)
+		{
+			docking.Suspend();
+		}
+	}
+
+	public void RebuildDockings()
+	{
+		_dockingService.RebuildDockings(this);
+	}
+
+	public void RebuildCompartmentLinks()
+	{
+		foreach (var link in _compartmentLinks.OfType<VehicleCompartmentLink>())
+		{
+			link.Remove();
+		}
+
+		_compartmentLinks.Clear();
+		foreach (var compartment in _compartments.OfType<VehicleCompartment>())
+		{
+			compartment.ClearLinks();
+		}
+
+		var prototype = Gameworld.VehiclePrototypes?.Get(_prototypeId, _prototypeRevision);
+		if (prototype?.Scale != VehicleScale.RoomScale)
+		{
+			return;
+		}
+
+		foreach (var linkPrototype in prototype.CompartmentLinks)
+		{
+			var source = CompartmentFor(linkPrototype.SourceCompartment);
+			var destination = CompartmentFor(linkPrototype.DestinationCompartment);
+			if (source is null || destination is null)
+			{
+				continue;
+			}
+
+			var link = new VehicleCompartmentLink(this, linkPrototype, source, destination);
+			_compartmentLinks.Add(link);
+			source.AddLink(link);
+			destination.AddLink(link);
+			link.Rebuild();
+		}
+	}
+
+	public bool EnsureRoomScaleInteriors(out string reason)
+	{
+		if (Prototype.Scale != VehicleScale.RoomScale)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		foreach (var compartment in _compartments.OfType<VehicleCompartment>())
+		{
+			if (!RoomScaleVehicleInteriorService.TryCreateInterior(this, compartment, out reason))
+			{
+				return false;
+			}
+		}
+
+		RebuildCompartmentLinks();
+		RebuildDockings();
+		reason = string.Empty;
+		return true;
+	}
+
+	public bool IsInteriorOccupied(IVehicleCompartment compartment)
+	{
+		if (compartment is null)
+		{
+			return false;
+		}
+
+		return _occupancies.Any(x => x.Slot?.Compartment?.Id == compartment.Prototype.Id) ||
+		       compartment.InteriorCell?.Characters.Any() == true ||
+		       compartment.InteriorCell?.GameItems.Any() == true;
+	}
+
+	public bool IsHostedInterior(ICell cell)
+	{
+		return cell is not null && _compartments.Any(x => x.InteriorCell?.Id == cell.Id);
+	}
+
+	public void EchoHostedInteriors(string message)
+	{
+		if (Prototype.Scale != VehicleScale.RoomScale || string.IsNullOrWhiteSpace(message))
+		{
+			return;
+		}
+
+		foreach (var cell in _compartments.Select(x => x.InteriorCell).Where(x => x is not null).Distinct())
+		{
+			cell.HandleRoomEcho(message, RoomLayer.GroundLevel);
+		}
+	}
+
+	public bool CanRetire(out string reason)
+	{
+		var occupied = _compartments.FirstOrDefault(IsInteriorOccupied);
+		if (occupied is not null)
+		{
+			reason = $"The {occupied.Name} hosted interior still contains occupants or loose contents.";
+			return false;
+		}
+
+		if (((IVehicle)this).ActiveJourney is not null)
+		{
+			reason = "The vehicle has an active journey.";
+			return false;
+		}
+
+		using (new FMDB())
+		{
+			if (FMDB.Context.VehicleServices.Any(x => x.VehicleId == Id))
+			{
+				reason = "The vehicle is still assigned to a vehicle service. Reassign or remove that service first.";
+				return false;
+			}
+		}
+
+		if (_movementStatus == VehicleMovementStatus.Moving)
+		{
+			reason = "The vehicle is currently moving.";
+			return false;
+		}
+
+		if (_towLinks.Any() || (Gameworld.VehicleHitchLinks ?? Enumerable.Empty<IVehicleHitchLink>())
+			.Any(x => x.SourceVehicleId == Id || x.TargetVehicleId == Id))
+		{
+			reason = "The vehicle still has a tow or hitch connection.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public bool Retire(out string reason)
+	{
+		if (!CanRetire(out reason))
+		{
+			return false;
+		}
+
+		var interiorRooms = _compartments
+			.Select(x => x.InteriorCell?.Room)
+			.Where(x => x is not null)
+			.Distinct()
+			.Cast<Room>()
+			.ToList();
+		using (new FMDB())
+		{
+			using var transaction = FMDB.Context.Database.BeginTransaction();
+			try
+			{
+				var dockings = FMDB.Context.VehicleDockings.Where(x => x.VehicleId == Id).ToList();
+				FMDB.Context.VehicleDockings.RemoveRange(dockings);
+				foreach (var compartment in FMDB.Context.VehicleCompartments.Where(x => x.VehicleId == Id))
+				{
+					compartment.InteriorCellId = null;
+				}
+
+				foreach (var cell in FMDB.Context.Cells.Where(x => x.HostedVehicleId == Id))
+				{
+					cell.HostedVehicleId = null;
+					cell.HostedVehicleCompartmentId = null;
+				}
+
+				var dbitem = FMDB.Context.Vehicles.Find(Id);
+				if (dbitem is not null)
+				{
+					FMDB.Context.Vehicles.Remove(dbitem);
+				}
+				FMDB.Context.SaveChanges();
+				transaction.Commit();
+			}
+			catch
+			{
+				transaction.Rollback();
+				throw;
+			}
+		}
+
+		foreach (var docking in _dockings)
+		{
+			docking.Suspend(false);
+		}
+		foreach (var link in _compartmentLinks.OfType<VehicleCompartmentLink>())
+		{
+			link.Remove();
+		}
+
+		foreach (var room in interiorRooms)
+		{
+			room.DestroyRoom(Location);
+		}
+
+		ExteriorItem?.GetItemType<IVehicleExterior>()?.ClearVehicleLink("The vehicle instance was retired.");
+		Gameworld.SaveManager.Abort(this);
+		Gameworld.Destroy(this);
+		reason = string.Empty;
+		return true;
+	}
 
 	public bool SetActivePropulsionProfile(IVehiclePropulsionProfilePrototype profile, out string reason)
 	{
@@ -218,27 +514,20 @@ public class Vehicle : SaveableItem, IVehicle
 	public bool CanBoard(ICharacter actor, IVehicleOccupantSlotPrototype slot, out string reason)
 	{
 		slot ??= FirstAvailableSlot();
-		if (!CanBoardCore(actor, slot, out reason))
+		var access = ResolveBoardingAccess(actor, slot, null);
+		if (_accessPoints.Any() && access is null)
 		{
+			reason = Prototype.Scale == VehicleScale.RoomScale
+				? "There is no open docking access point for that vehicle slot at your location."
+				: "There is no open and usable access point for that vehicle slot.";
 			return false;
 		}
 
-		if (!_accessPoints.Any())
-		{
-			return true;
-		}
-
-		var access = FirstViableAccessPoint(actor, slot);
-		if (access is not null)
-		{
-			return true;
-		}
-
-		reason = "There is no open and usable access point for that vehicle slot.";
-		return false;
+		return CanBoardCore(actor, slot, access, out reason);
 	}
 
-	private bool CanBoardCore(ICharacter actor, IVehicleOccupantSlotPrototype slot, out string reason)
+	private bool CanBoardCore(ICharacter actor, IVehicleOccupantSlotPrototype slot,
+		IVehicleAccessPoint accessPoint, out string reason)
 	{
 		if (_movementStatus != VehicleMovementStatus.Stationary)
 		{
@@ -264,15 +553,17 @@ public class Vehicle : SaveableItem, IVehicle
 			return false;
 		}
 
-		if (Location is not null && actor.Location != Location)
+		if (Prototype.Scale == VehicleScale.RoomScale)
 		{
-			reason = "You must be in the same location as the vehicle to board it.";
-			return false;
+			if (accessPoint is null || ActiveDockingForBoarding(actor, accessPoint) is null)
+			{
+				reason = "You must be at an open docking access point to board that room-scale vehicle.";
+				return false;
+			}
 		}
-
-		if (Location is not null && actor.RoomLayer != _roomLayer)
+		else if (Location is not null && (actor.Location != Location || actor.RoomLayer != _roomLayer))
 		{
-			reason = "You must be on the same room layer as the vehicle to board it.";
+			reason = "You must be in the same location and room layer as the vehicle to board it.";
 			return false;
 		}
 
@@ -285,6 +576,13 @@ public class Vehicle : SaveableItem, IVehicle
 		if (slot is null)
 		{
 			reason = "There are no available occupant slots on that vehicle.";
+			return false;
+		}
+
+		if (Prototype.Scale == VehicleScale.RoomScale &&
+		    CompartmentFor(slot.Compartment)?.InteriorCell is null)
+		{
+			reason = $"The {slot.Compartment.Name} hosted interior is unavailable. An administrator must recover it before boarding.";
 			return false;
 		}
 
@@ -301,39 +599,36 @@ public class Vehicle : SaveableItem, IVehicle
 	public bool CanBoard(ICharacter actor, IVehicleOccupantSlotPrototype slot, IVehicleAccessPoint accessPoint, out string reason)
 	{
 		slot ??= FirstAvailableSlot();
-		if (!CanBoardCore(actor, slot, out reason))
+		if (_accessPoints.Any() && accessPoint is null)
 		{
-			return false;
-		}
-
-		if (!_accessPoints.Any())
-		{
-			return true;
-		}
-
-		if (accessPoint is null)
-		{
-			accessPoint = FirstViableAccessPoint(actor, slot);
+			accessPoint = ResolveBoardingAccess(actor, slot, null);
 			if (accessPoint is null)
 			{
-				reason = "There is no open and usable access point for that vehicle slot.";
+				reason = Prototype.Scale == VehicleScale.RoomScale
+					? "There is no open docking access point for that vehicle slot at your location."
+					: "There is no open and usable access point for that vehicle slot.";
 				return false;
 			}
 		}
 
-		if (!_accessPoints.Contains(accessPoint))
+		if (accessPoint is not null && !_accessPoints.Contains(accessPoint))
 		{
 			reason = "That access point does not belong to this vehicle.";
 			return false;
 		}
 
-		if (!AccessPointCanReachSlot(accessPoint, slot))
+		if (accessPoint is not null && !this.AccessPointCanReachSlot(accessPoint, slot))
 		{
 			reason = "That access point does not lead to that vehicle slot.";
 			return false;
 		}
 
-		return accessPoint.CanUse(actor, out reason);
+		if (accessPoint is not null && !accessPoint.CanUse(actor, out reason))
+		{
+			return false;
+		}
+
+		return CanBoardCore(actor, slot, accessPoint, out reason);
 	}
 
 	public bool Board(ICharacter actor, IVehicleOccupantSlotPrototype slot = null)
@@ -346,13 +641,29 @@ public class Vehicle : SaveableItem, IVehicle
 	public bool Board(ICharacter actor, IVehicleOccupantSlotPrototype slot, IVehicleAccessPoint accessPoint)
 	{
 		slot ??= FirstAvailableSlot();
+		accessPoint = ResolveBoardingAccess(actor, slot, accessPoint);
 		if (!CanBoard(actor, slot, accessPoint, out _))
 		{
 			return false;
 		}
 
+		ICell boardingDestination = null;
+		if (Prototype.Scale == VehicleScale.RoomScale)
+		{
+			var docking = ActiveDockingForBoarding(actor, accessPoint);
+			boardingDestination = DockingExitFrom(docking, actor.Location)?.Destination;
+			if (boardingDestination is null || docking?.Compartment.InteriorCell?.Id != boardingDestination.Id)
+			{
+				return false;
+			}
+
+			actor.Teleport(boardingDestination, RoomLayer.GroundLevel, false, false);
+		}
+
 		var isController = slot.SlotType == VehicleOccupantSlotType.Driver &&
-		                   Prototype.ControlStations.Any(x => x.OccupantSlot.Id == slot.Id) && Controller is null;
+		                   Prototype.ControlStations.Any(x => x.OccupantSlot.Id == slot.Id) &&
+		                   Controller is null &&
+		                   this.IsAtOccupantSlotLocation(actor, slot);
 		using (new FMDB())
 		{
 			var dbitem = new DB.VehicleOccupancy
@@ -389,6 +700,12 @@ public class Vehicle : SaveableItem, IVehicle
 		if (Prototype.ControlStations.All(x => x.OccupantSlot.Id != occupancy.Slot.Id))
 		{
 			reason = "Your driver slot does not have a configured control station.";
+			return false;
+		}
+
+		if (!this.IsAtOccupantSlotLocation(actor, occupancy.Slot))
+		{
+			reason = $"You must be in the {occupancy.Slot.Compartment.Name} compartment at its control station to take control of that vehicle.";
 			return false;
 		}
 
@@ -476,12 +793,23 @@ public class Vehicle : SaveableItem, IVehicle
 
 		if (_accessPoints.Any())
 		{
-			var occupancy = _occupancies.FirstOrDefault(x => x.Occupant?.SamePhysicalInstance(actor) == true);
-			var access = FirstViableAccessPoint(actor, occupancy?.Slot);
-			if (access is null)
+			if (Prototype.Scale == VehicleScale.RoomScale)
 			{
-				reason = "There is no open and usable access point you can use to leave that vehicle.";
-				return false;
+				if (ActiveDockingForDisembark(actor) is null)
+				{
+					reason = "There is no open docking exit from your current compartment.";
+					return false;
+				}
+			}
+			else
+			{
+				var occupancy = _occupancies.FirstOrDefault(x => x.Occupant?.SamePhysicalInstance(actor) == true);
+				var access = FirstViableAccessPoint(actor, occupancy?.Slot);
+				if (access is null)
+				{
+					reason = "There is no open and usable access point you can use to leave that vehicle.";
+					return false;
+				}
 			}
 		}
 
@@ -497,7 +825,22 @@ public class Vehicle : SaveableItem, IVehicle
 		}
 
 		var occupancy = _occupancies.First(x => x.Occupant?.SamePhysicalInstance(actor) == true);
-		SynchroniseOccupantWithVehicle(actor);
+		if (Prototype.Scale == VehicleScale.RoomScale)
+		{
+			var docking = ActiveDockingForDisembark(actor);
+			var dockingExit = DockingExitFrom(docking, actor.Location);
+			if (docking is null || dockingExit?.Destination.Id != docking.ExteriorCell.Id)
+			{
+				return false;
+			}
+
+			actor.Teleport(dockingExit.Destination, docking.ExteriorLayer, false, false);
+			actor.Body.Look(true);
+		}
+		else
+		{
+			SynchroniseOccupantWithVehicle(actor);
+		}
 		using (new FMDB())
 		{
 			var dbitem = FMDB.Context.VehicleOccupancies.Find(occupancy.Id);
@@ -570,7 +913,22 @@ public class Vehicle : SaveableItem, IVehicle
 
 	private void SynchroniseOccupantWithVehicle(ICharacter occupant)
 	{
-		if (!this.IsSurfaceWaterVehicle() || occupant is null || Location is null ||
+		if (occupant is null || Location is null)
+		{
+			return;
+		}
+
+		if (Prototype.Scale == VehicleScale.RoomScale)
+		{
+			if (occupant.Location != Location || occupant.RoomLayer != _roomLayer)
+			{
+				occupant.Teleport(Location, _roomLayer, false, false);
+			}
+
+			return;
+		}
+
+		if (!this.IsSurfaceWaterVehicle() ||
 		    occupant.Location == Location && occupant.RoomLayer == _roomLayer)
 		{
 			return;
@@ -717,13 +1075,65 @@ public class Vehicle : SaveableItem, IVehicle
 	{
 		_exteriorItem = item;
 		_exteriorItemId = item?.Id;
+		if (Prototype.Scale == VehicleScale.RoomScale)
+		{
+			if (item is null)
+			{
+				SuspendDockings();
+			}
+			else
+			{
+				RebuildDockings();
+			}
+		}
+		Changed = true;
+	}
+
+	public void BeginMoveAlongRoute(double destinationPositionMetres)
+	{
+		if (Location?.RouteDefinition is not { } route)
+		{
+			throw new InvalidOperationException("The vehicle is not in a RouteCell.");
+		}
+
+		_destinationRoutePositionMetres = Math.Clamp(destinationPositionMetres, 0.0, route.LengthMetres);
+		_locationType = VehicleLocationType.Route;
+		_movementStatus = VehicleMovementStatus.Moving;
+		SuspendDockings();
+		Changed = true;
+	}
+
+	public void MaterialiseRoutePosition(double positionMetres, bool stationary = false)
+	{
+		if (Location?.RouteDefinition is not { } route)
+		{
+			throw new InvalidOperationException("The vehicle is not in a RouteCell.");
+		}
+
+		_routePositionMetres = Math.Clamp(positionMetres, 0.0, route.LengthMetres);
+		_locationType = VehicleLocationType.Route;
+		SynchroniseExteriorRoutePosition(_routePositionMetres);
+		if (stationary)
+		{
+			_movementStatus = VehicleMovementStatus.Stationary;
+			_destinationRoutePositionMetres = null;
+			RebuildDockings();
+		}
+
 		Changed = true;
 	}
 
 	public void SynchroniseExteriorItemToLocation()
 	{
+		var isRoomScale = Gameworld.VehiclePrototypes?.Get(_prototypeId, _prototypeRevision)?.Scale ==
+		                  VehicleScale.RoomScale;
+		EnsureExteriorProjectionLink(out _, out _);
 		if (ExteriorItem is null || Location is null)
 		{
+			if (isRoomScale)
+			{
+				SuspendDockings();
+			}
 			return;
 		}
 
@@ -736,15 +1146,64 @@ public class Vehicle : SaveableItem, IVehicle
 
 		if (ExteriorItem.Location == Location && ExteriorItem.RoomLayer == _roomLayer)
 		{
+			SynchroniseExteriorRoutePosition(_routePositionMetres);
 			EnsureExteriorWaterPosition();
+			if (isRoomScale)
+			{
+				RebuildDockings();
+			}
 			return;
 		}
 
 		ExteriorItem.Location?.Extract(ExteriorItem);
 		ExteriorItem.RoomLayer = _roomLayer;
 		Location.Insert(ExteriorItem, true);
+		SynchroniseExteriorRoutePosition(_routePositionMetres);
 		EnsureExteriorWaterPosition();
+		if (isRoomScale)
+		{
+			RebuildDockings();
+		}
 		Changed = true;
+	}
+
+	/// <summary>
+	/// Restores a missing item-side link from this vehicle's canonical exterior-item ID.
+	/// A conflicting non-null link is deliberately left alone so that fleet recovery can
+	/// report it instead of silently stealing another vehicle's projection.
+	/// </summary>
+	internal bool EnsureExteriorProjectionLink(out bool repaired, out string reason)
+	{
+		repaired = false;
+		if (ExteriorItem is null)
+		{
+			reason = "The canonical exterior item is missing.";
+			return false;
+		}
+
+		var exterior = ExteriorItem.GetItemType<IVehicleExterior>();
+		if (exterior is null)
+		{
+			reason = "The canonical exterior item does not have a vehicle exterior component.";
+			return false;
+		}
+
+		if (exterior.VehicleId == Id)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		if (exterior.VehicleId is not null)
+		{
+			reason = $"The canonical exterior item is linked to vehicle #{exterior.VehicleId:N0} instead.";
+			return false;
+		}
+
+		exterior.LinkVehicle(this);
+		repaired = true;
+		reason = string.Empty;
+		return true;
 	}
 
 	private void EnsureExteriorWaterPosition()
@@ -757,6 +1216,10 @@ public class Vehicle : SaveableItem, IVehicle
 
 	public void BeginMoveToCell(ICell destination, RoomLayer layer, ICellExit exit)
 	{
+		if (Gameworld.VehiclePrototypes?.Get(_prototypeId, _prototypeRevision)?.Scale == VehicleScale.RoomScale)
+		{
+			SuspendDockings();
+		}
 		_locationType = VehicleLocationType.CellExitTransit;
 		_movementStatus = VehicleMovementStatus.Moving;
 		_currentExitId = exit?.Exit.Id;
@@ -780,6 +1243,11 @@ public class Vehicle : SaveableItem, IVehicle
 
 		foreach (var occupant in Occupants.ToList())
 		{
+			if (Prototype.Scale == VehicleScale.RoomScale)
+			{
+				continue;
+			}
+
 			if (origin is not null && (occupant.Location != origin || occupant.RoomLayer != _roomLayer))
 			{
 				ForceDisembark(occupant);
@@ -798,12 +1266,43 @@ public class Vehicle : SaveableItem, IVehicle
 
 		_currentCellId = destination.Id;
 		_roomLayer = layer;
-		_locationType = VehicleLocationType.Cell;
+		_routePositionMetres = destination.RouteDefinition is null
+			? null
+			: destination.RouteDefinition.ExitAnchors
+				.FirstOrDefault(x => x.Exit.Exit.Id == exit?.Exit.Id)?.ArrivalPositionMetres ??
+			  destination.RouteDefinition.DefaultPositionMetres;
+		SynchroniseExteriorRoutePosition(_routePositionMetres);
+		_locationType = destination.RouteDefinition is null
+			? VehicleLocationType.Cell
+			: VehicleLocationType.Route;
 		_movementStatus = VehicleMovementStatus.Stationary;
 		_currentExitId = null;
 		_destinationCellId = null;
 		EnsureExteriorWaterPosition();
+		if (Prototype.Scale == VehicleScale.RoomScale)
+		{
+			RebuildDockings();
+		}
 		Changed = true;
+	}
+
+	private void SynchroniseExteriorRoutePosition(double? positionMetres)
+	{
+		if (ExteriorItem is null)
+		{
+			return;
+		}
+
+		var exterior = ExteriorItem.GetItemType<IVehicleExterior>();
+		if (exterior?.TrySynchroniseRoutePosition(this, positionMetres) == true)
+		{
+			return;
+		}
+
+		// A missing or conflicting projection link must not grant the canonical-sync exemption.
+		// The ordinary setter deliberately invokes forced-move handling so fleet recovery can
+		// diagnose the displaced or incorrectly linked projection.
+		ExteriorItem.SetRoutePosition(positionMetres);
 	}
 
 	private void ForceExteriorConnectablesMoved()
@@ -825,6 +1324,14 @@ public class Vehicle : SaveableItem, IVehicle
 		    ExteriorItem.InInventoryOf is not null || ExteriorItem.ContainedIn is not null ||
 		    ExteriorItem.Location is null)
 		{
+			if (Prototype.Scale == VehicleScale.RoomScale)
+			{
+				SetStationaryAfterForcedExteriorChange();
+				SuspendDockings();
+				Changed = true;
+				return;
+			}
+
 			ForceDisembarkAll();
 			return;
 		}
@@ -835,6 +1342,12 @@ public class Vehicle : SaveableItem, IVehicle
 		SetStationaryAfterForcedExteriorChange();
 		foreach (var occupant in Occupants.ToList())
 		{
+			if (Prototype.Scale == VehicleScale.RoomScale)
+			{
+				ClearForcedOccupantMovement(occupant);
+				continue;
+			}
+
 			ClearForcedOccupantMovement(occupant);
 			origin?.Leave(occupant);
 			occupant.RoomLayer = layer;
@@ -844,6 +1357,10 @@ public class Vehicle : SaveableItem, IVehicle
 		_currentCellId = destination.Id;
 		_roomLayer = layer;
 		EnsureExteriorWaterPosition();
+		if (Prototype.Scale == VehicleScale.RoomScale)
+		{
+			RebuildDockings();
+		}
 		Changed = true;
 	}
 
@@ -860,6 +1377,12 @@ public class Vehicle : SaveableItem, IVehicle
 		_destinationCellId = null;
 		Changed = true;
 		SynchroniseExteriorItemToLocation();
+		if (Gameworld.VehiclePrototypes?.Get(_prototypeId, _prototypeRevision)?.Scale == VehicleScale.RoomScale)
+		{
+			RebuildCompartmentLinks();
+			RebuildDockings();
+			return;
+		}
 
 		if (Location is null)
 		{
@@ -883,15 +1406,46 @@ public class Vehicle : SaveableItem, IVehicle
 	private IVehicleAccessPoint FirstViableAccessPoint(ICharacter actor, IVehicleOccupantSlotPrototype slot)
 	{
 		return _accessPoints
-		       .Where(x => AccessPointCanReachSlot(x, slot))
-		       .FirstOrDefault(x => x.CanUse(actor, out _));
+		       .Where(x => this.AccessPointCanReachSlot(x, slot))
+		       .Where(x => x.CanUse(actor, out _))
+		       .FirstOrDefault(x => Prototype.Scale != VehicleScale.RoomScale ||
+		                            ActiveDockingForBoarding(actor, x) is not null);
 	}
 
-	private static bool AccessPointCanReachSlot(IVehicleAccessPoint accessPoint, IVehicleOccupantSlotPrototype slot)
+	internal IVehicleAccessPoint ResolveBoardingAccess(ICharacter actor, IVehicleOccupantSlotPrototype slot,
+		IVehicleAccessPoint requestedAccess)
 	{
-		return accessPoint.Prototype.Compartment is null ||
-		       slot?.Compartment is null ||
-		       accessPoint.Prototype.Compartment.Id == slot.Compartment.Id;
+		return requestedAccess ?? (_accessPoints.Any() ? FirstViableAccessPoint(actor, slot) : null);
+	}
+
+	private VehicleDocking ActiveDockingForBoarding(ICharacter actor, IVehicleAccessPoint accessPoint)
+	{
+		return actor is null || accessPoint is null
+			? null
+			: _dockings.FirstOrDefault(x =>
+				x.IsRegistered &&
+				x.State == VehicleDockingState.BoardingOpen &&
+				x.AccessPoint.Id == accessPoint.Id &&
+				x.ExteriorCell.Id == actor.Location?.Id &&
+				x.ExteriorLayer == actor.RoomLayer);
+	}
+
+	private VehicleDocking ActiveDockingForDisembark(ICharacter actor)
+	{
+		return actor is null
+			? null
+			: _dockings.FirstOrDefault(x =>
+				x.IsRegistered &&
+				x.State == VehicleDockingState.BoardingOpen &&
+				x.Compartment.InteriorCell?.Id == actor.Location?.Id &&
+				x.AccessPoint.CanUse(actor, out _));
+	}
+
+	internal static ICellExit DockingExitFrom(IVehicleDocking docking, ICell origin)
+	{
+		return docking?.State == VehicleDockingState.BoardingOpen
+			? docking.TransientExit?.CellExitFor(origin)
+			: null;
 	}
 
 	public IEnumerable<IWound> SufferDamage(IDamage damage)
@@ -1000,6 +1554,9 @@ public class Vehicle : SaveableItem, IVehicle
 			dbitem.DestinationCellId = _destinationCellId;
 			dbitem.MovementProfileProtoId = _movementProfileId;
 			dbitem.ActivePropulsionProfileProtoId = _activePropulsionProfileId;
+			dbitem.CurrentRoutePosition = _routePositionMetres is null
+				? null
+				: (decimal)_routePositionMetres.Value;
 			dbitem.LastMovementDateTime = DateTime.UtcNow;
 			FMDB.Context.SaveChanges();
 		}
@@ -1048,7 +1605,9 @@ public class VehicleOccupancy : FrameworkItem, IVehicleOccupancy
 
 public class VehicleMovementState : IVehicleMovementState
 {
-	public VehicleMovementState(VehicleLocationType locationType, ICell location, RoomLayer roomLayer, VehicleMovementStatus movementStatus, long? currentExitId, long? destinationCellId)
+	public VehicleMovementState(VehicleLocationType locationType, ICell location, RoomLayer roomLayer,
+		VehicleMovementStatus movementStatus, long? currentExitId, long? destinationCellId,
+		double? routePositionMetres = null, double? destinationRoutePositionMetres = null)
 	{
 		LocationType = locationType;
 		Location = location;
@@ -1056,6 +1615,8 @@ public class VehicleMovementState : IVehicleMovementState
 		MovementStatus = movementStatus;
 		CurrentExitId = currentExitId;
 		DestinationCellId = destinationCellId;
+		RoutePositionMetres = routePositionMetres;
+		DestinationRoutePositionMetres = destinationRoutePositionMetres;
 	}
 
 	public VehicleLocationType LocationType { get; }
@@ -1064,6 +1625,8 @@ public class VehicleMovementState : IVehicleMovementState
 	public VehicleMovementStatus MovementStatus { get; }
 	public long? CurrentExitId { get; }
 	public long? DestinationCellId { get; }
+	public double? RoutePositionMetres { get; }
+	public double? DestinationRoutePositionMetres { get; }
 }
 
 public class VehicleAccessState : FrameworkItem, IVehicleAccessState

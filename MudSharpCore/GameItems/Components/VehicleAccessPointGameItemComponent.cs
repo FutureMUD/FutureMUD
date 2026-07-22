@@ -6,7 +6,8 @@ using MudSharp.Vehicles;
 
 namespace MudSharp.GameItems.Components;
 
-public class VehicleAccessPointGameItemComponent : GameItemComponent, IVehicleAccessPointItem, IOpenable, ILockable
+public class VehicleAccessPointGameItemComponent : GameItemComponent, IVehicleAccessPointItem, IOpenable, ILockable,
+	IProvideItemSpatialHost
 {
 	private VehicleAccessPointGameItemComponentProto _prototype;
 	private long? _vehicleId;
@@ -45,6 +46,7 @@ public class VehicleAccessPointGameItemComponent : GameItemComponent, IVehicleAc
 	public IVehicleAccessPoint? AccessPoint => _vehicleId is null || _accessPointId is null
 		? null
 		: Gameworld.Vehicles.Get(_vehicleId.Value)?.AccessPoints.FirstOrDefault(x => x.Id == _accessPointId.Value);
+	public IGameItem? SpatialHost => AccessPoint?.Vehicle.ExteriorItem;
 
 	public IEnumerable<ILock> Locks => AccessPoint?.IsDisabled == true
 		? Enumerable.Empty<ILock>()

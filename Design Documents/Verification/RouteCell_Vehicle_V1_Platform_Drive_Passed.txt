@@ -1,0 +1,381 @@
+ ____                              _   _
+|  _ \  __ _ _ __ ___  _ __   __ _| |_(_) ___
+| | | |/ _` | '_ ` _ \| '_ \ / _` | __| |/ _ \
+| |_| | (_| | | | | | | | | | (_| | |_| | (_) |
+|____/_\__,_|_| |_| |_|_| |_|\__,_|\__|_|\___/
+|  \/  | ___ _ __ ___   ___  _ __(_) __ _  ___
+| |\/| |/ _ \ '_ ` _ \ / _ \| '__| |/ _` |/ _ \
+| |  | |  __/ | | | | | (_) | |  | | (_| |  __/
+|_|  |_|\___|_| |_| |_|\___/|_|  |_|\__,_|\___|
+       __
+      <  \
+[\\\\\\(\ (:::<======================================-
+\<      >  \
+ \\    /    |       Powered by the FutureMUD Engine v2.0.1.0000
+  `==='____/               Copyright 2008-2026
+
+ Join us on Discord! https://discord.gg/yjYtBr8ZkY
+
+ Select an Option:
+
+ C) Create an Account
+ L) Login to an Account
+ R) Recover a Lost Account
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+                   _
+                ,''/., _            Welcome, Japheth!
+        `.-._\`/. ( //'/'`.
+      _.-`-. ``' ` `(   -. \        ========== Options ===========
+    ,'  ,    ,-:._ _..-.. \/
+   / ,'/ ,`.( _.'-'.     )/         C) Connect to a character
+   `.\ '(   ,'      `.              G) Login as a guest
+      `._\ /'       \ \             N) Create a new character
+          /:         \ \-.          E) Change your email address
+        ,;':._______...-'_)         P) Change your [REDACTED]
+        \:/-.._______..-_|
+         : :\   `----'|'-;          X) Disconnect from the game
+          \ :\    : : ;:/
+           \ ``.   ; /;/
+            )   `.  /,'
+          ,'      `-' \
+         /  .--.       )
+        /_.---._`._   /
+                `.__.'
+
+
+Your Choice:
+> c
+You have the following characters:
+  1: Japheth (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+QA West Station Platform
+ID[3] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: North, East, 'Enter Passenger doors', and 'Enter Loading ramp'
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, it is pitch black here.
+
+A QA massive mobile platform is here.
+QA Final Fast Scheduled Train is docked here with boarding open via Passenger
+Doors.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> goto 3
+You are already there!
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> look
+QA West Station Platform
+ID[3] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: North, East, 'Enter Passenger doors', and 'Enter Loading ramp'
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, it is pitch black here.
+
+A QA massive mobile platform is here.
+QA Final Fast Scheduled Train is docked here with boarding open via Passenger
+Doors.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> embark 3 driver via loading
+QA Massive Platform - Deckhouse
+ID[18] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: 'Enter Forward' and 'Enter Outside'
+
+  An undescribed compartment.
+
+  Currently, it is pitch black here.
+
+
+You board QA Massive Platform through the platform docking.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> look
+QA Massive Platform - Deckhouse
+ID[18] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: 'Enter Forward' and 'Enter Outside'
+
+  An undescribed compartment.
+
+  Currently, it is pitch black here.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> enter forward
+You begin strolling towards the control room.
+
+
+QA Massive Platform - Control
+ID[17] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: 'Enter Aft'
+
+  An undescribed compartment.
+
+  Currently, it is pitch black here.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> look
+QA Massive Platform - Control
+ID[17] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: 'Enter Aft'
+
+  An undescribed compartment.
+
+  Currently, it is pitch black here.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclecontrol
+You take control of QA Massive Platform.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Massive Platform - Vehicle Status ]=====================================================================================================================================
+Movement: Stationary
+Controller: you
+Crew: 1 occupying 2 configured slot types
+Access: Loading Ramp (open)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: Loading Ramp must be closed before the vehicle can move.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vaccess close loading
+You close the Loading Ramp access point on QA Massive Platform.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> drive north
+> vehiclestatus
+=======[ QA Massive Platform - Vehicle Status ]=====================================================================================================================================
+Movement: Moving
+Controller: you
+Crew: 1 occupying 2 configured slot types
+Access: Loading Ramp (closed)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: ready
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Massive Platform - Vehicle Status ]=====================================================================================================================================
+Movement: Moving
+Controller: you
+Crew: 1 occupying 2 configured slot types
+Access: Loading Ramp (closed)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: ready
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehiclestatus
+=======[ QA Massive Platform - Vehicle Status ]=====================================================================================================================================
+Movement: Moving
+Controller: you
+Crew: 1 occupying 2 configured slot types
+Access: Loading Ramp (closed)
+Cargo: none
+Modules: none
+Damage: serviceable
+Cell-exit readiness: ready
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> look
+QA Massive Platform - Control
+ID[17] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: 'Enter Aft'
+
+  An undescribed compartment.
+
+  Currently, it is pitch black here.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vaccess open loading
+You must stop moving before you can do that.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> enter aft
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> look
+QA Massive Platform - Control
+ID[17] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: 'Enter Aft'
+
+  An undescribed compartment.
+
+  Currently, it is pitch black here.
+
+
+QA Massive Platform - Control
+ID[17] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: 'Enter Aft'
+
+  An undescribed compartment.
+
+  Currently, it is pitch black here.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> disembark
+You must stop moving before you can do that.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+There is no such exit for the vehicle to use.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> look
+QA Massive Platform - Control
+ID[17] | Terrain[Residence] | [SafeQuit] | Overlay[QA RouteCell Vehicle V1 Live (#2r0)] | Coordinates[0,0,0]
+Exits: 'Enter Aft'
+
+  An undescribed compartment.
+
+  Currently, it is pitch black here.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicle show 3
+=======[ Vehicle #3 - QA Massive Platform ]=========================================================================================================================================
+Prototype: QA Massive Platform (#2r0)
+Scale: RoomScale
+Canonical Location: Cell QA Mobile Platform Destination [GroundLevel]
+Movement: Stationary
+Transit: Exit #none, Destination #none
+Route Profiles: none
+
+Item Projection:
+  Exterior Item Id: 4
+  Loaded Item: a QA massive mobile platform
+  Component Link: 3
+  Projection In Sync: True
+
+Occupants:
+  a hollow-eyed hag with curly sideburns | identity #1 | instance #1 | body #1 | Primary | cell #17 GroundLevel in Controls controlling
+
+Hosted Compartments:
+  #5 Control interior #17 [Residence, Indoors] links 1
+  #6 Deckhouse interior #18 [Residence, Indoors] links 1
+
+Dockings:
+  #3 Loading Ramp -> Deckhouse at cell #7 [GroundLevel] DockedClosed no live exit
+
+Access Points:
+  #3 Loading Ramp [Ramp] closed projection 5
+
+Cargo Spaces:
+  None
+
+Installations:
+  None
+
+Tow Links:
+  None
+
+Mixed Hitch Links:
+  None
+
+Damage Zones:
+  None
+
+Operational Readiness:
+  Access: default permissive (no explicit grants).
+  Movement Profile: Cell Exit Movement (#2)
+  Environment: Unrestricted
+  No readiness warnings or blockers detected.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> vehicle audit 3 all
+Vehicle All audit for 1 vehicle:
+  #3 QA Massive Platform:
+    Warning Route: The vehicle prototype has no longitudinal RouteCell movement profile. Hint: vehicleproto set movement route
+    Information Access: No explicit access grants; access is permissive. Hint: vehicle access <vehicle> apply <preset> <character>
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>

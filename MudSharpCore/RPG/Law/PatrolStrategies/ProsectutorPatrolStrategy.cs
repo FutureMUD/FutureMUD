@@ -1,4 +1,5 @@
 ﻿using MudSharp.Construction.Boundary;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 
 namespace MudSharp.RPG.Law.PatrolStrategies;
@@ -34,7 +35,9 @@ public class ProsectutorPatrolStrategy : PatrolStrategyBase
         }
 
         // Patrol can only be completed if there is no trial on-going
-        if (patrol.PatrolLeader.Location.LayerCharacters(patrol.PatrolLeader.RoomLayer).All(x => !x.EffectsOfType<OnTrial>(y => y.LegalAuthority == patrol.LegalAuthority).Any()))
+        if (patrol.PatrolLeader.Location
+                  .CharactersInImmediateVicinity(patrol.PatrolLeader)
+                  .All(x => !x.EffectsOfType<OnTrial>(y => y.LegalAuthority == patrol.LegalAuthority).Any()))
         {
             if (DateTime.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
             {
@@ -85,14 +88,17 @@ public class ProsectutorPatrolStrategy : PatrolStrategyBase
         }
 
         // Argue in the trials
-        OnTrial trial = patrol.PatrolLeader.Location.Characters.SelectNotNull(x => x.EffectsOfType<OnTrial>().FirstOrDefault()).FirstOrDefault();
+        OnTrial trial = patrol.PatrolLeader.Location
+                                    .CharactersInImmediateVicinity(patrol.PatrolLeader)
+                                    .SelectNotNull(x => x.EffectsOfType<OnTrial>().FirstOrDefault())
+                                    .FirstOrDefault();
 		if (trial is null)
 		{
 			return;
 		}
 
 		if (trial.Prosecutor is null ||
-		    trial.Prosecutor.Location != patrol.LegalAuthority.CourtLocation ||
+		    !trial.Prosecutor.ColocatedWith(trial.CharacterOwner) ||
 		    !trial.Prosecutor.CombinedEffectsOfType<PatrolMemberEffect>().Any(x =>
 			    x.Patrol?.LegalAuthority == patrol.LegalAuthority &&
 			    x.Patrol.PatrolStrategy.Name == "Prosecutor"))

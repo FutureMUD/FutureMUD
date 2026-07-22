@@ -3,6 +3,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.Planes;
 using MudSharp.RPG.Checks;
@@ -294,28 +295,14 @@ public class SensePower : MagicPowerBase
                 switch (PowerDistance)
                 {
                     case MagicPowerDistance.SameLocationOnly:
-                        targets.AddRange(
-                            actor.Location.Characters.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
-                        targets.AddRange(
-                            actor.Location.GameItems.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
+						targets.AddRange(MagicPowerSpatialTargeting
+							.AcquireTargets(actor, PowerDistance)
+							.Select(x => (x, x.Location, x.RoomLayer)));
                         break;
                     case MagicPowerDistance.AdjacentLocationsOnly:
-                        targets.AddRange(
-                            actor.Location.Characters.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
-                        targets.AddRange(
-                            actor.Location.GameItems.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
-
-                        targets.AddRange(
-                            actor.Location.Characters.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
-                        targets.AddRange(
-                            actor.Location.GameItems.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
-
-                        targets.AddRange(actor.Location.ExitsFor(actor, true).Select(x => x.Destination).Distinct()
-                                              .SelectMany(x =>
-                                                  x.Characters.Select(y => ((IPerceivable)y, x, y.RoomLayer))));
-                        targets.AddRange(actor.Location.ExitsFor(actor, true).Select(x => x.Destination).Distinct()
-                                              .SelectMany(x =>
-                                                  x.GameItems.Select(y => ((IPerceivable)y, x, y.RoomLayer))));
+						targets.AddRange(MagicPowerSpatialTargeting
+							.AcquireTargets(actor, PowerDistance)
+							.Select(x => (x, x.Location, x.RoomLayer)));
                         break;
                     case MagicPowerDistance.SameAreaOnly:
                         if (actor.Location.Areas.Any())
@@ -361,17 +348,16 @@ public class SensePower : MagicPowerBase
                 switch (PowerDistance)
                 {
                     case MagicPowerDistance.SameLocationOnly:
-                        targets.AddRange(
-                            actor.Location.Characters.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
+						targets.AddRange(MagicPowerSpatialTargeting
+							.AcquireTargets(actor, PowerDistance)
+							.OfType<ICharacter>()
+							.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
                         break;
                     case MagicPowerDistance.AdjacentLocationsOnly:
-                        targets.AddRange(
-                            actor.Location.Characters.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
-                        targets.AddRange(
-                            actor.Location.Characters.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
-                        targets.AddRange(actor.Location.ExitsFor(actor, true).Select(x => x.Destination).Distinct()
-                                              .SelectMany(x =>
-                                                  x.Characters.Select(y => ((IPerceivable)y, x, y.RoomLayer))));
+						targets.AddRange(MagicPowerSpatialTargeting
+							.AcquireTargets(actor, PowerDistance)
+							.OfType<ICharacter>()
+							.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
                         break;
                     case MagicPowerDistance.SameAreaOnly:
                         if (actor.Location.Areas.Any())
@@ -408,17 +394,16 @@ public class SensePower : MagicPowerBase
                 switch (PowerDistance)
                 {
                     case MagicPowerDistance.SameLocationOnly:
-                        targets.AddRange(
-                            actor.Location.GameItems.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
+						targets.AddRange(MagicPowerSpatialTargeting
+							.AcquireTargets(actor, PowerDistance)
+							.OfType<IGameItem>()
+							.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
                         break;
                     case MagicPowerDistance.AdjacentLocationsOnly:
-                        targets.AddRange(
-                            actor.Location.GameItems.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
-                        targets.AddRange(
-                            actor.Location.GameItems.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
-                        targets.AddRange(actor.Location.ExitsFor(actor, true).Select(x => x.Destination).Distinct()
-                                              .SelectMany(x =>
-                                                  x.GameItems.Select(y => ((IPerceivable)y, x, y.RoomLayer))));
+						targets.AddRange(MagicPowerSpatialTargeting
+							.AcquireTargets(actor, PowerDistance)
+							.OfType<IGameItem>()
+							.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
                         break;
                     case MagicPowerDistance.SameAreaOnly:
                         if (actor.Location.Areas.Any())

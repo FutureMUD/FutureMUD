@@ -68,7 +68,7 @@ public class LiquidPumpGameItemComponent : GameItemComponent, IConnectable, ICon
         foreach (Tuple<long, ConnectorType>? item in _pendingLoadTimeConnections.ToList())
         {
             IGameItem? gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null || gitem.Location != Parent.Location)
+            if (gitem == null || !Parent.ColocatedWith(gitem))
             {
                 continue;
             }
@@ -267,7 +267,7 @@ public class LiquidPumpGameItemComponent : GameItemComponent, IConnectable, ICon
             IConnectable? newItemConnectable = newItem?.GetItemType<IConnectable>();
             if (newItemConnectable == null)
             {
-                location?.Insert(connectedItem.Parent);
+                InsertAtParentSpatialLocation(connectedItem.Parent, location);
             }
             else
             {
@@ -277,7 +277,7 @@ public class LiquidPumpGameItemComponent : GameItemComponent, IConnectable, ICon
                 }
                 else
                 {
-                    location?.Insert(connectedItem.Parent);
+                    InsertAtParentSpatialLocation(connectedItem.Parent, location);
                 }
             }
         }

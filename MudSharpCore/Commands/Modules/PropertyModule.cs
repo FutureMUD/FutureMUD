@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using MudSharp.Character.Name;
 using MudSharp.Commands.Helpers;
+using MudSharp.Construction;
 using MudSharp.Community;
 using MudSharp.Economy;
 using MudSharp.Economy.Banking;
@@ -352,7 +353,7 @@ The following commands are specific to those who own a property (or who are mana
                 else
                 {
                     cash.RoomLayer = actor.RoomLayer;
-                    actor.Location.Insert(cash, true);
+                    cash.InsertAtSource(actor, true);
                     actor.OutputHandler.Send("You couldn't hold the money, so it is on the ground.");
                 }
 
@@ -658,7 +659,7 @@ The following commands are specific to those who own a property (or who are mana
         }
         else
         {
-            actor.Location.Insert(givenItem, true);
+            givenItem.InsertAtSource(actor, true);
             actor.OutputHandler.Send("You couldn't hold the keys, so they have been put on the ground.");
         }
 
@@ -812,7 +813,7 @@ The following commands are specific to those who own a property (or who are mana
         else
         {
             cash.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(cash, true);
+            cash.InsertAtSource(actor, true);
             actor.OutputHandler.Send("You couldn't hold the money, so it is on the ground.");
         }
     }
@@ -1684,7 +1685,7 @@ The following commands are specific to those who own a property (or who are mana
         }
         else
         {
-            actor.Location.Insert(key.GameItem, true);
+            key.GameItem.InsertAtSource(actor, true);
             actor.OutputHandler.Send($"You were unable to hold {key.GameItem.HowSeen(actor)}, so it is on the ground.");
         }
 
@@ -1904,7 +1905,7 @@ The following commands are specific to those who own a property (or who are mana
             else
             {
                 givenItem.RoomLayer = actor.RoomLayer;
-                actor.Location.Insert(givenItem, true);
+                givenItem.InsertAtSource(actor, true);
                 actor.OutputHandler.Send($"You couldn't hold {givenItem.HowSeen(actor)}, so it is on the ground.");
             }
         }
@@ -2107,7 +2108,7 @@ The following commands are specific to those who own a property (or who are mana
             else
             {
                 givenItem.RoomLayer = actor.RoomLayer;
-                actor.Location.Insert(givenItem, true);
+                givenItem.InsertAtSource(actor, true);
                 actor.OutputHandler.Send($"You couldn't hold {givenItem.HowSeen(actor)}, so it is on the ground.");
             }
         }

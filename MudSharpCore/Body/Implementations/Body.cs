@@ -320,6 +320,20 @@ public partial class Body : PerceiverItem, IBody
         protected set => MoveTo(value, RoomLayer);
     }
 
+	public override double? RoutePositionMetres => EmbodiedActor.RoutePositionMetres;
+	public override SpatialLocation SpatialLocation => EmbodiedActor.SpatialLocation;
+
+	public override void SetRoutePosition(double? metres)
+	{
+		EmbodiedActor.SetRoutePosition(metres);
+	}
+
+	public override event SpatialLocationEvent OnSpatialPositionChanged
+	{
+		add => EmbodiedActor.OnSpatialPositionChanged += value;
+		remove => EmbodiedActor.OnSpatialPositionChanged -= value;
+	}
+
     public override event LocatableEvent OnLocationChanged
     {
         add => EmbodiedActor.OnLocationChanged += value;

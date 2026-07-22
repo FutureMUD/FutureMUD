@@ -60,6 +60,14 @@ namespace MudSharp.Framework
 
         void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false);
 
+#nullable enable annotations
+        void MoveTo(SpatialLocation location, ICellExit? exit = null, bool noSave = false)
+        {
+            MoveTo(location.Cell, location.Layer, exit, noSave);
+            SetRoutePosition(location.RoutePositionMetres);
+        }
+#nullable restore annotations
+
         /// <summary>
         ///     This event fires whenever something happens to the IPerceivable that it believes should invalidate any positional
         ///     references to it

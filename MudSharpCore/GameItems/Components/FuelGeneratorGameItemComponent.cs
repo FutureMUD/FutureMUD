@@ -264,6 +264,11 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
         : 0.0;
 
     private double _spikeDrawdown;
+    internal double RouteCheckpointSpikeDrawdown
+    {
+        get => _spikeDrawdown;
+        set => _spikeDrawdown = value;
+    }
 
     public bool CanBeginDrawDown(double wattage)
     {
@@ -341,7 +346,7 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
             {
                 if (location != null)
                 {
-                    location.Insert(thelock.Parent);
+                    InsertAtParentSpatialLocation(thelock.Parent, location);
                     thelock.Parent.ContainedIn = null;
                 }
                 else

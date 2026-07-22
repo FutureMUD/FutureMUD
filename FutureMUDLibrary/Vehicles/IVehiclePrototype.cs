@@ -2,8 +2,10 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.Body.Traits;
+using MudSharp.Construction;
 using MudSharp.RPG.Checks;
 using MudSharp.Combat;
+using System;
 using System.Collections.Generic;
 
 namespace MudSharp.Vehicles;
@@ -22,6 +24,8 @@ public interface IVehiclePrototype : IEditableRevisableItem
 	IEnumerable<IVehicleInstallationPointPrototype> InstallationPoints { get; }
 	IEnumerable<IVehicleTowPointPrototype> TowPoints { get; }
 	IEnumerable<IVehicleDamageZonePrototype> DamageZones { get; }
+	IEnumerable<IVehicleCompartmentLinkPrototype> CompartmentLinks =>
+		Array.Empty<IVehicleCompartmentLinkPrototype>();
 	bool CanCreateVehicle(out string reason);
 }
 
@@ -29,6 +33,21 @@ public interface IVehicleCompartmentPrototype : IFrameworkItem
 {
 	string Description { get; }
 	int DisplayOrder { get; }
+	long? InteriorTerrainId => null;
+#nullable enable annotations
+	ITerrain? InteriorTerrain => null;
+#nullable restore annotations
+	CellOutdoorsType InteriorOutdoorsType => CellOutdoorsType.Indoors;
+}
+
+public interface IVehicleCompartmentLinkPrototype : IFrameworkItem
+{
+	IVehicleCompartmentPrototype SourceCompartment { get; }
+	IVehicleCompartmentPrototype DestinationCompartment { get; }
+	string OutboundDirection { get; }
+	string InboundDirection { get; }
+	string OutboundDescription { get; }
+	string InboundDescription { get; }
 }
 
 public interface IVehicleOccupantSlotPrototype : IFrameworkItem
@@ -63,6 +82,15 @@ public interface IVehicleMovementProfilePrototype : IFrameworkItem
 	bool RequiresTowLinksClosed { get; }
 	bool RequiresAccessPointsClosed { get; }
 	IEnumerable<IVehiclePropulsionProfilePrototype> PropulsionProfiles { get; }
+
+	/// <summary>
+	/// Authored longitudinal speed for a Route movement profile. Non-route profiles retain zero.
+	/// </summary>
+	double RouteSpeedMetresPerSecond => 0.0;
+	RouteVehiclePropulsionMode RoutePropulsionMode => RouteVehiclePropulsionMode.Powered;
+	double RouteFuelVolumePerMetre => 0.0;
+	double RoutePowerDrawWatts => 0.0;
+	bool AutomaticOperationCapable => false;
 }
 
 public interface IVehiclePropulsionProfilePrototype : IFrameworkItem

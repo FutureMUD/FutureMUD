@@ -829,6 +829,7 @@ public partial class Cell
             Gameworld.ExitManager
                      .GetExitsFor(this, overlay, voyeur?.RoomLayer)
                      .OrderBy(x => x.OutboundDirection)
+					 .Where(x => IsSpatiallyAccessibleExit(voyeur, x))
                      .Where(x => chVoyeur?.CanSee(this, x) != false)
                      .Select(exit => exit.DescribeFor(voyeur, colour))
                      .ToList();

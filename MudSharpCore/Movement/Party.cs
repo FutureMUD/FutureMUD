@@ -216,7 +216,7 @@ public class Party : PerceiverItem, IParty
     /// </summary>
     public IEnumerable<IMove> ActiveMembers => Members
                    .Where(x =>
-                x.Location == Leader.Location &&
+	                Leader.ColocatedWith(x) &&
                 x.CanMove(CanMoveFlags.None).Result &&
                 !x.EffectsOfType<IDragParticipant>().Any())
                           .ToList();
@@ -225,7 +225,7 @@ public class Party : PerceiverItem, IParty
     /// Active Members are people who are present with the leader, and able and willing to move
     /// </summary>
     public IEnumerable<ICharacter> ActiveCharacterMembers => CharacterMembers.Where(x =>
-                                                                          x.InRoomLocation == Leader.InRoomLocation && x.CanMove(CanMoveFlags.None).Result).ToList();
+	                                                                          Leader.ColocatedWith(x) && x.CanMove(CanMoveFlags.None).Result).ToList();
 
     #endregion
 

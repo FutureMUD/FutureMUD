@@ -2,6 +2,8 @@
 using MudSharp.Combat;
 using MudSharp.GameItems;
 
+using MudSharp.Construction;
+
 namespace MudSharp.Effects.Concrete;
 
 public class MurderousRage : Effect, IRageEffect, IScoreAddendumEffect
@@ -190,9 +192,15 @@ public class MurderousRage : Effect, IRageEffect, IScoreAddendumEffect
             return;
         }
 
-        List<ICharacter> roomTargets = CharacterOwner.Location.Characters.Except(CharacterOwner).Where(x =>
-            (IntensityPerGramMass >= 10.0 || !CharacterOwner.IsAlly(x)) && CharacterOwner.CanEngage(x) &&
-            CharacterOwner.CanSee(x)).ToList();
+		List<ICharacter> roomTargets = CharacterOwner.LocalThingsAndProximities()
+			.Where(x => x.Proximity <= Proximity.VeryDistant)
+			.Select(x => x.Thing)
+			.OfType<ICharacter>()
+			.Except(CharacterOwner)
+			.Where(x => (IntensityPerGramMass >= 10.0 || !CharacterOwner.IsAlly(x)) &&
+			            CharacterOwner.CanEngage(x) && CharacterOwner.CanSee(x))
+			.Distinct()
+			.ToList();
         if (roomTargets.Any())
         {
             ICharacter target = roomTargets.GetRandomElement();
@@ -204,8 +212,13 @@ public class MurderousRage : Effect, IRageEffect, IScoreAddendumEffect
         IMeleeWeapon weapon = BodyOwner.WieldedItems.SelectNotNull(x => x.GetItemType<IMeleeWeapon>()).FirstOrDefault(x =>
             x.WeaponType.UsableAttacks(CharacterOwner, x.Parent, null, x.HandednessForWeapon(CharacterOwner), false,
                 BuiltInCombatMoveType.MeleeWeaponSmashItem).Any());
-        List<IGameItem> roomItems = CharacterOwner.Location.LayerGameItems(CharacterOwner.RoomLayer)
-                                      .Where(x => x.IsItemType<IDestroyable>() && CharacterOwner.CanSee(x)).ToList();
+		List<IGameItem> roomItems = CharacterOwner.LocalThingsAndProximities()
+			.Where(x => x.Proximity <= Proximity.Immediate)
+			.Select(x => x.Thing)
+			.OfType<IGameItem>()
+			.Where(x => x.IsItemType<IDestroyable>() && CharacterOwner.CanSee(x))
+			.Distinct()
+			.ToList();
         List<IGameItem> doorItems = CharacterOwner.Location.ExitsFor(CharacterOwner).SelectNotNull(x => x.Exit.Door?.Parent)
                                       .Where(x => x.IsItemType<IDestroyable>() && CharacterOwner.CanSee(x)).ToList();
         if (roomItems.Any() || doorItems.Any())

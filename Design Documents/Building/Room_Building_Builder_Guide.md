@@ -445,6 +445,61 @@ The hide prog must return boolean and accept a location and character. Hidden ex
 
 When an exit is shared by other overlays, edit commands copy it into the current overlay package before changing it. This lets a new package adjust exit behaviour without accidentally mutating live or unrelated overlay data.
 
+## Linear RouteCells
+
+A RouteCell is one long, linear cell with exact metre coordinates. Use it for a road, railway, river, tunnel, or other corridor whose scale would otherwise require thousands of ordinary cells. It is not a vehicle timetable: scheduled operational itineraries are authored separately with `vehicleroute`, then attached to recurring operations with `vehicleservice`. See [RouteCell Spatial System](../World/Route_Cell_System.md) and [Vehicle System](../Vehicle_System.md).
+
+Create and inspect the geometry:
+
+```text
+cell set route create <length>
+cell set route show
+cell set route map
+cell set route validate
+cell set route length <length>
+cell set route default <distance|landmark>
+cell set route direction positive <name>
+cell set route direction negative <name>
+cell set route roomequivalent <length|default>
+cell set route clear
+```
+
+Lengths and coordinates accept the normal localised unit syntax. Coordinates run inclusively from `0` to the cell length. The default coordinate is used only when entry has no more specific inherited or exit-authored coordinate. The room-equivalent controls compatibility with systems whose range is still expressed as a number of rooms; the global default is 100 metres.
+
+Add navigation landmarks:
+
+```text
+cell set route landmark add <distance> <name>
+cell set route landmark rename <landmark> <name>
+cell set route landmark keywords <landmark> <keywords>
+cell set route landmark distance <landmark> <distance>
+cell set route landmark description <landmark>
+cell set route landmark delete <landmark>
+```
+
+Route landmarks are points inside one RouteCell, distinct from the older whole-cell `cell landmark`/meeting-place system described later in this guide. Players can use RouteCell landmarks with `travel to`, and vehicle routes can bind stops to their exact coordinates.
+
+Anchor each route-side exit:
+
+```text
+cell set route exit <exit> band <minimum> <maximum> arrival <distance>
+```
+
+The band is inclusive. An actor can use that exit only while inside the band. Merely travelling past it never takes it automatically. `arrival` is the deterministic coordinate assigned when entering this RouteCell through that exit. Route-to-route exits require a valid anchor on each side.
+
+For example, on a ten-kilometre road with a turn-off accessible from 7,100 through 7,200 metres:
+
+```text
+cell set route create 10km
+cell set route direction positive eastbound
+cell set route direction negative westbound
+cell set route landmark add 7150m "Old Quarry Turn-Off"
+cell set route exit quarry band 7100m 7200m arrival 7150m
+cell set route validate
+```
+
+Conversion is intentionally guarded. The cell must not contain other live or persisted character instances, top-level items, vehicles, projects, tracks, coordinate-bound surface liquid, or any exits; remove exits first, convert the cell, then relink and anchor each route-side exit. The audit includes offline character/instance rows and dormant top-level item rows, not only objects currently materialised in memory. Shortening or clearing fails if it would strand an entity, track, point spill, landmark, exit anchor, stop, route, service, or active journey. The geometry mutation and the builder's resulting coordinate are committed together. A geometry change increments topology version and invalidates dependent route compilation; it never silently clamps existing data.
+
 ## Ways to Make Rooms
 
 ### Manual Room Creation

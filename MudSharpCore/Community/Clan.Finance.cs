@@ -1,6 +1,7 @@
 ﻿using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Character.Name;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
@@ -408,7 +409,7 @@ public partial class Clan
 		else
 		{
 			newItem.RoomLayer = actor.RoomLayer;
-			actor.Location.Insert(newItem, true);
+			newItem.InsertAtSource(actor, true);
 		}
 
 		actor.OutputHandler.Send(

@@ -363,6 +363,10 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
 
+				entity.Property(e => e.RoomLayer).HasColumnType("int(11)");
+
+				entity.Property(e => e.RoutePosition).HasColumnType("decimal(18,3)");
+
                 entity.Property(e => e.CurrentPhaseId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.ProjectId).HasColumnType("bigint(20)");

@@ -65,7 +65,7 @@ public class RebreatherGameItemComponent : GameItemComponent, IConnectable, IPro
         IConnectable newItemConnectable = newItem?.GetItemType<IConnectable>();
         if (newItemConnectable == null)
         {
-            location?.Insert(connectedItem.Parent);
+            InsertAtParentSpatialLocation(connectedItem.Parent, location);
         }
         else
         {
@@ -75,7 +75,7 @@ public class RebreatherGameItemComponent : GameItemComponent, IConnectable, IPro
             }
             else
             {
-                location?.Insert(connectedItem.Parent);
+                InsertAtParentSpatialLocation(connectedItem.Parent, location);
             }
         }
 

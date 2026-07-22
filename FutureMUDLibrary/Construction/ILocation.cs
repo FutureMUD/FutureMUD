@@ -25,6 +25,13 @@ namespace MudSharp.Construction
         /// </summary>
         IEnumerable<IHandleEvents> EventHandlers { get; }
 
+		/// <summary>
+		/// Returns handlers close enough to witness an event produced by <paramref name="source"/>.
+		/// Ordinary locations retain whole-location semantics; spatially large cells can bound
+		/// the result by the source's effective position.
+		/// </summary>
+		IEnumerable<IHandleEvents> EventHandlersFor(IPerceivable source) => EventHandlers;
+
         IEnumerable<ICharacter> Characters { get; }
 
         IEnumerable<ICharacter> LayerCharacters(RoomLayer layer);

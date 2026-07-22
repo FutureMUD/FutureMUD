@@ -32,9 +32,10 @@ public class BlankDatabaseSnapshotTests
 		var snapshotPath = BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory());
 		var snapshot = File.ReadAllText(snapshotPath);
 		var marker = snapshot.IndexOf("-- EF-generated idempotent delta", StringComparison.Ordinal);
-
-		Assert.IsTrue(marker >= 0, "The maintained snapshot should contain its generated migration deltas.");
-		var deltas = snapshot[marker..];
+		// A full refresh already contains every migration in the database dump and therefore has no
+		// appended delta section. Older maintained snapshots may still append an idempotent delta;
+		// validate that section when present, otherwise validate the complete refreshed dump.
+		var deltas = marker >= 0 ? snapshot[marker..] : snapshot;
 		foreach (var table in new[]
 		         {
 			         "__EFMigrationsHistory", "Vehicles", "VehicleOccupantSlotProtos",
@@ -43,7 +44,7 @@ public class BlankDatabaseSnapshotTests
 		         })
 		{
 			Assert.IsFalse(deltas.Contains($"`{table}`", StringComparison.Ordinal),
-				$"Appended deltas must use the lowercase table names created by the maintained dump, not `{table}`.");
+				$"Snapshot SQL must use the lowercase table names created by the maintained dump, not `{table}`.");
 		}
 	}
 

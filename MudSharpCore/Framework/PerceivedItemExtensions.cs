@@ -202,13 +202,26 @@ public static class PerceivedItemExtensions
             return new List<ICellExit>();
         }
 
+		// Exit-only paths cannot represent longitudinal travel inside a RouteCell. Failing closed here
+		// prevents legacy AI, combat, range, and following callers from treating a many-kilometre cell
+		// as a single-room shortcut. Coordinate-aware callers must use ISpatialPathfinder.
+		if (source.RouteDefinition is not null)
+		{
+			return new List<ICellExit>();
+		}
+
         HashSet<ICell> targetSet = NewCellSet();
         List<IRoom> targetRooms = new();
         foreach (ICell target in targets)
         {
             if (target == null)
             {
-                continue;
+				continue;
+			}
+
+			if (target.RouteDefinition is not null)
+			{
+				return new List<ICellExit>();
             }
 
             if (ReferenceEquals(source, target))
@@ -233,7 +246,8 @@ public static class PerceivedItemExtensions
         RandomAccessPriorityQueue<double, PathSearchStep> queue = new();
         foreach (ICellExit exit in source.ExitsFor(null, ignoreLayers))
         {
-            if (!suitabilityFunction(exit) || exit.Destination == null)
+			if (!suitabilityFunction(exit) || exit.Destination == null ||
+				exit.Destination.RouteDefinition is not null)
             {
                 continue;
             }
@@ -274,7 +288,8 @@ public static class PerceivedItemExtensions
 
             foreach (ICellExit exit in next.Cell.ExitsFor(null, ignoreLayers))
             {
-                if (!suitabilityFunction(exit) || exit.Destination == null)
+				if (!suitabilityFunction(exit) || exit.Destination == null ||
+					exit.Destination.RouteDefinition is not null)
                 {
                     continue;
                 }
@@ -321,11 +336,18 @@ public static class PerceivedItemExtensions
     private static List<ICellExit> FindPath(ICell source, IReadOnlyCollection<ICell> targets,
         uint maximumDistance, Func<ICellExit, bool> suitabilityFunction, bool ignoreLayers, PathSearchOptions options)
     {
+		if (source?.RouteDefinition is not null || targets?.Any(x => x?.RouteDefinition is not null) == true)
+		{
+			return new List<ICellExit>();
+		}
+
+		Func<ICellExit, bool> routeSafeSuitability = exit =>
+			exit.Destination?.RouteDefinition is null && suitabilityFunction(exit);
         options ??= PathSearchOptions.Exact;
         if (options.Algorithm == PathSearchAlgorithm.Exact ||
             options.Algorithm == PathSearchAlgorithm.Automatic && maximumDistance < options.HierarchicalThreshold)
         {
-            return FindShortestExitPath(source, targets, maximumDistance, suitabilityFunction, ignoreLayers);
+			return FindShortestExitPath(source, targets, maximumDistance, routeSafeSuitability, ignoreLayers);
         }
 
         IPathfindingService service = source?.Gameworld?.ExitManager?.PathfindingService;
@@ -334,7 +356,7 @@ public static class PerceivedItemExtensions
             return new List<ICellExit>();
         }
 
-        return service.TryFindLongRangePath(source, targets, maximumDistance, suitabilityFunction, ignoreLayers,
+		return service.TryFindLongRangePath(source, targets, maximumDistance, routeSafeSuitability, ignoreLayers,
             options, out IReadOnlyList<ICellExit> path)
             ? path.ToList()
             : new List<ICellExit>();
@@ -386,6 +408,14 @@ public static class PerceivedItemExtensions
         Queue<(ICell Cell, int Distance)> queue = new();
         seen.Add(source);
         cells.Add(source);
+		// This compatibility API has no coordinate-bearing result type. It must not flatten a
+		// RouteCell into a single room or enter one as a one-room shortcut; spatial callers use
+		// ISpatialPathfinder instead.
+		if (source.RouteDefinition is not null)
+		{
+			return cells;
+		}
+
         queue.Enqueue((source, 0));
 
         while (queue.Count > 0)
@@ -398,7 +428,8 @@ public static class PerceivedItemExtensions
 
             foreach (ICellExit exit in cell.ExitsFor(null, ignoreLayers))
             {
-                if (!suitabilityFunction(exit) || exit.Destination == null || !seen.Add(exit.Destination))
+                if (!suitabilityFunction(exit) || exit.Destination == null ||
+					exit.Destination.RouteDefinition is not null || !seen.Add(exit.Destination))
                 {
                     continue;
                 }
@@ -424,6 +455,11 @@ public static class PerceivedItemExtensions
         Queue<(ICell Cell, int Distance)> queue = new();
         seen.Add(source);
         cells.Add((source, 0));
+		if (source.RouteDefinition is not null)
+		{
+			return cells;
+		}
+
         queue.Enqueue((source, 0));
 
         while (queue.Count > 0)
@@ -436,7 +472,8 @@ public static class PerceivedItemExtensions
 
             foreach (ICellExit exit in cell.ExitsFor(null, ignoreLayers))
             {
-                if (!suitabilityFunction(exit) || exit.Destination == null || !seen.Add(exit.Destination))
+                if (!suitabilityFunction(exit) || exit.Destination == null ||
+					exit.Destination.RouteDefinition is not null || !seen.Add(exit.Destination))
                 {
                     continue;
                 }
@@ -472,15 +509,25 @@ public static class PerceivedItemExtensions
     /// </returns>
     public static int DistanceBetween(this IPerceivable source, IPerceivable target, uint maximumDistance)
     {
-        if (source?.Location == target?.Location)
-        {
-            return 0;
-        }
-
         if (source == null || target == null || source.Location == null || target.Location == null)
         {
             return -1;
         }
+
+		var usesRouteGeometry = source.Location.RouteDefinition is not null ||
+		                        target.Location.RouteDefinition is not null;
+		var spatialDistance = usesRouteGeometry ? source.RoomEquivalentDistanceBetween(target) : -1.0;
+		if (usesRouteGeometry)
+		{
+			return spatialDistance >= 0.0 && spatialDistance <= maximumDistance
+				? (int)Math.Ceiling(spatialDistance)
+				: -1;
+		}
+
+		if (source.Location == target.Location)
+		{
+			return 0;
+		}
 
         List<ICellExit> path = FindShortestExitPath(source.Location, [target.Location], maximumDistance, _ => true,
             false);
@@ -495,20 +542,58 @@ public static class PerceivedItemExtensions
     public static int DistanceBetween(this IPerceivable source, IPerceivable target, uint maximumDistance,
         PathSearchOptions options)
     {
-        if (source?.Location == target?.Location)
-        {
-            return 0;
-        }
-
         if (source == null || target == null || source.Location == null || target.Location == null)
         {
             return -1;
         }
 
+		var usesRouteGeometry = source.Location.RouteDefinition is not null ||
+		                        target.Location.RouteDefinition is not null;
+		var spatialDistance = usesRouteGeometry ? source.RoomEquivalentDistanceBetween(target) : -1.0;
+		if (usesRouteGeometry)
+		{
+			return spatialDistance >= 0.0 && spatialDistance <= maximumDistance
+				? (int)Math.Ceiling(spatialDistance)
+				: -1;
+		}
+
+		if (source.Location == target.Location)
+		{
+			return 0;
+		}
+
         List<ICellExit> path = FindPath(source.Location, [target.Location], maximumDistance, _ => true,
             false, options);
         return path.Count == 0 ? -1 : path.Count;
     }
+
+	/// <summary>
+	/// Returns the exact hybrid-path cost in room equivalents. RouteCell longitudinal edges use
+	/// their authored metres-per-room scale; ordinary exits retain their normal unit cost.
+	/// </summary>
+	public static double RoomEquivalentDistanceBetween(this IPerceivable source, IPerceivable target)
+	{
+		if (source is null || target is null || source.Location is null || target.Location is null)
+		{
+			return -1.0;
+		}
+
+		var pathfinder = source.Gameworld?.ExitManager?.SpatialPathfinder;
+		if (pathfinder is null ||
+			!pathfinder.TryFindPath(
+				RouteSpatialService.Instance.GetEffectiveLocation(source),
+				RouteSpatialService.Instance.GetEffectiveLocation(target),
+				null,
+				false,
+				double.PositiveInfinity,
+				out var path) ||
+			path is null)
+		{
+			return -1.0;
+		}
+
+		return path.RoomEquivalentCost;
+	}
 
     /// <summary>
     ///     Tests whether the target can be reached from the source within a maximum exit count.
@@ -796,6 +881,11 @@ public static class PerceivedItemExtensions
                 exit => !respectDoors || exit.Exit.Door?.IsOpen != false || exit.Exit.Door.CanFireThrough, true);
         }
 
+		if (source.Location.RouteDefinition is not null)
+		{
+			return [source.Location];
+		}
+
         List<ICell> locationsConsidered = new()
         { source.Location };
         HashSet<ICell> locationsSeen = NewCellSet();
@@ -830,6 +920,7 @@ public static class PerceivedItemExtensions
         List<PolyNode<CellDirectionSearch>> generationExits =
             new(
                 exits
+					  .Where(x => x.Destination.RouteDefinition is null)
                       .Where(x => ExitSuitable(x, permittedDirectionList))
                       .Select(x => new PolyNode<CellDirectionSearch>(new CellDirectionSearch
                       {
@@ -865,11 +956,21 @@ public static class PerceivedItemExtensions
                     continue;
                 }
 
+				if (exit.Value.Exit.Destination.RouteDefinition is not null)
+				{
+					continue;
+				}
+
                 locationsSeen.Add(exit.Value.Exit.Destination);
                 locationsConsidered.Add(exit.Value.Exit.Destination);
                 generationDictionary[exit.Value.Exit.Destination] = new List<PolyNode<CellDirectionSearch>>();
                 foreach (ICellExit otherExit in exit.Value.Exit.Destination.ExitsFor(null))
                 {
+					if (otherExit.Destination.RouteDefinition is not null)
+					{
+						continue;
+					}
+
                     if (!ExitSuitable(otherExit, exit.Value.PermittedDirections))
                     {
                         continue;

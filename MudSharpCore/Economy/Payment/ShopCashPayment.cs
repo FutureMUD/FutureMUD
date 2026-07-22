@@ -1,5 +1,6 @@
 ﻿using MudSharp.Economy.Currency;
 using MudSharp.GameItems;
+using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.Economy.Payment;
@@ -71,7 +72,7 @@ public class ShopCashPayment : CashPayment
             }
             else
             {
-                Actor.Location.Insert(changePile);
+                changePile.InsertAtSource(Actor);
             }
         }
     }
@@ -88,7 +89,7 @@ public class ShopCashPayment : CashPayment
         }
         else
         {
-            Actor.Location.Insert(newPile);
+            newPile.InsertAtSource(Actor);
         }
     }
 

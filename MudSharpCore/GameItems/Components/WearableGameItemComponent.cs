@@ -70,7 +70,7 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
             }
             else
             {
-                WornBy.Location.Insert(newItem);
+                newItem.InsertAtSource(WornBy.Actor);
             }
         }
 

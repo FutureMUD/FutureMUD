@@ -150,7 +150,7 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 			}
 			else if (location is not null)
 			{
-				location.Insert(item);
+				InsertAtParentSpatialLocation(item, location);
 				item.ContainedIn = null;
 			}
 			else
@@ -248,7 +248,7 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 				continue;
 			}
 
-			(emptier?.Location ?? Parent.TrueLocations.FirstOrDefault())?.Insert(item);
+			item.InsertAtSource(emptier is null ? Parent.LocationLevelPerceivable : emptier);
 		}
 
 		Changed = true;
@@ -392,7 +392,7 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 	private void HandleOfferingEvent(EventType itemEvent, EventType witnessEvent, ICharacter actor, IGameItem offering)
 	{
 		Parent.HandleEvent(itemEvent, Parent, actor, offering);
-		foreach (var witness in Parent.TrueLocations.SelectMany(x => x.EventHandlers))
+		foreach (var witness in Parent.TrueLocations.SelectMany(x => x.EventHandlersFor(Parent.LocationLevelPerceivable)))
 		{
 			witness.HandleEvent(witnessEvent, Parent, actor, offering, witness);
 		}

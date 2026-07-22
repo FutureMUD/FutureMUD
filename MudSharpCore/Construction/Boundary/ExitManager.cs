@@ -15,11 +15,13 @@ public class ExitManager : IExitManager, IHaveFuturemud
     {
         Gameworld = gameworld;
         PathfindingService = new PathfindingService(gameworld);
+		SpatialPathfinder = new SpatialPathfinder();
     }
 
     public IFuturemud Gameworld { get; protected set; }
 
     public IPathfindingService PathfindingService { get; }
+	public ISpatialPathfinder SpatialPathfinder { get; }
 
     /// <summary>
     ///     Called the first time that an exit for a particular cell and/or overlay is requested. Initialises the cell in the
@@ -265,6 +267,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
         }
 
         PathfindingService.InvalidateTopology();
+		SpatialPathfinder.InvalidateTopology();
     }
 
     public void UnregisterTransientExit(IExit exit)
@@ -280,6 +283,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
         }
 
         PathfindingService.InvalidateTopology();
+		SpatialPathfinder.InvalidateTopology();
     }
 
     public void UpdateCellOverlayExits(ICell cell, ICellOverlay overlay)
@@ -292,11 +296,13 @@ public class ExitManager : IExitManager, IHaveFuturemud
 
         InitialiseCell(cell, overlay);
         PathfindingService.InvalidateTopology(cell);
+		SpatialPathfinder.InvalidateTopology(cell);
     }
 
     public void DeleteCell(ICell cell)
     {
         PathfindingService.InvalidateTopology(cell);
+		SpatialPathfinder.InvalidateTopology();
 
         // Initialise the cell so all exits are in memory
         InitialiseCell(cell, null);

@@ -1450,7 +1450,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                         else
                         {
                             item.RoomLayer = actor.RoomLayer;
-                            actor.Location.Insert(item);
+                            item.InsertAtSource(actor);
                             someInRoom = true;
                         }
                     }
@@ -1495,7 +1495,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                     else
                     {
                         item.RoomLayer = actor.RoomLayer;
-                        actor.Location.Insert(item);
+                        item.InsertAtSource(actor);
                         anyInLocation = true;
                     }
 

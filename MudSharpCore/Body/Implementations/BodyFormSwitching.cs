@@ -2,6 +2,7 @@
 
 using MudSharp.Body.Disfigurements;
 using MudSharp.Body.PartProtos;
+using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
@@ -952,7 +953,10 @@ public partial class Body
 
 		item.Drop(Location);
 		item.RoomLayer = RoomLayer;
-		Location?.Insert(item);
+		if (Location is not null)
+		{
+			item.InsertAtSource(Actor);
+		}
 	}
 
 	private void ResetDormantFormState(BodySwitchTraumaMode traumaMode)

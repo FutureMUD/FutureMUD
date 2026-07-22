@@ -2,6 +2,7 @@
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
+using MudSharp.Construction;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
@@ -293,7 +294,7 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 		loader.OutputHandler.Handle(new EmoteOutput(new Emote("@ unload|unloads $0 from $1.", loader, ammo.Parent, Parent)));
 		if (!loader.Body.CanGet(ammo.Parent, 0))
 		{
-			loader.Location.Insert(ammo.Parent);
+			ammo.Parent.InsertAtSource(loader);
 		}
 		else
 		{

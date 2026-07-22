@@ -1,6 +1,8 @@
 ﻿using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat.Moves;
 
+using MudSharp.Construction;
+
 namespace MudSharp.Combat.Strategies;
 
 public class SwooperStrategy : RangeBaseStrategy
@@ -68,7 +70,7 @@ public class SwooperStrategy : RangeBaseStrategy
 			return null;
 		}
 
-		if (ch.Location == ch.CombatTarget.Location &&
+		if (ch.SharesLongitudinalVicinityWith(ch.CombatTarget) &&
 			ch.RoomLayer != ch.CombatTarget.RoomLayer)
 		{
 			return HandleChangeLayer(ch);

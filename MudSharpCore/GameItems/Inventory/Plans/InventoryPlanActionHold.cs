@@ -1,4 +1,6 @@
 ﻿
+using MudSharp.Construction;
+
 namespace MudSharp.GameItems.Inventory.Plans;
 
 public class InventoryPlanActionHold : InventoryPlanAction
@@ -197,7 +199,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
 
         // In location
         items =
-            executor.Location.LayerGameItems(executor.RoomLayer).Where(
+            executor.Location.GameItemsInImmediateVicinity(executor).Where(
                 x =>
                     ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
                     (DesiredTag is null || x.IsA(DesiredTag)) &&
@@ -214,7 +216,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
 
         // Attached to room items next
         items =
-            executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<IBelt>())
+            executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<IBelt>())
                     .Where(x => executor.Location.CanGetAccess(x.Parent, executor))
                     .SelectMany(
                         x =>
@@ -240,7 +242,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
 
         // Sheathed in room item next
         items =
-            executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<ISheath>())
+            executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<ISheath>())
                     .Where(x => executor.Location.CanGetAccess(x.Parent, executor))
                     .SelectNotNull(x => x.Content?.Parent)
                     .Where(
@@ -259,7 +261,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
             }
         }
 
-        foreach (IContainer container in executor.Location.LayerGameItems(executor.RoomLayer)
+        foreach (IContainer container in executor.Location.GameItemsInImmediateVicinity(executor)
                                           .SelectNotNull(x => x.GetItemType<IContainer>())
                                           .Where(x => executor.Location.CanGetAccess(x.Parent, executor)))
         {

@@ -3,6 +3,7 @@ using MudSharp.Accounts;
 using MudSharp.Celestial;
 using MudSharp.Climate;
 using MudSharp.Commands.Helpers;
+using MudSharp.Construction;
 using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
@@ -99,9 +100,11 @@ internal class TimeModule : Module<ICharacter>
             }
         }
 
-        List<ITimePiece> visibleTimepieces = actor.Body.ExternalItems.Concat(actor.Location.LayerGameItems(actor.RoomLayer))
-                                     .Where(x => actor.CanSee(x)).SelectNotNull(x => x.GetItemType<ITimePiece>())
-                                     .ToList();
+		List<ITimePiece> visibleTimepieces = actor.Body.ExternalItems
+			.Concat(actor.Location.GameItemsInImmediateVicinity(actor))
+			.Where(x => actor.CanSee(x))
+			.SelectNotNull(x => x.GetItemType<ITimePiece>())
+			.ToList();
         foreach (ITimePiece item in visibleTimepieces)
         {
             sb.AppendLine(

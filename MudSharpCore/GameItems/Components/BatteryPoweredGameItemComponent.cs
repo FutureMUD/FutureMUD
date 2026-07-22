@@ -90,7 +90,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
             {
                 if (location != null)
                 {
-                    location.Insert(thelock.Parent);
+                    InsertAtParentSpatialLocation(thelock.Parent, location);
                     thelock.Parent.ContainedIn = null;
                 }
                 else
@@ -128,7 +128,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
                     }
                     else if (location != null)
                     {
-                        location.Insert(item);
+                        InsertAtParentSpatialLocation(item, location);
                         item.ContainedIn = null;
                     }
                     else
@@ -146,7 +146,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
             {
                 if (location != null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location);
                     item.ContainedIn = null;
                 }
                 else
@@ -355,7 +355,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
         foreach (Tuple<long, ConnectorType> item in _pendingLoadTimeConnections.ToList())
         {
             IGameItem gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null || gitem.Location != Parent.Location)
+            if (gitem == null || !Parent.ColocatedWith(gitem))
             {
                 continue;
             }
@@ -754,6 +754,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
     #region IContainer Implementation
 
     private readonly List<IBattery> _batteries = new();
+    internal IReadOnlyCollection<IBattery> RouteCheckpointBatteries => _batteries;
     private readonly List<IGameItem> _contents = new();
     public IEnumerable<IGameItem> Contents => _contents;
 
@@ -944,7 +945,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
                 }
                 else if (location != null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location, preferredSource: emptier);
                     emptier?.OutputHandler.Handle(new EmoteOutput(new Emote(
                             "@ cannot put $1 into $2, so #0 set|sets it down on the ground.", emptier, emptier, item,
                             intoContainer.Parent)));
@@ -959,7 +960,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 
             if (location != null)
             {
-                location.Insert(item);
+                InsertAtParentSpatialLocation(item, location, preferredSource: emptier);
             }
             else
             {

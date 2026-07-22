@@ -6,6 +6,7 @@ using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
 using MudSharp.Community;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
@@ -976,7 +977,7 @@ All of the following commands must happen with an edited clan selected:
             else
             {
                 givenItem.RoomLayer = actor.RoomLayer;
-                actor.Location.Insert(givenItem, true);
+                givenItem.InsertAtSource(actor, true);
                 actor.OutputHandler.Send($"You couldn't hold {givenItem.HowSeen(actor)}, so it is on the ground.");
             }
         }
@@ -1110,7 +1111,7 @@ All of the following commands must happen with an edited clan selected:
             else
             {
                 givenItem.RoomLayer = actor.RoomLayer;
-                actor.Location.Insert(givenItem, true);
+                givenItem.InsertAtSource(actor, true);
                 actor.OutputHandler.Send($"You couldn't hold {givenItem.HowSeen(actor)}, so it is on the ground.");
             }
         }
@@ -1964,7 +1965,7 @@ Your next payday is {3}.
 
             if (membership.Clan.Paymaster != null)
             {
-                if (!actor.Location.LayerCharacters(actor.RoomLayer).Contains(membership.Clan.Paymaster))
+				if (!actor.ColocatedWith(membership.Clan.Paymaster))
                 {
                     actor.Send(
                         $"The paymaster for {membership.Clan.FullName.Colour(Telnet.Green)} is not in, and so you cannot collect your pay.");
@@ -1987,8 +1988,8 @@ Your next payday is {3}.
             }
             else if (membership.Clan.PaymasterItemProto != null)
             {
-                if (actor.Location.LayerGameItems(actor.RoomLayer)
-                         .All(x => x.Prototype != membership.Clan.PaymasterItemProto))
+				if (actor.Location.GameItemsInImmediateVicinity(actor)
+				         .All(x => x.Prototype != membership.Clan.PaymasterItemProto))
                 {
                     actor.Send(
                         $"You cannot collect your pay in {membership.Clan.FullName.Colour(Telnet.Green)} because the clan has not been correctly configured. Contact an administrator.");
@@ -2086,10 +2087,10 @@ Your next payday is {3}.
 
             if (membership.Clan.OnPayProg != null)
             {
-                membership.Clan.OnPayProg.Execute(actor,
-                    (IPerceiver)membership.Clan.Paymaster ??
-                    actor.Location.LayerGameItems(actor.RoomLayer)
-                         .FirstOrDefault(x => x.Prototype == membership.Clan.PaymasterItemProto));
+				membership.Clan.OnPayProg.Execute(actor,
+					(IPerceiver)membership.Clan.Paymaster ??
+					actor.Location.GameItemsInImmediateVicinity(actor)
+						.FirstOrDefault(x => x.Prototype == membership.Clan.PaymasterItemProto));
             }
             else
             {
@@ -2141,7 +2142,7 @@ Your next payday is {3}.
                 else
                 {
                     newItem.RoomLayer = actor.RoomLayer;
-                    actor.Location.Insert(newItem, true);
+                    newItem.InsertAtSource(actor, true);
                     newItem.SetPosition(PositionUndefined.Instance, PositionModifier.None, actor, null);
                     actor.Send("You cannot hold {0}, so you set it down.", newItem.HowSeen(actor));
                 }
@@ -7527,7 +7528,7 @@ return 0",
         else
         {
             cash.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(cash, true);
+            cash.InsertAtSource(actor, true);
             actor.OutputHandler.Send("You couldn't hold the money, so it is on the ground.");
         }
 

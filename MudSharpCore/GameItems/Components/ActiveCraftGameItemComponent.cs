@@ -219,14 +219,14 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
     {
         foreach (KeyValuePair<ICraftProduct, ICraftProductData> item in ProducedProducts.ToList())
         {
-            item.Value.ReleaseProducts(location, layer);
+              item.Value.ReleaseProducts(Parent, location, layer);
         }
 
         foreach (KeyValuePair<ICraftInput, (IPerceivable Input, ICraftInputData Data)> item in ConsumedInputs.ToList())
         {
             if (item.Value.Data is ICraftInputDataWithItems icidwi)
             {
-                icidwi.ReleaseItemsAtCraftCompletion(location, layer);
+                  icidwi.ReleaseItemsAtCraftCompletion(Parent, location, layer);
             }
         }
 

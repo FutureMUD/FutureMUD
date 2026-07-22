@@ -203,7 +203,7 @@ public class SolidFuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGam
                 }
                 else if (location is not null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location);
                     item.ContainedIn = null;
                 }
                 else
@@ -218,7 +218,7 @@ public class SolidFuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGam
             {
                 if (location is not null)
                 {
-                    location.Insert(item);
+                    InsertAtParentSpatialLocation(item, location);
                     item.ContainedIn = null;
                 }
                 else
@@ -321,7 +321,7 @@ public class SolidFuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGam
                 continue;
             }
 
-            (emptier?.Location ?? Parent.TrueLocations.FirstOrDefault())?.Insert(item);
+            item.InsertAtSource(emptier is null ? Parent.LocationLevelPerceivable : emptier);
         }
 
         Changed = true;

@@ -218,8 +218,7 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 			CharacterInstanceService.CreateAstralProjectionSpawnOptions(
 				anchor,
 				form,
-				anchor.Location,
-				anchor.RoomLayer,
+				RouteSpatialService.Instance.GetEffectiveLocation(anchor),
 				EffectivePlaneId(),
 				_anchorPolicy,
 				Spell.Id,

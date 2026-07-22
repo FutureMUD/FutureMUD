@@ -93,6 +93,8 @@ instance retire <instance id|target>
 instance audit <character>|all
 ```
 
+Inside a RouteCell, `here` means the builder's exact effective `(cell, layer, metres)` location. `room <cell id>` is a cell-only authored destination and therefore uses that RouteCell's default coordinate. The same rule applies to `npc load`: the loaded NPC appears at the builder's exact coordinate, not merely somewhere in the same linear cell. Invalid or out-of-bounds destinations are rejected before any character or instance row is saved.
+
 Player commands:
 
 ```text
@@ -116,8 +118,8 @@ Persistence:
 
 | Policy | Builder Syntax | Behaviour |
 | --- | --- | --- |
-| Temporary on reboot | `temporary` | Default for staff-spawned secondaries; pruned on reboot. |
-| Persistent | `persistent` | Reloads with the owning identity where supported. |
+| Temporary on reboot | `temporary` | Default for staff-spawned secondaries; its exact location is validated and saved atomically, then the instance is pruned on reboot. |
+| Persistent | `persistent` | Reloads with the owning identity at its exact saved cell, layer, and RouteCell coordinate. |
 | Logout/effect-bound | Spell and service policy | Used by specific spell/runtime effects. |
 
 Safety notes:
@@ -223,12 +225,12 @@ Parameters:
 | --- | --- |
 | `owner` | Loaded character identity whose dormant form becomes active. |
 | `form` | Form alias or body id. |
-| `location` | Cell where the secondary appears. Usually `@ch.location`. |
+| `location` | Cell where the secondary appears. `@ch.location` inherits `owner`'s exact RouteCell coordinate when it is the same cell; another cell uses that RouteCell's authored default coordinate. |
 | `mode` | `passive`, `focusable`, `ai`, `npcai`, or `scriptai`. |
 | `cloneInventory` | Boolean. If true, deep-clones direct worn, wielded, and held items from the source body. |
 | `ais` | Text list of AI names or ids, separated by comma, semicolon, or pipe. Used by AI modes. |
 
-`SpawnBodyInstance` returns the new physical actor as a `Character` prog value. It errors with a builder-facing reason if the form is missing, already embodied, structurally invalid, or an AI is missing or not ready.
+`SpawnBodyInstance` returns the new physical actor as a `Character` prog value. It errors with a builder-facing reason if the form is missing, already embodied, structurally invalid, the resolved spatial location is invalid, or an AI is missing or not ready. Runtime spell and service APIs that already have a physical source pass a full `SpatialLocation`, so projections, copies, clones, possessed bodies, and animated corpses preserve the source's exact RouteCell coordinate before persistence.
 
 ## Spell Effect Reference
 

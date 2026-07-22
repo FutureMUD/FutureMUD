@@ -14,6 +14,7 @@ using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.NPC;
+using System.IO;
 using GameItem = MudSharp.Models.GameItem;
 
 namespace MudSharp.Framework;
@@ -50,6 +51,11 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
     }
 
     public virtual ICell Location { get; protected set; }
+	private double? _routePositionMetres;
+
+	public virtual double? RoutePositionMetres => _routePositionMetres;
+	public virtual SpatialLocation SpatialLocation => new(Location, RoomLayer, RoutePositionMetres);
+
     protected RoomLayer _roomLayer = RoomLayer.GroundLevel;
     public virtual RoomLayer RoomLayer
     {
@@ -58,15 +64,29 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         {
             _roomLayer = value;
             Changed = true;
+			RouteSpatialService.Instance.TrackPerceivable(this);
         }
     }
 
     public bool ColocatedWith(IPerceivable otherThing)
     {
-        return Location == otherThing.Location && RoomLayer == otherThing.RoomLayer;
+		if (otherThing == null || !SharesCellLayerWith(otherThing))
+		{
+			return false;
+		}
+
+		return Location?.RouteDefinition is null || GetProximity(otherThing) <= Proximity.Immediate;
     }
 
+	public bool SharesCellLayerWith(ILocateable otherThing)
+	{
+		return otherThing is not null &&
+		       ReferenceEquals(Location, otherThing.Location) &&
+		       RoomLayer == otherThing.RoomLayer;
+	}
+
     public virtual event LocatableEvent OnLocationChanged;
+	public virtual event SpatialLocationEvent OnSpatialPositionChanged;
     #pragma warning disable CS0067 // Base perceivables expose the event for specialised implementations.
     public virtual event LocatableEvent OnLocationChangedIntentionally;
     #pragma warning restore CS0067
@@ -74,9 +94,111 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     public virtual void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false)
     {
+		var previousLocation = SpatialLocation;
+		var routePosition = default(double?);
+		if (location?.RouteDefinition is { } routeDefinition)
+		{
+			if (ReferenceEquals(previousLocation.Cell, location) && previousLocation.RoutePositionMetres.HasValue)
+			{
+				routePosition = previousLocation.RoutePositionMetres;
+			}
+			else if (exit is not null &&
+			         RouteSpatialService.Instance.TryGetExitAnchor(exit, location, out var anchor))
+			{
+				routePosition = anchor!.ArrivalPositionMetres;
+			}
+			else
+			{
+				routePosition = routeDefinition.DefaultPositionMetres;
+			}
+		}
+
         Location = location;
+		_roomLayer = layer;
+		_routePositionMetres = routePosition;
+		RouteSpatialService.Instance.TrackPerceivable(this);
+		if (ReferenceEquals(previousLocation.Cell, location) &&
+			previousLocation.Layer == layer &&
+			previousLocation.RoutePositionMetres != routePosition)
+		{
+			OnSpatialPositionChanged?.Invoke(this, previousLocation, SpatialLocation);
+		}
+
         OnLocationChanged?.Invoke(this, exit);
     }
+
+	public virtual void MoveTo(SpatialLocation location, ICellExit exit = null, bool noSave = false)
+	{
+		MoveTo(location.Cell, location.Layer, exit, noSave);
+		if (!TrySetRoutePosition(location.RoutePositionMetres, out var error, noSave))
+		{
+			throw new ArgumentException(error, nameof(location));
+		}
+	}
+
+	public virtual void SetRoutePosition(double? metres)
+	{
+		if (!TrySetRoutePosition(metres, out var error))
+		{
+			throw new ArgumentException(error, nameof(metres));
+		}
+	}
+
+	public virtual bool TrySetRoutePosition(double? metres, out string error, bool noSave = false)
+	{
+		if (Location is null)
+		{
+			error = "A route coordinate cannot be assigned before the perceivable has a cell.";
+			return false;
+		}
+
+		var candidate = new SpatialLocation(Location, RoomLayer, metres);
+		if (!RouteSpatialService.Instance.TryValidateLocation(candidate, out error))
+		{
+			return false;
+		}
+
+		if (_routePositionMetres == metres)
+		{
+			return true;
+		}
+
+		var previousLocation = SpatialLocation;
+		_routePositionMetres = metres;
+		if (!noSave)
+		{
+			Changed = true;
+		}
+
+		RouteSpatialService.Instance.TrackPerceivable(this);
+		OnSpatialPositionChanged?.Invoke(this, previousLocation, SpatialLocation);
+		return true;
+	}
+
+	protected void LoadRoutePosition(decimal? metres)
+	{
+		if (!TrySetRoutePosition(metres.HasValue ? (double)metres.Value : null, out var error, true))
+		{
+			throw new InvalidDataException(error);
+		}
+	}
+
+	protected void ClearRoutePositionForDetachment(bool noSave = false)
+	{
+		if (_routePositionMetres is null)
+		{
+			RouteSpatialService.Instance.UntrackPerceivable(this);
+			return;
+		}
+
+		_routePositionMetres = null;
+		if (!noSave)
+		{
+			Changed = true;
+		}
+
+		RouteSpatialService.Instance.UntrackPerceivable(this);
+	}
 
     public virtual bool IdentityIsObscured => false;
 
@@ -166,7 +288,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
             return Proximity.Immediate;
         }
 
-        return Location == target.Location ? Proximity.Distant : Proximity.Unapproximable;
+		return RouteSpatialService.Instance.GetProximity(this, target);
     }
 
     public virtual IEnumerable<IWound> ExplosionEmantingFromPerceivable(IExplosiveDamage damage)
@@ -584,6 +706,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         OnQuit = null;
         OnDeleted = null;
         OnPositionChanged = null;
+		OnSpatialPositionChanged = null;
     }
 
     public event PerceivableEvent OnQuit;

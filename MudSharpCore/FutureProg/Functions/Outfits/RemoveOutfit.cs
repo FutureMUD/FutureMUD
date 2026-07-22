@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body;
 using MudSharp.FutureProg.Variables;
+using MudSharp.Construction;
 using MudSharp.GameItems;
 
 namespace MudSharp.FutureProg.Functions.Outfits;
@@ -169,7 +170,7 @@ internal class RemoveOutfit : BuiltInFunction
                 else
                 {
                     outfitItem.RoomLayer = character.RoomLayer;
-                    character.Location.Insert(outfitItem);
+                    outfitItem.InsertAtSource(character);
                 }
 
                 continue;

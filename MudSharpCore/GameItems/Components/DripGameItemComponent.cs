@@ -109,7 +109,7 @@ public class DripGameItemComponent : GameItemComponent, IDrip, ISelectable
                 continue;
             }
 
-            if (gitem.Location != Parent.Location)
+            if (!Parent.ColocatedWith(gitem))
             {
                 continue;
             }

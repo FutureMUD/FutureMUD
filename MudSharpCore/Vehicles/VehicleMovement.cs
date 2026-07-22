@@ -17,9 +17,11 @@ internal static class VehicleMovementCommand
 	public static VehicleMovementCommandResult TryMoveControlledVehicle(ICharacter actor, string rawInput,
 		bool requireVehicle)
 	{
-		var vehicle = actor.Gameworld.Vehicles.FirstOrDefault(x => x.Controller == actor &&
-		                                                        x.Location == actor.Location &&
-		                                                        x.RoomLayer == actor.RoomLayer);
+		var vehicle = actor.Gameworld.Vehicles.FirstOrDefault(x =>
+			x.Controller?.SamePhysicalInstance(actor) == true &&
+			(x.Prototype.Scale == VehicleScale.RoomScale
+				? x is Vehicle concrete && concrete.IsHostedInterior(actor.Location)
+				: x.Location == actor.Location && x.RoomLayer == actor.RoomLayer));
 		if (vehicle is null)
 		{
 			if (requireVehicle)
@@ -28,6 +30,13 @@ internal static class VehicleMovementCommand
 			}
 
 			return VehicleMovementCommandResult.NotVehicleController;
+		}
+
+		if (VehicleRouteMovementCommand.IsRouteAction(rawInput) &&
+			(vehicle.Location?.RouteDefinition is not null ||
+			 new StringStack(rawInput).PeekSpeech().EqualToAny("route", "stop")))
+		{
+			return VehicleRouteMovementCommand.Execute(vehicle, actor, rawInput);
 		}
 
 		if (actor.Movement is not null)
@@ -96,7 +105,8 @@ internal static class VehicleMovementCommand
 		if (Constants.CardinalDirectionStringToDirection.ContainsKey(direction) && !actor.QueuedMoveCommands.Any())
 		{
 			var targetDirection = Constants.CardinalDirectionStringToDirection[direction];
-			if (targetDirection.IsOpposingDirection(actor.Movement.Exit.OutboundDirection) &&
+			if (actor.Movement.Exit is { } currentExit &&
+			    targetDirection.IsOpposingDirection(currentExit.OutboundDirection) &&
 			    actor.Movement.CanBeVoluntarilyCancelled &&
 			    actor.Movement.IsMovementLeader(actor))
 			{
@@ -304,6 +314,10 @@ public class VehicleMovement : IMovement
 		}
 
 		_strategy.BeginMove(_vehicle, Exit, _towTrain, _transition);
+		if (_vehicle is Vehicle roomScaleVehicle && _vehicle.Prototype.Scale == VehicleScale.RoomScale)
+		{
+			roomScaleVehicle.EchoHostedInteriors("The vehicle shudders as it begins moving.");
+		}
 		foreach (var witness in Exit.Origin.LayerCharacters(_vehicle.RoomLayer).Where(x => SeenBy(x)).ToList())
 		{
 			witness.OutputHandler.Send(DescribeBeginMove(witness).Wrap(witness.InnerLineFormatLength));
@@ -335,6 +349,10 @@ public class VehicleMovement : IMovement
 		}
 
 		_strategy.CompleteMove(_vehicle, Exit, _transition, _readiness, this);
+		if (_vehicle is Vehicle roomScaleVehicle && _vehicle.Prototype.Scale == VehicleScale.RoomScale)
+		{
+			roomScaleVehicle.EchoHostedInteriors("The vehicle settles as it arrives at its next location.");
+		}
 		Exit.Origin.ResolveMovement(this);
 		Exit.Destination.RegisterMovement(this);
 		Phase = MovementPhase.NewRoom;
@@ -427,6 +445,11 @@ public class VehicleMovement : IMovement
 
 	private List<ICharacter> VisibleVehicleOccupants(IPerceiver voyeur)
 	{
+		if (_vehicle.Prototype.Scale == VehicleScale.RoomScale)
+		{
+			return [];
+		}
+
 		if (_vehicle.ExteriorItem is not null && !voyeur.CanSee(_vehicle.ExteriorItem))
 		{
 			return [];

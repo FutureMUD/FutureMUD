@@ -184,8 +184,8 @@ namespace MudSharp.GameItems.Components
                     continue;
                 }
 
-                CommodityGameItemComponent existingResidue = location
-                    .LayerGameItems(Parent.RoomLayer)
+				CommodityGameItemComponent existingResidue = location
+					.GameItemsInImmediateVicinity(Parent)
                     .SelectNotNull(x => x.GetItemType<CommodityGameItemComponent>())
                     .FirstOrDefault(x =>
                         x.Material == instance.Liquid.DriedResidue &&
@@ -196,7 +196,7 @@ namespace MudSharp.GameItems.Components
                 {
                     IGameItem newItem = CommodityGameItemComponentProto.CreateNewCommodity(instance.Liquid.DriedResidue, residueWeight, residueTag, true);
                     newItem.RoomLayer = Parent.RoomLayer;
-                    location.Insert(newItem, true);
+					newItem.InsertAtSource(Parent, true);
                     newItem.PositionModifier = Body.Position.PositionModifier.None;
                     newItem.PositionTarget = Parent;
                     newItem.Login();

@@ -251,7 +251,7 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
             if (wounds.All(x => x.Lodged != Parent))
             {
                 Parent.RoomLayer = target.RoomLayer;
-                target.Location.Insert(Parent);
+                Parent.InsertAtSource(target);
                 if (actor.Combat != null)
                 {
                     Parent.AddEffect(new CombatNoGetEffect(Parent, actor.Combat), TimeSpan.FromSeconds(20));
@@ -277,7 +277,7 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
                             $"$1 hit|hits $0 on &0's {bodypart.FullDescription()} but bounces right off without causing any damage!",
                             target, target, Parent)));
                 Parent.RoomLayer = target.RoomLayer;
-                target.Location.Insert(Parent);
+                Parent.InsertAtSource(target);
                 if (actor.Combat != null)
                 {
                     Parent.AddEffect(new CombatNoGetEffect(Parent, actor.Combat), TimeSpan.FromSeconds(20));
@@ -309,7 +309,7 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
             }
 
             Parent.RoomLayer = target.RoomLayer;
-            target.Location.Insert(Parent);
+            Parent.InsertAtSource(target);
             target.OutputHandler.Handle(
                 new EmoteOutput(
                     new Emote($"$0 strikes $1's {bodypart.FullDescription()}, and then falls to the ground!", target,
@@ -327,7 +327,7 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
                     new EmoteOutput(new Emote("$1 hit|hits $0 but bounces right off without causing any damage!",
                         targetItem, targetItem, Parent)));
                 Parent.RoomLayer = target.RoomLayer;
-                target.Location.Insert(Parent);
+                Parent.InsertAtSource(target);
                 if (actor.Combat != null)
                 {
                     Parent.AddEffect(new CombatNoGetEffect(Parent, actor.Combat), TimeSpan.FromSeconds(20));
@@ -344,7 +344,7 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
             }
 
             Parent.RoomLayer = target.RoomLayer;
-            target.Location.Insert(Parent); //Put the thrown weapon on the ground
+            Parent.InsertAtSource(target); // Put the thrown weapon on the ground
             target.OutputHandler.Handle(
                 new EmoteOutput(new Emote($"$0 strikes $1, and then falls to the ground!", actor, Parent, target)));
             wounds.ProcessPassiveWounds();

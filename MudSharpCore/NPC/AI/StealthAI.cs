@@ -1,6 +1,7 @@
 ﻿using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Models;
+using MudSharp.Construction;
 
 namespace MudSharp.NPC.AI;
 
@@ -84,7 +85,7 @@ internal class StealthAI : ArtificialIntelligenceBase
             return false;
         }
 
-        if (!HideWhenOthersArePresent && ch.Location.LayerCharacters(ch.RoomLayer).Except(ch).Any(x => ch.CanSee(x)))
+        if (!HideWhenOthersArePresent && ch.Location.CharactersInSpatialVicinity(ch).Except(ch).Any(x => ch.CanSee(x)))
         {
             return false;
         }

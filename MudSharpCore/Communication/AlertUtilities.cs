@@ -178,9 +178,16 @@ public static class AlertUtilities
 
 	private static void FireAlertEventForSameLayer(ICharacter actor, string localText)
 	{
-		foreach (var witness in actor.Location.LayerCharacters(actor.RoomLayer).Except(actor).ToList())
+		foreach (var (witness, proximity) in actor.LocalThingsAndProximities()
+			         .Where(x => x.Proximity <= Proximity.VeryDistant)
+			         .Where(x => x.Thing.RoomLayer == actor.RoomLayer)
+			         .Select(x => (x.Thing as ICharacter, x.Proximity))
+			         .Where(x => x.Item1 is not null)
+			         .Select(x => (x.Item1!, x.Proximity))
+			         .Where(x => !x.Item1.IsSelf(actor))
+			         .ToList())
 		{
-			if (!CanHearAlert(actor, witness, AlertVolume, witness.GetProximity(actor)))
+			if (!CanHearAlert(actor, witness, AlertVolume, proximity))
 			{
 				continue;
 			}
@@ -194,10 +201,16 @@ public static class AlertUtilities
 		foreach (var layer in actor.Location.Terrain(null).TerrainLayers.Except(actor.RoomLayer))
 		{
 			var layerText = layer.IsHigherThan(actor.RoomLayer) ? "from below" : "from above";
-			foreach (var witness in actor.Location.LayerCharacters(layer).ToList())
+			foreach (var (witness, proximity) in actor.LocalThingsAndProximities()
+			         .Where(x => x.Proximity <= Proximity.VeryDistant)
+			         .Where(x => x.Thing.RoomLayer == layer)
+			         .Select(x => (x.Thing as ICharacter, x.Proximity))
+			         .Where(x => x.Item1 is not null)
+			         .Select(x => (x.Item1!, x.Proximity))
+			         .ToList())
 			{
 				var volume = AudioVolume.Decent;
-				if (!CanHearAlert(actor, witness, volume, Proximity.Distant))
+				if (!CanHearAlert(actor, witness, volume, proximity))
 				{
 					continue;
 				}

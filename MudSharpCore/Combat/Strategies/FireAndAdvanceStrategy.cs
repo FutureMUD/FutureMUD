@@ -1,6 +1,7 @@
 ﻿using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat.Moves;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Movement;
 
@@ -66,7 +67,8 @@ public class FireAndAdvanceStrategy : RangeBaseStrategy
             {
                 List<ICellExit> shootpath = ch.PathBetween(ch.CombatTarget, 10, false, false, true).ToList();
                 if ((shootpath.Any() ||
-                     (ch.Location == ch.CombatTarget.Location && ch.RoomLayer != ch.CombatTarget.RoomLayer)) &&
+					 (ch.SharesLongitudinalVicinityWith(ch.CombatTarget) &&
+					  ch.RoomLayer != ch.CombatTarget.RoomLayer)) &&
                     Dice.Roll(1, 2) == 1)
                 {
                     IRangedWeapon weapon = rangedWeapons
@@ -112,6 +114,15 @@ public class FireAndAdvanceStrategy : RangeBaseStrategy
 
                     return null;
                 }
+
+				if (ch.Location.RouteDefinition is not null &&
+				    ch.CombatTarget is ICharacter routeTarget &&
+				    !RouteCombatMovementUtilities.ArePhysicallyImmediate(ch, routeTarget))
+				{
+					return ch.CanSpendStamina(MoveToMeleeMove.MoveStaminaCost(ch))
+						? new AdvanceAlongRouteMove { Assailant = ch }
+						: new TooExhaustedMove { Assailant = ch };
+				}
 
                 if (rangedWeapons.Any() && ch.CanSpendStamina(FireAndAdvanceToMeleeMove.MoveStaminaCost(ch)))
                 {

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.GameItems;
 using MudSharp.NPC.AI;
@@ -621,11 +622,11 @@ public sealed class DeadSpeakSpellEffect : IMagicSpellEffectTemplate
 		}
 
 		var originalLayer = corpseItem.RoomLayer;
+		var spawnLocation = RouteSpatialService.Instance.GetEffectiveLocation(corpseItem);
 		var spawn = CharacterInstanceService.SpawnAnimatedCorpseInstance(
 			corpse.OriginalCharacter,
 			corpse.OriginalBody,
-			location,
-			originalLayer,
+			spawnLocation,
 			CharacterInstanceIdentityComparer.IdentityId(caster),
 			caster.InstanceId,
 			corpseItem.Id,

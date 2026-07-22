@@ -273,6 +273,9 @@ namespace MudSharp.Framework
         IUneditableRevisableAll<IVehiclePrototype> VehiclePrototypes { get; }
         IUneditableAll<IVehicle> Vehicles { get; }
         IUneditableAll<IVehicleHitchLink> VehicleHitchLinks { get; }
+		IUneditableRevisableAll<IVehicleRoute> VehicleRoutes { get; }
+		IUneditableAll<IVehicleService> VehicleServices { get; }
+		IUneditableAll<IVehicleJourney> VehicleJourneys { get; }
         IUneditableAll<IWearProfile> WearProfiles { get; }
         IUneditableAll<IZone> Zones { get; }
         IEnumerable<ISocial> Socials { get; }
@@ -550,6 +553,9 @@ namespace MudSharp.Framework
         void Add(IVehiclePrototype proto);
         void Add(IVehicle vehicle);
         void Add(IVehicleHitchLink link);
+		void Add(IVehicleRoute route);
+		void Add(IVehicleService service);
+		void Add(IVehicleJourney journey);
         void Add(ITemporalListener listener);
         void Add(IHelpfile helpfile);
         void Add(ITraitDefinition trait);
@@ -695,6 +701,9 @@ namespace MudSharp.Framework
         void Destroy(IVehiclePrototype proto);
         void Destroy(IVehicle vehicle);
         void Destroy(IVehicleHitchLink link);
+		void Destroy(IVehicleRoute route);
+		void Destroy(IVehicleService service);
+		void Destroy(IVehicleJourney journey);
         void Destroy(IMagicPortalNetwork network);
         void Destroy(IAccount account);
         void Destroy(ICell cell);

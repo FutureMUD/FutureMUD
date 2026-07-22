@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body.Disfigurements;
 using MudSharp.Database;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
@@ -106,7 +107,7 @@ public partial class Body
         {
             Take(item);
             item.RoomLayer = RoomLayer;
-            Actor.Location.Insert(item);
+            item.InsertAtSource(Actor);
             Actor.OutputHandler.Handle(
                 new EmoteOutput(new Emote("@ can no longer hold onto $0 and drop|drops it.", Actor, item)));
             if (Actor.Combat != null)

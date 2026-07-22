@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using MudSharp.Accounts;
 using MudSharp.Character.Name;
+using MudSharp.Construction;
 using MudSharp.Community.Boards;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
@@ -1232,7 +1233,7 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 		if (!actor.Body.CanGet(pile, 0))
 		{
 			pile.RoomLayer = actor.RoomLayer;
-			actor.Location.Insert(pile, true);
+			pile.InsertAtSource(actor, true);
 			message = "You could not hold the cash, so it has been placed at your feet.";
 			return true;
 		}

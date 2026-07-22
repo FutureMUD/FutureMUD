@@ -1,5 +1,7 @@
 ﻿using MudSharp.Body;
 
+using MudSharp.Construction;
+
 namespace MudSharp.GameItems.Inventory.Plans;
 
 public class InventoryPlanActionApply : InventoryPlanAction
@@ -124,7 +126,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
             return item;
         }
 
-        item = executor.Location.LayerGameItems(executor.RoomLayer).FirstOrDefault(x =>
+        item = executor.Location.GameItemsInImmediateVicinity(executor).FirstOrDefault(x =>
             x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
             x.IsItemType<IHoldable>() &&
             x.GetItemType<IHoldable>().IsHoldable &&
@@ -134,7 +136,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
             return item;
         }
 
-        item = executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<IBelt>())
+        item = executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<IBelt>())
             .Select(x =>
                 x.ConnectedItems.FirstOrDefault(y =>
                     y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
@@ -145,7 +147,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
             return item;
         }
 
-        item = executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<ISheath>())
+        item = executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<ISheath>())
             .SelectNotNull(x => x.Content?.Parent)
             .FirstOrDefault(x =>
                 x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
@@ -155,7 +157,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
             return item;
         }
 
-        item = executor.Location.LayerGameItems(executor.RoomLayer).SelectNotNull(x => x.GetItemType<IContainer>())
+        item = executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<IContainer>())
             .Where(x => x.Parent.GetItemType<IOpenable>()?.IsOpen ?? true)
             .SelectMany(x => x.Contents)
             .FirstOrDefault(x =>

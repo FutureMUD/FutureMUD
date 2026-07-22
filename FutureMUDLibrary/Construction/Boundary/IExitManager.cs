@@ -1,11 +1,14 @@
 ﻿using MudSharp.Framework;
 using System.Collections.Generic;
+using System;
 
 namespace MudSharp.Construction.Boundary
 {
     public interface IExitManager
     {
         IPathfindingService PathfindingService { get; }
+		ISpatialPathfinder SpatialPathfinder => throw new NotSupportedException(
+			"This exit manager does not provide hybrid spatial pathfinding.");
 
         /// <summary>
         ///     Retrieves the correct exit for the specified cell

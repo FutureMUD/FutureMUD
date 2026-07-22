@@ -64,7 +64,7 @@ public class SparInvitationProposal : Proposal
             return;
         }
 
-        if (Supplicant.Location != Applicant.Location)
+		if (!Supplicant.ColocatedWith(Applicant))
         {
             Supplicant.Send(
                 "You cannot join that spar any longer as you are not in the same location as the proponent.");

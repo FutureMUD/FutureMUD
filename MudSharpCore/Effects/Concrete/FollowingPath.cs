@@ -9,18 +9,51 @@ using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Movement;
 using MudSharp.NPC.AI.Strategies;
 
+#nullable enable annotations
+
 namespace MudSharp.Effects.Concrete;
 
 public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 {
+	private const double CoordinateToleranceMetres = 0.0005;
     private readonly HashSet<IExit> _unlockedExits = new();
+	private readonly Queue<ISpatialPathStep>? _spatialSteps;
+	private readonly Func<ICellExit, bool>? _spatialExitSuitability;
+	private readonly Dictionary<ICell, RouteTopologyPin> _routeTopologyPins =
+		new(ReferenceEqualityComparer.Instance);
 
     public Queue<ICellExit> Exits { get; set; }
+	public bool IsSpatialPath => _spatialSteps is not null;
+	public IReadOnlyList<ISpatialPathStep> SpatialSteps => _spatialSteps?.ToArray() ?? [];
 
     public FollowingPath(ICharacter owner, IEnumerable<ICellExit> exits) : base(owner, null)
     {
         Exits = new Queue<ICellExit>(exits);
     }
+
+	public FollowingPath(
+		ICharacter owner,
+		ISpatialPath path,
+		Func<ICellExit, bool>? exitSuitability = null) : base(owner, null)
+	{
+		ArgumentNullException.ThrowIfNull(path);
+		_spatialSteps = new Queue<ISpatialPathStep>(path.Steps);
+		_spatialExitSuitability = exitSuitability ??
+			(exit => owner.CanCross(exit).Success && owner.CanMove(exit));
+		Exits = new Queue<ICellExit>(path.Steps
+			.OfType<IExitTraversalPathStep>()
+			.Select(x => x.Exit));
+
+		foreach (var cell in path.Steps
+			.SelectMany(x => new[] { x.Origin.Cell, x.Destination.Cell })
+			.Distinct<ICell>(ReferenceEqualityComparer.Instance))
+		{
+			if (cell.RouteDefinition is { } route)
+			{
+				_routeTopologyPins[cell] = new RouteTopologyPin(route, route.TopologyVersion);
+			}
+		}
+	}
 
     protected override string SpecificEffectType => "FollowingPath";
 
@@ -28,6 +61,21 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 
     public override string Describe(IPerceiver voyeur)
     {
+		if (_spatialSteps is not null)
+		{
+			var steps = _spatialSteps.Select(x => x switch
+			{
+				ILinearRoutePathStep linear =>
+					$"{linear.Direction.DescribeEnum()} {linear.DistanceMetres.ToString("N0", voyeur)}m",
+				IExitTraversalPathStep traversal when traversal.Exit.OutboundDirection != CardinalDirection.Unknown =>
+					traversal.Exit.OutboundDirection.DescribeBrief(),
+				IExitTraversalPathStep traversal when traversal.Exit is NonCardinalCellExit nc =>
+					$"'{nc.Verb} {nc.PrimaryKeyword}'".ToLowerInvariant(),
+				_ => "??"
+			}).Humanize();
+			return $"Following a spatial path: {steps}";
+		}
+
         string exitStrings = Exits.Select(x =>
         {
             if (x.OutboundDirection != CardinalDirection.Unknown)
@@ -58,6 +106,21 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		};
 	}
 
+	public static FollowingPath CreateFullFriendlyPath(
+		ICharacter owner,
+		ISpatialPath path,
+		Func<ICellExit, bool> exitSuitability,
+		bool closeDoorsBehind = false)
+	{
+		return new FollowingPath(owner, path, exitSuitability)
+		{
+			UseDoorguards = true,
+			UseKeys = true,
+			OpenDoors = true,
+			CloseDoorsBehind = closeDoorsBehind
+		};
+	}
+
     public virtual void FollowPathAction()
     {
         ICharacter ch = (ICharacter)Owner;
@@ -67,6 +130,12 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
             ch.RemoveEffect(this);
             return;
         }
+
+		if (_spatialSteps is not null)
+		{
+			FollowSpatialPathAction(ch);
+			return;
+		}
 
         if (Exits.Count == 0)
         {
@@ -148,6 +217,272 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 				return;
 		}
     }
+
+	private void FollowSpatialPathAction(ICharacter ch)
+	{
+		if (_spatialSteps is null || _spatialSteps.Count == 0)
+		{
+			ch.RemoveEffect(this);
+			return;
+		}
+
+		if (ch.Movement is not null)
+		{
+			return;
+		}
+
+		if (!RevalidateTopologyPins())
+		{
+			ch.RemoveEffect(this);
+			return;
+		}
+
+		var step = _spatialSteps.Peek();
+		var current = RouteSpatialService.Instance.GetEffectiveLocation(ch);
+		if (LocationsMatch(current, step.Destination))
+		{
+			ConsumeSpatialStep(step);
+			if (_spatialSteps.Count == 0)
+			{
+				ch.RemoveEffect(this);
+			}
+
+			return;
+		}
+
+		if (!LocationsMatch(current, step.Origin))
+		{
+			ch.RemoveEffect(this);
+			return;
+		}
+
+		switch (step)
+		{
+			case ILinearRoutePathStep linear:
+				if (!RevalidateLinearStep(linear) || !TryBeginLinearRouteMovement(ch, linear))
+				{
+					ch.RemoveEffect(this);
+				}
+
+				return;
+			case IExitTraversalPathStep traversal:
+				FollowSpatialExitStep(ch, traversal);
+				return;
+			default:
+				ch.RemoveEffect(this);
+				return;
+		}
+	}
+
+	private void FollowSpatialExitStep(ICharacter ch, IExitTraversalPathStep traversal)
+	{
+		var exit = traversal.Exit;
+		if (!RevalidateExitStep(ch, traversal))
+		{
+			ch.RemoveEffect(this);
+			return;
+		}
+
+		if (ZeroGravityMovementHelper.IsZeroGravity(ch.Location, ch.RoomLayer, ch) &&
+			!ZeroGravityMovementHelper.CanManeuver(ch))
+		{
+			ch.RemoveEffect(this);
+			return;
+		}
+
+		if (!ch.PositionState.Upright &&
+			!ch.PositionState.MoveRestrictions.In(
+				MovementAbility.Flying,
+				MovementAbility.Swimming,
+				MovementAbility.ZeroGravity))
+		{
+			var mobile = ch.MostUprightMobilePosition();
+			if (mobile is null || !ch.CanMovePosition(mobile))
+			{
+				ch.RemoveEffect(this);
+				return;
+			}
+
+			ch.MovePosition(mobile, null, null);
+		}
+
+		if (_spatialExitSuitability?.Invoke(exit) != true)
+		{
+			ch.RemoveEffect(this);
+			return;
+		}
+
+		switch (TryMoveThroughExit(ch, exit))
+		{
+			case MovementStrategyResult.Moved:
+				ConsumeSpatialStep(traversal);
+				CloseDoorBehindAfterMovement(ch, exit);
+				if (_spatialSteps!.Count == 0)
+				{
+					ch.RemoveEffect(this);
+				}
+
+				return;
+			case MovementStrategyResult.Waiting:
+				return;
+			default:
+				ch.RemoveEffect(this);
+				return;
+		}
+	}
+
+	protected virtual MovementStrategyResult TryMoveThroughExit(ICharacter ch, ICellExit exit)
+	{
+		var strategy = MovementStrategyFactory.GetStrategy(OpenDoors, UseKeys, SmashLockedDoors, UseDoorguards);
+		return strategy.TryToMove(ch, exit);
+	}
+
+	protected virtual bool TryBeginLinearRouteMovement(ICharacter ch, ILinearRoutePathStep step)
+	{
+		if (!LinearRouteMovement.TryCreate(
+				ch,
+				step.Destination.RoutePositionMetres!.Value,
+				out var movement,
+				out _,
+				targetMinimumMetres: step.Destination.RoutePositionMetres.Value,
+				targetMaximumMetres: step.Destination.RoutePositionMetres.Value) ||
+			movement is null)
+		{
+			return false;
+		}
+
+		movement.InitialAction();
+		return ReferenceEquals(ch.Movement, movement);
+	}
+
+	private bool RevalidateTopologyPins()
+	{
+		return _routeTopologyPins.All(x =>
+			ReferenceEquals(x.Key.RouteDefinition, x.Value.Definition) &&
+			x.Value.Definition.TopologyVersion == x.Value.TopologyVersion);
+	}
+
+	private static bool RevalidateLinearStep(ILinearRoutePathStep step)
+	{
+		var route = step.Origin.Cell.RouteDefinition;
+		if (route is null ||
+			!ReferenceEquals(route, step.RouteCell) ||
+			!double.IsFinite(route.LengthMetres) || route.LengthMetres <= 0.0 ||
+			!double.IsFinite(route.MetresPerRoomEquivalent) || route.MetresPerRoomEquivalent <= 0.0 ||
+			!ReferenceEquals(step.Origin.Cell, step.Destination.Cell) ||
+			step.Origin.Layer != step.Destination.Layer ||
+			!step.Origin.RoutePositionMetres.HasValue ||
+			!step.Destination.RoutePositionMetres.HasValue)
+		{
+			return false;
+		}
+
+		var origin = step.Origin.RoutePositionMetres.Value;
+		var destination = step.Destination.RoutePositionMetres.Value;
+		if (!double.IsFinite(origin) || !double.IsFinite(destination) ||
+			!double.IsFinite(step.DistanceMetres) || step.DistanceMetres <= 0.0 ||
+			origin < 0.0 || destination < 0.0 ||
+			origin > route.LengthMetres || destination > route.LengthMetres ||
+			Math.Abs(Math.Abs(destination - origin) - step.DistanceMetres) >= CoordinateToleranceMetres)
+		{
+			return false;
+		}
+
+		return destination > origin
+			? step.Direction == RouteCellDirection.Positive
+			: destination < origin && step.Direction == RouteCellDirection.Negative;
+	}
+
+	private bool RevalidateExitStep(ICharacter ch, IExitTraversalPathStep step)
+	{
+		var exit = step.Exit;
+		if (exit is null ||
+			!ReferenceEquals(exit.Origin, step.Origin.Cell) ||
+			!ReferenceEquals(exit.Destination, step.Destination.Cell) ||
+			!step.Origin.Cell.ExitsFor(ch, true).Any(x => ExitSidesMatch(x, exit)) ||
+			!exit.WhichLayersExitAppears().Contains(step.Origin.Layer))
+		{
+			return false;
+		}
+
+		var transition = exit.MovementTransition(ch);
+		if (transition.TransitionType == CellMovementTransition.NoViableTransition ||
+			transition.TargetLayer != step.Destination.Layer)
+		{
+			return false;
+		}
+
+		if (step.Origin.Cell.RouteDefinition is { } sourceRoute)
+		{
+			var anchor = sourceRoute.ExitAnchors.FirstOrDefault(x => ExitSidesMatch(x.Exit, exit));
+			if (anchor is null || !step.Origin.RoutePositionMetres.HasValue ||
+				!anchor.Contains(step.Origin.RoutePositionMetres.Value))
+			{
+				return false;
+			}
+		}
+		else if (step.Origin.RoutePositionMetres.HasValue)
+		{
+			return false;
+		}
+
+		if (step.Destination.Cell.RouteDefinition is { } destinationRoute)
+		{
+			var anchor = destinationRoute.ExitAnchors.FirstOrDefault(x =>
+				ReferenceEquals(x.Exit, exit.Opposite) || ExitSidesShareUnderlyingExit(x.Exit, exit));
+			return anchor is not null &&
+			       step.Destination.RoutePositionMetres.HasValue &&
+			       Math.Abs(anchor.ArrivalPositionMetres - step.Destination.RoutePositionMetres.Value) <
+			       CoordinateToleranceMetres;
+		}
+
+		return !step.Destination.RoutePositionMetres.HasValue;
+	}
+
+	private void ConsumeSpatialStep(ISpatialPathStep step)
+	{
+		_spatialSteps!.Dequeue();
+		if (step is not IExitTraversalPathStep traversal || Exits.Count == 0)
+		{
+			return;
+		}
+
+		if (ExitSidesMatch(Exits.Peek(), traversal.Exit))
+		{
+			Exits.Dequeue();
+		}
+	}
+
+	private static bool LocationsMatch(SpatialLocation first, SpatialLocation second)
+	{
+		if (!ReferenceEquals(first.Cell, second.Cell) || first.Layer != second.Layer)
+		{
+			return false;
+		}
+
+		if (!first.RoutePositionMetres.HasValue || !second.RoutePositionMetres.HasValue)
+		{
+			return first.RoutePositionMetres.HasValue == second.RoutePositionMetres.HasValue;
+		}
+
+		return Math.Abs(first.RoutePositionMetres.Value - second.RoutePositionMetres.Value) <
+		       CoordinateToleranceMetres;
+	}
+
+	private static bool ExitSidesMatch(ICellExit first, ICellExit second)
+	{
+		return ReferenceEquals(first, second) ||
+		       ReferenceEquals(first.Exit, second.Exit) && ReferenceEquals(first.Origin, second.Origin);
+	}
+
+	private static bool ExitSidesShareUnderlyingExit(ICellExit first, ICellExit second)
+	{
+		return ReferenceEquals(first.Exit, second.Exit) ||
+		       ReferenceEquals(first, second.Opposite) ||
+		       ReferenceEquals(first.Opposite, second);
+	}
+
+	private sealed record RouteTopologyPin(IRouteCellDefinition Definition, long TopologyVersion);
 
 	private void CloseDoorBehindAfterMovement(ICharacter ch, ICellExit exit)
 	{

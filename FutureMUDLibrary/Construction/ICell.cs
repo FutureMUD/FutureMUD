@@ -20,6 +20,8 @@ using MudSharp.Work.Projects;
 using System;
 using System.Collections.Generic;
 
+#nullable enable annotations
+
 namespace MudSharp.Construction
 {
 
@@ -27,6 +29,21 @@ namespace MudSharp.Construction
 
     public interface ICell : ILocation, IProgVariable, IHaveMagicResource, IHaveTags, IRoomLiquidSurface
     {
+		/// <summary>
+		/// The spatial model used by this cell. Existing cell implementations remain ordinary
+		/// unless they expose a route definition.
+		/// </summary>
+		CellSpatialType SpatialType => RouteDefinition is null
+			? CellSpatialType.Ordinary
+			: CellSpatialType.LinearRoute;
+
+		/// <summary>
+		/// The optional one-dimensional spatial definition for a linear route cell.
+		/// </summary>
+		IRouteCellDefinition? RouteDefinition => null;
+
+#nullable restore annotations
+
         /// <summary>
         /// If a cell is temporary, it may disappear at any time.
         /// </summary>

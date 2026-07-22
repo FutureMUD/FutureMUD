@@ -1,6 +1,8 @@
 ﻿using MudSharp.Construction.Boundary;
 using MudSharp.Events;
 
+using MudSharp.Construction;
+
 namespace MudSharp.Commands.Socials;
 
 public class Social : ISocial
@@ -77,7 +79,13 @@ public class Social : ISocial
             target.HandleEvent(EventType.CharacterSocialTarget, actor, this, target, targetExit);
         }
 
-        foreach (IPerceivable witness in actor.Location.Characters.Except(actor).Except(targetList))
+		foreach (IPerceivable witness in actor.LocalThingsAndProximities()
+			         .Where(x => x.Proximity <= Proximity.VeryDistant)
+			         .Select(x => x.Thing)
+			         .OfType<ICharacter>()
+			         .Except(actor)
+			         .Except(targetList)
+			         .Distinct())
         {
             witness.HandleEvent(EventType.CharacterSocialWitness, actor, this, targetList, targetExit, witness);
         }

@@ -2,6 +2,7 @@
 using MudSharp.Combat.Moves;
 using MudSharp.Commands.Trees;
 using MudSharp.Climate;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Revision;
@@ -27,7 +28,7 @@ internal partial class VehicleModule : Module<ICharacter>
 	private static readonly IVehiclePropulsionService PropulsionService = new VehiclePropulsionService();
 	private static readonly IVehicleFleetOperationsService FleetOperationsService = new VehicleFleetOperationsService(OperationalReadinessService, HitchGraphService);
 
-	private const string EmbarkHelp = @"The #3embark#0 command lets you board a vehicle exterior item.
+	private const string EmbarkHelp = @"The #3embark#0 command lets you board a local vehicle exterior or a room-scale vehicle through an open platform docking.
 
 Syntax:
 	#3embark <vehicle>#0
@@ -44,10 +45,16 @@ Syntax:
 		var ss = new StringStack(input.RemoveFirstWord());
 		if (ss.IsFinished)
 		{
-			var vehicles = actor.Location.LayerGameItems(actor.RoomLayer)
-			                    .SelectNotNull(x => x.GetItemType<IVehicleExterior>())
-			                    .Where(x => x.Vehicle is not null)
-			                    .ToList();
+			var exteriorVehicles = actor.Location.LayerGameItems(actor.RoomLayer)
+				.SelectNotNull(x => x.GetItemType<IVehicleExterior>())
+				.Where(x => x.Vehicle is not null)
+				.ToList();
+			var dockedVehicles = DockedVehiclesAt(actor);
+			var vehicles = exteriorVehicles
+				.Select(x => x.Vehicle)
+				.Concat(dockedVehicles)
+				.DistinctBy(x => x.Id)
+				.ToList();
 			if (!vehicles.Any())
 			{
 				actor.OutputHandler.Send("There are no vehicles here that you can board.");
@@ -56,45 +63,56 @@ Syntax:
 
 			var sb = new StringBuilder();
 			sb.AppendLine("You can board the following vehicles:");
-			foreach (var vehicle in vehicles)
+			foreach (var candidate in vehicles)
 			{
-				sb.AppendLine($"\t{vehicle.Parent.HowSeen(actor)} - {vehicle.Vehicle.Name.ColourName()}");
+				var exterior = exteriorVehicles.FirstOrDefault(x => x.Vehicle.Id == candidate.Id);
+				var docking = candidate.Dockings.FirstOrDefault(x => DockingIsActiveAt(x, actor));
+				var description = exterior is not null
+					? exterior.Parent.HowSeen(actor)
+					: $"{candidate.Name.ColourName()} via {docking!.AccessPoint.Name.ColourName()}";
+				sb.AppendLine($"\t{description} - {candidate.Name.ColourName()}");
 			}
 
 			actor.OutputHandler.Send(sb.ToString());
 			return;
 		}
 
-		var item = actor.TargetLocalItem(ss.PopSpeech());
-		if (item is null)
+		var vehicleSelector = ss.PopSpeech();
+		var item = actor.TargetLocalItem(vehicleSelector);
+		var vehicle = item?.GetItemType<IVehicleExterior>()?.Vehicle;
+		if (vehicle is null)
 		{
-			actor.OutputHandler.Send("You don't see any vehicle like that here.");
-			return;
+			vehicle = DockedVehiclesAt(actor).GetByIdOrName(vehicleSelector);
+			if (vehicle is not null)
+			{
+				item = null;
+			}
 		}
 
-		var exterior = item.GetItemType<IVehicleExterior>();
-		if (exterior?.Vehicle is null)
+		if (vehicle is null)
 		{
-			actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is not a linked vehicle.");
+			actor.OutputHandler.Send(item is not null
+				? $"{item.HowSeen(actor, true)} is not a linked vehicle."
+				: "You don't see any local vehicle or open platform docking like that here.");
 			return;
 		}
 
 		var (slotText, accessText) = ParseEmbarkRemainder(ss.SafeRemainingArgument);
-		var slot = ResolveSlot(actor, exterior.Vehicle, slotText);
+		var slot = ResolveSlot(actor, vehicle, slotText);
 		if (!string.IsNullOrWhiteSpace(slotText) && slot is null)
 		{
 			actor.OutputHandler.Send("There is no such occupant slot on that vehicle.");
 			return;
 		}
 
-		var access = ResolveAccess(exterior.Vehicle, accessText);
+		var access = ResolveAccess(vehicle, accessText);
 		if (!string.IsNullOrWhiteSpace(accessText) && access is null)
 		{
 			actor.OutputHandler.Send("There is no such access point on that vehicle.");
 			return;
 		}
 
-		if (!exterior.Vehicle.CanBoard(actor, slot, access, out var reason))
+		if (!vehicle.CanBoard(actor, slot, access, out var reason))
 		{
 			actor.OutputHandler.Send(reason);
 			return;
@@ -109,25 +127,38 @@ Syntax:
 			}
 
 			if (actor.TakeOrQueueCombatAction(
-				    SelectedCombatAction.GetEffectBoardVehicle(actor, exterior.Vehicle, slot, access)) &&
+				    SelectedCombatAction.GetEffectBoardVehicle(actor, vehicle, slot, access)) &&
 			    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 			{
+				var targetDescription = item?.HowSeen(actor) ?? vehicle.Name;
 				actor.OutputHandler.Send(
-					$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Boarding {item.HowSeen(actor)}.");
+					$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Boarding {targetDescription}.");
 			}
 
 			return;
 		}
 
-		exterior.Vehicle.Board(actor, slot, access);
-		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ board|boards $1.", actor, actor, item)));
+		if (!vehicle.Board(actor, slot, access))
+		{
+			actor.OutputHandler.Send("The docking is no longer available for boarding.");
+			return;
+		}
+
+		if (item is not null)
+		{
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ board|boards $1.", actor, actor, item)));
+		}
+		else
+		{
+			actor.OutputHandler.Send($"You board {vehicle.Name.ColourName()} through the platform docking.");
+		}
 	}
 
 	[PlayerCommand("Disembark", "disembark", "unboard")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMovementCommand]
 	[NoHideCommand]
-	[HelpInfo("disembark", "Use #3disembark#0 to leave the vehicle you are currently aboard.", AutoHelp.HelpArg)]
+	[HelpInfo("disembark", "Use #3disembark#0 to leave the vehicle you are currently aboard. A room-scale vehicle requires an open docking exit from your current compartment and places you in that docking's exterior cell.", AutoHelp.HelpArg)]
 	protected static void Disembark(ICharacter actor, string input)
 	{
 		var vehicle = actor.Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(actor));
@@ -143,8 +174,149 @@ Syntax:
 			return;
 		}
 
-		vehicle.Leave(actor);
-		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ disembark|disembarks from $1.", actor, actor, vehicle.ExteriorItem)));
+		if (!vehicle.Leave(actor))
+		{
+			actor.OutputHandler.Send("The docking is no longer available for disembarking.");
+			return;
+		}
+
+		if (vehicle.Prototype.Scale == VehicleScale.RoomScale)
+		{
+			actor.OutputHandler.Send($"You disembark from {vehicle.Name.ColourName()} through the open docking.");
+		}
+		else if (vehicle.ExteriorItem is not null)
+		{
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ disembark|disembarks from $1.", actor, actor, vehicle.ExteriorItem)));
+		}
+		else
+		{
+			actor.OutputHandler.Send($"You disembark from {vehicle.Name.ColourName()}.");
+		}
+	}
+
+	private static IReadOnlyList<IVehicle> DockedVehiclesAt(ICharacter actor)
+	{
+		return actor.Gameworld.Vehicles
+			.Where(vehicle => vehicle.Dockings.Any(x => DockingIsActiveAt(x, actor)))
+			.ToList();
+	}
+
+	private static bool DockingIsActiveAt(IVehicleDocking docking, ICharacter actor)
+	{
+		return docking.State == VehicleDockingState.BoardingOpen &&
+		       docking.ExteriorCell.Id == actor.Location.Id &&
+		       docking.ExteriorLayer == actor.RoomLayer &&
+		       (docking is not VehicleDocking runtime || runtime.IsRegistered);
+	}
+
+	private const string VehicleAccessHelp = @"Use #3vehicleaccess#0 while aboard a stationary vehicle to inspect or operate its access points.
+
+Syntax:
+	#3vehicleaccess#0
+	#3vehicleaccess open <access id|name>#0
+	#3vehicleaccess close <access id|name>#0
+
+Operating an access point requires control access. Disabled access points cannot be operated, and locked access points cannot be opened.";
+
+	[PlayerCommand("VehicleAccess", "vehicleaccess", "vaccess")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[NoMovementCommand]
+	[NoCombatCommand]
+	[NoHideCommand]
+	[HelpInfo("vehicleaccess", VehicleAccessHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void VehicleAccessPoint(ICharacter actor, string input)
+	{
+		var vehicle = actor.Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(actor));
+		if (vehicle is null)
+		{
+			actor.OutputHandler.Send("You are not aboard a vehicle.");
+			return;
+		}
+
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			if (!vehicle.AccessPoints.Any())
+			{
+				actor.OutputHandler.Send($"{vehicle.Name.ColourName()} has no authored access points.");
+				return;
+			}
+
+			var sb = new StringBuilder();
+			sb.AppendLine($"Access points on {vehicle.Name.ColourName()}:");
+			foreach (var candidateAccess in vehicle.AccessPoints.OrderBy(x => x.Id))
+			{
+				sb.AppendLine($"\t#{candidateAccess.Id.ToString("N0", actor)} {candidateAccess.Name.ColourName()} - " +
+				              $"{(candidateAccess.IsOpen ? "open".Colour(Telnet.Green) : "closed".Colour(Telnet.Yellow))}" +
+				              $"{(candidateAccess.IsLocked ? ", locked".Colour(Telnet.Red) : string.Empty)}" +
+				              $"{(candidateAccess.IsDisabled ? ", disabled".Colour(Telnet.Red) : string.Empty)}");
+			}
+
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		var verb = ss.PopSpeech().ToLowerInvariant();
+		if (verb is not ("open" or "close"))
+		{
+			actor.OutputHandler.Send("Do you want to open or close an access point?");
+			return;
+		}
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which access point do you want to {verb}?");
+			return;
+		}
+
+		var accessPoint = ResolveAccess(vehicle, ss.SafeRemainingArgument);
+		if (accessPoint is null)
+		{
+			actor.OutputHandler.Send("There is no such access point on this vehicle.");
+			return;
+		}
+		if (vehicle.MovementState.MovementStatus != VehicleMovementStatus.Stationary)
+		{
+			actor.OutputHandler.Send("You can only operate vehicle access points while the vehicle is stationary.");
+			return;
+		}
+		if (!OperationalReadinessService.CanPerformAction(vehicle, actor, VehicleOperationalAction.Control,
+			    out var permission))
+		{
+			actor.OutputHandler.Send(permission.Reason);
+			return;
+		}
+		if (accessPoint.IsDisabled)
+		{
+			var damageReason = vehicle.DamageDisabledReason(VehicleDamageEffectTargetType.AccessPoint,
+				accessPoint.Prototype.Id);
+			actor.OutputHandler.Send(string.IsNullOrWhiteSpace(damageReason)
+				? "That access point is disabled."
+				: $"That access point is disabled because {damageReason}.");
+			return;
+		}
+
+		var open = verb == "open";
+		var resultingState = open ? "open" : "closed";
+		var pastTense = open ? "opened" : "closed";
+		if (open && accessPoint.IsLocked)
+		{
+			actor.OutputHandler.Send("That access point is locked.");
+			return;
+		}
+		if (accessPoint.IsOpen == open)
+		{
+			actor.OutputHandler.Send($"The {accessPoint.Name.ColourName()} access point is already {resultingState}.");
+			return;
+		}
+
+		accessPoint.SetOpen(open);
+		if (accessPoint.IsOpen != open)
+		{
+			actor.OutputHandler.Send($"The {accessPoint.Name.ColourName()} access point could not be {pastTense}.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You {verb} the {accessPoint.Name.ColourName()} access point on {vehicle.Name.ColourName()}.");
 	}
 
 	[PlayerCommand("Drive", "drive")]
@@ -152,7 +324,9 @@ Syntax:
 	[DelayBlock("movement", "You cannot move until you stop {0}.")]
 	[NoCombatCommand]
 	[NoHideCommand]
-	[HelpInfo("drive", "Use #3drive <direction>#0 while in a driver slot to move your vehicle through a normal exit. Ordinary movement commands like #3north#0 and #3east#0 do the same thing while you are controlling a vehicle.", AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("drive", @"Use #3drive <direction>#0 while in a driver slot to move your vehicle through a normal exit. Ordinary movement commands like #3north#0 and #3east#0 do the same thing while you are controlling a vehicle.
+
+In a RouteCell use #3drive forward|backward [<distance>]#0, #3drive to <distance|landmark|exit|stop>#0, #3drive route <approved vehicle route>#0, or #3drive stop#0. Passing an anchored exit never traverses it automatically; drive to that exit first or use a compiled vehicle route. #3drive route#0 can resume mid-route only when the vehicle's durable location maps to exactly one step of the approved pinned revision; off-route or ambiguous positions fail closed.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Drive(ICharacter actor, string input)
 	{
 		VehicleMovementCommand.TryMoveControlledVehicle(actor, input.RemoveFirstWord(), true);
@@ -339,7 +513,7 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|none>#0 while controlli
 			{
 				hitchItem.Location?.Extract(hitchItem);
 				hitchItem.RoomLayer = sourceVehicle.RoomLayer;
-				sourceVehicle.Location.Insert(hitchItem, true);
+				hitchItem.InsertAtSource(sourceVehicle.ExteriorItem, true);
 			}
 		}
 
@@ -785,7 +959,7 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|none>#0 while controlli
 			{
 				hitchItem.Location?.Extract(hitchItem);
 				hitchItem.RoomLayer = source.RoomLayer;
-				source.Location.Insert(hitchItem, true);
+				hitchItem.InsertAtSource(source, true);
 			}
 
 			reason = string.Empty;
@@ -1183,6 +1357,7 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|none>#0 while controlli
 Syntax:
 	#3vehicle list#0
 	#3vehicle show <id|name>#0
+	#3vehicle retire <id|name>#0
 	#3vehicle repair <id|name>#0
 	#3vehicle repair <id|name> damage <zone|all>#0
 	#3vehicle repair <id|name> hitch <link|all>#0
@@ -1196,14 +1371,16 @@ Syntax:
 	#3vehicle access preset remove <name> <tag>#0
 	#3vehicle access preset delete <name>#0
 	#3vehicle access preset reset <name|all>#0
-	#3vehicle audit <here|zone|prototype <id|name>|all> [readiness|access|resources|hitch|damage|recovery|all]#0
-	#3vehicle recover <id|name> [projection|install|hitch|all] [fix]#0
+	#3vehicle audit <id|name|here|zone|prototype <id|name>|all> [readiness|access|resources|hitch|damage|route|journey|interior|docking|recovery|all]#0
+	#3vehicle recover <id|name> [projection|install|hitch|interior|docking|all] [fix]#0
 	#3vehicle fleet <here|zone|prototype <id|name>|all> access apply <preset> <character>#0
 	#3vehicle fleet <scope> access grant <character> <tag> <1-3>#0
 	#3vehicle fleet <scope> access revoke <character|row id> [tag]#0
 	#3vehicle fleet <scope> access clone <source vehicle>#0
-	#3vehicle fleet <scope> recover <projection|install|hitch|all> [fix]#0
-	#3vehicle relink <id|name> <item id|local item>#0";
+	#3vehicle fleet <scope> recover <projection|install|hitch|interior|docking|all> [fix]#0
+	#3vehicle relink <id|name> <item id|local item>#0
+
+#3projection fix#0 recreates missing authored access-point and cargo-space projection items. A missing exterior projection still requires #3vehicle relink#0.";
 
 	[PlayerCommand("Vehicle", "vehicle")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -1220,6 +1397,10 @@ Syntax:
 			case "show":
 			case "view":
 				VehicleShow(actor, ss);
+				return;
+			case "retire":
+			case "delete":
+				VehicleRetire(actor, ss);
 				return;
 			case "repair":
 			case "diagnose":
@@ -1268,6 +1449,26 @@ Syntax:
 		}
 
 		actor.OutputHandler.Send(ShowVehicle(actor, vehicle));
+	}
+
+	private static void VehicleRetire(ICharacter actor, StringStack ss)
+	{
+		var vehicle = actor.Gameworld.Vehicles.GetByIdOrName(ss.SafeRemainingArgument);
+		if (vehicle is not Vehicle concrete)
+		{
+			actor.OutputHandler.Send("There is no such live vehicle.");
+			return;
+		}
+
+		var name = concrete.Name;
+		var id = concrete.Id;
+		if (!concrete.Retire(out var reason))
+		{
+			actor.OutputHandler.Send($"You cannot retire that vehicle: {reason}");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You retire {name.ColourName()} (#{id.ToString("N0", actor)}), removing its empty hosted interiors and live topology.");
 	}
 
 	private static void VehicleAccess(ICharacter actor, StringStack ss)
@@ -1585,7 +1786,7 @@ Syntax:
 
 		if (!TryParseFleetAuditMode(ss.PopSpeech(), out var mode))
 		{
-			actor.OutputHandler.Send("Audit mode must be readiness, access, resources, hitch, damage, recovery, or all.");
+			actor.OutputHandler.Send("Audit mode must be readiness, access, resources, hitch, damage, route, journey, interior, docking, recovery, or all.");
 			return;
 		}
 
@@ -1611,12 +1812,22 @@ Syntax:
 
 		if (!TryParseRecoveryMode(modeText, out var mode))
 		{
-			actor.OutputHandler.Send("Recovery mode must be projection, install, hitch, or all.");
+			actor.OutputHandler.Send("Recovery mode must be projection, install, hitch, interior, docking, or all.");
 			return;
 		}
 
 		apply |= ss.PopSpeech().EqualTo("fix");
-		DescribeRecoveryResults(actor, [FleetOperationsService.Recover(vehicle, mode, apply)], apply);
+		try
+		{
+			DescribeRecoveryResults(actor, [FleetOperationsService.Recover(vehicle, mode, apply)], apply);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Vehicle recovery failed for vehicle #{vehicle.Id:N0}: {ex}");
+			actor.OutputHandler.Send(
+				$"Vehicle recovery failed safely without completing: {ex.Message} Check the engine log before retrying."
+					.ColourError());
+		}
 	}
 
 	private static void VehicleFleet(ICharacter actor, StringStack ss)
@@ -1639,7 +1850,7 @@ Syntax:
 			case "audit":
 				if (!TryParseFleetAuditMode(ss.PopSpeech(), out var mode))
 				{
-					actor.OutputHandler.Send("Audit mode must be readiness, access, resources, hitch, damage, recovery, or all.");
+					actor.OutputHandler.Send("Audit mode must be readiness, access, resources, hitch, damage, route, journey, interior, docking, recovery, or all.");
 					return;
 				}
 
@@ -1794,7 +2005,7 @@ Syntax:
 
 		if (!TryParseRecoveryMode(modeText, out var mode))
 		{
-			actor.OutputHandler.Send("Recovery mode must be projection, install, hitch, or all.");
+			actor.OutputHandler.Send("Recovery mode must be projection, install, hitch, interior, docking, or all.");
 			return;
 		}
 
@@ -1807,7 +2018,8 @@ Syntax:
 	{
 		vehicles = [];
 		reason = string.Empty;
-		switch (ss.PopSpeech().ToLowerInvariant())
+		var scopeText = ss.PopSpeech();
+		switch (scopeText.ToLowerInvariant())
 		{
 			case "here":
 				vehicles = actor.Gameworld.Vehicles.Where(x => x.Location == actor.Location).ToList();
@@ -1830,7 +2042,14 @@ Syntax:
 				vehicles = actor.Gameworld.Vehicles.ToList();
 				return true;
 			default:
-				reason = "Vehicle scope must be here, zone, prototype <id|name>, or all.";
+				var vehicle = actor.Gameworld.Vehicles.GetByIdOrName(scopeText);
+				if (vehicle is not null)
+				{
+					vehicles = [vehicle];
+					return true;
+				}
+
+				reason = "Vehicle scope must be a vehicle id/name, here, zone, prototype <id|name>, or all.";
 				return false;
 		}
 	}
@@ -1933,6 +2152,22 @@ Syntax:
 		sb.AppendLine($"Canonical Location: {movement.LocationType.DescribeEnum().ColourValue()} {(movement.Location is null ? "nowhere".ColourError() : movement.Location.HowSeen(actor))} [{movement.RoomLayer.DescribeEnum().ColourValue()}]");
 		sb.AppendLine($"Movement: {movement.MovementStatus.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Transit: Exit #{movement.CurrentExitId?.ToString("N0", actor) ?? "none"}, Destination #{movement.DestinationCellId?.ToString("N0", actor) ?? "none"}");
+		if (movement.Location?.RouteDefinition is { } routeDefinition)
+		{
+			var effectivePosition = vehicle.ExteriorItem is null
+				? vehicle.RoutePositionMetres
+				: RouteSpatialService.Instance.GetEffectiveLocation(vehicle.ExteriorItem).RoutePositionMetres;
+			sb.AppendLine($"RouteCell: {routeDefinition.LengthMetres.ToString("N3", actor).ColourValue()}m long, topology {routeDefinition.TopologyVersion.ToString("N0", actor).ColourValue()}, room equivalent {routeDefinition.MetresPerRoomEquivalent.ToString("N3", actor).ColourValue()}m");
+			sb.AppendLine($"Route Position: durable {(vehicle.RoutePositionMetres?.ToString("N3", actor).ColourValue() ?? "missing".ColourError())}m; effective {(effectivePosition?.ToString("N3", actor).ColourValue() ?? "missing".ColourError())}m");
+		}
+		var routeProfiles = vehicle.Prototype.MovementProfiles
+			.Where(x => x.MovementType == VehicleMovementProfileType.Route)
+			.ToList();
+		sb.AppendLine($"Route Profiles: {(routeProfiles.Any() ? routeProfiles.Select(x => $"#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} / {x.RouteSpeedMetresPerSecond.ToString("N3", actor).ColourValue()}m/s / {x.RoutePropulsionMode.DescribeEnum().ColourName()}{(x.AutomaticOperationCapable ? " / automatic".Colour(Telnet.Green) : string.Empty)}").ListToString() : "none".Colour(Telnet.Yellow))}");
+		if (vehicle.ActiveJourney is { } journey)
+		{
+			sb.AppendLine($"Journey: #{journey.Id.ToString("N0", actor)} {journey.State.DescribeEnum().ColourName()}, route #{journey.Route.Id.ToString("N0", actor)}r{journey.Route.RevisionNumber.ToString("N0", actor)}, current {journey.CurrentStop?.Name.ColourName() ?? "none"}, next {journey.NextStop?.Name.ColourName() ?? "none"}, delay {journey.Delay.Describe(actor).ColourValue()}, boarding {journey.BoardingOpen.ToColouredString()}{(string.IsNullOrWhiteSpace(journey.StatusReason) ? string.Empty : $", reason {journey.StatusReason.ColourError()}")}");
+		}
 		sb.AppendLine();
 		sb.AppendLine("Item Projection:");
 		sb.AppendLine($"\tExterior Item Id: {vehicle.ExteriorItemId?.ToString("N0", actor) ?? "None".ColourError()}");
@@ -1943,6 +2178,16 @@ Syntax:
 		sb.AppendLine("Occupants:");
 		sb.AppendLine(vehicle.Occupancies.Any()
 			? vehicle.Occupancies.Select(x => $"\t{x.Occupant?.RenderStaffActorReference() ?? "missing".ColourError()} in {x.Slot.Name.ColourName()}{(x.IsController ? " controlling".Colour(Telnet.Green) : "")}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			: "\tNone");
+		sb.AppendLine();
+		sb.AppendLine("Hosted Compartments:");
+		sb.AppendLine(vehicle.Compartments.Any()
+			? vehicle.Compartments.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} interior #{x.InteriorCellId?.ToString("N0", actor) ?? "missing".ColourError()} [{x.Prototype.InteriorTerrain?.Name.ColourName() ?? "terrain missing".ColourError()}, {x.Prototype.InteriorOutdoorsType.Describe().ColourValue()}] links {x.Links.Count().ToString("N0", actor).ColourValue()}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			: "\tNone");
+		sb.AppendLine();
+		sb.AppendLine("Dockings:");
+		sb.AppendLine(vehicle.Dockings.Any()
+			? vehicle.Dockings.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.AccessPoint.Name.ColourName()} -> {x.Compartment.Name.ColourName()} at cell #{x.ExteriorCell.Id.ToString("N0", actor)} [{x.ExteriorLayer.DescribeEnum().ColourValue()}] {x.State.DescribeEnum().ColourValue()}{(x is VehicleDocking runtimeDocking && runtimeDocking.IsRegistered ? $" exit #{runtimeDocking.TransientExit.Id.ToString("N0", actor)}" : " no live exit".Colour(Telnet.Yellow))}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
 			: "\tNone");
 		sb.AppendLine();
 		sb.AppendLine("Access Points:");
@@ -2360,10 +2605,10 @@ Syntax:
 	#3vehicleproto list#0
 	#3vehicleproto show <id|name>#0
 	#3vehicleproto new <name>#0
-	#3vehicleproto edit <id|name>#0
+	#3vehicleproto edit <exact id|name>#0
 	#3vehicleproto close#0
 	#3vehicleproto submit <comment>#0
-	#3vehicleproto approve <id> <comment>#0
+	#3vehicleproto approve <exact id|quoted name> <comment>#0
 	#3vehicleproto set <building command>#0
 	#3vehicleproto create <id|name>#0";
 
@@ -2444,11 +2689,18 @@ Syntax:
 
 	private static void VehicleProtoEdit(ICharacter actor, StringStack ss)
 	{
-		var proto = actor.Gameworld.VehiclePrototypes.GetByIdOrName(ss.SafeRemainingArgument);
+		var proto = ResolveVehiclePrototypeRevisionForEditing(
+			actor.Gameworld.VehiclePrototypes,
+			ss.SafeRemainingArgument);
 		if (proto is null)
 		{
-			actor.OutputHandler.Send("There is no such vehicle prototype.");
+			actor.OutputHandler.Send("There is no vehicle prototype with that exact ID or name available for editing.");
 			return;
+		}
+
+		if (proto.Status == RevisionStatus.Rejected)
+		{
+			proto.ChangeStatus(RevisionStatus.UnderDesign, "Returned to design after rejection.", actor.Account);
 		}
 
 		if (proto.Status == RevisionStatus.Current)
@@ -2483,10 +2735,12 @@ Syntax:
 
 	private static void VehicleProtoApprove(ICharacter actor, StringStack ss)
 	{
-		var proto = actor.Gameworld.VehiclePrototypes.GetByIdOrName(ss.PopSpeech());
+		var proto = ResolveVehiclePrototypeRevisionForApproval(
+			actor.Gameworld.VehiclePrototypes,
+			ss.PopSpeech());
 		if (proto is null)
 		{
-			actor.OutputHandler.Send("There is no such vehicle prototype.");
+			actor.OutputHandler.Send("There is no pending vehicle prototype revision with that exact ID or name.");
 			return;
 		}
 
@@ -2503,6 +2757,54 @@ Syntax:
 
 		proto.ChangeStatus(RevisionStatus.Current, ss.SafeRemainingArgument, actor.Account);
 		actor.OutputHandler.Send($"You approve {proto.EditHeader()}.");
+	}
+
+	internal static IVehiclePrototype ResolveVehiclePrototypeRevisionForApproval(
+		IEnumerable<IVehiclePrototype> prototypes,
+		string selector)
+	{
+		return ResolveExactVehiclePrototypeRevisions(prototypes, selector)
+			.Where(x => x.Status == RevisionStatus.PendingRevision)
+			.OrderByDescending(x => x.RevisionNumber)
+			.FirstOrDefault();
+	}
+
+	internal static IVehiclePrototype ResolveVehiclePrototypeRevisionForEditing(
+		IEnumerable<IVehiclePrototype> prototypes,
+		string selector)
+	{
+		var revisions = ResolveExactVehiclePrototypeRevisions(prototypes, selector);
+		return revisions
+			.Where(x => x.Status is RevisionStatus.UnderDesign or RevisionStatus.PendingRevision or RevisionStatus.Rejected)
+			.OrderByDescending(x => x.RevisionNumber)
+			.FirstOrDefault() ?? revisions
+			.Where(x => x.Status == RevisionStatus.Current)
+			.OrderByDescending(x => x.RevisionNumber)
+			.FirstOrDefault();
+	}
+
+	private static IReadOnlyCollection<IVehiclePrototype> ResolveExactVehiclePrototypeRevisions(
+		IEnumerable<IVehiclePrototype> prototypes,
+		string selector)
+	{
+		var trimmedSelector = selector.Trim();
+		if (trimmedSelector.Length == 0)
+		{
+			return [];
+		}
+
+		var matches = long.TryParse(trimmedSelector, out var id)
+			? prototypes.Where(x => x.Id == id).ToList()
+			: prototypes
+				.Where(x => x.Name.Equals(trimmedSelector, StringComparison.InvariantCultureIgnoreCase))
+				.ToList();
+		return matches
+			.Select(x => x.Id)
+			.Distinct()
+			.Skip(1)
+			.Any()
+			? []
+			: matches;
 	}
 
 	private static void VehicleProtoSet(ICharacter actor, StringStack ss)
@@ -2532,7 +2834,14 @@ Syntax:
 			return;
 		}
 
-		var vehicle = VehicleFactory.CreateVehicle(proto, actor.Location, actor.RoomLayer, actor);
-		actor.OutputHandler.Send($"You create {vehicle.ExteriorItem.HowSeen(actor)} as vehicle {vehicle.Name.ColourName()} (#{vehicle.Id.ToString("N0", actor)}).");
+		try
+		{
+			var vehicle = VehicleFactory.CreateVehicle(proto, actor.Location, actor.RoomLayer, actor);
+			actor.OutputHandler.Send($"You create {vehicle.ExteriorItem.HowSeen(actor)} as vehicle {vehicle.Name.ColourName()} (#{vehicle.Id.ToString("N0", actor)}).");
+		}
+		catch (VehicleFactoryPartialCreationException ex)
+		{
+			actor.OutputHandler.Send(ex.Message.ColourError());
+		}
 	}
 }

@@ -281,10 +281,72 @@ public class CombatStrategyRuntimeTests
 
 		Assert.IsFalse(actor.Object.MeleeRange);
 		Assert.IsFalse(target.Object.MeleeRange);
+		target.Verify(x => x.SetRoutePosition(It.IsAny<double?>()), Times.Never,
+			"Ordinary-cell pushback must retain its existing non-coordinate behavior.");
 		scheduler.Verify(x => x.DelayScheduleType(
 			target.Object,
 			ScheduleType.Combat,
 			It.Is<TimeSpan>(delay => Math.Abs(delay.TotalSeconds - 17.0 * CombatBase.CombatSpeedMultiplier) < 0.001)),
+			Times.Once);
+	}
+
+	[TestMethod]
+	public void CombatForcedMovementUtilities_ApplyPushback_RouteCellDisplacesAwayAndClampsAtEndpoint()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.Scheduler).Returns(scheduler.Object);
+		gameworld.Setup(x => x.GetStaticDouble("PushbackCombatDelayBaseSeconds")).Returns(2.0);
+		gameworld.Setup(x => x.GetStaticDouble("PushbackCombatDelayPerDegreeSeconds")).Returns(5.0);
+		gameworld.Setup(x => x.GetStaticDouble("RouteCellPushbackMetresPerSuccessDegree")).Returns(5.0);
+
+		var cell = new Mock<ICell>();
+		var route = new Mock<IRouteCellDefinition>();
+		route.SetupGet(x => x.Cell).Returns(cell.Object);
+		route.SetupGet(x => x.LengthMetres).Returns(10_000.0);
+		route.SetupGet(x => x.DefaultPositionMetres).Returns(0.0);
+		route.SetupGet(x => x.MetresPerRoomEquivalent).Returns(100.0);
+		route.SetupGet(x => x.Landmarks).Returns([]);
+		route.SetupGet(x => x.ExitAnchors).Returns([]);
+		cell.SetupGet(x => x.RouteDefinition).Returns(route.Object);
+
+		var actorBody = new Mock<IBody>();
+		var targetBody = new Mock<IBody>();
+		var actor = new Mock<ICharacter>();
+		var target = new Mock<ICharacter>();
+		double? targetPosition = 9_998.0;
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.Body).Returns(actorBody.Object);
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		actor.SetupGet(x => x.RoutePositionMetres).Returns(9_990.0);
+		actor.SetupGet(x => x.SpatialLocation)
+			.Returns(new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 9_990.0));
+		actor.SetupProperty(x => x.MeleeRange, true);
+		actor.SetupProperty(x => x.CombatTarget, target.Object);
+		target.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		target.SetupGet(x => x.Body).Returns(targetBody.Object);
+		target.SetupGet(x => x.Location).Returns(cell.Object);
+		target.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		target.SetupGet(x => x.RoutePositionMetres).Returns(() => targetPosition);
+		target.SetupGet(x => x.SpatialLocation)
+			.Returns(() => new SpatialLocation(cell.Object, RoomLayer.GroundLevel, targetPosition));
+		target.SetupProperty(x => x.MeleeRange, true);
+		target.Setup(x => x.SetRoutePosition(It.IsAny<double?>()))
+			.Callback<double?>(value => targetPosition = value);
+
+		CombatForcedMovementUtilities.ApplyPushback(actor.Object, target.Object, 3);
+
+		Assert.AreEqual(10_000.0, targetPosition,
+			"Three degrees at five metres each should move away from the actor and clamp at the route endpoint.");
+		target.Verify(x => x.SetRoutePosition(It.Is<double?>(value => value == 10_000.0)), Times.Once);
+		Assert.IsFalse(actor.Object.MeleeRange);
+		Assert.IsFalse(target.Object.MeleeRange);
+		scheduler.Verify(x => x.DelayScheduleType(
+			target.Object,
+			ScheduleType.Combat,
+			It.Is<TimeSpan>(delay => Math.Abs(delay.TotalSeconds -
+				17.0 * CombatBase.CombatSpeedMultiplier) < 0.001)),
 			Times.Once);
 	}
 

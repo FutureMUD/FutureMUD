@@ -931,7 +931,7 @@ You can also use this command to remove similarly large items from containers. I
             targetContainer)));
         targetAsContainer.Take(targetItem);
         targetItem.RoomLayer = actor.RoomLayer;
-        actor.Location.Insert(targetItem, true);
+        targetItem.InsertAtSource(actor, true);
     }
 
     [PlayerCommand("Style", "style")]
@@ -1466,7 +1466,7 @@ The syntax is #3flip <item>#0 or #3flip coin#0. You must be holding a single coi
             ICheck noticeCheck = actor.Gameworld.GetCheck(CheckType.NoticeCheck);
             if (cheat)
             {
-                foreach (ICharacter tch in actor.Location.LayerCharacters(actor.RoomLayer).Except([actor]))
+                foreach (ICharacter tch in actor.Location.CharactersInImmediateVicinity(actor).Except([actor]))
                 {
                     OpposedOutcome outcome = new(result, noticeCheck.CheckAgainstAllDifficulties(tch, Difficulty.Hard, null), Difficulty.Normal, Difficulty.Hard);
                     if (outcome.Outcome == OpposedOutcomeDirection.Opponent)
@@ -1500,7 +1500,7 @@ The syntax is #3flip <item>#0 or #3flip coin#0. You must be holding a single coi
 
         IProvideCover cover = target.GetItemType<IProvideCover>();
         if (flippable.Flipped && cover?.Cover != null && cover.IsProvidingCover &&
-            (actor.Location.LayerCharacters(actor.RoomLayer).Any(x => x.Cover?.Cover == cover.Cover) ||
+            (actor.Location.CharactersInImmediateVicinity(target).Any(x => x.Cover?.Cover == cover.Cover) ||
              actor.Combat != null))
         {
             actor.Send(
@@ -1583,7 +1583,7 @@ The syntax to use this command is #3tear <item>#0.", AutoHelp.HelpArgOrNoArg)]
             {
                 actor.Send("Your hands are full, so you set it down on the ground.");
                 tornItem.RoomLayer = actor.RoomLayer;
-                actor.Location.Insert(tornItem);
+                tornItem.InsertAtSource(actor);
             }
         }
     }
@@ -1812,7 +1812,7 @@ The syntax is as follows:
             targetCharacter.AddEffect(new Accept(targetCharacter, new GenericProposal(
                     text =>
                     {
-                        if (targetCharacter.Location != character.Location)
+                        if (!targetCharacter.ColocatedWith(character))
                         {
                             targetCharacter.Send("You are no longer in the same location as the person who wanted to apply something to you.");
                             return;
@@ -1836,7 +1836,7 @@ The syntax is as follows:
                             return;
                         }
 
-                        if (targetCharacter.Location != character.Location)
+                        if (!targetCharacter.ColocatedWith(character))
                         {
                             targetCharacter.Send("You are no longer in the same location as the person who wanted to apply something to you.");
                             return;
@@ -2392,7 +2392,7 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
             targetCharacter.AddEffect(new Accept(targetCharacter, new GenericProposal(
                 text =>
                 {
-                    if (targetCharacter.Location != character.Location)
+                    if (!targetCharacter.ColocatedWith(character))
                     {
                         targetCharacter.Send(
                             "You are no longer in the same location as the person who wanted to inject you.");
@@ -2419,7 +2419,7 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
                         return;
                     }
 
-                    if (targetCharacter.Location != character.Location)
+                    if (!targetCharacter.ColocatedWith(character))
                     {
                         targetCharacter.Send(
                             "You are no longer in the same location as the person who wanted to inject you.");
@@ -2554,7 +2554,7 @@ You can use the following syntaxes with this command:
 
             void ExecuteForceLiquid()
             {
-                if (target.Location != character.Location || target.RoomLayer != character.RoomLayer)
+                if (!target.ColocatedWith(character))
                 {
                     target.Send("You are no longer in the same location as the person who was going to feed you.");
                     return;
@@ -2665,7 +2665,7 @@ You can use the following syntaxes with this command:
 
         void ExecuteForceFeed()
         {
-            if (target.Location != character.Location)
+            if (!target.ColocatedWith(character))
             {
                 target.Send("You are no longer in the same location as the person who was going to feed you.");
                 return;
@@ -2702,7 +2702,7 @@ You can use the following syntaxes with this command:
                     target.OutputHandler.Handle(
                         new EmoteOutput(new Emote($"$1 rolls out of $0's mouth.", target, target, newItem)));
                     newItem.RoomLayer = target.RoomLayer;
-                    target.Location.Insert(newItem);
+                    newItem.InsertAtSource(target);
                 }
             }
             else
@@ -2712,7 +2712,7 @@ You can use the following syntaxes with this command:
                     if (!character.Body.CanGet(newItem, 0))
                     {
                         newItem.RoomLayer = character.RoomLayer;
-                        character.Location.Insert(newItem);
+                        newItem.InsertAtSource(character);
                     }
                     else
                     {
@@ -2729,7 +2729,7 @@ You can use the following syntaxes with this command:
                         new EmoteOutput(new Emote($"$1 falls out of $0's mouth.", target, target, newItem)));
                     character.Body.Take(newItem);
                     newItem.RoomLayer = target.RoomLayer;
-                    target.Location.Insert(newItem);
+                    newItem.InsertAtSource(target);
                 }
             }
         }
@@ -4454,6 +4454,11 @@ The syntax is as follows:
             character.Send("You do not see any vehicle like that here.");
             return;
         }
+		if (!vehicleItem.ColocatedWith(character))
+		{
+			character.Send($"{vehicleItem.HowSeen(character, true)} is too far away for you to install anything into.");
+			return;
+		}
 
         var vehicle = vehicleItem.GetItemType<IVehicleExterior>()?.Vehicle;
         if (vehicle is null)
@@ -4869,6 +4874,11 @@ The syntax is as follows:
             character.Send("{0} is not installed in a vehicle.", moduleItem.HowSeen(character, true));
             return;
         }
+		if (!installation.Vehicle.ExteriorItem.ColocatedWith(character))
+		{
+			character.Send($"{installation.Vehicle.ExteriorItem.HowSeen(character, true)} is too far away for you to uninstall anything from.");
+			return;
+		}
 
         if (!VehicleReadinessService.CanPerformAction(installation.Vehicle, character, VehicleOperationalAction.Service, out var accessResult))
         {
@@ -4980,7 +4990,7 @@ The syntax is as follows:
             else
             {
                 theLock.Parent.RoomLayer = character.RoomLayer;
-                character.Location.Insert(theLock.Parent);
+                theLock.Parent.InsertAtSource(character);
                 character.Send("You set the lock down on the ground as you cannot hold it.");
             }
         }
@@ -5070,7 +5080,7 @@ The syntax is as follows:
 
                     door.Changed = true;
                     door.Parent.RoomLayer = character.RoomLayer;
-                    character.Location.Insert(door.Parent);
+                    door.Parent.InsertAtSource(character);
                     character.OutputHandler.Handle(new EmoteOutput(new Emote(
                         $"@ remove|removes $0 from the exit to {exit.OutboundDirectionDescription}.", character,
                         door.Parent)));
@@ -5970,7 +5980,7 @@ The syntax is as follows:
                 else
                 {
                     targetItem.Parent.RoomLayer = actor.RoomLayer;
-                    actor.Location.Insert(targetItem.Parent);
+                    targetItem.Parent.InsertAtSource(actor);
                     actor.Send(
                         $"Your {actor.Body.Prototype.WielderDescriptionPlural} are full, so you set {targetItem.Parent.HowSeen(actor)} down.");
                 }
@@ -8061,9 +8071,9 @@ The syntax is as follows:
             else
             {
                 target = actor.Location
-                              .LayerCharacters(layer)
-                              .Cast<IPerceiver>()
-                              .Concat(actor.Location.LayerGameItems(layer))
+	                              .PerceivablesInImmediateVicinity(actor, false)
+	                              .Where(x => x.RoomLayer == layer)
+	                              .OfType<IPerceiver>()
                               .Where(x => actor.CanSee(x))
                               .GetFromItemListByKeyword(targetText, actor);
                 if (target == null)
@@ -8146,7 +8156,7 @@ The syntax is as follows:
 
                 actor.Body.Take(tossable);
                 tossable.RoomLayer = actor.RoomLayer;
-                actor.Location.Insert(tossable, true);
+                tossable.InsertAtSource(actor, true);
                 tossable.SetTarget(actor);
                 return;
             }
@@ -8163,7 +8173,7 @@ The syntax is as follows:
                         tossable)));
                     actor.Body.Take(tossable);
                     tossable.RoomLayer = random;
-                    actor.Location.Insert(tossable, true);
+                    tossable.InsertAtSource(actor, true);
                     return;
                 }
             }
@@ -8182,7 +8192,7 @@ The syntax is as follows:
 
             actor.Body.Take(tossable);
             tossable.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(tossable, true);
+            tossable.InsertAtSource(actor, true);
             if (exit != null)
             {
                 tossable.AddEffect(new AdjacentToExit(tossable, exit), AdjacentToExit.DefaultEffectTimeSpan);
@@ -8195,10 +8205,12 @@ The syntax is as follows:
         if (target != null && result.Outcome != Outcome.MajorPass)
         {
             List<IPerceiver> potentialTargets = (exit == null
-                                       ? actor.Location.LayerCharacters(layer).OfType<IPerceiver>()
-                                              .Concat(actor.Location.LayerGameItems(layer))
-                                       : exit.Destination.LayerCharacters(target.RoomLayer).OfType<IPerceiver>()
-                                             .Concat(exit.Destination.LayerGameItems(target.RoomLayer)))
+	                                       ? actor.Location.PerceivablesInImmediateVicinity(actor, false)
+	                                              .Where(x => x.RoomLayer == layer)
+	                                              .OfType<IPerceiver>()
+									   : exit.Destination.PerceivablesInImmediateVicinity(target, false)
+									         .Where(x => x.RoomLayer == target.RoomLayer)
+									         .OfType<IPerceiver>())
                                    .Except(target)
                                    .ToList();
             if (potentialTargets.Any() && Dice.Roll(1, 2) == 1)
@@ -8222,7 +8234,7 @@ The syntax is as follows:
         if (exit == null)
         {
             tossable.RoomLayer = layer;
-            actor.Location.Insert(tossable);
+            tossable.InsertAtSource(target ?? actor);
             if (layer.IsLowerThan(actor.RoomLayer))
             {
 				tossable.OutputHandler.Handle(new EmoteOutput(
@@ -8237,7 +8249,15 @@ The syntax is as follows:
         else
         {
             tossable.RoomLayer = target?.RoomLayer ?? actor.RoomLayer;
-            exit.Destination.Insert(tossable);
+            if (target is not null)
+            {
+                tossable.InsertAtSource(target);
+            }
+            else
+            {
+                tossable.MoveTo(exit.Destination, tossable.RoomLayer, exit);
+                exit.Destination.Insert(tossable);
+            }
             tossable.SetTarget(target);
             tossable.OutputHandler.Handle(new EmoteOutput(new Emote(
                 $"@ fly|flies in {exit.InboundDirectionSuffix} $?1|and lands right by $1|and lands on the ground|$.",
@@ -8320,7 +8340,7 @@ The syntax is as follows:
         else
         {
             bundle.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(bundle, true);
+            bundle.InsertAtSource(actor, true);
             actor.OutputHandler.Send("You were unable to carry the bundle, so you set it down.");
         }
     }
@@ -8446,7 +8466,7 @@ The syntax is as follows:
         else
         {
             target.RoomLayer = actor.RoomLayer;
-            actor.Location.Insert(target, true);
+            target.InsertAtSource(actor, true);
         }
 
         List<string> results = new();

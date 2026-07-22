@@ -160,7 +160,7 @@ public class BenchGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
                 }
                 else if (location != null)
                 {
-                    location.Insert(item.Parent);
+					item.Parent.InsertAtSource(Parent.LocationLevelPerceivable);
                     item.SetTable(null);
                 }
                 else
@@ -180,7 +180,7 @@ public class BenchGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
             if (location != null)
             {
                 item.SetTable(null);
-                location.Insert(item.Parent);
+				item.Parent.InsertAtSource(Parent.LocationLevelPerceivable);
             }
             else
             {
@@ -339,7 +339,7 @@ public class BenchGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
     {
         foreach (IChair chair in Chairs.ToList())
         {
-            Parent.Location.Insert(chair.Parent);
+            chair.Parent.InsertAtSource(Parent);
             chair.Parent.SetPosition(PositionUndefined.Instance, PositionModifier.Behind, Parent, null);
         }
 
@@ -351,7 +351,7 @@ public class BenchGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
             foreach (IGameItem item in container.Contents.ToList())
             {
                 container.Take(item);
-                Parent.Location.Insert(item);
+                item.InsertAtSource(Parent);
                 item.SetPosition(PositionUndefined.Instance, PositionModifier.Before, Parent, null);
             }
         }

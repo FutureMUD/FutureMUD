@@ -133,6 +133,23 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
             };
         }
 
+		if (Assailant.Location.RouteDefinition is not null || target.Location?.RouteDefinition is not null)
+		{
+			var spatialRange = Assailant.RoomEquivalentDistanceBetween(target);
+			if (spatialRange < 0.0 || spatialRange > Weapon.WeaponType.DefaultRangeInRooms)
+			{
+				Assailant.OutputHandler.Send("Your target is no longer within the effective range of that weapon.");
+				Assailant.Aim?.ReleaseEvents();
+				return new CombatMoveResult
+				{
+					MoveWasSuccessful = false,
+					RecoveryDifficulty = RecoveryDifficultyFailure,
+					AttackerOutcome = Outcome.NotTested,
+					DefenderOutcome = Outcome.NotTested
+				};
+			}
+		}
+
         IHaveABody targetHb = target as IHaveABody;
         Weapon.WeaponType.AccuracyBonusExpression.Formula.Parameters["quality"] = (int)Weapon.Parent.Quality;
         int range = Assailant.DistanceBetween(target, 10);
@@ -159,7 +176,7 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
 
         //If target is unconscious and shooter is in the same room and there are no other people attacking shooter, shooter can ICly bypass cover
         //under the assumption that they walk around it due to no one stopping them, assuming the shooter is upright
-        if (target.Location == Assailant.Location && (targetAsCharacter?.State.HasFlag(CharacterState.Unconscious) ??
+		if (Assailant.ColocatedWith(target) && (targetAsCharacter?.State.HasFlag(CharacterState.Unconscious) ??
                                                       false)
                                                   && Assailant.PositionState.CompareTo(PositionStanding.Instance) ==
                                                   PositionHeightComparison.Equivalent)
@@ -189,7 +206,7 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
         if (targetHb.Body != null)
         {
             positionBonus = GetSizeDifficulty(targetHb.Body.SizeStanding);
-            if (target.Location != Assailant.Location)
+			if (!Assailant.ColocatedWith(target))
             //When firing across distances, the target's posture can inflict penalties. 
             {
                 positionBonus += GetTargetPositionDifficulty(targetHb.Body.PositionState);

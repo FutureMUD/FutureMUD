@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
@@ -207,7 +208,12 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 		}
 		else
 		{
-			(actor?.Location ?? Parent.TrueLocations.FirstOrDefault())?.Insert(moduleItem);
+			var placementSource = actor is not null
+				? (ILocateable)actor
+				: Parent.LocationLevelPerceivable is { } locationSource
+					? locationSource
+					: Parent;
+			moduleItem.InsertAtSource(placementSource);
 		}
 
 		Changed = true;
@@ -326,7 +332,12 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 		}
 		else
 		{
-			(actor?.Location ?? Parent.TrueLocations.FirstOrDefault())?.Insert(other.Parent);
+			var placementSource = actor is not null
+				? (ILocateable)actor
+				: Parent.LocationLevelPerceivable is { } locationSource
+					? locationSource
+					: Parent;
+			other.Parent.InsertAtSource(placementSource);
 		}
 
 		Changed = true;

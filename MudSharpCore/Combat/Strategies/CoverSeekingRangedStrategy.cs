@@ -2,6 +2,9 @@
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat.Moves;
 
+using MudSharp.Construction;
+using MudSharp.GameItems;
+
 namespace MudSharp.Combat.Strategies;
 
 public abstract class CoverSeekingRangedStrategy : RangeBaseStrategy
@@ -23,7 +26,11 @@ public abstract class CoverSeekingRangedStrategy : RangeBaseStrategy
         if (cover.MaximumSimultaneousCovers > 0)
         {
             if (
-                assailant.Location.LayerCharacters(assailant.RoomLayer).Except(assailant)
+				assailant.LocalThingsAndProximities()
+				         .Where(x => x.Proximity <= Proximity.Immediate)
+				         .Select(x => x.Thing)
+				         .OfType<ICharacter>()
+				         .Except(assailant)
                          .Count(x => x.Cover?.Cover == cover && x.Cover?.CoverItem == coverItem) >=
                 cover.MaximumSimultaneousCovers)
             {
@@ -101,8 +108,12 @@ public abstract class CoverSeekingRangedStrategy : RangeBaseStrategy
     protected CombatantCover ScoutCover(ICharacter ch)
     {
         List<IRangedCover> locationCovers = ch.Location.GetCoverFor(ch).ToList();
-        List<IProvideCover> itemCovers =
-            ch.Location.LayerGameItems(ch.RoomLayer).SelectNotNull(x => x.GetItemType<IProvideCover>())
+		List<IProvideCover> itemCovers = ch.LocalThingsAndProximities()
+			.Select(x => (x.Thing, x.Proximity))
+			.Where(x => x.Proximity <= Proximity.Immediate)
+			.Select(x => x.Thing)
+			.OfType<IGameItem>()
+			.SelectNotNull(x => x.GetItemType<IProvideCover>())
               .Where(x => x.Cover != null && ch.CanSee(x.Parent))
               .ToList();
 

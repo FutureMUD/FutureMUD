@@ -216,7 +216,7 @@ public class Movement : IMovement
         if (originalMover.Party is not null &&
             CharacterInstanceIdentityComparer.SamePhysicalInstance(originalMover.Party.Leader, originalMover))
         {
-            primaryMovers.AddRange(originalMover.Party.CharacterMembers.Where(x => x.InRoomLocation == originalMover.InRoomLocation));
+            primaryMovers.AddRange(originalMover.Party.CharacterMembers.Where(originalMover.ColocatedWith));
         }
         else
         {
@@ -526,7 +526,7 @@ public class Movement : IMovement
 			}
 
             mover.HandleEvent(EventType.CharacterStopMovement, mover, Exit.Origin, Exit);
-            foreach (IHandleEvents witness in mover.Location.EventHandlers.Except(mover))
+            foreach (IHandleEvents witness in mover.Location.EventHandlersFor(mover).Except(mover))
             {
                 witness.HandleEvent(EventType.CharacterStopMovementWitness, mover, Exit.Origin, Exit, witness);
             }
@@ -820,7 +820,7 @@ public class Movement : IMovement
 					if (!MovementEventUtilities.ShouldSuppressMovementEvents(person))
 					{
 						person.HandleEvent(EventType.CharacterStopMovement, person, Exit.Origin, Exit);
-						foreach (IHandleEvents witness in person.Location.EventHandlers.Except(person))
+						foreach (IHandleEvents witness in person.Location.EventHandlersFor(person).Except(person))
 						{
 							witness.HandleEvent(EventType.CharacterStopMovementWitness, person, Exit.Origin, Exit, witness);
 						}
@@ -874,7 +874,7 @@ public class Movement : IMovement
 					if (!MovementEventUtilities.ShouldSuppressMovementEvents(person))
 					{
 						person.HandleEvent(EventType.CharacterStopMovement, person, Exit.Origin, Exit);
-						foreach (IHandleEvents witness in person.Location.EventHandlers.Except(person))
+						foreach (IHandleEvents witness in person.Location.EventHandlersFor(person).Except(person))
 						{
 							witness.HandleEvent(EventType.CharacterStopMovementWitness, person, Exit.Origin, Exit, witness);
 						}

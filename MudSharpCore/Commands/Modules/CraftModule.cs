@@ -686,10 +686,13 @@ You can use the following syntax:
         }
 
         sb.AppendLine();
-        if (actor.Location.LocalProjects.Any())
+		var localProjects = actor.Location.LocalProjects
+			.Where(x => x.IsAtProjectSite(actor))
+			.ToList();
+		if (localProjects.Any())
         {
             sb.AppendLine("There are the following projects in progress locally:");
-            foreach (ILocalProject project in actor.Location.LocalProjects)
+			foreach (ILocalProject project in localProjects)
             {
                 sb.AppendLine($"\t{project.ProjectsCommandOutput(actor)}");
             }
@@ -932,7 +935,10 @@ Note: See the closely related #3projects#0 command for information about your cu
 
     private static List<IActiveProject> VisibleActiveProjects(ICharacter actor)
     {
-        return actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+		return actor.PersonalProjects
+			.OfType<IActiveProject>()
+			.Concat(actor.Location.LocalProjects.Where(x => x.IsAtProjectSite(actor)))
+			.ToList();
     }
 
     private static bool CanManageProjectPayments(ICharacter actor, IActiveProject project)

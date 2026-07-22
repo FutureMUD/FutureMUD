@@ -3,16 +3,17 @@
 Audit date: 15 July 2026<br>
 Release baseline: `a68f25871ce238e8e9331c0e33d7b585d174c0e4` (`Engine version update to v1.55.0`, 1 March 2026)<br>
 Audited head: `90ed55992c52860125050945fd356d02c1c62629` (`master`, 14 July 2026), with closure evidence from merged PR #478 (`17a82b4e7b93129959902c375edcb1e28c9fc406`, merge commit `cc5c535eac1c56dc30dca38535ada2437ad84c58`) and the Vehicle/Employment closure worktrees<br>
+Vehicle boundary update: 22 July 2026 RouteCell, route/service/journey, and RoomScale implementation worktree; automated, live-telnet, reboot, portal, migration, and blank-snapshot evidence are recorded separately below<br>
 Primary scope: `MudSharpCore` runtime features, commands, builders, and core unit tests
 
 ## Executive Verdict
 
 **Overall recommendation: Conditional Go for the scoped 2.0.0 release.**
 
-The engine has a strong automated baseline: the original audited head passed all 1,668 core unit tests with no failures or skips, merged PR #478 passed 1,678 core tests, and the completed employment-closure worktree passed the default repository unit suite with 2,601 tests, including 1,686 core tests. Six large feature families now satisfy the audit's full readiness bar, no reviewed subsystem needs architectural replacement, and the three implementation-boundary blockers identified by this audit are closed:
+The engine has a strong automated baseline: the original audited head passed all 1,668 core unit tests with no failures or skips, merged PR #478 passed 1,678 core tests, and the final RouteCell/RoomScale vehicle worktree passed the default repository unit suite with 3,101 tests, including 1,978 core tests. Seven large feature families now satisfy the audit's full readiness bar, no reviewed subsystem needs architectural replacement, and the three implementation-boundary blockers identified by this audit are closed:
 
 1. **Natural ranged weapons:** merged PR #478 completed the ammunition-owned sling/blowgun damage path, natural-ranged runtime, elemental interactions, builders, repeat-install seeding, documentation, and focused regression coverage.
-2. **Vehicles:** the V1 boundary is the complete manual cell-exit vehicle slice; route, coordinate, and moving-interior movement are explicitly post-V1.
+2. **Vehicles:** the V1 boundary now includes manual cell-exit vehicles, linear RouteCell travel, revisioned routes and recurring services, restart-safe journeys, and persistent RoomScale interiors/docking. Coordinate 2D/3D movement and the explicitly listed transport-simulation extensions remain post-V1.
 3. **Unified employment:** the V1 host/action/payment matrix, durable provenance and grants, earnings/payables, consent, goal policy, recovery, capability providers, action/host policy, and acceptance/security coverage are release-ready. Parent-organisation/accounting and richer native workflows are explicitly post-V1.
 
 The release is therefore at **Conditional Go**. Final sign-off remains contingent on the documentation closures, integration campaigns, release-candidate soak, and packaging/version work listed below; these are release-process gates rather than unresolved advertised implementation boundaries.
@@ -21,10 +22,10 @@ The release is therefore at **Conditional Go**. Final sign-off remains contingen
 
 | Status | Count | Release meaning |
 | --- | ---: | --- |
-| Fully Ready | 6 | Suitable for the 2.0 stable feature set |
+| Fully Ready | 7 | Suitable for the 2.0 stable feature set |
 | Minor Polish Required | 3 | Releasable; low-risk follow-up remains |
 | Documentation Required | 7 | Runtime appears releasable, but the documentation does not yet provide a clean v1.0 sign-off |
-| Testing Required | 7 | Implementation is credible, but live/integration maturity is not sufficiently demonstrated |
+| Testing Required | 6 | Implementation is credible, but live/integration maturity is not sufficiently demonstrated |
 | Further Implementation Required | 0 | No reviewed feature currently requires implementation or scope exclusion before entering release-candidate validation |
 | Major Changes Required | 0 | No reviewed system requires replacement or a fundamental redesign |
 
@@ -58,7 +59,7 @@ Examples deliberately excluded from blocker status include the abstract `Magical
 | Time, calendars, and celestials | `MudInstant`, astronomical event solving, regnal periods, builder hardening | **Testing Required** | Moderate | No |
 | Pathfinding and live world topology | Incremental hierarchical index, live-cell mutation, portal-anchor correction | **Fully Ready** | Strong | No |
 | Mounts and stables | Stable accounts/tickets, persistence fixes, riding and hitch gear | **Documentation Required** | Strong | No |
-| Vehicles, hitches, and towing | Manual cell-exit vehicle movement, readiness, cargo/access, mixed hitch graph | **Testing Required** | Strong unit coverage; fresh-world runbook remains | No |
+| Vehicles, hitches, and towing | Cell-exit and RouteCell movement, RoomScale interiors/docking, routes/services/journeys, mixed hitch graph | **Fully Ready** | 3,101-test default suite plus live train, platform, wagon, portal, and reboot evidence | No |
 | Agriculture and primary production | Fields, crops, herds, woodlands, apiaries, project operations, commodity output | **Testing Required** | Moderate | No |
 | NPC/group AI and event surface | New individual AI types, animal ecology, group registration and event subscriptions | **Minor Polish Required** | Strong | No |
 | AI Storyteller | Builder/help refinement on the existing persisted model/tool-loop subsystem | **Testing Required** | Strong unit coverage, no live model loop | No |
@@ -186,13 +187,13 @@ Examples deliberately excluded from blocker status include the abstract `Magical
 
 ### 12. Vehicles, Hitches, and Towing
 
-**Status: Testing Required. Release blocker: No within the declared Vehicle V1 boundary.**
+**Status: Fully Ready for the scoped V1. Release blocker: No; upgraded-world and long-duration release-candidate soak remain open.**
 
-- **Change and evidence:** Vehicle movement and iterative fixes landed across `df464988`, `a6be9707`, `29e3b2ee`, and `935bed0c`; remote occupancy was fixed in `16d7d3cf`; hitch equipment in `6bc307ed`; the unified hitch graph in `113917cf`.
-- **Implementation:** Cell-exit movement, explicit control handoff, player status/preflight, access points, cargo, modules, damage/repair, readiness, towing, persistent mixed hitches, builders, commands, and tests comprise the stable V1. The closeout also made required access fail closed, enforced exterior synchronisation and required crew, blocked combat/delayed-action driving, preserved the validated hitch/resource plan through delayed completion, prevented duplicate catastrophe rolls/fail-open train movement, made access/cargo projection markers revision-stable, rejected `RoomScale` and invalid authored values, and hardened primary control-station changes.
-- **V1 boundary decision:** Vehicle V1 is manual cell-exit `ItemScale` and `RoomContainer` vehicles. Route movement, coordinate movement, and room-scale moving interiors are explicitly post-V1. Route movement is not moderate work: it needs persisted route/stop/schedule/journey models, scheduler and reboot ownership, boarding/dwell/delay state, builder previews and validation, player timetable UX, automation hooks, and integration tests. Existing readiness/path/hitch services reduce duplication but do not supply that subsystem.
-- **Recommended work:** Keep route, coordinate, and moving-interior language out of the 2.0 stable feature promise. Complete the fresh-world runbook and release-candidate soak for the declared cell-exit boundary.
-- **Remaining test plan:** Run fresh-MUD builder and player scenarios for create/install/access/start/drive/stop, passengers, cargo, fuel/power failure, damage, towing chains, mixed animal/vehicle hitches, cycles, detach/reboot, retirement/death of endpoints, and failed movement rollback.
+- **Change and evidence:** Vehicle movement and iterative fixes landed across `df464988`, `a6be9707`, `29e3b2ee`, and `935bed0c`; remote occupancy was fixed in `16d7d3cf`; hitch equipment in `6bc307ed`; the unified hitch graph in `113917cf`. The 22 July implementation worktree adds first-class RouteCell spatial contracts, route-aware commands and path compilation, route/service/journey persistence and coordination, persistent RoomScale hosted cells, transient docking, platform transit UX, and focused regression suites.
+- **Implementation:** The stable V1 now includes `ItemScale`, `RoomContainer`, and `RoomScale`; manual cell-exit and continuous linear RouteCell movement; explicit control/status/preflight; access, cargo, modules, damage/repair, readiness, towing and mixed hitch graphs; revisioned topology-pinned `VehicleRoute` definitions; recurring `VehicleService` schedules; restart-safe `VehicleJourney` state; persistent hosted interiors; ordinary and scheduled-platform docking; transit timetable/status output; builder validation; staff audit/recovery/retirement; and operational FutureProg surfaces. Platform embark/disembark resolves registered transient dockings rather than requiring a duplicate exterior item or teleporting passengers into the RouteCell exterior.
+- **V1 boundary decision:** The three acceptance exemplars are a scheduled multi-compartment train between station platforms, a massive RoomScale platform driven through ordinary cell exits while its hosted cells remain stable, and a mount-drawn recursive wagon train driven over compiled route steps between distant towns. V1 deliberately excludes coordinate 2D/3D movement, collision, signalling/dispatch, physical consist length, overtaking, automatic reverse-route generation, dynamic rerouting, fares/reservations, rich ownership/lease policy, and full electrical/liquid network simulation.
+- **Acceptance evidence:** The three documented exemplars passed through the live telnet runtime on a migrated development world. The scheduled RoomScale train boarded and carried an occupant through a two-platform service and reloaded after reboot; the occupied RoomScale platform moved through an ordinary exit and reloaded with stable interiors; the horse-drawn recursive wagon train continued through multiple durable checkpoints, stopped and reloaded at one exact coordinate, traversed an anchored mid-route portal atomically in both directions, and completed the final longitudinal and portal steps into the far-town platform with a clean hitch audit. The final default suite passed 3,101 tests, the EF model has no pending migration changes, and the maintained blank snapshot ends at `20260722100951_VehicleRoutesAndServices`. Full provenance is in [RouteCell and RoomScale Vehicle V1.0 Acceptance Evidence](../Verification/RouteCell_Vehicle_V1_Acceptance_Evidence.md).
+- **Remaining release-candidate plan:** Exercise boarding-window races and every authored platform binding under concurrency; repeat graceful/crash-style restart and idempotency recovery against an upgraded production-scale database; run a long-duration route/service soak; and monitor exterior relink, occupied-interior retirement guards, hold/repair/cancel/resume, topology invalidation, and mixed hitch failure rollback under load. These are release-process hardening gates, not missing scoped V1 behavior.
 
 ### 13. Agriculture and Primary Production
 
@@ -319,7 +320,7 @@ The following are important 2.0 changes but do not need separate system ratings:
 ## Ordered Pre-Release Work
 
 1. **Natural ranged weapons — complete:** merged PR #478 closes sling/blowgun ammunition damage ownership, natural-ranged runtime, builders, seeding, documentation, and focused regression coverage.
-2. **Vehicle V1 boundary — resolved:** ship manual cell-exit `ItemScale` and `RoomContainer` vehicles, access/cargo/modules/readiness/damage, hitching, and towing. Route, coordinate, and moving-interior movement are post-V1.
+2. **Vehicle V1 boundary — complete:** manual cell-exit and linear RouteCell movement for `ItemScale`, `RoomContainer`, and `RoomScale` vehicles; persistent interiors/docking; routes, services, journeys and transit UX; access/cargo/modules/readiness/damage; hitching and towing all passed automated and live acceptance. Coordinate 2D/3D movement and the documented transport-simulation extensions remain post-V1; upgraded-world soak remains a release-candidate campaign item.
 3. **Employment V1 — complete:** the builder-authorable payment/authority/action boundary, durable grant/payroll semantics, acceptance matrix, documentation, migrations, and full automated verification were closed on 14 July 2026.
 4. **Publish V1 sign-off sections:** arenas, magic, mounts/stables, economy, hospitals, law, and ownership need explicit supported-scope/known-limitations sections.
 5. **Run integration campaigns:** drugs, planes/zero gravity, time/celestials, agriculture, AI Storyteller, and the grouped item/crafting additions require live or provider-backed testing beyond the green unit suite.
@@ -359,6 +360,19 @@ Vehicle V1 closeout verification on 14 July 2026:
 - vehicle-focused core tests: **passed**, 85 passed, 0 failed, 0 skipped;
 - full `scripts\test-unit-core.ps1` suite: **passed**, 1,674 passed, 0 failed, 0 skipped;
 - fresh-MUD runbook and release-candidate soak remain required before final release sign-off.
+
+RouteCell/RoomScale vehicle expansion verification on 22 July 2026:
+
+- sequential single-node restore: **passed**;
+- targeted `FutureMUDLibrary`, `MudsharpDatabaseLibrary`, `MudSharpCore`, and `DatabaseSeeder` builds: **passed**, 0 warnings, 0 errors;
+- full default `scripts\test-unit.ps1` suite: **passed**, 3,101 passed, 0 failed, 0 skipped: 412 shared-library, 21 expression-engine, 545 seeder, 1,978 core, 31 database-library, 22 Discord, 43 worldfile-converter, and 49 web tests;
+- EF migrations were generated through `20260722100951_VehicleRoutesAndServices`, following `20260722063400_RouteCellSpatialFoundation` and `20260722071041_RoomScaleVehicleInteriors`;
+- the maintained blank-database snapshot was regenerated from an explicitly disposable database, and its manifest names `20260722100951_VehicleRoutesAndServices` as the latest migration;
+- `dotnet ef migrations has-pending-model-changes`: **passed**, with no model drift after the final migration;
+- live scheduled-train acceptance: **passed**, including platform docking, occupied travel, arrival, and post-ride reboot reload;
+- live occupied RoomScale platform acceptance: **passed**, including ordinary cell-exit movement, stable hosted interiors, docking rebuild, and reboot reload;
+- live horse-drawn recursive wagon acceptance: **passed**, including multiple durable checkpoints, exact stop/reboot reload, and atomic anchored-portal traversal in both directions;
+- an upgraded production-world and long-duration release-candidate soak is not claimed and remains pending.
 
 Employment V1 closeout verification on 14 July 2026:
 

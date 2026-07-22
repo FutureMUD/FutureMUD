@@ -78,7 +78,7 @@ public class FleeMove : CombatMoveBase
                 foreach (ICharacter pursuer in group)
                 {
                     if (pursuer.CombatSettings.PursuitMode == PursuitMode.OnlyAttemptToStop &&
-                        (Assailant.Location != pursuer.Location || !pursuer.MeleeRange || !Assailant.MeleeRange))
+						(!Assailant.ColocatedWith(pursuer) || !pursuer.MeleeRange || !Assailant.MeleeRange))
                     {
                         continue;
                     }
@@ -95,7 +95,7 @@ public class FleeMove : CombatMoveBase
                              x.CombatSettings.PursuitMode == PursuitMode.AlwaysPursue) ||
                             x.CombatSettings.PursuitMode == PursuitMode.OnlyPursueIfWholeGroupPursue ||
                             (x.CombatSettings.PursuitMode == PursuitMode.OnlyAttemptToStop &&
-                             x.Location == Assailant.Location && x.MeleeRange && Assailant.MeleeRange));
+							 x.ColocatedWith(Assailant) && x.MeleeRange && Assailant.MeleeRange));
                 foreach (ICharacter pursuer in group)
                 {
                     if (!allPursuing &&
@@ -105,7 +105,7 @@ public class FleeMove : CombatMoveBase
                     }
 
                     if (pursuer.CombatSettings.PursuitMode == PursuitMode.OnlyAttemptToStop &&
-                        (Assailant.Location != pursuer.Location || !pursuer.MeleeRange || !Assailant.MeleeRange))
+						(!Assailant.ColocatedWith(pursuer) || !pursuer.MeleeRange || !Assailant.MeleeRange))
                     {
                         continue;
                     }
@@ -267,8 +267,21 @@ public class FleeMove : CombatMoveBase
                 opponent.RemoveAllEffects<ClinchEffect>(x => x.Target == Assailant);
             }
 
+			RouteCombatMovementUtilities.TryRetreatAlongRoute(Assailant, pursuers);
+
             return;
         }
+
+		if (Assailant.Location.RouteDefinition is not null &&
+		    RouteCombatMovementUtilities.TryRetreatAlongRoute(Assailant, pursuers))
+		{
+			Assailant.RemoveAllEffects(x => x.IsEffectType<ISneakEffect>());
+			Assailant.OutputHandler.Handle(new EmoteOutput(
+				new Emote("@ flee|flees along the route away from combat.", Assailant),
+				style: OutputStyle.CombatMessage,
+				flags: OutputFlags.InnerWrap));
+			return;
+		}
 
         List<ICellExit> directions = Assailant.Location.ExitsFor(Assailant).Where(x => Assailant.CanCross(x).Success).ToList();
         // TODO - try to crash through doors if stuck
@@ -298,7 +311,7 @@ public class FleeMove : CombatMoveBase
                     continue;
                 }
 
-                if (pursuer.Location != Assailant.Location)
+				if (!pursuer.ColocatedWith(Assailant))
                 {
                     continue;
                 }

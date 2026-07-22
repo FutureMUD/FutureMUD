@@ -8,6 +8,7 @@ namespace MudSharp.Models
         public Exit()
         {
             CellOverlaysExits = new HashSet<CellOverlayExit>();
+            RouteExitAnchors = new HashSet<RouteExitAnchor>();
         }
 
         public long Id { get; set; }
@@ -41,5 +42,6 @@ namespace MudSharp.Models
         public string BlockedLayers { get; set; }
 
         public virtual ICollection<CellOverlayExit> CellOverlaysExits { get; set; }
+        public virtual ICollection<RouteExitAnchor> RouteExitAnchors { get; set; }
     }
 }

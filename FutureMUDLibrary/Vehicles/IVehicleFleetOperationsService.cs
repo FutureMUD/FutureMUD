@@ -15,7 +15,11 @@ public enum VehicleFleetAuditMode
 	Resources,
 	Hitch,
 	Damage,
-	Recovery
+	Recovery,
+	Interior,
+	Docking,
+	Route,
+	Journey
 }
 
 public enum VehicleRecoveryMode
@@ -27,7 +31,9 @@ public enum VehicleRecoveryMode
 	Install,
 	Tow,
 	Hitch,
-	Damage
+	Damage,
+	Interior,
+	Docking
 }
 
 public enum VehicleRecoveryAction

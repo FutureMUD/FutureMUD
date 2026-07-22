@@ -2,6 +2,7 @@
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Scheduling;
@@ -527,7 +528,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                                 flags: OutputFlags.InnerWrap));
                         Assailant.Body.Take(Weapon.Parent);
                         Weapon.Parent.RoomLayer = Assailant.RoomLayer;
-                        Assailant.Location.Insert(Weapon.Parent);
+                        Weapon.Parent.InsertAtSource(Assailant);
                         Weapon.Parent.AddEffect(new CombatNoGetEffect(Weapon.Parent,
                             Assailant.Combat), TimeSpan.FromSeconds(90));
                         Assailant.AddEffect(new CombatGetItemEffect(Assailant, Weapon.Parent));

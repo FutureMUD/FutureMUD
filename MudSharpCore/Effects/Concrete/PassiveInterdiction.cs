@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using MudSharp.Character.Heritage;
 using MudSharp.Combat;
+using MudSharp.Construction;
 using MudSharp.GameItems;
 using MudSharp.Movement;
 
@@ -61,7 +62,7 @@ public class PassiveInterdiction : Effect, IRangedObstructionEffect, IRemoveOnMo
 
         bool IRemoveOnMovementEffect.ShouldRemove()
         {
-            if (Owner.Location == Target.Location)
+			if (Owner.ColocatedWith(Target))
             {
                 return false;
             }
@@ -174,7 +175,7 @@ public class PassiveInterdiction : Effect, IRangedObstructionEffect, IRemoveOnMo
 
     bool IRemoveOnMovementEffect.ShouldRemove()
     {
-        if (Owner.Location == Intercessor.Location)
+		if (Owner.ColocatedWith(Intercessor))
         {
             return false;
         }

@@ -3,6 +3,7 @@ using MudSharp.Character.Name;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Community.Boards;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
@@ -1254,11 +1255,11 @@ Your in-room emote uses normal emote syntax. If you omit the #6@#0 token, your s
         actor.Body.Whisper(target, message, emote);
     }
 
-    [PlayerCommand("OOC", "ooc")]
-    [HelpInfo("ooc",
-        @"This command is used to communicate in an out of character manner with players in the same room as you. Any usage of this command is considered to be you, the player, communicating with other people and not your character. This command should be reserved for helping new players and urgent clarifications of mistakes only. Overuse of this command is very poor form.
+	[PlayerCommand("OOC", "ooc")]
+	[HelpInfo("ooc",
+		@"This command is used to communicate in an out of character manner with players nearby in your current location. In a RouteCell, it reaches only the local audible area rather than the entire route. Any usage of this command is considered to be you, the player, communicating with other people and not your character. This command should be reserved for helping new players and urgent clarifications of mistakes only. Overuse of this command is very poor form.
 
-The syntax is simply #3OOC <your message>#0 to send a message to everyone in the room.", AutoHelp.HelpArg)]
+The syntax is simply #3OOC <your message>#0 to send a message to everyone nearby.", AutoHelp.HelpArg)]
     protected static void OOC(ICharacter actor, string input)
     {
         string message = input.RemoveFirstWord();
@@ -1274,15 +1275,15 @@ The syntax is simply #3OOC <your message>#0 to send a message to everyone in the
             return;
         }
 
-        foreach (ICharacter ch in actor.Location.LayerCharacters(actor.RoomLayer))
+		foreach (ICharacter ch in actor.Location.CharactersInSpatialVicinity(actor))
         {
             ch.OutputHandler.Send(
                 $"{(ch == actor ? "You say" : $"{actor.HowSeen(ch, true)} says")} out of character, \"{message.ProperSentences().NormaliseSpacing().Trim().Fullstop()}\"");
         }
     }
 
-    private const string BoardHelpPlayer =
-        @"The board command allows you to interact with discussion boards that are in your room. In order to see the list of posts on a board, simply LOOK at it.
+	private const string BoardHelpPlayer =
+		@"The board command allows you to interact with discussion boards that are immediately nearby. In order to see the list of posts on a board, simply LOOK at it.
 
 You can use the following syntax with this command:
 
@@ -1291,8 +1292,8 @@ You can use the following syntax with this command:
 	#3board write <title>#0 - drops you into an editor to make a post
 	#3board delete <##>#0 - deletes a board post you authored";
 
-    private const string BoardHelpAdmin =
-        @"The board command can be used either to interact with a discussion board item in room or to view boards, including ones that have no in-game item presence. See the BOARDS command for a list of board.
+	private const string BoardHelpAdmin =
+		@"The board command can be used either to interact with an immediately nearby discussion board item or to view boards, including ones that have no in-game item presence. See the BOARDS command for a list of board.
 
 #6Note: Consider POSSESSing an appropriate NPC when making a post to an in-room board#0.
 
@@ -1367,13 +1368,13 @@ You can use the following syntax with this command:
     private static void BoardLook(ICharacter actor, StringStack input)
     {
         IBoardItem boardItem = null;
-        if (input.IsFinished)
-        {
-            List<IBoardItem> boards = actor.Location
-                              .LayerGameItems(actor.RoomLayer)
-                              .Where(x => actor.CanSee(x))
-                              .SelectNotNull(x => x.GetItemType<IBoardItem>())
-                              .ToList();
+		if (input.IsFinished)
+		{
+			List<IBoardItem> boards = actor.Location
+				.GameItemsInImmediateVicinity(actor)
+				.Where(x => actor.CanSee(x))
+				.SelectNotNull(x => x.GetItemType<IBoardItem>())
+				.ToList();
             if (boards.Count == 0)
             {
                 actor.OutputHandler.Send("There are no boards here.");
@@ -1431,8 +1432,10 @@ You can use the following syntax with this command:
 
     private static void BoardDelete(ICharacter actor, StringStack input)
     {
-        IBoardItem board = actor.Location.LayerGameItems(actor.RoomLayer)
-                         .SelectNotNull(x => x.GetItemType<IBoardItem>()).FirstOrDefault();
+		IBoardItem board = actor.Location
+			.GameItemsInImmediateVicinity(actor)
+			.SelectNotNull(x => x.GetItemType<IBoardItem>())
+			.FirstOrDefault();
         if (board is null)
         {
             actor.OutputHandler.Send("There is not a discussion board present in your location.");
@@ -1514,8 +1517,10 @@ You can use the following syntax with this command:
 
     private static void BoardRead(ICharacter actor, StringStack input)
     {
-        IBoardItem board = actor.Location.LayerGameItems(actor.RoomLayer)
-                                         .SelectNotNull(x => x.GetItemType<IBoardItem>()).FirstOrDefault();
+		IBoardItem board = actor.Location
+			.GameItemsInImmediateVicinity(actor)
+			.SelectNotNull(x => x.GetItemType<IBoardItem>())
+			.FirstOrDefault();
         if (board is null)
         {
             actor.OutputHandler.Send("There is not a discussion board present in your location.");
@@ -1592,8 +1597,10 @@ You can use the following syntax with this command:
 
     private static void BoardWrite(ICharacter actor, StringStack input)
     {
-        IBoardItem board = actor.Location.LayerGameItems(actor.RoomLayer)
-                                         .SelectNotNull(x => x.GetItemType<IBoardItem>()).FirstOrDefault();
+		IBoardItem board = actor.Location
+			.GameItemsInImmediateVicinity(actor)
+			.SelectNotNull(x => x.GetItemType<IBoardItem>())
+			.FirstOrDefault();
         if (board is null)
         {
             actor.OutputHandler.Send("There is not a discussion board present in your location.");

@@ -62,6 +62,10 @@ Items may be:
 Because of this, the item system exposes:
 - `TrueLocations`
 - `LocationLevelPerceivable`
+
+In a RouteCell, a top-level item also has an exact longitudinal coordinate. `look`, local target discovery, item groups, stack merging, manipulation, illumination, heat, scent, audio, explosions, crime witnesses, and other ordinary local integrations must query from the viewer or source coordinate; they must not present every item in a ten-kilometre cell as nearby. Relative descriptions can identify an item as ahead or behind and show a localised distance where that helps the player.
+
+Nested or hosted items inherit the position of their carrier, container, installation host, hitch cohort, or RoomScale vehicle exterior. The inherited coordinate is a presentation/integration projection and is not separately persisted on the nested item.
 - `ContainedIn`
 - `InInventoryOf`
 - deep and shallow item traversal helpers
@@ -74,6 +78,8 @@ Any component that changes where an item effectively "is" in the world needs to 
 - inventory change propagation
 
 Vehicle exteriors are a special location bridge. The exterior remains an ordinary cell-visible `IGameItem`, but the linked `IVehicle` owns canonical location, occupancy, movement environment, and destruction state. An occupied exterior cannot be picked up or contained. An unoccupied `ItemScale` surface-water craft such as a surfboard may still be carried or stored on land through ordinary item rules, while its vehicle movement profile prevents driven, dragged, or tow-train exit traversal outside surface water. At a valid water surface, intact exteriors remain floating and visible occupants are presented through the vehicle's rider-style room line rather than as duplicate item output.
+
+RoomScale vehicles keep compartment contents in persistent hosted cells while their single exterior projection moves. At an ordinary stop, or at an authored scheduled platform within tolerance, boarding uses transient exits mapped from access-point prototypes. A platform must present the docking and boarding state without adding a second exterior item; `embark` resolves that active docking directly, and `disembark` returns an occupant only through an open docking from the current compartment.
 
 Propulsion presentation also belongs to the vehicle integration surface. `vehiclepropulsion` and `vehiclestatus` show the persisted active mode and supported modes; staff `vehicle show` adds formulas, rower slots, sampled wind, contributors, installed motors, resource candidates, and blockers. Oars and outboards decorate item evaluation with their efficiency/output configuration, but they do not claim that a whole vehicle is ready: readiness depends on occupancy, installation, condition, weather, and resources at the current vehicle.
 

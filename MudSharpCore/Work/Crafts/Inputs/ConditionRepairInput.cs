@@ -1,5 +1,6 @@
 ﻿using MudSharp.Construction;
 using MudSharp.GameItems;
+using MudSharp.Form.Shape;
 using MudSharp.PerceptionEngine.Lists;
 
 namespace MudSharp.Work.Crafts.Inputs;
@@ -249,6 +250,18 @@ public class ConditionRepairInput : BaseInput
             {
                 item.RoomLayer = layer;
                 location.Insert(item);
+                item.Login();
+            }
+
+            ConsumedItems.Clear();
+        }
+
+        public void ReleaseItemsAtCraftCompletion(ILocateable source, ICell location, RoomLayer layer)
+        {
+            foreach (IGameItem item in ConsumedItems)
+            {
+                item.RoomLayer = layer;
+                item.InsertAtSource(source);
                 item.Login();
             }
 

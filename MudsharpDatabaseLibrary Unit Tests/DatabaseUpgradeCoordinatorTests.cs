@@ -266,7 +266,10 @@ public class DatabaseUpgradeCoordinatorTests
 	{
 		using var harness = new TemporaryDirectoryHarness();
 		var migrationService = new FakeMigrationService(["First", "Second"]);
-		var backupService = new FakeBackupService(harness.DirectoryPath);
+		var backupService = new FakeBackupService(harness.DirectoryPath)
+		{
+			BackupContents = "CREATE DATABASE `futuremud_tests`;   \r\n-- generated separator\t\r\n"
+		};
 		var coordinator = new DatabaseUpgradeCoordinator(migrationService, backupService);
 		var snapshotPath = Path.Combine(harness.DirectoryPath, "BlankDatabaseSnapshot.sql");
 
@@ -278,6 +281,8 @@ public class DatabaseUpgradeCoordinatorTests
 		var snapshotContents = File.ReadAllText(snapshotPath);
 		StringAssert.Contains(snapshotContents, "__FUTUREMUD_DATABASE__");
 		Assert.IsFalse(snapshotContents.Contains("futuremud_tests", StringComparison.Ordinal));
+		Assert.IsFalse(snapshotContents.Contains("   \r\n", StringComparison.Ordinal));
+		Assert.IsFalse(snapshotContents.Contains("\t\r\n", StringComparison.Ordinal));
 	}
 
 	[TestMethod]
@@ -407,6 +412,7 @@ public class DatabaseUpgradeCoordinatorTests
 		public string? LastBackupDirectory { get; private set; }
 		public bool ThrowOnRestore { get; init; }
 		public bool ThrowOnCreateBackup { get; init; }
+		public string BackupContents { get; init; } = "CREATE DATABASE `futuremud_tests`;";
 
 		public string CreateBackup(string connectionString, string backupDirectory)
 		{
@@ -419,7 +425,7 @@ public class DatabaseUpgradeCoordinatorTests
 
 			Directory.CreateDirectory(backupDirectory);
 			var path = Path.Combine(backupDirectory, $"futuremud-tests-{CreateBackupCalls:00}.sql");
-			File.WriteAllText(path, "CREATE DATABASE `futuremud_tests`;");
+			File.WriteAllText(path, BackupContents);
 			File.SetCreationTimeUtc(path, new DateTime(2026, 1, 1, 0, CreateBackupCalls, 0, DateTimeKind.Utc));
 			return path;
 		}

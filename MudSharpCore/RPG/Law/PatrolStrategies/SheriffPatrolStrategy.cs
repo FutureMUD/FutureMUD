@@ -103,7 +103,9 @@ public class SheriffPatrolStrategy : PatrolStrategyBase
         }
 
         // Patrol can only be completed if there is no trial on-going
-        if (patrol.PatrolLeader.Location.LayerCharacters(patrol.PatrolLeader.RoomLayer).All(x => !x.EffectsOfType<OnTrial>(y => y.LegalAuthority == patrol.LegalAuthority).Any()))
+        if (patrol.PatrolLeader.Location
+                  .CharactersInImmediateVicinity(patrol.PatrolLeader)
+                  .All(x => !x.EffectsOfType<OnTrial>(y => y.LegalAuthority == patrol.LegalAuthority).Any()))
         {
             if (DateTime.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
             {

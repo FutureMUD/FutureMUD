@@ -2,6 +2,9 @@
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
 
+using MudSharp.Construction;
+using MudSharp.GameItems;
+
 namespace MudSharp.Combat.Moves;
 
 public class TakeCover : CombatMoveBase
@@ -50,7 +53,11 @@ public class TakeCover : CombatMoveBase
         if (cover.MaximumSimultaneousCovers > 0)
         {
             if (
-                assailant.Location.LayerCharacters(assailant.RoomLayer).Except(assailant)
+				assailant.LocalThingsAndProximities()
+				         .Where(x => x.Proximity <= Proximity.Immediate)
+				         .Select(x => x.Thing)
+				         .OfType<ICharacter>()
+				         .Except(assailant)
                          .Count(x => x.Cover?.Cover == cover && x.Cover?.CoverItem == coverItem) >=
                 cover.MaximumSimultaneousCovers)
             {
@@ -82,7 +89,11 @@ public class TakeCover : CombatMoveBase
         if (cover.MaximumSimultaneousCovers > 0)
         {
             if (
-                assailant.Location.LayerCharacters(assailant.RoomLayer).Except(assailant)
+				assailant.LocalThingsAndProximities()
+				         .Where(x => x.Proximity <= Proximity.Immediate)
+				         .Select(x => x.Thing)
+				         .OfType<ICharacter>()
+				         .Except(assailant)
                          .Count(x => x.Cover?.Cover == cover && x.Cover?.CoverItem == coverItem) >=
                 cover.MaximumSimultaneousCovers)
             {
@@ -132,8 +143,12 @@ public class TakeCover : CombatMoveBase
     public static CombatantCover GetCoverFor(ICharacter assailant, bool seekMovableCover)
     {
         List<IRangedCover> locationCovers = assailant.Location.GetCoverFor(assailant).ToList();
-        List<IProvideCover> itemCovers =
-            assailant.Location.LayerGameItems(assailant.RoomLayer).SelectNotNull(x => x.GetItemType<IProvideCover>())
+		List<IProvideCover> itemCovers = assailant.LocalThingsAndProximities()
+			.Select(x => (x.Thing, x.Proximity))
+			.Where(x => x.Proximity <= Proximity.Immediate)
+			.Select(x => x.Thing)
+			.OfType<IGameItem>()
+			.SelectNotNull(x => x.GetItemType<IProvideCover>())
                      .Where(x => x.Cover != null && assailant.CanSee(x.Parent))
                      .ToList();
 
@@ -165,8 +180,8 @@ public class TakeCover : CombatMoveBase
             };
         }
 
-        if (Cover.CoverItem != null &&
-            (Cover.CoverItem.Parent.Location != Assailant.Location || Cover.CoverItem.Parent.Destroyed))
+		if (Cover.CoverItem != null &&
+			(!Assailant.ColocatedWith(Cover.CoverItem.Parent) || Cover.CoverItem.Parent.Destroyed))
         {
             Assailant.Send("Your desired cover is no longer there.");
             return new CombatMoveResult

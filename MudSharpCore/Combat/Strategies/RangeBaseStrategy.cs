@@ -378,7 +378,7 @@ public abstract class RangeBaseStrategy : StrategyBase
 
             ICharacter targetNeedsRescuing =
                 guard?.Targets.FirstOrDefault(guardedCh =>
-                    guardedCh.Location == ch.Location &&
+					guardedCh.ColocatedWith(ch) &&
                     ch.CombatTarget != guardedCh &&
                     ch.Combat.Combatants.Any(
                         combatCh => combatCh != ch &&

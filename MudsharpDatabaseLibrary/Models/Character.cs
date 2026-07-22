@@ -101,6 +101,7 @@ public partial class Character
     public double CurrentProjectProjectHours { get; set; }
     public string NameInfo { get; set; }
     public int RoomLayer { get; set; }
+    public decimal? RoutePosition { get; set; }
     public bool NoMercy { get; set; }
     public string CustomAlertEmote { get; set; }
     public string CustomDistantAlertEmote { get; set; }

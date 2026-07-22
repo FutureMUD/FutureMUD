@@ -3,13 +3,17 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Accounts;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Movement;
 using MudSharp.Vehicles;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -269,6 +273,341 @@ public class VehicleOperationalReadinessServiceTests
 	}
 
 	[TestMethod]
+	public void BuildLongitudinalResourcePlan_PoweredProfileScalesFuelByDistanceAndPowerByTime()
+	{
+		var service = new VehicleOperationalReadinessService();
+		var vehicle = CreateVehicle("route engine", []);
+		var container = CreateLiquidContainer((100, 10.0));
+		var fuelInstallation = CreateInstallation(vehicle.Object,
+			CreateModuleItem(containers: [container.Object]).Object);
+		var producer = new Mock<IProducePower>();
+		producer.SetupGet(x => x.ProducingPower).Returns(true);
+		producer.Setup(x => x.CanDrawdownSpike(40.0)).Returns(true);
+		producer.Setup(x => x.DrawdownSpike(40.0)).Returns(true);
+		var switchedOn = new Mock<IOnOff>();
+		switchedOn.SetupGet(x => x.SwitchedOn).Returns(true);
+		var powerInstallation = CreateInstallation(vehicle.Object,
+			CreateModuleItem(producer: producer.Object, onOff: switchedOn.Object).Object);
+		vehicle.SetupGet(x => x.Installations).Returns([fuelInstallation.Object, powerInstallation.Object]);
+		var profile = CreateMovementProfile(
+			fuelLiquidId: 100,
+			routeFuelVolumePerMetre: 0.5,
+			routePowerDrawWatts: 10.0);
+
+		var plan = service.BuildLongitudinalResourcePlan(
+			vehicle.Object,
+			profile.Object,
+			4.0,
+			TimeSpan.FromSeconds(4.0));
+		service.ConsumeMovementResources(plan);
+
+		Assert.IsTrue(plan.IsSatisfied, plan.Reason);
+		Assert.AreEqual(2.0,
+			plan.Uses.Single(x => x.ResourceType == VehicleResourceUseType.Fuel).FuelVolume,
+			0.000001);
+		Assert.AreEqual(40.0,
+			plan.Uses.Single(x => x.ResourceType == VehicleResourceUseType.Power).PowerSpikeInWatts,
+			0.000001);
+		Assert.AreEqual(8.0, LiquidAmount(container.Object, 100), 0.000001);
+		producer.Verify(x => x.DrawdownSpike(40.0), Times.Once);
+	}
+
+	[TestMethod]
+	public void BuildLongitudinalResourcePlan_ExternallyPulledProfileUsesMotiveStaminaOnly()
+	{
+		var service = new VehicleOperationalReadinessService();
+		var vehicle = CreateVehicle("wagon", []);
+		var profile = CreateMovementProfile(
+			fuelLiquidId: 100,
+			routeFuelVolumePerMetre: 1.0,
+			routePowerDrawWatts: 500.0,
+			routePropulsionMode: RouteVehiclePropulsionMode.ExternallyPulled);
+
+		var plan = service.BuildLongitudinalResourcePlan(
+			vehicle.Object,
+			profile.Object,
+			1_000.0,
+			TimeSpan.FromMinutes(10.0));
+
+		Assert.IsTrue(plan.IsSatisfied, plan.Reason);
+		Assert.AreEqual(0, plan.Uses.Count);
+		Assert.AreEqual(0, plan.FuelCandidates.Count);
+		Assert.AreEqual(0, plan.PowerCandidates.Count);
+	}
+
+	[TestMethod]
+	public void BuildLongitudinalMovementReadiness_ContinuationAllowsOnlyTheSameActiveMovement()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.Setup(x => x.GetStaticDouble(It.IsAny<string>()))
+			.Returns((string name) => name switch
+			{
+				"RouteCellImmediateDistanceMetres" => 3.0,
+				"RouteCellProximateDistanceMetres" => 10.0,
+				"RouteCellDistantDistanceMetres" => 100.0,
+				"RouteCellVeryDistantDistanceMetres" => 500.0,
+				"RouteCellDefaultRoomEquivalentMetres" => 100.0,
+				_ => 0.0
+			});
+		var route = new Mock<IRouteCellDefinition>();
+		route.SetupGet(x => x.LengthMetres).Returns(1_000.0);
+		var cell = new Mock<ICell>();
+		cell.SetupGet(x => x.RouteDefinition).Returns(route.Object);
+
+		var activeMovement = new Mock<IMovement>();
+		var otherMovement = new Mock<IMovement>();
+		var actor = CreateCharacter(100L);
+		actor.Setup(x => x.SamePhysicalInstance(It.IsAny<IPerceivable>()))
+			.Returns((IPerceivable other) => ReferenceEquals(other, actor.Object));
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		actor.SetupGet(x => x.Movement).Returns(activeMovement.Object);
+		actor.SetupGet(x => x.Effects).Returns([]);
+
+		var pullerBody = new Mock<IBody>();
+		pullerBody.SetupGet(x => x.ExternalItems).Returns([]);
+		var puller = CreateCharacter(101L);
+		puller.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		puller.SetupGet(x => x.Location).Returns(cell.Object);
+		puller.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		puller.SetupGet(x => x.RoutePositionMetres).Returns(100.0);
+		puller.SetupGet(x => x.SpatialLocation)
+			.Returns(new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 100.0));
+		puller.SetupGet(x => x.Body).Returns(pullerBody.Object);
+		puller.SetupGet(x => x.MaximumDragWeight).Returns(1_000.0);
+
+		var exterior = new Mock<IGameItem>();
+		exterior.SetupGet(x => x.Id).Returns(200L);
+		exterior.SetupGet(x => x.Location).Returns(cell.Object);
+		exterior.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		exterior.SetupGet(x => x.RoutePositionMetres).Returns(100.0);
+		exterior.SetupGet(x => x.SpatialLocation)
+			.Returns(new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 100.0));
+		exterior.SetupGet(x => x.Deleted).Returns(false);
+		exterior.SetupGet(x => x.Destroyed).Returns(false);
+		exterior.SetupGet(x => x.Weight).Returns(10.0);
+
+		var profile = CreateMovementProfile(routePropulsionMode: RouteVehiclePropulsionMode.ExternallyPulled);
+		profile.SetupGet(x => x.Id).Returns(300L);
+		profile.SetupGet(x => x.Name).Returns("external route movement");
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.Route);
+		profile.SetupGet(x => x.RouteSpeedMetresPerSecond).Returns(4.0);
+		var prototype = new Mock<IVehiclePrototype>();
+		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.ItemScale);
+		prototype.SetupGet(x => x.OccupantSlots).Returns([]);
+		prototype.SetupGet(x => x.MovementProfiles).Returns([profile.Object]);
+
+		var vehicle = CreateVehicle("wagon", []);
+		vehicle.SetupGet(x => x.Id).Returns(400L);
+		vehicle.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
+		vehicle.SetupGet(x => x.ExteriorItem).Returns(exterior.Object);
+		vehicle.SetupGet(x => x.Location).Returns(cell.Object);
+		vehicle.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		vehicle.SetupGet(x => x.RoutePositionMetres).Returns(100.0);
+		vehicle.SetupGet(x => x.Controller).Returns(actor.Object);
+		vehicle.SetupGet(x => x.Occupancies).Returns([]);
+		vehicle.SetupGet(x => x.AccessPoints).Returns([]);
+		vehicle.SetupGet(x => x.Destroyed).Returns(false);
+		vehicle.SetupGet(x => x.Disabled).Returns(false);
+		vehicle.Setup(x => x.IsDisabledByDamage(It.IsAny<VehicleDamageEffectTargetType>(), It.IsAny<long?>()))
+			.Returns(false);
+
+		var motiveLink = new VehicleHitchGraphLink(
+			"motive-root",
+			VehicleHitchGraphLinkKind.PersistentHitch,
+			new VehicleHitchGraphEndpoint(VehicleHitchGraphNodeType.Character, null, puller.Object, null),
+			new VehicleHitchGraphEndpoint(VehicleHitchGraphNodeType.Vehicle, vehicle.Object, null, null),
+			null,
+			null,
+			false,
+			false,
+			string.Empty,
+			null);
+		var movePlan = new VehicleHitchGraphMovePlan(
+			vehicle.Object,
+			[new VehicleHitchGraphTrainMember(vehicle.Object, 0, null)],
+			[motiveLink],
+			[],
+			10.0);
+		var graph = new Mock<IVehicleHitchGraphService>();
+		graph.Setup(x => x.TryBuildVehicleTrain(
+				gameworld.Object,
+				vehicle.Object,
+				out It.Ref<VehicleHitchGraphMovePlan>.IsAny,
+				out It.Ref<string>.IsAny,
+				true))
+			.Returns((IFuturemud? _, IVehicle _, out VehicleHitchGraphMovePlan plan, out string reason,
+				bool _) =>
+			{
+				plan = movePlan;
+				reason = string.Empty;
+				return true;
+			});
+		graph.Setup(x => x.LinksInvolving(gameworld.Object, exterior.Object)).Returns([motiveLink]);
+		graph.Setup(x => x.ValidateLink(motiveLink, out It.Ref<string>.IsAny))
+			.Returns((VehicleHitchGraphLink _, out string reason) =>
+			{
+				reason = string.Empty;
+				return true;
+			});
+		var service = new VehicleOperationalReadinessService(graph.Object,
+			new Mock<IVehiclePropulsionService>().Object);
+
+		var initialAttempt = service.BuildLongitudinalMovementReadiness(
+			new VehicleLongitudinalReadinessRequest(
+				vehicle.Object,
+				actor.Object,
+				profile.Object,
+				120.0,
+				TimeSpan.FromSeconds(30.0)));
+		var continuation = service.BuildLongitudinalMovementReadiness(
+			new VehicleLongitudinalReadinessRequest(
+				vehicle.Object,
+				actor.Object,
+				profile.Object,
+				120.0,
+				TimeSpan.FromSeconds(30.0),
+				ContinuingMovement: activeMovement.Object));
+		var mismatchedContinuation = service.BuildLongitudinalMovementReadiness(
+			new VehicleLongitudinalReadinessRequest(
+				vehicle.Object,
+				actor.Object,
+				profile.Object,
+				120.0,
+				TimeSpan.FromSeconds(30.0),
+				ContinuingMovement: otherMovement.Object));
+
+		Assert.IsFalse(initialAttempt.CanMove);
+		Assert.AreEqual("You cannot begin driving while you are already moving.", initialAttempt.Reason);
+		Assert.IsTrue(continuation.CanMove, continuation.Reason);
+		Assert.IsFalse(mismatchedContinuation.CanMove);
+		Assert.AreEqual("You cannot begin driving while you are already moving.",
+			mismatchedContinuation.Reason);
+	}
+
+	[TestMethod]
+	public void BuildMovementReadiness_ExternalPuller_UsesDragGraphPreservesReasonAndRevalidatesCapacity()
+	{
+		const string expected = "The rear wagon towbar is broken.";
+		var gameworld = new Mock<IFuturemud>();
+		var origin = new Mock<ICell>();
+		var destination = new Mock<ICell>();
+		var actor = CreateCharacter(90L);
+		actor.SetupGet(x => x.Location).Returns(origin.Object);
+		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		actor.SetupGet(x => x.Effects).Returns([]);
+		var puller = CreateCharacter(91L);
+		var pullerBody = new Mock<IBody>();
+		pullerBody.SetupGet(x => x.ExternalItems).Returns([]);
+		puller.SetupGet(x => x.Body).Returns(pullerBody.Object);
+		puller.SetupGet(x => x.MaximumDragWeight).Returns(10.0);
+		var exterior = new Mock<IGameItem>();
+		exterior.SetupGet(x => x.Location).Returns(origin.Object);
+		exterior.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		exterior.SetupGet(x => x.Size).Returns(SizeCategory.Normal);
+		exterior.SetupGet(x => x.Deleted).Returns(false);
+		exterior.SetupGet(x => x.Destroyed).Returns(false);
+		var profile = CreateMovementProfile();
+		profile.SetupGet(x => x.Id).Returns(5L);
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		var prototype = new Mock<IVehiclePrototype>();
+		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.ItemScale);
+		prototype.SetupGet(x => x.OccupantSlots).Returns([]);
+		var vehicle = CreateVehicle("wagon", []);
+		vehicle.SetupGet(x => x.Id).Returns(100L);
+		vehicle.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		vehicle.SetupGet(x => x.Location).Returns(origin.Object);
+		vehicle.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		vehicle.SetupGet(x => x.ExteriorItem).Returns(exterior.Object);
+		vehicle.SetupGet(x => x.Controller).Returns(actor.Object);
+		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
+		vehicle.SetupGet(x => x.Occupancies).Returns([]);
+		vehicle.SetupGet(x => x.AccessPoints).Returns([]);
+		vehicle.SetupGet(x => x.Destroyed).Returns(false);
+		vehicle.SetupGet(x => x.Disabled).Returns(false);
+		vehicle.Setup(x => x.IsDisabledByDamage(It.IsAny<VehicleDamageEffectTargetType>(), It.IsAny<long?>()))
+			.Returns(false);
+		var exitModel = new Mock<IExit>();
+		exitModel.SetupGet(x => x.MaximumSizeToEnter).Returns(SizeCategory.Enormous);
+		var exit = new Mock<ICellExit>();
+		exit.SetupGet(x => x.Origin).Returns(origin.Object);
+		exit.SetupGet(x => x.Destination).Returns(destination.Object);
+		exit.SetupGet(x => x.Exit).Returns(exitModel.Object);
+		var emptyPlan = new VehicleHitchGraphMovePlan(vehicle.Object, [], [], [], 0.0);
+		var graph = new Mock<IVehicleHitchGraphService>();
+		graph.Setup(x => x.CanDragVehicleTrain(
+			gameworld.Object,
+			vehicle.Object,
+			exit.Object,
+			It.Is<IEnumerable<ICharacter>>(characters =>
+				characters.Count() == 1 && ReferenceEquals(characters.Single(), puller.Object)),
+			out It.Ref<VehicleHitchGraphMovePlan>.IsAny,
+			out It.Ref<string>.IsAny))
+			.Returns((IFuturemud? _, IVehicle _, ICellExit _, IEnumerable<ICharacter> _,
+				out VehicleHitchGraphMovePlan plan, out string reason) =>
+			{
+				plan = emptyPlan;
+				reason = expected;
+				return false;
+			});
+		var service = new VehicleOperationalReadinessService(graph.Object,
+			new Mock<IVehiclePropulsionService>().Object);
+
+		var result = service.BuildMovementReadiness(new VehicleMovementReadinessRequest(
+			vehicle.Object,
+			actor.Object,
+			exit.Object,
+			profile.Object,
+			null,
+			[puller.Object]));
+
+		Assert.IsFalse(result.CanMove);
+		Assert.AreEqual(expected, result.Reason);
+		graph.Verify(x => x.CanDragVehicleTrain(
+			gameworld.Object,
+			vehicle.Object,
+			exit.Object,
+			It.IsAny<IEnumerable<ICharacter>>(),
+			out It.Ref<VehicleHitchGraphMovePlan>.IsAny,
+			out It.Ref<string>.IsAny), Times.Once);
+
+		var overloadedPlan = new VehicleHitchGraphMovePlan(vehicle.Object, [], [], [], 100.0);
+		graph.Setup(x => x.CanDragVehicleTrain(
+			gameworld.Object,
+			vehicle.Object,
+			exit.Object,
+			It.IsAny<IEnumerable<ICharacter>>(),
+			out It.Ref<VehicleHitchGraphMovePlan>.IsAny,
+			out It.Ref<string>.IsAny))
+			.Returns((IFuturemud? _, IVehicle _, ICellExit _, IEnumerable<ICharacter> _,
+				out VehicleHitchGraphMovePlan plan, out string reason) =>
+			{
+				plan = overloadedPlan;
+				reason = string.Empty;
+				return true;
+			});
+
+		var capacityResult = service.BuildMovementReadiness(new VehicleMovementReadinessRequest(
+			vehicle.Object,
+			actor.Object,
+			exit.Object,
+			profile.Object,
+			null,
+			[puller.Object]));
+
+		Assert.IsFalse(capacityResult.CanMove);
+		StringAssert.Contains(capacityResult.Reason, "can only pull");
+		StringAssert.Contains(capacityResult.Reason, "vehicle train weighs");
+		graph.Verify(x => x.CanMoveVehicleTrain(
+			It.IsAny<IFuturemud>(),
+			It.IsAny<IVehicle>(),
+			It.IsAny<ICellExit>(),
+			out It.Ref<VehicleHitchGraphMovePlan>.IsAny,
+			out It.Ref<string>.IsAny), Times.Never);
+	}
+
+	[TestMethod]
 	public void EvaluateTowStress_TowPointOverride_UsesOverridePolicy()
 	{
 		var graph = new VehicleHitchGraphService();
@@ -324,12 +663,17 @@ public class VehicleOperationalReadinessServiceTests
 	}
 
 	private static Mock<IVehicleMovementProfilePrototype> CreateMovementProfile(double requiredPowerSpikeInWatts = 0.0,
-		long? fuelLiquidId = null, double fuelVolumePerMove = 0.0)
+		long? fuelLiquidId = null, double fuelVolumePerMove = 0.0,
+		double routeFuelVolumePerMetre = 0.0, double routePowerDrawWatts = 0.0,
+		RouteVehiclePropulsionMode routePropulsionMode = RouteVehiclePropulsionMode.Powered)
 	{
 		var profile = new Mock<IVehicleMovementProfilePrototype>();
 		profile.SetupGet(x => x.RequiredPowerSpikeInWatts).Returns(requiredPowerSpikeInWatts);
 		profile.SetupGet(x => x.FuelLiquidId).Returns(fuelLiquidId);
 		profile.SetupGet(x => x.FuelVolumePerMove).Returns(fuelVolumePerMove);
+		profile.SetupGet(x => x.RouteFuelVolumePerMetre).Returns(routeFuelVolumePerMetre);
+		profile.SetupGet(x => x.RoutePowerDrawWatts).Returns(routePowerDrawWatts);
+		profile.SetupGet(x => x.RoutePropulsionMode).Returns(routePropulsionMode);
 		return profile;
 	}
 

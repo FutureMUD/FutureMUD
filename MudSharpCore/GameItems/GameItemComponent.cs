@@ -7,6 +7,7 @@ using MudSharp.Database;
 using MudSharp.Events;
 using MudSharp.Events.Hooks;
 using MudSharp.Form.Material;
+using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
@@ -16,6 +17,7 @@ namespace MudSharp.GameItems;
 public abstract class GameItemComponent : LateInitialisingItem, IGameItemComponent
 {
     private MudSharp.Models.GameItem _parentDBItem;
+	private SpatialLocation? _activeDieOrMorphSource;
 
     protected GameItemComponent(GameItemComponent rhs, IGameItem newParent, bool temporary = false)
     {
@@ -133,6 +135,20 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
         return false;
     }
 
+	public bool HandleDieOrMorph(IGameItem newItem, ICell location, SpatialLocation? capturedSource)
+	{
+		var previousSource = _activeDieOrMorphSource;
+		_activeDieOrMorphSource = capturedSource;
+		try
+		{
+			return HandleDieOrMorph(newItem, location);
+		}
+		finally
+		{
+			_activeDieOrMorphSource = previousSource;
+		}
+	}
+
     public virtual bool SwapInPlace(IGameItem existingItem, IGameItem newItem)
     {
         return false;
@@ -246,6 +262,40 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
 
     public IGameItem Parent { get; protected set; }
 
+	/// <summary>
+	/// Places an item released by this component at the parent's exact spatial position when the
+	/// supplied legacy cell is still the parent's current cell. Explicit destinations continue to
+	/// use the supplied cell's normal insertion semantics.
+	/// </summary>
+	protected void InsertAtParentSpatialLocation(IGameItem item, ICell fallbackLocation, bool newStack = false,
+		ILocateable preferredSource = null)
+	{
+		if (fallbackLocation is null)
+		{
+			return;
+		}
+
+		if (_activeDieOrMorphSource is { } capturedSource &&
+			ReferenceEquals(capturedSource.Cell, fallbackLocation) &&
+			fallbackLocation.RouteDefinition is not null)
+		{
+			item.InsertAtSpatialLocation(new SpatialLocation(
+				capturedSource.Cell,
+				item.RoomLayer,
+				capturedSource.RoutePositionMetres), newStack);
+			return;
+		}
+
+		var source = preferredSource ?? Parent.LocationLevelPerceivable ?? Parent;
+		if (source.Location is null || !ReferenceEquals(source.Location, fallbackLocation))
+		{
+			fallbackLocation.Insert(item, newStack);
+			return;
+		}
+
+		item.InsertAtSource(source, newStack);
+	}
+
     public virtual bool DesignedForOffhandUse => false;
 
     public abstract IGameItemComponentProto Prototype { get; }
@@ -299,7 +349,7 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
         IPerceivable containingPerceivable)
     {
         Parent.HandleEvent(itemEvent, Parent, actor, key, containingPerceivable);
-        foreach (IHandleEvents witness in Parent.TrueLocations.SelectMany(x => x.EventHandlers))
+        foreach (IHandleEvents witness in Parent.TrueLocations.SelectMany(x => x.EventHandlersFor(Parent.LocationLevelPerceivable)))
         {
             witness.HandleEvent(witnessEvent, Parent, actor, key, containingPerceivable, witness);
         }

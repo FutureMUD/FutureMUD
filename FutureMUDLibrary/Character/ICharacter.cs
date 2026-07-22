@@ -415,6 +415,12 @@ namespace MudSharp.Character
 
         void TransferTo(ICell target, RoomLayer layer);
 
+		void TransferTo(SpatialLocation target)
+		{
+			TransferTo(target.Cell, target.Layer);
+			SetRoutePosition(target.RoutePositionMetres);
+		}
+
         /// <summary>
         /// This function should be the preferred way of teleporting a character from one cell to another, handling all the consequences
         /// </summary>
@@ -439,6 +445,33 @@ namespace MudSharp.Character
             string followerEchoLeave = "@ leaves the area.",
             string followerEchoArrive = "@ enters the area.",
             string followerEchoSelf = "");
+
+		void Teleport(
+			ICell target,
+			RoomLayer layer,
+			bool includeFollowers,
+			bool echo,
+			double? routePositionMetres,
+			string playerEchoLeave = "@ leaves the area.",
+			string playerEchoArrive = "@ enters the area.",
+			string playerEchoSelf = "",
+			string followerEchoLeave = "@ leaves the area.",
+			string followerEchoArrive = "@ enters the area.",
+			string followerEchoSelf = "")
+		{
+			Teleport(
+				target,
+				layer,
+				includeFollowers,
+				echo,
+				playerEchoLeave,
+				playerEchoArrive,
+				playerEchoSelf,
+				followerEchoLeave,
+				followerEchoArrive,
+				followerEchoSelf);
+			SetRoutePosition(routePositionMetres);
+		}
 
         void EditorMode(Action<string, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, double characterLengthMultiplier = 1.0, string? recallText = null, EditorOptions options = EditorOptions.None, object[]? suppliedArguments = null);
         void EditorModeMulti(Action<IEnumerable<string>, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, IEnumerable<string> editorTexts, double characterLengthMultiplier = 1.0, string? recallText = null, EditorOptions options = EditorOptions.None, object[]? suppliedArguments = null);

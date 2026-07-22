@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Body;
+using MudSharp.Construction;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
@@ -39,8 +40,7 @@ public sealed class AquaticVehicleAttackMove : CombatMoveBase
 			return CombatMoveResult.Irrelevant;
 		}
 
-		var unsupportedSwimmer = Assailant.Location == vehicle.Location &&
-		                         Assailant.RoomLayer == vehicle.RoomLayer &&
+		var unsupportedSwimmer = Assailant.ColocatedWith(vehicle.ExteriorItem) &&
 		                         Assailant.Location?.IsSwimmingLayer(Assailant.RoomLayer) == true &&
 		                         !Assailant.IsSupportedBySurfaceWaterVehicle(out _);
 		if (!unsupportedSwimmer)

@@ -1,0 +1,45 @@
+name: Temporary export of clothing design sources
+
+on:
+  push:
+    branches:
+      - tmp/chatgpt-headwear-footwear-source-export
+    paths:
+      - .github/workflows/tmp-export-clothing-design-sources.yml
+      - .tmp/headwear-footwear-export-trigger
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: master
+          persist-credentials: false
+          show-progress: false
+      - name: Assemble exact source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p export
+          cp 'Design Documents/Seeding/Medieval_Clothing_Seeder_Design_Reference.md' export/
+          cp 'Design Documents/Seeding/FutureMUD_Renaissance_Clothing_Accessories_Design_Reference.md' export/
+          cp 'Design Documents/Seeding/FutureMUD_Renaissance_Clothing_Catalogue_Western_Mediterranean.md' export/
+          cp 'Design Documents/Seeding/FutureMUD_Renaissance_Clothing_Catalogue_Asia_Steppe.md' export/
+          cp 'Design Documents/Seeding/FutureMUD_Renaissance_Clothing_Catalogue_Africa_Americas_Maritime.md' export/
+          cp 'Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md' export/
+          cp 'Design Documents/Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Ledger.md' export/
+          cp 'Design Documents/Data/Seeded_Item_Components.json' export/
+          cp 'Design Documents/Data/Seeded_Materials.json' export/
+          cp 'Design Documents/Data/SeededTagHierarchy.csv' export/
+          sha256sum export/* > export/SHA256SUMS.txt
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: clothing-design-sources
+          path: export
+          if-no-files-found: error
+          retention-days: 1

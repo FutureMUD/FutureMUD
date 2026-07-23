@@ -5,9 +5,9 @@
 ## Status
 
 - New component types required: **0**.
-- New seeded component prototypes required: **2**.
+- New seeded component prototypes required: **0 outstanding**; the two required prototypes are implemented.
 - New solid materials required: **0**.
-- This document assumes the two component prototypes below will be created by a later agent before item rows are seeded. The fourth and fifth passes introduce no additional dependency.
+- `HumanSeeder` now creates the `Stays` and `Breeches` wear profiles and their generated `Wear_Stays` and `Wear_Breeches` component prototypes idempotently. Both rows are present in `Seeded_Item_Components.json`. The fourth and fifth passes introduce no additional dependency.
 
 ## Required seeded component prototypes
 
@@ -87,4 +87,4 @@ The main design reference treats `Wear_Stays` and `Wear_Breeches` as available. 
 - The pass reuses exact live materials including leather, rawhide, linen, cotton, wool, felt, broadcloth, silk, velvet, lace, canvas, straw, bamboo, wood, fur, horsehair, camelid wool, and raffia cloth.
 - Every row uses exact maintained Early Modern era, headwear/footwear function, and clothing-market tags.
 - No row requests waterproofing, disguise, rank, office, mount-control, weapon, armour-harness, or legal-status behaviour.
-- The fifth pass does not alter `Wear_Stays` or `Wear_Breeches` and therefore leaves the two-item unresolved dependency list unchanged.
+- The fifth pass does not alter `Wear_Stays` or `Wear_Breeches`; both dependencies are now resolved by the HumanSeeder wear-profile expansion.

@@ -5640,6 +5640,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Breeches",
+        "Component Description":  "Permits the item to be worn in the Breeches wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Bridle",
         "Component Description":  "Permits the item to be worn in the Bridle wear configuration",
         "Component Type":  "Wearable"
@@ -6202,6 +6207,11 @@
     {
         "Component Name":  "Wear_Spaulders",
         "Component Description":  "Permits the item to be worn in the Spaulders wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Stays",
+        "Component Description":  "Permits the item to be worn in the Stays wear configuration",
         "Component Type":  "Wearable"
     },
     {

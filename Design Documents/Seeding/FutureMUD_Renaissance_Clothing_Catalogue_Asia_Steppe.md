@@ -256,6 +256,8 @@ These rows are additional construction-level options. They do not alter the exis
 
 ## Outfit minimums by Shared grouping
 
+The authority's inferred manifest table implements these minimums as sixteen stock ordinary/status outfits. The concrete item lists, admission text, and inner-to-outer wear order live in that table.
+
 | Grouping | Ordinary outfit | High-status/institutional outfit |
 | --- | --- | --- |
 | Persianate / Indo-Persian | inner shirt, trousers, fitted coat or jama, headwrap/cap, slippers or boots | layered silk robe, structured turban/cap, court footwear, optional shawl |

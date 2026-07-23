@@ -71,6 +71,8 @@ public class HumanSeederWearProfileTests
 			"Poncho",
 			"Leggings",
 			"Tights",
+			"Stays",
+			"Breeches",
 			"Loincloth",
 			"Fingerless Gloves",
 			"Mittens",
@@ -135,6 +137,25 @@ public class HumanSeederWearProfileTests
 			Assert.IsTrue(generatedComponentNames.Contains(componentName),
 				$"{componentName} should be generated from an additional human wear profile.");
 		}
+	}
+
+	[TestMethod]
+	public void AdditionalHumanWearProfiles_IncludeEarlyModernClothingDependencies()
+	{
+		string[] expectedNames = ["Stays", "Breeches"];
+		CollectionAssert.IsSubsetOf(
+			expectedNames,
+			HumanSeeder.AdditionalHumanWearProfileNamesForTesting.ToArray());
+
+		var stays = HumanSeeder.AdditionalHumanWearProfileDefinitionsForTesting.Single(x => x.Name == "Stays");
+		CollectionAssert.IsSubsetOf(
+			new[] { "uback", "lback", "belly", "abdomen", "rbreast", "lbreast" },
+			stays.Locations.Select(x => x.Location).ToArray());
+		var breeches = HumanSeeder.AdditionalHumanWearProfileDefinitionsForTesting.Single(x => x.Name == "Breeches");
+		CollectionAssert.IsSubsetOf(
+			new[] { "groin", "rhip", "lhip", "rthigh", "lthigh", "rknee", "lknee" },
+			breeches.Locations.Select(x => x.Location).ToArray());
+		Assert.IsFalse(breeches.Locations.Any(x => x.Location is "rshin" or "lshin" or "rfoot" or "lfoot"));
 	}
 
 	[TestMethod]

@@ -6,6 +6,8 @@ The goal is not to replace the existing antiquity catalogue. It is a forward-loo
 
 Cross-era foundation note: genuinely shared workshop foundations use `historic_*` stable references in `ItemSeeder.HistoricFoundation.cs` and are seeded for either antiquity or medieval installs. Antiquity culture-specific clothing, weapons, jewellery, foodways, and document forms remain under their existing `antiquity_*` references.
 
+Current review status: the implemented data-only, seal/sealable, weight/fluid measurement, incense, and V1 item-offering work below was verified rather than reimplemented. The remaining 29 item references are consolidated under `Instrument` (9), `GameSet` (7), `AnimalTack`/`Harness` (8), dimension-aware `MeasuringInstrument` (1), and extended `OfferingReceiver` (4) in the [item content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
+
 ## Existing Coverage Baseline
 
 The current antiquity item suite already has broad coverage for:
@@ -316,6 +318,8 @@ Items enabled or improved:
 ## Missing Engine Functionality That Could Become New Component Types
 
 These gaps are not merely missing stock data. They describe gameplay that does not appear to be represented by a suitable current item component type, or where existing components would only produce a static prop.
+
+The consolidated ledger is authoritative for implementation ordering and exact dependent names. In particular, general `Instrument` is the shared audible-performance foundation for the military `SignalInstrument` specialization.
 
 ### Instrument Component
 

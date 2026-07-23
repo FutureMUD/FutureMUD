@@ -126,6 +126,43 @@ public class CoreDataSeederMaterialTests
         Assert.AreEqual("high-density polyethylene", materials.GetByName("hdpe")?.Name);
     }
 
+	[TestMethod]
+	public void SeedMaterials_AddsEraDependencyMaterialsWithoutDuplicates()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedMaterials(context);
+
+		Dictionary<string, MaterialBehaviourType> expectations = new(StringComparer.InvariantCultureIgnoreCase)
+		{
+			["gourd shell"] = MaterialBehaviourType.Shell,
+			["papier-mache"] = MaterialBehaviourType.Fabric,
+			["birch bark"] = MaterialBehaviourType.Fabric,
+			["hemp cloth"] = MaterialBehaviourType.Fabric,
+			["brocade"] = MaterialBehaviourType.Fabric,
+			["damask"] = MaterialBehaviourType.Fabric,
+			["silk gauze"] = MaterialBehaviourType.Fabric,
+			["featherwork"] = MaterialBehaviourType.Feather,
+			["beadwork"] = MaterialBehaviourType.Fabric
+		};
+
+		foreach ((string name, MaterialBehaviourType behaviour) in expectations)
+		{
+			MudSharp.Models.Material material = context.Materials
+				.Include(x => x.MaterialsTags)
+				.ThenInclude(x => x.Tag)
+				.Single(x => x.Name == name);
+			Assert.AreEqual((int)behaviour, material.BehaviourType, name);
+			Assert.AreEqual(1, context.Materials.Count(x => x.Name == name), name);
+			Assert.IsTrue(material.MaterialsTags.Any(), $"{name} should reuse the established tag hierarchy.");
+		}
+
+		Assert.AreEqual(1,
+			context.MaterialAliases.Count(x =>
+				x.Material.Name == "mother-of-pearl" && x.Alias == "mother of pearl"));
+		Assert.AreEqual(0, context.Materials.Count(x => x.Name == "mother of pearl"),
+			"The spaced form should remain an alias, not a duplicate material.");
+	}
+
     [TestMethod]
     public void SeedMaterials_CorrectsKnownIssuesAndExpandsCatalogue()
     {

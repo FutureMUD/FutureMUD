@@ -7,7 +7,8 @@
 - New component types required: **0**.
 - New seeded component prototypes required: **0 outstanding**; the two required prototypes are implemented.
 - New solid materials required: **0**.
-- `HumanSeeder` now creates the `Stays` and `Breeches` wear profiles and their generated `Wear_Stays` and `Wear_Breeches` component prototypes idempotently. Both rows are present in `Seeded_Item_Components.json`. The fourth and fifth passes introduce no additional dependency.
+- Implementation status: **complete**. `Wear_Stays` and `Wear_Breeches` are seeded through `HumanSeeder`, exported in `Seeded_Item_Components.json`, and covered by exact bodypart/layering tests. The fourth and fifth passes introduce no additional dependency.
+- Unrelated engine-dependent item requests are tracked in the [consolidated engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
 
 ## Required seeded component prototypes
 

@@ -309,6 +309,52 @@ public class CombatSeederSourceTests
 	}
 
 	[TestMethod]
+	public void EraDependencyCombatContent_ExposesExactSupportedComponentSetAndAssociations()
+	{
+		string[] expectedNames =
+		[
+			"Armour_Brigandine", "Armour_BuffLeather", "Armour_ChainAndPlate", "Armour_Padded",
+			"Armour_PlateLight", "Armour_PlateMedium", "Armour_ProofedPlate", "Armour_Rattan",
+			"Armour_RigidMetal", "Armour_CoatOfPlates", "Armour_Splinted",
+			"Melee_Bayonet", "Melee_HookedPolearm", "Melee_Lance", "Melee_Poleblade", "Melee_Sabre",
+			"Melee_Smallsword", "Melee_Training_Bayonet", "Melee_Training_Lance",
+			"Melee_Training_Poleblade", "Melee_Training_Sabre", "Melee_Training_Smallsword",
+			"CompositeBow_Heavy", "CompositeBow_Light", "CompositeBow_War", "Yumi",
+			"Crossbow_EastAsian", "Crossbow_Heavy", "Crossbow_Light", "Crossbow_Pellet",
+			"Blowgun_Long", "Blowgun_Short", "Throwing_Club", "Throwing_Disc"
+		];
+
+		CollectionAssert.AreEquivalent(expectedNames,
+			CombatSeeder.EraDependencyCombatComponentNamesForTesting.ToArray());
+		Assert.AreEqual(34, expectedNames.Length);
+
+		string source = SeederSourceTestHelper.ReadPartialFamily("CombatSeeder");
+		StringAssert.Contains(source,
+			"EnsureWeapon(\"Lance\", \"Melee_Lance\", \"Long Spear\"");
+		StringAssert.Contains(source,
+			"EnsureWeapon(\"Hooked Polearm\", \"Melee_HookedPolearm\", \"Halberd\"");
+		StringAssert.Contains(source,
+			"EnsureRanged(\"Pellet Crossbow\", \"Crossbow_Pellet\", \"Crossbow\", \"Crossbow\"");
+		StringAssert.Contains(source, "SpecificAmmunitionGrade = \"Sling Bullet\"");
+		StringAssert.Contains(source, "RangedWeaponType.Crossbow");
+		StringAssert.Contains(source, "installweapons choice enabled first");
+		StringAssert.Contains(source, "installranged choice enabled first");
+
+		foreach (string deferred in new[]
+		         {
+			         "Crossbow_Cranequin", "Crossbow_GoatsFoot", "Crossbow_Lever", "Crossbow_Repeating",
+			         "Crossbow_Repeating_Light", "Crossbow_SpanningHook", "Crossbow_Wall", "Crossbow_Windlass",
+			         "Musket_Doglock_Blunderbuss75", "Container_CartridgeBandolier", "Holster_PairedSaddle",
+			         "Artillery_CoehornMortar", "Bayonet_Plug", "WeaponLanyard_Pistol",
+			         "MilitaryStandard_CavalryStandard", "SignalInstrument_FieldDrum"
+		         })
+		{
+			Assert.IsFalse(expectedNames.Contains(deferred, StringComparer.OrdinalIgnoreCase),
+				$"{deferred} requires behaviour that this data-only pass must not seed.");
+		}
+	}
+
+	[TestMethod]
 	public void CombatSeederSource_StockManualCombatCommands_LinkBashAndKick()
 	{
 		string helper = File.ReadAllText(GetSeederSourcePath("ManualCombatCommandSeederHelper.cs"));

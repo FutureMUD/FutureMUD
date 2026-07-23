@@ -1,16 +1,20 @@
 # FutureMUD Early Modern Military, Firearms, Armour, Ammunition, Accessories, and Naval Dependency Ledger
 
-> Running dependency ledger for `FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md`. The catalogue assumes every dependency below will be created or extended by a later implementation agent before item rows are seeded.
+> Source request ledger for `FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md`. The implementation status below supersedes the original all-or-nothing assumption; engine-dependent entries are consolidated in `FutureMUD_Item_Content_Engine_Dependency_Ledger.md`.
 
 ## Status
 
-- New component types required: **7**.
-- New seeded component prototypes required: **156**.
-- Prototype additions using existing component types: **98**.
-- Prototypes using the seven new component types: **58**.
+- Original component requests: **156**.
+- Supported and now seeded: **40**.
+- Deferred for engine work: **116**.
+- New component types still required: **7**.
+- Original requests using existing component types: **98**, partitioned into 40 supported additions and 58 existing-family behaviour deferrals.
+- Prototypes depending on the seven new component types: **58**.
 - New solid materials required: **0**.
 - New tags required: **0**.
-- Existing runtime families requiring extension or additional configuration: `Musket`, muzzleloading firing state, musket ammunition payloads, and compatible ranged-weapon data.
+- Supported additions: 8 armour, 11 melee, 4 bow, 4 crossbow, 2 blowgun, 2 thrown, 6 wearable, and 3 hand-tool profiles.
+- Existing runtime families still requiring extension: `CashRegister` is outside this military ledger; within it, crossbow spanning/magazine/emplacement behaviour, `Musket` ignition state, musket ammunition payloads, constrained carriers, couched charges, and hook/pull/trip attacks remain deferred.
+- Decision-ready engine backlog: [FutureMUD Item Content Engine Dependency Ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
 
 ## Assumption contract
 
@@ -86,9 +90,11 @@ Paper cartridges must represent a measured powder charge, compatible projectile 
 
 ### Existing bow, crossbow, blowgun, thrown, melee, armour, wearable, container, sheath, and hand-tool types
 
-These types need new seeded prototypes and associated weapon/armour/wear data, but no new component type. Crossbow profiles must expose spanning method, magazine/repeating behaviour, pellet ammunition where applicable, and emplacement requirements for wall crossbows. Wearable profiles must be checked against bodypart coverage and layering. Armour profiles must be balanced against existing damage types rather than copied from modern ballistic armour.
+These types can receive new seeded prototypes and associated weapon/armour/wear data without a new component type only where the current runtime expresses the advertised behaviour. The four supportable crossbows now cover East Asian, heavy, light, and pellet variants; spanning-tool, repeating-magazine, and wall-emplacement variants remain deferred. The six wearable profiles are seeded with checked bodypart coverage and layering. Armour profiles are balanced from existing pre-modern donor definitions rather than modern ballistic armour.
 
-## Seeded component prototype additions using existing component types — 98
+## Original requests using existing component types — 98
+
+Implementation partition: armour, melee, bow, four supportable crossbows, blowguns, thrown weapons, wearables, and hand tools are seeded (40 total). The other eight crossbows, all muskets and cartridges, and the constrained bandolier/holster remain deferred (58 total).
 
 ### 1. `Armour` prototypes — 8
 
@@ -272,7 +278,7 @@ Adds craft-speed profiles for firearm, cartridge, and artillery work rather than
 | `Tool_CartridgeMaking_General` | 2 | General paper-cartridge and measured-charge production hand tool. |
 | `Tool_Gunsmithing_General` | 9 | General firearm lock, barrel, and maintenance hand tool. |
 
-## Seeded component prototypes using new component types — 58
+## Deferred prototypes using new component types — 58
 
 ### 1. `MuzzleloadingArtillery` prototypes — 20
 
@@ -407,8 +413,9 @@ All component names not listed in this ledger already exist in the maintained se
 
 ## Acceptance criteria
 
-- Exactly 156 new component prototype names exist and match this ledger.
-- The seven new component types are implemented before their prototypes are seeded.
+- Exactly 40 supported component prototype names are seeded and exactly 116 military requests remain deferred.
+- None of the 116 deferred military names appears in the maintained component catalogue.
+- The seven new component types must be implemented before their 58 dependent prototypes are seeded.
 - No new solid material or tag is created by this branch.
 - Existing prototype names are reused exactly; no near-duplicate underscore/space variant is introduced.
 - Firearm components are ignition-specific and data-generated; bore-only copies do not contain hard-coded database IDs.

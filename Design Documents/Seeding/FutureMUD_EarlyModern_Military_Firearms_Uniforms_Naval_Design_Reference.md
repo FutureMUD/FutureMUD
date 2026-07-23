@@ -51,7 +51,8 @@ The presence of an item in the catalogue means that builders may admit it where 
 - [Renaissance military reference](./FutureMUD_Renaissance_Military_Firearms_Armour_Design_Reference.md): Renaissance-side survivals and predecessor systems. Reuse from this future catalogue must be explicit rather than invoking the whole Renaissance branch.
 - [Medieval military reference](./Medieval_Military_Seeder_Design_Reference.md): source of the 138 direct admissions and the 52 source rows promoted through shared military-support aliases.
 - [Shared pre-industrial baseline reference](./PreIndustrial_Item_Seeder_Design_Reference.md) and [alias catalogue](./PreIndustrial_Item_Seeder_Alias_Catalogue.md): live `preindustrial_*` dependencies.
-- [Military dependency ledger](./FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Dependency_Ledger.md): every new component type and component prototype assumed by this catalogue.
+- [Military source dependency ledger](./FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Dependency_Ledger.md): the original 156 military requests and their 40-supported/116-deferred partition.
+- [Consolidated item-content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md): the authoritative backlog for the 116 military deferrals, the household cash-register deferral, and dependent Antiquity item references.
 
 ## Reuse architecture
 

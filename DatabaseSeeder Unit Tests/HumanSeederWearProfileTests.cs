@@ -71,6 +71,8 @@ public class HumanSeederWearProfileTests
 			"Poncho",
 			"Leggings",
 			"Tights",
+			"Stays",
+			"Breeches",
 			"Loincloth",
 			"Fingerless Gloves",
 			"Mittens",

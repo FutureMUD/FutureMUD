@@ -157,6 +157,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Early Modern Master Era Design Reference](./Seeding/FutureMUD_EarlyModern_Master_Era_Design_Reference.md)
 - [Early Modern Shared Baseline Admission Manifest](./Seeding/FutureMUD_EarlyModern_Shared_Baseline_Admission_Manifest.md)
 - [Early Modern Clothing and Accessories](./Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md)
+- [Early Modern Clothing and Accessories Dependency Ledger](./Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Ledger.md)
 - [Early Modern Military, Firearms, Uniforms, and Naval](./Seeding/FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md)
 - [Early Modern Writing, Print, Administration, and Finance](./Seeding/FutureMUD_EarlyModern_Writing_Print_Administration_Finance_Design_Reference.md)
 - [Early Modern Household, Coffeehouse, Tavern, and Trade](./Seeding/FutureMUD_EarlyModern_Household_Coffeehouse_Tavern_Trade_Design_Reference.md)

@@ -989,5 +989,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
 		{
 
 		}
+
+		SeedDocumentedClothingOutfitManifests(eras);
 	}
 }

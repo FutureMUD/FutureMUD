@@ -173,6 +173,8 @@ Commodity piles can also be governed by builder-owned `commodityspoilage` rules.
 ### Outfit template workflow
 Outfit templates are admin-only global editable data for creating full equipment sets from item prototypes. They are not revisable: changing a template only affects future loads, not any character outfits it has already created.
 
+The ItemSeeder also installs documented stock clothing manifests for selected eras after their item phases finish. Stock templates use deterministic names, stable prototype references as template-local keys, document order as wear order, and default-profile `Worn` placement. A stock ownership marker is kept in the description so reruns can reconcile seeder-owned templates without silently overwriting an unrelated builder-authored template with the same name; an unmarked name collision stops the seed operation for builder review.
+
 Use:
 - `outfittemplate list [<filters>]`
 - `outfittemplate show <id|name>`

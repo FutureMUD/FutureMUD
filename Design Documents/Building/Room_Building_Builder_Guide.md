@@ -279,13 +279,16 @@ Terrain models control room layers. Common model names include:
 - `indoors`: ground only.
 - `cave`: ground plus limited air.
 - `cliff`: air levels only.
-- `rooftops`: ground and rooftops.
+- `rooftops`: ground, rooftops, and air layers.
+- `rooftopsonly`: rooftops and air layers, with the roof as the lowest supported surface.
 - `trees`: ground, trees, and air.
 - `talltrees`: ground, multiple tree layers, and air.
 - `cavetrees`: cave-like tree layers.
 - `shallowwater`, `deepwater`, `verydeepwater`: water plus surface/air layers.
 - `underwater`, `deepunderwater`, `verydeepunderwater`: submerged layers only.
 - `shallowwatertrees`, `shallowwatercave`, `deepwatercave`, `verydeepwatercave`: water variants with tree or cave layers.
+
+See the [Room Layer System Primer](../World/Room_Layer_System_Primer.md) for the complete model table, exit intersection rules, movement and perception interactions, and worked rooftop, underwater, climbing, and flying patterns.
 
 Cell-level environment commands:
 
@@ -433,6 +436,7 @@ cell exit unblock <exit> <layer>
 ```
 
 Common layers include `GroundLevel`, `Underwater`, `DeepUnderwater`, `VeryDeepUnderwater`, `InTrees`, `HighInTrees`, `InAir`, `HighInAir`, and `OnRooftops`. Terrain controls which layers are available in a room.
+For the exact horizontal-intersection and up/down endpoint rules, see the [Room Layer System Primer](../World/Room_Layer_System_Primer.md).
 
 Hidden exits:
 

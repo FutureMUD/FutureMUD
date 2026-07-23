@@ -272,6 +272,17 @@ public partial class UsefulSeeder
         context.SaveChanges();
     }
 
+	internal void SeedEraDependencyComponentsForTesting(FuturemudDatabaseContext context)
+	{
+		_context = context;
+		PrepareItemProtoCache(context);
+		DateTime now = DateTime.UtcNow;
+		Account dbaccount = context.Accounts.First();
+		long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+		SeedEraDependencyComponents(context, now, dbaccount, ref nextId);
+		context.SaveChanges();
+	}
+
     private void SeedItemsPart1(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
             ICollection<string> errors)
     {
@@ -335,6 +346,7 @@ public partial class UsefulSeeder
         SeedWaterSources(context, now, dbaccount, ref nextId);
         SeedRepairKits(context, now, dbaccount, ref nextId);
         SeedMedievalIndustryToolComponents(context, now, dbaccount, ref nextId);
+		SeedEraDependencyComponents(context, now, dbaccount, ref nextId);
         SeedAdditionalBuilderExamples(context, now, dbaccount, ref nextId);
         SeedSealAndMeasurementComponents(context, now, dbaccount, ref nextId);
         SeedOfferingAndIncenseComponents(context, now, dbaccount, ref nextId);

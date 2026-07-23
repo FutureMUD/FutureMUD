@@ -4,18 +4,20 @@
 
 This addendum records the new reusable item-component prototypes assumed by the 600-row Renaissance household expansion. The original household catalogue's fourteen requested component prototypes and four requested materials remain authoritative in `FutureMUD_Renaissance_PrimaryIndustry_UsefulSeeder_Impact_Reference.md`.
 
-No new runtime item-component type is required. Every row below is a new prototype of the existing `Container` component type, configured with a capacity, transparency, closure, and built-in-lock profile appropriate to pre-industrial furniture.
+Implementation status: all six profiles in this addendum and the thirteen supportable profiles from the original request are now seeded and exported. `CashRegister_PreIndustrial_TillChest` remains deliberately unseeded because the current `CashRegister` family cannot supply the requested built-in lock; see the [consolidated engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
+
+No new runtime item-component type is required. The display plinth uses the existing `Container` type. The five lockable furniture profiles use the existing `LockingContainer` type, which supplies their container, openable, lockable, and lock interfaces without component stacking.
 
 ## New component prototypes
 
 | Exact component name | Existing type | Required configuration | Catalogue use | Safe fallback before seeding |
 | --- | --- | --- | --- | --- |
 | `Container_PreIndustrial_Display_Plinth` | `Container` | Open surface; non-transparent; non-locking; normal-to-large supported-item capacity; no lid; intended for fixed or portable stands | Plinths, pedestals, urn stands, lamp stands, offering stands, and folding display supports | `Container_Side_Table` or `Container_Small_Table`, accepting table-oriented capacity and naming |
-| `LockingContainer_PreIndustrial_SmallCabinet` | `Container` | Small/normal opaque cabinet; openable; built-in lock; non-transparent | Lockable nightstands, wall cabinets, compact cupboards, and small garment cabinets | `LockingContainer_Lockbox`, accepting incorrect horizontal form and reduced furniture capacity |
-| `LockingContainer_PreIndustrial_LargeCabinet` | `Container` | Large/very-large opaque upright cabinet; openable; built-in lock; non-transparent | Lockable wardrobes, armoires, cupboards, armoury cabinets, and large institutional cabinets | `LockingContainer_Footlocker`, accepting incorrect chest orientation |
-| `LockingContainer_PreIndustrial_DrawerChest` | `Container` | Large opaque drawer-chest capacity; openable; built-in lock securing the unit; drawers represented as one logical inventory | Lockable chests of drawers, coin drawers, archive drawers, and specialist sorting cabinets | `LockingContainer_Footlocker`, losing drawer form |
-| `LockingContainer_PreIndustrial_DisplayCabinet` | `Container` | Large transparent cabinet; openable; built-in lock; transparent contents | Secured glass-front cabinets, specimen cases, plate cabinets, and court or guild display furniture | `Container_Display_Case`, losing built-in locking |
-| `LockingContainer_PreIndustrial_Desk` | `Container` | Normal/large opaque desk storage; openable; built-in lock; intended to coexist with a `Table_*` component | Lockable writing desks, counting desks, secretaries, and escritoires | `Container_Desk_Drawers` or `Container_Writing_Desk_Drawers`, losing built-in locking |
+| `LockingContainer_PreIndustrial_SmallCabinet` | `LockingContainer` | Small/normal opaque cabinet; openable; built-in lock; non-transparent | Lockable nightstands, wall cabinets, compact cupboards, and small garment cabinets | `LockingContainer_Lockbox`, accepting incorrect horizontal form and reduced furniture capacity |
+| `LockingContainer_PreIndustrial_LargeCabinet` | `LockingContainer` | Large/very-large opaque upright cabinet; openable; built-in lock; non-transparent | Lockable wardrobes, armoires, cupboards, armoury cabinets, and large institutional cabinets | `LockingContainer_Footlocker`, accepting incorrect chest orientation |
+| `LockingContainer_PreIndustrial_DrawerChest` | `LockingContainer` | Large opaque drawer-chest capacity; openable; built-in lock securing the unit; drawers represented as one logical inventory | Lockable chests of drawers, coin drawers, archive drawers, and specialist sorting cabinets | `LockingContainer_Footlocker`, losing drawer form |
+| `LockingContainer_PreIndustrial_DisplayCabinet` | `LockingContainer` | Large transparent cabinet; openable; built-in lock; transparent contents | Secured glass-front cabinets, specimen cases, plate cabinets, and court or guild display furniture | `Container_Display_Case`, losing built-in locking |
+| `LockingContainer_PreIndustrial_Desk` | `LockingContainer` | Normal/large opaque desk storage; openable; built-in lock; intended to coexist with a `Table_*` component | Lockable writing desks, counting desks, secretaries, and escritoires | `Container_Desk_Drawers` or `Container_Writing_Desk_Drawers`, losing built-in locking |
 
 ## Existing dependencies reused by the expansion
 
@@ -38,7 +40,7 @@ LContainer_PreIndustrial_Vat_125L
 LContainer_PreIndustrial_Vat_500L
 ```
 
-It also continues to presume the four previously requested materials `gourd shell`, `papier-mache`, `mother of pearl`, and `birch bark`. This expansion requests **no additional materials**.
+The materials `gourd shell`, `papier-mache`, and `birch bark` are now seeded. Requests for `mother of pearl` resolve through the existing alias of canonical `mother-of-pearl`; no duplicate solid material is created. This expansion requests **no additional materials**.
 
 ## Implementation and verification contract
 

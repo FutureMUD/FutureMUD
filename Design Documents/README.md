@@ -140,6 +140,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 ## Seeding
 - [DatabaseSeeder Repeatability Strategy](./Seeding/DatabaseSeeder_Repeatability_Strategy.md)
 - [DatabaseSeeder System Gap Audit](./Seeding/DatabaseSeeder_System_Gap_Audit.md)
+- [Item Content Engine Dependency Ledger](./Seeding/FutureMUD_Item_Content_Engine_Dependency_Ledger.md)
 - [Culture Seeder Language Pack Reference](./Seeding/Culture_Seeder_Language_Pack_Reference.md)
 - [Culture Seeder Heritage Pack Reference](./Seeding/Culture_Seeder_Heritage_Pack_Reference.md)
 - [Clan Seeder Template Catalogue](./Seeding/Clan_Seeder_Template_Catalogue.md)

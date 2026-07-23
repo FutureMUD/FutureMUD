@@ -652,6 +652,32 @@ public class ItemSeederMedievalCraftingTests
 			"The medieval audit should not point readers to retired culture catalogue payloads.");
 	}
 
+	[TestMethod]
+	public void MedievalMilitaryItems_ReplaceDocumentedConservativeFallbacksWithoutChangingStableReferences()
+	{
+		string armour = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalArmour.cs");
+		string weapons = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalWeapons.cs");
+
+		Assert.IsFalse(armour.Contains("\"Armour_HeavyClothing\"", StringComparison.Ordinal));
+		Assert.IsFalse(armour.Contains("\"Armour_UltraHeavyClothing\"", StringComparison.Ordinal));
+		Assert.IsFalse(armour.Contains("\"Armour_Platemail\"", StringComparison.Ordinal));
+		Assert.AreEqual(14, Regex.Matches(armour, "\"Armour_Padded\"").Count);
+		Assert.AreEqual(20, Regex.Matches(armour, "\"Armour_RigidMetal\"").Count);
+		Assert.AreEqual(1, Regex.Matches(armour, "\"Armour_CoatOfPlates\"").Count);
+		Assert.AreEqual(4, Regex.Matches(armour, "\"Armour_Splinted\"").Count);
+
+		AssertItemUses(weapons, "medieval_military_light_riding_spear", "Melee_Lance");
+		AssertItemUses(weapons, "medieval_military_broad_poleblade", "Melee_Poleblade");
+		AssertItemUses(weapons, "medieval_military_hooked_polearm", "Melee_HookedPolearm");
+		AssertItemUses(weapons, "medieval_military_recurved_riders_shortbow", "CompositeBow_Light");
+		AssertItemUses(weapons, "medieval_military_fine_horn_recurve_bow", "CompositeBow_War");
+		AssertItemUses(weapons, "medieval_military_wootz_war_sword", "Melee_Sabre");
+
+		Assert.AreEqual(381,
+			Regex.Matches($"{armour}{Environment.NewLine}{weapons}", @"\bCreateItem\s*\(").Count,
+			"Fallback replacement must not change the Medieval catalogue size.");
+	}
+
 	private static string ReadMedievalItemSources(params string[] excludedFileNames)
 	{
 		var excluded = excludedFileNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -667,6 +693,15 @@ public class ItemSeederMedievalCraftingTests
 		var pattern = $@"private\s+void\s+{Regex.Escape(methodName)}\s*\(\s*\)\s*\{{\s*\}}";
 		Assert.IsTrue(Regex.IsMatch(source, pattern, RegexOptions.CultureInvariant),
 			$"Expected {methodName} to be present as an empty no-op method.");
+	}
+
+	private static void AssertItemUses(string source, string stableReference, string component)
+	{
+		Match match = Regex.Match(source,
+			$"\"{Regex.Escape(stableReference)}\"(?<body>.{{0,1500}}?)\\);",
+			RegexOptions.Singleline | RegexOptions.CultureInvariant);
+		Assert.IsTrue(match.Success, $"Expected to find item {stableReference}.");
+		StringAssert.Contains(match.Groups["body"].Value, $"\"{component}\"");
 	}
 
 	private static string ReadSource(params string[] parts)

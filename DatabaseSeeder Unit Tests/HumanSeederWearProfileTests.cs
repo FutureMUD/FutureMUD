@@ -89,6 +89,14 @@ public class HumanSeederWearProfileTests
 			"Skirt Support",
 			"Partlet",
 			"Long Open Robe",
+			"Stays",
+			"Breeches",
+			"ArmHarness",
+			"LegHarness",
+			"ShoulderArmHarness",
+			"HalfArmourHarness",
+			"ThreeQuarterHarness",
+			"FullPlateHarness",
 			"Breechcloth"
 		];
 
@@ -135,6 +143,74 @@ public class HumanSeederWearProfileTests
 			Assert.IsTrue(generatedComponentNames.Contains(componentName),
 				$"{componentName} should be generated from an additional human wear profile.");
 		}
+	}
+
+	[TestMethod]
+	public void AdditionalHumanWearProfiles_DefineEarlyModernCoverageAndLayering()
+	{
+		var profiles = HumanSeeder.AdditionalHumanWearProfileLayeringForTesting
+			.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+		Dictionary<string, string[]> expectedParts = new(StringComparer.OrdinalIgnoreCase)
+		{
+			["Stays"] = ["rbreast", "lbreast", "uback", "abdomen", "belly", "lback"],
+			["Breeches"] =
+			[
+				"groin", "rhip", "lhip", "rbuttock", "lbuttock", "rthigh", "lthigh", "rthighback",
+				"lthighback", "rknee", "lknee"
+			],
+			["ArmHarness"] = ["rupperarm", "lupperarm", "relbow", "lelbow", "rforearm", "lforearm"],
+			["LegHarness"] = ["rthigh", "lthigh", "rknee", "lknee", "rshin", "lshin", "rfoot", "lfoot"],
+			["ShoulderArmHarness"] =
+			[
+				"rshoulder", "lshoulder", "rupperarm", "lupperarm", "relbow", "lelbow", "rforearm",
+				"lforearm"
+			],
+			["HalfArmourHarness"] =
+			[
+				"rbreast", "lbreast", "uback", "abdomen", "rshoulder", "lshoulder", "rupperarm", "lupperarm",
+				"rhip", "lhip"
+			],
+			["ThreeQuarterHarness"] =
+			[
+				"rbreast", "lbreast", "uback", "abdomen", "rupperarm", "lupperarm", "relbow", "lelbow",
+				"rforearm", "lforearm", "rhand", "lhand", "rhip", "lhip", "rthigh", "lthigh", "rknee",
+				"lknee"
+			],
+			["FullPlateHarness"] =
+			[
+				"rbreast", "lbreast", "uback", "lback", "abdomen", "belly", "rshoulder", "lshoulder",
+				"rupperarm", "lupperarm", "relbow", "lelbow", "rforearm", "lforearm", "rhand", "lhand",
+				"rhip", "lhip", "rthigh", "lthigh", "rknee", "lknee", "rshin", "lshin", "rfoot", "lfoot"
+			]
+		};
+
+		foreach ((string name, string[] expected) in expectedParts)
+		{
+			Assert.IsTrue(profiles.TryGetValue(name, out var profile),
+				$"{name} should be an authored direct wear profile.");
+			CollectionAssert.AreEquivalent(expected, profile.Locations.Select(x => x.Location).ToArray(), name);
+		}
+
+		Assert.IsTrue(profiles["Stays"].Locations.All(x => x.NoArmour),
+			"Stays should remain a non-armour underlayer.");
+		Assert.IsTrue(profiles["Breeches"].Locations.All(x => x.NoArmour),
+			"Breeches should remain ordinary clothing compatible with separate armour.");
+		foreach (string name in expectedParts.Keys.Where(x => x.EndsWith("Harness", StringComparison.Ordinal)))
+		{
+			Assert.IsTrue(profiles[name].Locations.All(x => !x.NoArmour),
+				$"{name} should expose armour-capable coverage.");
+			Assert.IsTrue(profiles[name].Bulky, $"{name} should occupy the bulky armour layer.");
+		}
+		Assert.IsFalse(profiles["Stays"].Bulky, "Stays should fit beneath bulky outer garments.");
+		Assert.IsFalse(profiles["Breeches"].Bulky, "Breeches should fit beneath separate leg armour.");
+
+		string source = ReadHumanBodypartSource();
+		StringAssert.Contains(source,
+			"StockDirectWearProfile(\"Stays\", \"worn beneath\", \"lace\", \"laces\", \"beneath\"");
+		StringAssert.Contains(source,
+			"StockDirectWearProfile(\"ThreeQuarterHarness\", \"worn over\", \"buckle\", \"buckles\", \"over\"");
+		StringAssert.Contains(source,
+			"StockDirectWearProfile(\"FullPlateHarness\", \"worn over\", \"buckle\", \"buckles\", \"over\"");
 	}
 
 	[TestMethod]

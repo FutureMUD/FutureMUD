@@ -6,6 +6,8 @@ First-pass implementation catalogue for Renaissance household, urban, merchant, 
 
 This pass supplies stable references, short descriptions, exact primary materials, size, quality, empty weight, farthing cost, exact component sets, exact tag profiles, date/culture/institution admission, and shared-stock reuse. Nouns/keywords, long and full descriptions, skins, crafts, shops, room packages, and C# calls are deferred.
 
+Dependency status: all dry- and liquid-container profiles used here are now seeded except `CashRegister_PreIndustrial_TillChest`. The cash-register row remains deferred because the current family cannot supply its requested lockability; see the [consolidated item-content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md). Item rows using that component must remain disabled or use an explicitly documented behaviour-losing fallback until the engine work lands.
+
 ## Stable-reference and row syntax
 
 A catalogue row is `category|slug|sdesc|material|size/quality|empty-g/cost-f|component-code|tag-codes`. The stable reference is `renaissance_<category-name>_<package-prefix>_<slug>`, with `T=trade`, `F=furniture`, `P=personal`, and `D=domestic`. Size codes are `T=Tiny`, `VS=VerySmall`, `S=Small`, `N=Normal`, `L=Large`, `VL=VeryLarge`, `H=Huge`; quality codes are `P=Poor`, `S=Standard`, `G=Good`, `E=Excellent`. Every row inherits `Era / Renaissance Era` and the exact culture tag in its package manifest.

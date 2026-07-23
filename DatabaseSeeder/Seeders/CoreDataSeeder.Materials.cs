@@ -237,6 +237,25 @@ public partial class CoreDataSeeder
 				"Natural Fiber Fabric", "Primary Production Commodity");
 		}
 
+		AddMaterial("gourd shell", MaterialBehaviourType.Shell, 0.2, true, 12000, 18000, 0.15, 0.08, 0.0001, 1800,
+			"Natural Materials", "Primary Production Commodity");
+		AddMaterial("papier-mache", MaterialBehaviourType.Fabric, 0.45, true, 6000, 16000, 0.8, 0.12, 0.0001, 1300,
+			"Paper Product", "Manufactured Materials", "Primary Production Commodity");
+		AddMaterial("birch bark", MaterialBehaviourType.Fabric, 0.55, true, 9000, 18000, 0.7, 0.12, 0.0001, 1400,
+			"Natural Fiber Fabric", "Primary Production Commodity");
+		AddMaterial("hemp cloth", MaterialBehaviourType.Fabric, 1.45, true, 14000, 30000, 1.8, 0.14, 0.0001, 500,
+			"Natural Fiber Fabric", "Primary Production Commodity");
+		AddMaterial("brocade", MaterialBehaviourType.Fabric, 1.7, true, 12000, 28000, 1.6, 0.14, 0.0001, 500,
+			"Natural Fiber Fabric", "Manufactured Materials", "Primary Production Commodity");
+		AddMaterial("damask", MaterialBehaviourType.Fabric, 1.4, true, 11000, 26000, 1.5, 0.14, 0.0001, 500,
+			"Natural Fiber Fabric", "Manufactured Materials", "Primary Production Commodity");
+		AddMaterial("silk gauze", MaterialBehaviourType.Fabric, 0.35, true, 6500, 14000, 0.9, 0.10, 0.0001, 500,
+			"Natural Fiber Fabric", "Manufactured Materials", "Primary Production Commodity");
+		AddMaterial("featherwork", MaterialBehaviourType.Feather, 0.3, true, 5000, 10000, 0.5, 0.08, 0.0001, 1300,
+			"Animal Product", "Manufactured Materials", "Primary Production Commodity");
+		AddMaterial("beadwork", MaterialBehaviourType.Fabric, 1.8, true, 9000, 22000, 0.6, 0.18, 0.0001, 500,
+			"Manufactured Materials", "Primary Production Commodity");
+
 		AddMaterial("logwood", MaterialBehaviourType.Wood, 0.75, true, 40000, 10000, 0.05, 0.14, 0.0001, 420,
 			"Hardwood", "Textile Dye", "Primary Production Commodity");
 		AddMaterial("cochineal", MaterialBehaviourType.Powder, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,

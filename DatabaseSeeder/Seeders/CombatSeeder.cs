@@ -181,6 +181,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         }
 
         SeedArmourTypes(context, effectiveAnswers);
+		EnsureEraDependencyCombatContent(context, effectiveAnswers);
         CombatAuxiliarySeederHelper.EnsureStockAuxiliaryContent(context);
         ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context);
 
@@ -222,6 +223,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             primitiveRangedCount = EnsurePrimitiveRangedContent(context);
         }
 
+		var eraDependencyCount = EnsureEraDependencyCombatContent(context, questionAnswers);
+
         context.SaveChanges();
         List<string> updates = new();
         if (updatedExpressionCount > 0)
@@ -233,6 +236,11 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         {
             updates.Add($"added {primitiveRangedCount} missing sling/blowgun stock entries");
         }
+
+		if (eraDependencyCount > 0)
+		{
+			updates.Add($"added or repaired {eraDependencyCount} Renaissance and Early Modern combat dependencies");
+		}
 
         if (expandedStockResult.HasChanges)
         {

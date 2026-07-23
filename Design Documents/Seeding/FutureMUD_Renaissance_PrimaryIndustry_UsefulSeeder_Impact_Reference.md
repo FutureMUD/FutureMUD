@@ -4,6 +4,12 @@
 
 This consolidated dependency ledger was checked against live skill, combat, material, tag, Agriculture, primary-production, shared ItemSeeder, and maintained catalogue sources. All Renaissance branch references depend on it.
 
+## Dependency completion status
+
+The data-only dependencies in this reference have been reviewed against current source. The three dry-container profiles, ten liquid-container profiles, nine new materials, and the later household expansion's six profiles are seeded and exported. `mother of pearl` is the existing alias of canonical `mother-of-pearl`. The only household prototype still deferred is `CashRegister_PreIndustrial_TillChest`; its requested lockability needs an engine change and is tracked in the [consolidated engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
+
+Previously completed Medieval jewellery, Medieval industry, Renaissance clothing-foundation, and primary-production dependencies were verified as existing source truth and were not reimplemented by this pass.
+
 ## Skills
 
 | Status | Exact stock names | Notes |
@@ -16,7 +22,7 @@ This consolidated dependency ledger was checked against live skill, combat, mate
 
 ## Materials
 
-Live exact materials include paper, parchment, oak, beech, walnut, linen, wool, cotton, silk, leather, felt, canvas, broadcloth, velvet, satin, lace, taffeta, ribbon, calico, chintz, ramie cloth, barkcloth, camelid wool, raffia cloth, wrought iron, carbon steel, spring steel, brass, bronze, copper, lead, type metal, glass, glass blank, soda-lime glass, lead glass, porcelain, faience, earthenware, stoneware, clay, kaolinite clay, gunpowder, saltpeter, sulfur, brimstone, charcoal, flint, bone, horn, chalk, plaster, beeswax, logwood, cochineal, tobacco leaf, printing ink, molasses, sugar loaf, tobacco twist, snuff, roasted coffee, cacao bean, cacao nibs, chocolate block, tea brick, cotton fibre, and indigo dye cake. The maintained material export now contains the complete named foundation set. Hemp cloth, brocade, damask, silk gauze, featherwork, and beadwork remain deliberate non-material abstractions for this pass.
+Live exact materials include paper, parchment, oak, beech, walnut, linen, wool, cotton, silk, leather, felt, canvas, broadcloth, velvet, satin, lace, taffeta, ribbon, calico, chintz, ramie cloth, barkcloth, camelid wool, raffia cloth, gourd shell, papier-mache, birch bark, hemp cloth, brocade, damask, silk gauze, featherwork, beadwork, wrought iron, carbon steel, spring steel, brass, bronze, copper, lead, type metal, glass, glass blank, soda-lime glass, lead glass, porcelain, faience, earthenware, stoneware, clay, kaolinite clay, gunpowder, saltpeter, sulfur, brimstone, charcoal, flint, bone, horn, chalk, plaster, beeswax, logwood, cochineal, tobacco leaf, printing ink, molasses, sugar loaf, tobacco twist, snuff, roasted coffee, cacao bean, cacao nibs, chocolate block, tea brick, cotton fibre, and indigo dye cake. The maintained material export now contains the complete named dependency set. The six optional textile/composite additions are dependency records only; this pass does not add agricultural sources or production crafts for them.
 
 ## Tags
 

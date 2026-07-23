@@ -566,6 +566,117 @@ public class UsefulSeederItemPackageTests
 	}
 
 	[TestMethod]
+	public void SeedEraDependencyComponentsForTesting_CreatesExactSupportedProfilesAndIsIdempotent()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		context.GameItemComponentProtos.Add(CreateComponentMarker(
+			200,
+			"LockingContainer_PreIndustrial_SmallCabinet",
+			"Container"));
+		context.SaveChanges();
+		UsefulSeeder seeder = new();
+
+		seeder.SeedEraDependencyComponentsForTesting(context);
+		seeder.SeedEraDependencyComponentsForTesting(context);
+
+		string[] dryContainers =
+		[
+			"Container_PreIndustrial_CompartmentBox",
+			"Container_PreIndustrial_LiddedBasket",
+			"Container_PreIndustrial_LiddedHamper",
+			"Container_PreIndustrial_Display_Plinth"
+		];
+		string[] liquidContainers =
+		[
+			"LContainer_PreIndustrial_Cup_150ml",
+			"LContainer_PreIndustrial_Bowl_750ml",
+			"LContainer_PreIndustrial_Basin_5L",
+			"LContainer_PreIndustrial_Ewer_2L",
+			"LContainer_PreIndustrial_Pitcher_4L",
+			"LContainer_PreIndustrial_Pot_12L",
+			"LContainer_PreIndustrial_StorageJar_12L",
+			"LContainer_PreIndustrial_StorageJar_30L",
+			"LContainer_PreIndustrial_Vat_125L",
+			"LContainer_PreIndustrial_Vat_500L"
+		];
+		string[] lockingContainers =
+		[
+			"LockingContainer_PreIndustrial_SmallCabinet",
+			"LockingContainer_PreIndustrial_LargeCabinet",
+			"LockingContainer_PreIndustrial_DrawerChest",
+			"LockingContainer_PreIndustrial_DisplayCabinet",
+			"LockingContainer_PreIndustrial_Desk"
+		];
+		string[] handTools =
+		[
+			"Tool_Artillery_General",
+			"Tool_CartridgeMaking_General",
+			"Tool_Gunsmithing_General"
+		];
+		string[] expectedNames = dryContainers
+			.Concat(liquidContainers)
+			.Concat(lockingContainers)
+			.Concat(handTools)
+			.ToArray();
+
+		foreach (string name in expectedNames)
+		{
+			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name),
+				$"Expected one approved prototype named {name} after a rerun.");
+		}
+
+		Assert.AreEqual(expectedNames.Length,
+			context.GameItemComponentProtos.Count(x => expectedNames.Contains(x.Name)));
+		Assert.AreEqual(0,
+			context.GameItemComponentProtos.Count(x => x.Name == "CashRegister_PreIndustrial_TillChest"));
+		Assert.IsTrue(dryContainers.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "Container"));
+		Assert.IsTrue(liquidContainers.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "Liquid Container"));
+		Assert.IsTrue(lockingContainers.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "LockingContainer"));
+		Assert.IsTrue(handTools.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "HandTool"));
+
+		XElement Definition(string name) =>
+			XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == name).Definition);
+
+		Assert.AreEqual(5000.0,
+			(double)Definition("Container_PreIndustrial_CompartmentBox").Attribute("Weight")!);
+		Assert.IsTrue((bool)Definition("Container_PreIndustrial_LiddedBasket").Attribute("Closable")!);
+		Assert.AreEqual("on",
+			(string)Definition("Container_PreIndustrial_Display_Plinth").Attribute("Preposition")!);
+		Assert.IsFalse((bool)Definition("Container_PreIndustrial_Display_Plinth").Attribute("Closable")!);
+
+		(string Name, double Capacity, bool Closable)[] liquidExpectations =
+		[
+			("LContainer_PreIndustrial_Cup_150ml", 0.15, false),
+			("LContainer_PreIndustrial_Bowl_750ml", 0.75, false),
+			("LContainer_PreIndustrial_Basin_5L", 5.0, false),
+			("LContainer_PreIndustrial_Ewer_2L", 2.0, false),
+			("LContainer_PreIndustrial_Pitcher_4L", 4.0, false),
+			("LContainer_PreIndustrial_Pot_12L", 12.0, false),
+			("LContainer_PreIndustrial_StorageJar_12L", 12.0, true),
+			("LContainer_PreIndustrial_StorageJar_30L", 30.0, true),
+			("LContainer_PreIndustrial_Vat_125L", 125.0, false),
+			("LContainer_PreIndustrial_Vat_500L", 500.0, false)
+		];
+		foreach ((string name, double capacity, bool closable) in liquidExpectations)
+		{
+			XElement definition = Definition(name);
+			Assert.AreEqual(capacity, (double)definition.Attribute("LiquidCapacity")!, name);
+			Assert.AreEqual(closable, (bool)definition.Attribute("Closable")!, name);
+			Assert.IsFalse((bool)definition.Attribute("Transparent")!, name);
+		}
+
+		Assert.IsTrue((bool)Definition("LockingContainer_PreIndustrial_DisplayCabinet")
+			.Attribute("Transparent")!);
+		Assert.IsTrue(lockingContainers.All(name =>
+			Definition(name).Element("LockType")?.Value == "Ward Lock"));
+	}
+
+	[TestMethod]
 	public void SeedVariablesForTesting_CreatesMedievalJewelleryVariableComponents()
 	{
 		using FuturemudDatabaseContext context = BuildContext();

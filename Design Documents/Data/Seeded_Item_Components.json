@@ -7329,4 +7329,326 @@
         "Component Name":  "Tool_Printing_Woodblock_General",
         "Component Description":  "Turns an item into a general hand-tool component for medieval woodblock carving, inking and impression work.",
         "Component Type":  "HandTool"
-    }]
+    },
+
+    {
+        "Component Name":  "Armour_Brigandine",
+        "Component Description":  "Turns an item into Brigandine armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_BuffLeather",
+        "Component Description":  "Turns an item into Buff Leather armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_ChainAndPlate",
+        "Component Description":  "Turns an item into Chain and Plate armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_CoatOfPlates",
+        "Component Description":  "Turns an item into Coat of Plates armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_Padded",
+        "Component Description":  "Turns an item into Padded armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_PlateLight",
+        "Component Description":  "Turns an item into Plate Light armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_PlateMedium",
+        "Component Description":  "Turns an item into Plate Medium armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_ProofedPlate",
+        "Component Description":  "Turns an item into Proofed Plate armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_Rattan",
+        "Component Description":  "Turns an item into Rattan armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_RigidMetal",
+        "Component Description":  "Turns an item into Rigid Metal armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_Splinted",
+        "Component Description":  "Turns an item into Splinted armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Blowgun_Long",
+        "Component Description":  "Turns an item into a Long Blowgun",
+        "Component Type":  "Blowgun"
+    },
+    {
+        "Component Name":  "Blowgun_Short",
+        "Component Description":  "Turns an item into a Short Blowgun",
+        "Component Type":  "Blowgun"
+    },
+    {
+        "Component Name":  "CompositeBow_Heavy",
+        "Component Description":  "Turns an item into a Composite Bow Heavy",
+        "Component Type":  "Bow"
+    },
+    {
+        "Component Name":  "CompositeBow_Light",
+        "Component Description":  "Turns an item into a Composite Bow Light",
+        "Component Type":  "Bow"
+    },
+    {
+        "Component Name":  "CompositeBow_War",
+        "Component Description":  "Turns an item into a Composite Bow War",
+        "Component Type":  "Bow"
+    },
+    {
+        "Component Name":  "Container_PreIndustrial_CompartmentBox",
+        "Component Description":  "A small closable compartmented box represented as one logical inventory.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_PreIndustrial_Display_Plinth",
+        "Component Description":  "An open display plinth, pedestal or stand surface.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_PreIndustrial_LiddedBasket",
+        "Component Description":  "A closable pre-industrial basket for ordinary domestic and market storage.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_PreIndustrial_LiddedHamper",
+        "Component Description":  "A large closable pre-industrial hamper or pannier.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Crossbow_EastAsian",
+        "Component Description":  "Turns an item into a East Asian Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Heavy",
+        "Component Description":  "Turns an item into a Heavy Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Light",
+        "Component Description":  "Turns an item into a Light Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Pellet",
+        "Component Description":  "Turns an item into a Pellet Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Basin_5L",
+        "Component Description":  "An opaque open pre-industrial basin with a 5 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Bowl_750ml",
+        "Component Description":  "An opaque open pre-industrial bowl with a 750 ml capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Cup_150ml",
+        "Component Description":  "An opaque open pre-industrial cup with a 150 ml capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Ewer_2L",
+        "Component Description":  "An opaque open pre-industrial ewer with a 2 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Pitcher_4L",
+        "Component Description":  "An opaque open pre-industrial pitcher with a 4 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Pot_12L",
+        "Component Description":  "An opaque open pre-industrial pot with a 12 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_StorageJar_12L",
+        "Component Description":  "An opaque closable pre-industrial storage jar with a 12 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_StorageJar_30L",
+        "Component Description":  "An opaque closable pre-industrial storage jar with a 30 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Vat_125L",
+        "Component Description":  "An opaque open pre-industrial process vat with a 125 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Vat_500L",
+        "Component Description":  "An opaque open pre-industrial storage or process vat with a 500 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LockingContainer_PreIndustrial_Desk",
+        "Component Description":  "Opaque desk storage secured by a built-in warded lock.",
+        "Component Type":  "LockingContainer"
+    },
+    {
+        "Component Name":  "LockingContainer_PreIndustrial_DisplayCabinet",
+        "Component Description":  "A transparent display cabinet secured by a built-in lock.",
+        "Component Type":  "LockingContainer"
+    },
+    {
+        "Component Name":  "LockingContainer_PreIndustrial_DrawerChest",
+        "Component Description":  "A large opaque drawer chest secured as one logical inventory by a built-in lock.",
+        "Component Type":  "LockingContainer"
+    },
+    {
+        "Component Name":  "LockingContainer_PreIndustrial_LargeCabinet",
+        "Component Description":  "A large opaque upright cabinet with a built-in warded lock.",
+        "Component Type":  "LockingContainer"
+    },
+    {
+        "Component Name":  "LockingContainer_PreIndustrial_SmallCabinet",
+        "Component Description":  "A small opaque cabinet with a built-in warded lock.",
+        "Component Type":  "LockingContainer"
+    },
+    {
+        "Component Name":  "Melee_Bayonet",
+        "Component Description":  "Turns an item into a Bayonet melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_HookedPolearm",
+        "Component Description":  "Turns an item into a Hooked Polearm melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Lance",
+        "Component Description":  "Turns an item into a Lance melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Poleblade",
+        "Component Description":  "Turns an item into a Poleblade melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Sabre",
+        "Component Description":  "Turns an item into a Sabre melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Smallsword",
+        "Component Description":  "Turns an item into a Smallsword melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training_Bayonet",
+        "Component Description":  "Turns an item into a Training Bayonet melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training_Lance",
+        "Component Description":  "Turns an item into a Training Lance melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training_Poleblade",
+        "Component Description":  "Turns an item into a Training Poleblade melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training_Sabre",
+        "Component Description":  "Turns an item into a Training Sabre melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training_Smallsword",
+        "Component Description":  "Turns an item into a Training Smallsword melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Throwing_Club",
+        "Component Description":  "Turns an item into a Throwing Club",
+        "Component Type":  "ThrownWeapon"
+    },
+    {
+        "Component Name":  "Throwing_Disc",
+        "Component Description":  "Turns an item into a Throwing Disc",
+        "Component Type":  "ThrownWeapon"
+    },
+    {
+        "Component Name":  "Tool_Artillery_General",
+        "Component Description":  "A general hand-tool profile for operating and maintaining artillery.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_CartridgeMaking_General",
+        "Component Description":  "A general hand-tool profile for measured charges and paper-cartridge production.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Gunsmithing_General",
+        "Component Description":  "A general hand-tool profile for firearm lock, barrel and maintenance work.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Wear_ArmHarness",
+        "Component Description":  "Permits the item to be worn as ArmHarness",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Breeches",
+        "Component Description":  "Permits the item to be worn as Breeches",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_FullPlateHarness",
+        "Component Description":  "Permits the item to be worn as FullPlateHarness",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_HalfArmourHarness",
+        "Component Description":  "Permits the item to be worn as HalfArmourHarness",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_LegHarness",
+        "Component Description":  "Permits the item to be worn as LegHarness",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_ShoulderArmHarness",
+        "Component Description":  "Permits the item to be worn as ShoulderArmHarness",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Stays",
+        "Component Description":  "Permits the item to be worn as Stays",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_ThreeQuarterHarness",
+        "Component Description":  "Permits the item to be worn as ThreeQuarterHarness",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Yumi",
+        "Component Description":  "Turns an item into a Yumi",
+        "Component Type":  "Bow"
+    }
+]

@@ -346,6 +346,14 @@ public interface ILockablePrototype : IExclusiveGameItemComponentPrototype<ILock
 {
 }
 
+public interface IMusketCartridgePrototype : IExclusiveGameItemComponentPrototype<IMusketCartridge>
+{
+}
+
+public interface IBayonetAttachmentPrototype : IExclusiveGameItemComponentPrototype<IBayonetAttachment>
+{
+}
+
 public interface ILocksmithingToolPrototype : IExclusiveGameItemComponentPrototype<ILocksmithingTool>
 {
 }

@@ -478,3 +478,11 @@ When adding similar capabilities in future:
 2. Keep the authored cross-family profile on a shared proto base.
 3. Keep activation-specific state and persistence on the runtime component.
 4. Explicitly decide how morph, destruction, load-time finalisation, and deep-copy flows should treat inserted media or fuel.
+
+## Historical Firearm and Storage Authoring
+
+- `lockingcashregister` authors till capacity, maximum item size, lock type, picking difficulty, and forcing difficulty. Use it instead of combining two container components.
+- `container allow <tag>` and `container block <tag>` toggle admission rules; `allow clear` and `block clear` reset the respective list. Blocked matches always win and legacy definitions remain unrestricted.
+- `musketcartridge powder <mass>|legacy` authors an explicit charge or restores weapon-defined charge behavior; `wad` toggles included wadding.
+- `bayonetattachment style <plug|socket|sword>` and `bore <minimum> <maximum>` author the firearm attachment contract. Add an ordinary melee component to the same item prototype.
+- `crossbow spanningtool <tag>|none` authors an optional readying tool, and `readyemote <emote>` authors its use. Tune delay, stamina, damage, and range on distinct ranged weapon type records.

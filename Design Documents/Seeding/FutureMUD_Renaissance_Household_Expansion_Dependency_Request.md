@@ -4,7 +4,7 @@
 
 This addendum records the new reusable item-component prototypes assumed by the 600-row Renaissance household expansion. The original household catalogue's fourteen requested component prototypes and four requested materials remain authoritative in `FutureMUD_Renaissance_PrimaryIndustry_UsefulSeeder_Impact_Reference.md`.
 
-Implementation status: all six profiles in this addendum and the thirteen supportable profiles from the original request are now seeded and exported. `CashRegister_PreIndustrial_TillChest` remains deliberately unseeded because the current `CashRegister` family cannot supply the requested built-in lock; see the [consolidated engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
+Implementation status: all six profiles in this addendum, the thirteen supportable profiles from the original request, and `CashRegister_PreIndustrial_TillChest` are now seeded and exported. The till chest uses `LockingCashRegister`, retaining shop/currency behavior while supplying the requested built-in lock.
 
 No new runtime item-component type is required. The display plinth uses the existing `Container` type. The five lockable furniture profiles use the existing `LockingContainer` type, which supplies their container, openable, lockable, and lock interfaces without component stacking.
 

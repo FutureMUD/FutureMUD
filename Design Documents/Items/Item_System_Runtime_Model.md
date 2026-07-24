@@ -587,3 +587,15 @@ The current thermal-source component families use a shared authored thermal prof
 - fuel-fed sources are active only when switched on and still connected to a valid fuel source of the authored medium and fuel type
 - consumable sources auto-start and remain active until their burn timer expires
 - solid-fuel sources stay active while switched on and while they still have queued valid fuel items to burn
+
+## Runtime Integration: Historical Equipment
+
+`LockingCashRegister` combines `IContainer`, `ISelectable`, `IOpenable`, `ILockable`, and `ILock` in one component. It retains cash-register employee, currency, crime, and till-selection behavior. A locked drawer cannot be opened through the `nosale` selection path; built-in and installed lock state is saved in component XML.
+
+Standard containers apply prototype tag rules before size and weight admission. Blocked tags win, an empty allowed list is unrestricted, and `IGameItem.IsA` permits descendant tags to satisfy an allowed ancestor.
+
+`IMusketCartridge` extends ordinary ammunition with a nullable measured powder mass and an included-wad flag. Missing powder mass means the legacy weapon-defined charge; missing wad data means `true`. Muskets validate ammunition type, grade, bore, and any explicit charge before loading.
+
+Musket attachments have distinct persisted bayonet, ramrod, and sight slots. `IBayonetAttachment` supplies style and bore compatibility. Plug styles block firing; socket and sword styles do not. While attached, the firearm delegates melee weapon type to the bayonet item's existing `IMeleeWeapon`.
+
+Crossbows may author a required spanning-tool tag. The inventory plan must acquire a matching tool before readying, while ready delays and stamina remain properties of the ranged weapon type. `IsReadied` is runtime XML state and defaults to false for legacy component definitions.

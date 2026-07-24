@@ -546,3 +546,15 @@ Recommended validation passes by family:
   - load it with correctly tagged fuel
   - confirm untagged items are rejected
   - confirm fuel burns one item at a time in load order
+
+## Historical Equipment Closure Workflow
+
+When closing an item-content dependency:
+
+1. confirm whether the capability already exists before introducing a new component family;
+2. implement and test runtime persistence and builder commands;
+3. seed component profiles and stock items with stable names and rerun-repair behavior;
+4. export `Seeded_Item_Components.json`, `Item_Component_Types.json` when applicable, and `SeededTagHierarchy.csv`;
+5. update the era source reference and consolidated dependency ledger only after source and export names match.
+
+For the initial historical-arms tranche, verify locked till selection, container tag admission, legacy paper-cartridge XML, musket charge/bore compatibility, bayonet slot and firing rules, spanning-tool inventory plans, and crossbow ready-state persistence.

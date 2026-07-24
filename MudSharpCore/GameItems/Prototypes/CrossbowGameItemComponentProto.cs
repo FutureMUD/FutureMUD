@@ -21,28 +21,33 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
         set
         {
             _rangedWeaponType = value;
-            LoadTemplate = new InventoryPlanTemplate(Gameworld, new[]
-            {
-                new InventoryPlanPhaseTemplate(1, new[]
-                {
-                    InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0, item =>
-                    {
-                        IAmmo ammo = item.GetItemType<IAmmo>();
-
-                        if (ammo?.AmmoType.RangedWeaponTypes.Contains(Combat.RangedWeaponType.Crossbow) != true)
-                        {
-                            return false;
-                        }
-
-                        return ammo.AmmoType.SpecificType.Equals(_rangedWeaponType.SpecificAmmunitionGrade,
-                            StringComparison.InvariantCultureIgnoreCase);
-                    }, null, 1, originalReference: "loaditem"),
-                    InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
-                        item => item.GetItemType<IRangedWeapon>()?.Prototype == this,
-                        null)
-                })
-            });
+            RebuildLoadTemplate();
         }
+    }
+
+    private void RebuildLoadTemplate()
+    {
+        LoadTemplate = new InventoryPlanTemplate(Gameworld, new[]
+        {
+            new InventoryPlanPhaseTemplate(1, new[]
+            {
+                InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0, item =>
+                {
+                    IAmmo ammo = item.GetItemType<IAmmo>();
+
+                    if (ammo?.AmmoType.RangedWeaponTypes.Contains(Combat.RangedWeaponType.Crossbow) != true)
+                    {
+                        return false;
+                    }
+
+                    return ammo.AmmoType.SpecificType.Equals(_rangedWeaponType.SpecificAmmunitionGrade,
+                        StringComparison.InvariantCultureIgnoreCase);
+                }, null, 1, originalReference: "loaditem"),
+                InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+                    item => item.GetItemType<IRangedWeapon>()?.Prototype == this,
+                    null)
+            })
+        });
     }
 
     public IWeaponType MeleeWeaponType { get; set; }
@@ -52,6 +57,9 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
     public IFutureProg? WhyCannotWieldProg { get; private set; }
 #nullable disable warnings
     public IInventoryPlanTemplate LoadTemplate { get; set; }
+    public IInventoryPlanTemplate? ReadyTemplate { get; private set; }
+    public ITag? RequiredSpanningToolTag { get; private set; }
+    public string ReadyEmote { get; private set; } = "@ span|spans $1 with $2 until $3 is ready to fire.";
 
     #region Constructors
 
@@ -88,6 +96,11 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
 
         CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
         WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
+        RequiredSpanningToolTag =
+            Gameworld.Tags.Get(long.Parse(root.Element("RequiredSpanningToolTag")?.Value ?? "0"));
+        ReadyEmote = root.Element("ReadyEmote")?.Value ??
+                     "@ span|spans $1 with $2 until $3 is ready to fire.";
+        RebuildReadyTemplate();
         ConditionMaintenance.LoadFromXml(root);
     }
 
@@ -103,6 +116,8 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
                 new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
                 new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
                 new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+                new XElement("RequiredSpanningToolTag", RequiredSpanningToolTag?.Id ?? 0),
+                new XElement("ReadyEmote", new XCData(ReadyEmote)),
                 ConditionMaintenance.SaveToXml()
             ).ToString();
     }
@@ -158,6 +173,8 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
 	#3canwield none#0 - removes a canwield prog
 	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
 	#3whycantwield none#0 - clears the whycantwield prog
+	#3spanningtool <tag>|none#0 - sets an optional required spanning-tool tag
+	#3readyemote <emote>#0 - sets the tool-spanning emote; $0 is the user, $1 the crossbow, $2 the tool and $3 the bolt
 	#3condition <option>#0 - configures optional condition degradation";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -184,9 +201,87 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
                 return BuildingCommandWhyCannotWieldProg(actor, command);
             case "condition":
                 return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
+            case "spanningtool":
+            case "spanning tool":
+            case "tool":
+                return BuildingCommandSpanningTool(actor, command);
+            case "readyemote":
+            case "ready emote":
+                return BuildingCommandReadyEmote(actor, command);
             default:
                 return base.BuildingCommand(actor, command);
         }
+    }
+
+    private void RebuildReadyTemplate()
+    {
+        ReadyTemplate = RequiredSpanningToolTag is null
+            ? null
+            : new InventoryPlanTemplate(Gameworld,
+            [
+                new InventoryPlanPhaseTemplate(1,
+                [
+                    InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held,
+                        RequiredSpanningToolTag.Id, 0, null, null, 1, originalReference: "spanningtool")
+                ])
+            ]);
+    }
+
+    private bool BuildingCommandSpanningTool(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                $"Which tag must a spanning tool have? Use {"none".ColourCommand()} to allow hand spanning.");
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("none", "clear"))
+        {
+            RequiredSpanningToolTag = null;
+            RebuildReadyTemplate();
+            Changed = true;
+            actor.OutputHandler.Send("This crossbow can now be spanned without a separate tool.");
+            return true;
+        }
+
+        var tag = long.TryParse(command.SafeRemainingArgument, out var value)
+            ? Gameworld.Tags.Get(value)
+            : Gameworld.Tags.GetByName(command.SafeRemainingArgument);
+        if (tag is null)
+        {
+            actor.OutputHandler.Send("There is no such tag.");
+            return false;
+        }
+
+        RequiredSpanningToolTag = tag;
+        RebuildReadyTemplate();
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This crossbow now requires a tool tagged {tag.Name.ColourName()} to span it.");
+        return true;
+    }
+
+    private bool BuildingCommandReadyEmote(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What emote should be shown when this crossbow is spanned with a tool?");
+            return false;
+        }
+
+        var text = command.SafeRemainingArgument;
+        var emote = new Emote(text, actor, actor, actor, actor, actor);
+        if (!emote.Valid)
+        {
+            actor.OutputHandler.Send(emote.ErrorMessage);
+            return false;
+        }
+
+        ReadyEmote = text;
+        Changed = true;
+        actor.OutputHandler.Send($"The spanning emote is now {ReadyEmote.ColourCommand()}.");
+        return true;
     }
     private bool BuildingCommandCanWieldProg(ICharacter actor, StringStack command)
     {
@@ -313,7 +408,7 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
         return string.Format(
-            actor, "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a crossbow of type {4} and melee type {5}.\nThe CanWield prog is {6} and the WhyCannotWield prog is {7}.\n{8}",
+            actor, "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a crossbow of type {4} and melee type {5}.\nThe CanWield prog is {6} and the WhyCannotWield prog is {7}.\nSpanning Tool Tag: {8}\nReady Emote: {9}\n{10}",
             "Crossbow Weapon Game Item Component".Colour(Telnet.Cyan),
             Id,
             RevisionNumber,
@@ -322,6 +417,8 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
             MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
             CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
             WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+            RequiredSpanningToolTag?.Name.ColourName() ?? "None".ColourValue(),
+            ReadyEmote.ColourCommand(),
             ConditionMaintenance.Describe(actor)
         );
     }

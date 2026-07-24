@@ -5,15 +5,15 @@
 ## Status
 
 - Original component requests: **156**.
-- Supported and now seeded: **40**.
-- Deferred for engine work: **116**.
-- New component types still required: **7**.
-- Original requests using existing component types: **98**, partitioned into 40 supported additions and 58 existing-family behaviour deferrals.
-- Prototypes depending on the seven new component types: **58**.
+- Supported and now seeded: **56**.
+- Deferred for engine work: **100**.
+- New component types still required: **6**.
+- Original requests using existing component types: **98**, partitioned into 53 supported additions and 45 existing-family behaviour deferrals.
+- Prototypes depending on the six still-missing component types: **55**.
 - New solid materials required: **0**.
-- New tags required: **0**.
-- Supported additions: 8 armour, 11 melee, 4 bow, 4 crossbow, 2 blowgun, 2 thrown, 6 wearable, and 3 hand-tool profiles.
-- Existing runtime families still requiring extension: `CashRegister` is outside this military ledger; within it, crossbow spanning/magazine/emplacement behaviour, `Musket` ignition state, musket ammunition payloads, constrained carriers, couched charges, and hook/pull/trip attacks remain deferred.
+- New functional tags seeded: **8** for paper cartridges, wooden charges, and the five crossbow spanning-tool families beneath their common parent.
+- Supported additions: 8 armour, 11 melee, 4 bow, 9 crossbow, 2 blowgun, 2 thrown, 6 wearable, 3 hand-tool, 7 paper-cartridge, 1 constrained-container, and 3 bayonet-attachment profiles.
+- Existing runtime families still requiring extension: repeating and emplaced crossbows, `Musket` ignition state, multi-projectile musket ammunition, paired holsters, couched charges, and hook/pull/trip attacks remain deferred.
 - Decision-ready engine backlog: [FutureMUD Item Content Engine Dependency Ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
 
 ## Assumption contract
@@ -41,19 +41,13 @@ The main catalogue treats all names in this ledger as available. Implementation 
 - **Why new:** a swivel gun needs a host socket and constrained traverse/elevation; later field and naval carriage work will need the same attachment boundary.
 - **Minimum state:** compatible artillery profiles; installed piece; host or room position; traverse/elevation limits; remove/install actions; fixed versus transportable state.
 
-### 4. `BayonetAttachment`
-
-- **Purpose:** attach plug, socket, or sword bayonets to compatible muzzleloaders.
-- **Why new:** a separate bayonet item must change the firearm's melee profile and, for plug bayonets, block firing. Treating it as a loose sheath or ordinary melee weapon loses the mounted state.
-- **Minimum state:** mount family; compatible firearm component names or mount keys; mounted item; melee override; attach/remove timing; whether firing is permitted while mounted; exclusivity with another bayonet.
-
-### 5. `WeaponCarrierAttachment`
+### 4. `WeaponCarrierAttachment`
 
 - **Purpose:** attach slings, lanyards, and weapon loops to compatible weapons.
 - **Why new:** these accessories are not ordinary clothing and should not require pretending that a sling is a standalone shoulder garment. They must retain or carry a specific weapon.
 - **Minimum state:** compatible weapon size/type; attachment point; carried location; draw/release time; retention behaviour; exclusivity; whether the carrier remains attached while the weapon is wielded.
 
-### 6. `MilitaryStandard`
+### 5. `MilitaryStandard`
 
 - **Purpose:** colours, standards, guidons, ensigns, pennants, and signal flags with persistent identity/design data.
 - **Why new:** a standard is more than inert cloth when units, ships, heraldry, or command signals need to refer to it. No morale bonus is assumed.
@@ -90,11 +84,11 @@ Paper cartridges must represent a measured powder charge, compatible projectile 
 
 ### Existing bow, crossbow, blowgun, thrown, melee, armour, wearable, container, sheath, and hand-tool types
 
-These types can receive new seeded prototypes and associated weapon/armour/wear data without a new component type only where the current runtime expresses the advertised behaviour. The four supportable crossbows now cover East Asian, heavy, light, and pellet variants; spanning-tool, repeating-magazine, and wall-emplacement variants remain deferred. The six wearable profiles are seeded with checked bodypart coverage and layering. Armour profiles are balanced from existing pre-modern donor definitions rather than modern ballistic armour.
+These types can receive new seeded prototypes and associated weapon/armour/wear data without a new component type only where the current runtime expresses the advertised behaviour. Nine crossbows now cover East Asian, heavy, light, pellet, and five tool-spanned variants; repeating-magazine and wall-emplacement variants remain deferred. The six wearable profiles are seeded with checked bodypart coverage and layering. Armour profiles are balanced from existing pre-modern donor definitions rather than modern ballistic armour.
 
 ## Original requests using existing component types — 98
 
-Implementation partition: armour, melee, bow, four supportable crossbows, blowguns, thrown weapons, wearables, and hand tools are seeded (40 total). The other eight crossbows, all muskets and cartridges, and the constrained bandolier/holster remain deferred (58 total).
+Implementation partition: armour, melee, bow, nine supportable crossbows, blowguns, thrown weapons, wearables, hand tools, seven single-projectile paper cartridges, the constrained bandolier, and three bayonets are seeded (56 total). Repeating/emplaced crossbows, ignition-specific muskets, multi-projectile ammunition, and the paired saddle holster remain among the 100 deferred requests.
 
 ### 1. `Armour` prototypes — 8
 
@@ -143,6 +137,8 @@ Adds composite-bow and asymmetrical-yumi profiles using the existing bow runtime
 ### 4. `Crossbow` prototypes — 12
 
 Adds spanning-method, power, pellet, repeating, and emplacement profiles using the existing crossbow runtime.
+
+Implementation status: the five tool-spanned rows and four earlier rows are seeded. The two repeating rows and `Crossbow_Wall` remain deferred.
 
 | Component prototype | Catalogue row uses | Purpose |
 |---|---:|---|
@@ -225,6 +221,8 @@ Adds ignition- and form-specific muzzleloader components. These require the runt
 
 Adds paper-cartridge, buckshot, and buck-and-ball payload profiles using the existing musket-ammunition family after the payload extension described below.
 
+Implementation status: all seven single-projectile paper-cartridge rows are seeded with explicit charge and wad data. The four multi-projectile rows remain deferred.
+
 | Component prototype | Catalogue row uses | Purpose |
 |---|---:|---|
 | `MusketBuckAndBall_0.65 Bore` | 1 | Paper cartridge carrying one ball plus buckshot for the named bore and mixed-projectile pattern. |
@@ -255,6 +253,8 @@ Adds combined armour-coverage profiles that cannot be represented by one existin
 ### 10. `Container` prototypes — 1
 
 Adds a cartridge-constrained bandolier container rather than treating every charge as an unrestricted pouch.
+
+Implementation status: seeded using standard-container allowed and blocked functional tag lists.
 
 | Component prototype | Catalogue row uses | Purpose |
 |---|---:|---|
@@ -346,6 +346,8 @@ New mount relationship for swivel guns and later artillery-mount expansion.
 
 New attachment family that mounts a bayonet to a compatible firearm and applies firing/melee rules.
 
+Implementation status: the component family and all three profiles are seeded; stock bayonet items retain their ordinary melee and beltable components.
+
 | Component prototype | Catalogue row uses | Purpose |
 |---|---:|---|
 | `Bayonet_Plug` | 3 | Plug-bayonet attachment; mounted state blocks firing. |
@@ -413,9 +415,9 @@ All component names not listed in this ledger already exist in the maintained se
 
 ## Acceptance criteria
 
-- Exactly 40 supported component prototype names are seeded and exactly 116 military requests remain deferred.
-- None of the 116 deferred military names appears in the maintained component catalogue.
-- The seven new component types must be implemented before their 58 dependent prototypes are seeded.
+- Exactly 56 supported component prototype names are seeded and exactly 100 military requests remain deferred.
+- None of the 100 deferred military names appears in the maintained component catalogue.
+- The six still-missing component types must be implemented before their 55 dependent prototypes are seeded.
 - No new solid material or tag is created by this branch.
 - Existing prototype names are reused exactly; no near-duplicate underscore/space variant is introduced.
 - Firearm components are ignition-specific and data-generated; bore-only copies do not contain hard-coded database IDs.

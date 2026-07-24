@@ -276,6 +276,10 @@ public partial class UsefulSeeder
 	{
 		_context = context;
 		PrepareItemProtoCache(context);
+		if (context.Tags.All(x => x.Name != "Paper Cartridges"))
+		{
+			SeedTagsForTesting(context);
+		}
 		DateTime now = DateTime.UtcNow;
 		Account dbaccount = context.Accounts.First();
 		long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;

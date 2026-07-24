@@ -1482,4 +1482,22 @@
                                 "IContainer",
                                 "ILightable"
                             ]
+    },
+    {
+        "Component Type Name":  "BayonetAttachment",
+        "Component Type Description":  "Marks an item as a bore-compatible plug, socket, or sword bayonet attachment",
+        "Exclusive Types":  [
+                                "IBayonetAttachment"
+                            ]
+    },
+    {
+        "Component Type Name":  "LockingCashRegister",
+        "Component Type Description":  "A shop-aware cash register and container with a built-in lock",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "ILock",
+                                "ILockable",
+                                "IOpenable",
+                                "ISelectable"
+                            ]
     }]

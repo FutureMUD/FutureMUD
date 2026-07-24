@@ -6,6 +6,7 @@ using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
 using System;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
@@ -23,14 +24,16 @@ public partial class UsefulSeeder
 		}
 
 		XElement ContainerDefinition(double weight, SizeCategory maxSize, bool closable, bool transparent,
-			string preposition)
+			string preposition, params long[] allowedTagIds)
 		{
 			return new XElement("Definition",
 				new XAttribute("Weight", weight),
 				new XAttribute("MaxSize", (int)maxSize),
 				new XAttribute("Preposition", preposition),
 				new XAttribute("Closable", closable),
-				new XAttribute("Transparent", transparent));
+				new XAttribute("Transparent", transparent),
+				new XElement("AllowedTags", allowedTagIds.Select(x => new XElement("Tag", x))),
+				new XElement("BlockedTags"));
 		}
 
 		XElement LiquidContainerDefinition(double capacity, bool closable, double weightLimit)
@@ -67,6 +70,14 @@ public partial class UsefulSeeder
 				new XElement("ToolDurabilitySecondsExpression", "(1+quality) * 3600"));
 		}
 
+		long TagId(string name)
+		{
+			return context.Tags
+				       .AsEnumerable()
+				       .Single(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+				       .Id;
+		}
+
 		Upsert("Container", "Container_PreIndustrial_CompartmentBox",
 			"A small closable compartmented box represented as one logical inventory.",
 			ContainerDefinition(5000, SizeCategory.Tiny, true, false, "in"));
@@ -79,6 +90,10 @@ public partial class UsefulSeeder
 		Upsert("Container", "Container_PreIndustrial_Display_Plinth",
 			"An open display plinth, pedestal or stand surface.",
 			ContainerDefinition(75000, SizeCategory.Normal, false, false, "on"));
+		Upsert("Container", "Container_CartridgeBandolier",
+			"A closable cartridge bandolier restricted to paper cartridges and wooden powder charges.",
+			ContainerDefinition(12000, SizeCategory.Small, true, false, "in",
+				TagId("Paper Cartridges"), TagId("Wooden Powder Charges")));
 
 		Upsert("Liquid Container", "LContainer_PreIndustrial_Cup_150ml",
 			"An opaque open pre-industrial cup with a 150 ml capacity.",
@@ -130,6 +145,10 @@ public partial class UsefulSeeder
 		Upsert("LockingContainer", "LockingContainer_PreIndustrial_Desk",
 			"Opaque desk storage secured by a built-in warded lock.",
 			LockingContainerDefinition(75000, SizeCategory.Normal, false, Difficulty.VeryHard, Difficulty.Hard,
+				"Ward Lock"));
+		Upsert("LockingCashRegister", "CashRegister_PreIndustrial_TillChest",
+			"A lockable pre-industrial till chest retaining the full shop cash-register workflow.",
+			LockingContainerDefinition(50000, SizeCategory.Small, false, Difficulty.VeryHard, Difficulty.Hard,
 				"Ward Lock"));
 
 		Upsert("HandTool", "Tool_Artillery_General",

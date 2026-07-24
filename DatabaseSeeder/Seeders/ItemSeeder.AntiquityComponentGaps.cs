@@ -142,6 +142,10 @@ public partial class ItemSeeder
 		const string LeisureTag = "Functions / Household Items / Leisure Goods";
 		const string MedicalTag = "Functions / Medical Items";
 		const string IncenseFuelTag = "Functions / Household Items / Household Religious Items / Incense Fuel";
+		const string RidingTackTag = "Functions / Animal Equipment / Riding Tack";
+		const string PackGearTag = "Functions / Animal Equipment / Pack Gear";
+		const string DraftGearTag = "Functions / Animal Equipment / Draft Gear";
+		const string AnimalArmourTag = "Functions / Animal Equipment / Animal Armour";
 
 		return
 		[
@@ -414,7 +418,40 @@ public partial class ItemSeeder
 			new("antiquity_tax_assessor_measure_kit", "kit", "a tax assessor's measure kit",
 				"This official measure kit combines a folding scale beam, reference weights, tally tablets, cord, and a small seal-ready pouch.",
 				SizeCategory.Normal, ItemQuality.Good, 5200.0, 95.0m, "bronze", MaterialBehaviourType.Metal,
-				[ToolTag, MeasureTag, CivicTag], ["Holdable", "Container_Pouch", "MeasuringInstrument_Antiquity_TaxAssessorKit", "Destroyable_HeavyMetal"])
+				[ToolTag, MeasureTag, CivicTag], ["Holdable", "Container_Pouch", "MeasuringInstrument_Antiquity_TaxAssessorKit", "Destroyable_HeavyMetal"]),
+
+			new("antiquity_leather_bridle", "bridle", "a plain leather bridle",
+				"This plain leather bridle has a browband, cheek straps, and reins arranged for steady everyday control of a riding animal.",
+				SizeCategory.Normal, ItemQuality.Standard, 1200.0, 24.0m, "leather", MaterialBehaviourType.Leather,
+				[RidingTackTag, "Market / Transportation / Horse Tack"], ["Holdable", "Wear_Bridle", "RidingGear_Bridle", "Destroyable_Clothing"]),
+			new("antiquity_pack_saddle", "saddle", "a leather pack saddle",
+				"This broad leather pack saddle is padded beneath a rigid frame and fitted with many lash points for balancing cargo over an animal's back.",
+				SizeCategory.Large, ItemQuality.Standard, 8500.0, 65.0m, "leather", MaterialBehaviourType.Leather,
+				[PackGearTag, "Market / Transportation / Horse Tack"], ["Holdable", "Wear_Saddle", "RidingGear_PackSaddle", "Destroyable_Clothing"]),
+			new("antiquity_mule_pannier_set", "panniers", "a pair of mule panniers",
+				"This matched pair of deep woven panniers hangs from a padded leather frame, keeping a mule's cargo divided and balanced.",
+				SizeCategory.Large, ItemQuality.Standard, 7200.0, 54.0m, "wicker", MaterialBehaviourType.Wood,
+				[PackGearTag, "Market / Transportation / Horse Tack"], ["Holdable", "Wear_Saddle", "RidingGear_PackSaddle", "Container_PreIndustrial_LiddedHamper", "Destroyable_Misc"]),
+			new("antiquity_ox_yoke", "yoke", "a heavy ox yoke",
+				"This heavy shaped oak yoke has smoothed neck bows and iron fastening points for joining a pair of oxen to a plough, cart, or wagon.",
+				SizeCategory.VeryLarge, ItemQuality.Standard, 26000.0, 58.0m, "oak", MaterialBehaviourType.Wood,
+				[DraftGearTag, "Market / Transportation / Horse Tack"], ["Holdable", "Wear_Saddle", "HitchGear_Yoke", "Destroyable_WoodenHeavy"]),
+			new("antiquity_chariot_harness", "harness", "a leather chariot harness",
+				"This layered leather chariot harness carries reinforced breast straps, traces, and bronze rings for transferring a team's effort into the pole.",
+				SizeCategory.Large, ItemQuality.Good, 6800.0, 82.0m, "leather", MaterialBehaviourType.Leather,
+				[DraftGearTag, "Market / Military Goods"], ["Holdable", "Wear_Saddle", "HitchGear_Harness", "Destroyable_Clothing"]),
+			new("antiquity_camel_cargo_saddle", "saddle", "a padded camel cargo saddle",
+				"This high padded cargo saddle is shaped around a camel's back and hung with broad straps and lash rings for bulky desert loads.",
+				SizeCategory.Large, ItemQuality.Standard, 9800.0, 76.0m, "leather", MaterialBehaviourType.Leather,
+				[PackGearTag, "Market / Transportation / Horse Tack"], ["Holdable", "Wear_Saddle", "RidingGear_PackSaddle", "Destroyable_Clothing"]),
+			new("antiquity_warhorse_barding_harness", "barding", "a reinforced warhorse barding harness",
+				"This reinforced leather-scale barding harness protects a warhorse's body while retaining the straps and control fittings needed under arms.",
+				SizeCategory.VeryLarge, ItemQuality.Good, 18000.0, 145.0m, "leather", MaterialBehaviourType.Leather,
+				[AnimalArmourTag, RidingTackTag, "Market / Military Goods"], ["Holdable", "Wear_Saddle", "RidingGear_RidingHarness", "Armour_LeatherScale", "Destroyable_Armour"]),
+			new("antiquity_rope_lead_halter", "halter", "a rope lead halter",
+				"This soft hemp halter loops around an animal's muzzle and poll, ending in a stout lead rope for bitless control or light hitching.",
+				SizeCategory.Normal, ItemQuality.Standard, 900.0, 12.0m, "hemp", MaterialBehaviourType.Plant,
+				[RidingTackTag, DraftGearTag, "Market / Transportation / Horse Tack"], ["Holdable", "Wear_Bridle", "RidingGear_BitlessBridle", "HitchGear_LeadRope", "Destroyable_Misc"])
 		];
 	}
 }

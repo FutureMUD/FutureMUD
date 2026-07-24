@@ -321,12 +321,18 @@ public class CombatSeederSourceTests
 			"Melee_Training_Poleblade", "Melee_Training_Sabre", "Melee_Training_Smallsword",
 			"CompositeBow_Heavy", "CompositeBow_Light", "CompositeBow_War", "Yumi",
 			"Crossbow_EastAsian", "Crossbow_Heavy", "Crossbow_Light", "Crossbow_Pellet",
-			"Blowgun_Long", "Blowgun_Short", "Throwing_Club", "Throwing_Disc"
+			"Crossbow_Cranequin", "Crossbow_GoatsFoot", "Crossbow_Lever", "Crossbow_SpanningHook",
+			"Crossbow_Windlass", "Blowgun_Long", "Blowgun_Short", "Throwing_Club", "Throwing_Disc",
+			"Bayonet_Plug", "Bayonet_Socket", "Bayonet_Sword",
+			"MusketPaperCartridge_0.45 Bore", "MusketPaperCartridge_0.55 Bore",
+			"MusketPaperCartridge_0.6 Bore", "MusketPaperCartridge_0.65 Bore",
+			"MusketPaperCartridge_0.7 Bore", "MusketPaperCartridge_0.75 Bore",
+			"MusketPaperCartridge_0.8 Bore"
 		];
 
 		CollectionAssert.AreEquivalent(expectedNames,
 			CombatSeeder.EraDependencyCombatComponentNamesForTesting.ToArray());
-		Assert.AreEqual(34, expectedNames.Length);
+		Assert.AreEqual(49, expectedNames.Length);
 
 		string source = SeederSourceTestHelper.ReadPartialFamily("CombatSeeder");
 		StringAssert.Contains(source,
@@ -342,16 +348,50 @@ public class CombatSeederSourceTests
 
 		foreach (string deferred in new[]
 		         {
-			         "Crossbow_Cranequin", "Crossbow_GoatsFoot", "Crossbow_Lever", "Crossbow_Repeating",
-			         "Crossbow_Repeating_Light", "Crossbow_SpanningHook", "Crossbow_Wall", "Crossbow_Windlass",
+			         "Crossbow_Repeating", "Crossbow_Repeating_Light", "Crossbow_Wall",
 			         "Musket_Doglock_Blunderbuss75", "Container_CartridgeBandolier", "Holster_PairedSaddle",
-			         "Artillery_CoehornMortar", "Bayonet_Plug", "WeaponLanyard_Pistol",
+			         "Artillery_CoehornMortar", "WeaponLanyard_Pistol",
 			         "MilitaryStandard_CavalryStandard", "SignalInstrument_FieldDrum"
 		         })
 		{
 			Assert.IsFalse(expectedNames.Contains(deferred, StringComparer.OrdinalIgnoreCase),
 				$"{deferred} requires behaviour that this data-only pass must not seed.");
 		}
+	}
+
+	[TestMethod]
+	public void EarlyModernLowComplexityStockItems_HaveStableReferencesAndExactFunctionalCompositions()
+	{
+		string source = SeederSourceTestHelper.ReadPartialFamily("ItemSeeder");
+
+		foreach (var (reference, component) in new[]
+		         {
+			         ("earlymodern_military_tool_cranequin", "Cranequin"),
+			         ("earlymodern_military_tool_goats_foot", "Goat's Foot"),
+			         ("earlymodern_military_tool_spanning_lever", "Lever"),
+			         ("earlymodern_military_tool_spanning_hook", "Spanning Hook"),
+			         ("earlymodern_military_tool_windlass", "Windlass")
+		         })
+		{
+			StringAssert.Contains(source, reference);
+			StringAssert.Contains(source, $"$\"{{spanningRoot}} / {{toolTag}}\"");
+			StringAssert.Contains(source, component);
+		}
+
+		foreach (var (reference, component) in new[]
+		         {
+			         ("earlymodern_military_melee_plug_bayonet_service", "Bayonet_Plug"),
+			         ("earlymodern_military_melee_socket_bayonet_service", "Bayonet_Socket"),
+			         ("earlymodern_military_melee_sword_bayonet_service", "Bayonet_Sword")
+		         })
+		{
+			StringAssert.Contains(source, reference);
+			StringAssert.Contains(source, component);
+		}
+
+		StringAssert.Contains(source,
+			"[\"Holdable\", \"Melee_Bayonet\", component, \"Destroyable_Weapon\", \"Beltable\"]");
+		StringAssert.Contains(source, "[\"Holdable\", destroyableComponent]");
 	}
 
 	[TestMethod]

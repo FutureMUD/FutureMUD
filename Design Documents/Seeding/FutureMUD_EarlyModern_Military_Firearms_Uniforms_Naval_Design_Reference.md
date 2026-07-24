@@ -10,7 +10,9 @@
 - **New-domain distribution:** 420 melee weapons; 480 ranged weapons, firearms, artillery, ammunition, and operating tools; 501 armour and shield items; and 260 accessories, standards, field-equipment, and naval-store items.
 - **Descriptions:** `sdesc` only in this catalogue. Ordinary portable rows should use `ldesc = null`; full descriptions remain a later implementation stage.
 - **Uniform authority:** worn uniforms, civilian garments, footwear, hats, rank sashes, badges, epaulettes, and generic dress sword-belts remain owned by `FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md`. This reference owns combat weapons, functional weapon carriers, firearm ammunition systems, armour, shields, artillery, standards, signal equipment, and naval weapon support.
-- **Dependency posture:** no new solid material or tag is required. The catalogue assumes 156 new seeded component prototypes, grouped in the companion dependency ledger; 98 use existing component types and 58 use seven new component types.
+- **Dependency posture:** no new solid material is required. The catalogue requests 156 named component profiles: 56 are now supported and seeded, while the remaining 100 are grouped in the companion dependency ledger. Functional ammunition and spanning-tool tag families were added for the completed tranche.
+- **Implemented dependency tranche:** 56 of the 156 named profiles are now seeded. The completed low-complexity additions are seven single-projectile paper-cartridge profiles, three functional bayonet profiles, five tool-spanned crossbow profiles, and the constrained cartridge bandolier. Their functional tags, stock spanning tools, and service bayonets are seeded idempotently. The remaining 100 names retain their dependency-ledger status.
+- **Persistence posture:** this tranche extends component XML only and requires no database migration. Legacy cartridge, container, musket, and crossbow definitions keep compatibility defaults.
 
 | Catalogue domain | New rows | Reused/shared rows | Total references |
 |---|---:|---:|---:|
@@ -51,8 +53,8 @@ The presence of an item in the catalogue means that builders may admit it where 
 - [Renaissance military reference](./FutureMUD_Renaissance_Military_Firearms_Armour_Design_Reference.md): Renaissance-side survivals and predecessor systems. Reuse from this future catalogue must be explicit rather than invoking the whole Renaissance branch.
 - [Medieval military reference](./Medieval_Military_Seeder_Design_Reference.md): source of the 138 direct admissions and the 52 source rows promoted through shared military-support aliases.
 - [Shared pre-industrial baseline reference](./PreIndustrial_Item_Seeder_Design_Reference.md) and [alias catalogue](./PreIndustrial_Item_Seeder_Alias_Catalogue.md): live `preindustrial_*` dependencies.
-- [Military source dependency ledger](./FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Dependency_Ledger.md): the original 156 military requests and their 40-supported/116-deferred partition.
-- [Consolidated item-content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md): the authoritative backlog for the 116 military deferrals, the household cash-register deferral, and dependent Antiquity item references.
+- [Military source dependency ledger](./FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Dependency_Ledger.md): the original 156 military requests and their current 56-supported/100-deferred partition.
+- [Consolidated item-content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md): the authoritative backlog for the 100 remaining military deferrals and 21 dependent Antiquity item references.
 
 ## Reuse architecture
 

@@ -324,12 +324,18 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
         return
             item != Parent &&
             IsOpen &&
+            TagRulesAccept(item) &&
             (item.Size <= _prototype.MaximumContentsSize || item.IsItemType<ICommodity>()) &&
             _contents.Sum(x => x.Weight) + item.Weight <= _prototype.WeightLimit;
     }
 
     public int CanPutAmount(IGameItem item)
     {
+        if (!IsOpen || !TagRulesAccept(item))
+        {
+            return 0;
+        }
+
         return (int)((_prototype.WeightLimit - _contents.Sum(x => x.Weight)) / (item.Weight / item.Quantity));
     }
 
@@ -372,6 +378,11 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
             return WhyCannotPutReason.ContainerClosed;
         }
 
+        if (!TagRulesAccept(item))
+        {
+            return WhyCannotPutReason.NotCorrectItemType;
+        }
+
         if (item.Size > _prototype.MaximumContentsSize)
         {
             return WhyCannotPutReason.ItemTooLarge;
@@ -390,6 +401,16 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
         }
 
         return WhyCannotPutReason.NotContainer;
+    }
+
+    private bool TagRulesAccept(IGameItem item)
+    {
+        if (_prototype.BlockedTags.Any(item.IsA))
+        {
+            return false;
+        }
+
+        return !_prototype.AllowedTags.Any() || _prototype.AllowedTags.Any(item.IsA);
     }
 
     public bool CanTake(ICharacter taker, IGameItem item, int quantity)

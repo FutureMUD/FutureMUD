@@ -319,3 +319,11 @@ The strongest reference case is the new heater/cooler family:
 Physical ranged attacks against a vehicle occupant resolve the strongest applicable cover between the character's ordinary cover effect and the occupant slot's directional vehicle cover. Ammunition, thrown weapons, power-pack projectiles, and ranged natural attacks all use that shared result.
 
 When vehicle cover intercepts an attack, the exterior item is the visible cover provider for messaging only. The projectile does not call the exterior item's wound or damage path in this combat slice; boats are not damaged or capsized by occupant-directed attacks. Same-vehicle attackers bypass their own vehicle's cover, and aquatic hull assaults ignore ranged cover because they resolve an occupant stability effect rather than a projectile interception.
+
+## Historical Equipment Presentation and Integration
+
+- Lockable tills continue to present as shop cash drawers, with lock state layered into the full description and locked selection producing a direct error.
+- Restricted containers use their ordinary container presentation; their allowed and blocked functional tags are builder metadata rather than player-visible item taxonomy.
+- Attached bayonets remain separate perceivable items. The musket reports attachment state through its existing attachment presentation, while combat uses the bayonet item's own melee profile.
+- Tool-spanned crossbows emit the authored ready emote with the selected inventory tool and preserve their ordinary ranged-weapon timing, stamina, and evaluation text.
+- Riding and hitch gear should be described through the physical item and its wearable/armour/container decorators; functional roles must not replace source-faithful material, capacity, or appearance text.

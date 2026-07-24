@@ -6,7 +6,7 @@ The goal is not to replace the existing antiquity catalogue. It is a forward-loo
 
 Cross-era foundation note: genuinely shared workshop foundations use `historic_*` stable references in `ItemSeeder.HistoricFoundation.cs` and are seeded for either antiquity or medieval installs. Antiquity culture-specific clothing, weapons, jewellery, foodways, and document forms remain under their existing `antiquity_*` references.
 
-Current review status: the implemented data-only, seal/sealable, weight/fluid measurement, incense, and V1 item-offering work below was verified rather than reimplemented. The remaining 29 item references are consolidated under `Instrument` (9), `GameSet` (7), `AnimalTack`/`Harness` (8), dimension-aware `MeasuringInstrument` (1), and extended `OfferingReceiver` (4) in the [item content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
+Current review status: the implemented data-only, seal/sealable, weight/fluid measurement, incense, V1 item-offering, and animal-tack work below was verified or completed rather than reimplemented. The remaining 21 item references are consolidated under `Instrument` (9), `GameSet` (7), dimension-aware `MeasuringInstrument` (1), and extended `OfferingReceiver` (4) in the [item content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
 
 ## Existing Coverage Baseline
 
@@ -414,19 +414,12 @@ Future liquid-only or specialised ritual rows:
 
 ### Animal Tack and Harness Component
 
-Missing functionality:
+Implementation status: complete using the existing `RidingGear` and `HitchGear` families. The earlier gap assessment predated those runtime capabilities; the remaining work was seeded item composition and maintained-catalogue export.
 
-- tack that meaningfully connects a character, animal, cart, chariot, or pack load.
-- pack saddles and panniers that increase carried cargo in a mount-aware way.
-- harnesses and yokes that let animals pull vehicles or drag aids without being treated like ordinary worn clothing.
-- reins, bridles, and control gear that can affect riding, leading, or animal handling checks.
-
-Rough component guidance:
-
-- Component type names: `AnimalTack`, `Harness`, or a small family split by role.
-- Prototype settings: supported body plans, supported animal sizes, tack role, cargo multiplier, control modifier, required worn locations, whether the tack can link to a vehicle or drag aid.
-- Runtime hooks should integrate with mount, drag, vehicle, and animal-handling systems rather than being purely item-local.
-- This is a larger cross-subsystem pass and should not be slipped into a small item-seeder-only change.
+- bridles, pack saddles, bitless control gear, and riding harnesses now contribute their existing mounted-control and stability roles.
+- yokes, draft harnesses, and lead ropes use existing hitch roles and effort/user constraints.
+- mule panniers combine `RidingGear_PackSaddle` with one ordinary container component, preserving a single container inventory.
+- warhorse barding combines the riding harness with existing wearable and armour behavior.
 
 Items enabled:
 
@@ -442,7 +435,7 @@ Items enabled:
 ## Suggested Implementation Order
 
 1. Add data-only items that use existing components cleanly: dice, lockpicks, drag aids, notice boards, and a first water-source set.
-2. Completed in `UsefulSeeder`: antiquity-specific component prototypes for `TimePiece`, `WaterSource`, `DragAid`, `Dice`, `Locksmithing Tool`, `ShopStall`, `MarketGoodWeight`, `SealStamp`, `Sealable`, and `MeasuringInstrument`.
+2. Completed in `UsefulSeeder`: antiquity-specific component prototypes for `TimePiece`, `WaterSource`, `DragAid`, `Dice`, `Locksmithing Tool`, `ShopStall`, `MarketGoodWeight`, `SealStamp`, `Sealable`, and `MeasuringInstrument`, plus the existing `RidingGear` and `HitchGear` profile exports.
 3. Add matching item prototypes that use those new component prototypes and update this document with the shipped names.
 4. `IncenseBurner` and `OfferingReceiver` now cover the first ritual-offering gameplay pass, including smell-trackable incense and item-offering burn hooks.
-5. Treat direct liquid libations, ritual ownership/history, and specialised oracular/funeral law integrations as later passes. `SealStamp`/`Sealable` and the weight/fluid-volume portion of `MeasuringInstrument` are implemented; length measurement remains a future item-dimension pass.
+5. The eight tack and harness item references are now seeded using existing runtime roles. Treat direct liquid libations, ritual ownership/history, and specialised oracular/funeral law integrations as later passes. `SealStamp`/`Sealable` and the weight/fluid-volume portion of `MeasuringInstrument` are implemented; length measurement remains a future item-dimension pass.

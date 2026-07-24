@@ -618,6 +618,8 @@ public class UsefulSeederItemPackageTests
 			.Concat(liquidContainers)
 			.Concat(lockingContainers)
 			.Concat(handTools)
+			.Append("CashRegister_PreIndustrial_TillChest")
+			.Append("Container_CartridgeBandolier")
 			.ToArray();
 
 		foreach (string name in expectedNames)
@@ -628,7 +630,7 @@ public class UsefulSeederItemPackageTests
 
 		Assert.AreEqual(expectedNames.Length,
 			context.GameItemComponentProtos.Count(x => expectedNames.Contains(x.Name)));
-		Assert.AreEqual(0,
+		Assert.AreEqual(1,
 			context.GameItemComponentProtos.Count(x => x.Name == "CashRegister_PreIndustrial_TillChest"));
 		Assert.IsTrue(dryContainers.All(name =>
 			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "Container"));
@@ -638,6 +640,10 @@ public class UsefulSeederItemPackageTests
 			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "LockingContainer"));
 		Assert.IsTrue(handTools.All(name =>
 			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "HandTool"));
+		Assert.AreEqual("LockingCashRegister",
+			context.GameItemComponentProtos.Single(x => x.Name == "CashRegister_PreIndustrial_TillChest").Type);
+		Assert.AreEqual("Container",
+			context.GameItemComponentProtos.Single(x => x.Name == "Container_CartridgeBandolier").Type);
 
 		XElement Definition(string name) =>
 			XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == name).Definition);
@@ -674,6 +680,18 @@ public class UsefulSeederItemPackageTests
 			.Attribute("Transparent")!);
 		Assert.IsTrue(lockingContainers.All(name =>
 			Definition(name).Element("LockType")?.Value == "Ward Lock"));
+		Assert.AreEqual("Ward Lock",
+			Definition("CashRegister_PreIndustrial_TillChest").Element("LockType")?.Value);
+		CollectionAssert.AreEquivalent(
+			new[]
+			{
+				context.Tags.Single(x => x.Name == "Paper Cartridges").Id,
+				context.Tags.Single(x => x.Name == "Wooden Powder Charges").Id
+			},
+			Definition("Container_CartridgeBandolier").Element("AllowedTags")!
+				.Elements("Tag")
+				.Select(x => (long)x)
+				.ToArray());
 	}
 
 	[TestMethod]
@@ -1211,11 +1229,14 @@ public class UsefulSeederItemPackageTests
 		SeedMarketCategories(context);
 		UsefulSeeder usefulSeeder = new();
 		usefulSeeder.SeedAntiquityComponentGapCoverageForTesting(context);
+		usefulSeeder.SeedGeneralCoverageForTesting(context);
 		EnsureComponentMarkers(context,
 			"Destroyable_Misc",
 			"Destroyable_Furniture",
 			"Destroyable_WoodenHeavy",
 			"Destroyable_HeavyMetal",
+			"Destroyable_Clothing",
+			"Destroyable_Armour",
 			"Destroyable_Shield",
 			"Container_Tray",
 			"Container_Pouch",
@@ -1225,6 +1246,10 @@ public class UsefulSeederItemPackageTests
 			"LContainer_Amphora_Urna",
 			"Wear_Ring",
 			"Wear_Waist",
+			"Wear_Saddle",
+			"Wear_Bridle",
+			"Armour_LeatherScale",
+			"Container_PreIndustrial_LiddedHamper",
 			"Keyring_Large",
 			"LockingContainer_Lockbox",
 			"Dice_d6");
@@ -1294,6 +1319,25 @@ public class UsefulSeederItemPackageTests
 
 		GameItemProto funeralTray = LoadItem(context, "antiquity_funeral_offering_tray");
 		CollectionAssert.Contains(ComponentNames(funeralTray), "OfferingReceiver_Antiquity_FuneralTray");
+
+		GameItemProto bridle = LoadItem(context, "antiquity_leather_bridle");
+		CollectionAssert.IsSubsetOf(new[] { "Wear_Bridle", "RidingGear_Bridle" }, ComponentNames(bridle));
+		GameItemProto panniers = LoadItem(context, "antiquity_mule_pannier_set");
+		CollectionAssert.IsSubsetOf(
+			new[] { "Wear_Saddle", "RidingGear_PackSaddle", "Container_PreIndustrial_LiddedHamper" },
+			ComponentNames(panniers));
+		GameItemProto yoke = LoadItem(context, "antiquity_ox_yoke");
+		CollectionAssert.Contains(ComponentNames(yoke), "HitchGear_Yoke");
+		GameItemProto harness = LoadItem(context, "antiquity_chariot_harness");
+		CollectionAssert.Contains(ComponentNames(harness), "HitchGear_Harness");
+		GameItemProto barding = LoadItem(context, "antiquity_warhorse_barding_harness");
+		CollectionAssert.IsSubsetOf(
+			new[] { "RidingGear_RidingHarness", "Armour_LeatherScale", "Wear_Saddle" },
+			ComponentNames(barding));
+		GameItemProto halter = LoadItem(context, "antiquity_rope_lead_halter");
+		CollectionAssert.IsSubsetOf(
+			new[] { "RidingGear_BitlessBridle", "HitchGear_LeadRope", "Wear_Bridle" },
+			ComponentNames(halter));
 	}
 
 	[TestMethod]

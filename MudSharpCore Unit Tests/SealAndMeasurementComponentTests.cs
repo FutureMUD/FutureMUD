@@ -3,8 +3,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Accounts;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
+using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
@@ -29,6 +31,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using DbEditableItem = MudSharp.Models.EditableItem;
 using DbGameItemComponent = MudSharp.Models.GameItemComponent;
@@ -51,11 +54,233 @@ public class SealAndMeasurementComponentTests
 		CollectionAssert.Contains(primaryTypes, "measuringinstrument");
 		CollectionAssert.Contains(primaryTypes, "incenseburner");
 		CollectionAssert.Contains(primaryTypes, "offeringreceiver");
+		CollectionAssert.Contains(primaryTypes, "bayonetattachment");
+		CollectionAssert.Contains(primaryTypes, "lockingcashregister");
 		CollectionAssert.Contains(helpTypes, "SealStamp");
 		CollectionAssert.Contains(helpTypes, "Sealable");
 		CollectionAssert.Contains(helpTypes, "MeasuringInstrument");
 		CollectionAssert.Contains(helpTypes, "IncenseBurner");
 		CollectionAssert.Contains(helpTypes, "OfferingReceiver");
+		CollectionAssert.Contains(helpTypes, "BayonetAttachment");
+		CollectionAssert.Contains(helpTypes, "LockingCashRegister");
+	}
+
+	[TestMethod]
+	public void DependencyClosurePrototypes_LoadLegacyAndRestrictedDefinitions()
+	{
+		var allowed = CreateTag(201L, "Paper Cartridges");
+		var blocked = CreateTag(202L, "Training Loads");
+		var ammunition = new Mock<IAmmunitionType>();
+		ammunition.SetupGet(x => x.Id).Returns(301L);
+		ammunition.SetupGet(x => x.Name).Returns("0.65 Bore Musket Shot");
+		var bullet = new Mock<IGameItemProto>();
+		bullet.SetupGet(x => x.Id).Returns(302L);
+		bullet.SetupGet(x => x.RevisionNumber).Returns(0);
+		bullet.SetupGet(x => x.Name).Returns("round ball");
+		var gameworld = CreateGameworld(allowed.Object, blocked.Object);
+		gameworld.SetupGet(x => x.AmmunitionTypes).Returns(Repository(ammunition.Object));
+		gameworld.SetupGet(x => x.ItemProtos).Returns(RevisableRepository(bullet.Object));
+
+		var legacyCartridge = CreateProto<MusketCartridgeGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(201, "MusketCartridge", new XElement("Definition",
+				new XElement("AmmoType", ammunition.Object.Id),
+				new XElement("BulletProto", bullet.Object.Id),
+				new XElement("BulletBore", 0.65)).ToString()));
+		Assert.IsNull(legacyCartridge.PowderMass);
+		Assert.IsTrue(legacyCartridge.IncludesWad);
+		StringAssert.Contains(InvokeSaveToXml(legacyCartridge), "<IncludesWad>true</IncludesWad>");
+
+		var container = CreateProto<ContainerGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(202, "Container", new XElement("Definition",
+				new XAttribute("Weight", 12000),
+				new XAttribute("MaxSize", (int)SizeCategory.Small),
+				new XAttribute("Preposition", "in"),
+				new XAttribute("Closable", true),
+				new XAttribute("Transparent", false),
+				new XElement("AllowedTags", new XElement("Tag", allowed.Object.Id)),
+				new XElement("BlockedTags", new XElement("Tag", blocked.Object.Id))).ToString()));
+		CollectionAssert.AreEqual(new[] { allowed.Object }, container.AllowedTags);
+		CollectionAssert.AreEqual(new[] { blocked.Object }, container.BlockedTags);
+		StringAssert.Contains(InvokeSaveToXml(container), "<Tag>201</Tag>");
+		var admitted = CreateContainerCandidate(allowed.Object);
+		var rejected = CreateContainerCandidate();
+		var blockedCandidate = CreateContainerCandidate(allowed.Object, blocked.Object);
+		var runtimeContainer = (ContainerGameItemComponent)container.CreateNew(
+			CreateParent(gameworld.Object, 205L, "bandolier").Object, temporary: true);
+		Assert.IsTrue(runtimeContainer.CanPut(admitted.Object));
+		Assert.IsFalse(runtimeContainer.CanPut(rejected.Object));
+		Assert.IsFalse(runtimeContainer.CanPut(blockedCandidate.Object),
+			"Blocked tags must win when an item also matches an allowed tag.");
+
+		var bayonet = CreateProto<BayonetAttachmentGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(203, "BayonetAttachment", new XElement("Definition",
+				new XElement("Style", "Plug"),
+				new XElement("MinimumBore", 0.45),
+				new XElement("MaximumBore", 0.8)).ToString()));
+		Assert.AreEqual(BayonetAttachmentStyle.Plug, bayonet.Style);
+		Assert.IsTrue(bayonet.BlocksFiring);
+		Assert.IsTrue(0.75 >= bayonet.MinimumBore && 0.75 <= bayonet.MaximumBore);
+	}
+
+	[TestMethod]
+	public void LockingCashRegister_ClosedTillCannotOpenWhileLockedAndPersistsState()
+	{
+		var gameworld = CreateGameworld();
+		var proto = CreateProto<LockingCashRegisterGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(210, "LockingCashRegister", new XElement("Definition",
+				new XAttribute("Weight", 50000),
+				new XAttribute("MaxSize", (int)SizeCategory.Small),
+				new XElement("ForceDifficulty", (int)Difficulty.VeryHard),
+				new XElement("PickDifficulty", (int)Difficulty.Hard),
+				new XElement("LockType", "Ward Lock")).ToString()));
+		var parent = CreateParent(gameworld.Object, 211L, "till chest");
+		var component = (LockingCashRegisterGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+		parent.Setup(x => x.GetItemType<ILockable>()).Returns(component);
+
+		component.Close();
+		Assert.IsTrue(component.SetLocked(true, false));
+		Assert.IsTrue(component.IsLocked);
+		Assert.AreEqual(WhyCannotOpenReason.Locked, component.WhyCannotOpen(null!));
+		StringAssert.Contains(InvokeSaveToXml(component), "<IsLocked>true</IsLocked>");
+		Assert.IsTrue(component.SetLocked(false, false));
+		Assert.IsFalse(component.IsLocked);
+	}
+
+	[TestMethod]
+	public void CrossbowReadyState_LegacyDefaultsFalseAndExplicitStatePersists()
+	{
+		var spanningTool = CreateTag(450L, "Windlass");
+		var ranged = new Mock<IRangedWeaponType>();
+		ranged.SetupGet(x => x.Id).Returns(401L);
+		ranged.SetupGet(x => x.Name).Returns("Windlass Crossbow");
+		var gameworld = CreateGameworld(spanningTool.Object);
+		gameworld.SetupGet(x => x.RangedWeaponTypes).Returns(Repository(ranged.Object));
+		var proto = CreateProto<CrossbowGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(401, "Crossbow", new XElement("Definition",
+				new XElement("RangedWeaponType", ranged.Object.Id),
+				new XElement("MeleeWeaponType", 0),
+				new XElement("RequiredSpanningToolTag", spanningTool.Object.Id)).ToString()));
+		Assert.AreSame(spanningTool.Object, proto.RequiredSpanningToolTag);
+		Assert.IsNotNull(proto.ReadyTemplate);
+		StringAssert.Contains(InvokeSaveToXml(proto), "<RequiredSpanningToolTag>450</RequiredSpanningToolTag>");
+		var parent = CreateParent(gameworld.Object, 402L, "crossbow");
+		var legacy = (CrossbowGameItemComponent)proto.LoadComponent(
+			new DbGameItemComponent { Definition = "<Definition><Wielded>0</Wielded><Loaded>0</Loaded></Definition>" },
+			parent.Object);
+		Assert.IsFalse(legacy.IsReadied);
+
+		legacy.IsReadied = true;
+		StringAssert.Contains(InvokeSaveToXml(legacy), "<IsReadied>true</IsReadied>");
+		var copy = (CrossbowGameItemComponent)legacy.Copy(
+			CreateParent(gameworld.Object, 403L, "copy").Object, true);
+		Assert.IsTrue(copy.IsReadied);
+	}
+
+	[TestMethod]
+	public void MusketBayonet_AttachmentRoutesMeleeAndPlugBlocksFiring()
+	{
+		var normalMelee = new Mock<IWeaponType>();
+		normalMelee.SetupGet(x => x.Id).Returns(502L);
+		normalMelee.SetupGet(x => x.Name).Returns("Musket Butt");
+		var bayonetMelee = new Mock<IWeaponType>();
+		bayonetMelee.SetupGet(x => x.Id).Returns(503L);
+		bayonetMelee.SetupGet(x => x.Name).Returns("Bayonet");
+		var gameworld = CreateGameworld();
+		var proto = (MusketGameItemComponentProto)RuntimeHelpers.GetUninitializedObject(
+			typeof(MusketGameItemComponentProto));
+		proto.MeleeWeaponType = normalMelee.Object;
+		typeof(MusketGameItemComponentProto)
+			.GetField("_barrelBore", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(proto, 0.75);
+		var musketParent = CreateParent(gameworld.Object, 504L, "musket");
+		musketParent.SetupGet(x => x.Size).Returns(SizeCategory.Large);
+		var musket = (MusketGameItemComponent)proto.CreateNew(musketParent.Object, temporary: true);
+		musket.LoadStage = 4;
+		musket.IsReadied = true;
+
+		var attachment = new Mock<IBayonetAttachment>();
+		attachment.SetupGet(x => x.Style).Returns(BayonetAttachmentStyle.Plug);
+		attachment.SetupGet(x => x.BlocksFiring).Returns(true);
+		attachment.Setup(x => x.FitsBore(It.IsAny<double>())).Returns(true);
+		var melee = new Mock<IMeleeWeapon>();
+		melee.SetupGet(x => x.WeaponType).Returns(bayonetMelee.Object);
+		var bayonetParent = CreateParent(gameworld.Object, 505L, "plug bayonet");
+		bayonetParent.SetupGet(x => x.Size).Returns(SizeCategory.Small);
+		bayonetParent.Setup(x => x.IsItemType<IBayonetAttachment>()).Returns(true);
+		bayonetParent.Setup(x => x.GetItemType<IBayonetAttachment>()).Returns(attachment.Object);
+		bayonetParent.Setup(x => x.GetItemType<IMeleeWeapon>()).Returns(melee.Object);
+		var beltable = new Mock<IBeltable>();
+		beltable.SetupGet(x => x.Parent).Returns(bayonetParent.Object);
+		beltable.SetupProperty(x => x.ConnectedTo);
+
+		Assert.AreEqual(IBeltCanAttachBeltableResult.Success, musket.CanAttachBeltable(beltable.Object));
+		musket.AddConnectedItem(beltable.Object);
+		Assert.IsFalse(musket.CanFire(null!, null!));
+		StringAssert.Contains(musket.WhyCannotFire(null!, null!), "plug bayonet");
+		Assert.AreSame(bayonetMelee.Object, ((IMeleeWeapon)musket).WeaponType);
+
+		musket.RemoveConnectedItem(beltable.Object);
+		Assert.IsTrue(musket.CanFire(null!, null!));
+		Assert.AreSame(normalMelee.Object, ((IMeleeWeapon)musket).WeaponType);
+	}
+
+	[TestMethod]
+	public void MusketCartridgeCompatibility_ValidatesTypeGradeBoreAndExplicitCharge()
+	{
+		var ranged = new Mock<IRangedWeaponType>();
+		ranged.SetupGet(x => x.SpecificAmmunitionGrade).Returns("Musket Ball");
+		var proto = (MusketGameItemComponentProto)RuntimeHelpers.GetUninitializedObject(
+			typeof(MusketGameItemComponentProto));
+		typeof(MusketGameItemComponentProto)
+			.GetField("_rangedWeaponType", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(proto, ranged.Object);
+		typeof(MusketGameItemComponentProto)
+			.GetField("_barrelBore", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(proto, 0.75);
+		typeof(MusketGameItemComponentProto)
+			.GetField("_powderVolumePerShot", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(proto, 7.0);
+		var ammunition = new Mock<IAmmunitionType>();
+		ammunition.SetupGet(x => x.SpecificType).Returns("Musket Ball");
+		ammunition.SetupGet(x => x.RangedWeaponTypes).Returns([RangedWeaponType.Musket]);
+		var cartridge = new Mock<IMusketCartridge>();
+		cartridge.SetupGet(x => x.AmmoType).Returns(ammunition.Object);
+		cartridge.SetupGet(x => x.BulletProto).Returns(Mock.Of<IGameItemProto>());
+		cartridge.SetupGet(x => x.BulletBore).Returns(0.7);
+		cartridge.SetupGet(x => x.PowderMass).Returns(7.0);
+
+		Assert.IsTrue(proto.IsCompatibleCartridgeForLoading(cartridge.Object));
+		cartridge.SetupGet(x => x.PowderMass).Returns(6.5);
+		Assert.IsFalse(proto.IsCompatibleCartridgeForLoading(cartridge.Object));
+		cartridge.SetupGet(x => x.PowderMass).Returns((double?)null);
+		Assert.IsTrue(proto.IsCompatibleCartridgeForLoading(cartridge.Object),
+			"Missing charge data must preserve legacy weapon-defined charge behavior.");
+		cartridge.SetupGet(x => x.BulletBore).Returns(0.8);
+		Assert.IsFalse(proto.IsCompatibleCartridgeForLoading(cartridge.Object));
+		ammunition.SetupGet(x => x.SpecificType).Returns("Shotgun Shell");
+		Assert.IsFalse(proto.IsCompatibleCartridgeForLoading(cartridge.Object));
+		ammunition.SetupGet(x => x.SpecificType).Returns("Musket Ball");
+		cartridge.SetupGet(x => x.BulletBore).Returns(0.7);
+		cartridge.SetupGet(x => x.BulletProto).Returns((IGameItemProto)null!);
+		Assert.IsFalse(proto.IsCompatibleCartridgeForLoading(cartridge.Object));
+	}
+
+	private static T CreateProto<T>(IFuturemud gameworld, DbGameItemComponentProto model)
+		where T : GameItemComponentProto
+	{
+		return (T)Activator.CreateInstance(typeof(T), BindingFlags.Instance | BindingFlags.NonPublic, null,
+			new object[] { model, gameworld }, CultureInfo.InvariantCulture)!;
+	}
+
+	private static Mock<IGameItem> CreateContainerCandidate(params ITag[] tags)
+	{
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Size).Returns(SizeCategory.Tiny);
+		item.SetupGet(x => x.Weight).Returns(1.0);
+		item.SetupGet(x => x.Quantity).Returns(1);
+		item.Setup(x => x.IsA(It.IsAny<ITag>()))
+			.Returns<ITag>(tag => tags.Contains(tag));
+		return item;
 	}
 
 	[TestMethod]
@@ -433,6 +658,10 @@ public class SealAndMeasurementComponentTests
 		gameworld.SetupGet(x => x.Tags).Returns(Repository(tags));
 		gameworld.SetupGet(x => x.Drugs).Returns(Repository<IDrug>());
 		gameworld.SetupGet(x => x.ItemProtos).Returns(RevisableRepository<IGameItemProto>());
+		gameworld.SetupGet(x => x.AmmunitionTypes).Returns(Repository<IAmmunitionType>());
+		gameworld.SetupGet(x => x.RangedWeaponTypes).Returns(Repository<IRangedWeaponType>());
+		gameworld.SetupGet(x => x.WeaponTypes).Returns(Repository<IWeaponType>());
+		gameworld.SetupGet(x => x.BodypartPrototypes).Returns(Repository<IBodypart>());
 		return gameworld;
 	}
 

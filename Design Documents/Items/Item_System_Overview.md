@@ -127,3 +127,13 @@ All four use the shared `IProduceHeat` interface, which now exposes:
 - explicit signed proximity-band contributions
 
 This allows both heaters and coolers to use the same item capability, and lets a single item influence the room as a whole while also applying stronger or weaker effects to nearby people and things.
+
+## Historical Arms and Constrained Storage
+
+The item system includes reusable historical-equipment seams:
+
+- `RidingGear` and `HitchGear` supply mount control, stability, and towing roles; ordinary wearable, armour, and container components remain responsible for those independent capabilities.
+- `LockingCashRegister` is deliberately one component, because composing `CashRegister` and `LockingContainer` would create competing `IContainer` capabilities.
+- standard `Container` prototypes can restrict admission with allowed and blocked tag lists.
+- `BayonetAttachment` items occupy the musket's bayonet slot while retaining the attached item's ordinary melee weapon type.
+- crossbows can require a tagged spanning tool and persist whether they are readied.

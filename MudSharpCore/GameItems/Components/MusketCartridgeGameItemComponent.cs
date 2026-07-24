@@ -3,7 +3,7 @@ using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
 
-public class MusketCartridgeGameItemComponent : AmmunitionGameItemComponent
+public class MusketCartridgeGameItemComponent : AmmunitionGameItemComponent, IMusketCartridge
 {
     protected new MusketCartridgeGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
@@ -53,4 +53,6 @@ public class MusketCartridgeGameItemComponent : AmmunitionGameItemComponent
     public new IAmmunitionType AmmoType => _prototype.AmmoType;
     public double BulletBore => _prototype.BulletBore;
     public IGameItemProto BulletProto => _prototype.BulletProto;
+    public double? PowderMass => _prototype.PowderMass;
+    public bool IncludesWad => _prototype.IncludesWad;
 }

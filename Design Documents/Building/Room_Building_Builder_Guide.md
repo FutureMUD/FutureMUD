@@ -95,6 +95,24 @@ rezone <zone>
 
 The `rooms` command can filter by zone and by keywords. Use `+keyword` to require text and `-keyword` to exclude text.
 
+### Moving a Zone Between Installations
+
+Senior administrators can export an ordinary zone to a versioned spatial-area package and import it into another FutureMUD installation:
+
+```text
+spatialpackage export zone "Harbour Ward" harbour-ward
+spatialpackage validate harbour-ward "Prime Material" "Imported Harbour Ward"
+spatialpackage import harbour-ward "Prime Material" confirm "Imported Harbour Ward"
+```
+
+Copy the generated `.fmsa.json` file from the source server's `Spatial Packages` directory into the same directory on the target server. On the target installation, open or create an `Under Design` cell overlay package before validation or import.
+
+An import always creates a new zone and assigns new IDs to its rooms, cells, overlays, and exits. It never merges into an existing zone or overwrites unrelated content. Validation checks package integrity, all internal references, the target shard's clocks and timezones, and named dependencies such as terrain, atmosphere, hearing profiles, weather controllers, forage profiles, tags, covers, and magic resources.
+
+Package version 1 handles ordinary zone topology and each cell's active overlay. It deliberately refuses cells whose faithful transfer requires data it does not yet carry: route-cell geometry, hosted vehicle interiors, temporary rooms, agriculture fields, persisted cell effects, surface-liquid state, installed door items, and fall exits that lead outside the zone. Links crossing the zone boundary, cross-cutting `AREA` membership, characters, and items are omitted with explicit diagnostics.
+
+See [Spatial Area Transfer Packages](../World/Spatial_Area_Transfer_Packages.md) for format, validation, remapping, and extension details.
+
 ### Rooms and Cells
 
 A cell is the concrete playable location. Rooms and cells are the same thing in the engine. They should be understood as synonyms.

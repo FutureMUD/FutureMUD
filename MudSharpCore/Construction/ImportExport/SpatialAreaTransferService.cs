@@ -23,13 +23,15 @@ using MudSharp.Work.Foraging;
 
 namespace MudSharp.Construction.ImportExport;
 
-public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
+public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferService
 {
 	private sealed class ImportPreflight
 	{
 		public required SpatialAreaPackage Package { get; init; }
 		public required string PackagePath { get; init; }
 		public required string ZoneName { get; init; }
+		public required IReadOnlyList<SpatialZoneDefinition> Zones { get; init; }
+		public required IReadOnlyDictionary<string, string> ZoneNames { get; init; }
 		public required ICellOverlayPackage OverlayPackage { get; init; }
 		public required IReadOnlyDictionary<string, ITerrain> Terrains { get; init; }
 		public required IReadOnlyDictionary<string, IHearingProfile> HearingProfiles { get; init; }
@@ -39,6 +41,9 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 		public required IReadOnlyDictionary<string, IRangedCover> RangedCovers { get; init; }
 		public required IReadOnlyDictionary<string, IMagicResource> MagicResources { get; init; }
 		public required IReadOnlyDictionary<string, (IClock Clock, IMudTimeZone TimeZone)> TimeZones { get; init; }
+		public required IReadOnlyDictionary<string,
+			IReadOnlyDictionary<string, (IClock Clock, IMudTimeZone TimeZone)>> TimeZonesByZone { get; init; }
+		public required IReadOnlyDictionary<string, IWeatherController?> WeatherControllers { get; init; }
 		public IWeatherController? WeatherController { get; init; }
 		public List<SpatialAreaTransferDiagnostic> Diagnostics { get; } = [];
 	}
@@ -53,170 +58,7 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 
 	public SpatialAreaTransferResult ExportZone(IZone zone, string packageFileName)
 	{
-		var diagnostics = new List<SpatialAreaTransferDiagnostic>();
-		if (!TryResolvePackagePath(PackageDirectory, packageFileName, out var packagePath, out var pathError))
-		{
-			return Failure(pathError, diagnostics, "invalid-package-name");
-		}
-
-		if (File.Exists(packagePath))
-		{
-			return Failure(
-				$"A package named '{Path.GetFileName(packagePath)}' already exists. Export never overwrites an existing package.",
-				diagnostics,
-				"package-exists");
-		}
-
-		var rooms = zone.Rooms
-			.OrderBy(x => x.Id)
-			.ToList();
-		var cells = rooms
-			.SelectMany(x => x.Cells)
-			.OrderBy(x => x.Id)
-			.ToList();
-		if (rooms.Count == 0 || cells.Count == 0)
-		{
-			return Failure("The selected zone does not contain any rooms and cells.", diagnostics, "empty-zone");
-		}
-
-		if (rooms.Count > SpatialAreaPackageSerializer.MaximumRooms ||
-		    cells.Count > SpatialAreaPackageSerializer.MaximumCells)
-		{
-			return Failure("The selected zone exceeds the package safety limits.", diagnostics, "zone-too-large");
-		}
-
-		var unsupported = ValidateExportableCells(cells);
-		diagnostics.AddRange(unsupported);
-		if (diagnostics.Any(x => x.Severity == SpatialAreaTransferDiagnosticSeverity.Error))
-		{
-			return new SpatialAreaTransferResult
-			{
-				Summary = "The zone was not exported because it contains unsupported spatial state.",
-				Diagnostics = diagnostics,
-				RoomCount = rooms.Count,
-				CellCount = cells.Count
-			};
-		}
-
-		var roomKeys = rooms
-			.Select((room, index) => (room.Id, Key: $"room-{index + 1:D5}"))
-			.ToDictionary(x => x.Id, x => x.Key);
-		var cellKeys = cells
-			.Select((cell, index) => (cell.Id, Key: $"cell-{index + 1:D5}"))
-			.ToDictionary(x => x.Id, x => x.Key);
-		var cellIds = cellKeys.Keys.ToHashSet();
-
-		var allSeenExits = cells
-			.SelectMany(cell => cell.Gameworld.ExitManager.GetExitsFor(cell, cell.CurrentOverlay))
-			.Select(x => x.Exit)
-			.DistinctBy(x => x.Id)
-			.OrderBy(x => x.Id)
-			.ToList();
-		var missingExitIds = cells
-			.SelectMany(x => x.CurrentOverlay.ExitIDs)
-			.Distinct()
-			.Except(allSeenExits.Select(x => x.Id))
-			.ToList();
-		foreach (var missingExitId in missingExitIds)
-		{
-			diagnostics.Add(Error("missing-source-exit",
-				$"An active overlay references exit #{missingExitId:N0}, but that exit could not be loaded from the source database."));
-		}
-
-		if (missingExitIds.Count > 0)
-		{
-			return new SpatialAreaTransferResult
-			{
-				Summary = "The zone was not exported because its active topology contains invalid exit references.",
-				Diagnostics = diagnostics,
-				RoomCount = rooms.Count,
-				CellCount = cells.Count
-			};
-		}
-
-		var internalExits = allSeenExits
-			.Where(x => x.Cells.All(cell => cellIds.Contains(cell.Id)))
-			.ToList();
-		var boundaryExits = allSeenExits
-			.Where(x => x.Cells.Any(cell => !cellIds.Contains(cell.Id)))
-			.ToList();
-
-		if (internalExits.Count > SpatialAreaPackageSerializer.MaximumExits)
-		{
-			return Failure("The selected zone exceeds the package exit safety limit.", diagnostics, "zone-too-large");
-		}
-
-		if (boundaryExits.Count > 0)
-		{
-			diagnostics.Add(Warning("boundary-exits-omitted",
-				$"{boundaryExits.Count:N0} exit(s) crossing the zone boundary were deliberately omitted. The imported zone will not be linked to unrelated target content."));
-		}
-
-		foreach (var exit in internalExits)
-		{
-			if (exit.Door is not null)
-			{
-				diagnostics.Add(Error("installed-door",
-					$"Exit #{exit.Id:N0} has an installed door item. Door items are not portable in package version 1."));
-			}
-
-			if (exit.FallCell is not null && !cellIds.Contains(exit.FallCell.Id))
-			{
-				diagnostics.Add(Error("external-fall-cell",
-					$"Exit #{exit.Id:N0} falls to cell #{exit.FallCell.Id:N0}, which is outside the package."));
-			}
-		}
-
-		if (diagnostics.Any(x => x.Severity == SpatialAreaTransferDiagnosticSeverity.Error))
-		{
-			return new SpatialAreaTransferResult
-			{
-				Summary = "The zone was not exported because one or more exits require unsupported dependencies.",
-				Diagnostics = diagnostics,
-				RoomCount = rooms.Count,
-				CellCount = cells.Count,
-				ExitCount = internalExits.Count
-			};
-		}
-
-		var exitKeys = internalExits
-			.Select((exit, index) => (exit.Id, Key: $"exit-{index + 1:D5}"))
-			.ToDictionary(x => x.Id, x => x.Key);
-
-		var package = BuildPackage(zone, rooms, cells, internalExits, roomKeys, cellKeys, exitKeys, diagnostics);
-		var json = SpatialAreaPackageSerializer.Serialize(package);
-		if (Encoding.UTF8.GetByteCount(json) > SpatialAreaPackageSerializer.MaximumPackageBytes)
-		{
-			return Failure("The serialized package exceeds the 16 MiB safety limit.", diagnostics, "package-too-large");
-		}
-
-		try
-		{
-			Directory.CreateDirectory(PackageDirectory);
-			using var stream = new FileStream(
-				packagePath,
-				FileMode.CreateNew,
-				FileAccess.Write,
-				FileShare.None);
-			using var writer = new StreamWriter(stream, new UTF8Encoding(false));
-			writer.Write(json);
-		}
-		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-		{
-			return Failure($"The package could not be written: {ex.Message}", diagnostics, "package-write-failed");
-		}
-
-		return new SpatialAreaTransferResult
-		{
-			Success = true,
-			Summary =
-				$"Exported zone '{zone.Name}' as package version {SpatialAreaPackage.CurrentVersion:N0}.",
-			PackagePath = packagePath,
-			Diagnostics = diagnostics,
-			RoomCount = rooms.Count,
-			CellCount = cells.Count,
-			ExitCount = internalExits.Count
-		};
+		return ExportZones([zone], packageFileName);
 	}
 
 	public SpatialAreaTransferResult ValidateImport(
@@ -236,16 +78,19 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 			return failure!;
 		}
 
+		var zoneNames = preflight.ZoneNames.Values.ToList();
 		return new SpatialAreaTransferResult
 		{
 			Success = true,
 			Summary =
-				$"Package validation succeeded. Import will create a new zone named '{preflight.ZoneName}' and will not modify existing rooms or zones.",
+				$"Package validation succeeded. Import will create {zoneNames.Count:N0} new zone(s): {zoneNames.ListToString()}. Existing rooms and zones will not be modified.",
 			PackagePath = preflight.PackagePath,
 			Diagnostics = preflight.Diagnostics,
-			RoomCount = preflight.Package.Rooms.Count,
+			ZoneCount = zoneNames.Count,
+			RoomCount = PackagedRoomCount(preflight.Package),
 			CellCount = preflight.Package.Cells.Count,
-			ExitCount = preflight.Package.Exits.Count
+			ExitCount = preflight.Package.Exits.Count,
+			OmittedItems = PackageOmissions(preflight)
 		};
 	}
 
@@ -264,6 +109,11 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 		if (preflight is null)
 		{
 			return failure!;
+		}
+
+		if (preflight.Package.Version >= 2)
+		{
+			return ImportVersion2(actor, targetShard, preflight);
 		}
 
 		var package = preflight.Package;
@@ -310,7 +160,10 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 					});
 				}
 
-				foreach (var room in package.Rooms)
+				var importedRoomKeys = package.Cells
+					.Select(x => x.RoomKey)
+					.ToHashSet(StringComparer.Ordinal);
+				foreach (var room in package.Rooms.Where(x => importedRoomKeys.Contains(x.Key)))
 				{
 					var dbRoom = new Models.Room
 					{
@@ -465,7 +318,7 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 
 			var newZone = new Zone(dbZone, gameworld);
 			gameworld.Add(newZone);
-			foreach (var roomDefinition in package.Rooms)
+			foreach (var roomDefinition in package.Rooms.Where(x => dbRooms.ContainsKey(x.Key)))
 			{
 				var newRoom = new Room(dbRooms[roomDefinition.Key], newZone);
 				gameworld.Add(newRoom);
@@ -485,10 +338,13 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 					$"Imported package as new zone '{preflight.ZoneName}' (#{newZone.Id:N0}). Existing spatial content was not modified.",
 				PackagePath = preflight.PackagePath,
 				ImportedZoneId = newZone.Id,
+				ImportedZoneIds = [newZone.Id],
+				ZoneCount = 1,
 				Diagnostics = preflight.Diagnostics,
-				RoomCount = package.Rooms.Count,
+				RoomCount = PackagedRoomCount(package),
 				CellCount = package.Cells.Count,
-				ExitCount = package.Exits.Count
+				ExitCount = package.Exits.Count,
+				OmittedItems = PackageOmissions(preflight)
 			};
 		}
 		catch (Exception ex)
@@ -504,10 +360,13 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 						$"The new zone was persisted as #{dbZone.Id:N0}, but is not fully available in memory. Restart the server before retrying or editing it; do not re-import the package.",
 					PackagePath = preflight.PackagePath,
 					ImportedZoneId = dbZone.Id,
+					ImportedZoneIds = [dbZone.Id],
+					ZoneCount = 1,
 					Diagnostics = committedDiagnostics,
-					RoomCount = package.Rooms.Count,
+					RoomCount = PackagedRoomCount(package),
 					CellCount = package.Cells.Count,
-					ExitCount = package.Exits.Count
+					ExitCount = package.Exits.Count,
+					OmittedItems = PackageOmissions(preflight)
 				};
 			}
 
@@ -586,21 +445,44 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 		}
 
 		var package = readResult.Package;
-		var zoneName = string.IsNullOrWhiteSpace(zoneNameOverride)
-			? package.Zone.Name
-			: zoneNameOverride.Trim().TitleCase();
-		if (string.IsNullOrWhiteSpace(zoneName))
+		var zones = SpatialAreaPackageSerializer.GetZoneDefinitions(package);
+		if (!string.IsNullOrWhiteSpace(zoneNameOverride) && zones.Count != 1)
 		{
-			diagnostics.Add(Error("invalid-zone-name", "The imported zone must have a non-empty name."));
+			diagnostics.Add(Error("multi-zone-name-override",
+				"A zone-name override can only be used with a single-zone package."));
 		}
 
-		if (actor.Gameworld.Zones.Any(x => x.Name.Equals(zoneName, StringComparison.InvariantCultureIgnoreCase)))
+		var zoneNames = new Dictionary<string, string>(StringComparer.Ordinal);
+		foreach (var (zone, index) in zones.Select((value, index) => (value, index)))
 		{
-			diagnostics.Add(Error("zone-name-collision",
-				$"A zone named '{zoneName}' already exists. Imports never merge into or overwrite an existing zone."));
+			var key = SpatialAreaPackageSerializer.ZoneKey(package, zone, index);
+			var name = zones.Count == 1 && !string.IsNullOrWhiteSpace(zoneNameOverride)
+				? zoneNameOverride.Trim().TitleCase()
+				: zone.Name;
+			zoneNames[key] = name;
+			if (string.IsNullOrWhiteSpace(name))
+			{
+				diagnostics.Add(Error("invalid-zone-name", $"Imported zone '{key}' must have a non-empty name."));
+			}
+
+			if (actor.Gameworld.Zones.Any(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)))
+			{
+				diagnostics.Add(Error("zone-name-collision",
+					$"A zone named '{name}' already exists. Imports never merge into or overwrite an existing zone."));
+			}
+
+			ValidateZoneNumbers(zone, diagnostics);
 		}
 
-		ValidateZoneNumbers(package.Zone, diagnostics);
+		var duplicateTargetName = zoneNames.Values
+			.GroupBy(x => x, StringComparer.InvariantCultureIgnoreCase)
+			.FirstOrDefault(x => x.Count() > 1);
+		if (duplicateTargetName is not null)
+		{
+			diagnostics.Add(Error("duplicate-target-zone-name",
+				$"More than one packaged zone would be imported as '{duplicateTargetName.Key}'."));
+		}
+
 		ValidateEnums(package, diagnostics);
 
 		var terrains = ResolveReferences(
@@ -618,7 +500,7 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 			diagnostics);
 		var foragableProfiles = ResolveReferences(
 			package.Cells.Select(x => x.ForagableProfile)
-				.Append(package.Zone.ForagableProfile)
+				.Concat(zones.Select(x => x.ForagableProfile))
 				.Where(x => x is not null)
 				.Select(x => x!),
 			actor.Gameworld.ForagableProfiles,
@@ -663,21 +545,38 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 			fluids[FluidKey(fluidReference)] = fluid;
 		}
 
-		IWeatherController? weatherController = null;
-		if (package.Zone.WeatherController is not null)
+		var weatherControllers = new Dictionary<string, IWeatherController?>(StringComparer.Ordinal);
+		foreach (var (zone, index) in zones.Select((value, index) => (value, index)))
 		{
-			weatherController = actor.Gameworld.WeatherControllers
-				.FirstOrDefault(x => x.Name.Equals(
-					package.Zone.WeatherController.Name,
-					StringComparison.InvariantCultureIgnoreCase));
-			if (weatherController is null)
+			var key = SpatialAreaPackageSerializer.ZoneKey(package, zone, index);
+			IWeatherController? weatherController = null;
+			if (zone.WeatherController is not null)
 			{
-				diagnostics.Add(Error("missing-weather-controller",
-					$"Required weather controller '{package.Zone.WeatherController.Name}' does not exist in the target installation."));
+				weatherController = actor.Gameworld.WeatherControllers
+					.FirstOrDefault(x => x.Name.Equals(
+						zone.WeatherController.Name,
+						StringComparison.InvariantCultureIgnoreCase));
+				if (weatherController is null)
+				{
+					diagnostics.Add(Error("missing-weather-controller",
+						$"Required weather controller '{zone.WeatherController.Name}' for zone '{zoneNames[key]}' does not exist in the target installation."));
+				}
 			}
+
+			weatherControllers[key] = weatherController;
 		}
 
-		var timeZones = ResolveTimeZones(package.Zone, targetShard, diagnostics);
+		var timeZonesByZone = zones
+			.Select((zone, index) =>
+			{
+				var key = SpatialAreaPackageSerializer.ZoneKey(package, zone, index);
+				return (key, value: (IReadOnlyDictionary<string, (IClock Clock, IMudTimeZone TimeZone)>)
+					ResolveTimeZones(zone, targetShard, diagnostics));
+			})
+			.ToDictionary(x => x.key, x => x.value, StringComparer.Ordinal);
+		var firstZoneKey = SpatialAreaPackageSerializer.ZoneKey(package, zones[0], 0);
+		var timeZones = timeZonesByZone[firstZoneKey];
+		var firstWeatherController = weatherControllers[firstZoneKey];
 		if (diagnostics.Any(x => x.Severity == SpatialAreaTransferDiagnosticSeverity.Error))
 		{
 			failure = new SpatialAreaTransferResult
@@ -685,9 +584,11 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 				Summary = "Package validation failed. Nothing was imported.",
 				PackagePath = packagePath,
 				Diagnostics = diagnostics,
-				RoomCount = package.Rooms.Count,
+				ZoneCount = zones.Count,
+				RoomCount = PackagedRoomCount(package),
 				CellCount = package.Cells.Count,
-				ExitCount = package.Exits.Count
+				ExitCount = package.Exits.Count,
+				OmittedItems = package.Omissions?.Select(x => x.Message).ToList() ?? []
 			};
 			return null;
 		}
@@ -696,7 +597,9 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 		{
 			Package = package,
 			PackagePath = packagePath,
-			ZoneName = zoneName,
+			ZoneName = zoneNames[firstZoneKey],
+			Zones = zones,
+			ZoneNames = zoneNames,
 			OverlayPackage = actor.CurrentOverlayPackage,
 			Terrains = terrains,
 			HearingProfiles = hearingProfiles,
@@ -706,164 +609,12 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 			RangedCovers = covers,
 			MagicResources = magicResources,
 			TimeZones = timeZones,
-			WeatherController = weatherController
+			TimeZonesByZone = timeZonesByZone,
+			WeatherController = firstWeatherController,
+			WeatherControllers = weatherControllers
 		};
 		preflight.Diagnostics.AddRange(diagnostics);
 		return preflight;
-	}
-
-	private static SpatialAreaPackage BuildPackage(
-		IZone zone,
-		IReadOnlyList<IRoom> rooms,
-		IReadOnlyList<ICell> cells,
-		IReadOnlyList<IExit> exits,
-		IReadOnlyDictionary<long, string> roomKeys,
-		IReadOnlyDictionary<long, string> cellKeys,
-		IReadOnlyDictionary<long, string> exitKeys,
-		ICollection<SpatialAreaTransferDiagnostic> diagnostics)
-	{
-		var overlayPackages = cells
-			.Select(x => x.CurrentOverlay.Package)
-			.Distinct()
-			.ToList();
-		if (overlayPackages.Count > 1)
-		{
-			diagnostics.Add(Warning("mixed-overlays",
-				$"The zone uses {overlayPackages.Count:N0} different active overlay packages. Version 1 exports each cell's active overlay data and imports all of it into the selected target package."));
-		}
-
-		var package = new SpatialAreaPackage
-		{
-			CreatedUtc = DateTime.UtcNow,
-			Source = new SpatialAreaPackageSource
-			{
-				ZoneName = zone.Name,
-				ZoneId = zone.Id,
-				ShardName = zone.Shard.Name,
-				ShardId = zone.Shard.Id,
-				OverlayPackageName = overlayPackages.Count == 1 ? overlayPackages[0].Name : "Mixed Active Overlays",
-				OverlayPackageId = overlayPackages.Count == 1 ? overlayPackages[0].Id : 0,
-				OverlayPackageRevision = overlayPackages.Count == 1 ? overlayPackages[0].RevisionNumber : 0
-			},
-			Zone = new SpatialZoneDefinition
-			{
-				Name = zone.Name,
-				LatitudeRadians = zone.Geography.Latitude,
-				LongitudeRadians = zone.Geography.Longitude,
-				ElevationMetres = zone.Geography.Elevation,
-				AmbientLightPollution = zone.AmbientLightPollution,
-				ForagableProfile = Reference(zone.ForagableProfile),
-				WeatherController = Reference(zone.WeatherController),
-				DefaultCellKey = cellKeys[zone.DefaultCell.Id],
-				TimeZones = zone.GetEditableZone.TimeZones
-					.OrderBy(x => x.Key.Alias)
-					.Select(x => new SpatialTimeZoneDefinition
-					{
-						ClockAlias = x.Key.Alias,
-						TimeZoneAlias = x.Value.Alias,
-						TimeZoneDescription = x.Value.Description
-					})
-					.ToList()
-			},
-			Rooms = rooms
-				.OrderByDescending(x => x.Id == zone.DefaultCell.Room.Id)
-				.ThenBy(x => x.Id)
-				.Select(x => new SpatialRoomDefinition
-				{
-					Key = roomKeys[x.Id],
-					SourceId = x.Id,
-					X = x.X,
-					Y = x.Y,
-					Z = x.Z
-				})
-				.ToList()
-		};
-
-		var explicitForagableProfiles = new Dictionary<long, long?>();
-		using (new FMDB())
-		{
-			foreach (var dbCell in FMDB.Context.Cells
-				         .Where(x => cellKeys.Keys.Contains(x.Id))
-				         .Select(x => new { x.Id, x.ForagableProfileId }))
-			{
-				explicitForagableProfiles[dbCell.Id] = dbCell.ForagableProfileId;
-			}
-		}
-
-		package.Cells = cells
-			.OrderByDescending(x => x.Id == zone.DefaultCell.Id)
-			.ThenBy(x => x.Id)
-			.Select(cell =>
-			{
-				var overlay = cell.CurrentOverlay;
-				var explicitForagable = explicitForagableProfiles.GetValueOrDefault(cell.Id);
-				return new SpatialCellDefinition
-				{
-					Key = cellKeys[cell.Id],
-					SourceId = cell.Id,
-					RoomKey = roomKeys[cell.Room.Id],
-					ForagableProfile = explicitForagable.HasValue
-						? Reference(cell.Gameworld.ForagableProfiles.Get(explicitForagable.Value))
-						: null,
-					Tags = cell.Tags.OrderBy(x => x.Name).Select(x => Reference(x)!).ToList(),
-					RangedCovers = cell.LocalCover.OrderBy(x => x.Name).Select(x => Reference(x)!).ToList(),
-					MagicResources = cell.MagicResourceAmounts
-						.OrderBy(x => x.Key.Name)
-						.Select(x => new SpatialMagicResourceDefinition
-						{
-							Resource = Reference(x.Key)!,
-							Amount = x.Value
-						})
-						.ToList(),
-					Overlay = new SpatialCellOverlayDefinition
-					{
-						CellName = overlay.CellName,
-						CellDescription = overlay.CellDescription,
-						Terrain = Reference(overlay.Terrain)!,
-						HearingProfile = Reference(overlay.HearingProfile),
-						Atmosphere = FluidReference(overlay.Atmosphere),
-						OutdoorsType = (int)overlay.OutdoorsType,
-						AmbientLightFactor = overlay.AmbientLightFactor,
-						AddedLight = overlay.AddedLight,
-						SafeQuit = overlay.SafeQuit,
-						ExitKeys = overlay.ExitIDs
-							.Where(exitKeys.ContainsKey)
-							.Select(x => exitKeys[x])
-							.Order()
-							.ToList()
-					}
-				};
-			})
-			.ToList();
-
-		package.Exits = exits
-			.Select(exit =>
-			{
-				var endpoints = exit.Cells.ToList();
-				var side1 = exit.CellExitFor(endpoints[0]);
-				var side2 = exit.CellExitFor(endpoints[1]);
-				return new SpatialExitDefinition
-				{
-					Key = exitKeys[exit.Id],
-					SourceId = exit.Id,
-					Cell1Key = cellKeys[endpoints[0].Id],
-					Cell2Key = cellKeys[endpoints[1].Id],
-					Side1 = BuildExitSide(side1),
-					Side2 = BuildExitSide(side2),
-					TimeMultiplier = exit.TimeMultiplier,
-					AcceptsDoor = exit.AcceptsDoor,
-					DoorSize = (int)exit.DoorSize,
-					MaximumSizeToEnter = (int)exit.MaximumSizeToEnter,
-					MaximumSizeToEnterUpright = (int)exit.MaximumSizeToEnterUpright,
-					IsClimbExit = exit.IsClimbExit,
-					ClimbDifficulty = (int)exit.ClimbDifficulty,
-					FallCellKey = exit.FallCell is null ? null : cellKeys[exit.FallCell.Id],
-					BlockedLayers = exit.BlockedLayers.Select(x => (int)x).Order().ToList()
-				};
-			})
-			.ToList();
-
-		return package;
 	}
 
 	private static SpatialExitSideDefinition BuildExitSide(ICellExit side)
@@ -904,12 +655,6 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 						$"Cell #{cell.Id:N0} is temporary and cannot be faithfully imported."));
 				}
 
-				if (cell.RouteDefinition is not null)
-				{
-					diagnostics.Add(Error("route-cell",
-						$"Cell #{cell.Id:N0} is a route cell. Route geometry and anchors are planned for package version 2."));
-				}
-
 				if (cell is Cell concreteCell &&
 				    (concreteCell.HostedVehicleId.HasValue || concreteCell.HostedVehicleCompartmentId.HasValue))
 				{
@@ -920,7 +665,7 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 				if (cell.AgricultureField is not null)
 				{
 					diagnostics.Add(Error("agriculture-field",
-						$"Cell #{cell.Id:N0} has an agriculture field, which package version 1 does not carry."));
+						$"Cell #{cell.Id:N0} has an agriculture field, which spatial packages do not carry."));
 				}
 
 				if (persistedCells.TryGetValue(cell.Id, out var dbCell))
@@ -928,13 +673,13 @@ public sealed class SpatialAreaTransferService : ISpatialAreaTransferService
 					if (HasPersistedEffects(dbCell.EffectData))
 					{
 						diagnostics.Add(Error("persisted-cell-effects",
-							$"Cell #{cell.Id:N0} has persisted effects. Version 1 refuses to discard effect state."));
+							$"Cell #{cell.Id:N0} has persisted effects. Spatial packages refuse to discard effect state."));
 					}
 
 					if (HasSurfaceLiquid(dbCell.SurfaceLiquidData))
 					{
 						diagnostics.Add(Error("surface-liquid",
-							$"Cell #{cell.Id:N0} has persistent surface-liquid state, which version 1 does not carry."));
+							$"Cell #{cell.Id:N0} has persistent surface-liquid state, which spatial packages do not carry."));
 					}
 				}
 			}

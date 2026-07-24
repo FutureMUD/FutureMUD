@@ -14,15 +14,16 @@ internal partial class RoomBuilderModule
 	private const string SpatialPackageHelpText =
 		@"The #3SPATIALPACKAGE#0 command exports and imports portable, versioned spatial-area packages.
 
-Version 1 transfers a complete ordinary zone: room coordinates, cells, active overlays, internal exits, zone geography and environment, tags, local covers, and magic-resource state. Imports always create a new zone and remap all room, cell, overlay and exit IDs. They never merge into or overwrite existing spatial content.
+Version 2 transfers one or more zones: room coordinates, cells, active overlays, route-cell geometry, internal and selected cross-zone exits, zone geography and environment, tags, local covers, and magic-resource state. Imports always create new zones and remap all room, cell, overlay, route and exit IDs. They never merge into or overwrite existing spatial content. Version 1 packages remain importable.
 
 Files are read and written only inside the server's #6Spatial Packages#0 directory.
 
 	#3spatialpackage export zone <zone> <file>#0 - exports a zone; the .fmsa.json suffix is optional
+	#3spatialpackage export zones <file> <zone> [zone...]#0 - exports multiple zones and links between them
 	#3spatialpackage validate <file> <target shard> [new zone name]#0 - preflights integrity and dependencies
-	#3spatialpackage import <file> <target shard> confirm [new zone name]#0 - creates the validated zone
+	#3spatialpackage import <file> <target shard> confirm [new zone name]#0 - creates the validated zone(s)
 
-You must be editing an under-design #3CELL PACKAGE#0 to validate or import. Quote multi-word zone, shard and file arguments where required. Version 1 refuses route cells, hosted vehicle interiors, temporary cells, agriculture fields, persisted cell effects, surface liquids, installed door items, and external fall destinations rather than silently losing those dependencies.";
+You must be editing an under-design #3CELL PACKAGE#0 to validate or import. A new-name override is only valid for a single-zone package. Quote multi-word zone, shard and file arguments where required. Spatial packages refuse hosted vehicle interiors, temporary cells, agriculture fields, persisted cell effects, surface liquids, installed door items, and external fall destinations rather than silently losing those dependencies. Every deliberate omission is listed by export, validation and import.";
 
 	[PlayerCommand("SpatialPackage", "spatialpackage")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]
@@ -50,10 +51,17 @@ You must be editing an under-design #3CELL PACKAGE#0 to validate or import. Quot
 
 	private static void SpatialPackageExport(ICharacter actor, StringStack command)
 	{
-		if (!command.PopForSwitch().EqualTo("zone"))
+		var mode = command.PopForSwitch();
+		if (mode.EqualTo("zones"))
+		{
+			SpatialPackageExportZones(actor, command);
+			return;
+		}
+
+		if (!mode.EqualTo("zone"))
 		{
 			actor.OutputHandler.Send(
-				$"Version 1 exports whole zones. Use {"spatialpackage export zone <zone> <file>".ColourCommand()}.");
+				$"Use {"spatialpackage export zone <zone> <file>".ColourCommand()} or {"spatialpackage export zones <file> <zone> [zone...]".ColourCommand()}.");
 			return;
 		}
 
@@ -85,6 +93,45 @@ You must be editing an under-design #3CELL PACKAGE#0 to validate or import. Quot
 		}
 
 		var result = SpatialAreaTransferService.Instance.ExportZone(zone, fileName);
+		SendSpatialPackageResult(actor, result);
+	}
+
+	private static void SpatialPackageExportZones(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What file name should be used for the package?");
+			return;
+		}
+
+		var fileName = command.PopSpeech();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which zones do you want to export?");
+			return;
+		}
+
+		var zones = new List<IZone>();
+		while (!command.IsFinished)
+		{
+			var zoneText = command.PopSpeech();
+			var zone = actor.Gameworld.Zones.GetByIdOrName(zoneText, false);
+			if (zone is null)
+			{
+				actor.OutputHandler.Send($"There is no zone identified by {zoneText.ColourCommand()}.");
+				return;
+			}
+
+			if (zones.Any(x => x.Id == zone.Id))
+			{
+				actor.OutputHandler.Send($"Zone {zone.Name.ColourName()} was specified more than once.");
+				return;
+			}
+
+			zones.Add(zone);
+		}
+
+		var result = SpatialAreaTransferService.Instance.ExportZones(zones, fileName);
 		SendSpatialPackageResult(actor, result);
 	}
 
@@ -168,13 +215,13 @@ You must be editing an under-design #3CELL PACKAGE#0 to validate or import. Quot
 			text.AppendLine($"Package: {result.PackagePath.ColourCommand()}");
 		}
 
-		if (result.RoomCount > 0 || result.CellCount > 0 || result.ExitCount > 0)
+		if (result.ZoneCount > 0 || result.RoomCount > 0 || result.CellCount > 0 || result.ExitCount > 0)
 		{
 			text.AppendLine(
-				$"Contents: {result.RoomCount.ToString("N0", actor).ColourValue()} room(s), {result.CellCount.ToString("N0", actor).ColourValue()} cell(s), {result.ExitCount.ToString("N0", actor).ColourValue()} internal exit(s)");
+				$"Contents: {result.ZoneCount.ToString("N0", actor).ColourValue()} zone(s), {result.RoomCount.ToString("N0", actor).ColourValue()} room(s), {result.CellCount.ToString("N0", actor).ColourValue()} cell(s), {result.ExitCount.ToString("N0", actor).ColourValue()} packaged exit(s)");
 		}
 
-		foreach (var diagnostic in result.Diagnostics)
+		foreach (var diagnostic in result.Diagnostics.Where(x => x.Code != "empty-room-skipped"))
 		{
 			var line = $"[{diagnostic.Code}] {diagnostic.Message}";
 			text.AppendLine(diagnostic.Severity switch
@@ -183,6 +230,16 @@ You must be editing an under-design #3CELL PACKAGE#0 to validate or import. Quot
 				SpatialAreaTransferDiagnosticSeverity.Warning => line.Colour(Telnet.Yellow),
 				_ => line
 			});
+		}
+
+		if (result.OmittedItems.Count > 0)
+		{
+			text.AppendLine();
+			text.AppendLine("The following items were not included and will not be imported:".Colour(Telnet.Yellow));
+			foreach (var (item, index) in result.OmittedItems.Select((value, index) => (value, index)))
+			{
+				text.AppendLine($"{(index + 1).ToString("N0", actor)}) {item}");
+			}
 		}
 
 		actor.OutputHandler.Send(text.ToString());

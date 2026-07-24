@@ -1,11 +1,14 @@
 #nullable enable
 
+using System.Text.Json.Serialization;
+
 namespace MudSharp.Construction.ImportExport;
 
 public sealed class SpatialAreaPackage
 {
 	public const string CurrentFormat = "futuremud-spatial-area";
-	public const int CurrentVersion = 1;
+	public const int MinimumSupportedVersion = 1;
+	public const int CurrentVersion = 2;
 
 	public string Format { get; set; } = CurrentFormat;
 	public int Version { get; set; } = CurrentVersion;
@@ -13,9 +16,12 @@ public sealed class SpatialAreaPackage
 	public DateTime CreatedUtc { get; set; }
 	public SpatialAreaPackageSource Source { get; set; } = new();
 	public SpatialZoneDefinition Zone { get; set; } = new();
+	public List<SpatialAreaPackageSource> SourceZones { get; set; } = [];
+	public List<SpatialZoneDefinition> Zones { get; set; } = [];
 	public List<SpatialRoomDefinition> Rooms { get; set; } = [];
 	public List<SpatialCellDefinition> Cells { get; set; } = [];
 	public List<SpatialExitDefinition> Exits { get; set; } = [];
+	public List<SpatialPackageOmission> Omissions { get; set; } = [];
 }
 
 public sealed class SpatialAreaPackageSource
@@ -31,6 +37,12 @@ public sealed class SpatialAreaPackageSource
 
 public sealed class SpatialZoneDefinition
 {
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+	public string? Key { get; set; }
+
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+	public long SourceId { get; set; }
+
 	public string Name { get; set; } = string.Empty;
 	public double LatitudeRadians { get; set; }
 	public double LongitudeRadians { get; set; }
@@ -53,6 +65,8 @@ public sealed class SpatialRoomDefinition
 {
 	public string Key { get; set; } = string.Empty;
 	public long SourceId { get; set; }
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+	public string? ZoneKey { get; set; }
 	public int X { get; set; }
 	public int Y { get; set; }
 	public int Z { get; set; }
@@ -68,6 +82,8 @@ public sealed class SpatialCellDefinition
 	public List<SpatialNamedReference> Tags { get; set; } = [];
 	public List<SpatialNamedReference> RangedCovers { get; set; } = [];
 	public List<SpatialMagicResourceDefinition> MagicResources { get; set; } = [];
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+	public SpatialRouteCellDefinition? RouteCell { get; set; }
 }
 
 public sealed class SpatialCellOverlayDefinition
@@ -130,4 +146,40 @@ public sealed class SpatialExitSideDefinition
 	public string? InboundTarget { get; set; }
 	public string? OutboundDescription { get; set; }
 	public string? OutboundTarget { get; set; }
+}
+
+public sealed class SpatialRouteCellDefinition
+{
+	public double LengthMetres { get; set; }
+	public double DefaultPositionMetres { get; set; }
+	public string PositiveDirectionName { get; set; } = string.Empty;
+	public string NegativeDirectionName { get; set; } = string.Empty;
+	public double MetresPerRoomEquivalent { get; set; }
+	public long TopologyVersion { get; set; }
+	public List<SpatialRouteLandmarkDefinition> Landmarks { get; set; } = [];
+	public List<SpatialRouteExitAnchorDefinition> ExitAnchors { get; set; } = [];
+}
+
+public sealed class SpatialRouteLandmarkDefinition
+{
+	public long SourceId { get; set; }
+	public string Name { get; set; } = string.Empty;
+	public string Keywords { get; set; } = string.Empty;
+	public string Description { get; set; } = string.Empty;
+	public double PositionMetres { get; set; }
+	public int DisplayOrder { get; set; }
+}
+
+public sealed class SpatialRouteExitAnchorDefinition
+{
+	public string ExitKey { get; set; } = string.Empty;
+	public double MinimumPositionMetres { get; set; }
+	public double MaximumPositionMetres { get; set; }
+	public double ArrivalPositionMetres { get; set; }
+}
+
+public sealed class SpatialPackageOmission
+{
+	public string Code { get; set; } = string.Empty;
+	public string Message { get; set; } = string.Empty;
 }

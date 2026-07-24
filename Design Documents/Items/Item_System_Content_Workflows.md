@@ -107,6 +107,15 @@ Use:
 
 Item prototype lookup prefers numeric ids, then exact `UniqueName`, then the legacy noun/name matching that older builder commands expect. Unique names are optional, case-insensitively unique among active revisions, and cannot be entirely numeric.
 
+### Bulk rename item unique names
+Use:
+- `item rename <match regex> <replacement text>`
+- `item rename "^antiquity_(?<name>.+)$" "historic_${name}"`
+
+The match expression is case-sensitive by default and operates only on nonblank `UniqueName` values belonging to `Current`, `PendingRevision`, or `UnderDesign` revisions. Standard .NET numbered and named replacement groups are supported; inline regex options such as `(?i)` can opt into case-insensitive matching. Quote either argument when it contains spaces, and use `""` as the replacement to clear every matched unique name.
+
+The command first displays the complete proposed old-to-new map. It checks the virtual final state against untouched active prototypes as well as other entries in the batch, so swaps and rename chains are safe. If the expression is invalid or times out, a result is entirely numeric, or distinct prototype IDs would share a case-insensitive name, no prototype is changed. A successful preflight applies all actual changes immediately and marks those revisions for normal persistence.
+
 Stock rework items seeded by `ItemSeeder` use their stable seeder reference as `UniqueName`. Their builder comments also carry stock-only metadata such as the stable reference, culture context when the catalogue item belongs to a culture-specific slice, and broad seeder package notes.
 
 The shared pre-industrial rework package uses `preindustrial_*` unique names for selected cross-era aliases and new stock. It never renames the source `antiquity_*` or `medieval_*` prototype. Alias builder comments name the source stable reference, while public descriptions remain in-world and do not mention aliases or seeder mechanics. Builders selecting Antiquity, Medieval, Renaissance, or Early Modern receive the same `historic_*`, `primary_production_*`, and shared pre-industrial foundation without duplicate prototypes on rerun.

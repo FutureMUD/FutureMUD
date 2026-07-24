@@ -20,7 +20,7 @@ using EditableItem = MudSharp.Framework.Revision.EditableItem;
 
 namespace MudSharp.GameItems;
 
-public class GameItemProto : EditableItem, IGameItemProto
+public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 {
     public List<IFutureProg> OnLoadProgs = new();
 
@@ -92,6 +92,23 @@ public class GameItemProto : EditableItem, IGameItemProto
     public static IHealthStrategy DefaultItemHealthStrategy { get; set; }
     public string ShortDescription { get; private set; }
     public string? UniqueName { get; private set; }
+
+    void IEditableUniqueName.SetUniqueNameFromValidatedBulkRename(string? uniqueName)
+    {
+        SetUniqueNameFromValidatedBulkRename(uniqueName);
+    }
+
+    internal void SetUniqueNameFromValidatedBulkRename(string? uniqueName)
+    {
+        var normalisedName = GameItemProtoLookupExtensions.NormaliseUniqueName(uniqueName);
+        if (string.Equals(UniqueName, normalisedName, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        UniqueName = normalisedName;
+        Changed = true;
+    }
     public string? BuilderNotes { get; private set; }
     public string FullDescription { get; private set; }
     public decimal CostInBaseCurrency { get; private set; }
@@ -2164,8 +2181,7 @@ public class GameItemProto : EditableItem, IGameItemProto
         var uniqueName = GameItemProtoLookupExtensions.NormaliseUniqueName(command.SafeRemainingArgument);
         if (uniqueName is null || uniqueName.EqualToAny("none", "clear", "delete", "remove"))
         {
-            UniqueName = null;
-            Changed = true;
+            SetUniqueNameFromValidatedBulkRename(null);
             actor.OutputHandler.Send("This item prototype no longer has a unique lookup name.");
             return true;
         }
@@ -2184,8 +2200,7 @@ public class GameItemProto : EditableItem, IGameItemProto
             return false;
         }
 
-        UniqueName = uniqueName;
-        Changed = true;
+        SetUniqueNameFromValidatedBulkRename(uniqueName);
         actor.OutputHandler.Send($"This item prototype can now be looked up by the unique name {UniqueName.ColourCommand()}.");
         return true;
     }

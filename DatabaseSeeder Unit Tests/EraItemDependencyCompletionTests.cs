@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using RangedWeaponType = MudSharp.Combat.RangedWeaponType;
 
 namespace MudSharp_Unit_Tests;
@@ -40,9 +41,31 @@ public class EraItemDependencyCompletionTests
 		"LockingContainer_PreIndustrial_DrawerChest",
 		"LockingContainer_PreIndustrial_DisplayCabinet",
 		"LockingContainer_PreIndustrial_Desk",
+		"CashRegister_PreIndustrial_TillChest",
+		"Container_CartridgeBandolier",
 		"Tool_Artillery_General",
 		"Tool_CartridgeMaking_General",
 		"Tool_Gunsmithing_General"
+	];
+
+	private static readonly string[] TackComponents =
+	[
+		"RidingGear_Saddle",
+		"RidingGear_SaddlePad",
+		"RidingGear_Bridle",
+		"RidingGear_Reins",
+		"RidingGear_Bit",
+		"RidingGear_Stirrups",
+		"RidingGear_PackSaddle",
+		"RidingGear_BitlessBridle",
+		"RidingGear_RidingHarness",
+		"HitchGear_LeadRope",
+		"HitchGear_Yoke",
+		"HitchGear_Harness",
+		"HitchGear_Chain",
+		"HitchGear_Rope",
+		"HitchGear_Traces",
+		"HitchGear_TowBar"
 	];
 
 	private static readonly string[] EraWearComponents =
@@ -80,40 +103,64 @@ public class EraItemDependencyCompletionTests
 		"Wear_ThreeQuarterHarness",
 		"Tool_Artillery_General",
 		"Tool_CartridgeMaking_General",
-		"Tool_Gunsmithing_General"
+		"Tool_Gunsmithing_General",
+		"Container_CartridgeBandolier"
+	];
+
+	private static readonly string[] StandardsSignalsAndInstruments =
+	[
+		"Instrument_Antiquity_WoodenLyre",
+		"Instrument_Antiquity_Kithara",
+		"Instrument_Antiquity_ReedFlute",
+		"Instrument_Antiquity_DoubleAulos",
+		"Instrument_Antiquity_FrameDrum",
+		"Instrument_Antiquity_Sistrum",
+		"Instrument_Antiquity_BronzeWarHorn",
+		"Instrument_Antiquity_ShipSignalTrumpet",
+		"Instrument_Antiquity_TempleRitualRattle",
+		"SignalInstrument_FieldDrum",
+		"SignalInstrument_KettleDrum",
+		"SignalInstrument_Fife",
+		"SignalInstrument_SpeakingTrumpet",
+		"MilitaryStandard_InfantryColour",
+		"MilitaryStandard_CavalryStandard",
+		"MilitaryStandard_Guidon",
+		"MilitaryStandard_NavalEnsign",
+		"MilitaryStandard_Pennant",
+		"MilitaryStandard_SignalFlag"
+	];
+
+	private static readonly string[] SupportedMilitaryStandardsAndSignals =
+	[
+		"SignalInstrument_FieldDrum",
+		"SignalInstrument_KettleDrum",
+		"SignalInstrument_Fife",
+		"SignalInstrument_SpeakingTrumpet",
+		"MilitaryStandard_InfantryColour",
+		"MilitaryStandard_CavalryStandard",
+		"MilitaryStandard_Guidon",
+		"MilitaryStandard_NavalEnsign",
+		"MilitaryStandard_Pennant",
+		"MilitaryStandard_SignalFlag"
+	];
+
+	private static readonly string[] LiquidOfferingReceiverProfiles =
+	[
+		"OfferingReceiver_Antiquity_TempleLibationTable",
+		"OfferingReceiver_Antiquity_OilLampShrine",
+		"OfferingReceiver_Antiquity_OracularTripod",
+		"OfferingReceiver_Antiquity_BloodOfferingBowl"
 	];
 
 	private static readonly string[] AntiquityDeferredItems =
 	[
-		"antiquity_wooden_lyre",
-		"antiquity_kithara",
-		"antiquity_reed_flute",
-		"antiquity_double_aulos",
-		"antiquity_frame_drum",
-		"antiquity_sistrum",
-		"antiquity_bronze_war_horn",
-		"antiquity_ship_signal_trumpet",
-		"antiquity_temple_ritual_rattle",
 		"antiquity_senet_game_board",
 		"antiquity_mehen_game_board",
 		"antiquity_latrunculi_board",
 		"antiquity_royal_game_board",
 		"antiquity_mancala_board",
 		"antiquity_temple_divination_board",
-		"antiquity_tavern_game_set",
-		"antiquity_leather_bridle",
-		"antiquity_pack_saddle",
-		"antiquity_mule_pannier_set",
-		"antiquity_ox_yoke",
-		"antiquity_chariot_harness",
-		"antiquity_camel_cargo_saddle",
-		"antiquity_warhorse_barding_harness",
-		"antiquity_rope_lead_halter",
-		"antiquity_wooden_measuring_rod",
-		"antiquity_temple_libation_table",
-		"antiquity_oil_lamp_shrine",
-		"antiquity_oracular_tripod",
-		"antiquity_blood_offering_bowl"
+		"antiquity_tavern_game_set"
 	];
 
 	[TestMethod]
@@ -134,9 +181,12 @@ public class EraItemDependencyCompletionTests
 		string[] supportedComponents = HouseholdAndToolComponents
 			.Concat(EraWearComponents)
 			.Concat(CombatSeeder.EraDependencyCombatComponentNamesForTesting)
+			.Concat(TackComponents)
+			.Concat(StandardsSignalsAndInstruments)
+			.Concat(LiquidOfferingReceiverProfiles)
 			.ToArray();
-		Assert.AreEqual(64, supportedComponents.Length);
-		Assert.AreEqual(64, supportedComponents.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+		Assert.AreEqual(120, supportedComponents.Length);
+		Assert.AreEqual(120, supportedComponents.Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		foreach (string name in supportedComponents)
 		{
 			Assert.AreEqual(1, components.Count(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)),
@@ -153,14 +203,34 @@ public class EraItemDependencyCompletionTests
 			["Melee_Lance"] = "MeleeWeapon",
 			["CompositeBow_Light"] = "Bow",
 			["Crossbow_Pellet"] = "Crossbow",
+			["Crossbow_Cranequin"] = "Crossbow",
+			["Bayonet_Plug"] = "BayonetAttachment",
+			["MusketPaperCartridge_0.45 Bore"] = "MusketCartridge",
+			["CashRegister_PreIndustrial_TillChest"] = "LockingCashRegister",
 			["Blowgun_Long"] = "Blowgun",
 			["Throwing_Disc"] = "ThrownWeapon",
-			["Tool_Gunsmithing_General"] = "HandTool"
+			["Tool_Gunsmithing_General"] = "HandTool",
+			["Instrument_Antiquity_WoodenLyre"] = "Instrument",
+			["SignalInstrument_FieldDrum"] = "SignalInstrument",
+			["MilitaryStandard_InfantryColour"] = "MilitaryStandard",
+			["OfferingReceiver_Antiquity_TempleLibationTable"] = "OfferingReceiver"
 		};
 		foreach ((string name, string type) in expectedTypes)
 		{
 			Assert.AreEqual(type, components.Single(x => x.Name == name).Type, name);
 		}
+
+		using JsonDocument typeDocument = JsonDocument.Parse(
+			ReadSource("Design Documents", "Data", "Item_Component_Types.json"));
+		var componentTypes = typeDocument.RootElement
+			.EnumerateArray()
+			.Select(x => x.GetProperty("Component Type Name").GetString()!)
+			.ToArray();
+		Assert.AreEqual(componentTypes.Length,
+			componentTypes.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+			"Item_Component_Types.json must not contain duplicate component type names.");
+		Assert.AreEqual(1,
+			componentTypes.Count(x => x.Equals("OfferingReceiver", StringComparison.OrdinalIgnoreCase)));
 
 		using JsonDocument materialDocument = JsonDocument.Parse(
 			ReadSource("Design Documents", "Data", "Seeded_Materials.json"));
@@ -181,7 +251,7 @@ public class EraItemDependencyCompletionTests
 	}
 
 	[TestMethod]
-	public void MilitaryRequests_PartitionExactlyIntoFortySupportedAndOneHundredSixteenDeferred()
+	public void MilitaryRequests_PartitionExactlyIntoSixtySixSupportedAndNinetyDeferred()
 	{
 		string militaryLedger = ReadSource("Design Documents", "Seeding",
 			"FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Dependency_Ledger.md");
@@ -193,22 +263,22 @@ public class EraItemDependencyCompletionTests
 			.Where(x => !new[] { "Armour_RigidMetal", "Armour_CoatOfPlates", "Armour_Splinted" }
 				.Contains(x, StringComparer.OrdinalIgnoreCase))
 			.Concat(SupportedMilitaryWearAndTools)
+			.Concat(SupportedMilitaryStandardsAndSignals)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
-		Assert.AreEqual(40, supportedMilitary.Count);
+		Assert.AreEqual(66, supportedMilitary.Count);
 		Assert.IsTrue(supportedMilitary.IsSubsetOf(militaryRequests));
 
 		HashSet<string> deferredMilitary = militaryRequests
 			.Except(supportedMilitary, StringComparer.OrdinalIgnoreCase)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
-		Assert.AreEqual(116, deferredMilitary.Count);
+		Assert.AreEqual(90, deferredMilitary.Count);
 
 		string consolidatedLedger = ReadSource("Design Documents", "Seeding",
 			"FutureMUD_Item_Content_Engine_Dependency_Ledger.md");
 		HashSet<string> consolidatedDeferred = ParsePrototypeTableNames(consolidatedLedger);
-		Assert.AreEqual(117, consolidatedDeferred.Count);
+		Assert.AreEqual(90, consolidatedDeferred.Count);
 		Assert.IsTrue(deferredMilitary.IsSubsetOf(consolidatedDeferred));
-		Assert.IsTrue(consolidatedDeferred.SetEquals(
-			deferredMilitary.Append("CashRegister_PreIndustrial_TillChest")));
+		Assert.IsTrue(consolidatedDeferred.SetEquals(deferredMilitary));
 	}
 
 	[TestMethod]
@@ -217,7 +287,7 @@ public class EraItemDependencyCompletionTests
 		string consolidatedLedger = ReadSource("Design Documents", "Seeding",
 			"FutureMUD_Item_Content_Engine_Dependency_Ledger.md");
 		HashSet<string> deferred = ParsePrototypeTableNames(consolidatedLedger);
-		Assert.AreEqual(117, deferred.Count);
+		Assert.AreEqual(90, deferred.Count);
 
 		using JsonDocument componentDocument = JsonDocument.Parse(
 			ReadSource("Design Documents", "Data", "Seeded_Item_Components.json"));
@@ -228,8 +298,8 @@ public class EraItemDependencyCompletionTests
 		Assert.AreEqual(0, deferred.Count(seeded.Contains),
 			"Engine-dependent prototype names must remain absent from the maintained seeded catalogue.");
 
-		Assert.AreEqual(29, AntiquityDeferredItems.Length);
-		Assert.AreEqual(29, AntiquityDeferredItems.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+		Assert.AreEqual(7, AntiquityDeferredItems.Length);
+		Assert.AreEqual(7, AntiquityDeferredItems.Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		foreach (string item in AntiquityDeferredItems)
 		{
 			Assert.AreEqual(1, Regex.Matches(consolidatedLedger, $"`{Regex.Escape(item)}`").Count,
@@ -237,7 +307,7 @@ public class EraItemDependencyCompletionTests
 		}
 
 		StringAssert.Contains(consolidatedLedger,
-			"`SignalInstrument` should be a military specialization of the general `Instrument` capability");
+			"`SignalInstrument` is a military specialization of the general `Instrument` capability");
 	}
 
 	[TestMethod]
@@ -254,7 +324,8 @@ public class EraItemDependencyCompletionTests
 		seeder.EnsureEraDependencyCombatContentForTesting(context, answers);
 		seeder.EnsureEraDependencyCombatContentForTesting(context, answers);
 
-		foreach (string name in CombatSeeder.EraDependencyCombatComponentNamesForTesting)
+		foreach (string name in CombatSeeder.EraDependencyCombatComponentNamesForTesting
+			         .Where(x => !x.StartsWith("MusketPaperCartridge_", StringComparison.OrdinalIgnoreCase)))
 		{
 			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), name);
 		}
@@ -284,6 +355,171 @@ public class EraItemDependencyCompletionTests
 		GameItemComponentProto pelletComponent = context.GameItemComponentProtos.Single(x => x.Name == "Crossbow_Pellet");
 		StringAssert.Contains(pelletComponent.Definition,
 			$"<RangedWeaponType>{pellet.Id}</RangedWeaponType>");
+	}
+
+	[TestMethod]
+	public void StandardsSignalsAndInstruments_ExposeExactNineteenProfilesAndThirtyNineStockReferences()
+	{
+		Assert.AreEqual(19, StandardsSignalsAndInstruments.Length);
+		Assert.AreEqual(19,
+			StandardsSignalsAndInstruments.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+
+		var antiquityInstrumentReferences = ItemSeeder.AntiquityComponentGapItemStableReferencesForTesting
+			.Where(x => new[]
+			{
+				"antiquity_wooden_lyre", "antiquity_kithara", "antiquity_reed_flute",
+				"antiquity_double_aulos", "antiquity_frame_drum", "antiquity_sistrum",
+				"antiquity_bronze_war_horn", "antiquity_ship_signal_trumpet",
+				"antiquity_temple_ritual_rattle"
+			}.Contains(x, StringComparer.OrdinalIgnoreCase))
+			.ToArray();
+		Assert.AreEqual(9, antiquityInstrumentReferences.Length);
+		Assert.AreEqual(30, ItemSeeder.EarlyModernStandardsAndSignalsStableReferencesForTesting.Count);
+		Assert.AreEqual(30,
+			ItemSeeder.EarlyModernStandardsAndSignalsStableReferencesForTesting
+				.Distinct(StringComparer.OrdinalIgnoreCase)
+				.Count());
+
+		using JsonDocument componentDocument = JsonDocument.Parse(
+			ReadSource("Design Documents", "Data", "Seeded_Item_Components.json"));
+		var catalogueNames = componentDocument.RootElement
+			.EnumerateArray()
+			.Select(x => x.GetProperty("Component Name").GetString()!)
+			.ToArray();
+		foreach (var name in StandardsSignalsAndInstruments)
+		{
+			Assert.AreEqual(1, catalogueNames.Count(x => x.Equals(name, StringComparison.OrdinalIgnoreCase)), name);
+		}
+	}
+
+	[TestMethod]
+	public void LiquidOfferingReceivers_ExposeExactFourProfilesAndFourStockReferences()
+	{
+		Assert.AreEqual(4, LiquidOfferingReceiverProfiles.Length);
+		Assert.AreEqual(4,
+			LiquidOfferingReceiverProfiles.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+
+		var references = ItemSeeder.AntiquityComponentGapItemStableReferencesForTesting
+			.Where(x => new[]
+			{
+				"antiquity_temple_libation_table",
+				"antiquity_oil_lamp_shrine",
+				"antiquity_oracular_tripod",
+				"antiquity_blood_offering_bowl"
+			}.Contains(x, StringComparer.OrdinalIgnoreCase))
+			.ToArray();
+		Assert.AreEqual(4, references.Length);
+		CollectionAssert.Contains(
+			ItemSeeder.AntiquityComponentGapItemStableReferencesForTesting.ToArray(),
+			"antiquity_wooden_measuring_rod",
+			"The measuring rod remains seeded as an intentional prop even though it is no longer a dependency.");
+	}
+
+	[TestMethod]
+	public void RitualLiquidCatalogues_ContainExactFamiliesAndRepresentativeAssociations()
+	{
+		var hierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
+		foreach (var path in new[]
+		         {
+			         "Materials / Liquids / Ritual Offerings",
+			         "Materials / Liquids / Ritual Offerings / Libation",
+			         "Materials / Liquids / Ritual Offerings / Lamp Oil",
+			         "Materials / Liquids / Ritual Offerings / Blood Offering"
+		         })
+		{
+			Assert.AreEqual(1, hierarchy.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+				.Count(line => line.TrimEnd('\r').Split('\t').Last().Equals(path,
+					StringComparison.OrdinalIgnoreCase)),
+				$"{path} should appear once in the maintained tag hierarchy.");
+		}
+
+		using var liquidDocument = JsonDocument.Parse(
+			ReadSource("Design Documents", "Data", "Seeded_Liquids.json"));
+		Dictionary<string, HashSet<string>> liquids = liquidDocument.RootElement
+			.EnumerateArray()
+			.ToDictionary(
+				x => x.GetProperty("Liquid Name").GetString()!,
+				x => x.GetProperty("Tags").EnumerateArray()
+					.Select(tag => tag.GetString()!)
+					.ToHashSet(StringComparer.OrdinalIgnoreCase),
+				StringComparer.OrdinalIgnoreCase);
+		Assert.IsTrue(liquids["water"].Contains("Materials / Liquids / Ritual Offerings / Libation"));
+		Assert.IsTrue(liquids["olive oil"].Contains("Materials / Liquids / Ritual Offerings / Lamp Oil"));
+		Assert.IsTrue(liquids["blood"].Contains("Materials / Liquids / Ritual Offerings / Blood Offering"));
+		Assert.IsTrue(liquids["Human Blood"]
+			.Contains("Materials / Liquids / Ritual Offerings / Blood Offering"));
+	}
+
+	[TestMethod]
+	public void MusketPaperCartridgeUpsert_UsesMatchingChargeAndIsIdempotent()
+	{
+		using FuturemudDatabaseContext context = BuildCombatContext();
+		context.Tags.Add(new Tag { Id = 6, Name = "Paper Cartridges" });
+		var bores = new[] { "0.45 Bore", "0.55 Bore", "0.6 Bore", "0.65 Bore", "0.7 Bore", "0.75 Bore", "0.8 Bore" };
+		for (var i = 0; i < bores.Length; i++)
+		{
+			var bore = double.Parse(bores[i].Split(' ')[0]);
+			context.GameItemComponentProtos.Add(new GameItemComponentProto
+			{
+				Id = 100 + i,
+				RevisionNumber = 0,
+				Type = "MusketCartridge",
+				Name = $"MusketCartridge_{bores[i]}",
+				Description = "legacy cartridge",
+				Definition =
+					$"<Definition><AmmoType>1</AmmoType><BulletBore>{bore}</BulletBore><BulletProto>{1000 + i}</BulletProto></Definition>",
+				EditableItem = CurrentEditableItem(100 + i)
+			});
+			context.GameItemComponentProtos.Add(new GameItemComponentProto
+			{
+				Id = 200 + i,
+				RevisionNumber = 0,
+				Type = "Musket",
+				Name = $"TestMusket_{bores[i]}",
+				Description = "test musket",
+				Definition =
+					$"<Definition><BulletBore>{bore}</BulletBore><PowderVolumePerShot>{7.0 + i / 10.0}</PowderVolumePerShot></Definition>",
+				EditableItem = CurrentEditableItem(200 + i)
+			});
+		}
+
+		context.SaveChanges();
+		CombatSeeder seeder = new();
+		Dictionary<string, string> answers = new(StringComparer.OrdinalIgnoreCase)
+		{
+			["installweapons"] = "no",
+			["installranged"] = "no",
+			["installmuskets"] = "yes"
+		};
+		seeder.EnsureEraDependencyCombatContentForTesting(context, answers);
+		seeder.EnsureEraDependencyCombatContentForTesting(context, answers);
+
+		for (var i = 0; i < bores.Length; i++)
+		{
+			var name = $"MusketPaperCartridge_{bores[i]}";
+			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), name);
+			var definition = XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == name).Definition);
+			Assert.AreEqual(7.0 + i / 10.0, (double)definition.Element("PowderMass")!, 0.000001, name);
+			Assert.IsTrue((bool)definition.Element("IncludesWad")!, name);
+			Assert.AreEqual(1000 + i, (long)definition.Element("BulletProto")!, name);
+			Assert.AreEqual(1, (long)definition.Element("AmmoType")!, name);
+		}
+	}
+
+	private static EditableItem CurrentEditableItem(long id)
+	{
+		return new EditableItem
+		{
+			Id = id,
+			RevisionNumber = 0,
+			RevisionStatus = 4,
+			BuilderAccountId = 1,
+			BuilderDate = DateTime.UtcNow,
+			BuilderComment = "test",
+			ReviewerAccountId = 1,
+			ReviewerDate = DateTime.UtcNow,
+			ReviewerComment = "test"
+		};
 	}
 
 	private static FuturemudDatabaseContext BuildCombatContext()
@@ -443,6 +679,12 @@ public class EraItemDependencyCompletionTests
 			StunExpression = "1",
 			PainExpression = "1"
 		});
+		context.Tags.AddRange(
+			new Tag { Id = 1, Name = "Cranequin" },
+			new Tag { Id = 2, Name = "Goat's Foot" },
+			new Tag { Id = 3, Name = "Lever" },
+			new Tag { Id = 4, Name = "Spanning Hook" },
+			new Tag { Id = 5, Name = "Windlass" });
 		context.SaveChanges();
 		return context;
 	}

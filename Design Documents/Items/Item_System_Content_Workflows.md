@@ -73,7 +73,7 @@ Ritual-offering examples include:
 
 `UsefulSeeder` now ships stock component examples across those modern families, including lithium batteries, cellular devices, answering-machine tapes, computer/network gear, signal automation, gas containers, rebreathers, inhalers, defibrillators, and external-organ support machines. Its general item package also includes a broad furniture-container catalogue for tables, shelves, bookcases, racks, stands, cabinets, wardrobes, trunks, drawers, counters, bins, beds and display cases, size-labelled door, gate, glass-door, and locking-door component presets for door items intended to match exit `DoorSize` values from `Tiny` through `Gigantic`, contextual latch presets for containers, doors, gates, and portcullis-style barriers, public infinite water-source presets for taps, drinking fountains, pumps, standpipes, troughs, and communal cisterns, and Skill-Package-aware `WornTraitChanger` presets for worn stealth, movement, dexterity, sight, hearing, and athletic bonuses or penalties; the item prototype size itself must still be set on the item. Food presets now have two stock surfaces: `CookingSeeder` installs general `PreparedFood` examples for direct load, forageable stock, stackable servings, and cooking recipe products, while the antiquity food pass keeps its prepared-food prototypes, liquids, vessels, tools, commodity tags, spoilage rules, and crafts in `ItemSeeder` partials so it can consume `AnimalButcherySeeder` outputs without duplicating them. The primary-production historic item pass now seeds portable tool and carrying-aid prototypes with ordinary `Holdable`, `Destroyable_*`, and `Container_*` components, while visible resource deposits and static apparatus deliberately omit `Holdable` so builders can place them as fixed/non-gettable site markers. `AnimalButcherySeeder` installs raw butchery output item prototypes for stock animal and beast-only mythical race profiles. Those outputs are non-edible props by default, use simple held, destroyable, stackable composition, and are tagged for raw meat cuts, raw hides, offal, trophies, venom organs, and crafting animal products. Soft organic outputs morph into the generic rotten-meat prototype, while durable hard products such as bone, tusk, horn, chitin, shell, feather, scale, tooth, beak, claw, and antler remain stable crafting materials. Fax-machine examples and breathing-filter cartridge ecosystems remain later dedicated content passes.
 
-`UsefulSeeder` also ships antiquity ritual examples: `IncenseBurner_Antiquity_BronzeCenser`, `OfferingReceiver_Antiquity_HouseholdAltar`, `OfferingReceiver_Antiquity_VotiveBasin`, and `OfferingReceiver_Antiquity_FuneralTray`. Pair the censer with items tagged `Functions / Household Items / Household Religious Items / Incense Fuel`; the seeded `antiquity_resin_incense_pellets` item is the stock test fuel.
+`UsefulSeeder` also ships antiquity ritual examples: `IncenseBurner_Antiquity_BronzeCenser`; the item-only `OfferingReceiver_Antiquity_HouseholdAltar`, `OfferingReceiver_Antiquity_VotiveBasin`, and `OfferingReceiver_Antiquity_FuneralTray`; and four liquid-enabled profiles for a temple libation table, oil-lamp shrine, oracular tripod, and blood-offering bowl. Pair the censer with items tagged `Functions / Household Items / Household Religious Items / Incense Fuel`; the seeded `antiquity_resin_incense_pellets` item is the stock test fuel. Liquid examples use `Materials / Liquids / Ritual Offerings` descendants for libations, lamp oil, and blood offerings.
 
 Prepared-food examples include:
 - `comp edit new preparedfood`
@@ -261,7 +261,10 @@ For incense and offering content, validate:
 - `burn <item> at <focus>` for contained offerings, including default consumption and optional residue prototype replacement
 - `CanOfferProg`, `OnOfferProg`, and `OnBurnProg` with `(Character actor, Item focus, Item offering)`
 - `OfferingReceived`, `OfferingReceivedWitness`, `OfferingBurned`, and `OfferingBurnedWitness` event dispatch for downstream customisation
-- that direct free-liquid libations remain unsupported unless a later liquid-specific ritual component is added
+- `libate <amount|all> from <open held container> at <focus> [(emote)]` for accepted/rejected mixtures, volume bounds, actual source consumption, summary persistence, and copy reset
+- `CanOfferLiquidProg`, `WhyCannotOfferLiquidProg`, `OnOfferLiquidProg`, and `OracleResponseProg` with `(Character actor, Item focus, Item source, LiquidMixture liquid, Number amount)`
+- blocked-liquid precedence, unrestricted empty allow lists, and descendant-tag admission for every constituent liquid in a mixture
+- `LiquidOfferingReceived` and `LiquidOfferingReceivedWitness` event dispatch exactly once after successful consumption
 
 For the current signal-automation slice, also validate:
 - whether `computerhost` correctly tracks its powered state, mounted storage devices, terminal connections, network adapters, files, and stored executables
@@ -555,3 +558,23 @@ Recommended validation passes by family:
   - load it with correctly tagged fuel
   - confirm untagged items are rejected
   - confirm fuel burns one item at a time in load order
+
+## Historical Equipment Closure Workflow
+
+When closing an item-content dependency:
+
+1. confirm whether the capability already exists before introducing a new component family;
+2. implement and test runtime persistence and builder commands;
+3. seed component profiles and stock items with stable names and rerun-repair behavior;
+4. export `Seeded_Item_Components.json`, `Item_Component_Types.json` when applicable, and `SeededTagHierarchy.csv`;
+5. update the era source reference and consolidated dependency ledger only after source and export names match.
+
+For the initial historical-arms tranche, verify locked till selection, container tag admission, legacy paper-cartridge XML, musket charge/bore compatibility, bayonet slot and firing rules, spanning-tool inventory plans, and crossbow ready-state persistence.
+
+For the standards, signals, and instruments tranche, additionally verify:
+
+1. all nine Antiquity instruments can start, tick, stop, and interrupt through their intended physical use mode;
+2. the four signal profiles accept only their named patterns, enforce a per-item cooldown, and keep failed audio unrecognisable;
+3. all six standard profiles begin unowned, unclaimed, unassociated, unplanted, and at zero captures;
+4. character and clan ownership, a configured `CanBearProg`, hostile transfers, recovery, planting, ownership changes, copy/reset behavior, and exact-once hooks follow the custody contract;
+5. rerunning either seeder repairs owned definitions and associations without duplicating rows or altering unrelated builder content.

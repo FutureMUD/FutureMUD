@@ -32,7 +32,7 @@
     {
         "Liquid Name":  "blood",
         "Tags":  [
-
+                     "Materials / Liquids / Ritual Offerings / Blood Offering"
                  ]
     },
     {
@@ -93,7 +93,7 @@
     {
         "Liquid Name":  "Dwarf Blood",
         "Tags":  [
-
+                     "Materials / Liquids / Ritual Offerings / Blood Offering"
                  ]
     },
     {
@@ -105,7 +105,7 @@
     {
         "Liquid Name":  "Elven Blood",
         "Tags":  [
-
+                     "Materials / Liquids / Ritual Offerings / Blood Offering"
                  ]
     },
     {
@@ -167,7 +167,7 @@
     {
         "Liquid Name":  "Hobbit Blood",
         "Tags":  [
-
+                     "Materials / Liquids / Ritual Offerings / Blood Offering"
                  ]
     },
     {
@@ -179,7 +179,7 @@
     {
         "Liquid Name":  "Human Blood",
         "Tags":  [
-
+                     "Materials / Liquids / Ritual Offerings / Blood Offering"
                  ]
     },
     {
@@ -247,13 +247,15 @@
     {
         "Liquid Name":  "milk",
         "Tags":  [
-                     "Materials / Liquids / Beverage"
+                     "Materials / Liquids / Beverage",
+                     "Materials / Liquids / Ritual Offerings / Libation"
                  ]
     },
     {
         "Liquid Name":  "olive oil",
         "Tags":  [
-
+                     "Materials / Liquids / Ritual Offerings / Libation",
+                     "Materials / Liquids / Ritual Offerings / Lamp Oil"
                  ]
     },
     {
@@ -265,7 +267,7 @@
     {
         "Liquid Name":  "Orc Blood",
         "Tags":  [
-
+                     "Materials / Liquids / Ritual Offerings / Blood Offering"
                  ]
     },
     {
@@ -308,13 +310,15 @@
         "Liquid Name":  "rain water",
         "Tags":  [
                      "Materials / Liquids / Beverage",
-                     "Materials / Liquids / Water"
+                     "Materials / Liquids / Water",
+                     "Materials / Liquids / Ritual Offerings / Libation"
                  ]
     },
     {
         "Liquid Name":  "red wine",
         "Tags":  [
-                     "Materials / Liquids / Beverage / Alcoholic"
+                     "Materials / Liquids / Beverage / Alcoholic",
+                     "Materials / Liquids / Ritual Offerings / Libation"
                  ]
     },
     {
@@ -350,7 +354,7 @@
     {
         "Liquid Name":  "sesame oil",
         "Tags":  [
-
+                     "Materials / Liquids / Ritual Offerings / Lamp Oil"
                  ]
     },
     {
@@ -376,7 +380,8 @@
         "Liquid Name":  "spring water",
         "Tags":  [
                      "Materials / Liquids / Beverage",
-                     "Materials / Liquids / Water"
+                     "Materials / Liquids / Water",
+                     "Materials / Liquids / Ritual Offerings / Libation"
                  ]
     },
     {
@@ -425,7 +430,7 @@
     {
         "Liquid Name":  "Troll Blood",
         "Tags":  [
-
+                     "Materials / Liquids / Ritual Offerings / Blood Offering"
                  ]
     },
     {
@@ -456,13 +461,15 @@
         "Liquid Name":  "water",
         "Tags":  [
                      "Materials / Liquids / Beverage",
-                     "Materials / Liquids / Water"
+                     "Materials / Liquids / Water",
+                     "Materials / Liquids / Ritual Offerings / Libation"
                  ]
     },
     {
         "Liquid Name":  "watered red wine",
         "Tags":  [
-                     "Materials / Liquids / Beverage / Alcoholic"
+                     "Materials / Liquids / Beverage / Alcoholic",
+                     "Materials / Liquids / Ritual Offerings / Libation"
                  ]
     },
     {
@@ -480,7 +487,8 @@
     {
         "Liquid Name":  "white wine",
         "Tags":  [
-                     "Materials / Liquids / Beverage / Alcoholic"
+                     "Materials / Liquids / Beverage / Alcoholic",
+                     "Materials / Liquids / Ritual Offerings / Libation"
                  ]
     },
     {

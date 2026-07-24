@@ -30,6 +30,8 @@ public class ContainerGameItemComponentProto : GameItemComponentProto, IContaine
     public bool Closable { get; protected set; } = true;
 
     public bool Transparent { get; protected set; } = false;
+    public List<ITag> AllowedTags { get; } = [];
+    public List<ITag> BlockedTags { get; } = [];
 
     /// <summary>
     ///     A container that is OnceOnly can only be opened once - once opened, it can never be closed again
@@ -77,6 +79,19 @@ public class ContainerGameItemComponentProto : GameItemComponentProto, IContaine
         {
             OnceOnly = bool.Parse(attr.Value);
         }
+
+        AllowedTags.Clear();
+        AllowedTags.AddRange(root.Element("AllowedTags")?.Elements("Tag")
+            .Select(x => Gameworld.Tags.Get(long.Parse(x.Value)))
+            .Where(x => x is not null)
+            .Select(x => x!)
+            ?? Enumerable.Empty<ITag>());
+        BlockedTags.Clear();
+        BlockedTags.AddRange(root.Element("BlockedTags")?.Elements("Tag")
+            .Select(x => Gameworld.Tags.Get(long.Parse(x.Value)))
+            .Where(x => x is not null)
+            .Select(x => x!)
+            ?? Enumerable.Empty<ITag>());
     }
 
     public static void RegisterComponentInitialiser(GameItemComponentManager manager)
@@ -115,7 +130,9 @@ public class ContainerGameItemComponentProto : GameItemComponentProto, IContaine
             new XElement("Definition", new XAttribute("Weight", WeightLimit),
                 new XAttribute("MaxSize", (int)MaximumContentsSize),
                 new XAttribute("Preposition", ContentsPreposition), new XAttribute("Closable", Closable),
-                new XAttribute("Transparent", Transparent), new XAttribute("OnceOnly", OnceOnly)).ToString();
+                new XAttribute("Transparent", Transparent), new XAttribute("OnceOnly", OnceOnly),
+                new XElement("AllowedTags", AllowedTags.Select(x => new XElement("Tag", x.Id))),
+                new XElement("BlockedTags", BlockedTags.Select(x => new XElement("Tag", x.Id)))).ToString();
     }
 
     public override string ComponentDescriptionOLC(ICharacter actor)
@@ -123,7 +140,9 @@ public class ContainerGameItemComponentProto : GameItemComponentProto, IContaine
         return $@"{"Container Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})
 
 This item can contain {Gameworld.UnitManager.Describe(WeightLimit, UnitType.Mass, actor)} and up to {MaximumContentsSize.ToString().Colour(Telnet.Cyan)} size objects. 
-It {(Transparent ? "is" : "is not")} transparent and {(Closable ? OnceOnly ? "can only be opened a single time" : "can be opened and closed" : "cannot be opened and closed")}";
+It {(Transparent ? "is" : "is not")} transparent and {(Closable ? OnceOnly ? "can only be opened a single time" : "can be opened and closed" : "cannot be opened and closed")}.
+Allowed Tags: {(AllowedTags.Any() ? AllowedTags.Select(x => x.Name.ColourName()).ListToString() : "Any".ColourValue())}
+Blocked Tags: {(BlockedTags.Any() ? BlockedTags.Select(x => x.Name.ColourName()).ListToString() : "None".ColourValue())}";
     }
 
     private bool BuildingCommand_Transparent(ICharacter actor, StringStack command)
@@ -222,7 +241,13 @@ It {(Transparent ? "is" : "is not")} transparent and {(Closable ? OnceOnly ? "ca
 	#3weight#0 - sets the maximum weight of items this container can hold
 	#3transparent#0 - toggles whether you can see the contents when closed
 	#3once#0 - toggles whether this container only opens once
-	#3preposition <on|in|etc>#0 - sets the preposition used to display contents. Usually on or in.";
+	#3preposition <on|in|etc>#0 - sets the preposition used to display contents. Usually on or in.
+	#3allow <tag>#0 - toggles an allowed contents tag
+	#3allow add|remove <tag>#0 - explicitly adds or removes an allowed contents tag
+	#3allow clear#0 - clears the allow list
+	#3block <tag>#0 - toggles a blocked contents tag
+	#3block add|remove <tag>#0 - explicitly adds or removes a blocked contents tag
+	#3block clear#0 - clears the block list";
 
     public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -252,9 +277,93 @@ It {(Transparent ? "is" : "is not")} transparent and {(Closable ? OnceOnly ? "ca
                 return BuildingCommand_Preposition(actor, command);
             case "transparent":
                 return BuildingCommand_Transparent(actor, command);
+            case "allow":
+            case "allowed":
+                return BuildingCommandTag(actor, command, AllowedTags, "allowed");
+            case "block":
+            case "blocked":
+                return BuildingCommandTag(actor, command, BlockedTags, "blocked");
             default:
                 return base.BuildingCommand(actor, command);
         }
+    }
+
+    private bool BuildingCommandTag(ICharacter actor, StringStack command, List<ITag> tags, string name)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                $"Which tag should be toggled in the {name} list? Use {"clear".ColourCommand()} to clear it.");
+            return false;
+        }
+
+        var action = command.PeekSpeech();
+        if (action.EqualTo("clear"))
+        {
+            command.PopSpeech();
+            tags.Clear();
+            Changed = true;
+            actor.OutputHandler.Send($"The {name} contents-tag list is now clear.");
+            return true;
+        }
+
+        var explicitAdd = action.EqualTo("add");
+        var explicitRemove = action.EqualToAny("remove", "delete");
+        if (explicitAdd || explicitRemove)
+        {
+            command.PopSpeech();
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"Which tag should be {(explicitRemove ? "removed from" : "added to")} the {name} list?");
+            return false;
+        }
+
+        var tagText = command.SafeRemainingArgument;
+        var tag = long.TryParse(tagText, out var value)
+            ? Gameworld.Tags.Get(value)
+            : Gameworld.Tags.GetByName(tagText);
+        if (tag is null)
+        {
+            actor.OutputHandler.Send("There is no such tag.");
+            return false;
+        }
+
+        if (explicitRemove)
+        {
+            if (!tags.Remove(tag))
+            {
+                actor.OutputHandler.Send($"The tag {tag.Name.ColourName()} was not in the {name} list.");
+                return false;
+            }
+
+            actor.OutputHandler.Send($"The tag {tag.Name.ColourName()} is no longer {name}.");
+        }
+        else if (explicitAdd)
+        {
+            if (tags.Contains(tag))
+            {
+                actor.OutputHandler.Send($"The tag {tag.Name.ColourName()} is already {name}.");
+                return false;
+            }
+
+            tags.Add(tag);
+            actor.OutputHandler.Send($"The tag {tag.Name.ColourName()} is now {name}.");
+        }
+        else if (tags.Contains(tag))
+        {
+            tags.Remove(tag);
+            actor.OutputHandler.Send($"The tag {tag.Name.ColourName()} is no longer {name}.");
+        }
+        else
+        {
+            tags.Add(tag);
+            actor.OutputHandler.Send($"The tag {tag.Name.ColourName()} is now {name}.");
+        }
+
+        Changed = true;
+        return true;
     }
 
     #region Constructors

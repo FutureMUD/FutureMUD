@@ -1,11 +1,13 @@
 #nullable enable
 
 using MudSharp.Database;
+using MudSharp.Form.Audio;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
 using System;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
@@ -23,14 +25,16 @@ public partial class UsefulSeeder
 		}
 
 		XElement ContainerDefinition(double weight, SizeCategory maxSize, bool closable, bool transparent,
-			string preposition)
+			string preposition, params long[] allowedTagIds)
 		{
 			return new XElement("Definition",
 				new XAttribute("Weight", weight),
 				new XAttribute("MaxSize", (int)maxSize),
 				new XAttribute("Preposition", preposition),
 				new XAttribute("Closable", closable),
-				new XAttribute("Transparent", transparent));
+				new XAttribute("Transparent", transparent),
+				new XElement("AllowedTags", allowedTagIds.Select(x => new XElement("Tag", x))),
+				new XElement("BlockedTags"));
 		}
 
 		XElement LiquidContainerDefinition(double capacity, bool closable, double weightLimit)
@@ -67,6 +71,94 @@ public partial class UsefulSeeder
 				new XElement("ToolDurabilitySecondsExpression", "(1+quality) * 3600"));
 		}
 
+		XElement InstrumentDefinition(string family, AudioVolume volume, int hands, string useModes,
+			double initialStamina, double tickStamina, params string[] styles)
+		{
+			return new XElement("Definition",
+				new XElement("Family", new XCData(family)),
+				new XElement("PerformanceTrait", 0),
+				new XElement("Difficulty", Difficulty.Normal),
+				new XElement("Volume", volume),
+				new XElement("RequiredHands", hands),
+				new XElement("UseModes", useModes),
+				new XElement("InitialStamina", initialStamina),
+				new XElement("TickStamina", tickStamina),
+				new XElement("TickSeconds", 10),
+				new XElement("Positions",
+					new XElement("Position", "standing"),
+					new XElement("Position", "sitting"),
+					new XElement("Position", "kneeling")),
+				new XElement("Styles", styles.Select(x => new XElement("Style", new XCData(x)))),
+				new XElement("LocalPlayEmote", new XCData("@ begin|begins playing $1.")),
+				new XElement("LocalTickEmote", new XCData("@ continue|continues playing $1.")),
+				new XElement("DistantPlayEmote", new XCData($"You hear {family.ToLowerInvariant()} music {{0}}.")),
+				new XElement("FailureEmote",
+					new XCData("@ attempt|attempts to play $1, but produces only a broken phrase.")),
+				new XElement("StopEmote", new XCData("@ stop|stops playing $1.")),
+				new XElement("CanPlayProg", 0),
+				new XElement("WhyCannotPlayProg", 0),
+				new XElement("OnPlayProg", 0),
+				new XElement("OnStopProg", 0));
+		}
+
+		XElement SignalInstrumentDefinition(string family, AudioVolume volume, int hands, string useModes,
+			string[] styles, params string[] signals)
+		{
+			var definition = InstrumentDefinition(family, volume, hands, useModes, 2.0, 1.0, styles);
+			definition.Add(
+				new XElement("SignalStamina", 5.0),
+				new XElement("SignalCooldownSeconds", 10),
+				new XElement("Signals", signals.Select(signal =>
+					new XElement("Signal", new XAttribute("name", signal),
+						new XElement("Local",
+							new XCData($"@ sound|sounds the {signal} signal on $1.")),
+						new XElement("Distant",
+							new XCData($"You hear the {signal} signal sounded {{0}}.")),
+						new XElement("Failure",
+							new XCData("@ attempt|attempts a signal on $1, but produces only a garbled call."))))),
+				new XElement("CanSignalProg", 0),
+				new XElement("WhyCannotSignalProg", 0),
+				new XElement("OnSignalProg", 0));
+			return definition;
+		}
+
+		XElement MilitaryStandardDefinition(string family, params string[] signals)
+		{
+			var displayFamily = family.SplitCamelCase();
+			return new XElement("Definition",
+				new XElement("Family", family),
+				new XElement("IdentityKey", new XCData("unassigned")),
+				new XElement("IdentityName", new XCData($"an unassigned {displayFamily.ToLowerInvariant()}")),
+				new XElement("Design", new XCData("It bears no assigned insignia or heraldry.")),
+				new XElement("AssociationType", "None"),
+				new XElement("AssociationKey", string.Empty),
+				new XElement("AssociationName", string.Empty),
+				new XElement("RecognitionTrait", 0),
+				new XElement("RecognitionDifficulty", Difficulty.Normal),
+				new XElement("Signals", signals.Select(x => new XElement("Signal", new XCData(x)))),
+				new XElement("PlantEmote", new XCData("@ plant|plants $1 firmly in place.")),
+				new XElement("TakeUpEmote", new XCData("@ take|takes up $1.")),
+				new XElement("RecogniseEmote",
+					new XCData("@ study|studies $1 and recognises its identity.")),
+				new XElement("CanBearProg", 0),
+				new XElement("CanRecogniseProg", 0),
+				new XElement("OnRecogniseProg", 0),
+				new XElement("OnPlantProg", 0),
+				new XElement("OnTakeUpProg", 0),
+				new XElement("OnCapturedProg", 0),
+				new XElement("OnRecoveredProg", 0),
+				new XElement("OnCustodyChangedProg", 0),
+				new XElement("OnSignalProg", 0));
+		}
+
+		long TagId(string name)
+		{
+			return context.Tags
+				       .AsEnumerable()
+				       .Single(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+				       .Id;
+		}
+
 		Upsert("Container", "Container_PreIndustrial_CompartmentBox",
 			"A small closable compartmented box represented as one logical inventory.",
 			ContainerDefinition(5000, SizeCategory.Tiny, true, false, "in"));
@@ -79,6 +171,10 @@ public partial class UsefulSeeder
 		Upsert("Container", "Container_PreIndustrial_Display_Plinth",
 			"An open display plinth, pedestal or stand surface.",
 			ContainerDefinition(75000, SizeCategory.Normal, false, false, "on"));
+		Upsert("Container", "Container_CartridgeBandolier",
+			"A closable cartridge bandolier restricted to paper cartridges and wooden powder charges.",
+			ContainerDefinition(12000, SizeCategory.Small, true, false, "in",
+				TagId("Paper Cartridges"), TagId("Wooden Powder Charges")));
 
 		Upsert("Liquid Container", "LContainer_PreIndustrial_Cup_150ml",
 			"An opaque open pre-industrial cup with a 150 ml capacity.",
@@ -131,6 +227,10 @@ public partial class UsefulSeeder
 			"Opaque desk storage secured by a built-in warded lock.",
 			LockingContainerDefinition(75000, SizeCategory.Normal, false, Difficulty.VeryHard, Difficulty.Hard,
 				"Ward Lock"));
+		Upsert("LockingCashRegister", "CashRegister_PreIndustrial_TillChest",
+			"A lockable pre-industrial till chest retaining the full shop cash-register workflow.",
+			LockingContainerDefinition(50000, SizeCategory.Small, false, Difficulty.VeryHard, Difficulty.Hard,
+				"Ward Lock"));
 
 		Upsert("HandTool", "Tool_Artillery_General",
 			"A general hand-tool profile for operating and maintaining artillery.", HandToolDefinition());
@@ -138,6 +238,65 @@ public partial class UsefulSeeder
 			"A general hand-tool profile for measured charges and paper-cartridge production.", HandToolDefinition());
 		Upsert("HandTool", "Tool_Gunsmithing_General",
 			"A general hand-tool profile for firearm lock, barrel and maintenance work.", HandToolDefinition());
+
+		foreach (var (name, family, volume, hands, modes, styles) in new[]
+		         {
+			         ("Instrument_Antiquity_WoodenLyre", "Lyre", AudioVolume.Quiet, 2, "Handheld",
+				         new[] { "hymn", "lament", "dance" }),
+			         ("Instrument_Antiquity_Kithara", "Kithara", AudioVolume.Decent, 2, "Handheld",
+				         new[] { "hymn", "epic", "processional" }),
+			         ("Instrument_Antiquity_ReedFlute", "Reed Flute", AudioVolume.Quiet, 2, "Handheld",
+				         new[] { "pastoral", "dance", "lament" }),
+			         ("Instrument_Antiquity_DoubleAulos", "Double Aulos", AudioVolume.Decent, 2, "Handheld",
+				         new[] { "dance", "processional", "martial" }),
+			         ("Instrument_Antiquity_FrameDrum", "Frame Drum", AudioVolume.Loud, 1, "Handheld",
+				         new[] { "dance", "processional", "ritual" }),
+			         ("Instrument_Antiquity_Sistrum", "Sistrum", AudioVolume.Decent, 1, "Handheld",
+				         new[] { "ritual", "processional" }),
+			         ("Instrument_Antiquity_BronzeWarHorn", "Bronze War Horn", AudioVolume.VeryLoud, 2,
+				         "Handheld", new[] { "martial", "alarm" }),
+			         ("Instrument_Antiquity_ShipSignalTrumpet", "Ship Signal Trumpet", AudioVolume.VeryLoud, 2,
+				         "Handheld", new[] { "maritime", "martial" }),
+			         ("Instrument_Antiquity_TempleRitualRattle", "Temple Ritual Rattle", AudioVolume.Decent, 1,
+				         "Handheld", new[] { "ritual", "processional" })
+		         })
+		{
+			Upsert("Instrument", name, $"A playable {family.ToLowerInvariant()} profile.",
+				InstrumentDefinition(family, volume, hands, modes, 2.0, 1.0, styles));
+		}
+
+		Upsert("SignalInstrument", "SignalInstrument_FieldDrum",
+			"A wearable field drum for sustained music and named battlefield signals.",
+			SignalInstrumentDefinition("Field Drum", AudioVolume.Loud, 2, "Handheld, Worn",
+				["march", "cadence"], "attention", "advance", "rally", "withdraw", "cease"));
+		Upsert("SignalInstrument", "SignalInstrument_KettleDrum",
+			"A room-positioned kettle drum for loud battlefield signals.",
+			SignalInstrumentDefinition("Kettle Drum", AudioVolume.VeryLoud, 2, "Room",
+				["march", "ceremonial"], "attention", "advance", "rally", "alarm", "cease"));
+		Upsert("SignalInstrument", "SignalInstrument_Fife",
+			"A military fife for sustained playing and sharp named calls.",
+			SignalInstrumentDefinition("Fife", AudioVolume.Loud, 2, "Handheld",
+				["march", "ceremonial"], "attention", "advance", "rally", "withdraw", "cease"));
+		Upsert("SignalInstrument", "SignalInstrument_SpeakingTrumpet",
+			"A speaking trumpet for shipboard and field command signals.",
+			SignalInstrumentDefinition("Speaking Trumpet", AudioVolume.VeryLoud, 1, "Handheld",
+				["command"], "attention", "advance", "withdraw", "alarm", "cease"));
+
+		foreach (var (name, family, signals) in new[]
+		         {
+			         ("MilitaryStandard_InfantryColour", "InfantryColour", Array.Empty<string>()),
+			         ("MilitaryStandard_CavalryStandard", "CavalryStandard", Array.Empty<string>()),
+			         ("MilitaryStandard_Guidon", "Guidon", Array.Empty<string>()),
+			         ("MilitaryStandard_NavalEnsign", "NavalEnsign", Array.Empty<string>()),
+			         ("MilitaryStandard_Pennant", "Pennant", Array.Empty<string>()),
+			         ("MilitaryStandard_SignalFlag", "SignalFlag",
+				         new[] { "attention", "advance", "rally", "withdraw", "alarm", "cease" })
+		         })
+		{
+			Upsert("MilitaryStandard", name,
+				$"A plantable {family.SplitCamelCase().ToLowerInvariant()} with persistent capture and recovery state.",
+				MilitaryStandardDefinition(family, signals));
+		}
 
 		nextId = currentId;
 	}

@@ -1,40 +1,43 @@
 # FutureMUD Item Content Engine Dependency Ledger
 
-This is the consolidated backlog for seeded item requests that the current engine cannot represent honestly. The corresponding data-only pass seeds only supported content; none of the 117 prototype names below appears in the maintained seeded item-component catalogue.
+This is the consolidated backlog for seeded item requests that the current engine cannot represent honestly. The corresponding data-only pass seeds only supported content; none of the 90 prototype names below appears in the maintained seeded item-component catalogue.
 
 ## Status
 
-- Deferred item-component prototypes: **117**.
-- Early Modern military partition: **40 supported** and **116 deferred**, from the original 156 requests.
-- Additional Renaissance household deferral: **1**, bringing the consolidated total to 117.
-- Antiquity item references awaiting engine work: **29**.
-- New runtime component families proposed: **7**, with **58** directly dependent military prototypes.
+- Deferred item-component prototypes: **90**.
+- Early Modern military partition: **66 supported** and **90 deferred**, from the original 156 requests.
+- Additional Renaissance household deferrals: **0**.
+- Antiquity item references awaiting engine work: **7**.
+- New runtime component families still proposed: **4**, with **45** directly dependent military prototypes.
 - This ledger is a backlog only. It does not authorize placeholder components, runtime APIs, database migrations, or item rows that advertise unsupported behaviour.
 
 ## Existing component-family enhancements
 
-### Lockable cash register — 1 prototype
+### Completed initial closure tranche
 
-The current `CashRegister` component is a container but is not lockable. `LockingContainer` would lose the shop/currency interaction, so the requested hybrid remains deferred.
+The first tranche is implemented, seeded idempotently, exported, documented, and tested:
 
-| Prototype | Catalogue uses | Required engine work |
-| --- | ---: | --- |
-| `CashRegister_PreIndustrial_TillChest` | 10 | Add lock/open state and lock interaction to `CashRegister`, or provide a supported composition boundary between cash-register and lockable-container behaviour. |
+- `CashRegister_PreIndustrial_TillChest` uses the single-container `LockingCashRegister` family, retaining shop/currency till behavior and adding normal lock, key, picking, forcing, copy, revision, and XML state paths.
+- `MusketPaperCartridge_*` for all seven stock bores persist an explicit powder mass and wad flag; definitions without those fields retain legacy weapon-charge and included-wad behavior.
+- `Container_CartridgeBandolier` uses standard-container allowed/blocked tag admission and accepts the functional paper-cartridge and wooden-charge families.
+- `Bayonet_Plug`, `Bayonet_Socket`, and `Bayonet_Sword` use the firearm attachment slots and their attached items' existing melee profiles; only plug bayonets block firing.
+- `Crossbow_Cranequin`, `Crossbow_GoatsFoot`, `Crossbow_Lever`, `Crossbow_SpanningHook`, and `Crossbow_Windlass` require their matching tagged stock spanning tools and persist ready state.
+- The eight Antiquity tack references use existing `RidingGear` and `HitchGear` capabilities. The prior ledger entry was a seeded-content and maintained-catalogue integration gap, not a missing engine family.
+- General `Instrument` provides skill-checked sustained playing, posture/hand/use-mode admission, stamina ticks, route-aware audio, interruption, emotes, and FutureProg hooks. Nine Antiquity instruments are seeded against it.
+- `SignalInstrument` specializes `Instrument` with named calls, per-item cooldowns, stamina costs, deliberately unrecognisable failed audio, and a success hook. Four profiles and twelve source items are seeded.
+- `MilitaryStandard` supplies identity, recognition, optional unit/ship association, planting, named flag signals, durable ownership-aware custody, distinct capture counting, recovery, transition hooks, administrator state controls, and FutureProg queries. Six profiles and eighteen source items are seeded; no implicit morale or scoring effect is added.
+- `OfferingReceiver` now accepts consumptive liquid libations through `libate`, with allowed/blocked liquid-tag admission, volume bounds, FutureProg gates/hooks, optional oracle text, events, and a compact per-item summary. Four Antiquity ritual profiles and items are seeded.
+- `antiquity_wooden_measuring_rod` is intentionally complete as a static holdable prop. Decision: **will not implement** a dedicated measuring-rod mechanic or a length/dimension engine solely for this item, so it is not an engine dependency.
 
-### Crossbow spanning, magazine, and emplacement behaviour — 8 prototypes
+### Crossbow magazine and emplacement behaviour — 3 prototypes
 
-The four supported crossbow profiles (`Crossbow_EastAsian`, `Crossbow_Heavy`, `Crossbow_Light`, and `Crossbow_Pellet`) use behaviour the current ranged system can express. These eight require explicit spanning tools, repeating magazines, or emplacement constraints.
+The four earlier supported crossbow profiles and five tool-spanned profiles use behavior the ranged system can now express. These three still require repeating magazines or emplacement constraints.
 
 | Prototype | Catalogue uses |
 | --- | ---: |
-| `Crossbow_Cranequin` | 3 |
-| `Crossbow_GoatsFoot` | 3 |
-| `Crossbow_Lever` | 3 |
 | `Crossbow_Repeating` | 3 |
 | `Crossbow_Repeating_Light` | 3 |
-| `Crossbow_SpanningHook` | 3 |
 | `Crossbow_Wall` | 3 |
-| `Crossbow_Windlass` | 3 |
 
 ### Ignition-specific muzzleloaders — 37 prototypes
 
@@ -80,9 +83,9 @@ These profiles remain under the existing `Musket` family, but require ignition-f
 | `Pistol_Wheellock45` | 3 |
 | `Pistol_Wheellock55` | 3 |
 
-### Measured and multi-projectile musket ammunition — 11 prototypes
+### Multi-projectile musket ammunition — 4 prototypes
 
-These profiles require the existing `MusketCartridge` family to carry a measured powder charge, bore-compatible projectile payload, wad state, and multi-projectile spread.
+Measured single-projectile paper cartridges are supported. These profiles still require multiple projectile payloads and spread.
 
 | Prototype | Catalogue uses |
 | --- | ---: |
@@ -90,19 +93,10 @@ These profiles require the existing `MusketCartridge` family to carry a measured
 | `MusketBuckAndBall_0.75 Bore` | 1 |
 | `MusketBuckshot_0.55 Bore` | 1 |
 | `MusketBuckshot_0.75 Bore` | 1 |
-| `MusketPaperCartridge_0.45 Bore` | 1 |
-| `MusketPaperCartridge_0.55 Bore` | 1 |
-| `MusketPaperCartridge_0.6 Bore` | 1 |
-| `MusketPaperCartridge_0.65 Bore` | 1 |
-| `MusketPaperCartridge_0.7 Bore` | 1 |
-| `MusketPaperCartridge_0.75 Bore` | 1 |
-| `MusketPaperCartridge_0.8 Bore` | 1 |
-
-### Content-constrained carrier behaviour — 2 prototypes
+### Multi-slot carrier behaviour — 1 prototype
 
 | Prototype | Catalogue uses | Required engine work |
 | --- | ---: | --- |
-| `Container_CartridgeBandolier` | 3 | Container admission constrained to compatible paper cartridges or wooden charges. |
 | `Holster_PairedSaddle` | 3 | A sheath/holster capable of holding and independently drawing two compatible pistols. |
 
 ### Existing melee-family enhancements
@@ -112,7 +106,7 @@ The data pass seeds `Melee_Lance` and `Melee_HookedPolearm` using supported atta
 - `Melee_Lance`: mounted/couched charge checks, movement-linked impact, bracing, and dismount consequences.
 - `Melee_HookedPolearm`: explicit hook, pull, trip, anti-rider, and forced-dismount attacks.
 
-## New component families and dependent military prototypes — 58
+## New component families and dependent military prototypes — 45
 
 ### `MuzzleloadingArtillery` — 20 dependents
 
@@ -176,16 +170,6 @@ This family must represent nominal shot class, compatible guns, solid/stone/bar/
 
 The family must relate a gun to a host socket or carriage with installation, removal, elevation, traverse, and fixed/transportable state.
 
-### `BayonetAttachment` — 3 dependents
-
-| Dependent prototype | Catalogue uses |
-| --- | ---: |
-| `Bayonet_Plug` | 3 |
-| `Bayonet_Socket` | 3 |
-| `Bayonet_Sword` | 3 |
-
-The family must attach a separate bayonet item to compatible firearms, change the mounted melee profile, enforce exclusivity, and distinguish plug-bayonet firing blockage from socket/sword-bayonet rules.
-
 ### `WeaponCarrierAttachment` — 4 dependents
 
 | Dependent prototype | Catalogue uses |
@@ -197,39 +181,39 @@ The family must attach a separate bayonet item to compatible firearms, change th
 
 The family must retain or carry a specific compatible weapon and model attachment point, draw/release timing, retention, and the transition between carried and wielded state.
 
-### `MilitaryStandard` — 6 dependents
+### Completed `MilitaryStandard` family — 6 supported profiles
 
 | Dependent prototype | Catalogue uses |
 | --- | ---: |
-| `MilitaryStandard_CavalryStandard` | 3 |
-| `MilitaryStandard_Guidon` | 3 |
-| `MilitaryStandard_InfantryColour` | 3 |
-| `MilitaryStandard_NavalEnsign` | 3 |
-| `MilitaryStandard_Pennant` | 3 |
-| `MilitaryStandard_SignalFlag` | 3 |
+- `MilitaryStandard_CavalryStandard` (3 catalogue uses)
+- `MilitaryStandard_Guidon` (3 catalogue uses)
+- `MilitaryStandard_InfantryColour` (3 catalogue uses)
+- `MilitaryStandard_NavalEnsign` (3 catalogue uses)
+- `MilitaryStandard_Pennant` (3 catalogue uses)
+- `MilitaryStandard_SignalFlag` (3 catalogue uses)
 
-The family must persist standard family, design/identity, optional unit or ship association, carried/planted state, and recognition/signal hooks. It should not grant an undeclared morale effect.
+Implemented with prototype defaults plus per-copy identity and association overrides, planted state, durable ownership-aware custody, distinct capture counting, recovery, recognition, named signal hooks, administrator controls, and FutureProg queries. It deliberately grants no undeclared morale effect.
 
-### `SignalInstrument` — 4 dependents
+### Completed `SignalInstrument` specialization — 4 supported profiles
 
 | Dependent prototype | Catalogue uses |
 | --- | ---: |
-| `SignalInstrument_FieldDrum` | 3 |
-| `SignalInstrument_Fife` | 3 |
-| `SignalInstrument_KettleDrum` | 3 |
-| `SignalInstrument_SpeakingTrumpet` | 3 |
+- `SignalInstrument_FieldDrum` (3 catalogue uses)
+- `SignalInstrument_Fife` (3 catalogue uses)
+- `SignalInstrument_KettleDrum` (3 catalogue uses)
+- `SignalInstrument_SpeakingTrumpet` (3 catalogue uses)
 
-`SignalInstrument` should be a military specialization of the general `Instrument` capability below, sharing audible performance, skill, range, posture, hand, stamina, and echo infrastructure while adding recognized command patterns.
+`SignalInstrument` is a military specialization of the general `Instrument` capability, sharing audible performance, skill, range, posture, hand, stamina, and echo infrastructure while adding named command patterns and cooldown-limited signal hooks.
 
-## Antiquity engine gaps — 29 dependent item references
+## Antiquity engine gaps — 7 dependent item references
 
-These are item references, not additional names in the 117-prototype total.
+These are item references, not additional names in the 90-prototype total.
 
-### `Instrument` — 9 items
+### Completed `Instrument` family — 9 supported items
 
-`antiquity_wooden_lyre`, `antiquity_kithara`, `antiquity_reed_flute`, `antiquity_double_aulos`, `antiquity_frame_drum`, `antiquity_sistrum`, `antiquity_bronze_war_horn`, `antiquity_ship_signal_trumpet`, `antiquity_temple_ritual_rattle`
+The nine requested Antiquity instrument items are now seeded against exact `Instrument_Antiquity_*` profiles and are no longer part of this backlog.
 
-The common foundation must support playable audible instruments, performance quality, loudness/range, hand and posture rules, sustained playing state, emotes, and prog hooks. Military signals should extend this capability rather than form a second unrelated audio-performance system.
+The common foundation now supports playable audible instruments, performance quality, loudness/range, hand and posture rules, sustained playing state, emotes, and prog hooks.
 
 ### `GameSet` — 7 items
 
@@ -237,23 +221,11 @@ The common foundation must support playable audible instruments, performance qua
 
 Required behaviour includes persistent game state, players and spectators, legal move or move-log handling, reset/concede flow, and optional gambling or skill hooks.
 
-### `AnimalTack` / `Harness` — 8 items
+This family is deliberately reserved for a separate detailed system-design slice rather than being folded into the ritual-content work.
 
-`antiquity_leather_bridle`, `antiquity_pack_saddle`, `antiquity_mule_pannier_set`, `antiquity_ox_yoke`, `antiquity_chariot_harness`, `antiquity_camel_cargo_saddle`, `antiquity_warhorse_barding_harness`, `antiquity_rope_lead_halter`
+### Completed liquid `OfferingReceiver` extension — 4 supported items
 
-This cross-subsystem family must link animals, riders, pack loads, vehicles, and drag aids rather than treating functional tack as ordinary worn clothing.
-
-### Dimension-aware `MeasuringInstrument` — 1 item
-
-`antiquity_wooden_measuring_rod`
-
-The current measuring family supports weight and fluid volume. Length/cubit/survey measurement requires item dimensions and a corresponding measurement mode.
-
-### Extended `OfferingReceiver` — 4 items
-
-`antiquity_temple_libation_table`, `antiquity_oil_lamp_shrine`, `antiquity_oracular_tripod`, `antiquity_blood_offering_bowl`
-
-These require direct poured-liquid libations and/or specialized lamp, oracle, blood-offering, ritual ownership/history, cooldown, law, clan, or religion integration beyond the existing item-offering V1.
+`antiquity_temple_libation_table`, `antiquity_oil_lamp_shrine`, `antiquity_oracular_tripod`, and `antiquity_blood_offering_bowl` are seeded against exact liquid-enabled `OfferingReceiver_Antiquity_*` profiles. The oil-lamp shrine composes the existing `Lantern` capability rather than duplicating lighting state. Ritual ownership, detailed history, cooldown, law, clan, and religion policy remain external FutureProg/event integrations and are not required to represent these stock items honestly.
 
 ## Completion boundary
 

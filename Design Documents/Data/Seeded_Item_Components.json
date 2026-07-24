@@ -7622,11 +7622,6 @@
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Breeches",
-        "Component Description":  "Permits the item to be worn as Breeches",
-        "Component Type":  "Wearable"
-    },
-    {
         "Component Name":  "Wear_FullPlateHarness",
         "Component Description":  "Permits the item to be worn as FullPlateHarness",
         "Component Type":  "Wearable"
@@ -7647,11 +7642,6 @@
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Stays",
-        "Component Description":  "Permits the item to be worn as Stays",
-        "Component Type":  "Wearable"
-    },
-    {
         "Component Name":  "Wear_ThreeQuarterHarness",
         "Component Description":  "Permits the item to be worn as ThreeQuarterHarness",
         "Component Type":  "Wearable"
@@ -7660,5 +7650,300 @@
         "Component Name":  "Yumi",
         "Component Description":  "Turns an item into a Yumi",
         "Component Type":  "Bow"
+    },
+    {
+        "Component Name":  "RidingGear_Saddle",
+        "Component Description":  "Marks an item as a saddle that improves rider stability.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_SaddlePad",
+        "Component Description":  "Marks an item as a saddle pad that removes the no-pad riding penalty.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_Bridle",
+        "Component Description":  "Marks an item as a bridle that improves mounted control.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_Reins",
+        "Component Description":  "Marks an item as reins or equivalent hand controls for a rider.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_Bit",
+        "Component Description":  "Marks an item as a bit that completes bitted bridle control.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_Stirrups",
+        "Component Description":  "Marks an item as stirrups that improve stay-mounted checks.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_PackSaddle",
+        "Component Description":  "Marks an item as a pack saddle that counts as a saddle for bareback penalties.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_BitlessBridle",
+        "Component Description":  "Marks an item as bitless riding control gear that should not take the missing-bit penalty.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_RidingHarness",
+        "Component Description":  "Marks an item as harness-style riding control gear.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "HitchGear_LeadRope",
+        "Component Description":  "Marks an item as a lead rope or light hitching rope.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "HitchGear_Yoke",
+        "Component Description":  "Marks an item as a yoke for hitching beasts to a tow point.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "HitchGear_Harness",
+        "Component Description":  "Marks an item as a draft harness for hitching creatures to vehicles.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "HitchGear_Chain",
+        "Component Description":  "Marks an item as a chain suitable for chain-type hitch points.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "HitchGear_Rope",
+        "Component Description":  "Marks an item as a general rope suitable for rope-type hitch points.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "HitchGear_Traces",
+        "Component Description":  "Marks an item as traces used with a harness or yoke.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "HitchGear_TowBar",
+        "Component Description":  "Marks an item as a tow bar for vehicle-to-vehicle hitching.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "CashRegister_PreIndustrial_TillChest",
+        "Component Description":  "A lockable pre-industrial till chest retaining the full shop cash-register workflow.",
+        "Component Type":  "LockingCashRegister"
+    },
+    {
+        "Component Name":  "Container_CartridgeBandolier",
+        "Component Description":  "A closable cartridge bandolier restricted to paper cartridges and wooden powder charges.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.45 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.45 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.55 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.55 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.6 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.6 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.65 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.65 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.7 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.7 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.75 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.75 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.8 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.8 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "Bayonet_Plug",
+        "Component Description":  "Turns an item into a plug bayonet attachment",
+        "Component Type":  "BayonetAttachment"
+    },
+    {
+        "Component Name":  "Bayonet_Socket",
+        "Component Description":  "Turns an item into a socket bayonet attachment",
+        "Component Type":  "BayonetAttachment"
+    },
+    {
+        "Component Name":  "Bayonet_Sword",
+        "Component Description":  "Turns an item into a sword bayonet attachment",
+        "Component Type":  "BayonetAttachment"
+    },
+    {
+        "Component Name":  "Crossbow_Cranequin",
+        "Component Description":  "Turns an item into a Cranequin Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_GoatsFoot",
+        "Component Description":  "Turns an item into a Goat's Foot Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Lever",
+        "Component Description":  "Turns an item into a Lever Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_SpanningHook",
+        "Component Description":  "Turns an item into a Spanning Hook Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Windlass",
+        "Component Description":  "Turns an item into a Windlass Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_WoodenLyre",
+        "Component Description":  "A playable wooden lyre profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_Kithara",
+        "Component Description":  "A playable kithara profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_ReedFlute",
+        "Component Description":  "A playable reed flute profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_DoubleAulos",
+        "Component Description":  "A playable double aulos profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_FrameDrum",
+        "Component Description":  "A playable frame drum profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_Sistrum",
+        "Component Description":  "A playable sistrum profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_BronzeWarHorn",
+        "Component Description":  "A playable bronze war horn profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_ShipSignalTrumpet",
+        "Component Description":  "A playable ship signal trumpet profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_TempleRitualRattle",
+        "Component Description":  "A playable temple ritual rattle profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "SignalInstrument_FieldDrum",
+        "Component Description":  "A wearable field drum for sustained music and named battlefield signals.",
+        "Component Type":  "SignalInstrument"
+    },
+    {
+        "Component Name":  "SignalInstrument_KettleDrum",
+        "Component Description":  "A room-positioned kettle drum for loud battlefield signals.",
+        "Component Type":  "SignalInstrument"
+    },
+    {
+        "Component Name":  "SignalInstrument_Fife",
+        "Component Description":  "A military fife for sustained playing and sharp named calls.",
+        "Component Type":  "SignalInstrument"
+    },
+    {
+        "Component Name":  "SignalInstrument_SpeakingTrumpet",
+        "Component Description":  "A speaking trumpet for shipboard and field command signals.",
+        "Component Type":  "SignalInstrument"
+    },
+    {
+        "Component Name":  "MilitaryStandard_InfantryColour",
+        "Component Description":  "A plantable infantry colour with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_CavalryStandard",
+        "Component Description":  "A plantable cavalry standard with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_Guidon",
+        "Component Description":  "A plantable guidon with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_NavalEnsign",
+        "Component Description":  "A plantable naval ensign with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_Pennant",
+        "Component Description":  "A plantable pennant with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_SignalFlag",
+        "Component Description":  "A plantable signal flag with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_HouseholdAltar",
+        "Component Description":  "Turns an item into a household altar that receives broad offerings and supports explicit burning.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_VotiveBasin",
+        "Component Description":  "Turns an item into a votive basin that burns offerings immediately when offered.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_FuneralTray",
+        "Component Description":  "Turns an item into a funeral offering tray that can hold and ritually burn broad item offerings.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_TempleLibationTable",
+        "Component Description":  "Turns an item into a temple libation table that accepts and records tagged liquid libations.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_OilLampShrine",
+        "Component Description":  "Turns an item into a lamp shrine that accepts and records offerings of tagged lamp oils.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_OracularTripod",
+        "Component Description":  "Turns an item into an oracular tripod with liquid libations and an optional oracle response prog.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_BloodOfferingBowl",
+        "Component Description":  "Turns an item into a ritual bowl that accepts and records tagged blood offerings.",
+        "Component Type":  "OfferingReceiver"
     }
 ]

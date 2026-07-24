@@ -174,7 +174,7 @@ Use `SealStamp` for signets, cylinder seals, office stamps, or similar authority
 
 Use `Sealable` as a separate attachable component rather than folding seal state into containers, books, scrolls, or writing surfaces. This lets the same tamper-evidence behaviour compose with `IContainer`, `IWriteable`, `IReadable`, openable items, and other ordinary item capabilities. The prototype stores allowed media, inspection difficulty, and broken-residue behaviour. The live component stores the active seal snapshot, sealing actor/time evidence where available, medium descriptor, broken state, and residue state.
 
-Use `MeasuringInstrument` for physical measurement tools that should produce falsifiable reported quantities. The current implementation supports `Weight` and `FluidVolume` modes. Length, cubit, and surveying tools should remain prop-only until item dimensions exist. The prototype stores mode, precision, capacity, base drift per use, display unit text, and wrong-calibration limits. The live component stores stable drift direction, use count since calibration, calibration state, and any deliberate base-unit or percentage bias.
+Use `MeasuringInstrument` for physical measurement tools that should produce falsifiable reported quantities. The current implementation supports `Weight` and `FluidVolume` modes. Length, cubit, and surveying tools can be authored as ordinary props where no coded target dimension is needed; the stock wooden rod intentionally follows that path. The prototype stores mode, precision, capacity, base drift per use, display unit text, and wrong-calibration limits. The live component stores stable drift direction, use count since calibration, calibration state, and any deliberate base-unit or percentage bias.
 
 Measuring instruments can also opt in to shared condition maintenance. The stock loss formula is `0.0001` per measurement. Effective quality penalties from low condition feed the existing calibration-drift calculation, so a poorly maintained instrument becomes less reliable without a measuring-specific penalty path.
 
@@ -182,9 +182,11 @@ Measuring instruments can also opt in to shared condition maintenance. The stock
 
 Use `IncenseBurner` for room-scale aromatic burning rather than handheld smoking items. The prototype stores the required fuel tag, maximum contained fuel weight, seconds burned per unit of fuel weight, scent range, lingering multiplier, source and distant scent text, scent tracking difficulty, and optional inhaled drug pulse settings. The runtime component is its own transparent `IContainer` and an `ILightable`; builders load fuel with ordinary `put`, start it with `light`, and stop it with `extinguish`. Scent text appears through ambient description effects and can be discovered by smell checks in `tracks`.
 
-Use `OfferingReceiver` for altars, votive basins, funeral trays, and similar ritual foci that receive item offerings. The prototype stores optional allowed and blocked offering tags, capacity, maximum item size, consumption mode (`ManualBurn`, `BurnOnOffer`, or `RecordOnly`), optional residue item prototype, `CanOfferProg`, `OnOfferProg`, `OnBurnProg`, and accepted/rejected/burn emotes. The runtime component is also its own transparent `IContainer`, so ordinary `put` and `take` still work, while `offer <item> at <focus>` and `burn <item> at <focus>` provide ritual-aware workflows.
+Use `OfferingReceiver` for altars, votive basins, funeral trays, libation tables, and similar ritual foci. The item-offering side stores optional allowed and blocked tags, capacity, maximum item size, consumption mode (`ManualBurn`, `BurnOnOffer`, or `RecordOnly`), optional residue item prototype, `CanOfferProg`, `OnOfferProg`, `OnBurnProg`, and accepted/rejected/burn emotes. The runtime component is also its own transparent `IContainer`, so ordinary `put` and `take` still work, while `offer <item> at <focus>` and `burn <item> at <focus>` provide ritual-aware item workflows.
 
-`CanOfferProg`, `OnOfferProg`, and `OnBurnProg` all receive `(Character actor, Item focus, Item offering)`. `OfferingReceiver` also raises `OfferingReceived`, `OfferingReceivedWitness`, `OfferingBurned`, and `OfferingBurnedWitness`; witness events append the witnessing perceivable to the payload. V1 supports item and commodity offerings. Direct poured-liquid libations need a later liquid-specific command path rather than pretending that an item receiver can consume free liquid.
+Enable consumptive libations with `liquids on`, then configure `liquidallow`, `liquidblock`, `liquidminimum`, `liquidmaximum`, `liquidcanprog`, `liquidwhyprog`, `liquidofferprog`, `oracleprog`, `liquidecho`, and `liquidrejectecho`. Blocked liquid tags win; an empty allowed list is unrestricted; and every constituent liquid in a mixture must satisfy an allowed family. Liquid-enabled definitions remain backward compatible because missing fields default to disabled/unrestricted/zero.
+
+`CanOfferProg`, `OnOfferProg`, and `OnBurnProg` receive `(Character actor, Item focus, Item offering)`. Liquid progs receive `(Character actor, Item focus, Item source, LiquidMixture liquid, Number amount)`; the gate is Boolean, the rejection/oracle progs return Text, and the success hook returns Void. `OfferingReceiver` raises item offering/burning events plus `LiquidOfferingReceived` and `LiquidOfferingReceivedWitness`. The witness variants append the witnessing perceivable. Detailed history, ownership policy, cooldown, legal, clan, and religion rules belong in external consumers rather than the stock component.
 
 ### Readable book components
 Books remain one component family rather than splitting blank books and published books into separate component types. `BookGameItemComponentProto` owns reusable authored defaults, while `BookGameItemComponent` owns live page state, torn pages, current page, title, and the actual readable rows attached to each loaded item.
@@ -478,3 +480,18 @@ When adding similar capabilities in future:
 2. Keep the authored cross-family profile on a shared proto base.
 3. Keep activation-specific state and persistence on the runtime component.
 4. Explicitly decide how morph, destruction, load-time finalisation, and deep-copy flows should treat inserted media or fuel.
+
+## Historical Firearm and Storage Authoring
+
+- `lockingcashregister` authors till capacity, maximum item size, lock type, picking difficulty, and forcing difficulty. Use it instead of combining two container components.
+- `container allow <tag>` and `container block <tag>` toggle admission rules; `allow clear` and `block clear` reset the respective list. Blocked matches always win and legacy definitions remain unrestricted.
+- `musketcartridge powder <mass>|legacy` authors an explicit charge or restores weapon-defined charge behavior; `wad` toggles included wadding.
+- `bayonetattachment style <plug|socket|sword>` and `bore <minimum> <maximum>` author the firearm attachment contract. Add an ordinary melee component to the same item prototype.
+- `crossbow spanningtool <tag>|none` authors an optional readying tool, and `readyemote <emote>` authors its use. Tune delay, stamina, damage, and range on distinct ranged weapon type records.
+
+## Instrument and Standard Authoring
+
+- `instrument` authors family, performance trait and difficulty, volume, hands, handheld/worn/room use modes, allowed positions, styles, initial and tick stamina, interval, five emotes, and `CanPlay`, denial, play, and stop progs.
+- `signalinstrument` inherits those settings and adds named local/distant/failure signal patterns, signal stamina, cooldown, and `CanSignal`, denial, and success progs. Do not compose it with a second `Instrument` component.
+- `militarystandard` authors family, default identity and design, optional unit/ship association, recognition check, named visual patterns, plant/take-up/recognition emotes, bearer and recognition gates, and transition hooks.
+- Use `standard set <item> ...` for scenario-specific copy identity, association, custody, or capture count. `standard reset <item> ...` restores prototype identity or clean objective state. Use the existing `ownership` command to establish the standard's lawful character or clan side.

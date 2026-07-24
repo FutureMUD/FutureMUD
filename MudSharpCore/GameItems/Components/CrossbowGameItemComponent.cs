@@ -50,13 +50,15 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
 
         LoadedAmmo = rhs.LoadedAmmo;
         PrimaryWieldedLocation = rhs.PrimaryWieldedLocation;
+        IsReadied = rhs.IsReadied;
     }
 
     protected void LoadFromXml(XElement root)
     {
         PrimaryWieldedLocation =
             Gameworld.BodypartPrototypes.Get(long.Parse(root.Element("Wielded")?.Value ?? "0")) as IWield;
-        LoadedAmmo = Gameworld.TryGetItem(long.Parse(root.Element("Loaded").Value), true)?.GetItemType<IAmmo>();
+        LoadedAmmo = Gameworld.TryGetItem(long.Parse(root.Element("Loaded")?.Value ?? "0"), true)?.GetItemType<IAmmo>();
+        IsReadied = bool.TryParse(root.Element("IsReadied")?.Value, out var isReadied) && isReadied;
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -72,7 +74,8 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
     {
         return new XElement("Definition",
             new XElement("Wielded", PrimaryWieldedLocation?.Id ?? 0),
-            new XElement("Loaded", LoadedAmmo?.Parent.Id ?? 0)
+            new XElement("Loaded", LoadedAmmo?.Parent.Id ?? 0),
+            new XElement("IsReadied", IsReadied)
         ).ToString();
     }
 
@@ -171,6 +174,12 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
             return false;
         }
 
+        if (_prototype.ReadyTemplate?.CreatePlan(readier).PlanIsFeasible() is { } feasibility &&
+            feasibility != InventoryPlanFeasibility.Feasible)
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -193,6 +202,20 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
                 $"You need at least one free {readier.Body.WielderDescriptionSingular} to ready {Parent.HowSeen(readier)}.";
         }
 
+        if (_prototype.ReadyTemplate is not null)
+        {
+            var plan = _prototype.ReadyTemplate.CreatePlan(readier);
+            return plan.PlanIsFeasible() switch
+            {
+                InventoryPlanFeasibility.NotFeasibleMissingItems =>
+                    $"You need a spanning tool tagged {_prototype.RequiredSpanningToolTag!.Name.ColourName()} to ready {Parent.HowSeen(readier)}.",
+                InventoryPlanFeasibility.NotFeasibleNotEnoughHands or
+                    InventoryPlanFeasibility.NotFeasibleNotEnoughWielders =>
+                    $"You don't have enough working {readier.Body.WielderDescriptionPlural} to use a spanning tool on {Parent.HowSeen(readier)}.",
+                _ => throw new ApplicationException("Unknown spanning-tool feasibility in CrossbowGameItemComponent.")
+            };
+        }
+
         throw new ApplicationException("Unknown reason in CrossbowGameItemComponent.WhyCannotReady.");
     }
 
@@ -204,8 +227,21 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
             return false;
         }
 
-        readier.OutputHandler.Handle(new EmoteOutput(new Emote("@ wind|winds up $0 until it is ready to fire $1.",
-            readier, Parent, LoadedAmmo.Parent)));
+        if (_prototype.ReadyTemplate is not null)
+        {
+            var plan = _prototype.ReadyTemplate.CreatePlan(readier);
+            var results = plan.ExecuteWholePlan();
+            var tool = results.First(x => x.OriginalReference?.ToString() == "spanningtool").PrimaryTarget;
+            readier.OutputHandler.Handle(new EmoteOutput(
+                new Emote(_prototype.ReadyEmote, readier, readier, Parent, tool, LoadedAmmo.Parent)));
+            plan.FinalisePlan();
+        }
+        else
+        {
+            readier.OutputHandler.Handle(new EmoteOutput(
+                new Emote("@ wind|winds up $0 until it is ready to fire $1.", readier, Parent, LoadedAmmo.Parent)));
+        }
+
         IsReadied = true;
         Changed = true;
         return true;
@@ -266,7 +302,7 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
             return $"You cannot unload {Parent.HowSeen(loader)} because it is not loaded.";
         }
 
-        if (!IsReadied)
+        if (IsReadied)
         {
             return
                 $"You cannot unload {Parent.HowSeen(loader)} until you have unwound the tension and unreadied it for fire.";

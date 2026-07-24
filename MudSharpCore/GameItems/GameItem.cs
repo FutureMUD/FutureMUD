@@ -306,22 +306,31 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
     public void SetOwner(IFrameworkItem owner)
     {
+        var oldReference = OwnershipReference;
         _owner = owner;
         _ownerReference = owner == null
             ? null
             : new FrameworkItemReference(CharacterInstanceIdentityComparer.FrameworkItemId(owner), owner.FrameworkItemType, Gameworld);
         Changed = true;
+        HandleEvent(EventType.ItemOwnershipChanged, this,
+            oldReference?.FrameworkItemType ?? string.Empty, oldReference?.Id ?? 0L,
+            OwnershipReference?.FrameworkItemType ?? string.Empty, OwnershipReference?.Id ?? 0L);
     }
 
     public void ClearOwner()
     {
+        var oldReference = OwnershipReference;
         _owner = null;
         _ownerReference = null;
         Changed = true;
+        HandleEvent(EventType.ItemOwnershipChanged, this,
+            oldReference?.FrameworkItemType ?? string.Empty, oldReference?.Id ?? 0L,
+            string.Empty, 0L);
     }
 
     public void CopyOwnerFrom(IGameItem source)
     {
+        var oldReference = OwnershipReference;
         if (source.OwnershipReference is not { } reference)
         {
             ClearOwner();
@@ -331,6 +340,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         _owner = source.Owner;
         _ownerReference = new FrameworkItemReference(reference.Id, reference.FrameworkItemType, Gameworld);
         Changed = true;
+        HandleEvent(EventType.ItemOwnershipChanged, this,
+            oldReference?.FrameworkItemType ?? string.Empty, oldReference?.Id ?? 0L,
+            reference.FrameworkItemType, reference.Id);
     }
 
     public bool HasSameOwnerAs(IGameItem other)

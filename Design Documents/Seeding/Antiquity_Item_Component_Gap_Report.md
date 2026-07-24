@@ -6,7 +6,7 @@ The goal is not to replace the existing antiquity catalogue. It is a forward-loo
 
 Cross-era foundation note: genuinely shared workshop foundations use `historic_*` stable references in `ItemSeeder.HistoricFoundation.cs` and are seeded for either antiquity or medieval installs. Antiquity culture-specific clothing, weapons, jewellery, foodways, and document forms remain under their existing `antiquity_*` references.
 
-Current review status: the implemented data-only, seal/sealable, weight/fluid measurement, incense, and V1 item-offering work below was verified rather than reimplemented. The remaining 29 item references are consolidated under `Instrument` (9), `GameSet` (7), `AnimalTack`/`Harness` (8), dimension-aware `MeasuringInstrument` (1), and extended `OfferingReceiver` (4) in the [item content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
+Current review status: the implemented data-only, seal/sealable, weight/fluid measurement, incense, V1 item-offering, and animal-tack work below was verified or completed rather than reimplemented. The remaining 21 item references are consolidated under `Instrument` (9), `GameSet` (7), dimension-aware `MeasuringInstrument` (1), and extended `OfferingReceiver` (4) in the [item content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
 
 ## Existing Coverage Baseline
 
@@ -242,7 +242,7 @@ Items enabled or improved:
 
 These gaps originally needed new runtime component families. They are now first-class component types with seeded examples in `UsefulSeeder.ItemComponents.cs`.
 
-ItemSeeder status: the `SealStamp`, `Sealable`, and `MeasuringInstrument` item examples listed below are now seeded by `ItemSeeder.AntiquityComponentGaps.cs`. Length/cubit/survey rod examples remain prop-only until item dimensions exist.
+ItemSeeder status: the `SealStamp`, `Sealable`, and `MeasuringInstrument` item examples listed below are now seeded by `ItemSeeder.AntiquityComponentGaps.cs`. The wooden measuring rod is intentionally complete as a static prop. Decision: **will not implement** a dedicated mechanic for it; it is not waiting on a dimension system.
 
 ### SealStamp and Sealable Components
 
@@ -284,7 +284,7 @@ Items enabled or improved:
 
 ### MeasuringInstrument Component
 
-Runtime status: `MeasuringInstrument` is implemented for `Weight` and `FluidVolume` modes. Length, cubit, and surveying rod measurement remains deferred until item dimensions exist, so those objects should remain props for now.
+Runtime status: `MeasuringInstrument` is implemented for `Weight` and `FluidVolume` modes. The stock wooden measuring rod deliberately remains a roleplay and set-dressing prop, and no dimension-aware mode is planned for it.
 
 Implemented behaviour:
 
@@ -323,22 +323,28 @@ The consolidated ledger is authoritative for implementation ordering and exact d
 
 ### Instrument Component
 
-Missing functionality:
+Implemented functionality:
 
-- playable musical instruments with room and adjacent-room echoes.
-- skill-checked performance quality.
-- instrument loudness, range, hand requirements, and posture restrictions.
-- optional repeated performance or sustained playing state.
-- optional prog hooks for ritual, morale, stealth disruption, crowd reaction, military signalling, or cultural recognition.
+- `Instrument` supports skill-checked sustained performances with immediate and ten-second repeated output.
+- Loudness uses the existing cell audio-routing and attenuation service; no alert event is emitted merely for playing.
+- Prototype settings cover family, trait, difficulty, volume, hands, handheld/worn/room use, positions, stamina, interval, styles, emotes, and play/stop FutureProgs.
+- `play <instrument> [style] [(emote)]` starts a non-saving performance effect; `stop playing` ends it.
+- Movement, combat, item loss, invalid posture, incapacity, exhaustion, deletion, and logout interrupt the performance.
+- `SignalInstrument` extends the same foundation for named military calls rather than duplicating audio-performance behavior.
 
-Rough component guidance:
+Seeded component profiles:
 
-- Component type name: `Instrument`.
-- Prototype settings: instrument family, performance trait/check, loudness/range, required hands, allowed postures, default play emote, failure emote, style/tune labels, optional `CanPlayProg`, optional `OnPlayProg`.
-- Runtime commands: `play <instrument> [style]`, possibly `stop playing`.
-- Interfaces should expose whether the item is currently being played and the audible echo profile.
+- `Instrument_Antiquity_WoodenLyre`
+- `Instrument_Antiquity_Kithara`
+- `Instrument_Antiquity_ReedFlute`
+- `Instrument_Antiquity_DoubleAulos`
+- `Instrument_Antiquity_FrameDrum`
+- `Instrument_Antiquity_Sistrum`
+- `Instrument_Antiquity_BronzeWarHorn`
+- `Instrument_Antiquity_ShipSignalTrumpet`
+- `Instrument_Antiquity_TempleRitualRattle`
 
-Items enabled:
+Items now enabled:
 
 - `antiquity_wooden_lyre`
 - `antiquity_kithara`
@@ -351,6 +357,8 @@ Items enabled:
 - `antiquity_temple_ritual_rattle`
 
 ### GameSet Component
+
+Implementation status: reserved for a separate detailed system-design slice. The game-set family is the only remaining Antiquity engine dependency in this report.
 
 Missing functionality:
 
@@ -377,18 +385,19 @@ Items enabled:
 
 ### Offering Receiver and Incense Burner Components
 
-Implemented V1 functionality:
+Implemented functionality:
 
 - `IncenseBurner` is a lightable transparent container for tagged incense fuel. It burns contained fuel by weight, emits room LOOK scent text, spreads ambient scent to nearby cells, and exposes scent metadata to the `tracks` command without creating movement tracks.
-- `OfferingReceiver` is a transparent/open ritual focus that accepts broad item offerings, optionally gates them by tags, supports `offer <item> at <focus>` and `burn <item> at <focus>`, consumes burned offerings by default, and can create configured residue in later prototype variants.
+- `OfferingReceiver` is a transparent/open ritual focus that accepts broad item offerings, optionally gates them by tags, supports `offer <item> at <focus>` and `burn <item> at <focus>`, consumes burned offerings by default, and can create configured residue.
 - `OfferingReceiver` runs `CanOfferProg`, `OnOfferProg`, and `OnBurnProg` with `(Character actor, Item focus, Item offering)`.
 - The event stream now exposes `OfferingReceived`, `OfferingReceivedWitness`, `OfferingBurned`, and `OfferingBurnedWitness`, with payloads `(focus, actor, offering)` and `(focus, actor, offering, witness)`.
+- Liquid-enabled receivers support `libate <amount> from <container> at <focus> [(emote)]`. The poured liquid is consumed from the open source container, admitted through allowed/blocked liquid tags and minimum/maximum volumes, and recorded in a compact per-item summary.
+- Liquid gates and hooks receive `(Character actor, Item focus, Item source, LiquidMixture liquid, Number amount)`. The component supports `CanOfferLiquidProg`, `WhyCannotOfferLiquidProg`, `OnOfferLiquidProg`, optional text-returning `OracleResponseProg`, and focus/witness liquid-offering events.
 
-Still missing or deferred:
+Explicit extension boundary:
 
-- Direct poured-liquid libations are not implemented in this pass. Use item/commodity offerings for V1; liquid-only rows remain future work until a `pour`/liquid offering path exists.
-- Ritual ownership metadata, offering history queries, spoilage counters, cooldowns, and law/clan/religion integrations remain future custom systems layered through progs/events.
-- Oil lamps remain under the ordinary lighting/smokeable/heater families unless a later ritual-lamp component is required.
+- Detailed provenance logs, ritual ownership policy, spoilage counters, cooldowns, and law/clan/religion rules remain custom systems layered through the supplied progs/events.
+- The oil-lamp shrine composes the existing `Lantern` component for lighting and fuel state. A libation is a separate ritual action and does not silently refill the lamp.
 
 Seeded support:
 
@@ -396,6 +405,10 @@ Seeded support:
 - `OfferingReceiver_Antiquity_HouseholdAltar`
 - `OfferingReceiver_Antiquity_VotiveBasin`
 - `OfferingReceiver_Antiquity_FuneralTray`
+- `OfferingReceiver_Antiquity_TempleLibationTable`
+- `OfferingReceiver_Antiquity_OilLampShrine`
+- `OfferingReceiver_Antiquity_OracularTripod`
+- `OfferingReceiver_Antiquity_BloodOfferingBowl`
 
 Items enabled:
 
@@ -404,9 +417,6 @@ Items enabled:
 - `antiquity_household_altar`
 - `antiquity_votive_offering_basin`
 - `antiquity_funeral_offering_tray`
-
-Future liquid-only or specialised ritual rows:
-
 - `antiquity_temple_libation_table`
 - `antiquity_oil_lamp_shrine`
 - `antiquity_oracular_tripod`
@@ -414,19 +424,12 @@ Future liquid-only or specialised ritual rows:
 
 ### Animal Tack and Harness Component
 
-Missing functionality:
+Implementation status: complete using the existing `RidingGear` and `HitchGear` families. The earlier gap assessment predated those runtime capabilities; the remaining work was seeded item composition and maintained-catalogue export.
 
-- tack that meaningfully connects a character, animal, cart, chariot, or pack load.
-- pack saddles and panniers that increase carried cargo in a mount-aware way.
-- harnesses and yokes that let animals pull vehicles or drag aids without being treated like ordinary worn clothing.
-- reins, bridles, and control gear that can affect riding, leading, or animal handling checks.
-
-Rough component guidance:
-
-- Component type names: `AnimalTack`, `Harness`, or a small family split by role.
-- Prototype settings: supported body plans, supported animal sizes, tack role, cargo multiplier, control modifier, required worn locations, whether the tack can link to a vehicle or drag aid.
-- Runtime hooks should integrate with mount, drag, vehicle, and animal-handling systems rather than being purely item-local.
-- This is a larger cross-subsystem pass and should not be slipped into a small item-seeder-only change.
+- bridles, pack saddles, bitless control gear, and riding harnesses now contribute their existing mounted-control and stability roles.
+- yokes, draft harnesses, and lead ropes use existing hitch roles and effort/user constraints.
+- mule panniers combine `RidingGear_PackSaddle` with one ordinary container component, preserving a single container inventory.
+- warhorse barding combines the riding harness with existing wearable and armour behavior.
 
 Items enabled:
 
@@ -442,7 +445,7 @@ Items enabled:
 ## Suggested Implementation Order
 
 1. Add data-only items that use existing components cleanly: dice, lockpicks, drag aids, notice boards, and a first water-source set.
-2. Completed in `UsefulSeeder`: antiquity-specific component prototypes for `TimePiece`, `WaterSource`, `DragAid`, `Dice`, `Locksmithing Tool`, `ShopStall`, `MarketGoodWeight`, `SealStamp`, `Sealable`, and `MeasuringInstrument`.
+2. Completed in `UsefulSeeder`: antiquity-specific component prototypes for `TimePiece`, `WaterSource`, `DragAid`, `Dice`, `Locksmithing Tool`, `ShopStall`, `MarketGoodWeight`, `SealStamp`, `Sealable`, and `MeasuringInstrument`, plus the existing `RidingGear` and `HitchGear` profile exports.
 3. Add matching item prototypes that use those new component prototypes and update this document with the shipped names.
-4. `IncenseBurner` and `OfferingReceiver` now cover the first ritual-offering gameplay pass, including smell-trackable incense and item-offering burn hooks.
-5. Treat direct liquid libations, ritual ownership/history, and specialised oracular/funeral law integrations as later passes. `SealStamp`/`Sealable` and the weight/fluid-volume portion of `MeasuringInstrument` are implemented; length measurement remains a future item-dimension pass.
+4. `IncenseBurner` and `OfferingReceiver` now cover incense, item-offering burn hooks, and consumptive tagged liquid libations; richer ritual policy remains an external hook-driven integration.
+5. The eight tack and harness references are seeded using existing runtime roles, and the measuring rod is intentionally a static prop. The seven game-set references are the remaining dependency and await their own detailed design.

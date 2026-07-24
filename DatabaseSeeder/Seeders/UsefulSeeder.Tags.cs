@@ -471,8 +471,23 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Military Equipment", "Functions");
             AddTag(context, "Military Weapons", "Military Equipment");
             AddTag(context, "Military Ammunition", "Military Equipment");
+            AddTag(context, "Paper Cartridges", "Military Ammunition");
+            AddTag(context, "Wooden Powder Charges", "Military Ammunition");
             AddTag(context, "Military Armour", "Military Equipment");
             AddTag(context, "Military Shields", "Military Armour");
+            AddTag(context, "Military Signals", "Military Equipment");
+            AddTag(context, "Military Standards", "Military Equipment");
+            AddTag(context, "Crossbow Spanning Tools", "Military Equipment");
+            AddTag(context, "Cranequin", "Crossbow Spanning Tools");
+            AddTag(context, "Goat's Foot", "Crossbow Spanning Tools");
+            AddTag(context, "Lever", "Crossbow Spanning Tools");
+            AddTag(context, "Spanning Hook", "Crossbow Spanning Tools");
+            AddTag(context, "Windlass", "Crossbow Spanning Tools");
+            AddTag(context, "Animal Equipment", "Functions");
+            AddTag(context, "Riding Tack", "Animal Equipment");
+            AddTag(context, "Pack Gear", "Animal Equipment");
+            AddTag(context, "Draft Gear", "Animal Equipment");
+            AddTag(context, "Animal Armour", "Animal Equipment");
 
             AddTag(context, "Household Items", "Functions");
             AddTag(context, "Household Furniture", "Household Items");
@@ -483,6 +498,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Household Heating", "Household Items");
             AddTag(context, "Household Construction Materials", "Household Items");
             AddTag(context, "Writing Goods", "Functions");
+            AddTag(context, "Musical Instruments", "Functions");
 
             // Clothing
             AddTag(context, "Worn Items", "Functions");

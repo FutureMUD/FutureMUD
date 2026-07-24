@@ -196,7 +196,9 @@ Ancient and non-paper writing surfaces use the same readable/writeable runtime c
 
 Seals and measuring tools follow the same interface-first composition model. A `SealStamp` item implements `ISealStamp` and exposes design, issuer, owner, office/clan, material, forgery difficulty, and authority-prog metadata. A `Sealable` item implements `ISealable` separately from any container or writing component; it stores the active seal snapshot in live XML so a sealed envelope, scroll, tablet, jar, or chest can retain tamper evidence without duplicating state in each of those component families. Opening, reading, writing, drawing, or retitling a sealed item breaks the seal and then continues the requested action only when the actor can manipulate the item; visible-but-unreachable sealed items remain readable only after an authorized actor physically breaks or opens the seal.
 
-`MeasuringInstrument` implements `IMeasuringInstrument` for physical weight and fluid-volume tools. The live component stores use-based calibration drift, stable drift direction, quality-scaled drift accumulation, honest calibration state, and optional deliberate wrong-calibration bias. Length measurement is intentionally deferred until item dimensions exist, so rod-like tools should not be authored as functional measuring instruments yet.
+`MeasuringInstrument` implements `IMeasuringInstrument` for physical weight and fluid-volume tools. The live component stores use-based calibration drift, stable drift direction, quality-scaled drift accumulation, honest calibration state, and optional deliberate wrong-calibration bias. The stock wooden measuring rod is intentionally a static prop and is not waiting on a length-measurement mode.
+
+`OfferingReceiver` stores contained item offerings plus a bounded liquid-libation summary in component XML: total count and volume, the last offerer's durable identity/name, the last liquid description and volume, and the UTC time. It does not retain an unbounded provenance log or store poured liquid. Fresh copies reset both contained offerings and liquid summary state. Prototype XML controls item admission/consumption separately from optional liquid admission, tag rules, volume bounds, emotes, and FutureProg integrations, so old definitions remain item-only by default.
 
 ### Computers and signal automation pattern
 The planned computer-programs subsystem follows the same composition rules:
@@ -589,3 +591,23 @@ The current thermal-source component families use a shared authored thermal prof
 - fuel-fed sources are active only when switched on and still connected to a valid fuel source of the authored medium and fuel type
 - consumable sources auto-start and remain active until their burn timer expires
 - solid-fuel sources stay active while switched on and while they still have queued valid fuel items to burn
+
+## Runtime Integration: Historical Equipment
+
+`LockingCashRegister` combines `IContainer`, `ISelectable`, `IOpenable`, `ILockable`, and `ILock` in one component. It retains cash-register employee, currency, crime, and till-selection behavior. A locked drawer cannot be opened through the `nosale` selection path; built-in and installed lock state is saved in component XML.
+
+Standard containers apply prototype tag rules before size and weight admission. Blocked tags win, an empty allowed list is unrestricted, and `IGameItem.IsA` permits descendant tags to satisfy an allowed ancestor.
+
+`IMusketCartridge` extends ordinary ammunition with a nullable measured powder mass and an included-wad flag. Missing powder mass means the legacy weapon-defined charge; missing wad data means `true`. Muskets validate ammunition type, grade, bore, and any explicit charge before loading.
+
+Musket attachments have distinct persisted bayonet, ramrod, and sight slots. `IBayonetAttachment` supplies style and bore compatibility. Plug styles block firing; socket and sword styles do not. While attached, the firearm delegates melee weapon type to the bayonet item's existing `IMeleeWeapon`.
+
+Crossbows may author a required spanning-tool tag. The inventory plan must acquire a matching tool before readying, while ready delays and stamina remain properties of the ranged weapon type. `IsReadied` is runtime XML state and defaults to false for legacy component definitions.
+
+## Runtime Integration: Instruments and Military Standards
+
+An active `Instrument` performance is a non-saving character effect. Its initial check outcome is retained for hook consumers; output occurs immediately and every authored interval, and stamina is drained at admission and on each tick. Movement, melee engagement, item loss, invalid posture, incapacity, exhaustion, deletion, quit, or logout ends it. Audible propagation uses `ICell.HandleAudioEcho` and does not create alert events.
+
+`SignalInstrument` shares the same physical-use and skill rules. A per-character, per-item cooldown effect prevents repeated calls. Failed calls use neutral garbled audio and suppress `OnSignalProg`.
+
+`MilitaryStandard` instance XML stores optional identity/design/association overrides, planted state, custody, and capture count. Copies retain identity overrides but reset planted state and capture history. Durable ownership remains on the item: an authorised carrier produces `Friendly` custody, an unauthorised carrier produces one `Captured` transition and count increment, and hostile-to-hostile transfers do not increment again. An authorised recovery returns the state to `Friendly`; dropping or planting preserves custody.

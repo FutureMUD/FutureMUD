@@ -29,6 +29,7 @@ public partial class ItemSeeder
 	private void SeedAntiquityComponentGapItems()
 	{
 		EnsureAntiquityComponentGapWritingComponents();
+		EnsureAntiquityRitualLiquidTags();
 
 		foreach (var spec in AntiquityComponentGapItemSpecs())
 		{
@@ -58,6 +59,42 @@ public partial class ItemSeeder
 				null,
 				null,
 				spec.BuilderNotes ?? "Seeded from the antiquity item component gap report.");
+		}
+	}
+
+	private void EnsureAntiquityRitualLiquidTags()
+	{
+		EnsureAntiquityTagPath("Materials / Liquids / Ritual Offerings / Libation");
+		EnsureAntiquityTagPath("Materials / Liquids / Ritual Offerings / Lamp Oil");
+		EnsureAntiquityTagPath("Materials / Liquids / Ritual Offerings / Blood Offering");
+
+		foreach (var name in new[]
+		         {
+			         "water", "spring water", "rain water", "red wine", "white wine", "watered red wine",
+			         "milk", "olive oil"
+		         })
+		{
+			if (_liquids.TryGetValue(name, out var liquid))
+			{
+				EnsureLiquidHasTag(liquid, "Libation");
+			}
+		}
+
+		foreach (var name in new[] { "olive oil", "sesame oil" })
+		{
+			if (_liquids.TryGetValue(name, out var liquid))
+			{
+				EnsureLiquidHasTag(liquid, "Lamp Oil");
+			}
+		}
+
+		foreach (var liquid in _liquids.Values
+		                               .Where(x => x.Name.Equals("blood", StringComparison.OrdinalIgnoreCase) ||
+		                                           x.Name.EndsWith(" Blood",
+			                                           StringComparison.OrdinalIgnoreCase))
+		                               .DistinctBy(x => x.Id))
+		{
+			EnsureLiquidHasTag(liquid, "Blood Offering");
 		}
 	}
 
@@ -142,6 +179,11 @@ public partial class ItemSeeder
 		const string LeisureTag = "Functions / Household Items / Leisure Goods";
 		const string MedicalTag = "Functions / Medical Items";
 		const string IncenseFuelTag = "Functions / Household Items / Household Religious Items / Incense Fuel";
+		const string RidingTackTag = "Functions / Animal Equipment / Riding Tack";
+		const string PackGearTag = "Functions / Animal Equipment / Pack Gear";
+		const string DraftGearTag = "Functions / Animal Equipment / Draft Gear";
+		const string AnimalArmourTag = "Functions / Animal Equipment / Animal Armour";
+		const string InstrumentTag = "Functions / Musical Instruments";
 
 		return
 		[
@@ -200,7 +242,7 @@ public partial class ItemSeeder
 				"This low stone altar has a smoothed top, shallow soot marks, and enough working surface for small votive gifts, food, tablets, or tokens.",
 				SizeCategory.Large, ItemQuality.Standard, 40000.0, 90.0m, "stone", MaterialBehaviourType.Stone,
 				[ReligiousTag, FurnitureTag], ["OfferingReceiver_Antiquity_HouseholdAltar", "Destroyable_Furniture"],
-				"Receives broad item offerings and supports explicit offering burns; direct liquid libations remain future work."),
+				"Receives broad item offerings and supports explicit offering burns; use a liquid-enabled offering profile for libations."),
 			new("antiquity_votive_offering_basin", "basin", "a bronze votive offering basin",
 				"This bronze basin is smoke-darkened inside, with a low rim and tripod feet for receiving small offerings that are meant to be burned at once.",
 				SizeCategory.Normal, ItemQuality.Standard, 3800.0, 48.0m, "bronze", MaterialBehaviourType.Metal,
@@ -210,7 +252,31 @@ public partial class ItemSeeder
 				"This wooden tray has a raised lip, linen cord handles, and faint soot stains from offerings prepared beside a bier or grave.",
 				SizeCategory.Normal, ItemQuality.Standard, 1800.0, 24.0m, "cedar", MaterialBehaviourType.Wood,
 				[ReligiousTag, MedicalTag], ["Holdable", "OfferingReceiver_Antiquity_FuneralTray", "Destroyable_WoodenHeavy"],
-				"Receives funeral offerings for later manual burning; direct liquid libations remain future work."),
+				"Receives funeral offerings for later manual burning."),
+			new("antiquity_temple_libation_table", "table", "a stone temple libation table",
+				"This broad stone table is cut with shallow channels that gather poured wine, water, milk, or oil before carrying the offering away beneath its rim.",
+				SizeCategory.VeryLarge, ItemQuality.Good, 110000.0, 125.0m, "stone", MaterialBehaviourType.Stone,
+				[ReligiousTag, FurnitureTag],
+				["OfferingReceiver_Antiquity_TempleLibationTable", "Destroyable_Furniture"],
+				"Accepts tagged libation liquids through the libate command and records a compact per-item offering summary."),
+			new("antiquity_oil_lamp_shrine", "shrine", "a bronze oil-lamp shrine",
+				"This small bronze shrine surrounds a shallow oil lamp with a votive backplate. A narrow channel beside the wick receives dedicated offerings of lamp oil.",
+				SizeCategory.Large, ItemQuality.Good, 6200.0, 64.0m, "bronze", MaterialBehaviourType.Metal,
+				[ReligiousTag, MarketTag],
+				["OfferingReceiver_Antiquity_OilLampShrine", "Lantern", "Destroyable_HeavyMetal"],
+				"Combines ordinary lamp lighting with a separate tagged lamp-oil libation action; poured offerings do not refill the lamp."),
+			new("antiquity_oracular_tripod", "tripod", "a bronze oracular tripod",
+				"This tall bronze tripod supports a dark shallow bowl above three clawed legs. Its rim is engraved for petitions, libations, and signs interpreted by an oracle.",
+				SizeCategory.Large, ItemQuality.Good, 14500.0, 115.0m, "bronze", MaterialBehaviourType.Metal,
+				[ReligiousTag, CivicTag],
+				["OfferingReceiver_Antiquity_OracularTripod", "Destroyable_HeavyMetal"],
+				"Accepts tagged libations and exposes an optional text FutureProg for scenario-specific oracle responses."),
+			new("antiquity_blood_offering_bowl", "bowl", "a bronze blood-offering bowl",
+				"This heavy bronze bowl has a darkened interior, a low pouring lip, and ritual marks intended for receiving blood offerings at shrine or sacrifice.",
+				SizeCategory.Normal, ItemQuality.Good, 2600.0, 52.0m, "bronze", MaterialBehaviourType.Metal,
+				[ReligiousTag, MedicalTag],
+				["Holdable", "OfferingReceiver_Antiquity_BloodOfferingBowl", "Destroyable_HeavyMetal"],
+				"Accepts only liquids tagged as blood offerings and records a compact per-item offering summary."),
 			new("antiquity_irrigation_channel_outlet", "outlet", "an irrigation channel outlet",
 				"This shaped stone outlet guides water from a channel into fields or garden beds, with silt marks and tool-cut edges around its mouth.",
 				SizeCategory.VeryLarge, ItemQuality.Standard, 160000.0, 85.0m, "stone", MaterialBehaviourType.Stone,
@@ -291,10 +357,10 @@ public partial class ItemSeeder
 				SizeCategory.Normal, ItemQuality.Standard, 4200.0, 22.0m, "stone", MaterialBehaviourType.Stone,
 				[ToolTag, MeasureTag], ["Holdable", "MarketGoodWeight_Antiquity_StapleFood", "MeasuringInstrument_Antiquity_GrainMeasure", "Destroyable_Misc"]),
 			new("antiquity_wooden_measuring_rod", "rod", "a marked wooden measuring rod",
-				"This wooden measuring rod is marked in repeated hand and cubit divisions. It remains a reference prop until physical length measurement is supported.",
+				"This wooden measuring rod is marked in repeated hand and cubit divisions. It is a portable trade and survey prop suitable for roleplay, set dressing, and builder-authored scripts.",
 				SizeCategory.Normal, ItemQuality.Standard, 520.0, 9.0m, "oak", MaterialBehaviourType.Wood,
 				[ToolTag, MeasureTag], ["Holdable", "Destroyable_Misc"],
-				"Length measurement is intentionally deferred until item dimensions exist."),
+				"Intentionally implemented as a static prop; no dedicated engine component is planned."),
 			new("antiquity_balance_scale", "scale", "a portable balance scale",
 				"This compact balance scale has a bronze beam, cord hangers, and shallow pans for comparing small trade goods against known weights.",
 				SizeCategory.Small, ItemQuality.Standard, 1800.0, 38.0m, "bronze", MaterialBehaviourType.Metal,
@@ -414,7 +480,80 @@ public partial class ItemSeeder
 			new("antiquity_tax_assessor_measure_kit", "kit", "a tax assessor's measure kit",
 				"This official measure kit combines a folding scale beam, reference weights, tally tablets, cord, and a small seal-ready pouch.",
 				SizeCategory.Normal, ItemQuality.Good, 5200.0, 95.0m, "bronze", MaterialBehaviourType.Metal,
-				[ToolTag, MeasureTag, CivicTag], ["Holdable", "Container_Pouch", "MeasuringInstrument_Antiquity_TaxAssessorKit", "Destroyable_HeavyMetal"])
+				[ToolTag, MeasureTag, CivicTag], ["Holdable", "Container_Pouch", "MeasuringInstrument_Antiquity_TaxAssessorKit", "Destroyable_HeavyMetal"]),
+
+			new("antiquity_wooden_lyre", "lyre", "a wooden lyre",
+				"This compact wooden lyre has a hollow sound box, two curved arms, and gut strings suited to hymns, laments, and intimate performances.",
+				SizeCategory.Normal, ItemQuality.Standard, 1250.0, 48.0m, "cedar", MaterialBehaviourType.Wood,
+				[InstrumentTag, ReligiousTag], ["Holdable", "Instrument_Antiquity_WoodenLyre", "Destroyable_WoodenHeavy"]),
+			new("antiquity_kithara", "kithara", "a wooden kithara",
+				"This formal wooden kithara has a broad resonant body and rigid arms built for a strong public tone in halls, theatres, and processions.",
+				SizeCategory.Large, ItemQuality.Good, 2700.0, 95.0m, "cedar", MaterialBehaviourType.Wood,
+				[InstrumentTag, ReligiousTag], ["Holdable", "Instrument_Antiquity_Kithara", "Destroyable_WoodenHeavy"]),
+			new("antiquity_reed_flute", "flute", "a reed flute",
+				"This slim river-reed flute is pierced with careful finger holes and bound at the ends against splitting.",
+				SizeCategory.Small, ItemQuality.Standard, 85.0, 8.0m, "reed", MaterialBehaviourType.Plant,
+				[InstrumentTag, LeisureTag], ["Holdable", "Instrument_Antiquity_ReedFlute", "Destroyable_Misc"]),
+			new("antiquity_double_aulos", "aulos", "a double aulos",
+				"This matched pair of reed pipes has separate reeds and finger holes, demanding both hands and a disciplined breath for its piercing harmonies.",
+				SizeCategory.Normal, ItemQuality.Good, 240.0, 38.0m, "reed", MaterialBehaviourType.Plant,
+				[InstrumentTag, ReligiousTag], ["Holdable", "Instrument_Antiquity_DoubleAulos", "Destroyable_Misc"]),
+			new("antiquity_frame_drum", "drum", "a hide frame drum",
+				"This broad wooden frame is stretched with cured hide and fitted with a hand grip for dance, procession, and ritual rhythms.",
+				SizeCategory.Normal, ItemQuality.Standard, 1150.0, 22.0m, "leather", MaterialBehaviourType.Leather,
+				[InstrumentTag, ReligiousTag], ["Holdable", "Instrument_Antiquity_FrameDrum", "Destroyable_Misc"]),
+			new("antiquity_sistrum", "sistrum", "a bronze sistrum",
+				"This bronze ritual rattle has loose crossbars that clash brightly when its looped handle is shaken.",
+				SizeCategory.Small, ItemQuality.Good, 520.0, 42.0m, "bronze", MaterialBehaviourType.Metal,
+				[InstrumentTag, ReligiousTag], ["Holdable", "Instrument_Antiquity_Sistrum", "Destroyable_HeavyMetal"]),
+			new("antiquity_bronze_war_horn", "horn", "a bronze war horn",
+				"This long bronze horn flares to a wide bell and carries a harsh martial call across a battlefield or city wall.",
+				SizeCategory.Large, ItemQuality.Good, 1800.0, 85.0m, "bronze", MaterialBehaviourType.Metal,
+				[InstrumentTag, "Functions / Military Equipment / Military Signals", "Market / Military Goods"],
+				["Holdable", "Instrument_Antiquity_BronzeWarHorn", "Destroyable_HeavyMetal"]),
+			new("antiquity_ship_signal_trumpet", "trumpet", "a ship's bronze signal trumpet",
+				"This salt-darkened bronze trumpet has a narrow mouthpiece and wide bell made to carry commands over wind, oars, and surf.",
+				SizeCategory.Large, ItemQuality.Good, 1550.0, 78.0m, "bronze", MaterialBehaviourType.Metal,
+				[InstrumentTag, "Functions / Military Equipment / Military Signals"],
+				["Holdable", "Instrument_Antiquity_ShipSignalTrumpet", "Destroyable_HeavyMetal"]),
+			new("antiquity_temple_ritual_rattle", "rattle", "a temple ritual rattle",
+				"This carved wooden ritual rattle encloses hard seeds and bears painted sacred bands worn smooth by repeated ceremonies.",
+				SizeCategory.Small, ItemQuality.Standard, 360.0, 18.0m, "cedar", MaterialBehaviourType.Wood,
+				[InstrumentTag, ReligiousTag],
+				["Holdable", "Instrument_Antiquity_TempleRitualRattle", "Destroyable_Misc"]),
+
+			new("antiquity_leather_bridle", "bridle", "a plain leather bridle",
+				"This plain leather bridle has a browband, cheek straps, and reins arranged for steady everyday control of a riding animal.",
+				SizeCategory.Normal, ItemQuality.Standard, 1200.0, 24.0m, "leather", MaterialBehaviourType.Leather,
+				[RidingTackTag, "Market / Transportation / Horse Tack"], ["Holdable", "Wear_Bridle", "RidingGear_Bridle", "Destroyable_Clothing"]),
+			new("antiquity_pack_saddle", "saddle", "a leather pack saddle",
+				"This broad leather pack saddle is padded beneath a rigid frame and fitted with many lash points for balancing cargo over an animal's back.",
+				SizeCategory.Large, ItemQuality.Standard, 8500.0, 65.0m, "leather", MaterialBehaviourType.Leather,
+				[PackGearTag, "Market / Transportation / Horse Tack"], ["Holdable", "Wear_Saddle", "RidingGear_PackSaddle", "Destroyable_Clothing"]),
+			new("antiquity_mule_pannier_set", "panniers", "a pair of mule panniers",
+				"This matched pair of deep woven panniers hangs from a padded leather frame, keeping a mule's cargo divided and balanced.",
+				SizeCategory.Large, ItemQuality.Standard, 7200.0, 54.0m, "wicker", MaterialBehaviourType.Wood,
+				[PackGearTag, "Market / Transportation / Horse Tack"], ["Holdable", "Wear_Saddle", "RidingGear_PackSaddle", "Container_PreIndustrial_LiddedHamper", "Destroyable_Misc"]),
+			new("antiquity_ox_yoke", "yoke", "a heavy ox yoke",
+				"This heavy shaped oak yoke has smoothed neck bows and iron fastening points for joining a pair of oxen to a plough, cart, or wagon.",
+				SizeCategory.VeryLarge, ItemQuality.Standard, 26000.0, 58.0m, "oak", MaterialBehaviourType.Wood,
+				[DraftGearTag, "Market / Transportation / Horse Tack"], ["Holdable", "Wear_Saddle", "HitchGear_Yoke", "Destroyable_WoodenHeavy"]),
+			new("antiquity_chariot_harness", "harness", "a leather chariot harness",
+				"This layered leather chariot harness carries reinforced breast straps, traces, and bronze rings for transferring a team's effort into the pole.",
+				SizeCategory.Large, ItemQuality.Good, 6800.0, 82.0m, "leather", MaterialBehaviourType.Leather,
+				[DraftGearTag, "Market / Military Goods"], ["Holdable", "Wear_Saddle", "HitchGear_Harness", "Destroyable_Clothing"]),
+			new("antiquity_camel_cargo_saddle", "saddle", "a padded camel cargo saddle",
+				"This high padded cargo saddle is shaped around a camel's back and hung with broad straps and lash rings for bulky desert loads.",
+				SizeCategory.Large, ItemQuality.Standard, 9800.0, 76.0m, "leather", MaterialBehaviourType.Leather,
+				[PackGearTag, "Market / Transportation / Horse Tack"], ["Holdable", "Wear_Saddle", "RidingGear_PackSaddle", "Destroyable_Clothing"]),
+			new("antiquity_warhorse_barding_harness", "barding", "a reinforced warhorse barding harness",
+				"This reinforced leather-scale barding harness protects a warhorse's body while retaining the straps and control fittings needed under arms.",
+				SizeCategory.VeryLarge, ItemQuality.Good, 18000.0, 145.0m, "leather", MaterialBehaviourType.Leather,
+				[AnimalArmourTag, RidingTackTag, "Market / Military Goods"], ["Holdable", "Wear_Saddle", "RidingGear_RidingHarness", "Armour_LeatherScale", "Destroyable_Armour"]),
+			new("antiquity_rope_lead_halter", "halter", "a rope lead halter",
+				"This soft hemp halter loops around an animal's muzzle and poll, ending in a stout lead rope for bitless control or light hitching.",
+				SizeCategory.Normal, ItemQuality.Standard, 900.0, 12.0m, "hemp", MaterialBehaviourType.Plant,
+				[RidingTackTag, DraftGearTag, "Market / Transportation / Horse Tack"], ["Holdable", "Wear_Bridle", "RidingGear_BitlessBridle", "HitchGear_LeadRope", "Destroyable_Misc"])
 		];
 	}
 }

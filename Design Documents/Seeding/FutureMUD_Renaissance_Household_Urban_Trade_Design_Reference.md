@@ -6,7 +6,7 @@ First-pass implementation catalogue for Renaissance household, urban, merchant, 
 
 This pass supplies stable references, short descriptions, exact primary materials, size, quality, empty weight, farthing cost, exact component sets, exact tag profiles, date/culture/institution admission, and shared-stock reuse. Nouns/keywords, long and full descriptions, skins, crafts, shops, room packages, and C# calls are deferred.
 
-Dependency status: all dry- and liquid-container profiles used here are now seeded except `CashRegister_PreIndustrial_TillChest`. The cash-register row remains deferred because the current family cannot supply its requested lockability; see the [consolidated item-content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md). Item rows using that component must remain disabled or use an explicitly documented behaviour-losing fallback until the engine work lands.
+Dependency status: all dry- and liquid-container profiles used here are now seeded, including `CashRegister_PreIndustrial_TillChest`. The till chest uses the single-container `LockingCashRegister` family so shop, currency, containment, open-state, and lock behavior coexist without a behavior-losing fallback.
 
 ## Stable-reference and row syntax
 

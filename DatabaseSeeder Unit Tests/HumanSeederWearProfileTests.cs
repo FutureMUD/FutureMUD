@@ -91,8 +91,6 @@ public class HumanSeederWearProfileTests
 			"Skirt Support",
 			"Partlet",
 			"Long Open Robe",
-			"Stays",
-			"Breeches",
 			"ArmHarness",
 			"LegHarness",
 			"ShoulderArmHarness",

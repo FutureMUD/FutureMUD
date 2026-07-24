@@ -8,6 +8,7 @@ using MudSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -45,10 +46,25 @@ public partial class CombatSeeder
 		"Crossbow_Heavy",
 		"Crossbow_Light",
 		"Crossbow_Pellet",
+		"Crossbow_Cranequin",
+		"Crossbow_GoatsFoot",
+		"Crossbow_Lever",
+		"Crossbow_SpanningHook",
+		"Crossbow_Windlass",
 		"Blowgun_Long",
 		"Blowgun_Short",
 		"Throwing_Club",
-		"Throwing_Disc"
+		"Throwing_Disc",
+		"Bayonet_Plug",
+		"Bayonet_Socket",
+		"Bayonet_Sword",
+		"MusketPaperCartridge_0.45 Bore",
+		"MusketPaperCartridge_0.55 Bore",
+		"MusketPaperCartridge_0.6 Bore",
+		"MusketPaperCartridge_0.65 Bore",
+		"MusketPaperCartridge_0.7 Bore",
+		"MusketPaperCartridge_0.75 Bore",
+		"MusketPaperCartridge_0.8 Bore"
 	];
 
 	internal int EnsureEraDependencyCombatContentForTesting(FuturemudDatabaseContext context,
@@ -286,6 +302,29 @@ public partial class CombatSeeder
 			return ranged;
 		}
 
+		long RequireTagId(string name)
+		{
+			return context.Tags
+				       .AsEnumerable()
+				       .SingleOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Id ??
+			       throw new InvalidOperationException(
+				       $"Cannot seed combat profile: the required tag '{name}' is missing. Run the Useful Items package first.");
+		}
+
+		void EnsureSpannedCrossbow(string name, string componentName, string toolTagName,
+			Action<RangedWeaponTypes> configure)
+		{
+			var ranged = EnsureRanged(name, componentName, "Crossbow", "Crossbow", configure);
+			var component = context.GameItemComponentProtos.Single(x =>
+				x.Name == componentName && x.EditableItem.RevisionStatus == 4);
+			component.Definition = new XElement("Definition",
+				new XElement("RangedWeaponType", ranged.Id),
+				new XElement("RequiredSpanningToolTag", RequireTagId(toolTagName)),
+				new XElement("ReadyEmote",
+					new XCData("@ use|uses $2 to span and ready $1, drawing its string into the firing catch.")))
+				.ToString();
+		}
+
 		if (questionAnswers["installweapons"].EqualToAny("yes", "y"))
 		{
 			EnsureArmour("Brigandine", "Armour_Brigandine", "Metal Scale", 1, 1, 2);
@@ -316,6 +355,22 @@ public partial class CombatSeeder
 				WeaponClassification.Training, 3);
 			EnsureWeapon("Training Smallsword", "Melee_Training_Smallsword", "Training Rapier",
 				WeaponClassification.Training, 2);
+
+			foreach (var (name, style) in new[]
+			         {
+				         ("Bayonet_Plug", "Plug"),
+				         ("Bayonet_Socket", "Socket"),
+				         ("Bayonet_Sword", "Sword")
+			         })
+			{
+				EnsureComponent("BayonetAttachment", name,
+					$"Turns an item into a {style.ToLowerInvariant()} bayonet attachment",
+					new XElement("Definition",
+						new XElement("Style", style),
+						new XElement("MinimumBore", 0.45),
+						new XElement("MaximumBore", 0.8))
+						.ToString());
+			}
 		}
 
 		if (questionAnswers["installranged"].EqualToAny("yes", "y"))
@@ -360,6 +415,37 @@ public partial class CombatSeeder
 				x.SpecificAmmunitionGrade = "Sling Bullet";
 				x.DamageBonusExpression = $"({x.DamageBonusExpression}) - 3";
 			});
+			EnsureSpannedCrossbow("Cranequin Crossbow", "Crossbow_Cranequin", "Cranequin", x =>
+			{
+				x.ReadyDelay *= 3.0;
+				x.StaminaPerLoadStage *= 0.9;
+				x.DefaultRangeInRooms = 6;
+				x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 6";
+			});
+			EnsureSpannedCrossbow("Goat's Foot Crossbow", "Crossbow_GoatsFoot", "Goat's Foot", x =>
+			{
+				x.ReadyDelay *= 1.5;
+				x.StaminaPerLoadStage *= 1.15;
+				x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 2";
+			});
+			EnsureSpannedCrossbow("Lever Crossbow", "Crossbow_Lever", "Lever", x =>
+			{
+				x.ReadyDelay *= 1.75;
+				x.StaminaPerLoadStage *= 1.2;
+				x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 3";
+			});
+			EnsureSpannedCrossbow("Spanning Hook Crossbow", "Crossbow_SpanningHook", "Spanning Hook", x =>
+			{
+				x.ReadyDelay *= 1.25;
+				x.StaminaPerLoadStage *= 1.1;
+				x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 1";
+			});
+			EnsureSpannedCrossbow("Windlass Crossbow", "Crossbow_Windlass", "Windlass", x =>
+			{
+				x.ReadyDelay *= 2.5;
+				x.DefaultRangeInRooms = 5;
+				x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 5";
+			});
 
 			EnsureRanged("Long Blowgun", "Blowgun_Long", "Blowgun", "Blowgun", x =>
 			{
@@ -390,6 +476,49 @@ public partial class CombatSeeder
 			{
 				slingBullet.RangedWeaponTypes = types.OrderBy(x => x).ListToCommaSeparatedValues(" ");
 				added++;
+			}
+		}
+
+		if (questionAnswers.TryGetValue("installmuskets", out var installMuskets) &&
+		    installMuskets.EqualToAny("yes", "y"))
+		{
+			var paperTagId = RequireTagId("Paper Cartridges");
+			foreach (var boreName in new[] { "0.45 Bore", "0.55 Bore", "0.6 Bore", "0.65 Bore", "0.7 Bore", "0.75 Bore", "0.8 Bore" })
+			{
+				var baseComponent = context.GameItemComponentProtos
+					.Single(x => x.Name == $"MusketCartridge_{boreName}" && x.EditableItem.RevisionStatus == 4);
+				var baseDefinition = XElement.Parse(baseComponent.Definition);
+				var bore = double.Parse(baseDefinition.Element("BulletBore")!.Value);
+				var musketDefinition = context.GameItemComponentProtos
+					.Where(x => x.Type == "Musket")
+					.AsEnumerable()
+					.Select(x => XElement.Parse(x.Definition))
+					.First(x => Math.Abs(double.Parse(x.Element("BulletBore")!.Value) - bore) < 0.000001);
+				var powderMass = double.Parse(musketDefinition.Element("PowderVolumePerShot")!.Value);
+				var definition = new XElement(baseDefinition);
+				definition.Add(new XElement("PowderMass", powderMass), new XElement("IncludesWad", true));
+				EnsureComponent("MusketCartridge", $"MusketPaperCartridge_{boreName}",
+					$"A measured paper cartridge with powder, wad, and round ball for a {boreName} musket",
+					definition.ToString());
+
+				foreach (var item in context.GameItemProtos
+					         .Include(x => x.GameItemProtosGameItemComponentProtos)
+					         .Include(x => x.GameItemProtosTags)
+					         .Where(x => x.GameItemProtosGameItemComponentProtos.Any(y =>
+						         y.GameItemComponentProtoId == baseComponent.Id &&
+						         y.GameItemComponentRevision == baseComponent.RevisionNumber)))
+				{
+					if (item.GameItemProtosTags.All(x => x.TagId != paperTagId))
+					{
+						item.GameItemProtosTags.Add(new GameItemProtosTags
+						{
+							GameItemProto = item,
+							TagId = paperTagId,
+							GameItemProtoRevisionNumber = item.RevisionNumber
+						});
+						added++;
+					}
+				}
 			}
 		}
 

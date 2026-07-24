@@ -179,6 +179,10 @@ The core syntax to use this command is as follows:
 	#3npc show <id|unique name>#0 - shows info about prototype
 	#3npc review all|mine|<admin name>|<id>#0 - opens the specified NPC prototypes for review and approval
 	#3npc clone <id|unique name>#0 - clones an existing prototype to a new one (also opens for editing)
+	#3npc rename <match regex> <replacement text>#0 - bulk renames active NPC prototype unique names using case-sensitive .NET regex replacement syntax
+		Quote regexes containing spaces. Replacement text may use numbered groups such as #6$1#0 or named groups such as #6${name}#0.
+		The command previews every matched Current, Pending Revision and Under Design revision, validates the final name set, and changes nothing if any name conflicts or is invalid.
+		Example: #3npc rename ""^antiquity_(?<name>.+)$"" ""historic_${name}""#0
 	#3npc set <parameters>#0 - makes a specific edit to an NPC. See NPC SET HELP for more info
 	#3npc make <id>|<target>#0 - clones a PC into a simple NPC Template (also opens for editing)
 	#3npc load <id|unique name>#0 - creates a new NPC character from the specified template at your exact current location
@@ -230,10 +234,26 @@ The core syntax to use this command is as follows:
                 case "instances":
                     NPCInstances(character, ss);
                     break;
+                case "rename":
+                    NPCRename(character, ss);
+                    break;
                 default:
                     character.OutputHandler.Send(NPCHelp.SubstituteANSIColour());
                     break;
             }
+        }
+
+        private static void NPCRename(ICharacter actor, StringStack command)
+        {
+            PrototypeUniqueNameBulkRenameCommand.Execute(
+                actor,
+                command,
+                actor.Gameworld.NpcTemplates.Cast<IEditableUniqueName>(),
+                "npc",
+                "NPC prototype",
+                "NPC prototype revisions",
+                NPCTemplateLookupExtensions.NormaliseUniqueName,
+                NPCTemplateLookupExtensions.IsValidUniqueName);
         }
 
         private static void NPCInstances(ICharacter actor, StringStack ss)

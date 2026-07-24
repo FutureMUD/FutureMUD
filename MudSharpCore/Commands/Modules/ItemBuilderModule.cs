@@ -57,6 +57,10 @@ The valid sub-commands and their syntaxes are as follows:
 	#3item show <ID>#0 - shows info about prototype with ID
 	#3item review all|mine|<admin name>|<id>#0 - opens the specified item prototypes for review and approval
 	#3item clone <id|unique name>#0 - clones an existing prototype to a new one (also opens for editing)
+	#3item rename <match regex> <replacement text>#0 - bulk renames active item prototype unique names using case-sensitive .NET regex replacement syntax
+		Quote regexes containing spaces. Replacement text may use numbered groups such as #6$1#0 or named groups such as #6${name}#0.
+		The command previews every matched Current, Pending Revision and Under Design revision, validates the final name set, and changes nothing if any name conflicts or is invalid.
+		Example: #3item rename ""^antiquity_(?<name>.+)$"" ""historic_${name}""#0
 	#3item set add <id|name>#0 - adds the specified component to this item
 	#3item set remove <id|name>#0 - removes the specified component from this item
 	#3item set unique <name>#0 - sets an optional unique lookup name for this item template
@@ -132,10 +136,26 @@ The valid sub-commands and their syntaxes are as follows:
                 case "clone":
                     Item_Clone(actor, ss);
                     break;
+                case "rename":
+                    ItemRename(actor, ss);
+                    break;
                 default:
                     actor.OutputHandler.Send(ItemHelp.SubstituteANSIColour());
                     break;
             }
+        }
+
+        private static void ItemRename(ICharacter actor, StringStack command)
+        {
+            PrototypeUniqueNameBulkRenameCommand.Execute(
+                actor,
+                command,
+                actor.Gameworld.ItemProtos.Cast<IEditableUniqueName>(),
+                "item",
+                "item prototype",
+                "item prototype revisions",
+                GameItemProtoLookupExtensions.NormaliseUniqueName,
+                GameItemProtoLookupExtensions.IsValidUniqueName);
         }
 
         private static void Item_Clone(ICharacter actor, StringStack ss)

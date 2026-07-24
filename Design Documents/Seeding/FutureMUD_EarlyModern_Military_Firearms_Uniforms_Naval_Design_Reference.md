@@ -10,8 +10,8 @@
 - **New-domain distribution:** 420 melee weapons; 480 ranged weapons, firearms, artillery, ammunition, and operating tools; 501 armour and shield items; and 260 accessories, standards, field-equipment, and naval-store items.
 - **Descriptions:** `sdesc` only in this catalogue. Ordinary portable rows should use `ldesc = null`; full descriptions remain a later implementation stage.
 - **Uniform authority:** worn uniforms, civilian garments, footwear, hats, rank sashes, badges, epaulettes, and generic dress sword-belts remain owned by `FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md`. This reference owns combat weapons, functional weapon carriers, firearm ammunition systems, armour, shields, artillery, standards, signal equipment, and naval weapon support.
-- **Dependency posture:** no new solid material is required. The catalogue requests 156 named component profiles: 56 are now supported and seeded, while the remaining 100 are grouped in the companion dependency ledger. Functional ammunition and spanning-tool tag families were added for the completed tranche.
-- **Implemented dependency tranche:** 56 of the 156 named profiles are now seeded. The completed low-complexity additions are seven single-projectile paper-cartridge profiles, three functional bayonet profiles, five tool-spanned crossbow profiles, and the constrained cartridge bandolier. Their functional tags, stock spanning tools, and service bayonets are seeded idempotently. The remaining 100 names retain their dependency-ledger status.
+- **Dependency posture:** no new solid material is required. The catalogue requests 156 named component profiles: 66 are now supported and seeded, while the remaining 90 are grouped in the companion dependency ledger. Functional ammunition, spanning-tool, instrument, signal, and standard tag families are maintained with the completed tranches.
+- **Implemented dependency tranche:** 66 of the 156 named profiles are now seeded. In addition to the first low-complexity tranche, four `SignalInstrument` profiles and six `MilitaryStandard` profiles now back all thirty rows in section 5.6. The remaining 90 names retain their dependency-ledger status.
 - **Persistence posture:** this tranche extends component XML only and requires no database migration. Legacy cartridge, container, musket, and crossbow definitions keep compatibility defaults.
 
 | Catalogue domain | New rows | Reused/shared rows | Total references |
@@ -53,8 +53,8 @@ The presence of an item in the catalogue means that builders may admit it where 
 - [Renaissance military reference](./FutureMUD_Renaissance_Military_Firearms_Armour_Design_Reference.md): Renaissance-side survivals and predecessor systems. Reuse from this future catalogue must be explicit rather than invoking the whole Renaissance branch.
 - [Medieval military reference](./Medieval_Military_Seeder_Design_Reference.md): source of the 138 direct admissions and the 52 source rows promoted through shared military-support aliases.
 - [Shared pre-industrial baseline reference](./PreIndustrial_Item_Seeder_Design_Reference.md) and [alias catalogue](./PreIndustrial_Item_Seeder_Alias_Catalogue.md): live `preindustrial_*` dependencies.
-- [Military source dependency ledger](./FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Dependency_Ledger.md): the original 156 military requests and their current 56-supported/100-deferred partition.
-- [Consolidated item-content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md): the authoritative backlog for the 100 remaining military deferrals and 21 dependent Antiquity item references.
+- [Military source dependency ledger](./FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Dependency_Ledger.md): the original 156 military requests and their current 66-supported/90-deferred partition.
+- [Consolidated item-content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md): the authoritative backlog for the 90 remaining military deferrals and 12 dependent Antiquity item references.
 
 ## Reuse architecture
 
@@ -126,7 +126,7 @@ The runtime does not yet provide ignition-family state for burning match, wheel 
 4. Represent paper cartridges as paper-cased ammunition and add measured-charge helpers, then implement shot, buckshot, and buck-and-ball payload semantics.
 5. Implement bayonet attachment or document a separate-weapon fallback; then add match-cord consumption, weather exposure, gunflint wear, lock quality, proofing, repair stock, and barrel-failure semantics.
 
-The catalogue already materializes the formerly planned firearm, ammunition, bayonet, sidearm, polearm, signal, field-equipment, naval-store, cuirass, buff-coat, helmet, and regional-shield rows. Those rows remain design targets until their declared component dependencies and runtime semantics are live.
+The catalogue already materializes the formerly planned firearm, ammunition, bayonet, sidearm, polearm, signal, field-equipment, naval-store, cuirass, buff-coat, helmet, and regional-shield rows. Section 5.6 standards and signal instruments are now live; other rows remain design targets until their declared component dependencies and runtime semantics are live.
 
 ### Dependency and acceptance contract
 
@@ -2287,6 +2287,8 @@ These rows provide functional military carrying, maintenance, field, standard, s
 
 #### 5.6. Standards, flags, drums, fifes, and signal instruments — 30
 
+Implementation status: all thirty rows are seeded. Standards begin unowned, unclaimed, unassociated, unplanted, and with zero captures; builders assign durable ownership and scenario identity in game. Signal instruments share the general sustained-performance system and add named, cooldown-limited audible calls.
+
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tag profile |
 |---|---|---|---|---|---:|---|---|
 | `earlymodern_military_accessory_infantry_colour_issue` | a plain infantry colour | `colour` | `canvas` | `Large` / `Standard` | 2,800g / 180.0m | `Holdable`<br>`MilitaryStandard_InfantryColour`<br>`Destroyable_Clothing` | `EM-SUPPORT` |
@@ -2373,7 +2375,7 @@ These rows provide functional military carrying, maintenance, field, standard, s
 - New-row primary materials: all exact names in the maintained solid-material export.
 - New-row tag profiles: all exact paths in the maintained tag hierarchy.
 - Existing component names: validated against the maintained component export.
-- Unresolved component names: exactly **156**, all declared in the companion dependency ledger and assumed available for this design reference.
+- Named component requests: exactly **156**, partitioned into **66 supported and seeded** and **90 unresolved** in the companion dependency ledger.
 - New solid materials: **0**.
 - New tags: **0**.
 - Full descriptions: intentionally **0** in this catalogue.

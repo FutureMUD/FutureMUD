@@ -558,3 +558,11 @@ When closing an item-content dependency:
 5. update the era source reference and consolidated dependency ledger only after source and export names match.
 
 For the initial historical-arms tranche, verify locked till selection, container tag admission, legacy paper-cartridge XML, musket charge/bore compatibility, bayonet slot and firing rules, spanning-tool inventory plans, and crossbow ready-state persistence.
+
+For the standards, signals, and instruments tranche, additionally verify:
+
+1. all nine Antiquity instruments can start, tick, stop, and interrupt through their intended physical use mode;
+2. the four signal profiles accept only their named patterns, enforce a per-item cooldown, and keep failed audio unrecognisable;
+3. all six standard profiles begin unowned, unclaimed, unassociated, unplanted, and at zero captures;
+4. character and clan ownership, a configured `CanBearProg`, hostile transfers, recovery, planting, ownership changes, copy/reset behavior, and exact-once hooks follow the custody contract;
+5. rerunning either seeder repairs owned definitions and associations without duplicating rows or altering unrelated builder content.

@@ -475,6 +475,8 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Wooden Powder Charges", "Military Ammunition");
             AddTag(context, "Military Armour", "Military Equipment");
             AddTag(context, "Military Shields", "Military Armour");
+            AddTag(context, "Military Signals", "Military Equipment");
+            AddTag(context, "Military Standards", "Military Equipment");
             AddTag(context, "Crossbow Spanning Tools", "Military Equipment");
             AddTag(context, "Cranequin", "Crossbow Spanning Tools");
             AddTag(context, "Goat's Foot", "Crossbow Spanning Tools");
@@ -496,6 +498,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Household Heating", "Household Items");
             AddTag(context, "Household Construction Materials", "Household Items");
             AddTag(context, "Writing Goods", "Functions");
+            AddTag(context, "Musical Instruments", "Functions");
 
             // Clothing
             AddTag(context, "Worn Items", "Functions");

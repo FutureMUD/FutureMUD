@@ -298,6 +298,19 @@ public interface IIncenseBurnerPrototype : IExclusiveGameItemComponentPrototype<
 {
 }
 
+public interface IInstrumentPrototype : IExclusiveGameItemComponentPrototype<IInstrument>
+{
+}
+
+public interface ISignalInstrumentPrototype : IExclusiveGameItemComponentPrototype<ISignalInstrument>,
+	IInstrumentPrototype
+{
+}
+
+public interface IMilitaryStandardPrototype : IExclusiveGameItemComponentPrototype<IMilitaryStandard>
+{
+}
+
 public interface IInsertablePrototype : IExclusiveGameItemComponentPrototype<IInsertable>
 {
 }

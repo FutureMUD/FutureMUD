@@ -351,11 +351,11 @@ public class CombatSeederSourceTests
 			         "Crossbow_Repeating", "Crossbow_Repeating_Light", "Crossbow_Wall",
 			         "Musket_Doglock_Blunderbuss75", "Container_CartridgeBandolier", "Holster_PairedSaddle",
 			         "Artillery_CoehornMortar", "WeaponLanyard_Pistol",
-			         "MilitaryStandard_CavalryStandard", "SignalInstrument_FieldDrum"
+			         "ArtilleryShot_12lb", "SignalInstrument_FieldDrum"
 		         })
 		{
 			Assert.IsFalse(expectedNames.Contains(deferred, StringComparer.OrdinalIgnoreCase),
-				$"{deferred} requires behaviour that this data-only pass must not seed.");
+				$"{deferred} is not owned by the combat seeder's supported component set.");
 		}
 	}
 

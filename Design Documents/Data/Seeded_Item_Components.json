@@ -7815,5 +7815,100 @@
         "Component Name":  "Crossbow_Windlass",
         "Component Description":  "Turns an item into a Windlass Crossbow",
         "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_WoodenLyre",
+        "Component Description":  "A playable wooden lyre profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_Kithara",
+        "Component Description":  "A playable kithara profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_ReedFlute",
+        "Component Description":  "A playable reed flute profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_DoubleAulos",
+        "Component Description":  "A playable double aulos profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_FrameDrum",
+        "Component Description":  "A playable frame drum profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_Sistrum",
+        "Component Description":  "A playable sistrum profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_BronzeWarHorn",
+        "Component Description":  "A playable bronze war horn profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_ShipSignalTrumpet",
+        "Component Description":  "A playable ship signal trumpet profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_TempleRitualRattle",
+        "Component Description":  "A playable temple ritual rattle profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "SignalInstrument_FieldDrum",
+        "Component Description":  "A wearable field drum for sustained music and named battlefield signals.",
+        "Component Type":  "SignalInstrument"
+    },
+    {
+        "Component Name":  "SignalInstrument_KettleDrum",
+        "Component Description":  "A room-positioned kettle drum for loud battlefield signals.",
+        "Component Type":  "SignalInstrument"
+    },
+    {
+        "Component Name":  "SignalInstrument_Fife",
+        "Component Description":  "A military fife for sustained playing and sharp named calls.",
+        "Component Type":  "SignalInstrument"
+    },
+    {
+        "Component Name":  "SignalInstrument_SpeakingTrumpet",
+        "Component Description":  "A speaking trumpet for shipboard and field command signals.",
+        "Component Type":  "SignalInstrument"
+    },
+    {
+        "Component Name":  "MilitaryStandard_InfantryColour",
+        "Component Description":  "A plantable infantry colour with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_CavalryStandard",
+        "Component Description":  "A plantable cavalry standard with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_Guidon",
+        "Component Description":  "A plantable guidon with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_NavalEnsign",
+        "Component Description":  "A plantable naval ensign with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_Pennant",
+        "Component Description":  "A plantable pennant with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_SignalFlag",
+        "Component Description":  "A plantable signal flag with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
     }
 ]

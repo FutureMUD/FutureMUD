@@ -137,3 +137,9 @@ The item system includes reusable historical-equipment seams:
 - standard `Container` prototypes can restrict admission with allowed and blocked tag lists.
 - `BayonetAttachment` items occupy the musket's bayonet slot while retaining the attached item's ordinary melee weapon type.
 - crossbows can require a tagged spanning tool and persist whether they are readied.
+
+## Instruments, Signals, and Standards
+
+- `Instrument` is the shared audible-performance capability. It supplies skill quality, stamina, posture and hand rules, styles, sustained ten-second ticks, route-aware audio, interruption, and play/stop hooks.
+- `SignalInstrument` specializes that capability for named calls with a cooldown and one-shot cost. Failed calls remain audible but do not reveal a recognisable pattern or fire the success hook.
+- `MilitaryStandard` is an identifiable and plantable objective. It preserves lawful item ownership while tracking `Unclaimed`, `Friendly`, or `Captured` custody and a distinct capture count. Scenario scoring, morale, AI, territory, and legal effects remain external consumers of its hooks and query functions.

@@ -724,6 +724,20 @@ The syntax for this command is as follows:
     [RequiredCharacterState(CharacterState.Conscious)]
     protected static void Stop(ICharacter actor, string input)
     {
+        var ss = new StringStack(input.RemoveFirstWord());
+        if (ss.SafeRemainingArgument.EqualTo("playing"))
+        {
+            var effect = actor.EffectsOfType<PlayingInstrument>().FirstOrDefault();
+            if (effect is null)
+            {
+                actor.OutputHandler.Send("You are not currently playing an instrument.");
+                return;
+            }
+
+            effect.Instrument.StopPlaying(actor);
+            return;
+        }
+
         actor.Stop(false);
     }
 

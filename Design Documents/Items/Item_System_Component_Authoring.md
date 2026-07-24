@@ -486,3 +486,10 @@ When adding similar capabilities in future:
 - `musketcartridge powder <mass>|legacy` authors an explicit charge or restores weapon-defined charge behavior; `wad` toggles included wadding.
 - `bayonetattachment style <plug|socket|sword>` and `bore <minimum> <maximum>` author the firearm attachment contract. Add an ordinary melee component to the same item prototype.
 - `crossbow spanningtool <tag>|none` authors an optional readying tool, and `readyemote <emote>` authors its use. Tune delay, stamina, damage, and range on distinct ranged weapon type records.
+
+## Instrument and Standard Authoring
+
+- `instrument` authors family, performance trait and difficulty, volume, hands, handheld/worn/room use modes, allowed positions, styles, initial and tick stamina, interval, five emotes, and `CanPlay`, denial, play, and stop progs.
+- `signalinstrument` inherits those settings and adds named local/distant/failure signal patterns, signal stamina, cooldown, and `CanSignal`, denial, and success progs. Do not compose it with a second `Instrument` component.
+- `militarystandard` authors family, default identity and design, optional unit/ship association, recognition check, named visual patterns, plant/take-up/recognition emotes, bearer and recognition gates, and transition hooks.
+- Use `standard set <item> ...` for scenario-specific copy identity, association, custody, or capture count. `standard reset <item> ...` restores prototype identity or clean objective state. Use the existing `ownership` command to establish the standard's lawful character or clan side.

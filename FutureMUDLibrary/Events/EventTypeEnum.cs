@@ -732,6 +732,9 @@ namespace MudSharp.Events
         VehicleJourneyCancelled = 138,
 
         [EventInfo("Fires on a vehicle exterior when its journey faults.", ["item", "number", "number", "number", "number", "text"], ["vehicle", "journeyid", "routeid", "serviceid", "vehicleid", "reason"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
-        VehicleJourneyFaulted = 139
+        VehicleJourneyFaulted = 139,
+
+        [EventInfo("Fires on an item when its durable owner changes.", ["item", "text", "number", "text", "number"], ["item", "oldownertype", "oldownerid", "newownertype", "newownerid"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number])]
+        ItemOwnershipChanged = 140
     }
 }

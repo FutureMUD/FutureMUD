@@ -323,22 +323,28 @@ The consolidated ledger is authoritative for implementation ordering and exact d
 
 ### Instrument Component
 
-Missing functionality:
+Implemented functionality:
 
-- playable musical instruments with room and adjacent-room echoes.
-- skill-checked performance quality.
-- instrument loudness, range, hand requirements, and posture restrictions.
-- optional repeated performance or sustained playing state.
-- optional prog hooks for ritual, morale, stealth disruption, crowd reaction, military signalling, or cultural recognition.
+- `Instrument` supports skill-checked sustained performances with immediate and ten-second repeated output.
+- Loudness uses the existing cell audio-routing and attenuation service; no alert event is emitted merely for playing.
+- Prototype settings cover family, trait, difficulty, volume, hands, handheld/worn/room use, positions, stamina, interval, styles, emotes, and play/stop FutureProgs.
+- `play <instrument> [style] [(emote)]` starts a non-saving performance effect; `stop playing` ends it.
+- Movement, combat, item loss, invalid posture, incapacity, exhaustion, deletion, and logout interrupt the performance.
+- `SignalInstrument` extends the same foundation for named military calls rather than duplicating audio-performance behavior.
 
-Rough component guidance:
+Seeded component profiles:
 
-- Component type name: `Instrument`.
-- Prototype settings: instrument family, performance trait/check, loudness/range, required hands, allowed postures, default play emote, failure emote, style/tune labels, optional `CanPlayProg`, optional `OnPlayProg`.
-- Runtime commands: `play <instrument> [style]`, possibly `stop playing`.
-- Interfaces should expose whether the item is currently being played and the audible echo profile.
+- `Instrument_Antiquity_WoodenLyre`
+- `Instrument_Antiquity_Kithara`
+- `Instrument_Antiquity_ReedFlute`
+- `Instrument_Antiquity_DoubleAulos`
+- `Instrument_Antiquity_FrameDrum`
+- `Instrument_Antiquity_Sistrum`
+- `Instrument_Antiquity_BronzeWarHorn`
+- `Instrument_Antiquity_ShipSignalTrumpet`
+- `Instrument_Antiquity_TempleRitualRattle`
 
-Items enabled:
+Items now enabled:
 
 - `antiquity_wooden_lyre`
 - `antiquity_kithara`

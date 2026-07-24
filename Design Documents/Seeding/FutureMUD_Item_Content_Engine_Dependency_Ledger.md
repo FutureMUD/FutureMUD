@@ -1,14 +1,14 @@
 # FutureMUD Item Content Engine Dependency Ledger
 
-This is the consolidated backlog for seeded item requests that the current engine cannot represent honestly. The corresponding data-only pass seeds only supported content; none of the 100 prototype names below appears in the maintained seeded item-component catalogue.
+This is the consolidated backlog for seeded item requests that the current engine cannot represent honestly. The corresponding data-only pass seeds only supported content; none of the 90 prototype names below appears in the maintained seeded item-component catalogue.
 
 ## Status
 
-- Deferred item-component prototypes: **100**.
-- Early Modern military partition: **56 supported** and **100 deferred**, from the original 156 requests.
+- Deferred item-component prototypes: **90**.
+- Early Modern military partition: **66 supported** and **90 deferred**, from the original 156 requests.
 - Additional Renaissance household deferrals: **0**.
-- Antiquity item references awaiting engine work: **21**.
-- New runtime component families proposed: **6**, with **55** directly dependent military prototypes.
+- Antiquity item references awaiting engine work: **12**.
+- New runtime component families still proposed: **4**, with **45** directly dependent military prototypes.
 - This ledger is a backlog only. It does not authorize placeholder components, runtime APIs, database migrations, or item rows that advertise unsupported behaviour.
 
 ## Existing component-family enhancements
@@ -23,6 +23,9 @@ The first tranche is implemented, seeded idempotently, exported, documented, and
 - `Bayonet_Plug`, `Bayonet_Socket`, and `Bayonet_Sword` use the firearm attachment slots and their attached items' existing melee profiles; only plug bayonets block firing.
 - `Crossbow_Cranequin`, `Crossbow_GoatsFoot`, `Crossbow_Lever`, `Crossbow_SpanningHook`, and `Crossbow_Windlass` require their matching tagged stock spanning tools and persist ready state.
 - The eight Antiquity tack references use existing `RidingGear` and `HitchGear` capabilities. The prior ledger entry was a seeded-content and maintained-catalogue integration gap, not a missing engine family.
+- General `Instrument` provides skill-checked sustained playing, posture/hand/use-mode admission, stamina ticks, route-aware audio, interruption, emotes, and FutureProg hooks. Nine Antiquity instruments are seeded against it.
+- `SignalInstrument` specializes `Instrument` with named calls, per-item cooldowns, stamina costs, deliberately unrecognisable failed audio, and a success hook. Four profiles and twelve source items are seeded.
+- `MilitaryStandard` supplies identity, recognition, optional unit/ship association, planting, named flag signals, durable ownership-aware custody, distinct capture counting, recovery, transition hooks, administrator state controls, and FutureProg queries. Six profiles and eighteen source items are seeded; no implicit morale or scoring effect is added.
 
 ### Crossbow magazine and emplacement behaviour — 3 prototypes
 
@@ -101,7 +104,7 @@ The data pass seeds `Melee_Lance` and `Melee_HookedPolearm` using supported atta
 - `Melee_Lance`: mounted/couched charge checks, movement-linked impact, bracing, and dismount consequences.
 - `Melee_HookedPolearm`: explicit hook, pull, trip, anti-rider, and forced-dismount attacks.
 
-## New component families and dependent military prototypes — 55
+## New component families and dependent military prototypes — 45
 
 ### `MuzzleloadingArtillery` — 20 dependents
 
@@ -176,39 +179,39 @@ The family must relate a gun to a host socket or carriage with installation, rem
 
 The family must retain or carry a specific compatible weapon and model attachment point, draw/release timing, retention, and the transition between carried and wielded state.
 
-### `MilitaryStandard` — 6 dependents
+### Completed `MilitaryStandard` family — 6 supported profiles
 
 | Dependent prototype | Catalogue uses |
 | --- | ---: |
-| `MilitaryStandard_CavalryStandard` | 3 |
-| `MilitaryStandard_Guidon` | 3 |
-| `MilitaryStandard_InfantryColour` | 3 |
-| `MilitaryStandard_NavalEnsign` | 3 |
-| `MilitaryStandard_Pennant` | 3 |
-| `MilitaryStandard_SignalFlag` | 3 |
+- `MilitaryStandard_CavalryStandard` (3 catalogue uses)
+- `MilitaryStandard_Guidon` (3 catalogue uses)
+- `MilitaryStandard_InfantryColour` (3 catalogue uses)
+- `MilitaryStandard_NavalEnsign` (3 catalogue uses)
+- `MilitaryStandard_Pennant` (3 catalogue uses)
+- `MilitaryStandard_SignalFlag` (3 catalogue uses)
 
-The family must persist standard family, design/identity, optional unit or ship association, carried/planted state, and recognition/signal hooks. It should not grant an undeclared morale effect.
+Implemented with prototype defaults plus per-copy identity and association overrides, planted state, durable ownership-aware custody, distinct capture counting, recovery, recognition, named signal hooks, administrator controls, and FutureProg queries. It deliberately grants no undeclared morale effect.
 
-### `SignalInstrument` — 4 dependents
+### Completed `SignalInstrument` specialization — 4 supported profiles
 
 | Dependent prototype | Catalogue uses |
 | --- | ---: |
-| `SignalInstrument_FieldDrum` | 3 |
-| `SignalInstrument_Fife` | 3 |
-| `SignalInstrument_KettleDrum` | 3 |
-| `SignalInstrument_SpeakingTrumpet` | 3 |
+- `SignalInstrument_FieldDrum` (3 catalogue uses)
+- `SignalInstrument_Fife` (3 catalogue uses)
+- `SignalInstrument_KettleDrum` (3 catalogue uses)
+- `SignalInstrument_SpeakingTrumpet` (3 catalogue uses)
 
-`SignalInstrument` should be a military specialization of the general `Instrument` capability below, sharing audible performance, skill, range, posture, hand, stamina, and echo infrastructure while adding recognized command patterns.
+`SignalInstrument` is a military specialization of the general `Instrument` capability, sharing audible performance, skill, range, posture, hand, stamina, and echo infrastructure while adding named command patterns and cooldown-limited signal hooks.
 
-## Antiquity engine gaps — 21 dependent item references
+## Antiquity engine gaps — 12 dependent item references
 
-These are item references, not additional names in the 100-prototype total.
+These are item references, not additional names in the 90-prototype total.
 
-### `Instrument` — 9 items
+### Completed `Instrument` family — 9 supported items
 
-`antiquity_wooden_lyre`, `antiquity_kithara`, `antiquity_reed_flute`, `antiquity_double_aulos`, `antiquity_frame_drum`, `antiquity_sistrum`, `antiquity_bronze_war_horn`, `antiquity_ship_signal_trumpet`, `antiquity_temple_ritual_rattle`
+The nine requested Antiquity instrument items are now seeded against exact `Instrument_Antiquity_*` profiles and are no longer part of this backlog.
 
-The common foundation must support playable audible instruments, performance quality, loudness/range, hand and posture rules, sustained playing state, emotes, and prog hooks. Military signals should extend this capability rather than form a second unrelated audio-performance system.
+The common foundation now supports playable audible instruments, performance quality, loudness/range, hand and posture rules, sustained playing state, emotes, and prog hooks.
 
 ### `GameSet` — 7 items
 

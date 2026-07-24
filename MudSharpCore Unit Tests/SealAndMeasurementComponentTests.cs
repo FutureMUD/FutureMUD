@@ -4,13 +4,17 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Accounts;
 using MudSharp.Body;
+using MudSharp.Body.Position;
+using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
+using MudSharp.Community;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -56,6 +60,9 @@ public class SealAndMeasurementComponentTests
 		CollectionAssert.Contains(primaryTypes, "offeringreceiver");
 		CollectionAssert.Contains(primaryTypes, "bayonetattachment");
 		CollectionAssert.Contains(primaryTypes, "lockingcashregister");
+		CollectionAssert.Contains(primaryTypes, "instrument");
+		CollectionAssert.Contains(primaryTypes, "signalinstrument");
+		CollectionAssert.Contains(primaryTypes, "militarystandard");
 		CollectionAssert.Contains(helpTypes, "SealStamp");
 		CollectionAssert.Contains(helpTypes, "Sealable");
 		CollectionAssert.Contains(helpTypes, "MeasuringInstrument");
@@ -63,6 +70,347 @@ public class SealAndMeasurementComponentTests
 		CollectionAssert.Contains(helpTypes, "OfferingReceiver");
 		CollectionAssert.Contains(helpTypes, "BayonetAttachment");
 		CollectionAssert.Contains(helpTypes, "LockingCashRegister");
+		CollectionAssert.Contains(helpTypes, "Instrument");
+		CollectionAssert.Contains(helpTypes, "SignalInstrument");
+		CollectionAssert.Contains(helpTypes, "MilitaryStandard");
+	}
+
+	[TestMethod]
+	public void InstrumentAndSignalInstrument_DefinitionsRoundTripPerformanceAndSignalSettings()
+	{
+		var gameworld = CreateGameworld();
+		var instrument = CreateProto<InstrumentGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(601, "Instrument", new XElement("Definition",
+				new XElement("Family", "Lyre"),
+				new XElement("PerformanceTrait", 0),
+				new XElement("Difficulty", Difficulty.Hard),
+				new XElement("Volume", "Decent"),
+				new XElement("RequiredHands", 2),
+				new XElement("UseModes", "Handheld, Worn"),
+				new XElement("InitialStamina", 2.0),
+				new XElement("TickStamina", 1.0),
+				new XElement("TickSeconds", 10),
+				new XElement("Positions", new XElement("Position", "standing")),
+				new XElement("Styles", new XElement("Style", "hymn")),
+				new XElement("LocalPlayEmote", "@ play|plays $1."),
+				new XElement("LocalTickEmote", "@ continue|continues $1."),
+				new XElement("DistantPlayEmote", "You hear a lyre {0}."),
+				new XElement("FailureEmote", "@ fail|fails to play $1."),
+				new XElement("StopEmote", "@ stop|stops playing $1.")).ToString()));
+
+		Assert.AreEqual("Lyre", instrument.InstrumentFamily);
+		Assert.AreEqual(2, instrument.RequiredHands);
+		Assert.IsTrue(instrument.UseModes.HasFlag(InstrumentUseMode.Handheld));
+		Assert.IsTrue(instrument.UseModes.HasFlag(InstrumentUseMode.Worn));
+		CollectionAssert.Contains(instrument.Styles, "hymn");
+		StringAssert.Contains(InvokeSaveToXml(instrument), "<TickSeconds>10</TickSeconds>");
+
+		var signal = CreateProto<SignalInstrumentGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(602, "SignalInstrument", new XElement("Definition",
+				new XElement("Family", "Field Drum"),
+				new XElement("PerformanceTrait", 0),
+				new XElement("Difficulty", Difficulty.Normal),
+				new XElement("Volume", "Loud"),
+				new XElement("RequiredHands", 2),
+				new XElement("UseModes", "Handheld, Worn"),
+				new XElement("InitialStamina", 2.0),
+				new XElement("TickStamina", 1.0),
+				new XElement("TickSeconds", 10),
+				new XElement("Positions"),
+				new XElement("Styles", new XElement("Style", "march")),
+				new XElement("SignalStamina", 5.0),
+				new XElement("SignalCooldownSeconds", 10),
+				new XElement("Signals",
+					new XElement("Signal", new XAttribute("name", "rally"),
+						new XElement("Local", "@ sound|sounds rally on $1."),
+						new XElement("Distant", "You hear rally {0}."),
+						new XElement("Failure", "@ garble|garbles $1.")))).ToString()));
+
+		Assert.AreEqual(1, signal.SignalPatterns.Count);
+		Assert.AreEqual("rally", signal.SignalPatterns.Single().Name);
+		Assert.AreEqual(TimeSpan.FromSeconds(10), signal.SignalCooldown);
+		StringAssert.Contains(InvokeSaveToXml(signal), "name=\"rally\"");
+	}
+
+	[TestMethod]
+	public void MilitaryStandard_CustodyTransitionsPersistWithoutDuplicateHostileCapturesAndCopiesResetHistory()
+	{
+		var gameworld = CreateGameworld();
+		var proto = CreateProto<MilitaryStandardGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(610, "MilitaryStandard", new XElement("Definition",
+				new XElement("Family", "InfantryColour"),
+				new XElement("IdentityKey", "first-colour"),
+				new XElement("IdentityName", "the First Regiment's colour"),
+				new XElement("Design", "A red field bears a white tower."),
+				new XElement("AssociationType", "Unit"),
+				new XElement("AssociationKey", "first-regiment"),
+				new XElement("AssociationName", "First Regiment"),
+				new XElement("RecognitionTrait", 0),
+				new XElement("RecognitionDifficulty", Difficulty.Normal),
+				new XElement("Signals"),
+				new XElement("PlantEmote", "@ plant|plants $1."),
+				new XElement("TakeUpEmote", "@ take|takes up $1."),
+				new XElement("RecogniseEmote", "@ recognise|recognises $1.")).ToString()));
+		var parent = CreateParent(gameworld.Object, 611L, "colour");
+		parent.SetupGet(x => x.HasOwner).Returns(true);
+		var friendly = CreateActor(gameworld.Object, 1L);
+		var hostile = CreateActor(gameworld.Object, 2L);
+		parent.Setup(x => x.IsOwnedBy(friendly.Object)).Returns(true);
+		parent.Setup(x => x.IsOwnedBy(hostile.Object)).Returns(false);
+		var standard = (MilitaryStandardGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+
+		standard.ReevaluateCustody(friendly.Object);
+		Assert.AreEqual(MilitaryStandardCustodyState.Friendly, standard.CustodyState);
+		standard.ReevaluateCustody(hostile.Object);
+		Assert.AreEqual(MilitaryStandardCustodyState.Captured, standard.CustodyState);
+		Assert.AreEqual(1, standard.CaptureCount);
+		standard.ReevaluateCustody(hostile.Object);
+		Assert.AreEqual(1, standard.CaptureCount,
+			"Transfers among hostile custodians must not count as fresh captures.");
+		standard.ReevaluateCustody(friendly.Object);
+		Assert.AreEqual(MilitaryStandardCustodyState.Friendly, standard.CustodyState);
+		Assert.AreEqual(1, standard.CaptureCount);
+
+		standard.SetIdentityOverride("campaign-colour", "the campaign colour");
+		standard.SetAssociationOverride(MilitaryStandardAssociationType.Unit, "field-army", "Field Army");
+		var persisted = InvokeSaveToXml(standard);
+		StringAssert.Contains(persisted, "<CustodyState>Friendly</CustodyState>");
+		StringAssert.Contains(persisted, "<CaptureCount>1</CaptureCount>");
+		var loaded = (MilitaryStandardGameItemComponent)proto.LoadComponent(
+			new DbGameItemComponent { Definition = persisted },
+			CreateParent(gameworld.Object, 612L, "loaded colour").Object);
+		Assert.AreEqual("campaign-colour", loaded.IdentityKey);
+		Assert.AreEqual("field-army", loaded.AssociationKey);
+		Assert.AreEqual(1, loaded.CaptureCount);
+
+		var copy = (MilitaryStandardGameItemComponent)standard.Copy(
+			CreateParent(gameworld.Object, 613L, "copy colour").Object, true);
+		Assert.AreEqual("campaign-colour", copy.IdentityKey);
+		Assert.AreEqual("field-army", copy.AssociationKey);
+		Assert.AreEqual(MilitaryStandardCustodyState.Unclaimed, copy.CustodyState);
+		Assert.AreEqual(0, copy.CaptureCount);
+		Assert.IsFalse(copy.IsPlanted);
+	}
+
+	[TestMethod]
+	public void Instrument_RuntimeConsumesStaminaPropagatesAudioTicksStopsAndQuits()
+	{
+		var gameworld = CreateGameworld();
+		var proto = CreateProto<InstrumentGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(620, "Instrument", new XElement("Definition",
+				new XElement("Family", "Lyre"),
+				new XElement("PerformanceTrait", 0),
+				new XElement("Difficulty", Difficulty.Automatic),
+				new XElement("Volume", "Decent"),
+				new XElement("RequiredHands", 0),
+				new XElement("UseModes", "Room"),
+				new XElement("InitialStamina", 2.0),
+				new XElement("TickStamina", 1.0),
+				new XElement("TickSeconds", 10),
+				new XElement("Positions"),
+				new XElement("Styles", new XElement("Style", "hymn")),
+				new XElement("LocalPlayEmote", "@ play|plays $1."),
+				new XElement("LocalTickEmote", "@ continue|continues playing $1."),
+				new XElement("DistantPlayEmote", "You hear music {0}."),
+				new XElement("FailureEmote", "@ fail|fails to play $1."),
+				new XElement("StopEmote", "@ stop|stops playing $1.")).ToString()));
+		var parent = CreateParent(gameworld.Object, 621L, "lyre");
+		var (actor, _, cell) = CreateInstrumentActor(gameworld.Object, parent);
+		var component = (InstrumentGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+		PlayingInstrument? playingEffect = null;
+		actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
+		     .Callback<IEffect, TimeSpan>((effect, _) => playingEffect = effect as PlayingInstrument);
+		actor.Setup(x => x.RemoveAllEffects<PlayingInstrument>(
+				It.IsAny<Predicate<PlayingInstrument>>(), It.IsAny<bool>()))
+		     .Returns(true);
+
+		Assert.IsTrue(component.UseModes.HasFlag(InstrumentUseMode.Room));
+		Assert.AreSame(parent.Object, component.Parent);
+		Assert.AreEqual(string.Empty, component.WhyCannotPlay(actor.Object, "hymn"));
+		Assert.IsTrue(component.Play(actor.Object, "hymn"));
+		Assert.IsNotNull(playingEffect);
+		Assert.AreEqual(Outcome.Pass, component.CurrentOutcome);
+		actor.Verify(x => x.SpendStamina(2.0), Times.Once);
+		cell.Verify(x => x.HandleAudioEcho("You hear music {0}.",
+			MudSharp.Form.Audio.AudioVolume.Decent, parent.Object, It.IsAny<RoomLayer>(), true), Times.Once);
+
+		component.PerformTick();
+		actor.Verify(x => x.SpendStamina(1.0), Times.Once);
+		cell.Verify(x => x.HandleAudioEcho("You hear music {0}.",
+			MudSharp.Form.Audio.AudioVolume.Decent, parent.Object, It.IsAny<RoomLayer>(), true), Times.Exactly(2));
+
+		component.StopPlaying(actor.Object);
+		Assert.IsFalse(component.IsBeingPlayed);
+		actor.Verify(x => x.RemoveAllEffects<PlayingInstrument>(
+			It.IsAny<Predicate<PlayingInstrument>>(), true), Times.Once);
+
+		Assert.IsTrue(component.Play(actor.Object, "hymn"));
+		component.Quit();
+		Assert.IsFalse(component.IsBeingPlayed, "Logout must terminate a sustained performance.");
+	}
+
+	[TestMethod]
+	public void SignalInstrument_FailedSignalIsNeutralSuppressesHookAndAppliesCooldown()
+	{
+		var trait = new Mock<ITraitDefinition>();
+		trait.SetupGet(x => x.Id).Returns(30L);
+		trait.SetupGet(x => x.Name).Returns("Performance");
+		var onSignal = new Mock<IFutureProg>();
+		onSignal.SetupGet(x => x.Id).Returns(31L);
+		onSignal.SetupGet(x => x.Name).Returns("On Signal");
+		var check = new Mock<ICheck>();
+		check.Setup(x => x.Check(It.IsAny<ICharacter>(), Difficulty.Normal, trait.Object,
+				It.IsAny<IPerceivable>(), It.IsAny<double>(), It.IsAny<TraitUseType>(),
+				It.IsAny<(string Parameter, object value)[]>()))
+		     .Returns(CheckOutcome.SimpleOutcome(CheckType.GenericSkillCheck, Outcome.Fail));
+		var gameworld = CreateGameworld();
+		gameworld.SetupGet(x => x.Traits).Returns(Repository(trait.Object));
+		gameworld.SetupGet(x => x.FutureProgs).Returns(Repository(onSignal.Object));
+		gameworld.Setup(x => x.GetCheck(CheckType.GenericSkillCheck)).Returns(check.Object);
+		var proto = CreateProto<SignalInstrumentGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(630, "SignalInstrument", new XElement("Definition",
+				new XElement("Family", "Field Drum"),
+				new XElement("PerformanceTrait", trait.Object.Id),
+				new XElement("Difficulty", Difficulty.Normal),
+				new XElement("Volume", "Loud"),
+				new XElement("RequiredHands", 0),
+				new XElement("UseModes", "Room"),
+				new XElement("InitialStamina", 2.0),
+				new XElement("TickStamina", 1.0),
+				new XElement("TickSeconds", 10),
+				new XElement("Positions"),
+				new XElement("Styles", new XElement("Style", "march")),
+				new XElement("SignalStamina", 5.0),
+				new XElement("SignalCooldownSeconds", 10),
+				new XElement("OnSignalProg", onSignal.Object.Id),
+				new XElement("Signals",
+					new XElement("Signal", new XAttribute("name", "rally"),
+						new XElement("Local", "@ sound|sounds a rally on $1."),
+						new XElement("Distant", "You hear a rally {0}."),
+						new XElement("Failure", "@ sound|sounds a garbled call on $1.")))).ToString()));
+		var parent = CreateParent(gameworld.Object, 631L, "drum");
+		var (actor, _, cell) = CreateInstrumentActor(gameworld.Object, parent);
+		var component = (SignalInstrumentGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+		SignalInstrumentCooldown? cooldown = null;
+		actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
+		     .Callback<IEffect, TimeSpan>((effect, _) => cooldown = effect as SignalInstrumentCooldown);
+		actor.Setup(x => x.EffectsOfType<SignalInstrumentCooldown>(
+				It.IsAny<Predicate<SignalInstrumentCooldown>>()))
+		     .Returns(() => cooldown is null ? [] : [cooldown]);
+
+		Assert.IsTrue(component.UseModes.HasFlag(InstrumentUseMode.Room));
+		Assert.AreEqual(string.Empty, component.WhyCannotSignal(actor.Object, "rally"));
+		Assert.IsFalse(component.Signal(actor.Object, "rally"));
+		Assert.IsNotNull(cooldown);
+		actor.Verify(x => x.SpendStamina(5.0), Times.Once);
+		cell.Verify(x => x.HandleAudioEcho(
+			It.Is<string>(text => text.Contains("unrecognisable", StringComparison.OrdinalIgnoreCase)),
+			MudSharp.Form.Audio.AudioVolume.Loud, parent.Object, It.IsAny<RoomLayer>(), true), Times.Once);
+		onSignal.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Never);
+		StringAssert.Contains(component.WhyCannotSignal(actor.Object, "rally"), "quite yet");
+	}
+
+	[TestMethod]
+	public void MilitaryStandard_AuthorisationProgIsAuthoritativeAndHooksFireOncePerTransition()
+	{
+		var canBear = new Mock<IFutureProg>();
+		canBear.SetupGet(x => x.Id).Returns(40L);
+		canBear.SetupGet(x => x.Name).Returns("Can Bear");
+		canBear.Setup(x => x.ExecuteBool(false, It.IsAny<object[]>()))
+		       .Returns(false);
+		var onCaptured = new Mock<IFutureProg>();
+		onCaptured.SetupGet(x => x.Id).Returns(41L);
+		onCaptured.SetupGet(x => x.Name).Returns("On Captured");
+		var onRecovered = new Mock<IFutureProg>();
+		onRecovered.SetupGet(x => x.Id).Returns(42L);
+		onRecovered.SetupGet(x => x.Name).Returns("On Recovered");
+		var onCustody = new Mock<IFutureProg>();
+		onCustody.SetupGet(x => x.Id).Returns(43L);
+		onCustody.SetupGet(x => x.Name).Returns("On Custody");
+		var gameworld = CreateGameworld();
+		gameworld.SetupGet(x => x.FutureProgs)
+		         .Returns(Repository(canBear.Object, onCaptured.Object, onRecovered.Object, onCustody.Object));
+		var proto = CreateProto<MilitaryStandardGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(640, "MilitaryStandard", new XElement("Definition",
+				new XElement("Family", "Guidon"),
+				new XElement("IdentityKey", "guidon"),
+				new XElement("IdentityName", "the guidon"),
+				new XElement("Design", "A fork-tailed field."),
+				new XElement("AssociationType", "None"),
+				new XElement("AssociationKey", string.Empty),
+				new XElement("AssociationName", string.Empty),
+				new XElement("RecognitionTrait", 0),
+				new XElement("RecognitionDifficulty", Difficulty.Automatic),
+				new XElement("CanBearProg", canBear.Object.Id),
+				new XElement("OnCapturedProg", onCaptured.Object.Id),
+				new XElement("OnRecoveredProg", onRecovered.Object.Id),
+				new XElement("OnCustodyChangedProg", onCustody.Object.Id),
+				new XElement("Signals"),
+				new XElement("PlantEmote", "@ plant|plants $1."),
+				new XElement("TakeUpEmote", "@ take|takes up $1."),
+				new XElement("RecogniseEmote", "@ recognise|recognises $1.")).ToString()));
+		var parent = CreateParent(gameworld.Object, 641L, "guidon");
+		parent.SetupGet(x => x.HasOwner).Returns(true);
+		var actor = CreateActor(gameworld.Object, 642L);
+		parent.Setup(x => x.IsOwnedBy(actor.Object)).Returns(true);
+		var standard = (MilitaryStandardGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+
+		standard.ReevaluateCustody(actor.Object);
+		Assert.AreEqual(MilitaryStandardCustodyState.Captured, standard.CustodyState,
+			"The configured CanBearProg must override durable character ownership.");
+		Assert.AreEqual(1, standard.CaptureCount);
+		standard.ReevaluateCustody(actor.Object);
+		onCaptured.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Once);
+		onCustody.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Once);
+
+		canBear.Setup(x => x.ExecuteBool(false, It.IsAny<object[]>()))
+		       .Returns(true);
+		standard.HandleEvent(EventType.ItemOwnershipChanged, parent.Object, actor.Object);
+		Assert.AreEqual(MilitaryStandardCustodyState.Friendly, standard.CustodyState);
+		onRecovered.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Once);
+		onCustody.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Exactly(2));
+	}
+
+	[TestMethod]
+	public void MilitaryStandard_UnownedIsUnclaimedAndClanMembershipIsFriendly()
+	{
+		var gameworld = CreateGameworld();
+		var proto = CreateProto<MilitaryStandardGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(650, "MilitaryStandard", new XElement("Definition",
+				new XElement("Family", "InfantryColour"),
+				new XElement("IdentityKey", "clan-colour"),
+				new XElement("IdentityName", "the clan colour"),
+				new XElement("Design", "A clan device."),
+				new XElement("AssociationType", "None"),
+				new XElement("AssociationKey", string.Empty),
+				new XElement("AssociationName", string.Empty),
+				new XElement("RecognitionTrait", 0),
+				new XElement("RecognitionDifficulty", Difficulty.Automatic),
+				new XElement("Signals"),
+				new XElement("PlantEmote", "@ plant|plants $1."),
+				new XElement("TakeUpEmote", "@ take|takes up $1."),
+				new XElement("RecogniseEmote", "@ recognise|recognises $1.")).ToString()));
+		var parent = CreateParent(gameworld.Object, 651L, "colour");
+		var hasOwner = false;
+		parent.SetupGet(x => x.HasOwner).Returns(() => hasOwner);
+		var actor = CreateActor(gameworld.Object, 652L);
+		actor.SetupGet(x => x.ClanMemberships).Returns([]);
+		var standard = (MilitaryStandardGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+
+		standard.ReevaluateCustody(actor.Object);
+		Assert.AreEqual(MilitaryStandardCustodyState.Unclaimed, standard.CustodyState);
+
+		var clan = new Mock<IClan>();
+		clan.SetupGet(x => x.Id).Returns(653L);
+		clan.SetupGet(x => x.Name).Returns("First Clan");
+		var membership = new Mock<IClanMembership>();
+		membership.SetupGet(x => x.Clan).Returns(clan.Object);
+		hasOwner = true;
+		parent.SetupGet(x => x.Owner).Returns(clan.Object);
+		actor.SetupGet(x => x.ClanMemberships).Returns([membership.Object]);
+		standard.ReevaluateCustody(actor.Object);
+		Assert.AreEqual(MilitaryStandardCustodyState.Friendly, standard.CustodyState);
+		Assert.AreEqual(0, standard.CaptureCount);
 	}
 
 	[TestMethod]
@@ -632,6 +980,36 @@ public class SealAndMeasurementComponentTests
 		return actor;
 	}
 
+	private static (Mock<ICharacter> Actor, Mock<IBody> Body, Mock<ICell> Cell) CreateInstrumentActor(
+		IFuturemud gameworld, Mock<IGameItem> instrument)
+	{
+		var actor = CreateActor(gameworld, instrument.Object.Id + 100);
+		var body = new Mock<IBody>();
+		var cell = new Mock<ICell>();
+		var position = new Mock<IPositionState>();
+		var output = new Mock<IOutputHandler>();
+		var firstHand = new Mock<IGrab>();
+		var secondHand = new Mock<IGrab>();
+		body.SetupGet(x => x.HeldOrWieldedItems).Returns([instrument.Object]);
+		body.SetupGet(x => x.WornItems).Returns([]);
+		body.SetupGet(x => x.FunctioningFreeHands).Returns([firstHand.Object, secondHand.Object]);
+		instrument.SetupGet(x => x.Location).Returns(cell.Object);
+		instrument.SetupGet(x => x.InInventoryOf).Returns((IBody)null!);
+		instrument.SetupGet(x => x.ContainedIn).Returns((IGameItem)null!);
+		actor.SetupGet(x => x.Body).Returns(body.Object);
+		actor.SetupGet(x => x.State).Returns(CharacterState.Able);
+		actor.SetupGet(x => x.Combat).Returns((ICombat)null!);
+		actor.SetupGet(x => x.PositionState).Returns(position.Object);
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		actor.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns(true);
+		actor.SetupGet(x => x.Effects).Returns([]);
+		actor.Setup(x => x.EffectsOfType<PlayingInstrument>(It.IsAny<Predicate<PlayingInstrument>>()))
+		     .Returns([]);
+		position.SetupGet(x => x.Name).Returns("standing");
+		return (actor, body, cell);
+	}
+
 	private static Mock<ITag> CreateTag(long id, string name)
 	{
 		var tag = new Mock<ITag>();
@@ -656,6 +1034,7 @@ public class SealAndMeasurementComponentTests
 		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
 		gameworld.SetupGet(x => x.FutureProgs).Returns(Repository<IFutureProg>());
 		gameworld.SetupGet(x => x.Tags).Returns(Repository(tags));
+		gameworld.SetupGet(x => x.Traits).Returns(Repository<ITraitDefinition>());
 		gameworld.SetupGet(x => x.Drugs).Returns(Repository<IDrug>());
 		gameworld.SetupGet(x => x.ItemProtos).Returns(RevisableRepository<IGameItemProto>());
 		gameworld.SetupGet(x => x.AmmunitionTypes).Returns(Repository<IAmmunitionType>());

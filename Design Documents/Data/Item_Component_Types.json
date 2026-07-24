@@ -1500,4 +1500,26 @@
                                 "IOpenable",
                                 "ISelectable"
                             ]
+    },
+    {
+        "Component Type Name":  "Instrument",
+        "Component Type Description":  "A playable audible instrument with sustained performance, stamina, posture, audio and FutureProg hooks",
+        "Exclusive Types":  [
+                                "IInstrument"
+                            ]
+    },
+    {
+        "Component Type Name":  "SignalInstrument",
+        "Component Type Description":  "A playable instrument with named, cooldown-limited military signal patterns",
+        "Exclusive Types":  [
+                                "IInstrument",
+                                "ISignalInstrument"
+                            ]
+    },
+    {
+        "Component Type Name":  "MilitaryStandard",
+        "Component Type Description":  "An identifiable and plantable standard with persistent custody, capture and recovery state",
+        "Exclusive Types":  [
+                                "IMilitaryStandard"
+                            ]
     }]

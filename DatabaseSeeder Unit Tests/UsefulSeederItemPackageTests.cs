@@ -614,10 +614,41 @@ public class UsefulSeederItemPackageTests
 			"Tool_CartridgeMaking_General",
 			"Tool_Gunsmithing_General"
 		];
+		string[] instruments =
+		[
+			"Instrument_Antiquity_WoodenLyre",
+			"Instrument_Antiquity_Kithara",
+			"Instrument_Antiquity_ReedFlute",
+			"Instrument_Antiquity_DoubleAulos",
+			"Instrument_Antiquity_FrameDrum",
+			"Instrument_Antiquity_Sistrum",
+			"Instrument_Antiquity_BronzeWarHorn",
+			"Instrument_Antiquity_ShipSignalTrumpet",
+			"Instrument_Antiquity_TempleRitualRattle"
+		];
+		string[] signalInstruments =
+		[
+			"SignalInstrument_FieldDrum",
+			"SignalInstrument_KettleDrum",
+			"SignalInstrument_Fife",
+			"SignalInstrument_SpeakingTrumpet"
+		];
+		string[] militaryStandards =
+		[
+			"MilitaryStandard_InfantryColour",
+			"MilitaryStandard_CavalryStandard",
+			"MilitaryStandard_Guidon",
+			"MilitaryStandard_NavalEnsign",
+			"MilitaryStandard_Pennant",
+			"MilitaryStandard_SignalFlag"
+		];
 		string[] expectedNames = dryContainers
 			.Concat(liquidContainers)
 			.Concat(lockingContainers)
 			.Concat(handTools)
+			.Concat(instruments)
+			.Concat(signalInstruments)
+			.Concat(militaryStandards)
 			.Append("CashRegister_PreIndustrial_TillChest")
 			.Append("Container_CartridgeBandolier")
 			.ToArray();
@@ -640,6 +671,12 @@ public class UsefulSeederItemPackageTests
 			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "LockingContainer"));
 		Assert.IsTrue(handTools.All(name =>
 			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "HandTool"));
+		Assert.IsTrue(instruments.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "Instrument"));
+		Assert.IsTrue(signalInstruments.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "SignalInstrument"));
+		Assert.IsTrue(militaryStandards.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "MilitaryStandard"));
 		Assert.AreEqual("LockingCashRegister",
 			context.GameItemComponentProtos.Single(x => x.Name == "CashRegister_PreIndustrial_TillChest").Type);
 		Assert.AreEqual("Container",
@@ -692,6 +729,16 @@ public class UsefulSeederItemPackageTests
 				.Elements("Tag")
 				.Select(x => (long)x)
 				.ToArray());
+		Assert.AreEqual(10.0,
+			(double)Definition("Instrument_Antiquity_WoodenLyre").Element("TickSeconds")!);
+		Assert.AreEqual(6,
+			Definition("MilitaryStandard_SignalFlag").Element("Signals")!.Elements("Signal").Count());
+		Assert.AreEqual("None",
+			(string)Definition("MilitaryStandard_NavalEnsign").Element("AssociationType")!);
+		Assert.AreEqual(0,
+			(long)Definition("MilitaryStandard_InfantryColour").Element("CanBearProg")!);
+		Assert.AreEqual(5.0,
+			(double)Definition("SignalInstrument_FieldDrum").Element("SignalStamina")!);
 	}
 
 	[TestMethod]
@@ -1224,11 +1271,16 @@ public class UsefulSeederItemPackageTests
 			new Tag { Id = 1, Name = "Functions" },
 			new Tag { Id = 2, Name = "Tools", ParentId = 1 },
 			new Tag { Id = 3, Name = "Scientific Tools", ParentId = 2 },
-			new Tag { Id = 4, Name = "Measurement Tools", ParentId = 3 });
+			new Tag { Id = 4, Name = "Measurement Tools", ParentId = 3 },
+			new Tag { Id = 5, Name = "Military Equipment", ParentId = 1 },
+			new Tag { Id = 6, Name = "Military Ammunition", ParentId = 5 },
+			new Tag { Id = 7, Name = "Paper Cartridges", ParentId = 6 },
+			new Tag { Id = 8, Name = "Wooden Powder Charges", ParentId = 6 });
 		context.SaveChanges();
 		SeedMarketCategories(context);
 		UsefulSeeder usefulSeeder = new();
 		usefulSeeder.SeedAntiquityComponentGapCoverageForTesting(context);
+		usefulSeeder.SeedEraDependencyComponentsForTesting(context);
 		usefulSeeder.SeedGeneralCoverageForTesting(context);
 		EnsureComponentMarkers(context,
 			"Destroyable_Misc",

@@ -327,3 +327,10 @@ When vehicle cover intercepts an attack, the exterior item is the visible cover 
 - Attached bayonets remain separate perceivable items. The musket reports attachment state through its existing attachment presentation, while combat uses the bayonet item's own melee profile.
 - Tool-spanned crossbows emit the authored ready emote with the selected inventory tool and preserve their ordinary ranged-weapon timing, stamina, and evaluation text.
 - Riding and hitch gear should be described through the physical item and its wearable/armour/container decorators; functional roles must not replace source-faithful material, capacity, or appearance text.
+
+## Instruments, Signals, and Standards Presentation
+
+- Instrument output is an ordinary local emote plus spatial audio. The sustained tick retains the initial quality result but does not expose a numeric roll unless a game chooses to do so through hooks.
+- A failed named signal is audible as a garbled call; distant listeners do not learn the attempted pattern. Successful calls use the configured named output.
+- Planted standards gain a short-description marker. Full inspection shows custody, planted state, and capture count; identity, design, and association require recognition or administrator access.
+- The standard component exposes stable hooks and FutureProg queries for announcements, scoring, quests, NPC reactions, surrender, prize law, and later morale systems. Those integrations must decide their own policy and must not infer legal ownership transfer from capture custody.

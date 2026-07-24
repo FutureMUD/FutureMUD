@@ -599,3 +599,11 @@ Standard containers apply prototype tag rules before size and weight admission. 
 Musket attachments have distinct persisted bayonet, ramrod, and sight slots. `IBayonetAttachment` supplies style and bore compatibility. Plug styles block firing; socket and sword styles do not. While attached, the firearm delegates melee weapon type to the bayonet item's existing `IMeleeWeapon`.
 
 Crossbows may author a required spanning-tool tag. The inventory plan must acquire a matching tool before readying, while ready delays and stamina remain properties of the ranged weapon type. `IsReadied` is runtime XML state and defaults to false for legacy component definitions.
+
+## Runtime Integration: Instruments and Military Standards
+
+An active `Instrument` performance is a non-saving character effect. Its initial check outcome is retained for hook consumers; output occurs immediately and every authored interval, and stamina is drained at admission and on each tick. Movement, melee engagement, item loss, invalid posture, incapacity, exhaustion, deletion, quit, or logout ends it. Audible propagation uses `ICell.HandleAudioEcho` and does not create alert events.
+
+`SignalInstrument` shares the same physical-use and skill rules. A per-character, per-item cooldown effect prevents repeated calls. Failed calls use neutral garbled audio and suppress `OnSignalProg`.
+
+`MilitaryStandard` instance XML stores optional identity/design/association overrides, planted state, custody, and capture count. Copies retain identity overrides but reset planted state and capture history. Durable ownership remains on the item: an authorised carrier produces `Friendly` custody, an unauthorised carrier produces one `Captured` transition and count increment, and hostile-to-hostile transfers do not increment again. An authorised recovery returns the state to `Friendly`; dropping or planting preserves custody.

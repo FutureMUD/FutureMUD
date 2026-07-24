@@ -5,14 +5,14 @@
 ## Status
 
 - Original component requests: **156**.
-- Supported and now seeded: **56**.
-- Deferred for engine work: **100**.
-- New component types still required: **6**.
+- Supported and now seeded: **66**.
+- Deferred for engine work: **90**.
+- New component types still required: **4**.
 - Original requests using existing component types: **98**, partitioned into 53 supported additions and 45 existing-family behaviour deferrals.
-- Prototypes depending on the six still-missing component types: **55**.
+- Prototypes depending on the four still-missing component types: **45**.
 - New solid materials required: **0**.
-- New functional tags seeded: **8** for paper cartridges, wooden charges, and the five crossbow spanning-tool families beneath their common parent.
-- Supported additions: 8 armour, 11 melee, 4 bow, 9 crossbow, 2 blowgun, 2 thrown, 6 wearable, 3 hand-tool, 7 paper-cartridge, 1 constrained-container, and 3 bayonet-attachment profiles.
+- New functional tags seeded: **11** for paper cartridges, wooden charges, crossbow spanning tools, musical instruments, military signals, and military standards.
+- Supported additions: 8 armour, 11 melee, 4 bow, 9 crossbow, 2 blowgun, 2 thrown, 6 wearable, 3 hand-tool, 7 paper-cartridge, 1 constrained-container, 3 bayonet-attachment, 4 signal-instrument, and 6 military-standard profiles.
 - Existing runtime families still requiring extension: repeating and emplaced crossbows, `Musket` ignition state, multi-projectile musket ammunition, paired holsters, couched charges, and hook/pull/trip attacks remain deferred.
 - Decision-ready engine backlog: [FutureMUD Item Content Engine Dependency Ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
 
@@ -47,17 +47,14 @@ The main catalogue treats all names in this ledger as available. Implementation 
 - **Why new:** these accessories are not ordinary clothing and should not require pretending that a sling is a standalone shoulder garment. They must retain or carry a specific weapon.
 - **Minimum state:** compatible weapon size/type; attachment point; carried location; draw/release time; retention behaviour; exclusivity; whether the carrier remains attached while the weapon is wielded.
 
-### 5. `MilitaryStandard`
+### 5. `MilitaryStandard` — implemented
 
 - **Purpose:** colours, standards, guidons, ensigns, pennants, and signal flags with persistent identity/design data.
-- **Why new:** a standard is more than inert cloth when units, ships, heraldry, or command signals need to refer to it. No morale bonus is assumed.
-- **Minimum state:** standard family; design/identity key; optional associated unit or ship key; carried/planted state; visibility and recognition hooks; signal role where applicable.
+- **Implemented:** identity and design defaults with per-copy overrides; optional unit or ship association; recognition; planting and take-up; named flag signals; durable ownership-aware friendly/captured/unclaimed custody; distinct capture counting; recovery; hooks; administrator controls; and FutureProg queries. No morale bonus is assumed.
 
-### 7. `SignalInstrument`
+### 7. `SignalInstrument` — implemented
 
-- **Purpose:** audible military command and warning signals.
-- **Why new:** no existing musical-instrument component can produce recognized field signals or range-limited command calls.
-- **Minimum state:** instrument family; permitted signal patterns; audible range; environment modifiers; user skill/trait hook; standard emotes; cooldown or breath/stamina cost where appropriate.
+- **Implemented:** a specialization of the general `Instrument` family with named signal patterns, route-aware audible output, performance checking, deliberately unrecognisable failure audio, cooldown and stamina costs, emotes, builder settings, and FutureProg gates/hooks.
 
 ## Existing runtime extensions
 
@@ -88,7 +85,7 @@ These types can receive new seeded prototypes and associated weapon/armour/wear 
 
 ## Original requests using existing component types — 98
 
-Implementation partition: armour, melee, bow, nine supportable crossbows, blowguns, thrown weapons, wearables, hand tools, seven single-projectile paper cartridges, the constrained bandolier, and three bayonets are seeded (56 total). Repeating/emplaced crossbows, ignition-specific muskets, multi-projectile ammunition, and the paired saddle holster remain among the 100 deferred requests.
+Implementation partition: armour, melee, bow, nine supportable crossbows, blowguns, thrown weapons, wearables, hand tools, seven single-projectile paper cartridges, the constrained bandolier, three bayonets, four signal instruments, and six military standards are seeded (66 total). Repeating/emplaced crossbows, ignition-specific muskets, multi-projectile ammunition, the paired saddle holster, weapon-carrier attachments, and artillery remain among the 90 deferred requests.
 
 ### 1. `Armour` prototypes — 8
 
@@ -365,7 +362,7 @@ New attachment family for weapon slings, lanyards, and long-gun loops.
 | `WeaponSling_Carbine` | 3 | Short-gun sling attachment profile. |
 | `WeaponSling_LongGun` | 6 | Musket, rifle, or long-gun sling attachment profile. |
 
-### 6. `MilitaryStandard` prototypes — 6
+### 6. `MilitaryStandard` prototypes — 6 supported
 
 New identity-bearing military standard family for colours, guidons, ensigns, pennants, and signal flags.
 
@@ -378,7 +375,7 @@ New identity-bearing military standard family for colours, guidons, ensigns, pen
 | `MilitaryStandard_Pennant` | 3 | Small lance or command pennant. |
 | `MilitaryStandard_SignalFlag` | 3 | Hand signal flag with configurable design and signal role. |
 
-### 7. `SignalInstrument` prototypes — 4
+### 7. `SignalInstrument` prototypes — 4 supported
 
 New audible military-signal family for drums, fifes, kettle drums, and speaking trumpets.
 
@@ -415,8 +412,8 @@ All component names not listed in this ledger already exist in the maintained se
 
 ## Acceptance criteria
 
-- Exactly 56 supported component prototype names are seeded and exactly 100 military requests remain deferred.
-- None of the 100 deferred military names appears in the maintained component catalogue.
+- Exactly 66 supported component prototype names are seeded and exactly 90 military requests remain deferred.
+- None of the 90 deferred military names appears in the maintained component catalogue.
 - The six still-missing component types must be implemented before their 55 dependent prototypes are seeded.
 - No new solid material or tag is created by this branch.
 - Existing prototype names are reused exactly; no near-duplicate underscore/space variant is introduced.

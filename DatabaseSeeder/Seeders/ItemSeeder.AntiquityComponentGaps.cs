@@ -146,6 +146,7 @@ public partial class ItemSeeder
 		const string PackGearTag = "Functions / Animal Equipment / Pack Gear";
 		const string DraftGearTag = "Functions / Animal Equipment / Draft Gear";
 		const string AnimalArmourTag = "Functions / Animal Equipment / Animal Armour";
+		const string InstrumentTag = "Functions / Musical Instruments";
 
 		return
 		[
@@ -419,6 +420,46 @@ public partial class ItemSeeder
 				"This official measure kit combines a folding scale beam, reference weights, tally tablets, cord, and a small seal-ready pouch.",
 				SizeCategory.Normal, ItemQuality.Good, 5200.0, 95.0m, "bronze", MaterialBehaviourType.Metal,
 				[ToolTag, MeasureTag, CivicTag], ["Holdable", "Container_Pouch", "MeasuringInstrument_Antiquity_TaxAssessorKit", "Destroyable_HeavyMetal"]),
+
+			new("antiquity_wooden_lyre", "lyre", "a wooden lyre",
+				"This compact wooden lyre has a hollow sound box, two curved arms, and gut strings suited to hymns, laments, and intimate performances.",
+				SizeCategory.Normal, ItemQuality.Standard, 1250.0, 48.0m, "cedar", MaterialBehaviourType.Wood,
+				[InstrumentTag, ReligiousTag], ["Holdable", "Instrument_Antiquity_WoodenLyre", "Destroyable_WoodenHeavy"]),
+			new("antiquity_kithara", "kithara", "a wooden kithara",
+				"This formal wooden kithara has a broad resonant body and rigid arms built for a strong public tone in halls, theatres, and processions.",
+				SizeCategory.Large, ItemQuality.Good, 2700.0, 95.0m, "cedar", MaterialBehaviourType.Wood,
+				[InstrumentTag, ReligiousTag], ["Holdable", "Instrument_Antiquity_Kithara", "Destroyable_WoodenHeavy"]),
+			new("antiquity_reed_flute", "flute", "a reed flute",
+				"This slim river-reed flute is pierced with careful finger holes and bound at the ends against splitting.",
+				SizeCategory.Small, ItemQuality.Standard, 85.0, 8.0m, "reed", MaterialBehaviourType.Plant,
+				[InstrumentTag, LeisureTag], ["Holdable", "Instrument_Antiquity_ReedFlute", "Destroyable_Misc"]),
+			new("antiquity_double_aulos", "aulos", "a double aulos",
+				"This matched pair of reed pipes has separate reeds and finger holes, demanding both hands and a disciplined breath for its piercing harmonies.",
+				SizeCategory.Normal, ItemQuality.Good, 240.0, 38.0m, "reed", MaterialBehaviourType.Plant,
+				[InstrumentTag, ReligiousTag], ["Holdable", "Instrument_Antiquity_DoubleAulos", "Destroyable_Misc"]),
+			new("antiquity_frame_drum", "drum", "a hide frame drum",
+				"This broad wooden frame is stretched with cured hide and fitted with a hand grip for dance, procession, and ritual rhythms.",
+				SizeCategory.Normal, ItemQuality.Standard, 1150.0, 22.0m, "leather", MaterialBehaviourType.Leather,
+				[InstrumentTag, ReligiousTag], ["Holdable", "Instrument_Antiquity_FrameDrum", "Destroyable_Misc"]),
+			new("antiquity_sistrum", "sistrum", "a bronze sistrum",
+				"This bronze ritual rattle has loose crossbars that clash brightly when its looped handle is shaken.",
+				SizeCategory.Small, ItemQuality.Good, 520.0, 42.0m, "bronze", MaterialBehaviourType.Metal,
+				[InstrumentTag, ReligiousTag], ["Holdable", "Instrument_Antiquity_Sistrum", "Destroyable_HeavyMetal"]),
+			new("antiquity_bronze_war_horn", "horn", "a bronze war horn",
+				"This long bronze horn flares to a wide bell and carries a harsh martial call across a battlefield or city wall.",
+				SizeCategory.Large, ItemQuality.Good, 1800.0, 85.0m, "bronze", MaterialBehaviourType.Metal,
+				[InstrumentTag, "Functions / Military Equipment / Military Signals", "Market / Military Goods"],
+				["Holdable", "Instrument_Antiquity_BronzeWarHorn", "Destroyable_HeavyMetal"]),
+			new("antiquity_ship_signal_trumpet", "trumpet", "a ship's bronze signal trumpet",
+				"This salt-darkened bronze trumpet has a narrow mouthpiece and wide bell made to carry commands over wind, oars, and surf.",
+				SizeCategory.Large, ItemQuality.Good, 1550.0, 78.0m, "bronze", MaterialBehaviourType.Metal,
+				[InstrumentTag, "Functions / Military Equipment / Military Signals"],
+				["Holdable", "Instrument_Antiquity_ShipSignalTrumpet", "Destroyable_HeavyMetal"]),
+			new("antiquity_temple_ritual_rattle", "rattle", "a temple ritual rattle",
+				"This carved wooden ritual rattle encloses hard seeds and bears painted sacred bands worn smooth by repeated ceremonies.",
+				SizeCategory.Small, ItemQuality.Standard, 360.0, 18.0m, "cedar", MaterialBehaviourType.Wood,
+				[InstrumentTag, ReligiousTag],
+				["Holdable", "Instrument_Antiquity_TempleRitualRattle", "Destroyable_Misc"]),
 
 			new("antiquity_leather_bridle", "bridle", "a plain leather bridle",
 				"This plain leather bridle has a browband, cheek straps, and reins arranged for steady everyday control of a riding animal.",

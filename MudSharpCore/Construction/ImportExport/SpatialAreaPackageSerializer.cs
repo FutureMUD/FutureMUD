@@ -32,12 +32,25 @@ public static class SpatialAreaPackageSerializer
 		WriteIndented = true
 	};
 
+	private sealed class SpatialAreaPackageV1
+	{
+		public string Format { get; set; } = SpatialAreaPackage.CurrentFormat;
+		public int Version { get; set; } = 1;
+		public string IntegritySha256 { get; set; } = string.Empty;
+		public DateTime CreatedUtc { get; set; }
+		public SpatialAreaPackageSource Source { get; set; } = new();
+		public SpatialZoneDefinition Zone { get; set; } = new();
+		public List<SpatialRoomDefinition> Rooms { get; set; } = [];
+		public List<SpatialCellDefinition> Cells { get; set; } = [];
+		public List<SpatialExitDefinition> Exits { get; set; } = [];
+	}
+
 	public static string Serialize(SpatialAreaPackage package)
 	{
 		package.IntegritySha256 = string.Empty;
-		var canonicalJson = JsonSerializer.Serialize(package, Options);
+		var canonicalJson = SerializeForVersion(package);
 		package.IntegritySha256 = ComputeHash(canonicalJson);
-		return JsonSerializer.Serialize(package, Options);
+		return SerializeForVersion(package);
 	}
 
 	public static SpatialAreaPackageReadResult Deserialize(string json)
@@ -69,7 +82,7 @@ public static class SpatialAreaPackageSerializer
 
 		var suppliedHash = package.IntegritySha256;
 		package.IntegritySha256 = string.Empty;
-		var expectedHash = ComputeHash(JsonSerializer.Serialize(package, Options));
+		var expectedHash = ComputeHash(SerializeForVersion(package));
 		package.IntegritySha256 = suppliedHash;
 		if (string.IsNullOrWhiteSpace(suppliedHash) ||
 		    !CryptographicOperations.FixedTimeEquals(
@@ -99,16 +112,34 @@ public static class SpatialAreaPackageSerializer
 				$"Expected format '{SpatialAreaPackage.CurrentFormat}', but found '{package.Format}'."));
 		}
 
-		if (package.Version != SpatialAreaPackage.CurrentVersion)
+		if (package.Version is < SpatialAreaPackage.MinimumSupportedVersion or > SpatialAreaPackage.CurrentVersion)
 		{
 			diagnostics.Add(Error("unsupported-version",
-				$"Package version {package.Version:N0} is not supported; this server supports version {SpatialAreaPackage.CurrentVersion:N0}."));
+				$"Package version {package.Version:N0} is not supported; this server supports versions {SpatialAreaPackage.MinimumSupportedVersion:N0} through {SpatialAreaPackage.CurrentVersion:N0}."));
 		}
 
 		if (package.Rooms is null || package.Cells is null || package.Exits is null || package.Zone is null ||
-		    package.Source is null)
+		    package.Source is null || package.Omissions is null)
 		{
 			diagnostics.Add(Error("missing-sections", "The package is missing one or more required sections."));
+			return diagnostics;
+		}
+
+		if (package.Version >= 2 &&
+		    (package.Zones is null || package.SourceZones is null ||
+		     package.Zones.Count != package.SourceZones.Count))
+		{
+			diagnostics.Add(Error("invalid-zone-sources",
+				"Version 2 packages must contain one source entry for every zone definition."));
+			return diagnostics;
+		}
+
+		if (package.Version >= 2 &&
+		    (package.Zones.Cast<object?>().Any(x => x is null) ||
+		     package.SourceZones.Cast<object?>().Any(x => x is null)))
+		{
+			diagnostics.Add(Error("null-zone-entry",
+				"Zone and zone-source collections may not contain null entries."));
 			return diagnostics;
 		}
 
@@ -132,13 +163,29 @@ public static class SpatialAreaPackageSerializer
 
 		if (package.Rooms.Cast<object?>().Any(x => x is null) ||
 		    package.Cells.Cast<object?>().Any(x => x is null) ||
-		    package.Exits.Cast<object?>().Any(x => x is null))
+		    package.Exits.Cast<object?>().Any(x => x is null) ||
+		    package.Omissions.Cast<object?>().Any(x => x is null))
 		{
 			diagnostics.Add(Error("null-collection-entry",
-				"Room, cell, and exit collections may not contain null entries."));
+				"Room, cell, exit, and omission collections may not contain null entries."));
 			return diagnostics;
 		}
 
+		foreach (var omission in package.Omissions.Where(x =>
+			         string.IsNullOrWhiteSpace(x.Code) || string.IsNullOrWhiteSpace(x.Message)))
+		{
+			diagnostics.Add(Error("invalid-omission",
+				"Every package omission must contain both a code and a message."));
+		}
+
+		var zones = GetZoneDefinitions(package);
+		if (zones.Count == 0)
+		{
+			diagnostics.Add(Error("missing-zones", "The package does not contain a zone definition."));
+			return diagnostics;
+		}
+
+		ValidateUniqueKeys(zones.Select((zone, index) => ZoneKey(package, zone, index)), "zone", diagnostics);
 		ValidateUniqueKeys(package.Rooms.Select(x => x.Key), "room", diagnostics);
 		ValidateUniqueKeys(package.Cells.Select(x => x.Key), "cell", diagnostics);
 		ValidateUniqueKeys(package.Exits.Select(x => x.Key), "exit", diagnostics);
@@ -146,11 +193,24 @@ public static class SpatialAreaPackageSerializer
 		var roomKeys = package.Rooms.Select(x => x.Key).ToHashSet(StringComparer.Ordinal);
 		var cellKeys = package.Cells.Select(x => x.Key).ToHashSet(StringComparer.Ordinal);
 		var exitKeys = package.Exits.Select(x => x.Key).ToHashSet(StringComparer.Ordinal);
+		var zoneKeys = zones
+			.Select((zone, index) => ZoneKey(package, zone, index))
+			.ToHashSet(StringComparer.Ordinal);
 		foreach (var room in package.Rooms.Where(room =>
 			         package.Cells.All(cell => !string.Equals(cell.RoomKey, room.Key, StringComparison.Ordinal))))
 		{
-			diagnostics.Add(Error("empty-room",
-				$"Room '{room.Key}' does not contain a packaged cell."));
+			diagnostics.Add(Warning("empty-room-skipped",
+				$"Room '{room.Key}' (source #{room.SourceId:N0}) has no packaged cell and will be skipped."));
+		}
+
+		foreach (var room in package.Rooms)
+		{
+			var zoneKey = RoomZoneKey(package, room);
+			if (!zoneKeys.Contains(zoneKey))
+			{
+				diagnostics.Add(Error("orphan-room",
+					$"Room '{room.Key}' references missing zone '{zoneKey}'."));
+			}
 		}
 
 		foreach (var cell in package.Cells)
@@ -234,6 +294,8 @@ public static class SpatialAreaPackageSerializer
 						$"Cell '{cell.Key}' references missing exit '{exitKey}'."));
 				}
 			}
+
+			ValidateRouteCell(cell, exitKeys, diagnostics);
 		}
 
 		foreach (var exit in package.Exits)
@@ -326,58 +388,191 @@ public static class SpatialAreaPackageSerializer
 				$"Exit '{exit.Key}' is not active in any packaged cell overlay."));
 		}
 
-		if (!cellKeys.Contains(package.Zone.DefaultCellKey))
-		{
-			diagnostics.Add(Error("invalid-default-cell",
-				$"Zone default cell '{package.Zone.DefaultCellKey}' is not in the package."));
-		}
-
-		if (string.IsNullOrWhiteSpace(package.Zone.Name))
-		{
-			diagnostics.Add(Error("missing-zone-name", "The package zone must have a name."));
-		}
-
-		if (package.Zone.TimeZones is null)
-		{
-			diagnostics.Add(Error("missing-timezones", "The package zone is missing its timezone collection."));
-		}
-		else
-		{
-			if (package.Zone.TimeZones.Cast<object?>().Any(x => x is null))
-			{
-				diagnostics.Add(Error("null-timezone-reference",
-					"The package timezone collection may not contain null entries."));
-				return diagnostics;
-			}
-
-			var duplicateClock = package.Zone.TimeZones
-				.GroupBy(x => x.ClockAlias, StringComparer.InvariantCultureIgnoreCase)
-				.FirstOrDefault(x => x.Count() > 1);
-			if (duplicateClock is not null)
-			{
-				diagnostics.Add(Error("duplicate-clock-timezone",
-					$"The package contains more than one timezone for clock '{duplicateClock.Key}'."));
-			}
-
-			if (package.Zone.TimeZones.Any(x =>
-				    string.IsNullOrWhiteSpace(x.ClockAlias) ||
-				    string.IsNullOrWhiteSpace(x.TimeZoneAlias)))
-			{
-				diagnostics.Add(Error("invalid-timezone-reference",
-					"Every packaged timezone must identify both a clock alias and timezone alias."));
-			}
-		}
-
-		if ((package.Zone.ForagableProfile is not null &&
-		     string.IsNullOrWhiteSpace(package.Zone.ForagableProfile.Name)) ||
-		    (package.Zone.WeatherController is not null &&
-		     string.IsNullOrWhiteSpace(package.Zone.WeatherController.Name)))
-		{
-			diagnostics.Add(Error("invalid-zone-dependency",
-				"Zone dependency references must have non-empty names."));
-		}
+		ValidateZones(package, zones, cellKeys, diagnostics);
 
 		return diagnostics;
+	}
+
+	public static IReadOnlyList<SpatialZoneDefinition> GetZoneDefinitions(SpatialAreaPackage package)
+	{
+		return package.Version >= 2 && package.Zones is { Count: > 0 }
+			? package.Zones
+			: package.Zone is null ? [] : [package.Zone];
+	}
+
+	public static string ZoneKey(SpatialAreaPackage package, SpatialZoneDefinition zone, int index)
+	{
+		return package.Version >= 2
+			? zone.Key ?? string.Empty
+			: "zone-00001";
+	}
+
+	public static string RoomZoneKey(SpatialAreaPackage package, SpatialRoomDefinition room)
+	{
+		return package.Version >= 2
+			? room.ZoneKey ?? string.Empty
+			: "zone-00001";
+	}
+
+	private static void ValidateZones(
+		SpatialAreaPackage package,
+		IReadOnlyList<SpatialZoneDefinition> zones,
+		IReadOnlySet<string> cellKeys,
+		ICollection<SpatialAreaTransferDiagnostic> diagnostics)
+	{
+		var roomByKey = package.Rooms
+			.GroupBy(x => x.Key, StringComparer.Ordinal)
+			.ToDictionary(x => x.Key, x => x.First(), StringComparer.Ordinal);
+		foreach (var (zone, index) in zones.Select((value, index) => (value, index)))
+		{
+			var zoneKey = ZoneKey(package, zone, index);
+			if (!cellKeys.Contains(zone.DefaultCellKey))
+			{
+				diagnostics.Add(Error("invalid-default-cell",
+					$"Zone '{zoneKey}' default cell '{zone.DefaultCellKey}' is not in the package."));
+			}
+			else
+			{
+				var defaultCell = package.Cells.First(x => x.Key == zone.DefaultCellKey);
+				if (roomByKey.TryGetValue(defaultCell.RoomKey, out var defaultRoom) &&
+				    !RoomZoneKey(package, defaultRoom).Equals(zoneKey, StringComparison.Ordinal))
+				{
+					diagnostics.Add(Error("wrong-zone-default-cell",
+						$"Zone '{zoneKey}' default cell belongs to another packaged zone."));
+				}
+			}
+
+			if (string.IsNullOrWhiteSpace(zone.Name))
+			{
+				diagnostics.Add(Error("missing-zone-name", $"Package zone '{zoneKey}' must have a name."));
+			}
+
+			if (zone.TimeZones is null)
+			{
+				diagnostics.Add(Error("missing-timezones",
+					$"Package zone '{zoneKey}' is missing its timezone collection."));
+			}
+			else
+			{
+				if (zone.TimeZones.Cast<object?>().Any(x => x is null))
+				{
+					diagnostics.Add(Error("null-timezone-reference",
+						$"Package zone '{zoneKey}' timezone collection may not contain null entries."));
+					continue;
+				}
+
+				var duplicateClock = zone.TimeZones
+					.GroupBy(x => x.ClockAlias, StringComparer.InvariantCultureIgnoreCase)
+					.FirstOrDefault(x => x.Count() > 1);
+				if (duplicateClock is not null)
+				{
+					diagnostics.Add(Error("duplicate-clock-timezone",
+						$"Package zone '{zoneKey}' contains more than one timezone for clock '{duplicateClock.Key}'."));
+				}
+
+				if (zone.TimeZones.Any(x =>
+					    string.IsNullOrWhiteSpace(x.ClockAlias) ||
+					    string.IsNullOrWhiteSpace(x.TimeZoneAlias)))
+				{
+					diagnostics.Add(Error("invalid-timezone-reference",
+						$"Every timezone in package zone '{zoneKey}' must identify both a clock and timezone alias."));
+				}
+			}
+
+			if ((zone.ForagableProfile is not null &&
+			     string.IsNullOrWhiteSpace(zone.ForagableProfile.Name)) ||
+			    (zone.WeatherController is not null &&
+			     string.IsNullOrWhiteSpace(zone.WeatherController.Name)))
+			{
+				diagnostics.Add(Error("invalid-zone-dependency",
+					$"Package zone '{zoneKey}' dependency references must have non-empty names."));
+			}
+		}
+
+		var duplicateName = zones
+			.GroupBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)
+			.FirstOrDefault(x => x.Count() > 1);
+		if (duplicateName is not null)
+		{
+			diagnostics.Add(Error("duplicate-zone-name",
+				$"The package contains duplicate zone name '{duplicateName.Key}'."));
+		}
+	}
+
+	private static void ValidateRouteCell(
+		SpatialCellDefinition cell,
+		IReadOnlySet<string> exitKeys,
+		ICollection<SpatialAreaTransferDiagnostic> diagnostics)
+	{
+		var route = cell.RouteCell;
+		if (route is null)
+		{
+			return;
+		}
+
+		if (!double.IsFinite(route.LengthMetres) || route.LengthMetres <= 0.0 ||
+		    !double.IsFinite(route.DefaultPositionMetres) ||
+		    route.DefaultPositionMetres < 0.0 ||
+		    route.DefaultPositionMetres > route.LengthMetres ||
+		    !double.IsFinite(route.MetresPerRoomEquivalent) ||
+		    route.MetresPerRoomEquivalent <= 0.0 ||
+		    route.TopologyVersion < 1 ||
+		    string.IsNullOrWhiteSpace(route.PositiveDirectionName) ||
+		    string.IsNullOrWhiteSpace(route.NegativeDirectionName))
+		{
+			diagnostics.Add(Error("invalid-route-cell",
+				$"Cell '{cell.Key}' contains invalid route-cell geometry."));
+			return;
+		}
+
+		if (route.Landmarks is null || route.ExitAnchors is null)
+		{
+			diagnostics.Add(Error("missing-route-collections",
+				$"Cell '{cell.Key}' route-cell collections may not be null."));
+			return;
+		}
+
+		foreach (var landmark in route.Landmarks)
+		{
+			if (landmark is null ||
+			    string.IsNullOrWhiteSpace(landmark.Name) ||
+			    !double.IsFinite(landmark.PositionMetres) ||
+			    landmark.PositionMetres < 0.0 ||
+			    landmark.PositionMetres > route.LengthMetres)
+			{
+				diagnostics.Add(Error("invalid-route-landmark",
+					$"Cell '{cell.Key}' contains an invalid route landmark."));
+			}
+		}
+
+		foreach (var anchor in route.ExitAnchors)
+		{
+			if (anchor is null ||
+			    !exitKeys.Contains(anchor.ExitKey) ||
+			    !cell.Overlay.ExitKeys.Contains(anchor.ExitKey) ||
+			    !double.IsFinite(anchor.MinimumPositionMetres) ||
+			    !double.IsFinite(anchor.MaximumPositionMetres) ||
+			    !double.IsFinite(anchor.ArrivalPositionMetres) ||
+			    anchor.MinimumPositionMetres < 0.0 ||
+			    anchor.MaximumPositionMetres < anchor.MinimumPositionMetres ||
+			    anchor.MaximumPositionMetres > route.LengthMetres ||
+			    anchor.ArrivalPositionMetres < anchor.MinimumPositionMetres ||
+			    anchor.ArrivalPositionMetres > anchor.MaximumPositionMetres)
+			{
+				diagnostics.Add(Error("invalid-route-anchor",
+					$"Cell '{cell.Key}' contains an invalid route exit anchor."));
+			}
+		}
+
+		var duplicateAnchor = route.ExitAnchors
+			.Where(x => x is not null)
+			.GroupBy(x => x.ExitKey, StringComparer.Ordinal)
+			.FirstOrDefault(x => x.Count() > 1);
+		if (duplicateAnchor is not null)
+		{
+			diagnostics.Add(Error("duplicate-route-anchor",
+				$"Cell '{cell.Key}' contains more than one anchor for exit '{duplicateAnchor.Key}'."));
+		}
 	}
 
 	private static void ValidateUniqueKeys(
@@ -407,8 +602,34 @@ public static class SpatialAreaPackageSerializer
 		return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(text)));
 	}
 
+	private static string SerializeForVersion(SpatialAreaPackage package)
+	{
+		if (package.Version != 1)
+		{
+			return JsonSerializer.Serialize(package, Options);
+		}
+
+		return JsonSerializer.Serialize(new SpatialAreaPackageV1
+		{
+			Format = package.Format,
+			Version = package.Version,
+			IntegritySha256 = package.IntegritySha256,
+			CreatedUtc = package.CreatedUtc,
+			Source = package.Source,
+			Zone = package.Zone,
+			Rooms = package.Rooms,
+			Cells = package.Cells,
+			Exits = package.Exits
+		}, Options);
+	}
+
 	private static SpatialAreaTransferDiagnostic Error(string code, string message)
 	{
 		return new SpatialAreaTransferDiagnostic(SpatialAreaTransferDiagnosticSeverity.Error, code, message);
+	}
+
+	private static SpatialAreaTransferDiagnostic Warning(string code, string message)
+	{
+		return new SpatialAreaTransferDiagnostic(SpatialAreaTransferDiagnosticSeverity.Warning, code, message);
 	}
 }

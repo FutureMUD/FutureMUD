@@ -23,9 +23,12 @@ public sealed class SpatialAreaTransferResult
 	public string Summary { get; init; } = string.Empty;
 	public string? PackagePath { get; init; }
 	public long? ImportedZoneId { get; init; }
+	public IReadOnlyList<long> ImportedZoneIds { get; init; } = [];
+	public int ZoneCount { get; init; }
 	public int RoomCount { get; init; }
 	public int CellCount { get; init; }
 	public int ExitCount { get; init; }
+	public IReadOnlyList<string> OmittedItems { get; init; } = [];
 	public IReadOnlyList<SpatialAreaTransferDiagnostic> Diagnostics { get; init; } =
 		[];
 }
@@ -38,6 +41,10 @@ public interface ISpatialAreaTransferService
 	string PackageDirectory { get; }
 
 	SpatialAreaTransferResult ExportZone(IZone zone, string packageFileName);
+
+	SpatialAreaTransferResult ExportZones(
+		IReadOnlyCollection<IZone> zones,
+		string packageFileName);
 
 	SpatialAreaTransferResult ValidateImport(
 		ICharacter actor,

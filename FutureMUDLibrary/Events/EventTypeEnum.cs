@@ -735,6 +735,12 @@ namespace MudSharp.Events
         VehicleJourneyFaulted = 139,
 
         [EventInfo("Fires on an item when its durable owner changes.", ["item", "text", "number", "text", "number"], ["item", "oldownertype", "oldownerid", "newownertype", "newownerid"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number])]
-        ItemOwnershipChanged = 140
+        ItemOwnershipChanged = 140,
+
+        [EventInfo("Fires on an offering focus when a liquid libation is completed.", ["item", "character", "item", "liquidmixture", "number"], ["focus", "actor", "source", "liquid", "amount"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.LiquidMixture, ProgVariableTypeCode.Number])]
+        LiquidOfferingReceived = 141,
+
+        [EventInfo("Fires on witnesses when a liquid libation is completed.", ["item", "character", "item", "liquidmixture", "number", "perceivable"], ["focus", "actor", "source", "liquid", "amount", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.LiquidMixture, ProgVariableTypeCode.Number, ProgVariableTypeCode.Perceivable])]
+        LiquidOfferingReceivedWitness = 142
     }
 }

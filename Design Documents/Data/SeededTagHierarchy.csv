@@ -1468,6 +1468,10 @@ Gunpowder	Materials	Materials / Gunpowder
 Textile Dye	Materials	Materials / Textile Dye
 Textile Mordant	Materials	Materials / Textile Mordant
 Liquids	Materials	Materials / Liquids
+Ritual Offerings	Liquids	Materials / Liquids / Ritual Offerings
+Libation	Ritual Offerings	Materials / Liquids / Ritual Offerings / Libation
+Lamp Oil	Ritual Offerings	Materials / Liquids / Ritual Offerings / Lamp Oil
+Blood Offering	Ritual Offerings	Materials / Liquids / Ritual Offerings / Blood Offering
 Beverage	Liquids	Materials / Liquids / Beverage
 Alcoholic	Beverage	Materials / Liquids / Beverage / Alcoholic
 Detergent	Liquids	Materials / Liquids / Detergent

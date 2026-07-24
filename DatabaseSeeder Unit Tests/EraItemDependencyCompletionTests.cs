@@ -144,6 +144,14 @@ public class EraItemDependencyCompletionTests
 		"MilitaryStandard_SignalFlag"
 	];
 
+	private static readonly string[] LiquidOfferingReceiverProfiles =
+	[
+		"OfferingReceiver_Antiquity_TempleLibationTable",
+		"OfferingReceiver_Antiquity_OilLampShrine",
+		"OfferingReceiver_Antiquity_OracularTripod",
+		"OfferingReceiver_Antiquity_BloodOfferingBowl"
+	];
+
 	private static readonly string[] AntiquityDeferredItems =
 	[
 		"antiquity_senet_game_board",
@@ -152,12 +160,7 @@ public class EraItemDependencyCompletionTests
 		"antiquity_royal_game_board",
 		"antiquity_mancala_board",
 		"antiquity_temple_divination_board",
-		"antiquity_tavern_game_set",
-		"antiquity_wooden_measuring_rod",
-		"antiquity_temple_libation_table",
-		"antiquity_oil_lamp_shrine",
-		"antiquity_oracular_tripod",
-		"antiquity_blood_offering_bowl"
+		"antiquity_tavern_game_set"
 	];
 
 	[TestMethod]
@@ -180,9 +183,10 @@ public class EraItemDependencyCompletionTests
 			.Concat(CombatSeeder.EraDependencyCombatComponentNamesForTesting)
 			.Concat(TackComponents)
 			.Concat(StandardsSignalsAndInstruments)
+			.Concat(LiquidOfferingReceiverProfiles)
 			.ToArray();
-		Assert.AreEqual(116, supportedComponents.Length);
-		Assert.AreEqual(116, supportedComponents.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+		Assert.AreEqual(120, supportedComponents.Length);
+		Assert.AreEqual(120, supportedComponents.Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		foreach (string name in supportedComponents)
 		{
 			Assert.AreEqual(1, components.Count(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)),
@@ -208,12 +212,25 @@ public class EraItemDependencyCompletionTests
 			["Tool_Gunsmithing_General"] = "HandTool",
 			["Instrument_Antiquity_WoodenLyre"] = "Instrument",
 			["SignalInstrument_FieldDrum"] = "SignalInstrument",
-			["MilitaryStandard_InfantryColour"] = "MilitaryStandard"
+			["MilitaryStandard_InfantryColour"] = "MilitaryStandard",
+			["OfferingReceiver_Antiquity_TempleLibationTable"] = "OfferingReceiver"
 		};
 		foreach ((string name, string type) in expectedTypes)
 		{
 			Assert.AreEqual(type, components.Single(x => x.Name == name).Type, name);
 		}
+
+		using JsonDocument typeDocument = JsonDocument.Parse(
+			ReadSource("Design Documents", "Data", "Item_Component_Types.json"));
+		var componentTypes = typeDocument.RootElement
+			.EnumerateArray()
+			.Select(x => x.GetProperty("Component Type Name").GetString()!)
+			.ToArray();
+		Assert.AreEqual(componentTypes.Length,
+			componentTypes.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+			"Item_Component_Types.json must not contain duplicate component type names.");
+		Assert.AreEqual(1,
+			componentTypes.Count(x => x.Equals("OfferingReceiver", StringComparison.OrdinalIgnoreCase)));
 
 		using JsonDocument materialDocument = JsonDocument.Parse(
 			ReadSource("Design Documents", "Data", "Seeded_Materials.json"));
@@ -281,8 +298,8 @@ public class EraItemDependencyCompletionTests
 		Assert.AreEqual(0, deferred.Count(seeded.Contains),
 			"Engine-dependent prototype names must remain absent from the maintained seeded catalogue.");
 
-		Assert.AreEqual(12, AntiquityDeferredItems.Length);
-		Assert.AreEqual(12, AntiquityDeferredItems.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+		Assert.AreEqual(7, AntiquityDeferredItems.Length);
+		Assert.AreEqual(7, AntiquityDeferredItems.Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		foreach (string item in AntiquityDeferredItems)
 		{
 			Assert.AreEqual(1, Regex.Matches(consolidatedLedger, $"`{Regex.Escape(item)}`").Count,
@@ -373,6 +390,64 @@ public class EraItemDependencyCompletionTests
 		{
 			Assert.AreEqual(1, catalogueNames.Count(x => x.Equals(name, StringComparison.OrdinalIgnoreCase)), name);
 		}
+	}
+
+	[TestMethod]
+	public void LiquidOfferingReceivers_ExposeExactFourProfilesAndFourStockReferences()
+	{
+		Assert.AreEqual(4, LiquidOfferingReceiverProfiles.Length);
+		Assert.AreEqual(4,
+			LiquidOfferingReceiverProfiles.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+
+		var references = ItemSeeder.AntiquityComponentGapItemStableReferencesForTesting
+			.Where(x => new[]
+			{
+				"antiquity_temple_libation_table",
+				"antiquity_oil_lamp_shrine",
+				"antiquity_oracular_tripod",
+				"antiquity_blood_offering_bowl"
+			}.Contains(x, StringComparer.OrdinalIgnoreCase))
+			.ToArray();
+		Assert.AreEqual(4, references.Length);
+		CollectionAssert.Contains(
+			ItemSeeder.AntiquityComponentGapItemStableReferencesForTesting.ToArray(),
+			"antiquity_wooden_measuring_rod",
+			"The measuring rod remains seeded as an intentional prop even though it is no longer a dependency.");
+	}
+
+	[TestMethod]
+	public void RitualLiquidCatalogues_ContainExactFamiliesAndRepresentativeAssociations()
+	{
+		var hierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
+		foreach (var path in new[]
+		         {
+			         "Materials / Liquids / Ritual Offerings",
+			         "Materials / Liquids / Ritual Offerings / Libation",
+			         "Materials / Liquids / Ritual Offerings / Lamp Oil",
+			         "Materials / Liquids / Ritual Offerings / Blood Offering"
+		         })
+		{
+			Assert.AreEqual(1, hierarchy.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+				.Count(line => line.TrimEnd('\r').Split('\t').Last().Equals(path,
+					StringComparison.OrdinalIgnoreCase)),
+				$"{path} should appear once in the maintained tag hierarchy.");
+		}
+
+		using var liquidDocument = JsonDocument.Parse(
+			ReadSource("Design Documents", "Data", "Seeded_Liquids.json"));
+		Dictionary<string, HashSet<string>> liquids = liquidDocument.RootElement
+			.EnumerateArray()
+			.ToDictionary(
+				x => x.GetProperty("Liquid Name").GetString()!,
+				x => x.GetProperty("Tags").EnumerateArray()
+					.Select(tag => tag.GetString()!)
+					.ToHashSet(StringComparer.OrdinalIgnoreCase),
+				StringComparer.OrdinalIgnoreCase);
+		Assert.IsTrue(liquids["water"].Contains("Materials / Liquids / Ritual Offerings / Libation"));
+		Assert.IsTrue(liquids["olive oil"].Contains("Materials / Liquids / Ritual Offerings / Lamp Oil"));
+		Assert.IsTrue(liquids["blood"].Contains("Materials / Liquids / Ritual Offerings / Blood Offering"));
+		Assert.IsTrue(liquids["Human Blood"]
+			.Contains("Materials / Liquids / Ritual Offerings / Blood Offering"));
 	}
 
 	[TestMethod]

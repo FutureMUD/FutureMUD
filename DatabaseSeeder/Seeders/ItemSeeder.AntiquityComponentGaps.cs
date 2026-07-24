@@ -29,6 +29,7 @@ public partial class ItemSeeder
 	private void SeedAntiquityComponentGapItems()
 	{
 		EnsureAntiquityComponentGapWritingComponents();
+		EnsureAntiquityRitualLiquidTags();
 
 		foreach (var spec in AntiquityComponentGapItemSpecs())
 		{
@@ -58,6 +59,42 @@ public partial class ItemSeeder
 				null,
 				null,
 				spec.BuilderNotes ?? "Seeded from the antiquity item component gap report.");
+		}
+	}
+
+	private void EnsureAntiquityRitualLiquidTags()
+	{
+		EnsureAntiquityTagPath("Materials / Liquids / Ritual Offerings / Libation");
+		EnsureAntiquityTagPath("Materials / Liquids / Ritual Offerings / Lamp Oil");
+		EnsureAntiquityTagPath("Materials / Liquids / Ritual Offerings / Blood Offering");
+
+		foreach (var name in new[]
+		         {
+			         "water", "spring water", "rain water", "red wine", "white wine", "watered red wine",
+			         "milk", "olive oil"
+		         })
+		{
+			if (_liquids.TryGetValue(name, out var liquid))
+			{
+				EnsureLiquidHasTag(liquid, "Libation");
+			}
+		}
+
+		foreach (var name in new[] { "olive oil", "sesame oil" })
+		{
+			if (_liquids.TryGetValue(name, out var liquid))
+			{
+				EnsureLiquidHasTag(liquid, "Lamp Oil");
+			}
+		}
+
+		foreach (var liquid in _liquids.Values
+		                               .Where(x => x.Name.Equals("blood", StringComparison.OrdinalIgnoreCase) ||
+		                                           x.Name.EndsWith(" Blood",
+			                                           StringComparison.OrdinalIgnoreCase))
+		                               .DistinctBy(x => x.Id))
+		{
+			EnsureLiquidHasTag(liquid, "Blood Offering");
 		}
 	}
 
@@ -205,7 +242,7 @@ public partial class ItemSeeder
 				"This low stone altar has a smoothed top, shallow soot marks, and enough working surface for small votive gifts, food, tablets, or tokens.",
 				SizeCategory.Large, ItemQuality.Standard, 40000.0, 90.0m, "stone", MaterialBehaviourType.Stone,
 				[ReligiousTag, FurnitureTag], ["OfferingReceiver_Antiquity_HouseholdAltar", "Destroyable_Furniture"],
-				"Receives broad item offerings and supports explicit offering burns; direct liquid libations remain future work."),
+				"Receives broad item offerings and supports explicit offering burns; use a liquid-enabled offering profile for libations."),
 			new("antiquity_votive_offering_basin", "basin", "a bronze votive offering basin",
 				"This bronze basin is smoke-darkened inside, with a low rim and tripod feet for receiving small offerings that are meant to be burned at once.",
 				SizeCategory.Normal, ItemQuality.Standard, 3800.0, 48.0m, "bronze", MaterialBehaviourType.Metal,
@@ -215,7 +252,31 @@ public partial class ItemSeeder
 				"This wooden tray has a raised lip, linen cord handles, and faint soot stains from offerings prepared beside a bier or grave.",
 				SizeCategory.Normal, ItemQuality.Standard, 1800.0, 24.0m, "cedar", MaterialBehaviourType.Wood,
 				[ReligiousTag, MedicalTag], ["Holdable", "OfferingReceiver_Antiquity_FuneralTray", "Destroyable_WoodenHeavy"],
-				"Receives funeral offerings for later manual burning; direct liquid libations remain future work."),
+				"Receives funeral offerings for later manual burning."),
+			new("antiquity_temple_libation_table", "table", "a stone temple libation table",
+				"This broad stone table is cut with shallow channels that gather poured wine, water, milk, or oil before carrying the offering away beneath its rim.",
+				SizeCategory.VeryLarge, ItemQuality.Good, 110000.0, 125.0m, "stone", MaterialBehaviourType.Stone,
+				[ReligiousTag, FurnitureTag],
+				["OfferingReceiver_Antiquity_TempleLibationTable", "Destroyable_Furniture"],
+				"Accepts tagged libation liquids through the libate command and records a compact per-item offering summary."),
+			new("antiquity_oil_lamp_shrine", "shrine", "a bronze oil-lamp shrine",
+				"This small bronze shrine surrounds a shallow oil lamp with a votive backplate. A narrow channel beside the wick receives dedicated offerings of lamp oil.",
+				SizeCategory.Large, ItemQuality.Good, 6200.0, 64.0m, "bronze", MaterialBehaviourType.Metal,
+				[ReligiousTag, MarketTag],
+				["OfferingReceiver_Antiquity_OilLampShrine", "Lantern", "Destroyable_HeavyMetal"],
+				"Combines ordinary lamp lighting with a separate tagged lamp-oil libation action; poured offerings do not refill the lamp."),
+			new("antiquity_oracular_tripod", "tripod", "a bronze oracular tripod",
+				"This tall bronze tripod supports a dark shallow bowl above three clawed legs. Its rim is engraved for petitions, libations, and signs interpreted by an oracle.",
+				SizeCategory.Large, ItemQuality.Good, 14500.0, 115.0m, "bronze", MaterialBehaviourType.Metal,
+				[ReligiousTag, CivicTag],
+				["OfferingReceiver_Antiquity_OracularTripod", "Destroyable_HeavyMetal"],
+				"Accepts tagged libations and exposes an optional text FutureProg for scenario-specific oracle responses."),
+			new("antiquity_blood_offering_bowl", "bowl", "a bronze blood-offering bowl",
+				"This heavy bronze bowl has a darkened interior, a low pouring lip, and ritual marks intended for receiving blood offerings at shrine or sacrifice.",
+				SizeCategory.Normal, ItemQuality.Good, 2600.0, 52.0m, "bronze", MaterialBehaviourType.Metal,
+				[ReligiousTag, MedicalTag],
+				["Holdable", "OfferingReceiver_Antiquity_BloodOfferingBowl", "Destroyable_HeavyMetal"],
+				"Accepts only liquids tagged as blood offerings and records a compact per-item offering summary."),
 			new("antiquity_irrigation_channel_outlet", "outlet", "an irrigation channel outlet",
 				"This shaped stone outlet guides water from a channel into fields or garden beds, with silt marks and tool-cut edges around its mouth.",
 				SizeCategory.VeryLarge, ItemQuality.Standard, 160000.0, 85.0m, "stone", MaterialBehaviourType.Stone,
@@ -296,10 +357,10 @@ public partial class ItemSeeder
 				SizeCategory.Normal, ItemQuality.Standard, 4200.0, 22.0m, "stone", MaterialBehaviourType.Stone,
 				[ToolTag, MeasureTag], ["Holdable", "MarketGoodWeight_Antiquity_StapleFood", "MeasuringInstrument_Antiquity_GrainMeasure", "Destroyable_Misc"]),
 			new("antiquity_wooden_measuring_rod", "rod", "a marked wooden measuring rod",
-				"This wooden measuring rod is marked in repeated hand and cubit divisions. It remains a reference prop until physical length measurement is supported.",
+				"This wooden measuring rod is marked in repeated hand and cubit divisions. It is a portable trade and survey prop suitable for roleplay, set dressing, and builder-authored scripts.",
 				SizeCategory.Normal, ItemQuality.Standard, 520.0, 9.0m, "oak", MaterialBehaviourType.Wood,
 				[ToolTag, MeasureTag], ["Holdable", "Destroyable_Misc"],
-				"Length measurement is intentionally deferred until item dimensions exist."),
+				"Intentionally implemented as a static prop; no dedicated engine component is planned."),
 			new("antiquity_balance_scale", "scale", "a portable balance scale",
 				"This compact balance scale has a bronze beam, cord hangers, and shallow pans for comparing small trade goods against known weights.",
 				SizeCategory.Small, ItemQuality.Standard, 1800.0, 38.0m, "bronze", MaterialBehaviourType.Metal,

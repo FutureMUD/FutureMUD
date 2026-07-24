@@ -1159,7 +1159,11 @@ public class UsefulSeederItemPackageTests
 			"IncenseBurner_Antiquity_BronzeCenser",
 			"OfferingReceiver_Antiquity_HouseholdAltar",
 			"OfferingReceiver_Antiquity_VotiveBasin",
-			"OfferingReceiver_Antiquity_FuneralTray"
+			"OfferingReceiver_Antiquity_FuneralTray",
+			"OfferingReceiver_Antiquity_TempleLibationTable",
+			"OfferingReceiver_Antiquity_OilLampShrine",
+			"OfferingReceiver_Antiquity_OracularTripod",
+			"OfferingReceiver_Antiquity_BloodOfferingBowl"
 		];
 
 		foreach (string name in expectedNames)
@@ -1226,6 +1230,21 @@ public class UsefulSeederItemPackageTests
 			(string)Definition("OfferingReceiver_Antiquity_HouseholdAltar").Element("ConsumptionMode")!);
 		Assert.AreEqual("BurnOnOffer",
 			(string)Definition("OfferingReceiver_Antiquity_VotiveBasin").Element("ConsumptionMode")!);
+		var libationDefinition = Definition("OfferingReceiver_Antiquity_TempleLibationTable");
+		Assert.IsTrue((bool)libationDefinition.Element("AcceptsLiquidOfferings")!);
+		Assert.AreEqual(0.05, (double)libationDefinition.Element("MinimumLiquidOfferingVolume")!);
+		Assert.AreEqual(2.0, (double)libationDefinition.Element("MaximumLiquidOfferingVolume")!);
+		var libationTagId = (long)libationDefinition.Element("AllowedLiquidTags")!.Element("Tag")!;
+		var lampOilTagId = (long)Definition("OfferingReceiver_Antiquity_OilLampShrine")
+			.Element("AllowedLiquidTags")!.Element("Tag")!;
+		var bloodOfferingTagId = (long)Definition("OfferingReceiver_Antiquity_BloodOfferingBowl")
+			.Element("AllowedLiquidTags")!.Element("Tag")!;
+		Assert.AreEqual("Libation",
+			context.Tags.Single(x => x.Id == libationTagId).Name);
+		Assert.AreEqual("Lamp Oil",
+			context.Tags.Single(x => x.Id == lampOilTagId).Name);
+		Assert.AreEqual("Blood Offering",
+			context.Tags.Single(x => x.Id == bloodOfferingTagId).Name);
 
 		XElement loadedDie = Definition("Dice_Antiquity_LoadedD6");
 		Assert.AreEqual(6, loadedDie.Element("Faces")!.Elements("Face").Count());
@@ -1304,6 +1323,7 @@ public class UsefulSeederItemPackageTests
 			"Container_PreIndustrial_LiddedHamper",
 			"Keyring_Large",
 			"LockingContainer_Lockbox",
+			"Lantern",
 			"Dice_d6");
 		ItemSeeder itemSeeder = new();
 
@@ -1352,7 +1372,7 @@ public class UsefulSeederItemPackageTests
 
 		GameItemProto measuringRod = LoadItem(context, "antiquity_wooden_measuring_rod");
 		CollectionAssert.DoesNotContain(ComponentNames(measuringRod), "MeasuringInstrument_Antiquity_BalanceScale",
-			"Length measurement is deferred, so the rod should remain a non-measuring prop.");
+			"The rod is intentionally a static prop and should not receive an unrelated measuring component.");
 
 		GameItemProto censer = LoadItem(context, "antiquity_bronze_incense_censer");
 		CollectionAssert.Contains(ComponentNames(censer), "IncenseBurner_Antiquity_BronzeCenser");
@@ -1371,6 +1391,21 @@ public class UsefulSeederItemPackageTests
 
 		GameItemProto funeralTray = LoadItem(context, "antiquity_funeral_offering_tray");
 		CollectionAssert.Contains(ComponentNames(funeralTray), "OfferingReceiver_Antiquity_FuneralTray");
+
+		GameItemProto libationTable = LoadItem(context, "antiquity_temple_libation_table");
+		CollectionAssert.Contains(ComponentNames(libationTable), "OfferingReceiver_Antiquity_TempleLibationTable");
+		GameItemProto lampShrine = LoadItem(context, "antiquity_oil_lamp_shrine");
+		CollectionAssert.IsSubsetOf(
+			new[] { "OfferingReceiver_Antiquity_OilLampShrine", "Lantern" },
+			ComponentNames(lampShrine));
+		GameItemProto oracularTripod = LoadItem(context, "antiquity_oracular_tripod");
+		CollectionAssert.Contains(ComponentNames(oracularTripod), "OfferingReceiver_Antiquity_OracularTripod");
+		GameItemProto bloodBowl = LoadItem(context, "antiquity_blood_offering_bowl");
+		CollectionAssert.Contains(ComponentNames(bloodBowl), "OfferingReceiver_Antiquity_BloodOfferingBowl");
+
+		var libationTag = context.Tags.Single(x => x.Name == "Libation");
+		Assert.AreEqual(1, context.LiquidsTags.Count(x => x.LiquidId == 1 && x.TagId == libationTag.Id),
+			"Rerunning the item seeder should preserve one stable water-to-libation association.");
 
 		GameItemProto bridle = LoadItem(context, "antiquity_leather_bridle");
 		CollectionAssert.IsSubsetOf(new[] { "Wear_Bridle", "RidingGear_Bridle" }, ComponentNames(bridle));

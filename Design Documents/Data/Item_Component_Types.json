@@ -1484,6 +1484,14 @@
                             ]
     },
     {
+        "Component Type Name":  "OfferingReceiver",
+        "Component Type Description":  "A ritual focus that receives item offerings and optional consumptive liquid libations",
+        "Exclusive Types":  [
+                                "IOfferingReceiver",
+                                "IContainer"
+                            ]
+    },
+    {
         "Component Type Name":  "BayonetAttachment",
         "Component Type Description":  "Marks an item as a bore-compatible plug, socket, or sword bayonet attachment",
         "Exclusive Types":  [

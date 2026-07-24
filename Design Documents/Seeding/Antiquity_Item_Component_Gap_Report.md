@@ -242,7 +242,7 @@ Items enabled or improved:
 
 These gaps originally needed new runtime component families. They are now first-class component types with seeded examples in `UsefulSeeder.ItemComponents.cs`.
 
-ItemSeeder status: the `SealStamp`, `Sealable`, and `MeasuringInstrument` item examples listed below are now seeded by `ItemSeeder.AntiquityComponentGaps.cs`. Length/cubit/survey rod examples remain prop-only until item dimensions exist.
+ItemSeeder status: the `SealStamp`, `Sealable`, and `MeasuringInstrument` item examples listed below are now seeded by `ItemSeeder.AntiquityComponentGaps.cs`. The wooden measuring rod is intentionally complete as a static prop. Decision: **will not implement** a dedicated mechanic for it; it is not waiting on a dimension system.
 
 ### SealStamp and Sealable Components
 
@@ -284,7 +284,7 @@ Items enabled or improved:
 
 ### MeasuringInstrument Component
 
-Runtime status: `MeasuringInstrument` is implemented for `Weight` and `FluidVolume` modes. Length, cubit, and surveying rod measurement remains deferred until item dimensions exist, so those objects should remain props for now.
+Runtime status: `MeasuringInstrument` is implemented for `Weight` and `FluidVolume` modes. The stock wooden measuring rod deliberately remains a roleplay and set-dressing prop, and no dimension-aware mode is planned for it.
 
 Implemented behaviour:
 
@@ -358,6 +358,8 @@ Items now enabled:
 
 ### GameSet Component
 
+Implementation status: reserved for a separate detailed system-design slice. The game-set family is the only remaining Antiquity engine dependency in this report.
+
 Missing functionality:
 
 - board games or counter games with stateful pieces, turn order, legal moves, and spectators.
@@ -383,18 +385,19 @@ Items enabled:
 
 ### Offering Receiver and Incense Burner Components
 
-Implemented V1 functionality:
+Implemented functionality:
 
 - `IncenseBurner` is a lightable transparent container for tagged incense fuel. It burns contained fuel by weight, emits room LOOK scent text, spreads ambient scent to nearby cells, and exposes scent metadata to the `tracks` command without creating movement tracks.
-- `OfferingReceiver` is a transparent/open ritual focus that accepts broad item offerings, optionally gates them by tags, supports `offer <item> at <focus>` and `burn <item> at <focus>`, consumes burned offerings by default, and can create configured residue in later prototype variants.
+- `OfferingReceiver` is a transparent/open ritual focus that accepts broad item offerings, optionally gates them by tags, supports `offer <item> at <focus>` and `burn <item> at <focus>`, consumes burned offerings by default, and can create configured residue.
 - `OfferingReceiver` runs `CanOfferProg`, `OnOfferProg`, and `OnBurnProg` with `(Character actor, Item focus, Item offering)`.
 - The event stream now exposes `OfferingReceived`, `OfferingReceivedWitness`, `OfferingBurned`, and `OfferingBurnedWitness`, with payloads `(focus, actor, offering)` and `(focus, actor, offering, witness)`.
+- Liquid-enabled receivers support `libate <amount> from <container> at <focus> [(emote)]`. The poured liquid is consumed from the open source container, admitted through allowed/blocked liquid tags and minimum/maximum volumes, and recorded in a compact per-item summary.
+- Liquid gates and hooks receive `(Character actor, Item focus, Item source, LiquidMixture liquid, Number amount)`. The component supports `CanOfferLiquidProg`, `WhyCannotOfferLiquidProg`, `OnOfferLiquidProg`, optional text-returning `OracleResponseProg`, and focus/witness liquid-offering events.
 
-Still missing or deferred:
+Explicit extension boundary:
 
-- Direct poured-liquid libations are not implemented in this pass. Use item/commodity offerings for V1; liquid-only rows remain future work until a `pour`/liquid offering path exists.
-- Ritual ownership metadata, offering history queries, spoilage counters, cooldowns, and law/clan/religion integrations remain future custom systems layered through progs/events.
-- Oil lamps remain under the ordinary lighting/smokeable/heater families unless a later ritual-lamp component is required.
+- Detailed provenance logs, ritual ownership policy, spoilage counters, cooldowns, and law/clan/religion rules remain custom systems layered through the supplied progs/events.
+- The oil-lamp shrine composes the existing `Lantern` component for lighting and fuel state. A libation is a separate ritual action and does not silently refill the lamp.
 
 Seeded support:
 
@@ -402,6 +405,10 @@ Seeded support:
 - `OfferingReceiver_Antiquity_HouseholdAltar`
 - `OfferingReceiver_Antiquity_VotiveBasin`
 - `OfferingReceiver_Antiquity_FuneralTray`
+- `OfferingReceiver_Antiquity_TempleLibationTable`
+- `OfferingReceiver_Antiquity_OilLampShrine`
+- `OfferingReceiver_Antiquity_OracularTripod`
+- `OfferingReceiver_Antiquity_BloodOfferingBowl`
 
 Items enabled:
 
@@ -410,9 +417,6 @@ Items enabled:
 - `antiquity_household_altar`
 - `antiquity_votive_offering_basin`
 - `antiquity_funeral_offering_tray`
-
-Future liquid-only or specialised ritual rows:
-
 - `antiquity_temple_libation_table`
 - `antiquity_oil_lamp_shrine`
 - `antiquity_oracular_tripod`
@@ -443,5 +447,5 @@ Items enabled:
 1. Add data-only items that use existing components cleanly: dice, lockpicks, drag aids, notice boards, and a first water-source set.
 2. Completed in `UsefulSeeder`: antiquity-specific component prototypes for `TimePiece`, `WaterSource`, `DragAid`, `Dice`, `Locksmithing Tool`, `ShopStall`, `MarketGoodWeight`, `SealStamp`, `Sealable`, and `MeasuringInstrument`, plus the existing `RidingGear` and `HitchGear` profile exports.
 3. Add matching item prototypes that use those new component prototypes and update this document with the shipped names.
-4. `IncenseBurner` and `OfferingReceiver` now cover the first ritual-offering gameplay pass, including smell-trackable incense and item-offering burn hooks.
-5. The eight tack and harness item references are now seeded using existing runtime roles. Treat direct liquid libations, ritual ownership/history, and specialised oracular/funeral law integrations as later passes. `SealStamp`/`Sealable` and the weight/fluid-volume portion of `MeasuringInstrument` are implemented; length measurement remains a future item-dimension pass.
+4. `IncenseBurner` and `OfferingReceiver` now cover incense, item-offering burn hooks, and consumptive tagged liquid libations; richer ritual policy remains an external hook-driven integration.
+5. The eight tack and harness references are seeded using existing runtime roles, and the measuring rod is intentionally a static prop. The seven game-set references are the remaining dependency and await their own detailed design.

@@ -1268,6 +1268,10 @@ public partial class CoreDataSeeder
         AddTag("Alcoholic", "Beverage");
         AddTag("Fuel", "Liquids");
         AddTag("Disgusting", "Liquids");
+        AddTag("Ritual Offerings", "Liquids");
+        AddTag("Libation", "Ritual Offerings");
+        AddTag("Lamp Oil", "Ritual Offerings");
+        AddTag("Blood Offering", "Ritual Offerings");
 
         #endregion
 

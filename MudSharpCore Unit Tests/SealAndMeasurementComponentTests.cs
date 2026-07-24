@@ -662,6 +662,9 @@ public class SealAndMeasurementComponentTests
 		Assert.AreEqual(1, incenseProto.ScentRange);
 		Assert.AreEqual(OfferingConsumptionMode.BurnOnOffer, offeringProto.ConsumptionMode);
 		Assert.AreEqual(SizeCategory.Normal, offeringProto.MaximumItemSize);
+		Assert.IsTrue(offeringProto.AcceptsLiquidOfferings);
+		Assert.AreEqual(0.05, offeringProto.MinimumLiquidOfferingVolume, 0.000001);
+		Assert.AreEqual(0.5, offeringProto.MaximumLiquidOfferingVolume, 0.000001);
 
 		Assert.IsInstanceOfType(incense, typeof(IIncenseBurner));
 		Assert.IsInstanceOfType(incense, typeof(ILightable));
@@ -673,6 +676,64 @@ public class SealAndMeasurementComponentTests
 		StringAssert.Contains(InvokeSaveToXml(offeringProto), "<ConsumptionMode>BurnOnOffer</ConsumptionMode>");
 		StringAssert.Contains(InvokeSaveToXml((GameItemComponent)incense), "<Lit>false</Lit>");
 		StringAssert.Contains(InvokeSaveToXml((GameItemComponent)offering), "<Definition");
+	}
+
+	[TestMethod]
+	public void OfferingReceiver_LiquidAdmissionConsumptionSummaryPersistenceAndCopyReset()
+	{
+		var gameworld = CreateGameworld();
+		var proto = CreateOfferingProto(gameworld.Object);
+		var parent = CreateParent(gameworld.Object, 62L, "altar");
+		parent.SetupGet(x => x.TrueLocations).Returns([]);
+		var component =
+			(OfferingReceiverGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+
+		var liquid = new Mock<ILiquid>();
+		liquid.SetupGet(x => x.Id).Returns(701L);
+		liquid.SetupGet(x => x.Name).Returns("red wine");
+		liquid.SetupGet(x => x.MaterialDescription).Returns("red wine");
+		liquid.SetupGet(x => x.Description).Returns("red wine");
+		liquid.SetupGet(x => x.Density).Returns(1.0);
+		liquid.SetupGet(x => x.DisplayColour).Returns(Telnet.Red);
+		var mixture = new LiquidMixture(liquid.Object, 0.25, gameworld.Object);
+		var container = new Mock<ILiquidContainer>();
+		container.SetupGet(x => x.IsOpen).Returns(true);
+		container.SetupGet(x => x.LiquidMixture).Returns(mixture);
+		container.SetupGet(x => x.LiquidVolume).Returns(0.25);
+		container.Setup(x => x.RemoveLiquidAmount(0.1, It.IsAny<ICharacter>(), "libate"))
+		         .Returns(new LiquidMixture(mixture, 0.1));
+		var source = CreateParent(gameworld.Object, 63L, "amphora");
+		source.Setup(x => x.GetItemType<ILiquidContainer>()).Returns(container.Object);
+		var actor = CreateActor(gameworld.Object, 64L);
+		actor.SetupGet(x => x.Name).Returns("Aemilia");
+		actor.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
+
+		Assert.IsFalse(component.CanOfferLiquid(actor.Object, source.Object, 0.01),
+			"Amounts beneath the configured minimum must be rejected.");
+		Assert.IsFalse(component.CanOfferLiquid(actor.Object, source.Object, 0.6),
+			"Amounts above the configured maximum must be rejected.");
+		Assert.IsTrue(component.CanOfferLiquid(actor.Object, source.Object, 0.1));
+		Assert.IsTrue(component.OfferLiquid(actor.Object, source.Object, 0.1, null));
+		container.Verify(x => x.RemoveLiquidAmount(0.1, actor.Object, "libate"), Times.Once);
+		Assert.AreEqual(1, component.LiquidOfferingCount);
+		Assert.AreEqual(0.1, component.TotalOfferedLiquidVolume, 0.000001);
+		Assert.AreEqual("Aemilia", component.LastOffererName);
+		Assert.AreEqual("red wine", component.LastOfferedLiquid);
+
+		var persisted = InvokeSaveToXml(component);
+		StringAssert.Contains(persisted, "<LiquidOfferingCount>1</LiquidOfferingCount>");
+		StringAssert.Contains(persisted, "<LastOffererName><![CDATA[Aemilia]]></LastOffererName>");
+		var loaded = (OfferingReceiverGameItemComponent)proto.LoadComponent(
+			new DbGameItemComponent { Definition = persisted },
+			CreateParent(gameworld.Object, 65L, "loaded altar").Object);
+		Assert.AreEqual(1, loaded.LiquidOfferingCount);
+		Assert.AreEqual(0.1, loaded.LastOfferedLiquidVolume, 0.000001);
+
+		var copy = (OfferingReceiverGameItemComponent)component.Copy(
+			CreateParent(gameworld.Object, 66L, "copied altar").Object, true);
+		Assert.AreEqual(0, copy.LiquidOfferingCount);
+		Assert.AreEqual(0.0, copy.TotalOfferedLiquidVolume, 0.000001);
+		Assert.IsNull(copy.LastOffererId);
 	}
 
 	[TestMethod]
@@ -891,6 +952,8 @@ public class SealAndMeasurementComponentTests
 				ComponentProtoModel(104, "OfferingReceiver", new XElement("Definition",
 					new XElement("AllowedTags"),
 					new XElement("BlockedTags"),
+					new XElement("AllowedLiquidTags"),
+					new XElement("BlockedLiquidTags"),
 					new XElement("MaximumContentsWeight", 15000.0),
 					new XElement("MaximumItemSize", (int)SizeCategory.Normal),
 					new XElement("ConsumptionMode", "BurnOnOffer"),
@@ -900,7 +963,18 @@ public class SealAndMeasurementComponentTests
 					new XElement("OnBurnProg", 0),
 					new XElement("AcceptEcho", new XCData("@ lay|lays $1 in $2.")),
 					new XElement("BurnEcho", new XCData("@ burn|burns $1 in $2.")),
-					new XElement("RejectEcho", new XCData("$2 rejects $1."))).ToString()),
+					new XElement("RejectEcho", new XCData("$2 rejects $1.")),
+					new XElement("AcceptsLiquidOfferings", true),
+					new XElement("MinimumLiquidOfferingVolume", 0.05),
+					new XElement("MaximumLiquidOfferingVolume", 0.5),
+					new XElement("CanOfferLiquidProg", 0),
+					new XElement("WhyCannotOfferLiquidProg", 0),
+					new XElement("OnOfferLiquidProg", 0),
+					new XElement("OracleResponseProg", 0),
+					new XElement("LiquidAcceptEcho",
+						new XCData("@ pour|pours {0} from $1 onto $2 as a libation.")),
+					new XElement("LiquidRejectEcho",
+						new XCData("$2 rejects the attempted libation from $1."))).ToString()),
 				gameworld
 			},
 			CultureInfo.InvariantCulture)!;

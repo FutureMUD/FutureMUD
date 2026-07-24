@@ -54,7 +54,7 @@ The presence of an item in the catalogue means that builders may admit it where 
 - [Medieval military reference](./Medieval_Military_Seeder_Design_Reference.md): source of the 138 direct admissions and the 52 source rows promoted through shared military-support aliases.
 - [Shared pre-industrial baseline reference](./PreIndustrial_Item_Seeder_Design_Reference.md) and [alias catalogue](./PreIndustrial_Item_Seeder_Alias_Catalogue.md): live `preindustrial_*` dependencies.
 - [Military source dependency ledger](./FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Dependency_Ledger.md): the original 156 military requests and their current 66-supported/90-deferred partition.
-- [Consolidated item-content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md): the authoritative backlog for the 90 remaining military deferrals and 12 dependent Antiquity item references.
+- [Consolidated item-content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md): the authoritative backlog for the 90 remaining military deferrals and 7 dependent Antiquity game-set references.
 
 ## Reuse architecture
 

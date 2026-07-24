@@ -7910,5 +7910,40 @@
         "Component Name":  "MilitaryStandard_SignalFlag",
         "Component Description":  "A plantable signal flag with persistent capture and recovery state.",
         "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_HouseholdAltar",
+        "Component Description":  "Turns an item into a household altar that receives broad offerings and supports explicit burning.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_VotiveBasin",
+        "Component Description":  "Turns an item into a votive basin that burns offerings immediately when offered.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_FuneralTray",
+        "Component Description":  "Turns an item into a funeral offering tray that can hold and ritually burn broad item offerings.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_TempleLibationTable",
+        "Component Description":  "Turns an item into a temple libation table that accepts and records tagged liquid libations.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_OilLampShrine",
+        "Component Description":  "Turns an item into a lamp shrine that accepts and records offerings of tagged lamp oils.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_OracularTripod",
+        "Component Description":  "Turns an item into an oracular tripod with liquid libations and an optional oracle response prog.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_BloodOfferingBowl",
+        "Component Description":  "Turns an item into a ritual bowl that accepts and records tagged blood offerings.",
+        "Component Type":  "OfferingReceiver"
     }
 ]

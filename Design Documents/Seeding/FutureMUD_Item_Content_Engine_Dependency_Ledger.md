@@ -7,7 +7,7 @@ This is the consolidated backlog for seeded item requests that the current engin
 - Deferred item-component prototypes: **90**.
 - Early Modern military partition: **66 supported** and **90 deferred**, from the original 156 requests.
 - Additional Renaissance household deferrals: **0**.
-- Antiquity item references awaiting engine work: **12**.
+- Antiquity item references awaiting engine work: **7**.
 - New runtime component families still proposed: **4**, with **45** directly dependent military prototypes.
 - This ledger is a backlog only. It does not authorize placeholder components, runtime APIs, database migrations, or item rows that advertise unsupported behaviour.
 
@@ -26,6 +26,8 @@ The first tranche is implemented, seeded idempotently, exported, documented, and
 - General `Instrument` provides skill-checked sustained playing, posture/hand/use-mode admission, stamina ticks, route-aware audio, interruption, emotes, and FutureProg hooks. Nine Antiquity instruments are seeded against it.
 - `SignalInstrument` specializes `Instrument` with named calls, per-item cooldowns, stamina costs, deliberately unrecognisable failed audio, and a success hook. Four profiles and twelve source items are seeded.
 - `MilitaryStandard` supplies identity, recognition, optional unit/ship association, planting, named flag signals, durable ownership-aware custody, distinct capture counting, recovery, transition hooks, administrator state controls, and FutureProg queries. Six profiles and eighteen source items are seeded; no implicit morale or scoring effect is added.
+- `OfferingReceiver` now accepts consumptive liquid libations through `libate`, with allowed/blocked liquid-tag admission, volume bounds, FutureProg gates/hooks, optional oracle text, events, and a compact per-item summary. Four Antiquity ritual profiles and items are seeded.
+- `antiquity_wooden_measuring_rod` is intentionally complete as a static holdable prop. Decision: **will not implement** a dedicated measuring-rod mechanic or a length/dimension engine solely for this item, so it is not an engine dependency.
 
 ### Crossbow magazine and emplacement behaviour — 3 prototypes
 
@@ -203,7 +205,7 @@ Implemented with prototype defaults plus per-copy identity and association overr
 
 `SignalInstrument` is a military specialization of the general `Instrument` capability, sharing audible performance, skill, range, posture, hand, stamina, and echo infrastructure while adding named command patterns and cooldown-limited signal hooks.
 
-## Antiquity engine gaps — 12 dependent item references
+## Antiquity engine gaps — 7 dependent item references
 
 These are item references, not additional names in the 90-prototype total.
 
@@ -219,17 +221,11 @@ The common foundation now supports playable audible instruments, performance qua
 
 Required behaviour includes persistent game state, players and spectators, legal move or move-log handling, reset/concede flow, and optional gambling or skill hooks.
 
-### Dimension-aware `MeasuringInstrument` — 1 item
+This family is deliberately reserved for a separate detailed system-design slice rather than being folded into the ritual-content work.
 
-`antiquity_wooden_measuring_rod`
+### Completed liquid `OfferingReceiver` extension — 4 supported items
 
-The current measuring family supports weight and fluid volume. Length/cubit/survey measurement requires item dimensions and a corresponding measurement mode.
-
-### Extended `OfferingReceiver` — 4 items
-
-`antiquity_temple_libation_table`, `antiquity_oil_lamp_shrine`, `antiquity_oracular_tripod`, `antiquity_blood_offering_bowl`
-
-These require direct poured-liquid libations and/or specialized lamp, oracle, blood-offering, ritual ownership/history, cooldown, law, clan, or religion integration beyond the existing item-offering V1.
+`antiquity_temple_libation_table`, `antiquity_oil_lamp_shrine`, `antiquity_oracular_tripod`, and `antiquity_blood_offering_bowl` are seeded against exact liquid-enabled `OfferingReceiver_Antiquity_*` profiles. The oil-lamp shrine composes the existing `Lantern` capability rather than duplicating lighting state. Ritual ownership, detailed history, cooldown, law, clan, and religion policy remain external FutureProg/event integrations and are not required to represent these stock items honestly.
 
 ## Completion boundary
 

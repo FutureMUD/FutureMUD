@@ -3,6 +3,8 @@ using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 
+#nullable enable
+
 namespace MudSharp.GameItems.Components;
 
 public class ArmourGameItemComponent : GameItemComponent, IArmour, IConditionDegradingComponent
@@ -15,6 +17,14 @@ public class ArmourGameItemComponent : GameItemComponent, IArmour, IConditionDeg
     public void UseCondition(ItemConditionUseContext context)
     {
         _prototype.ConditionMaintenance.UseCondition(Parent, context);
+    }
+
+    internal static ItemConditionUseContext CreateArmourUseContext(IDamage damage, IDamage? passThroughDamage)
+    {
+        var passedAmount = passThroughDamage?.DamageAmount ?? 0.0;
+        return new ItemConditionUseContext(ItemConditionUseKind.ArmourAbsorb,
+            damage.PenetrationOutcome, 0.0, damage.DamageAmount,
+            Math.Max(0.0, damage.DamageAmount - passedAmount), passedAmount);
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -44,31 +54,27 @@ public class ArmourGameItemComponent : GameItemComponent, IArmour, IConditionDeg
 
     public IDamage SufferDamage(IDamage damage, ref List<IWound> wounds)
     {
-        ICharacter characterOwner = Parent.GetItemType<WearableGameItemComponent>()?.WornBy?.Actor;
+        var characterOwner = Parent.GetItemType<WearableGameItemComponent>()?.WornBy?.Actor;
         if (characterOwner == null)
         {
             return damage;
         }
 
         var result = _prototype.ArmourType.AbsorbDamage(damage, this, characterOwner, ref wounds, false);
-        UseCondition(new ItemConditionUseContext(ItemConditionUseKind.ArmourAbsorb,
-            damage.PenetrationOutcome, 0.0, damage.DamageAmount,
-            Math.Max(0.0, damage.DamageAmount - result.DamageAmount), result.DamageAmount));
+        UseCondition(CreateArmourUseContext(damage, result));
         return result;
     }
 
     public IDamage PassiveSufferDamage(IDamage damage, ref List<IWound> wounds)
     {
-        ICharacter characterOwner = Parent.GetItemType<WearableGameItemComponent>()?.WornBy?.Actor;
+        var characterOwner = Parent.GetItemType<WearableGameItemComponent>()?.WornBy?.Actor;
         if (characterOwner == null)
         {
             return damage;
         }
 
         var result = _prototype.ArmourType.AbsorbDamage(damage, this, characterOwner, ref wounds, true);
-        UseCondition(new ItemConditionUseContext(ItemConditionUseKind.ArmourAbsorb,
-            damage.PenetrationOutcome, 0.0, damage.DamageAmount,
-            Math.Max(0.0, damage.DamageAmount - result.DamageAmount), result.DamageAmount));
+        UseCondition(CreateArmourUseContext(damage, result));
         return result;
     }
 

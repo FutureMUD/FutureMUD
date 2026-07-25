@@ -39,6 +39,8 @@ For ordinary external stock-human hits, the runtime order is:
 Important runtime details:
 
 - Worn layers are processed outermost first.
+- Worn armour returns a null pass-through packet when it fully dissipates or absorbs the hit. This is the normal
+  "no damage remains" result and terminates further body damage processing.
 - Racial natural armour applies only to ordinary external hits.
 - Bodypart natural armour creates two outputs:
   - the struck bodypart wound packet

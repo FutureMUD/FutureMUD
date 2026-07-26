@@ -44,11 +44,31 @@ public sealed partial class SpatialAreaTransferService
 			.DistinctBy(x => x.Id)
 			.OrderBy(x => x.Id)
 			.ToList();
+		var temporaryCells = allRooms
+			.SelectMany(x => x.Cells)
+			.Where(x => x.Temporary)
+			.DistinctBy(x => x.Id)
+			.OrderBy(x => x.Id)
+			.ToList();
+		foreach (var temporaryCell in temporaryCells)
+		{
+			omissions.Add(new SpatialPackageOmission
+			{
+				Code = "temporary-cell",
+				Message = $"Temporary cell #{temporaryCell.Id:N0} ({temporaryCell.Name}) was skipped because dwelling and other temporary state is not portable."
+			});
+		}
+
 		var rooms = allRooms
-			.Where(x => x.Cells.Any())
+			.Where(x => x.Cells.Any(cell => !cell.Temporary))
 			.ToList();
 		foreach (var emptyRoom in allRooms.Except(rooms))
 		{
+			if (emptyRoom.Cells.Any())
+			{
+				continue;
+			}
+
 			var omission = $"Room #{emptyRoom.Id:N0} at ({emptyRoom.X:N0}, {emptyRoom.Y:N0}, {emptyRoom.Z:N0}) " +
 			               $"in zone '{emptyRoom.Zone.Name}' was skipped because it contains no cells.";
 			omissions.Add(new SpatialPackageOmission { Code = "empty-room", Message = omission });
@@ -56,6 +76,7 @@ public sealed partial class SpatialAreaTransferService
 
 		var cells = rooms
 			.SelectMany(x => x.Cells)
+			.Where(x => !x.Temporary)
 			.DistinctBy(x => x.Id)
 			.OrderBy(x => x.Id)
 			.ToList();
@@ -68,6 +89,12 @@ public sealed partial class SpatialAreaTransferService
 		    cells.Count > SpatialAreaPackageSerializer.MaximumCells)
 		{
 			return Failure("The selected zones exceed the package safety limits.", diagnostics, "zone-too-large");
+		}
+
+		foreach (var zone in selectedZones.Where(x => !cells.Any(cell => cell.Id == x.DefaultCell.Id)))
+		{
+			diagnostics.Add(Error("unexportable-default-cell",
+				$"Zone '{zone.Name}' has default cell #{zone.DefaultCell.Id:N0}, which cannot be exported."));
 		}
 
 		diagnostics.AddRange(ValidateExportableCells(cells));
@@ -94,6 +121,23 @@ public sealed partial class SpatialAreaTransferService
 			.Select((cell, index) => (cell.Id, Key: $"cell-{index + 1:D5}"))
 			.ToDictionary(x => x.Id, x => x.Key);
 		var cellIds = cellKeys.Keys.ToHashSet();
+		var areas = cells
+			.SelectMany(x => x.Areas)
+			.DistinctBy(x => x.Id)
+			.OrderBy(x => x.Id)
+			.Where(area => area.Rooms.All(room => roomKeys.ContainsKey(room.Id)))
+			.ToList();
+		foreach (var area in cells
+			         .SelectMany(x => x.Areas)
+			         .DistinctBy(x => x.Id)
+			         .Except(areas))
+		{
+			omissions.Add(new SpatialPackageOmission
+			{
+				Code = "partial-area-membership",
+				Message = $"Area group '{area.Name}' was skipped because it also contains rooms outside the package."
+			});
+		}
 
 		var allSeenExits = cells
 			.SelectMany(cell => cell.Gameworld.ExitManager.GetExitsFor(cell, cell.CurrentOverlay))
@@ -145,9 +189,11 @@ public sealed partial class SpatialAreaTransferService
 				var name = side is INonCardinalCellExit nonCardinal
 					? nonCardinal.Verb
 					: side.OutboundDirection.DescribeEnum().ToLowerInvariant();
+				var reason = destination.Temporary
+					? "the destination cell is temporary."
+					: $"destination zone '{destination.Zone.Name}' was not selected.";
 				var message = $"Exit \"{name}\" from cell #{origin.Id:N0} ({origin.Name}) to cell " +
-				              $"#{destination.Id:N0} ({destination.Name}) was skipped because destination zone " +
-				              $"'{destination.Zone.Name}' was not selected.";
+				              $"#{destination.Id:N0} ({destination.Name}) was skipped because {reason}";
 				omissions.Add(new SpatialPackageOmission { Code = "boundary-exit", Message = message });
 			}
 		}
@@ -190,6 +236,7 @@ public sealed partial class SpatialAreaTransferService
 			rooms,
 			cells,
 			internalExits,
+			areas,
 			zoneKeys,
 			roomKeys,
 			cellKeys,
@@ -233,6 +280,7 @@ public sealed partial class SpatialAreaTransferService
 		IReadOnlyList<IRoom> rooms,
 		IReadOnlyList<ICell> cells,
 		IReadOnlyList<IExit> exits,
+		IReadOnlyList<IArea> areas,
 		IReadOnlyDictionary<long, string> zoneKeys,
 		IReadOnlyDictionary<long, string> roomKeys,
 		IReadOnlyDictionary<long, string> cellKeys,
@@ -314,6 +362,19 @@ public sealed partial class SpatialAreaTransferService
 			Zone = zoneDefinitions[0],
 			SourceZones = sources,
 			Zones = zoneDefinitions,
+			Areas = areas
+				.Select(area => new SpatialAreaDefinition
+				{
+					Key = $"area-{area.Id:D5}",
+					SourceId = area.Id,
+					Name = area.Name,
+					WeatherController = Reference(area.WeatherController),
+					RoomKeys = area.Rooms
+						.OrderBy(x => x.Id)
+						.Select(x => roomKeys[x.Id])
+						.ToList()
+				})
+				.ToList(),
 			Omissions = omissions.ToList(),
 			Rooms = rooms
 				.OrderBy(x => x.Id)
@@ -452,15 +513,6 @@ public sealed partial class SpatialAreaTransferService
 	{
 		foreach (var cell in cells)
 		{
-			foreach (var area in cell.Areas.OrderBy(x => x.Name))
-			{
-				omissions.Add(new SpatialPackageOmission
-				{
-					Code = "area-membership",
-					Message = $"Cell #{cell.Id:N0} ({cell.Name}) will not retain membership in area group '{area.Name}'."
-				});
-			}
-
 			var characterCount = cell.Characters.Count();
 			var itemCount = cell.GameItems.Count();
 			if (characterCount > 0 || itemCount > 0)

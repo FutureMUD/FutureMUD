@@ -143,6 +143,18 @@ public static class SpatialAreaPackageSerializer
 			return diagnostics;
 		}
 
+		if (package.Version >= 3 && package.Areas is null)
+		{
+			diagnostics.Add(Error("missing-areas", "Version 3 packages must contain their area collection."));
+			return diagnostics;
+		}
+
+		if (package.Version >= 3 && package.Areas.Cast<object?>().Any(x => x is null))
+		{
+			diagnostics.Add(Error("null-area-entry", "Area collections may not contain null entries."));
+			return diagnostics;
+		}
+
 		if (package.Rooms.Count is < 1 or > MaximumRooms)
 		{
 			diagnostics.Add(Error("invalid-room-count",
@@ -389,6 +401,7 @@ public static class SpatialAreaPackageSerializer
 		}
 
 		ValidateZones(package, zones, cellKeys, diagnostics);
+		ValidateAreas(package, roomKeys, diagnostics);
 
 		return diagnostics;
 	}
@@ -496,6 +509,51 @@ public static class SpatialAreaPackageSerializer
 		{
 			diagnostics.Add(Error("duplicate-zone-name",
 				$"The package contains duplicate zone name '{duplicateName.Key}'."));
+		}
+	}
+
+	private static void ValidateAreas(
+		SpatialAreaPackage package,
+		IReadOnlySet<string> roomKeys,
+		ICollection<SpatialAreaTransferDiagnostic> diagnostics)
+	{
+		if (package.Version < 3)
+		{
+			return;
+		}
+
+		ValidateUniqueKeys(package.Areas.Select(x => x.Key), "area", diagnostics);
+		foreach (var area in package.Areas)
+		{
+			if (string.IsNullOrWhiteSpace(area.Name))
+			{
+				diagnostics.Add(Error("missing-area-name", $"Package area '{area.Key}' must have a name."));
+			}
+
+			if (area.RoomKeys is null || area.RoomKeys.Count == 0)
+			{
+				diagnostics.Add(Error("invalid-area-rooms",
+					$"Package area '{area.Key}' must contain at least one room."));
+				continue;
+			}
+
+			if (area.RoomKeys.Any(x => !roomKeys.Contains(x)))
+			{
+				diagnostics.Add(Error("orphan-area-room",
+					$"Package area '{area.Key}' references a room outside the package."));
+			}
+
+			if (area.RoomKeys.Count != area.RoomKeys.Distinct(StringComparer.Ordinal).Count())
+			{
+				diagnostics.Add(Error("duplicate-area-room",
+					$"Package area '{area.Key}' lists the same room more than once."));
+			}
+
+			if (area.WeatherController is not null && string.IsNullOrWhiteSpace(area.WeatherController.Name))
+			{
+				diagnostics.Add(Error("invalid-area-weather-controller",
+					$"Package area '{area.Key}' has a weather controller without a name."));
+			}
 		}
 	}
 

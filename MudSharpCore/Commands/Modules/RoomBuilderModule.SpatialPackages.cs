@@ -14,7 +14,7 @@ internal partial class RoomBuilderModule
 	private const string SpatialPackageHelpText =
 		@"The #3SPATIALPACKAGE#0 command exports and imports portable, versioned spatial-area packages.
 
-Version 2 transfers one or more zones: room coordinates, cells, active overlays, route-cell geometry, internal and selected cross-zone exits, zone geography and environment, tags, local covers, and magic-resource state. Imports always create new zones and remap all room, cell, overlay, route and exit IDs. They never merge into or overwrite existing spatial content. Version 1 packages remain importable.
+Version 3 transfers one or more zones: room coordinates, cells, active overlays, route-cell geometry, internal and selected cross-zone exits, zone geography and environment, tags, local covers, magic-resource state, and fully-contained area groups. Imports always create new zones and remap all room, cell, overlay, route, exit and area IDs. They never merge into or overwrite existing spatial content. Versions 1 and 2 packages remain importable.
 
 Files are read and written only inside the server's #6Spatial Packages#0 directory.
 
@@ -23,7 +23,7 @@ Files are read and written only inside the server's #6Spatial Packages#0 directo
 	#3spatialpackage validate <file> <target shard> [new zone name]#0 - preflights integrity and dependencies
 	#3spatialpackage import <file> <target shard> confirm [new zone name]#0 - creates the validated zone(s)
 
-You must be editing an under-design #3CELL PACKAGE#0 to validate or import. A new-name override is only valid for a single-zone package. Quote multi-word zone, shard and file arguments where required. Spatial packages refuse hosted vehicle interiors, temporary cells, agriculture fields, persisted cell effects, surface liquids, installed door items, and external fall destinations rather than silently losing those dependencies. Every deliberate omission is listed by export, validation and import.";
+You must be editing an under-design #3CELL PACKAGE#0 to validate or import. A new-name override is only valid for a single-zone package. Quote multi-word zone, shard and file arguments where required. Spatial packages skip temporary cells such as dwellings, but refuse hosted vehicle interiors, agriculture fields, persisted cell effects, surface liquids, installed door items, and external fall destinations rather than silently losing those dependencies. Every deliberate omission is listed by export, validation and import.";
 
 	[PlayerCommand("SpatialPackage", "spatialpackage")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]

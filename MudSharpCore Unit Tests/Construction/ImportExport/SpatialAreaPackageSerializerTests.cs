@@ -164,6 +164,54 @@ public class SpatialAreaPackageSerializerTests
 	}
 
 	[TestMethod]
+	public void SerializeDeserialize_Version3PackageWithFullyContainedArea_PreservesAreaMembership()
+	{
+		var package = CreateValidVersion2Package();
+		package.Version = 3;
+		package.Areas =
+		[
+			new SpatialAreaDefinition
+			{
+				Key = "area-00001",
+				SourceId = 50,
+				Name = "Courtyard",
+				WeatherController = new SpatialNamedReference { SourceId = 9, Name = "Temperate" },
+				RoomKeys = ["room-00001", "room-00002"]
+			}
+		];
+
+		var json = SpatialAreaPackageSerializer.Serialize(package);
+		var result = SpatialAreaPackageSerializer.Deserialize(json);
+
+		Assert.IsTrue(result.Success,
+			string.Join(Environment.NewLine, result.Diagnostics.Select(x => $"{x.Code}: {x.Message}")));
+		Assert.IsNotNull(result.Package);
+		Assert.AreEqual(1, result.Package.Areas.Count);
+		Assert.AreEqual("Courtyard", result.Package.Areas[0].Name);
+		CollectionAssert.AreEqual(new[] { "room-00001", "room-00002" }, result.Package.Areas[0].RoomKeys);
+	}
+
+	[TestMethod]
+	public void Validate_Version3AreaWithMissingRoom_ReportsAreaClosureError()
+	{
+		var package = CreateValidVersion2Package();
+		package.Version = 3;
+		package.Areas =
+		[
+			new SpatialAreaDefinition
+			{
+				Key = "area-00001",
+				Name = "Courtyard",
+				RoomKeys = ["room-missing"]
+			}
+		];
+
+		var diagnostics = SpatialAreaPackageSerializer.Validate(package);
+
+		Assert.IsTrue(diagnostics.Any(x => x.Code == "orphan-area-room"));
+	}
+
+	[TestMethod]
 	public void SerializeDeserialize_Version2RouteCell_RoundTripsGeometryAndAnchor()
 	{
 		var package = CreateValidVersion2Package();

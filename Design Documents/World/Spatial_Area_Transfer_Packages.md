@@ -12,7 +12,7 @@ Spatial area transfer packages let a senior administrator export one or more sel
 - unsupported state blocks export when silently dropping it would make the result misleading;
 - every deliberate omission is retained in the package and shown in-game.
 
-The file suffix is `.fmsa.json`. Files are read and written only beneath the server's `Spatial Packages` directory. Package names cannot contain a path. Versions 1 and 2 are accepted.
+The file suffix is `.fmsa.json`. Files are read and written only beneath the server's `Spatial Packages` directory. Package names cannot contain a path. Versions 1 through 3 are accepted.
 
 ## Builder Workflow
 
@@ -39,12 +39,12 @@ The target overlay package must be `Under Design`. The target shard must already
 
 `validate` is read-only. `import` repeats the complete preflight and also requires the literal `confirm` keyword. All selected zones and their cross-zone links use one serializable transaction, with every zone name rechecked inside the transaction.
 
-## Version 2 Payload
+## Version 3 Payload
 
 | Field | Purpose |
 | --- | --- |
 | `format` | Constant `futuremud-spatial-area`. |
-| `version` | Schema version. Versions 1 and 2 are accepted. |
+| `version` | Schema version. Versions 1 through 3 are accepted. |
 | `integritySha256` | SHA-256 of the canonical payload with this field empty. |
 | `createdUtc` | Export timestamp. |
 | `source` / `sourceZones` | Diagnostic source IDs and names for each zone, shard, and active overlay package. The singular field preserves version-1 context. Source IDs are never reused. |
@@ -52,6 +52,7 @@ The target overlay package must be `Under Design`. The target shard must already
 | `rooms` | Deterministic room keys, diagnostic source IDs, owning zone keys, and integer coordinates. |
 | `cells` | Deterministic cell keys, parent rooms, active overlay data, route-cell data, explicit forage override, tags, local covers, and magic-resource amounts. |
 | `exits` | Every exit whose endpoints are both selected, including cross-zone links, with directional sides, door capability, size limits, climb/fall state, travel multiplier, and blocked layers. |
+| `areas` | Fully-contained `AREA` groups, their room membership, and optional weather-controller reference. |
 | `omissions` | Structured codes and exact builder-facing descriptions of content deliberately excluded. |
 
 Each export assigns keys in stable source-ID order:
@@ -126,7 +127,6 @@ The importer allocates rows in dependency order: zones and non-empty rooms, cell
 Export fails when selected content contains state that cannot be represented faithfully:
 
 - hosted vehicle interiors;
-- temporary cells;
 - agriculture fields;
 - persisted cell effects;
 - persistent surface-liquid state;
@@ -135,9 +135,10 @@ Export fails when selected content contains state that cannot be represented fai
 
 The following content is omitted because it is not self-contained spatial topology:
 
+- temporary cells (including dwelling interiors), their rooms, and their links;
 - characters and game items;
 - exits whose other endpoint is in an unselected zone;
-- membership in cross-cutting `AREA` groups;
+- any `AREA` group that also contains a room outside the selected zones;
 - cell event hooks.
 
 Exit door capability and permitted door size are transferred, but an installed physical door item is not.
@@ -146,10 +147,11 @@ Export, validation, and import enumerate omissions in the in-game result. A boun
 
 ## Planned Extensions
 
-1. Portable cross-cutting `AREA` definitions and area weather.
-2. Optional boundary-link manifests that a builder can explicitly reconnect after import.
-3. Installed door and selected static item packaging with their complete item-prototype dependency graphs.
-4. Agriculture, surface-liquid, ranged-cover state beyond local profile references, and selected portable effects.
-5. Additional overlay revisions and review history.
+Fully-contained `AREA` groups, including their weather-controller reference, are carried in version 3. Temporary cells (such as dwelling interiors) are deliberately skipped, together with their rooms and links.
+
+1. Optional boundary-link manifests that a builder can explicitly reconnect after import.
+2. Installed door and selected static item packaging with their complete item-prototype dependency graphs.
+3. Agriculture, surface-liquid, ranged-cover state beyond local profile references, and selected portable effects.
+4. Additional overlay revisions and review history.
 
 Older servers must reject later schema versions until they explicitly implement them.

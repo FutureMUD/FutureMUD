@@ -20,6 +20,7 @@ public sealed partial class SpatialAreaTransferService
 		var gameworld = actor.Gameworld;
 		var dbZones = new Dictionary<string, Models.Zone>(StringComparer.Ordinal);
 		var dbRooms = new Dictionary<string, Models.Room>(StringComparer.Ordinal);
+		var dbAreas = new Dictionary<string, Models.Areas>(StringComparer.Ordinal);
 		var dbCells = new Dictionary<string, Models.Cell>(StringComparer.Ordinal);
 		var databaseCommitted = false;
 		try
@@ -83,6 +84,28 @@ public sealed partial class SpatialAreaTransferService
 					};
 					dbRooms.Add(room.Key, dbRoom);
 					FMDB.Context.Rooms.Add(dbRoom);
+				}
+
+				FMDB.Context.SaveChanges();
+
+				foreach (var area in package.Areas)
+				{
+					var dbArea = new Models.Areas
+					{
+						Name = area.Name,
+						WeatherControllerId = preflight.AreaWeatherControllers[area.Key]?.Id
+					};
+					foreach (var roomKey in area.RoomKeys)
+					{
+						dbArea.AreasRooms.Add(new AreasRooms
+						{
+							Area = dbArea,
+							Room = dbRooms[roomKey]
+						});
+					}
+
+					dbAreas.Add(area.Key, dbArea);
+					FMDB.Context.Areas.Add(dbArea);
 				}
 
 				FMDB.Context.SaveChanges();
@@ -319,6 +342,12 @@ public sealed partial class SpatialAreaTransferService
 					}
 				}
 
+			}
+
+			foreach (var area in package.Areas)
+			{
+				var runtimeArea = new Area(dbAreas[area.Key], gameworld);
+				gameworld.Add(runtimeArea);
 			}
 
 			foreach (var runtimeZone in runtimeZones.Values)

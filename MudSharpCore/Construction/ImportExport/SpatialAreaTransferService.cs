@@ -44,6 +44,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		public required IReadOnlyDictionary<string,
 			IReadOnlyDictionary<string, (IClock Clock, IMudTimeZone TimeZone)>> TimeZonesByZone { get; init; }
 		public required IReadOnlyDictionary<string, IWeatherController?> WeatherControllers { get; init; }
+		public required IReadOnlyDictionary<string, IWeatherController?> AreaWeatherControllers { get; init; }
 		public IWeatherController? WeatherController { get; init; }
 		public List<SpatialAreaTransferDiagnostic> Diagnostics { get; } = [];
 	}
@@ -566,6 +567,26 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 			weatherControllers[key] = weatherController;
 		}
 
+		var areaWeatherControllers = new Dictionary<string, IWeatherController?>(StringComparer.Ordinal);
+		foreach (var area in package.Areas)
+		{
+			IWeatherController? weatherController = null;
+			if (area.WeatherController is not null)
+			{
+				weatherController = actor.Gameworld.WeatherControllers
+					.FirstOrDefault(x => x.Name.Equals(
+						area.WeatherController.Name,
+						StringComparison.InvariantCultureIgnoreCase));
+				if (weatherController is null)
+				{
+					diagnostics.Add(Error("missing-area-weather-controller",
+						$"Required weather controller '{area.WeatherController.Name}' for area '{area.Name}' does not exist in the target installation."));
+				}
+			}
+
+			areaWeatherControllers[area.Key] = weatherController;
+		}
+
 		var timeZonesByZone = zones
 			.Select((zone, index) =>
 			{
@@ -611,7 +632,8 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 			TimeZones = timeZones,
 			TimeZonesByZone = timeZonesByZone,
 			WeatherController = firstWeatherController,
-			WeatherControllers = weatherControllers
+			WeatherControllers = weatherControllers,
+			AreaWeatherControllers = areaWeatherControllers
 		};
 		preflight.Diagnostics.AddRange(diagnostics);
 		return preflight;
@@ -685,16 +707,6 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 			}
 		}
 
-		var areaCount = cells
-			.SelectMany(x => x.Areas)
-			.Distinct()
-			.Count();
-		if (areaCount > 0)
-		{
-			diagnostics.Add(Warning("area-membership-omitted",
-				$"Membership in {areaCount:N0} cross-cutting area group(s) is not imported by package version 1."));
-		}
-
 		var characterCount = cells.Sum(x => x.Characters.Count());
 		var itemCount = cells.Sum(x => x.GameItems.Count());
 		if (characterCount > 0 || itemCount > 0)
@@ -707,7 +719,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		if (hookCount > 0)
 		{
 			diagnostics.Add(Warning("hooks-omitted",
-				$"{hookCount:N0} installed cell hook reference(s) are not spatial topology and are not included in package version 1."));
+				$"{hookCount:N0} installed cell hook reference(s) are not spatial topology and are not included in package version {SpatialAreaPackage.CurrentVersion:N0}."));
 		}
 
 		return diagnostics;

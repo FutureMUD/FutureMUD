@@ -1768,6 +1768,7 @@ public partial class Cell : Location, IDisposable, ICell
 
     public void Destroy(ICell fallbackCell)
     {
+        IRoom room = Room;
         Action action = DestroyWithDatabaseAction(fallbackCell);
         Gameworld.SaveManager.Flush();
         Gameworld.LogManager.FlushLog();
@@ -1783,6 +1784,19 @@ public partial class Cell : Location, IDisposable, ICell
                 {
                     FMDB.Context.Cells.Remove(dbitem);
                     FMDB.Context.SaveChanges();
+                }
+
+                if (!room.Cells.Any())
+                {
+                    Models.Room dbRoom = FMDB.Context.Rooms.Find(room.Id);
+                    if (dbRoom != null)
+                    {
+                        FMDB.Context.Rooms.Remove(dbRoom);
+                        FMDB.Context.SaveChanges();
+                    }
+
+                    room.Zone.Unregister(room);
+                    Gameworld.Destroy(room);
                 }
             }
         }

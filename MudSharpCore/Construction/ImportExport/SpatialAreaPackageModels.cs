@@ -8,7 +8,7 @@ public sealed class SpatialAreaPackage
 {
 	public const string CurrentFormat = "futuremud-spatial-area";
 	public const int MinimumSupportedVersion = 1;
-	public const int CurrentVersion = 2;
+	public const int CurrentVersion = 3;
 
 	public string Format { get; set; } = CurrentFormat;
 	public int Version { get; set; } = CurrentVersion;
@@ -21,6 +21,7 @@ public sealed class SpatialAreaPackage
 	public List<SpatialRoomDefinition> Rooms { get; set; } = [];
 	public List<SpatialCellDefinition> Cells { get; set; } = [];
 	public List<SpatialExitDefinition> Exits { get; set; } = [];
+	public List<SpatialAreaDefinition> Areas { get; set; } = [];
 	public List<SpatialPackageOmission> Omissions { get; set; } = [];
 }
 
@@ -70,6 +71,15 @@ public sealed class SpatialRoomDefinition
 	public int X { get; set; }
 	public int Y { get; set; }
 	public int Z { get; set; }
+}
+
+public sealed class SpatialAreaDefinition
+{
+	public string Key { get; set; } = string.Empty;
+	public long SourceId { get; set; }
+	public string Name { get; set; } = string.Empty;
+	public SpatialNamedReference? WeatherController { get; set; }
+	public List<string> RoomKeys { get; set; } = [];
 }
 
 public sealed class SpatialCellDefinition

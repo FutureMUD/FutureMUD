@@ -4472,21 +4472,37 @@ The syntax for working with areas is as follows:
 
     private static void AreaView(ICharacter actor, StringStack ss)
     {
-        IArea area = actor.EffectsOfType<BuilderEditingEffect<IArea>>().FirstOrDefault()?.EditingItem;
-        if (area == null)
+        IArea area;
+        if (ss.IsFinished)
         {
-            actor.OutputHandler.Send("You must first EDIT an area before you can view it.");
-            return;
+            area = actor.EffectsOfType<BuilderEditingEffect<IArea>>().FirstOrDefault()?.EditingItem;
+            if (area is null)
+            {
+                actor.OutputHandler.Send("You must either specify an area to view, or be editing an area to view it.");
+                return;
+            }
         }
+        else
+        {
+            area = actor.Gameworld.Areas.GetByIdOrName(ss.SafeRemainingArgument);
+
+
+			if (area == null)
+			{
+				actor.OutputHandler.Send($"There is no area identified by the text {ss.SafeRemainingArgument.ColourCommand()}.");
+				return;
+			}
+		}
 
         StringBuilder sb = new();
         sb.AppendLine($"Area #{area.Id.ToString("N0", actor)}: {area.Name.Colour(Telnet.Cyan)}");
         sb.AppendLine(
             $"Weather Controller: {(area.WeatherController == null ? "Default".Colour(Telnet.Magenta) : $"{area.WeatherController.Name} (#{area.WeatherController.Id})")}");
+        sb.AppendLine();
         sb.AppendLine("Cells in Area:");
         foreach (ICell cell in area.Cells)
         {
-            sb.AppendLine($"\t#{cell.Id.ToString("N0", actor)}: {cell.HowSeen(actor)}");
+            sb.AppendLine($"\t{cell.GetFriendlyReference(actor)}");
         }
 
         actor.OutputHandler.Send(sb.ToString());

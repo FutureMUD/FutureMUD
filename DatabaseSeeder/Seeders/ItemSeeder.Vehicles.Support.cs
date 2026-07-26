@@ -74,44 +74,47 @@ public partial class ItemSeeder
 				["Functions / Vehicles / Vehicle Equipment / Propulsion Equipment", "Market / Transportation / Vehicle Equipment"],
 				[oar]);
 
-			if (_liquids.TryGetValue("gasoline", out var gasoline))
+			if (!_liquids.TryGetValue("gasoline", out var gasoline))
 			{
-				var installable = EnsureVehicleComponent(
-					"VehicleSeeder_Installable_OutboardMotor",
-					"Vehicle Installable",
-					"Turns an item into an outboard-motor module for a matching vehicle installation point.",
-					new XElement("Definition",
-						new XElement("MountType", VehicleOutboardMountType),
-						new XElement("Role", VehiclePropulsionRole),
-						new XElement("MinimumFunctionalCondition", 0.2),
-						new XElement("MinimumMovementCondition", 0.35)).ToString());
-				var motor = EnsureVehicleComponent(
-					"VehicleSeeder_OutboardMotor_Petrol",
-					"Outboard Motor",
-					"Turns an item into a small fuelled outboard motor for surface-water vehicles.",
-					new XElement("Definition",
-						new XElement("EnergySource", OutboardMotorEnergySource.Fuelled),
-						new XElement("OutputMultiplier", 1.0),
-						new XElement("FuelLiquidId", gasoline.Id),
-						new XElement("FuelVolumePerMove", 0.15),
-						new XElement("RequiredPowerSpikeInWatts", 0.0)).ToString());
-				UpsertVehicleEquipmentItem(
-					"vehicle_modern_petrol_outboard_motor",
-					new VehicleItemSeedSpec(
-						"motor",
-						"a compact petrol outboard motor",
-						"A compact metal engine housing sits above a long drive leg and a guarded propeller. A clamp bracket, tiller handle and small integral fuel reservoir make the unit visibly intended to hang from a boat's transom. Painted panels protect most of the machinery, though control cables, fasteners and cooling-water passages remain accessible for maintenance.",
-						SizeCategory.Large,
-						ItemQuality.Standard,
-						42000.0,
-						4800.0m,
-						"mild steel",
-						"Destroyable_HeavyMetal",
-						true),
-					["Functions / Vehicles / Vehicle Equipment / Propulsion Equipment", "Market / Transportation / Vehicle Equipment"],
-					[installable, motor],
-					["LContainer_FuelCan"]);
+				throw new InvalidOperationException(
+					"The vehicle seeder requires the seeded liquid 'gasoline' to create the petrol outboard motor.");
 			}
+
+			var installable = EnsureVehicleComponent(
+				"VehicleSeeder_Installable_OutboardMotor",
+				"Vehicle Installable",
+				"Turns an item into an outboard-motor module for a matching vehicle installation point.",
+				new XElement("Definition",
+					new XElement("MountType", VehicleOutboardMountType),
+					new XElement("Role", VehiclePropulsionRole),
+					new XElement("MinimumFunctionalCondition", 0.2),
+					new XElement("MinimumMovementCondition", 0.35)).ToString());
+			var motor = EnsureVehicleComponent(
+				"VehicleSeeder_OutboardMotor_Petrol",
+				"Outboard Motor",
+				"Turns an item into a small fuelled outboard motor for surface-water vehicles.",
+				new XElement("Definition",
+					new XElement("EnergySource", OutboardMotorEnergySource.Fuelled),
+					new XElement("OutputMultiplier", 1.0),
+					new XElement("FuelLiquidId", gasoline.Id),
+					new XElement("FuelVolumePerMove", 0.15),
+					new XElement("RequiredPowerSpikeInWatts", 0.0)).ToString());
+			UpsertVehicleEquipmentItem(
+				"vehicle_modern_petrol_outboard_motor",
+				new VehicleItemSeedSpec(
+					"motor",
+					"a compact petrol outboard motor",
+					"A compact metal engine housing sits above a long drive leg and a guarded propeller. A clamp bracket, tiller handle and small integral fuel reservoir make the unit visibly intended to hang from a boat's transom. Painted panels protect most of the machinery, though control cables, fasteners and cooling-water passages remain accessible for maintenance.",
+					SizeCategory.Large,
+					ItemQuality.Standard,
+					42000.0,
+					4800.0m,
+					"mild steel",
+					"Destroyable_HeavyMetal",
+					true),
+				["Functions / Vehicles / Vehicle Equipment / Propulsion Equipment", "Market / Transportation / Vehicle Equipment"],
+				[installable, motor],
+				["LContainer_FuelCan"]);
 		}
 
 		if (allDraft)

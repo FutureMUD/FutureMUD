@@ -202,8 +202,11 @@ public sealed partial class SpatialAreaTransferService
 		{
 			if (exit.Door is not null)
 			{
-				diagnostics.Add(Error("installed-door",
-					$"Exit #{exit.Id:N0} has an installed door item. Door items are not portable."));
+				omissions.Add(new SpatialPackageOmission
+				{
+					Code = "installed-door",
+					Message = $"Installed door item on exit #{exit.Id:N0} was skipped. The imported exit will retain its door capability but have no door item."
+				});
 			}
 
 			if (exit.FallCell is not null && !cellIds.Contains(exit.FallCell.Id))

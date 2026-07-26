@@ -130,7 +130,6 @@ Export fails when selected content contains state that cannot be represented fai
 - agriculture fields;
 - persisted cell effects;
 - persistent surface-liquid state;
-- installed door items;
 - fall exits whose destination is outside the selected zones.
 
 The following content is omitted because it is not self-contained spatial topology:
@@ -141,7 +140,7 @@ The following content is omitted because it is not self-contained spatial topolo
 - any `AREA` group that also contains a room outside the selected zones;
 - cell event hooks.
 
-Exit door capability and permitted door size are transferred, but an installed physical door item is not.
+Exit door capability and permitted door size are transferred. An installed physical door item is omitted and reported; the imported exit is door-capable but begins without a door.
 
 Export, validation, and import enumerate omissions in the in-game result. A boundary-exit entry identifies the direction or verb, both source cell IDs and names, and the unselected destination zone. This lets builders distinguish expected boundary loss from unexpectedly incomplete selections.
 

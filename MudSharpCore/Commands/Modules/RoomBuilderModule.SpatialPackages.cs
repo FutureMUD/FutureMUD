@@ -23,7 +23,7 @@ Files are read and written only inside the server's #6Spatial Packages#0 directo
 	#3spatialpackage validate <file> <target shard> [new zone name]#0 - preflights integrity and dependencies
 	#3spatialpackage import <file> <target shard> confirm [new zone name]#0 - creates the validated zone(s)
 
-You must be editing an under-design #3CELL PACKAGE#0 to validate or import. A new-name override is only valid for a single-zone package. Quote multi-word zone, shard and file arguments where required. Spatial packages skip temporary cells such as dwellings, but refuse hosted vehicle interiors, agriculture fields, persisted cell effects, surface liquids, installed door items, and external fall destinations rather than silently losing those dependencies. Every deliberate omission is listed by export, validation and import.";
+You must be editing an under-design #3CELL PACKAGE#0 to validate or import. A new-name override is only valid for a single-zone package. Quote multi-word zone, shard and file arguments where required. Spatial packages skip temporary cells such as dwellings and installed door items (while retaining the exit's door capability), but refuse hosted vehicle interiors, agriculture fields, persisted cell effects, surface liquids, and external fall destinations rather than silently losing those dependencies. Every deliberate omission is listed by export, validation and import.";
 
 	[PlayerCommand("SpatialPackage", "spatialpackage")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]

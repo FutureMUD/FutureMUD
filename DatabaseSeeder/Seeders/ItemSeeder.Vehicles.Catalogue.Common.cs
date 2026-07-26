@@ -72,12 +72,16 @@ public partial class ItemSeeder
 		string key,
 		string name,
 		bool requiresAccessClosed,
-		IReadOnlyCollection<VehiclePropulsionSeedSpec> propulsion)
+		IReadOnlyCollection<VehiclePropulsionSeedSpec> propulsion,
+		bool exposesOccupantsToWater = false)
 	{
 		return new VehicleMovementProfileSeedSpec(key, name, VehicleMovementProfileType.CellExit,
-			VehicleMovementEnvironment.SurfaceWater, true, true, 0.0, null, 0.0, string.Empty,
+			VehicleMovementEnvironment.SurfaceWater, exposesOccupantsToWater, true, 0.0, null, 0.0, string.Empty,
 			true, requiresAccessClosed, 0.0, RouteVehiclePropulsionMode.Powered, 0.0, 0.0, false, propulsion);
 	}
+
+	internal static bool WaterMovementProtectsOccupantsByDefaultForTesting =>
+		!WaterMovement("test", "test", false, []).ExposesOccupantsToWater;
 
 	private static VehiclePropulsionSeedSpec SelfPoweredProfile(bool isDefault)
 	{

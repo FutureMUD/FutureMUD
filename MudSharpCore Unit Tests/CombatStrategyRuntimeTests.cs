@@ -35,6 +35,14 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CombatStrategyRuntimeTests
 {
+	private sealed class TestStandardMeleeStrategy : StandardMeleeStrategy
+	{
+		public ICombatMove? SelectGeneralAttack(ICharacter combatant)
+		{
+			return HandleGeneralAttacks(combatant);
+		}
+	}
+
 	private static string GetCoreSourcePath(params string[] segments)
 	{
 		return Path.GetFullPath(Path.Combine(
@@ -128,6 +136,52 @@ public class CombatStrategyRuntimeTests
 		ICombatMove response = StandardMeleeStrategy.Instance.ResponseToMove(move, defender.Object, attacker.Object);
 
 		Assert.IsInstanceOfType(response, typeof(DodgeMove));
+	}
+
+	[TestMethod]
+	public void StandardMelee_GeneralAttack_CanSelectAuthoredNaturalAttackWhileSprawled()
+	{
+		Mock<IFuturemud> gameworld = CreateGameworld();
+		Mock<ICombat> combat = new();
+		combat.SetupGet(x => x.Friendly).Returns(false);
+
+		Mock<ICharacterCombatSettings> settings = new();
+		settings.SetupGet(x => x.WeaponUsePercentage).Returns(0.0);
+		settings.SetupGet(x => x.NaturalWeaponPercentage).Returns(1.0);
+		settings.SetupGet(x => x.MagicUsePercentage).Returns(0.0);
+		settings.SetupGet(x => x.PsychicUsePercentage).Returns(0.0);
+		settings.SetupGet(x => x.AuxiliaryPercentage).Returns(0.0);
+		settings.SetupGet(x => x.PreferredIntentions).Returns(CombatMoveIntentions.None);
+
+		Mock<IWeaponAttack> weaponAttack = CreateWeaponAttack(
+			BuiltInCombatMoveType.NaturalWeaponAttack,
+			CombatMoveIntentions.None);
+		Mock<INaturalAttack> naturalAttack = new();
+		naturalAttack.SetupGet(x => x.Attack).Returns(weaponAttack.Object);
+
+		Mock<IRace> race = new();
+		race.Setup(x => x.UsableNaturalWeaponAttacks(
+				It.IsAny<ICharacter>(),
+				It.IsAny<IPerceiver>(),
+				false,
+				It.IsAny<BuiltInCombatMoveType[]>()))
+		    .Returns(new[] { naturalAttack.Object });
+
+		Mock<ICharacter> target = new();
+		target.SetupProperty(x => x.PositionState, PositionStanding.Instance);
+
+		Mock<ICharacter> actor = new();
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.Race).Returns(race.Object);
+		actor.SetupGet(x => x.CombatSettings).Returns(settings.Object);
+		actor.SetupGet(x => x.Combat).Returns(combat.Object);
+		actor.SetupGet(x => x.CombatTarget).Returns(target.Object);
+		actor.SetupGet(x => x.PositionState).Returns(PositionSprawled.Instance);
+		actor.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns(true);
+
+		ICombatMove? move = new TestStandardMeleeStrategy().SelectGeneralAttack(actor.Object);
+
+		Assert.IsInstanceOfType(move, typeof(NaturalAttackMove));
 	}
 
 	[TestMethod]

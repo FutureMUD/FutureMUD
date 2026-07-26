@@ -108,7 +108,7 @@ Generated item references append a stable role suffix:
 - access: `<root>_access_<child_key>`
 - cargo: `<root>_cargo_<child_key>`
 
-Child keys are lowercase snake case and unique within their child family. Once a catalogue has been published, treat root references, child keys and child names as durable identities. A cosmetic rename of an existing key can create a second child rather than updating the original.
+Child keys are lowercase snake case and unique within their child family. Once a catalogue has been published, treat root references, child keys and child names as durable identities. A cosmetic rename of an existing key or persisted child name can create a second child rather than updating the original.
 
 ### Definition records
 
@@ -202,6 +202,10 @@ Carts, wagons, carriages and drays use ordinary terrestrial movement plus tow po
 
 The seeded harness items demonstrate ordinary and heavy-team ratings. A vehicle is not automatically harnessed, populated with draft animals or made ready to move.
 
+**V1 cell-exit limitation:** `CellExit` movement currently has no persisted `ExternallyPulled` propulsion mode equivalent to the one available for `Route` profiles. Character dragging and the hitch graph can move an ordinary cell-exit draft vehicle and its attached train, but the vehicle movement profile itself does not require a motive character or animal. Consequently, direct controlled movement is not mechanically prevented merely because no puller is attached. Treat this as a runtime boundary, not intended vehicle behaviour. Do not claim that the seeder enforces draft motive power, and explicitly test the hitch/drag workflow for these examples.
+
+Where a world requires strict enforcement rather than builder convention, extend the runtime movement contract before treating cell-exit draft vehicles as fully production-ready. Do not fake this with an unrelated installed-module role.
+
 ### Powered terrestrial cell-exit vehicles
 
 A powered road vehicle uses:
@@ -217,7 +221,7 @@ Fuelled modules carry a fuel liquid container. Electric modules carry the approp
 
 `Route` movement is for vehicles constrained to `RouteCell` topology.
 
-- `ExternallyPulled` route profiles depend on a valid towing arrangement.
+- `ExternallyPulled` route profiles require a valid motive-character hitch arrangement and pull capacity.
 - `Powered` route profiles must consume either fuel per metre or electrical power.
 - Automatic operation is valid only for a powered route profile.
 - Route speed must be positive.
@@ -288,7 +292,7 @@ Every vehicle has weighted damage zones. Thresholds satisfy:
 0 < disabled < destroyed <= 1
 ```
 
-Damage effects target stable child keys and may disable:
+In source definitions, damage effects target stable child keys. During persistence those keys are resolved to the corresponding scoped database ids. Effects may disable:
 
 - all vehicle movement;
 - one movement profile;
@@ -306,17 +310,19 @@ The pass is designed to be rerun.
 - Root ownership is resolved through the stable exterior item reference.
 - Access and cargo ownership is resolved through stable projection item references.
 - Generated component names are deterministic from root reference, role and child key.
-- Named child rows are updated in place within their vehicle and revision.
+- Named child rows are conservatively updated in place within their vehicle and revision.
 - Existing links are resolved by their scoped endpoints and direction.
 - Propulsion rows are resolved by movement profile and propulsion type.
 - Damage effects are resolved by zone, target type and target id.
+
+The database schema does not store every source-level child key. For non-projected children, a published name or scoped relationship therefore participates in persistence identity. Renaming such a child may add a replacement while leaving the previous row intact. This is safer than deleting a builder-extended row, but it makes names part of the migration contract.
 
 The seeder updates rows it can identify but does **not** delete omitted child rows. This is intentional: a builder may have extended a seeded vehicle after installation. Removing or structurally renaming a published child requires an explicit migration and a review of live instances.
 
 Practical rules:
 
 1. never recycle a root stable reference for a different vehicle;
-2. never casually rename a published child key or name;
+2. never casually rename a published child key or persisted child name;
 3. append new variants with new root references;
 4. use deterministic ordering and exact seeded dependency names; and
 5. test both a clean install and a rerun against the same database.
@@ -337,10 +343,11 @@ Practical rules:
 | Outboard mode has no compatible mount and role | Validation fails. |
 | Projection is visible, portable or skinnable | Validation fails. |
 | Installed module is absent, damaged, empty, unpowered or switched off | Live movement preflight fails and reports readiness reasons. |
-| Required access point or tow link is open | Departure fails when the movement profile requires closure. |
+| Required access point or tow link is open or disabled | Departure fails when the movement profile requires valid closures or links. |
 | Selected water propulsion becomes unavailable | Movement fails; no automatic fallback is chosen. |
 | Surface-water craft is on dry ground or the wrong ground layer | It can exist or be carried but cannot initiate surface-water travel. |
 | Route vehicle is outside valid route topology | Route operation cannot proceed. |
+| Cell-exit draft vehicle has no motive puller | The V1 movement profile does not itself enforce a puller. Use and test the hitch/drag path; do not represent this as enforced until the runtime is extended. |
 | A seeded child is removed from source | Existing database row remains. Use a deliberate migration if removal is required. |
 | Free-coordinate navigation, collision, signalling or dispatch is expected | Outside this first-pass seeder and current V1 movement boundary. Do not imply unsupported behaviour in descriptions. |
 
@@ -407,6 +414,7 @@ These are dependencies and templates. The seeder does not automatically install 
 - [ ] Root reference is globally unique, lowercase snake case and begins `vehicle_<era>_`.
 - [ ] Era key agrees with the root reference and intended era tag.
 - [ ] Child keys are unique, permanent lowercase identifiers.
+- [ ] Published child names are treated as durable persistence identities where the schema has no key column.
 - [ ] The variant represents a meaningful form or use difference rather than quota-filling duplication.
 
 ### Player-facing quality
@@ -435,6 +443,7 @@ These are dependencies and templates. The seeder does not automatically install 
 - [ ] Surface-water movement has explicit propulsion and exactly one default.
 - [ ] Rowed modes have contributor slots and credible oar supply.
 - [ ] Propulsion expressions use runtime-supported variables and remain finite.
+- [ ] A cell-exit draft vehicle's hitch/drag workflow and V1 puller-enforcement limitation are explicitly reviewed.
 
 ### Projections, towing and damage
 
@@ -452,6 +461,7 @@ These are dependencies and templates. The seeder does not automatically install 
 - [ ] Rerun the same era selection and confirm no duplicate root or child rows.
 - [ ] Create each changed vehicle and inspect `vehiclestatus`.
 - [ ] Test boarding, control, access, cargo, installation, fuel/power readiness, movement, propulsion selection, towing and damage as applicable.
+- [ ] For cell-exit draft examples, test ordinary hitching/dragging separately from direct controlled movement and record the runtime boundary.
 - [ ] Reload or restart after testing any new topology or generated component pattern.
 
 ## Current Boundaries and Future Extension
@@ -460,6 +470,7 @@ The first pass intentionally does not provide:
 
 - automatic installation, hitching, staffing, fuelling or charging;
 - automatic fallback between water propulsion modes;
+- dedicated externally-pulled enforcement for ordinary `CellExit` vehicle movement;
 - installation-specific room-scale terrain and interior-cell catalogues;
 - free-coordinate 2D/3D movement;
 - collision, signalling, dispatch or timetable systems; or

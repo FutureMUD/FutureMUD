@@ -34,7 +34,7 @@ A FutureMUD vehicle is a hybrid canonical-domain object with ordinary item proje
 | Record | Responsibility |
 |---|---|
 | `VehicleCompartmentProto` | Logical occupied areas; for room-scale vehicles these correspond to persistent interior cells. |
-| `VehicleCompartmentLinkProto` | Directed movement links between compartments. |
+| `VehicleCompartmentLinkProto` | Directed movement links between compartments; these become navigable interior links only for `RoomScale` vehicles. |
 | `VehicleOccupantSlotProto` | Driver, crew and passenger capacity; required staffing; propulsion contributors. |
 | `VehicleControlStationProto` | Associates control authority with an occupant slot. |
 | `VehicleMovementProfileProto` | Cell-exit or route movement, environment, closure checks and resource requirements. |
@@ -62,6 +62,8 @@ Access and cargo projections must remain hidden, non-portable and non-skinnable.
 - `ItemScale`: occupants remain in the exterior item's ordinary cell. Appropriate for handcarts, coracles, kayaks, dinghies and comparable small vehicles.
 - `RoomContainer`: occupants remain in the exterior cell but are logically contained by vehicle compartments. This is appropriate for most carts, wagons, cars, coaches and non-room-scale vessels.
 - `RoomScale`: compartments are persistent interior cells. Every compartment requires a valid `InteriorTerrainId`. The seeder supports the data contract, but the first catalogue does not include a room-scale example because terrain and world-topology choices are installation-specific.
+
+For `ItemScale` and `RoomContainer`, compartments organise occupancy, access and cargo but do not create separately navigable interior cells. Compartment links are retained as prototype topology but are not built as runtime exits. Do not model an internal corridor, stair or doorway with compartment links unless the vehicle is `RoomScale`.
 
 Surface-water travel does not imply `RoomScale`. Item-scale and room-container craft use `CellExit` movement with `SurfaceWater` as their movement environment.
 
@@ -217,6 +219,8 @@ A powered road vehicle uses:
 
 Fuelled modules carry a fuel liquid container. Electric modules carry the appropriate battery/power components. The seeder does not install, fill, switch on or charge a module automatically.
 
+**V1 terrain and timing limitation:** ordinary terrestrial `CellExit` profiles use the runtime's `Unrestricted` movement environment. They do not enforce road terrain, wheel clearance, gradient, axle load, traction or other land-suitability rules, and they do not store a physical land speed. Movement timing and fuel consumption are coarse per-exit values and must be calibrated against the world's cell scale. A world that requires enforced roads or terrain suitability should use `Route` topology where appropriate or extend the runtime contract; descriptions and builder notes must not imply enforcement that does not exist.
+
 ### Route vehicles
 
 `Route` movement is for vehicles constrained to `RouteCell` topology.
@@ -348,6 +352,8 @@ Practical rules:
 | Surface-water craft is on dry ground or the wrong ground layer | It can exist or be carried but cannot initiate surface-water travel. |
 | Route vehicle is outside valid route topology | Route operation cannot proceed. |
 | Cell-exit draft vehicle has no motive puller | The V1 movement profile does not itself enforce a puller. Use and test the hitch/drag path; do not represent this as enforced until the runtime is extended. |
+| Cell-exit terrestrial vehicle is off-road or on unsuitable terrain | The V1 `Unrestricted` environment does not enforce road or terrain suitability. Use world controls, `Route` topology or a runtime extension where this matters. |
+| Non-room-scale compartment links are expected to create interior exits | They do not. Only `RoomScale` vehicles build navigable compartment links; use logical compartments or adopt `RoomScale`. |
 | A seeded child is removed from source | Existing database row remains. Use a deliberate migration if removal is required. |
 | Free-coordinate navigation, collision, signalling or dispatch is expected | Outside this first-pass seeder and current V1 movement boundary. Do not imply unsupported behaviour in descriptions. |
 
@@ -431,6 +437,7 @@ These are dependencies and templates. The seeder does not automatically install 
 - [ ] Every child reference resolves.
 - [ ] Display orders are unique within each family.
 - [ ] Room-scale compartments have valid terrain ids.
+- [ ] Non-room-scale compartments are used as logical groupings only and do not imply navigable interiors.
 - [ ] Passenger and cargo service flags agree with actual slots and cargo spaces.
 
 ### Movement and resources
@@ -444,6 +451,7 @@ These are dependencies and templates. The seeder does not automatically install 
 - [ ] Rowed modes have contributor slots and credible oar supply.
 - [ ] Propulsion expressions use runtime-supported variables and remain finite.
 - [ ] A cell-exit draft vehicle's hitch/drag workflow and V1 puller-enforcement limitation are explicitly reviewed.
+- [ ] Terrestrial cell-exit timing, fuel use and suitability assumptions are reviewed against its coarse `Unrestricted` per-exit semantics.
 
 ### Projections, towing and damage
 
@@ -462,6 +470,7 @@ These are dependencies and templates. The seeder does not automatically install 
 - [ ] Create each changed vehicle and inspect `vehiclestatus`.
 - [ ] Test boarding, control, access, cargo, installation, fuel/power readiness, movement, propulsion selection, towing and damage as applicable.
 - [ ] For cell-exit draft examples, test ordinary hitching/dragging separately from direct controlled movement and record the runtime boundary.
+- [ ] Test terrestrial cell-exit examples on representative road and non-road cells and record any world-level restrictions used to compensate for the `Unrestricted` runtime environment.
 - [ ] Reload or restart after testing any new topology or generated component pattern.
 
 ## Current Boundaries and Future Extension
@@ -471,6 +480,8 @@ The first pass intentionally does not provide:
 - automatic installation, hitching, staffing, fuelling or charging;
 - automatic fallback between water propulsion modes;
 - dedicated externally-pulled enforcement for ordinary `CellExit` vehicle movement;
+- road, terrain, gradient, traction or physical-speed enforcement for terrestrial `CellExit` movement;
+- navigable compartment links outside `RoomScale` vehicles;
 - installation-specific room-scale terrain and interior-cell catalogues;
 - free-coordinate 2D/3D movement;
 - collision, signalling, dispatch or timetable systems; or

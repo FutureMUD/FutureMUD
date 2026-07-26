@@ -52,17 +52,14 @@ public partial class ItemSeeder
 		return Regex.Replace(value.ToLowerInvariant(), "[^a-z0-9]+", "_").Trim('_');
 	}
 
-	private static string VehicleChildMarker(string vehicleReference, string kind, string key)
-	{
-		return $"[{VehicleSeederMarkerPrefix}: {vehicleReference}/{kind}/{NormaliseKey(key)}]";
-	}
-
+	// Kept as a compatibility shim for the first persistence draft. Seeder ownership is now
+	// represented by stable exterior/projection references and internal component names rather
+	// than by adding implementation markers to builder- or player-facing descriptions.
 	private static string WithVehicleSeederMarker(string description, string vehicleReference, string kind, string key)
 	{
-		var marker = VehicleChildMarker(vehicleReference, kind, key);
-		return description.Contains(marker, StringComparison.OrdinalIgnoreCase)
-			? description
-			: $"{description.Trim()}\n{marker}";
+		_ = vehicleReference;
+		_ = kind;
+		_ = key;
+		return description.Trim();
 	}
-
 }

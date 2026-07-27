@@ -126,6 +126,9 @@ public class WeaponAttack : CombatAction, IWeaponAttack
                (Intentions & (attacker as ICharacter)?.CombatSettings.ForbiddenIntentions ??
                 CombatMoveIntentions.None) == 0 &&
                (ignorePosition || RequiredPositionStates.Contains(attacker.PositionState)) &&
+               (target == null || weapon == null || BodypartShape == null ||
+                target is IHaveABody bodyOwner &&
+                bodyOwner.Body.Bodyparts.Any(x => x.Shape == BodypartShape && x.RelativeHitChance > 0.0)) &&
                (UsabilityProg?.ExecuteBool(attacker, weapon, target) ?? true);
     }
 
@@ -314,6 +317,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 	#3prog <prog>#0 - a prog taking character, item, character as parameters and returning a boolean, to determine whether this attack can be used
 	#3onuse <prog|none>#0 - a prog taking character, item, character as parameters that fires when this attack is used
 	#3bodypart <part shape>#0 - sets a bodypart shape this attack is typically associated with, e.g. hand, teeth, etc
+	#3target <part shape|none>#0 - sets or clears the bodypart shape targeted by a weapon-associated attack
 	#3intention <intention1> [<intention2>...<intentionn>]#0 - toggles the specified attack intentions
 	#3damage <name|id>#0 - sets a nominated expression as the damage expression
 	#3stun <name|id>#0 - sets a nominated expression as the stun expression
@@ -349,6 +353,10 @@ public class WeaponAttack : CombatAction, IWeaponAttack
                 return BuildingCommandHandedness(actor, command);
             case "bodypart":
                 return BuildingCommandBodypart(actor, command);
+            case "target":
+            case "targetpart":
+            case "targetbodypart":
+                return BuildingCommandTargetBodypart(actor, command);
             case "damage":
                 return BuildingCommandDamage(actor, command);
             case "pain":
@@ -460,6 +468,45 @@ public class WeaponAttack : CombatAction, IWeaponAttack
         Changed = true;
         actor.OutputHandler.Send(
             $"This attack is now associated with the {shape.Name.Colour(Telnet.Green)} bodypart shape.");
+        return true;
+    }
+
+    private bool BuildingCommandTargetBodypart(ICharacter actor, StringStack command)
+    {
+        if (!Gameworld.WeaponTypes.Any(x => x.Attacks.Contains(this)))
+        {
+            actor.OutputHandler.Send(
+                "This option can only be used while this attack is associated with a weapon type.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which bodypart shape should this weapon attack target? Use none to clear it.");
+            return false;
+        }
+
+        if (command.PeekSpeech().EqualTo("none"))
+        {
+            BodypartShape = null;
+            Changed = true;
+            actor.OutputHandler.Send("This weapon attack will no longer target a specific bodypart shape.");
+            return true;
+        }
+
+        IBodypartShape shape = long.TryParse(command.PopSpeech(), out long value)
+            ? Gameworld.BodypartShapes.Get(value)
+            : Gameworld.BodypartShapes.GetByName(command.Last);
+        if (shape == null)
+        {
+            actor.OutputHandler.Send("There is no such bodypart shape.");
+            return false;
+        }
+
+        BodypartShape = shape;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This weapon attack will now target bodyparts with the {shape.Name.Colour(Telnet.Green)} shape.");
         return true;
     }
 
@@ -835,6 +882,8 @@ public class WeaponAttack : CombatAction, IWeaponAttack
     public string ShowBuilder(ICharacter actor)
     {
         StringBuilder sb = new();
+        bool usesTargetBodypartShape = Gameworld.WeaponTypes.Any(x => x.Attacks.Contains(this)) &&
+                                       this is not IFixedBodypartWeaponAttack;
         sb.AppendLine($"Weapon Attack {Id.ToString("N0", actor)} - {Name}");
         sb.AppendLine($"Weapon Type: {Gameworld.WeaponTypes.FirstOrDefault(x => x.Attacks.Contains(this))?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine($"Move Type: {MoveType.Describe().Colour(Telnet.Green)}");
@@ -869,7 +918,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
         sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
             $"Damage Type: {Enum.GetName(typeof(DamageType), Profile.DamageType).SplitCamelCase().Colour(Telnet.Green)}",
             $"Usability Prog: {(UsabilityProg != null ? $"{UsabilityProg.FunctionName}".FluentTagMXP("send", $"href='show futureprog {UsabilityProg.Id}'") : "None".Colour(Telnet.Red))}",
-            $"Bodypart: {BodypartShape?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}"
+            $"{(usesTargetBodypartShape ? "Target Bodypart" : "Bodypart")}: {BodypartShape?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}"
         );
         sb.AppendLine($"On Use Prog: {(OnUseAttackProg != null ? $"{OnUseAttackProg.FunctionName}".FluentTagMXP("send", $"href='show futureprog {OnUseAttackProg.Id}'") : "None".Colour(Telnet.Red))}");
 		sb.AppendLine($"Maximum Targets: {MaximumTargets.ToString("N0", actor).ColourValue()}");

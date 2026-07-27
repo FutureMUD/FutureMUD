@@ -63,6 +63,8 @@ Melee-family strategies select active attacks through this order:
 3. Weighted attack-mode roll: weapon, natural weapon, magic, psychic, then auxiliary.
 4. Weapon/natural/magic attack selection constrained by combat settings, allowed classifications, preferred/forbidden intentions, stamina, target type, and current melee or clinch state.
 
+A weapon-associated attack may optionally specify a target bodypart shape. Such an attack is usable only against a body with an externally hittable part of that shape, and attack resolution selects one of those matching parts. Attack and defense checks, armour, damage, and recovery otherwise resolve normally.
+
 `SwordAndBoardOnly` is the engine's existing handedness term for weapon-and-shield fighting. A one-handed melee weapon can now select `SwordAndBoardOnly` attacks when the attacker also has a separately wielded shield, and ordinary `OneHandedOnly` attacks remain available in the same loadout. This is what lets shield-line spear attacks coexist with the normal spear thrust suite instead of replacing it.
 
 Auxiliary moves are selected by shared strategy code through `AttemptUseAuxilliaryAction`. The move list comes from the attacker's race combat actions and is filtered by position, intention requirements, forbidden intentions, usability prog, target, and stamina. If the selected channel has authored moves but the actor is too exhausted to pay for any of them, the strategy returns `TooExhaustedMove`.

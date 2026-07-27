@@ -1051,7 +1051,7 @@ public class StandardMeleeStrategy : StrategyBase
             return move;
         }
 
-        if (combatant.CombatSettings.FallbackToUnarmedIfNoWeapon && combatant.PositionState.Upright)
+        if (combatant.CombatSettings.FallbackToUnarmedIfNoWeapon)
         {
             return AttemptUseNaturalAttack(combatant);
         }
@@ -1130,10 +1130,7 @@ public class StandardMeleeStrategy : StrategyBase
         if (combatant.CombatSettings.NaturalWeaponPercentage > 0.0 &&
             roll <= combatant.CombatSettings.NaturalWeaponPercentage)
         {
-            if (combatant.PositionState.Upright)
-            {
-                return AttemptUseNaturalAttack(combatant);
-            }
+            return AttemptUseNaturalAttack(combatant);
         }
 
         roll -= combatant.CombatSettings.NaturalWeaponPercentage;

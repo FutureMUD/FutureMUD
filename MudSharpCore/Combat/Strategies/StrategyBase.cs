@@ -321,7 +321,8 @@ public abstract class StrategyBase : ICombatStrategy
             }
 
             // Characters who are not manually managing their positions should see if they need to stand.
-            if (!ch.CombatSettings.ManualPositionManagement)
+            if (!ch.CombatSettings.ManualPositionManagement &&
+                ch.CombatSettings.PreferToStandOverAttacking)
             {
                 if (ShouldCharacterStand(ch))
                 {
@@ -1057,6 +1058,20 @@ public abstract class StrategyBase : ICombatStrategy
         {
             return move;
         }
+
+		if (combatant is ICharacter attackPreferringCharacter &&
+		    !attackPreferringCharacter.CombatSettings.ManualPositionManagement &&
+		    !attackPreferringCharacter.CombatSettings.PreferToStandOverAttacking &&
+		    ShouldCharacterStand(attackPreferringCharacter))
+		{
+			move = HandleAttacks(combatant);
+			if (move is not null and not TooExhaustedMove)
+			{
+				return move;
+			}
+
+			return new StandMove { Assailant = attackPreferringCharacter };
+		}
 
         if ((move = HandleCombatMovement(combatant)) != null)
         {

@@ -892,6 +892,14 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
             return;
         }
 
+        if (Weapon is not null && Attack.BodypartShape is not null)
+        {
+            TargetBodypart = target.Body.Bodyparts
+                                   .Where(x => x.Shape == Attack.BodypartShape && x.RelativeHitChance > 0.0)
+                                   .GetWeightedRandom(x => x.RelativeHitChance);
+            return;
+        }
+
         if (Assailant.TargettedBodypart is not null && !target.Body.Bodyparts.Contains(Assailant.TargettedBodypart))
         {
             Assailant.TargettedBodypart = null;

@@ -25,6 +25,20 @@ public sealed record VehiclePropulsionMotorCandidate(
 	bool Available,
 	string Reason);
 
+public sealed record VehicleEngineCandidate(
+	IVehicleInstallation Installation,
+	IGameItem? Item,
+	IVehicleEngine? Engine,
+	bool Available,
+	string Reason);
+
+public sealed record VehicleEngineReadinessResult(
+	bool CanMove,
+	string Reason,
+	IReadOnlyList<VehicleEngineCandidate> Engines,
+	double AvailablePowerInWatts,
+	double RequiredPowerInWatts);
+
 public sealed record VehiclePropulsionReadinessResult(
 	bool CanMove,
 	string Reason,
@@ -35,7 +49,10 @@ public sealed record VehiclePropulsionReadinessResult(
 	IReadOnlyList<VehiclePropulsionContributor> Contributors,
 	IReadOnlyList<VehiclePropulsionMotorCandidate> Motors,
 	WindLevel Wind,
-	bool UsesLegacyMovement);
+	bool UsesLegacyMovement,
+	IReadOnlyList<VehicleEngineCandidate>? Engines = null,
+	double RiderStaminaCost = 0.0,
+	double RiderStaminaMultiplier = 1.0);
 
 public sealed record VehiclePropulsionContributorResult(
 	VehiclePropulsionContributor Contributor,
@@ -52,10 +69,14 @@ public sealed record VehiclePropulsionMovePlan(
 	IReadOnlyList<VehiclePropulsionMotorCandidate> Motors,
 	WindLevel Wind,
 	double EffectiveMultiplier,
-	System.TimeSpan Duration);
+	System.TimeSpan Duration,
+	IReadOnlyList<VehicleEngineCandidate>? Engines = null,
+	double RiderStaminaCost = 0.0,
+	double RiderStaminaMultiplier = 1.0);
 
 public interface IVehiclePropulsionService
 {
+	VehicleEngineReadinessResult BuildEngineReadiness(IVehicle vehicle, double requiredPowerInWatts);
 	VehiclePropulsionReadinessResult BuildReadiness(IVehicle vehicle, ICharacter actor, ICellExit? exit);
 	bool TryCommitDeparture(VehiclePropulsionReadinessResult readiness, out VehiclePropulsionMovePlan? plan,
 		out string reason);

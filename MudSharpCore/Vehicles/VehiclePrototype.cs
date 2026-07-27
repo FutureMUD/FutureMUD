@@ -206,6 +206,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 		var invalidMovementProfile = _movementProfiles.FirstOrDefault(x =>
 			!double.IsFinite(x.RequiredPowerSpikeInWatts) || x.RequiredPowerSpikeInWatts < 0.0 ||
+			!double.IsFinite(x.MinimumEnginePowerInWatts) || x.MinimumEnginePowerInWatts < 0.0 ||
 			!double.IsFinite(x.FuelVolumePerMove) || x.FuelVolumePerMove < 0.0 ||
 			!Enum.IsDefined(x.MovementEnvironment) ||
 			x.ExposesOccupantsToWater && x.MovementEnvironment != VehicleMovementEnvironment.SurfaceWater);
@@ -237,6 +238,13 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 					reason = $"The {movementProfile.Name} RouteCell movement profile can only be automatic-capable when powered.";
 					return false;
 				}
+
+				if (movementProfile.RoutePropulsionMode == RouteVehiclePropulsionMode.EnginePowered &&
+				    movementProfile.MinimumEnginePowerInWatts <= 0.0)
+				{
+					reason = $"The {movementProfile.Name} engine-powered RouteCell profile must specify minimum engine power.";
+					return false;
+				}
 			}
 
 			var propulsionProfiles = movementProfile.PropulsionProfiles.ToList();
@@ -248,10 +256,28 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			}
 
 			if (propulsionProfiles.Any() &&
-			    (movementProfile.MovementType != VehicleMovementProfileType.CellExit ||
-			     movementProfile.MovementEnvironment != VehicleMovementEnvironment.SurfaceWater))
+			    movementProfile.MovementType != VehicleMovementProfileType.CellExit)
 			{
-				reason = $"The {movementProfile.Name} movement profile has propulsion modes but is not a surface-water cell-exit profile.";
+				reason = $"The {movementProfile.Name} movement profile has propulsion modes but is not a cell-exit profile.";
+				return false;
+			}
+
+			var invalidEnvironmentPropulsion = propulsionProfiles.FirstOrDefault(x =>
+				movementProfile.MovementEnvironment == VehicleMovementEnvironment.SurfaceWater
+					? x.PropulsionType is VehiclePropulsionType.Engine or VehiclePropulsionType.ExternallyPulled or
+						VehiclePropulsionType.RiderPowered
+					: x.PropulsionType is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed or
+						VehiclePropulsionType.Sail or VehiclePropulsionType.OutboardMotor);
+			if (invalidEnvironmentPropulsion is not null)
+			{
+				reason = $"The {invalidEnvironmentPropulsion.PropulsionType.DescribeEnum(true)} propulsion mode is not valid for the {movementProfile.MovementEnvironment.DescribeEnum()} environment.";
+				return false;
+			}
+
+			if (propulsionProfiles.Any(x => x.PropulsionType == VehiclePropulsionType.Engine) &&
+			    movementProfile.MinimumEnginePowerInWatts <= 0.0)
+			{
+				reason = $"The {movementProfile.Name} engine propulsion mode must specify minimum engine power.";
 				return false;
 			}
 
@@ -699,16 +725,17 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 	#3movement cell#0 - ensures a cell-exit movement profile
 	#3movement route#0 - ensures a longitudinal RouteCell movement profile
 	#3movement route speed <distance>/<time>#0 - sets longitudinal route speed
-	#3movement route propulsion <powered|externallypulled>#0 - sets route propulsion
+	#3movement route propulsion <powered|externallypulled|enginepowered>#0 - sets route propulsion
 	#3movement route fuel <liquid id|none> <volume>/<distance>#0 - sets route fuel use
 	#3movement route power <watts>#0 - sets continuous route power draw
 	#3movement route automatic#0 - toggles automatic-operation capability
 	#3movement fuel <id> <liquid id|none> <volume>#0 - configures movement fuel use
 	#3movement power <id> <watts>#0 - configures movement power spike use
+	#3movement enginepower <id> <watts>#0 - configures minimum mechanical engine power
 	#3movement role <id> <role|none>#0 - configures required installed module role
 	#3movement environment <id> <unrestricted|surfacewater>#0 - configures the movement environment
 	#3movement waterexposure <id> <protected|exposed>#0 - configures occupant water exposure
-	#3movement propulsion add <movement id> <selfpowered|rowed|sail|outboard|none>#0 - adds a propulsion mode
+	#3movement propulsion add <movement id> <selfpowered|rowed|sail|outboard|engine|externallypulled|riderpowered|none>#0 - adds a propulsion mode
 	#3movement propulsion remove <propulsion id>#0 - removes a propulsion mode
 	#3movement propulsion default <propulsion id>#0 - selects the default mode
 	#3movement propulsion time <propulsion id> <seconds>#0 - sets base traversal time
@@ -716,6 +743,9 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 	#3movement propulsion difficulty <propulsion id> <difficulty>#0 - sets the propulsion check difficulty
 	#3movement propulsion speed <propulsion id> <expression>#0 - sets the speed multiplier expression
 	#3movement propulsion stamina <propulsion id> <expression>#0 - sets the stamina-cost expression
+	#3movement propulsion multiplier <propulsion id> <multiplier>#0 - sets the rider-powered default stamina multiplier
+	#3movement propulsion terrain <propulsion id> <terrain id|name> <multiplier|none>#0 - sets a rider stamina terrain override
+	#3movement propulsion terraintag <propulsion id> <tag id|name> <multiplier|none>#0 - sets a rider stamina terrain-tag override
 	#3movement access <id>#0 - toggles requiring access points closed
 	#3movement tow <id>#0 - toggles requiring valid tow links
 	#3movement remove <id>#0 - removes a movement profile
@@ -1380,6 +1410,9 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 				return BuildingCommandMovementFuel(actor, command);
 			case "power":
 				return BuildingCommandMovementPower(actor, command);
+			case "enginepower":
+			case "engine":
+				return BuildingCommandMovementEnginePower(actor, command);
 			case "role":
 				return BuildingCommandMovementRole(actor, command);
 			case "environment":
@@ -1467,11 +1500,12 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 				{
 					"powered" or "power" => RouteVehiclePropulsionMode.Powered,
 					"externallypulled" or "externally-pulled" or "pulled" or "tow" => RouteVehiclePropulsionMode.ExternallyPulled,
+					"engine" or "enginepowered" or "engine-powered" => RouteVehiclePropulsionMode.EnginePowered,
 					_ => (RouteVehiclePropulsionMode?)null
 				};
 				if (propulsion is null)
 				{
-					actor.OutputHandler.Send("Specify either #3powered#0 or #3externallypulled#0."
+					actor.OutputHandler.Send("Specify #3powered#0, #3externallypulled#0 or #3enginepowered#0."
 						.SubstituteANSIColour());
 					return false;
 				}
@@ -1480,7 +1514,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 				{
 					var dbitem = FMDB.Context.VehicleMovementProfileProtos.Find(profile.Id)!;
 					dbitem.RoutePropulsionMode = (int)propulsion.Value;
-					if (propulsion == RouteVehiclePropulsionMode.ExternallyPulled)
+					if (propulsion != RouteVehiclePropulsionMode.Powered)
 					{
 						dbitem.AutomaticOperationCapable = false;
 					}
@@ -1767,6 +1801,15 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			case "stamina":
 			case "cost":
 				return BuildingCommandMovementPropulsionExpression(actor, command, false);
+			case "multiplier":
+			case "staminamultiplier":
+				return BuildingCommandMovementPropulsionMultiplier(actor, command);
+			case "terrain":
+				return BuildingCommandMovementPropulsionTerrainOverride(actor, command, false);
+			case "terraintag":
+			case "terrain-tag":
+			case "tag":
+				return BuildingCommandMovementPropulsionTerrainOverride(actor, command, true);
 		}
 
 		actor.OutputHandler.Send(BuildingHelp.SubstituteANSIColour());
@@ -1784,7 +1827,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		var type = ParseVehiclePropulsionType(command.PopSpeech());
 		if (type is null)
 		{
-			actor.OutputHandler.Send("You must specify selfpowered, rowed, sail, outboard or none.");
+			actor.OutputHandler.Send("You must specify selfpowered, rowed, sail, outboard, engine, externallypulled, riderpowered or none.");
 			return false;
 		}
 
@@ -1800,10 +1843,22 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 				return false;
 			}
 
-			if ((VehicleMovementProfileType)movement.MovementType != VehicleMovementProfileType.CellExit ||
-			    (VehicleMovementEnvironment)movement.MovementEnvironment != VehicleMovementEnvironment.SurfaceWater)
+			if ((VehicleMovementProfileType)movement.MovementType != VehicleMovementProfileType.CellExit)
 			{
-				actor.OutputHandler.Send("Propulsion modes can only be added to a surface-water cell-exit movement profile.");
+				actor.OutputHandler.Send("Propulsion modes can only be added to a cell-exit movement profile.");
+				return false;
+			}
+
+			var environment = (VehicleMovementEnvironment)movement.MovementEnvironment;
+			var validForEnvironment = environment == VehicleMovementEnvironment.SurfaceWater
+				? type.Value is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed or
+					VehiclePropulsionType.Sail or VehiclePropulsionType.OutboardMotor or VehiclePropulsionType.None
+				: type.Value is VehiclePropulsionType.Engine or VehiclePropulsionType.ExternallyPulled or
+					VehiclePropulsionType.RiderPowered or VehiclePropulsionType.None;
+			if (!validForEnvironment)
+			{
+				actor.OutputHandler.Send(
+					$"{type.Value.DescribeEnum(true).ColourName()} propulsion is not valid for a {environment.DescribeEnum().ColourName()} movement profile.");
 				return false;
 			}
 
@@ -1829,14 +1884,15 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 				BaseMoveTimeMilliseconds = 10000.0,
 				CheckDifficulty = (int)Difficulty.Normal,
 				SpeedMultiplierExpression = DefaultPropulsionSpeedExpression(type.Value),
-				StaminaCostExpression = DefaultPropulsionStaminaExpression(type.Value)
+				StaminaCostExpression = DefaultPropulsionStaminaExpression(type.Value),
+				RiderStaminaMultiplier = 1.0
 			};
 			FMDB.Context.VehiclePropulsionProfileProtos.Add(dbitem);
 			FMDB.Context.SaveChanges();
 		}
 
 		ReloadChildDefinitions();
-		actor.OutputHandler.Send($"You add the {type.Value.DescribeEnum().ColourName()} propulsion mode.");
+		actor.OutputHandler.Send($"You add the {type.Value.DescribeEnum(true).ColourName()} propulsion mode.");
 		return true;
 	}
 
@@ -2000,11 +2056,12 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		}
 
 		if (profile.PropulsionType == VehiclePropulsionType.None ||
-		    !speed && profile.PropulsionType is not (VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed))
+		    !speed && profile.PropulsionType is not (VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed or
+			    VehiclePropulsionType.RiderPowered))
 		{
 			actor.OutputHandler.Send(speed
 				? "The none propulsion mode does not use a speed expression."
-				: "Only self-powered and rowed propulsion modes use a stamina-cost expression.");
+				: "Only self-powered, rowed and rider-powered propulsion modes use a stamina-cost expression.");
 			return false;
 		}
 
@@ -2031,6 +2088,110 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 		ReloadChildDefinitions();
 		actor.OutputHandler.Send($"You update that propulsion mode's {(speed ? "speed multiplier" : "stamina cost")} expression.");
+		return true;
+	}
+
+	private bool BuildingCommandMovementPropulsionMultiplier(ICharacter actor, StringStack command)
+	{
+		if (!TryGetOwnedPropulsionProfile(actor, command, out var id, out var profile))
+		{
+			return false;
+		}
+
+		if (profile.PropulsionType != VehiclePropulsionType.RiderPowered)
+		{
+			actor.OutputHandler.Send("Only rider-powered propulsion modes use a rider stamina multiplier.");
+			return false;
+		}
+
+		if (!double.TryParse(command.PopSpeech(), out var multiplier) || !double.IsFinite(multiplier) ||
+		    multiplier < 0.0)
+		{
+			actor.OutputHandler.Send("You must specify a finite, non-negative stamina multiplier.");
+			return false;
+		}
+
+		using (new FMDB())
+		{
+			FMDB.Context.VehiclePropulsionProfileProtos.Find(id)!.RiderStaminaMultiplier = multiplier;
+			FMDB.Context.SaveChanges();
+		}
+
+		ReloadChildDefinitions();
+		actor.OutputHandler.Send(
+			$"That rider-powered mode now uses a default stamina multiplier of {multiplier.ToString("N3", actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandMovementPropulsionTerrainOverride(ICharacter actor, StringStack command, bool tag)
+	{
+		if (!TryGetOwnedPropulsionProfile(actor, command, out var id, out var profile))
+		{
+			return false;
+		}
+
+		if (profile.PropulsionType != VehiclePropulsionType.RiderPowered)
+		{
+			actor.OutputHandler.Send("Only rider-powered propulsion modes use terrain stamina overrides.");
+			return false;
+		}
+
+		var targetText = command.PopSpeech();
+		var targetId = tag
+			? actor.Gameworld.Tags.GetByIdOrName(targetText)?.Id
+			: actor.Gameworld.Terrains.GetByIdOrName(targetText)?.Id;
+		if (targetId is null)
+		{
+			actor.OutputHandler.Send(tag ? "There is no such terrain tag." : "There is no such terrain.");
+			return false;
+		}
+
+		var multiplierText = command.SafeRemainingArgument;
+		var remove = multiplierText.EqualTo("none") || multiplierText.EqualTo("remove") ||
+		             multiplierText.EqualTo("delete");
+		var multiplier = 0.0;
+		if (!remove && (!double.TryParse(multiplierText, out multiplier) || !double.IsFinite(multiplier) ||
+		                multiplier < 0.0))
+		{
+			actor.OutputHandler.Send(
+				"You must specify a finite, non-negative stamina multiplier, or none to remove the override.");
+			return false;
+		}
+
+		using (new FMDB())
+		{
+			var existing = FMDB.Context.VehicleRiderStaminaModifierProtos
+				.FirstOrDefault(x => x.VehiclePropulsionProfileProtoId == id &&
+				                     (tag ? x.TerrainTagId == targetId : x.TerrainId == targetId));
+			if (remove)
+			{
+				if (existing is not null)
+				{
+					FMDB.Context.VehicleRiderStaminaModifierProtos.Remove(existing);
+				}
+			}
+			else if (existing is null)
+			{
+				FMDB.Context.VehicleRiderStaminaModifierProtos.Add(new DB.VehicleRiderStaminaModifierProto
+				{
+					VehiclePropulsionProfileProtoId = id,
+					TerrainId = tag ? null : targetId,
+					TerrainTagId = tag ? targetId : null,
+					Multiplier = multiplier
+				});
+			}
+			else
+			{
+				existing.Multiplier = multiplier;
+			}
+
+			FMDB.Context.SaveChanges();
+		}
+
+		ReloadChildDefinitions();
+		actor.OutputHandler.Send(remove
+			? $"You remove that rider stamina {(tag ? "terrain-tag" : "terrain")} override."
+			: $"You set that rider stamina {(tag ? "terrain-tag" : "terrain")} override to {multiplier.ToString("N3", actor).ColourValue()}.");
 		return true;
 	}
 
@@ -2070,6 +2231,11 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			"row" or "rowed" or "rowing" => VehiclePropulsionType.Rowed,
 			"sail" or "sailed" or "sailing" => VehiclePropulsionType.Sail,
 			"outboard" or "motor" or "outboardmotor" or "outboard-motor" => VehiclePropulsionType.OutboardMotor,
+			"engine" or "engines" or "terrestrialengine" => VehiclePropulsionType.Engine,
+			"externallypulled" or "externally-pulled" or "animaldrawn" or "animal-drawn" or "drawn" or "pulled" =>
+				VehiclePropulsionType.ExternallyPulled,
+			"rider" or "riderpowered" or "rider-powered" or "pedal" or "pedalled" or "pedaled" or "bicycle" or
+				"scooter" => VehiclePropulsionType.RiderPowered,
 			"none" => VehiclePropulsionType.None,
 			_ => null
 		};
@@ -2082,15 +2248,22 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed => "max(0.25, 1.0 + (0.15 * outcome))",
 			VehiclePropulsionType.Sail => "1.0 + (0.15 * (wind - 1.0))",
 			VehiclePropulsionType.OutboardMotor => "output",
+			VehiclePropulsionType.Engine => "power / requiredpower",
+			VehiclePropulsionType.ExternallyPulled => "1",
+			VehiclePropulsionType.RiderPowered => "1",
 			_ => "0"
 		};
 	}
 
 	private static string DefaultPropulsionStaminaExpression(VehiclePropulsionType type)
 	{
-		return type is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed
-			? "swimcost * max(0.5, 1.0 - (0.10 * outcome))"
-			: "0";
+		return type switch
+		{
+			VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed =>
+				"swimcost * max(0.5, 1.0 - (0.10 * outcome))",
+			VehiclePropulsionType.RiderPowered => "terraincost * encumbrance * vehiclemultiplier",
+			_ => "0"
+		};
 	}
 
 	internal static bool ValidatePropulsionExpression(VehiclePropulsionType type, string text, bool speed,
@@ -2109,6 +2282,9 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			(VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed, false) => ["outcome", "swimcost"],
 			(VehiclePropulsionType.Sail, true) => ["wind"],
 			(VehiclePropulsionType.OutboardMotor, true) => ["output"],
+			(VehiclePropulsionType.Engine, true) => ["power", "requiredpower"],
+			(VehiclePropulsionType.RiderPowered, false) =>
+				["terraincost", "encumbrance", "vehiclemultiplier"],
 			_ => Array.Empty<string>()
 		};
 		var unsupportedParameters = expression.ParameterNames
@@ -2123,12 +2299,22 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		var samples = type switch
 		{
 			VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed => Enumerable.Range(-3, 7)
-				.Select(x => (Outcome: (double)x, Wind: 1.0, Output: 1.0, SwimCost: 1.0)),
+				.Select(x => (Outcome: (double)x, Wind: 1.0, Output: 1.0, SwimCost: 1.0, Power: 1.0,
+					RequiredPower: 1.0, TerrainCost: 1.0, Encumbrance: 1.0, VehicleMultiplier: 1.0)),
 			VehiclePropulsionType.Sail => Enumerable.Range(1, 7)
-				.Select(x => (Outcome: 0.0, Wind: (double)x, Output: 1.0, SwimCost: 1.0)),
+				.Select(x => (Outcome: 0.0, Wind: (double)x, Output: 1.0, SwimCost: 1.0, Power: 1.0,
+					RequiredPower: 1.0, TerrainCost: 1.0, Encumbrance: 1.0, VehicleMultiplier: 1.0)),
 			VehiclePropulsionType.OutboardMotor => new[] { 0.01, 1.0, 100.0 }
-				.Select(x => (Outcome: 0.0, Wind: 1.0, Output: x, SwimCost: 1.0)),
-			_ => [(Outcome: 0.0, Wind: 1.0, Output: 1.0, SwimCost: 1.0)]
+				.Select(x => (Outcome: 0.0, Wind: 1.0, Output: x, SwimCost: 1.0, Power: 1.0,
+					RequiredPower: 1.0, TerrainCost: 1.0, Encumbrance: 1.0, VehicleMultiplier: 1.0)),
+			VehiclePropulsionType.Engine => new[] { 1.0, 2.0, 10.0 }
+				.Select(x => (Outcome: 0.0, Wind: 1.0, Output: 1.0, SwimCost: 1.0, Power: x,
+					RequiredPower: 1.0, TerrainCost: 1.0, Encumbrance: 1.0, VehicleMultiplier: 1.0)),
+			VehiclePropulsionType.RiderPowered => new[] { 0.25, 1.0, 4.0 }
+				.Select(x => (Outcome: 0.0, Wind: 1.0, Output: 1.0, SwimCost: 1.0, Power: 1.0,
+					RequiredPower: 1.0, TerrainCost: x, Encumbrance: x, VehicleMultiplier: x)),
+			_ => [(Outcome: 0.0, Wind: 1.0, Output: 1.0, SwimCost: 1.0, Power: 1.0,
+				RequiredPower: 1.0, TerrainCost: 1.0, Encumbrance: 1.0, VehicleMultiplier: 1.0)]
 		};
 
 		foreach (var sample in samples)
@@ -2137,7 +2323,12 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 				("outcome", sample.Outcome),
 				("wind", sample.Wind),
 				("output", sample.Output),
-				("swimcost", sample.SwimCost));
+				("swimcost", sample.SwimCost),
+				("power", sample.Power),
+				("requiredpower", sample.RequiredPower),
+				("terraincost", sample.TerrainCost),
+				("encumbrance", sample.Encumbrance),
+				("vehiclemultiplier", sample.VehicleMultiplier));
 			if (!double.IsFinite(value) || speed && value <= 0.0 || !speed && value < 0.0)
 			{
 				reason = speed
@@ -2222,6 +2413,36 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 		ReloadChildDefinitions();
 		actor.OutputHandler.Send("You update that movement profile's power requirements.");
+		return true;
+	}
+
+	private bool BuildingCommandMovementEnginePower(ICharacter actor, StringStack command)
+	{
+		if (!long.TryParse(command.PopSpeech(), out var id) ||
+		    !double.TryParse(command.PopSpeech(), out var watts) ||
+		    !double.IsFinite(watts) || watts < 0.0)
+		{
+			actor.OutputHandler.Send(
+				"You must specify a movement profile ID and a non-negative minimum engine power in watts.");
+			return false;
+		}
+
+		using (new FMDB())
+		{
+			var dbitem = FMDB.Context.VehicleMovementProfileProtos.Find(id);
+			if (dbitem is null || dbitem.VehicleProtoId != Id || dbitem.VehicleProtoRevision != RevisionNumber)
+			{
+				actor.OutputHandler.Send("There is no such movement profile.");
+				return false;
+			}
+
+			dbitem.MinimumEnginePowerInWatts = watts;
+			FMDB.Context.SaveChanges();
+		}
+
+		ReloadChildDefinitions();
+		actor.OutputHandler.Send(
+			$"That movement profile now requires {watts.ToString("N2", actor).ColourValue()} watts of mechanical engine power.");
 		return true;
 	}
 
@@ -2374,27 +2595,26 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 	internal static string DescribeMovementProfileForShow(IVehicleMovementProfilePrototype profile, ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.Append($"\t#{profile.Id.ToString("N0", actor)} {profile.Name.ColourName()} [{profile.MovementType.DescribeEnum().ColourValue()}] environment {profile.MovementEnvironment.DescribeEnum(true).ColourName()}{(profile.MovementEnvironment == VehicleMovementEnvironment.SurfaceWater ? profile.ExposesOccupantsToWater ? " occupants exposed".Colour(Telnet.Yellow) : " occupants protected".Colour(Telnet.Green) : "")}{(profile.IsDefault ? " default".Colour(Telnet.Green) : "")}{(string.IsNullOrWhiteSpace(profile.RequiredInstalledRole) ? "" : $" role {profile.RequiredInstalledRole.ColourCommand()}")}{(profile.FuelLiquidId is null ? "" : $" fuel {profile.FuelVolumePerMove.ToString("N2", actor).ColourValue()}")}{(profile.RequiredPowerSpikeInWatts > 0.0 ? $" power {profile.RequiredPowerSpikeInWatts.ToString("N2", actor).ColourValue()}W" : "")}");
+		sb.Append($"\t#{profile.Id.ToString("N0", actor)} {profile.Name.ColourName()} [{profile.MovementType.DescribeEnum().ColourValue()}] environment {profile.MovementEnvironment.DescribeEnum(true).ColourName()}{(profile.MovementEnvironment == VehicleMovementEnvironment.SurfaceWater ? profile.ExposesOccupantsToWater ? " occupants exposed".Colour(Telnet.Yellow) : " occupants protected".Colour(Telnet.Green) : "")}{(profile.IsDefault ? " default".Colour(Telnet.Green) : "")}{(string.IsNullOrWhiteSpace(profile.RequiredInstalledRole) ? "" : $" role {profile.RequiredInstalledRole.ColourCommand()}")}{(profile.FuelLiquidId is null ? "" : $" fuel {profile.FuelVolumePerMove.ToString("N2", actor).ColourValue()}")}{(profile.RequiredPowerSpikeInWatts > 0.0 ? $" power {profile.RequiredPowerSpikeInWatts.ToString("N2", actor).ColourValue()}W" : "")}{(profile.MinimumEnginePowerInWatts > 0.0 ? $" engine-power {profile.MinimumEnginePowerInWatts.ToString("N2", actor).ColourValue()}W" : "")}");
 		if (profile.MovementType == VehicleMovementProfileType.Route)
 		{
 			sb.Append($" speed {profile.RouteSpeedMetresPerSecond.ToString("N3", actor).ColourValue()}m/s propulsion {profile.RoutePropulsionMode.DescribeEnum().ColourName()}{(profile.FuelLiquidId is null ? "" : $" route-fuel {profile.RouteFuelVolumePerMetre.ToString("N8", actor).ColourValue()}/m")}{(profile.RoutePowerDrawWatts > 0.0 ? $" route-power {profile.RoutePowerDrawWatts.ToString("N2", actor).ColourValue()}W" : "")}{(profile.AutomaticOperationCapable ? " automatic-capable".Colour(Telnet.Green) : "")}");
 			return sb.ToString();
 		}
-		if (profile.MovementEnvironment != VehicleMovementEnvironment.SurfaceWater)
-		{
-			return sb.ToString();
-		}
-
 		var propulsionProfiles = profile.PropulsionProfiles?.ToList() ?? [];
 		if (!propulsionProfiles.Any())
 		{
-			sb.Append($"\n\t\t{("Warning: legacy surface-water profile has no explicit propulsion mode.".Colour(Telnet.Yellow))}");
+			if (profile.MovementEnvironment == VehicleMovementEnvironment.SurfaceWater)
+			{
+				sb.Append(
+					$"\n\t\t{("Warning: legacy surface-water profile has no explicit propulsion mode.".Colour(Telnet.Yellow))}");
+			}
 			return sb.ToString();
 		}
 
 		foreach (var propulsion in propulsionProfiles)
 		{
-			sb.Append($"\n\t\t#{propulsion.Id.ToString("N0", actor)} {propulsion.PropulsionType.DescribeEnum().ColourName()}{(propulsion.IsDefault ? " default".Colour(Telnet.Green) : "")} time {TimeSpan.FromMilliseconds(propulsion.BaseMoveTimeMilliseconds).Describe(actor).ColourValue()}");
+			sb.Append($"\n\t\t#{propulsion.Id.ToString("N0", actor)} {propulsion.PropulsionType.DescribeEnum(true).ColourName()}{(propulsion.IsDefault ? " default".Colour(Telnet.Green) : "")} time {TimeSpan.FromMilliseconds(propulsion.BaseMoveTimeMilliseconds).Describe(actor).ColourValue()}");
 			if (propulsion.PropulsionType is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed)
 			{
 				sb.Append($" trait {(propulsion.PropulsionTrait?.Name.ColourName() ?? "none".ColourError())} difficulty {propulsion.CheckDifficulty.DescribeEnum().ColourName()}");
@@ -2405,9 +2625,23 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 				sb.Append($" speed {propulsion.SpeedMultiplierExpression.ColourCommand()}");
 			}
 
-			if (propulsion.PropulsionType is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed)
+			if (propulsion.PropulsionType is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed or
+			    VehiclePropulsionType.RiderPowered)
 			{
 				sb.Append($" stamina {propulsion.StaminaCostExpression.ColourCommand()}");
+			}
+
+			if (propulsion.PropulsionType == VehiclePropulsionType.RiderPowered)
+			{
+				sb.Append(
+					$" default-multiplier {propulsion.RiderStaminaMultiplier.ToString("N3", actor).ColourValue()}");
+				foreach (var modifier in propulsion.RiderStaminaModifiers.OrderBy(x => x.Id))
+				{
+					var target = modifier.Terrain?.Name ?? modifier.TerrainTag?.FullName ?? "missing target";
+					var targetType = modifier.TerrainId is not null ? "terrain" : "terrain-tag";
+					sb.Append(
+						$"\n\t\t\t#{modifier.Id.ToString("N0", actor)} {targetType} {target.ColourName()} multiplier {modifier.Multiplier.ToString("N3", actor).ColourValue()}");
+				}
 			}
 		}
 
@@ -3300,6 +3534,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			                 .Include(x => x.OccupantSlots)
 			                 .Include(x => x.ControlStations)
 				                 .Include(x => x.MovementProfiles).ThenInclude(x => x.PropulsionProfiles)
+					                 .ThenInclude(x => x.RiderStaminaModifiers)
 			                 .Include(x => x.AccessPoints)
 			                 .Include(x => x.CargoSpaces)
 			                 .Include(x => x.InstallationPoints)
@@ -3444,6 +3679,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 					ExposesOccupantsToWater = profile.ExposesOccupantsToWater,
 					IsDefault = profile.IsDefault,
 					RequiredPowerSpikeInWatts = profile.RequiredPowerSpikeInWatts,
+					MinimumEnginePowerInWatts = profile.MinimumEnginePowerInWatts,
 					FuelLiquidId = profile.FuelLiquidId,
 					FuelVolumePerMove = profile.FuelVolumePerMove,
 					RequiredInstalledRole = profile.RequiredInstalledRole,
@@ -3474,7 +3710,16 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 						PropulsionTraitDefinitionId = propulsion.PropulsionTrait?.Id,
 						CheckDifficulty = (int)propulsion.CheckDifficulty,
 						SpeedMultiplierExpression = propulsion.SpeedMultiplierExpression,
-						StaminaCostExpression = propulsion.StaminaCostExpression
+						StaminaCostExpression = propulsion.StaminaCostExpression,
+						RiderStaminaMultiplier = propulsion.RiderStaminaMultiplier,
+						RiderStaminaModifiers = propulsion.RiderStaminaModifiers
+							.Select(x => new DB.VehicleRiderStaminaModifierProto
+							{
+								TerrainId = x.TerrainId,
+								TerrainTagId = x.TerrainTagId,
+								Multiplier = x.Multiplier
+							})
+							.ToList()
 					});
 				}
 			}
@@ -3638,6 +3883,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 				    .Include(x => x.OccupantSlots)
 				    .Include(x => x.ControlStations)
 				    .Include(x => x.MovementProfiles).ThenInclude(x => x.PropulsionProfiles)
+					    .ThenInclude(x => x.RiderStaminaModifiers)
 				    .Include(x => x.AccessPoints)
 				    .Include(x => x.CargoSpaces)
 				    .Include(x => x.InstallationPoints)
@@ -3776,6 +4022,7 @@ public class VehicleMovementProfilePrototype : FrameworkItem, IVehicleMovementPr
 		ExposesOccupantsToWater = dbitem.ExposesOccupantsToWater;
 		IsDefault = dbitem.IsDefault;
 		RequiredPowerSpikeInWatts = dbitem.RequiredPowerSpikeInWatts;
+		MinimumEnginePowerInWatts = dbitem.MinimumEnginePowerInWatts;
 		FuelLiquidId = dbitem.FuelLiquidId;
 		FuelVolumePerMove = dbitem.FuelVolumePerMove;
 		RequiredInstalledRole = dbitem.RequiredInstalledRole ?? string.Empty;
@@ -3797,6 +4044,7 @@ public class VehicleMovementProfilePrototype : FrameworkItem, IVehicleMovementPr
 	public bool ExposesOccupantsToWater { get; }
 	public bool IsDefault { get; }
 	public double RequiredPowerSpikeInWatts { get; }
+	public double MinimumEnginePowerInWatts { get; }
 	public long? FuelLiquidId { get; }
 	public double FuelVolumePerMove { get; }
 	public string RequiredInstalledRole { get; }
@@ -3812,11 +4060,13 @@ public class VehicleMovementProfilePrototype : FrameworkItem, IVehicleMovementPr
 
 public class VehiclePropulsionProfilePrototype : FrameworkItem, IVehiclePropulsionProfilePrototype
 {
+	private readonly List<IVehicleRiderStaminaModifierPrototype> _riderStaminaModifiers = new();
+
 	public VehiclePropulsionProfilePrototype(DB.VehiclePropulsionProfileProto dbitem, IFuturemud gameworld)
 	{
 		_id = dbitem.Id;
 		PropulsionType = (VehiclePropulsionType)dbitem.PropulsionType;
-		_name = PropulsionType.DescribeEnum();
+		_name = PropulsionType.DescribeEnum(true);
 		IsDefault = dbitem.IsDefault;
 		BaseMoveTimeMilliseconds = dbitem.BaseMoveTimeMilliseconds;
 		PropulsionTrait = dbitem.PropulsionTraitDefinitionId is null || gameworld is null
@@ -3825,6 +4075,10 @@ public class VehiclePropulsionProfilePrototype : FrameworkItem, IVehiclePropulsi
 		CheckDifficulty = (Difficulty)dbitem.CheckDifficulty;
 		SpeedMultiplierExpression = dbitem.SpeedMultiplierExpression;
 		StaminaCostExpression = dbitem.StaminaCostExpression;
+		RiderStaminaMultiplier = dbitem.RiderStaminaMultiplier;
+		_riderStaminaModifiers.AddRange(dbitem.RiderStaminaModifiers
+			.OrderBy(x => x.Id)
+			.Select(x => new VehicleRiderStaminaModifierPrototype(x, gameworld)));
 	}
 
 	public override string FrameworkItemType => "VehiclePropulsionProfilePrototype";
@@ -3835,6 +4089,8 @@ public class VehiclePropulsionProfilePrototype : FrameworkItem, IVehiclePropulsi
 	public Difficulty CheckDifficulty { get; }
 	public string SpeedMultiplierExpression { get; }
 	public string StaminaCostExpression { get; }
+	public double RiderStaminaMultiplier { get; }
+	public IEnumerable<IVehicleRiderStaminaModifierPrototype> RiderStaminaModifiers => _riderStaminaModifiers;
 
 	public static bool Validate(IVehiclePropulsionProfilePrototype profile, out string reason)
 	{
@@ -3864,16 +4120,71 @@ public class VehiclePropulsionProfilePrototype : FrameworkItem, IVehiclePropulsi
 			return false;
 		}
 
-		if (profile.PropulsionType is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed &&
+		if (profile.PropulsionType is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed or
+		    VehiclePropulsionType.RiderPowered &&
 		    !VehiclePrototype.ValidatePropulsionExpression(profile.PropulsionType,
 			    profile.StaminaCostExpression, false, out reason))
 		{
 			return false;
 		}
 
+		if (profile.PropulsionType == VehiclePropulsionType.RiderPowered)
+		{
+			if (!double.IsFinite(profile.RiderStaminaMultiplier) || profile.RiderStaminaMultiplier < 0.0)
+			{
+				reason = "the default rider stamina multiplier must be finite and non-negative";
+				return false;
+			}
+
+			var modifiers = profile.RiderStaminaModifiers.ToList();
+			if (modifiers.Any(x => (x.TerrainId is null) == (x.TerrainTagId is null)))
+			{
+				reason = "each rider stamina modifier must target exactly one terrain or terrain tag";
+				return false;
+			}
+
+			if (modifiers.Any(x => !double.IsFinite(x.Multiplier) || x.Multiplier < 0.0))
+			{
+				reason = "rider stamina modifiers must be finite and non-negative";
+				return false;
+			}
+
+			if (modifiers.Where(x => x.TerrainId is not null)
+			    .GroupBy(x => x.TerrainId)
+			    .Any(x => x.Count() > 1) ||
+			    modifiers.Where(x => x.TerrainTagId is not null)
+				    .GroupBy(x => x.TerrainTagId)
+				    .Any(x => x.Count() > 1))
+			{
+				reason = "rider stamina modifiers cannot duplicate a terrain or terrain tag";
+				return false;
+			}
+		}
+
 		reason = string.Empty;
 		return true;
 	}
+}
+
+public class VehicleRiderStaminaModifierPrototype : FrameworkItem, IVehicleRiderStaminaModifierPrototype
+{
+	public VehicleRiderStaminaModifierPrototype(DB.VehicleRiderStaminaModifierProto dbitem, IFuturemud gameworld)
+	{
+		_id = dbitem.Id;
+		TerrainId = dbitem.TerrainId;
+		Terrain = TerrainId is null ? null! : gameworld.Terrains.Get(TerrainId.Value)!;
+		TerrainTagId = dbitem.TerrainTagId;
+		TerrainTag = TerrainTagId is null ? null! : gameworld.Tags.Get(TerrainTagId.Value)!;
+		_name = Terrain?.Name ?? TerrainTag?.FullName ?? "Missing Rider Stamina Modifier Target";
+		Multiplier = dbitem.Multiplier;
+	}
+
+	public override string FrameworkItemType => "VehicleRiderStaminaModifierPrototype";
+	public long? TerrainId { get; }
+	public ITerrain Terrain { get; }
+	public long? TerrainTagId { get; }
+	public ITag TerrainTag { get; }
+	public double Multiplier { get; }
 }
 
 public class VehicleAccessPointPrototype : FrameworkItem, IVehicleAccessPointPrototype

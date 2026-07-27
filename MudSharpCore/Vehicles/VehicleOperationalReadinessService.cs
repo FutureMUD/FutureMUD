@@ -232,7 +232,8 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 	public VehicleResourceReadinessPlan BuildLongitudinalResourcePlan(IVehicle vehicle,
 		IVehicleMovementProfilePrototype profile, double distanceMetres, TimeSpan duration)
 	{
-		if (profile.RoutePropulsionMode == RouteVehiclePropulsionMode.ExternallyPulled)
+		if (profile.RoutePropulsionMode is RouteVehiclePropulsionMode.ExternallyPulled or
+		    RouteVehiclePropulsionMode.EnginePowered)
 		{
 			return BuildResourcePlan(vehicle, profile, null, 0.0, 0.0);
 		}
@@ -576,8 +577,33 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 			return Fail($"That movement profile is disabled because {vehicle.DamageDisabledReason(VehicleDamageEffectTargetType.MovementProfile, profile.Id)}.");
 		}
 
-		VehicleHitchGraphMovePlan movePlan;
 		string reason;
+		var externalPullers = request.ExternalPullers?
+			.Where(x => x is not null)
+			.Distinct(CharacterPhysicalInstanceEqualityComparer.Instance)
+			.ToList() ?? [];
+		var requiresExternalPullers =
+			vehicle.ActivePropulsionProfile?.PropulsionType == VehiclePropulsionType.ExternallyPulled ||
+			profile.MovementType == VehicleMovementProfileType.Route &&
+			profile.RoutePropulsionMode == RouteVehiclePropulsionMode.ExternallyPulled;
+		if (!request.AutomaticOperation && requiresExternalPullers)
+		{
+			if (!TryResolveExternalPullers(vehicle, actor!, out var resolvedPullers, out reason))
+			{
+				return Fail(reason);
+			}
+
+			if (externalPullers.Any() &&
+			    (externalPullers.Count != resolvedPullers.Count ||
+			     externalPullers.Any(x => resolvedPullers.All(y => !y.SamePhysicalInstance(x)))))
+			{
+				return Fail("The supplied motive team does not match the vehicle's valid incoming character hitches.");
+			}
+
+			externalPullers = resolvedPullers;
+		}
+
+		VehicleHitchGraphMovePlan movePlan;
 		if (exit is null)
 		{
 			if (!_graphService.TryBuildVehicleTrain(vehicle.Gameworld, vehicle, out movePlan, out reason))
@@ -597,10 +623,6 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 				return Fail("That exit is too small for the vehicle.");
 			}
 
-			var externalPullers = request.ExternalPullers?
-				.Where(x => x is not null)
-				.Distinct(CharacterPhysicalInstanceEqualityComparer.Instance)
-				.ToList() ?? [];
 			var graphReady = externalPullers.Any()
 				? _graphService.CanDragVehicleTrain(vehicle.Gameworld, vehicle, exit, externalPullers,
 					out movePlan, out reason)
@@ -653,9 +675,12 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 			return Fail(reason, movePlan);
 		}
 
-		var resourcePlan = profile.MovementType == VehicleMovementProfileType.Route
-			? BuildRouteExitResourcePlan(vehicle, profile, exit)
-			: BuildResourcePlan(vehicle, profile);
+		var propulsionType = vehicle.ActivePropulsionProfile?.PropulsionType;
+		var resourcePlan = propulsionType is VehiclePropulsionType.Engine or VehiclePropulsionType.ExternallyPulled
+			? BuildResourcePlan(vehicle, profile, null, 0.0, 0.0)
+			: profile.MovementType == VehicleMovementProfileType.Route
+				? BuildRouteExitResourcePlan(vehicle, profile, exit)
+				: BuildResourcePlan(vehicle, profile);
 		if (!resourcePlan.HasPower)
 		{
 			return Fail(actor is null
@@ -683,7 +708,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 
 		if (exit is not null)
 		{
-			IPerceiver? transitionPerceiver = request.ExternalPullers?.FirstOrDefault();
+			IPerceiver? transitionPerceiver = externalPullers.FirstOrDefault();
 			transitionPerceiver ??= vehicle.Prototype.Scale == VehicleScale.RoomScale
 				? vehicle.ExteriorItem
 				: actor ?? (IPerceiver?)vehicle.ExteriorItem;
@@ -730,7 +755,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 		}
 
 		return new VehicleMovementReadinessResult(true, string.Empty, movePlan, resourcePlan, issues,
-			propulsionReadiness);
+			propulsionReadiness, externalPullers);
 	}
 
 	public VehicleMovementReadinessResult BuildLongitudinalMovementReadiness(
@@ -782,6 +807,17 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 			return Fail("That vehicle has an invalid RouteCell coordinate and must be recovered before it can move.");
 		}
 
+		var externalPullers = new List<ICharacter>();
+		if (profile.RoutePropulsionMode == RouteVehiclePropulsionMode.EnginePowered)
+		{
+			var engineReadiness = _propulsionService.BuildEngineReadiness(vehicle,
+				profile.MinimumEnginePowerInWatts);
+			if (!engineReadiness.CanMove)
+			{
+				return Fail(engineReadiness.Reason);
+			}
+		}
+
 		VehicleHitchGraphMovePlan movePlan;
 		if (!_graphService.TryBuildVehicleTrain(vehicle.Gameworld, vehicle, out movePlan, out reason,
 				allowRootIncoming: profile.RoutePropulsionMode == RouteVehiclePropulsionMode.ExternallyPulled))
@@ -791,38 +827,39 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 
 		if (profile.RoutePropulsionMode == RouteVehiclePropulsionMode.ExternallyPulled)
 		{
-			var incoming = _graphService.LinksInvolving(vehicle.Gameworld, vehicle.ExteriorItem)
-				.Where(x => SameVehicle(x.Target.Vehicle, vehicle))
-				.Where(x => x.Source.NodeType == VehicleHitchGraphNodeType.Character)
-				.ToList();
-			if (incoming.Count != 1 || incoming[0].Source.Character is null)
+			if (actor is null)
 			{
-				return Fail("An externally pulled RouteCell vehicle requires exactly one valid character or mount motive root.", movePlan);
+				return Fail("An externally pulled RouteCell vehicle requires an onboard controller.", movePlan);
 			}
 
-			if (!_graphService.ValidateLink(incoming[0], out reason))
+			if (!TryResolveExternalPullerLinks(vehicle, actor, out var incoming,
+				    out externalPullers, out reason))
 			{
 				return Fail(reason, movePlan);
 			}
 
-			var puller = incoming[0].Source.Character!;
-			var pullerLocation = RouteSpatialService.Instance.GetEffectiveLocation(puller);
 			var vehicleLocation = RouteSpatialService.Instance.GetEffectiveLocation(vehicle.ExteriorItem);
 			var immediate = RouteSpatialConfiguration.FromGameworld(vehicle.Gameworld).ImmediateDistanceMetres;
-			if (!ReferenceEquals(pullerLocation.Cell, vehicleLocation.Cell) ||
-				pullerLocation.Layer != vehicleLocation.Layer ||
-				!pullerLocation.RoutePositionMetres.HasValue || !vehicleLocation.RoutePositionMetres.HasValue ||
-				Math.Abs(pullerLocation.RoutePositionMetres.Value - vehicleLocation.RoutePositionMetres.Value) > immediate)
+			foreach (var puller in externalPullers)
 			{
-				return Fail("The motive character or mount is not close enough to pull that vehicle.", movePlan);
+				var pullerLocation = RouteSpatialService.Instance.GetEffectiveLocation(puller);
+				if (!ReferenceEquals(pullerLocation.Cell, vehicleLocation.Cell) ||
+				    pullerLocation.Layer != vehicleLocation.Layer ||
+				    !pullerLocation.RoutePositionMetres.HasValue || !vehicleLocation.RoutePositionMetres.HasValue ||
+				    Math.Abs(pullerLocation.RoutePositionMetres.Value - vehicleLocation.RoutePositionMetres.Value) >
+				    immediate)
+				{
+					return Fail($"{puller.HowSeen(actor, true)} is not close enough to pull that vehicle.", movePlan);
+				}
 			}
 
-			if (movePlan.Links.All(x => x.Key != incoming[0].Key))
+			var addedLinks = incoming.Where(x => movePlan.Links.All(y => y.Key != x.Key)).ToList();
+			if (addedLinks.Any())
 			{
 				movePlan = new VehicleHitchGraphMovePlan(
 					movePlan.RootVehicle,
 					movePlan.Members,
-					[incoming[0], .. movePlan.Links],
+					[.. addedLinks, .. movePlan.Links],
 					incoming.Select(x => x.HitchItem)
 						.Where(x => x is not null)
 						.Cast<IGameItem>()
@@ -832,7 +869,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 					movePlan.TotalWeight);
 			}
 
-			if (!TryValidateExternalPullCapacity([puller], movePlan, out reason))
+			if (!TryValidateExternalPullCapacity(externalPullers, movePlan, out reason))
 			{
 				return Fail(reason, movePlan);
 			}
@@ -873,7 +910,55 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 			return Fail("One of that vehicle's tow links is disabled.", movePlan, resourcePlan);
 		}
 
-		return new VehicleMovementReadinessResult(true, string.Empty, movePlan, resourcePlan, issues);
+		return new VehicleMovementReadinessResult(true, string.Empty, movePlan, resourcePlan, issues,
+			ExternalPullers: externalPullers);
+	}
+
+	private bool TryResolveExternalPullers(IVehicle vehicle, ICharacter actor,
+		out List<ICharacter> pullers, out string reason)
+	{
+		return TryResolveExternalPullerLinks(vehicle, actor, out _, out pullers, out reason);
+	}
+
+	private bool TryResolveExternalPullerLinks(IVehicle vehicle, ICharacter actor,
+		out List<VehicleHitchGraphLink> links, out List<ICharacter> pullers, out string reason)
+	{
+		links = vehicle.ExteriorItem is null
+			? []
+			: _graphService.LinksInvolving(vehicle.Gameworld, vehicle.ExteriorItem)
+				.Where(x => SameVehicle(x.Target.Vehicle, vehicle))
+				.Where(x => x.Source.NodeType == VehicleHitchGraphNodeType.Character)
+				.ToList();
+		pullers = links
+			.Select(x => x.Source.Character)
+			.Where(x => x is not null)
+			.Cast<ICharacter>()
+			.Distinct(CharacterPhysicalInstanceEqualityComparer.Instance)
+			.ToList();
+		if (!links.Any() || pullers.Count != links.Count)
+		{
+			reason = "An externally pulled vehicle requires at least one valid hitched character or mount.";
+			return false;
+		}
+
+		foreach (var link in links)
+		{
+			if (!_graphService.ValidateLink(link, out reason))
+			{
+				return false;
+			}
+		}
+
+		var unauthorized = pullers.FirstOrDefault(x => !VehicleMotiveAuthority.CanControl(actor, x));
+		if (unauthorized is not null)
+		{
+			reason =
+				$"You are not authorised to command {unauthorized.HowSeen(actor, true)} as part of this vehicle's motive team.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
 	}
 
 	private static bool TryValidateExternalPullCapacity(

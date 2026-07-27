@@ -40,6 +40,8 @@ comp list +trunk
 comp list dragaid
 comp list hitchgear
 comp list repairkit
+comp typehelp CombustionEngine
+comp typehelp ElectricEngine
 ```
 
 The runbook uses:
@@ -48,6 +50,7 @@ The runbook uses:
 - `Container_Trunk` for the cargo projection item.
 - `HitchGear_TowBar`, `HitchGear_Yoke`, `HitchGear_Harness`, `HitchGear_Rope`, or a legacy `DragAid` component for hitch tests. New content should prefer `HitchGear`.
 - `Repair_Metal`, `Repair_Wood`, `Repair_Universal`, or another material-compatible `RepairKit` component for player-facing exterior repair tests.
+- `Combustion Engine` and `Electric Engine` are builder-created engine behaviours rather than stock engine items. The combustion smoke below combines one with a same-item `LContainer_FuelCan`; electric engines instead use the powered-machine power topology shown by their type help.
 
 If `Container_Trunk` is not installed, use any current component prototype of type `Container` instead.
 
@@ -78,11 +81,29 @@ accept edit fresh vehicle runbook module component
 
 Record the approved component id as `<engine-installable-component-id>`.
 
+Create a combustion implementation for the installed-engine smoke. Replace `<fuel-liquid>` with a liquid in the test world:
+
+```text
+comp edit new combustion engine
+comp set name QA Combustion Vehicle Engine
+comp set desc Burns test fuel to provide terrestrial vehicle propulsion.
+comp set formfactor engine
+comp set output 100000
+comp set fuel <fuel-liquid> 4 litres
+comp set noise loud
+comp edit submit fresh vehicle runbook combustion engine
+comp review <component id>
+accept edit fresh vehicle runbook combustion engine
+```
+
+Record the approved id as `<combustion-engine-component-id>`. Its `formfactor engine` must match both the `Vehicle Installable` mount type and the vehicle installation point's mount type. Repeat with `comp edit new electric engine` when testing the electrical implementation; author `formfactor`, mechanical `output`, continuous `wattage`, power topology, and `noise` through its type help.
+
 Expected result:
 
 - Both type-help commands show the same vehicle installable help, including `mount <type>`, `role <role>`, `mincondition <percent>`, and `movementcondition <percent>`.
 - `comp edit new vehicle installable` opens a `Vehicle Installable` component, not a `Vehicle Exterior` component.
 - `comp set` or `comp set ?` while editing the component shows the type-specific help instead of the generic "does not yet have specific help" message.
+- The engine type-help commands expose form factor, mechanical output, and noise; combustion additionally exposes liquid fuel/continuous consumption, while electric exposes powered-machine wattage and connection settings.
 
 If an older build has already created an accidental `Vehicle Exterior` component from `comp edit new vehicle installable`, clean it up before continuing:
 
@@ -131,7 +152,7 @@ Build these item prototypes before creating vehicles:
 | `<car-hull-proto>` | `RoomContainer` exterior item | noun `car`, sdesc `a QA test car`, size `normal`, weight `900 kg` | none |
 | `<hatch-proto>` | access point projection item | noun `hatch`, sdesc `a QA test car hatch`, size `normal`, weight `25 kg` | none |
 | `<trunk-proto>` | cargo projection item | noun `trunk`, sdesc `a QA test car trunk`, size `normal`, weight `30 kg` | `Container_Trunk`, or another seeded `Container` component |
-| `<engine-module-proto>` | installable module item | noun `engine`, sdesc `a QA test engine module`, size `normal`, weight `80 kg` | `Holdable`, `<engine-installable-component-id>` |
+| `<engine-module-proto>` | installable combustion engine item | noun `engine`, sdesc `a QA test engine module`, size `normal`, weight `80 kg` | `Holdable`, `<engine-installable-component-id>`, `<combustion-engine-component-id>`, `LContainer_FuelCan` |
 | `<towbar-proto>` | physical hitch item | noun `towbar`, sdesc `a QA test towbar`, size `normal`, weight `10 kg` | `Holdable`, `HitchGear_TowBar` |
 | `<crate-proto>` | cargo contents | noun `crate`, sdesc `a QA test crate`, size `small`, weight `5 kg` | `Holdable` |
 | `<cart-hull-proto>` | mount-pulled cart exterior item | noun `cart`, sdesc `a QA test hand cart`, size `normal`, weight `120 kg` | none |
@@ -162,6 +183,13 @@ vehicleproto set slot add <rider-compartment-id> driver 1 saddle
 vehicleproto show <vehicle proto id>
 vehicleproto set station add <driver-slot-id> handlebars
 vehicleproto set movement cell
+vehicleproto show <vehicle proto id>
+vehicleproto set movement propulsion add <movement-profile-id> riderpowered
+vehicleproto show <vehicle proto id>
+vehicleproto set movement propulsion multiplier <propulsion-profile-id> 0.75
+# Optional exact terrain or tag tuning:
+vehicleproto set movement propulsion terrain <propulsion-profile-id> <terrain-id|name> 0.60
+vehicleproto set movement propulsion terraintag <propulsion-profile-id> <terrain-tag-id|name> 1.20
 vehicleproto set damage add 50 1 30 50 false frame
 vehicleproto submit fresh vehicle runbook itemscale
 vehicleproto approve <vehicle proto id> fresh vehicle runbook itemscale
@@ -196,6 +224,9 @@ Expected result:
 - After boarding, the rider's room long description shows them riding the bicycle, and the bicycle is not repeated as a separate item line while it is already mentioned in that rider line.
 - `get bicycle` while someone is riding it is rejected because the exterior item is occupied.
 - `north` and `south` work as aliases for `drive north` and `drive south` while the rider controls the bicycle.
+- The rider-powered propulsion row appears in `vehicleproto show`; its default stamina multiplier and any exact-terrain or terrain-tag overrides are visible.
+- Each committed move spends the controller's stamina using origin terrain cost, carried-load encumbrance, and the resolved vehicle multiplier. An exact terrain override wins over a matching terrain tag, and the most specific matching tag wins over the profile default.
+- If the controller cannot afford the resolved stamina cost, `vehiclestatus` and movement preflight report exhaustion and the bicycle does not depart.
 - `vehiclestatus` identifies the controller and reports a successful cell-exit preflight while controlled.
 - after `vehiclecontrol release`, movement is rejected until an eligible driver uses `vehiclecontrol`; a passenger or driver slot without a configured station cannot take control.
 - Vehicle movement has the normal movement rhythm: a begin/departure echo naming the rider and bicycle, movement delay, riding-style arrival echo such as `rides in from the South on a QA test bicycle`, and a refreshed look after arrival.
@@ -218,6 +249,8 @@ vehicleproto show <vehicle proto id>
 vehicleproto set station add <driver-slot-id> steering wheel
 vehicleproto set movement cell
 vehicleproto show <vehicle proto id>
+vehicleproto set movement enginepower <movement-profile-id> 75000
+vehicleproto set movement propulsion add <movement-profile-id> engine
 vehicleproto set access add <cabin-compartment-id> door <hatch-proto> side hatch
 vehicleproto show <vehicle proto id>
 vehicleproto set cargo add <cabin-compartment-id> <access-point-id> <trunk-proto> trunk
@@ -274,6 +307,8 @@ open hatch@car
 disembark
 item load <engine-module-proto>
 get engine
+fill engine <fuel-source>
+switch engine on
 open hatch@car
 install engine car engine
 embark car driver via hatch
@@ -294,6 +329,8 @@ Expected result:
 - Boarding is blocked while the required access point is closed.
 - Opening `hatch@car` allows boarding.
 - Movement is blocked until the required `engine` role is installed.
+- Engine propulsion is blocked until the installed engine is switched on, contains its configured fuel, matches the installation point's `engine` form factor, and supplies at least the authored 75,000 watts. `vehiclepropulsion` and `vehiclestatus` show excluded-engine reasons.
+- The combustion component consumes fuel continuously while running, including while stationary, and switches itself off when fuel is exhausted. An electric replacement is ready only while its powered-machine base is switched on and receiving its configured continuous draw.
 - Installed modules below their `movementcondition` threshold do not count for movement and appear in `vehicle show` readiness diagnostics.
 - Closing the hatch allows movement when the movement profile requires access points closed.
 - `drive north` and ordinary direction commands both invoke delayed vehicle movement while you control the car.
@@ -592,7 +629,7 @@ Expected result:
 - `vehicletrainweight` and `vehicletowstress` expose the unified hitch graph's effective train weight and highest stress ratio for route preflight progs.
 ## Mount-Hitched Cart Test
 
-This is now an active movement hitch, not a persisted vehicle-to-vehicle tow link. It is intended for live scenes such as a horse pulling a cart, an ox team pulling a wagon, or a person pulling a hand cart. The relationship uses the normal drag/movement system, so it is cleared by `unhitch`, `stop`, drag invalidation, reboot, or ordinary effect cleanup. Use persisted vehicle tow links for parked trailer chains between vehicles.
+This uses mixed character-to-vehicle hitch links rather than vehicle-to-vehicle tow links. It is intended for live scenes such as a horse pulling a cart, an ox team pulling a wagon, or a person pulling a hand cart. PC-inclusive links remain transient; eligible NPC-only links persist and project into the normal drag/movement effects after reboot. Use vehicle tow links for parked trailer chains between vehicles.
 
 Prepare one local character, NPC, or mount with enough drag capacity to pull the cart. The examples below call it `horse`; replace that keyword with whatever mount or test character exists in your fresh world. If your fresh world has no mount/NPC creation workflow prepared yet, use a second staff-controlled test character with high enough drag capacity for the smoke test.
 
@@ -607,6 +644,8 @@ vehicleproto show <vehicle proto id>
 vehicleproto set slot add <cart-compartment-id> driver 1 cart handle
 vehicleproto set station add <cart-driver-slot-id> handles
 vehicleproto set movement cell
+vehicleproto show <vehicle proto id>
+vehicleproto set movement propulsion add <movement-profile-id> externallypulled
 vehicleproto set tow add none hand towed 300000 pull 4 shafts
 vehicleproto set tow add none yoke towed 600000 pull 6 yoke
 vehicleproto set damage add 50 1 30 50 false frame
@@ -623,10 +662,14 @@ Direct hand/shaft hitch test:
 ```text
 look
 hitch horse shafts@cart
+embark cart driver
+vehiclecontrol
+vehiclepropulsion externallypulled
 north
 look
 vehicle show <cart vehicle id>
 south
+disembark
 unhitch horse
 ```
 
@@ -634,7 +677,8 @@ Expected result:
 
 - `hitch horse shafts@cart` succeeds without a hitch item because `hand` tow points are direct character/mount hitches.
 - If `horse` does not trust the actor, is not helpless, and is not a mount the actor can control or mount, the command creates an `accept` proposal on `horse` instead of applying the hitch immediately.
-- Moving the horse, rider, or controlled mount through an ordinary direction command pulls the cart exterior through the exit.
+- The seated controller's ordinary `north`/`south` commands initiate one vehicle movement; the hitched horse follows as the motive root rather than requiring a separate `force horse north`.
+- The controller must have direct authority over every motive character or mount. The complete team, riders/followers/drag participants, hitch gear, cart, and occupants cross exactly once, with the slowest motive mover setting the delay.
 - The cart vehicle's canonical location follows the exterior item after movement.
 - `unhitch horse` clears the active hitch. `stop` should also clear the ordinary drag effect and its vehicle hitch multiplier.
 
@@ -657,6 +701,25 @@ Expected result:
 - The tow point's `pull <multiplier>` setting reduces the cart's effective pulled weight for the horse/mount capacity check.
 - `unhitch yoke@cart` removes the active character/mount hitch for that tow point.
 
+Multi-animal team test:
+
+```text
+hitch horse shafts@cart
+hitch ox yoke@cart with yoke
+embark cart driver
+vehiclecontrol
+north
+disembark
+unhitch horse
+unhitch ox
+```
+
+Expected result:
+
+- Distinct incoming character links may use distinct target tow points on the same vehicle.
+- The team succeeds when its aggregate drag capacity is enough for the complete train, even when neither animal could pull it alone.
+- Reusing an occupied target tow point, supplying an unauthorised animal, or losing one member so aggregate capacity becomes insufficient fails closed before anything moves.
+
 Character chain test:
 
 ```text
@@ -672,7 +735,7 @@ unhitch ox
 Expected result:
 
 - A hitched character/mount can itself be the source for another hitch, so chains such as `horse -> ox -> cart` can move through normal cell exits.
-- Each target can only have one incoming drag/hitch link, and each source can only pull one target at a time.
+- Each character target can only have one incoming drag/hitch link, a vehicle target may receive multiple character links at distinct tow points, and each source can only pull one target at a time.
 - Movement still uses normal character and mount movement validation. Combat, blocking position changes, missing hitch access, closed required vehicle access, damage-disabled tow points, invalid downstream trains, tow catastrophe, or insufficient drag capacity should block the hitch or movement.
 
 Current limitations:
@@ -1046,11 +1109,12 @@ The current implementation should be considered fully supported for:
 - exposed `ItemScale` surface-water craft such as surfboards, with floating support but normal ambient water exposure for occupants;
 - `RoomContainer` vehicles represented by one exterior item, with authored compartments, slots, stations, access projections, cargo projections, installation points, damage effects, tow points, operational readiness checks, and cell-exit movement;
 - protected `RoomContainer` surface-water boats whose occupants avoid swimming, sinking, and ambient terrain-water exposure while the craft remains intact;
+- terrestrial `ItemScale` and `RoomContainer` vehicles powered by compatible installed combustion or electric `IVehicleEngine` components, including aggregate mechanical-power readiness and continuous component-owned energy use;
 - recursive tow trains made from cell-visible vehicles, provided they stay within cell-exit movement and use co-located compatible hitch items;
 - active mount/character-pulled carts, wagons, rickshaws, hand carts, and similar vehicle exteriors, including carts with downstream vehicle tow links, while the hitch is a live movement effect or an eligible NPC-only persistent hitch;
 - player-facing exterior repair through ordinary repair kits, admin damage/hitch recovery, and tow catastrophe recovery for the current cell-exit movement model.
 - explicit driver control handoff, player-facing readiness/status checks, required-crew enforcement, and fail-closed movement when an exterior projection is missing or out of sync.
-- continuous RouteCell driving for powered and externally pulled vehicles, including exact stops, landmark/visible-exit targets, explicit compiled portal steps, durable checkpoints, and recursive hitch cohorts;
+- continuous RouteCell driving for legacy powered, engine-powered, and externally pulled vehicles, including exact stops, landmark/visible-exit targets, explicit compiled portal steps, durable checkpoints, and recursive hitch cohorts;
 - persistent `RoomScale` hosted interiors that remain stable while their exterior moves through ordinary exits or along RouteCells, with transient ordinary-cell and scheduled-platform docking;
 - revisioned, topology-pinned `VehicleRoute` definitions, recurring `VehicleService` schedules, restart-safe journeys, holds/cancellation/faults, player timetable/status output, and automatic or onboard operation;
 - the scheduled multi-compartment train, ordinary-exit massive mobile platform, and mount-drawn route wagon-train acceptance scenarios in this runbook.

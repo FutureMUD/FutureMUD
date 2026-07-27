@@ -629,6 +629,10 @@ public interface IOutboardMotorPrototype : IExclusiveGameItemComponentPrototype<
 {
 }
 
+public interface IVehicleEnginePrototype : IExclusiveGameItemComponentPrototype<IVehicleEngine>
+{
+}
+
 public interface IVendingMachinePrototype : IExclusiveGameItemComponentPrototype<IVendingMachine>, ISelectablePrototype, IListablePrototype
 {
 }

@@ -185,6 +185,9 @@ public class VehicleEnvironmentRulesTests
 		StringAssert.Contains(help, "movement environment <id> <unrestricted|surfacewater>");
 		StringAssert.Contains(help, "movement waterexposure <id> <protected|exposed>");
 		StringAssert.Contains(help, "movement propulsion add <movement id>");
+		StringAssert.Contains(help, "movement enginepower <id> <watts>");
+		StringAssert.Contains(help, "movement propulsion multiplier <propulsion id>");
+		StringAssert.Contains(help, "movement propulsion terraintag <propulsion id>");
 		StringAssert.Contains(help, "slot propulsion <id>");
 	}
 
@@ -203,6 +206,14 @@ public class VehicleEnvironmentRulesTests
 			VehiclePrototype.ParseVehiclePropulsionType("selfpowered"));
 		Assert.AreEqual(VehiclePropulsionType.OutboardMotor,
 			VehiclePrototype.ParseVehiclePropulsionType("outboard"));
+		Assert.AreEqual(VehiclePropulsionType.Engine,
+			VehiclePrototype.ParseVehiclePropulsionType("engine"));
+		Assert.AreEqual(VehiclePropulsionType.ExternallyPulled,
+			VehiclePrototype.ParseVehiclePropulsionType("animal-drawn"));
+		Assert.AreEqual(VehiclePropulsionType.RiderPowered,
+			VehiclePrototype.ParseVehiclePropulsionType("bicycle"));
+		Assert.AreEqual(VehiclePropulsionType.RiderPowered,
+			VehiclePrototype.ParseVehiclePropulsionType("rider-powered"));
 		Assert.IsNull(VehiclePrototype.ParseVehiclePropulsionType("steam"));
 	}
 
@@ -217,6 +228,14 @@ public class VehicleEnvironmentRulesTests
 			out _));
 		Assert.IsTrue(VehiclePrototype.ValidatePropulsionExpression(VehiclePropulsionType.SelfPowered,
 			"max(0.25, 1.0 + (0.15 * outcome))", true, out _));
+		Assert.IsTrue(VehiclePrototype.ValidatePropulsionExpression(VehiclePropulsionType.Engine,
+			"power / requiredpower", true, out _));
+		Assert.IsFalse(VehiclePrototype.ValidatePropulsionExpression(VehiclePropulsionType.Engine,
+			"output", true, out _));
+		Assert.IsTrue(VehiclePrototype.ValidatePropulsionExpression(VehiclePropulsionType.RiderPowered,
+			"terraincost * encumbrance * vehiclemultiplier", false, out _));
+		Assert.IsFalse(VehiclePrototype.ValidatePropulsionExpression(VehiclePropulsionType.RiderPowered,
+			"swimcost", false, out _));
 	}
 
 	[TestMethod]
@@ -234,6 +253,33 @@ public class VehicleEnvironmentRulesTests
 
 		StringAssert.Contains(text, "Surface Water");
 		StringAssert.Contains(text, "occupants exposed");
+	}
+
+	[TestMethod]
+	public void BuilderShow_UnrestrictedProfile_IncludesRiderPoweredConfiguration()
+	{
+		var propulsion = new Mock<IVehiclePropulsionProfilePrototype>();
+		propulsion.SetupGet(x => x.Id).Returns(43);
+		propulsion.SetupGet(x => x.PropulsionType).Returns(VehiclePropulsionType.RiderPowered);
+		propulsion.SetupGet(x => x.BaseMoveTimeMilliseconds).Returns(10000.0);
+		propulsion.SetupGet(x => x.SpeedMultiplierExpression).Returns("1");
+		propulsion.SetupGet(x => x.StaminaCostExpression)
+			.Returns("terraincost * encumbrance * vehiclemultiplier");
+		propulsion.SetupGet(x => x.RiderStaminaMultiplier).Returns(0.75);
+		propulsion.SetupGet(x => x.RiderStaminaModifiers)
+			.Returns([]);
+		var profile = new Mock<IVehicleMovementProfilePrototype>();
+		profile.SetupGet(x => x.Id).Returns(42);
+		profile.SetupGet(x => x.Name).Returns("Bicycle");
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.Unrestricted);
+		profile.SetupGet(x => x.PropulsionProfiles).Returns([propulsion.Object]);
+		var actor = new Mock<ICharacter>();
+
+		var text = VehiclePrototype.DescribeMovementProfileForShow(profile.Object, actor.Object);
+
+		StringAssert.Contains(text, "Rider Powered");
+		StringAssert.Contains(text, "default-multiplier");
 	}
 
 	[TestMethod]

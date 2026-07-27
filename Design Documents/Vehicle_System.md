@@ -30,6 +30,7 @@ Phases 1, 2, 3, and 3B are present for the V1.0 vehicle boundary:
 - Admin/builder commands: `vehicleproto` for prototype authoring and creation, `vehicle` for live diagnostics/recovery/retirement, `vehicleroute` for revisioned itineraries, and `vehicleservice` for recurring operations.
 - Cell-exit movement strategy with controller, location, profile, exit-size, transition, disabled/destroyed, closed-access, required installation, required role, fuel, power, and recursive tow-train validation.
 - Surface-water cell-exit profiles for `ItemScale` and `RoomContainer` craft, including surface-only traversal, hull floating, occupant swim support, configurable occupant water exposure, explicit selectable propulsion, and water-safe disembark/destruction cleanup.
+- Unrestricted cell-exit propulsion profiles for terrestrial engines and externally pulled vehicles, including interface-based engine discovery, form-factor compatibility, aggregate mechanical power, and multi-animal motive teams.
 - Tow-train service for hitch validation, cycle prevention, tow-point usage checks, recursive train weight checks, required `IHitchGear`/legacy `IDragAid` connector item validity, in-use item reservation, and loaded broken-link diagnostics.
 - Active character/mount hitching through the normal drag movement system, including character-to-character chains and character/mount-to-vehicle tow-point hitches with physical connector gear for non-direct tow points.
 - Tow point authoring includes a character pull multiplier that scales effective pull capacity for mounts, animals, or people pulling that vehicle point.
@@ -50,7 +51,7 @@ Phases 1, 2, 3, and 3B are present for the V1.0 vehicle boundary:
 The following areas remain deliberately narrower than a complete engineering simulation:
 
 - Rich physical access-device authoring, ownership, and lease systems beyond explicit persisted access rows, reusable access presets, fleet helper commands, and existing projection locks.
-- Fuller fuel, power, electrical, and liquid network topology beyond installed candidate modules.
+- Fuller electrical and liquid network topology beyond same-item combustion tanks and the existing powered-machine connection model.
 - Coordinate 2D/3D movement outside the linear RouteCell model.
 - Collision, physical consist length, overtaking, signalling, and dispatch.
 - Fares, tickets, reservations, and full electrical/liquid network topology.
@@ -98,7 +99,7 @@ Child definitions:
 - `VehicleCompartmentPrototype` groups stations and occupant slots.
 - `VehicleOccupantSlotPrototype` defines driver, passenger, and crew capacity.
 - `VehicleControlStationPrototype` links vehicle control authority to a slot.
-- `VehicleMovementProfilePrototype` declares the movement strategy family, movement environment, occupant water-exposure policy, and resource/readiness requirements.
+- `VehicleMovementProfilePrototype` declares the movement strategy family, movement environment, occupant water-exposure policy, resource/readiness requirements, and the minimum mechanical engine power for engine-driven profiles.
 - `VehicleAccessPointPrototype` defines doors, hatches, ramps, canopies, and service panels projected as targetable items.
 - `VehicleCargoSpacePrototype` links a canonical cargo space to a targetable container projection item.
 - `VehicleInstallationPointPrototype` defines installable module mount type, optional role, and movement-required slots.
@@ -195,7 +196,7 @@ Live tables:
 - `VehicleHitchLinks`
 - `VehicleDamageZones`
 
-The initial migration is `VehiclesHybridModel`; Phase 2 system tables are added in `VehicleSystemsPhase2`, with later additive migrations for character-pull multipliers, persistent hitch links, operational-readiness fields, nullable tow-stress policy overrides, and surface-water movement profile fields.
+The initial migration is `VehiclesHybridModel`; Phase 2 system tables are added in `VehicleSystemsPhase2`, with later additive migrations for character-pull multipliers, persistent hitch links, operational-readiness fields, nullable tow-stress policy overrides, surface-water movement profile fields, and terrestrial minimum engine power.
 
 Important persistence rules:
 
@@ -204,8 +205,8 @@ Important persistence rules:
 - A live vehicle has a one-to-one external projection by convention and database uniqueness on `Vehicles.ExteriorItemId`.
 - Occupants are persisted in `VehicleOccupancies`; they are never stored inside item component XML.
 - Movement recovery fields are persisted on `Vehicles`: current cell, room layer, movement status, current exit, destination cell, and movement profile.
-- `VehicleMovementProfileProtos.MovementEnvironment` and `ExposesOccupantsToWater` persist the surface-water operating contract. Existing rows default to unrestricted movement and protected exposure, so ordinary vehicles retain their prior behaviour.
-- `VehiclePropulsionProfileProtos` stores at most one configuration of each propulsion type for a surface-water movement profile. It persists the default flag, base traversal time, check trait/difficulty, and speed/stamina expressions. `VehicleOccupantSlotProtos.ContributesToPropulsion` marks automatic rower slots, while nullable `Vehicles.ActivePropulsionProfileProtoId` persists the selected live mode. Existing surface-water profiles without child rows retain legacy movement and display a migration warning; new surface-water revisions must author a mode before submission.
+- `VehicleMovementProfileProtos.MovementEnvironment` and `ExposesOccupantsToWater` persist the surface-water operating contract. `MinimumEnginePowerInWatts` persists the aggregate mechanical-power threshold used by terrestrial cell-exit and RouteCell engine modes. Existing rows default to unrestricted movement, protected exposure, and zero engine power, so existing vehicle profiles retain their prior behaviour until a builder selects an engine mode.
+- `VehiclePropulsionProfileProtos` stores at most one configuration of each propulsion type for a cell-exit movement profile. Surface-water profiles support `SelfPowered`, `Rowed`, `Sail`, `OutboardMotor`, or exclusive `None`; unrestricted profiles support `Engine`, `ExternallyPulled`, or exclusive `None`. It persists the default flag, base traversal time, check trait/difficulty, and speed/stamina expressions. `VehicleOccupantSlotProtos.ContributesToPropulsion` marks automatic rower slots, while nullable `Vehicles.ActivePropulsionProfileProtoId` persists the selected live mode. Existing surface-water profiles without child rows retain legacy movement and display a migration warning; new surface-water revisions must author a mode before submission.
 - `VehicleExteriorGameItemComponent.VehicleId` is a repairable bridge value, not the source of truth.
 - Access and cargo projection components store only repairable bridge ids; their canonical state lives on the vehicle records.
 - Cargo contents remain ordinary item/container state on the cargo projection item.
@@ -246,10 +247,11 @@ Builder flow:
 8. Optional: `vehicleproto set movement environment <movement profile id> surfacewater`
 9. Optional for surface-water craft: `vehicleproto set movement waterexposure <movement profile id> <protected|exposed>`
 10. Required for new surface-water craft: `vehicleproto set movement propulsion add <movement profile id> <selfpowered|rowed|sail|outboard|none>`
-11. Configure the propulsion row with `time`, `trait`, `difficulty`, `speed`, or `stamina` as applicable; use `vehicleproto set slot propulsion <slot id>` for rowers.
-12. `vehicleproto submit <comment>`
-13. `vehicleproto approve <id> <comment>`
-14. `vehicleproto create <id|name>`
+11. Optional for unrestricted terrestrial vehicles: add `engine`, `externallypulled`, `riderpowered`, or exclusive `none`; engine profiles also require `vehicleproto set movement enginepower <movement profile id> <watts>`.
+12. Configure the propulsion row with `time`, `trait`, `difficulty`, `speed`, `stamina`, or rider stamina multipliers as applicable; use `vehicleproto set slot propulsion <slot id>` for rowers.
+13. `vehicleproto submit <comment>`
+14. `vehicleproto approve <id> <comment>`
+15. `vehicleproto create <id|name>`
 
 Factory flow:
 
@@ -280,7 +282,7 @@ Current player commands:
 - `vehiclecontrol` / `takecontrol`
 - `vehiclecontrol release` / `releasecontrol`
 - `vehiclestatus [vehicle]`
-- `vehiclepropulsion [selfpowered|rowed|sail|outboard|none]`
+- `vehiclepropulsion [selfpowered|rowed|sail|outboard|engine|externallypulled|riderpowered|none]`
 - `drive <direction>`
 - ordinary movement commands such as `north`, `east`, `enter`, or `leave` while controlling a vehicle
 - `install <held module> <vehicle> [install point]`
@@ -323,6 +325,9 @@ Driving rules currently check:
 - required installed modules and roles are present, correctly typed, enabled, not destroyed, and above their movement condition thresholds
 - configured fuel and power are available from functional installed candidate modules
 - the selected explicit propulsion mode is ready; an authored mode never silently falls back to another mode
+- engine-driven profiles have enough running, compatible installed engine power
+- externally pulled profiles have at least one valid incoming character or mount hitch, an authorised controller, and enough aggregate pull capacity
+- rider-powered profiles have an able controller with enough stamina for the current terrain, encumbrance, and vehicle modifier
 - recursive tow-train links are valid, tow points are not damage-disabled, hitch items are co-located, all towed vehicles fit through the exit, and any valid strained link survives the tow-stress catastrophe preflight
 
 The first occupant to board an eligible driver slot with a configured control station takes control automatically when they are physically at that station. A controller can release it with `vehiclecontrol release`; another occupant in an eligible driver slot can then use `vehiclecontrol` to take over. For RoomScale vehicles, selecting a driver slot through an access point in another explicitly linked compartment boards successfully into the access point's authored docking compartment, but does not grant control until the driver walks to the hosted control compartment and uses `vehiclecontrol`. `vehiclestatus` gives players a compact view of controller, crew, access, cargo, modules, damage, and—when they control it—the full cell-exit preflight result.
@@ -374,9 +379,37 @@ Every explicit mode starts with a 10-second base traversal time. Actual time is 
 
 `Vehicle Oar` is an item component with a positive efficiency multiplier. `Outboard Motor` is an item component with a positive output multiplier and either a fuelled or electric energy source. A fuelled motor requires a configured liquid/volume and a same-item `ILiquidContainer`; an electric motor requires a configured spike and a same-item `IProducePower`. Motor items must also carry `Vehicle Installable` and be installed on the driven vehicle.
 
+### Terrestrial Engine, Externally Pulled, And Rider-Powered Profiles
+
+An unrestricted `CellExit` movement profile may author one each of `Engine`, `ExternallyPulled`, and `RiderPowered`, or one exclusive `None` row. The controller selects among authored rows with `vehiclepropulsion`, just as for a surface-water craft. The pertinent builder commands are:
+
+```text
+vehicleproto set movement propulsion add <movement-id> <engine|externallypulled|riderpowered|none>
+vehicleproto set movement enginepower <movement-id> <watts>
+vehicleproto set movement propulsion speed <propulsion-id> <expression>
+vehicleproto set movement propulsion stamina <propulsion-id> <expression>
+vehicleproto set movement propulsion multiplier <propulsion-id> <multiplier>
+vehicleproto set movement propulsion terrain <propulsion-id> <terrain-id|name> <multiplier|none>
+vehicleproto set movement propulsion terraintag <propulsion-id> <tag-id|name> <multiplier|none>
+```
+
+`Engine` discovers installed components only through `IVehicleEngine`; the vehicle does not branch on combustion or electric implementation types. Every engine item must also have `Vehicle Installable`. Its engine `FormFactor` must exactly match the target installation point's mount type, preventing an engine built for one vehicle family from being installed in another. Ready engines must be intact, movement-functional, running, and have positive maximum mechanical power. Their power is aggregated, must meet `MinimumEnginePowerInWatts`, and is exposed to the speed expression as `power` alongside `requiredpower`; the default multiplier is `power / requiredpower`. Engine sound is emitted as an `AudioOutput` during movement.
+
+`Combustion Engine` and `Electric Engine` are the initial `IVehicleEngine` components:
+
+- `Combustion Engine` stores form factor, maximum mechanical watts, fuel liquid, continuous consumption per hour, and audio volume. It requires a same-item `ILiquidContainer`, consumes fuel on the one-second heartbeat while running, and stops when fuel is exhausted.
+- `Electric Engine` stores form factor, maximum mechanical watts, continuous electrical wattage, and audio volume. It uses the shared powered-machine topology, so it may draw from a mounted host or compatible electrical connection and is running only while switched on and powered.
+- `comp typehelp CombustionEngine` and `comp typehelp ElectricEngine` show the exact component builder surfaces.
+
+`ExternallyPulled` is the explicit terrestrial contract for carts, wagons, chariots, rickshaws, and similar vehicles. It is not the `None` mode: `None` deliberately prevents the vehicle from initiating movement. An externally pulled vehicle requires one or more incoming character-to-vehicle hitch links. The onboard controller may command the team only under the existing direct hitch-authority rules (self, controlled mount, ally trust, or helpless character). Movement readiness validates every link, proximity, exit traversal, and aggregate `MaximumDragWeight` after the vehicle tow point's character-pull multiplier. All pulling characters, their riders/followers/drag cohorts, connector gear, the vehicle train, and occupants share one movement and complete exactly once. The slowest pulling participant determines ordinary exit duration; motive-character stamina remains governed by the existing character movement system.
+
+`RiderPowered` is the explicit terrestrial contract for bicycles, pedal vehicles, kick scooters, and similar vehicles whose controller supplies the motive effort. It keeps the ordinary vehicle operating semantics: the rider boards a driver slot, takes the configured control station, selects the mode with `vehiclepropulsion` when needed, and issues `drive <direction>` or an ordinary direction command. It does not make a skill check by default. Its default speed multiplier is `1`, and it charges the controller once at departure through the default expression `terraincost * encumbrance * vehiclemultiplier`. `terraincost` is the origin terrain's ordinary stamina cost, `encumbrance` is the normal carried-load multiplier, and `vehiclemultiplier` is the vehicle's resolved rider efficiency.
+
+The profile-wide rider stamina multiplier defaults to `1.0`; values below `1.0` are discounts and values above `1.0` are penalties. A builder may replace it for an exact terrain or a terrain tag. Resolution is deterministic: an exact terrain override wins, otherwise the deepest matching terrain tag wins, otherwise the profile-wide multiplier applies. Equal-depth tag matches break by stable modifier id. A zero multiplier is permitted for unusual content that should cost no stamina. Readiness rejects exhausted or unable controllers, departure revalidates and charges the resolved amount exactly once, and cancellation after commit retains that cost like other committed propulsion resources.
+
 ### Character And Mount Hitching
 
-Character/mount hitching is implemented as an active movement-state bridge over the normal `Dragging` effect rather than as a persisted vehicle tow link. This supports cases such as a horse pulling a cart, an ox pulling a wagon, a person pulling a rickshaw or tuk-tuk, and short character-to-character hitch chains.
+Character/mount hitching is implemented as an active movement-state bridge over the normal `Dragging` effect and, for eligible NPC-only links, a persistent mixed hitch row. This supports cases such as a horse pulling a cart, an ox team pulling a wagon, a person pulling a rickshaw or tuk-tuk, and short character-to-character hitch chains.
 
 Supported forms:
 
@@ -398,9 +431,9 @@ Pull capacity is:
 * vehicle tow-point character pull multiplier
 ```
 
-The multiplier is represented internally by dividing the vehicle exterior's effective pulled weight by the tow point multiplier. This deliberately reuses character and mount drag capacity so race/body tuning for animals immediately affects vehicle pulling.
+The multiplier is represented internally by dividing the vehicle exterior's effective pulled weight by the tow point multiplier. This deliberately reuses character and mount drag capacity so race/body tuning for animals immediately affects vehicle pulling. Multiple characters may hitch into distinct target tow points on the same vehicle; readiness sums the distinct pullers' capacity and rejects duplicate target-point use.
 
-Character-to-character links can form chains, so a leader can pull or lead another character/mount that is itself pulling a cart. A target can only have one incoming drag/hitch relationship at a time, and a source can only actively pull one target at a time. The actor can hitch themselves, a source that trusts them as an ally, a helpless source, or a mount they can currently control or mount. Other conscious sources receive an `accept` proposal before the hitch is applied, and the command revalidates location, capacity, hitch item availability, and vehicle tow-point state when the proposal is accepted. Eligible NPC-only character hitch chains are persisted through `VehicleHitchLinks`; PC-inclusive hitches remain active runtime effects only. While a hitch is active, the connector item receives a no-get in-use effect and is released by `unhitch`, `stop`, link invalidation, or effect cleanup. For all character hitches, a hitch item must be in the chain location or on an endpoint, and actor-held hitch items are silently placed with the chain before the persistent link or transient runtime effect is created.
+Character-to-character links can form chains, so a leader can pull or lead another character/mount that is itself pulling a cart. A character target can only have one incoming drag/hitch relationship at a time, while a vehicle may receive multiple incoming character links at distinct tow points; a source can only actively pull one target at a time. The actor can hitch themselves, a source that trusts them as an ally, a helpless source, or a mount they can currently control or mount. Other conscious sources receive an `accept` proposal before the hitch is applied, and the command revalidates location, hitch item availability, and vehicle tow-point state when the proposal is accepted. Team capacity is checked atomically at movement readiness rather than rejecting an individually insufficient team member during hitching. Eligible NPC-only character hitch chains are persisted through `VehicleHitchLinks`; PC-inclusive hitches remain active runtime effects only. While a hitch is active, the connector item receives a no-get in-use effect and is released by `unhitch`, `stop`, link invalidation, or effect cleanup. For all character hitches, a hitch item must be in the chain location or on an endpoint, and actor-held hitch items are silently placed with the chain before the persistent link or transient runtime effect is created.
 
 ### Persistent Hitch Graph Plan
 
@@ -571,13 +604,14 @@ For RoomScale vehicles the controller may be in the hosted interior cell attache
 ```text
 vehicleproto set movement route
 vehicleproto set movement route speed <distance>/<time>
-vehicleproto set movement route propulsion powered|externallypulled
+vehicleproto set movement route propulsion powered|externallypulled|enginepowered
+vehicleproto set movement enginepower <movement-id> <watts>
 vehicleproto set movement route fuel <liquid> <volume>/<distance>
 vehicleproto set movement route power <watts>
 vehicleproto set movement route automatic
 ```
 
-Powered vehicles use their authored speed. Externally pulled vehicles use the motive hitch-graph root's speed and stamina. The vehicle, its exterior, party/mount/drag participants, hitch gear, and downstream vehicles move atomically at one v1 reference coordinate. The canonical vehicle coordinate drives the exterior item's persisted projection.
+Powered vehicles use their authored speed and the legacy route resource configuration. Engine-powered vehicles use the authored route speed but require enough running, compatible installed `IVehicleEngine` power; their engine components own continuous fuel or electricity consumption, and automatic operation is intentionally unavailable. Externally pulled vehicles use the slowest member of the complete motive team's effective speed and stamina. The vehicle, its exterior, all motive roots and their party/mount/drag participants, hitch gear, and downstream vehicles move atomically at one v1 reference coordinate. The canonical vehicle coordinate drives the exterior item's persisted projection.
 
 A compiled `CellExitStep` uses the same operational-readiness and hitch-graph preflight as longitudinal movement. For an externally pulled train, the incoming character/mount hitch is an explicitly allowed motive link rather than an ordinary “this vehicle is already being towed” blocker. The preflight validates the motive character, every recursive vehicle and connector, the transition, size/environment constraints, stamina, and tow stress before anything crosses. The motive character and its party/mount/drag cohort then traverse with the validated vehicle train and physical hitch gear as one synchronous operation; RoomScale interior occupants remain in their hosted cells. Entry into a RouteCell materialises the step's pinned arrival coordinate for the vehicles and every top-level cohort member. If preparation fails, the exact readiness reason is returned to `drive route` and the cohort remains at the source side.
 

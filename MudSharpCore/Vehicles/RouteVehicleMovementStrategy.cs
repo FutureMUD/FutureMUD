@@ -489,16 +489,23 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			}
 
 			var profile = RouteProfile(vehicle);
-			var motiveCharacter = profile?.RoutePropulsionMode == RouteVehiclePropulsionMode.ExternallyPulled
-				? IncomingMotiveLink(vehicle)?.Source.Character
-				: null;
-			if (profile?.RoutePropulsionMode == RouteVehiclePropulsionMode.ExternallyPulled && motiveCharacter is null)
+			var motiveCharacters = profile?.RoutePropulsionMode == RouteVehiclePropulsionMode.ExternallyPulled
+				? IncomingMotiveLinks(vehicle)
+					.Select(x => x.Source.Character)
+					.Where(x => x is not null)
+					.Cast<ICharacter>()
+					.Distinct(CharacterPhysicalInstanceEqualityComparer.Instance)
+					.ToList()
+				: [];
+			var motiveCharacter = motiveCharacters.FirstOrDefault();
+			if (profile?.RoutePropulsionMode == RouteVehiclePropulsionMode.ExternallyPulled &&
+			    !motiveCharacters.Any())
 			{
 				reason = "That vehicle has no external motive character or mount.";
 				return false;
 			}
 
-			IReadOnlyCollection<ICharacter> externalPullers = motiveCharacter is null ? [] : [motiveCharacter];
+			IReadOnlyCollection<ICharacter> externalPullers = motiveCharacters;
 			if (!_cellExitStrategy.TryPrepareMove(vehicle, actor, exit, true, out var towTrain,
 					out var transition, out var readiness, out reason, externalPullers: externalPullers,
 					movementProfile: profile))
@@ -593,28 +600,36 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 
 	private double ResolveSpeed(IVehicle vehicle, IVehicleMovementProfilePrototype profile)
 	{
-		if (profile.RoutePropulsionMode == RouteVehiclePropulsionMode.Powered)
+		if (profile.RoutePropulsionMode is RouteVehiclePropulsionMode.Powered or
+		    RouteVehiclePropulsionMode.EnginePowered)
 		{
 			return profile.RouteSpeedMetresPerSecond;
 		}
 
-		var puller = IncomingMotiveLink(vehicle)?.Source.Character;
-		if (puller is null)
+		var pullers = IncomingMotiveLinks(vehicle)
+			.Select(x => x.Source.Character)
+			.Where(x => x is not null)
+			.Cast<ICharacter>()
+			.Distinct(CharacterPhysicalInstanceEqualityComparer.Instance)
+			.ToList();
+		if (!pullers.Any())
 		{
 			return 0.0;
 		}
 
-		var gaitMultiplier = Math.Max(0.05, puller.CurrentSpeed?.Multiplier ?? 1.0);
-		return Math.Max(0.05, 1.4 / gaitMultiplier);
+		return pullers
+			.Select(x => Math.Max(0.05, 1.4 / Math.Max(0.05, x.CurrentSpeed?.Multiplier ?? 1.0)))
+			.Min();
 	}
 
-	private VehicleHitchGraphLink? IncomingMotiveLink(IVehicle vehicle)
+	private IReadOnlyList<VehicleHitchGraphLink> IncomingMotiveLinks(IVehicle vehicle)
 	{
 		return vehicle.ExteriorItem is null
-			? null
+			? []
 			: _graphService.LinksInvolving(vehicle.Gameworld, vehicle.ExteriorItem)
 				.Where(x => x.Target.Vehicle?.Id == vehicle.Id)
-				.FirstOrDefault(x => x.Source.NodeType == VehicleHitchGraphNodeType.Character);
+				.Where(x => x.Source.NodeType == VehicleHitchGraphNodeType.Character)
+				.ToList();
 	}
 
 	private bool TryBuildCohort(
@@ -651,15 +666,20 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 
 		if (profile.RoutePropulsionMode == RouteVehiclePropulsionMode.ExternallyPulled)
 		{
-			var puller = IncomingMotiveLink(root)?.Source.Character;
-			if (puller is null)
+			var pullers = IncomingMotiveLinks(root)
+				.Select(x => x.Source.Character)
+				.Where(x => x is not null)
+				.Cast<ICharacter>()
+				.Distinct(CharacterPhysicalInstanceEqualityComparer.Instance)
+				.ToList();
+			if (!pullers.Any())
 			{
 				cohort = default!;
 				reason = "That vehicle has no external motive character or mount.";
 				return false;
 			}
 
-			if (!TryBuildCharacterCohort(puller, origin, out var motiveCharacters,
+			if (!TryBuildCharacterCohort(pullers, origin, out var motiveCharacters,
 					out var motiveLocateables, out var motiveStamina, out reason))
 			{
 				cohort = default!;
@@ -700,7 +720,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 	}
 
 	private bool TryBuildCharacterCohort(
-		ICharacter root,
+		IReadOnlyCollection<ICharacter> roots,
 		SpatialLocation origin,
 		out IReadOnlyCollection<ICharacter> characters,
 		out IReadOnlyCollection<ILocateable> locateables,
@@ -711,7 +731,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		var targets = new HashSet<ILocateable>(ReferenceEqualityComparer.Instance);
 		var nonStamina = new HashSet<ICharacter>(CharacterPhysicalInstanceEqualityComparer.Instance);
 		var queue = new Queue<ICharacter>();
-		var immediate = RouteSpatialConfiguration.FromGameworld(root.Gameworld).ImmediateDistanceMetres;
+		var immediate = RouteSpatialConfiguration.FromGameworld(roots.First().Gameworld).ImmediateDistanceMetres;
 		var nearby = _spatialService.GetPerceivablesWithin(origin, immediate).OfType<ICharacter>().ToList();
 
 		void Add(ICharacter? character)
@@ -722,9 +742,14 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			}
 		}
 
-		Add(root);
-		if (root.Party?.Leader is { } leader && leader.SamePhysicalInstance(root))
+		foreach (var root in roots)
 		{
+			Add(root);
+			if (root.Party?.Leader is not { } leader || !leader.SamePhysicalInstance(root))
+			{
+				continue;
+			}
+
 			foreach (var member in root.Party.ActiveCharacterMembers)
 			{
 				Add(member);
@@ -793,7 +818,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 				characters = [];
 				locateables = [];
 				staminaMovers = [];
-				reason = $"{character.HowSeen(root, true)} is already moving.";
+				reason = $"{character.HowSeen(roots.First(), true)} is already moving.";
 				return false;
 			}
 
@@ -808,7 +833,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 				characters = [];
 				locateables = [];
 				staminaMovers = [];
-				reason = $"{character.HowSeen(root, true)} cannot move: {canMove.ErrorMessage}";
+				reason = $"{character.HowSeen(roots.First(), true)} cannot move: {canMove.ErrorMessage}";
 				return false;
 			}
 		}
@@ -1226,6 +1251,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			}
 
 			CreateTracksAtCheckpoint();
+			EmitEngineNoise();
 			RouteMovementOutput.VehicleBegin(Vehicle, DirectionName());
 			_actor?.OutputHandler.Send($"You begin driving {Vehicle.Name.ColourName()} {DirectionName()} along the route.");
 			ScheduleNextCheckpoint();
@@ -1405,7 +1431,24 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 				Segment.SpeedMetresPerSecond);
 			BeginLazySegment();
 			CreateTracksAtCheckpoint();
+			EmitEngineNoise();
 			ScheduleNextCheckpoint();
+		}
+
+		private void EmitEngineNoise()
+		{
+			if (_profile.RoutePropulsionMode != RouteVehiclePropulsionMode.EnginePowered)
+			{
+				return;
+			}
+
+			foreach (var engine in Vehicle.Installations
+				         .Select(x => x.InstalledItem?.GetItemType<IVehicleEngine>())
+				         .Where(x => x?.IsRunning == true)
+				         .Cast<IVehicleEngine>())
+			{
+				engine.EmitOperatingNoise();
+			}
 		}
 
 		private bool CommitEffectivePosition(out string reason)

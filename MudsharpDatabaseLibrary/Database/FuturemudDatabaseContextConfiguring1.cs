@@ -2743,6 +2743,10 @@ namespace MudSharp.Database
 				      .HasColumnType("bit(1)")
 				      .HasDefaultValueSql("b'1'");
 
+				entity.Property(e => e.PreferToStandOverAttacking)
+				      .HasColumnType("bit(1)")
+				      .HasDefaultValueSql("b'1'");
+
                 entity.Property(e => e.PreferredIntentions).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.PreferredMeleeMode).HasColumnType("int(11)");

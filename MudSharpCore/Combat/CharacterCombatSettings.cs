@@ -71,6 +71,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
                 MeleeAttackOrderPreference = "0 1 2 3 4",
                 GrappleResponse = (int)GrappleResponse.Avoidance,
 				PreferTerrestrialCombat = true,
+				PreferToStandOverAttacking = true,
             };
             FMDB.Context.CharacterCombatSettings.Add(dbitem);
             FMDB.Context.SaveChanges();
@@ -129,6 +130,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
                                                           .ListToCommaSeparatedValues(" "),
                 GrappleResponse = (int)settingToCopy.GrappleResponse,
 				PreferTerrestrialCombat = settingToCopy.PreferTerrestrialCombat,
+				PreferToStandOverAttacking = settingToCopy.PreferToStandOverAttacking,
             };
             FMDB.Context.CharacterCombatSettings.Add(dbitem);
             FMDB.Context.SaveChanges();
@@ -190,6 +192,8 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
     public AutomaticRangedSettings RangedManagement { get; set; }
 
     public bool ManualPositionManagement { get; set; }
+
+	public bool PreferToStandOverAttacking { get; set; }
 
     /// <summary>
     ///     Percentage chance to choose a weapon move over other types of moves
@@ -370,6 +374,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
         RequiredMinimumAim = setting.RequiredMinimumAim;
         GrappleResponse = (GrappleResponse)setting.GrappleResponse;
 		PreferTerrestrialCombat = setting.PreferTerrestrialCombat;
+		PreferToStandOverAttacking = setting.PreferToStandOverAttacking;
         foreach (string value in setting.MeleeAttackOrderPreference.Split(' '))
         {
             MeleeAttackOrderPreferences.Add((MeleeAttackOrderPreference)int.Parse(value));
@@ -430,6 +435,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
                                                 .Select(x => ((int)x).ToString()).ListToCommaSeparatedValues(" ");
             dbitem.GrappleResponse = (int)GrappleResponse;
 			dbitem.PreferTerrestrialCombat = PreferTerrestrialCombat;
+			dbitem.PreferToStandOverAttacking = PreferToStandOverAttacking;
             List<CharacterCombatSettingsManualCombatCommands> existing =
                 FMDB.Context.CharacterCombatSettingsManualCombatCommands
                     .Where(x => x.CharacterCombatSettingId == Id)
@@ -554,6 +560,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
             $"Grapple Response: {GrappleResponse.DescribeEnum(true).ColourValue()}");
         sb.AppendLine($"Unarmed if Weaponless: {(FallbackToUnarmedIfNoWeapon ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}");
 		sb.AppendLine($"Prefer Terrestrial Combat: {PreferTerrestrialCombat.ToColouredString()}");
+		sb.AppendLine($"Prefer Standing Over Attacking: {PreferToStandOverAttacking.ToColouredString()}");
         sb.AppendLine($"Required Intentions: {RequiredIntentions.Describe().Colour(Telnet.Cyan)}");
         sb.AppendLine($"Forbidden Intentions: {ForbiddenIntentions.Describe().Colour(Telnet.Red)}");
         sb.AppendLine($"Preferred Intentions: {PreferredIntentions.Describe().Colour(Telnet.Green)}");

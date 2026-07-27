@@ -18,13 +18,15 @@ Every strategy exposes:
 `StrategyBase.ChooseMove` runs the shared active-move pipeline:
 
 1. Core blockers: blocking combat effects, missing combat settings, active movement, unconsciousness, and paralysis.
-2. Obligatory moves: wake from sleep, execute selected manual combat action, automatic standing, rescue setup, and rescue moves.
+2. Obligatory moves: wake from sleep, execute selected manual combat action, automatic standing when the combat setting prefers being upright, rescue setup, and rescue moves.
 3. Vehicle-boundary action: board an occupied surface-water craft or select an aquatic hull assault when the target is aboard and the attacker is an unsupported swimmer.
 4. Inventory moves: retrieve or wield preferred weapons and shields when inventory automation permits.
 5. Combat movement: break clinches and perform strategy-specific movement.
 6. Attacks: strategy-specific attack selection.
 
 Returning `null` intentionally idles the combatant for a short combat tick. The audit goal is to reserve that for genuine blockers, manual-control decisions, or fully unavailable actions rather than missed fallback logic.
+
+Automatic position management uses `ICharacterCombatSettings.PreferToStandOverAttacking`, which defaults to `true`. When true, a combatant who can stand and afford the standing move does so before automatic attack selection. When false, the shared strategy pipeline tries the strategy's normal attack selection first; a real attack is used from the current position, while no attack or a `TooExhaustedMove` falls back to standing. If standing is unavailable, the normal attack pipeline still runs. Manual position management disables both automatic standing choices. Builders and players configure this with `combat config upright <true|false>`.
 
 ## Surface-Water Vehicle Boundaries
 
@@ -63,7 +65,7 @@ Melee-family strategies select active attacks through this order:
 3. Weighted attack-mode roll: weapon, natural weapon, magic, psychic, then auxiliary.
 4. Weapon/natural/magic attack selection constrained by combat settings, allowed classifications, preferred/forbidden intentions, stamina, target type, and current melee or clinch state.
 
-Natural attacks use their authored required position states as the authority for whether they are usable. The automatic melee strategy does not add an upright-only restriction, so a prone or sprawled combatant can use attacks explicitly authored for that position.
+Natural attacks use their authored required position states as the authority for whether they are usable. The automatic melee strategy does not add an upright-only eligibility restriction, so a prone or sprawled combatant can use attacks explicitly authored for that position. Whether that attack is preferred over first standing is controlled by `PreferToStandOverAttacking`; the default preserves upright-first combat while attack-first settings support creatures that are intended to fight effectively from the ground.
 
 `SwordAndBoardOnly` is the engine's existing handedness term for weapon-and-shield fighting. A one-handed melee weapon can now select `SwordAndBoardOnly` attacks when the attacker also has a separately wielded shield, and ordinary `OneHandedOnly` attacks remain available in the same loadout. This is what lets shield-line spear attacks coexist with the normal spear thrust suite instead of replacing it.
 

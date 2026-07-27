@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.0.1.0",
-  "LatestMigrationId": "20260726211712_VehicleRiderPoweredPropulsion",
-  "GeneratedUtc": "2026-07-26T21:17:12.0000000Z"
+  "LatestMigrationId": "20260727101435_CombatPositionAttackPreference",
+  "GeneratedUtc": "2026-07-27T10:14:35.0000000Z"
 }

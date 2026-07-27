@@ -44,6 +44,7 @@ Combat settings now expose:
 - `combat config availprog <prog|clear>`
 - `combat config priorityprog <prog|clear>`
 - `combat config terrestrial <true|false>`
+- `combat config upright <true|false>`
 
 Prog-targeting builder lookups use `ProgLookupFromBuilderInput` for consistent validation and error messaging.
 
@@ -73,6 +74,8 @@ Two new persisted links support this feature:
 - `Races.DefaultCombatSettingId`
 
 `CharacterCombatSettings.PreferTerrestrialCombat` is also persisted and defaults to `true` for existing and newly created settings. It controls the shared boat-boundary AI decision: terrestrial-preferring combatants try to board an occupied surface-water craft, while aquatic combatants may select an authored aquatic vehicle attack instead.
+
+`CharacterCombatSettings.PreferToStandOverAttacking` is persisted and defaults to `true`. With automatic position management enabled, `true` makes standing the first choice and falls back to attacking only when standing is unavailable. `false` attempts a valid attack from the current position first and falls back to standing when no attack can be made. Attack position eligibility remains authored on the attack itself.
 
 NPC template defaults are stored in the template XML definition for both simple and variable templates.
 

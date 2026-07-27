@@ -84,6 +84,7 @@ namespace MudSharp.Combat
 
         AutomaticRangedSettings RangedManagement { get; set; }
         bool ManualPositionManagement { get; set; }
+        bool PreferToStandOverAttacking { get; set; }
 
         /// <summary>
         ///     Percentage chance to choose a weapon move over other types of moves

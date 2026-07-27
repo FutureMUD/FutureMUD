@@ -354,7 +354,7 @@ public class Dragging : Effect, IDragging, INoQuitEffect, INoTimeOutEffect
         if (tChar.Corpse != null)
         {
             ReleaseTargetEvents();
-            Target.RemoveAllEffects(x => x.IsEffectType<DragTarget>());
+            Target.RemoveAllEffects(x => x is DragTarget target && ReferenceEquals(target.Drag, this));
             Target = tChar.Corpse.Parent;
             Target.AddEffect(new DragTarget(Target, this));
             RegisterTargetEvents();
@@ -428,7 +428,7 @@ public class Dragging : Effect, IDragging, INoQuitEffect, INoTimeOutEffect
 
         ReleaseDraggerEvents();
         ReleaseTargetEvents();
-        Target.RemoveAllEffects(x => x.IsEffectType<DragTarget>());
+        Target.RemoveAllEffects(x => x is DragTarget target && ReferenceEquals(target.Drag, this));
         Owner.RemoveAllEffects<CharacterHitch>(x => x.Target == Target, true);
         Owner.RemoveEffect(this);
     }

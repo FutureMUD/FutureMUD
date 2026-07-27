@@ -254,6 +254,158 @@ public class VehiclePropulsionServiceTests
 		secondMotor.Producer.Verify(x => x.DrawdownSpike(500.0), Times.Once);
 	}
 
+	[TestMethod]
+	public void BuildEngineReadiness_MixedImplementations_AggregatesThroughInterface()
+	{
+		var first = CreateEngine("automotive", 60000.0, true);
+		var second = CreateEngine("automotive", 50000.0, true);
+		var profile = CreateMovementProfile([]);
+		var vehicle = CreateVehicle(profile, null, [], [first.Installation.Object, second.Installation.Object]);
+
+		var result = new VehiclePropulsionService().BuildEngineReadiness(vehicle.Object, 100000.0);
+
+		Assert.IsTrue(result.CanMove, result.Reason);
+		Assert.AreEqual(110000.0, result.AvailablePowerInWatts);
+		Assert.AreEqual(2, result.Engines.Count(x => x.Available));
+	}
+
+	[TestMethod]
+	public void BuildEngineReadiness_StoppedOrMismatchedEngine_ReportsPreciseBlockers()
+	{
+		var stopped = CreateEngine("automotive", 60000.0, false);
+		var mismatched = CreateEngine("marine", 90000.0, true, "automotive");
+		var profile = CreateMovementProfile([]);
+		var vehicle = CreateVehicle(profile, null, [], [stopped.Installation.Object, mismatched.Installation.Object]);
+
+		var result = new VehiclePropulsionService().BuildEngineReadiness(vehicle.Object, 50000.0);
+
+		Assert.IsFalse(result.CanMove);
+		StringAssert.Contains(result.Reason, "switched off");
+		StringAssert.Contains(result.Reason, "does not match");
+	}
+
+	[TestMethod]
+	public void TryCommitDeparture_EngineMode_UsesAggregateMechanicalPower()
+	{
+		var propulsion = CreatePropulsionProfile(VehiclePropulsionType.Engine);
+		var profile = CreateMovementProfile([propulsion.Object]);
+		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.Unrestricted);
+		profile.SetupGet(x => x.MinimumEnginePowerInWatts).Returns(100000.0);
+		var first = CreateEngine("automotive", 60000.0, true);
+		var second = CreateEngine("automotive", 60000.0, true);
+		var vehicle = CreateVehicle(profile, propulsion.Object, [],
+			[first.Installation.Object, second.Installation.Object]);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.Setup(x => x.GetStaticDouble("MaximumMoveTimeMilliseconds")).Returns(0.0);
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var service = new VehiclePropulsionService();
+		var readiness = service.BuildReadiness(vehicle.Object, actor.Object, CreateExit(1.0).Object);
+
+		var committed = service.TryCommitDeparture(readiness, out var plan, out var reason);
+
+		Assert.IsTrue(committed, reason);
+		Assert.AreEqual(1.2, plan!.EffectiveMultiplier, 0.0001);
+		Assert.AreEqual(10000.0 / 1.2, plan.Duration.TotalMilliseconds, 0.01);
+		Assert.AreEqual(2, plan.Engines!.Count(x => x.Available));
+	}
+
+	[TestMethod]
+	public void TryCommitDeparture_RiderPowered_ChargesTerrainEncumbranceAndExactVehicleModifier()
+	{
+		var terrain = new Mock<ITerrain>();
+		terrain.SetupGet(x => x.Id).Returns(81);
+		terrain.SetupGet(x => x.StaminaCost).Returns(4.0);
+		var modifier = new Mock<IVehicleRiderStaminaModifierPrototype>();
+		modifier.SetupGet(x => x.Id).Returns(1);
+		modifier.SetupGet(x => x.TerrainId).Returns(terrain.Object.Id);
+		modifier.SetupGet(x => x.Multiplier).Returns(0.5);
+		var propulsion = CreatePropulsionProfile(VehiclePropulsionType.RiderPowered);
+		propulsion.SetupGet(x => x.RiderStaminaMultiplier).Returns(0.8);
+		propulsion.SetupGet(x => x.RiderStaminaModifiers).Returns([modifier.Object]);
+		var profile = CreateMovementProfile([propulsion.Object]);
+		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.Unrestricted);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.Setup(x => x.GetStaticDouble("MaximumMoveTimeMilliseconds")).Returns(0.0);
+		gameworld.Setup(x => x.GetStaticDouble("DefaultTerrainStaminaCost")).Returns(1.0);
+		gameworld.Setup(x => x.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage")).Returns(1.0);
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		actor.SetupGet(x => x.EncumbrancePercentage).Returns(0.5);
+		actor.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns(true);
+		var origin = new Mock<ICell>();
+		origin.Setup(x => x.Terrain(actor.Object)).Returns(terrain.Object);
+		var vehicle = CreateVehicle(profile, propulsion.Object, [], [], origin.Object);
+		var exit = CreateExit(1.0, origin.Object);
+		var service = new VehiclePropulsionService();
+
+		var readiness = service.BuildReadiness(vehicle.Object, actor.Object, exit.Object);
+		var committed = service.TryCommitDeparture(readiness, out var plan, out var reason);
+
+		Assert.IsTrue(committed, reason);
+		Assert.AreEqual(0.5, plan!.RiderStaminaMultiplier, 0.0001);
+		Assert.AreEqual(3.0, plan.RiderStaminaCost, 0.0001);
+		Assert.AreEqual(1.0, plan.EffectiveMultiplier, 0.0001);
+		actor.Verify(x => x.SpendStamina(3.0), Times.Once);
+	}
+
+	[TestMethod]
+	public void ResolveRiderStaminaMultiplier_UsesDeepestTagBeforeDefault()
+	{
+		var broadTag = new Mock<ITag>();
+		broadTag.SetupGet(x => x.Id).Returns(10);
+		var narrowTag = new Mock<ITag>();
+		narrowTag.SetupGet(x => x.Id).Returns(11);
+		narrowTag.SetupGet(x => x.Parent).Returns(broadTag.Object);
+		var broadModifier = new Mock<IVehicleRiderStaminaModifierPrototype>();
+		broadModifier.SetupGet(x => x.Id).Returns(1);
+		broadModifier.SetupGet(x => x.TerrainTagId).Returns(broadTag.Object.Id);
+		broadModifier.SetupGet(x => x.TerrainTag).Returns(broadTag.Object);
+		broadModifier.SetupGet(x => x.Multiplier).Returns(0.75);
+		var narrowModifier = new Mock<IVehicleRiderStaminaModifierPrototype>();
+		narrowModifier.SetupGet(x => x.Id).Returns(2);
+		narrowModifier.SetupGet(x => x.TerrainTagId).Returns(narrowTag.Object.Id);
+		narrowModifier.SetupGet(x => x.TerrainTag).Returns(narrowTag.Object);
+		narrowModifier.SetupGet(x => x.Multiplier).Returns(1.25);
+		var profile = CreatePropulsionProfile(VehiclePropulsionType.RiderPowered);
+		profile.SetupGet(x => x.RiderStaminaMultiplier).Returns(0.5);
+		profile.SetupGet(x => x.RiderStaminaModifiers)
+			.Returns([broadModifier.Object, narrowModifier.Object]);
+		var terrain = new Mock<ITerrain>();
+		terrain.Setup(x => x.IsA(broadTag.Object)).Returns(true);
+		terrain.Setup(x => x.IsA(narrowTag.Object)).Returns(true);
+
+		var result = VehiclePropulsionService.ResolveRiderStaminaMultiplier(profile.Object, terrain.Object);
+
+		Assert.AreEqual(1.25, result, 0.0001);
+	}
+
+	[TestMethod]
+	public void BuildReadiness_RiderPowered_RejectsExhaustedControllerWithoutCharging()
+	{
+		var propulsion = CreatePropulsionProfile(VehiclePropulsionType.RiderPowered);
+		var profile = CreateMovementProfile([propulsion.Object]);
+		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.Unrestricted);
+		var terrain = new Mock<ITerrain>();
+		terrain.SetupGet(x => x.StaminaCost).Returns(5.0);
+		var location = new Mock<ICell>();
+		var actor = new Mock<ICharacter>();
+		location.Setup(x => x.Terrain(actor.Object)).Returns(terrain.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.Setup(x => x.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage")).Returns(1.0);
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		actor.Setup(x => x.CanSpendStamina(5.0)).Returns(false);
+		var vehicle = CreateVehicle(profile, propulsion.Object, [], [], location.Object);
+
+		var result = new VehiclePropulsionService().BuildReadiness(vehicle.Object, actor.Object, null);
+
+		Assert.IsFalse(result.CanMove);
+		StringAssert.Contains(result.Reason, "too exhausted");
+		actor.Verify(x => x.SpendStamina(It.IsAny<double>()), Times.Never);
+	}
+
 	private static Mock<IVehicleMovementProfilePrototype> CreateMovementProfile(
 		IEnumerable<IVehiclePropulsionProfilePrototype> propulsion)
 	{
@@ -281,12 +433,22 @@ public class VehiclePropulsionServiceTests
 				"max(0.25, 1.0 + (0.15 * outcome))",
 			VehiclePropulsionType.Sail => "1.0 + (0.15 * (wind - 1.0))",
 			VehiclePropulsionType.OutboardMotor => "output",
+			VehiclePropulsionType.Engine => "power / requiredpower",
+			VehiclePropulsionType.RiderPowered => "1",
 			_ => "0"
 		});
 		profile.SetupGet(x => x.StaminaCostExpression)
-		       .Returns(type is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed
-			       ? "swimcost * max(0.5, 1.0 - (0.10 * outcome))"
-			       : "0");
+		       .Returns(type switch
+		       {
+			       VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed =>
+				       "swimcost * max(0.5, 1.0 - (0.10 * outcome))",
+			       VehiclePropulsionType.RiderPowered =>
+				       "terraincost * encumbrance * vehiclemultiplier",
+			       _ => "0"
+		       });
+		profile.SetupGet(x => x.RiderStaminaMultiplier).Returns(1.0);
+		profile.SetupGet(x => x.RiderStaminaModifiers)
+			.Returns(Array.Empty<IVehicleRiderStaminaModifierPrototype>());
 		return profile;
 	}
 
@@ -340,12 +502,13 @@ public class VehiclePropulsionServiceTests
 		return (occupancy, item);
 	}
 
-	private static Mock<ICellExit> CreateExit(double timeMultiplier)
+	private static Mock<ICellExit> CreateExit(double timeMultiplier, ICell? origin = null)
 	{
 		var exitModel = new Mock<IExit>();
 		exitModel.SetupGet(x => x.TimeMultiplier).Returns(timeMultiplier);
 		var exit = new Mock<ICellExit>();
 		exit.SetupGet(x => x.Exit).Returns(exitModel.Object);
+		exit.SetupGet(x => x.Origin).Returns(origin!);
 		return exit;
 	}
 
@@ -393,5 +556,29 @@ public class VehiclePropulsionServiceTests
 		installation = new Mock<IVehicleInstallation>();
 		installation.SetupGet(x => x.InstalledItem).Returns(item.Object);
 		return item;
+	}
+
+	private static (Mock<IVehicleInstallation> Installation, Mock<IVehicleEngine> Engine) CreateEngine(
+		string formFactor, double power, bool running, string mountType = "automotive")
+	{
+		var engine = new Mock<IVehicleEngine>();
+		engine.SetupGet(x => x.FormFactor).Returns(formFactor);
+		engine.SetupGet(x => x.MaximumPowerInWatts).Returns(power);
+		engine.SetupGet(x => x.IsRunning).Returns(running);
+		engine.SetupGet(x => x.WhyNotRunning).Returns(running ? string.Empty : "the engine is switched off");
+		var installable = new Mock<IVehicleInstallable>();
+		var ignored = string.Empty;
+		installable.Setup(x => x.IsFunctionalForMovement(out ignored)).Returns(true);
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns((long)power + (running ? 1L : 2L));
+		item.Setup(x => x.GetItemType<IVehicleEngine>()).Returns(engine.Object);
+		item.Setup(x => x.GetItemType<IVehicleInstallable>()).Returns(installable.Object);
+		var point = new Mock<IVehicleInstallationPointPrototype>();
+		point.SetupGet(x => x.Name).Returns($"{mountType} engine bay");
+		point.SetupGet(x => x.MountType).Returns(mountType);
+		var installation = new Mock<IVehicleInstallation>();
+		installation.SetupGet(x => x.InstalledItem).Returns(item.Object);
+		installation.SetupGet(x => x.Prototype).Returns(point.Object);
+		return (installation, engine);
 	}
 }

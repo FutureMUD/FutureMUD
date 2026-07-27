@@ -11,6 +11,7 @@ public partial class FuturemudDatabaseContext
 	public virtual DbSet<VehicleControlStationProto> VehicleControlStationProtos { get; set; }
 	public virtual DbSet<VehicleMovementProfileProto> VehicleMovementProfileProtos { get; set; }
 	public virtual DbSet<VehiclePropulsionProfileProto> VehiclePropulsionProfileProtos { get; set; }
+	public virtual DbSet<VehicleRiderStaminaModifierProto> VehicleRiderStaminaModifierProtos { get; set; }
 	public virtual DbSet<VehicleAccessPointProto> VehicleAccessPointProtos { get; set; }
 	public virtual DbSet<VehicleCargoSpaceProto> VehicleCargoSpaceProtos { get; set; }
 	public virtual DbSet<VehicleInstallationPointProto> VehicleInstallationPointProtos { get; set; }
@@ -179,6 +180,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.ExposesOccupantsToWater).HasColumnType("bit(1)");
 			entity.Property(e => e.IsDefault).HasColumnType("bit(1)");
 			entity.Property(e => e.RequiredPowerSpikeInWatts).HasColumnType("double");
+			entity.Property(e => e.MinimumEnginePowerInWatts).HasColumnType("double");
 			entity.Property(e => e.FuelLiquidId).HasColumnType("bigint(20)");
 			entity.Property(e => e.FuelVolumePerMove).HasColumnType("double");
 			entity.Property(e => e.RequiredInstalledRole).IsRequired().HasColumnType("varchar(200)").HasCharSet("utf8").UseCollation("utf8_general_ci");
@@ -198,7 +200,9 @@ public partial class FuturemudDatabaseContext
 
 		modelBuilder.Entity<VehiclePropulsionProfileProto>(entity =>
 		{
-			entity.ToTable("VehiclePropulsionProfileProtos");
+			entity.ToTable("VehiclePropulsionProfileProtos", table =>
+				table.HasCheckConstraint("CK_VehiclePropulsionProfileProtos_RiderStaminaMultiplier",
+					"`RiderStaminaMultiplier` >= 0"));
 			entity.HasKey(e => e.Id).HasName("PRIMARY");
 			entity.HasIndex(e => e.VehicleMovementProfileProtoId)
 			      .HasDatabaseName("FK_VehiclePropulsionProfileProtos_MovementProfiles_idx");
@@ -225,6 +229,9 @@ public partial class FuturemudDatabaseContext
 			      .HasColumnType("varchar(1000)")
 			      .HasCharSet("utf8")
 			      .UseCollation("utf8_general_ci");
+			entity.Property(e => e.RiderStaminaMultiplier)
+			      .HasColumnType("double")
+			      .HasDefaultValue(1.0);
 
 			entity.HasOne(d => d.VehicleMovementProfileProto)
 			      .WithMany(p => p.PropulsionProfiles)
@@ -236,6 +243,52 @@ public partial class FuturemudDatabaseContext
 			      .HasForeignKey(d => d.PropulsionTraitDefinitionId)
 			      .OnDelete(DeleteBehavior.SetNull)
 			      .HasConstraintName("FK_VehiclePropulsionProfileProtos_Traits");
+		});
+
+		modelBuilder.Entity<VehicleRiderStaminaModifierProto>(entity =>
+		{
+			entity.ToTable("VehicleRiderStaminaModifierProtos", table =>
+			{
+				table.HasCheckConstraint("CK_VehicleRiderStaminaModifierProtos_Target",
+					"(`TerrainId` IS NULL AND `TerrainTagId` IS NOT NULL) OR (`TerrainId` IS NOT NULL AND `TerrainTagId` IS NULL)");
+				table.HasCheckConstraint("CK_VehicleRiderStaminaModifierProtos_Multiplier", "`Multiplier` >= 0");
+			});
+			entity.HasKey(e => e.Id).HasName("PRIMARY");
+			entity.HasIndex(e => e.VehiclePropulsionProfileProtoId)
+			      .HasDatabaseName("FK_VehicleRiderStaminaModifierProtos_PropulsionProfiles_idx");
+			entity.HasIndex(e => e.TerrainId)
+			      .HasDatabaseName("FK_VehicleRiderStaminaModifierProtos_Terrains_idx");
+			entity.HasIndex(e => e.TerrainTagId)
+			      .HasDatabaseName("FK_VehicleRiderStaminaModifierProtos_Tags_idx");
+			entity.HasIndex(e => new { e.VehiclePropulsionProfileProtoId, e.TerrainId })
+			      .IsUnique()
+			      .HasDatabaseName("UX_VehicleRiderStaminaModifierProtos_Profile_Terrain");
+			entity.HasIndex(e => new { e.VehiclePropulsionProfileProtoId, e.TerrainTagId })
+			      .IsUnique()
+			      .HasDatabaseName("UX_VehicleRiderStaminaModifierProtos_Profile_Tag");
+
+			entity.Property(e => e.Id).HasColumnType("bigint(20)");
+			entity.Property(e => e.VehiclePropulsionProfileProtoId).HasColumnType("bigint(20)");
+			entity.Property(e => e.TerrainId).HasColumnType("bigint(20)");
+			entity.Property(e => e.TerrainTagId).HasColumnType("bigint(20)");
+			entity.Property(e => e.Multiplier).HasColumnType("double");
+
+			entity.HasOne(d => d.VehiclePropulsionProfileProto)
+			      .WithMany(p => p.RiderStaminaModifiers)
+			      .HasForeignKey(d => d.VehiclePropulsionProfileProtoId)
+			      .HasConstraintName("FK_VehicleRiderStaminaModifierProtos_PropulsionProfiles");
+
+			entity.HasOne(d => d.Terrain)
+			      .WithMany()
+			      .HasForeignKey(d => d.TerrainId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_VehicleRiderStaminaModifierProtos_Terrains");
+
+			entity.HasOne(d => d.TerrainTag)
+			      .WithMany()
+			      .HasForeignKey(d => d.TerrainTagId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_VehicleRiderStaminaModifierProtos_Tags");
 		});
 
 		modelBuilder.Entity<VehicleAccessPointProto>(entity =>

@@ -76,6 +76,7 @@ public interface IVehicleMovementProfilePrototype : IFrameworkItem
 	bool ExposesOccupantsToWater { get; }
 	bool IsDefault { get; }
 	double RequiredPowerSpikeInWatts { get; }
+	double MinimumEnginePowerInWatts { get; }
 	long? FuelLiquidId { get; }
 	double FuelVolumePerMove { get; }
 	string RequiredInstalledRole { get; }
@@ -102,6 +103,17 @@ public interface IVehiclePropulsionProfilePrototype : IFrameworkItem
 	Difficulty CheckDifficulty { get; }
 	string SpeedMultiplierExpression { get; }
 	string StaminaCostExpression { get; }
+	double RiderStaminaMultiplier { get; }
+	IEnumerable<IVehicleRiderStaminaModifierPrototype> RiderStaminaModifiers { get; }
+}
+
+public interface IVehicleRiderStaminaModifierPrototype : IFrameworkItem
+{
+	long? TerrainId { get; }
+	ITerrain Terrain { get; }
+	long? TerrainTagId { get; }
+	ITag TerrainTag { get; }
+	double Multiplier { get; }
 }
 
 public interface IVehicleAccessPointPrototype : IFrameworkItem

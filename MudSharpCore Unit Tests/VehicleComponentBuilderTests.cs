@@ -5,12 +5,16 @@ using Moq;
 using MudSharp.Commands.Modules;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.Form.Audio;
+using MudSharp.Form.Material;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Vehicles;
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Linq;
 using DbEditableItem = MudSharp.Models.EditableItem;
 using DbGameItemComponentProto = MudSharp.Models.GameItemComponentProto;
@@ -54,10 +58,16 @@ public class VehicleComponentBuilderTests
 		StringAssert.Contains(help, "movementcondition <percent>");
 		Assert.IsTrue(primaryTypes.Any(x => x.EqualTo("vehicle oar")));
 		Assert.IsTrue(primaryTypes.Any(x => x.EqualTo("outboard motor")));
+		Assert.IsTrue(primaryTypes.Any(x => x.EqualTo("combustion engine")));
+		Assert.IsTrue(primaryTypes.Any(x => x.EqualTo("electric engine")));
 		Assert.IsFalse(string.IsNullOrWhiteSpace(manager.TypeHelpInfo
 			.FirstOrDefault(x => x.Name.EqualTo("VehicleOar")).Help));
 		Assert.IsFalse(string.IsNullOrWhiteSpace(manager.TypeHelpInfo
 			.FirstOrDefault(x => x.Name.EqualTo("OutboardMotor")).Help));
+		Assert.IsFalse(string.IsNullOrWhiteSpace(manager.TypeHelpInfo
+			.FirstOrDefault(x => x.Name.EqualTo("CombustionEngine")).Help));
+		Assert.IsFalse(string.IsNullOrWhiteSpace(manager.TypeHelpInfo
+			.FirstOrDefault(x => x.Name.EqualTo("ElectricEngine")).Help));
 	}
 
 	[DataTestMethod]
@@ -69,6 +79,8 @@ public class VehicleComponentBuilderTests
 	[DataRow("HitchGear", "role <role>")]
 	[DataRow("Vehicle Oar", "efficiency <multiplier>")]
 	[DataRow("Outboard Motor", "output <multiplier>")]
+	[DataRow("Combustion Engine", "formfactor <text>")]
+	[DataRow("Electric Engine", "wattage <watts>")]
 	public void VehicleComponentProtos_SurfaceSpecificBuilderHelp(string componentType, string expectedHelp)
 	{
 		var gameworld = new Mock<IFuturemud>();
@@ -153,6 +165,83 @@ public class VehicleComponentBuilderTests
 		Assert.AreEqual(OutboardMotorEnergySource.Electric, motor!.EnergySource);
 		Assert.AreEqual(2.5, motor.OutputMultiplier);
 		Assert.AreEqual(750.0, motor.RequiredPowerSpikeInWatts);
+	}
+
+	[TestMethod]
+	public void VehicleEngineComponentProtos_LoadSharedContractProperties()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var manager = new GameItemComponentManager();
+		var combustionDefinition = new XElement("Definition",
+			new XElement("FormFactor", "motorcycle"),
+			new XElement("MaximumPowerInWatts", 42000.0),
+			new XElement("NoiseLevel", AudioVolume.VeryLoud),
+			new XElement("FuelPerSecond", 0.25));
+		var electricDefinition = new XElement("Definition",
+			new XElement("Wattage", 25000.0),
+			new XElement("WattageDiscount", 0.0),
+			new XElement("Switchable", true),
+			new XElement("UseMountHostPowerSource", false),
+			new XElement("PowerOnEmote", "@ starts."),
+			new XElement("PowerOffEmote", "@ stops."),
+			new XElement("FormFactor", "automotive"),
+			new XElement("MaximumPowerInWatts", 80000.0),
+			new XElement("NoiseLevel", AudioVolume.Quiet));
+
+		var combustion = manager.GetProto(CreateComponentProto("Combustion Engine",
+				combustionDefinition.ToString(SaveOptions.DisableFormatting)), gameworld.Object) as
+			CombustionEngineGameItemComponentProto;
+		var electric = manager.GetProto(CreateComponentProto("Electric Engine",
+				electricDefinition.ToString(SaveOptions.DisableFormatting)), gameworld.Object) as
+			ElectricEngineGameItemComponentProto;
+
+		Assert.IsNotNull(combustion);
+		Assert.AreEqual("motorcycle", combustion!.FormFactor);
+		Assert.AreEqual(42000.0, combustion.MaximumPowerInWatts);
+		Assert.AreEqual(AudioVolume.VeryLoud, combustion.NoiseLevel);
+		Assert.AreEqual(0.25, combustion.FuelPerSecond);
+		Assert.IsNotNull(electric);
+		Assert.AreEqual("automotive", electric!.FormFactor);
+		Assert.AreEqual(80000.0, electric.MaximumPowerInWatts);
+		Assert.AreEqual(25000.0, electric.Wattage);
+		Assert.AreEqual(AudioVolume.Quiet, electric.NoiseLevel);
+	}
+
+	[TestMethod]
+	public void CombustionEngine_ConsumesConfiguredFuelContinuouslyWhileRunning()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var fuel = new Mock<ILiquid>();
+		fuel.SetupGet(x => x.Id).Returns(77L);
+		fuel.SetupGet(x => x.Name).Returns("petrol");
+		fuel.Setup(x => x.LiquidCountsAs(fuel.Object)).Returns(true);
+		var liquids = new All<ILiquid>();
+		liquids.Add(fuel.Object);
+		gameworld.SetupGet(x => x.Liquids).Returns(liquids);
+		var mixture = new LiquidMixture(fuel.Object, 1.0, gameworld.Object);
+		var container = new Mock<ILiquidContainer>();
+		container.SetupProperty(x => x.LiquidMixture, mixture);
+		var parent = new Mock<IGameItem>();
+		parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		parent.Setup(x => x.GetItemTypes<ILiquidContainer>()).Returns([container.Object]);
+		var definition = new XElement("Definition",
+			new XElement("FormFactor", "automotive"),
+			new XElement("MaximumPowerInWatts", 100000.0),
+			new XElement("NoiseLevel", AudioVolume.Loud),
+			new XElement("FuelLiquidId", fuel.Object.Id),
+			new XElement("FuelPerSecond", 0.25));
+		var proto = new GameItemComponentManager().GetProto(
+			CreateComponentProto("Combustion Engine", definition.ToString(SaveOptions.DisableFormatting)),
+			gameworld.Object) as CombustionEngineGameItemComponentProto;
+		var component = new CombustionEngineGameItemComponent(proto!, parent.Object, true);
+
+		component.SwitchedOn = true;
+		typeof(CombustionEngineGameItemComponent)
+			.GetMethod("SecondHeartbeat", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(component, []);
+
+		Assert.IsTrue(component.IsRunning);
+		Assert.AreEqual(0.75, container.Object.LiquidMixture!.TotalVolume, 0.000001);
 	}
 
 	private static DbGameItemComponentProto CreateComponentProto(string componentType, string definition = "<Definition />")

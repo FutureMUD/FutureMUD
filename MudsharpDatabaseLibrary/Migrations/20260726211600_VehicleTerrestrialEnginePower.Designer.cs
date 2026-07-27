@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260726211600_VehicleTerrestrialEnginePower")]
+    partial class VehicleTerrestrialEnginePower
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22719,11 +22722,6 @@ namespace MudSharp.Migrations
                     b.Property<int>("PropulsionType")
                         .HasColumnType("int(11)");
 
-                    b.Property<double>("RiderStaminaMultiplier")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double")
-                        .HasDefaultValue(1.0);
-
                     b.Property<string>("SpeedMultiplierExpression")
                         .IsRequired()
                         .HasColumnType("varchar(1000)")
@@ -22754,10 +22752,7 @@ namespace MudSharp.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_VehiclePropulsionProfileProtos_Profile_Type");
 
-                    b.ToTable("VehiclePropulsionProfileProtos", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_VehiclePropulsionProfileProtos_RiderStaminaMultiplier", "`RiderStaminaMultiplier` >= 0");
-                        });
+                    b.ToTable("VehiclePropulsionProfileProtos", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleProto", b =>
@@ -22804,54 +22799,6 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_VehicleProtos_GameItemProtos_idx");
 
                     b.ToTable("VehicleProtos", (string)null);
-                });
-
-            modelBuilder.Entity("MudSharp.Models.VehicleRiderStaminaModifierProto", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<double>("Multiplier")
-                        .HasColumnType("double");
-
-                    b.Property<long?>("TerrainId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("TerrainTagId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("VehiclePropulsionProfileProtoId")
-                        .HasColumnType("bigint(20)");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("TerrainId")
-                        .HasDatabaseName("FK_VehicleRiderStaminaModifierProtos_Terrains_idx");
-
-                    b.HasIndex("TerrainTagId")
-                        .HasDatabaseName("FK_VehicleRiderStaminaModifierProtos_Tags_idx");
-
-                    b.HasIndex("VehiclePropulsionProfileProtoId")
-                        .HasDatabaseName("FK_VehicleRiderStaminaModifierProtos_PropulsionProfiles_idx");
-
-                    b.HasIndex("VehiclePropulsionProfileProtoId", "TerrainId")
-                        .IsUnique()
-                        .HasDatabaseName("UX_VehicleRiderStaminaModifierProtos_Profile_Terrain");
-
-                    b.HasIndex("VehiclePropulsionProfileProtoId", "TerrainTagId")
-                        .IsUnique()
-                        .HasDatabaseName("UX_VehicleRiderStaminaModifierProtos_Profile_Tag");
-
-                    b.ToTable("VehicleRiderStaminaModifierProtos", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_VehicleRiderStaminaModifierProtos_Multiplier", "`Multiplier` >= 0");
-
-                            t.HasCheckConstraint("CK_VehicleRiderStaminaModifierProtos_Target", "(`TerrainId` IS NULL AND `TerrainTagId` IS NOT NULL) OR (`TerrainId` IS NOT NULL AND `TerrainTagId` IS NULL)");
-                        });
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleRoute", b =>
@@ -34294,34 +34241,6 @@ namespace MudSharp.Migrations
                     b.Navigation("ExteriorItemProto");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.VehicleRiderStaminaModifierProto", b =>
-                {
-                    b.HasOne("MudSharp.Models.Terrain", "Terrain")
-                        .WithMany()
-                        .HasForeignKey("TerrainId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_VehicleRiderStaminaModifierProtos_Terrains");
-
-                    b.HasOne("MudSharp.Models.Tag", "TerrainTag")
-                        .WithMany()
-                        .HasForeignKey("TerrainTagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_VehicleRiderStaminaModifierProtos_Tags");
-
-                    b.HasOne("MudSharp.Models.VehiclePropulsionProfileProto", "VehiclePropulsionProfileProto")
-                        .WithMany("RiderStaminaModifiers")
-                        .HasForeignKey("VehiclePropulsionProfileProtoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_VehicleRiderStaminaModifierProtos_PropulsionProfiles");
-
-                    b.Navigation("Terrain");
-
-                    b.Navigation("TerrainTag");
-
-                    b.Navigation("VehiclePropulsionProfileProto");
-                });
-
             modelBuilder.Entity("MudSharp.Models.VehicleRoute", b =>
                 {
                     b.HasOne("MudSharp.Models.EditableItem", "EditableItem")
@@ -36940,11 +36859,6 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.VehicleMovementProfileProto", b =>
                 {
                     b.Navigation("PropulsionProfiles");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.VehiclePropulsionProfileProto", b =>
-                {
-                    b.Navigation("RiderStaminaModifiers");
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleProto", b =>

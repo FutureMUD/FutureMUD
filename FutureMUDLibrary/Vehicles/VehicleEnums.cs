@@ -44,7 +44,10 @@ public enum VehiclePropulsionType
 	SelfPowered = 1,
 	Rowed = 2,
 	Sail = 3,
-	OutboardMotor = 4
+	OutboardMotor = 4,
+	Engine = 5,
+	ExternallyPulled = 6,
+	RiderPowered = 7
 }
 
 public enum OutboardMotorEnergySource
@@ -113,7 +116,8 @@ public enum VehicleHitchEndpointType
 public enum RouteVehiclePropulsionMode
 {
 	Powered = 0,
-	ExternallyPulled = 1
+	ExternallyPulled = 1,
+	EnginePowered = 2
 }
 
 public enum VehicleRouteStepType

@@ -386,21 +386,28 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 			return false;
 		}
 
-		if (targetVehicle.ExteriorItem?.AffectedBy<Dragging.DragTarget>() == true)
-		{
-			reason = $"{targetVehicle.ExteriorItem.HowSeen(actor, true)} is already being pulled or dragged.";
-			return false;
-		}
-
 		if (targetVehicle.ExteriorItem is null)
 		{
 			reason = "That vehicle does not have a linked exterior item.";
 			return false;
 		}
 
-		if (IncomingVehicleLinks(targetVehicle.Gameworld, targetVehicle).Any())
+		if (IsTowPointInUse(targetVehicle.Gameworld, targetVehicle, targetTowPoint))
 		{
-			reason = $"{targetVehicle.ExteriorItem.HowSeen(actor, true)} already has a hitch link.";
+			reason = "That target tow point is already in use.";
+			return false;
+		}
+
+		var incomingLinks = IncomingVehicleLinks(targetVehicle.Gameworld, targetVehicle).ToList();
+		if (incomingLinks.Any(x => x.Source.NodeType == VehicleHitchGraphNodeType.Vehicle))
+		{
+			reason = $"{targetVehicle.ExteriorItem.HowSeen(actor, true)} is already being towed by another vehicle.";
+			return false;
+		}
+
+		if (incomingLinks.Any(x => x.Source.Character?.SamePhysicalInstance(source) == true))
+		{
+			reason = $"{source.HowSeen(actor, true)} is already hitched to that vehicle.";
 			return false;
 		}
 
@@ -420,16 +427,6 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 		if (hitchItem is not null &&
 		    !HitchGearRules.GearCompatible(hitchItem, targetTrainWeight, out reason, targetTowPoint))
 		{
-			return false;
-		}
-
-		var pullMultiplier = Math.Max(1.0, targetTowPoint.CharacterPullMultiplier);
-		var capacity = (source.MaximumDragWeight - source.Body.ExternalItems.Sum(x => x.Weight)) *
-		               (dragAid?.EffortMultiplier ?? 1.0);
-		var effectiveWeight = targetTrainWeight / pullMultiplier;
-		if (capacity < effectiveWeight)
-		{
-			reason = $"{source.HowSeen(actor, true)} can only pull {capacity.ToString("N2", actor)} effective weight, but {targetVehicle.ExteriorItem.HowSeen(actor)} and its tow train need {effectiveWeight.ToString("N2", actor)}.";
 			return false;
 		}
 

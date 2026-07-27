@@ -336,7 +336,30 @@ public class VehicleOperationalReadinessServiceTests
 	}
 
 	[TestMethod]
-	public void BuildLongitudinalMovementReadiness_ContinuationAllowsOnlyTheSameActiveMovement()
+	public void BuildLongitudinalResourcePlan_EnginePoweredProfileLeavesContinuousEnergyToEngineComponents()
+	{
+		var service = new VehicleOperationalReadinessService();
+		var vehicle = CreateVehicle("lorry", []);
+		var profile = CreateMovementProfile(
+			fuelLiquidId: 100,
+			routeFuelVolumePerMetre: 1.0,
+			routePowerDrawWatts: 500.0,
+			routePropulsionMode: RouteVehiclePropulsionMode.EnginePowered);
+
+		var plan = service.BuildLongitudinalResourcePlan(
+			vehicle.Object,
+			profile.Object,
+			1_000.0,
+			TimeSpan.FromMinutes(10.0));
+
+		Assert.IsTrue(plan.IsSatisfied, plan.Reason);
+		Assert.AreEqual(0, plan.Uses.Count);
+		Assert.AreEqual(0, plan.FuelCandidates.Count);
+		Assert.AreEqual(0, plan.PowerCandidates.Count);
+	}
+
+	[TestMethod]
+	public void BuildLongitudinalMovementReadiness_MultiplePullersAggregateCapacityAndContinuationRequiresSameMovement()
 	{
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.Setup(x => x.GetStaticDouble(It.IsAny<string>()))
@@ -374,7 +397,20 @@ public class VehicleOperationalReadinessServiceTests
 		puller.SetupGet(x => x.SpatialLocation)
 			.Returns(new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 100.0));
 		puller.SetupGet(x => x.Body).Returns(pullerBody.Object);
-		puller.SetupGet(x => x.MaximumDragWeight).Returns(1_000.0);
+		puller.SetupGet(x => x.MaximumDragWeight).Returns(6.0);
+		puller.Setup(x => x.IsTrustedAlly(actor.Object)).Returns(true);
+		var secondPullerBody = new Mock<IBody>();
+		secondPullerBody.SetupGet(x => x.ExternalItems).Returns([]);
+		var secondPuller = CreateCharacter(102L);
+		secondPuller.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		secondPuller.SetupGet(x => x.Location).Returns(cell.Object);
+		secondPuller.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		secondPuller.SetupGet(x => x.RoutePositionMetres).Returns(100.0);
+		secondPuller.SetupGet(x => x.SpatialLocation)
+			.Returns(new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 100.0));
+		secondPuller.SetupGet(x => x.Body).Returns(secondPullerBody.Object);
+		secondPuller.SetupGet(x => x.MaximumDragWeight).Returns(6.0);
+		secondPuller.Setup(x => x.IsTrustedAlly(actor.Object)).Returns(true);
 
 		var exterior = new Mock<IGameItem>();
 		exterior.SetupGet(x => x.Id).Returns(200L);
@@ -424,10 +460,21 @@ public class VehicleOperationalReadinessServiceTests
 			false,
 			string.Empty,
 			null);
+		var secondMotiveLink = new VehicleHitchGraphLink(
+			"motive-root-two",
+			VehicleHitchGraphLinkKind.PersistentHitch,
+			new VehicleHitchGraphEndpoint(VehicleHitchGraphNodeType.Character, null, secondPuller.Object, null),
+			new VehicleHitchGraphEndpoint(VehicleHitchGraphNodeType.Vehicle, vehicle.Object, null, null),
+			null,
+			null,
+			false,
+			false,
+			string.Empty,
+			null);
 		var movePlan = new VehicleHitchGraphMovePlan(
 			vehicle.Object,
 			[new VehicleHitchGraphTrainMember(vehicle.Object, 0, null)],
-			[motiveLink],
+			[motiveLink, secondMotiveLink],
 			[],
 			10.0);
 		var graph = new Mock<IVehicleHitchGraphService>();
@@ -444,8 +491,15 @@ public class VehicleOperationalReadinessServiceTests
 				reason = string.Empty;
 				return true;
 			});
-		graph.Setup(x => x.LinksInvolving(gameworld.Object, exterior.Object)).Returns([motiveLink]);
+		graph.Setup(x => x.LinksInvolving(gameworld.Object, exterior.Object))
+			.Returns([motiveLink, secondMotiveLink]);
 		graph.Setup(x => x.ValidateLink(motiveLink, out It.Ref<string>.IsAny))
+			.Returns((VehicleHitchGraphLink _, out string reason) =>
+			{
+				reason = string.Empty;
+				return true;
+			});
+		graph.Setup(x => x.ValidateLink(secondMotiveLink, out It.Ref<string>.IsAny))
 			.Returns((VehicleHitchGraphLink _, out string reason) =>
 			{
 				reason = string.Empty;
@@ -484,6 +538,7 @@ public class VehicleOperationalReadinessServiceTests
 		Assert.IsFalse(mismatchedContinuation.CanMove);
 		Assert.AreEqual("You cannot begin driving while you are already moving.",
 			mismatchedContinuation.Reason);
+		Assert.AreEqual(2, continuation.ExternalPullers!.Count);
 	}
 
 	[TestMethod]

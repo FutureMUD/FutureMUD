@@ -81,11 +81,11 @@ Syntax:
 		sb.AppendLine($"{vehicle.Name.ColourName()} - Vehicle Status".GetLineWithTitle(actor, Telnet.Cyan,
 			Telnet.BoldWhite));
 		sb.AppendLine($"Movement: {vehicle.MovementState.MovementStatus.DescribeEnum().ColourValue()}");
-		if (vehicle.MovementProfile?.MovementEnvironment == VehicleMovementEnvironment.SurfaceWater)
+		if (vehicle.MovementProfile?.PropulsionProfiles?.Any() == true)
 		{
 			var modes = vehicle.MovementProfile.PropulsionProfiles?.ToList() ?? [];
-			sb.AppendLine($"Propulsion: {(vehicle.ActivePropulsionProfile?.PropulsionType.DescribeEnum().ColourName() ?? "legacy implicit movement".Colour(Telnet.Yellow))}");
-			sb.AppendLine($"Supported propulsion: {(modes.Any() ? modes.Select(x => x.PropulsionType.DescribeEnum().ColourName()).ListToString() : "none authored".Colour(Telnet.Yellow))}");
+			sb.AppendLine($"Propulsion: {(vehicle.ActivePropulsionProfile?.PropulsionType.DescribeEnum(true).ColourName() ?? "legacy implicit movement".Colour(Telnet.Yellow))}");
+			sb.AppendLine($"Supported propulsion: {(modes.Any() ? modes.Select(x => x.PropulsionType.DescribeEnum(true).ColourName()).ListToString() : "none authored".Colour(Telnet.Yellow))}");
 		}
 		sb.AppendLine($"Controller: {(vehicle.Controller is null ? "none".Colour(Telnet.Yellow) : vehicle.Controller.HowSeen(actor))}");
 		sb.AppendLine($"Crew: {vehicle.Occupancies.Count().ToString("N0", actor).ColourValue()} occupying {vehicle.Prototype.OccupantSlots.Count().ToString("N0", actor).ColourValue()} configured slot type{(vehicle.Prototype.OccupantSlots.Count() == 1 ? "" : "s")}");

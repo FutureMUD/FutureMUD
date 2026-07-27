@@ -378,6 +378,14 @@ public class VehicleInstallation : FrameworkItem, IVehicleInstallation
 			return false;
 		}
 
+		var engine = item!.GetItemType<IVehicleEngine>();
+		if (engine is not null && !engine.FormFactor.EqualTo(Prototype.MountType))
+		{
+			reason =
+				$"That engine has the {engine.FormFactor.ColourCommand()} form factor, not the {Prototype.MountType.ColourCommand()} form factor required by this installation point.";
+			return false;
+		}
+
 		if (!string.IsNullOrWhiteSpace(Prototype.RequiredRole) &&
 		    !installable.Role.EqualTo(Prototype.RequiredRole))
 		{

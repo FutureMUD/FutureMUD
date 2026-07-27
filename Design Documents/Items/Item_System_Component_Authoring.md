@@ -59,6 +59,14 @@ Surface-water vehicle propulsion follows that same interface-first rule. `Vehicl
 
 These component prototypes store their builder values in compatible XML and have no mutable live XML state. Submission rejects non-positive oar/output multipliers, a fuelled motor without a liquid and positive per-move volume, or an electric motor without a positive power spike. Propulsion selection, contributor outcomes, installed-motor identity, and resource charging belong to the vehicle domain rather than component XML. Use `comp typehelp VehicleOar` and `comp typehelp OutboardMotor` for the exact builder surface.
 
+Terrestrial engines use a separate, extensible `IVehicleEngine` contract. Vehicle movement queries only `FormFactor`, `MaximumPowerInWatts`, `IsRunning`, `WhyNotRunning`, and `EmitOperatingNoise`; it does not depend on a concrete engine class. Every engine item also needs `Vehicle Installable`, and the engine form factor must match the installation point's mount type.
+
+- `Combustion Engine` is the initial liquid-fuelled implementation. Author `formfactor`, `output`, `fuel`, `consumption`, and `noise`; put an `ILiquidContainer` on the same parent item. Its live component persists switch state and consumes the configured fuel continuously while running.
+- `Electric Engine` is the initial electrical implementation. It derives from the powered-machine base, so `wattage`, `mountpower`, `switchable`, power emotes, and optional power progs work through the existing electrical topology. It additionally authors `formfactor`, mechanical `output`, and `noise`.
+- Submission rejects blank form factors, non-positive mechanical power, missing or non-positive fuel configuration, and non-positive electrical draw. Use `comp typehelp CombustionEngine` and `comp typehelp ElectricEngine` for the exact commands.
+
+New engine families should implement `IVehicleEngine` and use the shared `IVehicleEnginePrototype` exclusivity interface. Keep fuel chemistry, power storage, steam pressure, magic, or other implementation-specific state inside that component; the vehicle service should continue to aggregate only the common mechanical-power contract.
+
 Computer-program and signal-automation work should follow the same rule:
 - shared contracts such as `IComputerHost`, `IComputerFileSystem`, `IComputerExecutable`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary/Computers`
 - broader mutable file-owner contracts such as `IComputerFileOwner` belong in `FutureMUDLibrary/Computers` when item components need to expose files without also exposing executable storage

@@ -1530,4 +1530,18 @@
         "Exclusive Types":  [
                                 "IMilitaryStandard"
                             ]
+    },
+    {
+        "Component Type Name":  "Combustion Engine",
+        "Component Type Description":  "Makes an installable item a liquid-fuelled terrestrial vehicle engine",
+        "Exclusive Types":  [
+                                "IVehicleEngine"
+                            ]
+    },
+    {
+        "Component Type Name":  "Electric Engine",
+        "Component Type Description":  "Makes an installable item an electrically powered terrestrial vehicle engine",
+        "Exclusive Types":  [
+                                "IVehicleEngine"
+                            ]
     }]

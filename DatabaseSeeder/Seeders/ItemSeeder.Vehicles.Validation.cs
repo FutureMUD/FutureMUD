@@ -13,14 +13,17 @@ public partial class ItemSeeder
 {
 	private static void ValidateVehicleSeedSpec(VehicleSeedSpec spec)
 	{
-		if (!Regex.IsMatch(spec.StableReference, "^vehicle_(antiquity|medieval|renaissance|earlymodern|revolution|modern|atomic|computer)_[a-z0-9_]+$"))
+		if (!Regex.IsMatch(spec.StableReference, "^vehicle_(preindustrial|antiquity|medieval|renaissance|earlymodern|revolution|modern|atomic|computer)_[a-z0-9_]+$"))
 		{
-			throw VehicleValidation(spec, $"stable reference '{spec.StableReference}' must be lowercase underscore notation and begin with its era token");
+			throw VehicleValidation(spec,
+				$"stable reference '{spec.StableReference}' must be lowercase underscore notation and begin with an era or shared-family token");
 		}
 		if (!VehicleEraTags.ContainsKey(spec.EraKey) ||
+		    spec.SupportedEraKeys.Any(x => !VehicleEraTags.ContainsKey(x)) ||
+		    !spec.StableReference.StartsWith("vehicle_preindustrial_", StringComparison.OrdinalIgnoreCase) &&
 		    !spec.StableReference.StartsWith($"vehicle_{spec.EraKey}_", StringComparison.OrdinalIgnoreCase))
 		{
-			throw VehicleValidation(spec, $"era key '{spec.EraKey}' does not agree with the stable reference");
+			throw VehicleValidation(spec, $"era keys do not agree with the stable reference or supported era catalogue");
 		}
 		if (!spec.Domain.Equals(VehicleDomainTerrestrial, StringComparison.OrdinalIgnoreCase) &&
 		    !spec.Domain.Equals(VehicleDomainAquatic, StringComparison.OrdinalIgnoreCase))

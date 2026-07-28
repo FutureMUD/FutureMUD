@@ -43,8 +43,10 @@ public partial class ItemSeeder
 					SizeCategory.Large, material, destroyable))
 			: null;
 		var movement = routeMovement
-			? RouteMovement("route", "guided route travel", RouteVehiclePropulsionMode.ExternallyPulled, 4.0, null, 0.0, 0.0, false)
-			: LandMovement("road", "ordinary road travel", null, 0.0, 0.0, string.Empty, false);
+			? RouteMovement("route", "guided route travel", RouteVehiclePropulsionMode.ExternallyPulled, 4.0, null,
+				0.0, 0.0, 0.0, false)
+			: LandMovement("road", "ordinary road travel", VehiclePropulsionType.ExternallyPulled, 0.0,
+				string.Empty, false);
 		var passengerSlots = passengerCapacity > 0
 			? new[] { new VehicleOccupantSlotSeedSpec("passengers", "passenger places", "main", VehicleOccupantSlotType.Passenger, passengerCapacity, false, false) }
 			: [];
@@ -100,8 +102,6 @@ public partial class ItemSeeder
 		bool hasCargo,
 		bool routeMovement,
 		string? fuelLiquid,
-		double fuelPerMove,
-		double powerSpike,
 		string mountType,
 		bool automaticOperation,
 		bool serviceVehicle,
@@ -110,10 +110,18 @@ public partial class ItemSeeder
 		string archetype)
 	{
 		var isElectric = string.IsNullOrWhiteSpace(fuelLiquid);
+		var minimumEnginePower = Math.Max(1000.0, weight * 0.03);
 		var movement = routeMovement
-			? RouteMovement("route", "powered route travel", RouteVehiclePropulsionMode.Powered, routeSpeed, fuelLiquid,
-				isElectric ? 0.0 : routeResourceRate, isElectric ? routeResourceRate : 0.0, automaticOperation)
-			: LandMovement("road", "powered road travel", fuelLiquid, fuelPerMove, powerSpike, VehiclePropulsionRole, true);
+			? RouteMovement("route", "powered route travel",
+				automaticOperation ? RouteVehiclePropulsionMode.Powered : RouteVehiclePropulsionMode.EnginePowered,
+				routeSpeed,
+				automaticOperation ? fuelLiquid : null,
+				automaticOperation && !isElectric ? routeResourceRate : 0.0,
+				automaticOperation && isElectric ? routeResourceRate : 0.0,
+				automaticOperation ? 0.0 : minimumEnginePower,
+				automaticOperation)
+			: LandMovement("road", "powered road travel", VehiclePropulsionType.Engine, minimumEnginePower,
+				VehiclePropulsionRole, true);
 		var access = new VehicleAccessPointSeedSpec(
 			"doors", "passenger doors", "The vehicle's fitted passenger doors open into the main cabin.", "cabin",
 			VehicleAccessPointType.Door, false, true, 0,

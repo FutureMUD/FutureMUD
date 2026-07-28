@@ -23,6 +23,7 @@ public partial class ItemSeeder
 			.. MedievalVehicleExamples(),
 			.. RenaissanceVehicleExamples(),
 			.. EarlyModernVehicleExamples(),
+			.. ExpandedPreIndustrialVehicleExamples(),
 			.. RevolutionVehicleExamples(),
 			.. ModernVehicleExamples(),
 			.. AtomicVehicleExamples(),

@@ -12,7 +12,9 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ItemSeeder
 {
-	private VehicleProto? FindVehiclePrototypeByExterior(GameItemProto exterior, string stableReference)
+	private readonly Dictionary<Type, long> _nextVehicleChildIds = [];
+
+	private VehicleProto? FindVehiclePrototypeByExterior(GameItemProto exterior)
 	{
 		return _context!.VehicleProtos.Local.FirstOrDefault(x =>
 				x.ExteriorItemProtoId == exterior.Id && x.ExteriorItemProtoRevision == exterior.RevisionNumber) ??
@@ -20,11 +22,25 @@ public partial class ItemSeeder
 			       x.ExteriorItemProtoId == exterior.Id && x.ExteriorItemProtoRevision == exterior.RevisionNumber);
 	}
 
-	private static long NextVehicleChildId<T>(DbSet<T> set, Func<T, long> selector) where T : class
+	private long NextVehicleChildId<T>(DbSet<T> set, Func<T, long> selector) where T : class
 	{
-		var databaseMaximum = set.AsNoTracking().AsEnumerable().Select(selector).DefaultIfEmpty(0L).Max();
-		var localMaximum = set.Local.Select(selector).DefaultIfEmpty(0L).Max();
-		return Math.Max(databaseMaximum, localMaximum) + 1L;
+		if (!_nextVehicleChildIds.TryGetValue(typeof(T), out var nextId))
+		{
+			var databaseMaximum = set
+				.AsNoTracking()
+				.AsEnumerable()
+				.Select(selector)
+				.DefaultIfEmpty(0L)
+				.Max();
+			var localMaximum = set.Local
+				.Select(selector)
+				.DefaultIfEmpty(0L)
+				.Max();
+			nextId = Math.Max(databaseMaximum, localMaximum) + 1L;
+		}
+
+		_nextVehicleChildIds[typeof(T)] = nextId + 1L;
+		return nextId;
 	}
 
 	private VehicleCompartmentProto UpsertCompartment(
@@ -35,8 +51,9 @@ public partial class ItemSeeder
 		var row = _context!.VehicleCompartmentProtos.Local.FirstOrDefault(x =>
 				x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
 				x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase)) ??
-		          _context.VehicleCompartmentProtos.AsEnumerable().FirstOrDefault(x =>
-			          x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
+		          _context.VehicleCompartmentProtos
+			          .Where(x => x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber)
+			          .AsEnumerable().FirstOrDefault(x =>
 			          x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase));
 		if (row is null)
 		{
@@ -69,9 +86,11 @@ public partial class ItemSeeder
 				x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
 				x.SourceVehicleCompartmentProtoId == source.Id && x.DestinationVehicleCompartmentProtoId == destination.Id &&
 				x.OutboundDirection.Equals(spec.OutboundDirection, StringComparison.OrdinalIgnoreCase)) ??
-		          _context.VehicleCompartmentLinkProtos.AsEnumerable().FirstOrDefault(x =>
-			          x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
-			          x.SourceVehicleCompartmentProtoId == source.Id && x.DestinationVehicleCompartmentProtoId == destination.Id &&
+		          _context.VehicleCompartmentLinkProtos
+			          .Where(x => x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
+			                      x.SourceVehicleCompartmentProtoId == source.Id &&
+			                      x.DestinationVehicleCompartmentProtoId == destination.Id)
+			          .AsEnumerable().FirstOrDefault(x =>
 			          x.OutboundDirection.Equals(spec.OutboundDirection, StringComparison.OrdinalIgnoreCase));
 		if (row is null)
 		{
@@ -106,9 +125,10 @@ public partial class ItemSeeder
 				x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
 				x.VehicleCompartmentProtoId == compartment.Id &&
 				x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase)) ??
-		          _context.VehicleOccupantSlotProtos.AsEnumerable().FirstOrDefault(x =>
-			          x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
-			          x.VehicleCompartmentProtoId == compartment.Id &&
+		          _context.VehicleOccupantSlotProtos
+			          .Where(x => x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
+			                      x.VehicleCompartmentProtoId == compartment.Id)
+			          .AsEnumerable().FirstOrDefault(x =>
 			          x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase));
 		if (row is null)
 		{
@@ -143,9 +163,10 @@ public partial class ItemSeeder
 				x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
 				x.VehicleOccupantSlotProtoId == slot.Id &&
 				x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase)) ??
-		          _context.VehicleControlStationProtos.AsEnumerable().FirstOrDefault(x =>
-			          x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
-			          x.VehicleOccupantSlotProtoId == slot.Id &&
+		          _context.VehicleControlStationProtos
+			          .Where(x => x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
+			                      x.VehicleOccupantSlotProtoId == slot.Id)
+			          .AsEnumerable().FirstOrDefault(x =>
 			          x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase));
 		if (row is null)
 		{
@@ -173,8 +194,9 @@ public partial class ItemSeeder
 		var row = _context!.VehicleMovementProfileProtos.Local.FirstOrDefault(x =>
 				x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
 				x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase)) ??
-		          _context.VehicleMovementProfileProtos.AsEnumerable().FirstOrDefault(x =>
-			          x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
+		          _context.VehicleMovementProfileProtos
+			          .Where(x => x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber)
+			          .AsEnumerable().FirstOrDefault(x =>
 			          x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase));
 		if (row is null)
 		{
@@ -194,6 +216,7 @@ public partial class ItemSeeder
 		row.ExposesOccupantsToWater = spec.ExposesOccupantsToWater;
 		row.IsDefault = spec.IsDefault;
 		row.RequiredPowerSpikeInWatts = spec.RequiredPowerSpikeInWatts;
+		row.MinimumEnginePowerInWatts = spec.MinimumEnginePowerInWatts;
 		row.FuelLiquidId = string.IsNullOrWhiteSpace(spec.FuelLiquid)
 			? null
 			: _liquids.TryGetValue(spec.FuelLiquid, out var liquid)
@@ -247,6 +270,7 @@ public partial class ItemSeeder
 		row.CheckDifficulty = (int)spec.CheckDifficulty;
 		row.SpeedMultiplierExpression = spec.SpeedMultiplierExpression;
 		row.StaminaCostExpression = spec.StaminaCostExpression;
+		row.RiderStaminaMultiplier = spec.RiderStaminaMultiplier;
 	}
 
 }

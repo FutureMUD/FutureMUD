@@ -10,7 +10,8 @@ The first implementation provides:
 2. safe creation of the exterior, access, cargo and equipment item prototypes associated with that graph;
 3. intent-level helpers for the principal vehicle patterns currently supported by the engine;
 4. validation of structural references, operational resources and plausible value ranges; and
-5. a demonstration catalogue containing two terrestrial and two aquatic vehicles in each item-seeder era.
+5. a 57-vehicle catalogue, including 41 distinct vehicles admitted to one or more of Antiquity, Medieval,
+   Renaissance and Early Modern.
 
 Read this document together with:
 
@@ -21,7 +22,9 @@ Read this document together with:
 - `Seeded_Materials.json` and `Seeded_Liquids.json` for exact seeded resource names; and
 - `FutureMUDLibrary/Vehicles/VehicleEnums.cs` for persisted enum meanings.
 
-The demonstration catalogue is representative, not exhaustive. Later passes should add culturally and technologically specific vehicles where the differences affect form, capacity, access, propulsion, operation or use. Do not create nominal variants merely to satisfy a per-culture quota.
+The catalogue is broad but still intended as reusable engine stock rather than an exhaustive record of every regional
+vessel or carriage. Add culturally specific variants where form, capacity, access, propulsion, operation or use
+meaningfully changes; do not create nominal variants merely to satisfy a per-culture quota.
 
 ## Runtime Architecture
 
@@ -71,7 +74,8 @@ Surface-water travel does not imply `RoomScale`. Item-scale and room-container c
 
 ### Dispatch and era selection
 
-The database-seeder host invokes `ItemSeeder` through `IDatabaseSeeder`. The vehicle dispatch file runs the established item pass first, then calls:
+The public `ItemSeeder.SeedData` path used directly and through `IDatabaseSeeder` runs the established item and craft
+passes first, then calls:
 
 ```csharp
 SeedVehicleItemsAndPrototypes(eras);
@@ -92,7 +96,10 @@ The accepted era tokens and tags are:
 | `atomic` | `Era / Nuclear Era` |
 | `computer` | `Era / Information Age Era` |
 
-Only selected eras are inserted. Shared operating equipment is inserted when the selected technology family requires it.
+Only selected eras are inserted. A vehicle may declare multiple supported eras; selecting any one of them installs the
+same stable prototype and applies every era tag for which that design is suitable. This prevents duplicate near-identical
+farm wagons, punts, barges, canoes and dhows. Shared operating equipment is inserted when the selected technology family
+requires it.
 
 ### Stable references
 
@@ -100,9 +107,12 @@ Root references must match:
 
 ```text
 vehicle_<era>_<specific_name>
+vehicle_preindustrial_<shared_name>
 ```
 
-They are lowercase snake case and globally unique. Examples include `vehicle_medieval_trading_cog` and `vehicle_computer_electric_city_car`.
+They are lowercase snake case and globally unique. Use the `preindustrial` family token only when one authored prototype
+is deliberately admitted to multiple pre-industrial eras. Examples include `vehicle_preindustrial_farm_wain`,
+`vehicle_medieval_trading_cog` and `vehicle_computer_electric_city_car`.
 
 Generated item references append a stable role suffix:
 
@@ -155,7 +165,9 @@ Every vehicle must contain:
 - unique keys and display orders within each child family; and
 - valid references between all child keys.
 
-A surface-water movement profile additionally requires at least one explicit propulsion row and exactly one default propulsion row.
+Every `CellExit` movement profile requires at least one explicit propulsion row and exactly one default propulsion row.
+The environment and propulsion must agree: surface water accepts paddled, rowed, sail or outboard modes; unrestricted
+terrestrial movement accepts engine, externally pulled, rider-powered or explicit `None`.
 
 ### Player-facing item contract
 
@@ -182,6 +194,7 @@ The validator enforces hard safety rules; the ranges below are authoring guidanc
 | Propulsion base move time | milliseconds; 250-300,000 | Usually 4,000-15,000 for small craft and 7,000-25,000 for heavy manual craft before runtime multipliers. |
 | Route speed | metres/second; positive for `Route` | About 1-4 for slow draft/industrial travel, 5-15 for urban service, and 15-35 for faster road or rail examples. |
 | Required power spike | watts; non-negative | Use for instantaneous cell-exit readiness only when an installed power producer is required. |
+| Minimum engine power | mechanical watts; positive for engine movement | Calibrate against empty mass, intended grade and performance. Installed compatible engines are aggregated. |
 | Route power draw | watts; non-negative | Use for continuous electric route consumption. A powered route must consume fuel or power. |
 | Fuel per cell exit | liquid volume; non-negative | Use for coarse cell-exit travel; calibrate against world cell scale. |
 | Fuel per route metre | liquid volume/metre; non-negative | Use only for route movement. Keep values small and test long journeys. |
@@ -200,13 +213,15 @@ Use finite values only. `NaN`, infinity and silent zero-speed route profiles are
 
 ### Externally pulled terrestrial vehicles
 
-Carts, wagons, carriages and drays use ordinary terrestrial movement plus tow points. They do not receive surface-water propulsion rows. A forward point is normally towable by draft gear; a rear point may allow another load to be coupled behind.
+Carts, wagons, carriages, sledges, chariots and drays use unrestricted `CellExit` movement with an explicit
+`ExternallyPulled` propulsion profile plus tow points. A forward point is normally towable by draft gear; a rear point
+may allow another load to be coupled behind.
 
 The seeded harness items demonstrate ordinary and heavy-team ratings. A vehicle is not automatically harnessed, populated with draft animals or made ready to move.
 
-**V1 cell-exit limitation:** `CellExit` movement currently has no persisted `ExternallyPulled` propulsion mode equivalent to the one available for `Route` profiles. Character dragging and the hitch graph can move an ordinary cell-exit draft vehicle and its attached train, but the vehicle movement profile itself does not require a motive character or animal. Consequently, direct controlled movement is not mechanically prevented merely because no puller is attached. Treat this as a runtime boundary, not intended vehicle behaviour. Do not claim that the seeder enforces draft motive power, and explicitly test the hitch/drag workflow for these examples.
-
-Where a world requires strict enforcement rather than builder convention, extend the runtime movement contract before treating cell-exit draft vehicles as fully production-ready. Do not fake this with an unrelated installed-module role.
+The runtime now validates the incoming character or mount hitch graph, motive authority, connector gear, proximity,
+pulling capacity and recursive vehicle train before departure. The seeder does not create or attach animals automatically;
+builders must still provide suitable creatures, harness and live hitching.
 
 ### Powered terrestrial cell-exit vehicles
 
@@ -215,9 +230,12 @@ A powered road vehicle uses:
 - a terrestrial `CellExit` movement profile;
 - a required installed role such as `propulsion`;
 - a compatible installation point such as `land_engine` or `electric_drive`; and
-- a separately seeded removable drive module.
+- a positive minimum mechanical engine-power requirement; and
+- a separately seeded removable drive module implementing `IVehicleEngine`.
 
-Fuelled modules carry a fuel liquid container. Electric modules carry the appropriate battery/power components. The seeder does not install, fill, switch on or charge a module automatically.
+Fuelled modules combine `Vehicle Installable`, `Combustion Engine` and a fuel liquid container. Electric modules combine
+`Vehicle Installable`, `Electric Engine` and the appropriate battery/power component. Their engine form factor exactly
+matches the installation mount type. The seeder does not install, fill, switch on or charge a module automatically.
 
 **V1 terrain and timing limitation:** ordinary terrestrial `CellExit` profiles use the runtime's `Unrestricted` movement environment. They do not enforce road terrain, wheel clearance, gradient, axle load, traction or other land-suitability rules, and they do not store a physical land speed. Movement timing and fuel consumption are coarse per-exit values and must be calibrated against the world's cell scale. A world that requires enforced roads or terrain suitability should use `Route` topology where appropriate or extend the runtime contract; descriptions and builder notes must not imply enforcement that does not exist.
 
@@ -318,6 +336,9 @@ The pass is designed to be rerun.
 - Existing links are resolved by their scoped endpoints and direction.
 - Propulsion rows are resolved by movement profile and propulsion type.
 - Damage effects are resolved by zone, target type and target id.
+- Manually allocated child ids are cached per table for the run, and each vehicle graph is flushed once after its
+  dependencies and projections have been assembled. Catalogue growth therefore does not perform a full-table maximum-id
+  scan and several graph flushes for every child row.
 
 The database schema does not store every source-level child key. For non-projected children, a published name or scoped relationship therefore participates in persistence identity. Renaming such a child may add a replacement while leaving the previous row intact. This is safer than deleting a builder-extended row, but it makes names part of the migration contract.
 
@@ -342,7 +363,7 @@ Practical rules:
 | Several default movement or propulsion rows | Validation fails. |
 | Powered route has neither fuel nor power consumption | Validation fails. |
 | Route profile has zero speed | Validation fails. |
-| Surface-water movement has no explicit propulsion | Validation fails. |
+| Cell-exit movement has no explicit propulsion | Validation fails. |
 | Rowed mode has no contributor slot | Validation fails. |
 | Outboard mode has no compatible mount and role | Validation fails. |
 | Projection is visible, portable or skinnable | Validation fails. |
@@ -351,7 +372,7 @@ Practical rules:
 | Selected water propulsion becomes unavailable | Movement fails; no automatic fallback is chosen. |
 | Surface-water craft is on dry ground or the wrong ground layer | It can exist or be carried but cannot initiate surface-water travel. |
 | Route vehicle is outside valid route topology | Route operation cannot proceed. |
-| Cell-exit draft vehicle has no motive puller | The V1 movement profile does not itself enforce a puller. Use and test the hitch/drag path; do not represent this as enforced until the runtime is extended. |
+| Cell-exit draft vehicle has no valid motive puller | Movement preflight fails with hitch, authority, connector or capacity diagnostics. |
 | Cell-exit terrestrial vehicle is off-road or on unsuitable terrain | The V1 `Unrestricted` environment does not enforce road or terrain suitability. Use world controls, `Route` topology or a runtime extension where this matters. |
 | Non-room-scale compartment links are expected to create interior exits | They do not. Only `RoomScale` vehicles build navigable compartment links; use logical compartments or adopt `RoomScale`. |
 | A seeded child is removed from source | Existing database row remains. Use a deliberate migration if removal is required. |
@@ -359,42 +380,25 @@ Practical rules:
 
 ## Demonstration Catalogue
 
-Every era has two terrestrial and two aquatic examples.
+The catalogue contains 57 unique prototypes. Shared-era admission produces the following effective coverage:
 
-| Era | Stable reference | Pattern |
-|---|---|---|
-| Antiquity | `vehicle_antiquity_two_wheeled_handcart` | Item-scale externally pulled cart with open cargo. |
-| Antiquity | `vehicle_antiquity_heavy_ox_wagon` | Heavy room-container draft wagon. |
-| Antiquity | `vehicle_antiquity_reed_coracle` | Item-scale self-powered craft. |
-| Antiquity | `vehicle_antiquity_coastal_sailing_boat` | Sail default, rowed fallback, deck and hold. |
-| Medieval | `vehicle_medieval_market_cart` | Compact market cart. |
-| Medieval | `vehicle_medieval_covered_wagon` | Closable access and gated cargo. |
-| Medieval | `vehicle_medieval_clinker_rowboat` | Explicit rowed propulsion and oar dependency. |
-| Medieval | `vehicle_medieval_trading_cog` | Large sailing cargo vessel. |
-| Renaissance | `vehicle_renaissance_city_carriage` | Enclosed passenger carriage. |
-| Renaissance | `vehicle_renaissance_artillery_wagon` | High-rated military cargo wagon. |
-| Renaissance | `vehicle_renaissance_ship_launch` | Many-rower passenger and cargo launch. |
-| Renaissance | `vehicle_renaissance_lateen_pinnace` | Lateen sailcraft with rowing fallback. |
-| Early Modern | `vehicle_earlymodern_stagecoach` | High-capacity access-controlled coach. |
-| Early Modern | `vehicle_earlymodern_freight_dray` | Open urban freight platform. |
-| Early Modern | `vehicle_earlymodern_whaleboat` | Coordinated rough-water rowing craft. |
-| Early Modern | `vehicle_earlymodern_coastal_sloop` | Passenger and cargo sailing craft. |
-| Industrial | `vehicle_revolution_horse_tram` | Externally pulled route vehicle. |
-| Industrial | `vehicle_revolution_factory_delivery_wagon` | Heavy commercial draft transport. |
-| Industrial | `vehicle_revolution_canal_skiff` | Shallow-water rowed workboat. |
-| Industrial | `vehicle_revolution_sailing_cutter` | Faster sailing and cargo-hatch pattern. |
-| Modern | `vehicle_modern_petrol_touring_car` | Fuelled installed drive module and road movement. |
-| Modern | `vehicle_modern_diesel_delivery_lorry` | Heavy powered road vehicle with cargo bay. |
-| Modern | `vehicle_modern_aluminium_dinghy` | Light rowed metal craft. |
-| Modern | `vehicle_modern_petrol_motor_launch` | Outboard default and emergency rowing. |
-| Nuclear | `vehicle_atomic_family_saloon` | Enclosed fuelled passenger car. |
-| Nuclear | `vehicle_atomic_intercity_coach` | Powered fuelled route service. |
-| Nuclear | `vehicle_atomic_fiberglass_runabout` | Recreational outboard craft. |
-| Nuclear | `vehicle_atomic_cabin_cruiser` | Multi-compartment motor craft. |
-| Information Age | `vehicle_computer_electric_city_car` | Battery-powered installed drive module. |
-| Information Age | `vehicle_computer_autonomous_shuttle` | Automatic powered route service. |
-| Information Age | `vehicle_computer_recreational_kayak` | Modern self-powered item-scale craft. |
-| Information Age | `vehicle_computer_rescue_rib` | High-capacity outboard rescue craft. |
+| Era selection | Available prototypes | Representative breadth |
+|---|---:|---|
+| Antiquity | 16 | handcart, ox wagon, war and racing chariots, farm wain, sledge, coracle, canoe, punt, skiff, ferries and barges, river galley, trireme, dhow and coastal trader |
+| Medieval | 15 | market and covered carts, farm and timber wagons, sledge, rowboat, wherry, longship, cog, dhow, punts, ferries and cargo barges |
+| Renaissance | 18 | carriage, artillery wagon and limber, timber and farm wagons, launch, pinnace, caravel, carrack, galleon, dhow, wherry and inland working craft |
+| Early Modern | 24 | stagecoach, hackney coach, post chaise, dray, wagons and limber, whaleboat, sloop, schooner, packet, frigate, ship of the line, earlier ocean traders and inland craft |
+| Industrial | 4 | horse tram, delivery wagon, canal skiff and sailing cutter |
+| Modern | 4 | petrol touring car, diesel lorry, aluminium dinghy and motor launch |
+| Nuclear | 4 | family saloon, intercity coach, runabout and cabin cruiser |
+| Information Age | 4 | electric city car, autonomous shuttle, kayak and rescue RIB |
+
+The 41 pre-industrial prototypes are intentionally not duplicated per era. Stable references beginning
+`vehicle_preindustrial_` identify shared farm, winter and inland-water patterns. An era-specific reference identifies the
+first or defining era, while `SupportedEraKeys` admits the unchanged design to later eras. Ocean-going types range from
+small coastal boats and dhows through longships, cogs, caravels, carracks, galleons, packets and schooners to frigates and
+ships of the line. Large stock vessels remain `RoomContainer`: `RoomScale` interiors require installation-specific terrain
+and world topology and should be authored as a deliberate follow-up.
 
 ### Shared support equipment
 
@@ -407,9 +411,9 @@ The pass also seeds reusable operating examples:
 - heavy team harness, yoke and traces;
 - ordinary rigid tow bar;
 - heavy articulated tow bar;
-- petrol terrestrial drive module;
-- diesel terrestrial drive module; and
-- battery-powered electric drive module.
+- petrol terrestrial drive module with a 90 kW combustion engine;
+- diesel terrestrial drive module with a 400 kW combustion engine; and
+- battery-powered electric drive module with a 180 kW traction engine.
 
 These are dependencies and templates. The seeder does not automatically install them in, attach them to, fuel or charge a vehicle.
 
@@ -417,8 +421,8 @@ These are dependencies and templates. The seeder does not automatically install 
 
 ### Identity and catalogue scope
 
-- [ ] Root reference is globally unique, lowercase snake case and begins `vehicle_<era>_`.
-- [ ] Era key agrees with the root reference and intended era tag.
+- [ ] Root reference is globally unique, lowercase snake case and begins `vehicle_<era>_` or the deliberate shared-family form `vehicle_preindustrial_`.
+- [ ] Primary and additional era keys agree with the intended era tags.
 - [ ] Child keys are unique, permanent lowercase identifiers.
 - [ ] Published child names are treated as durable persistence identities where the schema has no key column.
 - [ ] The variant represents a meaningful form or use difference rather than quota-filling duplication.
@@ -447,10 +451,10 @@ These are dependencies and templates. The seeder does not automatically install 
 - [ ] Powered movement consumes declared fuel or power.
 - [ ] Every required installed role has a compatible mount and seeded module.
 - [ ] Automatic operation appears only on a powered route profile.
-- [ ] Surface-water movement has explicit propulsion and exactly one default.
+- [ ] Every cell-exit movement has environment-compatible explicit propulsion and exactly one default.
 - [ ] Rowed modes have contributor slots and credible oar supply.
 - [ ] Propulsion expressions use runtime-supported variables and remain finite.
-- [ ] A cell-exit draft vehicle's hitch/drag workflow and V1 puller-enforcement limitation are explicitly reviewed.
+- [ ] A cell-exit draft vehicle's puller capacity, hitch gear, authority and recursive train workflow are explicitly reviewed.
 - [ ] Terrestrial cell-exit timing, fuel use and suitability assumptions are reviewed against its coarse `Unrestricted` per-exit semantics.
 
 ### Projections, towing and damage

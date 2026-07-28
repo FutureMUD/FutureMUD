@@ -175,6 +175,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 - [Vehicle System](./Vehicle_System.md)
 - [Vehicle System Fresh MUD Test Runbook](./Vehicle_System_Fresh_MUD_Test_Runbook.md)
+- [Vehicle Item Seeder Design Reference](./Seeding/Vehicle_Item_Seeder_Design_Reference.md)
 - [RouteCell and RoomScale Vehicle V1.0 Acceptance Evidence](./Verification/RouteCell_Vehicle_V1_Acceptance_Evidence.md)
 
 ## World

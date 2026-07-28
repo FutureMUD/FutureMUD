@@ -25,8 +25,9 @@ public partial class ItemSeeder
 		          _context!.VehicleAccessPointProtos.Local.FirstOrDefault(x =>
 			          x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
 			          x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase)) ??
-		          _context.VehicleAccessPointProtos.AsEnumerable().FirstOrDefault(x =>
-			          x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
+		          _context.VehicleAccessPointProtos
+			          .Where(x => x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber)
+			          .AsEnumerable().FirstOrDefault(x =>
 			          x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase));
 		if (row is null)
 		{
@@ -84,8 +85,9 @@ public partial class ItemSeeder
 		          _context!.VehicleCargoSpaceProtos.Local.FirstOrDefault(x =>
 			          x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
 			          x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase)) ??
-		          _context.VehicleCargoSpaceProtos.AsEnumerable().FirstOrDefault(x =>
-			          x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
+		          _context.VehicleCargoSpaceProtos
+			          .Where(x => x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber)
+			          .AsEnumerable().FirstOrDefault(x =>
 			          x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase));
 		if (row is null)
 		{
@@ -138,8 +140,9 @@ public partial class ItemSeeder
 		var row = _context!.VehicleInstallationPointProtos.Local.FirstOrDefault(x =>
 				x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
 				x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase)) ??
-		          _context.VehicleInstallationPointProtos.AsEnumerable().FirstOrDefault(x =>
-			          x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
+		          _context.VehicleInstallationPointProtos
+			          .Where(x => x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber)
+			          .AsEnumerable().FirstOrDefault(x =>
 			          x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase));
 		if (row is null)
 		{
@@ -177,8 +180,9 @@ public partial class ItemSeeder
 		var row = _context!.VehicleTowPointProtos.Local.FirstOrDefault(x =>
 				x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
 				x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase)) ??
-		          _context.VehicleTowPointProtos.AsEnumerable().FirstOrDefault(x =>
-			          x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
+		          _context.VehicleTowPointProtos
+			          .Where(x => x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber)
+			          .AsEnumerable().FirstOrDefault(x =>
 			          x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase));
 		if (row is null)
 		{
@@ -217,8 +221,9 @@ public partial class ItemSeeder
 		var row = _context!.VehicleDamageZoneProtos.Local.FirstOrDefault(x =>
 				x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
 				x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase)) ??
-		          _context.VehicleDamageZoneProtos.AsEnumerable().FirstOrDefault(x =>
-			          x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber &&
+		          _context.VehicleDamageZoneProtos
+			          .Where(x => x.VehicleProtoId == vehicle.Id && x.VehicleProtoRevision == vehicle.RevisionNumber)
+			          .AsEnumerable().FirstOrDefault(x =>
 			          x.Name.Equals(spec.Name, StringComparison.OrdinalIgnoreCase));
 		if (row is null)
 		{

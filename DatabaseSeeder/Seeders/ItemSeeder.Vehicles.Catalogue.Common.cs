@@ -41,15 +41,23 @@ public partial class ItemSeeder
 	private static VehicleMovementProfileSeedSpec LandMovement(
 		string key,
 		string name,
-		string? fuelLiquid,
-		double fuelPerMove,
-		double requiredPower,
+		VehiclePropulsionType propulsionType,
+		double minimumEnginePower,
 		string requiredRole,
 		bool requiresAccessClosed)
 	{
+		var propulsion = new VehiclePropulsionSeedSpec(
+			propulsionType,
+			true,
+			8000.0,
+			[],
+			Difficulty.Normal,
+			propulsionType == VehiclePropulsionType.Engine ? "power / requiredpower" : "1",
+			"0");
 		return new VehicleMovementProfileSeedSpec(key, name, VehicleMovementProfileType.CellExit,
-			VehicleMovementEnvironment.Unrestricted, false, true, requiredPower, fuelLiquid, fuelPerMove, requiredRole,
-			true, requiresAccessClosed, 0.0, RouteVehiclePropulsionMode.Powered, 0.0, 0.0, false, []);
+			VehicleMovementEnvironment.Unrestricted, false, true, 0.0, minimumEnginePower, null,
+			0.0, requiredRole, true, requiresAccessClosed, 0.0, RouteVehiclePropulsionMode.Powered, 0.0, 0.0,
+			false, [propulsion]);
 	}
 
 	private static VehicleMovementProfileSeedSpec RouteMovement(
@@ -60,11 +68,14 @@ public partial class ItemSeeder
 		string? fuelLiquid,
 		double fuelPerMetre,
 		double powerDrawWatts,
+		double minimumEnginePower,
 		bool automatic)
 	{
 		return new VehicleMovementProfileSeedSpec(key, name, VehicleMovementProfileType.Route,
-			VehicleMovementEnvironment.Unrestricted, false, true, 0.0, fuelLiquid, 0.0,
-			mode == RouteVehiclePropulsionMode.Powered ? VehiclePropulsionRole : string.Empty,
+			VehicleMovementEnvironment.Unrestricted, false, true, 0.0, minimumEnginePower, fuelLiquid, 0.0,
+			mode is RouteVehiclePropulsionMode.Powered or RouteVehiclePropulsionMode.EnginePowered
+				? VehiclePropulsionRole
+				: string.Empty,
 			true, true, speedMetresPerSecond, mode, fuelPerMetre, powerDrawWatts, automatic, []);
 	}
 
@@ -76,7 +87,7 @@ public partial class ItemSeeder
 		bool exposesOccupantsToWater = false)
 	{
 		return new VehicleMovementProfileSeedSpec(key, name, VehicleMovementProfileType.CellExit,
-			VehicleMovementEnvironment.SurfaceWater, exposesOccupantsToWater, true, 0.0, null, 0.0, string.Empty,
+			VehicleMovementEnvironment.SurfaceWater, exposesOccupantsToWater, true, 0.0, 0.0, null, 0.0, string.Empty,
 			true, requiresAccessClosed, 0.0, RouteVehiclePropulsionMode.Powered, 0.0, 0.0, false, propulsion);
 	}
 

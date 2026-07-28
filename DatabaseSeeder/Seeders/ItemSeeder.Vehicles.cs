@@ -21,7 +21,6 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ItemSeeder
 {
-	private const string VehicleSeederMarkerPrefix = "Item seeder vehicle key";
 	private const string VehicleDomainTerrestrial = "Terrestrial";
 	private const string VehicleDomainAquatic = "Aquatic";
 	private const string VehicleOutboardMountType = "outboard_motor";
@@ -95,7 +94,8 @@ public partial class ItemSeeder
 		IReadOnlyCollection<string> TraitCandidates,
 		Difficulty CheckDifficulty,
 		string SpeedMultiplierExpression,
-		string StaminaCostExpression);
+		string StaminaCostExpression,
+		double RiderStaminaMultiplier = 1.0);
 
 	private sealed record VehicleMovementProfileSeedSpec(
 		string Key,
@@ -105,6 +105,7 @@ public partial class ItemSeeder
 		bool ExposesOccupantsToWater,
 		bool IsDefault,
 		double RequiredPowerSpikeInWatts,
+		double MinimumEnginePowerInWatts,
 		string? FuelLiquid,
 		double FuelVolumePerMove,
 		string RequiredInstalledRole,
@@ -202,11 +203,22 @@ public partial class ItemSeeder
 		IReadOnlyCollection<VehicleDamageZoneSeedSpec> DamageZones,
 		bool ProvidesPassengerService,
 		bool ProvidesCargoService,
-		string? BuilderNotes = null);
+		string? BuilderNotes = null,
+		IReadOnlyCollection<string>? AdditionalEraKeys = null)
+	{
+		public IReadOnlyCollection<string> SupportedEraKeys =>
+			AdditionalEraKeys is null
+				? [EraKey]
+				: AdditionalEraKeys
+					.Append(EraKey)
+					.Distinct(StringComparer.OrdinalIgnoreCase)
+					.ToArray();
+	}
 
 	internal sealed record VehicleExampleSummaryForTesting(
 		string StableReference,
 		string EraKey,
+		IReadOnlyCollection<string> SupportedEraKeys,
 		string Domain,
 		string Archetype,
 		VehicleScale Scale,
@@ -216,7 +228,10 @@ public partial class ItemSeeder
 		int MovementProfileCount,
 		bool HasDriverSlot,
 		bool HasSurfaceWaterMovement,
+		bool HasRouteMovement,
 		bool HasExplicitPropulsion,
+		IReadOnlyCollection<VehiclePropulsionType> PropulsionTypes,
+		double MinimumEnginePowerInWatts,
 		bool HasMotorInstallation,
 		bool HasCargoProjection,
 		bool HasAccessProjection);
@@ -225,6 +240,7 @@ public partial class ItemSeeder
 		VehicleExampleSpecs.Select(x => new VehicleExampleSummaryForTesting(
 			x.StableReference,
 			x.EraKey,
+			x.SupportedEraKeys,
 			x.Domain,
 			x.Archetype,
 			x.Scale,
@@ -234,7 +250,14 @@ public partial class ItemSeeder
 			x.MovementProfiles.Count,
 			x.OccupantSlots.Any(slot => slot.SlotType == VehicleOccupantSlotType.Driver),
 			x.MovementProfiles.Any(profile => profile.Environment == VehicleMovementEnvironment.SurfaceWater),
+			x.MovementProfiles.Any(profile => profile.MovementType == VehicleMovementProfileType.Route),
 			x.MovementProfiles.SelectMany(profile => profile.PropulsionProfiles).Any(),
+			x.MovementProfiles
+				.SelectMany(profile => profile.PropulsionProfiles)
+				.Select(profile => profile.PropulsionType)
+				.Distinct()
+				.ToArray(),
+			x.MovementProfiles.Max(profile => profile.MinimumEnginePowerInWatts),
 			x.InstallationPoints.Any(point =>
 				point.MountType.Equals(VehicleOutboardMountType, StringComparison.OrdinalIgnoreCase)),
 			x.CargoSpaces.Any(),
@@ -273,7 +296,7 @@ public partial class ItemSeeder
 
 		EnsureVehicleSeederTags();
 		SeedVehicleSupportItems(selectedEras);
-		foreach (var spec in VehicleExampleSpecs.Where(x => selectedEras.Contains(x.EraKey)))
+		foreach (var spec in VehicleExampleSpecs.Where(x => x.SupportedEraKeys.Any(selectedEras.Contains)))
 		{
 			ValidateVehicleSeedSpec(spec);
 			UpsertVehiclePrototype(spec);

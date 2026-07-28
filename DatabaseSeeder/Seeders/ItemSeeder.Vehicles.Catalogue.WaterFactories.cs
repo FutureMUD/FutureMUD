@@ -89,7 +89,8 @@ public partial class ItemSeeder
 		int passengerCapacity,
 		int crewCapacity,
 		bool hasCargo,
-		string archetype)
+		string archetype,
+		bool rowedFallback = true)
 	{
 		var access = new VehicleAccessPointSeedSpec(
 			"hold_hatch", "cargo hatch", "A stout deck hatch opens into the lower hold.", "hold",
@@ -123,7 +124,8 @@ public partial class ItemSeeder
 				new VehicleOccupantSlotSeedSpec("passengers", "passenger places", "deck", VehicleOccupantSlotType.Passenger, passengerCapacity, false, false, Difficulty.Normal)
 			],
 			[new VehicleControlStationSeedSpec("primary", "helm", "driver", true)],
-			[WaterMovement("water", "sailing profile", true, [SailProfile(true), RowedProfile(false)])],
+			[WaterMovement("water", "sailing profile", true,
+				rowedFallback ? [SailProfile(true), RowedProfile(false)] : [SailProfile(true)])],
 			[access], cargo, [],
 			[
 				new VehicleTowPointSeedSpec("bow_tow", "bow towing bitt", "A strong forward bitt accepts towing hawsers and mooring lines.", null,
@@ -133,7 +135,9 @@ public partial class ItemSeeder
 			],
 			SailDamageZones("water", "hold_hatch", hasCargo ? "hold" : null),
 			true, hasCargo,
-			"Sail is the default propulsion mode and requires wind. Rowing is available as a fallback only when staffed propulsion slots have usable oars.");
+			rowedFallback
+				? "Sail is the default propulsion mode and requires wind. Rowing is available as a fallback only when staffed propulsion slots have usable oars."
+				: "Sail is the only self-initiated propulsion mode; use towing for harbour movement or when there is no usable wind.");
 	}
 
 	private static VehicleSeedSpec CreateMotorCraft(

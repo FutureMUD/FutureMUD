@@ -59,7 +59,7 @@ public partial class ItemSeeder
 				"car", "a steel-bodied petrol touring car",
 				"A long bonnet, separate mudguards and a compact enclosed cabin define this early mass-produced touring car. Painted steel panels cover a ladder chassis, while broad running boards connect the front and rear doors. A steering wheel, mechanical controls and a rear luggage deck complete a practical road vehicle built for four occupants.",
 				SizeCategory.Gigantic, ItemQuality.Standard, 1250000.0, 18500.0m, "mild steel", "Destroyable_HeavyMetal",
-				VehicleScale.RoomContainer, 4, true, false, "gasoline", 0.18, 0.0, VehicleLandEngineMountType,
+				VehicleScale.RoomContainer, 4, true, false, "gasoline", VehicleLandEngineMountType,
 				false, false, 0.0, 0.0, "TouringCar"),
 			CreatePoweredRoadVehicle(
 				"vehicle_modern_diesel_delivery_lorry", "modern", "Diesel Delivery Lorry",
@@ -67,7 +67,7 @@ public partial class ItemSeeder
 				"lorry", "a box-bodied diesel delivery lorry",
 				"A forward steel cab sits ahead of a long rectangular cargo body on a heavy ladder frame. Twin rear wheels, leaf springs and a broad loading door reveal the vehicle's commercial purpose. The plain painted panels carry scuffs and repairs around the corners, while mirrors and lamps bracket the upright cab.",
 				SizeCategory.Titanic, ItemQuality.Standard, 5200000.0, 49000.0m, "mild steel", "Destroyable_HeavyMetal",
-				VehicleScale.RoomContainer, 2, true, false, "diesel", 0.5, 0.0, VehicleLandEngineMountType,
+				VehicleScale.RoomContainer, 2, true, false, "diesel", VehicleLandEngineMountType,
 				false, false, 0.0, 0.0, "DeliveryLorry"),
 			CreatePaddleCraft(
 				"vehicle_modern_aluminium_dinghy", "modern", "Aluminium Dinghy",
@@ -96,7 +96,7 @@ public partial class ItemSeeder
 				"car", "a rounded family saloon",
 				"Smooth pressed-steel panels enclose a broad passenger cabin beneath a single curved roof. Four doors, upholstered bench seats and a separate rear boot make the car plainly domestic, while chrome trim and a wide radiator grille provide restrained ornament. The suspension and controls favour easy road use over sporting performance.",
 				SizeCategory.Gigantic, ItemQuality.Good, 1420000.0, 23500.0m, "mild steel", "Destroyable_HeavyMetal",
-				VehicleScale.RoomContainer, 5, true, false, "gasoline", 0.16, 0.0, VehicleLandEngineMountType,
+				VehicleScale.RoomContainer, 5, true, false, "gasoline", VehicleLandEngineMountType,
 				false, false, 0.0, 0.0, "FamilySaloon"),
 			CreatePoweredRoadVehicle(
 				"vehicle_atomic_intercity_coach", "atomic", "Intercity Coach",
@@ -104,7 +104,7 @@ public partial class ItemSeeder
 				"coach", "a long diesel intercity coach",
 				"A monocoque steel body stretches over closely spaced passenger windows and two broad axles. Folding entry doors open beside the driver's position, while rows of high-backed seats stand above underfloor luggage lockers. Destination panels, roof vents and substantial bumpers identify a vehicle intended for repeated scheduled journeys.",
 				SizeCategory.Titanic, ItemQuality.Standard, 11800000.0, 98000.0m, "mild steel", "Destroyable_HeavyMetal",
-				VehicleScale.RoomContainer, 36, true, true, "diesel", 0.0, 0.0, VehicleLandEngineMountType,
+				VehicleScale.RoomContainer, 36, true, true, "diesel", VehicleLandEngineMountType,
 				false, true, 18.0, 0.00008, "IntercityCoach"),
 			CreateMotorCraft(
 				"vehicle_atomic_fiberglass_runabout", "atomic", "Fiberglass Runabout",
@@ -133,7 +133,7 @@ public partial class ItemSeeder
 				"car", "a compact electric city car",
 				"A short aluminium body encloses a tall four-seat cabin with a steep windscreen and minimal overhangs. Flush lamps, simple door handles and a sealed nose replace the openings expected on a combustion vehicle. A digital instrument panel faces the driver, while a rear hatch opens onto a small but regular load space.",
 				SizeCategory.Gigantic, ItemQuality.Good, 1380000.0, 42000.0m, "aluminium", "Destroyable_HeavyMetal",
-				VehicleScale.RoomContainer, 4, true, false, null, 0.0, 650.0, VehicleElectricDriveMountType,
+				VehicleScale.RoomContainer, 4, true, false, null, VehicleElectricDriveMountType,
 				false, false, 0.0, 0.0, "ElectricCityCar"),
 			CreatePoweredRoadVehicle(
 				"vehicle_computer_autonomous_shuttle", "computer", "Autonomous Shuttle",
@@ -141,7 +141,7 @@ public partial class ItemSeeder
 				"shuttle", "a windowed autonomous electric shuttle",
 				"A boxy aluminium passenger pod rides on four small enclosed wheels beneath a roof crowded with cameras and range sensors. Wide sliding doors open onto a level floor and facing bench seats, with only a compact manual control console interrupting the cabin. External status lights and destination displays make its route-service role immediately apparent.",
 				SizeCategory.Titanic, ItemQuality.Good, 4200000.0, 86000.0m, "aluminium", "Destroyable_HeavyMetal",
-				VehicleScale.RoomContainer, 12, true, true, null, 0.0, 0.0, VehicleElectricDriveMountType,
+				VehicleScale.RoomContainer, 12, true, true, null, VehicleElectricDriveMountType,
 				true, true, 8.0, 35.0, "AutonomousShuttle"),
 			CreatePaddleCraft(
 				"vehicle_computer_recreational_kayak", "computer", "Recreational Kayak",

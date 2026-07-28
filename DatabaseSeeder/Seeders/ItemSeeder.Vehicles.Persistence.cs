@@ -23,7 +23,9 @@ public partial class ItemSeeder
 {
 	private void UpsertVehiclePrototype(VehicleSeedSpec spec)
 	{
-		var eraTag = VehicleEraTags[spec.EraKey];
+		var eraTags = spec.SupportedEraKeys
+			.Select(x => VehicleEraTags[x])
+			.ToArray();
 		var domainFunctionTag = spec.Domain.Equals(VehicleDomainAquatic, StringComparison.OrdinalIgnoreCase)
 			? "Functions / Vehicles / Aquatic Vehicles"
 			: "Functions / Vehicles / Terrestrial Vehicles";
@@ -32,12 +34,12 @@ public partial class ItemSeeder
 			: "Market / Transportation / Vehicles / Terrestrial Vehicles";
 		var tags = new List<string>
 		{
-			eraTag,
 			"Functions / Vehicles",
 			domainFunctionTag,
 			"Market / Transportation / Vehicles",
 			domainMarketTag
 		};
+		tags.AddRange(eraTags);
 		if (spec.ProvidesCargoService)
 		{
 			tags.Add("Market / Transportation / Cargo Transportation");
@@ -59,7 +61,7 @@ public partial class ItemSeeder
 			exteriorComponents,
 			$"Vehicle prototype stable reference: {spec.StableReference}. {spec.BuilderNotes}".Trim());
 
-		var vehicle = FindVehiclePrototypeByExterior(exterior, spec.StableReference);
+		var vehicle = FindVehiclePrototypeByExterior(exterior);
 		if (vehicle is null)
 		{
 			vehicle = new VehicleProto
@@ -74,13 +76,11 @@ public partial class ItemSeeder
 			_context.VehicleProtos.Add(vehicle);
 		}
 		vehicle.Name = spec.Name;
-		vehicle.Description = WithVehicleSeederMarker(spec.Description, spec.StableReference, "vehicle", "root");
+		vehicle.Description = spec.Description.Trim();
 		vehicle.VehicleScale = (int)spec.Scale;
 		vehicle.ExteriorItemProto = exterior;
 		vehicle.ExteriorItemProtoId = exterior.Id;
 		vehicle.ExteriorItemProtoRevision = exterior.RevisionNumber;
-		_context.SaveChanges();
-
 		var exteriorComponent = EnsureVehicleComponent(
 			ComponentName("Exterior", spec.StableReference),
 			"Vehicle Exterior",
@@ -92,8 +92,6 @@ public partial class ItemSeeder
 			x => x.Key,
 			x => UpsertCompartment(vehicle, spec.StableReference, x),
 			StringComparer.OrdinalIgnoreCase);
-		_context.SaveChanges();
-
 		foreach (var link in spec.CompartmentLinks)
 		{
 			UpsertCompartmentLink(vehicle, link, compartments);
@@ -115,8 +113,6 @@ public partial class ItemSeeder
 			x => x.Key,
 			x => UpsertDamageZone(vehicle, spec.StableReference, x),
 			StringComparer.OrdinalIgnoreCase);
-		_context.SaveChanges();
-
 		foreach (var station in spec.ControlStations)
 		{
 			UpsertControlStation(vehicle, station, slots);
@@ -142,8 +138,6 @@ public partial class ItemSeeder
 			x => x.Key,
 			x => UpsertTowPoint(vehicle, spec.StableReference, x, accessPoints),
 			StringComparer.OrdinalIgnoreCase);
-		_context.SaveChanges();
-
 		foreach (var zoneSpec in spec.DamageZones)
 		{
 			foreach (var effectSpec in zoneSpec.Effects)
@@ -165,7 +159,7 @@ public partial class ItemSeeder
 			var projection = UpsertVehicleProjectionItem(
 				$"{spec.StableReference}_access_{NormaliseKey(accessSpec.Key)}",
 				accessSpec.ProjectionItem,
-				eraTag,
+				eraTags,
 				[]);
 			var component = EnsureVehicleComponent(
 				ComponentName("Access", spec.StableReference, accessSpec.Key),
@@ -186,7 +180,7 @@ public partial class ItemSeeder
 			var projection = UpsertVehicleProjectionItem(
 				$"{spec.StableReference}_cargo_{NormaliseKey(cargoSpec.Key)}",
 				cargoSpec.ProjectionItem,
-				eraTag,
+				eraTags,
 				[cargoSpec.ContainerComponent]);
 			var component = EnsureVehicleComponent(
 				ComponentName("Cargo", spec.StableReference, cargoSpec.Key),
@@ -207,7 +201,7 @@ public partial class ItemSeeder
 	private GameItemProto UpsertVehicleProjectionItem(
 		string stableReference,
 		VehicleItemSeedSpec spec,
-		string eraTag,
+		IEnumerable<string> eraTags,
 		IEnumerable<string> extraComponents)
 	{
 		var components = new List<string> { spec.DestroyableComponent };
@@ -215,7 +209,7 @@ public partial class ItemSeeder
 		return UpsertVehicleItem(
 			stableReference,
 			spec with { Portable = false, Skinnable = false, HiddenFromPlayers = true },
-			[eraTag, "Functions / Vehicles / Projection Items"],
+			eraTags.Append("Functions / Vehicles / Projection Items"),
 			components,
 			"Internal vehicle projection item. Do not place or clone directly.");
 	}
@@ -333,7 +327,7 @@ public partial class ItemSeeder
 			return;
 		}
 
-		_context.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+		_context!.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
 		{
 			GameItemProtoId = item.Id,
 			GameItemProtoRevision = item.RevisionNumber,

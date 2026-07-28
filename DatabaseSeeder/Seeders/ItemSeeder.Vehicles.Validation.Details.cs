@@ -18,6 +18,8 @@ public partial class ItemSeeder
 	{
 		RequireText(owner, movement.Name, $"movement profile {movement.Key} name");
 		RequireNonNegativeFinite(owner, movement.RequiredPowerSpikeInWatts, $"movement profile {movement.Key} required power spike");
+		RequireNonNegativeFinite(owner, movement.MinimumEnginePowerInWatts,
+			$"movement profile {movement.Key} minimum engine power");
 		RequireNonNegativeFinite(owner, movement.FuelVolumePerMove, $"movement profile {movement.Key} fuel volume per move");
 		RequireNonNegativeFinite(owner, movement.RouteSpeedMetresPerSecond, $"movement profile {movement.Key} route speed");
 		RequireNonNegativeFinite(owner, movement.RouteFuelVolumePerMetre, $"movement profile {movement.Key} route fuel use");
@@ -38,6 +40,11 @@ public partial class ItemSeeder
 			{
 				throw VehicleValidation(owner, $"powered route profile {movement.Key} must consume fuel or electrical power");
 			}
+			if (movement.RoutePropulsionMode == RouteVehiclePropulsionMode.EnginePowered &&
+			    movement.MinimumEnginePowerInWatts <= 0.0)
+			{
+				throw VehicleValidation(owner, $"engine-powered route profile {movement.Key} must require engine power");
+			}
 		}
 		else if (movement.RouteSpeedMetresPerSecond != 0.0 || movement.RouteFuelVolumePerMetre != 0.0 ||
 		         movement.RoutePowerDrawWatts != 0.0 || movement.AutomaticOperationCapable)
@@ -45,11 +52,11 @@ public partial class ItemSeeder
 			throw VehicleValidation(owner, $"non-route profile {movement.Key} cannot use route-only values");
 		}
 
-		if (movement.Environment == VehicleMovementEnvironment.SurfaceWater)
+		if (movement.MovementType == VehicleMovementProfileType.CellExit)
 		{
 			if (movement.PropulsionProfiles.Count == 0 || movement.PropulsionProfiles.Count(x => x.IsDefault) != 1)
 			{
-				throw VehicleValidation(owner, $"surface-water profile {movement.Key} requires propulsion profiles and exactly one default");
+				throw VehicleValidation(owner, $"cell-exit profile {movement.Key} requires propulsion profiles and exactly one default");
 			}
 			var duplicate = movement.PropulsionProfiles.GroupBy(x => x.PropulsionType).FirstOrDefault(x => x.Count() > 1);
 			if (duplicate is not null)
@@ -59,6 +66,17 @@ public partial class ItemSeeder
 			foreach (var propulsion in movement.PropulsionProfiles)
 			{
 				ValidatePropulsionProfile(owner, movement, propulsion);
+			}
+			var invalidEnvironmentPropulsion = movement.PropulsionProfiles.FirstOrDefault(x =>
+				movement.Environment == VehicleMovementEnvironment.SurfaceWater
+					? x.PropulsionType is VehiclePropulsionType.Engine or VehiclePropulsionType.ExternallyPulled or
+						VehiclePropulsionType.RiderPowered
+					: x.PropulsionType is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed or
+						VehiclePropulsionType.Sail or VehiclePropulsionType.OutboardMotor);
+			if (invalidEnvironmentPropulsion is not null)
+			{
+				throw VehicleValidation(owner,
+					$"{movement.Environment} profile {movement.Key} cannot use {invalidEnvironmentPropulsion.PropulsionType}");
 			}
 			if (movement.PropulsionProfiles.Any(x => x.PropulsionType == VehiclePropulsionType.Rowed) &&
 			    !owner.OccupantSlots.Any(x => x.ContributesToPropulsion))
@@ -71,10 +89,15 @@ public partial class ItemSeeder
 			{
 				throw VehicleValidation(owner, $"outboard profile {movement.Key} requires an outboard_motor installation point with the propulsion role");
 			}
+			if (movement.PropulsionProfiles.Any(x => x.PropulsionType == VehiclePropulsionType.Engine) &&
+			    movement.MinimumEnginePowerInWatts <= 0.0)
+			{
+				throw VehicleValidation(owner, $"engine profile {movement.Key} must require engine power");
+			}
 		}
 		else if (movement.PropulsionProfiles.Count > 0)
 		{
-			throw VehicleValidation(owner, $"terrestrial profile {movement.Key} must use movement resources/towing rather than surface-water propulsion profiles");
+			throw VehicleValidation(owner, $"non-cell-exit profile {movement.Key} cannot define propulsion profiles");
 		}
 
 		if (!string.IsNullOrWhiteSpace(movement.RequiredInstalledRole) &&
@@ -109,14 +132,20 @@ public partial class ItemSeeder
 			$"movement profile {movement.Key}/{propulsion.PropulsionType} speed expression");
 		RequireText(owner, propulsion.StaminaCostExpression,
 			$"movement profile {movement.Key}/{propulsion.PropulsionType} stamina expression");
+		RequireNonNegativeFinite(owner, propulsion.RiderStaminaMultiplier,
+			$"movement profile {movement.Key}/{propulsion.PropulsionType} rider stamina multiplier");
 		try
 		{
 			foreach (var outcome in Enumerable.Range(-3, 7))
 			{
 				var speed = new Expression(propulsion.SpeedMultiplierExpression).EvaluateDoubleWith(
-					("outcome", (double)outcome), ("wind", 4.0), ("output", 1.0), ("swimcost", 1.0));
+					("outcome", (double)outcome), ("wind", 4.0), ("output", 1.0), ("swimcost", 1.0),
+					("power", 2.0), ("requiredpower", 1.0), ("terraincost", 1.0), ("encumbrance", 1.0),
+					("vehiclemultiplier", propulsion.RiderStaminaMultiplier));
 				var stamina = new Expression(propulsion.StaminaCostExpression).EvaluateDoubleWith(
-					("outcome", (double)outcome), ("wind", 4.0), ("output", 1.0), ("swimcost", 1.0));
+					("outcome", (double)outcome), ("wind", 4.0), ("output", 1.0), ("swimcost", 1.0),
+					("power", 2.0), ("requiredpower", 1.0), ("terraincost", 1.0), ("encumbrance", 1.0),
+					("vehiclemultiplier", propulsion.RiderStaminaMultiplier));
 				if (!double.IsFinite(speed) || speed <= 0.0 || !double.IsFinite(stamina) || stamina < 0.0)
 				{
 					throw VehicleValidation(owner,

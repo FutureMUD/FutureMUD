@@ -26,6 +26,13 @@ public partial class ItemSeeder
 
 	private void EnsureVehicleFuelledDriveModules()
 	{
+		if (!_liquids.TryGetValue("gasoline", out var gasoline) ||
+		    !_liquids.TryGetValue("diesel", out var diesel))
+		{
+			throw new InvalidOperationException(
+				"The vehicle seeder requires the seeded liquids 'gasoline' and 'diesel' to create terrestrial engines.");
+		}
+
 		var installable = EnsureVehicleComponent(
 			"VehicleSeeder_Installable_LandEngine",
 			"Vehicle Installable",
@@ -35,6 +42,26 @@ public partial class ItemSeeder
 				new XElement("Role", VehiclePropulsionRole),
 				new XElement("MinimumFunctionalCondition", 0.2),
 				new XElement("MinimumMovementCondition", 0.35)).ToString());
+		var petrolEngine = EnsureVehicleComponent(
+			"VehicleSeeder_CombustionEngine_Petrol",
+			"Combustion Engine",
+			"A compact petrol terrestrial engine matched to the vehicle seeder land-engine mount.",
+			new XElement("Definition",
+				new XElement("FormFactor", new XCData(VehicleLandEngineMountType)),
+				new XElement("MaximumPowerInWatts", 90000.0),
+				new XElement("NoiseLevel", "Loud"),
+				new XElement("FuelLiquidId", gasoline.Id),
+				new XElement("FuelPerSecond", 0.00002)).ToString());
+		var dieselEngine = EnsureVehicleComponent(
+			"VehicleSeeder_CombustionEngine_Diesel",
+			"Combustion Engine",
+			"A heavy diesel terrestrial engine matched to the vehicle seeder land-engine mount.",
+			new XElement("Definition",
+				new XElement("FormFactor", new XCData(VehicleLandEngineMountType)),
+				new XElement("MaximumPowerInWatts", 400000.0),
+				new XElement("NoiseLevel", "VeryLoud"),
+				new XElement("FuelLiquidId", diesel.Id),
+				new XElement("FuelPerSecond", 0.00006)).ToString());
 
 		UpsertVehicleEquipmentItem(
 			"vehicle_modern_petrol_drive_module",
@@ -50,7 +77,7 @@ public partial class ItemSeeder
 				"Destroyable_HeavyMetal",
 				true),
 			["Functions / Vehicles / Vehicle Equipment / Propulsion Equipment", "Market / Transportation / Vehicle Equipment"],
-			[installable],
+			[installable, petrolEngine],
 			["LContainer_FuelCan"]);
 
 		UpsertVehicleEquipmentItem(
@@ -67,7 +94,7 @@ public partial class ItemSeeder
 				"Destroyable_HeavyMetal",
 				true),
 			["Functions / Vehicles / Vehicle Equipment / Propulsion Equipment", "Market / Transportation / Vehicle Equipment"],
-			[installable],
+			[installable, dieselEngine],
 			["LContainer_FuelCan"]);
 	}
 
@@ -82,6 +109,22 @@ public partial class ItemSeeder
 				new XElement("Role", VehiclePropulsionRole),
 				new XElement("MinimumFunctionalCondition", 0.2),
 				new XElement("MinimumMovementCondition", 0.35)).ToString());
+		var electricEngine = EnsureVehicleComponent(
+			"VehicleSeeder_ElectricEngine_Traction",
+			"Electric Engine",
+			"An electric traction engine matched to the vehicle seeder electric-drive mount.",
+			new XElement("Definition",
+				new XElement("Wattage", 90000.0),
+				new XElement("WattageDiscount", 0.0),
+				new XElement("Switchable", true),
+				new XElement("UseMountHostPowerSource", false),
+				new XElement("PowerOnEmote", new XCData("@ whine|whines to life.")),
+				new XElement("PowerOffEmote", new XCData("@ wind|winds down.")),
+				new XElement("OnPoweredProg", 0),
+				new XElement("OnUnpoweredProg", 0),
+				new XElement("FormFactor", new XCData(VehicleElectricDriveMountType)),
+				new XElement("MaximumPowerInWatts", 180000.0),
+				new XElement("NoiseLevel", "Decent")).ToString());
 
 		UpsertVehicleEquipmentItem(
 			"vehicle_computer_electric_drive_module",
@@ -97,7 +140,7 @@ public partial class ItemSeeder
 				"Destroyable_HeavyMetal",
 				true),
 			["Functions / Vehicles / Vehicle Equipment / Propulsion Equipment", "Market / Transportation / Vehicle Equipment"],
-			[installable],
+			[installable, electricEngine],
 			["BatteryPowered_1xCarBattery"]);
 	}
 

@@ -7945,5 +7945,70 @@
         "Component Name":  "OfferingReceiver_Antiquity_BloodOfferingBowl",
         "Component Description":  "Turns an item into a ritual bowl that accepts and records tagged blood offerings.",
         "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Oar_Preindustrial",
+        "Component Description":  "Turns an item into a serviceable pre-industrial vehicle oar.",
+        "Component Type":  "Vehicle Oar"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Oar_Modern",
+        "Component Description":  "Turns an item into a durable modern vehicle oar.",
+        "Component Type":  "Vehicle Oar"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Installable_OutboardMotor",
+        "Component Description":  "Turns an item into an outboard-motor module for a matching vehicle installation point.",
+        "Component Type":  "Vehicle Installable"
+    },
+    {
+        "Component Name":  "VehicleSeeder_OutboardMotor_Petrol",
+        "Component Description":  "Turns an item into a small fuelled outboard motor for surface-water vehicles.",
+        "Component Type":  "Outboard Motor"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Hitch_DraftHarness",
+        "Component Description":  "Turns an item into draft harness and traces suitable for linking pullers to a vehicle.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Hitch_TowBar",
+        "Component Description":  "Turns an item into a rigid tow bar for compatible road vehicles.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Installable_LandEngine",
+        "Component Description":  "Turns an item into a removable fuelled drive module for a matching terrestrial vehicle engine bay.",
+        "Component Type":  "Vehicle Installable"
+    },
+    {
+        "Component Name":  "VehicleSeeder_CombustionEngine_Petrol",
+        "Component Description":  "A compact petrol terrestrial engine matched to the vehicle seeder land-engine mount.",
+        "Component Type":  "Combustion Engine"
+    },
+    {
+        "Component Name":  "VehicleSeeder_CombustionEngine_Diesel",
+        "Component Description":  "A heavy diesel terrestrial engine matched to the vehicle seeder land-engine mount.",
+        "Component Type":  "Combustion Engine"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Installable_ElectricDrive",
+        "Component Description":  "Turns an item into a removable electric drive module for a matching terrestrial vehicle drive bay.",
+        "Component Type":  "Vehicle Installable"
+    },
+    {
+        "Component Name":  "VehicleSeeder_ElectricEngine_Traction",
+        "Component Description":  "An electric traction engine matched to the vehicle seeder electric-drive mount.",
+        "Component Type":  "Electric Engine"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Hitch_HeavyTeamHarness",
+        "Component Description":  "Turns an item into heavy team harness, yoke and traces for large draft vehicles.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Hitch_HeavyTowBar",
+        "Component Description":  "Turns an item into a heavy rigid tow bar for large road vehicles.",
+        "Component Type":  "HitchGear"
     }
 ]

@@ -108,8 +108,15 @@ public class Terrain : SaveableItem, ITerrain
             case "verydeepwatercave":
                 SetAsVeryDeepWaterCaveTerrain(ss);
                 break;
+            case "rooftop":
             case "rooftops":
                 SetAsRooftopsTerrain();
+                break;
+            case "rooftoponly":
+            case "rooftopsonly":
+            case "rooftop-only":
+            case "rooftops-only":
+                SetAsRooftopsOnlyTerrain();
                 break;
             case "underwater":
                 SetAsUnderwater(ss);
@@ -281,6 +288,15 @@ public class Terrain : SaveableItem, ITerrain
         _terrainLayers.Add(RoomLayer.OnRooftops);
         TerrainBehaviourString = $"rooftops";
     }
+
+	private void SetAsRooftopsOnlyTerrain()
+	{
+		_terrainLayers.Clear();
+		_terrainLayers.Add(RoomLayer.OnRooftops);
+		_terrainLayers.Add(RoomLayer.InAir);
+		_terrainLayers.Add(RoomLayer.HighInAir);
+		TerrainBehaviourString = "rooftopsonly";
+	}
 
     private void SetAsOutdoorsTerrain()
     {
@@ -1035,7 +1051,12 @@ public class Terrain : SaveableItem, ITerrain
             case "trees":
             case "talltrees":
             case "cavetrees":
+            case "rooftop":
             case "rooftops":
+            case "rooftoponly":
+            case "rooftopsonly":
+            case "rooftop-only":
+            case "rooftops-only":
             case "cave":
             case "cliff":
                 break;
@@ -1073,10 +1094,11 @@ public class Terrain : SaveableItem, ITerrain
 	#3indoors#0 - Ground Level only
 	#3cave#0 - Ground Level + 1 air level
 	#3cliff#0 - Air Levels only - i.e. rockface
-	#3rooftop#0 - Ground level + rooftops
+	#3rooftops#0 - Ground level + rooftops + 2 air levels
+	#3rooftopsonly#0 - Rooftops + 2 air levels, with no ground level
 	#3trees#0 - Ground level + trees + 2 air levels
 	#3talltrees#0 - Ground level + 2 tree levels + 2 air levels
-	#3cavetrees#0 - Ground level + 2 tree levels
+	#3cavetrees#0 - Ground level + 1 tree level
 
 The following additional models require you to specify a liquid to go with them:
 
@@ -1088,7 +1110,8 @@ The following additional models require you to specify a liquid to go with them:
 	#3verydeepunderwater <liquid>#0 - 3 underwater layers only
 	#3shallowwatertrees <liquid>#0 - underwater + water surface + trees + 2 air levels
 	#3shallowwatercave <liquid>#0 - underwater + water surface only
-	#3deepwatercave <liquid>#0 - 2 underwater layers + water surface only".SubstituteANSIColour());
+	#3deepwatercave <liquid>#0 - 2 underwater layers + water surface only
+	#3verydeepwatercave <liquid>#0 - 3 underwater layers + water surface only".SubstituteANSIColour());
                 return false;
         }
 
@@ -1110,8 +1133,15 @@ The following additional models require you to specify a liquid to go with them:
             case "cavetrees":
                 SetAsUndergroundTreesTerrain();
                 break;
+            case "rooftop":
             case "rooftops":
                 SetAsRooftopsTerrain();
+                break;
+            case "rooftoponly":
+            case "rooftopsonly":
+            case "rooftop-only":
+            case "rooftops-only":
+                SetAsRooftopsOnlyTerrain();
                 break;
             case "cave":
                 SetAsCaveTerrain();
@@ -1155,7 +1185,7 @@ The following additional models require you to specify a liquid to go with them:
         }
 
 
-        string text = liquid is null ? model : $"{model} {liquid.Id}";
+        string text = TerrainBehaviourString;
         actor.OutputHandler.Send(
             $"You change the terrain model to {text}. The layers are now:\n\n{_terrainLayers.Select(x => x.LocativeDescription().ColourName()).ListToLines(true)}");
         Changed = true;

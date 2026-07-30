@@ -142,6 +142,8 @@ NPC templates persist through `NPCTemplates` rows. In addition to the template `
 
 Blank unique names are treated as unset. Nonblank unique names are trimmed, cannot be entirely numeric, and must be unique case-insensitively among active template revisions: `Current`, `PendingRevision`, and `UnderDesign`. Historical `Rejected`, `Revised`, and `Obsolete` revisions may duplicate them.
 
+Builders can bulk rename those active unique names with `npc rename <match regex> <replacement text>`. Matching is case-sensitive by default and uses standard .NET numbered or named replacement groups against `UniqueName`, not the template's display `Name`; inline regex options such as `(?i)` remain available. The command calculates and displays the complete old-to-new map before checking the virtual final state. Swaps and rename chains are therefore permitted, while numeric results and case-insensitive collisions between distinct template IDs abort the entire batch. Invalid expressions, regex timeouts, or any other validation error make no changes. An empty quoted replacement clears all matched unique names.
+
 The same template `Definition` XML also owns load-time additions that apply only when a new NPC is created from the template. These additions are shared by simple and variable NPC templates and are not part of the general `ICharacterTemplate` contract. Current load-time additions include clan memberships, outfit templates, hooks, bank accounts, implants, and prosthetics.
 
 NPC-template and live-NPC attachment are separate:
@@ -356,6 +358,7 @@ This is the normal way to make future spawns of a template inherit a behavior pa
 
 NPC templates also support builder-facing metadata:
 
+- `npc rename <match regex> <replacement text>`
 - `npc set unique <name>`
 - `npc set unique clear`
 - `npc set comment <text>`

@@ -92,6 +92,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "Container_Archive_Chest",
         "IncenseBurner_Antiquity_BronzeCenser",
         "OfferingReceiver_Antiquity_HouseholdAltar",
+        "OfferingReceiver_Antiquity_TempleLibationTable",
         "Repair_Glass",
         "Repair_Composite_Bow",
         "Tool_Blacksmithing_General",

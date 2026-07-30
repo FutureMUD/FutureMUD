@@ -200,6 +200,11 @@ Vessels	Food and Drink	Food and Drink / Vessels
 Beverage Serving Vessel	Vessels	Food and Drink / Vessels / Beverage Serving Vessel
 Fermenting Vessel	Vessels	Food and Drink / Vessels / Fermenting Vessel
 Functions		Functions
+Animal Equipment	Functions	Functions / Animal Equipment
+Animal Armour	Animal Equipment	Functions / Animal Equipment / Animal Armour
+Draft Gear	Animal Equipment	Functions / Animal Equipment / Draft Gear
+Pack Gear	Animal Equipment	Functions / Animal Equipment / Pack Gear
+Riding Tack	Animal Equipment	Functions / Animal Equipment / Riding Tack
 Civic Fixtures	Functions	Functions / Civic Fixtures
 Container	Functions	Functions / Container
 Airtight Container	Container	Functions / Container / Airtight Container
@@ -346,10 +351,21 @@ Suture Kit	Medical Treatment	Functions / Medical Treatment / Suture Kit
 Tend Kit	Medical Treatment	Functions / Medical Treatment / Tend Kit
 Wound Cleaning	Medical Treatment	Functions / Medical Treatment / Wound Cleaning
 Military Equipment	Functions	Functions / Military Equipment
+Crossbow Spanning Tools	Military Equipment	Functions / Military Equipment / Crossbow Spanning Tools
+Cranequin	Crossbow Spanning Tools	Functions / Military Equipment / Crossbow Spanning Tools / Cranequin
+Goat's Foot	Crossbow Spanning Tools	Functions / Military Equipment / Crossbow Spanning Tools / Goat's Foot
+Lever	Crossbow Spanning Tools	Functions / Military Equipment / Crossbow Spanning Tools / Lever
+Spanning Hook	Crossbow Spanning Tools	Functions / Military Equipment / Crossbow Spanning Tools / Spanning Hook
+Windlass	Crossbow Spanning Tools	Functions / Military Equipment / Crossbow Spanning Tools / Windlass
 Military Ammunition	Military Equipment	Functions / Military Equipment / Military Ammunition
+Paper Cartridges	Military Ammunition	Functions / Military Equipment / Military Ammunition / Paper Cartridges
+Wooden Powder Charges	Military Ammunition	Functions / Military Equipment / Military Ammunition / Wooden Powder Charges
 Military Armour	Military Equipment	Functions / Military Equipment / Military Armour
 Military Shields	Military Armour	Functions / Military Equipment / Military Armour / Military Shields
+Military Signals	Military Equipment	Functions / Military Equipment / Military Signals
+Military Standards	Military Equipment	Functions / Military Equipment / Military Standards
 Military Weapons	Military Equipment	Functions / Military Equipment / Military Weapons
+Musical Instruments	Functions	Functions / Musical Instruments
 Reflective	Functions	Functions / Reflective
 Repairing	Functions	Functions / Repairing
 Composite Bow	Repairing	Functions / Repairing / Composite Bow
@@ -1645,6 +1661,10 @@ Detergent	Liquids	Materials / Liquids / Detergent
 Disgusting	Liquids	Materials / Liquids / Disgusting
 Fuel	Liquids	Materials / Liquids / Fuel
 Medicine	Liquids	Materials / Liquids / Medicine
+Ritual Offerings	Liquids	Materials / Liquids / Ritual Offerings
+Blood Offering	Ritual Offerings	Materials / Liquids / Ritual Offerings / Blood Offering
+Lamp Oil	Ritual Offerings	Materials / Liquids / Ritual Offerings / Lamp Oil
+Libation	Ritual Offerings	Materials / Liquids / Ritual Offerings / Libation
 Water	Liquids	Materials / Liquids / Water
 Water Soluble	Liquids	Materials / Liquids / Water Soluble
 Manufactured Materials	Materials	Materials / Manufactured Materials

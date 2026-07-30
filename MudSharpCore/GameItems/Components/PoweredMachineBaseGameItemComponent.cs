@@ -1,4 +1,5 @@
-﻿using MudSharp.GameItems.Prototypes;
+﻿using MudSharp.Form.Audio;
+using MudSharp.GameItems.Prototypes;
 
 #nullable enable
 #nullable disable warnings
@@ -127,8 +128,16 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 		if (SwitchedOn)
 		{
 			_drawingPower = true;
-			Parent.Handle(new EmoteOutput(new Emote(_prototype.PowerOnEmote, Parent, Parent),
-				flags: OutputFlags.SuppressObscured), OutputRange.Local);
+			if (PowerAudioVolume is { } volume)
+			{
+				Parent.Handle(new AudioOutput(new Emote(_prototype.PowerOnEmote, Parent, Parent), volume,
+					flags: OutputFlags.SuppressObscured), OutputRange.Local);
+			}
+			else
+			{
+				Parent.Handle(new EmoteOutput(new Emote(_prototype.PowerOnEmote, Parent, Parent),
+					flags: OutputFlags.SuppressObscured), OutputRange.Local);
+			}
 			_prototype.OnPoweredProg?.Execute(Parent);
 			_onAndPowered = true;
 			OnPowerCutInAction();
@@ -137,14 +146,23 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
     protected abstract void OnPowerCutInAction();
     protected abstract void OnPowerCutOutAction();
+	protected virtual AudioVolume? PowerAudioVolume => null;
 
 	public void OnPowerCutOut()
 	{
 		_drawingPower = false;
 		if (_onAndPowered)
 		{
-			Parent.Handle(new EmoteOutput(new Emote(_prototype.PowerOffEmote, Parent, Parent),
-				flags: OutputFlags.SuppressObscured), OutputRange.Local);
+			if (PowerAudioVolume is { } volume)
+			{
+				Parent.Handle(new AudioOutput(new Emote(_prototype.PowerOffEmote, Parent, Parent), volume,
+					flags: OutputFlags.SuppressObscured), OutputRange.Local);
+			}
+			else
+			{
+				Parent.Handle(new EmoteOutput(new Emote(_prototype.PowerOffEmote, Parent, Parent),
+					flags: OutputFlags.SuppressObscured), OutputRange.Local);
+			}
 			_prototype.OnUnpoweredProg?.Execute(Parent);
 			OnPowerCutOutAction();
 			_onAndPowered = false;

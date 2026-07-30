@@ -17,6 +17,7 @@ public class VehicleMovementProfileProto
 	public bool ExposesOccupantsToWater { get; set; }
 	public bool IsDefault { get; set; }
 	public double RequiredPowerSpikeInWatts { get; set; }
+	public double MinimumEnginePowerInWatts { get; set; }
 	public long? FuelLiquidId { get; set; }
 	public double FuelVolumePerMove { get; set; }
 	public string RequiredInstalledRole { get; set; }

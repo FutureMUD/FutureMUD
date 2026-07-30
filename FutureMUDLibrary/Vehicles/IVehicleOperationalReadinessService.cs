@@ -130,7 +130,8 @@ public sealed record VehicleMovementReadinessResult(
 	VehicleHitchGraphMovePlan? MovePlan,
 	VehicleResourceReadinessPlan? ResourcePlan,
 	IReadOnlyList<VehicleOperationalIssue> Issues,
-	VehiclePropulsionReadinessResult? PropulsionReadiness = null);
+	VehiclePropulsionReadinessResult? PropulsionReadiness = null,
+	IReadOnlyList<ICharacter>? ExternalPullers = null);
 
 public sealed record VehicleTowCatastropheResult(
 	bool Catastrophe,

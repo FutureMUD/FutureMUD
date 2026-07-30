@@ -695,6 +695,48 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
                 cumulativeFallDistance += 0.25;
                 return false;
             case RoomLayer.OnRooftops:
+				if (!Location.Terrain(this).TerrainLayers.Contains(RoomLayer.GroundLevel))
+				{
+					fallExit = GetFirstFallExit();
+					if (fallExit != null)
+					{
+						cumulativeFallDistance += 0.5;
+						OutputHandler.Handle(new EmoteOutput(
+							new Emote(Gameworld.GetStaticString("FallLeaveRoomEmoteRooftops"), this, this)));
+						if (ch != null)
+						{
+							Location.Leave(ch);
+							fallExit.Destination.Enter(ch, fallExit,
+								roomLayer: fallExit.Destination.Terrain(this).TerrainLayers.HighestLayer());
+						}
+						else
+						{
+							Location.Extract(item);
+							RoomLayer = fallExit.Destination.Terrain(this).TerrainLayers.HighestLayer();
+							fallExit.Destination.Insert(item, true);
+						}
+
+						OutputHandler.Handle(new EmoteOutput(
+							new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this),
+							flags: OutputFlags.SuppressSource));
+						return false;
+					}
+
+					OutputHandler.Handle(new EmoteOutput(
+						new Emote(Gameworld.GetStaticString("FallEmoteHitRooftop"), this, this)));
+					DoFallDamage(cumulativeFallDistance);
+					if (ch != null)
+					{
+						SetPosition(PositionSprawled.Instance, PositionModifier.None, null, null);
+					}
+					else
+					{
+						SetPosition(PositionUndefined.Instance, PositionModifier.None, null, null);
+					}
+
+					return true;
+				}
+
                 if (cumulativeFallDistance > 0.0 && RandomUtilities.DoubleRandom(0.0, 1.0) <=
                     Gameworld.GetStaticDouble("FallRooftopsDamageChance"))
                 {

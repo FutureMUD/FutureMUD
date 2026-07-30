@@ -143,6 +143,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 ## Seeding
 - [DatabaseSeeder Repeatability Strategy](./Seeding/DatabaseSeeder_Repeatability_Strategy.md)
 - [DatabaseSeeder System Gap Audit](./Seeding/DatabaseSeeder_System_Gap_Audit.md)
+- [Item Content Engine Dependency Ledger](./Seeding/FutureMUD_Item_Content_Engine_Dependency_Ledger.md)
 - [Culture Seeder Language Pack Reference](./Seeding/Culture_Seeder_Language_Pack_Reference.md)
 - [Culture Seeder Heritage Pack Reference](./Seeding/Culture_Seeder_Heritage_Pack_Reference.md)
 - [Clan Seeder Template Catalogue](./Seeding/Clan_Seeder_Template_Catalogue.md)
@@ -162,6 +163,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Early Modern Shared Baseline Admission Manifest](./Seeding/FutureMUD_EarlyModern_Shared_Baseline_Admission_Manifest.md)
 - [Early Modern Shared Food Admission Manifest](./Seeding/FutureMUD_EarlyModern_Shared_Food_Admission_Manifest.md)
 - [Early Modern Clothing and Accessories](./Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md)
+- [Early Modern Clothing and Accessories Dependency Ledger](./Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Ledger.md)
 - [Early Modern Military, Firearms, Uniforms, and Naval](./Seeding/FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md)
 - [Early Modern Writing, Print, Administration, and Finance](./Seeding/FutureMUD_EarlyModern_Writing_Print_Administration_Finance_Design_Reference.md)
 - [Early Modern Household, Coffeehouse, Tavern, and Trade](./Seeding/FutureMUD_EarlyModern_Household_Coffeehouse_Tavern_Trade_Design_Reference.md)
@@ -178,6 +180,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 - [Vehicle System](./Vehicle_System.md)
 - [Vehicle System Fresh MUD Test Runbook](./Vehicle_System_Fresh_MUD_Test_Runbook.md)
+- [Vehicle Item Seeder Design Reference](./Seeding/Vehicle_Item_Seeder_Design_Reference.md)
 - [RouteCell and RoomScale Vehicle V1.0 Acceptance Evidence](./Verification/RouteCell_Vehicle_V1_Acceptance_Evidence.md)
 
 ## World
@@ -192,6 +195,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Corporeality and Planes](./World/Corporeality_and_Planes.md)
 - [Pathfinding System](./World/Pathfinding_System.md)
 - [Position State System](./World/Position_State_System.md)
+- [Room Layer System Primer](./World/Room_Layer_System_Primer.md)
 - [RouteCell Spatial System](./World/Route_Cell_System.md)
+- [Spatial Area Transfer Packages](./World/Spatial_Area_Transfer_Packages.md)
 - [Time and Date System](./World/Time_And_Date_System.md)
 - [Zero Gravity System](./World/Zero_Gravity_System.md)

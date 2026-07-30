@@ -279,6 +279,8 @@ Every implementation manifest entry in this volume must record:
 
 ## Outfit minimums
 
+The authority's inferred manifest table implements eighteen stock ordinary/status outfits from the usable groupings in this volume. It intentionally omits a North American stock outfit because the broad placeholder below requires a narrower regional design before use.
+
 | Shared grouping | Ordinary outfit | Restricted/status outfit |
 | --- | --- | --- |
 | African court / Atlantic | wrapper or skirt, tunic/blouse as locally admitted, headcloth/cap, sandals or bare-foot admission | court robe/coat, structured headcloth, bead/feather/hide regalia, raised sandals |

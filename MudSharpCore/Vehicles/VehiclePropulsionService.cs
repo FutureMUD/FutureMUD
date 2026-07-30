@@ -12,25 +12,107 @@ namespace MudSharp.Vehicles;
 
 public class VehiclePropulsionService : IVehiclePropulsionService
 {
+	public VehicleEngineReadinessResult BuildEngineReadiness(IVehicle vehicle, double requiredPowerInWatts)
+	{
+		var engines = vehicle.Installations
+			.Select(BuildEngineCandidate)
+			.Where(x => x.Engine is not null)
+			.ToList();
+		var availablePower = engines
+			.Where(x => x.Available)
+			.Sum(x => x.Engine!.MaximumPowerInWatts);
+		if (!double.IsFinite(requiredPowerInWatts) || requiredPowerInWatts <= 0.0)
+		{
+			return new VehicleEngineReadinessResult(false,
+				"That vehicle's minimum engine-power requirement is not configured.", engines, availablePower,
+				requiredPowerInWatts);
+		}
+
+		if (availablePower + 0.000001 >= requiredPowerInWatts)
+		{
+			return new VehicleEngineReadinessResult(true, string.Empty, engines, availablePower,
+				requiredPowerInWatts);
+		}
+
+		var exclusions = engines
+			.Where(x => !x.Available && !string.IsNullOrWhiteSpace(x.Reason))
+			.Select(x => $"{x.Installation.Prototype.Name}: {x.Reason}")
+			.ToList();
+		var reason =
+			$"That vehicle has {availablePower:N2}W of running engine power but requires {requiredPowerInWatts:N2}W.";
+		if (exclusions.Any())
+		{
+			reason = $"{reason} {exclusions.ListToString()}";
+		}
+
+		return new VehicleEngineReadinessResult(false, reason, engines, availablePower, requiredPowerInWatts);
+	}
+
+	private static VehicleEngineCandidate BuildEngineCandidate(IVehicleInstallation installation)
+	{
+		var item = installation.InstalledItem;
+		var engine = item?.GetItemType<IVehicleEngine>();
+		VehicleEngineCandidate Candidate(bool available, string reason)
+		{
+			return new VehicleEngineCandidate(installation, item, engine, available, reason);
+		}
+
+		if (engine is null)
+		{
+			return Candidate(false, "the installed item is not a vehicle engine");
+		}
+
+		if (installation.IsDisabled)
+		{
+			return Candidate(false, "the installation point is disabled");
+		}
+
+		if (item is null || item.Deleted || item.Destroyed)
+		{
+			return Candidate(false, "the engine item is destroyed");
+		}
+
+		var installable = item.GetItemType<IVehicleInstallable>();
+		if (installable is null)
+		{
+			return Candidate(false, "the engine is missing its vehicle-installable component");
+		}
+
+		if (!installable.IsFunctionalForMovement(out var functionalReason))
+		{
+			return Candidate(false, functionalReason);
+		}
+
+		if (!engine.FormFactor.EqualTo(installation.Prototype.MountType))
+		{
+			return Candidate(false,
+				$"its {engine.FormFactor} form factor does not match the {installation.Prototype.MountType} installation point");
+		}
+
+		if (!double.IsFinite(engine.MaximumPowerInWatts) || engine.MaximumPowerInWatts <= 0.0)
+		{
+			return Candidate(false, "the engine has invalid maximum power");
+		}
+
+		return engine.IsRunning
+			? Candidate(true, string.Empty)
+			: Candidate(false, engine.WhyNotRunning.IfNullOrWhiteSpace("the engine is not running"));
+	}
+
 	public VehiclePropulsionReadinessResult BuildReadiness(IVehicle vehicle, ICharacter actor, ICellExit? exit)
 	{
 		VehiclePropulsionReadinessResult Fail(string reason,
 			IVehiclePropulsionProfilePrototype? profile = null,
 			IReadOnlyList<VehiclePropulsionContributor>? contributors = null,
 			IReadOnlyList<VehiclePropulsionMotorCandidate>? motors = null,
-			WindLevel wind = WindLevel.None)
+			WindLevel wind = WindLevel.None,
+			IReadOnlyList<VehicleEngineCandidate>? engines = null)
 		{
 			return new VehiclePropulsionReadinessResult(false, reason, vehicle, actor, exit, profile,
-				contributors ?? [], motors ?? [], wind, false);
+				contributors ?? [], motors ?? [], wind, false, engines);
 		}
 
-		if (vehicle.MovementProfile?.MovementEnvironment != VehicleMovementEnvironment.SurfaceWater)
-		{
-			return new VehiclePropulsionReadinessResult(true, string.Empty, vehicle, actor, exit, null, [], [],
-				WindLevel.None, true);
-		}
-
-		var supported = vehicle.MovementProfile.PropulsionProfiles?.ToList() ?? [];
+		var supported = vehicle.MovementProfile?.PropulsionProfiles?.ToList() ?? [];
 		if (!supported.Any())
 		{
 			return new VehiclePropulsionReadinessResult(true, string.Empty, vehicle, actor, exit, null, [], [],
@@ -54,8 +136,54 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 			VehiclePropulsionType.Rowed => RowedReadiness(vehicle, actor, exit, profile),
 			VehiclePropulsionType.Sail => SailReadiness(vehicle, actor, exit, profile),
 			VehiclePropulsionType.OutboardMotor => MotorReadiness(vehicle, actor, exit, profile),
+			VehiclePropulsionType.Engine => EngineReadiness(vehicle, actor, exit, profile),
+			VehiclePropulsionType.ExternallyPulled => Ready(vehicle, actor, exit, profile, [], [], WindLevel.None),
+			VehiclePropulsionType.RiderPowered => RiderPoweredReadiness(vehicle, actor, exit, profile),
 			_ => Fail("That vehicle's selected propulsion mode is invalid.", profile)
 		};
+	}
+
+	private static VehiclePropulsionReadinessResult RiderPoweredReadiness(IVehicle vehicle, ICharacter actor,
+		ICellExit? exit, IVehiclePropulsionProfilePrototype profile)
+	{
+		if (!actor.State.IsAble())
+		{
+			return Failed(vehicle, actor, exit, profile, "You are not currently able to propel that vehicle.");
+		}
+
+		var terrain = (exit?.Origin ?? vehicle.Location)?.Terrain(actor);
+		var riderMultiplier = ResolveRiderStaminaMultiplier(profile, terrain);
+		var terrainCost = terrain?.StaminaCost ??
+		                  actor.Gameworld.GetStaticDouble("DefaultTerrainStaminaCost");
+		var encumbrance = 1.0 + actor.EncumbrancePercentage *
+			actor.Gameworld.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage");
+		var staminaCost = Evaluate(profile.StaminaCostExpression, terrainCost: terrainCost,
+			encumbrance: encumbrance, vehicleMultiplier: riderMultiplier);
+		if (!double.IsFinite(riderMultiplier) || riderMultiplier < 0.0 ||
+		    !double.IsFinite(staminaCost) || staminaCost < 0.0)
+		{
+			return Failed(vehicle, actor, exit, profile,
+				"The selected rider-powered mode has an invalid stamina configuration.");
+		}
+
+		if (!actor.CanSpendStamina(staminaCost))
+		{
+			return Failed(vehicle, actor, exit, profile,
+				$"You are too exhausted to propel that vehicle ({staminaCost.ToString("N2", actor).ColourValue()} stamina required).");
+		}
+
+		return Ready(vehicle, actor, exit, profile, [], [], WindLevel.None, riderStaminaCost: staminaCost,
+			riderStaminaMultiplier: riderMultiplier);
+	}
+
+	private VehiclePropulsionReadinessResult EngineReadiness(IVehicle vehicle, ICharacter actor, ICellExit? exit,
+		IVehiclePropulsionProfilePrototype profile)
+	{
+		var readiness = BuildEngineReadiness(vehicle, vehicle.MovementProfile.MinimumEnginePowerInWatts);
+		return readiness.CanMove
+			? new VehiclePropulsionReadinessResult(true, string.Empty, vehicle, actor, exit, profile, [], [],
+				WindLevel.None, false, readiness.Engines)
+			: Failed(vehicle, actor, exit, profile, readiness.Reason, engines: readiness.Engines);
 	}
 
 	private static VehiclePropulsionReadinessResult SelfPoweredReadiness(IVehicle vehicle, ICharacter actor,
@@ -293,6 +421,19 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 					.Sum(x => x.Motor!.OutputMultiplier);
 				multiplier = Evaluate(refreshed.Profile.SpeedMultiplierExpression, output: output);
 				break;
+			case VehiclePropulsionType.Engine:
+				var enginePower = (refreshed.Engines ?? [])
+					.Where(x => x.Available)
+					.Sum(x => x.Engine!.MaximumPowerInWatts);
+				multiplier = Evaluate(refreshed.Profile.SpeedMultiplierExpression, power: enginePower,
+					requiredPower: refreshed.Vehicle.MovementProfile.MinimumEnginePowerInWatts);
+				break;
+			case VehiclePropulsionType.ExternallyPulled:
+				multiplier = 1.0;
+				break;
+			case VehiclePropulsionType.RiderPowered:
+				multiplier = Evaluate(refreshed.Profile.SpeedMultiplierExpression);
+				break;
 			default:
 				reason = "The selected propulsion mode cannot initiate movement.";
 				return false;
@@ -309,11 +450,21 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 			reason = "A propulsion contributor no longer has enough stamina to depart.";
 			return false;
 		}
+		if (refreshed.Profile.PropulsionType == VehiclePropulsionType.RiderPowered &&
+		    !refreshed.Actor.CanSpendStamina(refreshed.RiderStaminaCost))
+		{
+			reason = "You no longer have enough stamina to propel that vehicle.";
+			return false;
+		}
 
 		var readyMotors = refreshed.Motors.Where(x => x.Available).ToList();
 		foreach (var result in contributorResults)
 		{
 			result.Contributor.Character.SpendStamina(result.StaminaCost);
+		}
+		if (refreshed.Profile.PropulsionType == VehiclePropulsionType.RiderPowered)
+		{
+			refreshed.Actor.SpendStamina(refreshed.RiderStaminaCost);
 		}
 
 		if (refreshed.Profile.PropulsionType == VehiclePropulsionType.OutboardMotor)
@@ -355,7 +506,8 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 
 		plan = new VehiclePropulsionMovePlan(refreshed.Vehicle, refreshed.Actor, refreshed.Exit, refreshed.Profile,
 			contributorResults, readyMotors, refreshed.Wind, multiplier,
-			TimeSpan.FromMilliseconds(Math.Max(0.0, milliseconds)));
+			TimeSpan.FromMilliseconds(Math.Max(0.0, milliseconds)), refreshed.Engines,
+			refreshed.RiderStaminaCost, refreshed.RiderStaminaMultiplier);
 		reason = string.Empty;
 		return true;
 	}
@@ -406,6 +558,16 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 			}
 		}
 
+		if (plan.Profile.PropulsionType == VehiclePropulsionType.Engine)
+		{
+			var readiness = BuildEngineReadiness(plan.Vehicle, plan.Vehicle.MovementProfile.MinimumEnginePowerInWatts);
+			if (!readiness.CanMove)
+			{
+				reason = readiness.Reason;
+				return false;
+			}
+		}
+
 		reason = string.Empty;
 		return true;
 	}
@@ -445,31 +607,75 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 	}
 
 	private static double Evaluate(string text, double outcome = 0.0, double wind = 1.0,
-		double output = 1.0, double swimcost = 1.0)
+		double output = 1.0, double swimcost = 1.0, double power = 1.0, double requiredPower = 1.0,
+		double terrainCost = 1.0, double encumbrance = 1.0, double vehicleMultiplier = 1.0)
 	{
 		return new Expression(text).EvaluateDoubleWith(
 			("outcome", outcome),
 			("wind", wind),
 			("output", output),
-			("swimcost", swimcost));
+			("swimcost", swimcost),
+			("power", power),
+			("requiredpower", requiredPower),
+			("terraincost", terrainCost),
+			("encumbrance", encumbrance),
+			("vehiclemultiplier", vehicleMultiplier));
+	}
+
+	internal static double ResolveRiderStaminaMultiplier(IVehiclePropulsionProfilePrototype profile,
+		MudSharp.Construction.ITerrain? terrain)
+	{
+		if (terrain is null)
+		{
+			return profile.RiderStaminaMultiplier;
+		}
+
+		var exact = profile.RiderStaminaModifiers
+			.FirstOrDefault(x => x.TerrainId == terrain.Id);
+		if (exact is not null)
+		{
+			return exact.Multiplier;
+		}
+
+		return profile.RiderStaminaModifiers
+			.Where(x => x.TerrainTag is not null && terrain.IsA(x.TerrainTag))
+			.OrderByDescending(x => TagDepth(x.TerrainTag))
+			.ThenBy(x => x.Id)
+			.Select(x => x.Multiplier)
+			.FirstOrDefault(profile.RiderStaminaMultiplier);
+	}
+
+	private static int TagDepth(MudSharp.Framework.ITag? tag)
+	{
+		var depth = 0;
+		while (tag is not null)
+		{
+			depth++;
+			tag = tag.Parent;
+		}
+
+		return depth;
 	}
 
 	private static VehiclePropulsionReadinessResult Ready(IVehicle vehicle, ICharacter actor, ICellExit? exit,
 		IVehiclePropulsionProfilePrototype profile, IReadOnlyList<VehiclePropulsionContributor> contributors,
-		IReadOnlyList<VehiclePropulsionMotorCandidate> motors, WindLevel wind)
+		IReadOnlyList<VehiclePropulsionMotorCandidate> motors, WindLevel wind, double riderStaminaCost = 0.0,
+		double riderStaminaMultiplier = 1.0)
 	{
 		return new VehiclePropulsionReadinessResult(true, string.Empty, vehicle, actor, exit, profile, contributors,
-			motors, wind, false);
+			motors, wind, false, RiderStaminaCost: riderStaminaCost,
+			RiderStaminaMultiplier: riderStaminaMultiplier);
 	}
 
 	private static VehiclePropulsionReadinessResult Failed(IVehicle vehicle, ICharacter actor, ICellExit? exit,
 		IVehiclePropulsionProfilePrototype profile, string reason,
 		IReadOnlyList<VehiclePropulsionContributor>? contributors = null,
 		IReadOnlyList<VehiclePropulsionMotorCandidate>? motors = null,
-		WindLevel wind = WindLevel.None)
+		WindLevel wind = WindLevel.None,
+		IReadOnlyList<VehicleEngineCandidate>? engines = null)
 	{
 		return new VehiclePropulsionReadinessResult(false, reason, vehicle, actor, exit, profile,
-			contributors ?? [], motors ?? [], wind, false);
+			contributors ?? [], motors ?? [], wind, false, engines);
 	}
 
 	private static double FuelVolume(ILiquidContainer container, long liquidId)

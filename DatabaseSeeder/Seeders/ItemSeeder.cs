@@ -170,6 +170,10 @@ The items and crafts are fairly universal and of approximately medieval to renei
         InitialiseDependencies();
         SeedReworkItems();
         SeedCrafts();
+		if (questionAnswers.TryGetValue("eras", out var eras))
+		{
+			SeedVehicleItemsAndPrototypes(eras);
+		}
         _context.SaveChanges();
 
         return "The operation completed successfully.";
@@ -995,5 +999,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
 		{
 
 		}
+
+		SeedDocumentedClothingOutfitManifests(eras);
 	}
 }

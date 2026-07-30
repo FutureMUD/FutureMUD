@@ -90,6 +90,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
 
         CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
         WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
+        SightTag = Gameworld.Tags.Get(long.Parse(root.Element("SightTag")?.Value ?? "0"));
         ConditionMaintenance.LoadFromXml(root);
 
         _rangedWeaponType = Gameworld.RangedWeaponTypes.Get(long.Parse(root.Element("RangedWeaponType").Value));
@@ -138,6 +139,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
             new XElement("CatastrophyDamageFormula", CatastrophyDamageFormula.OriginalExpression),
             new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
             new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+            new XElement("SightTag", SightTag?.Id ?? 0),
             ConditionMaintenance.SaveToXml()
         ).ToString();
     }
@@ -237,21 +239,10 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
                 {
                     InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0, item =>
                     {
-                        MusketCartridgeGameItemComponent cartridge = item.GetItemType<MusketCartridgeGameItemComponent>();
-                        if (cartridge is null)
-                        {
-                            return false;
-                        }
-
-                        if (cartridge.BulletBore > BarrelBore)
-                        {
-                            return false;
-                        }
-
-                        return true;
+                        return IsCompatibleCartridgeForLoading(item.GetItemType<IMusketCartridge>());
                     }, null, 1, originalReference: "cartridge", fitnessscorer: item =>
                     {
-                        MusketCartridgeGameItemComponent cartridge = item.GetItemType<MusketCartridgeGameItemComponent>();
+                        IMusketCartridge cartridge = item.GetItemType<IMusketCartridge>();
                         if (cartridge is null)
                         {
                             return 0.0;
@@ -291,6 +282,17 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
         });
     }
 
+    internal bool IsCompatibleCartridgeForLoading(IMusketCartridge? cartridge)
+    {
+        return cartridge is not null &&
+               cartridge.AmmoType.RangedWeaponTypes.Contains(Combat.RangedWeaponType.Musket) &&
+               cartridge.AmmoType.SpecificType.EqualTo(RangedWeaponType.SpecificAmmunitionGrade) &&
+               cartridge.BulletProto is not null &&
+               cartridge.BulletBore <= BarrelBore &&
+               (cartridge.PowderMass is null ||
+                Math.Abs(cartridge.PowderMass.Value - PowderVolumePerShot) <= 0.000001);
+    }
+
     private IRangedWeaponType _rangedWeaponType;
 
     public IRangedWeaponType RangedWeaponType
@@ -312,6 +314,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
 #nullable enable
     public IFutureProg? CanWieldProg { get; private set; }
     public IFutureProg? WhyCannotWieldProg { get; private set; }
+    public ITag? SightTag { get; private set; }
 #nullable restore
     public IInventoryPlanTemplate LoadTemplateClean { get; set; }
     public IInventoryPlanTemplate LoadTemplateLoadPowder { get; set; }
@@ -383,6 +386,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
 	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
 	#3whycantwield none#0 - clears the whycantwield prog
 	#3condition <option>#0 - configures optional condition degradation
+	#3sighttag <tag>|none#0 - sets the tag accepted by the reserved sight attachment slot
 	#3load <emote>#0 - sets the emote for loading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
 	#3unload <emote>#0 - sets the emote for unloading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
 	#3ready <emote>#0 - sets the emote for readying this gun. $0 is the loader, $1 is the gun.
@@ -464,9 +468,46 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
                 return BuildingCommandWhyCannotWieldProg(actor, command);
             case "condition":
                 return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
+            case "sighttag":
+            case "sight tag":
+            case "sights":
+                return BuildingCommandSightTag(actor, command);
             default:
                 return base.BuildingCommand(actor, command);
         }
+    }
+
+    private bool BuildingCommandSightTag(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                $"Which tag identifies attachable sights? Use {"none".ColourCommand()} to disable the sight slot.");
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("none", "clear"))
+        {
+            SightTag = null;
+            Changed = true;
+            actor.OutputHandler.Send("This musket no longer accepts a tagged sight attachment.");
+            return true;
+        }
+
+        var tag = long.TryParse(command.SafeRemainingArgument, out var value)
+            ? Gameworld.Tags.Get(value)
+            : Gameworld.Tags.GetByName(command.SafeRemainingArgument);
+        if (tag is null)
+        {
+            actor.OutputHandler.Send("There is no such tag.");
+            return false;
+        }
+
+        SightTag = tag;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This musket now accepts items tagged {SightTag.Name.ColourName()} in its sight slot.");
+        return true;
     }
 
     private bool BuildingCommandCanWieldProg(ICharacter actor, StringStack command)

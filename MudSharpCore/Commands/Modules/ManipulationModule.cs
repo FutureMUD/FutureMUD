@@ -25,7 +25,7 @@ using static MudSharp.Effects.Concrete.Dragging;
 
 namespace MudSharp.Commands.Modules;
 
-internal class ManipulationModule : Module<ICharacter>
+internal partial class ManipulationModule : Module<ICharacter>
 {
     private static readonly Regex EatRegex =
         new(

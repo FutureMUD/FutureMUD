@@ -33,6 +33,8 @@ Most gameplay-facing item behaviour is discovered by checking whether an item co
 - Telecommunications items follow the same composition model: a wired telephone handset, a telecommunications outlet, a telecommunications feeder, a cell tower, a cellular handset, and an implant telephone are all ordinary item capabilities expressed through components and public interfaces.
 - Computer and signal automation work should follow the same pattern. Shared interfaces such as `IComputerHost`, `IComputerFileSystem`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary`, while concrete behaviour should be delivered through distinct item component families rather than one generic "automation item" component.
 - Riding and hitching gear also follow the composition model. `RidingGear` and `HitchGear` components give ordinary wearable or holdable items semantic roles such as saddle, bridle, reins, yoke, rope, chain, or tow bar, and the riding/vehicle systems query those interfaces rather than special item classes.
+- Ritual foci follow the same composition model. `OfferingReceiver` owns item-offering and consumptive liquid-libation policy and history summary, while independent capabilities such as the oil-lamp shrine's lighting remain ordinary sibling components such as `Lantern`.
+- Not every thematic item needs a mechanical family. The stock wooden measuring rod is intentionally a holdable static prop; builders can use descriptions and FutureProgs without introducing a dimension system solely to support it.
 - The `Item Templates/GameItem` template is intended to be a starting skeleton, not a complete implementation. The authoring document calls out the manual work the template does not solve.
 - Some component types are special cases. For example, `Holdable` is a read-only auto-initialised component type and should be treated differently from ordinary editable component prototypes.
 - Vehicle exteriors and vehicle system projections are another special case. `VehicleExterior`, `VehicleAccessPoint`, and `VehicleCargoSpace` item components are projections for the canonical vehicle domain; they block generic manual item loading and should be created through the vehicle factory/prototype workflow rather than attached as ordinary builder components. Occupied vehicle exteriors also block normal item repositioning and hauling into containers, while dragged or forced exterior relocation delegates back to the canonical vehicle to either move visible occupants with the exterior or clear occupancy if the exterior is no longer cell-present. Vehicle movement and forced exterior relocation also run relevant connectable cleanup so independent cable/charger-style links do not remain logically connected across cells. Vehicle projections are targetable through ordinary attached-item targeting, with `thing@vehicle` as the preferred player-facing form. Vehicle damage-zone effects can disable projected access/cargo/install/tow behaviours at runtime, while item contents and installed module items remain normal item state. `VehicleInstallable` modules are normal held items that can be installed into vehicle installation points. See [Vehicle System](./Vehicle_System.md).
@@ -127,3 +129,19 @@ All four use the shared `IProduceHeat` interface, which now exposes:
 - explicit signed proximity-band contributions
 
 This allows both heaters and coolers to use the same item capability, and lets a single item influence the room as a whole while also applying stronger or weaker effects to nearby people and things.
+
+## Historical Arms and Constrained Storage
+
+The item system includes reusable historical-equipment seams:
+
+- `RidingGear` and `HitchGear` supply mount control, stability, and towing roles; ordinary wearable, armour, and container components remain responsible for those independent capabilities.
+- `LockingCashRegister` is deliberately one component, because composing `CashRegister` and `LockingContainer` would create competing `IContainer` capabilities.
+- standard `Container` prototypes can restrict admission with allowed and blocked tag lists.
+- `BayonetAttachment` items occupy the musket's bayonet slot while retaining the attached item's ordinary melee weapon type.
+- crossbows can require a tagged spanning tool and persist whether they are readied.
+
+## Instruments, Signals, and Standards
+
+- `Instrument` is the shared audible-performance capability. It supplies skill quality, stamina, posture and hand rules, styles, sustained ten-second ticks, route-aware audio, interruption, and play/stop hooks.
+- `SignalInstrument` specializes that capability for named calls with a cooldown and one-shot cost. Failed calls remain audible but do not reveal a recognisable pattern or fire the success hook.
+- `MilitaryStandard` is an identifiable and plantable objective. It preserves lawful item ownership while tracking `Unclaimed`, `Friendly`, or `Captured` custody and a distinct capture count. Scenario scoring, morale, AI, territory, and legal effects remain external consumers of its hooks and query functions.

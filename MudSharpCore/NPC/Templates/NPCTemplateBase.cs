@@ -18,7 +18,7 @@ using EditableItem = MudSharp.Framework.Revision.EditableItem;
 
 namespace MudSharp.NPC.Templates;
 
-public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate
+public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate, IEditableUniqueName
 {
     protected NPCTemplateBase(NpcTemplate template, IFuturemud gameworld) : base(template.EditableItem)
     {
@@ -218,8 +218,7 @@ public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate
         var uniqueName = NPCTemplateLookupExtensions.NormaliseUniqueName(command.SafeRemainingArgument);
         if (uniqueName is null || uniqueName.EqualToAny("none", "clear", "delete", "remove"))
         {
-            UniqueName = null;
-            Changed = true;
+            SetUniqueNameFromValidatedBulkRename(null);
             actor.OutputHandler.Send("This NPC template no longer has a unique lookup name.");
             return true;
         }
@@ -238,8 +237,7 @@ public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate
             return false;
         }
 
-        UniqueName = uniqueName;
-        Changed = true;
+        SetUniqueNameFromValidatedBulkRename(uniqueName);
         actor.OutputHandler.Send($"This NPC template can now be looked up by the unique name {UniqueName.ColourCommand()}.");
         return true;
     }
@@ -526,6 +524,23 @@ public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate
     #region INPCTemplate Members
 
     public string? UniqueName { get; protected set; }
+
+    void IEditableUniqueName.SetUniqueNameFromValidatedBulkRename(string? uniqueName)
+    {
+        SetUniqueNameFromValidatedBulkRename(uniqueName);
+    }
+
+    internal void SetUniqueNameFromValidatedBulkRename(string? uniqueName)
+    {
+        var normalisedName = NPCTemplateLookupExtensions.NormaliseUniqueName(uniqueName);
+        if (string.Equals(UniqueName, normalisedName, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        UniqueName = normalisedName;
+        Changed = true;
+    }
 
     public string? BuilderNotes { get; protected set; }
 

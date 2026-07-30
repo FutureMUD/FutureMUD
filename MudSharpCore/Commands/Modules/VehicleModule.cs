@@ -6,6 +6,7 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Revision;
+using MudSharp.Form.Audio;
 using MudSharp.GameItems;
 using MudSharp.PerceptionEngine.Lists;
 using MudSharp.Vehicles;
@@ -334,7 +335,7 @@ In a RouteCell use #3drive forward|backward [<distance>]#0, #3drive to <distance
 
 	private const string VehiclePropulsionHelp = @"Use #3vehiclepropulsion#0 while aboard a vehicle to see its selected and supported propulsion modes.
 
-Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|none>#0 while controlling a stationary vehicle to select a mode. Movement never silently falls back to another authored mode.";
+Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|engine|externallypulled|riderpowered|none>#0 while controlling a stationary vehicle to select a mode. Movement never silently falls back to another authored mode.";
 
 	[PlayerCommand("VehiclePropulsion", "vehiclepropulsion")]
 	[RequiredCharacterState(CharacterState.Able)]
@@ -349,9 +350,9 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|none>#0 while controlli
 			return;
 		}
 
-		if (vehicle.MovementProfile?.MovementEnvironment != VehicleMovementEnvironment.SurfaceWater)
+		if (vehicle.MovementProfile is null)
 		{
-			actor.OutputHandler.Send("That vehicle does not use surface-water propulsion modes.");
+			actor.OutputHandler.Send("That vehicle has no cell-exit movement profile.");
 			return;
 		}
 
@@ -368,7 +369,8 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|none>#0 while controlli
 			var type = MudSharp.Vehicles.VehiclePrototype.ParseVehiclePropulsionType(ss.SafeRemainingArgument);
 			if (type is null)
 			{
-				actor.OutputHandler.Send("You must specify selfpowered, rowed, sail, outboard or none.");
+				actor.OutputHandler.Send(
+					"You must specify selfpowered, rowed, sail, outboard, engine, externallypulled, riderpowered or none.");
 				return;
 			}
 
@@ -385,7 +387,7 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|none>#0 while controlli
 				return;
 			}
 
-			actor.OutputHandler.Send($"You select {profile.PropulsionType.DescribeEnum().ColourName()} propulsion for {vehicle.Name.ColourName()}.");
+			actor.OutputHandler.Send($"You select {profile.PropulsionType.DescribeEnum(true).ColourName()} propulsion for {vehicle.Name.ColourName()}.");
 			return;
 		}
 
@@ -393,13 +395,13 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|none>#0 while controlli
 		sb.AppendLine($"Propulsion for {vehicle.Name.ColourName()}:");
 		if (!modes.Any())
 		{
-			sb.AppendLine("\tLegacy surface-water movement (no explicit propulsion profiles).".Colour(Telnet.Yellow));
+			sb.AppendLine("\tLegacy implicit movement (no explicit propulsion profiles).".Colour(Telnet.Yellow));
 			actor.OutputHandler.Send(sb.ToString());
 			return;
 		}
 
-		sb.AppendLine($"Selected: {(vehicle.ActivePropulsionProfile?.PropulsionType.DescribeEnum().ColourName() ?? "none".ColourError())}");
-		sb.AppendLine($"Supported: {modes.Select(x => $"{x.PropulsionType.DescribeEnum().ColourName()}{(x.IsDefault ? " (default)".Colour(Telnet.Green) : "")}").ListToString()}");
+		sb.AppendLine($"Selected: {(vehicle.ActivePropulsionProfile?.PropulsionType.DescribeEnum(true).ColourName() ?? "none".ColourError())}");
+		sb.AppendLine($"Supported: {modes.Select(x => $"{x.PropulsionType.DescribeEnum(true).ColourName()}{(x.IsDefault ? " (default)".Colour(Telnet.Green) : "")}").ListToString()}");
 		var readiness = PropulsionService.BuildReadiness(vehicle, actor, null);
 		if (readiness.Profile?.PropulsionType == VehiclePropulsionType.Sail)
 		{
@@ -417,6 +419,18 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|none>#0 while controlli
 			foreach (var motor in readiness.Motors)
 			{
 				sb.AppendLine($"\t{motor.Item?.HowSeen(actor) ?? motor.Installation.Prototype.Name}: {(motor.Available ? "ready".Colour(Telnet.Green) : motor.Reason.ColourError())}");
+			}
+		}
+
+		if (readiness.Engines?.Any() == true)
+		{
+			sb.AppendLine(
+				$"Required Engine Power: {vehicle.MovementProfile.MinimumEnginePowerInWatts.ToString("N2", actor).ColourValue()}W");
+			sb.AppendLine("Engines:");
+			foreach (var engine in readiness.Engines)
+			{
+				sb.AppendLine(
+					$"\t{engine.Item?.HowSeen(actor) ?? engine.Installation.Prototype.Name}: {engine.Engine?.FormFactor.ColourCommand() ?? "unknown".ColourError()}, {engine.Engine?.MaximumPowerInWatts.ToString("N2", actor).ColourValue() ?? "0"}W, {(engine.Available ? "running".Colour(Telnet.Green) : engine.Reason.ColourError())}, noise {engine.Engine?.NoiseLevel.Describe().ColourName() ?? "unknown".ColourError()}");
 			}
 		}
 
@@ -867,11 +881,7 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|none>#0 while controlli
 
 	private static bool CanActorDirectlyHitchSource(ICharacter actor, ICharacter source)
 	{
-		return source == actor ||
-		       source.IsTrustedAlly(actor) ||
-		       source.IsHelpless ||
-		       source.IsPrimaryRider(actor) && source.PermitControl(actor) ||
-		       source.CanBeMountedBy(actor) && source.PermitControl(actor);
+		return VehicleMotiveAuthority.CanControl(actor, source);
 	}
 
 	private static bool CharacterHitchItemAvailable(ICharacter actor, ICharacter source, ICharacter target,
@@ -2245,14 +2255,21 @@ Syntax:
 			if (movementProfile.MovementEnvironment == VehicleMovementEnvironment.SurfaceWater)
 			{
 				sb.AppendLine($"\tOccupant Water Exposure: {(movementProfile.ExposesOccupantsToWater ? "Exposed".Colour(Telnet.Yellow) : "Protected".Colour(Telnet.Green))}");
-				var modes = movementProfile.PropulsionProfiles.ToList();
-				sb.AppendLine($"\tActive Propulsion: {(vehicle.ActivePropulsionProfile?.PropulsionType.DescribeEnum().ColourName() ?? "legacy implicit movement".Colour(Telnet.Yellow))}");
-				sb.AppendLine($"\tSupported Propulsion: {(modes.Any() ? modes.Select(x => x.PropulsionType.DescribeEnum().ColourName()).ListToString() : "none authored".Colour(Telnet.Yellow))}");
+			}
+
+			var modes = movementProfile.PropulsionProfiles.ToList();
+			if (modes.Any())
+			{
+				sb.AppendLine($"\tActive Propulsion: {(vehicle.ActivePropulsionProfile?.PropulsionType.DescribeEnum(true).ColourName() ?? "none selected".ColourError())}");
+				sb.AppendLine($"\tSupported Propulsion: {modes.Select(x => x.PropulsionType.DescribeEnum(true).ColourName()).ListToString()}");
 				var rowerSlots = vehicle.Prototype.OccupantSlots.Where(x => x.ContributesToPropulsion).ToList();
-				sb.AppendLine($"\tPropulsion Slots: {(rowerSlots.Any() ? rowerSlots.Select(x => x.Name.ColourName()).ListToString() : "none")}");
+				if (rowerSlots.Any())
+				{
+					sb.AppendLine($"\tPropulsion Slots: {rowerSlots.Select(x => x.Name.ColourName()).ListToString()}");
+				}
 				foreach (var mode in modes)
 				{
-					sb.AppendLine($"\t\t#{mode.Id.ToString("N0", actor)} {mode.PropulsionType.DescribeEnum().ColourName()} time {TimeSpan.FromMilliseconds(mode.BaseMoveTimeMilliseconds).Describe(actor).ColourValue()} speed {mode.SpeedMultiplierExpression.ColourCommand()}{(mode.PropulsionType is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed ? $" stamina {mode.StaminaCostExpression.ColourCommand()} trait {(mode.PropulsionTrait?.Name.ColourName() ?? "none".ColourError())}" : "")}");
+					sb.AppendLine($"\t\t#{mode.Id.ToString("N0", actor)} {mode.PropulsionType.DescribeEnum(true).ColourName()} time {TimeSpan.FromMilliseconds(mode.BaseMoveTimeMilliseconds).Describe(actor).ColourValue()} speed {mode.SpeedMultiplierExpression.ColourCommand()}{(mode.PropulsionType is VehiclePropulsionType.SelfPowered or VehiclePropulsionType.Rowed ? $" stamina {mode.StaminaCostExpression.ColourCommand()} trait {(mode.PropulsionTrait?.Name.ColourName() ?? "none".ColourError())}" : mode.PropulsionType == VehiclePropulsionType.RiderPowered ? $" stamina {mode.StaminaCostExpression.ColourCommand()} multiplier {mode.RiderStaminaMultiplier.ToString("N3", actor).ColourValue()}" : "")}");
 				}
 
 				var propulsion = PropulsionService.BuildReadiness(vehicle, vehicle.Controller ?? actor, null);
@@ -2269,6 +2286,18 @@ Syntax:
 				foreach (var motor in propulsion.Motors)
 				{
 					sb.AppendLine($"\tMotor {(motor.Item?.HowSeen(actor) ?? motor.Installation.Prototype.Name)}: {(motor.Available ? "ready".Colour(Telnet.Green) : motor.Reason.Colour(Telnet.Yellow))}");
+				}
+
+				foreach (var engine in propulsion.Engines ?? [])
+				{
+					sb.AppendLine(
+						$"\tEngine {(engine.Item?.HowSeen(actor) ?? engine.Installation.Prototype.Name)}: {engine.Engine?.FormFactor.ColourCommand() ?? "unknown".ColourError()}, {engine.Engine?.MaximumPowerInWatts.ToString("N2", actor).ColourValue() ?? "0"}W, {(engine.Available ? "running".Colour(Telnet.Green) : engine.Reason.Colour(Telnet.Yellow))}, noise {engine.Engine?.NoiseLevel.Describe().ColourName() ?? "unknown".ColourError()}");
+				}
+
+				if (propulsion.Profile?.PropulsionType == VehiclePropulsionType.Engine)
+				{
+					sb.AppendLine(
+						$"\tMinimum Engine Power: {movementProfile.MinimumEnginePowerInWatts.ToString("N2", actor).ColourValue()}W");
 				}
 
 				if (!propulsion.CanMove)

@@ -13,8 +13,13 @@ public class CashRegisterGameItemComponentProto : GameItemComponentProto, IConta
 
     #region Constructors
 
-    protected CashRegisterGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld,
+    protected CashRegisterGameItemComponentProto(IFuturemud gameworld, IAccount originator) : this(gameworld,
         originator, "CashRegister")
+    {
+    }
+
+    protected CashRegisterGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type) : base(
+        gameworld, originator, type)
     {
     }
 

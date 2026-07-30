@@ -94,9 +94,10 @@ internal class LayerExits : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        if (ParameterFunctions[0].Result?.GetObject is IPerceiver voyeur)
+        if (ParameterFunctions[1].Result?.GetObject is IPerceiver voyeur)
         {
             Result = new CollectionVariable(location.ExitsFor(voyeur).ToList(), ProgVariableTypes.Exit);
+            return StatementResult.Normal;
         }
 
         string layerText = ParameterFunctions[1].Result?.GetObject?.ToString();

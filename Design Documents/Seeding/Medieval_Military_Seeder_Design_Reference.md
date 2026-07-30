@@ -4,7 +4,9 @@ Post-implementation edition of `Medieval Military Seeder Design Reference.md` af
 
 This document consolidates the medieval weapons, ammunition, armour, shields, horse armour, barding, and directly related military gear guidance for the FutureMUD Item Seeder. It covers selected European, Mediterranean, Near Eastern, North African, Indian, Central Asian, and East Asian military material culture families during the period roughly 500AD to 1300AD, presenting shared rules, historical assumptions, component/material/tag grounding, loadout-manifest policy, and the implemented first-wave item catalogue in one stable reference.
 
-The item catalogue sections below are now filled out with the completed first-wave catalogue. The combined paste-ready C# implementation is maintained separately in `medieval_military_goods_all_items.cs`.
+The item catalogue sections below are now filled out with the completed first-wave catalogue. The live implementation is split between `DatabaseSeeder/Seeders/ItemSeeder.MedievalWeapons.cs` and `DatabaseSeeder/Seeders/ItemSeeder.MedievalArmour.cs`.
+
+Dependency completion update: the existing 381 prototype identities are unchanged, but documented conservative combat fallbacks now use the newly seeded lance, poleblade, hooked-polearm, composite-bow, sabre, padded-armour, rigid-metal, coat-of-plates, and splinted-armour profiles. Mounted/couched charge and hook/pull/trip/anti-rider mechanics remain engine work in the [consolidated dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
 
 ---
 
@@ -373,9 +375,9 @@ The armour catalogue should explicitly support:
 
 | Body area | Shared coverage targets | Exact seeded wear components to prefer | Notes |
 |---|---|---|---|
-| Padded underlayers | arming cap, padded coif, gambeson, aketon, padded jack, padded riding coat, padded chausses | `Wear_Coif`, `Wear_Tunic`, `Wear_Long-Sleeved_Tunic`, `Wear_Doublet`, `Wear_Chausses`, `Wear_Trousers` | Usually `Armour_HeavyClothing` or `Armour_UltraHeavyClothing`; use textile variables where dyed. |
+| Padded underlayers | arming cap, padded coif, gambeson, aketon, padded jack, padded riding coat, padded chausses | `Wear_Coif`, `Wear_Tunic`, `Wear_Long-Sleeved_Tunic`, `Wear_Doublet`, `Wear_Chausses`, `Wear_Trousers` | Usually `Armour_Padded` or `Armour_Padded`; use textile variables where dyed. |
 | Mail torso | byrnie, haubergeon, hauberk, long mail shirt | `Wear_Haubergeon`, `Wear_Hauberk` | Use `Armour_Chainmail`; primary material usually `mild steel`, `carbon steel`, or `wrought iron` depending project convention. |
-| Lamellar/scale/early plate torso | lamellar cuirass, scale corselet, coat of plates, pair of plates, plate-reinforced cuirass | `Wear_Cuirass`, `Wear_Breastplate`, `Wear_Backplate`, `Wear_Faulded_Cuirass`, `Wear_Culeted_Cuirass`, `Wear_Vest`, `Wear_Jerkin` | Use `Armour_Lamellar`, `Armour_MetalScale`, `Armour_LeatherScale`, `Armour_Laminar`, `Armour_BoiledLeather`, or cautious `Armour_Platemail` only for period-plausible transitional plate pieces. |
+| Lamellar/scale/early plate torso | lamellar cuirass, scale corselet, coat of plates, pair of plates, plate-reinforced cuirass | `Wear_Cuirass`, `Wear_Breastplate`, `Wear_Backplate`, `Wear_Faulded_Cuirass`, `Wear_Culeted_Cuirass`, `Wear_Vest`, `Wear_Jerkin` | Use `Armour_Lamellar`, `Armour_MetalScale`, `Armour_LeatherScale`, `Armour_Laminar`, `Armour_BoiledLeather`, or cautious `Armour_RigidMetal` only for period-plausible transitional plate pieces. |
 | Leather/textile torso | leather jerkin, boiled-leather cuirass, rivet-reinforced leather, padded vest | `Wear_Jerkin`, `Wear_Vest`, `Wear_Tunic`, `Wear_Cuirass` | Commoner and militia coverage should be substantial here. Studded leather is a game abstraction and should be described as riveted or reinforced construction, not fantasy-stud clichés. |
 | Head | padded cap, mail coif, spangenhelm, nasal helm, conical helm, kettle hat, great helm, half helm | `Wear_Coif`, `Wear_Helmet`, `Wear_Half_Helmet`, `Wear_Spangenhelm`, `Wear_Nasal_Helm`, `Wear_Nasal_Spangenhelm`, `Wear_Aventail_Spangenhelm`, `Wear_Greathelm` | Defer `Wear_Armet`, `Wear_Barbute_Helmet`, `Wear_Open_Armet`, `Wear_Open_Sallet_Helmet`, and `Wear_Sallet_Helmet` to later/fantasy branches. |
 | Neck and face | mail coif drape, aventail, pixane, early gorget-like collar | `Wear_Coif`, `Wear_Pixane`, `Wear_Gorget` | Mature bevors are outside the strict branch. Do not use `Wear_Bevor` here unless a later branch is being written. |
@@ -423,7 +425,7 @@ The following items should be treated carefully inside the strict 500-1300 branc
 - **Pauldrons**: mature pauldrons are outside this branch. Use spaulders, mail sleeves, leather shoulder guards, lamellar shoulder pieces, or textile padding.
 - **Sabatons**: mature sabatons are outside this branch. Use mail chausses, boots, reinforced shoes, or culturally appropriate footwear.
 - **Tassets**: `Wear_Tassets` is available. Use it only for conservative period-plausible hip or skirt defences, not mature fifteenth-century plate tassets.
-- **Full plate harness**: outside this branch. `Armour_Platemail` exists mechanically, but should not be used to create full plate suits in the strict 500-1300 catalogue.
+- **Full plate harness**: outside this branch. `Armour_RigidMetal` exists mechanically, but should not be used to create full plate suits in the strict 500-1300 catalogue.
 - **Armet, sallet, barbute, close helm**: outside this branch by default. Use nasal helms, spangenhelms, conical helms, kettle hats, great helms, half helms, and coifs instead.
 - **Horse plate barding**: avoid later full-plate barding. Use textile caparisons, leather barding, mail/scale/lamellar horse protection, and conservative elite pieces where culturally supported.
 
@@ -871,18 +873,18 @@ Strict or broad-medieval candidates:
 
 - `Armour_BoiledLeather`
 - `Armour_Chainmail`
-- `Armour_HeavyClothing`
+- `Armour_Padded`
 - `Armour_Lamellar`
 - `Armour_Laminar`
 - `Armour_LeatherScale`
 - `Armour_LightClothing`
 - `Armour_MetalScale`
 - `Armour_StuddedLeather`
-- `Armour_UltraHeavyClothing`
+- `Armour_Padded`
 
 Cautious mechanical candidate for period-plausible transitional plate only:
 
-- `Armour_Platemail`
+- `Armour_RigidMetal`
 
 Excluded from this branch by default:
 
@@ -1138,49 +1140,49 @@ Gunsmithing tool tags exist but are outside this strict branch unless a blackpow
 ---
 
 
-## Mechanically distinct component feedback for later project updates
+## Dependency completion for mechanically distinct profiles
 
-This section is not a catalogue and does not authorize unseeded components for implementation. It records mechanically distinct fighting or protection behaviours that would be worth adding to the project if the military branch needs finer coverage than the current seeded components permit. Only add these if they would receive genuinely different combat or armour behaviour; purely cosmetic variations should remain skins or ordinary item variants using existing components.
+The data profiles proposed by the earlier edition are now seeded and used by the relevant existing item rows. Only behaviour beyond the current attack system remains deferred; purely cosmetic variations remain skins or ordinary item variants.
 
-### Highest-value weapon component gaps
+### Weapon profile status
 
 1. **`Melee_Lance` / mounted lance component**
 
-   The current strict-branch spear family can cover short spears, long spears, pikes, and thrown spears, but it does not clearly represent a couched or charge-focused mounted lance. A lance component would support Norman, Anglo-Norman, western knightly, Byzantine, Islamic, Indian, and steppe heavy-cavalry loadouts without pretending that a foot long-spear profile is the same fighting style.
+   `Melee_Lance` is seeded, and `medieval_military_light_riding_spear` now uses it. The profile currently reuses supported long-spear attacks; mounted/couched charge mechanics remain deferred.
 
 2. **`Melee_Glaive` or `Melee_Poleblade`**
 
-   The current polearm set is thin for cutting polearms. `Melee_Halberd`, `Melee_Pike`, and `Melee_Long Spear` can approximate many long-hafted weapons, but they do not cleanly distinguish a slashing blade-on-pole style useful for glaive-like, naginata-like, and similar regional poleblade forms. This is the single most useful polearm expansion if only one polearm component is added.
+   `Melee_Poleblade` is seeded and replaces the halberd fallback on `medieval_military_broad_poleblade`.
 
 3. **`Melee_Bill` / `Melee_Guisarme` / hooked polearm component**
 
-   Hooking, pulling, tripping, and anti-rider polearms fight differently from simple thrusting spears and from halberd-like axe-head polearms. A hooked-polearm component would support bill-like, guisarme-like, and other militia or infantry control weapons without making them cosmetic halberds.
+   `Melee_HookedPolearm` is seeded and replaces the halberd fallback on `medieval_military_hooked_polearm`. It currently exposes the supported halberd-family attacks; explicit hook, pull, trip, and anti-rider moves remain deferred.
 
 4. **`CompositeBow` or `RecurveBow`**
 
-   `Shortbow` and `Longbow` do not fully cover composite/reflex bow behaviour for steppe, Islamic, Byzantine, Indian, Chinese, Korean, and Japanese mounted or compact-war-bow traditions. This is probably the most valuable ranged-weapon component gap for the selected cultures.
+   `CompositeBow_Light` and `CompositeBow_War` are seeded and now back the two recurved horn-bow rows.
 
 5. **`Melee_Curved Sword` or `Melee_Sabre`**
 
-   Existing short and long sword components can carry many swords, but a curved single-edged cutting-sword component would better support steppe, Islamic, Indian, and East Asian sword families when their fighting style should differ from straight double-edged swords. This is less urgent than lance and polearm gaps but still mechanically meaningful if sword move sets are differentiated.
+   `Melee_Sabre` is seeded and now backs the culture-facing `medieval_military_wootz_war_sword`, whose description explicitly identifies its curved single-edged form.
 
-### Useful armour component gaps
+### Armour profile status
 
 1. **`Armour_Padded` or `Armour_Gambeson`**
 
-   `Armour_HeavyClothing` and `Armour_UltraHeavyClothing` can approximate padded protection, but a dedicated padded-armour component would better represent gambesons, aketons, arming coats, quilted jacks, and commoner or archer protection. This is a high-value defensive profile because padded textile armour is common, period-safe, and not merely ordinary clothing.
+   `Armour_Padded` is seeded and replaces the heavy-clothing fallbacks on the fourteen padded armour and barding rows.
 
 2. **`Armour_RigidMetal` or `Armour_MetalPlate`**
 
-   The current `Armour_Platemail` component name is awkward for strict 500-1300 items because many rigid metal pieces in this branch are helmets, splints, or early plates rather than mature full plate harness. A generic rigid-metal or metal-plate armour profile would let nasal helms, spangenhelms, greathelms, early plates, and metal limb pieces use appropriate behaviour without implying post-period full plate.
+   `Armour_RigidMetal` is seeded and replaces the mature-platemail fallback on the twenty rigid helmets, plates, and metal limb rows.
 
 3. **`Armour_CoatOfPlates`**
 
-   A coat-of-plates or early brigandine-adjacent profile would fill the late-thirteenth-century torso gap between mail/scale/lamellar and mature plate. This should remain strictly period-bounded and not become a generic fantasy brigandine unless the later fantasy seeder deliberately reuses it.
+   `Armour_CoatOfPlates` is seeded and used by `medieval_military_coat_of_plates`.
 
 4. **`Armour_Splinted`**
 
-   Splinted limb defences and splint-reinforced leather/textile pieces are mechanically distinct enough from mail, lamellar, and simple leather to justify a component if the catalogue heavily uses transitional arm and leg protection. This is useful but lower priority than padded armour and generic rigid-metal armour.
+   `Armour_Splinted` is seeded and replaces the studded-leather fallback on the four splinted limb rows.
 
 ### Explicitly not requested as component additions here
 
@@ -1529,7 +1531,7 @@ Useful substitutions:
 
 Implemented catalogue total: **381** unique item prototypes.
 
-Catalogue line format: `uniqueReference` - public short description; noun; primary material; size/quality; weight/cost; components. Full descriptions and complete `CreateItem(...)` statements are in `medieval_military_goods_all_items.cs` and are not duplicated here.
+Catalogue line format: `uniqueReference` - public short description; noun; primary material; size/quality; weight/cost; components. Full descriptions and complete `CreateItem(...)` statements are in the two live Medieval military ItemSeeder partials and are not duplicated here.
 
 ### Implementation pass summary
 
@@ -1558,7 +1560,7 @@ All ordinary portable goods are authored as player-visible, skinnable finished g
 - `medieval_military_broad_war_sword` - a broad war sword; noun: `sword`; material: `carbon steel`; size/quality: `Normal`/`Standard`; weight/cost: 1370.0g/820.0m; components: `Holdable`, `Melee_Longsword`, `Destroyable_Weapon`.
 - `medieval_military_balanced_arming_sword` - a balanced arming sword; noun: `sword`; material: `carbon steel`; size/quality: `Normal`/`Good`; weight/cost: 1120.0g/1500.0m; components: `Holdable`, `Melee_Longsword`, `Destroyable_Weapon`.
 - `medieval_military_crucible_steel_sword` - a crucible-steel sword; noun: `sword`; material: `crucible steel`; size/quality: `Normal`/`VeryGood`; weight/cost: 1080.0g/3000.0m; components: `Holdable`, `Melee_Longsword`, `Destroyable_Weapon`.
-- `medieval_military_wootz_war_sword` - a watered war sword; noun: `sword`; material: `wootz steel`; size/quality: `Normal`/`VeryGood`; weight/cost: 1150.0g/3400.0m; components: `Holdable`, `Melee_Longsword`, `Destroyable_Weapon`.
+- `medieval_military_wootz_war_sword` - a watered war sword; noun: `sword`; material: `wootz steel`; size/quality: `Normal`/`VeryGood`; weight/cost: 1150.0g/3400.0m; components: `Holdable`, `Melee_Sabre`, `Destroyable_Weapon`.
 - `medieval_military_plain_long_gripped_war_sword` - a long-gripped war sword; noun: `sword`; material: `carbon steel`; size/quality: `Large`/`Standard`; weight/cost: 2050.0g/1320.0m; components: `Holdable`, `Melee_Two Handed Sword`, `Destroyable_Weapon`.
 - `medieval_military_fine_long_gripped_war_sword` - a fine long-gripped war sword; noun: `sword`; material: `carbon steel`; size/quality: `Large`/`Good`; weight/cost: 1980.0g/2600.0m; components: `Holdable`, `Melee_Two Handed Sword`, `Destroyable_Weapon`.
 - `medieval_military_worn_hand_axe` - a worn hand axe; noun: `axe`; material: `wrought iron`; size/quality: `Normal`/`Substandard`; weight/cost: 720.0g/28.0m; components: `Holdable`, `Melee_Axe`, `Destroyable_Weapon`, `Beltable`.
@@ -1595,14 +1597,14 @@ All ordinary portable goods are authored as player-visible, skinnable finished g
 - `medieval_military_boar_spear` - a lugged boar spear; noun: `spear`; material: `carbon steel`; size/quality: `Large`/`Good`; weight/cost: 1900.0g/110.0m; components: `Holdable`, `Melee_Short Spear`, `Destroyable_Weapon`.
 - `medieval_military_plain_war_spear` - a plain war spear; noun: `spear`; material: `carbon steel`; size/quality: `Large`/`Standard`; weight/cost: 1750.0g/52.0m; components: `Holdable`, `Melee_Long Spear`, `Destroyable_Weapon`.
 - `medieval_military_fine_war_spear` - a fine war spear; noun: `spear`; material: `carbon steel`; size/quality: `Large`/`Good`; weight/cost: 1700.0g/150.0m; components: `Holdable`, `Melee_Long Spear`, `Destroyable_Weapon`.
-- `medieval_military_light_riding_spear` - a light riding spear; noun: `spear`; material: `carbon steel`; size/quality: `Large`/`Standard`; weight/cost: 1600.0g/78.0m; components: `Holdable`, `Melee_Long Spear`, `Destroyable_Weapon`.
+- `medieval_military_light_riding_spear` - a light riding spear; noun: `spear`; material: `carbon steel`; size/quality: `Large`/`Standard`; weight/cost: 1600.0g/78.0m; components: `Holdable`, `Melee_Lance`, `Destroyable_Weapon`.
 - `medieval_military_worn_infantry_pike` - a worn infantry pike; noun: `pike`; material: `wrought iron`; size/quality: `Large`/`Substandard`; weight/cost: 3000.0g/36.0m; components: `Holdable`, `Melee_Pike`, `Destroyable_Weapon`.
 - `medieval_military_plain_infantry_pike` - a plain infantry pike; noun: `pike`; material: `carbon steel`; size/quality: `Large`/`Standard`; weight/cost: 2950.0g/84.0m; components: `Holdable`, `Melee_Pike`, `Destroyable_Weapon`.
 - `medieval_military_fine_steel_pike` - a fine steel-headed pike; noun: `pike`; material: `carbon steel`; size/quality: `Large`/`Good`; weight/cost: 2900.0g/180.0m; components: `Holdable`, `Melee_Pike`, `Destroyable_Weapon`.
 - `medieval_military_plain_axe_headed_polearm` - an axe-headed polearm; noun: `polearm`; material: `carbon steel`; size/quality: `Large`/`Standard`; weight/cost: 2300.0g/160.0m; components: `Holdable`, `Melee_Halberd`, `Destroyable_Weapon`.
 - `medieval_military_fine_axe_headed_polearm` - a fine axe-headed polearm; noun: `polearm`; material: `carbon steel`; size/quality: `Large`/`Good`; weight/cost: 2200.0g/380.0m; components: `Holdable`, `Melee_Halberd`, `Destroyable_Weapon`.
-- `medieval_military_broad_poleblade` - a broad steel poleblade; noun: `poleblade`; material: `carbon steel`; size/quality: `Large`/`Standard`; weight/cost: 2050.0g/140.0m; components: `Holdable`, `Melee_Halberd`, `Destroyable_Weapon`.
-- `medieval_military_hooked_polearm` - a hooked polearm; noun: `polearm`; material: `carbon steel`; size/quality: `Large`/`Good`; weight/cost: 2150.0g/300.0m; components: `Holdable`, `Melee_Halberd`, `Destroyable_Weapon`.
+- `medieval_military_broad_poleblade` - a broad steel poleblade; noun: `poleblade`; material: `carbon steel`; size/quality: `Large`/`Standard`; weight/cost: 2050.0g/140.0m; components: `Holdable`, `Melee_Poleblade`, `Destroyable_Weapon`.
+- `medieval_military_hooked_polearm` - a hooked polearm; noun: `polearm`; material: `carbon steel`; size/quality: `Large`/`Good`; weight/cost: 2150.0g/300.0m; components: `Holdable`, `Melee_HookedPolearm`, `Destroyable_Weapon`.
 - `medieval_military_wooden_practice_knife` - a wooden practice knife; noun: `knife`; material: `beech`; size/quality: `Small`/`Standard`; weight/cost: 180.0g/4.0m; components: `Holdable`, `Melee_Training Knife`, `Destroyable_Weapon`.
 - `medieval_military_wooden_practice_dagger` - a wooden practice dagger; noun: `dagger`; material: `beech`; size/quality: `Small`/`Standard`; weight/cost: 220.0g/6.0m; components: `Holdable`, `Melee_Training Dagger`, `Destroyable_Weapon`.
 - `medieval_military_short_sword_waster` - a short sword waster; noun: `shortsword`; material: `beech`; size/quality: `Normal`/`Standard`; weight/cost: 620.0g/12.0m; components: `Holdable`, `Melee_Training Shortsword`, `Destroyable_Weapon`.
@@ -1623,18 +1625,18 @@ All ordinary portable goods are authored as player-visible, skinnable finished g
 
 ### Armour, horse tack, and barding (105)
 
-- `medieval_military_padded_arming_cap` - a $colour padded arming cap; noun: `cap`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 320.0g/12.0m; components: `Holdable`, `Wear_Coif`, `Armour_HeavyClothing`, `Destroyable_Armour`, `Insulation_Moderate`, `Variable_BasicColour`.
-- `medieval_military_heavy_padded_coif` - a heavy padded coif; noun: `coif`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 520.0g/24.0m; components: `Holdable`, `Wear_Coif`, `Armour_UltraHeavyClothing`, `Destroyable_Armour`, `Insulation_Balanced_Heavy`.
-- `medieval_military_light_aketon` - a $colour light aketon; noun: `aketon`; material: `linen`; size/quality: `Normal`/`Standard`; weight/cost: 2200.0g/72.0m; components: `Holdable`, `Wear_Long-Sleeved_Tunic`, `Armour_HeavyClothing`, `Destroyable_Armour`, `Insulation_Moderate`, `Variable_BasicColour`.
-- `medieval_military_heavy_gambeson` - a thick quilted gambeson; noun: `gambeson`; material: `linen`; size/quality: `Large`/`Good`; weight/cost: 4300.0g/160.0m; components: `Holdable`, `Wear_Long-Sleeved_Tunic`, `Armour_UltraHeavyClothing`, `Destroyable_Armour`, `Insulation_Balanced_Heavy`.
-- `medieval_military_sleeveless_padded_jack` - a sleeveless padded jack; noun: `jack`; material: `canvas`; size/quality: `Normal`/`Standard`; weight/cost: 2500.0g/84.0m; components: `Holdable`, `Wear_Vest`, `Armour_HeavyClothing`, `Destroyable_Armour`, `Insulation_Moderate`.
-- `medieval_military_quilted_militia_jack` - a quilted militia jack; noun: `jack`; material: `canvas`; size/quality: `Normal`/`Standard`; weight/cost: 3400.0g/120.0m; components: `Holdable`, `Wear_Jerkin`, `Armour_UltraHeavyClothing`, `Destroyable_Armour`, `Insulation_Balanced_Heavy`.
-- `medieval_military_felt_riding_armour` - a felt riding armour coat; noun: `coat`; material: `felt`; size/quality: `Large`/`Standard`; weight/cost: 3900.0g/144.0m; components: `Holdable`, `Wear_Long-Sleeved_Tunic`, `Armour_UltraHeavyClothing`, `Destroyable_Armour`, `Insulation_Strong`.
-- `medieval_military_padded_arming_doublet` - a fitted arming doublet; noun: `doublet`; material: `linen`; size/quality: `Normal`/`Good`; weight/cost: 2600.0g/140.0m; components: `Holdable`, `Wear_Doublet`, `Armour_HeavyClothing`, `Destroyable_Armour`, `Insulation_Moderate`.
-- `medieval_military_padded_chausses` - a pair of padded chausses; noun: `chausses`; material: `linen`; size/quality: `Normal`/`Standard`; weight/cost: 1750.0g/64.0m; components: `Holdable`, `Wear_Chausses`, `Armour_HeavyClothing`, `Destroyable_Armour`, `Insulation_Moderate`.
-- `medieval_military_padded_fighting_trousers` - a pair of padded fighting trousers; noun: `trousers`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 1600.0g/48.0m; components: `Holdable`, `Wear_Trousers`, `Armour_HeavyClothing`, `Destroyable_Armour`, `Insulation_Moderate`.
-- `medieval_military_padded_mittens` - a pair of padded fighting mittens; noun: `mittens`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 430.0g/20.0m; components: `Holdable`, `Wear_Mittens`, `Armour_HeavyClothing`, `Destroyable_Armour`, `Insulation_Moderate`.
-- `medieval_military_padded_forearm_guards` - a pair of padded forearm guards; noun: `bracers`; material: `canvas`; size/quality: `Small`/`Standard`; weight/cost: 460.0g/18.0m; components: `Holdable`, `Wear_Bracers`, `Armour_HeavyClothing`, `Destroyable_Armour`, `Insulation_Minor`.
+- `medieval_military_padded_arming_cap` - a $colour padded arming cap; noun: `cap`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 320.0g/12.0m; components: `Holdable`, `Wear_Coif`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Moderate`, `Variable_BasicColour`.
+- `medieval_military_heavy_padded_coif` - a heavy padded coif; noun: `coif`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 520.0g/24.0m; components: `Holdable`, `Wear_Coif`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Balanced_Heavy`.
+- `medieval_military_light_aketon` - a $colour light aketon; noun: `aketon`; material: `linen`; size/quality: `Normal`/`Standard`; weight/cost: 2200.0g/72.0m; components: `Holdable`, `Wear_Long-Sleeved_Tunic`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Moderate`, `Variable_BasicColour`.
+- `medieval_military_heavy_gambeson` - a thick quilted gambeson; noun: `gambeson`; material: `linen`; size/quality: `Large`/`Good`; weight/cost: 4300.0g/160.0m; components: `Holdable`, `Wear_Long-Sleeved_Tunic`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Balanced_Heavy`.
+- `medieval_military_sleeveless_padded_jack` - a sleeveless padded jack; noun: `jack`; material: `canvas`; size/quality: `Normal`/`Standard`; weight/cost: 2500.0g/84.0m; components: `Holdable`, `Wear_Vest`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Moderate`.
+- `medieval_military_quilted_militia_jack` - a quilted militia jack; noun: `jack`; material: `canvas`; size/quality: `Normal`/`Standard`; weight/cost: 3400.0g/120.0m; components: `Holdable`, `Wear_Jerkin`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Balanced_Heavy`.
+- `medieval_military_felt_riding_armour` - a felt riding armour coat; noun: `coat`; material: `felt`; size/quality: `Large`/`Standard`; weight/cost: 3900.0g/144.0m; components: `Holdable`, `Wear_Long-Sleeved_Tunic`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Strong`.
+- `medieval_military_padded_arming_doublet` - a fitted arming doublet; noun: `doublet`; material: `linen`; size/quality: `Normal`/`Good`; weight/cost: 2600.0g/140.0m; components: `Holdable`, `Wear_Doublet`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Moderate`.
+- `medieval_military_padded_chausses` - a pair of padded chausses; noun: `chausses`; material: `linen`; size/quality: `Normal`/`Standard`; weight/cost: 1750.0g/64.0m; components: `Holdable`, `Wear_Chausses`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Moderate`.
+- `medieval_military_padded_fighting_trousers` - a pair of padded fighting trousers; noun: `trousers`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 1600.0g/48.0m; components: `Holdable`, `Wear_Trousers`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Moderate`.
+- `medieval_military_padded_mittens` - a pair of padded fighting mittens; noun: `mittens`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 430.0g/20.0m; components: `Holdable`, `Wear_Mittens`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Moderate`.
+- `medieval_military_padded_forearm_guards` - a pair of padded forearm guards; noun: `bracers`; material: `canvas`; size/quality: `Small`/`Standard`; weight/cost: 460.0g/18.0m; components: `Holdable`, `Wear_Bracers`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Minor`.
 - `medieval_military_rawhide_chestguard` - a rawhide chestguard; noun: `chestguard`; material: `rawhide`; size/quality: `Normal`/`Substandard`; weight/cost: 2100.0g/52.0m; components: `Holdable`, `Wear_Cuirass`, `Armour_BoiledLeather`, `Destroyable_Armour`.
 - `medieval_military_boiled_leather_cuirass` - a boiled leather cuirass; noun: `cuirass`; material: `leather`; size/quality: `Normal`/`Standard`; weight/cost: 2800.0g/180.0m; components: `Holdable`, `Wear_Cuirass`, `Armour_BoiledLeather`, `Destroyable_Armour`.
 - `medieval_military_hardened_leather_jerkin` - a hardened leather jerkin; noun: `jerkin`; material: `leather`; size/quality: `Normal`/`Standard`; weight/cost: 2100.0g/112.0m; components: `Holdable`, `Wear_Jerkin`, `Armour_BoiledLeather`, `Destroyable_Armour`.
@@ -1642,7 +1644,7 @@ All ordinary portable goods are authored as player-visible, skinnable finished g
 - `medieval_military_leather_scale_vest` - a leather scale vest; noun: `vest`; material: `leather`; size/quality: `Normal`/`Standard`; weight/cost: 2600.0g/150.0m; components: `Holdable`, `Wear_Vest`, `Armour_LeatherScale`, `Destroyable_Armour`.
 - `medieval_military_leather_scale_skirt` - a leather scale armour skirt; noun: `skirt`; material: `leather`; size/quality: `Small`/`Standard`; weight/cost: 1250.0g/76.0m; components: `Holdable`, `Wear_Tassets`, `Armour_LeatherScale`, `Destroyable_Armour`.
 - `medieval_military_boiled_leather_bracers` - a pair of boiled leather bracers; noun: `bracers`; material: `leather`; size/quality: `Small`/`Standard`; weight/cost: 560.0g/36.0m; components: `Holdable`, `Wear_Bracers`, `Armour_BoiledLeather`, `Destroyable_Armour`.
-- `medieval_military_splinted_leather_vambraces` - a pair of splinted leather vambraces; noun: `vambraces`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 780.0g/92.0m; components: `Holdable`, `Wear_Vambraces`, `Armour_StuddedLeather`, `Destroyable_Armour`.
+- `medieval_military_splinted_leather_vambraces` - a pair of splinted leather vambraces; noun: `vambraces`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 780.0g/92.0m; components: `Holdable`, `Wear_Vambraces`, `Armour_Splinted`, `Destroyable_Armour`.
 - `medieval_military_leather_greaves` - a pair of boiled leather greaves; noun: `greaves`; material: `leather`; size/quality: `Small`/`Standard`; weight/cost: 980.0g/64.0m; components: `Holdable`, `Wear_Greaves`, `Armour_BoiledLeather`, `Destroyable_Armour`.
 - `medieval_military_leather_cuisses` - a pair of boiled leather cuisses; noun: `cuisses`; material: `leather`; size/quality: `Normal`/`Standard`; weight/cost: 1200.0g/82.0m; components: `Holdable`, `Wear_Cuisses`, `Armour_BoiledLeather`, `Destroyable_Armour`.
 - `medieval_military_guarded_leather_gloves` - a pair of guarded leather gloves; noun: `gloves`; material: `goat leather`; size/quality: `Small`/`Good`; weight/cost: 480.0g/60.0m; components: `Holdable`, `Wear_Gloves`, `Armour_BoiledLeather`, `Destroyable_Armour`.
@@ -1673,37 +1675,37 @@ All ordinary portable goods are authored as player-visible, skinnable finished g
 - `medieval_military_laminar_cuirass` - a banded laminar cuirass; noun: `cuirass`; material: `mild steel`; size/quality: `Normal`/`Good`; weight/cost: 5900.0g/720.0m; components: `Holdable`, `Wear_Cuirass`, `Armour_Laminar`, `Destroyable_Armour`.
 - `medieval_military_laminar_arm_guards` - a pair of banded arm guards; noun: `vambraces`; material: `mild steel`; size/quality: `Small`/`Good`; weight/cost: 1050.0g/170.0m; components: `Holdable`, `Wear_Vambraces`, `Armour_Laminar`, `Destroyable_Armour`.
 - `medieval_military_laminar_greaves` - a pair of banded greaves; noun: `greaves`; material: `mild steel`; size/quality: `Small`/`Good`; weight/cost: 1500.0g/210.0m; components: `Holdable`, `Wear_Greaves`, `Armour_Laminar`, `Destroyable_Armour`.
-- `medieval_military_coat_of_plates` - a coat of plates; noun: `coat`; material: `mild steel`; size/quality: `Large`/`Good`; weight/cost: 7600.0g/1800.0m; components: `Holdable`, `Wear_Faulded_Cuirass`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_plain_pair_of_plates` - a plain pair of plates; noun: `plates`; material: `mild steel`; size/quality: `Normal`/`Good`; weight/cost: 6200.0g/1500.0m; components: `Holdable`, `Wear_Cuirass`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_simple_breastplate` - a simple metal breastplate; noun: `breastplate`; material: `mild steel`; size/quality: `Normal`/`Good`; weight/cost: 3600.0g/960.0m; components: `Holdable`, `Wear_Breastplate`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_simple_backplate` - a simple metal backplate; noun: `backplate`; material: `mild steel`; size/quality: `Normal`/`Good`; weight/cost: 2900.0g/720.0m; components: `Holdable`, `Wear_Backplate`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_belly_plate` - a strapped belly plate; noun: `plackart`; material: `mild steel`; size/quality: `Small`/`Standard`; weight/cost: 1700.0g/300.0m; components: `Holdable`, `Wear_Plackart`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_laced_hip_plates` - a pair of laced hip plates; noun: `tassets`; material: `mild steel`; size/quality: `Small`/`Standard`; weight/cost: 1550.0g/280.0m; components: `Holdable`, `Wear_Tassets`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_early_metal_couters` - a pair of simple metal couters; noun: `couters`; material: `mild steel`; size/quality: `Small`/`Standard`; weight/cost: 720.0g/140.0m; components: `Holdable`, `Wear_Couters`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_early_poleyns` - a pair of simple poleyns; noun: `poleyns`; material: `mild steel`; size/quality: `Small`/`Standard`; weight/cost: 820.0g/150.0m; components: `Holdable`, `Wear_Poleyns`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_splinted_cuisses` - a pair of splinted cuisses; noun: `cuisses`; material: `leather`; size/quality: `Normal`/`Good`; weight/cost: 1700.0g/260.0m; components: `Holdable`, `Wear_Cuisses`, `Armour_StuddedLeather`, `Destroyable_Armour`.
-- `medieval_military_splinted_greaves` - a pair of splinted greaves; noun: `greaves`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 1550.0g/230.0m; components: `Holdable`, `Wear_Greaves`, `Armour_StuddedLeather`, `Destroyable_Armour`.
-- `medieval_military_guarded_gauntlets` - a pair of simple guarded gauntlets; noun: `gauntlets`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 760.0g/220.0m; components: `Holdable`, `Wear_Gauntlets`, `Armour_Platemail`, `Destroyable_Armour`.
+- `medieval_military_coat_of_plates` - a coat of plates; noun: `coat`; material: `mild steel`; size/quality: `Large`/`Good`; weight/cost: 7600.0g/1800.0m; components: `Holdable`, `Wear_Faulded_Cuirass`, `Armour_CoatOfPlates`, `Destroyable_Armour`.
+- `medieval_military_plain_pair_of_plates` - a plain pair of plates; noun: `plates`; material: `mild steel`; size/quality: `Normal`/`Good`; weight/cost: 6200.0g/1500.0m; components: `Holdable`, `Wear_Cuirass`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_simple_breastplate` - a simple metal breastplate; noun: `breastplate`; material: `mild steel`; size/quality: `Normal`/`Good`; weight/cost: 3600.0g/960.0m; components: `Holdable`, `Wear_Breastplate`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_simple_backplate` - a simple metal backplate; noun: `backplate`; material: `mild steel`; size/quality: `Normal`/`Good`; weight/cost: 2900.0g/720.0m; components: `Holdable`, `Wear_Backplate`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_belly_plate` - a strapped belly plate; noun: `plackart`; material: `mild steel`; size/quality: `Small`/`Standard`; weight/cost: 1700.0g/300.0m; components: `Holdable`, `Wear_Plackart`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_laced_hip_plates` - a pair of laced hip plates; noun: `tassets`; material: `mild steel`; size/quality: `Small`/`Standard`; weight/cost: 1550.0g/280.0m; components: `Holdable`, `Wear_Tassets`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_early_metal_couters` - a pair of simple metal couters; noun: `couters`; material: `mild steel`; size/quality: `Small`/`Standard`; weight/cost: 720.0g/140.0m; components: `Holdable`, `Wear_Couters`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_early_poleyns` - a pair of simple poleyns; noun: `poleyns`; material: `mild steel`; size/quality: `Small`/`Standard`; weight/cost: 820.0g/150.0m; components: `Holdable`, `Wear_Poleyns`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_splinted_cuisses` - a pair of splinted cuisses; noun: `cuisses`; material: `leather`; size/quality: `Normal`/`Good`; weight/cost: 1700.0g/260.0m; components: `Holdable`, `Wear_Cuisses`, `Armour_Splinted`, `Destroyable_Armour`.
+- `medieval_military_splinted_greaves` - a pair of splinted greaves; noun: `greaves`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 1550.0g/230.0m; components: `Holdable`, `Wear_Greaves`, `Armour_Splinted`, `Destroyable_Armour`.
+- `medieval_military_guarded_gauntlets` - a pair of simple guarded gauntlets; noun: `gauntlets`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 760.0g/220.0m; components: `Holdable`, `Wear_Gauntlets`, `Armour_RigidMetal`, `Destroyable_Armour`.
 - `medieval_military_mail_backed_gauntlets` - a pair of mail-backed gauntlets; noun: `gauntlets`; material: `mild steel`; size/quality: `Small`/`Good`; weight/cost: 820.0g/210.0m; components: `Holdable`, `Wear_Gauntlets`, `Armour_Chainmail`, `Destroyable_Armour`.
 - `medieval_military_leather_war_cap` - a hardened leather war cap; noun: `cap`; material: `leather`; size/quality: `Small`/`Standard`; weight/cost: 620.0g/48.0m; components: `Holdable`, `Wear_Half_Helmet`, `Armour_BoiledLeather`, `Destroyable_Armour`.
-- `medieval_military_iron_skullcap` - an iron skullcap; noun: `skullcap`; material: `wrought iron`; size/quality: `Small`/`Standard`; weight/cost: 1050.0g/120.0m; components: `Holdable`, `Wear_Half_Helmet`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_conical_steel_helm` - a conical steel helm; noun: `helm`; material: `mild steel`; size/quality: `Small`/`Standard`; weight/cost: 1350.0g/180.0m; components: `Holdable`, `Wear_Helmet`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_nasal_helm` - a nasal helm; noun: `helm`; material: `mild steel`; size/quality: `Small`/`Good`; weight/cost: 1550.0g/260.0m; components: `Holdable`, `Wear_Nasal_Helm`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_nasal_spangenhelm` - a nasal spangenhelm; noun: `spangenhelm`; material: `mild steel`; size/quality: `Small`/`Good`; weight/cost: 1650.0g/280.0m; components: `Holdable`, `Wear_Nasal_Spangenhelm`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_plain_spangenhelm` - a plain spangenhelm; noun: `spangenhelm`; material: `mild steel`; size/quality: `Small`/`Standard`; weight/cost: 1450.0g/210.0m; components: `Holdable`, `Wear_Spangenhelm`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_aventail_spangenhelm` - a spangenhelm with an aventail; noun: `spangenhelm`; material: `mild steel`; size/quality: `Small`/`Good`; weight/cost: 2600.0g/520.0m; components: `Holdable`, `Wear_Aventail_Spangenhelm`, `Armour_Platemail`, `Destroyable_Armour`.
+- `medieval_military_iron_skullcap` - an iron skullcap; noun: `skullcap`; material: `wrought iron`; size/quality: `Small`/`Standard`; weight/cost: 1050.0g/120.0m; components: `Holdable`, `Wear_Half_Helmet`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_conical_steel_helm` - a conical steel helm; noun: `helm`; material: `mild steel`; size/quality: `Small`/`Standard`; weight/cost: 1350.0g/180.0m; components: `Holdable`, `Wear_Helmet`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_nasal_helm` - a nasal helm; noun: `helm`; material: `mild steel`; size/quality: `Small`/`Good`; weight/cost: 1550.0g/260.0m; components: `Holdable`, `Wear_Nasal_Helm`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_nasal_spangenhelm` - a nasal spangenhelm; noun: `spangenhelm`; material: `mild steel`; size/quality: `Small`/`Good`; weight/cost: 1650.0g/280.0m; components: `Holdable`, `Wear_Nasal_Spangenhelm`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_plain_spangenhelm` - a plain spangenhelm; noun: `spangenhelm`; material: `mild steel`; size/quality: `Small`/`Standard`; weight/cost: 1450.0g/210.0m; components: `Holdable`, `Wear_Spangenhelm`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_aventail_spangenhelm` - a spangenhelm with an aventail; noun: `spangenhelm`; material: `mild steel`; size/quality: `Small`/`Good`; weight/cost: 2600.0g/520.0m; components: `Holdable`, `Wear_Aventail_Spangenhelm`, `Armour_RigidMetal`, `Destroyable_Armour`.
 - `medieval_military_lamellar_helmet` - a lamellar helmet; noun: `helmet`; material: `mild steel`; size/quality: `Small`/`Good`; weight/cost: 1700.0g/340.0m; components: `Holdable`, `Wear_Helmet`, `Armour_Lamellar`, `Destroyable_Armour`.
-- `medieval_military_kettle_style_helmet` - a broad-brimmed iron helmet; noun: `helmet`; material: `wrought iron`; size/quality: `Small`/`Standard`; weight/cost: 1850.0g/220.0m; components: `Holdable`, `Wear_Half_Helmet`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_flat_topped_greathelm` - a flat-topped great helm; noun: `greathelm`; material: `mild steel`; size/quality: `Normal`/`Good`; weight/cost: 2800.0g/760.0m; components: `Holdable`, `Wear_Greathelm`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_fine_greathelm` - a finely fitted great helm; noun: `greathelm`; material: `mild steel`; size/quality: `Normal`/`VeryGood`; weight/cost: 2650.0g/1250.0m; components: `Holdable`, `Wear_Greathelm`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_padded_gorget` - a padded throat guard; noun: `gorget`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 360.0g/16.0m; components: `Holdable`, `Wear_Gorget`, `Armour_HeavyClothing`, `Destroyable_Armour`, `Insulation_Minor`.
+- `medieval_military_kettle_style_helmet` - a broad-brimmed iron helmet; noun: `helmet`; material: `wrought iron`; size/quality: `Small`/`Standard`; weight/cost: 1850.0g/220.0m; components: `Holdable`, `Wear_Half_Helmet`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_flat_topped_greathelm` - a flat-topped great helm; noun: `greathelm`; material: `mild steel`; size/quality: `Normal`/`Good`; weight/cost: 2800.0g/760.0m; components: `Holdable`, `Wear_Greathelm`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_fine_greathelm` - a finely fitted great helm; noun: `greathelm`; material: `mild steel`; size/quality: `Normal`/`VeryGood`; weight/cost: 2650.0g/1250.0m; components: `Holdable`, `Wear_Greathelm`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_padded_gorget` - a padded throat guard; noun: `gorget`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 360.0g/16.0m; components: `Holdable`, `Wear_Gorget`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Minor`.
 - `medieval_military_leather_gorget` - a hardened leather gorget; noun: `gorget`; material: `leather`; size/quality: `Small`/`Standard`; weight/cost: 540.0g/56.0m; components: `Holdable`, `Wear_Gorget`, `Armour_BoiledLeather`, `Destroyable_Armour`.
-- `medieval_military_iron_collar` - a simple iron collar; noun: `gorget`; material: `wrought iron`; size/quality: `Small`/`Good`; weight/cost: 780.0g/150.0m; components: `Holdable`, `Wear_Gorget`, `Armour_Platemail`, `Destroyable_Armour`.
-- `medieval_military_splinted_brassarts` - a pair of splinted brassarts; noun: `brassarts`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 1120.0g/170.0m; components: `Holdable`, `Wear_Brassarts`, `Armour_StuddedLeather`, `Destroyable_Armour`.
+- `medieval_military_iron_collar` - a simple iron collar; noun: `gorget`; material: `wrought iron`; size/quality: `Small`/`Good`; weight/cost: 780.0g/150.0m; components: `Holdable`, `Wear_Gorget`, `Armour_RigidMetal`, `Destroyable_Armour`.
+- `medieval_military_splinted_brassarts` - a pair of splinted brassarts; noun: `brassarts`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 1120.0g/170.0m; components: `Holdable`, `Wear_Brassarts`, `Armour_Splinted`, `Destroyable_Armour`.
 - `medieval_military_lamellar_brassarts` - a pair of lamellar brassarts; noun: `brassarts`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 1040.0g/160.0m; components: `Holdable`, `Wear_Brassarts`, `Armour_Lamellar`, `Destroyable_Armour`.
-- `medieval_military_plain_steel_vambraces` - a pair of plain steel vambraces; noun: `vambraces`; material: `mild steel`; size/quality: `Small`/`Good`; weight/cost: 1180.0g/240.0m; components: `Holdable`, `Wear_Vambraces`, `Armour_Platemail`, `Destroyable_Armour`.
+- `medieval_military_plain_steel_vambraces` - a pair of plain steel vambraces; noun: `vambraces`; material: `mild steel`; size/quality: `Small`/`Good`; weight/cost: 1180.0g/240.0m; components: `Holdable`, `Wear_Vambraces`, `Armour_RigidMetal`, `Destroyable_Armour`.
 - `medieval_military_reinforced_riding_boots` - a pair of reinforced riding boots; noun: `boots`; material: `leather`; size/quality: `Normal`/`Good`; weight/cost: 1400.0g/120.0m; components: `Holdable`, `Wear_High_Boots`, `Armour_BoiledLeather`, `Destroyable_Armour`.
-- `medieval_military_iron_greaves` - a pair of simple iron greaves; noun: `greaves`; material: `wrought iron`; size/quality: `Small`/`Good`; weight/cost: 1800.0g/320.0m; components: `Holdable`, `Wear_Greaves`, `Armour_Platemail`, `Destroyable_Armour`.
+- `medieval_military_iron_greaves` - a pair of simple iron greaves; noun: `greaves`; material: `wrought iron`; size/quality: `Small`/`Good`; weight/cost: 1800.0g/320.0m; components: `Holdable`, `Wear_Greaves`, `Armour_RigidMetal`, `Destroyable_Armour`.
 - `medieval_military_lamellar_greaves` - a pair of lamellar greaves; noun: `greaves`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 1350.0g/210.0m; components: `Holdable`, `Wear_Greaves`, `Armour_Lamellar`, `Destroyable_Armour`.
 - `medieval_military_leather_poleyns` - a pair of hardened leather poleyns; noun: `poleyns`; material: `leather`; size/quality: `Small`/`Standard`; weight/cost: 520.0g/56.0m; components: `Holdable`, `Wear_Poleyns`, `Armour_BoiledLeather`, `Destroyable_Armour`.
 - `medieval_military_plain_surcoat` - a $colour plain surcoat; noun: `surcoat`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 650.0g/36.0m; components: `Holdable`, `Wear_Tabard`, `Armour_LightClothing`, `Destroyable_Clothing`, `Variable_BasicColour`.
@@ -1716,7 +1718,7 @@ All ordinary portable goods are authored as player-visible, skinnable finished g
 - `medieval_military_iron_curb_bit` - an iron curb bit; noun: `bit`; material: `wrought iron`; size/quality: `VerySmall`/`Standard`; weight/cost: 360.0g/36.0m; components: `Holdable`, `Wear_Bit`, `Destroyable_HeavyMetal`.
 - `medieval_military_plain_caparison` - a $colour plain caparison; noun: `caparison`; material: `wool`; size/quality: `VeryLarge`/`Standard`; weight/cost: 2800.0g/120.0m; components: `Holdable`, `Wear_Caparison`, `Armour_LightClothing`, `Destroyable_Clothing`, `Variable_BasicColour`.
 - `medieval_military_fine_livery_caparison` - a fine $colour caparison; noun: `caparison`; material: `wool`; size/quality: `VeryLarge`/`Good`; weight/cost: 3200.0g/300.0m; components: `Holdable`, `Wear_Caparison`, `Armour_LightClothing`, `Destroyable_Clothing`, `Variable_FineColour`.
-- `medieval_military_padded_horse_cloth` - a padded horse cloth; noun: `caparison`; material: `canvas`; size/quality: `VeryLarge`/`Standard`; weight/cost: 5200.0g/260.0m; components: `Holdable`, `Wear_Caparison`, `Armour_HeavyClothing`, `Destroyable_Armour`, `Insulation_Balanced_Heavy`.
+- `medieval_military_padded_horse_cloth` - a padded horse cloth; noun: `caparison`; material: `canvas`; size/quality: `VeryLarge`/`Standard`; weight/cost: 5200.0g/260.0m; components: `Holdable`, `Wear_Caparison`, `Armour_Padded`, `Destroyable_Armour`, `Insulation_Balanced_Heavy`.
 - `medieval_military_leather_chanfron` - a leather chanfron; noun: `chanfron`; material: `leather`; size/quality: `Normal`/`Standard`; weight/cost: 1600.0g/140.0m; components: `Holdable`, `Wear_Chanfron`, `Armour_BoiledLeather`, `Destroyable_Armour`.
 - `medieval_military_scale_chanfron` - a metal scale chanfron; noun: `chanfron`; material: `mild steel`; size/quality: `Normal`/`Good`; weight/cost: 2600.0g/420.0m; components: `Holdable`, `Wear_Chanfron`, `Armour_MetalScale`, `Destroyable_Armour`.
 - `medieval_military_lamellar_chanfron` - a lamellar chanfron; noun: `chanfron`; material: `leather`; size/quality: `Normal`/`Good`; weight/cost: 2300.0g/360.0m; components: `Holdable`, `Wear_Chanfron`, `Armour_Lamellar`, `Destroyable_Armour`.
@@ -1802,9 +1804,9 @@ All ordinary portable goods are authored as player-visible, skinnable finished g
 - `medieval_military_worn_ash_shortbow` - a worn ash shortbow; noun: `shortbow`; material: `ash`; size/quality: `Normal`/`Substandard`; weight/cost: 680.0g/40.0m; components: `Holdable`, `Shortbow`, `Destroyable_Weapon`.
 - `medieval_military_plain_elm_shortbow` - a plain elm shortbow; noun: `shortbow`; material: `elm`; size/quality: `Normal`/`Standard`; weight/cost: 720.0g/80.0m; components: `Holdable`, `Shortbow`, `Destroyable_Weapon`.
 - `medieval_military_bamboo_shortbow` - a bamboo shortbow; noun: `shortbow`; material: `bamboo`; size/quality: `Normal`/`Standard`; weight/cost: 520.0g/92.0m; components: `Holdable`, `Shortbow`, `Destroyable_Weapon`.
-- `medieval_military_recurved_riders_shortbow` - a recurved rider's shortbow; noun: `shortbow`; material: `horn`; size/quality: `Normal`/`Good`; weight/cost: 640.0g/180.0m; components: `Holdable`, `Shortbow`, `Destroyable_Weapon`.
+- `medieval_military_recurved_riders_shortbow` - a recurved rider's shortbow; noun: `shortbow`; material: `horn`; size/quality: `Normal`/`Good`; weight/cost: 640.0g/180.0m; components: `Holdable`, `CompositeBow_Light`, `Destroyable_Weapon`.
 - `medieval_military_sinew_backed_shortbow` - a sinew-backed shortbow; noun: `shortbow`; material: `yew`; size/quality: `Normal`/`Good`; weight/cost: 700.0g/210.0m; components: `Holdable`, `Shortbow`, `Destroyable_Weapon`.
-- `medieval_military_fine_horn_recurve_bow` - a fine horn recurved bow; noun: `shortbow`; material: `horn`; size/quality: `Normal`/`VeryGood`; weight/cost: 620.0g/420.0m; components: `Holdable`, `Shortbow`, `Destroyable_Weapon`.
+- `medieval_military_fine_horn_recurve_bow` - a fine horn recurved bow; noun: `shortbow`; material: `horn`; size/quality: `Normal`/`VeryGood`; weight/cost: 620.0g/420.0m; components: `Holdable`, `CompositeBow_War`, `Destroyable_Weapon`.
 - `medieval_military_rough_self_longbow` - a rough self longbow; noun: `longbow`; material: `ash`; size/quality: `Large`/`Substandard`; weight/cost: 860.0g/56.0m; components: `Holdable`, `Longbow`, `Destroyable_Weapon`.
 - `medieval_military_elm_self_longbow` - an elm self longbow; noun: `longbow`; material: `elm`; size/quality: `Large`/`Standard`; weight/cost: 940.0g/110.0m; components: `Holdable`, `Longbow`, `Destroyable_Weapon`.
 - `medieval_military_yew_longbow` - a yew longbow; noun: `longbow`; material: `yew`; size/quality: `Large`/`Good`; weight/cost: 900.0g/240.0m; components: `Holdable`, `Longbow`, `Destroyable_Weapon`.
@@ -1981,7 +1983,7 @@ The implemented catalogue was authored and checked against these validation rule
 - `Seeded_Materials.json` — used for exact solid material names.
 - `SeededTagHierarchy.csv` — used for exact hierarchical tags. The file is tab-separated despite its `.csv` extension.
 - `Medieval_Clothing_Seeder_Design_Reference.md` and `FutureMUD Antiquity Clothing Seeder Design Reference.md` — used as structural precedent for scope, culture-neutral public text, shared-item policy, skin policy, and validation format.
-- `medieval_military_goods_all_items.cs` — consolidated implementation file generated from all completed first-wave catalogue passes.
+- `DatabaseSeeder/Seeders/ItemSeeder.MedievalWeapons.cs` and `DatabaseSeeder/Seeders/ItemSeeder.MedievalArmour.cs` — live implementation of all completed first-wave catalogue passes.
 - Completed pass files: `medieval_military_melee_weapons_pass_1.cs`, `medieval_military_armour_sets_pass_1.cs`, `medieval_military_shields_pass_1.cs`, `medieval_military_ranged_ammunition_thrown_pass_1.cs`, and `medieval_military_carrying_storage_support_pass_1.cs`.
 
 ### Historical reference sources used for design principles
@@ -2040,7 +2042,7 @@ The implemented catalogue was authored and checked against these validation rule
 
 11. **Component-gap feedback**
 
-   The document records possible future component additions for mechanically distinct fighting or protection behaviour, especially mounted lances, cutting polearms, hooked polearms, composite bows, curved swords, padded armour, generic rigid-metal armour, coat-of-plates armour, and splinted armour. These names are feedback only and must not be used in catalogue seeder calls until they exist as seeded components. The current implementation uses existing components for conservative approximations where appropriate.
+   The proposed data profiles are now seeded and used by the relevant existing catalogue rows. The remaining mounted/couched charge and hook/pull/trip/anti-rider behaviours are tracked in the consolidated engine dependency ledger.
 
 12. **Material additions resolved**
 
@@ -2048,8 +2050,8 @@ The implemented catalogue was authored and checked against these validation rule
 
 13. **First-wave catalogue implemented**
 
-   The first-wave catalogue has been implemented as 381 paste-ready `CreateItem(...)` calls and consolidated into `medieval_military_goods_all_items.cs`.
+   The first-wave catalogue is implemented as 381 `CreateItem(...)` calls split between `ItemSeeder.MedievalWeapons.cs` and `ItemSeeder.MedievalArmour.cs`.
 
-### Remaining non-blocking data improvements
+### Remaining engine improvements
 
-No material blockers remain for the first-wave catalogue. Remaining improvement opportunities are mechanical rather than data-entry blockers: distinct components for mounted lances, cutting and hooked polearms, composite/recurve bows, curved swords, padded armour, coat-of-plates armour, and splinted armour would permit finer combat or armour behaviour in future expansions.
+No material or item-component data blockers remain for the first-wave catalogue. Dedicated mounted/couched charge and hook/pull/trip/anti-rider behaviour remains deferred; the current profiles expose only attacks the engine can execute honestly.

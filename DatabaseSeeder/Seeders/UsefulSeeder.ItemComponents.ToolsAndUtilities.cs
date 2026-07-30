@@ -1911,11 +1911,16 @@ public partial class UsefulSeeder
         }
 
         XElement OfferingReceiverDefinition(double maximumContentsWeight, SizeCategory maximumItemSize,
-            string consumptionMode, string acceptEcho, string burnEcho)
+            string consumptionMode, string acceptEcho, string burnEcho, bool acceptsLiquidOfferings = false,
+            Tag? allowedLiquidTag = null, double minimumLiquidOfferingVolume = 0.0,
+            double maximumLiquidOfferingVolume = 0.0, string? liquidAcceptEcho = null)
         {
             return new XElement("Definition",
                 new XElement("AllowedTags"),
                 new XElement("BlockedTags"),
+                new XElement("AllowedLiquidTags",
+                    allowedLiquidTag is null ? null : new XElement("Tag", allowedLiquidTag.Id)),
+                new XElement("BlockedLiquidTags"),
                 new XElement("MaximumContentsWeight", maximumContentsWeight),
                 new XElement("MaximumItemSize", (int)maximumItemSize),
                 new XElement("ConsumptionMode", consumptionMode),
@@ -1925,10 +1930,24 @@ public partial class UsefulSeeder
                 new XElement("OnBurnProg", 0),
                 new XElement("AcceptEcho", new XCData(acceptEcho)),
                 new XElement("BurnEcho", new XCData(burnEcho)),
-                new XElement("RejectEcho", new XCData("$2 rejects $1.")));
+                new XElement("RejectEcho", new XCData("$2 rejects $1.")),
+                new XElement("AcceptsLiquidOfferings", acceptsLiquidOfferings),
+                new XElement("MinimumLiquidOfferingVolume", minimumLiquidOfferingVolume),
+                new XElement("MaximumLiquidOfferingVolume", maximumLiquidOfferingVolume),
+                new XElement("CanOfferLiquidProg", 0),
+                new XElement("WhyCannotOfferLiquidProg", 0),
+                new XElement("OnOfferLiquidProg", 0),
+                new XElement("OracleResponseProg", 0),
+                new XElement("LiquidAcceptEcho", new XCData(liquidAcceptEcho ??
+                    "@ pour|pours {0} from $1 onto $2 as a libation.")),
+                new XElement("LiquidRejectEcho",
+                    new XCData("$2 rejects the attempted libation from $1.")));
         }
 
         Tag incenseFuelTag = EnsureTagPath("Functions / Household Items / Household Religious Items / Incense Fuel");
+        Tag libationTag = EnsureTagPath("Materials / Liquids / Ritual Offerings / Libation");
+        Tag lampOilTag = EnsureTagPath("Materials / Liquids / Ritual Offerings / Lamp Oil");
+        Tag bloodOfferingTag = EnsureTagPath("Materials / Liquids / Ritual Offerings / Blood Offering");
 
         UpsertStockComponent("IncenseBurner", "IncenseBurner_Antiquity_BronzeCenser",
             "Turns an item into a bronze censer that burns tagged incense fuel into room-scale ambient scent.",
@@ -1954,6 +1973,38 @@ public partial class UsefulSeeder
             OfferingReceiverDefinition(25000.0, SizeCategory.Large, "ManualBurn",
                 "@ arrange|arranges $1 on $2 as a funeral offering.",
                 "@ burn|burns $1 on $2 as a funeral offering."));
+
+        UpsertStockComponent("OfferingReceiver", "OfferingReceiver_Antiquity_TempleLibationTable",
+            "Turns an item into a temple libation table that accepts and records tagged liquid libations.",
+            OfferingReceiverDefinition(50000.0, SizeCategory.VeryLarge, "RecordOnly",
+                "@ place|places $1 on $2 as an offering.",
+                "@ burn|burns $1 on $2 as an offering.",
+                true, libationTag, 0.05, 2.0,
+                "@ pour|pours {0} from $1 across $2 as a temple libation."));
+
+        UpsertStockComponent("OfferingReceiver", "OfferingReceiver_Antiquity_OilLampShrine",
+            "Turns an item into a lamp shrine that accepts and records offerings of tagged lamp oils.",
+            OfferingReceiverDefinition(5000.0, SizeCategory.Small, "RecordOnly",
+                "@ place|places $1 before $2 as an offering.",
+                "@ burn|burns $1 before $2 as an offering.",
+                true, lampOilTag, 0.01, 0.5,
+                "@ pour|pours {0} from $1 into the offering channel of $2."));
+
+        UpsertStockComponent("OfferingReceiver", "OfferingReceiver_Antiquity_OracularTripod",
+            "Turns an item into an oracular tripod with liquid libations and an optional oracle response prog.",
+            OfferingReceiverDefinition(15000.0, SizeCategory.Normal, "RecordOnly",
+                "@ place|places $1 in $2 as an offering.",
+                "@ burn|burns $1 in $2 as an offering.",
+                true, libationTag, 0.02, 0.5,
+                "@ pour|pours {0} from $1 into $2 as an oracular libation."));
+
+        UpsertStockComponent("OfferingReceiver", "OfferingReceiver_Antiquity_BloodOfferingBowl",
+            "Turns an item into a ritual bowl that accepts and records tagged blood offerings.",
+            OfferingReceiverDefinition(10000.0, SizeCategory.Normal, "RecordOnly",
+                "@ place|places $1 in $2 as an offering.",
+                "@ burn|burns $1 in $2 as an offering.",
+                true, bloodOfferingTag, 0.01, 1.0,
+                "@ pour|pours {0} from $1 into $2 as a blood offering."));
 
         nextId = currentId;
         context.SaveChanges();

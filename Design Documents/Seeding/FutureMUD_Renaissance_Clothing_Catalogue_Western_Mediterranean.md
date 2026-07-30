@@ -12,6 +12,8 @@ This volume defines **154 unique clothing prototypes** for the following Renaiss
 
 The authority, dependency ledger, common forms, and implementation rules are in [FutureMUD Renaissance Clothing and Accessories Design Reference](./FutureMUD_Renaissance_Clothing_Accessories_Design_Reference.md). Historical terms in the notes are builder anchors, not mandatory public item names.
 
+The authority's inferred manifest table now instantiates fourteen ordinary/status outfits from this volume plus the Western- and Ottoman-anchored profession overlays. That table is the source of truth for stock `OutfitTemplate` membership and wear order.
+
 ## Volume-specific wearable gaps
 
 In addition to the common-profile audit, this volume requires exact wearable/layering definitions for fitted doublets, bodices, one-piece gowns, joined hose, trunk hose/breeches, structured skirt supports, collars/ruffs, liturgical over-vestments, and turban-over-cap constructions. Proposed semantic profiles used below are:

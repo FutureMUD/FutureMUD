@@ -155,8 +155,28 @@
         "Component Type":  "Armour"
     },
     {
+        "Component Name":  "Armour_Brigandine",
+        "Component Description":  "Turns an item into Brigandine armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_BuffLeather",
+        "Component Description":  "Turns an item into Buff Leather armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_ChainAndPlate",
+        "Component Description":  "Turns an item into Chain and Plate armour",
+        "Component Type":  "Armour"
+    },
+    {
         "Component Name":  "Armour_Chainmail",
         "Component Description":  "Turns an item into Chainmail armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_CoatOfPlates",
+        "Component Description":  "Turns an item into Coat of Plates armour",
         "Component Type":  "Armour"
     },
     {
@@ -240,8 +260,43 @@
         "Component Type":  "Armour"
     },
     {
+        "Component Name":  "Armour_Padded",
+        "Component Description":  "Turns an item into Padded armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_PlateLight",
+        "Component Description":  "Turns an item into Plate Light armour",
+        "Component Type":  "Armour"
+    },
+    {
         "Component Name":  "Armour_Platemail",
         "Component Description":  "Turns an item into Platemail armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_PlateMedium",
+        "Component Description":  "Turns an item into Plate Medium armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_ProofedPlate",
+        "Component Description":  "Turns an item into Proofed Plate armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_Rattan",
+        "Component Description":  "Turns an item into Rattan armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_RigidMetal",
+        "Component Description":  "Turns an item into Rigid Metal armour",
+        "Component Type":  "Armour"
+    },
+    {
+        "Component Name":  "Armour_Splinted",
+        "Component Description":  "Turns an item into Splinted armour",
         "Component Type":  "Armour"
     },
     {
@@ -595,6 +650,21 @@
         "Component Type":  "BatteryPowered"
     },
     {
+        "Component Name":  "Bayonet_Plug",
+        "Component Description":  "Turns an item into a plug bayonet attachment",
+        "Component Type":  "BayonetAttachment"
+    },
+    {
+        "Component Name":  "Bayonet_Socket",
+        "Component Description":  "Turns an item into a socket bayonet attachment",
+        "Component Type":  "BayonetAttachment"
+    },
+    {
+        "Component Name":  "Bayonet_Sword",
+        "Component Description":  "Turns an item into a sword bayonet attachment",
+        "Component Type":  "BayonetAttachment"
+    },
+    {
         "Component Name":  "Belt_2",
         "Component Description":  "Turns item into a belt that can have 2 attached items of up to size Small",
         "Component Type":  "Belt"
@@ -652,6 +722,16 @@
     {
         "Component Name":  "Blowgun",
         "Component Description":  "Turns an item into a blowgun",
+        "Component Type":  "Blowgun"
+    },
+    {
+        "Component Name":  "Blowgun_Long",
+        "Component Description":  "Turns an item into a Long Blowgun",
+        "Component Type":  "Blowgun"
+    },
+    {
+        "Component Name":  "Blowgun_Short",
+        "Component Description":  "Turns an item into a Short Blowgun",
         "Component Type":  "Blowgun"
     },
     {
@@ -790,6 +870,11 @@
         "Component Type":  "Cannula"
     },
     {
+        "Component Name":  "CashRegister_PreIndustrial_TillChest",
+        "Component Description":  "A lockable pre-industrial till chest retaining the full shop cash-register workflow.",
+        "Component Type":  "LockingCashRegister"
+    },
+    {
         "Component Name":  "CellPhoneTower_Local",
         "Component Description":  "Turns an item into a local cellular tower that serves its surrounding zone.",
         "Component Type":  "CellPhoneTower"
@@ -863,6 +948,21 @@
         "Component Name":  "Commodity",
         "Component Description":  "This item is used only for system generated commodity items.",
         "Component Type":  "Commodity"
+    },
+    {
+        "Component Name":  "CompositeBow_Heavy",
+        "Component Description":  "Turns an item into a Composite Bow Heavy",
+        "Component Type":  "Bow"
+    },
+    {
+        "Component Name":  "CompositeBow_Light",
+        "Component Description":  "Turns an item into a Composite Bow Light",
+        "Component Type":  "Bow"
+    },
+    {
+        "Component Name":  "CompositeBow_War",
+        "Component Description":  "Turns an item into a Composite Bow War",
+        "Component Type":  "Bow"
     },
     {
         "Component Name":  "ComputerHost_Personal",
@@ -972,6 +1072,11 @@
     {
         "Component Name":  "Container_Carton",
         "Component Description":  "A container for cartons of cigarettes, matches etc",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_CartridgeBandolier",
+        "Component Description":  "A closable cartridge bandolier restricted to paper cartridges and wooden powder charges.",
         "Component Type":  "Container"
     },
     {
@@ -1145,6 +1250,26 @@
         "Component Type":  "Container"
     },
     {
+        "Component Name":  "Container_PreIndustrial_CompartmentBox",
+        "Component Description":  "A small closable compartmented box represented as one logical inventory.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_PreIndustrial_Display_Plinth",
+        "Component Description":  "An open display plinth, pedestal or stand surface.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_PreIndustrial_LiddedBasket",
+        "Component Description":  "A closable pre-industrial basket for ordinary domestic and market storage.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_PreIndustrial_LiddedHamper",
+        "Component Description":  "A large closable pre-industrial hamper or pannier.",
+        "Component Type":  "Container"
+    },
+    {
         "Component Name":  "Container_Purse",
         "Component Description":  "A container for purses or handbags",
         "Component Type":  "Container"
@@ -1307,6 +1432,51 @@
     {
         "Component Name":  "Crossbow",
         "Component Description":  "Turns an item into a crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Cranequin",
+        "Component Description":  "Turns an item into a Cranequin Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_EastAsian",
+        "Component Description":  "Turns an item into a East Asian Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_GoatsFoot",
+        "Component Description":  "Turns an item into a Goat\u0027s Foot Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Heavy",
+        "Component Description":  "Turns an item into a Heavy Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Lever",
+        "Component Description":  "Turns an item into a Lever Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Light",
+        "Component Description":  "Turns an item into a Light Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Pellet",
+        "Component Description":  "Turns an item into a Pellet Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_SpanningHook",
+        "Component Description":  "Turns an item into a Spanning Hook Crossbow",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Windlass",
+        "Component Description":  "Turns an item into a Windlass Crossbow",
         "Component Type":  "Crossbow"
     },
     {
@@ -3060,6 +3230,41 @@
         "Component Type":  "HandheldRadio"
     },
     {
+        "Component Name":  "HitchGear_Chain",
+        "Component Description":  "Marks an item as a chain suitable for chain-type hitch points.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "HitchGear_Harness",
+        "Component Description":  "Marks an item as a draft harness for hitching creatures to vehicles.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "HitchGear_LeadRope",
+        "Component Description":  "Marks an item as a lead rope or light hitching rope.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "HitchGear_Rope",
+        "Component Description":  "Marks an item as a general rope suitable for rope-type hitch points.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "HitchGear_TowBar",
+        "Component Description":  "Marks an item as a tow bar for vehicle-to-vehicle hitching.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "HitchGear_Traces",
+        "Component Description":  "Marks an item as traces used with a harness or yoke.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "HitchGear_Yoke",
+        "Component Description":  "Marks an item as a yoke for hitching beasts to a tow point.",
+        "Component Type":  "HitchGear"
+    },
+    {
         "Component Name":  "Holdable",
         "Component Description":  "This component makes an item able to be picked up",
         "Component Type":  "Holdable"
@@ -3168,6 +3373,51 @@
         "Component Name":  "InhalerGasCanister_Bronchodilator",
         "Component Description":  "Turns an item into a metered-dose bronchodilator inhaler canister.",
         "Component Type":  "InhalerGasCanister"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_BronzeWarHorn",
+        "Component Description":  "A playable bronze war horn profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_DoubleAulos",
+        "Component Description":  "A playable double aulos profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_FrameDrum",
+        "Component Description":  "A playable frame drum profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_Kithara",
+        "Component Description":  "A playable kithara profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_ReedFlute",
+        "Component Description":  "A playable reed flute profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_ShipSignalTrumpet",
+        "Component Description":  "A playable ship signal trumpet profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_Sistrum",
+        "Component Description":  "A playable sistrum profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_TempleRitualRattle",
+        "Component Description":  "A playable temple ritual rattle profile.",
+        "Component Type":  "Instrument"
+    },
+    {
+        "Component Name":  "Instrument_Antiquity_WoodenLyre",
+        "Component Description":  "A playable wooden lyre profile.",
+        "Component Type":  "Instrument"
     },
     {
         "Component Name":  "Insulation_Balanced_Heavy",
@@ -3535,6 +3785,56 @@
         "Component Type":  "Liquid Container"
     },
     {
+        "Component Name":  "LContainer_PreIndustrial_Basin_5L",
+        "Component Description":  "An opaque open pre-industrial basin with a 5 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Bowl_750ml",
+        "Component Description":  "An opaque open pre-industrial bowl with a 750 ml capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Cup_150ml",
+        "Component Description":  "An opaque open pre-industrial cup with a 150 ml capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Ewer_2L",
+        "Component Description":  "An opaque open pre-industrial ewer with a 2 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Pitcher_4L",
+        "Component Description":  "An opaque open pre-industrial pitcher with a 4 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Pot_12L",
+        "Component Description":  "An opaque open pre-industrial pot with a 12 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_StorageJar_12L",
+        "Component Description":  "An opaque closable pre-industrial storage jar with a 12 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_StorageJar_30L",
+        "Component Description":  "An opaque closable pre-industrial storage jar with a 30 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Vat_125L",
+        "Component Description":  "An opaque open pre-industrial process vat with a 125 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_PreIndustrial_Vat_500L",
+        "Component Description":  "An opaque open pre-industrial storage or process vat with a 500 litre capacity.",
+        "Component Type":  "Liquid Container"
+    },
+    {
         "Component Name":  "LContainer_Puncheon",
         "Component Description":  "A liquid container for a puncheon (84 US Gallon Barrel)",
         "Component Type":  "Liquid Container"
@@ -3677,6 +3977,31 @@
     {
         "Component Name":  "LockingContainer_Lockbox",
         "Component Description":  "Turns an item into a small lockbox with a built-in lever lock.",
+        "Component Type":  "LockingContainer"
+    },
+    {
+        "Component Name":  "LockingContainer_PreIndustrial_Desk",
+        "Component Description":  "Opaque desk storage secured by a built-in warded lock.",
+        "Component Type":  "LockingContainer"
+    },
+    {
+        "Component Name":  "LockingContainer_PreIndustrial_DisplayCabinet",
+        "Component Description":  "A transparent display cabinet secured by a built-in lock.",
+        "Component Type":  "LockingContainer"
+    },
+    {
+        "Component Name":  "LockingContainer_PreIndustrial_DrawerChest",
+        "Component Description":  "A large opaque drawer chest secured as one logical inventory by a built-in lock.",
+        "Component Type":  "LockingContainer"
+    },
+    {
+        "Component Name":  "LockingContainer_PreIndustrial_LargeCabinet",
+        "Component Description":  "A large opaque upright cabinet with a built-in warded lock.",
+        "Component Type":  "LockingContainer"
+    },
+    {
+        "Component Name":  "LockingContainer_PreIndustrial_SmallCabinet",
+        "Component Description":  "A small opaque cabinet with a built-in warded lock.",
         "Component Type":  "LockingContainer"
     },
     {
@@ -3920,6 +4245,11 @@
         "Component Type":  "MeleeWeapon"
     },
     {
+        "Component Name":  "Melee_Bayonet",
+        "Component Description":  "Turns an item into a Bayonet melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
         "Component Name":  "Melee_Club",
         "Component Description":  "Turns an item into a Club melee weapon",
         "Component Type":  "MeleeWeapon"
@@ -3945,6 +4275,11 @@
         "Component Type":  "MeleeWeapon"
     },
     {
+        "Component Name":  "Melee_HookedPolearm",
+        "Component Description":  "Turns an item into a Hooked Polearm melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
         "Component Name":  "Melee_Improvised Bludgeon",
         "Component Description":  "Turns an item into a Improvised Bludgeon melee weapon",
         "Component Type":  "MeleeWeapon"
@@ -3952,6 +4287,11 @@
     {
         "Component Name":  "Melee_Knife",
         "Component Description":  "Turns an item into a Knife melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Lance",
+        "Component Description":  "Turns an item into a Lance melee weapon",
         "Component Type":  "MeleeWeapon"
     },
     {
@@ -3985,6 +4325,11 @@
         "Component Type":  "MeleeWeapon"
     },
     {
+        "Component Name":  "Melee_Poleblade",
+        "Component Description":  "Turns an item into a Poleblade melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
         "Component Name":  "Melee_Quarterstaff",
         "Component Description":  "Turns an item into a Quarterstaff melee weapon",
         "Component Type":  "MeleeWeapon"
@@ -3992,6 +4337,11 @@
     {
         "Component Name":  "Melee_Rapier",
         "Component Description":  "Turns an item into a Rapier melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Sabre",
+        "Component Description":  "Turns an item into a Sabre melee weapon",
         "Component Type":  "MeleeWeapon"
     },
     {
@@ -4007,6 +4357,11 @@
     {
         "Component Name":  "Melee_Shortsword",
         "Component Description":  "Turns an item into a Shortsword melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Smallsword",
+        "Component Description":  "Turns an item into a Smallsword melee weapon",
         "Component Type":  "MeleeWeapon"
     },
     {
@@ -4105,6 +4460,31 @@
         "Component Type":  "MeleeWeapon"
     },
     {
+        "Component Name":  "Melee_Training_Bayonet",
+        "Component Description":  "Turns an item into a Training Bayonet melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training_Lance",
+        "Component Description":  "Turns an item into a Training Lance melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training_Poleblade",
+        "Component Description":  "Turns an item into a Training Poleblade melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training_Sabre",
+        "Component Description":  "Turns an item into a Training Sabre melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training_Smallsword",
+        "Component Description":  "Turns an item into a Training Smallsword melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
         "Component Name":  "Melee_Two Handed Axe",
         "Component Description":  "Turns an item into a Two Handed Axe melee weapon",
         "Component Type":  "MeleeWeapon"
@@ -4123,6 +4503,36 @@
         "Component Name":  "Microcontroller_Basic",
         "Component Description":  "Turns an item into a simple programmable microcontroller with a daylight input example.",
         "Component Type":  "Microcontroller"
+    },
+    {
+        "Component Name":  "MilitaryStandard_CavalryStandard",
+        "Component Description":  "A plantable cavalry standard with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_Guidon",
+        "Component Description":  "A plantable guidon with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_InfantryColour",
+        "Component Description":  "A plantable infantry colour with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_NavalEnsign",
+        "Component Description":  "A plantable naval ensign with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_Pennant",
+        "Component Description":  "A plantable pennant with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
+    },
+    {
+        "Component Name":  "MilitaryStandard_SignalFlag",
+        "Component Description":  "A plantable signal flag with persistent capture and recovery state.",
+        "Component Type":  "MilitaryStandard"
     },
     {
         "Component Name":  "MotionSensor_Perimeter",
@@ -4225,6 +4635,41 @@
         "Component Type":  "MusketCartridge"
     },
     {
+        "Component Name":  "MusketPaperCartridge_0.45 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.45 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.55 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.55 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.6 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.6 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.65 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.65 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.7 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.7 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.75 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.75 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketPaperCartridge_0.8 Bore",
+        "Component Description":  "A measured paper cartridge with powder, wad, and round ball for a 0.8 Bore musket",
+        "Component Type":  "MusketCartridge"
+    },
+    {
         "Component Name":  "NetworkAdapter_Wired",
         "Component Description":  "Turns an item into a wired network adapter for a computer host.",
         "Component Type":  "Network Adapter"
@@ -4243,6 +4688,41 @@
         "Component Name":  "Obscurer_Eyes",
         "Component Description":  "Obscures a wearer\u0027s eye colour without changing their whole identity.",
         "Component Type":  "Obscurer"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_BloodOfferingBowl",
+        "Component Description":  "Turns an item into a ritual bowl that accepts and records tagged blood offerings.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_FuneralTray",
+        "Component Description":  "Turns an item into a funeral offering tray that can hold and ritually burn broad item offerings.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_HouseholdAltar",
+        "Component Description":  "Turns an item into a household altar that receives broad offerings and supports explicit burning.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_OilLampShrine",
+        "Component Description":  "Turns an item into a lamp shrine that accepts and records offerings of tagged lamp oils.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_OracularTripod",
+        "Component Description":  "Turns an item into an oracular tripod with liquid libations and an optional oracle response prog.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_TempleLibationTable",
+        "Component Description":  "Turns an item into a temple libation table that accepts and records tagged liquid libations.",
+        "Component Type":  "OfferingReceiver"
+    },
+    {
+        "Component Name":  "OfferingReceiver_Antiquity_VotiveBasin",
+        "Component Description":  "Turns an item into a votive basin that burns offerings immediately when offered.",
+        "Component Type":  "OfferingReceiver"
     },
     {
         "Component Name":  "Paper_A3",
@@ -17810,6 +18290,51 @@
         "Component Type":  "Restraint"
     },
     {
+        "Component Name":  "RidingGear_Bit",
+        "Component Description":  "Marks an item as a bit that completes bitted bridle control.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_BitlessBridle",
+        "Component Description":  "Marks an item as bitless riding control gear that should not take the missing-bit penalty.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_Bridle",
+        "Component Description":  "Marks an item as a bridle that improves mounted control.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_PackSaddle",
+        "Component Description":  "Marks an item as a pack saddle that counts as a saddle for bareback penalties.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_Reins",
+        "Component Description":  "Marks an item as reins or equivalent hand controls for a rider.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_RidingHarness",
+        "Component Description":  "Marks an item as harness-style riding control gear.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_Saddle",
+        "Component Description":  "Marks an item as a saddle that improves rider stability.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_SaddlePad",
+        "Component Description":  "Marks an item as a saddle pad that removes the no-pad riding penalty.",
+        "Component Type":  "RidingGear"
+    },
+    {
+        "Component Name":  "RidingGear_Stirrups",
+        "Component Description":  "Marks an item as stirrups that improve stay-mounted checks.",
+        "Component Type":  "RidingGear"
+    },
+    {
         "Component Name":  "Sealable_Antiquity_Archive_Jar_Cap",
         "Component Description":  "Lets a jar cap, amphora cover or archive vessel be sealed as tamper evidence.",
         "Component Type":  "Sealable"
@@ -18130,6 +18655,26 @@
         "Component Type":  "Torch"
     },
     {
+        "Component Name":  "SignalInstrument_FieldDrum",
+        "Component Description":  "A wearable field drum for sustained music and named battlefield signals.",
+        "Component Type":  "SignalInstrument"
+    },
+    {
+        "Component Name":  "SignalInstrument_Fife",
+        "Component Description":  "A military fife for sustained playing and sharp named calls.",
+        "Component Type":  "SignalInstrument"
+    },
+    {
+        "Component Name":  "SignalInstrument_KettleDrum",
+        "Component Description":  "A room-positioned kettle drum for loud battlefield signals.",
+        "Component Type":  "SignalInstrument"
+    },
+    {
+        "Component Name":  "SignalInstrument_SpeakingTrumpet",
+        "Component Description":  "A speaking trumpet for shipboard and field command signals.",
+        "Component Type":  "SignalInstrument"
+    },
+    {
         "Component Name":  "SignalLight_Beacon",
         "Component Description":  "Turns an item into a repeating signal beacon driven by a timer.",
         "Component Type":  "Signal Light"
@@ -18365,6 +18910,16 @@
         "Component Type":  "ThrownWeapon"
     },
     {
+        "Component Name":  "Throwing_Club",
+        "Component Description":  "Turns an item into a Throwing Club",
+        "Component Type":  "ThrownWeapon"
+    },
+    {
+        "Component Name":  "Throwing_Disc",
+        "Component Description":  "Turns an item into a Throwing Disc",
+        "Component Type":  "ThrownWeapon"
+    },
+    {
         "Component Name":  "Throwing_Knife",
         "Component Description":  "Turns an item into a throwing knife",
         "Component Type":  "ThrownWeapon"
@@ -18435,6 +18990,11 @@
         "Component Type":  "HandTool"
     },
     {
+        "Component Name":  "Tool_Artillery_General",
+        "Component Description":  "A general hand-tool profile for operating and maintaining artillery.",
+        "Component Type":  "HandTool"
+    },
+    {
         "Component Name":  "Tool_Blacksmithing_General",
         "Component Description":  "Turns an item into a general hand-tool component for medieval blacksmithing and ordinary forge work.",
         "Component Type":  "HandTool"
@@ -18442,6 +19002,11 @@
     {
         "Component Name":  "Tool_Bookbinding_General",
         "Component Description":  "Turns an item into a general hand-tool component for medieval bookbinding and codex assembly.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_CartridgeMaking_General",
+        "Component Description":  "A general hand-tool profile for measured charges and paper-cartridge production.",
         "Component Type":  "HandTool"
     },
     {
@@ -18457,6 +19022,11 @@
     {
         "Component Name":  "Tool_Glassblowing_General",
         "Component Description":  "Turns an item into a general hand-tool component for medieval glassblowing and hot-glass shaping.",
+        "Component Type":  "HandTool"
+    },
+    {
+        "Component Name":  "Tool_Gunsmithing_General",
+        "Component Description":  "A general hand-tool profile for firearm lock, barrel and maintenance work.",
         "Component Type":  "HandTool"
     },
     {
@@ -18775,6 +19345,71 @@
         "Component Type":  "Variable"
     },
     {
+        "Component Name":  "VehicleSeeder_CombustionEngine_Diesel",
+        "Component Description":  "A heavy diesel terrestrial engine matched to the vehicle seeder land-engine mount.",
+        "Component Type":  "Combustion Engine"
+    },
+    {
+        "Component Name":  "VehicleSeeder_CombustionEngine_Petrol",
+        "Component Description":  "A compact petrol terrestrial engine matched to the vehicle seeder land-engine mount.",
+        "Component Type":  "Combustion Engine"
+    },
+    {
+        "Component Name":  "VehicleSeeder_ElectricEngine_Traction",
+        "Component Description":  "An electric traction engine matched to the vehicle seeder electric-drive mount.",
+        "Component Type":  "Electric Engine"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Hitch_DraftHarness",
+        "Component Description":  "Turns an item into draft harness and traces suitable for linking pullers to a vehicle.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Hitch_HeavyTeamHarness",
+        "Component Description":  "Turns an item into heavy team harness, yoke and traces for large draft vehicles.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Hitch_HeavyTowBar",
+        "Component Description":  "Turns an item into a heavy rigid tow bar for large road vehicles.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Hitch_TowBar",
+        "Component Description":  "Turns an item into a rigid tow bar for compatible road vehicles.",
+        "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Installable_ElectricDrive",
+        "Component Description":  "Turns an item into a removable electric drive module for a matching terrestrial vehicle drive bay.",
+        "Component Type":  "Vehicle Installable"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Installable_LandEngine",
+        "Component Description":  "Turns an item into a removable fuelled drive module for a matching terrestrial vehicle engine bay.",
+        "Component Type":  "Vehicle Installable"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Installable_OutboardMotor",
+        "Component Description":  "Turns an item into an outboard-motor module for a matching vehicle installation point.",
+        "Component Type":  "Vehicle Installable"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Oar_Modern",
+        "Component Description":  "Turns an item into a durable modern vehicle oar.",
+        "Component Type":  "Vehicle Oar"
+    },
+    {
+        "Component Name":  "VehicleSeeder_Oar_Preindustrial",
+        "Component Description":  "Turns an item into a serviceable pre-industrial vehicle oar.",
+        "Component Type":  "Vehicle Oar"
+    },
+    {
+        "Component Name":  "VehicleSeeder_OutboardMotor_Petrol",
+        "Component Description":  "Turns an item into a small fuelled outboard motor for surface-water vehicles.",
+        "Component Type":  "Outboard Motor"
+    },
+    {
         "Component Name":  "Warded_Key",
         "Component Description":  "This is a key for locks in the \u0027warded\u0027 type (most pre-modern systems)",
         "Component Type":  "Simple Key"
@@ -18887,6 +19522,11 @@
     {
         "Component Name":  "Wear_Armet",
         "Component Description":  "Permits the item to be worn in the Armet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_ArmHarness",
+        "Component Description":  "Permits the item to be worn as ArmHarness",
         "Component Type":  "Wearable"
     },
     {
@@ -19062,6 +19702,11 @@
     {
         "Component Name":  "Wear_Breechcloth",
         "Component Description":  "Permits the item to be worn in the Breechcloth wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Breeches",
+        "Component Description":  "Permits the item to be worn in the Breeches wear configuration",
         "Component Type":  "Wearable"
     },
     {
@@ -19255,6 +19900,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_FullPlateHarness",
+        "Component Description":  "Permits the item to be worn as FullPlateHarness",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Gag",
         "Component Description":  "Permits the item to be worn in the Gag wear configuration",
         "Component Type":  "Wearable"
@@ -19340,6 +19990,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_HalfArmourHarness",
+        "Component Description":  "Permits the item to be worn as HalfArmourHarness",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Hat",
         "Component Description":  "Permits the item to be worn in the Hat wear configuration",
         "Component Type":  "Wearable"
@@ -19422,6 +20077,11 @@
     {
         "Component Name":  "Wear_Leggings",
         "Component Description":  "Permits the item to be worn in the Leggings wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_LegHarness",
+        "Component Description":  "Permits the item to be worn as LegHarness",
         "Component Type":  "Wearable"
     },
     {
@@ -19670,6 +20330,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_ShoulderArmHarness",
+        "Component Description":  "Permits the item to be worn as ShoulderArmHarness",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Shoulders",
         "Component Description":  "Permits the item to be worn in the Shoulders wear configuration",
         "Component Type":  "Wearable"
@@ -19725,6 +20390,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Stays",
+        "Component Description":  "Permits the item to be worn in the Stays wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Stockings",
         "Component Description":  "Permits the item to be worn in the Stockings wear configuration",
         "Component Type":  "Wearable"
@@ -19767,6 +20437,11 @@
     {
         "Component Name":  "Wear_Thong",
         "Component Description":  "Permits the item to be worn in the Thong wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_ThreeQuarterHarness",
+        "Component Description":  "Permits the item to be worn as ThreeQuarterHarness",
         "Component Type":  "Wearable"
     },
     {
@@ -20183,6 +20858,11 @@
         "Component Name":  "WornTraitChanger_VisualPerceptionPenalty_Severe",
         "Component Description":  "Makes worn masks, visors, or closed helmets interfere with visual perception. This is the severe grade at -10.0 per affected trait.",
         "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "Yumi",
+        "Component Description":  "Turns an item into a Yumi",
+        "Component Type":  "Bow"
     },
     {
         "Component Name":  "ZeroGravityAnchor_SetPiece",

@@ -7,6 +7,7 @@ This document consolidates the medieval clothing guidance and target catalogue f
 - Total target unique wearable item prototypes in this reference: **408**.
 - Post-implementation headwear and footwear expansion candidates in this revision: **44** — **22 headwear** and **22 footwear** rows. These are design candidates only and are not included in the implemented 408-row catalogue until matching seeder calls and full-description rows are added.
 - Total outfit manifests: **164**.
+- The ItemSeeder now upserts all **164** manifests as stock `OutfitTemplate` rows after the Medieval item phase, preserving document order as wear order and using each stable item reference as the template-local key.
 - Each inspiration family has four builder-facing outfit manifests: common male, elite male, common female, and elite female.
 - All target items are finished goods, skinnable, player-visible, and ordinary portable inventory items unless a later seeder implementation explicitly marks a narrow exception.
 - Public item fields should use culture-neutral, in-world descriptions. Builder-facing notes and outfit labels may still use historical inspiration labels for organization and source grounding.

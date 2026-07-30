@@ -350,6 +350,12 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
                 return false;
             }
 
+            if (Parent.GetItemType<ILockable>()?.IsLocked == true)
+            {
+                character.OutputHandler.Send($"The cash drawer of {Parent.HowSeen(character)} is locked.");
+                return false;
+            }
+
             IPermanentShop shop = Parent.TrueLocations.First().Shop;
             if (shop?.TillItems.Contains(Parent) != true || shop.IsEmployee(character) || ss.PopSpeech().EqualTo("!") ||
                 !character.Account.ActLawfully)
@@ -589,6 +595,11 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
         if (IsOpen)
         {
             return WhyCannotOpenReason.AlreadyOpen;
+        }
+
+        if (Parent.GetItemType<ILockable>()?.IsLocked == true)
+        {
+            return WhyCannotOpenReason.Locked;
         }
 
         return WhyCannotOpenReason.AlternateMechanism;

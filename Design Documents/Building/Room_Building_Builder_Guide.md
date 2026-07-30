@@ -95,6 +95,25 @@ rezone <zone>
 
 The `rooms` command can filter by zone and by keywords. Use `+keyword` to require text and `-keyword` to exclude text.
 
+### Moving a Zone Between Installations
+
+Senior administrators can export one or more zones to a versioned spatial-area package and import them into another FutureMUD installation:
+
+```text
+spatialpackage export zone "Harbour Ward" harbour-ward
+spatialpackage export zones harbour-district "Harbour Ward" "Warehouse Quarter"
+spatialpackage validate harbour-ward "Prime Material" "Imported Harbour Ward"
+spatialpackage import harbour-ward "Prime Material" confirm "Imported Harbour Ward"
+```
+
+Copy the generated `.fmsa.json` file from the source server's `Spatial Packages` directory into the same directory on the target server. On the target installation, open or create an `Under Design` cell overlay package before validation or import.
+
+An import always creates new zones and assigns new IDs to its rooms, cells, overlays, route metadata, and exits. It never merges into an existing zone or overwrites unrelated content. A name override is only available for a single-zone package. Validation checks package integrity, all internal references, the target shard's clocks and timezones, and named dependencies such as terrain, atmosphere, hearing profiles, weather controllers, forage profiles, tags, covers, and magic resources.
+
+Package version 3 preserves route-cell geometry, landmarks, exit anchors, multiple zones, exits linking selected zones, and any `AREA` group whose complete room membership is selected. Links to unselected zones, partially selected `AREA` groups, hooks, characters, items, and installed door items are omitted and shown as an enumerated list by export, validation, and import. Temporary dwelling cells are skipped with their rooms and links; empty legacy room records without cells are likewise skipped and reported. An exit with an installed door imports as a door-capable exit without that physical door. The exporter refuses cells whose faithful transfer requires data it does not carry: hosted vehicle interiors, agriculture fields, persisted cell effects, surface-liquid state, and fall exits that lead outside the selection. Versions 1 and 2 packages remain importable.
+
+See [Spatial Area Transfer Packages](../World/Spatial_Area_Transfer_Packages.md) for format, validation, remapping, and extension details.
+
 ### Rooms and Cells
 
 A cell is the concrete playable location. Rooms and cells are the same thing in the engine. They should be understood as synonyms.
@@ -279,13 +298,16 @@ Terrain models control room layers. Common model names include:
 - `indoors`: ground only.
 - `cave`: ground plus limited air.
 - `cliff`: air levels only.
-- `rooftops`: ground and rooftops.
+- `rooftops`: ground, rooftops, and air layers.
+- `rooftopsonly`: rooftops and air layers, with the roof as the lowest supported surface.
 - `trees`: ground, trees, and air.
 - `talltrees`: ground, multiple tree layers, and air.
 - `cavetrees`: cave-like tree layers.
 - `shallowwater`, `deepwater`, `verydeepwater`: water plus surface/air layers.
 - `underwater`, `deepunderwater`, `verydeepunderwater`: submerged layers only.
 - `shallowwatertrees`, `shallowwatercave`, `deepwatercave`, `verydeepwatercave`: water variants with tree or cave layers.
+
+See the [Room Layer System Primer](../World/Room_Layer_System_Primer.md) for the complete model table, exit intersection rules, movement and perception interactions, and worked rooftop, underwater, climbing, and flying patterns.
 
 Cell-level environment commands:
 
@@ -433,6 +455,7 @@ cell exit unblock <exit> <layer>
 ```
 
 Common layers include `GroundLevel`, `Underwater`, `DeepUnderwater`, `VeryDeepUnderwater`, `InTrees`, `HighInTrees`, `InAir`, `HighInAir`, and `OnRooftops`. Terrain controls which layers are available in a room.
+For the exact horizontal-intersection and up/down endpoint rules, see the [Room Layer System Primer](../World/Room_Layer_System_Primer.md).
 
 Hidden exits:
 

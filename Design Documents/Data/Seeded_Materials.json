@@ -5772,5 +5772,64 @@
                      "Materials / Natural Materials / Vegetation",
                      "Materials / Natural Materials / Agricultural Crop"
                  ]
+    },
+    {
+        "Material Name":  "beadwork",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "birch bark",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "brocade",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric",
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "damask",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric",
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "featherwork",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "gourd shell",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "hemp cloth",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "papier-mache",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Paper Product",
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "silk gauze",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric",
+                     "Materials / Manufactured Materials"
+                 ]
     }
 ]

@@ -279,7 +279,8 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     public bool CanBeAimedAtSelf => true;
 
     /// <inheritdoc />
-    IWeaponType IMeleeWeapon.WeaponType => _prototype.MeleeWeaponType;
+    IWeaponType IMeleeWeapon.WeaponType =>
+        _bayonet?.Parent.GetItemType<IMeleeWeapon>()?.WeaponType ?? _prototype.MeleeWeaponType;
 
     /// <inheritdoc />
     public WeaponClassification Classification => _prototype.RangedWeaponType.Classification;
@@ -792,7 +793,9 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanFire(ICharacter actor, IPerceivable target)
     {
-        return ReadyToFire;
+        return ReadyToFire &&
+               !IsJammed &&
+               _bayonet?.Parent.GetItemType<IBayonetAttachment>()?.BlocksFiring != true;
     }
 
     /// <inheritdoc />
@@ -813,6 +816,12 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             return $"You cannot fire {Parent.HowSeen(actor)} because it has not been readied.";
         }
 
+        if (_bayonet?.Parent.GetItemType<IBayonetAttachment>()?.BlocksFiring == true)
+        {
+            return
+                $"You cannot fire {Parent.HowSeen(actor)} while its plug bayonet is seated in the muzzle.";
+        }
+
         throw new ApplicationException(
             "Unknown WhyCannotFire reason in MusketGameItemComponent.WhyCannotFire");
     }
@@ -827,7 +836,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         // Do we misfire?
         bool misfire = false;
         bool catastrophy = false;
-        MusketCartridgeGameItemComponent cartridge = _magazineContents.FirstOrDefault()?.GetItemType<MusketCartridgeGameItemComponent>();
+        IMusketCartridge cartridge = _magazineContents.FirstOrDefault()?.GetItemType<IMusketCartridge>();
         bool wadused = false;
         IAmmo ammo = null;
 
@@ -845,7 +854,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                     type = cartridge.AmmoType;
                     bulletProto = cartridge.BulletProto;
                     ammo = cartridge;
-                    wadused = true;
+                    wadused = cartridge.IncludesWad;
                 }
 
                 break;
@@ -879,7 +888,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 break;
         }
 
-        catastrophy = _magazineContents.Count(x => x.IsItemType<MusketBallGameItemComponent>() || x.IsItemType<MusketCartridgeGameItemComponent>() || x.IsItemType<CommodityGameItemComponent>()) > 2;
+        catastrophy = _magazineContents.Count(x =>
+            x.IsItemType<MusketBallGameItemComponent>() ||
+            x.IsItemType<IMusketCartridge>() ||
+            x.IsItemType<CommodityGameItemComponent>()) > 2;
 
         // Otherwise use the expression
         if (!misfire)
@@ -1089,22 +1101,45 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
     public void AddConnectedItem(IBeltable item)
     {
-        // TODO - bayonets
-        // TODO - sights
         item.ConnectedTo?.RemoveConnectedItem(item);
-        _ramrod = item;
+        if (item.Parent.IsItemType<IBayonetAttachment>())
+        {
+            _bayonet = item;
+        }
+        else if (item.Parent.IsA(MusketGameItemComponentProto.RamrodTag))
+        {
+            _ramrod = item;
+        }
+        else if (_prototype.SightTag is not null && item.Parent.IsA(_prototype.SightTag))
+        {
+            _sights = item;
+        }
+        else
+        {
+            return;
+        }
+
         item.ConnectedTo = this;
         Changed = true;
     }
 
     public void RemoveConnectedItem(IBeltable item)
     {
-        // TODO - bayonets
-        // TODO - sights
+        if (_bayonet == item)
+        {
+            _bayonet = null;
+        }
+
         if (_ramrod == item)
         {
             _ramrod = null;
         }
+
+        if (_sights == item)
+        {
+            _sights = null;
+        }
+
         item.ConnectedTo = null;
         Changed = true;
     }
@@ -1116,8 +1151,19 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             return IBeltCanAttachBeltableResult.FailureTooLarge;
         }
 
-        // TODO - bayonets
-        // TODO - sights
+        var bayonet = beltable.Parent.GetItemType<IBayonetAttachment>();
+        if (bayonet is not null)
+        {
+            if (!bayonet.FitsBore(_prototype.BarrelBore))
+            {
+                return IBeltCanAttachBeltableResult.NotValidType;
+            }
+
+            return _bayonet is null
+                ? IBeltCanAttachBeltableResult.Success
+                : IBeltCanAttachBeltableResult.FailureExceedMaximumNumber;
+        }
+
         if (beltable.Parent.IsA(MusketGameItemComponentProto.RamrodTag))
         {
             if (_ramrod is not null)
@@ -1126,6 +1172,13 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             }
 
             return IBeltCanAttachBeltableResult.Success;
+        }
+
+        if (_prototype.SightTag is not null && beltable.Parent.IsA(_prototype.SightTag))
+        {
+            return _sights is null
+                ? IBeltCanAttachBeltableResult.Success
+                : IBeltCanAttachBeltableResult.FailureExceedMaximumNumber;
         }
 
         return IBeltCanAttachBeltableResult.NotValidType;

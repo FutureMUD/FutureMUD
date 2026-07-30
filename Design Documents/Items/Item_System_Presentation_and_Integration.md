@@ -192,6 +192,8 @@ Seals and measuring tools add a small player-facing command surface. `seal <targ
 
 Seal and calibration inspection uses existing appraisal-style skill evaluation rather than new check types. FutureProg item dots expose seal capability and state (`issealstamp`, `issealable`, `issealed`, `sealbroken`, `sealresidue`), seal metadata (`sealdesign`, `sealissuer`, `sealowner`, `sealclan`, `sealoffice`, `sealmaterial`, `sealmedium`, `sealingcharacterid`), and measurement state (`ismeasuringinstrument`, `measuringmode`, `calibrationbias`, `calibrationbiasispercent`, `calibrationdeliberate`, `usessincecalibration`).
 
+Liquid ritual offerings use `libate <amount|all> from <container> at <focus> [(emote)]`. Both the source and focus must be manipulable, the source must be held and open, and rejected attempts do not consume liquid. A successful action emits the configured room emote, consumes the exact offered mixture, runs the success/oracle integrations, fires focus and witness events, and updates the receiver's full-description summary. Oracle text is private to the offerer; global announcements, crime, clan, religion, and scenario consequences are left to FutureProg/event consumers. An oil-lamp shrine presents and operates its `Lantern` state independently from its `OfferingReceiver` libation state.
+
 Telephone presentation is not only textual state. For room-facing telephones and cellular phones, ringing is an audible output with an effective ring volume. Players adjust that through the ordinary `switch` command rather than a staff-only builder path: wired phones expose `quiet`, `normal`, and `loud`, while cellular phones also expose `silent`. Nearby rooms may hear ringing through ordinary audio-echo rules, but a silent cellular phone can still vibrate for the wearer if it is sitting inside a worn container. Implant telephones do not emit room audio and instead report ringing and connection progress through implant messaging.
 
 The current signal-automation slice has its own presentation and integration rules:
@@ -319,3 +321,18 @@ The strongest reference case is the new heater/cooler family:
 Physical ranged attacks against a vehicle occupant resolve the strongest applicable cover between the character's ordinary cover effect and the occupant slot's directional vehicle cover. Ammunition, thrown weapons, power-pack projectiles, and ranged natural attacks all use that shared result.
 
 When vehicle cover intercepts an attack, the exterior item is the visible cover provider for messaging only. The projectile does not call the exterior item's wound or damage path in this combat slice; boats are not damaged or capsized by occupant-directed attacks. Same-vehicle attackers bypass their own vehicle's cover, and aquatic hull assaults ignore ranged cover because they resolve an occupant stability effect rather than a projectile interception.
+
+## Historical Equipment Presentation and Integration
+
+- Lockable tills continue to present as shop cash drawers, with lock state layered into the full description and locked selection producing a direct error.
+- Restricted containers use their ordinary container presentation; their allowed and blocked functional tags are builder metadata rather than player-visible item taxonomy.
+- Attached bayonets remain separate perceivable items. The musket reports attachment state through its existing attachment presentation, while combat uses the bayonet item's own melee profile.
+- Tool-spanned crossbows emit the authored ready emote with the selected inventory tool and preserve their ordinary ranged-weapon timing, stamina, and evaluation text.
+- Riding and hitch gear should be described through the physical item and its wearable/armour/container decorators; functional roles must not replace source-faithful material, capacity, or appearance text.
+
+## Instruments, Signals, and Standards Presentation
+
+- Instrument output is an ordinary local emote plus spatial audio. The sustained tick retains the initial quality result but does not expose a numeric roll unless a game chooses to do so through hooks.
+- A failed named signal is audible as a garbled call; distant listeners do not learn the attempted pattern. Successful calls use the configured named output.
+- Planted standards gain a short-description marker. Full inspection shows custody, planted state, and capture count; identity, design, and association require recognition or administrator access.
+- The standard component exposes stable hooks and FutureProg queries for announcements, scoring, quests, NPC reactions, surrender, prize law, and later morale systems. Those integrations must decide their own policy and must not infer legal ownership transfer from capture custody.

@@ -73,7 +73,7 @@ Ritual-offering examples include:
 
 `UsefulSeeder` now ships stock component examples across those modern families, including lithium batteries, cellular devices, answering-machine tapes, computer/network gear, signal automation, gas containers, rebreathers, inhalers, defibrillators, and external-organ support machines. Its general item package also includes a broad furniture-container catalogue for tables, shelves, bookcases, racks, stands, cabinets, wardrobes, trunks, drawers, counters, bins, beds and display cases, size-labelled door, gate, glass-door, and locking-door component presets for door items intended to match exit `DoorSize` values from `Tiny` through `Gigantic`, contextual latch presets for containers, doors, gates, and portcullis-style barriers, public infinite water-source presets for taps, drinking fountains, pumps, standpipes, troughs, and communal cisterns, and Skill-Package-aware `WornTraitChanger` presets for worn stealth, movement, dexterity, sight, hearing, and athletic bonuses or penalties; the item prototype size itself must still be set on the item. Food presets now have two stock surfaces: `CookingSeeder` installs general `PreparedFood` examples for direct load, forageable stock, stackable servings, and cooking recipe products, while the antiquity food pass keeps its prepared-food prototypes, liquids, vessels, tools, commodity tags, spoilage rules, and crafts in `ItemSeeder` partials so it can consume `AnimalButcherySeeder` outputs without duplicating them. The primary-production historic item pass now seeds portable tool and carrying-aid prototypes with ordinary `Holdable`, `Destroyable_*`, and `Container_*` components, while visible resource deposits and static apparatus deliberately omit `Holdable` so builders can place them as fixed/non-gettable site markers. `AnimalButcherySeeder` installs raw butchery output item prototypes for stock animal and beast-only mythical race profiles. Those outputs are non-edible props by default, use simple held, destroyable, stackable composition, and are tagged for raw meat cuts, raw hides, offal, trophies, venom organs, and crafting animal products. Soft organic outputs morph into the generic rotten-meat prototype, while durable hard products such as bone, tusk, horn, chitin, shell, feather, scale, tooth, beak, claw, and antler remain stable crafting materials. Fax-machine examples and breathing-filter cartridge ecosystems remain later dedicated content passes.
 
-`UsefulSeeder` also ships antiquity ritual examples: `IncenseBurner_Antiquity_BronzeCenser`, `OfferingReceiver_Antiquity_HouseholdAltar`, `OfferingReceiver_Antiquity_VotiveBasin`, and `OfferingReceiver_Antiquity_FuneralTray`. Pair the censer with items tagged `Functions / Household Items / Household Religious Items / Incense Fuel`; the seeded `antiquity_resin_incense_pellets` item is the stock test fuel.
+`UsefulSeeder` also ships antiquity ritual examples: `IncenseBurner_Antiquity_BronzeCenser`; the item-only `OfferingReceiver_Antiquity_HouseholdAltar`, `OfferingReceiver_Antiquity_VotiveBasin`, and `OfferingReceiver_Antiquity_FuneralTray`; and four liquid-enabled profiles for a temple libation table, oil-lamp shrine, oracular tripod, and blood-offering bowl. Pair the censer with items tagged `Functions / Household Items / Household Religious Items / Incense Fuel`; the seeded `antiquity_resin_incense_pellets` item is the stock test fuel. Liquid examples use `Materials / Liquids / Ritual Offerings` descendants for libations, lamp oil, and blood offerings.
 
 Prepared-food examples include:
 - `comp edit new preparedfood`
@@ -106,6 +106,15 @@ Use:
 - `item clone <id|unique name>`
 
 Item prototype lookup prefers numeric ids, then exact `UniqueName`, then the legacy noun/name matching that older builder commands expect. Unique names are optional, case-insensitively unique among active revisions, and cannot be entirely numeric.
+
+### Bulk rename item unique names
+Use:
+- `item rename <match regex> <replacement text>`
+- `item rename "^antiquity_(?<name>.+)$" "historic_${name}"`
+
+The match expression is case-sensitive by default and operates only on nonblank `UniqueName` values belonging to `Current`, `PendingRevision`, or `UnderDesign` revisions. Standard .NET numbered and named replacement groups are supported; inline regex options such as `(?i)` can opt into case-insensitive matching. Quote either argument when it contains spaces, and use `""` as the replacement to clear every matched unique name.
+
+The command first displays the complete proposed old-to-new map. It checks the virtual final state against untouched active prototypes as well as other entries in the batch, so swaps and rename chains are safe. If the expression is invalid or times out, a result is entirely numeric, or distinct prototype IDs would share a case-insensitive name, no prototype is changed. A successful preflight applies all actual changes immediately and marks those revisions for normal persistence.
 
 Stock rework items seeded by `ItemSeeder` use their stable seeder reference as `UniqueName`. Their builder comments also carry stock-only metadata such as the stable reference, culture context when the catalogue item belongs to a culture-specific slice, and broad seeder package notes.
 
@@ -173,6 +182,8 @@ Commodity piles can also be governed by builder-owned `commodityspoilage` rules.
 ### Outfit template workflow
 Outfit templates are admin-only global editable data for creating full equipment sets from item prototypes. They are not revisable: changing a template only affects future loads, not any character outfits it has already created.
 
+The ItemSeeder also installs documented stock clothing manifests for selected eras after their item phases finish. Stock templates use deterministic names, stable prototype references as template-local keys, document order as wear order, and default-profile `Worn` placement. A stock ownership marker is kept in the description so reruns can reconcile seeder-owned templates without silently overwriting an unrelated builder-authored template with the same name; an unmarked name collision stops the seed operation for builder review.
+
 Use:
 - `outfittemplate list [<filters>]`
 - `outfittemplate show <id|name>`
@@ -200,6 +211,8 @@ Template item keys are stable within the template and are used for container, be
 The manual `outfittemplate load` command materialises a template directly onto a character without requiring a FutureProg. The optional `args <load args>` tail is appended to every template item's own load arguments, which lets admins apply common variable values such as colour across a whole outfit load.
 
 NPC templates can reference outfit templates as load-time additions. When a new NPC is created from the template, the outfit template materialises before the NPC template `OnLoadProg`, so scripts and AI can see the created gear. The NPC template stores only the outfit template id and optional created outfit name; item prototype validation and safe placement remain owned by the outfit template materializer.
+
+An on-load FutureProg can pre-contaminate materialised items with `exposetoliquid(item, liquidId, volume)`. The volume may be either a number in base fluid units or text with an explicit fluid-volume unit, such as `"25 ml"`. The function applies the specified volume from above through the normal surface-liquid system, so material absorbency, saturation descriptions, drying, residues, cleaning and persistence remain authoritative. It returns false for a null item, unknown liquid id, invalid unit expression or non-positive volume. This is intended for generated state such as blood-splattered NPC clothing; it does not fill liquid containers or bypass ordinary contamination behaviour.
 
 NPC templates can also create installed implants and prosthetics as load-time body equipment. These entries store template-local keys, current item prototype references, optional target bodyparts, and optional implant power or neural-link keys. At load time the engine creates real item instances, verifies that the created item exposes the expected implant or prosthetic component and is compatible with the NPC body, installs it through the normal body methods, then applies any power or neural links that resolve to installed implants.
 
@@ -250,7 +263,10 @@ For incense and offering content, validate:
 - `burn <item> at <focus>` for contained offerings, including default consumption and optional residue prototype replacement
 - `CanOfferProg`, `OnOfferProg`, and `OnBurnProg` with `(Character actor, Item focus, Item offering)`
 - `OfferingReceived`, `OfferingReceivedWitness`, `OfferingBurned`, and `OfferingBurnedWitness` event dispatch for downstream customisation
-- that direct free-liquid libations remain unsupported unless a later liquid-specific ritual component is added
+- `libate <amount|all> from <open held container> at <focus> [(emote)]` for accepted/rejected mixtures, volume bounds, actual source consumption, summary persistence, and copy reset
+- `CanOfferLiquidProg`, `WhyCannotOfferLiquidProg`, `OnOfferLiquidProg`, and `OracleResponseProg` with `(Character actor, Item focus, Item source, LiquidMixture liquid, Number amount)`
+- blocked-liquid precedence, unrestricted empty allow lists, and descendant-tag admission for every constituent liquid in a mixture
+- `LiquidOfferingReceived` and `LiquidOfferingReceivedWitness` event dispatch exactly once after successful consumption
 
 For the current signal-automation slice, also validate:
 - whether `computerhost` correctly tracks its powered state, mounted storage devices, terminal connections, network adapters, files, and stored executables
@@ -544,3 +560,23 @@ Recommended validation passes by family:
   - load it with correctly tagged fuel
   - confirm untagged items are rejected
   - confirm fuel burns one item at a time in load order
+
+## Historical Equipment Closure Workflow
+
+When closing an item-content dependency:
+
+1. confirm whether the capability already exists before introducing a new component family;
+2. implement and test runtime persistence and builder commands;
+3. seed component profiles and stock items with stable names and rerun-repair behavior;
+4. export `Seeded_Item_Components.json`, `Item_Component_Types.json` when applicable, and `SeededTagHierarchy.csv`;
+5. update the era source reference and consolidated dependency ledger only after source and export names match.
+
+For the initial historical-arms tranche, verify locked till selection, container tag admission, legacy paper-cartridge XML, musket charge/bore compatibility, bayonet slot and firing rules, spanning-tool inventory plans, and crossbow ready-state persistence.
+
+For the standards, signals, and instruments tranche, additionally verify:
+
+1. all nine Antiquity instruments can start, tick, stop, and interrupt through their intended physical use mode;
+2. the four signal profiles accept only their named patterns, enforce a per-item cooldown, and keep failed audio unrecognisable;
+3. all six standard profiles begin unowned, unclaimed, unassociated, unplanted, and at zero captures;
+4. character and clan ownership, a configured `CanBearProg`, hostile transfers, recovery, planting, ownership changes, copy/reset behavior, and exact-once hooks follow the custody contract;
+5. rerunning either seeder repairs owned definitions and associations without duplicating rows or altering unrelated builder content.

@@ -1,5 +1,7 @@
 ﻿using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Body.Position.PositionStates;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Movement;
 
@@ -130,6 +132,7 @@ internal static class VehicleMovementCommand
 public class VehicleMovement : IMovement
 {
 	private readonly CellExitVehicleMovementStrategy _strategy = new();
+	private readonly VehicleMotiveCohortService _motiveCohortService = new();
 	private readonly IVehicle _vehicle;
 	private readonly ICharacter _originalMover;
 	private readonly List<ICharacter> _characterMovers;
@@ -137,6 +140,7 @@ public class VehicleMovement : IMovement
 	private (CellMovementTransition TransitionType, RoomLayer TargetLayer) _transition;
 	private VehicleMovementReadinessResult _readiness;
 	private VehiclePropulsionMovePlan _propulsionPlan;
+	private VehicleMotiveCohort _motiveCohort;
 
 	public VehicleMovement(IVehicle vehicle, ICharacter originalMover, ICellExit exit)
 	{
@@ -170,21 +174,32 @@ public class VehicleMovement : IMovement
 	public MovementPhase Phase { get; private set; }
 	public IEnumerable<ICharacter> CharacterMovers => _characterMovers.ToArray();
 	public IParty Party { get; }
-	public IEnumerable<IDragging> DragEffects => [];
-	public IEnumerable<ICharacter> Draggers => [];
-	public IEnumerable<ICharacter> Helpers => [];
+	public IEnumerable<IDragging> DragEffects => _motiveCohort?.Roots
+		.SelectMany(x => x.EffectsOfType<IDragging>())
+		.Distinct() ?? [];
+	public IEnumerable<ICharacter> Draggers => DragEffects.SelectMany(x => x.CharacterDraggers).Distinct();
+	public IEnumerable<ICharacter> Helpers => DragEffects.SelectMany(x => x.Helpers).Distinct();
 	public IEnumerable<ICharacter> NonDraggers => _characterMovers.ToArray();
 	public IEnumerable<ICharacter> NonConsensualMovers => [];
-	public IEnumerable<ICharacter> Mounts => [];
+	public IEnumerable<ICharacter> Mounts => _motiveCohort?.Characters.Where(x => x.Riders.Any()) ?? [];
 	public IEnumerable<IPerceivable> Targets => _vehicle.ExteriorItem is null ? [] : [_vehicle.ExteriorItem];
 	public IReadOnlyDictionary<ICharacter, ISneakMoveEffect> SneakMoveEffects { get; } =
 		new Dictionary<ICharacter, ISneakMoveEffect>();
 	public TimeSpan Duration { get; private set; }
-	public double StaminaMultiplier => 0.0;
+	public double StaminaMultiplier => _motiveCohort is null ? 0.0 : 1.0;
 
 	public MovementType MovementTypeForMover(ICharacter mover)
 	{
-		return MovementType.Upright;
+		return mover.CurrentSpeed?.Position switch
+		{
+			PositionClimbing => MovementType.Climbing,
+			PositionSwimming => MovementType.Swimming,
+			PositionProne => MovementType.Crawling,
+			PositionProstrate => MovementType.Prostrate,
+			PositionFlying => MovementType.Flying,
+			PositionFloatingInZeroGravity => MovementType.Floating,
+			_ => MovementType.Upright
+		};
 	}
 
 	public bool Cancel()
@@ -223,7 +238,9 @@ public class VehicleMovement : IMovement
 			return false;
 		}
 
-		if (CharacterInstanceIdentityComparer.SamePhysicalInstance(ch, _originalMover) && !Cancelled)
+		if (!Cancelled &&
+		    (CharacterInstanceIdentityComparer.SamePhysicalInstance(ch, _originalMover) ||
+		     _motiveCohort?.Characters.ContainsPhysicalInstance(ch) == true))
 		{
 			return Cancel();
 		}
@@ -290,6 +307,32 @@ public class VehicleMovement : IMovement
 			return;
 		}
 
+		if (_readiness.ExternalPullers?.Any() == true)
+		{
+			var origin = RouteSpatialService.Instance.GetEffectiveLocation(_vehicle.ExteriorItem);
+			if (!_motiveCohortService.TryBuild(_readiness.ExternalPullers, origin, out _motiveCohort, out reason) ||
+			    !VehicleMotiveCohortService.CanTraverseExit(_motiveCohort, _readiness.MovePlan!, Exit,
+				    _originalMover, out reason))
+			{
+				_originalMover.OutputHandler.Send(reason);
+				return;
+			}
+
+			foreach (var character in _motiveCohort.Characters)
+			{
+				if (!_characterMovers.ContainsPhysicalInstance(character))
+				{
+					_characterMovers.Add(character);
+				}
+			}
+
+			var motiveDuration = _motiveCohort.StaminaMovers
+				.Select(x => Math.Max(0.0, x.MoveSpeed(Exit)))
+				.DefaultIfEmpty(Duration.TotalMilliseconds)
+				.Max();
+			Duration = TimeSpan.FromMilliseconds(motiveDuration);
+		}
+
 		if (!_strategy.TryCommitPropulsion(_readiness, out _propulsionPlan, out reason))
 		{
 			_originalMover.OutputHandler.Send(reason);
@@ -298,7 +341,15 @@ public class VehicleMovement : IMovement
 
 		if (_propulsionPlan is not null)
 		{
-			Duration = _propulsionPlan.Duration;
+			if (_motiveCohort is null)
+			{
+				Duration = _propulsionPlan.Duration;
+			}
+
+			foreach (var engine in (_propulsionPlan.Engines ?? []).Where(x => x.Available))
+			{
+				engine.Engine?.EmitOperatingNoise();
+			}
 		}
 
 		Exit.Origin.RegisterMovement(this);
@@ -348,7 +399,17 @@ public class VehicleMovement : IMovement
 			return;
 		}
 
+		if (_motiveCohort is not null)
+		{
+			VehicleMotiveCohortService.MoveAcrossExit(_motiveCohort, _readiness.MovePlan!, Exit, this);
+		}
+
 		_strategy.CompleteMove(_vehicle, Exit, _transition, _readiness, this);
+		if (_motiveCohort is not null)
+		{
+			VehicleMotiveCohortService.MoveExtraItemsAcrossExit(_motiveCohort, _readiness.MovePlan!, Exit,
+				_transition.TargetLayer);
+		}
 		if (_vehicle is Vehicle roomScaleVehicle && _vehicle.Prototype.Scale == VehicleScale.RoomScale)
 		{
 			roomScaleVehicle.EchoHostedInteriors("The vehicle settles as it arrives at its next location.");

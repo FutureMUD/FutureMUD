@@ -2446,6 +2446,7 @@ The syntax for this command is as follows:
         }
 
         Gas newGas = new(name, actor.Gameworld);
+        actor.Gameworld.Add(newGas);
         actor.OutputHandler.Send(
             $"You create a new gas called {name.Colour(newGas.DisplayColour)} with ID #{newGas.Id.ToString("N0", actor)}, which you are now editing.");
         actor.RemoveAllEffects<BuilderEditingEffect<IGas>>();
@@ -2480,11 +2481,12 @@ The syntax for this command is as follows:
             return;
         }
 
-        IGas newMaterial = gas.Clone(name);
-        actor.OutputHandler.Send(
-            $"You clone the gas {gas.Name.Colour(gas.DisplayColour)} as {name.Colour(gas.DisplayColour)} with ID #{newMaterial.Id.ToString("N0", actor)}, which you are now editing.");
+        IGas newGas = gas.Clone(name);
+		actor.Gameworld.Add(newGas);
+		actor.OutputHandler.Send(
+            $"You clone the gas {gas.Name.Colour(gas.DisplayColour)} as {name.Colour(gas.DisplayColour)} with ID #{newGas.Id.ToString("N0", actor)}, which you are now editing.");
         actor.RemoveAllEffects<BuilderEditingEffect<IGas>>();
-        actor.AddEffect(new BuilderEditingEffect<IGas>(actor) { EditingItem = newMaterial });
+        actor.AddEffect(new BuilderEditingEffect<IGas>(actor) { EditingItem = newGas });
     }
 
     private static void GasList(ICharacter actor, StringStack command)

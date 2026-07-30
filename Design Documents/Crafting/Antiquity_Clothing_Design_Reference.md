@@ -497,6 +497,8 @@ Catalogue line format: `uniqueReference` - public short description; noun; prima
 
 ## Validation outcome
 
+- The ItemSeeder now upserts all **29** documented outfit manifests as stock `OutfitTemplate` rows after the selected-era item phases complete.
+- Six Egyptian manifest dependencies that were previously documented but absent from the direct item catalogue are now seeded from their exact catalogue specifications before outfit upsert.
 - The accepted output contains no hidden or non-skinnable items.
 - All accepted items use `null` for long description, morph target, morph emote, morph timer, and destroyed-item reference.
 - The accepted item catalogues were checked against seeded component, material, and tag names during generation.

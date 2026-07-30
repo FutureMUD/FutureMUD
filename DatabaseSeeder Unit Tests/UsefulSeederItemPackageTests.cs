@@ -566,6 +566,182 @@ public class UsefulSeederItemPackageTests
 	}
 
 	[TestMethod]
+	public void SeedEraDependencyComponentsForTesting_CreatesExactSupportedProfilesAndIsIdempotent()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		context.GameItemComponentProtos.Add(CreateComponentMarker(
+			200,
+			"LockingContainer_PreIndustrial_SmallCabinet",
+			"Container"));
+		context.SaveChanges();
+		UsefulSeeder seeder = new();
+
+		seeder.SeedEraDependencyComponentsForTesting(context);
+		seeder.SeedEraDependencyComponentsForTesting(context);
+
+		string[] dryContainers =
+		[
+			"Container_PreIndustrial_CompartmentBox",
+			"Container_PreIndustrial_LiddedBasket",
+			"Container_PreIndustrial_LiddedHamper",
+			"Container_PreIndustrial_Display_Plinth"
+		];
+		string[] liquidContainers =
+		[
+			"LContainer_PreIndustrial_Cup_150ml",
+			"LContainer_PreIndustrial_Bowl_750ml",
+			"LContainer_PreIndustrial_Basin_5L",
+			"LContainer_PreIndustrial_Ewer_2L",
+			"LContainer_PreIndustrial_Pitcher_4L",
+			"LContainer_PreIndustrial_Pot_12L",
+			"LContainer_PreIndustrial_StorageJar_12L",
+			"LContainer_PreIndustrial_StorageJar_30L",
+			"LContainer_PreIndustrial_Vat_125L",
+			"LContainer_PreIndustrial_Vat_500L"
+		];
+		string[] lockingContainers =
+		[
+			"LockingContainer_PreIndustrial_SmallCabinet",
+			"LockingContainer_PreIndustrial_LargeCabinet",
+			"LockingContainer_PreIndustrial_DrawerChest",
+			"LockingContainer_PreIndustrial_DisplayCabinet",
+			"LockingContainer_PreIndustrial_Desk"
+		];
+		string[] handTools =
+		[
+			"Tool_Artillery_General",
+			"Tool_CartridgeMaking_General",
+			"Tool_Gunsmithing_General"
+		];
+		string[] instruments =
+		[
+			"Instrument_Antiquity_WoodenLyre",
+			"Instrument_Antiquity_Kithara",
+			"Instrument_Antiquity_ReedFlute",
+			"Instrument_Antiquity_DoubleAulos",
+			"Instrument_Antiquity_FrameDrum",
+			"Instrument_Antiquity_Sistrum",
+			"Instrument_Antiquity_BronzeWarHorn",
+			"Instrument_Antiquity_ShipSignalTrumpet",
+			"Instrument_Antiquity_TempleRitualRattle"
+		];
+		string[] signalInstruments =
+		[
+			"SignalInstrument_FieldDrum",
+			"SignalInstrument_KettleDrum",
+			"SignalInstrument_Fife",
+			"SignalInstrument_SpeakingTrumpet"
+		];
+		string[] militaryStandards =
+		[
+			"MilitaryStandard_InfantryColour",
+			"MilitaryStandard_CavalryStandard",
+			"MilitaryStandard_Guidon",
+			"MilitaryStandard_NavalEnsign",
+			"MilitaryStandard_Pennant",
+			"MilitaryStandard_SignalFlag"
+		];
+		string[] expectedNames = dryContainers
+			.Concat(liquidContainers)
+			.Concat(lockingContainers)
+			.Concat(handTools)
+			.Concat(instruments)
+			.Concat(signalInstruments)
+			.Concat(militaryStandards)
+			.Append("CashRegister_PreIndustrial_TillChest")
+			.Append("Container_CartridgeBandolier")
+			.ToArray();
+
+		foreach (string name in expectedNames)
+		{
+			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name),
+				$"Expected one approved prototype named {name} after a rerun.");
+		}
+
+		Assert.AreEqual(expectedNames.Length,
+			context.GameItemComponentProtos.Count(x => expectedNames.Contains(x.Name)));
+		Assert.AreEqual(1,
+			context.GameItemComponentProtos.Count(x => x.Name == "CashRegister_PreIndustrial_TillChest"));
+		Assert.IsTrue(dryContainers.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "Container"));
+		Assert.IsTrue(liquidContainers.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "Liquid Container"));
+		Assert.IsTrue(lockingContainers.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "LockingContainer"));
+		Assert.IsTrue(handTools.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "HandTool"));
+		Assert.IsTrue(instruments.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "Instrument"));
+		Assert.IsTrue(signalInstruments.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "SignalInstrument"));
+		Assert.IsTrue(militaryStandards.All(name =>
+			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "MilitaryStandard"));
+		Assert.AreEqual("LockingCashRegister",
+			context.GameItemComponentProtos.Single(x => x.Name == "CashRegister_PreIndustrial_TillChest").Type);
+		Assert.AreEqual("Container",
+			context.GameItemComponentProtos.Single(x => x.Name == "Container_CartridgeBandolier").Type);
+
+		XElement Definition(string name) =>
+			XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == name).Definition);
+
+		Assert.AreEqual(5000.0,
+			(double)Definition("Container_PreIndustrial_CompartmentBox").Attribute("Weight")!);
+		Assert.IsTrue((bool)Definition("Container_PreIndustrial_LiddedBasket").Attribute("Closable")!);
+		Assert.AreEqual("on",
+			(string)Definition("Container_PreIndustrial_Display_Plinth").Attribute("Preposition")!);
+		Assert.IsFalse((bool)Definition("Container_PreIndustrial_Display_Plinth").Attribute("Closable")!);
+
+		(string Name, double Capacity, bool Closable)[] liquidExpectations =
+		[
+			("LContainer_PreIndustrial_Cup_150ml", 0.15, false),
+			("LContainer_PreIndustrial_Bowl_750ml", 0.75, false),
+			("LContainer_PreIndustrial_Basin_5L", 5.0, false),
+			("LContainer_PreIndustrial_Ewer_2L", 2.0, false),
+			("LContainer_PreIndustrial_Pitcher_4L", 4.0, false),
+			("LContainer_PreIndustrial_Pot_12L", 12.0, false),
+			("LContainer_PreIndustrial_StorageJar_12L", 12.0, true),
+			("LContainer_PreIndustrial_StorageJar_30L", 30.0, true),
+			("LContainer_PreIndustrial_Vat_125L", 125.0, false),
+			("LContainer_PreIndustrial_Vat_500L", 500.0, false)
+		];
+		foreach ((string name, double capacity, bool closable) in liquidExpectations)
+		{
+			XElement definition = Definition(name);
+			Assert.AreEqual(capacity, (double)definition.Attribute("LiquidCapacity")!, name);
+			Assert.AreEqual(closable, (bool)definition.Attribute("Closable")!, name);
+			Assert.IsFalse((bool)definition.Attribute("Transparent")!, name);
+		}
+
+		Assert.IsTrue((bool)Definition("LockingContainer_PreIndustrial_DisplayCabinet")
+			.Attribute("Transparent")!);
+		Assert.IsTrue(lockingContainers.All(name =>
+			Definition(name).Element("LockType")?.Value == "Ward Lock"));
+		Assert.AreEqual("Ward Lock",
+			Definition("CashRegister_PreIndustrial_TillChest").Element("LockType")?.Value);
+		CollectionAssert.AreEquivalent(
+			new[]
+			{
+				context.Tags.Single(x => x.Name == "Paper Cartridges").Id,
+				context.Tags.Single(x => x.Name == "Wooden Powder Charges").Id
+			},
+			Definition("Container_CartridgeBandolier").Element("AllowedTags")!
+				.Elements("Tag")
+				.Select(x => (long)x)
+				.ToArray());
+		Assert.AreEqual(10.0,
+			(double)Definition("Instrument_Antiquity_WoodenLyre").Element("TickSeconds")!);
+		Assert.AreEqual(6,
+			Definition("MilitaryStandard_SignalFlag").Element("Signals")!.Elements("Signal").Count());
+		Assert.AreEqual("None",
+			(string)Definition("MilitaryStandard_NavalEnsign").Element("AssociationType")!);
+		Assert.AreEqual(0,
+			(long)Definition("MilitaryStandard_InfantryColour").Element("CanBearProg")!);
+		Assert.AreEqual(5.0,
+			(double)Definition("SignalInstrument_FieldDrum").Element("SignalStamina")!);
+	}
+
+	[TestMethod]
 	public void SeedVariablesForTesting_CreatesMedievalJewelleryVariableComponents()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -983,7 +1159,11 @@ public class UsefulSeederItemPackageTests
 			"IncenseBurner_Antiquity_BronzeCenser",
 			"OfferingReceiver_Antiquity_HouseholdAltar",
 			"OfferingReceiver_Antiquity_VotiveBasin",
-			"OfferingReceiver_Antiquity_FuneralTray"
+			"OfferingReceiver_Antiquity_FuneralTray",
+			"OfferingReceiver_Antiquity_TempleLibationTable",
+			"OfferingReceiver_Antiquity_OilLampShrine",
+			"OfferingReceiver_Antiquity_OracularTripod",
+			"OfferingReceiver_Antiquity_BloodOfferingBowl"
 		];
 
 		foreach (string name in expectedNames)
@@ -1050,6 +1230,21 @@ public class UsefulSeederItemPackageTests
 			(string)Definition("OfferingReceiver_Antiquity_HouseholdAltar").Element("ConsumptionMode")!);
 		Assert.AreEqual("BurnOnOffer",
 			(string)Definition("OfferingReceiver_Antiquity_VotiveBasin").Element("ConsumptionMode")!);
+		var libationDefinition = Definition("OfferingReceiver_Antiquity_TempleLibationTable");
+		Assert.IsTrue((bool)libationDefinition.Element("AcceptsLiquidOfferings")!);
+		Assert.AreEqual(0.05, (double)libationDefinition.Element("MinimumLiquidOfferingVolume")!);
+		Assert.AreEqual(2.0, (double)libationDefinition.Element("MaximumLiquidOfferingVolume")!);
+		var libationTagId = (long)libationDefinition.Element("AllowedLiquidTags")!.Element("Tag")!;
+		var lampOilTagId = (long)Definition("OfferingReceiver_Antiquity_OilLampShrine")
+			.Element("AllowedLiquidTags")!.Element("Tag")!;
+		var bloodOfferingTagId = (long)Definition("OfferingReceiver_Antiquity_BloodOfferingBowl")
+			.Element("AllowedLiquidTags")!.Element("Tag")!;
+		Assert.AreEqual("Libation",
+			context.Tags.Single(x => x.Id == libationTagId).Name);
+		Assert.AreEqual("Lamp Oil",
+			context.Tags.Single(x => x.Id == lampOilTagId).Name);
+		Assert.AreEqual("Blood Offering",
+			context.Tags.Single(x => x.Id == bloodOfferingTagId).Name);
 
 		XElement loadedDie = Definition("Dice_Antiquity_LoadedD6");
 		Assert.AreEqual(6, loadedDie.Element("Faces")!.Elements("Face").Count());
@@ -1095,16 +1290,24 @@ public class UsefulSeederItemPackageTests
 			new Tag { Id = 1, Name = "Functions" },
 			new Tag { Id = 2, Name = "Tools", ParentId = 1 },
 			new Tag { Id = 3, Name = "Scientific Tools", ParentId = 2 },
-			new Tag { Id = 4, Name = "Measurement Tools", ParentId = 3 });
+			new Tag { Id = 4, Name = "Measurement Tools", ParentId = 3 },
+			new Tag { Id = 5, Name = "Military Equipment", ParentId = 1 },
+			new Tag { Id = 6, Name = "Military Ammunition", ParentId = 5 },
+			new Tag { Id = 7, Name = "Paper Cartridges", ParentId = 6 },
+			new Tag { Id = 8, Name = "Wooden Powder Charges", ParentId = 6 });
 		context.SaveChanges();
 		SeedMarketCategories(context);
 		UsefulSeeder usefulSeeder = new();
 		usefulSeeder.SeedAntiquityComponentGapCoverageForTesting(context);
+		usefulSeeder.SeedEraDependencyComponentsForTesting(context);
+		usefulSeeder.SeedGeneralCoverageForTesting(context);
 		EnsureComponentMarkers(context,
 			"Destroyable_Misc",
 			"Destroyable_Furniture",
 			"Destroyable_WoodenHeavy",
 			"Destroyable_HeavyMetal",
+			"Destroyable_Clothing",
+			"Destroyable_Armour",
 			"Destroyable_Shield",
 			"Container_Tray",
 			"Container_Pouch",
@@ -1114,8 +1317,13 @@ public class UsefulSeederItemPackageTests
 			"LContainer_Amphora_Urna",
 			"Wear_Ring",
 			"Wear_Waist",
+			"Wear_Saddle",
+			"Wear_Bridle",
+			"Armour_LeatherScale",
+			"Container_PreIndustrial_LiddedHamper",
 			"Keyring_Large",
 			"LockingContainer_Lockbox",
+			"Lantern",
 			"Dice_d6");
 		ItemSeeder itemSeeder = new();
 
@@ -1164,7 +1372,7 @@ public class UsefulSeederItemPackageTests
 
 		GameItemProto measuringRod = LoadItem(context, "antiquity_wooden_measuring_rod");
 		CollectionAssert.DoesNotContain(ComponentNames(measuringRod), "MeasuringInstrument_Antiquity_BalanceScale",
-			"Length measurement is deferred, so the rod should remain a non-measuring prop.");
+			"The rod is intentionally a static prop and should not receive an unrelated measuring component.");
 
 		GameItemProto censer = LoadItem(context, "antiquity_bronze_incense_censer");
 		CollectionAssert.Contains(ComponentNames(censer), "IncenseBurner_Antiquity_BronzeCenser");
@@ -1183,6 +1391,40 @@ public class UsefulSeederItemPackageTests
 
 		GameItemProto funeralTray = LoadItem(context, "antiquity_funeral_offering_tray");
 		CollectionAssert.Contains(ComponentNames(funeralTray), "OfferingReceiver_Antiquity_FuneralTray");
+
+		GameItemProto libationTable = LoadItem(context, "antiquity_temple_libation_table");
+		CollectionAssert.Contains(ComponentNames(libationTable), "OfferingReceiver_Antiquity_TempleLibationTable");
+		GameItemProto lampShrine = LoadItem(context, "antiquity_oil_lamp_shrine");
+		CollectionAssert.IsSubsetOf(
+			new[] { "OfferingReceiver_Antiquity_OilLampShrine", "Lantern" },
+			ComponentNames(lampShrine));
+		GameItemProto oracularTripod = LoadItem(context, "antiquity_oracular_tripod");
+		CollectionAssert.Contains(ComponentNames(oracularTripod), "OfferingReceiver_Antiquity_OracularTripod");
+		GameItemProto bloodBowl = LoadItem(context, "antiquity_blood_offering_bowl");
+		CollectionAssert.Contains(ComponentNames(bloodBowl), "OfferingReceiver_Antiquity_BloodOfferingBowl");
+
+		var libationTag = context.Tags.Single(x => x.Name == "Libation");
+		Assert.AreEqual(1, context.LiquidsTags.Count(x => x.LiquidId == 1 && x.TagId == libationTag.Id),
+			"Rerunning the item seeder should preserve one stable water-to-libation association.");
+
+		GameItemProto bridle = LoadItem(context, "antiquity_leather_bridle");
+		CollectionAssert.IsSubsetOf(new[] { "Wear_Bridle", "RidingGear_Bridle" }, ComponentNames(bridle));
+		GameItemProto panniers = LoadItem(context, "antiquity_mule_pannier_set");
+		CollectionAssert.IsSubsetOf(
+			new[] { "Wear_Saddle", "RidingGear_PackSaddle", "Container_PreIndustrial_LiddedHamper" },
+			ComponentNames(panniers));
+		GameItemProto yoke = LoadItem(context, "antiquity_ox_yoke");
+		CollectionAssert.Contains(ComponentNames(yoke), "HitchGear_Yoke");
+		GameItemProto harness = LoadItem(context, "antiquity_chariot_harness");
+		CollectionAssert.Contains(ComponentNames(harness), "HitchGear_Harness");
+		GameItemProto barding = LoadItem(context, "antiquity_warhorse_barding_harness");
+		CollectionAssert.IsSubsetOf(
+			new[] { "RidingGear_RidingHarness", "Armour_LeatherScale", "Wear_Saddle" },
+			ComponentNames(barding));
+		GameItemProto halter = LoadItem(context, "antiquity_rope_lead_halter");
+		CollectionAssert.IsSubsetOf(
+			new[] { "RidingGear_BitlessBridle", "HitchGear_LeadRope", "Wear_Bridle" },
+			ComponentNames(halter));
 	}
 
 	[TestMethod]

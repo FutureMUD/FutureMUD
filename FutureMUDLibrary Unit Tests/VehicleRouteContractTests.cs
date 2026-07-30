@@ -92,6 +92,7 @@ public class VehicleRouteContractTests
 		public bool ExposesOccupantsToWater => false;
 		public bool IsDefault => true;
 		public double RequiredPowerSpikeInWatts => 0.0;
+		public double MinimumEnginePowerInWatts => 0.0;
 		public long? FuelLiquidId => null;
 		public double FuelVolumePerMove => 0.0;
 		public string RequiredInstalledRole => string.Empty;

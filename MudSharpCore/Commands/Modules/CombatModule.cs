@@ -3487,6 +3487,7 @@ The syntax to use this command is as follows:");
 	#3auto_ranged <auto|manual|continue_only>#0 - changes the degree of automation of your ranged combat
 	#3auto_move <auto|manual|cover_only|keep_range>#0 - changes the degree of automation of your combat movement
 	#3auto_position#0 - Toggle whether position will be managed automatically
+	#3upright <true|false>#0 - configures whether standing up takes priority over attacking from a lower position
 	#3auto_melee#0 - Toggle whether you will automatically move to melee if you are unable to engage in ranged combat
 	#3terrestrial <true|false>#0 - configures whether AI prefers boarding a vehicle over fighting from the water
 	#3movetotarget#0 - Toggle whether you will try to close to the same room as a distant target
@@ -4430,6 +4431,21 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
             : StringUtilities.HMark + "You will allow some automated position management.");
     }
 
+	private static void CombatConfigUpright(ICharacter actor, StringStack command)
+	{
+		var truth = GetTruthValue(actor, command, actor.CombatSettings.PreferToStandOverAttacking);
+		if (truth is null)
+		{
+			return;
+		}
+
+		actor.CombatSettings.PreferToStandOverAttacking = truth.Value;
+		actor.CombatSettings.Changed = true;
+		actor.Send(truth.Value
+			? StringUtilities.HMark + "You will now prefer to stand up before attacking from a lower position."
+			: StringUtilities.HMark + "You will now prefer to attack from a lower position before standing up.");
+	}
+
     private static void CombatConfigMeleeStrategy(ICharacter actor, StringStack command)
     {
         List<CombatStrategyMode> meleeStrategies = Enum.GetValues(typeof(CombatStrategyMode)).OfType<CombatStrategyMode>()
@@ -4827,6 +4843,11 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
             case "auto_position":
                 CombatConfigPosition(actor, command);
                 break;
+			case "upright":
+			case "prefer_upright":
+			case "preferupright":
+				CombatConfigUpright(actor, command);
+				break;
             case "aim":
                 CombatConfigAim(actor, command);
                 break;

@@ -9,7 +9,7 @@ The medieval `ItemSeeder` item and craft implementation was reset to launch stub
 - `SeedMedievalClothing` contains the direct clothing item `CreateItem(...)` calls.
 - `SeedMedievalContainers` contains the direct household, trade, personal, and furniture-container `CreateItem(...)` calls.
 - `SeedMedievalDoorsLocksAndStrongboxes` contains the direct door, gate, grate, lock, latch, key, and lock-hardware `CreateItem(...)` calls.
-- `SeedMedievalFoodAndBeverageItems` contains the direct food-service, tableware, and household-vessel `CreateItem(...)` calls.
+- `SeedMedievalFoodAndBeverageItems` contains the direct food-service, tableware, and household-vessel `CreateItem(...)` calls, then installs the Medieval-specific branch of the typed pre-industrial food catalogue.
 - `SeedMedievalJewelleryAndDevotionalGoods` contains the direct decorative jewellery, religious container, and devotional furnishing `CreateItem(...)` calls.
 - `SeedMedievalHouseholdFurniture` contains the direct furniture, lighting, heating, water-source, washing-fixture, and decoration `CreateItem(...)` calls.
 - `SeedMedievalWeaponsShieldsAccessories` contains the direct melee weapon, ranged weapon, ammunition, and thrown-weapon `CreateItem(...)` calls.
@@ -27,6 +27,8 @@ The medieval `ItemSeeder` item and craft implementation was reset to launch stub
 The [Medieval Shared Baseline Admission Manifest](./FutureMUD_Medieval_Shared_Baseline_Admission_Manifest.md) is the completed admission registry for the common `preindustrial_*` layer. It covers all 385 live shared stable references: 342 source-derived compatibility aliases and 43 shared-authored prototypes.
 
 The manifest distinguishes installation from historical admission. It records ordinary, institutional, restricted, specialist, imported, and intentionally not-admitted decisions by culture/contact scope, date, and admitting context. In particular, the movable-type printing suite, telescope, specifically maritime astrolabe, and musket-era gunpowder-support suite are not admitted to the 500-1400 CE manifest. Earlier planispheric astrolabes, hand-gonne equipment, or artillery props require separately authored period-appropriate rows rather than reuse of these later forms. These decisions do not create or clone item prototypes.
+
+Food uses its own larger shared layer and admission registry. The [Pre-Industrial Food Catalogue](./PreIndustrial_Food_Catalogue_Design_Reference.md) installs 2,100 shared prepared/intermediate items and 150 shared food liquids when Medieval is selected, followed by 225 Medieval-specific items and 25 Medieval-specific liquids. The Medieval shared-food admission manifest records culture/contact, date, institution/shop/craft context, availability, and production/trade status for all 2,250 shared rows without cloning common dishes into national variants.
 
 ## Prerequisite Routing Audit Shape
 

@@ -12,7 +12,9 @@ Stock Agriculture already supplies maize, potatoes, sweet potatoes, cassava, sug
 
 Stock Agriculture now includes Tobacco, Cardamom, Allspice, Logwood, Chamomile, Lavender, Yarrow, Foxglove, Henbane, and Mandrake definitions. Nopal Cactus supplies cochineal as a secondary output, Nutmeg supplies mace, and Cacao supplies cacao beans without removing their existing primary outputs. Ramie supplies `ramie cloth`, Breadfruit supplies `barkcloth`, and Raffia Palms supply `raffia cloth` as secondary textile outputs. Llama and Alpaca herds now supply the exact `camelid wool` material rather than generic `wool`.
 
-Material foundations now exist for sugar loaf, molasses, cacao beans/nibs, tobacco leaf/twist, cotton fibre, indigo dye cake, cochineal, tea bricks/cakes, roasted coffee, snuff, chocolate blocks, ramie cloth, barkcloth, camelid wool, and raffia cloth. Rum remains a live liquid. Finished item prototypes, packets/bales, and transformation crafts remain implementation work.
+Material foundations now exist for sugar loaf, molasses, cacao beans/nibs, tobacco leaf/twist, cotton fibre, indigo dye cake, cochineal, tea bricks/cakes, roasted coffee, snuff, chocolate blocks, ramie cloth, barkcloth, camelid wool, and raffia cloth. Rum remains a live liquid.
+
+The food-content branch is implemented through the [Pre-Industrial Food Catalogue](./PreIndustrial_Food_Catalogue_Design_Reference.md): Renaissance installation receives the 2,250-row shared food layer plus 225 Renaissance-specific prepared/intermediate items and 25 Renaissance-specific food liquids. Shared forms are culture/contact-gated through the Renaissance food admission manifest instead of cloned into national variants. The catalogue supplies loadable PreparedFood and Liquid records; transformation craft coverage remains separate implementation work.
 
 Use the live shared tea chest, coffee sack, cacao sack, tobacco bale, sugar hogshead, indigo cake box, cotton bale, and spice chest when the package fits. Packaging availability must not backdate consumption culture.
 
@@ -22,3 +24,4 @@ Use the live shared tea chest, coffee sack, cacao sack, tobacco bale, sugar hogs
 - Every processing output resolves to a material/liquid/item before craft activation.
 - Shared packages are reused.
 - Colonial/contact-zone goods are intentionally scoped rather than treated as universal trade flavour.
+- The installed food catalogue resolves to 2,500 exact shared-plus-Renaissance records with maintained components, liquids, tags, and admission data.

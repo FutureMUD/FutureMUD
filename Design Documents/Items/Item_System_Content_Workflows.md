@@ -212,6 +212,8 @@ The manual `outfittemplate load` command materialises a template directly onto a
 
 NPC templates can reference outfit templates as load-time additions. When a new NPC is created from the template, the outfit template materialises before the NPC template `OnLoadProg`, so scripts and AI can see the created gear. The NPC template stores only the outfit template id and optional created outfit name; item prototype validation and safe placement remain owned by the outfit template materializer.
 
+An on-load FutureProg can pre-contaminate materialised items with `exposetoliquid(item, liquidId, volume)`. The volume may be either a number in base fluid units or text with an explicit fluid-volume unit, such as `"25 ml"`. The function applies the specified volume from above through the normal surface-liquid system, so material absorbency, saturation descriptions, drying, residues, cleaning and persistence remain authoritative. It returns false for a null item, unknown liquid id, invalid unit expression or non-positive volume. This is intended for generated state such as blood-splattered NPC clothing; it does not fill liquid containers or bypass ordinary contamination behaviour.
+
 NPC templates can also create installed implants and prosthetics as load-time body equipment. These entries store template-local keys, current item prototype references, optional target bodyparts, and optional implant power or neural-link keys. At load time the engine creates real item instances, verifies that the created item exposes the expected implant or prosthetic component and is compatible with the NPC body, installs it through the normal body methods, then applies any power or neural links that resolve to installed implants.
 
 ### Extra arguments

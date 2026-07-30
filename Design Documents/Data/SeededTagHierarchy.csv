@@ -1,4 +1,4 @@
-﻿Tag name	Tag parent name	Tag hierarchy
+Tag name	Tag parent name	Tag hierarchy
 Consumables		Consumables
 Armouring Rings	Consumables	Consumables / Armouring Rings
 Armouring Scales	Consumables	Consumables / Armouring Scales
@@ -99,6 +99,106 @@ Nuclear Era	Era	Era / Nuclear Era
 Pre-Industrial Era	Era	Era / Pre-Industrial Era
 Renaissance Era	Era	Era / Renaissance Era
 Stone Age Era	Era	Era / Stone Age Era
+Food and Drink		Food and Drink
+Antiquity Food	Food and Drink	Food and Drink / Antiquity Food
+Fermenting Foods	Antiquity Food	Food and Drink / Antiquity Food / Fermenting Foods
+Prepared Foods	Antiquity Food	Food and Drink / Antiquity Food / Prepared Foods
+Luxury Prepared Foods	Prepared Foods	Food and Drink / Antiquity Food / Prepared Foods / Luxury Prepared Foods
+Food Liquids	Food and Drink	Food and Drink / Food Liquids
+Pre-Industrial Catalogue	Food Liquids	Food and Drink / Food Liquids / Pre-Industrial Catalogue
+Family	Pre-Industrial Catalogue	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family
+Bread	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Bread
+Broth	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Broth
+Chocolate	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Chocolate
+Coffee	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Coffee
+Condiment	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Condiment
+Dairy	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Dairy
+Dairy Drink	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Dairy Drink
+Dumpling	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Dumpling
+Egg	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Egg
+Fermented Drink	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Fermented Drink
+Fish	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Fish
+Fruit	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Fruit
+Fruit Drink	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Fruit Drink
+Grain	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Grain
+Grain Drink	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Grain Drink
+Intermediate	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Intermediate
+Meat	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Meat
+Noodle	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Noodle
+Nut	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Nut
+Offal	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Offal
+Oil	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Oil
+Porridge	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Porridge
+Poultry	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Poultry
+Preserved	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Preserved
+Pulse	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Pulse
+Sauce	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Sauce
+Shellfish	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Shellfish
+Soup	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Soup
+Spirit	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Spirit
+Stew	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Stew
+Sweet	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Sweet
+Syrup	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Syrup
+Tea	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Tea
+Vegetable	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Vegetable
+Vinegar	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Vinegar
+Wine	Family	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Wine
+Scope	Pre-Industrial Catalogue	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Scope
+Early Modern	Scope	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Scope / Early Modern
+Medieval	Scope	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Scope / Medieval
+Renaissance	Scope	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Scope / Renaissance
+Shared	Scope	Food and Drink / Food Liquids / Pre-Industrial Catalogue / Scope / Shared
+Prepared Foods	Food and Drink	Food and Drink / Prepared Foods
+Pre-Industrial Catalogue	Prepared Foods	Food and Drink / Prepared Foods / Pre-Industrial Catalogue
+Family	Pre-Industrial Catalogue	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family
+Bread	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Bread
+Broth	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Broth
+Chocolate	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Chocolate
+Coffee	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Coffee
+Condiment	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Condiment
+Dairy	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Dairy
+Dairy Drink	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Dairy Drink
+Dumpling	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Dumpling
+Egg	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Egg
+Fermented Drink	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Fermented Drink
+Fish	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Fish
+Fruit	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Fruit
+Fruit Drink	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Fruit Drink
+Grain	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Grain
+Grain Drink	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Grain Drink
+Intermediate	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Intermediate
+Meat	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Meat
+Noodle	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Noodle
+Nut	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Nut
+Offal	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Offal
+Oil	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Oil
+Porridge	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Porridge
+Poultry	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Poultry
+Preserved	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Preserved
+Pulse	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Pulse
+Sauce	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Sauce
+Shellfish	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Shellfish
+Soup	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Soup
+Spirit	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Spirit
+Stew	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Stew
+Sweet	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Sweet
+Syrup	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Syrup
+Tea	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Tea
+Vegetable	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Vegetable
+Vinegar	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Vinegar
+Wine	Family	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Wine
+Scope	Pre-Industrial Catalogue	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Scope
+Early Modern	Scope	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Scope / Early Modern
+Medieval	Scope	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Scope / Medieval
+Renaissance	Scope	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Scope / Renaissance
+Shared	Scope	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Scope / Shared
+Social Register	Pre-Industrial Catalogue	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Social Register
+Bleak	Social Register	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Social Register / Bleak
+Ordinary	Social Register	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Social Register / Ordinary
+Rich	Social Register	Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Social Register / Rich
+Vessels	Food and Drink	Food and Drink / Vessels
+Beverage Serving Vessel	Vessels	Food and Drink / Vessels / Beverage Serving Vessel
+Fermenting Vessel	Vessels	Food and Drink / Vessels / Fermenting Vessel
 Functions		Functions
 Civic Fixtures	Functions	Functions / Civic Fixtures
 Container	Functions	Functions / Container
@@ -106,38 +206,14 @@ Airtight Container	Container	Functions / Container / Airtight Container
 Open Container	Container	Functions / Container / Open Container
 Porous Container	Container	Functions / Container / Porous Container
 Watertight Container	Container	Functions / Container / Watertight Container
-Writing Surface	Functions	Functions / Writing Surface
-Loose Sheet	Writing Surface	Functions / Writing Surface / Loose Sheet
-Scroll	Writing Surface	Functions / Writing Surface / Scroll
-Codex	Writing Surface	Functions / Writing Surface / Codex
-Wax Tablet	Writing Surface	Functions / Writing Surface / Wax Tablet
-Clay Tablet	Writing Surface	Functions / Writing Surface / Clay Tablet
-Wooden Writing Block	Writing Surface	Functions / Writing Surface / Wooden Writing Block
-Ostracon	Writing Surface	Functions / Writing Surface / Ostracon
-Medical Treatment	Functions	Functions / Medical Treatment
-Bandage	Medical Treatment	Functions / Medical Treatment / Bandage
-Splint	Medical Treatment	Functions / Medical Treatment / Splint
-Tend Kit	Medical Treatment	Functions / Medical Treatment / Tend Kit
-Wound Cleaning	Medical Treatment	Functions / Medical Treatment / Wound Cleaning
-Antiseptic Dressing	Medical Treatment	Functions / Medical Treatment / Antiseptic Dressing
-Suture Kit	Medical Treatment	Functions / Medical Treatment / Suture Kit
-Prosthetic	Medical Treatment	Functions / Medical Treatment / Prosthetic
-Mobility Aid	Medical Treatment	Functions / Medical Treatment / Mobility Aid
-Herbal Remedy	Medical Treatment	Functions / Medical Treatment / Herbal Remedy
-Military Equipment	Functions	Functions / Military Equipment
-Military Weapons	Military Equipment	Functions / Military Equipment / Military Weapons
-Military Ammunition	Military Equipment	Functions / Military Equipment / Military Ammunition
-Military Armour	Military Equipment	Functions / Military Equipment / Military Armour
-Military Shields	Military Armour	Functions / Military Equipment / Military Armour / Military Shields
 Household Items	Functions	Functions / Household Items
-Household Furniture	Household Items	Functions / Household Items / Household Furniture
-Household Decorations	Household Items	Functions / Household Items / Household Decorations
-Household Wares	Household Items	Functions / Household Items / Household Wares
-Household Religious Items	Household Items	Functions / Household Items / Household Religious Items
-Household Lighting	Household Items	Functions / Household Items / Household Lighting
-Household Heating	Household Items	Functions / Household Items / Household Heating
 Household Construction Materials	Household Items	Functions / Household Items / Household Construction Materials
-Writing Goods	Functions	Functions / Writing Goods
+Household Decorations	Household Items	Functions / Household Items / Household Decorations
+Household Furniture	Household Items	Functions / Household Items / Household Furniture
+Household Heating	Household Items	Functions / Household Items / Household Heating
+Household Lighting	Household Items	Functions / Household Items / Household Lighting
+Household Religious Items	Household Items	Functions / Household Items / Household Religious Items
+Household Wares	Household Items	Functions / Household Items / Household Wares
 Joining	Functions	Functions / Joining
 Adhesion	Joining	Functions / Joining / Adhesion
 Cement	Adhesion	Functions / Joining / Adhesion / Cement
@@ -190,13 +266,56 @@ Flux	Welding	Functions / Joining / Welding / Flux
 Solderer	Welding	Functions / Joining / Welding / Solderer
 Soldering Wire	Welding	Functions / Joining / Welding / Soldering Wire
 Material Functions	Functions	Functions / Material Functions
+Antiquity Equipment Stock	Material Functions	Functions / Material Functions / Antiquity Equipment Stock
+Armour Lamella Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Lamella Stock
+Armour Plate Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Plate Stock
+Armour Ring Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Ring Stock
+Armour Scale Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Scale Stock
+Armour Textile Padding	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Textile Padding
+Bow Stave	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Bow Stave
+Door Hardware Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Door Hardware Stock
+Fletching Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Fletching Stock
+Helmet Bowl Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Helmet Bowl Stock
+Military Cord Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Military Cord Stock
+Shield Board Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Shield Board Stock
+Shield Facing Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Shield Facing Stock
+Tool Blank Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Tool Blank Stock
+Weapon Blade Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Blade Stock
+Weapon Head Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Head Stock
+Weapon Shaft Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Shaft Stock
 Commoditisable	Material Functions	Functions / Material Functions / Commoditisable
 Debris	Material Functions	Functions / Material Functions / Debris
 Fire	Material Functions	Functions / Material Functions / Fire
 Firewood	Material Functions	Functions / Material Functions / Firewood
 Hot Fire	Material Functions	Functions / Material Functions / Hot Fire
 Ignition Source	Material Functions	Functions / Material Functions / Ignition Source
+Jewellery Craft Stock	Material Functions	Functions / Material Functions / Jewellery Craft Stock
+Jewellery Bead Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Bead Stock
+Jewellery Metal Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Metal Stock
+Jewellery Setting Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Setting Stock
+Jewellery Wire Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Wire Stock
 Kindling	Material Functions	Functions / Material Functions / Kindling
+Leather Commodity	Material Functions	Functions / Material Functions / Leather Commodity
+Hardened Leather Panel	Leather Commodity	Functions / Material Functions / Leather Commodity / Hardened Leather Panel
+Leather Panel	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Panel
+Leather Scale	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Scale
+Leather Sole	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Sole
+Leather Strap	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Strap
+Leather Thong	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Thong
+Prepared Hide	Leather Commodity	Functions / Material Functions / Leather Commodity / Prepared Hide
+Sealed Leather Panel	Leather Commodity	Functions / Material Functions / Leather Commodity / Sealed Leather Panel
+Tanned Leather	Leather Commodity	Functions / Material Functions / Leather Commodity / Tanned Leather
+Medical Craft Stock	Material Functions	Functions / Material Functions / Medical Craft Stock
+Decoction Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Decoction Stock
+Dressing Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Dressing Stock
+Fumigation Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Fumigation Stock
+Herbal Remedy Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Herbal Remedy Stock
+Poultice Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Poultice Stock
+Prosthetic Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Prosthetic Stock
+Salve Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Salve Stock
+Splint Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Splint Stock
+Surgical Tool Blank	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Surgical Tool Blank
+Suture Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Suture Stock
 Meltable	Material Functions	Functions / Material Functions / Meltable
 Musket Wadding	Material Functions	Functions / Material Functions / Musket Wadding
 Ore Deposit	Material Functions	Functions / Material Functions / Ore Deposit
@@ -204,60 +323,40 @@ Padding	Material Functions	Functions / Material Functions / Padding
 Salvagable Fabric	Material Functions	Functions / Material Functions / Salvagable Fabric
 String	Material Functions	Functions / Material Functions / String
 Tanning Agent	Material Functions	Functions / Material Functions / Tanning Agent
-Antiquity Equipment Stock	Material Functions	Functions / Material Functions / Antiquity Equipment Stock
-Weapon Blade Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Blade Stock
-Weapon Head Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Head Stock
-Weapon Shaft Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Shaft Stock
-Bow Stave	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Bow Stave
-Fletching Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Fletching Stock
-Military Cord Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Military Cord Stock
-Shield Board Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Shield Board Stock
-Shield Facing Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Shield Facing Stock
-Helmet Bowl Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Helmet Bowl Stock
-Armour Plate Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Plate Stock
-Armour Ring Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Ring Stock
-Armour Scale Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Scale Stock
-Armour Lamella Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Lamella Stock
-Armour Textile Padding	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Textile Padding
-Tool Blank Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Tool Blank Stock
-Door Hardware Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Door Hardware Stock
 Writing Craft Stock	Material Functions	Functions / Material Functions / Writing Craft Stock
+Bookbinding Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Bookbinding Stock
+Ink Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Ink Stock
 Papyrus Sheet Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Papyrus Sheet Stock
 Parchment Sheet Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Parchment Sheet Stock
+Pen Blank	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Pen Blank
+Scrollmaking Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Scrollmaking Stock
 Tablet Blank	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Tablet Blank
 Waxed Tablet Board	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Waxed Tablet Board
-Ink Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Ink Stock
-Pen Blank	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Pen Blank
-Bookbinding Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Bookbinding Stock
-Scrollmaking Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Scrollmaking Stock
-Medical Craft Stock	Material Functions	Functions / Material Functions / Medical Craft Stock
-Dressing Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Dressing Stock
-Poultice Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Poultice Stock
-Salve Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Salve Stock
-Decoction Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Decoction Stock
-Fumigation Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Fumigation Stock
-Suture Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Suture Stock
-Splint Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Splint Stock
-Prosthetic Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Prosthetic Stock
-Surgical Tool Blank	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Surgical Tool Blank
-Herbal Remedy Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Herbal Remedy Stock
-Jewellery Craft Stock	Material Functions	Functions / Material Functions / Jewellery Craft Stock
-Jewellery Metal Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Metal Stock
-Jewellery Wire Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Wire Stock
-Jewellery Bead Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Bead Stock
-Jewellery Setting Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Setting Stock
-Leather Commodity	Material Functions	Functions / Material Functions / Leather Commodity
-Prepared Hide	Leather Commodity	Functions / Material Functions / Leather Commodity / Prepared Hide
-Tanned Leather	Leather Commodity	Functions / Material Functions / Leather Commodity / Tanned Leather
-Leather Sole	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Sole
-Leather Strap	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Strap
-Leather Thong	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Thong
-Leather Panel	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Panel
-Hardened Leather Panel	Leather Commodity	Functions / Material Functions / Leather Commodity / Hardened Leather Panel
-Leather Scale	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Scale
-Sealed Leather Panel	Leather Commodity	Functions / Material Functions / Leather Commodity / Sealed Leather Panel
+Medical Treatment	Functions	Functions / Medical Treatment
+Antidote	Medical Treatment	Functions / Medical Treatment / Antidote
+Antiseptic Dressing	Medical Treatment	Functions / Medical Treatment / Antiseptic Dressing
+Bandage	Medical Treatment	Functions / Medical Treatment / Bandage
+Fumigation	Medical Treatment	Functions / Medical Treatment / Fumigation
+Herbal Remedy	Medical Treatment	Functions / Medical Treatment / Herbal Remedy
+Mobility Aid	Medical Treatment	Functions / Medical Treatment / Mobility Aid
+Prosthetic	Medical Treatment	Functions / Medical Treatment / Prosthetic
+Splint	Medical Treatment	Functions / Medical Treatment / Splint
+Styptic	Medical Treatment	Functions / Medical Treatment / Styptic
+Suture Kit	Medical Treatment	Functions / Medical Treatment / Suture Kit
+Tend Kit	Medical Treatment	Functions / Medical Treatment / Tend Kit
+Wound Cleaning	Medical Treatment	Functions / Medical Treatment / Wound Cleaning
+Military Equipment	Functions	Functions / Military Equipment
+Military Ammunition	Military Equipment	Functions / Military Equipment / Military Ammunition
+Military Armour	Military Equipment	Functions / Military Equipment / Military Armour
+Military Shields	Military Armour	Functions / Military Equipment / Military Armour / Military Shields
+Military Weapons	Military Equipment	Functions / Military Equipment / Military Weapons
 Reflective	Functions	Functions / Reflective
 Repairing	Functions	Functions / Repairing
+Composite Bow	Repairing	Functions / Repairing / Composite Bow
+Cordage	Repairing	Functions / Repairing / Cordage
+Glass	Repairing	Functions / Repairing / Glass
+Lacquerware	Repairing	Functions / Repairing / Lacquerware
+Paper and Parchment	Repairing	Functions / Repairing / Paper and Parchment
 Separation	Functions	Functions / Separation
 Cutting	Separation	Functions / Separation / Cutting
 Filleting	Cutting	Functions / Separation / Cutting / Filleting
@@ -277,9 +376,6 @@ Shears	Shearing	Functions / Separation / Shearing / Shears
 Sharpening	Functions	Functions / Sharpening
 Shiny	Functions	Functions / Shiny
 Tools	Functions	Functions / Tools
-Primary Production Tools	Tools	Functions / Tools / Primary Production Tools
-Lime Kiln	Primary Production Tools	Functions / Tools / Primary Production Tools / Lime Kiln
-Timekeeping Tools	Tools	Functions / Tools / Timekeeping Tools
 Access Equipment	Tools	Functions / Tools / Access Equipment
 Ladder	Access Equipment	Functions / Tools / Access Equipment / Ladder
 A-Frame Ladder	Ladder	Functions / Tools / Access Equipment / Ladder / A-Frame Ladder
@@ -290,14 +386,14 @@ Ard	Agricultural Tools	Functions / Tools / Agricultural Tools / Ard
 Beekeeping Tools	Agricultural Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools
 Bee Hive	Beekeeping Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools / Bee Hive
 Bee Smoke Pot	Beekeeping Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools / Bee Smoke Pot
-Digging Fork	Agricultural Tools	Functions / Tools / Agricultural Tools / Digging Fork
-Drover's Goad	Agricultural Tools	Functions / Tools / Agricultural Tools / Drover's Goad
-Grain Flail	Agricultural Tools	Functions / Tools / Agricultural Tools / Grain Flail
-Hay Rake	Agricultural Tools	Functions / Tools / Agricultural Tools / Hay Rake
 Hive Stand	Beekeeping Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools / Hive Stand
 Honey Knife	Beekeeping Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools / Honey Knife
 Honey Press	Beekeeping Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools / Honey Press
 Honey Strainer	Beekeeping Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools / Honey Strainer
+Digging Fork	Agricultural Tools	Functions / Tools / Agricultural Tools / Digging Fork
+Drover's Goad	Agricultural Tools	Functions / Tools / Agricultural Tools / Drover's Goad
+Grain Flail	Agricultural Tools	Functions / Tools / Agricultural Tools / Grain Flail
+Hay Rake	Agricultural Tools	Functions / Tools / Agricultural Tools / Hay Rake
 Pitchfork	Agricultural Tools	Functions / Tools / Agricultural Tools / Pitchfork
 Plough	Agricultural Tools	Functions / Tools / Agricultural Tools / Plough
 Ploughshare	Agricultural Tools	Functions / Tools / Agricultural Tools / Ploughshare
@@ -350,14 +446,6 @@ Mash Tun	Brewing Tools	Functions / Tools / Brewing Tools / Mash Tun
 Mashing Paddle	Brewing Tools	Functions / Tools / Brewing Tools / Mashing Paddle
 Sparging Ladle	Brewing Tools	Functions / Tools / Brewing Tools / Sparging Ladle
 Wort Grant	Brewing Tools	Functions / Tools / Brewing Tools / Wort Grant
-Foodmaking Tools	Tools	Functions / Tools / Foodmaking Tools
-Fermentation Amphora	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Fermentation Amphora
-Fruit Press	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Fruit Press
-Hand Quern	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Hand Quern
-Oil Press	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Oil Press
-Salting Trough	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Salting Trough
-Smoking Rack	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Smoking Rack
-Threshing Flail	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Threshing Flail
 Butcher Tools	Tools	Functions / Tools / Butcher Tools
 Butcher Cleaning Tools	Butcher Tools	Functions / Tools / Butcher Tools / Butcher Cleaning Tools
 Carcass Scraper	Butcher Cleaning Tools	Functions / Tools / Butcher Tools / Butcher Cleaning Tools / Carcass Scraper
@@ -609,6 +697,14 @@ Harpoon	Fishing Tools	Functions / Tools / Fishing Tools / Harpoon
 Leister	Fishing Tools	Functions / Tools / Fishing Tools / Leister
 Net Gauge	Fishing Tools	Functions / Tools / Fishing Tools / Net Gauge
 Net Needle	Fishing Tools	Functions / Tools / Fishing Tools / Net Needle
+Foodmaking Tools	Tools	Functions / Tools / Foodmaking Tools
+Fermentation Amphora	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Fermentation Amphora
+Fruit Press	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Fruit Press
+Hand Quern	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Hand Quern
+Oil Press	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Oil Press
+Salting Trough	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Salting Trough
+Smoking Rack	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Smoking Rack
+Threshing Flail	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Threshing Flail
 Glassblowing Tools	Tools	Functions / Tools / Glassblowing Tools
 Annealing Lehr	Glassblowing Tools	Functions / Tools / Glassblowing Tools / Annealing Lehr
 Lit Annealing Lehr	Annealing Lehr	Functions / Tools / Glassblowing Tools / Annealing Lehr / Lit Annealing Lehr
@@ -704,8 +800,8 @@ Edge Beveller	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Ed
 Leather Creaser	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Leather Creaser
 Leather Gouge	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Leather Gouge
 Leather Stitching Pony	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Leather Stitching Pony
-Shoe Last	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Shoe Last
 Leather Wax Pot	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Leather Wax Pot
+Shoe Last	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Shoe Last
 Locksmithing Tools	Tools	Functions / Tools / Locksmithing Tools
 Impressioning File	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Impressioning File
 Key Gauge	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Key Gauge
@@ -810,6 +906,8 @@ Pug Mill	Pottery Tools	Functions / Tools / Pottery Tools / Pug Mill
 Slab Roller	Pottery Tools	Functions / Tools / Pottery Tools / Slab Roller
 Slip Trailer	Pottery Tools	Functions / Tools / Pottery Tools / Slip Trailer
 Wire Cutter	Pottery Tools	Functions / Tools / Pottery Tools / Wire Cutter
+Primary Production Tools	Tools	Functions / Tools / Primary Production Tools
+Lime Kiln	Primary Production Tools	Functions / Tools / Primary Production Tools / Lime Kiln
 Scientific Tools	Tools	Functions / Tools / Scientific Tools
 Laboratory Equipment	Scientific Tools	Functions / Tools / Scientific Tools / Laboratory Equipment
 Beaker Clamp	Laboratory Equipment	Functions / Tools / Scientific Tools / Laboratory Equipment / Beaker Clamp
@@ -947,9 +1045,9 @@ Volumetric Flask	Specialised Vessels	Functions / Tools / Scientific Tools / Spec
 Volumetric Pipette	Specialised Vessels	Functions / Tools / Scientific Tools / Specialised Vessels / Volumetric Pipette
 Watch Glass	Specialised Vessels	Functions / Tools / Scientific Tools / Specialised Vessels / Watch Glass
 Scribing Tools	Tools	Functions / Tools / Scribing Tools
+Charcoal Stick	Scribing Tools	Functions / Tools / Scribing Tools / Charcoal Stick
 Ink Brush	Scribing Tools	Functions / Tools / Scribing Tools / Ink Brush
 Inkwell	Scribing Tools	Functions / Tools / Scribing Tools / Inkwell
-Charcoal Stick	Scribing Tools	Functions / Tools / Scribing Tools / Charcoal Stick
 Pen Knife	Scribing Tools	Functions / Tools / Scribing Tools / Pen Knife
 Quill Pen	Scribing Tools	Functions / Tools / Scribing Tools / Quill Pen
 Reed Pen	Scribing Tools	Functions / Tools / Scribing Tools / Reed Pen
@@ -1090,6 +1188,7 @@ Warp-Weighted Loom	Weaving Tools	Functions / Tools / Textilecraft Tools / Weavin
 Weaver's Comb	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools / Weaver's Comb
 Weaver's Sword	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools / Weaver's Sword
 Weaving Reed	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools / Weaving Reed
+Timekeeping Tools	Tools	Functions / Tools / Timekeeping Tools
 Weaponsmithing Tools	Tools	Functions / Tools / Weaponsmithing Tools
 Crossguard Fixture	Weaponsmithing Tools	Functions / Tools / Weaponsmithing Tools / Crossguard Fixture
 Forge Bellows	Weaponsmithing Tools	Functions / Tools / Weaponsmithing Tools / Forge Bellows
@@ -1179,16 +1278,12 @@ Hats	Worn Items	Functions / Worn Items / Hats
 Headwear	Worn Items	Functions / Worn Items / Headwear
 Jewellery	Worn Items	Functions / Worn Items / Jewellery
 Anklets	Jewellery	Functions / Worn Items / Jewellery / Anklets
-Bracelets	Jewellery	Functions / Worn Items / Jewellery / Bracelets
-Earrings	Jewellery	Functions / Worn Items / Jewellery / Earrings
-Necklaces	Jewellery	Functions / Worn Items / Jewellery / Necklaces
-Piercings	Jewellery	Functions / Worn Items / Jewellery / Piercings
-Rings	Jewellery	Functions / Worn Items / Jewellery / Rings
 Armlets	Jewellery	Functions / Worn Items / Jewellery / Armlets
 Badges	Jewellery	Functions / Worn Items / Jewellery / Badges
 Bead Strings	Jewellery	Functions / Worn Items / Jewellery / Bead Strings
 Belt Ornaments	Jewellery	Functions / Worn Items / Jewellery / Belt Ornaments
 Belt Plaques	Jewellery	Functions / Worn Items / Jewellery / Belt Plaques
+Bracelets	Jewellery	Functions / Worn Items / Jewellery / Bracelets
 Brooches	Jewellery	Functions / Worn Items / Jewellery / Brooches
 Chaplets	Jewellery	Functions / Worn Items / Jewellery / Chaplets
 Chokers	Jewellery	Functions / Worn Items / Jewellery / Chokers
@@ -1196,7 +1291,7 @@ Circlets	Jewellery	Functions / Worn Items / Jewellery / Circlets
 Coronets	Jewellery	Functions / Worn Items / Jewellery / Coronets
 Crowns	Jewellery	Functions / Worn Items / Jewellery / Crowns
 Diadems	Jewellery	Functions / Worn Items / Jewellery / Diadems
-Ear Studs	Piercings	Functions / Worn Items / Jewellery / Piercings / Ear Studs
+Earrings	Jewellery	Functions / Worn Items / Jewellery / Earrings
 Forehead Ornaments	Jewellery	Functions / Worn Items / Jewellery / Forehead Ornaments
 Garlands	Jewellery	Functions / Worn Items / Jewellery / Garlands
 Dried Garlands	Garlands	Functions / Worn Items / Jewellery / Garlands / Dried Garlands
@@ -1209,10 +1304,14 @@ Hair Ornaments	Jewellery	Functions / Worn Items / Jewellery / Hair Ornaments
 Head Ornaments	Jewellery	Functions / Worn Items / Jewellery / Head Ornaments
 Neck Garlands	Jewellery	Functions / Worn Items / Jewellery / Neck Garlands
 Neck Rings	Jewellery	Functions / Worn Items / Jewellery / Neck Rings
+Necklaces	Jewellery	Functions / Worn Items / Jewellery / Necklaces
+Pendants	Jewellery	Functions / Worn Items / Jewellery / Pendants
+Piercings	Jewellery	Functions / Worn Items / Jewellery / Piercings
+Ear Studs	Piercings	Functions / Worn Items / Jewellery / Piercings / Ear Studs
 Nose Rings	Piercings	Functions / Worn Items / Jewellery / Piercings / Nose Rings
 Nose Studs	Piercings	Functions / Worn Items / Jewellery / Piercings / Nose Studs
-Pendants	Jewellery	Functions / Worn Items / Jewellery / Pendants
 Pins	Jewellery	Functions / Worn Items / Jewellery / Pins
+Rings	Jewellery	Functions / Worn Items / Jewellery / Rings
 Temple Rings	Jewellery	Functions / Worn Items / Jewellery / Temple Rings
 Toe Rings	Jewellery	Functions / Worn Items / Jewellery / Toe Rings
 Torcs	Jewellery	Functions / Worn Items / Jewellery / Torcs
@@ -1232,6 +1331,15 @@ Scarves	Worn Items	Functions / Worn Items / Scarves
 Socks	Worn Items	Functions / Worn Items / Socks
 Spectacles	Worn Items	Functions / Worn Items / Spectacles
 Underwear	Worn Items	Functions / Worn Items / Underwear
+Writing Goods	Functions	Functions / Writing Goods
+Writing Surface	Functions	Functions / Writing Surface
+Clay Tablet	Writing Surface	Functions / Writing Surface / Clay Tablet
+Codex	Writing Surface	Functions / Writing Surface / Codex
+Loose Sheet	Writing Surface	Functions / Writing Surface / Loose Sheet
+Ostracon	Writing Surface	Functions / Writing Surface / Ostracon
+Scroll	Writing Surface	Functions / Writing Surface / Scroll
+Wax Tablet	Writing Surface	Functions / Writing Surface / Wax Tablet
+Wooden Writing Block	Writing Surface	Functions / Writing Surface / Wooden Writing Block
 Institution		Institution
 Court	Institution	Institution / Court
 Guild	Institution	Institution / Guild
@@ -1250,19 +1358,6 @@ Simple Clothing	Clothing	Market / Clothing / Simple Clothing
 Standard Clothing	Clothing	Market / Clothing / Standard Clothing
 Winter Clothing	Clothing	Market / Clothing / Winter Clothing
 Work Clothing	Clothing	Market / Clothing / Work Clothing
-Jewellery	Market	Market / Jewellery
-Children's Jewellery	Jewellery	Market / Jewellery / Children's Jewellery
-Commoner Jewellery	Jewellery	Market / Jewellery / Commoner Jewellery
-Court Jewellery	Jewellery	Market / Jewellery / Court Jewellery
-Ephemeral Jewellery	Jewellery	Market / Jewellery / Ephemeral Jewellery
-Festival Jewellery	Jewellery	Market / Jewellery / Festival Jewellery
-Luxury Jewellery	Jewellery	Market / Jewellery / Luxury Jewellery
-Merchant Jewellery	Jewellery	Market / Jewellery / Merchant Jewellery
-Noble Jewellery	Jewellery	Market / Jewellery / Noble Jewellery
-Professional Jewellery	Jewellery	Market / Jewellery / Professional Jewellery
-Regalia	Jewellery	Market / Jewellery / Regalia
-Simple Jewellery	Jewellery	Market / Jewellery / Simple Jewellery
-Standard Jewellery	Jewellery	Market / Jewellery / Standard Jewellery
 Communications	Market	Market / Communications
 Courier Services	Communications	Market / Communications / Courier Services
 Messenger Services	Communications	Market / Communications / Messenger Services
@@ -1319,6 +1414,19 @@ Beer	Intoxicants	Market / Intoxicants / Beer
 Mead	Intoxicants	Market / Intoxicants / Mead
 Spirits	Intoxicants	Market / Intoxicants / Spirits
 Wine	Intoxicants	Market / Intoxicants / Wine
+Jewellery	Market	Market / Jewellery
+Children's Jewellery	Jewellery	Market / Jewellery / Children's Jewellery
+Commoner Jewellery	Jewellery	Market / Jewellery / Commoner Jewellery
+Court Jewellery	Jewellery	Market / Jewellery / Court Jewellery
+Ephemeral Jewellery	Jewellery	Market / Jewellery / Ephemeral Jewellery
+Festival Jewellery	Jewellery	Market / Jewellery / Festival Jewellery
+Luxury Jewellery	Jewellery	Market / Jewellery / Luxury Jewellery
+Merchant Jewellery	Jewellery	Market / Jewellery / Merchant Jewellery
+Noble Jewellery	Jewellery	Market / Jewellery / Noble Jewellery
+Professional Jewellery	Jewellery	Market / Jewellery / Professional Jewellery
+Regalia	Jewellery	Market / Jewellery / Regalia
+Simple Jewellery	Jewellery	Market / Jewellery / Simple Jewellery
+Standard Jewellery	Jewellery	Market / Jewellery / Standard Jewellery
 Lighting	Market	Market / Lighting
 Candles	Lighting	Market / Lighting / Candles
 Lamps	Lighting	Market / Lighting / Lamps
@@ -1327,8 +1435,9 @@ Luxury Drinks	Market	Market / Luxury Drinks
 Coffee	Luxury Drinks	Market / Luxury Drinks / Coffee
 Tea	Luxury Drinks	Market / Luxury Drinks / Tea
 Medicine	Market	Market / Medicine
-High-Quality Medicine	Medicine	Market / Medicine / High-Quality Medicine
+Apothecary Goods	Medicine	Market / Medicine / Apothecary Goods
 Herbal Medicine	Medicine	Market / Medicine / Herbal Medicine
+High-Quality Medicine	Medicine	Market / Medicine / High-Quality Medicine
 Prosthetics and Mobility	Medicine	Market / Medicine / Prosthetics and Mobility
 Simple Medicine	Medicine	Market / Medicine / Simple Medicine
 Standard Medicine	Medicine	Market / Medicine / Standard Medicine
@@ -1403,51 +1512,47 @@ Devotional Goods	Religious Goods	Market / Religious Goods / Devotional Goods
 Funerary Goods	Religious Goods	Market / Religious Goods / Funerary Goods
 Ritual Supplies	Religious Goods	Market / Religious Goods / Ritual Supplies
 Temple Offerings	Religious Goods	Market / Religious Goods / Temple Offerings
+Repair Supplies	Market	Market / Repair Supplies
+General Repair Supplies	Repair Supplies	Market / Repair Supplies / General Repair Supplies
+Specialist Repair Supplies	Repair Supplies	Market / Repair Supplies / Specialist Repair Supplies
+Weapon and Armour Repair Supplies	Repair Supplies	Market / Repair Supplies / Weapon and Armour Repair Supplies
 Transportation	Market	Market / Transportation
 Cargo Transportation	Transportation	Market / Transportation / Cargo Transportation
 Cart Haulage	Cargo Transportation	Market / Transportation / Cargo Transportation / Cart Haulage
 Manual Haulage	Cargo Transportation	Market / Transportation / Cargo Transportation / Manual Haulage
 Mule Haulage	Cargo Transportation	Market / Transportation / Cargo Transportation / Mule Haulage
 Ship Haulage	Cargo Transportation	Market / Transportation / Cargo Transportation / Ship Haulage
+Horse Tack	Transportation	Market / Transportation / Horse Tack
 Passenger Transportation	Transportation	Market / Transportation / Passenger Transportation
 Cart Passage	Passenger Transportation	Market / Transportation / Passenger Transportation / Cart Passage
 Horse Passage	Passenger Transportation	Market / Transportation / Passenger Transportation / Horse Passage
 Ship Passage	Passenger Transportation	Market / Transportation / Passenger Transportation / Ship Passage
 Wagon Passage	Passenger Transportation	Market / Transportation / Passenger Transportation / Wagon Passage
-Horse Tack	Transportation	Market / Transportation / Horse Tack
 Warehousing	Market	Market / Warehousing
 Writing Materials	Market	Market / Writing Materials
-Ink	Writing Materials	Market / Writing Materials / Ink
-Papyrus	Writing Materials	Market / Writing Materials / Papyrus
-Paper	Writing Materials	Market / Writing Materials / Paper
-Parchment	Writing Materials	Market / Writing Materials / Parchment
-Wax Tablets	Writing Materials	Market / Writing Materials / Wax Tablets
 Clay Tablets	Writing Materials	Market / Writing Materials / Clay Tablets
-Writing Implements	Writing Materials	Market / Writing Materials / Writing Implements
-Document Containers	Writing Materials	Market / Writing Materials / Document Containers
-Scrolls	Writing Materials	Market / Writing Materials / Scrolls
 Codices	Writing Materials	Market / Writing Materials / Codices
-Food and Drink		Food and Drink
-Antiquity Food	Food and Drink	Food and Drink / Antiquity Food
-Fermenting Foods	Antiquity Food	Food and Drink / Antiquity Food / Fermenting Foods
-Prepared Foods	Antiquity Food	Food and Drink / Antiquity Food / Prepared Foods
-Luxury Prepared Foods	Prepared Foods	Food and Drink / Antiquity Food / Prepared Foods / Luxury Prepared Foods
-Vessels	Food and Drink	Food and Drink / Vessels
-Beverage Serving Vessel	Vessels	Food and Drink / Vessels / Beverage Serving Vessel
-Fermenting Vessel	Vessels	Food and Drink / Vessels / Fermenting Vessel
+Document Containers	Writing Materials	Market / Writing Materials / Document Containers
+Ink	Writing Materials	Market / Writing Materials / Ink
+Paper	Writing Materials	Market / Writing Materials / Paper
+Papyrus	Writing Materials	Market / Writing Materials / Papyrus
+Parchment	Writing Materials	Market / Writing Materials / Parchment
+Scrolls	Writing Materials	Market / Writing Materials / Scrolls
+Wax Tablets	Writing Materials	Market / Writing Materials / Wax Tablets
+Writing Implements	Writing Materials	Market / Writing Materials / Writing Implements
 Materials		Materials
 Animal Product	Materials	Materials / Animal Product
-Butchery Output	Animal Product	Materials / Animal Product / Butchery Output
-Raw Meat Cut	Butchery Output	Materials / Animal Product / Butchery Output / Raw Meat Cut
-Raw Hide	Butchery Output	Materials / Animal Product / Butchery Output / Raw Hide
-Offal	Butchery Output	Materials / Animal Product / Butchery Output / Offal
-Trophy Part	Butchery Output	Materials / Animal Product / Butchery Output / Trophy Part
-Venom Organ	Butchery Output	Materials / Animal Product / Butchery Output / Venom Organ
-Crafting Animal Product	Butchery Output	Materials / Animal Product / Butchery Output / Crafting Animal Product
 Apiary Product	Animal Product	Materials / Animal Product / Apiary Product
 Pressed Honey	Apiary Product	Materials / Animal Product / Apiary Product / Pressed Honey
 Raw Honeycomb	Apiary Product	Materials / Animal Product / Apiary Product / Raw Honeycomb
 Rendered Beeswax	Apiary Product	Materials / Animal Product / Apiary Product / Rendered Beeswax
+Butchery Output	Animal Product	Materials / Animal Product / Butchery Output
+Crafting Animal Product	Butchery Output	Materials / Animal Product / Butchery Output / Crafting Animal Product
+Offal	Butchery Output	Materials / Animal Product / Butchery Output / Offal
+Raw Hide	Butchery Output	Materials / Animal Product / Butchery Output / Raw Hide
+Raw Meat Cut	Butchery Output	Materials / Animal Product / Butchery Output / Raw Meat Cut
+Trophy Part	Butchery Output	Materials / Animal Product / Butchery Output / Trophy Part
+Venom Organ	Butchery Output	Materials / Animal Product / Butchery Output / Venom Organ
 Pastoral Product	Animal Product	Materials / Animal Product / Pastoral Product
 Egg Product	Pastoral Product	Materials / Animal Product / Pastoral Product / Egg Product
 Manure Commodity	Pastoral Product	Materials / Animal Product / Pastoral Product / Manure Commodity
@@ -1456,25 +1561,6 @@ Raw Milk	Pastoral Product	Materials / Animal Product / Pastoral Product / Raw Mi
 Raw Wool	Pastoral Product	Materials / Animal Product / Pastoral Product / Raw Wool
 Elastomer	Materials	Materials / Elastomer
 Elemental Materials	Materials	Materials / Elemental Materials
-Gases	Materials	Materials / Gases
-Breathable Atmospheres	Gases	Materials / Gases / Breathable Atmospheres
-Elemental Gases	Gases	Materials / Gases / Elemental Gases
-Noble Gases	Elemental Gases	Materials / Gases / Elemental Gases / Noble Gases
-Industrial Gases	Gases	Materials / Gases / Industrial Gases
-Fuel Gases	Industrial Gases	Materials / Gases / Industrial Gases / Fuel Gases
-Medical Gases	Industrial Gases	Materials / Gases / Industrial Gases / Medical Gases
-Refrigerant Gases	Industrial Gases	Materials / Gases / Industrial Gases / Refrigerant Gases
-Gunpowder	Materials	Materials / Gunpowder
-Textile Dye	Materials	Materials / Textile Dye
-Textile Mordant	Materials	Materials / Textile Mordant
-Liquids	Materials	Materials / Liquids
-Beverage	Liquids	Materials / Liquids / Beverage
-Alcoholic	Beverage	Materials / Liquids / Beverage / Alcoholic
-Detergent	Liquids	Materials / Liquids / Detergent
-Disgusting	Liquids	Materials / Liquids / Disgusting
-Fuel	Liquids	Materials / Liquids / Fuel
-Water	Liquids	Materials / Liquids / Water
-Water Soluble	Liquids	Materials / Liquids / Water Soluble
 Food Products	Materials	Materials / Food Products
 Antiquity Food Commodities	Food Products	Materials / Food Products / Antiquity Food Commodities
 Bone Stock Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Bone Stock Commodity
@@ -1500,6 +1586,67 @@ Salted Meat Commodity	Antiquity Food Commodities	Materials / Food Products / Ant
 Smoked Meat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Smoked Meat Commodity
 Vegetable Prep Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Vegetable Prep Commodity
 Wort Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Wort Commodity
+Pre-Industrial Food Commodities	Food Products	Materials / Food Products / Pre-Industrial Food Commodities
+Family	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Family
+Bread	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Bread
+Broth	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Broth
+Chocolate	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Chocolate
+Coffee	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Coffee
+Condiment	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Condiment
+Dairy	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Dairy
+Dairy Drink	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Dairy Drink
+Dumpling	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Dumpling
+Egg	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Egg
+Fermented Drink	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Fermented Drink
+Fish	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Fish
+Fruit	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Fruit
+Fruit Drink	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Fruit Drink
+Grain	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Grain
+Grain Drink	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Grain Drink
+Intermediate	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Intermediate
+Meat	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Meat
+Noodle	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Noodle
+Nut	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Nut
+Offal	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Offal
+Oil	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Oil
+Porridge	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Porridge
+Poultry	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Poultry
+Preserved	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Preserved
+Pulse	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Pulse
+Sauce	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Sauce
+Shellfish	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Shellfish
+Soup	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Soup
+Spirit	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Spirit
+Stew	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Stew
+Sweet	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Sweet
+Syrup	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Syrup
+Tea	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Tea
+Vegetable	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Vegetable
+Vinegar	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Vinegar
+Wine	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Wine
+Scope	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Scope
+Early Modern	Scope	Materials / Food Products / Pre-Industrial Food Commodities / Scope / Early Modern
+Medieval	Scope	Materials / Food Products / Pre-Industrial Food Commodities / Scope / Medieval
+Renaissance	Scope	Materials / Food Products / Pre-Industrial Food Commodities / Scope / Renaissance
+Shared	Scope	Materials / Food Products / Pre-Industrial Food Commodities / Scope / Shared
+Gases	Materials	Materials / Gases
+Breathable Atmospheres	Gases	Materials / Gases / Breathable Atmospheres
+Elemental Gases	Gases	Materials / Gases / Elemental Gases
+Noble Gases	Elemental Gases	Materials / Gases / Elemental Gases / Noble Gases
+Industrial Gases	Gases	Materials / Gases / Industrial Gases
+Fuel Gases	Industrial Gases	Materials / Gases / Industrial Gases / Fuel Gases
+Medical Gases	Industrial Gases	Materials / Gases / Industrial Gases / Medical Gases
+Refrigerant Gases	Industrial Gases	Materials / Gases / Industrial Gases / Refrigerant Gases
+Gunpowder	Materials	Materials / Gunpowder
+Liquids	Materials	Materials / Liquids
+Beverage	Liquids	Materials / Liquids / Beverage
+Alcoholic	Beverage	Materials / Liquids / Beverage / Alcoholic
+Detergent	Liquids	Materials / Liquids / Detergent
+Disgusting	Liquids	Materials / Liquids / Disgusting
+Fuel	Liquids	Materials / Liquids / Fuel
+Medicine	Liquids	Materials / Liquids / Medicine
+Water	Liquids	Materials / Liquids / Water
+Water Soluble	Liquids	Materials / Liquids / Water Soluble
 Manufactured Materials	Materials	Materials / Manufactured Materials
 Ceramic	Manufactured Materials	Materials / Manufactured Materials / Ceramic
 Fabric	Manufactured Materials	Materials / Manufactured Materials / Fabric
@@ -1530,8 +1677,8 @@ Thick Animal Skin	Animal Skin	Materials / Natural Materials / Animal Skin / Thic
 Elemental Metal	Natural Materials	Materials / Natural Materials / Elemental Metal
 Food	Natural Materials	Materials / Natural Materials / Food
 Baked Good	Food	Materials / Natural Materials / Food / Baked Good
-Fruit Brining Crop	Food	Materials / Natural Materials / Food / Fruit Brining Crop
 Fruit	Food	Materials / Natural Materials / Food / Fruit
+Fruit Brining Crop	Food	Materials / Natural Materials / Food / Fruit Brining Crop
 Fruit Must Crop	Food	Materials / Natural Materials / Food / Fruit Must Crop
 Grain Crop	Food	Materials / Natural Materials / Food / Grain Crop
 Herb	Food	Materials / Natural Materials / Food / Herb
@@ -1612,6 +1759,8 @@ Hardwood	Wood	Materials / Natural Materials / Wood / Hardwood
 Manufactured Wood	Wood	Materials / Natural Materials / Wood / Manufactured Wood
 Softwood	Wood	Materials / Natural Materials / Wood / Softwood
 Simplified	Materials	Materials / Simplified
+Textile Dye	Materials	Materials / Textile Dye
+Textile Mordant	Materials	Materials / Textile Mordant
 Writing Product	Materials	Materials / Writing Product
 Terrain		Terrain
 Arid	Terrain	Terrain / Arid
@@ -2013,17 +2162,3 @@ Space	Extraterrestrial	Terrain / Wild / Extraterrestrial / Space
 Littoral	Wild	Terrain / Wild / Littoral
 Riparian	Wild	Terrain / Wild / Riparian
 Terrestrial	Wild	Terrain / Wild / Terrestrial
-Medicine	Liquids	Materials / Liquids / Medicine
-Fumigation	Medical Treatment	Functions / Medical Treatment / Fumigation
-Styptic	Medical Treatment	Functions / Medical Treatment / Styptic
-Antidote	Medical Treatment	Functions / Medical Treatment / Antidote
-Apothecary Goods	Medicine	Market / Medicine / Apothecary Goods
-Glass	Repairing	Functions / Repairing / Glass
-Paper and Parchment	Repairing	Functions / Repairing / Paper and Parchment
-Lacquerware	Repairing	Functions / Repairing / Lacquerware
-Cordage	Repairing	Functions / Repairing / Cordage
-Composite Bow	Repairing	Functions / Repairing / Composite Bow
-Repair Supplies	Market	Market / Repair Supplies
-General Repair Supplies	Repair Supplies	Market / Repair Supplies / General Repair Supplies
-Specialist Repair Supplies	Repair Supplies	Market / Repair Supplies / Specialist Repair Supplies
-Weapon and Armour Repair Supplies	Repair Supplies	Market / Repair Supplies / Weapon and Armour Repair Supplies

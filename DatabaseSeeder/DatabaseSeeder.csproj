@@ -35,6 +35,7 @@
 	<Content Include="BlankDatabaseSnapshot.manifest.json">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+	<EmbeddedResource Include="Seeders\FoodCatalogue\**\*.tsv" />
   </ItemGroup>
 
 </Project>

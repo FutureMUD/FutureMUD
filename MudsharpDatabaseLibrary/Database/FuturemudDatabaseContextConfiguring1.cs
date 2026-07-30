@@ -550,6 +550,12 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.Loudness).HasColumnType("int(11)");
 
+                entity.Property(e => e.ProjectileCount)
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'1'");
+
+                entity.Property(e => e.ScatterType).HasColumnType("int(11)");
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnType("varchar(200)")

@@ -11,11 +11,13 @@ using MudSharp.Health;
 using MudSharp.RPG.Checks;
 using MudSharp.Vehicles;
 using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.RPG.Law;
 
 namespace MudSharp.GameItems.Components;
 
 public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 {
+    private RangedFireContext _currentFireContext;
     protected AmmunitionGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
 
@@ -265,9 +267,12 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
     }
 
     private bool TryResolveScatter(ICharacter actor, IPerceiver originalTarget, IRangedWeaponType weaponType,
-        IGameItem ammo, IReadOnlyList<ICellExit> path, string context)
+        IGameItem ammo, IReadOnlyList<ICellExit> path, string context, RangedScatterType? scatterType = null)
     {
-        RangedScatterResult scatterResult = RangedScatterStrategyFactory.GetStrategy(weaponType)
+        scatterType ??= _currentFireContext?.ScatterType;
+        RangedScatterResult scatterResult = (scatterType is null
+                ? RangedScatterStrategyFactory.GetStrategy(weaponType)
+                : RangedScatterStrategyFactory.GetStrategy(scatterType.Value))
             .GetScatterTarget(actor, originalTarget, path ?? Array.Empty<ICellExit>());
 
         if (scatterResult == null)
@@ -286,6 +291,18 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
     {
         if (scatterResult.Target != null)
         {
+            if (scatterResult.Target is ICharacter collateral &&
+                !actor.IsLawfulEnforcementActionAgainst(collateral, CrimeTypes.AssaultWithADeadlyWeapon))
+            {
+                CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.AssaultWithADeadlyWeapon,
+                    collateral, null, "collateral fire");
+            }
+            else if (scatterResult.Target is IGameItem collateralItem)
+            {
+                CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.Vandalism, null, collateralItem,
+                    "collateral fire");
+            }
+
             List<ICellExit> scatterPath = actor.PathBetween(scatterResult.Target, 10, false, false, true)?.ToList() ??
                               new List<ICellExit>();
             BroadcastProjectileFlight(actor, scatterResult.Target, ammo, scatterPath);
@@ -500,7 +517,8 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
     }
 
 	private Damage BuildDamage(ICharacter actor, IPerceiver target, IBodypart bodypart,
-        IGameItem ammo, IRangedWeaponType weaponType, OpposedOutcome defenseOutcome)
+        IGameItem ammo, IRangedWeaponType weaponType, OpposedOutcome defenseOutcome,
+        double damageMultiplier = 1.0)
     {
         var payloadEffects = ammo.EffectsOfType<IMagicProjectilePayloadEffect>(x =>
             x.AppliesToProjectileAttack(actor, target, ammo)).ToList();
@@ -527,13 +545,14 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         weaponType.DamageBonusExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
         weaponType.DamageBonusExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
 
-        double finalDamage = AmmoType.DamageProfile.DamageExpression.Evaluate(actor) +
+        damageMultiplier *= _currentFireContext?.DamageMultiplier ?? 1.0;
+        double finalDamage = (AmmoType.DamageProfile.DamageExpression.Evaluate(actor) +
                           weaponType.DamageBonusExpression.Evaluate(actor, weaponType.FireTrait) +
-                          payloadEffects.Sum(x => x.ProjectileDamageBonus);
-        double finalPain = AmmoType.DamageProfile.PainExpression.Evaluate(actor) +
-                           payloadEffects.Sum(x => x.ProjectilePainBonus);
-        double finalStun = AmmoType.DamageProfile.StunExpression.Evaluate(actor) +
-                           payloadEffects.Sum(x => x.ProjectileStunBonus);
+                          payloadEffects.Sum(x => x.ProjectileDamageBonus)) * damageMultiplier;
+        double finalPain = (AmmoType.DamageProfile.PainExpression.Evaluate(actor) +
+                           payloadEffects.Sum(x => x.ProjectilePainBonus)) * damageMultiplier;
+        double finalStun = (AmmoType.DamageProfile.StunExpression.Evaluate(actor) +
+                           payloadEffects.Sum(x => x.ProjectileStunBonus)) * damageMultiplier;
         return new Damage
         {
             ActorOrigin = actor,
@@ -651,10 +670,14 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 
     public virtual void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
         OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo, IRangedWeaponType weaponType,
-        IEmoteOutput defenseEmote)
+        IEmoteOutput defenseEmote, RangedFireContext context = null)
     {
+        _currentFireContext = context ?? new RangedFireContext();
         // Ammunition that is just created and lodges can cause a crash if we don't flush now
-        Gameworld.SaveManager.Flush();
+        if (_currentFireContext.ProjectileIndex == 0)
+        {
+            Gameworld.SaveManager.Flush();
+        }
 
         if (target == null)
         {

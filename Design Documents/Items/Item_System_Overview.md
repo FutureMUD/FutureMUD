@@ -1,5 +1,7 @@
 # FutureMUD Item System Overview
 
+Modern `Gun`, `InternalMagazineGun`, and `BoltAction` components can opt into named, form-factor-compatible attachment slots and finite single, burst, or automatic fire modes. Attachments remain ordinary composable items rather than embedded firearm data. See [Modern Firearms, Attachments, and Alternate Fire Modes](../Combat/Modern_Firearms_and_Attachments.md) for the runtime, builder, and persistence contract.
+
 ## Purpose
 This document set explains how the FutureMUD item system is structured, how item behaviour is composed through components, and how developers should add or extend item functionality.
 
@@ -21,6 +23,8 @@ At runtime:
 - `IGameItemComponentProto` is the revisioned, reusable definition for a component.
 
 Most gameplay-facing item behaviour is discovered by checking whether an item contains a component that implements some public interface such as `IContainer`, `IWearable`, `IMeleeWeapon`, `IProduceLight`, `ITelephone`, `ICellPhoneTower`, or `IImplant`.
+
+Component-prototype markers protect this composition in both directions: exclusive capabilities cannot be supplied twice, while requirement providers can demand capabilities from sibling components. Builders may assemble components in any order, but unresolved sibling requirements warn during editing and block submission or approval.
 
 ## Recommended Reading Order
 1. Start with [Item System Runtime Model](./Item_System_Runtime_Model.md) if you need to understand how items actually work.

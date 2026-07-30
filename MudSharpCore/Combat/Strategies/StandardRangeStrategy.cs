@@ -16,7 +16,7 @@ public class StandardRangeStrategy : CoverSeekingRangedStrategy
     {
         if (ch.CombatSettings.WeaponUsePercentage > 0.0 && ch.Race.CombatSettings.CanUseWeapons)
         {
-            return ch.Body.WieldedItems.Any(x =>
+            return ch.Body.WieldedItems.IncludingFirearmAttachments().Any(x =>
                 x.GetItemType<IRangedWeapon>() is IRangedWeapon rw &&
                 ch.CombatSettings.ClassificationsAllowed.Contains(rw.Classification) &&
                 (rw.ReadyToFire || (!rw.IsLoaded && rw.CanLoad(ch, true)) || (!rw.IsReadied && rw.CanReady(ch))))
@@ -36,7 +36,9 @@ public class StandardRangeStrategy : CoverSeekingRangedStrategy
             return false;
         }
 
-        if (ch.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+        if (ch.Body.WieldedItems
+              .IncludingFirearmAttachments()
+              .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
               .Any(rw =>
                   (rw.ReadyToFire || (!rw.IsLoaded && rw.CanLoad(ch, true)) || (!rw.IsReadied && rw.CanReady(ch))) &&
                   rw.WeaponType.RangedWeaponType.MinimumFiringPosition().CompareTo(ch.PositionState)

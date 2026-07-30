@@ -19,5 +19,8 @@ namespace MudSharp.Models
         public string StunExpression { get; set; }
         public string PainExpression { get; set; }
         public int DamageType { get; set; }
+        public int ProjectileCount { get; set; }
+        public int? ScatterType { get; set; }
+        public double SpreadPenalty { get; set; }
     }
 }

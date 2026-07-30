@@ -111,6 +111,8 @@ It owns:
 
 Component protos also advertise their runtime capability contracts through marker interfaces such as `IContainerPrototype`, `IWearablePrototype`, or `ILiquidContainerPrototype`. Item prototypes use these markers to reject duplicate exclusive capabilities when builders attach components or submit an item prototype for review. Aggregate markers remain intentionally stackable; for example, multiple worn trait-change components on the same item all contribute their bonuses or penalties while the item is worn.
 
+Prototype composition is checked in both directions. `IGameItemComponentPrototypeRequirementProvider` declares the inverse relationship: a component can require one or more runtime capabilities from other siblings. Requirements are advisory while a builder is assembling an item, but unresolved requirements make `CanSubmit()` false and therefore block both submission and review approval.
+
 ## Composition Model
 ### Components define capabilities
 The item system is intentionally interface-first and component-driven.
@@ -122,6 +124,10 @@ New-style food follows the same rule. A live item becomes prepared food because 
 Ranged weapons follow the same component rule. Bows, crossbows, firearms, slings, and blowguns are live item capabilities because their components implement `IRangedWeapon`; their projectiles remain ordinary `Ammunition` components keyed by `RangedWeaponType` and specific ammunition grade. The sling and blowgun components are first-class ranged weapons rather than melee stand-ins: slings use short-ranged sling ammunition, quick ready/load/fire timings, strength-weighted ranged type formulas, and the shared readied-ranged stamina drain while whirled; blowguns use very short-ranged piercing dart ammunition and opt in to `IRangedWeapon.CanFireWhileHidden`.
 
 Projectile damage has one owner: the loaded `Ammunition` component builds damage from its `AmmunitionType` and the firing `RangedWeaponType`. Sling and blowgun components perform weapon state and feasibility work, then pass the shot into that shared ammunition pipeline. They do not expose a parallel component-level damage calculation. This keeps damage, lodging/recovery, cover interaction, and weapon-poison transfer consistent with the other ranged families.
+
+Modern firearms extend this composition through `IFirearmAttachmentHost`. Installed attachments are ordinary contained items keyed to an authored slot, participate in attached-item targeting and spatial resolution, and aggregate passive modifiers into the host's aim, accuracy, damage, range, recoil, stamina, delay, aim loss, and audio values. Multi-projectile ammunition still delegates every pellet or projectile to the shared ammunition resolution pipeline. See [Modern Firearms, Attachments, and Alternate Fire Modes](../Combat/Modern_Firearms_and_Attachments.md).
+
+A bayonet does not mutate or copy weapon-type data into the firearm. The firearm's `IMeleeWeapon` implementation dynamically delegates to an installed bayonet-category attachment's sibling `IMeleeWeapon` component and falls back to the firearm prototype when none is installed. Similarly, an attached launcher remains its own `IRangedWeapon`, and an attached flashlight remains its own light, switch, and power state. This keeps installation state separate from each accessory's functional state.
 
 Blowgun use is breath-gated at the component level. A character must have a breathing body, currently be able to breathe, have a mouth bodypart, and have no item worn over that mouth in order to ready or fire a blowgun. Because breathing filters and rebreathers are discovered through mouth-worn item components, this same uncovered-mouth rule blocks blowgun use while wearing breathing apparatus, masks, gags, or any other mouth-covering item.
 

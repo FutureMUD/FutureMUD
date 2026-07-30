@@ -166,8 +166,10 @@
     },
     {
         "Component Type Name":  "BoltAction",
-        "Component Type Description":  "Makes an item a [ranged weapon] with bolt-action rifle mechanics",
+        "Component Type Description":  "Makes an item a modular [ranged weapon] with bolt-action rifle mechanics, opt-in attachment slots and configurable fire modes",
         "Exclusive Types":  [
+                                "IFirearm",
+                                "IFirearmAttachmentHost",
                                 "IMeleeWeapon",
                                 "IRangedWeapon",
                                 "IWieldable"
@@ -527,6 +529,13 @@
                             ]
     },
     {
+        "Component Type Name":  "FirearmAttachment",
+        "Component Type Description":  "Makes an item a form-factor-compatible modular attachment for modern firearms and can require sibling item capabilities",
+        "Exclusive Types":  [
+                                "IFirearmAttachment"
+                            ]
+    },
+    {
         "Component Type Name":  "Food",
         "Component Type Description":  "Turns an item into an edible food object",
         "Exclusive Types":  [
@@ -595,8 +604,10 @@
     },
     {
         "Component Type Name":  "Gun",
-        "Component Type Description":  "Makes an item a [ranged weapon] with removable-magazine semi-automatic gun mechanics",
+        "Component Type Description":  "Makes an item a modular [ranged weapon] with removable-magazine and selectable fire-mode mechanics",
         "Exclusive Types":  [
+                                "IFirearm",
+                                "IFirearmAttachmentHost",
                                 "IMeleeWeapon",
                                 "IRangedWeapon",
                                 "IWieldable"
@@ -638,6 +649,13 @@
         "Exclusive Types":  [
                                 "IImmobilise",
                                 "IWearable"
+                            ]
+    },
+    {
+        "Component Type Name":  "ImpactDetonator",
+        "Component Type Description":  "Detonates a required sibling [explosive] after this item resolves as a fired ammunition projectile",
+        "Exclusive Types":  [
+                                "IImpactDetonator"
                             ]
     },
     {
@@ -751,8 +769,10 @@
     },
     {
         "Component Type Name":  "InternalMagazineGun",
-        "Component Type Description":  "Makes an item a [ranged weapon] with internal-magazine semi-automatic gun mechanics",
+        "Component Type Description":  "Makes an item a modular [ranged weapon] with an internal magazine and configurable manual or self-loading action",
         "Exclusive Types":  [
+                                "IFirearm",
+                                "IFirearmAttachmentHost",
                                 "IMeleeWeapon",
                                 "IRangedWeapon",
                                 "IWieldable"

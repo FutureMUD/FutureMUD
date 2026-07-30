@@ -59,7 +59,7 @@ public class FlareAmmunitionGameItemComponent : AmmunitionGameItemComponent
 
     public override void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
         OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo, IRangedWeaponType weaponType,
-        IEmoteOutput defenseEmote)
+        IEmoteOutput defenseEmote, RangedFireContext context = null)
     {
         if (target == null && actor.Location.CurrentOverlay.OutdoorsType == CellOutdoorsType.Outdoors)
         {
@@ -78,7 +78,8 @@ public class FlareAmmunitionGameItemComponent : AmmunitionGameItemComponent
             }
         }
 
-        base.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo, weaponType, defenseEmote);
+        base.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo, weaponType, defenseEmote,
+            context);
     }
 
     #endregion

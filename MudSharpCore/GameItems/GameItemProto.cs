@@ -236,6 +236,17 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
             sb.AppendLine("\tNone");
         }
 
+        var missingRequirements = GameItemComponentPrototypeRequirements.FindMissingRequirements(_components);
+        if (missingRequirements.Any())
+        {
+            sb.AppendLine();
+            sb.AppendLine("Component Composition Warnings:".ColourError());
+            foreach (var requirement in missingRequirements)
+            {
+                sb.AppendLine($"\t{DescribeMissingComponentRequirement(requirement)}".ColourError());
+            }
+        }
+
         if (ExtraDescriptions.Any())
         {
             sb.AppendLine();
@@ -649,7 +660,8 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
         return Material != null &&
                GameItemProtoLookupExtensions.IsValidUniqueName(UniqueName) &&
                Gameworld.ItemProtos.GetActiveUniqueNameConflict(UniqueName, Id) is null &&
-               !GameItemComponentPrototypeExclusivity.FindConflicts(_components).Any();
+               !GameItemComponentPrototypeExclusivity.FindConflicts(_components).Any() &&
+               !GameItemComponentPrototypeRequirements.FindMissingRequirements(_components).Any();
     }
 
     public override string WhyCannotSubmit()
@@ -675,6 +687,13 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
         if (conflict is not null)
         {
             return DescribeExclusiveComponentConflict(conflict);
+        }
+
+        var missingRequirement =
+            GameItemComponentPrototypeRequirements.FindMissingRequirements(_components).FirstOrDefault();
+        if (missingRequirement is not null)
+        {
+            return DescribeMissingComponentRequirement(missingRequirement);
         }
 
         return base.WhyCannotSubmit();
@@ -2414,6 +2433,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
         _components.Remove(component);
         actor.OutputHandler.Send("You remove the " + component.Name.Colour(Telnet.Cyan) +
                                  " component from Item Prototype #" + Id + " Revision " + RevisionNumber + ".");
+        WarnAboutMissingComponentRequirements(actor);
         Changed = true;
         return true;
     }
@@ -2461,6 +2481,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
         _components.Add(component);
         actor.OutputHandler.Send(
             $"You attach the {component.Name.Proper().Colour(Telnet.Cyan)} component to Item Prototype #{Id.ToString("N0", actor)} Revision {RevisionNumber.ToString("N0", actor)}.");
+        WarnAboutMissingComponentRequirements(actor);
         Changed = true;
         return true;
     }
@@ -2475,6 +2496,31 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 
         return
             $"The {conflict.Candidate.Name.ColourName()} component cannot be used with the {conflict.Existing.Name.ColourName()} component because both provide the exclusive {capability.SplitCamelCase().ColourName()} item capability.";
+    }
+
+    private void WarnAboutMissingComponentRequirements(ICharacter actor)
+    {
+        var missingRequirements = GameItemComponentPrototypeRequirements.FindMissingRequirements(_components);
+        if (!missingRequirements.Any())
+        {
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"{"Warning:".Colour(Telnet.Yellow)} This item prototype has incomplete component composition:\n{string.Join("\n", missingRequirements.Select(x => $"\t{DescribeMissingComponentRequirement(x)}"))}");
+    }
+
+    private static string DescribeMissingComponentRequirement(
+        MissingGameItemComponentPrototypeRequirement missingRequirement)
+    {
+        var capability =
+            GameItemComponentPrototypeRequirements.DescribeComponentCapability(
+                missingRequirement.Requirement.Capability);
+        var reason = string.IsNullOrWhiteSpace(missingRequirement.Requirement.Reason)
+            ? string.Empty
+            : $" because {missingRequirement.Requirement.Reason}";
+        return
+            $"The {missingRequirement.RequiringComponent.Name.ColourName()} component requires another component providing the {capability.ColourName()} item capability{reason}.";
     }
 
     private bool BuildingCommandRegister(ICharacter actor, StringStack command)

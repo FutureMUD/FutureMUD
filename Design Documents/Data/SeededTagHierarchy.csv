@@ -328,6 +328,42 @@ Padding	Material Functions	Functions / Material Functions / Padding
 Salvagable Fabric	Material Functions	Functions / Material Functions / Salvagable Fabric
 String	Material Functions	Functions / Material Functions / String
 Tanning Agent	Material Functions	Functions / Material Functions / Tanning Agent
+Antiquity Equipment Stock	Material Functions	Functions / Material Functions / Antiquity Equipment Stock
+Weapon Blade Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Blade Stock
+Weapon Head Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Head Stock
+Weapon Shaft Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Shaft Stock
+Bow Stave	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Bow Stave
+Fletching Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Fletching Stock
+Military Cord Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Military Cord Stock
+Shield Board Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Shield Board Stock
+Shield Facing Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Shield Facing Stock
+Helmet Bowl Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Helmet Bowl Stock
+Armour Plate Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Plate Stock
+Armour Ring Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Ring Stock
+Armour Scale Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Scale Stock
+Armour Lamella Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Lamella Stock
+Armour Textile Padding	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Textile Padding
+Tool Blank Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Tool Blank Stock
+Textile Commodity	Material Functions	Functions / Material Functions / Textile Commodity
+Raw Textile Fibre	Textile Commodity	Functions / Material Functions / Textile Commodity / Raw Textile Fibre
+Prepared Textile Fibre	Textile Commodity	Functions / Material Functions / Textile Commodity / Prepared Textile Fibre
+Spun Yarn	Textile Commodity	Functions / Material Functions / Textile Commodity / Spun Yarn
+Garment Cloth	Textile Commodity	Functions / Material Functions / Textile Commodity / Garment Cloth
+Woven Cloth	Garment Cloth	Functions / Material Functions / Textile Commodity / Garment Cloth / Woven Cloth
+Household Craft Stock	Material Functions	Functions / Material Functions / Household Craft Stock
+Furniture Timber Stock	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Furniture Timber Stock
+Prepared Leather Panel	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Prepared Leather Panel
+Primary Production	Material Functions	Functions / Material Functions / Primary Production
+Primary Production Stone	Primary Production	Functions / Material Functions / Primary Production / Primary Production Stone
+Primary Production Clay	Primary Production	Functions / Material Functions / Primary Production / Primary Production Clay
+Primary Production Commodity	Primary Production	Functions / Material Functions / Primary Production / Primary Production Commodity
+Charcoal Fuel Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Charcoal Fuel Commodity
+Metal Billet Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Metal Billet Commodity
+Metal Bar Stock Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Metal Bar Stock Commodity
+Dressed Stone Block Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Dressed Stone Block Commodity
+Prepared Clay Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Prepared Clay Commodity
+Fired Brick Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Fired Brick Commodity
+Door Hardware Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Door Hardware Stock
 Writing Craft Stock	Material Functions	Functions / Material Functions / Writing Craft Stock
 Bookbinding Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Bookbinding Stock
 Ink Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Ink Stock
@@ -392,6 +428,14 @@ Shears	Shearing	Functions / Separation / Shearing / Shears
 Sharpening	Functions	Functions / Sharpening
 Shiny	Functions	Functions / Shiny
 Tools	Functions	Functions / Tools
+Masonry Tool	Tools	Functions / Tools / Masonry Tool
+Charcoal Burning Tool	Tools	Functions / Tools / Charcoal Burning Tool
+Kiln Tool	Tools	Functions / Tools / Kiln Tool
+Smelting Tool	Tools	Functions / Tools / Smelting Tool
+Hauling Tool	Tools	Functions / Tools / Hauling Tool
+Primary Production Tools	Tools	Functions / Tools / Primary Production Tools
+Lime Kiln	Primary Production Tools	Functions / Tools / Primary Production Tools / Lime Kiln
+Timekeeping Tools	Tools	Functions / Tools / Timekeeping Tools
 Access Equipment	Tools	Functions / Tools / Access Equipment
 Ladder	Access Equipment	Functions / Tools / Access Equipment / Ladder
 A-Frame Ladder	Ladder	Functions / Tools / Access Equipment / Ladder / A-Frame Ladder

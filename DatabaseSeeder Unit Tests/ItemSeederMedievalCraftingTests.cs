@@ -522,10 +522,19 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalCraftLaunchers_AreNoOps()
+	public void MedievalCraftLaunchers_OnlyProductionChainIsImplemented()
 	{
 		var medievalCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Medieval.cs");
-		foreach (var method in MedievalCraftLaunchers)
+		Assert.IsTrue(
+			Regex.IsMatch(
+				medievalCraftSource,
+				@"private\s+void\s+SeedMedievalProductionChainCrafts\s*\(\s*\)\s*\{(?<body>.*?)\n\t\}",
+				RegexOptions.Singleline | RegexOptions.CultureInvariant) &&
+			medievalCraftSource.Contains("MedievalProductionCraftSpecs().OrderBy(x => x.Phase)", StringComparison.Ordinal),
+			"SeedMedievalProductionChainCrafts should admit the phase-ordered production catalogue.");
+
+		foreach (var method in MedievalCraftLaunchers.Where(x =>
+			         !x.Equals("SeedMedievalProductionChainCrafts", StringComparison.Ordinal)))
 		{
 			AssertNoOpMethod(medievalCraftSource, method);
 		}
@@ -541,7 +550,7 @@ public class ItemSeederMedievalCraftingTests
 		})
 		{
 			Assert.IsFalse(medievalCraftSource.Contains(forbidden, StringComparison.Ordinal),
-				$"Medieval craft launch stubs should not retain retired source token {forbidden}.");
+				$"Medieval crafting should not retain retired source token {forbidden}.");
 		}
 	}
 

@@ -1,13 +1,13 @@
 # FutureMUD Medieval Industry Tools and Intermediate Stock Item Catalogue
 
-**Status:** implemented item-catalogue source for the first medieval industry prerequisite item pass.  
-**Date:** 1 July 2026.  
+**Status:** implemented item catalogue with an active first-tier production-chain craft foundation.
+**Date:** 30 July 2026.
 **Era band:** approximately 500-1300 CE.  
 **Implementation files:** `DatabaseSeeder/Seeders/ItemSeeder.MedievalHouseholdTools.cs` and `DatabaseSeeder/Seeders/ItemSeeder.MedievalComponentGaps.cs`.
 
-This catalogue is the concrete item-prototype layer that sits between the merged medieval industry-chain design and the future medieval craft definitions. It creates the tools, workshop apparatus, and shared intermediate stock that later crafts can consume while recursively closing finished items back to butchery, forage, agricultural, or primary-industry products.
+This catalogue is the concrete item-prototype layer for the medieval industry chain. It creates the tools, workshop apparatus, and shared intermediate stock that later crafts consume while recursively closing finished items back to butchery, forage, agricultural, or primary-industry products.
 
-This pass does **not** implement medieval crafts. The craft authoring target remains `DatabaseSeeder/Seeders/ItemSeeder.Crafting.Medieval.cs`.
+`DatabaseSeeder/Seeders/ItemSeeder.Crafting.Medieval.cs` now activates the first 35 production-chain crafts: 16 first-tier stock recipes, 17 tool or apparatus recipes, and two high-heat activation recipes. The remaining catalogue rows are still staged for later dependency-ordered craft passes.
 
 ---
 
@@ -17,8 +17,9 @@ This pass does **not** implement medieval crafts. The craft authoring target rem
 - `SeedMedievalComponentGapItems` now seeds the first medieval intermediate-stock catalogue.
 - The first item pass creates **168 tool/workshop prototypes** and **50 intermediate stock prototypes**, for **218 total item prototypes**.
 - Tool items use the shared `Tool_*_General` HandTool component profiles created by the merged prerequisite pass, plus exact functional tool tags where available.
-- Intermediate stock rows are player-visible, portable craft stock. They are intentionally not finished consumer goods and are expected to become inputs or outputs of production-chain crafts in the next pass.
+- Intermediate stock rows are player-visible, portable craft stock. The first 16 foundational rows now have active production-chain recipes; the remaining rows are intentionally staged for later passes.
 - The catalogue reuses the existing `historic_*` foundation tools where appropriate rather than cloning basic hearths, kilns, looms, spindles, needles, shears, awls, dye vats, tanning racks, querns, oil lamps, anvils, tongs, hammers, and bellows.
+- Primary Production remains the owner of charcoal, ore preparation, metal billets and bars, quarrying, clay preparation, brick firing, saltworking, and their extraction tools.
 
 ## Catalogue distribution
 
@@ -59,13 +60,16 @@ This pass does **not** implement medieval crafts. The craft authoring target rem
 
 ---
 
-## Craft follow-up
+## Active craft foundation and follow-up
 
-The next implementation pass should not jump directly to finished catalogue items. It should first create production-chain crafts in dependency order:
+The active 35-craft foundation is dependency ordered:
 
-1. terminal-source products to intermediate stock;
-2. intermediate stock to tool and apparatus rows;
-3. tool-supported stock refinement;
-4. category-specific finished item crafts.
+1. phase 0 records Historic Foundation, Primary Production, and explicit upstream terminal owners;
+2. phase 1 creates 16 timber, textile, leather, parchment, metal, clay, workshop-supply, and medical stock items;
+3. phase 2 creates 11 basic tools and high-heat workshop items;
+4. phase 3 creates six specialist parchment, paper, book, stone, and medical tools;
+5. phase 4 activates the smithing forge and bloomery furnace.
 
-Any craft that discovers a missing terminal source should route that gap to the owning upstream seeder: butchery, forage, agriculture, pastoral/apiary/sericulture, mining, quarrying, forestry, clay, salt, gem, or other primary production.
+Every exact Medieval item input comes from an earlier phase. Functional tools resolve through seeded Historic Foundation, Primary Production, or earlier Medieval tool tags. The next craft pass may extend the remaining intermediate stock and specialist-tool closure before moving to a single downstream finished-goods family.
+
+The full food, beverage, and preservation slice remains deferred, including the missing lauter tun. Wheelwright clamps, tenon cutters, brain-tanning buckets, earth rammers, and a separate dressing axe remain deferred until a dependent workflow justifies them. Any new terminal-source gap must still be routed to butchery, forage, agriculture, pastoral/apiary/sericulture, or Primary Production rather than invented by the Medieval item seeder.

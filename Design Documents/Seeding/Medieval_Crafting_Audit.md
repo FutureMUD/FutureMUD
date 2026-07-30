@@ -1,6 +1,6 @@
 # Medieval ItemSeeder Rebuild Audit
 
-The medieval `ItemSeeder` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, military-goods prototypes, writing/book/document prototypes, treatment and repair prototypes, decorative jewellery prototypes, and the first medieval industry tool and intermediate-stock item catalogue.
+The medieval `ItemSeeder` item and craft implementation was reset for a from-scratch rebuild. The rebuild now includes direct seeded clothing, household goods and furniture, military-goods prototypes, writing/book/document prototypes, treatment and repair prototypes, decorative jewellery prototypes, the medieval industry tool and intermediate-stock item catalogue, and the first active Medieval production-chain crafts.
 
 ## Current Runtime State
 
@@ -19,7 +19,8 @@ The medieval `ItemSeeder` item and craft implementation was reset to launch stub
 - `SeedMedievalRepairKits` contains the direct repair-kit and repair-supply `CreateItem(...)` calls.
 - `SeedMedievalHouseholdCraftTools` now seeds the first medieval industry tool and workshop-apparatus item catalogue.
 - `SeedMedievalComponentGapItems` now seeds the first medieval intermediate-stock item catalogue.
-- `ItemSeeder.Crafting.Medieval.cs` currently contains no-op medieval craft launch points only.
+- `SeedMedievalProductionChainCrafts` now seeds the phase-ordered 35-craft Medieval industry foundation when the `medieval` era is selected.
+- The other nine Medieval craft launch points remain explicit no-ops.
 - The old authored outfit catalogue, explicit culture catalogue, generated helper/data model, and medieval craft helper families have been removed.
 
 ## Shared Baseline Admission
@@ -64,8 +65,9 @@ Use `owning_resolution_pass` to route missing prerequisites to the shared owner 
 The medieval industry prerequisite pass is reflected in the maintained data documents as follows:
 
 - `Design Documents/Data/Seeded_Item_Components.json` includes the shared `Tool_*_General` `HandTool` prototypes seeded by `UsefulSeeder.ItemComponents.cs`.
-- `Design Documents/Data/SeededTagHierarchy.csv` includes the new `Functions / Tools / Apothecary Tools`, `Functions / Tools / Jewellery Tools`, and `Functions / Tools / Lapidary Tools` branches and their child paths.
-- `Item_Component_Types.json`, `Seeded_Materials.json`, `Seeded_Liquids.json`, and `Seeded_Gases.json` were checked and did not require changes for this pass because no new component type, material, liquid, or gas was introduced.
+- `Design Documents/Data/SeededTagHierarchy.csv` includes the required textile, household-stock, Primary Production commodity, Primary Production tool, apothecary, jewellery, and lapidary paths. The production-chain pass repaired pre-existing export drift for the live tags it now consumes.
+- `Seeded_Materials.json` now includes the already-live `prepared clay` and `fired brick` materials consumed by this chain; this repairs pre-existing export drift rather than introducing new materials.
+- `Seeded_Item_Components.json`, `Item_Component_Types.json`, `Seeded_Liquids.json`, and `Seeded_Gases.json` were checked and did not require changes because this pass introduces no component type, component prototype, liquid, or gas.
 - `SkillPackageSeeder.cs` now includes the repeated medieval industry prerequisite skills `Goldsmithing`, `Glassblowing`, `Lapidary`, `Fulling`, `Parchmentmaking`, `Papermaking`, `Bookbinding`, `Calligraphy`, `Scribing`, `Woodblock Printing`, and `Quarrying`; there is no separate maintained skill-package data export under `Design Documents/Data`.
 
 ## Active Medieval Industry Tool and Stock Source
@@ -76,7 +78,10 @@ The first medieval industry foundation item source is implemented as current ite
 - Intermediate stock item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalComponentGaps.cs`.
 - Catalogue metadata lives in `Design Documents/Seeding/FutureMUD_Medieval_Industry_Tools_And_Stock_Item_Catalogue.md`.
 - This item pass creates 168 tool/workshop prototypes and 50 intermediate stock prototypes.
-- Industry crafts are not rebuilt yet; `SeedMedievalProductionChainCrafts` and `SeedMedievalComponentGapCrafts` remain no-op craft launch points.
+- `SeedMedievalProductionChainCrafts` now creates 16 first-tier stock crafts, 17 tool/apparatus crafts, and two forge/furnace activation crafts under the `Medieval Industry Foundations` knowledge.
+- Craft dependencies record phase and source ownership. Exact Medieval inputs come only from earlier phases; functional tools resolve through Historic Foundation, Primary Production, or earlier Medieval items.
+- Primary Production owns charcoal, extraction tools, ore and metal preparation, quarrying, clay, brick, and salt inputs, so the Medieval slice does not duplicate those prototypes.
+- `SeedMedievalComponentGapCrafts` remains a no-op for the later stock rows outside this first foundation.
 
 ## Active Clothing Source
 

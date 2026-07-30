@@ -1946,6 +1946,14 @@
                  ]
     },
     {
+        "Material Name":  "fired brick",
+        "Tags":  [
+                     "Functions / Material Functions / Primary Production / Primary Production Stone",
+                     "Functions / Material Functions / Primary Production / Primary Production Clay",
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
         "Material Name":  "fired clay",
         "Tags":  [
                      "Materials / Manufactured Materials / Ceramic"
@@ -3940,6 +3948,12 @@
         "Material Name":  "pozzolanic ash",
         "Tags":  [
                      "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "prepared clay",
+        "Tags":  [
+                     "Functions / Material Functions / Primary Production / Primary Production Clay"
                  ]
     },
     {

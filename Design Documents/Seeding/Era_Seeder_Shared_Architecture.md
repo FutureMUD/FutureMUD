@@ -53,7 +53,7 @@ If an era needs different behaviour, express it through configuration or a small
 
 Cross-era reuse does not directly invoke broad earlier-era catalogues. Existing `historic_*` and `primary_production_*` rows retain their stable references, while selected Antiquity and Medieval forms receive `preindustrial_*` aliases with copied physical/component data and source-attribution builder notes. Alias lifecycle targets must resolve to aliases when both endpoints are promoted.
 
-See [Pre-Industrial Shared Item Seeder Design Reference](./PreIndustrial_Item_Seeder_Design_Reference.md) and its [complete alias catalogue](./PreIndustrial_Item_Seeder_Alias_Catalogue.md).
+See [Pre-Industrial Shared Item Seeder Design Reference](./PreIndustrial_Item_Seeder_Design_Reference.md) and its [complete alias catalogue](./PreIndustrial_Item_Seeder_Alias_Catalogue.md). Era admission is governed by the populated [Medieval](./FutureMUD_Medieval_Shared_Baseline_Admission_Manifest.md), [Renaissance](./FutureMUD_Renaissance_Shared_Baseline_Admission_Manifest.md), and [Early Modern](./FutureMUD_EarlyModern_Shared_Baseline_Admission_Manifest.md) manifests. Each contains one decision for all 385 live shared stable references and is generated from source truth with `scripts/generate-preindustrial-admission-manifests.ps1`.
 
 ## No Patch-After-Create Clothing
 

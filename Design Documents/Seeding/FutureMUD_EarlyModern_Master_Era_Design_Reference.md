@@ -424,7 +424,7 @@ The shared baseline reference and alias catalogue already exist and should be tr
 8. `FutureMUD_EarlyModern_PrimaryIndustry_UsefulSeeder_Impact_Reference.md`
 9. `FutureMUD_EarlyModern_Culture_Manifest_Reference.md`
 
-The admission manifest should map shared rows to cultures, date anchors, institutions, professions, shops, military systems, and crafts. It must not clone item prototypes.
+The admission manifest is complete and maps all 385 live shared rows to cultures/contact scopes, date anchors, institutions, professions, shops, military systems, crafts, prevalence, trade status, and component reality. It does not clone item prototypes.
 
 ## Exclusions
 

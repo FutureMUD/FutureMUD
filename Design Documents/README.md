@@ -69,6 +69,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Medieval Treatment Items, Drugs, and Repair Kits Design Reference](./Seeding/FutureMUD_Medieval_Treatment_Drugs_Repair_Kits_Design_Reference.md)
 - [Pre-Industrial Shared Item Seeder Design Reference](./Seeding/PreIndustrial_Item_Seeder_Design_Reference.md)
 - [Pre-Industrial Item Seeder Alias Catalogue](./Seeding/PreIndustrial_Item_Seeder_Alias_Catalogue.md)
+- [Medieval Shared Baseline Admission Manifest](./Seeding/FutureMUD_Medieval_Shared_Baseline_Admission_Manifest.md)
 - [Butchering System](./Crafting/Butchering_System.md)
 - [Crafting System Overview](./Crafting/Crafting_System_Overview.md)
 - [Crafting System Runtime and Extensibility](./Crafting/Crafting_System_Runtime_and_Extensibility.md)

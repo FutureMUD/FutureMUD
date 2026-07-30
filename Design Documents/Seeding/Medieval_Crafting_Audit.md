@@ -22,6 +22,12 @@ The medieval `ItemSeeder` item and craft implementation was reset to launch stub
 - `ItemSeeder.Crafting.Medieval.cs` currently contains no-op medieval craft launch points only.
 - The old authored outfit catalogue, explicit culture catalogue, generated helper/data model, and medieval craft helper families have been removed.
 
+## Shared Baseline Admission
+
+The [Medieval Shared Baseline Admission Manifest](./FutureMUD_Medieval_Shared_Baseline_Admission_Manifest.md) is the completed admission registry for the common `preindustrial_*` layer. It covers all 385 live shared stable references: 342 source-derived compatibility aliases and 43 shared-authored prototypes.
+
+The manifest distinguishes installation from historical admission. It records ordinary, institutional, restricted, specialist, imported, and intentionally not-admitted decisions by culture/contact scope, date, and admitting context. In particular, the movable-type printing suite, telescope, specifically maritime astrolabe, and musket-era gunpowder-support suite are not admitted to the 500-1400 CE manifest. Earlier planispheric astrolabes, hand-gonne equipment, or artillery props require separately authored period-appropriate rows rather than reuse of these later forms. These decisions do not create or clone item prototypes.
+
 ## Prerequisite Routing Audit Shape
 
 The medieval craft-completeness audit now tracks prerequisite ownership as well as finished-item craft coverage. Any generated or maintained audit table for the craft rebuild should include these columns:

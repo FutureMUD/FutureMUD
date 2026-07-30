@@ -42,7 +42,7 @@ Shared pre-industrial alias derived from <source stable reference>; original <so
 
 ## New shared stock
 
-The baseline also provides the following 44 requested shared stock names:
+The baseline also satisfies 44 requested shared stock concepts:
 
 - 11 printing and paper-administration forms
 - 12 navigation, surveying, optical, and scientific forms
@@ -50,6 +50,18 @@ The baseline also provides the following 44 requested shared stock names:
 - 11 global-trade packaging forms
 
 `preindustrial_trade_spice_chest` is represented by the compatibility alias of `medieval_locking_trade_spice_chest`. The broad trade-alias rule and the new-stock list assign the same stable reference to those two concepts; using the source-derived lockable chest preserves idempotency, supplies real container behaviour, and avoids a duplicate unique name.
+
+Consequently, the live admission inventory contains 385 unique stable references: 342 compatibility aliases and 43 shared-authored prototypes.
+
+## Era admission manifests
+
+Installing the shared catalogue makes prototypes available to builders; it does not make every prototype ordinary in every era or culture. The populated admission manifests record one explicit decision for every live shared stable reference:
+
+- [Medieval Shared Baseline Admission Manifest](./FutureMUD_Medieval_Shared_Baseline_Admission_Manifest.md)
+- [Renaissance Shared Baseline Admission Manifest](./FutureMUD_Renaissance_Shared_Baseline_Admission_Manifest.md)
+- [Early Modern Shared Baseline Admission Manifest](./FutureMUD_EarlyModern_Shared_Baseline_Admission_Manifest.md)
+
+Each manifest contains 385 unique rows and records culture/contact scope, date window, admitting context, availability, trade/contact status, and component reality. `Not admitted` is a completed historical decision. The manifests are regenerated from live source truth with `scripts/generate-preindustrial-admission-manifests.ps1`; `-Check` fails when a committed manifest drifts from the alias catalogue, authored item specifications, or admission rules.
 
 ## Component boundaries
 
@@ -80,7 +92,7 @@ The baseline does not promote:
 
 ## Verification contract
 
-`PreIndustrialBaselineTests` checks:
+`PreIndustrialBaselineTests` and `PreIndustrialAdmissionManifestTests` check:
 
 - all four supported era selections dispatch the shared baseline
 - alias and new stable references are unique and lowercase underscore identifiers
@@ -91,4 +103,8 @@ The baseline does not promote:
 - alias lifecycle targets do not fall back to medieval rows
 - gunpowder-support rows have no firearm, ammunition, bomb, or explosive components
 - medieval writing tag/component strings contain no backticks
+- all three era admission manifests contain the exact 385-row live inventory
+- every admission record has all required decision fields and the correct source
+- historically sensitive printing, firearms, telescope, and commodity-package gates remain explicit
+- generated manifests contain no policy-template or incomplete-work placeholders
 

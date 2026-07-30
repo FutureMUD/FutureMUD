@@ -8010,5 +8010,85 @@
         "Component Name":  "VehicleSeeder_Hitch_HeavyTowBar",
         "Component Description":  "Turns an item into a heavy rigid tow bar for large road vehicles.",
         "Component Type":  "HitchGear"
+    },
+    {
+        "Component Name":  "Shotgun_12_Gauge_Pump",
+        "Component Description":  "Turns an item into a modular 12-gauge pump-action shotgun",
+        "Component Type":  "InternalMagazineGun"
+    },
+    {
+        "Component Name":  "Rifle_556_Select_Fire",
+        "Component Description":  "Turns an item into a modular 5.56mm select-fire rifle",
+        "Component Type":  "Gun"
+    },
+    {
+        "Component Name":  "Reflex_Optic",
+        "Component Description":  "Turns an item into a reflex optic firearm attachment",
+        "Component Type":  "FirearmAttachment"
+    },
+    {
+        "Component Name":  "Adjustable_Stock",
+        "Component Description":  "Turns an item into an adjustable stock firearm attachment",
+        "Component Type":  "FirearmAttachment"
+    },
+    {
+        "Component Name":  "Vertical_Grip",
+        "Component Description":  "Turns an item into a vertical grip firearm attachment",
+        "Component Type":  "FirearmAttachment"
+    },
+    {
+        "Component Name":  "Sound_Suppressor_556",
+        "Component Description":  "Turns an item into a sound suppressor 556 firearm attachment",
+        "Component Type":  "FirearmAttachment"
+    },
+    {
+        "Component Name":  "Weapon_Light_Mount",
+        "Component Description":  "Turns an item into a weapon light mount firearm attachment",
+        "Component Type":  "FirearmAttachment"
+    },
+    {
+        "Component Name":  "Underbarrel_Launcher_Mount",
+        "Component Description":  "Turns an item into an underbarrel launcher mount firearm attachment",
+        "Component Type":  "FirearmAttachment"
+    },
+    {
+        "Component Name":  "Modern_Bayonet_Mount",
+        "Component Description":  "Turns an item into a modern bayonet mount firearm attachment",
+        "Component Type":  "FirearmAttachment"
+    },
+    {
+        "Component Name":  "Melee_Modern_Bayonet",
+        "Component Description":  "Turns an item into a modern bayonet melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Launcher_40mm_Underbarrel",
+        "Component Description":  "Turns an item into a single-shot 40mm underbarrel grenade launcher",
+        "Component Type":  "InternalMagazineGun"
+    },
+    {
+        "Component Name":  "ElectricLight_WeaponMounted",
+        "Component Description":  "Turns an item into a low-draw weapon-mounted flashlight",
+        "Component Type":  "ElectricLight"
+    },
+    {
+        "Component Name":  "BatteryPowered_WeaponLight",
+        "Component Description":  "Provides a weapon light with power from two CR123 batteries",
+        "Component Type":  "BatteryPowered"
+    },
+    {
+        "Component Name":  "Bomb_40mm_Impact_Grenade",
+        "Component Description":  "Turns a fired 40mm projectile into a compact fragmentation explosive",
+        "Component Type":  "Bomb"
+    },
+    {
+        "Component Name":  "ImpactDetonator_Fired_Grenade",
+        "Component Description":  "Detonates a sibling bomb component after fired-ammunition impact resolution",
+        "Component Type":  "ImpactDetonator"
+    },
+    {
+        "Component Name":  "Ammunition_40mm_Low_Velocity_Grenade",
+        "Component Description":  "Turns an item into a 40mm low-velocity impact grenade round",
+        "Component Type":  "Ammunition"
     }
 ]

@@ -43,6 +43,7 @@ INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('2020
 INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20260726211600_VehicleTerrestrialEnginePower','9.0.11');
 INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20260726211712_VehicleRiderPoweredPropulsion','9.0.11');
 INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20260727101435_CombatPositionAttackPreference','9.0.11');
+INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20260730053720_FirearmAttachmentsAndProjectileAmmunition','9.0.11');
 /*!40000 ALTER TABLE `__efmigrationshistory` ENABLE KEYS */;
 
 --
@@ -10751,6 +10752,9 @@ CREATE TABLE IF NOT EXISTS `ammunitiontypes` (
   `StunExpression` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `PainExpression` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `DamageType` int NOT NULL,
+  `ProjectileCount` int NOT NULL DEFAULT '1',
+  `ScatterType` int DEFAULT NULL,
+  `SpreadPenalty` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 

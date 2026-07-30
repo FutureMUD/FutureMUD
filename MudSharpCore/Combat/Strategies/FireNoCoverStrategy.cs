@@ -30,7 +30,7 @@ public class FireNoCoverStrategy : RangeBaseStrategy
     {
         if (ch.CombatSettings.WeaponUsePercentage > 0.0 && ch.Race.CombatSettings.CanUseWeapons)
         {
-            return ch.Body.WieldedItems.Any(x =>
+            return ch.Body.WieldedItems.IncludingFirearmAttachments().Any(x =>
                 x.GetItemType<IRangedWeapon>() is IRangedWeapon rw &&
                 ch.CombatSettings.ClassificationsAllowed.Contains(rw.Classification) &&
                 (rw.ReadyToFire || (!rw.IsLoaded && rw.CanLoad(ch, true)) || (!rw.IsReadied && rw.CanReady(ch))))

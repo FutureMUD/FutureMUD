@@ -4,6 +4,7 @@ using MudSharp.Combat.Moves;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Movement;
@@ -16,7 +17,9 @@ public abstract class StrategyBase : ICombatStrategy
     protected virtual IEnumerable<IRangedWeapon> GetNotReadyButLoadableWeapons(ICharacter shooter)
     {
         return
-            shooter.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+            shooter.Body.WieldedItems
+                   .IncludingFirearmAttachments()
+                   .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
                    .Where(x =>
                        !x.ReadyToFire && (
                            (!x.IsLoaded && x.CanLoad(shooter, true)) || (!x.IsReadied && x.CanReady(shooter))));
@@ -25,8 +28,13 @@ public abstract class StrategyBase : ICombatStrategy
     protected virtual IEnumerable<IRangedWeapon> GetReadyRangedWeapons(ICharacter shooter)
     {
         return
-            shooter.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
-                   .Where(x => x.ReadyToFire && shooter.CanSpendStamina(x.WeaponType.StaminaToFire))
+            shooter.Body.WieldedItems
+                   .IncludingFirearmAttachments()
+                   .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+                   .Where(x => x.ReadyToFire &&
+                               shooter.CanSpendStamina(x is IFirearm firearm
+                                   ? firearm.EffectiveStaminaToFire
+                                   : x.WeaponType.StaminaToFire))
                    .OrderBy(x => x.Parent.IsItemType<IMeleeWeapon>());
     }
 

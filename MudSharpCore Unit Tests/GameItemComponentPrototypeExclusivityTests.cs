@@ -2,12 +2,17 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Character;
+using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.PerceptionEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace MudSharp_Unit_Tests;
 
@@ -105,6 +110,95 @@ public class GameItemComponentPrototypeExclusivityTests
 	}
 
 	[TestMethod]
+	public void FindMissingRequirements_RequiredSiblingCapabilityIsAbsent_ReportsRequirement()
+	{
+		var requiring = new Mock<IGameItemComponentProto>();
+		requiring.SetupGet(x => x.Name).Returns("bayonet mount");
+		requiring.As<IGameItemComponentPrototypeRequirementProvider>()
+		         .SetupGet(x => x.RequiredSiblingComponents)
+		         .Returns([new GameItemComponentPrototypeRequirement(typeof(IMeleeWeapon))]);
+
+		var missing = GameItemComponentPrototypeRequirements.FindMissingRequirements([requiring.Object]).Single();
+
+		Assert.AreSame(requiring.Object, missing.RequiringComponent);
+		Assert.AreEqual(typeof(IMeleeWeapon), missing.Requirement.Capability);
+	}
+
+	[TestMethod]
+	public void FindMissingRequirements_RequiredSiblingCapabilityIsPresent_HasNoMissingRequirements()
+	{
+		var requiring = new Mock<IGameItemComponentProto>();
+		requiring.SetupGet(x => x.Name).Returns("bayonet mount");
+		requiring.As<IGameItemComponentPrototypeRequirementProvider>()
+		         .SetupGet(x => x.RequiredSiblingComponents)
+		         .Returns([new GameItemComponentPrototypeRequirement(typeof(IMeleeWeapon))]);
+		var meleeWeapon = CreatePrototype<IMeleeWeaponPrototype>(2, "bayonet melee profile");
+
+		Assert.IsFalse(GameItemComponentPrototypeRequirements
+		              .FindMissingRequirements([requiring.Object, meleeWeapon.Object])
+		              .Any());
+	}
+
+	[TestMethod]
+	public void ResolveComponentCapability_AcceptsInterfaceAndBuilderFacingNames()
+	{
+		Assert.AreEqual(typeof(IMeleeWeapon),
+			GameItemComponentPrototypeRequirements.ResolveComponentCapability("IMeleeWeapon"));
+		Assert.AreEqual(typeof(IMeleeWeapon),
+			GameItemComponentPrototypeRequirements.ResolveComponentCapability("Melee Weapon"));
+	}
+
+	[TestMethod]
+	public void FirearmCompositionComponents_ExposeRequirementProviderContract()
+	{
+		Assert.IsTrue(typeof(IGameItemComponentPrototypeRequirementProvider)
+		              .IsAssignableFrom(typeof(FirearmAttachmentGameItemComponentProto)));
+		Assert.IsTrue(typeof(IGameItemComponentPrototypeRequirementProvider)
+		              .IsAssignableFrom(typeof(ImpactDetonatorGameItemComponentProto)));
+	}
+
+	[TestMethod]
+	public void FirearmAttachmentPrototype_LoadsConfiguredSiblingRequirements()
+	{
+		var prototype = CreateDatabasePrototype<FirearmAttachmentGameItemComponentProto>(
+			"""
+			<Definition>
+			  <SlotType>Bayonet</SlotType>
+			  <FormFactors><FormFactor>modern-lug</FormFactor></FormFactors>
+			  <Modifiers accuracy="0" aim="0" damage="1" range="1" recoil="1" stamina="1" delay="1" aimloss="1" loudness="0" />
+			  <FireEmote />
+			  <Requirements>
+			    <Requirement capability="MudSharp.GameItems.Interfaces.IMeleeWeapon" />
+			  </Requirements>
+			</Definition>
+			""");
+
+		CollectionAssert.AreEqual(new[] { typeof(IMeleeWeapon) },
+			prototype.RequiredSiblingComponents.Select(x => x.Capability).ToArray());
+	}
+
+	[TestMethod]
+	public void ImpactDetonatorPrototype_RequiresDetonatableSibling()
+	{
+		var prototype = CreateDatabasePrototype<ImpactDetonatorGameItemComponentProto>("<Definition />");
+
+		CollectionAssert.AreEqual(new[] { typeof(IDetonatable) },
+			prototype.RequiredSiblingComponents.Select(x => x.Capability).ToArray());
+	}
+
+	[TestMethod]
+	public void FirearmAttachmentPrototype_SharedBuilderCommandsSurviveSubclassDispatch()
+	{
+		var prototype = CreateDatabasePrototype<FirearmAttachmentGameItemComponentProto>("<Definition />");
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
+
+		Assert.IsTrue(prototype.BuildingCommand(actor.Object, new StringStack("desc QA requirement profile")));
+		Assert.AreNotEqual("test component", prototype.Description);
+		StringAssert.Contains(prototype.Description, "QA requirement profile");
+	}
+
+	[TestMethod]
 	public void ComponentInterfaces_AllHavePrototypeMarkersAndClassification()
 	{
 		var runtimeInterfaces = typeof(IGameItemComponent).Assembly
@@ -175,6 +269,35 @@ public class GameItemComponentPrototypeExclusivityTests
 		mock.SetupGet(x => x.RevisionNumber).Returns(0);
 		mock.SetupGet(x => x.Name).Returns(name);
 		return mock;
+	}
+
+	private static T CreateDatabasePrototype<T>(string definition)
+		where T : GameItemComponentProto
+	{
+		var dbPrototype = new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 1,
+			Name = typeof(T).Name,
+			Description = "test component",
+			Type = typeof(T).Name,
+			Definition = definition,
+			RevisionNumber = 0,
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 0,
+				BuilderAccountId = 1,
+				BuilderDate = DateTime.UtcNow
+			}
+		};
+
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
+		return (T)Activator.CreateInstance(typeof(T),
+			BindingFlags.Instance | BindingFlags.NonPublic,
+			null,
+			new object[] { dbPrototype, gameworld.Object },
+			null)!;
 	}
 
 	private static Type? GetPrototypeMarker(Type runtimeInterface)

@@ -178,6 +178,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         if (effectiveAnswers["installguns"].EqualToAny("yes", "y"))
         {
             SeedDataGuns(context, effectiveAnswers);
+            EnsureModernFirearmSamples(context);
         }
 
         SeedArmourTypes(context, effectiveAnswers);
@@ -223,6 +224,10 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             primitiveRangedCount = EnsurePrimitiveRangedContent(context);
         }
 
+        var modernFirearmSampleCount = questionAnswers["installguns"].EqualToAny("yes", "y")
+            ? EnsureModernFirearmSamples(context)
+            : 0;
+
 		var eraDependencyCount = EnsureEraDependencyCombatContent(context, questionAnswers);
 
         context.SaveChanges();
@@ -235,6 +240,11 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         if (primitiveRangedCount > 0)
         {
             updates.Add($"added {primitiveRangedCount} missing sling/blowgun stock entries");
+        }
+
+        if (modernFirearmSampleCount > 0)
+        {
+            updates.Add($"added or repaired {modernFirearmSampleCount} modular firearm sample definitions");
         }
 
 		if (eraDependencyCount > 0)

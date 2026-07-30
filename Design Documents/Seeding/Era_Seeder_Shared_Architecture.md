@@ -55,6 +55,8 @@ Cross-era reuse does not directly invoke broad earlier-era catalogues. Existing 
 
 See [Pre-Industrial Shared Item Seeder Design Reference](./PreIndustrial_Item_Seeder_Design_Reference.md) and its [complete alias catalogue](./PreIndustrial_Item_Seeder_Alias_Catalogue.md). Era admission is governed by the populated [Medieval](./FutureMUD_Medieval_Shared_Baseline_Admission_Manifest.md), [Renaissance](./FutureMUD_Renaissance_Shared_Baseline_Admission_Manifest.md), and [Early Modern](./FutureMUD_EarlyModern_Shared_Baseline_Admission_Manifest.md) manifests. Each contains one decision for all 385 live shared stable references and is generated from source truth with `scripts/generate-preindustrial-admission-manifests.ps1`.
 
+Prepared food, food-liquid, and discrete culinary-intermediate content uses a separate 3,000-record layer described by the [Pre-Industrial Food Catalogue Design Reference](./PreIndustrial_Food_Catalogue_Design_Reference.md). Its 2,250 shared rows are installed once when any of Medieval, Renaissance, or Early Modern is selected; each era then adds 250 genuinely era-specific rows. The shared food admission manifests are generated independently because ingredient contact, crop availability, consumption culture, and trade status are more restrictive than physical item compatibility.
+
 ## No Patch-After-Create Clothing
 
 Authored item rows are the source of truth. Do not create generated clothing and then repair selected rows with later patch records. A maintainer should be able to inspect one catalogue seam and understand the final item description, components, craft inputs/tools, craft products, variable-colour product mappings, and outfit usage.

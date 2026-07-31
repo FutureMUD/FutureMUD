@@ -21,6 +21,7 @@ public class ItemSeederMedievalCraftingTests
 		["ItemSeeder.MedievalContainers.cs"] = "SeedMedievalContainers",
 		["ItemSeeder.MedievalDoorsLocksStrongboxes.cs"] = "SeedMedievalDoorsLocksAndStrongboxes",
 		["ItemSeeder.MedievalFood.cs"] = "SeedMedievalFoodAndBeverageItems",
+		["ItemSeeder.MedievalFoodProduction.cs"] = "SeedMedievalFoodProductionFoundationItems",
 		["ItemSeeder.MedievalFurniture.cs"] = "SeedMedievalHouseholdFurniture",
 		["ItemSeeder.MedievalHouseholdTools.cs"] = "SeedMedievalHouseholdCraftTools",
 		["ItemSeeder.MedievalJewellery.cs"] = "SeedMedievalJewelleryAndDevotionalGoods",
@@ -116,6 +117,7 @@ public class ItemSeederMedievalCraftingTests
 			         .Where(x => !x.Value.Equals("SeedMedievalContainers", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalDoorsLocksAndStrongboxes", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalFoodAndBeverageItems", StringComparison.Ordinal))
+			         .Where(x => !x.Value.Equals("SeedMedievalFoodProductionFoundationItems", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalArmour", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalWeaponsShieldsAccessories", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalWritingAdministrationAndDocuments", StringComparison.Ordinal))
@@ -133,6 +135,7 @@ public class ItemSeederMedievalCraftingTests
 			"ItemSeeder.MedievalContainers.cs",
 			"ItemSeeder.MedievalDoorsLocksStrongboxes.cs",
 			"ItemSeeder.MedievalFood.cs",
+			"ItemSeeder.MedievalFoodProduction.cs",
 			"ItemSeeder.MedievalArmour.cs",
 			"ItemSeeder.MedievalWeapons.cs",
 			"ItemSeeder.MedievalWriting.cs",
@@ -522,10 +525,24 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalCraftLaunchers_AreNoOps()
+	public void MedievalCraftLaunchers_OnlyProductionAndFoodChainsAreImplemented()
 	{
 		var medievalCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Medieval.cs");
-		foreach (var method in MedievalCraftLaunchers)
+		var medievalFoodCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.MedievalFood.cs");
+		Assert.IsTrue(
+			Regex.IsMatch(
+				medievalCraftSource,
+				@"private\s+void\s+SeedMedievalProductionChainCrafts\s*\(\s*\)\s*\{(?<body>.*?)\n\t\}",
+				RegexOptions.Singleline | RegexOptions.CultureInvariant) &&
+			medievalCraftSource.Contains("MedievalProductionCraftSpecs().OrderBy(x => x.Phase)", StringComparison.Ordinal),
+			"SeedMedievalProductionChainCrafts should admit the phase-ordered production catalogue.");
+		Assert.IsTrue(
+			medievalFoodCraftSource.Contains("MedievalFoodCraftSpecs().OrderBy(x => x.Phase)", StringComparison.Ordinal),
+			"SeedMedievalFoodBeverageCrafts should admit the phase-ordered food catalogue.");
+
+		foreach (var method in MedievalCraftLaunchers.Where(x =>
+			         !x.Equals("SeedMedievalProductionChainCrafts", StringComparison.Ordinal) &&
+			         !x.Equals("SeedMedievalFoodBeverageCrafts", StringComparison.Ordinal)))
 		{
 			AssertNoOpMethod(medievalCraftSource, method);
 		}
@@ -541,7 +558,7 @@ public class ItemSeederMedievalCraftingTests
 		})
 		{
 			Assert.IsFalse(medievalCraftSource.Contains(forbidden, StringComparison.Ordinal),
-				$"Medieval craft launch stubs should not retain retired source token {forbidden}.");
+				$"Medieval crafting should not retain retired source token {forbidden}.");
 		}
 	}
 
@@ -594,7 +611,8 @@ public class ItemSeederMedievalCraftingTests
 				"Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md",
 				"Medieval_Jewellery_Seeder_Dependency_Request.md",
 				"Medieval_Jewellery_Seeder_Design_Reference.md",
-				"Medieval_Military_Seeder_Design_Reference.md"
+				"Medieval_Military_Seeder_Design_Reference.md",
+				"Medieval_Food_Beverage_Preservation_Foundation.md"
 			},
 			medievalDocs,
 			"The surviving medieval design documents should be the current audit and live source references.");

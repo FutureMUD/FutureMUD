@@ -1,6 +1,6 @@
 # Medieval ItemSeeder Rebuild Audit
 
-The medieval `ItemSeeder` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, military-goods prototypes, writing/book/document prototypes, treatment and repair prototypes, decorative jewellery prototypes, and the first medieval industry tool and intermediate-stock item catalogue.
+The medieval `ItemSeeder` item and craft implementation was reset for a from-scratch rebuild. The rebuild now includes direct seeded clothing, household goods and furniture, military-goods prototypes, writing/book/document prototypes, treatment and repair prototypes, decorative jewellery prototypes, the medieval industry tool and intermediate-stock item catalogue, the active Medieval production-chain crafts, and the active food, beverage, and preservation foundation.
 
 ## Current Runtime State
 
@@ -19,7 +19,10 @@ The medieval `ItemSeeder` item and craft implementation was reset to launch stub
 - `SeedMedievalRepairKits` contains the direct repair-kit and repair-supply `CreateItem(...)` calls.
 - `SeedMedievalHouseholdCraftTools` now seeds the first medieval industry tool and workshop-apparatus item catalogue.
 - `SeedMedievalComponentGapItems` now seeds the first medieval intermediate-stock item catalogue.
-- `ItemSeeder.Crafting.Medieval.cs` currently contains no-op medieval craft launch points only.
+- `SeedMedievalProductionChainCrafts` now seeds the phase-ordered 35-craft Medieval industry foundation when the `medieval` era is selected.
+- `SeedMedievalFoodProductionFoundationItems` seeds six food-production tools or apparatus and eleven prepared foods.
+- `SeedMedievalFoodBeverageCrafts` now seeds the phase-ordered 48-craft Medieval food, beverage, and preservation foundation when the `medieval` era is selected.
+- The other eight Medieval craft launch points remain explicit no-ops.
 - The old authored outfit catalogue, explicit culture catalogue, generated helper/data model, and medieval craft helper families have been removed.
 
 ## Shared Baseline Admission
@@ -66,8 +69,10 @@ Use `owning_resolution_pass` to route missing prerequisites to the shared owner 
 The medieval industry prerequisite pass is reflected in the maintained data documents as follows:
 
 - `Design Documents/Data/Seeded_Item_Components.json` includes the shared `Tool_*_General` `HandTool` prototypes seeded by `UsefulSeeder.ItemComponents.cs`.
-- `Design Documents/Data/SeededTagHierarchy.csv` includes the new `Functions / Tools / Apothecary Tools`, `Functions / Tools / Jewellery Tools`, and `Functions / Tools / Lapidary Tools` branches and their child paths.
-- `Item_Component_Types.json`, `Seeded_Materials.json`, `Seeded_Liquids.json`, and `Seeded_Gases.json` were checked and did not require changes for this pass because no new component type, material, liquid, or gas was introduced.
+- `Design Documents/Data/SeededTagHierarchy.csv` includes the required textile, household-stock, Primary Production commodity, Primary Production tool, apothecary, jewellery, lapidary, shared food-stock, foodmaking-tool, and raw meat/fish classification paths.
+- `Seeded_Materials.json` now includes the already-live `prepared clay` and `fired brick` materials consumed by this chain; this repairs pre-existing export drift rather than introducing new materials.
+- `Seeded_Item_Components.json` includes the four reusable Medieval `PreparedFood` component profiles.
+- `Item_Component_Types.json`, `Seeded_Liquids.json`, `Seeded_Materials.json`, and `Seeded_Gases.json` were checked for the food slice and did not require further changes because it introduces no component type, liquid, material, or gas.
 - `SkillPackageSeeder.cs` now includes the repeated medieval industry prerequisite skills `Goldsmithing`, `Glassblowing`, `Lapidary`, `Fulling`, `Parchmentmaking`, `Papermaking`, `Bookbinding`, `Calligraphy`, `Scribing`, `Woodblock Printing`, and `Quarrying`; there is no separate maintained skill-package data export under `Design Documents/Data`.
 
 ## Active Medieval Industry Tool and Stock Source
@@ -76,9 +81,26 @@ The first medieval industry foundation item source is implemented as current ite
 
 - Tool and workshop-apparatus item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalHouseholdTools.cs`.
 - Intermediate stock item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalComponentGaps.cs`.
+- The six additional food-production tool and apparatus prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalFoodProduction.cs`.
 - Catalogue metadata lives in `Design Documents/Seeding/FutureMUD_Medieval_Industry_Tools_And_Stock_Item_Catalogue.md`.
-- This item pass creates 168 tool/workshop prototypes and 50 intermediate stock prototypes.
-- Industry crafts are not rebuilt yet; `SeedMedievalProductionChainCrafts` and `SeedMedievalComponentGapCrafts` remain no-op craft launch points.
+- The combined item sources now create 174 tool/workshop prototypes and 50 intermediate stock prototypes.
+- `SeedMedievalProductionChainCrafts` now creates 16 first-tier stock crafts, 17 tool/apparatus crafts, and two forge/furnace activation crafts under the `Medieval Industry Foundations` knowledge.
+- Craft dependencies record phase and source ownership. Exact Medieval inputs come only from earlier phases; functional tools resolve through Historic Foundation, Primary Production, or earlier Medieval items.
+- Primary Production owns charcoal, extraction tools, ore and metal preparation, quarrying, clay, brick, and salt inputs, so the Medieval slice does not duplicate those prototypes.
+- `SeedMedievalComponentGapCrafts` remains a no-op for the later stock rows outside this first foundation.
+
+## Active Food, Beverage, and Preservation Source
+
+The generic Medieval subsistence foundation is now an active item-and-craft source:
+
+- Items and four reusable `PreparedFood` components live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalFoodProduction.cs`.
+- The 48-craft catalogue lives in `DatabaseSeeder/Seeders/ItemSeeder.Crafting.MedievalFood.cs`.
+- Shared commodity ownership lives in `DatabaseSeeder/Seeders/ItemSeeder.PreIndustrialFoodFoundation.cs`.
+- Current design metadata lives in `Design Documents/Seeding/Medieval_Food_Beverage_Preservation_Foundation.md`.
+- Phase 1 creates 17 tools and apparatus, phase 2 creates 18 processed stocks, and phase 3 creates eleven prepared foods plus filled ale and wine casks.
+- Cooking oil, amber ale, and red wine reuse existing liquids and existing Medieval vessels through direct `LiquidProduct` outputs.
+- Animal Butchery owns raw cut supply and now distinguishes fish from non-fish cuts beneath the compatible `Raw Meat Cut` parent.
+- Regional foodways, feasts, sweets, dairy, mead, vinegar, dried fruit, specialist condiments, and culture-specific beverages remain deferred.
 
 ## Active Clothing Source
 

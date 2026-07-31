@@ -711,6 +711,7 @@ Products and fail products use the same grammar.
 | --- | --- | --- |
 | `SimpleProduct` | `SimpleProduct - 1x a padded @material gambeson (#274)` | Loads item prototypes. Option: `skin <id|name>`. |
 | `CookedFoodProduct` | `CookedFoodProduct - 1x a baked apple (#999); purify off; ingredient $i1=fruit` | Loads prepared food and transfers consumed inputs into the food ledger. Aliases: `CookedFood`, `Cooked`. |
+| `ProgCookedFoodProduct` | `ProgCookedFoodProduct - SelectPreparedFoodsBySource` | Uses a FutureProg returning one prepared-food item or a collection of prepared-food items, then applies the normal cooked-food ingredient ledger to every selected prototype. Alias: `ProgCookedFood`. |
 | `SimpleVariableProduct` | `SimpleVariableProduct - 1x a dyed cloak (#1001); variable Colour=$i1` | Copies characteristic values from `IVariableInput` sources. Alias: `Variable`. |
 | `InputVariable` | `InputVariable - 1x a filled vial (#1002); variable Colour=$i1; specific Colour: red dye (#501)=red` | Chooses output characteristic values based on which input item prototype was used. |
 | `ProgVariableProduct` | `ProgVariableProduct - 1x a patterned cloth (#1003); variable Pattern=SelectPatternFromInputs` | Uses a FutureProg to choose characteristic output values. Alias: `ProgVariable`. |

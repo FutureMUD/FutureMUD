@@ -1370,6 +1370,47 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         );
     }
 
+    private XElement BuildProgCookedFoodProductDefinition(Craft craft, string details, List<string> options)
+    {
+        var prog = LookupProg(details);
+        bool removeEffects = false;
+        List<XElement> ingredientSlots = new();
+        foreach (string option in options)
+        {
+            if (option.StartsWith("purify", StringComparison.OrdinalIgnoreCase) ||
+                option.StartsWith("removedrugs", StringComparison.OrdinalIgnoreCase) ||
+                option.StartsWith("removeeffects", StringComparison.OrdinalIgnoreCase) ||
+                option.StartsWith("cleanse", StringComparison.OrdinalIgnoreCase))
+            {
+                string[] parts = option.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                removeEffects = parts.Length == 1 || !parts[1].EqualToAny("off", "false", "no");
+                continue;
+            }
+
+            if (!option.StartsWith("ingredient", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            foreach (Match slot in IngredientSlotRegex.Matches(option))
+            {
+                CraftInput input = GetInputByOneBasedIndex(craft, ParseIntValue(slot.Groups["input"].Value));
+                ingredientSlots.Add(new XElement("Slot",
+                    new XAttribute("input", input.Id),
+                    new XAttribute("role", slot.Groups["role"].Value.Trim().ToLowerInvariant())
+                ));
+            }
+        }
+
+        return new XElement("Definition",
+            new XElement("ItemProg", prog.Id),
+            new XElement("Quantity", 1),
+            new XElement("Skin", 0),
+            new XElement("RemoveDrugsAndFoodEffects", removeEffects),
+            new XElement("IngredientSlots", ingredientSlots)
+        );
+    }
+
     private XElement BuildLiquidProductDefinition(string details, List<string> options)
     {
         Match innerMatch = RequireMatch(LiquidProductRegex, details, "Invalid liquid product definition");
@@ -1563,6 +1604,10 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
             case "cookedfood":
             case "cooked":
                 return ("CookedFoodProduct", BuildCookedFoodProductDefinition(craft, details, options).ToString());
+            case "progcookedfoodproduct":
+            case "progcookedfood":
+            case "prog cooked food":
+                return ("ProgCookedFoodProduct", BuildProgCookedFoodProductDefinition(craft, details, options).ToString());
             case "liquidproduct":
             case "liquid":
             case "liquidoutput":
@@ -2182,7 +2227,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 
 	private void SaveFutureProgsIfRequired(params FutureProg[] progs)
 	{
-		if (progs.Any(prog => _context!.Entry(prog).State == EntityState.Added))
+		if (progs.Any(prog => _context!.Entry(prog).State is EntityState.Added or EntityState.Modified))
 		{
 			_context!.SaveChanges();
 		}
@@ -2418,6 +2463,7 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 			SeedMedievalJewelleryDevotionalCrafts();
 			SeedMedievalFurnitureAndContainerCrafts();
 			SeedMedievalFoodBeverageCrafts();
+			SeedPreIndustrialFoodCatalogueCrafts();
 			SeedMedievalRepairKitCrafts();
 			SeedMedievalComponentGapCrafts();
 		}

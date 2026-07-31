@@ -170,7 +170,13 @@ When any of Medieval, Renaissance, or Early Modern is selected:
 3. Prepared-food component definitions and liquid records are reconciled from stock source.
 4. The matching admission manifest governs normal builder/craft/shop/culture use.
 
-Antiquity is not automatically given this catalogue. Its existing foodway package remains independent until a deliberate consolidation pass replaces its culture-generated duplicates.
+The catalogue now also has a generalized craft path. Item rows are grouped by scope, kind, family, and source material rather than receiving one craft each. A generated FutureProg loads the group's possible prototypes, shuffles them, and returns one selected item; `ProgCookedFoodProduct` creates that prepared-food prototype through `CookedFoodProduct`, preserving its ingredient-ledger and effect-transfer behavior. The product also accepts a collection-returning selector for future recipes that intentionally yield several prepared servings from one craft. Intermediate rows use the same single-selection contract through `ProgProduct`, and each liquid row uses a direct `LiquidProduct` into the shared 13.1-litre amphora. This reduces the 3,000 output records to 322 grouped item crafts plus 225 liquid crafts while preserving a repeatable craftable path for every record.
+
+All catalogue crafts declare agriculture or animal-butchery tag-based inputs, including crop, fruit, oilseed, dairy, egg, honey, meat, fish, and offal sources. Agriculture commodity inputs use the live `Seeded Yield`, `Raw Milk`, `Egg Product`, or `Pressed Honey` pile contracts rather than material taxonomy names that are not produced piles. Tree-nut and chickpea rows use the Agriculture `Food Crop` plus `Seeded Yield` contract, while apiary honey rows use `Pressed Honey`; this keeps the generalized recipes attached to live upstream production rather than inventing fallback stock. Each craft has explicit source ownership, a Cooking tool dependency for general preparations or a Brew Copper dependency for grain drinks, fermented drinks, wine, and spirits, and operation-specific in-character preparation echoes for milling, baking, simmering, preservation, pressing, brewing, and drinks. They are seeded only for Medieval, Renaissance, and Early Modern installations.
+
+The Antiquity foodways package follows the same selector-product principle while retaining its culture-specific item identities. Its two shared prepared dishes keep their direct cooked-food recipes, while the eleven culture families use twelve generalized `ProgCookedFoodProduct` crafts. Each selector loads the applicable culture prototypes, chooses one at craft completion, and passes that prototype through the normal `CookedFoodProduct` ingredient-ledger path. This keeps the 132 culture dishes craftable without maintaining one nearly identical craft per culture output; the culture beverage amphora recipes remain two per culture because their vessel morph targets and source liquids are distinct.
+
+Antiquity is not automatically given the Medieval/Renaissance/Early Modern catalogue. Its independent foodway package is seeded by the Antiquity ItemSeeder selection and now uses the grouped culture selectors described above.
 
 ## Validation contract
 
@@ -188,3 +194,4 @@ Regression tests enforce:
 - shared-versus-era stable-reference and admission-profile consistency;
 - exact admission-manifest parity with the shared catalogue;
 - stock-owned rerun reconciliation without duplicate items, components, liquids, or tags.
+- generalized craft coverage for every item and liquid output, including selector-prog validity, Antiquity culture-selector coverage, and repeatable craft/knowledge/prog seeding.

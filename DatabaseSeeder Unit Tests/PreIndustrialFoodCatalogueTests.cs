@@ -306,6 +306,95 @@ public class PreIndustrialFoodCatalogueTests
 		}
 	}
 
+	[TestMethod]
+	public void CatalogueCrafts_GroupOutputsThroughTheCookedFoodSelectorContract()
+	{
+		var specs = ItemSeeder.PreIndustrialFoodCatalogueCraftSpecsForTesting.ToArray();
+		var outputs = specs.SelectMany(x => x.Products).ToArray();
+		var expected = ItemSeeder.PreIndustrialFoodCatalogueOutputContractsForTesting.ToArray();
+
+		Assert.AreEqual(547, specs.Length);
+		Assert.AreEqual(322, specs.Count(x => x.Products.All(y => !y.StartsWith("liquid:", StringComparison.OrdinalIgnoreCase))));
+		Assert.AreEqual(225, specs.Count(x => x.Products.Any(y => y.StartsWith("liquid:", StringComparison.OrdinalIgnoreCase))));
+		Assert.IsTrue(specs.Length < expected.Length,
+			"The catalogue should use generalized selector crafts instead of one craft per output.");
+		Assert.AreEqual(expected.Length, outputs.Length);
+		CollectionAssert.AreEquivalent(expected, outputs);
+		Assert.AreEqual(outputs.Length, outputs.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+		Assert.IsTrue(specs.All(x => x.Inputs.Count > 0));
+		Assert.IsTrue(specs.All(x => x.SourceOwnership.Count > 0));
+		var catalogueItemReferences = ItemSeeder.PreIndustrialFoodItemsForTesting
+			.Select(x => x.StableReference)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		var itemOutputReferences = outputs
+			.Where(x => !x.StartsWith("liquid:", StringComparison.OrdinalIgnoreCase))
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		AssertSetsEqual(catalogueItemReferences, itemOutputReferences, "catalogue item craft outputs");
+		var catalogueLiquidReferences = ItemSeeder.PreIndustrialFoodLiquidsForTesting
+			.Select(x => $"liquid:{x.StableReference}:{x.Name}:10")
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		var liquidOutputReferences = outputs
+			.Where(x => x.StartsWith("liquid:", StringComparison.OrdinalIgnoreCase))
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		AssertSetsEqual(catalogueLiquidReferences, liquidOutputReferences, "catalogue liquid craft outputs");
+		var knownStableReferences = ItemSeeder.PreIndustrialFoodItemsForTesting
+			.Select(x => x.StableReference)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		foreach (var input in specs.SelectMany(x => x.Dependencies))
+		{
+			Assert.IsTrue(
+				new[] { "agriculture", "animal_butchery" }
+					.Contains(input.SourceOwner, StringComparer.Ordinal),
+				$"Unknown catalogue input source owner {input.SourceOwner}.");
+			Assert.AreEqual(0, input.SourcePhase);
+			if (input.StableReference is not null)
+			{
+				Assert.IsTrue(knownStableReferences.Contains(input.StableReference));
+			}
+		}
+		foreach (var input in specs.SelectMany(x => x.Dependencies)
+			         .Where(x => x.SourceOwner == "agriculture" &&
+			                     x.Import.StartsWith("CommodityTag", StringComparison.OrdinalIgnoreCase)))
+		{
+			Assert.IsTrue(
+				input.Import.Contains("piletag Seeded Yield", StringComparison.Ordinal) ||
+				input.Import.Contains("piletag Raw Milk", StringComparison.Ordinal) ||
+				input.Import.Contains("piletag Egg Product", StringComparison.Ordinal) ||
+				input.Import.Contains("piletag Pressed Honey", StringComparison.Ordinal),
+				$"Agriculture input {input.Import} does not use a seeded-yield or animal-product pile tag.");
+		}
+		Assert.IsTrue(specs.Where(x => x.Products.Any(y => y.StartsWith("liquid:", StringComparison.OrdinalIgnoreCase)))
+			.All(x => x.SourceOwnership.Contains("preindustrial_food_liquid_vessel", StringComparer.Ordinal)));
+		Assert.IsTrue(specs.Where(x => x.Products.Any(y => !y.StartsWith("liquid:", StringComparison.OrdinalIgnoreCase)))
+			.All(x => x.Tools.Count > 0));
+
+		var treeNutReferences = ItemSeeder.PreIndustrialFoodItemsForTesting
+			.Where(x => x.Material.Equals("tree nut", StringComparison.OrdinalIgnoreCase))
+			.Select(x => x.StableReference)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		Assert.IsTrue(specs.Where(x => x.Products.Any(treeNutReferences.Contains))
+			.All(x => x.Inputs.Any(y => y.Contains("Food Crop", StringComparison.Ordinal))));
+
+		var chickpeaReferences = ItemSeeder.PreIndustrialFoodItemsForTesting
+			.Where(x => x.Material.Equals("chickpea", StringComparison.OrdinalIgnoreCase))
+			.Select(x => x.StableReference)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		Assert.IsTrue(specs.Where(x => x.Products.Any(chickpeaReferences.Contains))
+			.All(x => x.Inputs.Any(y => y.Contains("Food Crop", StringComparison.Ordinal))));
+
+		var honeyReferences = ItemSeeder.PreIndustrialFoodItemsForTesting
+			.Where(x => x.Material.Equals("honey", StringComparison.OrdinalIgnoreCase))
+			.Select(x => x.StableReference)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		Assert.IsTrue(specs.Where(x => x.Products.Any(honeyReferences.Contains))
+			.All(x => x.Inputs.Any(y => y.Contains("Pressed Honey", StringComparison.Ordinal))));
+
+		Assert.IsTrue(specs.Where(x => x.Products.Any(y => y.StartsWith("liquid:", StringComparison.OrdinalIgnoreCase)))
+			.Where(x => x.Family is FoodCatalogueFamily.GrainDrink or FoodCatalogueFamily.FermentedDrink or
+				FoodCatalogueFamily.Wine or FoodCatalogueFamily.Spirit)
+			.All(x => x.Tools.Contains("TagTool - InRoom - an item with the Brew Copper tag", StringComparer.Ordinal)));
+	}
+
 	private static void AssertScopeCount(
 		IReadOnlyCollection<PreIndustrialFoodItemCatalogueEntry> items,
 		IReadOnlyCollection<PreIndustrialFoodLiquidCatalogueEntry> liquids,

@@ -44,7 +44,40 @@ public partial class ItemSeeder
 
 	private void SeedSharedPreIndustrialFoodCatalogue()
 	{
+		EnsurePreIndustrialFoodCatalogueLiquidVessel();
 		SeedPreIndustrialFoodCatalogueScope(FoodCatalogueScope.Shared);
+	}
+
+	private void EnsurePreIndustrialFoodCatalogueLiquidVessel()
+	{
+		CreateItem(
+			"preindustrial_food_catalogue_liquid_amphora",
+			"amphora",
+			"a shared catalogue liquid amphora",
+			null,
+			"A broad-shouldered fired-clay amphora used as the shared output vessel for pre-industrial catalogue liquids. Its sealed neck and sturdy handles make it suitable for water, oils, sauces, syrups, broths, and fermented drinks.",
+			SizeCategory.Large,
+			ItemQuality.Standard,
+			9000.0,
+			32.0m,
+			true,
+			false,
+			"earthenware",
+			[
+				"Functions / Container / Watertight Container",
+				"Food and Drink / Vessels / Beverage Serving Vessel",
+				"Market / Household Goods / Standard Wares"
+			],
+			[
+				"Holdable",
+				"Destroyable_Misc",
+				"LContainer_Amphora_Urna"
+			],
+			null,
+			null,
+			null,
+			null,
+			"Shared liquid-capable output vessel for the pre-industrial food catalogue.");
 	}
 
 	private void SeedMedievalFoodCatalogue()

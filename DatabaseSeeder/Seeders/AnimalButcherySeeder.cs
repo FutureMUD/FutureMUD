@@ -24,6 +24,8 @@ public sealed class AnimalButcherySeeder : IDatabaseSeeder
 	private const string ButcheryOutputTag = "Butchery Output";
 	private static readonly string[] ButcheryTraitAliases = ["Butchery", "Butchering", "Survival", "Surviving"];
 	private const string RawMeatCutTag = "Raw Meat Cut";
+	private const string RawNonFishMeatCutTag = "Raw Non-Fish Meat Cut";
+	private const string RawFishCutTag = "Raw Fish Cut";
 	private const string RawHideTag = "Raw Hide";
 	private const string OffalTag = "Offal";
 	private const string TrophyPartTag = "Trophy Part";
@@ -154,6 +156,10 @@ It creates reusable butchery outputs, raw carcass cuts, hides, glands, trophies 
 	internal static int MaximumStockItemPrototypeCountForTesting => MaximumStockItemPrototypeCount;
 	internal static int SpoilSecondsForTesting => SpoilSeconds;
 	internal static string RottenMeatShortDescriptionForTesting => RottenMeatShortDescription;
+	internal static string RawNonFishMeatCutTagForTesting => RawNonFishMeatCutTag;
+	internal static string RawFishCutTagForTesting => RawFishCutTag;
+	internal static string? RawCutClassificationForTesting(StockButcheryItemSpec spec) =>
+		RawCutClassification(spec);
 
 	internal static IReadOnlyList<StockButcheryItemSpec> StockItemSpecsForTesting =>
 		GlobalItems.Values
@@ -917,6 +923,8 @@ It creates reusable butchery outputs, raw carcass cuts, hides, glands, trophies 
 	{
 		var root = EnsureTag(context, ButcheryOutputTag, "Animal Product");
 		EnsureTag(context, RawMeatCutTag, root.Name);
+		EnsureTag(context, RawNonFishMeatCutTag, RawMeatCutTag);
+		EnsureTag(context, RawFishCutTag, RawMeatCutTag);
 		EnsureTag(context, RawHideTag, root.Name);
 		EnsureTag(context, OffalTag, root.Name);
 		EnsureTag(context, TrophyPartTag, root.Name);
@@ -1082,7 +1090,11 @@ It creates reusable butchery outputs, raw carcass cuts, hides, glands, trophies 
 				? $"$0 decay|decays into {RottenMeatShortDescription}."
 				: "$0 $?1|morphs into $1|decays into nothing$.";
 
-			foreach (var tagName in spec.Tags)
+			var rawCutClassification = RawCutClassification(spec);
+			foreach (var tagName in spec.Tags
+				         .Append(rawCutClassification)
+				         .Where(x => !string.IsNullOrWhiteSpace(x))
+				         .Cast<string>())
 			{
 				var tag = tags[tagName];
 				if (item.GameItemProtosTags.All(x => x.TagId != tag.Id))
@@ -1116,6 +1128,22 @@ It creates reusable butchery outputs, raw carcass cuts, hides, glands, trophies 
 
 		context.SaveChanges();
 		return results;
+	}
+
+	private static string? RawCutClassification(StockButcheryItemSpec spec)
+	{
+		if (!spec.Tags.Contains(RawMeatCutTag, StringComparer.OrdinalIgnoreCase) ||
+		    spec.Key.StartsWith("global:", StringComparison.OrdinalIgnoreCase))
+		{
+			return null;
+		}
+
+		return spec.Key.StartsWith("fish:", StringComparison.OrdinalIgnoreCase) ||
+		       spec.Key.StartsWith("shark:", StringComparison.OrdinalIgnoreCase) ||
+		       spec.Key.StartsWith("crustacean:", StringComparison.OrdinalIgnoreCase) ||
+		       spec.Key.StartsWith("cephalopod:", StringComparison.OrdinalIgnoreCase)
+			? RawFishCutTag
+			: RawNonFishMeatCutTag;
 	}
 
 	private static GameItemProto EnsureRottenMeat(

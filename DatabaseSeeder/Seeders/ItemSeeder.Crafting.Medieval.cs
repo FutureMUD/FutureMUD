@@ -742,33 +742,178 @@ public partial class ItemSeeder
 
 	private void SeedMedievalClothingCrafts()
 	{
+		SeedMedievalFinishedItemCrafts(
+			"Medieval Clothing Crafting",
+			"Tailoring",
+			"Clothing",
+			"Shears",
+			"tailor",
+			item => item.Key.StartsWith("medieval_clothing_", StringComparison.OrdinalIgnoreCase) ||
+			        item.Key.StartsWith("medieval_footwear_", StringComparison.OrdinalIgnoreCase));
 	}
 
 	private void SeedMedievalEquipmentCrafts()
 	{
+		SeedMedievalFinishedItemCrafts(
+			"Medieval Equipment Crafting",
+			"Weaponcrafting",
+			"Military Equipment",
+			"Hammer",
+			"make",
+			item => item.Key.StartsWith("medieval_military_", StringComparison.OrdinalIgnoreCase) ||
+			        item.Key.StartsWith("medieval_armour_", StringComparison.OrdinalIgnoreCase));
 	}
 
 	private void SeedMedievalWritingAdministrationCrafts()
 	{
+		SeedMedievalFinishedItemCrafts(
+			"Medieval Writing and Administration",
+			"Bookbinding",
+			"Writing and Administration",
+			"Knife",
+			"make",
+			item => item.Key.StartsWith("medieval_writing_", StringComparison.OrdinalIgnoreCase) ||
+			        item.Key.StartsWith("medieval_document_", StringComparison.OrdinalIgnoreCase) ||
+			        item.Key.StartsWith("medieval_book_", StringComparison.OrdinalIgnoreCase));
 	}
 
 	private void SeedMedievalMedicalApothecaryCrafts()
 	{
+		SeedMedievalFinishedItemCrafts(
+			"Medieval Medical and Apothecary Crafting",
+			"Apothecary",
+			"Medical and Apothecary",
+			"Knife",
+			"prepare",
+			item => item.Key.StartsWith("medieval_medical_", StringComparison.OrdinalIgnoreCase) ||
+			        item.Key.StartsWith("medieval_apothecary_", StringComparison.OrdinalIgnoreCase));
 	}
 
 	private void SeedMedievalJewelleryDevotionalCrafts()
 	{
+		SeedMedievalFinishedItemCrafts(
+			"Medieval Jewellery and Devotional Crafting",
+			"Goldsmithing",
+			"Jewellery and Devotional Goods",
+			"Hammer",
+			"make",
+			item => item.Key.StartsWith("medieval_jewellery_", StringComparison.OrdinalIgnoreCase) ||
+			        item.Key.StartsWith("medieval_devotional_", StringComparison.OrdinalIgnoreCase));
 	}
 
 	private void SeedMedievalFurnitureAndContainerCrafts()
 	{
+		SeedMedievalFinishedItemCrafts(
+			"Medieval Furniture and Container Crafting",
+			"Carpentry",
+			"Furniture and Containers",
+			"Hammer",
+			"build",
+			item => item.Key.StartsWith("medieval_furniture_", StringComparison.OrdinalIgnoreCase) ||
+			        item.Key.StartsWith("medieval_container_", StringComparison.OrdinalIgnoreCase) ||
+			        item.Key.StartsWith("medieval_door_", StringComparison.OrdinalIgnoreCase) ||
+			        item.Key.StartsWith("medieval_lock_", StringComparison.OrdinalIgnoreCase));
 	}
 
 	private void SeedMedievalRepairKitCrafts()
 	{
+		SeedMedievalFinishedItemCrafts(
+			"Medieval Repair Crafting",
+			"Carpentry",
+			"Repair Kits",
+			"Awl Punch",
+			"assemble",
+			item => item.Key.StartsWith("medieval_repair_", StringComparison.OrdinalIgnoreCase));
 	}
 
 	private void SeedMedievalComponentGapCrafts()
 	{
+		var alreadyCrafted = MedievalProductionCraftSpecs()
+			.Select(x => x.OutputStableReference)
+			.Concat(MedievalFoodCraftSpecs()
+				.SelectMany(x => x.Products)
+				.Where(x => x.StableReference is not null)
+				.Select(x => x.StableReference!))
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		SeedMedievalFinishedItemCrafts(
+			"Medieval Residual Stock Crafting",
+			"Carpentry",
+			"Residual Stock",
+			"Hammer",
+			"prepare",
+			item => item.Key.StartsWith("medieval_", StringComparison.OrdinalIgnoreCase) &&
+			        !alreadyCrafted.Contains(item.Key) &&
+			        !IsMedievalDedicatedFinishedCraftReference(item.Key));
+	}
+
+	private static bool IsMedievalDedicatedFinishedCraftReference(string stableReference)
+	{
+		return stableReference.StartsWith("medieval_clothing_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_footwear_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_military_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_armour_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_writing_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_document_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_book_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_medical_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_apothecary_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_jewellery_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_devotional_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_furniture_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_container_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_door_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_lock_", StringComparison.OrdinalIgnoreCase) ||
+		       stableReference.StartsWith("medieval_repair_", StringComparison.OrdinalIgnoreCase);
+	}
+
+	private void SeedMedievalFinishedItemCrafts(
+		string knowledge,
+		string trait,
+		string knowledgeSubtype,
+		string toolTag,
+		string verb,
+		Func<KeyValuePair<string, GameItemProto>, bool> includesItem)
+	{
+		if (!ShouldSeedMedievalCrafts())
+		{
+			return;
+		}
+
+		foreach (var item in _items
+			         .Where(includesItem)
+			         .OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
+		{
+			var material = GetMaterialName(item.Value);
+			var amount = Math.Max(1.0, item.Value.Weight * 0.75);
+			var displayName = item.Value.ShortDescription;
+			var craftName = $"{verb} {item.Key.Replace('_', ' ')}";
+			if (craftName.Length > 100)
+			{
+				craftName = craftName[..100];
+			}
+
+			AddCraft(
+				craftName,
+				knowledgeSubtype,
+				$"{verb} {displayName}",
+				$"{verb}ing {displayName}",
+				$"{displayName} being made",
+				knowledge,
+				trait,
+				10,
+				Difficulty.Normal,
+				Outcome.MinorFail,
+				5,
+				3,
+				false,
+				MedievalIndustryCraftingPhases(),
+				[$"Commodity - {amount.ToString("0", System.Globalization.CultureInfo.InvariantCulture)} grams of {material}"],
+				[$"TagTool - Held - an item with the {toolTag} tag"],
+				[$"SimpleProduct - 1x {displayName} (#{item.Value.Id})"],
+				[],
+				knowledgeSubtype: knowledgeSubtype,
+				knowledgeDescription: $"Practical medieval {knowledgeSubtype.ToLowerInvariant()} work.",
+				knowledgeLongDescription: $"This knowledge supports the documented medieval {knowledgeSubtype.ToLowerInvariant()} catalogue through material-based workshop crafts.");
+		}
 	}
 }

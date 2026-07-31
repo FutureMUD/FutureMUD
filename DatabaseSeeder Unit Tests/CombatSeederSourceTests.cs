@@ -385,12 +385,13 @@ public class CombatSeederSourceTests
 			         ("earlymodern_military_melee_sword_bayonet_service", "Bayonet_Sword")
 		         })
 		{
-			StringAssert.Contains(source, reference);
-			StringAssert.Contains(source, component);
+			var item = ItemSeeder.EarlyModernSupportedMilitaryItemSpecsForTesting
+				.Single(x => x.StableReference.Equals(reference, StringComparison.OrdinalIgnoreCase));
+			CollectionAssert.Contains(item.Components.ToArray(), "Melee_Bayonet");
+			CollectionAssert.Contains(item.Components.ToArray(), component);
+			CollectionAssert.Contains(item.Components.ToArray(), "Destroyable_Weapon");
+			CollectionAssert.Contains(item.Components.ToArray(), "Beltable");
 		}
-
-		StringAssert.Contains(source,
-			"[\"Holdable\", \"Melee_Bayonet\", component, \"Destroyable_Weapon\", \"Beltable\"]");
 		StringAssert.Contains(source, "[\"Holdable\", destroyableComponent]");
 	}
 

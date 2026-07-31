@@ -378,17 +378,24 @@ def renaissance_admission_items() -> dict[str, Item]:
 
 
 RENAISSANCE_WEAR_COMPONENTS = {
+	"WP-BREAST-WRAP": "Wear_Bra",
 	"WP-BREECHCLOTH": "Wear_Breechcloth",
 	"WP-BREECHES": "Wear_Breeches",
+	"WP-COLLAR": "Wear_Partlet",
 	"WP-CLOAK": "Wear_Cloak_(Open)",
 	"WP-DRAPED-FULL": "Wear_Robe",
+	"WP-DOUBLE-WRAP": "Wear_Robe",
+	"WP-DRESS": "Wear_Dress",
 	"WP-FACE-MASK": "Wear_Mask",
+	"WP-FACE-VEIL": "Wear_Veil",
 	"WP-FEATHER-CROWN": "Wear_Hat",
 	"WP-FITTED-TORSO": "Wear_Vest",
 	"WP-FOOT-BOOT": "Wear_Boots",
 	"WP-FOOT-SANDAL": "Wear_Sandals",
 	"WP-FOOT-SHOE": "Wear_Shoes",
+	"WP-FULL-MASK": "Wear_Mask",
 	"WP-HANDS": "Wear_Gloves",
+	"WP-HANDHELD": None,
 	"WP-HEAD-CAP": "Wear_Hat",
 	"WP-HEAD-HAT": "Wear_Hat",
 	"WP-HEAD-VEIL": "Wear_Head_Veil",
@@ -399,6 +406,10 @@ RENAISSANCE_WEAR_COMPONENTS = {
 	"WP-JACKET": "Wear_Jacket",
 	"WP-LEG-WRAPS": "Wear_Leg_Wraps",
 	"WP-LONG-UNDERLAYER": "Wear_Robe",
+	"WP-MOCCASIN": "Wear_Shoes",
+	"WP-MONASTIC-DRAPE": "Wear_Robe",
+	"WP-NECK": "Wear_Scarf",
+	"WP-OVERSHOE": "Wear_Overshoes",
 	"WP-PLEATED-TROUSERS": "Wear_Trousers",
 	"WP-RECTANGULAR-BLOUSE": "Wear_Shirt",
 	"WP-ROBE-CLOSED": "Wear_Robe",
@@ -410,7 +421,10 @@ RENAISSANCE_WEAR_COMPONENTS = {
 	"WP-SKIRT": "Wear_Long_Skirt",
 	"WP-SLEEVES": "Wear_Detachable_Sleeves",
 	"WP-SOCKS": "Wear_Stockings",
+	"WP-SKIRT-SUPPORT": "Wear_Skirt_Support",
+	"WP-STOCKINGS": "Wear_Stockings",
 	"WP-STRUCTURED-HEADWRAP": "Wear_Turban",
+	"WP-TRIANGLE-SHOULDER": "Wear_Mantle",
 	"WP-TROUSERS": "Wear_Trousers",
 	"WP-TUBE-SKIRT": "Wear_Long_Skirt",
 	"WP-TURBAN-CAP": "Wear_Turban",
@@ -418,15 +432,19 @@ RENAISSANCE_WEAR_COMPONENTS = {
 	"WP-VEST": "Wear_Vest",
 	"WP-VESTMENT": "Wear_Tabard",
 	"WP-WRAP-SKIRT": "Wear_Long_Skirt",
+	"WP-WRAP-DRESS": "Wear_Dress",
 }
 
 
 RENAISSANCE_COMPONENT_WEIGHTS = {
+	None: 80,
+	"Wear_Bra": 180,
 	"Wear_Breechcloth": 180,
 	"Wear_Breeches": 620,
 	"Wear_Boots": 1050,
 	"Wear_Chausses": 520,
 	"Wear_Cloak_(Open)": 1050,
+	"Wear_Dress": 980,
 	"Wear_Detachable_Sleeves": 260,
 	"Wear_Gloves": 180,
 	"Wear_Hat": 190,
@@ -438,25 +456,33 @@ RENAISSANCE_COMPONENT_WEIGHTS = {
 	"Wear_Long_Skirt": 680,
 	"Wear_Mantle": 620,
 	"Wear_Mask": 230,
+	"Wear_Overshoes": 380,
+	"Wear_Partlet": 170,
 	"Wear_Robe": 980,
+	"Wear_Scarf": 120,
 	"Wear_Sandals": 420,
 	"Wear_Shirt": 480,
 	"Wear_Shoes": 690,
 	"Wear_Shorts": 270,
+	"Wear_Skirt_Support": 900,
 	"Wear_Stockings": 280,
 	"Wear_Tabard": 720,
 	"Wear_Trousers": 620,
 	"Wear_Turban": 260,
+	"Wear_Veil": 180,
 	"Wear_Vest": 560,
 }
 
 
 RENAISSANCE_COMPONENT_COSTS = {
+	None: 8,
+	"Wear_Bra": 5,
 	"Wear_Breechcloth": 5,
 	"Wear_Breeches": 18,
 	"Wear_Boots": 30,
 	"Wear_Chausses": 14,
 	"Wear_Cloak_(Open)": 28,
+	"Wear_Dress": 28,
 	"Wear_Detachable_Sleeves": 9,
 	"Wear_Gloves": 10,
 	"Wear_Hat": 10,
@@ -468,31 +494,41 @@ RENAISSANCE_COMPONENT_COSTS = {
 	"Wear_Long_Skirt": 18,
 	"Wear_Mantle": 22,
 	"Wear_Mask": 12,
+	"Wear_Overshoes": 12,
+	"Wear_Partlet": 8,
 	"Wear_Robe": 30,
+	"Wear_Scarf": 6,
 	"Wear_Sandals": 12,
 	"Wear_Shirt": 14,
 	"Wear_Shoes": 22,
 	"Wear_Shorts": 8,
+	"Wear_Skirt_Support": 24,
 	"Wear_Stockings": 10,
 	"Wear_Tabard": 24,
 	"Wear_Trousers": 18,
 	"Wear_Turban": 12,
+	"Wear_Veil": 9,
 	"Wear_Vest": 18,
 }
 
 
 RENAISSANCE_MATERIAL_COST_FACTORS = {
+	"animal skin": 1.6,
+	"bamboo": 0.7,
 	"barkcloth": 0.8,
 	"beadwork": 5.0,
+	"brocade": 4.0,
 	"broadcloth": 2.0,
 	"camelid wool": 1.7,
 	"canvas": 0.9,
 	"cotton": 1.2,
+	"deer leather": 2.5,
 	"feather": 2.5,
 	"featherwork": 5.0,
 	"felt": 1.2,
 	"fur": 3.5,
 	"hemp cloth": 0.8,
+	"horsehair": 0.8,
 	"leather": 2.0,
 	"linen": 1.1,
 	"raffia cloth": 1.0,
@@ -553,6 +589,10 @@ def renaissance_item_from_catalogue_row(row: list[str]) -> Item:
 		else "Insulation_Minor"
 	)
 	notes = " ".join(row[4:])
+	components = (
+		"Holdable", "Destroyable_Clothing", *([component] if component else []), "Armour_LightClothing",
+		insulation, "Variable_BasicColour"
+	)
 	return Item(
 		stable_reference,
 		noun,
@@ -568,7 +608,7 @@ def renaissance_item_from_catalogue_row(row: list[str]) -> Item:
 		True,
 		material,
 		("Era / Renaissance Era", f"Market / Clothing / {market}"),
-		("Holdable", "Destroyable_Clothing", component, "Armour_LightClothing", insulation, "Variable_BasicColour"),
+		components,
 		f"Inferred Renaissance outfit-manifest dependency. Catalogue admission: {notes}",
 	)
 
@@ -628,7 +668,17 @@ def generate() -> str:
 	rows = markdown_9_cell_rows()
 	medieval_source_items = extract_create_item_calls(MEDIEVAL_SOURCE)
 	renaissance_admissions = renaissance_admission_items()
-	early_modern_refs = {item for outfit in early_modern for item in outfit.items}
+	early_modern_outfit_refs = {item for outfit in early_modern for item in outfit.items}
+	fifth_pass_refs = {
+		stable_reference
+		for stable_reference in rows
+		if stable_reference.startswith(("earlymodern_headwear_", "earlymodern_footwear_"))
+	}
+	if (len(fifth_pass_refs),
+		sum(reference.startswith("earlymodern_headwear_") for reference in fifth_pass_refs),
+		sum(reference.startswith("earlymodern_footwear_") for reference in fifth_pass_refs)) != (84, 48, 36):
+		raise ValueError("Unexpected Early Modern fifth-pass standalone clothing catalogue coverage")
+	early_modern_refs = early_modern_outfit_refs | fifth_pass_refs
 	early_modern_items: dict[str, Item] = {}
 	for stable_reference in sorted(early_modern_refs):
 		if stable_reference in rows:
@@ -639,8 +689,8 @@ def generate() -> str:
 			early_modern_items[stable_reference] = renaissance_admissions[stable_reference]
 		else:
 			raise ValueError(f"No documented or live-source item definition for {stable_reference}")
-	if len(early_modern_items) != 949:
-		raise ValueError(f"Unexpected Early Modern outfit item dependency count: {len(early_modern_items)}")
+	if len(early_modern_items) != 1033:
+		raise ValueError(f"Unexpected Early Modern clothing catalogue count: {len(early_modern_items)}")
 	for item in early_modern_items.values():
 		wear_components = [component for component in item.components if component.startswith("Wear_")]
 		if len(wear_components) != 1:
@@ -651,33 +701,27 @@ def generate() -> str:
 	renaissance_rows = renaissance_catalogue_rows()
 	if len(renaissance_rows) != 471:
 		raise ValueError(f"Unexpected Renaissance clothing catalogue count: {len(renaissance_rows)}")
-	renaissance_refs = {item for outfit in renaissance for item in outfit.items}
-	renaissance_outfit_items: dict[str, Item] = {}
-	for stable_reference in sorted(renaissance_refs):
-		if stable_reference in early_modern_items:
-			renaissance_outfit_items[stable_reference] = early_modern_items[stable_reference]
-		elif stable_reference in renaissance_rows:
-			renaissance_outfit_items[stable_reference] = renaissance_item_from_catalogue_row(
-				renaissance_rows[stable_reference]
-			)
-		else:
-			raise ValueError(f"No Renaissance catalogue definition for {stable_reference}")
-	if len(renaissance_outfit_items) != 202:
-		raise ValueError(
-			f"Unexpected Renaissance outfit item dependency count: {len(renaissance_outfit_items)}"
+	renaissance_items = {
+		stable_reference: early_modern_items.get(
+			stable_reference,
+			renaissance_item_from_catalogue_row(row)
 		)
-	for item in renaissance_outfit_items.values():
+		for stable_reference, row in sorted(renaissance_rows.items())
+	}
+	if len(renaissance_items) != 471:
+		raise ValueError(f"Unexpected Renaissance clothing item count: {len(renaissance_items)}")
+	for item in renaissance_items.values():
 		wear_components = [component for component in item.components if component.startswith("Wear_")]
-		if len(wear_components) != 1:
+		if len(wear_components) > 1:
 			raise ValueError(
-				f"Renaissance outfit item {item.stable_reference} must define exactly one wearable component; "
+				f"Renaissance clothing item {item.stable_reference} must define at most one wearable component; "
 				f"found {wear_components}"
 			)
 	for outfit in renaissance:
 		wear_components = [
 			next(
 				component
-				for component in renaissance_outfit_items[stable_reference].components
+				for component in renaissance_items[stable_reference].components
 				if component.startswith("Wear_")
 			)
 			for stable_reference in outfit.items
@@ -714,7 +758,7 @@ def generate() -> str:
 		"{",
 	]
 	lines.extend(render_item_array("AntiquityOutfitSupplementalItemSpecs", antiquity_items))
-	lines.extend(render_item_array("RenaissanceOutfitReferencedItemSpecs", list(renaissance_outfit_items.values())))
+	lines.extend(render_item_array("RenaissanceClothingItemSpecs", list(renaissance_items.values())))
 	lines.extend(render_item_array("EarlyModernOutfitReferencedItemSpecs", list(early_modern_items.values())))
 	lines.extend(render_manifest_array("AntiquityOutfitManifestSpecs", antiquity))
 	lines.extend(render_manifest_array("MedievalOutfitManifestSpecs", medieval))

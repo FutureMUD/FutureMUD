@@ -1,11 +1,11 @@
 # FutureMUD Medieval Industry Chain and Craft Dependency Design Reference
 
-**Status:** initial implementation-planning reference for the medieval craft rebuild.  
+**Status:** active craft-coverage implementation reference for the medieval rebuild.
 **Date:** 28 June 2026.  
 **Era band:** approximately 500-1300 CE, matching the current medieval item-seeder slice.  
 **Primary implementation target:** make every accepted medieval catalogue item craftable, then recursively close every non-terminal craft input until the chain reaches butchery, forage, agricultural, or primary-industry products.
 
-This document is deliberately a craft and dependency reference, not a claim that medieval crafts are already implemented. It should guide the next code passes in `ItemSeeder.Crafting.Medieval.cs` and the likely companion tool/intermediate-stock item pass. It should be updated as craft rows, tool items, intermediary products, and tests land.
+This document is the craft and dependency reference for the medieval rebuild. The industry and food foundations are implemented, and the remaining family launchers now create idempotent material-based output crafts for their direct prototypes. It continues to guide source-refined recipes, tool and stock dependencies, and the final validation pass.
 
 ---
 
@@ -29,7 +29,7 @@ The goal is not to make one recipe per item with bespoke inputs. The goal is a m
 
 ## Current project grounding
 
-The current medieval rebuild is direct-call item seeding. The craft launch points exist but are intentionally no-op. This reference assumes the following source layout unless later refactoring changes it:
+The current medieval rebuild is direct-call item seeding with active craft launch points. The family launchers derive stable finished-output crafts from the current `_items` registry, retaining source-defined materials and exact prototype products. This reference assumes the following source layout unless later refactoring changes it:
 
 | Area | Current implementation or target file |
 |---|---|
@@ -132,7 +132,7 @@ The current component inventory has a `HandTool` component type and now includes
 
 ### Workstations and fixtures
 
-The current medieval household catalogue treats even bulky furniture and doors as moveable prototypes. The historic foundation items also use `Holdable` for cross-era tools and apparatus. The first craft pass should follow that convention for consistency, then later create fixture-only variants only where the runtime needs installed, immobile workshops.
+The current medieval household catalogue treats even bulky furniture and doors as moveable prototypes. The historic foundation items also use `Holdable` for cross-era tools and apparatus. The craft pass follows that convention for consistency, then later create fixture-only variants only where the runtime needs installed, immobile workshops. The residual route deliberately excludes production-foundation, food-foundation, and named family outputs, so each current medieval prototype has one owning finished-craft route rather than duplicate generic crafts.
 
 Workstation items should be full items when they are visible, ownable, movable, damageable, or tradeable: looms, kilns, forges, smelting furnaces, presses, workbenches, vats, tanning racks, ropewalks, book presses, glass furnaces, mills, and large frames.
 
@@ -739,7 +739,7 @@ These stock items should be considered for full item prototypes before finished 
 
 ## Craft method pass order
 
-The current empty medieval craft methods are already a sensible high-level split. The recommended implementation order is:
+The Medieval craft methods retain the following high-level split. The production and food foundations are source-refined; the remaining finished-item launchers are active material-based coverage routes pending later source-refined recipe detail:
 
 1. `SeedMedievalProductionChainCrafts`
    - terminal-to-intermediate conversion;
@@ -780,7 +780,7 @@ The current empty medieval craft methods are already a sensible high-level split
    - depends on specialist stock items and exact repair-kit components.
 
 10. `SeedMedievalComponentGapCrafts`
-    - temporary bridge crafts for component-gap items, tag-gap tools, or transitional stock that does not belong to a stable final category.
+    - active catch-all material-based route for every remaining `medieval_*` prototype, preventing a differently-prefixed direct item from being omitted while detailed recipes are refined.
 
 ---
 

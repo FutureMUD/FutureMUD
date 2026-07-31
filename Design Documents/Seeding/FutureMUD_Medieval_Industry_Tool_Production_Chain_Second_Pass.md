@@ -175,7 +175,7 @@ The former recommended tool-chain foundation slice is complete:
 4. Tests cover exact outputs, phase monotonicity, source ownership, seeded tool tags, Medieval era gating, and double-seed idempotency.
 5. Finished clothing, weapon, armour, household, jewellery, medical, writing, transport/tack, and game/toy crafts remain deferred; the generic food, beverage, and preservation foundation is active.
 
-The implemented food extension closes the lauter tun and basic grain, oil, must, wort, ale, wine, pottage, bread, and meat/fish preservation dependencies. The next cross-manifest extension is civilian transport and tack, followed by games and toys. Wheelwright clamps, tenon cutters, brain-tanning buckets, earth rammers, and a separate dressing axe remain deferred until their dependent workflows enter scope.
+The implemented food extension closes the lauter tun and basic grain, oil, must, wort, ale, wine, pottage, bread, and meat/fish preservation dependencies. Civilian transport and draft tack are now supplied by the pre-industrial vehicle catalogue, and games and toys by the shared leisure catalogue. Wheelwright clamps, tenon cutters, brain-tanning buckets, earth rammers, and a separate dressing axe remain deferred until their dependent workflows enter scope.
 
 ---
 

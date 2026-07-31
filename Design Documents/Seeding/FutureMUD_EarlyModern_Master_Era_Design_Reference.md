@@ -6,7 +6,7 @@
 
 This reference covers `EarlyModern`, the Enlightenment and early modern period roughly 1600-1750 CE. It remains a standalone era reference rather than a continuation section inside the Renaissance document.
 
-The shared pre-industrial baseline is now live and is automatically installed when the Early Modern era is selected. The Early Modern-specific entrypoint, `SeedEarlyModernItems()`, exists but remains the place for future era-specific catalogue work. This document should therefore specify the delta beyond the live aliases and shared stock rather than recreating cross-era writing goods, trade containers, tools, military supports, printing equipment, navigation/science props, gunpowder-support objects, or global-trade packaging.
+The shared pre-industrial baseline is now live and is automatically installed when the Early Modern era is selected. `SeedEarlyModernItems()` now seeds the documented clothing, supported military, writing/finance, household/public-house, science/navigation, and food catalogue foundations. The 223 military rows that require missing runtime semantics remain explicitly excluded, rather than being represented by superficially similar items. This document should therefore specify the delta beyond the live aliases and shared stock rather than recreating cross-era writing goods, trade containers, tools, military supports, printing equipment, navigation/science props, gunpowder-support objects, or global-trade packaging.
 
 The Early Modern-specific seeder should emphasize:
 

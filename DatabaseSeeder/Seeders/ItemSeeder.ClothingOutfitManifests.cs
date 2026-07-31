@@ -54,18 +54,34 @@ public partial class ItemSeeder
 
 	internal static IReadOnlySet<string> DocumentedClothingItemStableReferencesForTesting =>
 		AntiquityOutfitSupplementalItemSpecs
-			.Concat(RenaissanceOutfitReferencedItemSpecs)
+			.Concat(RenaissanceClothingItemSpecs)
 			.Concat(EarlyModernOutfitReferencedItemSpecs)
 			.Select(x => x.StableReference)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
 	internal static IReadOnlySet<string> RenaissanceOutfitItemStableReferencesForTesting =>
-		RenaissanceOutfitReferencedItemSpecs
+		RenaissanceClothingItemSpecs
+			.Where(x => RenaissanceOutfitManifestSpecs.Any(outfit =>
+				outfit.ItemStableReferences.Contains(x.StableReference, StringComparer.OrdinalIgnoreCase)))
 			.Select(x => x.StableReference)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+	internal static IReadOnlySet<string> RenaissanceClothingItemStableReferencesForTesting =>
+		RenaissanceClothingItemSpecs
+			.Select(x => x.StableReference)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+	internal static IReadOnlyList<string> EarlyModernFifthPassStandaloneItemStableReferencesForTesting =>
+		EarlyModernOutfitReferencedItemSpecs
+			.Where(x => x.StableReference.StartsWith("earlymodern_headwear_", StringComparison.Ordinal) ||
+			            x.StableReference.StartsWith("earlymodern_footwear_", StringComparison.Ordinal))
+			.Select(x => x.StableReference)
+			.ToArray();
+
 	internal static IReadOnlyDictionary<string, string> RenaissanceOutfitWearComponentsForTesting =>
-		RenaissanceOutfitReferencedItemSpecs
+		RenaissanceClothingItemSpecs
+			.Where(x => RenaissanceOutfitManifestSpecs.Any(outfit =>
+				outfit.ItemStableReferences.Contains(x.StableReference, StringComparer.OrdinalIgnoreCase)))
 			.ToDictionary(
 				x => x.StableReference,
 				x => x.Components.Single(component => component.StartsWith("Wear_", StringComparison.Ordinal)),
@@ -93,7 +109,7 @@ public partial class ItemSeeder
 
 		if (HasAnyEra(eras, "renaissance"))
 		{
-			SeedDocumentedClothingItems(RenaissanceOutfitReferencedItemSpecs);
+			SeedDocumentedClothingItems(RenaissanceClothingItemSpecs);
 			UpsertOutfitManifests(RenaissanceOutfitManifestSpecs);
 		}
 

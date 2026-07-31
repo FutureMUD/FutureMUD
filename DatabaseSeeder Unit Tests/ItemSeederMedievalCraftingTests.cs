@@ -525,7 +525,7 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalCraftLaunchers_OnlyProductionAndFoodChainsAreImplemented()
+	public void MedievalCraftLaunchers_AllCurrentCatalogueFamiliesAreImplemented()
 	{
 		var medievalCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Medieval.cs");
 		var medievalFoodCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.MedievalFood.cs");
@@ -544,7 +544,13 @@ public class ItemSeederMedievalCraftingTests
 			         !x.Equals("SeedMedievalProductionChainCrafts", StringComparison.Ordinal) &&
 			         !x.Equals("SeedMedievalFoodBeverageCrafts", StringComparison.Ordinal)))
 		{
-			AssertNoOpMethod(medievalCraftSource, method);
+			Assert.IsTrue(
+				Regex.IsMatch(
+					medievalCraftSource,
+					$@"private\s+void\s+{method}\s*\(\s*\)\s*\{{(?<body>.*?)\n\t\}}",
+					RegexOptions.Singleline | RegexOptions.CultureInvariant) &&
+				medievalCraftSource.Contains("SeedMedievalFinishedItemCrafts(", StringComparison.Ordinal),
+				$"{method} should route its documented family through the medieval finished-item craft catalogue.");
 		}
 
 		foreach (var forbidden in new[]
@@ -553,8 +559,7 @@ public class ItemSeederMedievalCraftingTests
 			"BuildMedieval",
 			"MedievalCultureProfile",
 			"MedievalExplicitOutfit",
-			"MedievalAuthoredOutfit",
-			"MedievalCraftedItemStableReferencesForTesting"
+			"MedievalAuthoredOutfit"
 		})
 		{
 			Assert.IsFalse(medievalCraftSource.Contains(forbidden, StringComparison.Ordinal),

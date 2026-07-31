@@ -4,7 +4,11 @@
 
 This branch owns Early Modern domestic furniture, service culture, public-house goods, and consumption-ready commodity presentation. Shared trade packages remain dependencies, not duplicates.
 
-## Planned slices
+## Implemented foundation
+
+`SeedEarlyModernHouseholdCoffeehouseTavernAndTrade()` now seeds 25 era-gated prototypes. The implemented set covers coffee, tea, chocolate, tobacco/snuff, punch and tavern service; dice, cards, and a score board; coffeehouse furniture and account storage; and domestic mirrors, clocks, desk, display, hearth, and lighting accessories. Service vessels use existing liquid-container components and installed furniture omits `Holdable`. Cards, clocks, mirrors, scoring, locks, and smoking remain descriptive where no matching runtime component exists.
+
+## Covered slices
 
 - coffee cups and pots, grinders/roasters, trays, benches, tables, account boxes, and print displays;
 - teapots, tea bowls/cups, caddies, sugar bowls, strainers, and porcelain services;

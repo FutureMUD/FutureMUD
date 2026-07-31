@@ -31,6 +31,30 @@ public abstract class BaseHealthStrategy : SaveableItem, IHealthStrategy
         "#3lodge <expression>#0 - sets the expression used for the 1d100 lodge check"
     ];
 
+    internal static string FormatFullPromptCondition(string? painDescription, string? stunDescription,
+        string? fluidLossDescription)
+    {
+        var sb = new StringBuilder();
+        if (!string.IsNullOrEmpty(painDescription))
+        {
+            sb.Append($"You are currently in {painDescription}");
+        }
+
+        if (!string.IsNullOrEmpty(stunDescription))
+        {
+            sb.Append(sb.Length > 0 ? ", " : "You are currently ");
+            sb.Append(stunDescription);
+        }
+
+        if (!string.IsNullOrEmpty(fluidLossDescription))
+        {
+            sb.Append(sb.Length > 0 ? " and have " : "You have ");
+            sb.Append(fluidLossDescription);
+        }
+
+        return sb.Length > 0 ? $"<{sb}>" : string.Empty;
+    }
+
     protected Expression LodgeDamageExpression = new("0");
     protected RankedRange<WoundSeverity> SeverityRanges = new();
     protected RankedRange<WoundSeverity> PercentageSeverityRanges = new();

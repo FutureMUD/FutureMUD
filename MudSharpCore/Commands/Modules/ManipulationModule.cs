@@ -1855,8 +1855,8 @@ The syntax is as follows:
                         }
 
                         character.OutputHandler.Handle(CharacterInstanceIdentityComparer.SamePhysicalInstance(character, targetCharacter)
-                                            ? new MixedEmoteOutput(new Emote($"@ apply|applies $1 to &0's {bodypart.FullDescription()}", character, item), flags: OutputFlags.SuppressObscured).Append(pemote)
-                                            : new MixedEmoteOutput(new Emote($"@ apply|applies $1 to $2's {bodypart.FullDescription()}", character, item, targetCharacter), flags: OutputFlags.SuppressObscured).Append(pemote));
+                                            ? new MixedEmoteOutput(new Emote($"@ apply|applies $1 to &0's {bodypart.FullDescription()}", character, character, item), flags: OutputFlags.SuppressObscured).Append(pemote)
+                                            : new MixedEmoteOutput(new Emote($"@ apply|applies $1 to $2's {bodypart.FullDescription()}", character, character, item, targetCharacter), flags: OutputFlags.SuppressObscured).Append(pemote));
                         applicable.Apply(targetCharacter.Body, bodypart, amount, character);
                     },
                     text =>
@@ -1873,8 +1873,8 @@ The syntax is as follows:
         }
 
         character.OutputHandler.Handle(CharacterInstanceIdentityComparer.SamePhysicalInstance(character, targetCharacter)
-                ? new MixedEmoteOutput(new Emote($"@ apply|applies $1 to &0's {bodypart.FullDescription()}", character, item), flags: OutputFlags.SuppressObscured).Append(pemote)
-                : new MixedEmoteOutput(new Emote($"@ apply|applies $1 to $2's {bodypart.FullDescription()}", character, item, targetCharacter), flags: OutputFlags.SuppressObscured).Append(pemote));
+                ? new MixedEmoteOutput(new Emote($"@ apply|applies $1 to &0's {bodypart.FullDescription()}", character, character, item), flags: OutputFlags.SuppressObscured).Append(pemote)
+                : new MixedEmoteOutput(new Emote($"@ apply|applies $1 to $2's {bodypart.FullDescription()}", character, character, item, targetCharacter), flags: OutputFlags.SuppressObscured).Append(pemote));
         applicable.Apply(targetCharacter.Body, bodypart, amount, character);
     }
 

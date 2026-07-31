@@ -141,6 +141,27 @@ foreach ($row in Import-Csv -LiteralPath $tagPath -Delimiter "`t") {
 $preparedRoot = "Food and Drink / Prepared Foods / Pre-Industrial Catalogue"
 $liquidRoot = "Food and Drink / Food Liquids / Pre-Industrial Catalogue"
 $intermediateRoot = "Materials / Food Products / Pre-Industrial Food Commodities"
+$intermediateCommodityTags = @(
+	"Bran Commodity",
+	"Cleaned Grain Commodity",
+	"Dough Commodity",
+	"Dried Fish Commodity",
+	"Dried Meat Commodity",
+	"Flour Commodity",
+	"Fruit Must Commodity",
+	"Grain Cleaning Stock",
+	"Malted Grain Commodity",
+	"Meal Commodity",
+	"Oilseed Cake Commodity",
+	"Oilseed Mash Commodity",
+	"Raw Fish Commodity",
+	"Raw Meat Commodity",
+	"Salted Fish Commodity",
+	"Salted Meat Commodity",
+	"Smoked Fish Commodity",
+	"Smoked Meat Commodity",
+	"Wort Commodity"
+)
 foreach ($scope in @("Shared", "Medieval", "Renaissance", "Early Modern")) {
 	Add-TagPath $tagRows "$preparedRoot / Scope / $scope"
 	Add-TagPath $tagRows "$liquidRoot / Scope / $scope"
@@ -151,6 +172,9 @@ foreach ($family in @($items.family + $liquids.family | Sort-Object -Unique)) {
 	Add-TagPath $tagRows "$preparedRoot / Family / $familyName"
 	Add-TagPath $tagRows "$liquidRoot / Family / $familyName"
 	Add-TagPath $tagRows "$intermediateRoot / Family / $familyName"
+}
+foreach ($commodityTag in $intermediateCommodityTags) {
+	Add-TagPath $tagRows "$intermediateRoot / $commodityTag"
 }
 foreach ($register in @("Bleak", "Ordinary", "Rich")) {
 	Add-TagPath $tagRows "$preparedRoot / Social Register / $register"

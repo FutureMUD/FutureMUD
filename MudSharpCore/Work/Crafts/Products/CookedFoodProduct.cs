@@ -38,6 +38,7 @@ public class CookedFoodProduct : BaseProduct
 	public int Quantity { get; set; }
 	public IGameItemSkin? Skin { get; set; }
 	public bool RemoveDrugsAndFoodEffects { get; set; }
+	protected IReadOnlyCollection<(long InputId, string Role)> IngredientSlots => _ingredientSlots;
 
 	public override string ProductType => "CookedFoodProduct";
 
@@ -73,6 +74,12 @@ public class CookedFoodProduct : BaseProduct
 			throw new ApplicationException("Couldn't find a valid proto for cooked food craft product to load.");
 		}
 
+		return ProduceProductForPrototype(component, referenceQuality, proto);
+	}
+
+	protected ICraftProductData ProduceProductForPrototype(IActiveCraftGameItemComponent component,
+		ItemQuality referenceQuality, IGameItemProto proto)
+	{
 		var material = DetermineOverrideMaterial(component);
 		if (Quantity > 1 && proto.IsItemType<StackableGameItemComponentProto>())
 		{
@@ -93,7 +100,7 @@ public class CookedFoodProduct : BaseProduct
 		return new SimpleProductData(items);
 	}
 
-	private IGameItem CreateOneItem(IActiveCraftGameItemComponent component, IGameItemProto proto, ItemQuality referenceQuality,
+	protected IGameItem CreateOneItem(IActiveCraftGameItemComponent component, IGameItemProto proto, ItemQuality referenceQuality,
 		ISolid? material)
 	{
 		var item = proto.CreateNew();
@@ -113,7 +120,7 @@ public class CookedFoodProduct : BaseProduct
 		return item;
 	}
 
-	private void InitialisePreparedFood(IActiveCraftGameItemComponent component, IGameItem item)
+	protected void InitialisePreparedFood(IActiveCraftGameItemComponent component, IGameItem item)
 	{
 		var prepared = item.GetItemType<IPreparedFood>();
 		if (prepared is null)
@@ -135,7 +142,7 @@ public class CookedFoodProduct : BaseProduct
 		}
 	}
 
-	private IEnumerable<(ICraftInput Input, ICraftInputData Data, string Role)> SelectedInputData(IActiveCraftGameItemComponent component)
+	protected IEnumerable<(ICraftInput Input, ICraftInputData Data, string Role)> SelectedInputData(IActiveCraftGameItemComponent component)
 	{
 		foreach (var pair in component.ConsumedInputs)
 		{
@@ -152,7 +159,7 @@ public class CookedFoodProduct : BaseProduct
 		}
 	}
 
-	private static IEnumerable<IGameItem> ExtractItems(ICraftInput input, ICraftInputData data)
+	protected static IEnumerable<IGameItem> ExtractItems(ICraftInput input, ICraftInputData data)
 	{
 		if (data is ICraftInputDataWithItems itemData)
 		{
@@ -167,7 +174,7 @@ public class CookedFoodProduct : BaseProduct
 		};
 	}
 
-	private void TransferItemToFood(IGameItem inputItem, IPreparedFood prepared, string role)
+	protected void TransferItemToFood(IGameItem inputItem, IPreparedFood prepared, string role)
 	{
 		var servingMultiplier = inputItem.GetItemType<IPreparedFood>() is { ServingScope: FoodServingScope.PerStackUnit } ? inputItem.Quantity : 1;
 		if (inputItem.GetItemType<IPreparedFood>() is { } preparedInput)

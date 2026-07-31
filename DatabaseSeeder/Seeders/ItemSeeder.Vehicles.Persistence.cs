@@ -68,7 +68,7 @@ public partial class ItemSeeder
 			{
 				Id = NextVehiclePrototypeId(),
 				RevisionNumber = 0,
-				EditableItem = NewAntiquityEditableItem()
+				EditableItem = NewReworkEditableItem()
 			};
 		}
 		if (_context!.Entry(vehicle).State == EntityState.Detached)
@@ -294,7 +294,7 @@ public partial class ItemSeeder
 				Type = type,
 				RevisionNumber = 0,
 				Definition = definition,
-				EditableItem = NewAntiquityEditableItem()
+				EditableItem = NewReworkEditableItem()
 			};
 			_context!.GameItemComponentProtos.Add(component);
 		}

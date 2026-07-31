@@ -764,10 +764,6 @@ public partial class ItemSeeder
 	{
 	}
 
-	private void SeedMedievalFoodBeverageCrafts()
-	{
-	}
-
 	private void SeedMedievalRepairKitCrafts()
 	{
 	}

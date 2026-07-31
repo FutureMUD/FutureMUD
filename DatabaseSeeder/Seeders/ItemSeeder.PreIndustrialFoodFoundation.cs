@@ -1,0 +1,93 @@
+#nullable enable
+
+using MudSharp.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace DatabaseSeeder.Seeders;
+
+public partial class ItemSeeder
+{
+	private const string PreIndustrialFoodCommodityTagPath =
+		"Materials / Food Products / Pre-Industrial Food Commodities";
+
+	private static readonly string[] PreIndustrialFoodCommodityTagNames =
+	[
+		"Grain Cleaning Stock",
+		"Cleaned Grain Commodity",
+		"Flour Commodity",
+		"Meal Commodity",
+		"Bran Commodity",
+		"Malted Grain Commodity",
+		"Dough Commodity",
+		"Oilseed Mash Commodity",
+		"Oilseed Cake Commodity",
+		"Fruit Must Commodity",
+		"Wort Commodity",
+		"Raw Meat Commodity",
+		"Salted Meat Commodity",
+		"Dried Meat Commodity",
+		"Smoked Meat Commodity",
+		"Raw Fish Commodity",
+		"Salted Fish Commodity",
+		"Dried Fish Commodity",
+		"Smoked Fish Commodity"
+	];
+
+	private static readonly string[] PreIndustrialFoodFunctionalToolTagPaths =
+	[
+		"Functions / Tools / Foodmaking Tools / Threshing Flail",
+		"Functions / Tools / Foodmaking Tools / Fruit Press",
+		"Functions / Tools / Foodmaking Tools / Oil Press",
+		"Functions / Tools / Foodmaking Tools / Smoking Rack",
+		"Functions / Tools / Foodmaking Tools / Salting Trough",
+		"Functions / Tools / Foodmaking Tools / Bake Oven",
+		"Functions / Tools / Foodmaking Tools / Kneading Trough"
+	];
+
+	internal static IReadOnlyCollection<string> PreIndustrialFoodCommodityTagsForTesting =>
+		PreIndustrialFoodCommodityTagNames;
+
+	private void SeedSharedPreIndustrialFoodFoundation()
+	{
+		var commodityRoot = EnsureAntiquityTagPath(PreIndustrialFoodCommodityTagPath);
+		foreach (var name in PreIndustrialFoodCommodityTagNames)
+		{
+			var tag = _context!.Tags.Local
+				.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ??
+			          _context.Tags
+				          .AsEnumerable()
+				          .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+			if (tag is null)
+			{
+				tag = new Tag
+				{
+					Id = NextTagId(),
+					Name = name
+				};
+				_context.Tags.Add(tag);
+			}
+
+			tag.Parent = commodityRoot;
+			tag.ParentId = commodityRoot.Id;
+			foreach (var stalePath in _tagsByFullPath
+				         .Where(x => ReferenceEquals(x.Value, tag) &&
+				                     !x.Key.Equals($"{PreIndustrialFoodCommodityTagPath} / {name}",
+					                     StringComparison.OrdinalIgnoreCase))
+				         .Select(x => x.Key)
+				         .ToArray())
+			{
+				_tagsByFullPath.Remove(stalePath);
+			}
+
+			_tags[name] = tag;
+			_tagsByFullPath[$"{PreIndustrialFoodCommodityTagPath} / {name}"] = tag;
+		}
+
+		foreach (var path in PreIndustrialFoodFunctionalToolTagPaths)
+		{
+			EnsureAntiquityTagPath(path);
+		}
+	}
+}

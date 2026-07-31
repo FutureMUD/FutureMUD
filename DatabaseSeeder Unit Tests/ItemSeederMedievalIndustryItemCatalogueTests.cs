@@ -15,6 +15,7 @@ public class ItemSeederMedievalIndustryItemCatalogueTests
 	public void MedievalIndustryItemSeeder_ShouldContainToolAndStockCatalogueRows()
 	{
 		var toolSource = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalHouseholdTools.cs");
+		var foodToolSource = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalFoodProduction.cs");
 		var stockSource = ReadDatabaseSeederSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalComponentGaps.cs");
 		var designReference = ReadDatabaseSeederSource("Design Documents", "Seeding", "FutureMUD_Medieval_Industry_Tools_And_Stock_Item_Catalogue.md");
 
@@ -49,9 +50,21 @@ public class ItemSeederMedievalIndustryItemCatalogueTests
 		StringAssert.Contains(stockSource, "medieval_industry_stock_iron_bar");
 		StringAssert.Contains(stockSource, "medieval_industry_stock_bandage_roll");
 
-		StringAssert.Contains(designReference, "168 tool/workshop prototypes");
+		StringAssert.Contains(designReference, "174 tool/workshop prototypes");
 		StringAssert.Contains(designReference, "50 intermediate stock prototypes");
-		StringAssert.Contains(designReference, "218 total item prototypes");
+		StringAssert.Contains(designReference, "224 total item prototypes");
+		foreach (var stableReference in new[]
+		         {
+			         "medieval_tool_butchers_knife",
+			         "medieval_tool_cooking_knife",
+			         "medieval_tool_threshing_flail",
+			         "medieval_tool_winnowing_basket",
+			         "medieval_tool_cooking_pot",
+			         "medieval_workshop_lauter_tun"
+		         })
+		{
+			StringAssert.Contains(foodToolSource, stableReference);
+		}
 	}
 
 	[TestMethod]

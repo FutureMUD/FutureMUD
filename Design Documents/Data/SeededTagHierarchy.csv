@@ -293,6 +293,9 @@ Debris	Material Functions	Functions / Material Functions / Debris
 Fire	Material Functions	Functions / Material Functions / Fire
 Firewood	Material Functions	Functions / Material Functions / Firewood
 Hot Fire	Material Functions	Functions / Material Functions / Hot Fire
+Household Craft Stock	Material Functions	Functions / Material Functions / Household Craft Stock
+Furniture Timber Stock	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Furniture Timber Stock
+Prepared Leather Panel	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Prepared Leather Panel
 Ignition Source	Material Functions	Functions / Material Functions / Ignition Source
 Jewellery Craft Stock	Material Functions	Functions / Material Functions / Jewellery Craft Stock
 Jewellery Bead Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Bead Stock
@@ -325,45 +328,25 @@ Meltable	Material Functions	Functions / Material Functions / Meltable
 Musket Wadding	Material Functions	Functions / Material Functions / Musket Wadding
 Ore Deposit	Material Functions	Functions / Material Functions / Ore Deposit
 Padding	Material Functions	Functions / Material Functions / Padding
-Salvagable Fabric	Material Functions	Functions / Material Functions / Salvagable Fabric
-String	Material Functions	Functions / Material Functions / String
-Tanning Agent	Material Functions	Functions / Material Functions / Tanning Agent
-Antiquity Equipment Stock	Material Functions	Functions / Material Functions / Antiquity Equipment Stock
-Weapon Blade Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Blade Stock
-Weapon Head Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Head Stock
-Weapon Shaft Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Shaft Stock
-Bow Stave	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Bow Stave
-Fletching Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Fletching Stock
-Military Cord Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Military Cord Stock
-Shield Board Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Shield Board Stock
-Shield Facing Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Shield Facing Stock
-Helmet Bowl Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Helmet Bowl Stock
-Armour Plate Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Plate Stock
-Armour Ring Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Ring Stock
-Armour Scale Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Scale Stock
-Armour Lamella Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Lamella Stock
-Armour Textile Padding	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Textile Padding
-Tool Blank Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Tool Blank Stock
-Textile Commodity	Material Functions	Functions / Material Functions / Textile Commodity
-Raw Textile Fibre	Textile Commodity	Functions / Material Functions / Textile Commodity / Raw Textile Fibre
-Prepared Textile Fibre	Textile Commodity	Functions / Material Functions / Textile Commodity / Prepared Textile Fibre
-Spun Yarn	Textile Commodity	Functions / Material Functions / Textile Commodity / Spun Yarn
-Garment Cloth	Textile Commodity	Functions / Material Functions / Textile Commodity / Garment Cloth
-Woven Cloth	Garment Cloth	Functions / Material Functions / Textile Commodity / Garment Cloth / Woven Cloth
-Household Craft Stock	Material Functions	Functions / Material Functions / Household Craft Stock
-Furniture Timber Stock	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Furniture Timber Stock
-Prepared Leather Panel	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Prepared Leather Panel
 Primary Production	Material Functions	Functions / Material Functions / Primary Production
-Primary Production Stone	Primary Production	Functions / Material Functions / Primary Production / Primary Production Stone
 Primary Production Clay	Primary Production	Functions / Material Functions / Primary Production / Primary Production Clay
 Primary Production Commodity	Primary Production	Functions / Material Functions / Primary Production / Primary Production Commodity
 Charcoal Fuel Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Charcoal Fuel Commodity
-Metal Billet Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Metal Billet Commodity
-Metal Bar Stock Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Metal Bar Stock Commodity
 Dressed Stone Block Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Dressed Stone Block Commodity
-Prepared Clay Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Prepared Clay Commodity
 Fired Brick Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Fired Brick Commodity
-Door Hardware Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Door Hardware Stock
+Metal Bar Stock Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Metal Bar Stock Commodity
+Metal Billet Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Metal Billet Commodity
+Prepared Clay Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Prepared Clay Commodity
+Primary Production Stone	Primary Production	Functions / Material Functions / Primary Production / Primary Production Stone
+Salvagable Fabric	Material Functions	Functions / Material Functions / Salvagable Fabric
+String	Material Functions	Functions / Material Functions / String
+Tanning Agent	Material Functions	Functions / Material Functions / Tanning Agent
+Textile Commodity	Material Functions	Functions / Material Functions / Textile Commodity
+Garment Cloth	Textile Commodity	Functions / Material Functions / Textile Commodity / Garment Cloth
+Woven Cloth	Garment Cloth	Functions / Material Functions / Textile Commodity / Garment Cloth / Woven Cloth
+Prepared Textile Fibre	Textile Commodity	Functions / Material Functions / Textile Commodity / Prepared Textile Fibre
+Raw Textile Fibre	Textile Commodity	Functions / Material Functions / Textile Commodity / Raw Textile Fibre
+Spun Yarn	Textile Commodity	Functions / Material Functions / Textile Commodity / Spun Yarn
 Writing Craft Stock	Material Functions	Functions / Material Functions / Writing Craft Stock
 Bookbinding Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Bookbinding Stock
 Ink Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Ink Stock
@@ -428,14 +411,6 @@ Shears	Shearing	Functions / Separation / Shearing / Shears
 Sharpening	Functions	Functions / Sharpening
 Shiny	Functions	Functions / Shiny
 Tools	Functions	Functions / Tools
-Masonry Tool	Tools	Functions / Tools / Masonry Tool
-Charcoal Burning Tool	Tools	Functions / Tools / Charcoal Burning Tool
-Kiln Tool	Tools	Functions / Tools / Kiln Tool
-Smelting Tool	Tools	Functions / Tools / Smelting Tool
-Hauling Tool	Tools	Functions / Tools / Hauling Tool
-Primary Production Tools	Tools	Functions / Tools / Primary Production Tools
-Lime Kiln	Primary Production Tools	Functions / Tools / Primary Production Tools / Lime Kiln
-Timekeeping Tools	Tools	Functions / Tools / Timekeeping Tools
 Access Equipment	Tools	Functions / Tools / Access Equipment
 Ladder	Access Equipment	Functions / Tools / Access Equipment / Ladder
 A-Frame Ladder	Ladder	Functions / Tools / Access Equipment / Ladder / A-Frame Ladder
@@ -551,6 +526,7 @@ Pen Wiper	Calligraphy Tools	Functions / Tools / Calligraphy Tools / Pen Wiper
 Qalam Cutter	Calligraphy Tools	Functions / Tools / Calligraphy Tools / Qalam Cutter
 Quill Curing Sand	Calligraphy Tools	Functions / Tools / Calligraphy Tools / Quill Curing Sand
 Ruling Board	Calligraphy Tools	Functions / Tools / Calligraphy Tools / Ruling Board
+Charcoal Burning Tool	Tools	Functions / Tools / Charcoal Burning Tool
 Cleaning	Tools	Functions / Tools / Cleaning
 Broom	Cleaning	Functions / Tools / Cleaning / Broom
 Dustpan and Broom	Broom	Functions / Tools / Cleaning / Broom / Dustpan and Broom
@@ -758,9 +734,11 @@ Leister	Fishing Tools	Functions / Tools / Fishing Tools / Leister
 Net Gauge	Fishing Tools	Functions / Tools / Fishing Tools / Net Gauge
 Net Needle	Fishing Tools	Functions / Tools / Fishing Tools / Net Needle
 Foodmaking Tools	Tools	Functions / Tools / Foodmaking Tools
+Bake Oven	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Bake Oven
 Fermentation Amphora	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Fermentation Amphora
 Fruit Press	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Fruit Press
 Hand Quern	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Hand Quern
+Kneading Trough	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Kneading Trough
 Oil Press	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Oil Press
 Salting Trough	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Salting Trough
 Smoking Rack	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Smoking Rack
@@ -815,6 +793,7 @@ Rammer	Gunsmithing Tools	Functions / Tools / Gunsmithing Tools / Rammer
 Rifling Bench	Gunsmithing Tools	Functions / Tools / Gunsmithing Tools / Rifling Bench
 Tamping Rod	Gunsmithing Tools	Functions / Tools / Gunsmithing Tools / Tamping Rod
 Vent Pick	Gunsmithing Tools	Functions / Tools / Gunsmithing Tools / Vent Pick
+Hauling Tool	Tools	Functions / Tools / Hauling Tool
 Illumination Tools	Tools	Functions / Tools / Illumination Tools
 Agate Burnisher	Illumination Tools	Functions / Tools / Illumination Tools / Agate Burnisher
 Gesso Pot	Illumination Tools	Functions / Tools / Illumination Tools / Gesso Pot
@@ -833,6 +812,7 @@ Jeweller's Drawplate	Jewellery Tools	Functions / Tools / Jewellery Tools / Jewel
 Jeweller's Stakes	Jewellery Tools	Functions / Tools / Jewellery Tools / Jeweller's Stakes
 Stone Setting Tools	Jewellery Tools	Functions / Tools / Jewellery Tools / Stone Setting Tools
 Wire Pliers	Jewellery Tools	Functions / Tools / Jewellery Tools / Wire Pliers
+Kiln Tool	Tools	Functions / Tools / Kiln Tool
 Lacquerwork Tools	Tools	Functions / Tools / Lacquerwork Tools
 Gold Powder Tube	Lacquerwork Tools	Functions / Tools / Lacquerwork Tools / Gold Powder Tube
 Lacquer Drying Cabinet	Lacquerwork Tools	Functions / Tools / Lacquerwork Tools / Lacquer Drying Cabinet
@@ -871,6 +851,7 @@ Locksmith's File	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Loc
 Locksmith's Tweezers	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Locksmith's Tweezers
 Safe Dial Manipulator	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Safe Dial Manipulator
 Torsion Wrench	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Torsion Wrench
+Masonry Tool	Tools	Functions / Tools / Masonry Tool
 Medical Tools	Tools	Functions / Tools / Medical Tools
 Blood Pressure Monitor	Medical Tools	Functions / Tools / Medical Tools / Blood Pressure Monitor
 Cupping Vessel	Medical Tools	Functions / Tools / Medical Tools / Cupping Vessel
@@ -1123,6 +1104,7 @@ Scroll Roller Rod	Scrollmaking Tools	Functions / Tools / Scrollmaking Tools / Sc
 Scroll Seal Cord	Scrollmaking Tools	Functions / Tools / Scrollmaking Tools / Scroll Seal Cord
 Scroll Smoothing Stone	Scrollmaking Tools	Functions / Tools / Scrollmaking Tools / Scroll Smoothing Stone
 Scroll Tie Ribbon	Scrollmaking Tools	Functions / Tools / Scrollmaking Tools / Scroll Tie Ribbon
+Smelting Tool	Tools	Functions / Tools / Smelting Tool
 Smelting Tools	Tools	Functions / Tools / Smelting Tools
 Bloom Tongs	Smelting Tools	Functions / Tools / Smelting Tools / Bloom Tongs
 Charging Bucket	Smelting Tools	Functions / Tools / Smelting Tools / Charging Bucket
@@ -1611,6 +1593,8 @@ Crafting Animal Product	Butchery Output	Materials / Animal Product / Butchery Ou
 Offal	Butchery Output	Materials / Animal Product / Butchery Output / Offal
 Raw Hide	Butchery Output	Materials / Animal Product / Butchery Output / Raw Hide
 Raw Meat Cut	Butchery Output	Materials / Animal Product / Butchery Output / Raw Meat Cut
+Raw Fish Cut	Raw Meat Cut	Materials / Animal Product / Butchery Output / Raw Meat Cut / Raw Fish Cut
+Raw Non-Fish Meat Cut	Raw Meat Cut	Materials / Animal Product / Butchery Output / Raw Meat Cut / Raw Non-Fish Meat Cut
 Trophy Part	Butchery Output	Materials / Animal Product / Butchery Output / Trophy Part
 Venom Organ	Butchery Output	Materials / Animal Product / Butchery Output / Venom Organ
 Pastoral Product	Animal Product	Materials / Animal Product / Pastoral Product
@@ -1624,29 +1608,22 @@ Elemental Materials	Materials	Materials / Elemental Materials
 Food Products	Materials	Materials / Food Products
 Antiquity Food Commodities	Food Products	Materials / Food Products / Antiquity Food Commodities
 Bone Stock Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Bone Stock Commodity
-Bran Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Bran Commodity
 Brined Fruit Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Brined Fruit Commodity
 Broth Base Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Broth Base Commodity
-Cleaned Grain Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Cleaned Grain Commodity
-Dried Meat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Dried Meat Commodity
 Fermenting Food Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Fermenting Food Commodity
 Finished Beverage Stock	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Finished Beverage Stock
-Flour Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Flour Commodity
-Fruit Must Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Fruit Must Commodity
-Grain Cleaning Stock	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Grain Cleaning Stock
-Meal Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Meal Commodity
-Oilseed Cake Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Oilseed Cake Commodity
-Oilseed Mash Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Oilseed Mash Commodity
 Prepared Meat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Prepared Meat Commodity
 Pulse Meal Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Pulse Meal Commodity
-Raw Meat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Raw Meat Commodity
 Rendered Fat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Rendered Fat Commodity
 Rotten Food Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Rotten Food Commodity
-Salted Meat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Salted Meat Commodity
-Smoked Meat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Smoked Meat Commodity
 Vegetable Prep Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Vegetable Prep Commodity
 Wort Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Wort Commodity
 Pre-Industrial Food Commodities	Food Products	Materials / Food Products / Pre-Industrial Food Commodities
+Bran Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Bran Commodity
+Cleaned Grain Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Cleaned Grain Commodity
+Dough Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Dough Commodity
+Dried Fish Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Dried Fish Commodity
+Dried Meat Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Dried Meat Commodity
 Family	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Family
 Bread	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Bread
 Broth	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Broth
@@ -1684,11 +1661,25 @@ Tea	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family 
 Vegetable	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Vegetable
 Vinegar	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Vinegar
 Wine	Family	Materials / Food Products / Pre-Industrial Food Commodities / Family / Wine
+Flour Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Flour Commodity
+Fruit Must Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Fruit Must Commodity
+Grain Cleaning Stock	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Grain Cleaning Stock
+Malted Grain Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Malted Grain Commodity
+Meal Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Meal Commodity
+Oilseed Cake Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Oilseed Cake Commodity
+Oilseed Mash Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Oilseed Mash Commodity
+Raw Fish Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Raw Fish Commodity
+Raw Meat Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Raw Meat Commodity
+Salted Fish Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Salted Fish Commodity
+Salted Meat Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Salted Meat Commodity
 Scope	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Scope
 Early Modern	Scope	Materials / Food Products / Pre-Industrial Food Commodities / Scope / Early Modern
 Medieval	Scope	Materials / Food Products / Pre-Industrial Food Commodities / Scope / Medieval
 Renaissance	Scope	Materials / Food Products / Pre-Industrial Food Commodities / Scope / Renaissance
 Shared	Scope	Materials / Food Products / Pre-Industrial Food Commodities / Scope / Shared
+Smoked Fish Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Smoked Fish Commodity
+Smoked Meat Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Smoked Meat Commodity
+Wort Commodity	Pre-Industrial Food Commodities	Materials / Food Products / Pre-Industrial Food Commodities / Wort Commodity
 Gases	Materials	Materials / Gases
 Breathable Atmospheres	Gases	Materials / Gases / Breathable Atmospheres
 Elemental Gases	Gases	Materials / Gases / Elemental Gases

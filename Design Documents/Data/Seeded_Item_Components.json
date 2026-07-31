@@ -17860,6 +17860,26 @@
         "Component Type":  "PreparedFood"
     },
     {
+        "Component Name":  "PreparedFood_Medieval_Bread",
+        "Component Description":  "Medieval bread and flatbread",
+        "Component Type":  "PreparedFood"
+    },
+    {
+        "Component Name":  "PreparedFood_Medieval_HardBread",
+        "Component Description":  "Medieval hard bread and travel biscuit",
+        "Component Type":  "PreparedFood"
+    },
+    {
+        "Component Name":  "PreparedFood_Medieval_Pottage",
+        "Component Description":  "Medieval porridges and pottages",
+        "Component Type":  "PreparedFood"
+    },
+    {
+        "Component Name":  "PreparedFood_Medieval_PreservedProvision",
+        "Component Description":  "Medieval preserved meat and fish provisions",
+        "Component Type":  "PreparedFood"
+    },
+    {
         "Component Name":  "PreparedFood_Muffin_Template",
         "Component Description":  "Stock prepared-food profile for recipe-created muffins.",
         "Component Type":  "PreparedFood"

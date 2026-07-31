@@ -1,6 +1,6 @@
 # FutureMUD Medieval Industry Tool Production Chain Second Pass
 
-**Status:** first tool-chain foundation slice implemented; retained as the dependency-closure roadmap for later Medieval craft passes.
+**Status:** tool-chain foundation and food/beverage/preservation extension implemented; retained as the dependency-closure roadmap for later Medieval craft passes.
 **Date:** 30 July 2026.
 **Scope:** identifies which newly seeded tools and workshop apparatus must themselves become craft outputs before the medieval finished-good craft pass can safely proceed.  
 **Primary implementation target:** `DatabaseSeeder/Seeders/ItemSeeder.Crafting.Medieval.cs`, beginning with `SeedMedievalProductionChainCrafts` and only then moving to the category-specific medieval craft launchers.
@@ -19,11 +19,13 @@ The implemented phase model is deliberately compact: phase 0 is external ownersh
 
 Primary Production now closes the earlier charcoal, mining-pick, quarry-wedge, shovel, salt-pan/rake, ore, metal, clay, brick, and quarrying concerns. Those rows are reused rather than cloned with Medieval-prefixed replacements. Existing Medieval writing content already supplies the pen rest and pen rack.
 
+The first downstream extension is also complete. `SeedMedievalFoodBeverageCrafts` adds 48 crafts: 17 tool/apparatus crafts, 18 processing crafts, and 13 finished food or filled-vessel crafts. It adds the previously deferred lauter tun, six food-production prototypes in total, eleven prepared foods, four reusable `PreparedFood` components, and shared pre-industrial commodity ownership for grain, oilseed, must, wort, meat, and fish stocks.
+
 ---
 
 ## Baseline findings
 
-The first medieval industry item pass created 168 tool/workshop prototypes and 50 intermediate stock prototypes. That pass deliberately did not create medieval crafts. The important consequence is that most of those tools are now non-terminal items: they exist as seedable items, but they still need craft paths before they can be used as honest prerequisites in later production-chain crafts.
+The first medieval industry item pass created 168 tool/workshop prototypes and 50 intermediate stock prototypes. The food foundation adds six further food-production tools or apparatus, bringing the active combined catalogue to 174 tool/workshop prototypes and 50 intermediate stock prototypes. Most catalogue tools remain non-terminal items: they exist as seedable items, but they still need craft paths before they can be used as honest prerequisites in later production-chain crafts.
 
 The chain design reference already states the relevant rule: craft tools should be real seeded items, and every non-terminal craft input should be either terminal or produced by another craft. The second pass extends that rule from finished goods to the tool catalogue itself.
 
@@ -171,9 +173,9 @@ The former recommended tool-chain foundation slice is complete:
 2. All 16 selected first-tier stock rows have craft paths.
 3. All 17 selected first-tier tool/apparatus rows have craft paths.
 4. Tests cover exact outputs, phase monotonicity, source ownership, seeded tool tags, Medieval era gating, and double-seed idempotency.
-5. Finished clothing, weapon, armour, household, jewellery, medical, writing, food, beverage, preservation, transport/tack, and game/toy crafts remain deferred.
+5. Finished clothing, weapon, armour, household, jewellery, medical, writing, transport/tack, and game/toy crafts remain deferred; the generic food, beverage, and preservation foundation is active.
 
-The next extension should close one coherent downstream family against this foundation. The lauter tun belongs with a later complete food, beverage, and preservation slice. Wheelwright clamps, tenon cutters, brain-tanning buckets, earth rammers, and a separate dressing axe remain deferred until their dependent workflows enter scope.
+The implemented food extension closes the lauter tun and basic grain, oil, must, wort, ale, wine, pottage, bread, and meat/fish preservation dependencies. The next cross-manifest extension is civilian transport and tack, followed by games and toys. Wheelwright clamps, tenon cutters, brain-tanning buckets, earth rammers, and a separate dressing axe remain deferred until their dependent workflows enter scope.
 
 ---
 

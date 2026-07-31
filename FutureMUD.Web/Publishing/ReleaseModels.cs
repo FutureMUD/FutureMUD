@@ -13,6 +13,9 @@ public sealed class ReleaseProductDefinition
 	public string PublicName { get; init; } = string.Empty;
 	public string TagPrefix { get; init; } = string.Empty;
 	public string ProjectPath { get; init; } = string.Empty;
+	public string WebProjectPath { get; init; } = string.Empty;
+	public string PackageScriptPath { get; init; } = string.Empty;
+	public string PackageKind { get; init; } = "single-file";
 	public string VersionSource { get; init; } = "Version";
 	public bool FrameworkDependent { get; init; } = true;
 	public bool SingleFile { get; init; }

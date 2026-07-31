@@ -8,6 +8,7 @@ on:
       - 'discordbot-v*'
       - 'terrainplanner-v*'
       - 'terrainapi-v*'
+      - 'mudclient-v*'
   workflow_dispatch:
     inputs:
       release_tag:
@@ -29,6 +30,9 @@ jobs:
       matrix: ${{ steps.release.outputs.matrix }}
       tests: ${{ steps.release.outputs.tests }}
       documentation: ${{ steps.release.outputs.documentation }}
+      package_kind: ${{ steps.release.outputs.package_kind }}
+      web_project: ${{ steps.release.outputs.web_project }}
+      package_script: ${{ steps.release.outputs.package_script }}
       single_file: ${{ steps.release.outputs.single_file }}
       include_native_libraries: ${{ steps.release.outputs.include_native_libraries }}
       source_revision: ${{ steps.release.outputs.source_revision }}
@@ -65,6 +69,12 @@ jobs:
               Runtimes = [string[]]@('win-x64', 'linux-x64', 'linux-arm64')
               ArchiveName = 'engine-{version}-{runtime}.zip'
               DocumentationCatalogue = $true
+              PackageKind = 'single-file'
+              WebProjectPath = ''
+              PackageScriptPath = ''
+              FrameworkDependent = $true
+              SingleFile = $true
+              IncludeNativeLibrariesForSelfExtract = $true
             }
             seeder = [pscustomobject]@{
               TagPrefix = 'seeder-v'
@@ -73,6 +83,12 @@ jobs:
               Runtimes = [string[]]@('win-x64', 'linux-x64', 'linux-arm64')
               ArchiveName = 'seeder-{version}-{runtime}.zip'
               DocumentationCatalogue = $false
+              PackageKind = 'single-file'
+              WebProjectPath = ''
+              PackageScriptPath = ''
+              FrameworkDependent = $true
+              SingleFile = $true
+              IncludeNativeLibrariesForSelfExtract = $true
             }
             discordbot = [pscustomobject]@{
               TagPrefix = 'discordbot-v'
@@ -81,6 +97,12 @@ jobs:
               Runtimes = [string[]]@('win-x64', 'linux-x64')
               ArchiveName = 'discordbot-{version}-{runtime}.zip'
               DocumentationCatalogue = $false
+              PackageKind = 'single-file'
+              WebProjectPath = ''
+              PackageScriptPath = ''
+              FrameworkDependent = $true
+              SingleFile = $true
+              IncludeNativeLibrariesForSelfExtract = $true
             }
             terrainplanner = [pscustomobject]@{
               TagPrefix = 'terrainplanner-v'
@@ -89,6 +111,12 @@ jobs:
               Runtimes = [string[]]@('win-x64')
               ArchiveName = 'terrainplanner-{version}-{runtime}.zip'
               DocumentationCatalogue = $false
+              PackageKind = 'single-file'
+              WebProjectPath = ''
+              PackageScriptPath = ''
+              FrameworkDependent = $true
+              SingleFile = $true
+              IncludeNativeLibrariesForSelfExtract = $true
             }
             terrainapi = [pscustomobject]@{
               TagPrefix = 'terrainapi-v'
@@ -97,13 +125,33 @@ jobs:
               Runtimes = [string[]]@('win-x64', 'linux-x64')
               ArchiveName = 'terrainapi-{version}-{runtime}.zip'
               DocumentationCatalogue = $false
+              PackageKind = 'single-file'
+              WebProjectPath = ''
+              PackageScriptPath = ''
+              FrameworkDependent = $true
+              SingleFile = $true
+              IncludeNativeLibrariesForSelfExtract = $true
+            }
+            mudclient = [pscustomobject]@{
+              TagPrefix = 'mudclient-v'
+              ProjectPath = 'MudClient/MudWebSocketProxy/MudWebSocketProxy.csproj'
+              WebProjectPath = 'MudClient/MudClientBlazor/MudClientBlazor.csproj'
+              PackageScriptPath = 'MudClient/scripts/Publish-ProductPackage.ps1'
+              TestProjects = [string[]]@('MudClient/MudClientTests/MudClientTests.csproj')
+              Runtimes = [string[]]@('win-x64', 'linux-x64', 'linux-arm64')
+              ArchiveName = 'mudclient-{version}-{runtime}.zip'
+              DocumentationCatalogue = $false
+              PackageKind = 'mudclient'
+              FrameworkDependent = $false
+              SingleFile = $true
+              IncludeNativeLibrariesForSelfExtract = $true
             }
           }
-          $allowedIds = [string[]]@('engine', 'seeder', 'discordbot', 'terrainplanner', 'terrainapi')
+          $allowedIds = [string[]]@('engine', 'seeder', 'discordbot', 'terrainplanner', 'terrainapi', 'mudclient')
 
           $tagMatch = [regex]::Match(
             $env:RELEASE_TAG,
-            '\A(?<product>engine|seeder|discordbot|terrainplanner|terrainapi)-v(?<version>[0-9]+\.[0-9]+\.[0-9]+)\z',
+            '\A(?<product>engine|seeder|discordbot|terrainplanner|terrainapi|mudclient)-v(?<version>[0-9]+\.[0-9]+\.[0-9]+)\z',
             [Text.RegularExpressions.RegexOptions]::CultureInvariant)
           if (-not $tagMatch.Success) {
             throw "Release tag '$($env:RELEASE_TAG)' does not match the strict release-tag allowlist."
@@ -146,12 +194,15 @@ jobs:
             }
             $allowed = $allowedDefinitions[$id]
             if ([string]$candidate.tagPrefix -cne $allowed.TagPrefix -or
-                [string]$candidate.projectPath -cne $allowed.ProjectPath -or
-                [string]$candidate.archiveName -cne $allowed.ArchiveName -or
-                [string]$candidate.versionSource -cne 'Version' -or
-                [bool]$candidate.frameworkDependent -ne $true -or
-                [bool]$candidate.singleFile -ne $true -or
-                [bool]$candidate.includeNativeLibrariesForSelfExtract -ne $true -or
+                 [string]$candidate.projectPath -cne $allowed.ProjectPath -or
+                 [string]$candidate.webProjectPath -cne $allowed.WebProjectPath -or
+                 [string]$candidate.packageScriptPath -cne $allowed.PackageScriptPath -or
+                 [string]$candidate.packageKind -cne $allowed.PackageKind -or
+                 [string]$candidate.archiveName -cne $allowed.ArchiveName -or
+                 [string]$candidate.versionSource -cne 'Version' -or
+                 [bool]$candidate.frameworkDependent -ne $allowed.FrameworkDependent -or
+                 [bool]$candidate.singleFile -ne $allowed.SingleFile -or
+                 [bool]$candidate.includeNativeLibrariesForSelfExtract -ne $allowed.IncludeNativeLibrariesForSelfExtract -or
                 [bool]$candidate.documentationCatalogue -ne $allowed.DocumentationCatalogue) {
               throw "Product '$id' does not match the workflow allowlist."
             }
@@ -161,7 +212,11 @@ jobs:
 
           $definition = $definitions | Where-Object { [string]$_.id -ceq $product } | Select-Object -First 1
           if ($null -eq $definition) { throw "Product '$product' was not found after manifest validation." }
-          foreach ($path in @([string]$definition.projectPath) + @($definition.testProjects | ForEach-Object { [string]$_ })) {
+          foreach ($path in @(
+              [string]$definition.projectPath,
+              [string]$definition.webProjectPath,
+              [string]$definition.packageScriptPath) + @($definition.testProjects | ForEach-Object { [string]$_ })) {
+            if ([string]::IsNullOrWhiteSpace($path)) { continue }
             if (-not (Test-Path -LiteralPath (Join-Path $env:GITHUB_WORKSPACE $path) -PathType Leaf)) {
               throw "Allowlisted project path '$path' does not exist."
             }
@@ -188,6 +243,9 @@ jobs:
             "matrix=$matrix"
             "tests=$(@($definition.testProjects) -join ';')"
             "documentation=$([bool]$definition.documentationCatalogue)"
+            "package_kind=$([string]$definition.packageKind)"
+            "web_project=$([string]$definition.webProjectPath)"
+            "package_script=$([string]$definition.packageScriptPath)"
             "single_file=$([bool]$definition.singleFile)"
             "include_native_libraries=$([bool]$definition.includeNativeLibrariesForSelfExtract)"
             "source_revision=$tagCommit"
@@ -218,7 +276,18 @@ jobs:
         shell: pwsh
         env:
           PROJECT_PATH: ${{ needs.prepare.outputs.project }}
-        run: dotnet restore $env:PROJECT_PATH -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
+          WEB_PROJECT_PATH: ${{ needs.prepare.outputs.web_project }}
+        run: |
+          dotnet restore $env:PROJECT_PATH -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (-not [string]::IsNullOrWhiteSpace($env:WEB_PROJECT_PATH)) {
+            dotnet restore $env:WEB_PROJECT_PATH -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+      - name: Install WebAssembly build tools
+        if: needs.prepare.outputs.package_kind == 'mudclient'
+        shell: pwsh
+        run: dotnet workload install wasm-tools
       - name: Run targeted tests
         if: needs.prepare.outputs.tests != ''
         shell: pwsh
@@ -230,6 +299,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
       - name: Publish framework-dependent archive
+        if: needs.prepare.outputs.package_kind == 'single-file'
         shell: pwsh
         env:
           INCLUDE_NATIVE_LIBRARIES: ${{ needs.prepare.outputs.include_native_libraries }}
@@ -246,6 +316,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $archive = "$($env:PRODUCT)-$($env:VERSION)-$($env:RUNTIME).zip"
           Compress-Archive -Path "$output/*" -DestinationPath (Join-Path $env:RUNNER_TEMP $archive) -CompressionLevel Optimal
+      - name: Assemble self-contained Web MUD Client archive
+        if: needs.prepare.outputs.package_kind == 'mudclient'
+        shell: pwsh
+        env:
+          PACKAGE_SCRIPT: ${{ needs.prepare.outputs.package_script }}
+          RUNTIME: ${{ matrix.runtime }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          & $env:PACKAGE_SCRIPT -RuntimeIdentifier $env:RUNTIME -Version $env:VERSION -OutputRoot $env:RUNNER_TEMP -SkipTests
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Export Engine documentation
         if: needs.prepare.outputs.documentation == 'True' && matrix.runtime == 'linux-x64'
         shell: pwsh
@@ -345,7 +425,7 @@ jobs:
           SOURCE_REVISION: ${{ needs.prepare.outputs.source_revision }}
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
-          if ($env:PRODUCT -cnotmatch '^(engine|seeder|discordbot|terrainplanner|terrainapi)$' -or
+          if ($env:PRODUCT -cnotmatch '^(engine|seeder|discordbot|terrainplanner|terrainapi|mudclient)$' -or
               $env:VERSION -cnotmatch '^\d+\.\d+\.\d+$' -or
               $env:SOURCE_REVISION -cnotmatch '^[0-9a-f]{40}$') {
             throw 'Prepared publishing metadata failed production validation.'

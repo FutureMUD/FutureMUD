@@ -19,12 +19,21 @@ public class ReleasePackagingManifestTests
 			new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
 		Assert.IsNotNull(manifest);
-		Assert.AreEqual(5, manifest.Products.Count);
-		foreach (var product in manifest.Products)
+		Assert.AreEqual(6, manifest.Products.Count);
+		foreach (var product in manifest.Products.Where(product => product.Id != "mudclient"))
 		{
+			Assert.AreEqual("single-file", product.PackageKind, product.Id);
 			Assert.IsTrue(product.FrameworkDependent, product.Id);
 			Assert.IsTrue(product.SingleFile, product.Id);
 			Assert.IsTrue(product.IncludeNativeLibrariesForSelfExtract, product.Id);
 		}
+
+		var mudClient = manifest.Products.Single(product => product.Id == "mudclient");
+		Assert.AreEqual("mudclient", mudClient.PackageKind);
+		Assert.IsFalse(mudClient.FrameworkDependent);
+		Assert.IsTrue(mudClient.SingleFile);
+		Assert.IsTrue(mudClient.IncludeNativeLibrariesForSelfExtract);
+		Assert.AreEqual("MudClient/MudClientBlazor/MudClientBlazor.csproj", mudClient.WebProjectPath);
+		Assert.AreEqual("MudClient/scripts/Publish-ProductPackage.ps1", mudClient.PackageScriptPath);
 	}
 }

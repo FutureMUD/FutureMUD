@@ -1,0 +1,12 @@
+# Replace play.example.com and C:\MudClient with your real web address and install path.
+play.example.com {
+	root * C:\MudClient\web\wwwroot
+	encode gzip zstd
+
+	handle /ws* {
+		reverse_proxy 127.0.0.1:5000
+	}
+
+	try_files {path} {path}/ /index.html
+	file_server
+}

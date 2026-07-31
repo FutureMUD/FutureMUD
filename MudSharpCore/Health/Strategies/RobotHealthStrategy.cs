@@ -433,76 +433,44 @@ public class RobotHealthStrategy : BaseHealthStrategy
         double breathRatio, bool brief)
     {
         StringBuilder sb = new();
-        sb.Append("<");
         double power = charOwner.Body.OrganFunction<PowerCore>();
         if (power < PowerCoreCriticalThreshold)
         {
-            sb.Append("*** YOUR POWER CORE IS CRITICAL! ***".Colour(Telnet.BoldRed));
-            sb.Append(">\n<");
+            sb.Append($"<{"*** YOUR POWER CORE IS CRITICAL! ***".Colour(Telnet.BoldRed)}>\n");
         }
 
         if (charOwner.NeedsToBreathe && !charOwner.CanBreathe)
         {
             if (breathRatio > 0.0)
             {
-                sb.Append("*** YOU ARE HOLDING YOUR BREATH! ***".Colour(Telnet.BoldBlue));
-                sb.Append(">\n<");
+                sb.Append($"<{"*** YOU ARE HOLDING YOUR BREATH! ***".Colour(Telnet.BoldBlue)}>\n");
             }
             else if (charOwner.BreathingFluid is ILiquid)
             {
-                sb.Append("*** YOU ARE DROWNING! ***".Colour(Telnet.BoldCyan));
-                sb.Append(">\n<");
+                sb.Append($"<{"*** YOU ARE DROWNING! ***".Colour(Telnet.BoldCyan)}>\n");
             }
             else
             {
-                sb.Append("*** YOU ARE SUFFOCATING! ***".Colour(Telnet.BoldYellow));
-                sb.Append(">\n<");
+                sb.Append($"<{"*** YOU ARE SUFFOCATING! ***".Colour(Telnet.BoldYellow)}>\n");
             }
         }
 
-        if (stunRatio > 0.05)
+        var stunDescription = stunRatio switch
         {
-            if (stunRatio < 0.2)
-            {
-                sb.Append($", {"dizzy".Colour(Telnet.BoldCyan)}");
-            }
-            else if (stunRatio < 0.4)
-            {
-                sb.Append($", {"dazed".Colour(Telnet.BoldCyan)}");
-            }
-            else if (stunRatio < 0.6)
-            {
-                sb.Append($", {"stunned".Colour(Telnet.BoldBlue)}");
-            }
-            else if (stunRatio < 0.8)
-            {
-                sb.Append($", {"severly stunned".Colour(Telnet.BoldBlue)}");
-            }
-            else if (stunRatio < 1.0)
-            {
-                sb.Append($", {"practically catatonic".Colour(Telnet.BoldMagenta)}");
-            }
-            else
-            {
-                sb.Append($", {"knocked out".Colour(Telnet.BoldMagenta)}");
-            }
-        }
-
-        if (bloodlossRatio <= 0.98 && sb.Length != 0)
-        {
-            sb.Append(" and have ");
-        }
+            <= 0.05 => null,
+            < 0.2 => "dizzy".Colour(Telnet.BoldCyan),
+            < 0.4 => "dazed".Colour(Telnet.BoldCyan),
+            < 0.6 => "stunned".Colour(Telnet.BoldBlue),
+            < 0.8 => "severely stunned".Colour(Telnet.BoldBlue),
+            < 1.0 => "practically catatonic".Colour(Telnet.BoldMagenta),
+            _ => "knocked out".Colour(Telnet.BoldMagenta)
+        };
 
         string fluidLossDescription = FluidLossDescriptionForPrompt(
             bloodlossRatio,
             charOwner.Race.BloodLiquid?.Name);
-        if (!string.IsNullOrEmpty(fluidLossDescription))
-        {
-            sb.Append(fluidLossDescription);
-        }
-
-        sb.Append(">");
-        return sb.ToString();
+        sb.Append(FormatFullPromptCondition(null, stunDescription, fluidLossDescription));
+        return sb.ToString().TrimEnd('\n');
     }
 
     private string ReportClassicPrompt(ICharacter charOwner, double stunRatio, double painRatio, double bloodlossRatio,

@@ -3212,11 +3212,6 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             string healthString = HealthStrategy.ReportConditionPrompt(this, PromptType.FullBrief);
 
             StringBuilder sb = new();
-            if (!healthString.Equals(string.Empty))
-            {
-                healthString = "<" + healthString + ">";
-            }
-
             bool setStamina = false;
             if (staminaRatio < 0.8)
             {

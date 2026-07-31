@@ -4,12 +4,16 @@
 
 This branch covers Renaissance art production, specialist workshops, navigation, astronomy, measurement, timekeeping, and supporting instrument stock beyond the shared workshop and twelve-item navigation/science baseline.
 
-## Art and workshop slices
+## Implemented foundation
+
+`SeedRenaissanceArtCraftScienceAndNavigation()` now seeds 19 era-gated, existing-component prototypes. It covers the documented painting and sculpture workshop core, drawing and proportional tools, and quadrants, sectors, sandglasses, sundials, armillary spheres, and sounding lines. These items are honest physical forms: they do not assert a new art, navigation, survey, timekeeping, or astronomical runtime effect.
+
+## Art and workshop coverage
 
 - easels, panels, supported canvases, frames, palettes, brushes, pigment shells, slabs, mullers, drawing boards, chalk/charcoal/silverpoint props, proportional dividers, sculptor/carving tools, wax models, plaster casts, moulds, and pattern books;
 - goldsmith, jeweller, engraver, printer, bookbinder, glazier, clockmaker, armourer, gunsmith, sailmaker, ropemaker, and apothecary toolkits only where shared tools do not already cover the form.
 
-## Science and navigation slices
+## Science and navigation coverage
 
 Reuse the shared compass, dividers, cross-staff, mariner's astrolabe, chart case, measuring chain, plane table, spectacles, magnifying lens, telescope, balance scales, and specimen jar.
 

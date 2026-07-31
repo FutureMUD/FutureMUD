@@ -927,6 +927,13 @@ The items and crafts are fairly universal and of approximately medieval to renei
 		if (HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern"))
 		{
 			SeedSharedPreIndustrialBaselineItems();
+			SeedSharedPreIndustrialFoodFoundation();
+		}
+
+		if (HasAnyEra(eras, "medieval", "renaissance", "earlymodern"))
+		{
+			SeedSharedPreIndustrialFoodCatalogue();
+			SeedSharedPreIndustrialLeisureItems();
 		}
 
 		if (eras.Contains("antiquity", StringComparison.InvariantCultureIgnoreCase))
@@ -961,6 +968,8 @@ The items and crafts are fairly universal and of approximately medieval to renei
 			SeedMedievalHouseholdFurniture();
 			SeedMedievalWeaponsShieldsAccessories();
 			SeedMedievalFoodAndBeverageItems();
+			SeedMedievalFoodCatalogue();
+			SeedMedievalFoodProductionFoundationItems();
 			SeedMedievalComponentGapItems();
 		}
 

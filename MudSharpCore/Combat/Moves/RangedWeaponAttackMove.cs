@@ -17,7 +17,7 @@ public class RangedWeaponAttackMove : RangedWeaponAttackBase
     #region Overrides of CombatMoveBase
 
     public override double BaseDelay
-        => Weapon.WeaponType.FireCombatDelay;
+        => Weapon is IFirearm firearm ? firearm.EffectiveFireDelay : Weapon.WeaponType.FireCombatDelay;
 
     #endregion
 }

@@ -139,7 +139,13 @@ public abstract class GameItemComponentProto : EditableItem, IGameItemComponentP
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
-        switch (command.Last)
+        var option = command.Last;
+        if (string.IsNullOrEmpty(option))
+        {
+            option = command.PopForSwitch();
+        }
+
+        switch (option)
         {
             case "desc":
             case "description":

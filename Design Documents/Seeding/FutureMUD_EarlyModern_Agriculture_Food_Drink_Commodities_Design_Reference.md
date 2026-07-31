@@ -14,7 +14,9 @@ Stock Agriculture now includes Tobacco, Cardamom, Allspice, Logwood, Chamomile, 
 
 ## Processing packages
 
-Material foundations now exist for sugar loaf, molasses, tobacco leaf/twist, snuff, roasted coffee, cacao beans/nibs, chocolate blocks, tea bricks/cakes, cotton fibre, indigo dye cake, and cochineal. Rum remains a live liquid. Finished item prototypes, packets/bales, and transformation crafts remain implementation work and must reuse the shared packages below.
+Material foundations now exist for sugar loaf, molasses, tobacco leaf/twist, snuff, roasted coffee, cacao beans/nibs, chocolate blocks, tea bricks/cakes, cotton fibre, indigo dye cake, and cochineal. Rum remains a live liquid.
+
+The food-content branch is implemented through the [Pre-Industrial Food Catalogue](./PreIndustrial_Food_Catalogue_Design_Reference.md): Early Modern installation receives the 2,250-row shared food layer plus 225 Early Modern-specific prepared/intermediate items and 25 Early Modern-specific food liquids. Shared foods remain governed by crop, contact, trade, and consumption-culture admission rather than becoming universally available merely because the era is selected. Transformation crafts and packaged trade-good prototypes remain separate implementation work and must reuse the shared packages below.
 
 Use `preindustrial_trade_tea_chest`, `preindustrial_trade_coffee_sack`, `preindustrial_trade_cacao_sack`, `preindustrial_trade_tobacco_bale`, `preindustrial_trade_sugar_hogshead`, `preindustrial_trade_indigo_cake_box`, `preindustrial_trade_cotton_bale`, and `preindustrial_trade_spice_chest` where their package form fits.
 
@@ -28,3 +30,4 @@ Plantation, enslavement, mission, company, and colonial-administration systems r
 - Every output resolves to an exact material/liquid/item reference before a craft is enabled.
 - Packaging stable references are reused.
 - Consumption goods use real edible, liquid-container, smokeable, or other relevant components rather than prose-only claims.
+- The installed food catalogue resolves to 2,500 exact shared-plus-Early-Modern records with maintained components, liquids, tags, and admission data.

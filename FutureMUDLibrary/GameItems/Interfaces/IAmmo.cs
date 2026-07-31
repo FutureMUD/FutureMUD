@@ -7,6 +7,12 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.GameItems.Interfaces
 {
+    public sealed record RangedFireContext(
+        int ProjectileIndex = 0,
+        int ProjectileCount = 1,
+        RangedScatterType? ScatterType = null,
+        double DamageMultiplier = 1.0);
+
     public interface IAmmo : IGameItemComponent
     {
         IAmmunitionType AmmoType { get; }
@@ -20,6 +26,8 @@ namespace MudSharp.GameItems.Interfaces
         /// </summary>
         IGameItem GetFiredWasteItem { get; }
 
-        void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo, IRangedWeaponType weaponType, IEmoteOutput defenseEmote);
+        void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
+            OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo, IRangedWeaponType weaponType,
+            IEmoteOutput defenseEmote, RangedFireContext context = null);
     }
 }

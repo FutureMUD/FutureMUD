@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.GameItems;
@@ -8,28 +9,88 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ItemSeeder
 {
+	private sealed record EarlyModernMilitaryItemSpec(
+		string StableReference,
+		string Noun,
+		string ShortDescription,
+		string FullDescription,
+		SizeCategory Size,
+		ItemQuality Quality,
+		double WeightInGrams,
+		decimal Cost,
+		string Material,
+		string[] Tags,
+		string[] Components,
+		string BuilderNotes);
+
+	internal sealed record EarlyModernMilitaryItemSpecTestData(
+		string StableReference,
+		string Material,
+		IReadOnlyCollection<string> Tags,
+		IReadOnlyCollection<string> Components);
+
 	internal static IReadOnlyCollection<string> EarlyModernStandardsAndSignalsStableReferencesForTesting =>
-		new[]
-			{
-				"infantry_colour", "cavalry_standard", "dragoon_guidon", "naval_ensign", "signal_flag",
-				"lance_pennant", "field_drum", "kettle_drum", "military_fife", "speaking_trumpet"
-			}
-			.SelectMany(family => new[] { "issue", "reinforced", "ornate" }
-				.Select(tier => $"earlymodern_military_accessory_{family}_{tier}"))
+		EarlyModernSupportedMilitaryItemSpecs
+			.Where(x => x.Components.Any(component => component.StartsWith("MilitaryStandard_", StringComparison.Ordinal) ||
+			                                           component.StartsWith("SignalInstrument_", StringComparison.Ordinal)))
+			.Select(x => x.StableReference)
+			.ToArray();
+
+	internal static IReadOnlyCollection<EarlyModernMilitaryItemSpecTestData> EarlyModernSupportedMilitaryItemSpecsForTesting =>
+		EarlyModernSupportedMilitaryItemSpecs
+			.Select(x => new EarlyModernMilitaryItemSpecTestData(
+				x.StableReference,
+				x.Material,
+				x.Tags,
+				x.Components))
 			.ToArray();
 
 	private void SeedEarlyModernMilitaryFirearmsUniformsAndNaval()
 	{
+		var dependencyIssues = ValidateEarlyModernMilitaryDependencies(EarlyModernSupportedMilitaryItemSpecs);
+		if (dependencyIssues.Count > 0)
+		{
+			throw new InvalidOperationException(
+				"Supported Early Modern military catalogue cannot be seeded because required dependencies are missing:" +
+				Environment.NewLine + string.Join(Environment.NewLine, dependencyIssues.Select(x => $" - {x}")));
+		}
+
+		foreach (var spec in EarlyModernSupportedMilitaryItemSpecs)
+		{
+			CreateItem(
+				spec.StableReference,
+				spec.Noun,
+				spec.ShortDescription,
+				null,
+				spec.FullDescription,
+				spec.Size,
+				spec.Quality,
+				spec.WeightInGrams,
+				spec.Cost,
+				false,
+				false,
+				spec.Material,
+				spec.Tags,
+				spec.Components,
+				null,
+				null,
+				null,
+				null,
+				spec.BuilderNotes,
+				allowLegacyShortDescriptionMatch: false);
+		}
+
+		SeedEarlyModernCrossbowSpanningTools();
+	}
+
+	private void SeedEarlyModernCrossbowSpanningTools()
+	{
 		const string eraTag = "Era / Early Modern Era";
 		const string militaryTag = "Functions / Military Equipment";
-		const string weaponTag = "Functions / Military Equipment / Military Weapons";
-		const string signalTag = "Functions / Military Equipment / Military Signals";
-		const string standardTag = "Functions / Military Equipment / Military Standards";
 		const string toolMarketTag = "Market / Professional Tools / Standard Tools";
 		const string spanningRoot = "Functions / Military Equipment / Crossbow Spanning Tools";
-
 		foreach (var (reference, noun, shortDescription, fullDescription, weight, cost, material, toolTag,
-			         destroyableComponent) in
+		         destroyableComponent) in
 		         new[]
 		         {
 			         ("earlymodern_military_tool_cranequin", "cranequin", "a steel cranequin",
@@ -53,97 +114,32 @@ public partial class ItemSeeder
 				ItemQuality.Standard, weight, cost, false, false, material,
 				[eraTag, militaryTag, toolMarketTag, $"{spanningRoot} / {toolTag}"],
 				["Holdable", destroyableComponent], null, null, null, null,
-				"Stock crossbow spanning tool for the dependency-ledger closure tranche.");
+				"Stock crossbow spanning tool retained from the supported dependency-ledger closure tranche.",
+				allowLegacyShortDescriptionMatch: false);
 		}
+	}
 
-		foreach (var (reference, shortDescription, fullDescription, component) in new[]
-		         {
-			         ("earlymodern_military_melee_plug_bayonet_service", "a serviceable plug bayonet",
-				         "This broad iron plug bayonet has a tapered wooden grip made to seat directly in a musket muzzle, turning the unloaded arm into a short spear.",
-				         "Bayonet_Plug"),
-			         ("earlymodern_military_melee_socket_bayonet_service", "a serviceable socket bayonet",
-				         "This offset iron socket bayonet twists onto a musket barrel while leaving the muzzle clear for loading and firing.",
-				         "Bayonet_Socket"),
-			         ("earlymodern_military_melee_sword_bayonet_service", "a serviceable sword bayonet",
-				         "This long iron sword bayonet locks beside a musket muzzle and remains useful as a fighting blade after removal.",
-				         "Bayonet_Sword")
-		         })
+	private IReadOnlyList<string> ValidateEarlyModernMilitaryDependencies(
+		IEnumerable<EarlyModernMilitaryItemSpec> specs)
+	{
+		var issues = new List<string>();
+		foreach (var spec in specs)
 		{
-			CreateItem(reference, "bayonet", shortDescription, null, fullDescription, SizeCategory.Small,
-				ItemQuality.Standard, 520.0, 105.0m, false, false, "wrought iron",
-				[eraTag, militaryTag, weaponTag],
-				["Holdable", "Melee_Bayonet", component, "Destroyable_Weapon", "Beltable"], null, null, null, null,
-				"Stock functional bayonet using the musket attachment slots.");
-		}
-
-		foreach (var (family, noun, component, size, issueWeight, issueCost, reinforcedWeight, reinforcedCost,
-			         ornateWeight, ornateCost) in new[]
-		         {
-			         ("infantry_colour", "colour", "MilitaryStandard_InfantryColour", SizeCategory.Large,
-				         2800.0, 180.0m, 2910.0, 360.0m, 2860.0, 756.0m),
-			         ("cavalry_standard", "standard", "MilitaryStandard_CavalryStandard", SizeCategory.Large,
-				         2200.0, 190.0m, 2290.0, 380.0m, 2240.0, 798.0m),
-			         ("dragoon_guidon", "guidon", "MilitaryStandard_Guidon", SizeCategory.Large,
-				         1900.0, 170.0m, 1980.0, 340.0m, 1940.0, 714.0m),
-			         ("naval_ensign", "ensign", "MilitaryStandard_NavalEnsign", SizeCategory.Large,
-				         2100.0, 160.0m, 2180.0, 320.0m, 2140.0, 672.0m),
-			         ("signal_flag", "flag", "MilitaryStandard_SignalFlag", SizeCategory.Normal,
-				         850.0, 80.0m, 885.0, 160.0m, 865.0, 336.0m),
-			         ("lance_pennant", "pennant", "MilitaryStandard_Pennant", SizeCategory.Small,
-				         340.0, 48.0m, 355.0, 96.0m, 345.0, 202.0m)
-		         })
-		{
-			var display = family.Replace('_', ' ');
-			foreach (var (tier, adjective, material, quality, weight, cost) in new[]
-			         {
-				         ("issue", "plain", "canvas", ItemQuality.Standard, issueWeight, issueCost),
-				         ("reinforced", "reinforced", "wool", ItemQuality.Good, reinforcedWeight, reinforcedCost),
-				         ("ornate", "tooled", "silk", ItemQuality.VeryGood, ornateWeight, ornateCost)
-			         })
+			if (!_materials.ContainsKey(spec.Material))
 			{
-				CreateItem($"earlymodern_military_accessory_{family}_{tier}", noun,
-					$"a {adjective} {display}", null,
-					$"This {adjective} {display} is fixed to a stout staff and ready for a builder to assign its identity, lawful owner, and unit or ship association.",
-					size, quality, weight, cost, false, false, material,
-					[eraTag, militaryTag, standardTag],
-					["Holdable", component, "Destroyable_Clothing"], null, null, null, null,
-					"Stock military standard; new copies begin unowned, unclaimed, unassociated and with zero captures.");
+				issues.Add($"Missing material {spec.Material} for {spec.StableReference}");
 			}
+
+			issues.AddRange(spec.Tags
+				.Where(x => !_tagsByFullPath.ContainsKey(x))
+				.Select(x => $"Missing tag {x} for {spec.StableReference}"));
+			issues.AddRange(spec.Components
+				.Where(x => !_components.ContainsKey(x))
+				.Select(x => $"Missing component {x} for {spec.StableReference}"));
 		}
 
-		foreach (var (family, noun, component, size, issueMaterial, reinforcedMaterial, ornateMaterial,
-			         issueWeight, issueCost, reinforcedWeight, reinforcedCost, ornateWeight, ornateCost,
-			         wearable) in new[]
-		         {
-			         ("field_drum", "drum", "SignalInstrument_FieldDrum", SizeCategory.Normal,
-				         "pine", "oak", "walnut", 4200.0, 180.0m, 4370.0, 360.0m, 4280.0, 756.0m, true),
-			         ("kettle_drum", "drum", "SignalInstrument_KettleDrum", SizeCategory.Large,
-				         "copper", "brass", "silver", 7800.0, 360.0m, 8100.0, 720.0m, 7950.0, 1512.0m, false),
-			         ("military_fife", "fife", "SignalInstrument_Fife", SizeCategory.Small,
-				         "boxwood", "ebony", "ivory", 180.0, 90.0m, 185.0, 180.0m, 185.0, 378.0m, false),
-			         ("speaking_trumpet", "trumpet", "SignalInstrument_SpeakingTrumpet", SizeCategory.Normal,
-				         "copper", "brass", "silver", 680.0, 120.0m, 705.0, 240.0m, 695.0, 504.0m, false)
-		         })
-		{
-			var display = family.Replace('_', ' ');
-			foreach (var (tier, adjective, material, quality, weight, cost) in new[]
-			         {
-				         ("issue", "plain", issueMaterial, ItemQuality.Standard, issueWeight, issueCost),
-				         ("reinforced", "reinforced", reinforcedMaterial, ItemQuality.Good, reinforcedWeight,
-					         reinforcedCost),
-				         ("ornate", "tooled", ornateMaterial, ItemQuality.VeryGood, ornateWeight, ornateCost)
-			         })
-			{
-				var components = wearable
-					? new[] { "Holdable", component, "Wear_Shoulder", "Destroyable_Misc" }
-					: new[] { "Holdable", component, "Destroyable_Misc" };
-				CreateItem($"earlymodern_military_accessory_{family}_{tier}", noun,
-					$"a {adjective} {display}", null,
-					$"This {adjective} {display} is made for music and clear named military signals heard beyond its immediate position.",
-					size, quality, weight, cost, false, false, material,
-					[eraTag, militaryTag, signalTag], components, null, null, null, null,
-					"Stock signal instrument with sustained performance and named-call support.");
-			}
-		}
+		return issues
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToArray();
 	}
 }

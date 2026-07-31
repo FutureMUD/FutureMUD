@@ -1,5 +1,7 @@
 # FutureMUD Item System Content Workflows
 
+For modular modern firearms, author the host's slots and fire modes before creating attachment item prototypes. Match slot and attachment form-factor strings exactly apart from case, and compose active accessories from the `FirearmAttachment` profile plus the existing functional component. Use the attachment component's `require add <capability> [reason]` command to declare required sibling capabilities. Builders may assemble components in either order, but `item show`, attach, and detach report incomplete composition, and submission or approval is blocked until all requirements are satisfied. The combat seeder's pump shotgun, select-fire rifle, composed bayonet, underbarrel grenade launcher, weapon light, and impact grenade round are intentionally examples rather than a comprehensive catalogue. See [Modern Firearms, Attachments, and Alternate Fire Modes](../Combat/Modern_Firearms_and_Attachments.md).
+
 ## Scope
 This document explains the builder-facing workflows developers use when creating, revising, attaching, loading, and validating item content.
 
@@ -211,6 +213,8 @@ Template item keys are stable within the template and are used for container, be
 The manual `outfittemplate load` command materialises a template directly onto a character without requiring a FutureProg. The optional `args <load args>` tail is appended to every template item's own load arguments, which lets admins apply common variable values such as colour across a whole outfit load.
 
 NPC templates can reference outfit templates as load-time additions. When a new NPC is created from the template, the outfit template materialises before the NPC template `OnLoadProg`, so scripts and AI can see the created gear. The NPC template stores only the outfit template id and optional created outfit name; item prototype validation and safe placement remain owned by the outfit template materializer.
+
+An on-load FutureProg can pre-contaminate materialised items with `exposetoliquid(item, liquidId, volume)`. The volume may be either a number in base fluid units or text with an explicit fluid-volume unit, such as `"25 ml"`. The function applies the specified volume from above through the normal surface-liquid system, so material absorbency, saturation descriptions, drying, residues, cleaning and persistence remain authoritative. It returns false for a null item, unknown liquid id, invalid unit expression or non-positive volume. This is intended for generated state such as blood-splattered NPC clothing; it does not fill liquid containers or bypass ordinary contamination behaviour.
 
 NPC templates can also create installed implants and prosthetics as load-time body equipment. These entries store template-local keys, current item prototype references, optional target bodyparts, and optional implant power or neural-link keys. At load time the engine creates real item instances, verifies that the created item exposes the expected implant or prosthetic component and is compatible with the NPC body, installs it through the normal body methods, then applies any power or neural links that resolve to installed implants.
 

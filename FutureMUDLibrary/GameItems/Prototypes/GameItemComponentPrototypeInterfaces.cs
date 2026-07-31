@@ -181,6 +181,10 @@ public interface IDetonatablePrototype : IExclusiveGameItemComponentPrototype<ID
 {
 }
 
+public interface IImpactDetonatorPrototype : IExclusiveGameItemComponentPrototype<IImpactDetonator>
+{
+}
+
 public interface IDicePrototype : IExclusiveGameItemComponentPrototype<IDice>
 {
 }
@@ -364,6 +368,19 @@ public interface IMusketCartridgePrototype : IExclusiveGameItemComponentPrototyp
 }
 
 public interface IBayonetAttachmentPrototype : IExclusiveGameItemComponentPrototype<IBayonetAttachment>
+{
+}
+
+public interface IFirearmAttachmentPrototype : IExclusiveGameItemComponentPrototype<IFirearmAttachment>
+{
+}
+
+public interface IFirearmPrototype : IExclusiveGameItemComponentPrototype<IFirearm>, IRangedWeaponPrototype
+{
+}
+
+public interface IFirearmAttachmentHostPrototype :
+	IExclusiveGameItemComponentPrototype<IFirearmAttachmentHost>
 {
 }
 

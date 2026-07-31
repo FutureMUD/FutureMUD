@@ -20,6 +20,9 @@ public class AmmunitionType : SaveableItem, IAmmunitionType
         BreakChanceOnHit = type.BreakChanceOnHit;
         BreakChanceOnMiss = type.BreakChanceOnMiss;
         BaseAccuracy = type.BaseAccuracy;
+        ProjectileCount = Math.Clamp(type.ProjectileCount, 1, 32);
+        ScatterType = type.ScatterType is null ? null : (RangedScatterType)type.ScatterType.Value;
+        SpreadPenalty = type.SpreadPenalty;
         RangedWeaponTypes =
             type.RangedWeaponTypes.Split(' ').Select(x => (RangedWeaponType)int.Parse(x)).Distinct().ToList();
 
@@ -60,6 +63,9 @@ public class AmmunitionType : SaveableItem, IAmmunitionType
             baseType
         };
         BaseAccuracy = 0.0;
+        ProjectileCount = 1;
+        ScatterType = null;
+        SpreadPenalty = 0.0;
         BreakChanceOnHit = 0.3;
         BreakChanceOnMiss = 0.5;
         switch (baseType)
@@ -204,7 +210,10 @@ public class AmmunitionType : SaveableItem, IAmmunitionType
                 DamageExpression = DamageProfile.DamageExpression.OriginalFormulaText,
                 StunExpression = DamageProfile.StunExpression.OriginalFormulaText,
                 PainExpression = DamageProfile.PainExpression.OriginalFormulaText,
-                DamageType = (int)DamageProfile.DamageType
+                DamageType = (int)DamageProfile.DamageType,
+                ProjectileCount = ProjectileCount,
+                ScatterType = ScatterType is null ? null : (int)ScatterType.Value,
+                SpreadPenalty = SpreadPenalty
             };
             FMDB.Context.AmmunitionTypes.Add(dbitem);
             FMDB.Context.SaveChanges();
@@ -223,6 +232,9 @@ public class AmmunitionType : SaveableItem, IAmmunitionType
         DamageProfile = (SimpleDamageProfile)rhs.DamageProfile with { };
         Loudness = rhs.Loudness;
         SpecificType = rhs.SpecificType;
+        ProjectileCount = rhs.ProjectileCount;
+        ScatterType = rhs.ScatterType;
+        SpreadPenalty = rhs.SpreadPenalty;
 
         using (new FMDB())
         {
@@ -241,7 +253,10 @@ public class AmmunitionType : SaveableItem, IAmmunitionType
                 DamageExpression = DamageProfile.DamageExpression.OriginalFormulaText,
                 StunExpression = DamageProfile.StunExpression.OriginalFormulaText,
                 PainExpression = DamageProfile.PainExpression.OriginalFormulaText,
-                DamageType = (int)DamageProfile.DamageType
+                DamageType = (int)DamageProfile.DamageType,
+                ProjectileCount = ProjectileCount,
+                ScatterType = ScatterType is null ? null : (int)ScatterType.Value,
+                SpreadPenalty = SpreadPenalty
             };
             FMDB.Context.AmmunitionTypes.Add(dbitem);
             FMDB.Context.SaveChanges();
@@ -268,6 +283,9 @@ public class AmmunitionType : SaveableItem, IAmmunitionType
 
     public double BreakChanceOnHit { get; set; }
     public double BreakChanceOnMiss { get; set; }
+    public int ProjectileCount { get; set; }
+    public RangedScatterType? ScatterType { get; set; }
+    public double SpreadPenalty { get; set; }
 
     public AmmunitionEchoType EchoType { get; set; }
 
@@ -280,6 +298,9 @@ public class AmmunitionType : SaveableItem, IAmmunitionType
 	#3dodge <difficulty>#0 - how difficult it is to dodge a shot
 	#3damagetype <type>#0 - sets the damage type dealt
 	#3accuracy <bonus>#0 - sets the bonus accuracy from this ammo
+	#3projectiles <1-32>#0 - sets how many projectiles are created by each cartridge
+	#3scatter <inherit|arcing|ballistic|light|spread>#0 - overrides the weapon's scatter strategy
+	#3spread <penalty>#0 - sets the cumulative outcome penalty for later projectiles
 	#3breakhit <%>#0 - sets the ammo break chance on hit
 	#3breakmiss <%>#0 - sets the ammo break chance on miss
 	#3damage <expression>#0 - sets the damage expression
@@ -334,6 +355,16 @@ Note, with the damage/pain/stun expressions, you can use the following variables
             case "accurate":
             case "bonus":
                 return BuildingCommandAccuracy(actor, command);
+            case "projectile":
+            case "projectiles":
+            case "pellet":
+            case "pellets":
+                return BuildingCommandProjectiles(actor, command);
+            case "scatter":
+                return BuildingCommandScatter(actor, command);
+            case "spread":
+            case "spreadpenalty":
+                return BuildingCommandSpreadPenalty(actor, command);
             default:
                 actor.OutputHandler.Send(BuildingHelp.SubstituteANSIColour());
                 return false;
@@ -647,6 +678,67 @@ Note, with the damage/pain/stun expressions, you can use the following variables
         return true;
     }
 
+    private bool BuildingCommandProjectiles(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !int.TryParse(command.PopSpeech(), out var value) || value is < 1 or > 32)
+        {
+            actor.OutputHandler.Send("You must specify a projectile count between 1 and 32.");
+            return false;
+        }
+
+        ProjectileCount = value;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"Each cartridge now creates {ProjectileCount.ToString("N0", actor).ColourValue()} projectile{(ProjectileCount == 1 ? string.Empty : "s")}.");
+        return true;
+    }
+
+    private bool BuildingCommandScatter(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                $"You must specify #3inherit#0 or one of {Enum.GetValues<RangedScatterType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}."
+                    .SubstituteANSIColour());
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualTo("inherit"))
+        {
+            ScatterType = null;
+            Changed = true;
+            actor.OutputHandler.Send("This ammunition will now inherit its scatter strategy from the weapon.");
+            return true;
+        }
+
+        if (!command.SafeRemainingArgument.TryParseEnum<RangedScatterType>(out var value))
+        {
+            actor.OutputHandler.Send(
+                $"That is not a valid scatter type. Valid choices are {Enum.GetValues<RangedScatterType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+            return false;
+        }
+
+        ScatterType = value;
+        Changed = true;
+        actor.OutputHandler.Send($"This ammunition will now use the {value.DescribeEnum().ColourName()} scatter strategy.");
+        return true;
+    }
+
+    private bool BuildingCommandSpreadPenalty(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0)
+        {
+            actor.OutputHandler.Send("You must specify a non-negative spread penalty.");
+            return false;
+        }
+
+        SpreadPenalty = value;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"Each successive projectile now receives {SpreadPenalty.ToString("N2", actor).ColourValue()} additional outcome penalty.");
+        return true;
+    }
+
     private bool BuildingCommandName(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
@@ -687,6 +779,9 @@ Note, with the damage/pain/stun expressions, you can use the following variables
         sb.AppendLine(
             $"Break Chance (hit/miss): {BreakChanceOnHit.ToString("P2", actor).ColourValue()}/{BreakChanceOnMiss.ToString("P2", actor).ColourValue()}");
         sb.AppendLine($"Base Accuracy: {BaseAccuracy.ToString("N2", actor).ColourValue()}");
+        sb.AppendLine($"Projectiles: {ProjectileCount.ToString("N0", actor).ColourValue()}");
+        sb.AppendLine($"Scatter: {(ScatterType?.DescribeEnum().ColourName() ?? "Inherited".ColourValue())}");
+        sb.AppendLine($"Spread Penalty: {SpreadPenalty.ToString("N2", actor).ColourValue()}");
         return sb.ToString();
     }
 
@@ -710,6 +805,9 @@ Note, with the damage/pain/stun expressions, you can use the following variables
         dbitem.StunExpression = DamageProfile.StunExpression.OriginalFormulaText;
         dbitem.PainExpression = DamageProfile.PainExpression.OriginalFormulaText;
         dbitem.BaseAccuracy = BaseAccuracy;
+        dbitem.ProjectileCount = ProjectileCount;
+        dbitem.ScatterType = ScatterType is null ? null : (int)ScatterType.Value;
+        dbitem.SpreadPenalty = SpreadPenalty;
         Changed = false;
     }
 

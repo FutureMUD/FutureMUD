@@ -71,9 +71,34 @@ public partial class ItemSeeder
 		new("Scythian-Sarmatian", "Scythian-Sarmatian Foodways", "millet", "pea", "date", "mare's milk kumis")
 	];
 
+	private static readonly string[] AntiquityGroupedPreparedFoodSuffixes =
+	[
+		"flatbread",
+		"porridge",
+		"pulse_stew",
+		"meat_dish",
+		"preserved_meat",
+		"sweet",
+		"fruit_platter",
+		"oilseed_cake",
+		"spiced_meat_stew",
+		"honeyed_pastry",
+		"fish_sauce_relish",
+		"stuffed_flatbread"
+	];
+
 	internal static IReadOnlyList<string> AntiquityFoodCommodityTagsForTesting => AntiquityFoodCommodityTagNames;
 	internal static IReadOnlyList<string> AntiquityFoodCultureKnowledgeForTesting =>
 		AntiquityFoodCultures.Select(x => x.Knowledge).ToList();
+	internal static IReadOnlyList<string> AntiquityFoodCultureKeysForTesting =>
+		AntiquityFoodCultures.Select(x => x.Key).ToArray();
+	internal static IReadOnlyList<string> AntiquityGroupedPreparedFoodSuffixesForTesting =>
+		AntiquityGroupedPreparedFoodSuffixes;
+	internal static IReadOnlyList<string> AntiquityPreparedFoodStableReferencesForTesting =>
+		new[] { "antiquity_food_prepared_fruit", "antiquity_food_brined_fruit" }
+			.Concat(AntiquityFoodCultures.SelectMany(culture =>
+				AntiquityGroupedPreparedFoodSuffixes.Select(suffix => $"antiquity_food_{culture.Key}_{suffix}")))
+			.ToArray();
 
 	private void SeedAntiquityFoodAndBeverageItems()
 	{
@@ -100,7 +125,8 @@ public partial class ItemSeeder
 		EnsureAntiquityTagPath($"{AntiquityFoodVesselTagPath} / Beverage Serving Vessel");
 		EnsureAntiquityTagPath(AntiquityFoodCommodityTagPath);
 
-		foreach (var tag in AntiquityFoodCommodityTagNames)
+		foreach (var tag in AntiquityFoodCommodityTagNames.Where(x =>
+			         !PreIndustrialFoodCommodityTagNames.Contains(x, StringComparer.OrdinalIgnoreCase)))
 		{
 			EnsureAntiquityTagPath($"{AntiquityFoodCommodityTagPath} / {tag}");
 		}
@@ -194,67 +220,67 @@ public partial class ItemSeeder
 
 	private void EnsureAntiquityFoodPreparedComponents()
 	{
-		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_Bread", "Antiquity bread and flatbread",
+		EnsurePreparedFoodComponent("PreparedFood_Antiquity_Bread", "Antiquity bread and flatbread",
 			FoodDefinition("Item", 3.0, 0.05, -0.1, 0.0, 6, 1.0, 0.75, 0.2, 0.15, 3, 7,
 				"It tastes of toasted grain and a little smoke.",
 				"$sdesc",
 				"$sdesc\nIt has been prepared from $ingredients.",
 				("grain", "ground grain", "ground grain")));
-		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_Porridge", "Antiquity porridges and pottages",
+		EnsurePreparedFoodComponent("PreparedFood_Antiquity_Porridge", "Antiquity porridges and pottages",
 			FoodDefinition("Item", 4.0, 0.25, 0.1, 0.0, 8, 1.0, 0.7, 0.2, 0.4, 2, 5,
 				"It tastes soft, warm and filling.",
 				"$sdesc",
 				"$sdesc\nIt is a soft prepared dish made from $ingredients.",
 				("grain", "boiled grain", "boiled grain")));
-		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_Stew", "Antiquity stews and braises",
+		EnsurePreparedFoodComponent("PreparedFood_Antiquity_Stew", "Antiquity stews and braises",
 			FoodDefinition("Item", 5.0, 0.35, 0.15, 0.0, 8, 1.0, 0.65, 0.2, 0.6, 2, 4,
 				"It tastes savoury and well-cooked.",
 				"$sdesc",
 				"$sdesc\nIt combines $ingredients in a moist cooked dish.",
 				("ingredient", "cooked ingredients", "cooked ingredients")));
-		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_Preserved", "Antiquity preserved foods",
+		EnsurePreparedFoodComponent("PreparedFood_Antiquity_Preserved", "Antiquity preserved foods",
 			FoodDefinition("Item", 3.5, 0.05, -0.2, 0.0, 6, 1.0, 0.9, 0.45, 0.1, 14, 60,
 				"It tastes salty, dry and concentrated.",
 				"$sdesc",
 				"$sdesc\nIt is preserved food made from $ingredients.",
 				("ingredient", "preserved ingredients", "preserved ingredients")));
-		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_Sweet", "Antiquity fruit and nut sweets",
+		EnsurePreparedFoodComponent("PreparedFood_Antiquity_Sweet", "Antiquity fruit and nut sweets",
 			FoodDefinition("Item", 3.5, 0.1, -0.05, 0.0, 6, 1.0, 0.8, 0.35, 0.2, 5, 14,
 				"It tastes sweet, dense and fragrant.",
 				"$sdesc",
 				"$sdesc\nIt is a sweet prepared food made from $ingredients.",
 				("fruit", "fruit and sweetening", "fruit and sweetening")));
-		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_Fruit", "Antiquity prepared fresh fruit",
+		EnsurePreparedFoodComponent("PreparedFood_Antiquity_Fruit", "Antiquity prepared fresh fruit",
 			FoodDefinition("Item", 2.0, 0.35, 0.15, 0.0, 5, 1.0, 0.75, 0.25, 0.3, 2, 5,
 				"It tastes fresh, sweet and tart.",
 				"$sdesc",
 				"$sdesc\nIt is prepared fresh fruit made from $ingredients.",
 				("fruit", "prepared fruit", "fresh prepared fruit")));
-		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_BrinedFruit", "Antiquity brined fruit",
+		EnsurePreparedFoodComponent("PreparedFood_Antiquity_BrinedFruit", "Antiquity brined fruit",
 			FoodDefinition("Item", 1.5, 0.1, -0.25, 0.0, 5, 1.0, 0.9, 0.45, 0.1, 10, 45,
 				"It tastes salty, sharp and fruity.",
 				"$sdesc",
 				"$sdesc\nIt is brined fruit prepared from $ingredients.",
 				("fruit", "brined fruit", "salty brined fruit")));
-		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_LuxuryStew", "Antiquity luxury stews",
+		EnsurePreparedFoodComponent("PreparedFood_Antiquity_LuxuryStew", "Antiquity luxury stews",
 			FoodDefinition("Item", 6.0, 0.35, 0.05, 0.0, 8, 1.1, 0.7, 0.25, 0.6, 4, 8,
 				"It tastes rich, savoury and warmly spiced.",
 				"$sdesc",
 				"$sdesc\nIt is an elaborate cooked dish made from $ingredients.",
 				("ingredient", "spiced luxury ingredients", "rich spiced ingredients")));
-		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_LuxuryBread", "Antiquity filled luxury breads",
+		EnsurePreparedFoodComponent("PreparedFood_Antiquity_LuxuryBread", "Antiquity filled luxury breads",
 			FoodDefinition("Item", 4.5, 0.1, -0.05, 0.0, 7, 1.1, 0.8, 0.25, 0.25, 5, 12,
 				"It tastes of toasted grain, oil, meat and spice.",
 				"$sdesc",
 				"$sdesc\nIt is a filled bread made from $ingredients.",
 				("ingredient", "filled bread ingredients", "filled bread ingredients")));
-		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_LuxurySweet", "Antiquity luxury sweets",
+		EnsurePreparedFoodComponent("PreparedFood_Antiquity_LuxurySweet", "Antiquity luxury sweets",
 			FoodDefinition("Item", 4.0, 0.1, -0.05, 0.0, 6, 1.1, 0.85, 0.35, 0.2, 7, 18,
 				"It tastes sweet, oily and fragrant with expensive spice.",
 				"$sdesc",
 				"$sdesc\nIt is a luxury sweet prepared from $ingredients.",
 				("ingredient", "honeyed luxury ingredients", "honeyed luxury ingredients")));
-		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_Condiment", "Antiquity condiments and relishes",
+		EnsurePreparedFoodComponent("PreparedFood_Antiquity_Condiment", "Antiquity condiments and relishes",
 			FoodDefinition("Item", 1.0, 0.1, -0.2, 0.0, 5, 1.0, 0.9, 0.5, 0.1, 12, 45,
 				"It tastes sharp, salty, savoury and spiced.",
 				"$sdesc",
@@ -594,7 +620,7 @@ public partial class ItemSeeder
 		});
 	}
 
-	private GameItemComponentProto EnsureAntiquityPreparedFoodComponent(string name, string description, string definition)
+	private GameItemComponentProto EnsurePreparedFoodComponent(string name, string description, string definition)
 	{
 		if (_components.TryGetValue(name, out var component))
 		{
@@ -609,7 +635,7 @@ public partial class ItemSeeder
 			Type = "PreparedFood",
 			RevisionNumber = 0,
 			Definition = definition,
-			EditableItem = NewAntiquityEditableItem()
+			EditableItem = NewReworkEditableItem()
 		};
 		_context!.GameItemComponentProtos.Add(component);
 		_components[name] = component;
@@ -658,7 +684,7 @@ public partial class ItemSeeder
 		).ToString();
 	}
 
-	private EditableItem NewAntiquityEditableItem()
+	private EditableItem NewReworkEditableItem()
 	{
 		return new EditableItem
 		{

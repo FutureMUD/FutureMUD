@@ -123,6 +123,18 @@ These markers let item prototypes catch invalid component combinations before re
 
 If you add a new public `IGameItemComponent` interface, add its matching `I...Prototype` marker at the same time and classify it as exclusive unless the runtime deliberately aggregates multiple sibling components of that interface.
 
+### Sibling component requirements
+Use `IGameItemComponentPrototypeRequirementProvider` when a component prototype relies on another component on the same item. Declare requirements as runtime capability interfaces, not concrete component classes or prototype names. This lets a requirement for `IRangedWeapon`, for example, be satisfied by any current or future ranged-weapon component that advertises the corresponding prototype marker.
+
+`GameItemComponentPrototypeRequirements` resolves and validates these dependencies. Builders may attach components in either order, but `item show` and the attach/detach workflow warn while requirements are missing. An incomplete item prototype cannot be submitted or approved. Requirements deliberately exclude the requiring component itself: a declared dependency must be supplied by a sibling component.
+
+`FirearmAttachment` is the first builder-configurable requirement provider:
+- `require add <capability> [reason]`
+- `require remove <capability>`
+- `require clear`
+
+The seeded modern bayonet mount requires `IMeleeWeapon`; the underbarrel launcher mount requires `IRangedWeapon`; and the weapon-light mount requires both `IProduceLight` and `IProducePower`. `ImpactDetonator` has a fixed requirement for `IDetonatable`, because it is only a trigger policy and cannot supply an explosive payload itself.
+
 ### Opt-in condition maintenance
 Use `IConditionDegradingComponent` when a component should optionally consume `IGameItem.Condition` as it is used. The interface extends `IAffectQuality`, and the matching `IConditionDegradingComponentPrototype` marker is aggregate, so a component can contribute a maintenance quality penalty without becoming the item's only quality-affecting component.
 
@@ -159,6 +171,10 @@ Use the builder loader names intentionally:
 Ranged weapon component families should reuse `IRangedWeapon` and `IRangedWeaponPrototype` unless they are introducing a genuinely new combat contract. The stock weapon components are authored as ordinary component/proto pairs and then bound to a `RangedWeaponType` definition that supplies the combat skill, range, load model, accuracy formula, damage formula, stamina costs, and timing.
 
 Current builder-facing ranged component loaders include `bow`, `crossbow`, `firearm`, `sling`, and `blowgun`. `sling` and `blowgun` both store only their selected ranged weapon type in component XML, with `sling` also storing a readied stamina drain tick value. Their live components load, ready, unready, and fire through the existing ranged-weapon command surface. Slings use the shared `ReadiedRangedWeaponDrainStamina` path while readied, as bows do; the component decides whether readied use requires a free hand.
+
+Modern `Gun`, `InternalMagazineGun`, and `BoltAction` prototypes may additionally author attachment slots, fire modes, and an action cycle. Use the `firearmattachment` loader for compatible accessory items; combine that component with existing light, switchable, melee-weapon, or ranged-weapon components for active accessories. Full syntax and compatibility rules are in [Modern Firearms, Attachments, and Alternate Fire Modes](../Combat/Modern_Firearms_and_Attachments.md).
+
+For launched explosive ammunition, combine `Bomb` with `ImpactDetonator` on the bullet prototype referenced by the `Ammunition` component. `Bomb` supplies explosion behaviour; `ImpactDetonator` makes the shared firearm firing path invoke it only after the projectile has resolved where it landed. Do not put `ImpactDetonator` on timed or remotely triggered explosives.
 
 Do not add `GetDamage` or another damage-expression path to sling or blowgun components. Their `Fire` methods consume the loaded ammunition and delegate to `IAmmo.Fire`; `AmmunitionGameItemComponent` constructs the actual damage from the selected ammunition and ranged-weapon type. Load failures must return a player-facing feasibility reason rather than throw, including for an unexpected or newly-added inventory-plan state.
 

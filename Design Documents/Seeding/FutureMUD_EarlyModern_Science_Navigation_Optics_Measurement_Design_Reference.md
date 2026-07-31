@@ -8,7 +8,11 @@ This branch makes Early Modern the first major scientific-instrument era while r
 
 Reuse the magnetic compass, dividers, cross-staff, mariner's astrolabe, chart case, measuring chain, plane table, spectacles, magnifying lens, draw-tube telescope, balance scales, and specimen jar stable references.
 
-## Planned slices
+## Implemented foundation
+
+`SeedEarlyModernScienceNavigationOpticsAndMeasurement()` now seeds 20 era-gated prototypes using existing materials, containers, and ordinary-item components. It covers optical workshop stock, barometer/thermometer/watch forms, navigation and measurement instruments, astronomical display, natural-history storage, laboratory glass, and installed collection/instrument furniture. The prototypes deliberately describe visible form only: magnification, pressure, temperature, time, angle, route, and laboratory effects remain engine work until appropriate components exist.
+
+## Covered slices
 
 - microscopes, lens cases, lens blanks, optical tubes/stands, and optical-workshop stock;
 - barometers, thermometers, pendulum clocks, pocket watches, hourglasses, sundials, cases, and stands;

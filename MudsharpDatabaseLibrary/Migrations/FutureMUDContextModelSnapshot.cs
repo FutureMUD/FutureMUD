@@ -1379,6 +1379,11 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PainExpression"), "utf8mb4");
 
+                    b.Property<int>("ProjectileCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValueSql("'1'");
+
                     b.Property<string>("RangedWeaponTypes")
                         .IsRequired()
                         .HasColumnType("varchar(200)")
@@ -1386,12 +1391,18 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RangedWeaponTypes"), "utf8mb4");
 
+                    b.Property<int?>("ScatterType")
+                        .HasColumnType("int(11)");
+
                     b.Property<string>("SpecificType")
                         .IsRequired()
                         .HasColumnType("text")
                         .UseCollation("utf8mb4_unicode_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SpecificType"), "utf8mb4");
+
+                    b.Property<double>("SpreadPenalty")
+                        .HasColumnType("double");
 
                     b.Property<string>("StunExpression")
                         .IsRequired()

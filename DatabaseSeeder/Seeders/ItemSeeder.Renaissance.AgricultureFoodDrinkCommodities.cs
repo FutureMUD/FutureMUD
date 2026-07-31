@@ -6,5 +6,6 @@ public partial class ItemSeeder
 {
 	private void SeedRenaissanceAgricultureFoodDrinkAndCommodities()
 	{
+		SeedRenaissanceFoodCatalogue();
 	}
 }

@@ -17,7 +17,9 @@ public class MeleeShooter : StandardMeleeStrategy
     protected override IEnumerable<IRangedWeapon> GetNotReadyButLoadableWeapons(ICharacter shooter)
     {
         return
-            shooter.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+            shooter.Body.WieldedItems
+                   .IncludingFirearmAttachments()
+                   .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
                    .Where(x =>
                        x.WeaponType.FireableInMelee &&
                        !x.ReadyToFire && (
@@ -27,11 +29,15 @@ public class MeleeShooter : StandardMeleeStrategy
     protected override IEnumerable<IRangedWeapon> GetReadyRangedWeapons(ICharacter shooter)
     {
         return
-            shooter.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+            shooter.Body.WieldedItems
+                   .IncludingFirearmAttachments()
+                   .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
                    .Where(x =>
                        x.WeaponType.FireableInMelee &&
                        x.ReadyToFire &&
-                       shooter.CanSpendStamina(x.WeaponType.StaminaToFire))
+                       shooter.CanSpendStamina(x is IFirearm firearm
+                           ? firearm.EffectiveStaminaToFire
+                           : x.WeaponType.StaminaToFire))
                    .OrderBy(x => x.Parent.IsItemType<IMeleeWeapon>());
     }
 
@@ -40,7 +46,9 @@ public class MeleeShooter : StandardMeleeStrategy
         if ((combatant.CombatSettings.RangedManagement == AutomaticRangedSettings.FullyAutomatic ||
              (combatant.CombatSettings.RangedManagement == AutomaticRangedSettings.ContinueFiringOnly &&
               combatant.EffectsOfType<OpenedFire>().Any())) &&
-            combatant.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+            combatant.Body.WieldedItems
+                     .IncludingFirearmAttachments()
+                     .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
                      .Any(x => x.ReadyToFire && x.WeaponType.FireableInMelee))
         {
             ICombatMove move = AttemptUseRangedWeapon(combatant);

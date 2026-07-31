@@ -1,5 +1,6 @@
 #nullable enable
 
+using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -51,6 +52,23 @@ public class ItemSeederAntiquityFoodCraftingTests
 		"Rotten Food Commodity",
 		"Fermenting Food Commodity",
 		"Finished Beverage Stock"
+	];
+
+	private static readonly string[] SharedCommodityTags =
+	[
+		"Grain Cleaning Stock",
+		"Cleaned Grain Commodity",
+		"Flour Commodity",
+		"Meal Commodity",
+		"Bran Commodity",
+		"Fruit Must Commodity",
+		"Oilseed Mash Commodity",
+		"Oilseed Cake Commodity",
+		"Wort Commodity",
+		"Raw Meat Commodity",
+		"Salted Meat Commodity",
+		"Dried Meat Commodity",
+		"Smoked Meat Commodity"
 	];
 
 	[TestMethod]
@@ -285,7 +303,10 @@ public class ItemSeederAntiquityFoodCraftingTests
 		foreach (var tag in CommodityTags)
 		{
 			AssertContains(itemSource, tag);
-			AssertContains(tagHierarchy, $"Antiquity Food Commodities / {tag}");
+			var owningPath = SharedCommodityTags.Contains(tag, StringComparer.Ordinal)
+				? "Pre-Industrial Food Commodities"
+				: "Antiquity Food Commodities";
+			AssertContains(tagHierarchy, $"{owningPath} / {tag}");
 		}
 
 		foreach (var expected in new[]
@@ -519,33 +540,30 @@ public class ItemSeederAntiquityFoodCraftingTests
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityFood.cs");
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityFood.cs");
 		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
+		var groupedCraftBody = ExtractMethodBody(craftSource, "SeedAntiquityGroupedPreparedFoodCrafts");
 
-		Assert.AreEqual(14, Regex.Matches(craftSource, @"AddCultureFoodCraft\(culture,").Count,
-			"Each culture should now get the original seven foodway crafts plus seven expanded dishes or beverages.");
+		Assert.AreEqual(2, Regex.Matches(craftSource, @"AddCultureFoodCraft\(culture,").Count,
+			"Each culture should retain two beverage-vessel crafts; prepared dishes are grouped through selector products.");
+		Assert.AreEqual(ItemSeeder.AntiquityGroupedPreparedFoodSuffixesForTesting.Count,
+			Regex.Matches(groupedCraftBody, @"AddAntiquityGroupedPreparedFoodCraft\(").Count,
+			"Every grouped prepared-food family should have exactly one craft launcher.");
+		AssertContains(craftSource, "SeedAntiquityGroupedPreparedFoodCrafts();");
 		AssertContains(itemSource, "Luxury Prepared Foods");
 		AssertContains(tagHierarchy,
 			"Luxury Prepared Foods\tPrepared Foods\tFood and Drink / Antiquity Food / Prepared Foods / Luxury Prepared Foods");
 
-		foreach (var suffix in new[]
-		         {
-			         "fruit_platter",
-			         "oilseed_cake",
-			         "spiced_meat_stew",
-			         "honeyed_pastry",
-			         "fish_sauce_relish",
-			         "stuffed_flatbread"
-		         })
+		foreach (var suffix in ItemSeeder.AntiquityGroupedPreparedFoodSuffixesForTesting)
 		{
-			AssertContains(itemSource, $"{{culture.Key}}_{suffix}");
-			AssertContains(craftSource, $"{{key}}_{suffix}");
+			AssertContains(itemSource, $"CreateAntiquityPreparedFoodItem($\"{{culture.Key}}_{suffix}\"");
+			AssertContains(groupedCraftBody, $"\"{suffix}\",");
 		}
 
 		foreach (var luxuryCraft in new[]
 		         {
-			         "cook {culture.Display.ToLowerInvariant()} spiced meat stew",
-			         "bake {culture.Display.ToLowerInvariant()} honeyed pastry",
-			         "prepare {culture.Display.ToLowerInvariant()} fish sauce relish",
-			         "bake {culture.Display.ToLowerInvariant()} stuffed flatbread",
+			         "cook Antiquity spiced meat stew",
+			         "bake Antiquity honeyed pastry",
+			         "prepare Antiquity fish sauce relish",
+			         "bake Antiquity stuffed flatbread",
 			         "fill {culture.Display.ToLowerInvariant()} spiced beverage amphora"
 		         })
 		{
@@ -568,24 +586,67 @@ public class ItemSeederAntiquityFoodCraftingTests
 	{
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityFood.cs");
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityFood.cs");
+		var groupedCraftBody = ExtractMethodBody(craftSource, "SeedAntiquityGroupedPreparedFoodCrafts");
+		var selectorBody = ExtractMethodBody(craftSource, "EnsureAntiquityPreparedFoodSelectorProg");
 
 		foreach (var culture in Cultures)
 		{
 			AssertContains(itemSource, $"{culture} Foodways");
 		}
 
+		AssertContains(craftSource, "SeedAntiquityGroupedPreparedFoodCrafts();");
 		AssertContains(craftSource, "foreach (var culture in AntiquityFoodCultures)");
-		AssertContains(craftSource, "bake {culture.Display.ToLowerInvariant()} flatbread");
-		AssertContains(craftSource, "cook {culture.Display.ToLowerInvariant()} meat grain dish");
-		AssertContains(craftSource, "cook {culture.Display.ToLowerInvariant()} spiced meat stew");
-		AssertContains(craftSource, "prepare {culture.Display.ToLowerInvariant()} fish sauce relish");
+		AssertContains(craftSource, "bake Antiquity flatbread");
+		AssertContains(craftSource, "cook Antiquity meat and grain dish");
+		AssertContains(craftSource, "cook Antiquity spiced meat stew");
+		AssertContains(craftSource, "prepare Antiquity fish sauce relish");
 		AssertContains(craftSource, "fill {culture.Display.ToLowerInvariant()} beverage amphora");
 		AssertContains(craftSource, "fill {culture.Display.ToLowerInvariant()} spiced beverage amphora");
 		AssertContains(craftSource, "CommodityTag - 500 grams of a material tagged as Meat; piletag Prepared Meat Commodity");
-		AssertContains(craftSource, "CookedFoodProduct - 1x");
-		AssertContains(craftSource, "LiquidProduct - 1x");
+		AssertContains(craftSource, "ProgCookedFoodProduct - {selector}");
+		AssertContains(selectorBody, "var stableReferences = AntiquityFoodCultures");
+		AssertContains(selectorBody, "additem products loaditem(\\\"");
+		AssertContains(selectorBody, "return collectionfirst(collectionshuffle(@products))");
+		Assert.AreEqual(ItemSeeder.AntiquityGroupedPreparedFoodSuffixesForTesting.Count,
+			Regex.Matches(groupedCraftBody, @"AddAntiquityGroupedPreparedFoodCraft\(").Count);
+		Assert.AreEqual(134, ItemSeeder.AntiquityPreparedFoodStableReferencesForTesting.Count,
+			"Antiquity should expose the two shared dishes plus twelve culture dishes for each of eleven cultures.");
+		Assert.AreEqual(ItemSeeder.AntiquityPreparedFoodStableReferencesForTesting.Count,
+			ItemSeeder.AntiquityPreparedFoodStableReferencesForTesting
+				.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+			"Every Antiquity prepared-food stable reference must be unique.");
+		Assert.IsFalse(craftSource.Contains("CookedProduct($\"antiquity_food_{key}_", StringComparison.Ordinal),
+			"Culture-specific prepared dishes should use the grouped selector product rather than one craft per output.");
+		Assert.AreEqual(12,
+			Regex.Matches(itemSource, "CreateAntiquityPreparedFoodItem\\(\\$\\\"\\{culture.Key\\}_").Count,
+			"Each Antiquity culture should declare twelve prepared-food prototypes.");
 		Assert.AreEqual(0, Regex.Matches(craftSource, @"\b(beef|lamb|mutton|goat|pork)\b", RegexOptions.IgnoreCase).Count,
 			"Food crafts should use tagged meat commodities rather than species-specific recipe names.");
+	}
+
+	[TestMethod]
+	public void AntiquityFoodCrafting_PreservesConsumedAgricultureMaterialsThroughStockOutputs()
+	{
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityFood.cs");
+
+		foreach (var craftName in new[]
+		         {
+			         "thresh grain into heads",
+			         "winnow threshed grain",
+			         "mill cleaned grain into flour",
+			         "grind cleaned grain into meal",
+			         "split and grind pulses",
+			         "chop vegetables for cooking",
+			         "press fruit must",
+			         "crush oilseeds for pressing",
+			         "mash grain wort"
+		         })
+		{
+			AssertRegexContains(
+				craftSource,
+				$"AddCraft\\(\\\"{Regex.Escape(craftName)}\\\"[\\s\\S]*?\\[\\(1, 1\\)\\]",
+				$"{craftName} must carry its consumed crop material into its commodity output.");
+		}
 	}
 
 	private static void AssertContains(string source, string expected)
@@ -593,9 +654,9 @@ public class ItemSeederAntiquityFoodCraftingTests
 		Assert.IsTrue(source.Contains(expected, StringComparison.Ordinal), $"Expected source to contain: {expected}");
 	}
 
-	private static void AssertRegexContains(string source, string expected)
+	private static void AssertRegexContains(string source, string expected, string? message = null)
 	{
-		Assert.IsTrue(Regex.IsMatch(source, expected), $"Expected source to match: {expected}");
+		Assert.IsTrue(Regex.IsMatch(source, expected), message ?? $"Expected source to match: {expected}");
 	}
 
 	private static string ExtractMethodBody(string source, string methodName)

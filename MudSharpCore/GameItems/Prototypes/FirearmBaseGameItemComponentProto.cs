@@ -12,6 +12,7 @@ public abstract class FirearmBaseGameItemComponentProto : GameItemComponentProto
     protected FirearmBaseGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
         : base(gameworld, originator, type)
     {
+        FireModes.Add(new FirearmFireMode(FirearmFireModeType.Single, 1, 0.0, 0.0, 0.0));
     }
     protected FirearmBaseGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
         : base(proto, gameworld)
@@ -42,7 +43,53 @@ public abstract class FirearmBaseGameItemComponentProto : GameItemComponentProto
             MeleeWeaponType = Gameworld.WeaponTypes.Get(Gameworld.GetStaticLong("DefaultGunMeleeWeaponType"));
         }
         ConditionMaintenance.LoadFromXml(root);
+        AttachmentSlots.Clear();
+        foreach (var slot in root.Element("AttachmentSlots")?.Elements("Slot") ?? [])
+        {
+            var slotTypeText = slot.Attribute("type")?.Value;
+            if (slotTypeText is null ||
+                !slotTypeText.TryParseEnum<FirearmAttachmentSlotType>(out var slotType))
+            {
+                continue;
+            }
+
+            AttachmentSlots.Add(new FirearmAttachmentSlot(
+                slot.Attribute("name")?.Value ?? "attachment",
+                slotType,
+                slot.Attribute("formFactor")?.Value ?? "universal"));
+        }
+
+        FireModes.Clear();
+        foreach (var mode in root.Element("FireModes")?.Elements("Mode") ?? [])
+        {
+            var modeTypeText = mode.Attribute("type")?.Value;
+            if (modeTypeText is null ||
+                !modeTypeText.TryParseEnum<FirearmFireModeType>(out var modeType))
+            {
+                continue;
+            }
+
+            FireModes.Add(new FirearmFireMode(
+                modeType,
+                Math.Clamp((int?)mode.Attribute("rounds") ?? 1, 1, FirearmFireMode.MaximumRoundsPerTrigger),
+                (double?)mode.Attribute("recoil") ?? 0.0,
+                (double?)mode.Attribute("stamina") ?? 0.0,
+                (double?)mode.Attribute("delay") ?? 0.0));
+        }
+
+        if (FireModes.Count == 0)
+        {
+            FireModes.Add(new FirearmFireMode(FirearmFireModeType.Single, 1, 0.0, 0.0, 0.0));
+        }
+
+        CycleType = root.Element("CycleType")?.Value.TryParseEnum<FirearmCycleType>(out var cycleType) == true
+            ? cycleType
+            : FirearmCycleType.SelfLoading;
     }
+
+    public List<FirearmAttachmentSlot> AttachmentSlots { get; } = [];
+    public List<FirearmFireMode> FireModes { get; } = [];
+    public FirearmCycleType CycleType { get; set; } = FirearmCycleType.SelfLoading;
 
     public IWeaponType MeleeWeaponType { get; set; }
     public ConditionMaintenanceProfile ConditionMaintenance { get; } = new(ConditionMaintenanceProfile.DefaultRangedOrMeleeUseExpression);
@@ -100,6 +147,11 @@ public abstract class FirearmBaseGameItemComponentProto : GameItemComponentProto
 	#3unreadyempty <emote>#0 - sets the emote for unreadying this gun when there is no chambered round. $0 is the loader, $1 is the gun.
 	#3fire <emote>#0 - sets the emote for firing the gun. $0 is the firer, $1 is the target, $2 is the gun.
 	#3fireempty <emote>#0 - sets the emote for firing the gun when it is empty. $0 is the firer, $1 is the target, $2 is the gun.
+	#3slot add <name> <category> <form-factor>#0 - adds an attachment slot
+	#3slot remove <name>#0 - removes an attachment slot
+	#3mode add <single|burst|automatic> <rounds> <recoil> <extra stamina> <extra delay>#0 - adds or replaces a fire mode
+	#3mode remove <single|burst|automatic>#0 - removes a fire mode
+	#3cycle <manual|self-loading>#0 - sets the weapon's action cycle
 	#3condition <option>#0 - configures optional condition degradation.";
 
     public override string ShowBuildingHelp =>
@@ -151,9 +203,202 @@ public abstract class FirearmBaseGameItemComponentProto : GameItemComponentProto
                 return BuildingCommandWhyCannotWieldProg(actor, command);
             case "condition":
                 return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
+            case "slot":
+            case "attachment":
+                return BuildingCommandSlot(actor, command);
+            case "mode":
+            case "firemode":
+                return BuildingCommandMode(actor, command);
+            case "cycle":
+            case "action":
+                return BuildingCommandCycle(actor, command);
             default:
                 return base.BuildingCommand(actor, command);
         }
+    }
+
+    private bool BuildingCommandSlot(ICharacter actor, StringStack command)
+    {
+        var action = command.PopForSwitch();
+        if (action is "remove" or "delete")
+        {
+            if (command.IsFinished)
+            {
+                actor.OutputHandler.Send("Which attachment slot do you want to remove?");
+                return false;
+            }
+
+            var slot = AttachmentSlots.FirstOrDefault(x => x.Name.EqualTo(command.SafeRemainingArgument));
+            if (slot is null)
+            {
+                actor.OutputHandler.Send("There is no attachment slot with that name.");
+                return false;
+            }
+
+            AttachmentSlots.Remove(slot);
+            Changed = true;
+            actor.OutputHandler.Send($"The {slot.Name.ColourName()} attachment slot has been removed.");
+            return true;
+        }
+
+        if (action != "add")
+        {
+            actor.OutputHandler.Send(
+                "Use #3slot add <name> <category> <form-factor>#0 or #3slot remove <name>#0."
+                    .SubstituteANSIColour());
+            return false;
+        }
+
+        var name = command.PopSpeech();
+        var categoryText = command.PopSpeech();
+        var formFactor = command.SafeRemainingArgument;
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(formFactor) ||
+            !categoryText.TryParseEnum<FirearmAttachmentSlotType>(out var category))
+        {
+            actor.OutputHandler.Send(
+                $"You must specify a unique name, one of {Enum.GetValues<FirearmAttachmentSlotType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}, and a form factor.");
+            return false;
+        }
+
+        if (AttachmentSlots.Any(x => x.Name.EqualTo(name)))
+        {
+            actor.OutputHandler.Send("Attachment slot names must be unique.");
+            return false;
+        }
+
+        AttachmentSlots.Add(new FirearmAttachmentSlot(name, category, formFactor));
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"Added the {name.ColourName()} {category.DescribeEnum().ColourName()} slot using form factor {formFactor.ColourValue()}.");
+        return true;
+    }
+
+    private bool BuildingCommandMode(ICharacter actor, StringStack command)
+    {
+        var action = command.PopForSwitch();
+        if (action is "remove" or "delete")
+        {
+            if (command.IsFinished ||
+                !command.SafeRemainingArgument.TryParseEnum<FirearmFireModeType>(out var removeMode))
+            {
+                actor.OutputHandler.Send("Which fire mode do you want to remove?");
+                return false;
+            }
+
+            var existing = FireModes.FirstOrDefault(x => x.Type == removeMode);
+            if (existing is null || FireModes.Count == 1 ||
+                CycleType == FirearmCycleType.Manual && removeMode == FirearmFireModeType.Single)
+            {
+                actor.OutputHandler.Send(existing is null
+                    ? "This firearm does not have that fire mode."
+                    : FireModes.Count == 1
+                        ? "A firearm must retain at least one fire mode."
+                        : "A manual-action firearm must retain single fire.");
+                return false;
+            }
+
+            FireModes.Remove(existing);
+            Changed = true;
+            actor.OutputHandler.Send($"The {removeMode.DescribeEnum().ColourName()} fire mode has been removed.");
+            return true;
+        }
+
+        if (action != "add")
+        {
+            actor.OutputHandler.Send(
+                "Use #3mode add <single|burst|automatic> <rounds> <recoil> <extra stamina> <extra delay>#0 or #3mode remove <mode>#0."
+                    .SubstituteANSIColour());
+            return false;
+        }
+
+        var typeText = command.PopSpeech();
+        var roundsText = command.PopSpeech();
+        var recoilText = command.PopSpeech();
+        var staminaText = command.PopSpeech();
+        var delayText = command.PopSpeech();
+        if (!typeText.TryParseEnum<FirearmFireModeType>(out var type) ||
+            !int.TryParse(roundsText, out var rounds) ||
+            rounds is < 1 or > FirearmFireMode.MaximumRoundsPerTrigger ||
+            !double.TryParse(recoilText, out var recoil) ||
+            !double.TryParse(staminaText, out var stamina) ||
+            !double.TryParse(delayText, out var delay) ||
+            recoil < 0.0 || stamina < 0.0 || delay < 0.0)
+        {
+            actor.OutputHandler.Send(
+                $"Specify a mode, 1-{FirearmFireMode.MaximumRoundsPerTrigger} rounds, and non-negative recoil, extra stamina and extra delay values.");
+            return false;
+        }
+
+        if (type == FirearmFireModeType.Single && rounds != 1)
+        {
+            actor.OutputHandler.Send("Single fire mode must fire exactly one round.");
+            return false;
+        }
+
+        var oldMode = FireModes.FirstOrDefault(x => x.Type == type);
+        if (oldMode is not null)
+        {
+            FireModes.Remove(oldMode);
+        }
+
+        FireModes.Add(new FirearmFireMode(type, rounds, recoil, stamina, delay));
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"The {type.DescribeEnum().ColourName()} mode now fires {rounds.ToString("N0", actor).ColourValue()} round{(rounds == 1 ? string.Empty : "s")} per trigger pull.");
+        return true;
+    }
+
+    private bool BuildingCommandCycle(ICharacter actor, StringStack command)
+    {
+        var cycleText = command.SafeRemainingArgument.Replace("-", " ");
+        if (command.IsFinished ||
+            !cycleText.TryParseEnum<FirearmCycleType>(out var value))
+        {
+            actor.OutputHandler.Send("You must specify either #3manual#0 or #3self-loading#0."
+                .SubstituteANSIColour());
+            return false;
+        }
+
+        CycleType = value;
+        if (CycleType == FirearmCycleType.Manual &&
+            FireModes.All(x => x.Type != FirearmFireModeType.Single))
+        {
+            FireModes.Add(new FirearmFireMode(FirearmFireModeType.Single, 1, 0.0, 0.0, 0.0));
+        }
+        Changed = true;
+        actor.OutputHandler.Send($"This firearm now uses a {CycleType.DescribeEnum(true).ColourName()} action.");
+        return true;
+    }
+
+    protected IEnumerable<XElement> SaveFirearmConfiguration()
+    {
+        yield return new XElement("AttachmentSlots",
+            AttachmentSlots.Select(x => new XElement("Slot",
+                new XAttribute("name", x.Name),
+                new XAttribute("type", x.Type),
+                new XAttribute("formFactor", x.FormFactor))));
+        yield return new XElement("FireModes",
+            FireModes.Select(x => new XElement("Mode",
+                new XAttribute("type", x.Type),
+                new XAttribute("rounds", x.RoundsPerTrigger),
+                new XAttribute("recoil", x.RecoilPenalty),
+                new XAttribute("stamina", x.ExtraStaminaPerRound),
+                new XAttribute("delay", x.ExtraDelayPerRound))));
+        yield return new XElement("CycleType", CycleType);
+    }
+
+    protected string DescribeFirearmConfiguration(ICharacter actor)
+    {
+        var slots = AttachmentSlots.Any()
+            ? AttachmentSlots.Select(x =>
+                    $"{x.Name.ColourName()} ({x.Type.DescribeEnum().ColourName()}, {x.FormFactor.ColourValue()})")
+                .ListToString()
+            : "None".ColourError();
+        var modes = FireModes.Select(x =>
+                $"{x.Type.DescribeEnum().ColourName()} [{x.RoundsPerTrigger.ToString("N0", actor).ColourValue()}]")
+            .ListToString();
+        return
+            $"Action Cycle: {CycleType.DescribeEnum(true).ColourName()}\nFire Modes: {modes}\nAttachment Slots: {slots}";
     }
 
     private bool BuildingCommandCanWieldProg(ICharacter actor, StringStack command)

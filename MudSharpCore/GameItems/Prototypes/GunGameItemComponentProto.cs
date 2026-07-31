@@ -9,7 +9,8 @@ using MudSharp.GameItems.Inventory.Plans;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class GunGameItemComponentProto : FirearmBaseGameItemComponentProto, IRangedWeaponPrototype, ISwitchablePrototype, IMeleeWeaponPrototype
+public class GunGameItemComponentProto : FirearmBaseGameItemComponentProto, IFirearmPrototype,
+    IFirearmAttachmentHostPrototype, ISwitchablePrototype, IMeleeWeaponPrototype
 {
     public override string TypeDescription => "Gun";
 
@@ -26,6 +27,7 @@ public class GunGameItemComponentProto : FirearmBaseGameItemComponentProto, IRan
         FireEmoteNoChamberedRound = "@ squeeze|squeezes the trigger on $1, and nothing happens except a quiet click.";
         ClipType = Gameworld.GetStaticConfiguration("DefaultGunClipType");
         MeleeWeaponType = gameworld.WeaponTypes.Get(gameworld.GetStaticLong("DefaultGunMeleeWeaponType"));
+        CycleType = FirearmCycleType.SelfLoading;
     }
 
     protected GunGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld) : base(
@@ -59,6 +61,7 @@ public class GunGameItemComponentProto : FirearmBaseGameItemComponentProto, IRan
             new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
             new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
             new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+            SaveFirearmConfiguration(),
             ConditionMaintenance.SaveToXml()
         ).ToString();
     }
@@ -250,6 +253,6 @@ Clip Type: {12}",
             CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
             WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
             ConditionMaintenance.Describe(actor)
-        );
+        ) + $"\n{DescribeFirearmConfiguration(actor)}";
     }
 }

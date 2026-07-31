@@ -6,7 +6,11 @@ This branch extends the 39 shared `preindustrial_writing_*` aliases and minimum 
 
 Reuse the shared hand press, type case, composing stick, chase, inking balls, drying rack, broadside, pamphlet, almanac, blank form, and printed map sheet.
 
-## Planned slices
+## Implemented foundation
+
+`SeedRenaissanceWritingPrintAndAdministration()` now seeds 17 era-gated prototypes using only live paper, book, container, and ordinary-item components. The stock covers civic warrants, customs registers, notarial instruments, sketchbooks, commonplace and pilot books, portolan charts, printed prayer and music book formats, engraving plates and hand tools, sealing stock, a courier satchel, and an installed archive chest. Text-bearing objects remain builder-authored; no item claims fixed content, postal delivery, legal authority, financial transfer, or seal-stamp behaviour that its component set does not provide.
+
+## Covered slices
 
 - warrants, decrees, port/customs papers, notarial instruments, sketchbooks, commonplace books, pilot books, portolan charts, indulgence-like forms, prayer books, and printed music;
 - type sorts, punches/matrices, type moulds, locking furniture, tympan/frisket assemblies, ink tables, and missing production stock;

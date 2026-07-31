@@ -2441,9 +2441,10 @@ The syntax is as follows:
         IGameItem target = null;
         target = ss.IsFinished
             ? actor.Body.HeldOrWieldedItems
+                   .IncludingFirearmAttachments()
                    .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
                    .FirstOrDefault(x => x.CanLoad(actor, true))?.Parent
-            : actor.TargetHeldItem(ss.PopSpeech());
+            : ResolveHeldOrAttachedRangedWeapon(actor, ss.PopSpeech());
 
         if (target == null)
         {
@@ -2509,9 +2510,10 @@ The syntax is as follows:
         IGameItem target = null;
         target = ss.IsFinished
             ? actor.Body.HeldOrWieldedItems
+                   .IncludingFirearmAttachments()
                    .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
                    .FirstOrDefault(x => x.CanUnload(actor))?.Parent
-            : actor.TargetLocalOrHeldItem(ss.PopSpeech());
+            : ResolveHeldOrAttachedRangedWeapon(actor, ss.PopSpeech(), true);
 
         if (target == null)
         {
@@ -2546,9 +2548,10 @@ The syntax is as follows:
         IGameItem target = null;
         target = ss.IsFinished
             ? actor.Body.HeldOrWieldedItems
+                   .IncludingFirearmAttachments()
                    .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
                    .FirstOrDefault(x => x.CanReady(actor))?.Parent
-            : actor.TargetLocalOrHeldItem(ss.PopSpeech());
+            : ResolveHeldOrAttachedRangedWeapon(actor, ss.PopSpeech(), true);
 
         if (target == null)
         {
@@ -2594,9 +2597,10 @@ The syntax is as follows:
         IGameItem target = null;
         target = ss.IsFinished
             ? actor.Body.HeldOrWieldedItems
+                   .IncludingFirearmAttachments()
                    .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
                    .FirstOrDefault(x => x.CanUnready(actor))?.Parent
-            : actor.TargetLocalOrHeldItem(ss.PopSpeech());
+            : ResolveHeldOrAttachedRangedWeapon(actor, ss.PopSpeech(), true);
 
         if (target == null)
         {
@@ -2629,7 +2633,9 @@ The syntax is as follows:
     protected static void Aim(ICharacter actor, string command)
     {
         List<IRangedWeapon> weapons =
-            actor.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+            actor.Body.WieldedItems
+                 .IncludingFirearmAttachments()
+                 .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
                  .Where(x => x.ReadyToFire || x.WeaponType.RangedWeaponType.IsFirearm())
                  .ToList();
         if (!weapons.Any())
@@ -2718,8 +2724,13 @@ The syntax is as follows:
             else
             {
                 weapon =
+                    (actor.Target(targetText) as IGameItem)?.GetItemType<IRangedWeapon>() ??
                     weapons.Select(x => x.Parent)
                            .GetFromItemListByKeyword(targetText, actor)?.GetItemType<IRangedWeapon>();
+                if (weapon is not null && !weapons.Contains(weapon))
+                {
+                    weapon = null;
+                }
                 if (weapon == null)
                 {
                     actor.OutputHandler.Send("You do not have any weapon like that to aim.");
@@ -2787,7 +2798,10 @@ The syntax is as follows:
                 }
 
                 int range = AimInformation.GetEffectiveRange(path);
-                if (range > weapon.WeaponType.DefaultRangeInRooms)
+                var effectiveRange = weapon is IFirearm firearm
+                    ? firearm.EffectiveRangeInRooms
+                    : (int)weapon.WeaponType.DefaultRangeInRooms;
+                if (range > effectiveRange)
                 {
                     actor.OutputHandler.Send($"You're not in range of {target.HowSeen(actor)}.");
                     return;
@@ -2828,6 +2842,27 @@ The syntax is as follows:
         {
             actor.Engage(target, true);
         }
+    }
+
+    private static IGameItem ResolveHeldOrAttachedRangedWeapon(ICharacter actor, string keyword,
+        bool includeLocal = false)
+    {
+        var direct = includeLocal
+            ? actor.TargetLocalOrHeldItem(keyword)
+            : actor.TargetHeldItem(keyword);
+        if (direct is not null)
+        {
+            return direct;
+        }
+
+        var attached = actor.Target(keyword) as IGameItem;
+        var host = attached?.GetItemType<IFirearmAttachment>()?.InstalledIn?.Parent;
+        if (host?.InInventoryOf == actor.Body && attached.GetItemType<IRangedWeapon>() is not null)
+        {
+            return attached;
+        }
+
+        return null;
     }
 
     [PlayerCommand("Fire", "fire")]

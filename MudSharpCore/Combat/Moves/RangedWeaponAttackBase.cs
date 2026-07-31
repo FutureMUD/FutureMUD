@@ -104,7 +104,8 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
 
     public override ExertionLevel AssociatedExertion => ExertionLevel.Heavy;
 
-    public override double StaminaCost => Weapon.WeaponType.StaminaToFire;
+    public override double StaminaCost =>
+        Weapon is IFirearm firearm ? firearm.EffectiveStaminaToFire : Weapon.WeaponType.StaminaToFire;
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
@@ -136,7 +137,10 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
 		if (Assailant.Location.RouteDefinition is not null || target.Location?.RouteDefinition is not null)
 		{
 			var spatialRange = Assailant.RoomEquivalentDistanceBetween(target);
-			if (spatialRange < 0.0 || spatialRange > Weapon.WeaponType.DefaultRangeInRooms)
+			var effectiveRange = Weapon is IFirearm firearm
+				? firearm.EffectiveRangeInRooms
+				: (int)Weapon.WeaponType.DefaultRangeInRooms;
+			if (spatialRange < 0.0 || spatialRange > effectiveRange)
 			{
 				Assailant.OutputHandler.Send("Your target is no longer within the effective range of that weapon.");
 				Assailant.Aim?.ReleaseEvents();
@@ -246,6 +250,7 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
                     Weapon.WeaponType.FireTrait,
                     // Bonuses
                     Weapon.WeaponType.AccuracyBonusExpression.Evaluate(Assailant, Weapon.WeaponType.FireTrait) +
+                    ((Weapon as IFirearm)?.EffectiveAccuracyBonus ?? 0.0) +
                     Weapon.Parent
                           .EffectsOfType<IMagicWeaponEnhancementEffect>(x =>
                               x.AppliesToWeaponAttack(Assailant, target, Weapon.Parent))
@@ -268,9 +273,12 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
             }
             else
             {
-                Assailant.Aim.AimPercentage -= results.Item1 == Outcome.MajorPass
-                    ? 0.66 * Weapon.WeaponType.AimBonusLostPerShot
+                var aimLoss = Weapon is IFirearm firearm
+                    ? firearm.EffectiveAimLoss
                     : Weapon.WeaponType.AimBonusLostPerShot;
+                Assailant.Aim.AimPercentage -= results.Item1 == Outcome.MajorPass
+                    ? 0.66 * aimLoss
+                    : aimLoss;
             }
         }
 

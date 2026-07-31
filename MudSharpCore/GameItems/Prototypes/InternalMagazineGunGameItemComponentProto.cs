@@ -9,7 +9,8 @@ using MudSharp.GameItems.Inventory.Plans;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComponentProto, IRangedWeaponPrototype, ISwitchablePrototype, IMeleeWeaponPrototype
+public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComponentProto, IFirearmPrototype,
+    IFirearmAttachmentHostPrototype, ISwitchablePrototype, IMeleeWeaponPrototype
 {
     public override string TypeDescription => "InternalMagazineGun";
 
@@ -32,6 +33,7 @@ public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComp
         InternalMagazineCapacity = 5;
         EjectOnFire = false;
         MeleeWeaponType = gameworld.WeaponTypes.Get(gameworld.GetStaticLong("DefaultGunMeleeWeaponType"));
+        CycleType = FirearmCycleType.Manual;
     }
 
     protected InternalMagazineGunGameItemComponentProto(Models.GameItemComponentProto proto, IFuturemud gameworld) :
@@ -53,6 +55,7 @@ public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComp
         }
 
         InternalMagazineCapacity = int.Parse(root.Element("InternalMagazineCapacity").Value);
+        EjectOnFire = bool.TryParse(root.Element("EjectOnFire")?.Value, out var ejectOnFire) && ejectOnFire;
         RecalculateInventoryPlans();
     }
 
@@ -76,6 +79,7 @@ public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComp
             new XElement("InternalMagazineCapacity", InternalMagazineCapacity),
             new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
             new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+            SaveFirearmConfiguration(),
             ConditionMaintenance.SaveToXml()
         ).ToString();
     }
@@ -217,7 +221,7 @@ public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComp
             CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
             WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
             ConditionMaintenance.Describe(actor)
-        );
+        ) + $"\n{DescribeFirearmConfiguration(actor)}";
     }
 
     protected override void RecalculateInventoryPlans()

@@ -1,17 +1,31 @@
 # FutureMUD Medieval Industry Tool Production Chain Second Pass
 
-**Status:** second-pass production-chain audit after the medieval industry tool and intermediate-stock item catalogue landed.  
-**Date:** 3 July 2026.  
+**Status:** tool-chain foundation and food/beverage/preservation extension implemented; retained as the dependency-closure roadmap for later Medieval craft passes.
+**Date:** 30 July 2026.
 **Scope:** identifies which newly seeded tools and workshop apparatus must themselves become craft outputs before the medieval finished-good craft pass can safely proceed.  
 **Primary implementation target:** `DatabaseSeeder/Seeders/ItemSeeder.Crafting.Medieval.cs`, beginning with `SeedMedievalProductionChainCrafts` and only then moving to the category-specific medieval craft launchers.
 
-This document does not implement crafts. It records the required dependency closure for the tools and stock now present in `SeedMedievalHouseholdCraftTools` and `SeedMedievalComponentGapItems`.
+This document records the required dependency closure for the tools and stock present in `SeedMedievalHouseholdCraftTools` and `SeedMedievalComponentGapItems`. Its recommended foundation slice is now implemented in `SeedMedievalProductionChainCrafts`; the larger family tables remain the roadmap for later closure.
+
+## Implemented foundation
+
+The active foundation contains exactly 35 crafts under the `Medieval Industry Foundations` knowledge:
+
+- 16 first-tier stock recipes for planks, handle blanks, iron and bronze bars, wire, rivets, clay body, fired bricks, leather, parchment, yarn, thread, cloth, glue, sealing wax, and bandages;
+- 17 recipes for the first portable tools and workshop apparatus;
+- two activation recipes for the lit forge and lit smelting furnace.
+
+The implemented phase model is deliberately compact: phase 0 is external ownership, phase 1 is stock, phase 2 is bootstrap tools and high-heat apparatus, phase 3 is specialist tools, and phase 4 is activation. Exact item dependencies only point backwards. Functional tool dependencies record `historic_foundation`, `primary_production`, or `medieval_crafted` ownership, while agriculture, pastoral, butchery, and apiary inputs are explicit upstream exemptions.
+
+Primary Production now closes the earlier charcoal, mining-pick, quarry-wedge, shovel, salt-pan/rake, ore, metal, clay, brick, and quarrying concerns. Those rows are reused rather than cloned with Medieval-prefixed replacements. Existing Medieval writing content already supplies the pen rest and pen rack.
+
+The first downstream extension is also complete. `SeedMedievalFoodBeverageCrafts` adds 48 crafts: 17 tool/apparatus crafts, 18 processing crafts, and 13 finished food or filled-vessel crafts. It adds the previously deferred lauter tun, six food-production prototypes in total, eleven prepared foods, four reusable `PreparedFood` components, and shared pre-industrial commodity ownership for grain, oilseed, must, wort, meat, and fish stocks.
 
 ---
 
 ## Baseline findings
 
-The first medieval industry item pass created 168 tool/workshop prototypes and 50 intermediate stock prototypes. That pass deliberately did not create medieval crafts. The important consequence is that most of those tools are now non-terminal items: they exist as seedable items, but they still need craft paths before they can be used as honest prerequisites in later production-chain crafts.
+The first medieval industry item pass created 168 tool/workshop prototypes and 50 intermediate stock prototypes. The food foundation adds six further food-production tools or apparatus, bringing the active combined catalogue to 174 tool/workshop prototypes and 50 intermediate stock prototypes. Most catalogue tools remain non-terminal items: they exist as seedable items, but they still need craft paths before they can be used as honest prerequisites in later production-chain crafts.
 
 The chain design reference already states the relevant rule: craft tools should be real seeded items, and every non-terminal craft input should be either terminal or produced by another craft. The second pass extends that rule from finished goods to the tool catalogue itself.
 
@@ -151,17 +165,17 @@ The finished craft chain should not silently invent raw materials. The following
 
 ---
 
-## Recommended next implementation slice
+## Completed implementation slice
 
-The next craft PR should be a **tool-chain foundation PR**, not a finished-goods craft PR.
+The former recommended tool-chain foundation slice is complete:
 
-Recommended minimal contents:
+1. Primary Production owns or exempts charcoal, mining, quarrying, clay, sand, salt, forestry, and their extraction apparatus.
+2. All 16 selected first-tier stock rows have craft paths.
+3. All 17 selected first-tier tool/apparatus rows have craft paths.
+4. Tests cover exact outputs, phase monotonicity, source ownership, seeded tool tags, Medieval era gating, and double-seed idempotency.
+5. Finished clothing, weapon, armour, household, jewellery, medical, writing, transport/tack, and game/toy crafts remain deferred; the generic food, beverage, and preservation foundation is active.
 
-1. Add or explicitly exempt charcoal production and at least the primary-origin tool decision for mining, quarrying, clay, sand, salt, and forestry.
-2. Add craft families for first-tier stock: charcoal, planks, handle blanks, iron bar, bronze bar, wire, rivets, clay body, bricks, leather panel, parchment sheet, yarn/thread, cloth, glue cake, seal wax, and bandage stock.
-3. Add craft families for first-tier tools: felling axe, saw, chisel, auger, drawknife, hide scraper, tanning beam, parchment frame, forge, smelting furnace, crucible, grindstone, mould and deckle, book press, mortar and pestle, and surgical needle/probe.
-4. Add audit tests proving that every tool tag required by the stock crafts has at least one seeded item and that every exact tool item used by a craft is either crafted or explicitly source-exempt.
-5. Defer finished clothing, weapon, armour, household, jewellery, medical, and writing item crafts until the tool-chain foundation passes.
+The implemented food extension closes the lauter tun and basic grain, oil, must, wort, ale, wine, pottage, bread, and meat/fish preservation dependencies. Civilian transport and draft tack are now supplied by the pre-industrial vehicle catalogue, and games and toys by the shared leisure catalogue. Wheelwright clamps, tenon cutters, brain-tanning buckets, earth rammers, and a separate dressing axe remain deferred until their dependent workflows enter scope.
 
 ---
 

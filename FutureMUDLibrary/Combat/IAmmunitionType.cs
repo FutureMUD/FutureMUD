@@ -31,6 +31,9 @@ namespace MudSharp.Combat
         AudioVolume Loudness { get; }
         double BreakChanceOnHit { get; }
         double BreakChanceOnMiss { get; }
+        int ProjectileCount { get; }
+        RangedScatterType? ScatterType { get; }
+        double SpreadPenalty { get; }
         AmmunitionEchoType EchoType { get; }
         IAmmunitionType Clone(string newName);
     }

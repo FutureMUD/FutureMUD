@@ -5466,7 +5466,7 @@ resolvedOpenable:
 
 The syntax is as follows:
 
-	#3attach <item> <target>#0 - attaches an item to a belt or weapon
+	#3attach <item> <target> [slot]#0 - attaches an item to a belt or compatible firearm slot
 	#3attach <prosthetic> [<target player>]#0 - attaches a prosthetic to a player (or yourself if not specified)",
         AutoHelp.HelpArgOrNoArg)]
     [RequiredCharacterState(CharacterState.Able)]
@@ -5479,6 +5479,12 @@ The syntax is as follows:
         if (targetItem == null)
         {
             actor.OutputHandler.Send("You do not have anything like that to attach.");
+            return;
+        }
+
+        if (targetItem.GetItemType<IFirearmAttachment>() is { } firearmAttachment)
+        {
+            AttachFirearmAttachment(actor, firearmAttachment, ss);
             return;
         }
 
@@ -5562,6 +5568,43 @@ The syntax is as follows:
                             actor, targetItem, targetBelt)), OutputRange.Personal);
                 break;
         }
+    }
+
+    private static void AttachFirearmAttachment(ICharacter actor, IFirearmAttachment attachment, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"Which firearm do you want to attach {attachment.Parent.HowSeen(actor)} to?");
+            return;
+        }
+
+        var hostItem = actor.TargetItem(command.PopSpeech());
+        var host = hostItem?.GetItemType<IFirearmAttachmentHost>();
+        if (host is null)
+        {
+            actor.OutputHandler.Send("You do not see a compatible firearm attachment host like that.");
+            return;
+        }
+
+        if (!(hostItem.Location?.CanGetAccess(hostItem, actor) ?? true))
+        {
+            actor.OutputHandler.Send(hostItem.Location.WhyCannotGetAccess(hostItem, actor));
+            return;
+        }
+
+        var slotName = command.IsFinished ? null : command.PopSpeech();
+        if (!host.CanAttach(attachment, slotName, out var whyNot))
+        {
+            actor.OutputHandler.Send(whyNot);
+            return;
+        }
+
+        actor.Body.Take(attachment.Parent);
+        host.Attach(attachment, slotName, out _);
+        hostItem.InInventoryOf?.RecalculateItemHelpers();
+        actor.OutputHandler.Handle(new EmoteOutput(
+            new Emote("@ attach|attaches $0 to $1.", actor, attachment.Parent, hostItem),
+            flags: OutputFlags.SuppressObscured));
     }
 
     private static void AttachProsthetic(ICharacter actor, IGameItem targetItem, StringStack ss)
@@ -5782,13 +5825,19 @@ The syntax is as follows:
     [PlayerCommand("Detach", "detach", "detatch", "unattach")]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [RequiredCharacterState(CharacterState.Able)]
-    [HelpInfo("detatch", "Syntax: detatch <belt> <item>\n\tdetatch [<target>] <prosthetic>", AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("detatch", "Syntax: detatch <belt|firearm> <item>\n\tdetatch [<target>] <prosthetic>", AutoHelp.HelpArgOrNoArg)]
     protected static void Detach(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
         string cmd = ss.PopSpeech();
 
         IGameItem targetBelt = actor.TargetItem(cmd);
+        if (targetBelt?.GetItemType<IFirearmAttachmentHost>() is { } firearmHost)
+        {
+            DetachFirearmAttachment(actor, targetBelt, firearmHost, ss);
+            return;
+        }
+
         if (targetBelt?.GetItemType<IBelt>() == null)
         {
             targetBelt = actor.Body.Prosthetics.Select(x => x.Parent).GetFromItemListByKeyword(cmd, actor);
@@ -5869,6 +5918,45 @@ The syntax is as follows:
             new MixedEmoteOutput(new Emote("@ detach|detaches $0 from $1", actor, targetItem, targetBelt),
                 flags: OutputFlags.SuppressObscured).Append(playerEmote)
         );
+    }
+
+    private static void DetachFirearmAttachment(ICharacter actor, IGameItem hostItem,
+        IFirearmAttachmentHost host, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"Which attachment do you want to detach from {hostItem.HowSeen(actor)}?");
+            return;
+        }
+
+        var attachmentItem = host.InstalledAttachments.Values
+            .Select(x => x.Parent)
+            .GetFromItemListByKeyword(command.PopSpeech(), actor);
+        var attachment = attachmentItem?.GetItemType<IFirearmAttachment>();
+        if (attachment is null)
+        {
+            actor.OutputHandler.Send($"{hostItem.HowSeen(actor, true)} does not have an attachment like that.");
+            return;
+        }
+
+        if (!actor.Body.CanGet(attachmentItem, 0))
+        {
+            actor.OutputHandler.Send(
+                $"You need a free {actor.Body.WielderDescriptionSingular} to hold {attachmentItem.HowSeen(actor)}.");
+            return;
+        }
+
+        if (!host.Detach(attachment, out var whyNot))
+        {
+            actor.OutputHandler.Send(whyNot);
+            return;
+        }
+
+        actor.Body.Get(attachmentItem, 0, silent: true);
+        hostItem.InInventoryOf?.RecalculateItemHelpers();
+        actor.OutputHandler.Handle(new EmoteOutput(
+            new Emote("@ detach|detaches $0 from $1.", actor, attachmentItem, hostItem),
+            flags: OutputFlags.SuppressObscured));
     }
 
     protected static void DetachProsthetic(ICharacter actor, ICharacter target, IProsthetic targetItem,

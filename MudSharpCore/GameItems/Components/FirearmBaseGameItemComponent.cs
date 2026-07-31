@@ -16,10 +16,13 @@ using System.Runtime.CompilerServices;
 
 namespace MudSharp.GameItems.Components;
 
-public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedWeapon, ISwitchable, IMeleeWeapon,
+public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm, ISwitchable, IMeleeWeapon,
     IConditionDegradingComponent
 {
     private FirearmBaseGameItemComponentProto _prototype;
+    private readonly Dictionary<string, IFirearmAttachment> _installedAttachments =
+        new(StringComparer.InvariantCultureIgnoreCase);
+    private FirearmFireModeType _currentFireMode = FirearmFireModeType.Single;
     public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;
     public int ItemQualityStages => _prototype.ConditionMaintenance.QualityPenaltyStages(Parent);
 
@@ -67,6 +70,41 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
         {
             Safety = element.Value == "true";
         }
+
+        if (CycleType == FirearmCycleType.Manual &&
+            _prototype.FireModes.Any(x => x.Type == FirearmFireModeType.Single))
+        {
+            _currentFireMode = FirearmFireModeType.Single;
+        }
+        else if (root.Element("FireMode")?.Value.TryParseEnum<FirearmFireModeType>(out var mode) == true &&
+            _prototype.FireModes.Any(x => x.Type == mode))
+        {
+            _currentFireMode = mode;
+        }
+        else
+        {
+            _currentFireMode = _prototype.FireModes.First().Type;
+        }
+
+        foreach (var attachmentElement in root.Element("Attachments")?.Elements("Attachment") ?? [])
+        {
+            var slotName = attachmentElement.Attribute("slot")?.Value;
+            if (string.IsNullOrWhiteSpace(slotName) ||
+                !long.TryParse(attachmentElement.Value, out var itemId))
+            {
+                continue;
+            }
+
+            var attachment = Gameworld.TryGetItem(itemId, true)?.GetItemType<IFirearmAttachment>();
+            if (attachment is null)
+            {
+                continue;
+            }
+
+            _installedAttachments[slotName] = attachment;
+            attachment.InstalledIn = this;
+            attachment.Parent.ContainedIn = Parent;
+        }
     }
 
     #endregion
@@ -85,9 +123,12 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
             case "fire":
             case "unsafe":
                 return Safety;
+            default:
+                return setting.TryParseEnum<FirearmFireModeType>(out var mode) &&
+                       FireModes.Any(x => x.Type == mode) &&
+                       CurrentFireMode.Type != mode &&
+                       (CycleType == FirearmCycleType.SelfLoading || mode == FirearmFireModeType.Single);
         }
-
-        return false;
     }
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
@@ -100,6 +141,21 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
             case "fire":
             case "unsafe":
                 return $"{Parent.HowSeen(actor, true)} is already in fire mode.";
+        }
+
+        if (setting.TryParseEnum<FirearmFireModeType>(out var mode))
+        {
+            if (CycleType == FirearmCycleType.Manual && mode != FirearmFireModeType.Single)
+            {
+                return $"{Parent.HowSeen(actor, true)} has a manual action and cannot use multi-round fire modes.";
+            }
+
+            if (FireModes.All(x => x.Type != mode))
+            {
+                return $"{Parent.HowSeen(actor, true)} does not support {mode.DescribeEnum()} fire.";
+            }
+
+            return $"{Parent.HowSeen(actor, true)} is already set to {mode.DescribeEnum()} fire.";
         }
 
         return
@@ -120,23 +176,41 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
         }
         else
         {
-            Safety = true;
+            if (setting.EqualTo("safe") || setting.EqualTo("safety"))
+            {
+                Safety = true;
+            }
+            else
+            {
+                setting.TryParseEnum<FirearmFireModeType>(out var mode);
+                _currentFireMode = mode;
+            }
         }
 
         Changed = true;
-        actor.OutputHandler.Handle(new EmoteOutput(
-            new Emote($"@ switch|switches the safety on $0 {(Safety ? "on" : "off")}.",
-                actor, Parent)));
+        actor.OutputHandler.Handle(new EmoteOutput(new Emote(
+            setting.TryParseEnum<FirearmFireModeType>(out var selectedMode)
+                ? $"@ switch|switches $0 to {selectedMode.DescribeEnum()} fire."
+                : $"@ switch|switches the safety on $0 {(Safety ? "on" : "off")}.",
+            actor, Parent)));
         return true;
     }
 
-    public IEnumerable<string> SwitchSettings => new[] { "safe", "unsafe" };
+    public IEnumerable<string> SwitchSettings =>
+        new[] { "safe", "unsafe" }.Concat(FireModes
+            .Where(x => CycleType == FirearmCycleType.SelfLoading || x.Type == FirearmFireModeType.Single)
+            .Select(x => x.Type.DescribeEnum()));
 
     #endregion
 
     #region Implementation of IMeleeWeapon
 
-    IWeaponType IMeleeWeapon.WeaponType => _prototype.MeleeWeaponType;
+    IWeaponType IMeleeWeapon.WeaponType =>
+        InstalledAttachments.Values
+            .Where(x => x.SlotType == FirearmAttachmentSlotType.Bayonet)
+            .SelectNotNull(x => x.Parent.GetItemType<IMeleeWeapon>())
+            .Select(x => x.WeaponType)
+            .FirstOrDefault() ?? _prototype.MeleeWeaponType;
 
     #endregion
 
@@ -164,7 +238,8 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
     public IAmmo ChamberedRound { get; set; }
     public string SpecificAmmoGrade => _prototype.RangedWeaponType.SpecificAmmunitionGrade;
 
-    public Difficulty AimDifficulty => WeaponType.BaseAimDifficulty;
+    public Difficulty AimDifficulty =>
+        WeaponType.BaseAimDifficulty.ApplyBonus(CombinedAttachmentModifiers.AimBonus);
 
     public Difficulty BaseBlockDifficulty
         => ChamberedRound?.AmmoType.DamageProfile.BaseBlockDifficulty ?? Difficulty.Automatic;
@@ -220,8 +295,6 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
     }
 
     protected abstract void ChamberRound(ICharacter readier);
-
-    protected abstract bool SemiAutomaticCycleOnFire { get; }
 
     /// <inheritdoc />
     public bool CanUnready(ICharacter readier)
@@ -295,40 +368,80 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
             return;
         }
 
+        var attachmentFireEmote = AttachmentSlots
+            .Select(x => InstalledAttachments.GetValueOrDefault(x.Name))
+            .SelectNotNull(x => x?.FireEmote)
+            .FirstOrDefault();
         actor.OutputHandler.Handle(new EmoteOutput(
-            new Emote(_prototype.FireEmote, actor, actor, target ?? (IPerceivable)new DummyPerceivable("the air"),
+            new Emote(attachmentFireEmote ?? _prototype.FireEmote, actor, actor,
+                target ?? (IPerceivable)new DummyPerceivable("the air"),
                 Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 
-        IAmmo ammo = ChamberedRound;
-        ChamberedRound = null;
-        if (SemiAutomaticCycleOnFire)
+        var configuredRounds = CycleType == FirearmCycleType.Manual
+            ? 1
+            : Math.Clamp(CurrentFireMode.RoundsPerTrigger, 1, FirearmFireMode.MaximumRoundsPerTrigger);
+        var firedRounds = 0;
+        var loudestShot = AudioVolume.Silent;
+        var originalLocation = RouteSpatialService.Instance.GetEffectiveLocation(actor);
+        while (ChamberedRound is not null && firedRounds < configuredRounds)
         {
-            ChamberRound(actor);
-        }
+            var ammo = ChamberedRound;
+            ChamberedRound = null;
+            var firstBullet = ammo.GetFiredItem;
+            var usesSeparateProjectile = firstBullet is not null;
+            var projectileCount = usesSeparateProjectile
+                ? Math.Clamp(ammo.AmmoType.ProjectileCount, 1, 32)
+                : 1;
+            var shell = ammo.GetFiredWasteItem;
+            for (var projectileIndex = 0; projectileIndex < projectileCount; projectileIndex++)
+            {
+                var bullet = projectileIndex == 0
+                    ? firstBullet ?? ammo.Parent
+                    : ammo.GetFiredItem;
+                WeaponPoisonDeliveryHelper.CopyPoisonCoating(ammo.Parent, bullet);
+                var projectileOutcome = FirearmMath.ProjectileOutcome(shotOutcome, CurrentFireMode, firedRounds,
+                    projectileIndex, ammo.AmmoType.SpreadPenalty,
+                    CombinedAttachmentModifiers.RecoilMultiplier);
+                var projectileBodypart = projectileIndex == 0
+                    ? bodypart
+                    : (target as IHaveABody)?.Body?.RandomBodyPartGeometry(
+                        Orientation.Centre, Alignment.Front, Facing.Front) ?? bodypart;
+                ammo.Fire(actor, target, projectileOutcome, coverOutcome, defenseOutcome, projectileBodypart, bullet,
+                    WeaponType, projectileIndex == 0 ? defenseEmote : null,
+                    new RangedFireContext(projectileIndex, projectileCount, ammo.AmmoType.ScatterType,
+                        CombinedAttachmentModifiers.DamageMultiplier));
+                if (!bullet.Deleted &&
+                    bullet.IsItemType<IImpactDetonator>() &&
+                    bullet.LocationLevelPerceivable?.Location is not null)
+                {
+                    bullet.GetItemType<IDetonatable>()?.Detonate();
+                }
+            }
 
-        IGameItem bullet = ammo.GetFiredItem ?? ammo.Parent;
-        IGameItem shell = ammo.GetFiredWasteItem;
-        WeaponPoisonDeliveryHelper.CopyPoisonCoating(ammo.Parent, bullet);
+            if (usesSeparateProjectile)
+            {
+                ammo.Parent.Delete();
+            }
 
-        if (bullet != ammo.Parent)
-        {
-            ammo.Parent.Delete();
+            HandleShellCasingOnFire(actor, originalLocation, shell);
+            loudestShot = (AudioVolume)Math.Clamp(
+                Math.Max((int)loudestShot,
+                    (int)ammo.AmmoType.Loudness + CombinedAttachmentModifiers.LoudnessOffset),
+                (int)AudioVolume.Silent, (int)AudioVolume.DangerouslyLoud);
+            firedRounds++;
+            if (CycleType == FirearmCycleType.SelfLoading)
+            {
+                ChamberRound(actor);
+            }
         }
 
         Changed = true;
-
-		var originalLocation = RouteSpatialService.Instance.GetEffectiveLocation(actor);
-		// If the character fires at themselves, ammo.Fire can relocate them before the casing is ejected.
-        ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, bullet, WeaponType, defenseEmote);
         UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
             (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
-
-        HandleShellCasingOnFire(actor, originalLocation, shell);
-
-        if (ammo.AmmoType.Loudness > AudioVolume.Silent)
+        if (loudestShot > AudioVolume.Silent)
         {
-            actor.Location.HandleAudioEcho(Gameworld.GetStaticString("GunshotHeardEcho"), ammo.AmmoType.Loudness,
-                Parent, actor.RoomLayer, true, "gunshot");
+            actor.Location.HandleAudioEcho(Gameworld.GetStaticString("GunshotHeardEcho"), loudestShot, Parent,
+                actor.RoomLayer, true, "gunshot");
         }
     }
 
@@ -370,7 +483,238 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
     public ITraitDefinition Trait => WeaponType.FireTrait;
 
     WeaponClassification IRangedWeapon.Classification => _prototype.RangedWeaponType.Classification;
-    WeaponClassification IMeleeWeapon.Classification => _prototype.MeleeWeaponType.Classification;
+    WeaponClassification IMeleeWeapon.Classification => ((IMeleeWeapon)this).WeaponType.Classification;
+
+    #endregion
+
+    #region IFirearm Attachment and Fire Mode Implementation
+
+    public IReadOnlyCollection<FirearmAttachmentSlot> AttachmentSlots => _prototype.AttachmentSlots;
+    public IReadOnlyDictionary<string, IFirearmAttachment> InstalledAttachments => _installedAttachments;
+    public IReadOnlyCollection<FirearmFireMode> FireModes => _prototype.FireModes;
+    public FirearmFireMode CurrentFireMode =>
+        (CycleType == FirearmCycleType.Manual
+            ? FireModes.FirstOrDefault(x => x.Type == FirearmFireModeType.Single)
+            : FireModes.FirstOrDefault(x => x.Type == _currentFireMode)) ??
+        FireModes.First();
+    public FirearmCycleType CycleType => _prototype.CycleType;
+    public double EffectiveAccuracyBonus =>
+        (ChamberedRound?.AmmoType.BaseAccuracy ?? 0.0) + CombinedAttachmentModifiers.AccuracyBonus;
+    public double EffectiveStaminaToFire =>
+        Math.Max(0.0,
+            (WeaponType.StaminaToFire +
+             CurrentFireMode.ExtraStaminaPerRound * Math.Max(0, CurrentFireMode.RoundsPerTrigger - 1)) *
+            CombinedAttachmentModifiers.StaminaMultiplier);
+    public double EffectiveFireDelay =>
+        Math.Max(0.0,
+            (WeaponType.FireCombatDelay +
+             CurrentFireMode.ExtraDelayPerRound * Math.Max(0, CurrentFireMode.RoundsPerTrigger - 1)) *
+            CombinedAttachmentModifiers.DelayMultiplier);
+    public double EffectiveAimLoss =>
+        Math.Max(0.0,
+            WeaponType.AimBonusLostPerShot *
+            Math.Max(1, CurrentFireMode.RoundsPerTrigger) *
+            CombinedAttachmentModifiers.AimLossMultiplier);
+    public int EffectiveRangeInRooms =>
+        Math.Max(0, (int)Math.Floor(WeaponType.DefaultRangeInRooms * CombinedAttachmentModifiers.RangeMultiplier));
+
+    public FirearmAttachmentModifiers CombinedAttachmentModifiers
+    {
+        get
+        {
+            return FirearmMath.CombineModifiers(InstalledAttachments.Values.Select(x => x.Modifiers));
+        }
+    }
+
+    public bool SetFireMode(FirearmFireModeType mode)
+    {
+        if (FireModes.All(x => x.Type != mode) ||
+            CycleType == FirearmCycleType.Manual && mode != FirearmFireModeType.Single)
+        {
+            return false;
+        }
+
+        _currentFireMode = mode;
+        Changed = true;
+        return true;
+    }
+
+    public bool CanAttach(IFirearmAttachment attachment, string slotName, out string whyNot)
+    {
+        if (attachment.InstalledIn is not null)
+        {
+            whyNot = "That attachment is already installed on a firearm.";
+            return false;
+        }
+
+        var matchingSlots = AttachmentSlots
+            .Where(attachment.Fits)
+            .Where(x => !_installedAttachments.ContainsKey(x.Name))
+            .ToList();
+        if (!string.IsNullOrWhiteSpace(slotName))
+        {
+            matchingSlots = matchingSlots.Where(x => x.Name.EqualTo(slotName)).ToList();
+        }
+
+        if (matchingSlots.Count == 0)
+        {
+            whyNot = "There is no free, compatible attachment slot.";
+            return false;
+        }
+
+        if (matchingSlots.Count > 1)
+        {
+            whyNot =
+                $"More than one slot is compatible; specify one of {matchingSlots.Select(x => x.Name).ListToString()}.";
+            return false;
+        }
+
+        whyNot = string.Empty;
+        return true;
+    }
+
+    public bool Attach(IFirearmAttachment attachment, string slotName, out string whyNot)
+    {
+        if (!CanAttach(attachment, slotName, out whyNot))
+        {
+            return false;
+        }
+
+        var slot = AttachmentSlots
+            .Where(attachment.Fits)
+            .Where(x => !_installedAttachments.ContainsKey(x.Name))
+            .Single(x => string.IsNullOrWhiteSpace(slotName) || x.Name.EqualTo(slotName));
+        _installedAttachments[slot.Name] = attachment;
+        attachment.InstalledIn = this;
+        attachment.Parent.ContainedIn = Parent;
+        attachment.Changed = true;
+        Changed = true;
+        return true;
+    }
+
+    public bool CanDetach(IFirearmAttachment attachment, out string whyNot)
+    {
+        if (_installedAttachments.Values.All(x => x != attachment))
+        {
+            whyNot = "That attachment is not installed on this firearm.";
+            return false;
+        }
+
+        whyNot = string.Empty;
+        return true;
+    }
+
+    public bool Detach(IFirearmAttachment attachment, out string whyNot)
+    {
+        if (!CanDetach(attachment, out whyNot))
+        {
+            return false;
+        }
+
+        var slot = _installedAttachments.First(x => x.Value == attachment).Key;
+        _installedAttachments.Remove(slot);
+        attachment.InstalledIn = null;
+        attachment.Parent.ContainedIn = null;
+        attachment.Changed = true;
+        Changed = true;
+        return true;
+    }
+
+    protected IEnumerable<XElement> SaveFirearmState()
+    {
+        yield return new XElement("FireMode", CurrentFireMode.Type);
+        yield return new XElement("Attachments",
+            _installedAttachments.Select(x => new XElement("Attachment",
+                new XAttribute("slot", x.Key),
+                x.Value.Parent.Id)));
+    }
+
+    protected double AttachedItemsWeight => InstalledAttachments.Values.Sum(x => x.Parent.Weight);
+    protected double AttachedItemsBuoyancy(double fluidDensity) =>
+        InstalledAttachments.Values.Sum(x => x.Parent.Buoyancy(fluidDensity));
+
+    public override bool Take(IGameItem item)
+    {
+        var attachment = item.GetItemType<IFirearmAttachment>();
+        if (attachment is null || InstalledAttachments.Values.All(x => x != attachment))
+        {
+            return false;
+        }
+
+        Detach(attachment, out _);
+        return true;
+    }
+
+    public override void FinaliseLoad()
+    {
+        foreach (var attachment in InstalledAttachments.Values)
+        {
+            attachment.Parent.FinaliseLoadTimeTasks();
+        }
+    }
+
+    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    {
+        if (!InstalledAttachments.Any())
+        {
+            return false;
+        }
+
+        var newHost = newItem?.GetItemType<IFirearmAttachmentHost>();
+        foreach (var attachment in InstalledAttachments.Values.ToList())
+        {
+            var slotName = InstalledAttachments.First(x => x.Value == attachment).Key;
+            Detach(attachment, out _);
+            if (newHost is not null && newHost.Attach(attachment, slotName, out _))
+            {
+                continue;
+            }
+
+            if (location is not null)
+            {
+                InsertAtParentSpatialLocation(attachment.Parent, location);
+            }
+            else
+            {
+                attachment.Parent.Delete();
+            }
+        }
+
+        return false;
+    }
+
+    public override bool AffectsLocationOnDestruction => true;
+    public override int ComponentDieOrder => 1;
+
+    public override void Quit()
+    {
+        base.Quit();
+        foreach (var attachment in InstalledAttachments.Values)
+        {
+            attachment.Parent.Quit();
+        }
+    }
+
+    public override void Login()
+    {
+        base.Login();
+        foreach (var attachment in InstalledAttachments.Values)
+        {
+            attachment.Parent.Login();
+        }
+    }
+
+    public override void Delete()
+    {
+        base.Delete();
+        foreach (var attachment in InstalledAttachments.Values.ToList())
+        {
+            attachment.Parent.ContainedIn = null;
+            attachment.Parent.Delete();
+        }
+
+        _installedAttachments.Clear();
+    }
 
     #endregion
 }

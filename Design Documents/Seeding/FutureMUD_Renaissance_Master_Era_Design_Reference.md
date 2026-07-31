@@ -6,7 +6,7 @@
 
 This reference covers `Renaissance`, the Renaissance period roughly 1400-1600 CE. It remains a standalone era reference rather than a combined Renaissance/EarlyModern document.
 
-The shared pre-industrial baseline is now live and is automatically installed when the Renaissance era is selected. The Renaissance-specific entrypoint, `SeedRenaissanceItems()`, exists but remains the place for future era-specific catalogue work. Consequently, this reference should not re-author ordinary cross-era tools, writing goods, trade containers, military supports, time/water fixtures, or the dedicated shared print/navigation/gunpowder-support/trade-packaging stock already supplied by the baseline.
+The shared pre-industrial baseline is now live and is automatically installed when the Renaissance era is selected. `SeedRenaissanceItems()` now seeds the full documented clothing and household catalogues plus the writing/administration and art/science/navigation foundations. The remaining Renaissance military/firearm branch is deliberately engine-gated: matchlock/wheellock ignition, attachment, ammunition, and artillery claims must not be simulated by misleading item rows. Consequently, this reference should not re-author ordinary cross-era tools, writing goods, trade containers, military supports, time/water fixtures, or the dedicated shared print/navigation/gunpowder-support/trade-packaging stock already supplied by the baseline.
 
 The Renaissance-specific seeder should emphasize:
 
@@ -436,7 +436,7 @@ The shared baseline reference and alias catalogue already exist and should be tr
 8. `FutureMUD_Renaissance_PrimaryIndustry_UsefulSeeder_Impact_Reference.md`
 9. `FutureMUD_Renaissance_Culture_Manifest_Reference.md`
 
-The admission manifest should map shared rows to cultures, date anchors, institutions, professions, shops, and crafts. It must not clone item prototypes.
+The admission manifest is complete and maps all 385 live shared rows to cultures/contact scopes, date anchors, institutions, professions, shops, crafts, prevalence, trade status, and component reality. It does not clone item prototypes.
 
 ## Exclusions
 

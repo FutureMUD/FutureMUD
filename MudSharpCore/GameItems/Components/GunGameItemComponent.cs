@@ -66,7 +66,8 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
             new XElement("Magazine", Magazine?.Parent.Id ?? 0),
             new XElement("ChamberedRound", ChamberedRound?.Parent.Id ?? 0),
             new XElement("Wielded", PrimaryWieldedLocation?.Id ?? 0),
-            new XElement("Safety", Safety ? "true" : "false")
+            new XElement("Safety", Safety ? "true" : "false"),
+            SaveFirearmState()
         ).ToString();
     }
 
@@ -150,8 +151,6 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
 
         Changed = true;
     }
-
-    protected override bool SemiAutomaticCycleOnFire => true;
 
     public override void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
@@ -237,12 +236,14 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
 
     #region IGameItemComponent Overrides
 
-    public override double ComponentWeight => MagazineContents.Sum(x => x.Weight) + ChamberedRound?.Parent.Weight ?? 0.0;
+    public override double ComponentWeight =>
+        MagazineContents.Sum(x => x.Weight) + (ChamberedRound?.Parent.Weight ?? 0.0) + AttachedItemsWeight;
 
     public override double ComponentBuoyancy(double fluidDensity)
     {
-        return MagazineContents.Sum(x => x.Buoyancy(fluidDensity)) + ChamberedRound?.Parent.Buoyancy(fluidDensity) ??
-               0.0;
+        return MagazineContents.Sum(x => x.Buoyancy(fluidDensity)) +
+               (ChamberedRound?.Parent.Buoyancy(fluidDensity) ?? 0.0) +
+               AttachedItemsBuoyancy(fluidDensity);
     }
 
     public override bool DescriptionDecorator(DescriptionType type)
@@ -262,6 +263,10 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
                 ? $"It has {Magazine.Parent.HowSeen(voyeur)} in the magazine."
                 : "It does not currently have any clip in the magazine.");
             sb.AppendLine($"The safety is currently {(Safety ? "on" : "off")}.");
+            sb.AppendLine($"It is set to {CurrentFireMode.Type.DescribeEnum()} fire.");
+            sb.AppendLine(InstalledAttachments.Any()
+                ? $"It has {InstalledAttachments.Select(x => $"{x.Value.Parent.HowSeen(voyeur)} in its {x.Key} slot").ListToString()}."
+                : "It has no firearm attachments installed.");
             return sb.ToString();
         }
 
@@ -269,7 +274,7 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
         {
             IMeleeWeapon mw = (IMeleeWeapon)this;
             return
-                $"This is a semi-automatic firearm of type {WeaponType.Name.Colour(Telnet.Cyan)}.\nIt uses the {WeaponType.FireTrait.Name.Colour(Telnet.Green)} skill for firing.\nIt takes ammunition of type {WeaponType.SpecificAmmunitionGrade.Colour(Telnet.Green)} and accepts clips of type {_prototype.ClipType.Colour(Telnet.Green)}.\n This is also a melee weapon of type {mw.WeaponType.Name.Colour(Telnet.Cyan)}.\nIt uses the {mw.WeaponType.AttackTrait.Name.Colour(Telnet.Green)} skill for attack and {(mw.WeaponType.ParryTrait == mw.WeaponType.AttackTrait ? "defense" : $"the {mw.WeaponType.ParryTrait.Name.Colour(Telnet.Green)} skill for defense")}.\nIt is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.";
+                $"This is a {CycleType.DescribeEnum(true)} modular firearm of type {WeaponType.Name.Colour(Telnet.Cyan)}.\nIt supports {FireModes.Select(x => x.Type.DescribeEnum().ColourName()).ListToString()} fire.\nIt uses the {WeaponType.FireTrait.Name.Colour(Telnet.Green)} skill for firing.\nIt takes ammunition of type {WeaponType.SpecificAmmunitionGrade.Colour(Telnet.Green)} and accepts clips of type {_prototype.ClipType.Colour(Telnet.Green)}.\n This is also a melee weapon of type {mw.WeaponType.Name.Colour(Telnet.Cyan)}.\nIt uses the {mw.WeaponType.AttackTrait.Name.Colour(Telnet.Green)} skill for attack and {(mw.WeaponType.ParryTrait == mw.WeaponType.AttackTrait ? "defense" : $"the {mw.WeaponType.ParryTrait.Name.Colour(Telnet.Green)} skill for defense")}.\nIt is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.";
         }
 
         return base.Decorate(voyeur, name, description, type, colour, flags);

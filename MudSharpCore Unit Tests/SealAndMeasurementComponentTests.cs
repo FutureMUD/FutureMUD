@@ -232,12 +232,14 @@ public class SealAndMeasurementComponentTests
 		Assert.AreEqual(Outcome.Pass, component.CurrentOutcome);
 		actor.Verify(x => x.SpendStamina(2.0), Times.Once);
 		cell.Verify(x => x.HandleAudioEcho("You hear music {0}.",
-			MudSharp.Form.Audio.AudioVolume.Decent, parent.Object, It.IsAny<RoomLayer>(), true), Times.Once);
+			MudSharp.Form.Audio.AudioVolume.Decent, parent.Object, It.IsAny<RoomLayer>(), true, "instrument"),
+			Times.Once);
 
 		component.PerformTick();
 		actor.Verify(x => x.SpendStamina(1.0), Times.Once);
 		cell.Verify(x => x.HandleAudioEcho("You hear music {0}.",
-			MudSharp.Form.Audio.AudioVolume.Decent, parent.Object, It.IsAny<RoomLayer>(), true), Times.Exactly(2));
+			MudSharp.Form.Audio.AudioVolume.Decent, parent.Object, It.IsAny<RoomLayer>(), true, "instrument"),
+			Times.Exactly(2));
 
 		component.StopPlaying(actor.Object);
 		Assert.IsFalse(component.IsBeingPlayed);
@@ -305,7 +307,7 @@ public class SealAndMeasurementComponentTests
 		actor.Verify(x => x.SpendStamina(5.0), Times.Once);
 		cell.Verify(x => x.HandleAudioEcho(
 			It.Is<string>(text => text.Contains("unrecognisable", StringComparison.OrdinalIgnoreCase)),
-			MudSharp.Form.Audio.AudioVolume.Loud, parent.Object, It.IsAny<RoomLayer>(), true), Times.Once);
+			MudSharp.Form.Audio.AudioVolume.Loud, parent.Object, It.IsAny<RoomLayer>(), true, "signal"), Times.Once);
 		onSignal.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Never);
 		StringAssert.Contains(component.WhyCannotSignal(actor.Object, "rally"), "quite yet");
 	}

@@ -182,7 +182,9 @@ public class InstrumentGameItemComponent : GameItemComponent, IInstrument
 			string.Format(_prototype.DistantPlayEmote, "{0}"),
 			Volume,
 			Parent,
-			actor.RoomLayer);
+			actor.RoomLayer,
+			true,
+			"instrument");
 	}
 
 	public void PerformTick()

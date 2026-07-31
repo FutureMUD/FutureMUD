@@ -157,6 +157,16 @@ namespace MudSharp.Construction
         /// <param name="source">The source for the emote</param>
         /// <param name="originalLayer">The original layer that the sound emanates from</param>
         /// <param name="ignoreOriginLayer">If true, doesn't echo the original layer/room combo. Otherwise includes this location as well</param>
-        void HandleAudioEcho(string audioText, AudioVolume volume, IPerceiver source, RoomLayer originalLayer, bool ignoreOriginLayer = true);
+        void HandleAudioEcho(string audioText, AudioVolume volume, IPerceiver source, RoomLayer originalLayer,
+            bool ignoreOriginLayer = true);
+
+        /// <summary>
+        /// Sends an audio echo and exposes its builder-facing category through the NoiseEmitted event.
+        /// </summary>
+        void HandleAudioEcho(string audioText, AudioVolume volume, IPerceiver source, RoomLayer originalLayer,
+            bool ignoreOriginLayer, string noiseType)
+        {
+            HandleAudioEcho(audioText, volume, source, originalLayer, ignoreOriginLayer);
+        }
     }
 }

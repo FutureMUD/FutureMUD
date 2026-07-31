@@ -13162,7 +13162,8 @@ Footwear is separated by use rather than merely by culture: hard work shoes, wal
 ## ItemSeeder outfit-manifest implementation
 
 - The ItemSeeder now seeds the exact prototype dependency union used by these manifests, including individually admitted medieval, Renaissance, and shared pre-industrial rows, before outfit creation.
+- The ItemSeeder also seeds all **84** fifth-pass standalone headwear and footwear prototypes under the Early Modern era gate. They remain deliberately absent from the outfit manifests, so this adds no placements or changes to the **883** documented outfits.
 - All **883** concrete manifests in the first four passes are upserted as global stock `OutfitTemplate` rows: 350 civilian, 220 military/naval, 216 noble/court, and 97 religious.
 - Every template item is initially `Worn`, keeps the document order as wear order, uses the stable prototype reference as its template key, and leaves the wear profile blank so runtime selects the prototype's default wearable profile.
 - Stock ownership is recorded by a stable marker in the description. Reruns reconcile stock-owned rows but fail closed on an unmarked builder-authored name collision.
-- The fifth-pass headwear and footwear rows remain standalone catalogue additions because that pass explicitly adds no outfit placements.
+- The fifth-pass headwear and footwear rows remain standalone seeded catalogue additions because that pass explicitly adds no outfit placements.

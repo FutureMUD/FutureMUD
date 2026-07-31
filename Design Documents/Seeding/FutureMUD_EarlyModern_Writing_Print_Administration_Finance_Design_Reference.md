@@ -8,7 +8,11 @@ This branch extends the shared writing and minimum print catalogue into the larg
 
 Reuse the 39 `preindustrial_writing_*` aliases and the shared hand press, type case, composing stick, chase, inking balls, drying rack, broadside, pamphlet, almanac, blank form, and printed map sheet. Do not create era-prefixed copies of those forms.
 
-## Planned slices
+## Implemented foundation
+
+`SeedEarlyModernWritingPrintAdministrationAndFinance()` now seeds 18 era-gated prototypes using existing paper, book, and storage components. It covers gazettes and playbills, ship and port records, bills of lading and exchange, insurance and travel papers, contracts and company ledgers, atlas and natural-philosophy formats, desk accessories, courier dispatches, deed storage, and installed archive shelving. All document content remains builder-authored and no item claims a postal, legal, access-control, insurance, or currency-transfer system effect.
+
+## Covered slices
 
 - newspapers, gazettes, sermons, proclamations, playbills, tickets, journals, natural-philosophy papers, atlases, music sheets, catalogues, and distinct printed-book formats;
 - folded-letter packets, postal bags, courier satchels, deed boxes, filing bundles, dispatch packets, archive shelving, and seal/security goods;

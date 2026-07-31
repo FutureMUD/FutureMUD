@@ -22,7 +22,7 @@ The medieval `ItemSeeder` item and craft implementation was reset for a from-scr
 - `SeedMedievalProductionChainCrafts` now seeds the phase-ordered 35-craft Medieval industry foundation when the `medieval` era is selected.
 - `SeedMedievalFoodProductionFoundationItems` seeds six food-production tools or apparatus and eleven prepared foods.
 - `SeedMedievalFoodBeverageCrafts` now seeds the phase-ordered 48-craft Medieval food, beverage, and preservation foundation when the `medieval` era is selected.
-- The other eight Medieval craft launch points remain explicit no-ops.
+- The eight remaining Medieval craft launch points now generate idempotent material-based crafts for their direct item-family outputs. Each uses an exact target prototype product, the prototype's configured material as its terminal commodity input, a live tagged workshop tool, and a family-specific knowledge and skill gate. The residual-stock launcher also catches every remaining `medieval_*` prototype so a documented direct item cannot be left without a craft path while dedicated recipes are subsequently refined.
 - The old authored outfit catalogue, explicit culture catalogue, generated helper/data model, and medieval craft helper families have been removed.
 
 ## Shared Baseline Admission
@@ -87,7 +87,7 @@ The first medieval industry foundation item source is implemented as current ite
 - `SeedMedievalProductionChainCrafts` now creates 16 first-tier stock crafts, 17 tool/apparatus crafts, and two forge/furnace activation crafts under the `Medieval Industry Foundations` knowledge.
 - Craft dependencies record phase and source ownership. Exact Medieval inputs come only from earlier phases; functional tools resolve through Historic Foundation, Primary Production, or earlier Medieval items.
 - Primary Production owns charcoal, extraction tools, ore and metal preparation, quarrying, clay, brick, and salt inputs, so the Medieval slice does not duplicate those prototypes.
-- `SeedMedievalComponentGapCrafts` remains a no-op for the later stock rows outside this first foundation.
+- `SeedMedievalComponentGapCrafts` now owns the residual catch-all craft route for all remaining `medieval_*` prototype paths. It deliberately uses terminal material commodities and an existing workshop tool rather than inventing unsupported component, material, or tag dependencies; detailed family recipes can supersede these stable craft identities without disconnecting the output layer.
 
 ## Active Food, Beverage, and Preservation Source
 
@@ -110,7 +110,7 @@ The live medieval clothing item source is intentionally direct-call only:
 - Catalogue metadata lives in `Design Documents/Seeding/Medieval_Clothing_Seeder_Design_Reference.md`.
 - Full descriptions live in `Design Documents/Seeding/Medieval_Clothing_FDesc_Catalogue.csv`.
 - Each clothing garment is represented by exactly one `CreateItem(...)` call in `SeedMedievalClothing`.
-- Clothing crafts are not rebuilt yet; `SeedMedievalClothingCrafts` remains a no-op.
+- `SeedMedievalClothingCrafts` now creates material-based tailored-output crafts for direct medieval clothing and footwear source families. Source-refined garment-panel and regional textile recipes remain a later fidelity pass, but every direct item now has a craftable route.
 
 ## Active Military Goods Source
 
@@ -120,7 +120,7 @@ The live medieval military item source is intentionally direct-call only:
 - Melee weapons, ranged weapons, ammunition, and thrown weapons live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalWeapons.cs`.
 - Armour, horse tack, barding, shields, and military support gear live in `DatabaseSeeder/Seeders/ItemSeeder.MedievalArmour.cs`.
 - Each military-goods prototype is represented by exactly one `CreateItem(...)` call in its owning method.
-- Military crafts are not rebuilt yet; the medieval craft launch points remain no-op methods.
+- `SeedMedievalEquipmentCrafts` now creates material-based crafts for direct medieval weapons, armour, shields, tack, and military-support families. The existing industry foundation remains the preferred source for dedicated stock and tooling paths; no unsupported combat or attachment mechanic is introduced by these recipes.
 
 ## Active Household Goods and Furniture Source
 
@@ -129,7 +129,7 @@ The live medieval household goods and furniture item source is intentionally dir
 - Item prototypes live across `DatabaseSeeder/Seeders/ItemSeeder.MedievalContainers.cs`, `DatabaseSeeder/Seeders/ItemSeeder.MedievalDoorsLocksStrongboxes.cs`, `DatabaseSeeder/Seeders/ItemSeeder.MedievalFood.cs`, `DatabaseSeeder/Seeders/ItemSeeder.MedievalFurniture.cs`, and `DatabaseSeeder/Seeders/ItemSeeder.MedievalJewellery.cs`.
 - Catalogue metadata lives in `Design Documents/Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md`.
 - Each household-goods prototype is represented by exactly one `CreateItem(...)` call in its owning medieval household method.
-- Furniture and container crafts are not rebuilt yet; `SeedMedievalFurnitureAndContainerCrafts` remains a no-op.
+- `SeedMedievalFurnitureAndContainerCrafts` now creates material-based crafts for direct medieval furniture, container, door, and lock families. The residual route protects any differently-prefixed household item from omission.
 
 ## Active Decorative Jewellery Source
 
@@ -140,7 +140,7 @@ The live medieval decorative jewellery item source is intentionally direct-call 
 - Full structured item rows live in `Design Documents/Seeding/FutureMUD_Medieval_Jewellery_Item_Catalogue_Full.csv`.
 - Full descriptions live in `Design Documents/Seeding/FutureMUD_Medieval_Jewellery_FDesc_Catalogue.csv`.
 - Each decorative jewellery prototype is represented by exactly one `CreateItem(...)` call in `SeedMedievalJewelleryAndDevotionalGoods`.
-- Jewellery and devotional crafts are not rebuilt yet; `SeedMedievalJewelleryDevotionalCrafts` remains a no-op.
+- `SeedMedievalJewelleryDevotionalCrafts` now creates material-based crafts for direct medieval jewellery and devotional output families; the residual route covers any specialist item whose stable reference does not use one of those prefixes.
 
 ## Active Writing, Books, and Documents Source
 
@@ -150,7 +150,7 @@ The live medieval writing, books, and documents item source is intentionally dir
 - Catalogue metadata lives in `Design Documents/Seeding/FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md`.
 - Full descriptions live in `Design Documents/Seeding/FutureMUD_Medieval_Writing_Books_Documents_FDesc_Catalogue.csv`.
 - Each writing, book, document, seal, container, scribal-tool, and writing-support prototype is represented by exactly one `CreateItem(...)` call in `SeedMedievalWritingAdministrationAndDocuments`.
-- Writing and administration crafts are not rebuilt yet; `SeedMedievalWritingAdministrationCrafts` remains a no-op.
+- `SeedMedievalWritingAdministrationCrafts` now creates material-based crafts for direct writing, book, and document families, while the residual route catches any remaining administratively-owned stable reference.
 
 ## Active Treatment, Drug, and Repair Source
 
@@ -163,7 +163,7 @@ The live medieval treatment, drug-delivery, mobility, prosthetic, and specialist
 - Specialist glass, paper, lacquer, cordage, and composite-bow repair kit components live in `DatabaseSeeder/Seeders/UsefulSeeder.ItemComponents.cs`.
 - Supporting tag paths live in `DatabaseSeeder/Seeders/UsefulSeeder.Tags.cs` and the path-aware HealthSeeder liquid-tag helper.
 - Maintained exports are synchronized in `Design Documents/Data/Seeded_Item_Components.json`, `Seeded_Liquids.json`, `Item_Component_Types.json`, `Seeded_Materials.json`, and `SeededTagHierarchy.csv`.
-- Treatment, drug, and repair crafts are not rebuilt yet; `SeedMedievalMedicalApothecaryCrafts` and `SeedMedievalRepairKitCrafts` remain no-op methods.
+- `SeedMedievalMedicalApothecaryCrafts` and `SeedMedievalRepairKitCrafts` now create material-based crafts for their direct output families. Medical treatment and repair behaviour remains supplied by each output's existing component composition; the craft layer adds no new runtime mechanism.
 
 ## Shared Historic Foundations
 

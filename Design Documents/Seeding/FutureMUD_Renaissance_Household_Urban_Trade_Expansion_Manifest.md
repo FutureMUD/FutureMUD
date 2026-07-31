@@ -6,7 +6,7 @@ This manifest governs the second-pass expansion of `FutureMUD_Renaissance_Househ
 
 The original authority document contains **400** proposed prototypes. The three expansion volumes add **600** distinct prototypes, bringing the combined Renaissance household, urban, trade, furniture, personal-container, domestic-service, and liquid-container catalogue to exactly **1,000 proposed item prototypes**.
 
-No original stable reference is replaced or renumbered.
+No original stable reference is replaced or renumbered. The full combined 1,000-row catalogue is now seeded under the Renaissance-era manifest; it preserves the documented component, tag, material, culture-admission, and portable-versus-fixed contracts while retaining source-refined descriptions, skins, crafts, shops, and room packages as later presentation and production work.
 
 ## Catalogue topology
 
@@ -141,8 +141,8 @@ The generated expansion passed the following catalogue checks:
 
 ## Implementation order
 
-1. Seed and export the six component profiles in the dependency request.
-2. Resolve the original household catalogue's pending component and material requests.
-3. Implement Volume I, then Volume II, then the container/service volume.
-4. Add stable-reference, material, tag, component-exclusivity, portability, and rerun-idempotency tests.
-5. Add skins, full descriptions, crafts, shops, outfits/room packages, and culture/date admission manifests only after the prototype layer resolves.
+1. Completed: seed and export the six component profiles in the dependency request.
+2. Completed: resolve the original household catalogue's pending component and material requests.
+3. Completed: seed the base catalogue, Volume I, Volume II, and the container/service volume as one 1,000-row Renaissance manifest.
+4. Validate stable-reference, material, tag, component-exclusivity, portability, and rerun idempotency in the deferred final seeder validation pass.
+5. Add skins, source-refined descriptions, crafts, shops, outfits/room packages, and culture/date admission manifests as their downstream slices resolve.

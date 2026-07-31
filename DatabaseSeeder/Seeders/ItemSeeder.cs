@@ -933,6 +933,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
 		if (HasAnyEra(eras, "medieval", "renaissance", "earlymodern"))
 		{
 			SeedSharedPreIndustrialFoodCatalogue();
+			SeedSharedPreIndustrialLeisureItems();
 		}
 
 		if (eras.Contains("antiquity", StringComparison.InvariantCultureIgnoreCase))

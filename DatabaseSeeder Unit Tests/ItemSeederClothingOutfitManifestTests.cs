@@ -75,8 +75,9 @@ public class ItemSeederClothingOutfitManifestTests
 			.ToArray();
 
 		Assert.AreEqual(0, unresolved.Length, string.Join(Environment.NewLine, unresolved));
-		Assert.AreEqual(1044, generatedReferences.Count);
+		Assert.AreEqual(1323, generatedReferences.Count);
 		Assert.AreEqual(202, ItemSeeder.RenaissanceOutfitItemStableReferencesForTesting.Count);
+		Assert.AreEqual(471, ItemSeeder.RenaissanceClothingItemStableReferencesForTesting.Count);
 	}
 
 	[TestMethod]

@@ -6,7 +6,7 @@ First-pass implementation catalogue for Renaissance household, urban, merchant, 
 
 This pass supplies stable references, short descriptions, exact primary materials, size, quality, empty weight, farthing cost, exact component sets, exact tag profiles, date/culture/institution admission, and shared-stock reuse. Nouns/keywords, long and full descriptions, skins, crafts, shops, room packages, and C# calls are deferred.
 
-Dependency status: all dry- and liquid-container profiles used here are now seeded, including `CashRegister_PreIndustrial_TillChest`. The till chest uses the single-container `LockingCashRegister` family so shop, currency, containment, open-state, and lock behavior coexist without a behavior-losing fallback.
+Dependency status: all dry- and liquid-container profiles used here are now seeded, including `CashRegister_PreIndustrial_TillChest`. The till chest uses the single-container `LockingCashRegister` family so shop, currency, containment, open-state, and lock behavior coexist without a behavior-losing fallback. The complete 400-row base catalogue is now seeded from this source through the Renaissance-era manifest; the generated descriptions deliberately remain a neutral presentation baseline until source-refined descriptions and skins are authored.
 
 ## Stable-reference and row syntax
 

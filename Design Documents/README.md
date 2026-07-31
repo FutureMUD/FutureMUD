@@ -64,6 +64,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Medieval Industry Tool Production Chain Second Pass](./Seeding/FutureMUD_Medieval_Industry_Tool_Production_Chain_Second_Pass.md)
 - [Medieval Food, Beverage, and Preservation Foundation](./Seeding/Medieval_Food_Beverage_Preservation_Foundation.md)
 - [Medieval Clothing Seeder Design Reference](./Seeding/Medieval_Clothing_Seeder_Design_Reference.md)
+- [Shared Pre-Industrial Leisure](./Seeding/FutureMUD_PreIndustrial_Leisure_Design_Reference.md)
 - [Medieval Military Seeder Design Reference](./Seeding/Medieval_Military_Seeder_Design_Reference.md)
 - [Medieval Household Goods and Furniture Seeder Design Reference](./Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md)
 - [Medieval Jewellery Seeder Design Reference](./Seeding/Medieval_Jewellery_Seeder_Design_Reference.md)

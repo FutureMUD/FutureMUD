@@ -4,7 +4,7 @@
 
 This document is the design authority for the Renaissance clothing branch, approximately 1400-1600 CE. It replaces the former catalogue scaffold with an implementation-oriented shared-culture catalogue. The branch owns clothing, underlayers, footwear, headwear, textile accessories, profession overlays, skins, outfits, and clothing crafts that are not supplied by the shared pre-industrial baseline.
 
-The shared dependency foundation is implemented. HumanSeeder now supplies the nine clothing-specific profiles `Leg Wraps`, `Overshoes`, `Head Veil`, `Hood`, `Detachable Sleeves`, `Skirt Support`, `Partlet`, `Long Open Robe`, and the optional `Breechcloth`, with matching `Wear_*` components. UsefulSeeder supplies the complete Renaissance Shared culture hierarchy, clothing market/function tags, and institution tags. CoreDataSeeder and AgricultureSeeder supply the four exact textile materials and their production sources. The Renaissance clothing entry point validates these profiles, materials, full tag paths, and seeded components before any catalogue item can be authored. The ItemSeeder now derives stock item prototypes and 59 concrete `OutfitTemplate` manifests from the inferred manifest table below. Early Modern outfit seeding still ensures each specifically admitted Renaissance prototype needed by those later manifests without invoking the complete Renaissance branch. Skins and crafts remain later implementation work.
+The shared dependency foundation is implemented. HumanSeeder now supplies the nine clothing-specific profiles `Leg Wraps`, `Overshoes`, `Head Veil`, `Hood`, `Detachable Sleeves`, `Skirt Support`, `Partlet`, `Long Open Robe`, and the optional `Breechcloth`, with matching `Wear_*` components. UsefulSeeder supplies the complete Renaissance Shared culture hierarchy, clothing market/function tags, and institution tags. CoreDataSeeder and AgricultureSeeder supply the four exact textile materials and their production sources. The Renaissance clothing entry point validates these profiles, materials, full tag paths, and seeded components before any catalogue item can be authored. The ItemSeeder now derives all 471 documented stock item prototypes and 59 concrete `OutfitTemplate` manifests from the canonical catalogue and inferred manifest table below. The 202 items referenced by a stock outfit retain explicit wearable-slot validation; the remaining 269 catalogue forms are seeded as standalone stock, including the one documented handheld fan that intentionally has no wearable component. Early Modern outfit seeding still ensures each specifically admitted Renaissance prototype needed by those later manifests without invoking the complete Renaissance branch. Skins and crafts remain later implementation work.
 
 The expanded catalogue contains **471 unique proposed prototypes** and retains the **436 explicitly enumerated first-pass culture placements**. The 76 headwear/footwear expansion rows carry admission notes but are not counted as placements until a culture or outfit manifest explicitly adopts them. Forty-one placements deliberately admit an existing shared prototype into another culture grouping rather than cloning the same silhouette. The catalogue is split into this authority document and three regional volumes:
 
@@ -209,7 +209,7 @@ This pass adds **76** proposed prototypes across the authority and regional volu
 - soft indoor footwear from hard road, field, riding, and maritime footwear;
 - caps, hoods, headwraps, structured hats, and status headdresses that cannot honestly be represented by one generic skin.
 
-No new component type, wearable component, tag, or solid material is requested. The existing `WP-HEAD-CAP`, `WP-HEAD-HAT`, `WP-HEADWRAP`, `WP-HEAD-VEIL`, `WP-HOOD`, `WP-FOOT-SANDAL`, `WP-FOOT-SHOE`, `WP-FOOT-BOOT`, and `WP-OVERSHOE` mappings cover all rows. The inferred manifest table below is now the explicit admission source for the expansion rows it references; unreferenced expansion rows remain proposals rather than stock outfit placements.
+No new component type, wearable component, tag, or solid material is requested. The existing wearable components resolve every documented `WP-*` profile, while `WP-HANDHELD` deliberately produces the documented holdable fan without a wearable component. The inferred manifest table below remains the explicit admission source for its outfit rows; all remaining expansion rows are now standalone era-gated stock rather than unseeded proposals.
 
 ## Common-form prototype catalogue — 71 unique prototypes
 
@@ -453,8 +453,8 @@ Crafts must consume exact material stock and exact tools. Decorative skins shoul
 1. Seed or resolve culture and functional tags.
 2. Audit live wearable components and add the blocking profiles from the dependency ledger.
 3. Seed high-priority materials where prototypes cannot be represented honestly by live stock.
-4. Implement the complete 471-prototype standalone catalogue beyond the 208-item outfit dependency union.
-5. Extend regional item coverage in dependency order: common admissions first, then distinct silhouettes not already required by an outfit.
+4. Complete: implement the full 471-prototype standalone catalogue, including the 269 items beyond the 202-item outfit dependency union.
+5. Complete: extend regional item coverage in dependency order: common admissions first, then distinct silhouettes not already required by an outfit.
 6. Add skins, beginning with plain/work, standard urban, luxury/court, religious/institutional, and imported/contact variants.
 7. The 59 stock outfits are implemented; add shop and downstream culture/date manifests where games need automatic admission.
 8. Add crafts only after exact skills, tools, materials, tags, and output references resolve.
@@ -470,6 +470,6 @@ Crafts must consume exact material stock and exact tools. Decorative skins shoul
 - Contact and colonial rows identify imported, imposed, hybrid, or local-continuity status rather than presenting colonial systems as culturally neutral.
 - Religious and ceremonial clothing is admitted through an institution and date context, not a generic universal category.
 - Complete outfits fail closed on missing authored pieces and identify intentionally shared slots.
-- The generated stock set contains exactly 59 unique outfit manifests and 202 unique item dependencies.
+- The generated stock set contains exactly 471 unique clothing prototypes, 59 unique outfit manifests, and 202 unique outfit item dependencies.
 - All eleven profession/institution overlay families have a concrete culture- or institution-gated outfit.
 - No North American contact stock outfit is created until a narrower regional design replaces the broad placeholder.

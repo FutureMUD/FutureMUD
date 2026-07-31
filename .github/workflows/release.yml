@@ -1,0 +1,148 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Optional release tag to publish, for example v1.0.0. Leave blank to build workflow artifacts only."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  CONFIGURATION: Release
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore MudClientSolution.sln
+
+      - name: Test
+        run: dotnet test MudClientSolution.sln -c ${{ env.CONFIGURATION }} --no-restore --logger "trx;LogFileName=test-results.trx"
+
+  package:
+    name: Package ${{ matrix.runtime }}
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime:
+          - linux-x64
+          - linux-arm64
+          - win-x64
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore MudClientSolution.sln
+
+      - name: Install WebAssembly build tools
+        run: dotnet workload install wasm-tools
+
+      - name: Publish web app
+        run: dotnet publish MudClientBlazor/MudClientBlazor.csproj -c ${{ env.CONFIGURATION }} --no-restore -o artifacts/web -p:ContinuousIntegrationBuild=true
+
+      - name: Publish websocket proxy
+        run: dotnet publish MudWebSocketProxy/MudWebSocketProxy.csproj -c ${{ env.CONFIGURATION }} -r ${{ matrix.runtime }} --self-contained true -p:PublishSingleFile=true -p:ContinuousIntegrationBuild=true -o artifacts/proxy
+
+      - name: Assemble package
+        shell: pwsh
+        run: |
+          $packageName = "mudclient-${{ matrix.runtime }}"
+          $packageRoot = Join-Path "artifacts/package" $packageName
+          $webTarget = Join-Path $packageRoot "web"
+          $proxyTarget = Join-Path $packageRoot "proxy"
+
+          New-Item -ItemType Directory -Force -Path $webTarget, $proxyTarget | Out-Null
+          Copy-Item -Path "artifacts/web/*" -Destination $webTarget -Recurse -Force
+          Copy-Item -Path "artifacts/proxy/*" -Destination $proxyTarget -Recurse -Force
+          Copy-Item -Path "deploy" -Destination $packageRoot -Recurse -Force
+          Copy-Item -Path "DEPLOYMENT.md" -Destination $packageRoot -Force
+
+          Set-Content -Path (Join-Path $packageRoot "README.txt") -Value "Start with DEPLOYMENT.md. The Blazor static site is in web/wwwroot and the websocket proxy is in proxy/."
+
+          $zipPath = Join-Path "artifacts" "$packageName.zip"
+          if (Test-Path $zipPath) {
+            Remove-Item -LiteralPath $zipPath -Force
+          }
+          Compress-Archive -Path $packageRoot -DestinationPath $zipPath -Force
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: mudclient-${{ matrix.runtime }}
+          path: artifacts/mudclient-${{ matrix.runtime }}.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub release
+    needs: package
+    if: startsWith(github.ref, 'refs/tags/') || inputs.release_tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+
+      - name: Resolve release tag
+        id: release
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $tag = "${{ inputs.release_tag }}"
+          }
+
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            throw "A release tag is required to publish a GitHub release."
+          }
+
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+
+      - name: Create or update GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "${{ steps.release.outputs.tag }}"
+          $assets = @(Get-ChildItem -Path artifacts -Filter *.zip -Recurse | Select-Object -ExpandProperty FullName)
+          if ($assets.Count -eq 0) {
+            throw "No release packages were downloaded."
+          }
+
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag @assets --clobber --repo $env:GITHUB_REPOSITORY
+          }
+          else {
+            gh release create $tag @assets --target $env:GITHUB_SHA --title "MudClientBlazor $tag" --generate-notes --repo $env:GITHUB_REPOSITORY
+          }

@@ -1,4 +1,6 @@
-# Deployment Guide
+# FutureMUD Web MUD Client deployment
+
+The client is published through the FutureMUD product release flow and downloaded from [futuremud.com/downloads](https://futuremud.com/downloads). Each MUD operator hosts it for their own game; futuremud.com publishes the release package but does not run the proxy for individual games.
 
 This project deploys as two pieces:
 
@@ -14,22 +16,38 @@ Browser -> wss://play.example.com/ws -> local proxy on 127.0.0.1:5000 -> local M
 
 Only ports `80` and `443` should be public. Keep the proxy port private to the server.
 
+## Host requirements
+
+- A running FutureMUD instance reachable from the host. The recommended configuration keeps both services on one machine and uses `127.0.0.1:4000`.
+- A public DNS hostname pointing at the client host, plus inbound TCP ports 80 and 443 for HTTPS. Do not expose the Telnet listener or proxy port.
+- Administrator/root access to configure the proxy service and reverse proxy, and a current WebSocket-capable browser for players.
+- The appropriate `win-x64`, `linux-x64`, or `linux-arm64` release package.
+
+The proxy is self-contained, so the deployed host does **not** need a separate .NET runtime.
+
+Linux additionally requires systemd, bash, curl, unzip, and Caddy v2 managed by systemd. Windows requires an Administrator PowerShell session and Caddy v2. Caddy is deliberately an explicit prerequisite: it owns automatic HTTPS and must not be silently installed or overwrite an operator's existing web-server configuration.
+
+## Linux automated install
+
+After verifying the website's published SHA-256 checksum, extract the downloaded package to `/opt/mudclient` and run the installer from that directory:
+
+~~~bash
+unzip mudclient-1.0.0-linux-x64.zip -d /tmp/mudclient-package
+sudo mv /tmp/mudclient-package/mudclient-1.0.0-linux-x64 /opt/mudclient
+sudo bash /opt/mudclient/deploy/linux/install-mudclient.sh play.example.com
+~~~
+
+The script creates the unprivileged proxy service, writes the exact trusted public origin, adds an isolated Caddy site fragment, validates Caddy before reload, and checks the private health endpoint. The selected domain must already resolve to the host. To connect to a MUD on a private network rather than the same machine:
+
+~~~bash
+sudo bash /opt/mudclient/deploy/linux/install-mudclient.sh play.example.com 10.0.0.20 4000
+~~~
+
+Use `CADDY_CONFIG` and `CADDY_FRAGMENTS_DIR` for nonstandard Caddyfile locations. The installer saves `.before-mudclient-install` backups of the files it changes; review those and take a normal deployment backup before upgrading an existing installation.
+
 ## Build A Release
 
-GitHub releases are created by `.github/workflows/release.yml`.
-
-To publish a tagged release:
-
-```powershell
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-The workflow tests the solution and uploads:
-
-- `mudclient-linux-x64.zip`
-- `mudclient-linux-arm64.zip`
-- `mudclient-win-x64.zip`
+The production release is created by an annotated `mudclient-v<version>` tag in the FutureMUD repository. The normal product workflow runs the client tests, produces self-contained Windows x64, Linux x64, and Linux ARM64 packages, smoke-publishes them to a temporary website host, and promotes the validated archives to futuremud.com.
 
 You can also build a local package from a machine with the .NET 10 SDK. For optimized Blazor WebAssembly output, install the WebAssembly build tools once before publishing:
 
@@ -38,7 +56,7 @@ dotnet workload install wasm-tools
 ```
 
 ```powershell
-.\scripts\publish-release.ps1 -RuntimeIdentifier win-x64
+.\scripts\Publish-ProductPackage.ps1 -RuntimeIdentifier win-x64 -Version 1.0.0
 ```
 
 ```bash

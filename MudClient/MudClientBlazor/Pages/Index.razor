@@ -1,0 +1,1886 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+@using System.Net.WebSockets
+@using System.Text
+@using System.Text.Json
+@using MudClientBlazor.Services
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+@inject ILogger<Index> Logger
+@inject IConfiguration Configuration
+
+<div class="app-root" style="@GetClientStyle()">
+	<div class="app-grid">
+		<div class="play-surface">
+			<div class="message-container" @ref="MessageContainer">
+				@foreach (var message in Messages)
+				{
+					<div>@(new MarkupString(message))</div>
+				}
+			</div>
+
+			<aside class="hotkey-panel" aria-label="Hotkey commands">
+				<div class="hotkey-panel-title">Hotkeys</div>
+				<div class="hotkey-pad">
+					@foreach (var binding in DesktopHotkeyBindings)
+					{
+						<button type="button"
+								class="@GetHotkeyButtonClass(binding)"
+								disabled="@(!CanSendHotkeyBinding(binding))"
+								title="@GetHotkeyTitle(binding)"
+								@onclick="() => SendHotkeyBindingAsync(binding)">
+							<span class="hotkey-button-label">@GetHotkeyPadLabel(binding)</span>
+							<span class="hotkey-button-key">@GetHotkeyKeyLabel(binding)</span>
+						</button>
+					}
+				</div>
+				<div class="quick-alias-panel" aria-label="Quick aliases">
+					<button type="button"
+							class="@GetLoginAliasButtonClass()"
+							disabled="@(!CanSendLoginAlias)"
+							title="@GetLoginAliasTitle()"
+							@onclick="SendLoginAliasAsync">
+						<span class="quick-alias-label">@CurrentQuickAliasSettings.Login.Label</span>
+					</button>
+					<div class="quick-alias-grid">
+						@foreach (var alias in DesktopQuickAliases)
+						{
+							<button type="button"
+									class="@GetQuickAliasButtonClass(alias)"
+									disabled="@(!CanSendQuickAlias(alias))"
+									title="@GetQuickAliasTitle(alias)"
+									@onclick="() => SendQuickAliasAsync(alias)">
+								<span class="quick-alias-label">@alias.Label</span>
+							</button>
+						}
+					</div>
+				</div>
+			</aside>
+		</div>
+
+		<div class="hotkey-strip" aria-label="Hotkey commands">
+			@foreach (var binding in MobileHotkeyBindings)
+			{
+				<button type="button"
+						class="hotkey-button"
+						title="@GetHotkeyTitle(binding)"
+						@onclick="() => SendHotkeyBindingAsync(binding)">
+					<span class="hotkey-button-label">@binding.Label</span>
+					<span class="hotkey-button-key">@GetHotkeyKeyLabel(binding)</span>
+				</button>
+			}
+		</div>
+
+		<div class="input-container">
+			<label for="userInput" class="visually-hidden">Command Input</label>
+			<textarea id="userInput"
+					  @bind="UserInput"
+					  @bind:event="oninput"
+					  @onkeydown="HandleKeyDown"
+					  @onkeydown:preventDefault="true"
+					  class="input-field"
+					  placeholder="Type a command..."
+					  autocomplete="off">
+			</textarea>
+		</div>
+
+		@if (_hotkeySettingsOpen)
+		{
+			<section class="settings-panel" aria-label="Client settings" data-hotkey-settings="true">
+				<div class="settings-panel-header">
+					<div>
+						<h2>Settings</h2>
+						<p>Display, input, command stacking, aliases, and hotkey preferences are saved in this browser.</p>
+					</div>
+					<div class="settings-actions">
+						<button type="button" class="client-button secondary-button" @onclick="ResetHotkeyDraft">Reset</button>
+						<button type="button" class="client-button secondary-button" @onclick="CancelHotkeySettingsAsync">Cancel</button>
+						<button type="button" class="client-button primary-button" disabled="@(!CanSaveHotkeySettings)" @onclick="SaveHotkeySettingsAsync">Save</button>
+					</div>
+				</div>
+
+				@if (!string.IsNullOrWhiteSpace(HotkeySettingsError) || HotkeyDraftErrors.Count > 0 || ClientSettingsDraftErrors.Count > 0)
+				{
+					<div class="settings-error" role="alert">
+						@if (!string.IsNullOrWhiteSpace(HotkeySettingsError))
+						{
+							<div>@HotkeySettingsError</div>
+						}
+						@foreach (var error in HotkeyDraftErrors)
+						{
+							<div>@error</div>
+						}
+						@foreach (var error in ClientSettingsDraftErrors)
+						{
+							<div>@error</div>
+						}
+					</div>
+				}
+
+				<div class="settings-section">
+					<h3>Display</h3>
+					<div class="client-settings-grid">
+						<label>
+							<span>Font</span>
+							<select class="settings-input" value="@ClientSettingsDraft.FontFamily" @onchange="args => UpdateClientFontFamily(args.Value?.ToString())" aria-label="Client font">
+								@foreach (var font in ClientSettings.FontOptions)
+								{
+									<option value="@font.CssValue">@font.Label</option>
+								}
+							</select>
+						</label>
+						<label>
+							<span>Font size (px)</span>
+							<input class="settings-input" type="number" min="8" max="32" step="1" value="@ClientSettingsDraft.FontSizePx" @oninput="args => UpdateClientFontSize(args.Value?.ToString())" aria-label="Font size in pixels" />
+						</label>
+						<label>
+							<span>Window width (px)</span>
+							<input class="settings-input" type="number" min="1000" max="5000" step="50" value="@ClientSettingsDraft.AppWidthPx" @oninput="args => UpdateAppWidth(args.Value?.ToString())" aria-label="Client window width in pixels" />
+							<small>Controls the maximum width on larger screens.</small>
+						</label>
+						<label>
+							<span>Wrap width (px)</span>
+							<input class="settings-input" type="number" min="0" max="3000" step="10" value="@ClientSettingsDraft.MessageWrapWidthPx" @oninput="args => UpdateMessageWrapWidth(args.Value?.ToString())" aria-label="Manual message wrap width in pixels" />
+							<small>0 uses the available width.</small>
+						</label>
+						<label>
+							<span>Left offset (px)</span>
+							<input class="settings-input" type="number" min="0" max="500" step="1" value="@ClientSettingsDraft.MessageLeftOffsetPx" @oninput="args => UpdateMessageLeftOffset(args.Value?.ToString())" aria-label="Message left offset in pixels" />
+						</label>
+						<label>
+							<span>Line height</span>
+							<input class="settings-input" type="number" min="1" max="3" step="0.05" value="@ClientSettingsDraft.MessageLineHeight" @oninput="args => UpdateMessageLineHeight(args.Value?.ToString())" aria-label="Message line height" />
+						</label>
+						<label>
+							<span>Message gap (px)</span>
+							<input class="settings-input" type="number" min="0" max="100" step="1" value="@ClientSettingsDraft.MessageSpacingPx" @oninput="args => UpdateMessageSpacing(args.Value?.ToString())" aria-label="Message spacing in pixels" />
+						</label>
+					</div>
+				</div>
+
+				<div class="settings-section">
+					<h3>Input and command stacking</h3>
+					<div class="client-settings-grid">
+						<label class="settings-checkbox">
+							<input type="checkbox" checked="@ClientSettingsDraft.ClearInputAfterSend" @onchange="args => UpdateClearInputAfterSend(args.Value)" />
+							<span>Clear input after sending</span>
+						</label>
+						<label class="settings-checkbox">
+							<input type="checkbox" checked="@ClientSettingsDraft.SemicolonCommandStackingEnabled" @onchange="args => UpdateSemicolonCommandStacking(args.Value)" />
+							<span>Split stacked commands</span>
+						</label>
+						<label>
+							<span>Stacking character</span>
+							<input class="settings-input" maxlength="1" value="@ClientSettingsDraft.CommandStackingDelimiter" @oninput="args => UpdateCommandStackingDelimiter(args.Value?.ToString())" aria-label="Command stacking character" />
+							<small>Use \; to send the character literally.</small>
+						</label>
+						<label class="settings-checkbox">
+							<input type="checkbox" checked="@ClientSettingsDraft.NewlineCommandStackingEnabled" @onchange="args => UpdateNewlineCommandStacking(args.Value)" />
+							<span>Split pasted new lines into commands</span>
+						</label>
+					</div>
+				</div>
+
+				<div class="settings-section">
+					<h3>Quick Login</h3>
+					<div class="login-settings-grid">
+						<label>
+							<span>Initial Command</span>
+							<input class="settings-input"
+								   value="@QuickAliasDraft.Login.InitialCommand"
+								   @oninput="args => UpdateLoginInitialCommand(args.Value?.ToString())"
+								   aria-label="Login initial command" />
+						</label>
+						<label>
+							<span>Username</span>
+							<input class="settings-input"
+								   value="@QuickAliasDraft.Login.Username"
+								   @oninput="args => UpdateLoginUsername(args.Value?.ToString())"
+								   aria-label="Login username" />
+						</label>
+						<label>
+							<span>Password</span>
+							<input class="settings-input"
+								   type="password"
+								   autocomplete="current-password"
+								   value="@QuickAliasDraft.Login.Password"
+								   @oninput="args => UpdateLoginPassword(args.Value?.ToString())"
+								   aria-label="Login password" />
+						</label>
+					</div>
+				</div>
+
+				<div class="settings-section">
+					<h3>Quick Aliases</h3>
+					<div class="alias-settings-grid" role="table" aria-label="Quick alias map">
+						<div class="alias-settings-grid-row settings-grid-header" role="row">
+							<div role="columnheader">On</div>
+							<div role="columnheader">Button</div>
+							<div role="columnheader">Text</div>
+						</div>
+						@foreach (var alias in QuickAliasDraft.Aliases)
+						{
+							<div class="alias-settings-grid-row" role="row" @key="alias.Id">
+								<label class="toggle-cell" role="cell">
+									<input type="checkbox"
+										   checked="@alias.IsEnabled"
+										   @onchange="args => UpdateAliasEnabled(alias, args.Value)" />
+									<span class="visually-hidden">Enable @alias.Label</span>
+								</label>
+								<div role="cell">
+									<input class="settings-input"
+										   value="@alias.Label"
+										   @oninput="args => UpdateAliasLabel(alias, args.Value?.ToString())"
+										   aria-label="Alias button label" />
+								</div>
+								<div role="cell">
+									<input class="settings-input command-input"
+										   value="@alias.Command"
+										   @oninput="args => UpdateAliasCommand(alias, args.Value?.ToString())"
+										   aria-label="@($"Text for {alias.Label}")" />
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+
+				<div class="settings-section">
+					<h3>Numpad</h3>
+					<div class="settings-grid" role="table" aria-label="Hotkey binding map">
+						<div class="settings-grid-row settings-grid-header" role="row">
+							<div role="columnheader">On</div>
+							<div role="columnheader">Button</div>
+							<div role="columnheader">Key</div>
+							<div role="columnheader">Command</div>
+							<div role="columnheader">Clear</div>
+						</div>
+						@foreach (var binding in HotkeyDraft)
+						{
+							<div class="settings-grid-row" role="row" @key="binding.Id">
+								<label class="toggle-cell" role="cell">
+									<input type="checkbox"
+										   checked="@binding.IsEnabled"
+										   @onchange="args => UpdateDraftEnabled(binding, args.Value)" />
+									<span class="visually-hidden">Enable @binding.Label</span>
+								</label>
+								<div role="cell">
+									<input class="settings-input"
+										   value="@binding.Label"
+										   @oninput="args => UpdateDraftLabel(binding, args.Value?.ToString())"
+										   aria-label="Button label" />
+								</div>
+								<div role="cell">
+									<input class="settings-input key-input"
+										   value="@binding.KeyDisplay"
+										   readonly
+										   placeholder="Press a key"
+										   @onkeydown="args => CaptureHotkeyKey(binding, args)"
+										   @onkeydown:preventDefault="true"
+										   @onkeydown:stopPropagation="true"
+										   aria-label="@($"Key for {binding.Label}")" />
+								</div>
+								<div role="cell">
+									<input class="settings-input command-input"
+										   value="@binding.Command"
+										   @oninput="args => UpdateDraftCommand(binding, args.Value?.ToString())"
+										   aria-label="@($"Command for {binding.Label}")" />
+								</div>
+								<div role="cell">
+									<button type="button"
+											class="client-button compact-button"
+											@onclick="() => ClearDraftKey(binding)"
+											aria-label="@($"Clear key for {binding.Label}")">
+										Clear
+									</button>
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+			</section>
+		}
+		
+		<div class="status-footer">
+			<div class="connection-status" aria-live="polite">
+				<span class="connection-dot @(isConnected ? "is-connected" : "is-disconnected")" aria-hidden="true"></span>
+				<span>@(isConnected ? "Connected" : "Disconnected")</span>
+			</div>
+
+			<div class="button-container">
+				<button type="button" class="client-button primary-button" @onclick="ToggleConnection">@connectionButtonText</button>
+				<button type="button" class="client-button secondary-button" @onclick="SaveLog">Save Log</button>
+				<button type="button" class="client-button secondary-button" @onclick="ToggleHotkeySettings">Settings</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	private const string HotkeyStorageKey = "MudClientBlazor.HotkeySettings.v1";
+	private const string QuickAliasStorageKey = "MudClientBlazor.QuickAliasSettings.v1";
+	private const string ClientSettingsStorageKey = "MudClientBlazor.ClientSettings.v1";
+	private static readonly TimeSpan LoginAliasStepDelay = TimeSpan.FromMilliseconds(750);
+	private static readonly TimeSpan StackedCommandDelay = TimeSpan.FromMilliseconds(750);
+	private static readonly JsonSerializerOptions HotkeyJsonOptions = new(JsonSerializerDefaults.Web)
+	{
+		WriteIndented = true
+	};
+	private static readonly IReadOnlyDictionary<string, int> DesktopHotkeySortOrder = BuildSortOrder(
+	[
+		"enter",
+		"leave",
+		"up",
+		"northwest",
+		"north",
+		"northeast",
+		"down",
+		"west",
+		"numpad5",
+		"east",
+		"southwest",
+		"south",
+		"southeast",
+		"numpad-enter",
+		"look",
+		"score"
+	]);
+	private static readonly IReadOnlyDictionary<string, int> MobileHotkeySortOrder = BuildSortOrder(
+	[
+		"north",
+		"east",
+		"south",
+		"west",
+		"numpad5",
+		"look",
+		"numpad-enter",
+		"enter",
+		"leave",
+		"up",
+		"down",
+		"score",
+		"northwest",
+		"northeast",
+		"southeast",
+		"southwest"
+	]);
+	private static readonly IReadOnlyDictionary<string, string> DefaultHotkeyLabels =
+		HotkeySettings.CreateDefaultBindings().ToDictionary(binding => binding.Id, binding => binding.Label);
+	private static readonly IReadOnlyDictionary<string, string> CompactHotkeyLabels =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["northwest"] = "NW",
+			["north"] = "N",
+			["northeast"] = "NE",
+			["west"] = "W",
+			["east"] = "E",
+			["southwest"] = "SW",
+			["south"] = "S",
+			["southeast"] = "SE",
+			["enter"] = "In",
+			["leave"] = "Out",
+			["down"] = "Dn",
+			["numpad5"] = "5",
+			["numpad-enter"] = "Key"
+		};
+
+	private string UserInput { get; set; } = string.Empty;
+	private List<string> Messages { get; set; } = new List<string>();
+	private ClientWebSocket? _clientWebSocket;
+	private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+	private ElementReference MessageContainer;
+	private List<string> CommandHistory { get; set; } = new List<string>();
+	private int CommandHistoryIndex { get; set; } = -1;
+	private AnsiMxpParser _ansiMxpParser = new AnsiMxpParser();
+	private Uri? _webSocketEndpoint;
+	private HotkeySettings CurrentHotkeySettings { get; set; } = HotkeySettings.CreateDefault();
+	private HotkeyBindingMap HotkeyMap { get; set; } = HotkeyBindingMap.Create(HotkeySettings.CreateDefault().Bindings);
+	private List<HotkeyBinding> HotkeyDraft { get; set; } = new();
+	private QuickAliasSettings CurrentQuickAliasSettings { get; set; } = QuickAliasSettings.CreateDefault();
+	private QuickAliasSettings QuickAliasDraft { get; set; } = QuickAliasSettings.CreateDefault();
+	private ClientSettings CurrentClientSettings { get; set; } = ClientSettings.CreateDefault();
+	private ClientSettings ClientSettingsDraft { get; set; } = ClientSettings.CreateDefault();
+	private IReadOnlyList<string> HotkeyDraftErrors { get; set; } = [];
+	private IReadOnlyList<string> ClientSettingsDraftErrors { get; set; } = [];
+	private string? HotkeySettingsError { get; set; }
+	private bool _hotkeySettingsOpen;
+
+
+	// Declare the object reference
+	private DotNetObjectReference<Index>? _objectReference;
+
+	// Ensure disposal to prevent memory leaks
+	public void Dispose()
+	{
+		_objectReference?.Dispose();
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Create the object reference
+		_objectReference = DotNetObjectReference.Create(this);
+
+		// Pass the object reference to JavaScript
+		await JSRuntime.InvokeVoidAsync("registerSendCommandHandler", _objectReference);
+		await JSRuntime.InvokeVoidAsync("mudClientHotkeys.register", _objectReference);
+		await LoadClientSettingsAsync();
+		await LoadHotkeySettingsAsync();
+		await LoadQuickAliasSettingsAsync();
+		
+		try
+		{
+			_webSocketEndpoint = WebSocketEndpoint.FromConfiguration(Configuration, NavigationManager.ToAbsoluteUri("/"));
+		}
+		catch (Exception ex)
+		{
+			Messages.Add($"Client configuration error: {EscapeHtml(GetDetailedExceptionMessage(ex))}");
+			isConnected = false;
+			return;
+		}
+
+		// Connect to the local WebSocket proxy. The proxy then connects to the telnet MUD server.
+		await ConnectToWebSocketAsync(_webSocketEndpoint);
+	}
+
+	private IEnumerable<HotkeyBinding> DesktopHotkeyBindings => GetOrderedActiveHotkeyBindings(DesktopHotkeySortOrder);
+
+	private IEnumerable<HotkeyBinding> MobileHotkeyBindings => GetOrderedActiveHotkeyBindings(MobileHotkeySortOrder, includeNoOpButtons: false);
+
+	private IEnumerable<QuickAliasBinding> DesktopQuickAliases => CurrentQuickAliasSettings.Aliases
+		.Where(alias => alias.IsEnabled && !string.IsNullOrWhiteSpace(alias.Label));
+
+	private bool CanSendLoginAlias => CurrentQuickAliasSettings.Login.IsEnabled &&
+		(!string.IsNullOrWhiteSpace(CurrentQuickAliasSettings.Login.InitialCommand) ||
+		 !string.IsNullOrWhiteSpace(CurrentQuickAliasSettings.Login.Username) ||
+		 !string.IsNullOrEmpty(CurrentQuickAliasSettings.Login.Password));
+
+	private bool CanSaveHotkeySettings => HotkeyDraftErrors.Count == 0 && ClientSettingsDraftErrors.Count == 0;
+
+	private string GetClientStyle()
+	{
+		var settings = CurrentClientSettings;
+		var wrapWidth = settings.MessageWrapWidthPx > 0 ? $"{settings.MessageWrapWidthPx}px" : "none";
+		return $"--client-app-width:{settings.AppWidthPx}px;--client-font-family:{settings.FontFamily};--client-font-size:{settings.FontSizePx}px;--client-message-wrap-width:{wrapWidth};--client-message-left-offset:{settings.MessageLeftOffsetPx}px;--client-message-line-height:{settings.MessageLineHeight.ToString(System.Globalization.CultureInfo.InvariantCulture)};--client-message-spacing:{settings.MessageSpacingPx}px";
+	}
+
+	private async Task LoadClientSettingsAsync()
+	{
+		var settings = ClientSettings.CreateDefault();
+
+		try
+		{
+			var json = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", ClientSettingsStorageKey);
+			if (!string.IsNullOrWhiteSpace(json))
+			{
+				var savedSettings = JsonSerializer.Deserialize<ClientSettings>(json, HotkeyJsonOptions);
+				settings = ClientSettings.Normalize(savedSettings);
+			}
+		}
+		catch (Exception ex)
+		{
+			Logger.LogWarning(ex, "Unable to load client settings.");
+			Messages.Add("Could not load saved client settings; using defaults.");
+		}
+
+		ApplyClientSettings(settings);
+	}
+
+	private async Task LoadHotkeySettingsAsync()
+	{
+		var settings = HotkeySettings.CreateDefault();
+
+		try
+		{
+			var json = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", HotkeyStorageKey);
+			if (!string.IsNullOrWhiteSpace(json))
+			{
+				var savedSettings = JsonSerializer.Deserialize<HotkeySettings>(json, HotkeyJsonOptions);
+				settings = HotkeySettings.Normalize(savedSettings);
+			}
+		}
+		catch (Exception ex)
+		{
+			Logger.LogWarning(ex, "Unable to load hotkey settings.");
+			Messages.Add("Could not load saved hotkey settings; using defaults.");
+		}
+
+		ApplyHotkeySettings(settings);
+		await UpdateBrowserHotkeyBindingsAsync();
+	}
+
+	private async Task LoadQuickAliasSettingsAsync()
+	{
+		var settings = QuickAliasSettings.CreateDefault();
+
+		try
+		{
+			var json = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", QuickAliasStorageKey);
+			if (!string.IsNullOrWhiteSpace(json))
+			{
+				var savedSettings = JsonSerializer.Deserialize<QuickAliasSettings>(json, HotkeyJsonOptions);
+				settings = QuickAliasSettings.Normalize(savedSettings);
+			}
+		}
+		catch (Exception ex)
+		{
+			Logger.LogWarning(ex, "Unable to load quick alias settings.");
+			Messages.Add("Could not load saved quick alias settings; using defaults.");
+		}
+
+		ApplyQuickAliasSettings(settings);
+	}
+
+	private async Task ToggleHotkeySettings()
+	{
+		if (_hotkeySettingsOpen)
+		{
+			await CancelHotkeySettingsAsync();
+			return;
+		}
+
+		HotkeyDraft = CurrentHotkeySettings.Bindings.Select(binding => binding.Clone()).ToList();
+		QuickAliasDraft = CurrentQuickAliasSettings.Clone();
+		ClientSettingsDraft = CurrentClientSettings.Clone();
+		HotkeySettingsError = null;
+		ValidateHotkeyDraft();
+		ValidateClientSettingsDraft();
+		_hotkeySettingsOpen = true;
+		await SetBrowserHotkeyCaptureEnabledAsync(false);
+	}
+
+	private async Task CancelHotkeySettingsAsync()
+	{
+		_hotkeySettingsOpen = false;
+		HotkeySettingsError = null;
+		await SetBrowserHotkeyCaptureEnabledAsync(true);
+	}
+
+	private async Task SaveHotkeySettingsAsync()
+	{
+		ValidateHotkeyDraft();
+		ValidateClientSettingsDraft();
+		if (!CanSaveHotkeySettings)
+		{
+			return;
+		}
+
+		var settings = HotkeySettings.Normalize(new HotkeySettings
+		{
+			Bindings = HotkeyDraft.Select(binding => binding.Clone()).ToList()
+		});
+		var quickAliasSettings = QuickAliasSettings.Normalize(QuickAliasDraft);
+		var clientSettings = ClientSettings.Normalize(ClientSettingsDraft);
+
+		try
+		{
+			var json = JsonSerializer.Serialize(settings, HotkeyJsonOptions);
+			await JSRuntime.InvokeVoidAsync("localStorage.setItem", HotkeyStorageKey, json);
+			var quickAliasJson = JsonSerializer.Serialize(quickAliasSettings, HotkeyJsonOptions);
+			await JSRuntime.InvokeVoidAsync("localStorage.setItem", QuickAliasStorageKey, quickAliasJson);
+			var clientSettingsJson = JsonSerializer.Serialize(clientSettings, HotkeyJsonOptions);
+			await JSRuntime.InvokeVoidAsync("localStorage.setItem", ClientSettingsStorageKey, clientSettingsJson);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogWarning(ex, "Unable to save command settings.");
+			HotkeySettingsError = "Could not save command settings in this browser.";
+			return;
+		}
+
+		ApplyHotkeySettings(settings);
+		ApplyQuickAliasSettings(quickAliasSettings);
+		ApplyClientSettings(clientSettings);
+		_hotkeySettingsOpen = false;
+		HotkeySettingsError = null;
+		await UpdateBrowserHotkeyBindingsAsync();
+		await SetBrowserHotkeyCaptureEnabledAsync(true);
+	}
+
+	private void ResetHotkeyDraft()
+	{
+		HotkeyDraft = HotkeySettings.CreateDefault().Bindings.Select(binding => binding.Clone()).ToList();
+		QuickAliasDraft = QuickAliasSettings.CreateDefault();
+		ClientSettingsDraft = ClientSettings.CreateDefault();
+		HotkeySettingsError = null;
+		ValidateHotkeyDraft();
+		ValidateClientSettingsDraft();
+	}
+
+	private void ApplyHotkeySettings(HotkeySettings settings)
+	{
+		CurrentHotkeySettings = HotkeySettings.Normalize(settings);
+		HotkeyMap = HotkeyBindingMap.Create(CurrentHotkeySettings.Bindings);
+	}
+
+	private void ApplyQuickAliasSettings(QuickAliasSettings settings)
+	{
+		CurrentQuickAliasSettings = QuickAliasSettings.Normalize(settings);
+	}
+
+	private void ApplyClientSettings(ClientSettings settings)
+	{
+		CurrentClientSettings = ClientSettings.Normalize(settings);
+	}
+
+	private void ValidateClientSettingsDraft()
+	{
+		ClientSettingsDraftErrors = ClientSettingsValidator.Validate(ClientSettingsDraft);
+	}
+
+	private void UpdateClientFontFamily(string? value)
+	{
+		ClientSettingsDraft.FontFamily = value ?? ClientSettings.DefaultFontFamily;
+		ValidateClientSettingsDraft();
+	}
+
+	private void UpdateClientFontSize(string? value)
+	{
+		if (int.TryParse(value, out var parsed))
+		{
+			ClientSettingsDraft.FontSizePx = parsed;
+		}
+
+		ValidateClientSettingsDraft();
+	}
+
+	private void UpdateAppWidth(string? value)
+	{
+		if (int.TryParse(value, out var parsed))
+		{
+			ClientSettingsDraft.AppWidthPx = parsed;
+		}
+
+		ValidateClientSettingsDraft();
+	}
+
+	private void UpdateMessageWrapWidth(string? value)
+	{
+		if (int.TryParse(value, out var parsed))
+		{
+			ClientSettingsDraft.MessageWrapWidthPx = parsed;
+		}
+
+		ValidateClientSettingsDraft();
+	}
+
+	private void UpdateMessageLeftOffset(string? value)
+	{
+		if (int.TryParse(value, out var parsed))
+		{
+			ClientSettingsDraft.MessageLeftOffsetPx = parsed;
+		}
+
+		ValidateClientSettingsDraft();
+	}
+
+	private void UpdateMessageLineHeight(string? value)
+	{
+		if (double.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var parsed))
+		{
+			ClientSettingsDraft.MessageLineHeight = parsed;
+		}
+
+		ValidateClientSettingsDraft();
+	}
+
+	private void UpdateMessageSpacing(string? value)
+	{
+		if (int.TryParse(value, out var parsed))
+		{
+			ClientSettingsDraft.MessageSpacingPx = parsed;
+		}
+
+		ValidateClientSettingsDraft();
+	}
+
+	private void UpdateClearInputAfterSend(object? value)
+	{
+		ClientSettingsDraft.ClearInputAfterSend = value is bool enabled && enabled;
+	}
+
+	private void UpdateSemicolonCommandStacking(object? value)
+	{
+		ClientSettingsDraft.SemicolonCommandStackingEnabled = value is bool enabled && enabled;
+		ValidateClientSettingsDraft();
+	}
+
+	private void UpdateCommandStackingDelimiter(string? value)
+	{
+		ClientSettingsDraft.CommandStackingDelimiter = value ?? string.Empty;
+		ValidateClientSettingsDraft();
+	}
+
+	private void UpdateNewlineCommandStacking(object? value)
+	{
+		ClientSettingsDraft.NewlineCommandStackingEnabled = value is bool enabled && enabled;
+	}
+
+	private void UpdateDraftEnabled(HotkeyBinding binding, object? value)
+	{
+		binding.IsEnabled = value is bool enabled && enabled;
+		HotkeySettingsError = null;
+		ValidateHotkeyDraft();
+	}
+
+	private void UpdateDraftLabel(HotkeyBinding binding, string? value)
+	{
+		binding.Label = value ?? string.Empty;
+		HotkeySettingsError = null;
+		ValidateHotkeyDraft();
+	}
+
+	private void UpdateDraftCommand(HotkeyBinding binding, string? value)
+	{
+		binding.Command = value ?? string.Empty;
+		HotkeySettingsError = null;
+		ValidateHotkeyDraft();
+	}
+
+	private void UpdateLoginInitialCommand(string? value)
+	{
+		QuickAliasDraft.Login.InitialCommand = value ?? string.Empty;
+		HotkeySettingsError = null;
+	}
+
+	private void UpdateLoginUsername(string? value)
+	{
+		QuickAliasDraft.Login.Username = value ?? string.Empty;
+		HotkeySettingsError = null;
+	}
+
+	private void UpdateLoginPassword(string? value)
+	{
+		QuickAliasDraft.Login.Password = value ?? string.Empty;
+		HotkeySettingsError = null;
+	}
+
+	private void UpdateAliasEnabled(QuickAliasBinding alias, object? value)
+	{
+		alias.IsEnabled = value is bool enabled && enabled;
+		HotkeySettingsError = null;
+	}
+
+	private void UpdateAliasLabel(QuickAliasBinding alias, string? value)
+	{
+		alias.Label = value ?? string.Empty;
+		HotkeySettingsError = null;
+	}
+
+	private void UpdateAliasCommand(QuickAliasBinding alias, string? value)
+	{
+		alias.Command = value ?? string.Empty;
+		HotkeySettingsError = null;
+	}
+
+	private void CaptureHotkeyKey(HotkeyBinding binding, KeyboardEventArgs args)
+	{
+		if (IsModifierKey(args.Code))
+		{
+			return;
+		}
+
+		if (args.CtrlKey || args.AltKey || args.MetaKey || args.ShiftKey)
+		{
+			HotkeySettingsError = "Hotkeys use unmodified keys only.";
+			return;
+		}
+
+		if (string.IsNullOrWhiteSpace(args.Code))
+		{
+			return;
+		}
+
+		binding.KeyCode = args.Code;
+		binding.KeyDisplay = HotkeyKeyFormatter.Format(args.Code, args.Key);
+		HotkeySettingsError = null;
+		ValidateHotkeyDraft();
+	}
+
+	private void ClearDraftKey(HotkeyBinding binding)
+	{
+		binding.KeyCode = string.Empty;
+		binding.KeyDisplay = string.Empty;
+		HotkeySettingsError = null;
+		ValidateHotkeyDraft();
+	}
+
+	private void ValidateHotkeyDraft()
+	{
+		HotkeyDraftErrors = HotkeyBindingValidator.Validate(HotkeyDraft);
+	}
+
+	private async Task SendHotkeyBindingAsync(HotkeyBinding binding)
+	{
+		if (CanSendHotkeyBinding(binding))
+		{
+			await SendMessageAsync(binding.Command);
+		}
+	}
+
+	private async Task SendLoginAliasAsync()
+	{
+		try
+		{
+			if (!CanSendLoginAlias)
+			{
+				return;
+			}
+
+			foreach (var step in LoginAliasCommandSequence.Build(CurrentQuickAliasSettings.Login))
+			{
+				await SendSingleCommandAsync(
+					step.Command,
+					step.EchoCommand,
+					step.LogCommandText,
+					step.AddToHistory);
+
+				if (step.DelayAfterCommand)
+				{
+					await Task.Delay(LoginAliasStepDelay);
+				}
+			}
+		}
+		finally
+		{
+			await FocusCommandInputAsync();
+		}
+	}
+
+	private async Task SendQuickAliasAsync(QuickAliasBinding alias)
+	{
+		try
+		{
+			if (CanSendQuickAlias(alias))
+			{
+				await SendMessageAsync(alias.Command);
+			}
+		}
+		finally
+		{
+			await FocusCommandInputAsync();
+		}
+	}
+
+	private async Task FocusCommandInputAsync()
+	{
+		await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+	}
+
+	private static bool CanSendHotkeyBinding(HotkeyBinding binding)
+	{
+		return !string.IsNullOrWhiteSpace(binding.Command);
+	}
+
+	private static bool CanSendQuickAlias(QuickAliasBinding alias)
+	{
+		return alias.IsEnabled && !string.IsNullOrWhiteSpace(alias.Command);
+	}
+
+	private IEnumerable<HotkeyBinding> GetOrderedActiveHotkeyBindings(
+		IReadOnlyDictionary<string, int> sortOrder,
+		bool includeNoOpButtons = true)
+	{
+		return CurrentHotkeySettings.Bindings
+			.Where(binding =>
+				binding.IsEnabled &&
+				!string.IsNullOrWhiteSpace(binding.Label) &&
+				(includeNoOpButtons || !string.IsNullOrWhiteSpace(binding.Command)))
+			.OrderBy(binding => sortOrder.TryGetValue(binding.Id, out var index) ? index : int.MaxValue)
+			.ThenBy(binding => binding.Label, StringComparer.OrdinalIgnoreCase);
+	}
+
+	private string GetHotkeyTitle(HotkeyBinding binding)
+	{
+		if (string.IsNullOrWhiteSpace(binding.Command))
+		{
+			return string.IsNullOrWhiteSpace(binding.KeyDisplay)
+				? "No command configured"
+				: $"{binding.KeyDisplay}: no command configured";
+		}
+
+		return string.IsNullOrWhiteSpace(binding.KeyDisplay)
+			? binding.Command
+			: $"{binding.KeyDisplay}: {binding.Command}";
+	}
+
+	private string GetHotkeyButtonClass(HotkeyBinding binding)
+	{
+		return string.IsNullOrWhiteSpace(binding.Command)
+			? $"hotkey-button hotkey-button-{binding.Id} is-empty"
+			: $"hotkey-button hotkey-button-{binding.Id}";
+	}
+
+	private string GetLoginAliasButtonClass()
+	{
+		return CanSendLoginAlias
+			? "quick-alias-button quick-alias-login"
+			: "quick-alias-button quick-alias-login is-empty";
+	}
+
+	private string GetLoginAliasTitle()
+	{
+		return CanSendLoginAlias ? "Run login" : "Login is not configured";
+	}
+
+	private static string GetQuickAliasButtonClass(QuickAliasBinding alias)
+	{
+		return CanSendQuickAlias(alias)
+			? "quick-alias-button"
+			: "quick-alias-button is-empty";
+	}
+
+	private static string GetQuickAliasTitle(QuickAliasBinding alias)
+	{
+		return string.IsNullOrWhiteSpace(alias.Command)
+			? "No text configured"
+			: alias.Command;
+	}
+
+	private static string GetHotkeyPadLabel(HotkeyBinding binding)
+	{
+		if (DefaultHotkeyLabels.TryGetValue(binding.Id, out var defaultLabel) &&
+		    string.Equals(binding.Label, defaultLabel, StringComparison.OrdinalIgnoreCase) &&
+		    CompactHotkeyLabels.TryGetValue(binding.Id, out var compactLabel))
+		{
+			return compactLabel;
+		}
+
+		return binding.Label;
+	}
+
+	private static string GetHotkeyKeyLabel(HotkeyBinding binding)
+	{
+		return binding.KeyDisplay.StartsWith("Numpad ", StringComparison.OrdinalIgnoreCase)
+			? binding.KeyDisplay["Numpad ".Length..]
+			: binding.KeyDisplay;
+	}
+
+	private static IReadOnlyDictionary<string, int> BuildSortOrder(IReadOnlyList<string> orderedIds)
+	{
+		return orderedIds
+			.Select((id, index) => new { id, index })
+			.ToDictionary(item => item.id, item => item.index, StringComparer.OrdinalIgnoreCase);
+	}
+
+	private async Task UpdateBrowserHotkeyBindingsAsync()
+	{
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("mudClientHotkeys.setBoundCodes", HotkeyMap.BoundKeyCodes);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogWarning(ex, "Unable to update browser hotkey bindings.");
+		}
+	}
+
+	private async Task SetBrowserHotkeyCaptureEnabledAsync(bool enabled)
+	{
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("mudClientHotkeys.setEnabled", enabled);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogWarning(ex, "Unable to update browser hotkey capture state.");
+		}
+	}
+
+	private static bool IsModifierKey(string? keyCode)
+	{
+		return keyCode is "ShiftLeft" or "ShiftRight" or "ControlLeft" or "ControlRight" or
+			"AltLeft" or "AltRight" or "MetaLeft" or "MetaRight";
+	}
+
+	private static bool HasHotkeyModifier(KeyboardEventArgs args)
+	{
+		return args.CtrlKey || args.AltKey || args.MetaKey || args.ShiftKey;
+	}
+
+	private async Task<bool> ConnectToWebSocketAsync(Uri endpoint)
+	{
+		if (_clientWebSocket?.State == WebSocketState.Open)
+		{
+			return true; // Already connected
+		}
+
+		try
+		{
+			_clientWebSocket = new ClientWebSocket();
+			await _clientWebSocket.ConnectAsync(endpoint, _cancellationTokenSource.Token);
+			isConnected = true;
+			Messages.Add($"Connected to WebSocket proxy at {EscapeHtml(endpoint.ToString())}.");
+			Console.WriteLine($"Connected to WebSocket proxy at {endpoint}");
+			_ = ReceiveMessagesAsync(_clientWebSocket);
+			return true;
+		}
+		catch (Exception ex)
+		{
+			isConnected = false;
+			Messages.Add(
+				$"Error connecting to WebSocket proxy at {EscapeHtml(endpoint.ToString())}: {EscapeHtml(GetDetailedExceptionMessage(ex))}. " +
+				"Make sure MudWebSocketProxy is running and listening on that endpoint.");
+			return false;
+		}
+	}
+
+	private async Task ReceiveMessagesAsync(ClientWebSocket webSocket)
+	{
+		var buffer = new byte[40960];
+
+		while (webSocket.State == WebSocketState.Open)
+		{
+			try
+			{
+				var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cancellationTokenSource.Token);
+				if (result.MessageType == WebSocketMessageType.Close)
+				{
+					Messages.Add("<font color='yellow'>The MUD has disconnected.</font>");
+					isConnected = false;
+					await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+					await InvokeAsync(StateHasChanged);
+					break;
+				}
+				Logger.LogInformation("Received telnet message.");
+				await ProcessReceivedData(buffer, result.Count);
+			}
+			catch (Exception ex)
+			{
+				if (_cancellationTokenSource.IsCancellationRequested)
+				{
+					break;
+				}
+
+				isConnected = false;
+				Messages.Add($"Error receiving message from WebSocket proxy: {EscapeHtml(GetDetailedExceptionMessage(ex))}");
+				break;
+			}
+		}
+	}
+
+	private async Task ProcessReceivedData(byte[] data, int length)
+	{
+		Logger.LogInformation("Inside process receive data.");
+		int index = 0;
+		var outputBuffer = new List<byte>();
+
+		while (index < length)
+		{
+			byte b = data[index];
+
+			if (b == TelnetConstants.IAC)
+			{
+				Logger.LogInformation("Received an IAC byte");
+				if (index + 1 < length && data[index + 1] == TelnetConstants.IAC)
+				{
+					// Escaped IAC byte
+					outputBuffer.Add(TelnetConstants.IAC);
+					index += 2;
+				}
+				else
+				{
+					// Telnet command
+					int commandLength = await HandleTelnetCommandAsync(data, index, length);
+					index += commandLength;
+				}
+			}
+			else
+			{
+				// Regular data, add to output buffer
+				outputBuffer.Add(b);
+				index++;
+			}
+		}
+
+		// Convert output buffer to string and process ANSI/ MXP
+		if (outputBuffer.Count > 0)
+		{
+			string message = Encoding.UTF8.GetString(outputBuffer.ToArray());
+			string parsedMessage = _ansiMxpParser.Parse(message);
+			if (string.IsNullOrWhiteSpace(parsedMessage))
+			{
+				return;
+			}
+			Messages.Add(parsedMessage);
+
+			// Invoke StateHasChanged to update the UI
+			await InvokeAsync(StateHasChanged);
+
+			// Wait for the UI to finish rendering
+			await InvokeAsync(() => { });
+
+			// Scroll to bottom using JavaScript Interop
+			await JSRuntime.InvokeVoidAsync("scrollToBottom", MessageContainer);
+		}
+	}
+
+	private async Task<int> HandleTelnetCommandAsync(byte[] data, int startIndex, int length)
+	{
+		int index = startIndex;
+
+		if (index + 1 >= length)
+		{
+			Logger.LogInformation("Incomplete telnet command received.");
+			return 1;
+		}
+
+		byte command = data[index + 1];
+
+		if (command == TelnetConstants.IAC)
+		{
+			Logger.LogInformation("Escaped IAC byte detected.");
+			// This is an escaped IAC byte (255), should be treated as data
+			// We'll handle it in ProcessReceivedData by adding a single IAC byte
+			return 2;
+		}
+
+		// Handle Telnet command
+		switch (command)
+		{
+			case TelnetConstants.WILL:
+			case TelnetConstants.WONT:
+			case TelnetConstants.DO:
+			case TelnetConstants.DONT:
+				if (index + 2 >= length)
+				{
+					Logger.LogInformation("Incomplete telnet negotiation command received.");
+					// Not enough data
+					return 1;
+				}
+				byte option = data[index + 2];
+				Logger.LogInformation($"Telnet negotiation command received: Command={command}, Option={option}");
+				await HandleTelnetNegotiationAsync(command, option);
+				return 3;
+
+			case TelnetConstants.SB:
+				// Handle subnegotiation
+				int endIndex = FindSubnegotiationEnd(data, index + 2, length);
+				if (endIndex == -1)
+				{
+					// SE not found, incomplete subnegotiation
+					Logger.LogInformation("Incomplete telnet subnegotiation received.");
+					return length - index;
+				}
+				var subnegotiationData = data.Skip(index + 2).Take(endIndex - (index + 2)).ToArray();
+				Logger.LogInformation($"Telnet subnegotiation received: Option={data[index + 2]}, Length={subnegotiationData.Length}");
+				await HandleTelnetSubnegotiationAsync(subnegotiationData);
+				return (endIndex - index) + 2; // +2 for IAC SE
+
+			default:
+				// Other commands like IAC GA or IAC EOR
+				Logger.LogInformation($"Telnet command received: Command={command}");
+				HandleTelnetCommand(command);
+				return 2;
+		}
+	}
+
+	private int FindSubnegotiationEnd(byte[] data, int startIndex, int length)
+	{
+		for (int i = startIndex; i < length - 1; i++)
+		{
+			if (data[i] == TelnetConstants.IAC && data[i + 1] == TelnetConstants.SE)
+			{
+				return i;
+			}
+		}
+		return -1; // Not found
+	}
+
+	private async Task HandleTelnetNegotiationAsync(byte command, byte option)
+	{
+		switch (option)
+		{
+			case TelnetConstants.TELOPT_CHARSET:
+				if (command == TelnetConstants.DO)
+				{
+					// Server asks us to enable CHARSET
+					await SendTelnetCommandAsync(TelnetConstants.WILL, TelnetConstants.TELOPT_CHARSET);
+				}
+				else if (command == TelnetConstants.WILL)
+				{
+					// Server will enable CHARSET
+					// Initiate subnegotiation to request UTF-8
+					await SendCharsetSubnegotiationAsync();
+				}
+				else if (command == TelnetConstants.DONT || command == TelnetConstants.WONT)
+				{
+					// Server refuses CHARSET, handle accordingly
+				}
+				break;
+
+			case TelnetConstants.TELOPT_MXP:
+				if (command == TelnetConstants.WILL)
+				{
+					// Server is offering MXP (IAC WILL TELOPT_MXP)
+					// We respond with IAC DO TELOPT_MXP
+					await SendTelnetCommandAsync(TelnetConstants.DO, TelnetConstants.TELOPT_MXP);
+				}
+				else if (command == TelnetConstants.DONT || command == TelnetConstants.WONT)
+				{
+					// Server refuses MXP, handle accordingly
+				}
+				break;
+
+			default:
+				// For unsupported options, send DONT or WONT as appropriate
+				if (command == TelnetConstants.DO)
+				{
+					// Server asks us to enable an option, we refuse
+					await SendTelnetCommandAsync(TelnetConstants.WONT, option);
+				}
+				else if (command == TelnetConstants.WILL)
+				{
+					// Server wants to enable an option, we refuse
+					await SendTelnetCommandAsync(TelnetConstants.DONT, option);
+				}
+				break;
+		}
+	}
+
+	private async Task HandleTelnetSubnegotiationAsync(byte[] data)
+	{
+		if (data == null || data.Length == 0)
+			return;
+
+		byte option = data[0];
+
+		switch (option)
+		{
+			case TelnetConstants.TELOPT_CHARSET:
+				await HandleCharsetSubnegotiationAsync(data.Skip(1).ToArray());
+				break;
+			case TelnetConstants.TELOPT_MXP:
+				// Server has initiated MXP subnegotiation
+				// We need to send the MXP initialization string
+				await SendMxpInitializationAsync();
+				break;
+			// Handle other subnegotiations if needed
+
+			default:
+				// Ignore unsupported subnegotiations
+				break;
+		}
+	}
+
+	private async Task SendMxpInitializationAsync()
+	{
+		// Send the MXP initialization string
+		string mxpInitString = "\x1B[1z<SUPPORTS +i +color +font +b +strong +ul +a +send +em +underline +u +italic>";
+
+		// Convert the string to bytes using the appropriate encoding
+		byte[] data = Encoding.UTF8.GetBytes(mxpInitString).Concat(new byte[] { 255, 239 });
+
+		await SendBytesAsync(data);
+	}
+
+	private async Task HandleCharsetSubnegotiationAsync(byte[] data)
+	{
+		if (data.Length > 0)
+		{
+			byte command = data[0];
+
+			if (command == 1) // CHARSET REQUEST
+			{
+				// Extract the list of supported charsets
+				var charsetList = Encoding.ASCII.GetString(data, 1, data.Length - 1);
+				var charsets = charsetList.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+				// Check if UTF-8 is supported
+				if (charsets.Contains("UTF-8", StringComparer.OrdinalIgnoreCase))
+				{
+					// Send CHARSET ACCEPT UTF-8
+					await SendCharsetAcceptAsync("UTF-8");
+				}
+				else
+				{
+					// Send CHARSET REJECT
+					await SendCharsetRejectAsync();
+				}
+			}
+		}
+	}
+
+	private async Task SendTelnetCommandAsync(byte command, byte option)
+	{
+		var commandBytes = new byte[] { TelnetConstants.IAC, command, option };
+		await SendBytesAsync(commandBytes);
+	}
+
+	private async Task SendCharsetSubnegotiationAsync()
+	{
+		// Send IAC SB CHARSET REQUEST IAC SE
+		var data = new List<byte>
+		{
+			TelnetConstants.IAC,
+			TelnetConstants.SB,
+			TelnetConstants.TELOPT_CHARSET,
+			1  // CHARSET REQUEST
+		};
+		// List of charsets we support
+		string supportedCharsets = "UTF-8";
+		data.AddRange(Encoding.ASCII.GetBytes(supportedCharsets));
+		data.Add(TelnetConstants.IAC);
+		data.Add(TelnetConstants.SE);
+
+		await SendBytesAsync(data.ToArray());
+	}
+
+	private async Task SendCharsetAcceptAsync(string charset)
+	{
+		// Send IAC SB CHARSET ACCEPT UTF-8 IAC SE
+		var data = new List<byte>
+		{
+			TelnetConstants.IAC,
+			TelnetConstants.SB,
+			TelnetConstants.TELOPT_CHARSET,
+			2  // CHARSET ACCEPTED
+		};
+		data.AddRange(Encoding.ASCII.GetBytes(charset));
+		data.Add(TelnetConstants.IAC);
+		data.Add(TelnetConstants.SE);
+
+		await SendBytesAsync(data.ToArray());
+	}
+
+	private async Task SendCharsetRejectAsync()
+	{
+		// Send IAC SB CHARSET REJECT IAC SE
+		var data = new byte[]
+		{
+			TelnetConstants.IAC,
+			TelnetConstants.SB,
+			TelnetConstants.TELOPT_CHARSET,
+			3, // CHARSET REJECTED
+			TelnetConstants.IAC,
+			TelnetConstants.SE
+		};
+
+		await SendBytesAsync(data);
+	}
+
+	private void HandleTelnetCommand(byte command)
+	{
+		switch (command)
+		{
+			case TelnetConstants.GA:
+				// Go Ahead command, can be used to signal end of prompt
+				// For now, no action needed
+				break;
+
+			case TelnetConstants.EOR:
+				// End of Record, similar to GA
+				// For now, no action needed
+				break;
+
+			default:
+				// Ignore other commands
+				break;
+		}
+	}
+
+	private async Task SendBytesAsync(byte[] data)
+	{
+		if (_clientWebSocket?.State == WebSocketState.Open)
+		{
+			await _clientWebSocket.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Binary, true, _cancellationTokenSource.Token);
+		}
+	}
+
+
+	private async Task SendMessageAsync(string inputMessage)
+	{
+		await SendMessageAsync(inputMessage, echoCommand: true, logCommandText: true, addToHistory: true, splitCommands: true);
+	}
+
+	private async Task SendSingleCommandAsync(
+		string inputMessage,
+		bool echoCommand,
+		bool logCommandText,
+		bool addToHistory)
+	{
+		await SendMessageAsync(inputMessage, echoCommand, logCommandText, addToHistory, splitCommands: false);
+	}
+
+	private async Task SendMessageAsync(
+		string inputMessage,
+		bool echoCommand,
+		bool logCommandText,
+		bool addToHistory,
+		bool splitCommands)
+	{
+		if (_clientWebSocket?.State != WebSocketState.Open)
+		{
+			Messages.Add("Not connected to the MUD. Start MudWebSocketProxy and use Reconnect.");
+			await InvokeAsync(StateHasChanged);
+			return;
+		}
+
+		if (addToHistory)
+		{
+			AddToCommandHistory(inputMessage);
+		}
+
+		var commands = splitCommands ? CommandSplitter.Split(inputMessage, CurrentClientSettings) : [inputMessage];
+
+		for (var commandIndex = 0; commandIndex < commands.Count; commandIndex++)
+		{
+			var command = commands[commandIndex];
+			if (logCommandText)
+			{
+				Logger.LogInformation("Sending Command: {Command}", command);
+			}
+			else
+			{
+				Logger.LogInformation("Sending sensitive command.");
+			}
+
+			if (string.IsNullOrWhiteSpace(command))
+			{
+				await _clientWebSocket.SendAsync(new ArraySegment<byte>([13, 255, 239]), WebSocketMessageType.Binary, true, _cancellationTokenSource.Token);
+				continue;
+			}
+
+			if (echoCommand)
+			{
+				string formattedCommand = $"\x1B[33m{EscapeHtml(command)}\x1B[0m";
+				Messages.Add(_ansiMxpParser.Parse(formattedCommand));
+			}
+			
+
+			// Send the command to the server
+			var bytes = Encoding.UTF8.GetBytes(command).Concat(new byte[] { 13, 255, 239 });
+			await _clientWebSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Binary, true, _cancellationTokenSource.Token);
+			if (logCommandText)
+			{
+				Logger.LogInformation("Sent Command: {Command}", command);
+			}
+			else
+			{
+				Logger.LogInformation("Sent sensitive command.");
+			}
+
+			// Give prompt-driven commands, especially login steps, time to advance before sending the next command.
+			if (commandIndex < commands.Count - 1)
+			{
+				await Task.Delay(StackedCommandDelay);
+			}
+		}
+		
+		// Invoke StateHasChanged to update the UI
+		await InvokeAsync(StateHasChanged);
+
+		// Wait for the UI to finish rendering
+		await InvokeAsync(() => { });
+
+		// Scroll to bottom using JavaScript Interop
+		await JSRuntime.InvokeVoidAsync("scrollToBottom", MessageContainer);
+	}
+
+	private void AddToCommandHistory(string input)
+	{
+		if (!string.IsNullOrWhiteSpace(input))
+		{
+			// Avoid duplicate consecutive entries
+			if (CommandHistory.Count == 0 || CommandHistory.Last() != input)
+			{
+				CommandHistory.Add(input);
+
+				// Keep history size to 50
+				if (CommandHistory.Count > 50)
+				{
+					CommandHistory.RemoveAt(0);
+				}
+			}
+			CommandHistoryIndex = CommandHistory.Count;
+		}
+	}
+
+	private string EscapeHtml(string text)
+	{
+		return System.Net.WebUtility.HtmlEncode(text);
+	}
+
+	private static string GetDetailedExceptionMessage(Exception ex)
+	{
+		var messages = new List<string>();
+		var current = ex;
+		while (current != null)
+		{
+			if (!string.IsNullOrWhiteSpace(current.Message) && !messages.Contains(current.Message))
+			{
+				messages.Add(current.Message);
+			}
+
+			current = current.InnerException;
+		}
+
+		return string.Join(" ", messages);
+	}
+
+	private async Task HandleKeyPress(KeyboardEventArgs e)
+	{
+		// Get the character corresponding to the key
+		string inputChar = e.Key;
+
+		// Handle special cases if necessary
+		if (e.Key == "Enter" || e.Key == "Tab")
+			return;
+
+		int selectionStart = await JSRuntime.InvokeAsync<int>("getSelectionStart", "userInput");
+		int selectionEnd = await JSRuntime.InvokeAsync<int>("getSelectionEnd", "userInput");
+
+		// Insert the character at the cursor position
+		UserInput = UserInput.Remove(selectionStart, selectionEnd - selectionStart)
+							 .Insert(selectionStart, inputChar);
+
+		await InvokeAsync(StateHasChanged);
+
+		// Move cursor position after the inserted character
+		await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart + inputChar.Length);
+	}
+
+	private async Task HandleKeyDown(KeyboardEventArgs e)
+	{
+		if (!_hotkeySettingsOpen &&
+		    !HasHotkeyModifier(e) &&
+		    HotkeyInputPolicy.ShouldSendHotkeyFromEditableField(e.Code, e.Key) &&
+		    HotkeyMap.TryGetCommand(e.Code, out var hotkeyCommand))
+		{
+			await SendMessageAsync(hotkeyCommand);
+			return;
+		}
+
+		int selectionStart = await JSRuntime.InvokeAsync<int>("getSelectionStart", "userInput");
+		int selectionEnd = await JSRuntime.InvokeAsync<int>("getSelectionEnd", "userInput");
+
+		if (e.Key == "Enter")
+		{
+			if (e.ShiftKey)
+			{
+				// Insert a newline at the cursor position
+				UserInput = UserInput.Remove(selectionStart, selectionEnd - selectionStart)
+										.Insert(selectionStart, "\n");
+				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart + 1);
+			}
+			else
+			{
+				// Send the message
+				await SendMessageAsync(UserInput);
+				if (CurrentClientSettings.ClearInputAfterSend)
+				{
+					UserInput = string.Empty;
+				}
+				else
+				{
+					await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", 0, UserInput.Length);
+				}
+				CommandHistoryIndex = CommandHistory.Count;
+			}
+		}
+		else if (e.Key == "Backspace")
+		{
+			if (selectionStart > 0 || selectionEnd > selectionStart)
+			{
+				if (selectionEnd > selectionStart)
+				{
+					// Delete selected text
+					UserInput = UserInput.Remove(selectionStart, selectionEnd - selectionStart);
+				}
+				else
+				{
+					// Delete character before the cursor
+					UserInput = UserInput.Remove(selectionStart - 1, 1);
+					selectionStart--;
+				}
+				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart);
+			}
+		}
+		else if (e.Key == "Delete")
+		{
+			if (selectionStart < UserInput.Length || selectionEnd > selectionStart)
+			{
+				if (selectionEnd > selectionStart)
+				{
+					// Delete selected text
+					UserInput = UserInput.Remove(selectionStart, selectionEnd - selectionStart);
+				}
+				else
+				{
+					// Delete character after the cursor
+					UserInput = UserInput.Remove(selectionStart, 1);
+				}
+				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart);
+			}
+		}
+		else if (e.Key == "ArrowLeft")
+		{
+			// Move cursor left
+			selectionStart = Math.Max(selectionStart - 1, 0);
+			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart);
+		}
+		else if (e.Key == "ArrowRight")
+		{
+			// Move cursor right
+			selectionStart = Math.Min(selectionStart + 1, UserInput.Length);
+			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart);
+		}
+		else if (e.Key == "ArrowUp")
+		{
+			if (e.CtrlKey)
+			{
+				// Ctrl+ArrowUp moves to the first command in the history
+				if (CommandHistory.Count > 0)
+				{
+					CommandHistoryIndex = 0;
+					UserInput = CommandHistory[CommandHistoryIndex];
+					await InvokeAsync(StateHasChanged);
+					await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+				}
+			}
+			else
+			{
+				// Navigate command history up
+				if (CommandHistory.Count > 0 && CommandHistoryIndex > 0)
+				{
+					CommandHistoryIndex--;
+					UserInput = CommandHistory[CommandHistoryIndex];
+					await InvokeAsync(StateHasChanged);
+					await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+				}
+			}
+		}
+		else if (e.Key == "ArrowDown")
+		{if (e.CtrlKey)
+			{
+				// Ctrl+ArrowDown moves to the last command in the history
+				if (CommandHistory.Count > 0)
+				{
+					CommandHistoryIndex = CommandHistory.Count - 1;
+					UserInput = CommandHistory[CommandHistoryIndex];
+					await InvokeAsync(StateHasChanged);
+					await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+				}
+			}
+			else
+			{
+				// Navigate command history down
+				if (CommandHistoryIndex < CommandHistory.Count - 1)
+				{
+					CommandHistoryIndex++;
+					UserInput = CommandHistory[CommandHistoryIndex];
+				}
+				else
+				{
+					CommandHistoryIndex = CommandHistory.Count;
+					UserInput = string.Empty;
+				}
+
+				await InvokeAsync(StateHasChanged);
+				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+			}
+		}
+		else if (e.Key == "Home")
+		{
+			if (e.CtrlKey)
+			{
+				// Ctrl+Home: Move to the start of command history
+				if (CommandHistory.Count > 0)
+				{
+					CommandHistoryIndex = 0;
+					UserInput = CommandHistory[CommandHistoryIndex];
+					await InvokeAsync(StateHasChanged);
+					await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+				}
+			}
+			else
+			{
+				// Move the cursor to the start of the input
+				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", 0);
+			}
+		}
+		else if (e.Key == "End")
+		{
+			if (e.CtrlKey)
+			{
+				// Ctrl+End: Move to the end of the command history (empty input)
+				CommandHistoryIndex = CommandHistory.Count;
+				UserInput = string.Empty;
+				await InvokeAsync(StateHasChanged);
+				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", 0);
+			}
+			else
+			{
+				// Move the cursor to the end of the input
+				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+			}
+		}
+		else if (e.Key.Length == 1 && !e.CtrlKey && !e.AltKey && !e.MetaKey)
+		{
+			// Handle character input
+			UserInput = UserInput.Remove(selectionStart, selectionEnd - selectionStart)
+									.Insert(selectionStart, e.Key);
+			selectionStart += e.Key.Length;
+			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart);
+		}
+
+		await InvokeAsync(StateHasChanged);
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("mudClientHotkeys.dispose");
+		}
+		catch (JSDisconnectedException)
+		{
+		}
+		catch (InvalidOperationException)
+		{
+		}
+
+		_cancellationTokenSource.Cancel();
+
+		if (_clientWebSocket?.State is WebSocketState.Open or WebSocketState.CloseReceived)
+		{
+			await _clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disposing", CancellationToken.None);
+		}
+
+		if (_clientWebSocket != null)
+		{
+			_clientWebSocket.Dispose();
+		}
+
+		_cancellationTokenSource.Dispose();
+		_objectReference?.Dispose();
+	}
+
+	private async Task HandleSendCommand(string command)
+	{
+		await SendMessageAsync(command);
+	}
+
+	[JSInvokable]
+	public async Task SendCommand(string command)
+	{
+		await SendMessageAsync(command);
+	}
+	
+	[JSInvokable]
+	public async Task SendCommandById(int id)
+	{
+		if (_ansiMxpParser.TryGetSendCommand(id, out var command))
+		{
+			await SendMessageAsync(command);
+		}
+	}
+
+	[JSInvokable]
+	public async Task HandleHotkeyCode(string keyCode)
+	{
+		if (_hotkeySettingsOpen)
+		{
+			return;
+		}
+
+		if (HotkeyMap.TryGetCommand(keyCode, out var command))
+		{
+			await SendMessageAsync(command);
+		}
+	}
+
+	private bool isConnected = false; // Tracks the connection state
+	private string connectionButtonText => isConnected ? "Disconnect" : "Reconnect";
+
+	private async Task ToggleConnection()
+	{
+		if (isConnected)
+		{
+			// Disconnect logic here
+			await DisconnectFromMUD();
+		}
+		else
+		{
+			// Reconnect logic here
+			await ReconnectToMUD();
+		}
+	}
+
+	private async Task DisconnectFromMUD()
+	{
+		if (_clientWebSocket?.State == WebSocketState.Open)
+		{
+			await _clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by user", CancellationToken.None);
+			Messages.Add("Disconnected from the MUD.");
+		}
+
+		isConnected = false;
+		await InvokeAsync(StateHasChanged);
+	}
+
+	private async Task ReconnectToMUD()
+	{
+		// Logic to reconnect to the MUD
+		if (_clientWebSocket == null || _clientWebSocket.State != WebSocketState.Open)
+		{
+			if (_webSocketEndpoint == null)
+			{
+				Messages.Add("Cannot reconnect because the WebSocket proxy endpoint is not configured.");
+				isConnected = false;
+			}
+			else if (await ConnectToWebSocketAsync(_webSocketEndpoint))
+			{
+				Messages.Add("Reconnected to the MUD.");
+			}
+
+			await InvokeAsync(StateHasChanged);
+		}
+	}
+
+	private async Task SaveLog()
+	{
+		// Create CSS for the log
+		var css = @"
+	<style>
+		body {
+			font-family: Consolas, monospace;
+			background-color: #1e1e1e;
+			color: #d4d4d4;
+		}
+		.message-container {
+			padding: 10px;
+			background-color: #1e1e1e;
+			color: #d4d4d4;
+			font-family: Consolas, monospace;
+			white-space: pre-wrap;
+		}
+		a {
+			color: #1e90ff;
+			text-decoration: underline;
+		}
+		a:hover {
+			color: #00bfff;
+		}
+	</style>
+	";
+
+		// Build the HTML log content with embedded CSS
+		var logContent = new StringBuilder();
+		logContent.Append("<html><head><title>MUD Log</title>");
+		logContent.Append(css);
+		logContent.Append("</head><body><div class='message-container'>");
+
+		// Loop through messages and add them to the log
+		foreach (var message in Messages)
+		{
+			logContent.Append($"<div>{message}</div>");
+		}
+		logContent.Append("</div></body></html>");
+
+		var logHtml = logContent.ToString();
+		var logBlob = Convert.ToBase64String(Encoding.UTF8.GetBytes(logHtml));
+
+		// Trigger download in the browser
+		var jsContent = $"data:text/html;base64,{logBlob}";
+		await JSRuntime.InvokeVoidAsync("triggerDownload", $"mud_log_{DateTime.UtcNow:u}.html", jsContent);
+	}
+}

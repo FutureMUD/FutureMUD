@@ -916,9 +916,6 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             }
         }
 
-        IEnumerable<ICell> vicinity = actor.CellsInVicinity((uint)AudioVolume.ExtremelyLoud, false, false)
-                            .Except(actor.Location);
-
         // Handle all the unloading etc
         Changed = true;
         LoadStage = 0;
@@ -936,16 +933,8 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 item.Delete();
             }
 
-            foreach (ICell location in vicinity)
-            {
-                if (location.Characters.Any() || location.GameItems.Any())
-                {
-                    List<ICellExit> directions = location.ExitsBetween(actor.Location, 10).ToList();
-                    location.Handle(new EmoteOutput(
-                        new Emote($"An explosion can be heard {directions.DescribeDirectionsToFrom()}.", Parent),
-                        flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
-                }
-            }
+            actor.Location.HandleAudioEcho("An explosion can be heard {0}.", AudioVolume.ExtremelyLoud, Parent,
+                actor.RoomLayer, true, "explosion");
 
             List<IDamage> damages = new();
             foreach (DamageType damageType in new[] { DamageType.Shrapnel, DamageType.Shockwave, DamageType.Burning })
@@ -994,33 +983,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             }
         }
 
-        // Handle echoing the gunshot
-        foreach (ICell location in vicinity)
-        {
-            if (location.Characters.Any() || location.GameItems.Any())
-            {
-                List<ICellExit> directions = location.ExitsBetween(actor.Location, 10).ToList();
-                location.Handle(new EmoteOutput(
-                    new Emote($"A gun shot can be heard {directions.DescribeDirectionsToFrom()}.", Parent),
-                    flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
-            }
-        }
-
-        foreach (RoomLayer layer in actor.Location.Terrain(null).TerrainLayers.Except(actor.RoomLayer))
-        {
-            if (layer.IsLowerThan(actor.RoomLayer))
-            {
-                actor.Location.Handle(layer,
-                    new EmoteOutput(new Emote($"A gun shot can be heard from above.", Parent),
-                        flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
-            }
-            else
-            {
-                actor.Location.Handle(layer,
-                    new EmoteOutput(new Emote($"A gun shot can be heard from below.", Parent),
-                        flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
-            }
-        }
+        // Use the shared audio path so hooks observe one origin event and RouteCells retain
+        // their coordinate-aware propagation.
+        actor.Location.HandleAudioEcho("A gun shot can be heard {0}.", AudioVolume.ExtremelyLoud, Parent,
+            actor.RoomLayer, true, "gunshot");
 
         List<IGameItem> magContents = _magazineContents.ToList();
         _magazineContents.Clear();

@@ -88,7 +88,8 @@ public class BombGameItemComponent : GameItemComponent, IDetonatable
             style: OutputStyle.Explosion));
         if (_prototype.ExplosionVolume > AudioVolume.Silent)
         {
-            proximitything.Location.HandleAudioEcho(Gameworld.GetStaticString("ExplosionHeardEcho"), _prototype.ExplosionVolume, Parent, proximitything.RoomLayer);
+            proximitything.Location.HandleAudioEcho(Gameworld.GetStaticString("ExplosionHeardEcho"),
+                _prototype.ExplosionVolume, Parent, proximitything.RoomLayer, true, "explosion");
         }
 
 

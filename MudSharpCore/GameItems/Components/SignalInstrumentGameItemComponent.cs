@@ -132,13 +132,13 @@ public class SignalInstrumentGameItemComponent : InstrumentGameItemComponent, IS
 		{
 			EmitLocal(actor, signal.FailureEmote, playerEmote);
 			actor.Location?.HandleAudioEcho("You hear a garbled and unrecognisable signal sounded {0}.",
-				Volume, Parent, actor.RoomLayer);
+				Volume, Parent, actor.RoomLayer, true, "signal");
 			return false;
 		}
 
 		EmitLocal(actor, signal.LocalEmote, playerEmote);
 		actor.Location?.HandleAudioEcho(string.Format(signal.DistantEmote, "{0}"),
-			Volume, Parent, actor.RoomLayer);
+			Volume, Parent, actor.RoomLayer, true, "signal");
 		SignalPrototype.OnSignalProg?.Execute(actor, Parent, signal.Name, (int)outcome);
 		return true;
 	}

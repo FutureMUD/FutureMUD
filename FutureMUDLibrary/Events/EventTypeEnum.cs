@@ -741,6 +741,9 @@ namespace MudSharp.Events
         LiquidOfferingReceived = 141,
 
         [EventInfo("Fires on witnesses when a liquid libation is completed.", ["item", "character", "item", "liquidmixture", "number", "perceivable"], ["focus", "actor", "source", "liquid", "amount", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.LiquidMixture, ProgVariableTypeCode.Number, ProgVariableTypeCode.Perceivable])]
-        LiquidOfferingReceivedWitness = 142
+        LiquidOfferingReceivedWitness = 142,
+
+        [EventInfo("Fires once on the origin cell when a non-silent noise is emitted. This event exposes sound to FutureProg hooks without prescribing game-specific reactions.", ["location", "perceivable", "number", "text", "text"], ["origin", "source", "volume", "type", "echo"], [ProgVariableTypeCode.Location, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
+        NoiseEmitted = 143
     }
 }

@@ -83,6 +83,8 @@ The body runtime continuously tracks more than visible wounds:
 - internal bleeding and other hidden trauma
 - consequences of low circulation for prompts, health checks, and death
 
+Surface-liquid persistence permits blood records whose source race or blood type is no longer available. Those optional references serialize as zero rather than aborting the owning body's save; this is important because a failed body save would also lose unrelated inventory, implant, and cannula state from the same transaction.
+
 Temperature imbalance now participates in this same layer. Mild and moderate stages remain mostly symptomatic, but severe and especially critical hypothermia or hyperthermia apply organ-function penalties through the effect system. That means thermal injury is reversible while exposure is corrected, but can still become fatal if a body is left in critical extremes for long enough.
 
 This is why medical commands such as `vitals`, `triage`, and surgery are meaningful. They are reading and acting on underlying simulated state, not only on visible wound descriptions.
@@ -184,6 +186,7 @@ The wound model cares about sequence and local state. Examples:
 - Wounds with lodged objects block several other treatments until the object is removed.
 - Wounds must generally be trauma-controlled before they can be closed.
 - Bone fractures must be relocated before non-surgical immobilization is valid.
+- A worn immobilising component derives its active fracture association from the bones beneath its wear profile. Removing or changing the worn profile clears that association, while load-time inventory restoration recomputes it without a separate persistence record.
 - Robot wounds use fluid-leak and repair semantics rather than organic infection and antiseptic logic.
 - Robot wounds do not contribute pain, while robot status still hinges on organ function, stun, fluid loss, positronic-brain integrity, and power-core integrity.
 

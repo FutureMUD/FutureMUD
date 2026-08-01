@@ -800,7 +800,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
                     LiquidMixture.CanMerge(tch.Body.BloodLiquid))
                 {
                     tch.OutputHandler.Handle(new EmoteOutput(new Emote(
-                        $"{tch.Body.BloodLiquid.MaterialDescription.Colour(tch.Body.BloodLiquid.DisplayColour)} begins to flow into @ via $0 from $1.",
+                        $"{LiquidMixture.ColouredLiquidDescription} begins to flow into @ via $0 from $1.",
                         tch, cannula.Parent, Parent)));
                     _initialMessageSent = true;
                 }

@@ -1,4 +1,5 @@
 ﻿using MudSharp.Construction;
+using MudSharp.Character;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
@@ -190,7 +191,9 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
         {
             CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote("@ stop|stops cleaning $1's wounds.",
                 CharacterOwner, CharacterOwner, TargetCharacter)));
-            CharacterOwner.Send("You require antiseptics to treat your patient any further.".Colour(Telnet.Yellow));
+            CharacterOwner.Send((CharacterInstanceIdentityComparer.SamePhysicalInstance(CharacterOwner, TargetCharacter)
+                ? "You require antiseptics to clean your wounds any further."
+                : "You require antiseptics to treat your patient any further.").Colour(Telnet.Yellow));
             Owner.RemoveEffect(this, true);
             return;
         }
@@ -220,7 +223,9 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
         {
             CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote("@ stop|stops cleaning $1's wounds.",
                 CharacterOwner, CharacterOwner, TargetCharacter)));
-            CharacterOwner.Send("You require antiseptics to treat your patient any further.".Colour(Telnet.Yellow));
+            CharacterOwner.Send((CharacterInstanceIdentityComparer.SamePhysicalInstance(CharacterOwner, TargetCharacter)
+                ? "You require antiseptics to clean your wounds any further."
+                : "You require antiseptics to treat your patient any further.").Colour(Telnet.Yellow));
         }
         else
         {

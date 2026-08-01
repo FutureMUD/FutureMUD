@@ -552,7 +552,7 @@ Options:
                         }
 
                         actor.Send(
-                            $"You can't see any wounds of {target.HowSeen(actor, type: DescriptionType.Possessive)} that would benefit from further cleaning.");
+                            $"You can't see any of {target.HowSeen(actor, type: DescriptionType.Possessive)} wounds that would benefit from further cleaning.");
                     },
                     ExpireAction = () =>
                     {
@@ -587,7 +587,7 @@ Options:
         }
 
         actor.Send(
-            $"You can't see any wounds of {target.HowSeen(actor, type: DescriptionType.Possessive)} that would benefit from further cleaning.");
+            $"You can't see any of {target.HowSeen(actor, type: DescriptionType.Possessive)} wounds that would benefit from further cleaning.");
     }
 
     [PlayerCommand("Suture", "suture")]
@@ -828,8 +828,11 @@ Options:
             return;
         }
 
-        actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins tending to $1=0's wounds.", actor, actor,
-            target)));
+        actor.OutputHandler.Handle(new EmoteOutput(new Emote(
+            CharacterInstanceIdentityComparer.SamePhysicalInstance(actor, target)
+                ? "@ begin|begins tending to @'s wounds."
+                : "@ begin|begins tending to $1's wounds.",
+            actor, actor, target)));
         actor.AddEffect(new TendingWounds(actor, target), TendingWounds.EffectDuration);
     }
 

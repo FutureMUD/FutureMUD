@@ -69,6 +69,8 @@ Common fracture sequence:
 2. Immobilize it with `Set`, or surgically reinforce it with `SurgicalSet`.
 3. Allow healing ticks to progress.
 
+Immobilisation is derived from actual wear state. A splint or cast only affects fractures whose bones lie beneath its selected wear profile, and taking it off removes the healing benefit. Failed relocation attempts report the failed treatment but do not claim an additional pain effect unless the runtime has actually applied one.
+
 Common robot sequence:
 
 1. Stabilize fluid leakage with `Trauma` or `repair`, depending on what the wound currently allows.
@@ -191,6 +193,8 @@ The defibrillator component checks for conditions such as:
 - whether heart function is in a state where defibrillation can help
 
 This is not a generic revive mechanic. It is a device-based attempt to restore a particular physiological failure mode.
+
+The operator receives a qualitative device report after each valid shock indicating whether the rhythm stabilised or showed no effective change. Chest obstruction reports each blocking garment once even when it covers several heart-bearing locations.
 
 ## Drugs
 ### Core model

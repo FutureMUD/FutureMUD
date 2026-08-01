@@ -83,7 +83,8 @@ The items and crafts are fairly universal and of approximately medieval to renei
     private DictionaryWithDefault<string, TraitDefinition> _traits = new(StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, GameItemProto> _items = new(StringComparer.InvariantCultureIgnoreCase);
 	private Dictionary<string, Craft> _craftsByNameAndCategory = new(StringComparer.OrdinalIgnoreCase);
-	private long _nextId = 1;
+	private long _nextItemId = 1;
+	private long _nextCraftId = 1;
 	private bool _deferCraftProductSave;
 	private Stopwatch? _progressStopwatch;
 	private int _progressStage;
@@ -139,7 +140,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
             .ToDictionary(x => x.Key, x => x.OrderBy(tag => tag.Id).First(), StringComparer.OrdinalIgnoreCase);
         _materials = _context.Materials.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         _liquids = _context.Liquids.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-        _nextId = _context.GameItemProtos.Any()
+		_nextItemId = _context.GameItemProtos.Any()
             ? _context.GameItemProtos.Max(x => x.Id) + 1
             : 1;
         _dbAccount = _context.Accounts.First();
@@ -174,6 +175,13 @@ The items and crafts are fairly universal and of approximately medieval to renei
         BeginProgressReporting(questionAnswers);
         RunSeedStage("Loading item prerequisites", InitialiseDependencies);
         SeedReworkItems();
+		if (_questionAnswers.TryGetValue("eras", out var selectedEras) &&
+			HasAnyEra(selectedEras, "antiquity", "medieval", "renaissance", "earlymodern"))
+		{
+			RunSeedStage("Saving item changes before crafting", SaveItemChangesBeforeCrafting);
+		}
+
+		RunSeedStage("Creating crafting support progs", CreateProgs);
         SeedCrafts();
 		if (questionAnswers.TryGetValue("eras", out var eras))
 		{
@@ -195,7 +203,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
 	{
 		_progressStopwatch = Stopwatch.StartNew();
 		_progressStage = 0;
-		_progressStageCount = 5; // Prerequisites, three craft batches, and the final save.
+		_progressStageCount = 7; // Prerequisites, craft progs, the item flush, three craft batches, and the final save.
 
 		if (!questionAnswers.TryGetValue("eras", out var eras))
 		{
@@ -266,6 +274,29 @@ The items and crafts are fairly universal and of approximately medieval to renei
 			.Count(x => x.State == EntityState.Added);
 	}
 
+	private void SaveItemChangesBeforeCrafting()
+	{
+		_context!.SaveChanges();
+		DetachTrackedEntities(entity => entity is GameItemProto or
+			GameItemComponent or
+			GameItemProtosDefaultVariable or
+			GameItemProtosGameItemComponentProtos or
+			GameItemProtosOnLoadProgs or
+			GameItemProtosTags or
+			GameItemProtoExtraDescription or
+			EditableItem);
+	}
+
+	private void DetachTrackedEntities(Func<object, bool> predicate)
+	{
+		foreach (var entry in _context!.ChangeTracker.Entries()
+			         .Where(x => predicate(x.Entity))
+			         .ToList())
+		{
+			entry.State = EntityState.Detached;
+		}
+	}
+
     /// <inheritdoc />
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
     {
@@ -303,7 +334,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
     }
 
     /// <inheritdoc />
-    public bool Enabled => false;
+    public bool Enabled => true;
 
 	GameItemProto? CreateItem(string stableReference,
 												  string noun,
@@ -358,7 +389,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
 
 		GameItemProto dbitem = new()
 		{
-			Id = _nextId++,
+			Id = _nextItemId++,
 			Name = noun.ToLowerInvariant(),
 			UniqueName = GameItemProtoLookupExtensions.NormaliseUniqueName(stableReference),
 			BuilderNotes = BuildReworkItemBuilderNotes(stableReference, tagList, builderNotes),
@@ -389,7 +420,8 @@ The items and crafts are fairly universal and of approximately medieval to renei
 			MorphTimeSeconds = 0,
 			MorphEmote = "$0 $?1|morphs into $1|decays into nothing$.",
 		};
-		foreach (string item in tagList)
+		var addedTagIds = new HashSet<long>();
+		foreach (string item in tagList.Distinct(StringComparer.OrdinalIgnoreCase))
 		{
 			if (string.IsNullOrEmpty(item))
 			{
@@ -401,10 +433,16 @@ The items and crafts are fairly universal and of approximately medieval to renei
 				return null;
 			}
 
+			var tagId = _tagsByFullPath[item].Id;
+			if (!addedTagIds.Add(tagId))
+			{
+				continue;
+			}
+
 			dbitem.GameItemProtosTags.Add(new GameItemProtosTags
 			{
 				GameItemProto = dbitem,
-				TagId = _tagsByFullPath[item].Id
+				TagId = tagId
 			});
 		}
 

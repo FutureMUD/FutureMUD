@@ -1053,9 +1053,14 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
             return prog;
         }
 
-        FutureProg? contextProg = long.TryParse(trimmed.TrimStart('#'), out long id)
-            ? _context!.FutureProgs.FirstOrDefault(x => x.Id == id)
-            : _context!.FutureProgs.FirstOrDefault(x => x.FunctionName.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
+		FutureProg? contextProg = long.TryParse(trimmed.TrimStart('#'), out long id)
+			? _context!.FutureProgs.FirstOrDefault(x => x.Id == id)
+			: _context!.FutureProgs.Local
+				.AsEnumerable()
+				.FirstOrDefault(x => x.FunctionName.Equals(trimmed, StringComparison.OrdinalIgnoreCase)) ??
+			  _context.FutureProgs
+				.AsEnumerable()
+				.FirstOrDefault(x => x.FunctionName.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
         return contextProg ?? throw new ApplicationException($"Unknown prog {text}");
     }
 
@@ -1928,7 +1933,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 
         Craft dbitem = new()
         {
-            Id = _nextId++,
+			Id = _nextCraftId++,
             RevisionNumber = 0,
             EditableItem = new EditableItem
             {
@@ -2007,7 +2012,19 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
             dbitem.CraftProducts.Add(ConvertToProduct(dbitem, product));
         }
 
-		if (!_deferCraftProductSave)
+		if (_deferCraftProductSave)
+		{
+			// Persist and detach each completed craft so later craft saves do not repeatedly scan the
+			// whole seeded catalogue. Product definitions have already consumed the database input IDs.
+			_context.SaveChanges();
+			DetachTrackedEntities(entity => entity is Craft or
+				CraftPhase or
+				CraftInput or
+				CraftTool or
+				CraftProduct or
+				EditableItem);
+		}
+		else
 		{
 			_context.SaveChanges();
 		}
@@ -2368,7 +2385,7 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		{
 			_progs[prog.FunctionName] = prog;
 		}
-		_nextId = context.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
+		_nextCraftId = context.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
 	}
 
 	internal MudSharp.Models.Craft AddCraftForTesting(FuturemudDatabaseContext context, CraftDefinitionSpec spec)
@@ -2422,7 +2439,7 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
     private void SeedCrafts()
     {
         // Reset nextID
-		_nextId = _context!.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
+		_nextCraftId = _context!.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
 
 		var previousDeferCraftProductSave = _deferCraftProductSave;
 		_deferCraftProductSave = true;

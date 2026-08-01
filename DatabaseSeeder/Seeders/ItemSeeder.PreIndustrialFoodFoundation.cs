@@ -46,6 +46,15 @@ public partial class ItemSeeder
 		"Functions / Tools / Foodmaking Tools / Kneading Trough"
 	];
 
+	private static readonly string[] PreIndustrialFoodIngredientTagPaths =
+	[
+		"Materials / Natural Materials / Food / Grain Crop",
+		"Materials / Natural Materials / Food / Oilseed Crop",
+		"Materials / Natural Materials / Food / Fruit Must Crop",
+		"Food and Drink / Raw Ingredients / Raw Non-Fish Meat Cut",
+		"Food and Drink / Raw Ingredients / Raw Fish Cut"
+	];
+
 	internal static IReadOnlyCollection<string> PreIndustrialFoodCommodityTagsForTesting =>
 		PreIndustrialFoodCommodityTagNames;
 
@@ -86,6 +95,11 @@ public partial class ItemSeeder
 		}
 
 		foreach (var path in PreIndustrialFoodFunctionalToolTagPaths)
+		{
+			EnsureAntiquityTagPath(path);
+		}
+
+		foreach (var path in PreIndustrialFoodIngredientTagPaths)
 		{
 			EnsureAntiquityTagPath(path);
 		}

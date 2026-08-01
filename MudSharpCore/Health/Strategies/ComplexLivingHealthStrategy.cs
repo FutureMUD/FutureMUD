@@ -1130,139 +1130,90 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
         double breathRatio, bool brief)
     {
         StringBuilder sb = new();
-        sb.Append("<");
-        double heartFactor =
-            charOwner.Body.OrganFunction<HeartProto>();
+        double heartFactor = charOwner.Body.OrganFunction<HeartProto>();
         if (heartFactor <= 0)
         {
-            sb.Append("*** YOU ARE IN CARDIAC ARREST! ***".Colour(Telnet.BoldRed));
-            sb.Append(">\n<");
+            sb.Append($"<{"*** YOU ARE IN CARDIAC ARREST! ***".Colour(Telnet.BoldRed)}>\n");
         }
         else if (heartFactor < HeartAttackThreshold)
         {
-            sb.Append("*** YOU ARE HAVING A HEART ATTACK! ***".Colour(Telnet.BoldRed));
-            sb.Append(">\n<");
+            sb.Append($"<{"*** YOU ARE HAVING A HEART ATTACK! ***".Colour(Telnet.BoldRed)}>\n");
         }
-        else
+        else if (charOwner.NeedsToBreathe && !charOwner.CanBreathe)
         {
-            if (charOwner.NeedsToBreathe && !charOwner.CanBreathe)
+            if (breathRatio > 0.0 && breathRatio < 1.0)
             {
-                if (breathRatio > 0.0 && breathRatio < 1.0)
-                {
-                    sb.Append("*** YOU ARE HOLDING YOUR BREATH! ***".Colour(Telnet.KeywordBlue));
-                    sb.Append(">\n<");
-                }
-                else if (charOwner.BreathingFluid is ILiquid)
-                {
-                    sb.Append("*** YOU ARE DROWNING! ***".Colour(Telnet.BoldCyan));
-                    sb.Append(">\n<");
-                }
-                else
-                {
-                    sb.Append("*** YOU ARE SUFFOCATING! ***".Colour(Telnet.BoldYellow));
-                    sb.Append(">\n<");
-                }
+                sb.Append($"<{"*** YOU ARE HOLDING YOUR BREATH! ***".Colour(Telnet.KeywordBlue)}>\n");
+            }
+            else if (charOwner.BreathingFluid is ILiquid)
+            {
+                sb.Append($"<{"*** YOU ARE DROWNING! ***".Colour(Telnet.BoldCyan)}>\n");
+            }
+            else
+            {
+                sb.Append($"<{"*** YOU ARE SUFFOCATING! ***".Colour(Telnet.BoldYellow)}>\n");
             }
         }
 
+        string painDescription = null;
         if (painRatio < 0.01)
         {
             if (!brief)
             {
-                sb.Append($"You are currently in {"no pain".Colour(Telnet.Green)}");
+                painDescription = "no pain".Colour(Telnet.Green);
             }
         }
         else if (painRatio < 0.2)
         {
-            sb.Append($"You are currently in {"mild pain".Colour(Telnet.Yellow)}");
+            painDescription = "mild pain".Colour(Telnet.Yellow);
         }
         else if (painRatio < 0.4)
         {
-            sb.Append($"You are currently in {"moderate pain".Colour(Telnet.Yellow)}");
+            painDescription = "moderate pain".Colour(Telnet.Yellow);
         }
         else if (painRatio < 0.6)
         {
-            sb.Append($"You are currently in {"severe pain".Colour(Telnet.Red)}");
+            painDescription = "severe pain".Colour(Telnet.Red);
         }
         else if (painRatio < 0.8)
         {
-            sb.Append($"You are currently in {"very severe pain".Colour(Telnet.Red)}");
+            painDescription = "very severe pain".Colour(Telnet.Red);
         }
         else if (painRatio < 1.0)
         {
-            sb.Append($"You are currently in {"agonising pain".Colour(Telnet.BoldRed)}");
+            painDescription = "agonising pain".Colour(Telnet.BoldRed);
         }
         else
         {
-            sb.Append($"You are currently in {"overwhelming pain".Colour(Telnet.BoldRed)}");
+            painDescription = "overwhelming pain".Colour(Telnet.BoldRed);
         }
 
-        if (stunRatio > 0.05)
+        var stunDescription = stunRatio switch
         {
-            if (stunRatio < 0.2)
-            {
-                sb.Append($", {"dizzy".Colour(Telnet.BoldCyan)}");
-            }
-            else if (stunRatio < 0.4)
-            {
-                sb.Append($", {"dazed".Colour(Telnet.BoldCyan)}");
-            }
-            else if (stunRatio < 0.6)
-            {
-                sb.Append($", {"stunned".Colour(Telnet.BoldBlue)}");
-            }
-            else if (stunRatio < 0.8)
-            {
-                sb.Append($", {"severly stunned".Colour(Telnet.BoldBlue)}");
-            }
-            else if (stunRatio < 1.0)
-            {
-                sb.Append($", {"practically catatonic".Colour(Telnet.BoldMagenta)}");
-            }
-            else
-            {
-                sb.Append($", {"knocked out".Colour(Telnet.BoldMagenta)}");
-            }
-        }
+            <= 0.05 => null,
+            < 0.2 => "dizzy".Colour(Telnet.BoldCyan),
+            < 0.4 => "dazed".Colour(Telnet.BoldCyan),
+            < 0.6 => "stunned".Colour(Telnet.BoldBlue),
+            < 0.8 => "severely stunned".Colour(Telnet.BoldBlue),
+            < 1.0 => "practically catatonic".Colour(Telnet.BoldMagenta),
+            _ => "knocked out".Colour(Telnet.BoldMagenta)
+        };
 
-        if (bloodlossRatio <= 0.98 && sb.Length != 0)
+        var bloodLossDescription = bloodlossRatio switch
         {
-            sb.Append(" and have ");
-        }
+            > 0.98 => null,
+            >= 0.94 => "very minor blood loss".Colour(Telnet.Yellow),
+            >= 0.90 => "minor blood loss".Colour(Telnet.Yellow),
+            >= 0.825 => "moderate blood loss".Colour(Telnet.Red),
+            >= 0.75 => "major blood loss".Colour(Telnet.Red),
+            >= 0.675 => "severe blood loss".Colour(Telnet.Red),
+            >= 0.6 => "very severe blood loss".Colour(Telnet.Red),
+            >= 0.5 => "critical blood loss".Colour(Telnet.Red),
+            _ => "life-threatening blood loss".Colour(Telnet.Red)
+        };
 
-        switch (bloodlossRatio)
-        {
-            case > 0.98:
-                break;
-            case >= 0.94:
-                sb.Append($"{"very minor blood loss".Colour(Telnet.Yellow)}");
-                break;
-            case >= 0.90:
-                sb.Append($"{"minor blood loss".Colour(Telnet.Yellow)}");
-                break;
-            case >= 0.825:
-                sb.Append($"{"moderate blood loss".Colour(Telnet.Red)}");
-                break;
-            case >= 0.75:
-                sb.Append($"{"major blood loss".Colour(Telnet.Red)}");
-                break;
-            case >= 0.675:
-                sb.Append($"{"severe blood loss".Colour(Telnet.Red)}");
-                break;
-            case >= 0.6:
-                sb.Append($"{"very severe blood loss".Colour(Telnet.Red)}");
-                break;
-            case >= 0.5:
-                sb.Append($"{"critical blood loss".Colour(Telnet.Red)}");
-                break;
-            default:
-                sb.Append($"{"life-threatening blood loss".Colour(Telnet.Red)}");
-                break;
-        }
-
-        sb.Append(">");
-
-        return sb.ToString();
+        sb.Append(FormatFullPromptCondition(painDescription, stunDescription, bloodLossDescription));
+        return sb.ToString().TrimEnd('\n');
     }
 
     private string ReportClassicPrompt(ICharacter charOwner, double stunRatio, double painRatio, double bloodlossRatio,

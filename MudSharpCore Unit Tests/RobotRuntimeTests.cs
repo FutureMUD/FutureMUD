@@ -24,6 +24,22 @@ namespace MudSharp_Unit_Tests;
 public class RobotRuntimeTests
 {
     [TestMethod]
+    public void FormatFullPromptCondition_ComposesAllPresentClauseCombinations()
+    {
+        Assert.AreEqual(string.Empty, BaseHealthStrategy.FormatFullPromptCondition(null, null, null));
+        Assert.AreEqual("<You are currently in no pain>",
+            BaseHealthStrategy.FormatFullPromptCondition("no pain", null, null));
+        Assert.AreEqual("<You are currently dizzy>",
+            BaseHealthStrategy.FormatFullPromptCondition(null, "dizzy", null));
+        Assert.AreEqual("<You have very minor blood loss>",
+            BaseHealthStrategy.FormatFullPromptCondition(null, null, "very minor blood loss"));
+        Assert.AreEqual("<You are currently dizzy and have very minor blood loss>",
+            BaseHealthStrategy.FormatFullPromptCondition(null, "dizzy", "very minor blood loss"));
+        Assert.AreEqual("<You are currently in mild pain, dizzy and have very minor blood loss>",
+            BaseHealthStrategy.FormatFullPromptCondition("mild pain", "dizzy", "very minor blood loss"));
+    }
+
+    [TestMethod]
     public void IsOrgan_SensorArray_IsTreatedAsAnOrgan()
     {
         Assert.IsTrue(BodypartTypeEnum.SensorArray.IsOrgan());

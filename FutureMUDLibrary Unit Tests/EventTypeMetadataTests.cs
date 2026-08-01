@@ -133,6 +133,17 @@ public class EventTypeMetadataTests
 		}
 	}
 
+	[TestMethod]
+	public void NoiseEmittedEventType_IsAppendOnlyAndDefinesExpectedHookPayload()
+	{
+		Assert.AreEqual(143, (int)EventType.NoiseEmitted);
+		AssertEventMetadata(EventType.NoiseEmitted,
+			["location", "perceivable", "number", "text", "text"],
+			["origin", "source", "volume", "type", "echo"],
+			[ProgVariableTypes.Location, ProgVariableTypes.Perceivable, ProgVariableTypes.Number,
+				ProgVariableTypes.Text, ProgVariableTypes.Text]);
+	}
+
     private static void AssertEventMetadata(EventType eventType, string[] parameterTypes, string[] parameterNames,
         ProgVariableTypes[] progTypes)
     {

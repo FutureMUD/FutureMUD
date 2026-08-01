@@ -291,7 +291,8 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
         if (_prototype.FireVolume > AudioVolume.Silent)
         {
-            actor.Location.HandleAudioEcho(Gameworld.GetStaticString("LaserHeardEcho"), _prototype.FireVolume, Parent, actor.RoomLayer);
+            actor.Location.HandleAudioEcho(Gameworld.GetStaticString("LaserHeardEcho"), _prototype.FireVolume,
+                Parent, actor.RoomLayer, true, "laser");
         }
     }
 

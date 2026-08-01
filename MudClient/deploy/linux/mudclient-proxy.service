@@ -1,0 +1,18 @@
+[Unit]
+Description=MUD Client WebSocket Proxy
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=mudclient
+Group=mudclient
+WorkingDirectory=/opt/mudclient/proxy
+ExecStart=/opt/mudclient/proxy/MudWebSocketProxy --urls http://127.0.0.1:5000
+Restart=always
+RestartSec=5
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+[Install]
+WantedBy=multi-user.target

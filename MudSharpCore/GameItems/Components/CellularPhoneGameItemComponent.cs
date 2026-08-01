@@ -676,7 +676,8 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
         foreach (ICell? location in Parent.TrueLocations.Distinct())
         {
-            location.HandleAudioEcho("You hear a telephone ringing {0}.", RingVolume, Parent, Parent.RoomLayer);
+            location.HandleAudioEcho("You hear a telephone ringing {0}.", RingVolume, Parent, Parent.RoomLayer,
+                true, "telephone");
         }
     }
 

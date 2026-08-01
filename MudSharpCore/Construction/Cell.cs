@@ -1943,12 +1943,21 @@ public partial class Cell : Location, IDisposable, ICell
         }
     }
 
-    public void HandleAudioEcho(string audioText, AudioVolume volume, IPerceiver source, RoomLayer originalLayer, bool ignoreOriginLayer = true)
+    public void HandleAudioEcho(string audioText, AudioVolume volume, IPerceiver source, RoomLayer originalLayer,
+        bool ignoreOriginLayer = true)
+    {
+        HandleAudioEcho(audioText, volume, source, originalLayer, ignoreOriginLayer, "sound");
+    }
+
+    public void HandleAudioEcho(string audioText, AudioVolume volume, IPerceiver source, RoomLayer originalLayer,
+        bool ignoreOriginLayer, string noiseType)
     {
         if (volume == AudioVolume.Silent)
         {
             return;
         }
+
+        NoiseEmission.RaiseEvent(this, source, volume, noiseType, audioText);
 
 		if (RouteCellAudioPropagation.Instance.RequiresSpatialPropagation(this, volume))
 		{

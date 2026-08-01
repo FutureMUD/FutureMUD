@@ -441,7 +441,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
         if (loudestShot > AudioVolume.Silent)
         {
             actor.Location.HandleAudioEcho(Gameworld.GetStaticString("GunshotHeardEcho"), loudestShot, Parent,
-                actor.RoomLayer);
+                actor.RoomLayer, true, "gunshot");
         }
     }
 

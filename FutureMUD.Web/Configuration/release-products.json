@@ -5,6 +5,7 @@
       "publicName": "FutureMUD Engine",
       "tagPrefix": "engine-v",
       "projectPath": "MudSharpCore/MudSharpCore.csproj",
+      "packageKind": "single-file",
       "versionSource": "Version",
       "frameworkDependent": true,
       "singleFile": true,
@@ -19,6 +20,7 @@
       "publicName": "FutureMUD Database Seeder",
       "tagPrefix": "seeder-v",
       "projectPath": "DatabaseSeeder/DatabaseSeeder.csproj",
+      "packageKind": "single-file",
       "versionSource": "Version",
       "frameworkDependent": true,
       "singleFile": true,
@@ -32,6 +34,7 @@
       "publicName": "FutureMUD Discord Bot",
       "tagPrefix": "discordbot-v",
       "projectPath": "DiscordBotCore/DiscordBotCore.csproj",
+      "packageKind": "single-file",
       "versionSource": "Version",
       "frameworkDependent": true,
       "singleFile": true,
@@ -45,6 +48,7 @@
       "publicName": "FutureMUD Terrain Planner",
       "tagPrefix": "terrainplanner-v",
       "projectPath": "Terrain Planner Core/Terrain Planner Core.csproj",
+      "packageKind": "single-file",
       "versionSource": "Version",
       "frameworkDependent": true,
       "singleFile": true,
@@ -58,6 +62,7 @@
       "publicName": "FutureMUD Engine API / Terrain API",
       "tagPrefix": "terrainapi-v",
       "projectPath": "Terrain API/Terrain API.csproj",
+      "packageKind": "single-file",
       "versionSource": "Version",
       "frameworkDependent": true,
       "singleFile": true,
@@ -65,6 +70,22 @@
       "archiveName": "terrainapi-{version}-{runtime}.zip",
       "testProjects": [],
       "runtimes": [ "win-x64", "linux-x64" ]
+    },
+    {
+      "id": "mudclient",
+      "publicName": "FutureMUD Web MUD Client",
+      "tagPrefix": "mudclient-v",
+      "projectPath": "MudClient/MudWebSocketProxy/MudWebSocketProxy.csproj",
+      "webProjectPath": "MudClient/MudClientBlazor/MudClientBlazor.csproj",
+      "packageScriptPath": "MudClient/scripts/Publish-ProductPackage.ps1",
+      "packageKind": "mudclient",
+      "versionSource": "Version",
+      "frameworkDependent": false,
+      "singleFile": true,
+      "includeNativeLibrariesForSelfExtract": true,
+      "archiveName": "mudclient-{version}-{runtime}.zip",
+      "testProjects": [ "MudClient/MudClientTests/MudClientTests.csproj" ],
+      "runtimes": [ "win-x64", "linux-x64", "linux-arm64" ]
     }
   ]
 }

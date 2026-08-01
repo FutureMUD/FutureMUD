@@ -1,0 +1,15 @@
+﻿<button @onclick="OnClick">@Text</button>
+
+@code {
+	[Parameter] public string Text { get; set; } = string.Empty;
+	[Parameter] public string Command { get; set; } = string.Empty;
+	[Parameter] public EventCallback<string> OnSend { get; set; }
+
+	private async Task OnClick()
+	{
+		if (OnSend.HasDelegate)
+		{
+			await OnSend.InvokeAsync(Command);
+		}
+	}
+}

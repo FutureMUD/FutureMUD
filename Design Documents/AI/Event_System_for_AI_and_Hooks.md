@@ -189,6 +189,19 @@ For AI, the main path is:
 
 AI events do not block ordinary hooks from firing. The NPC still delegates to its base event handling path.
 
+### Noise emission
+`NoiseEmitted` exposes mechanically meaningful sound to builders without putting any particular game's reaction logic in the engine. `ICell.HandleAudioEcho(...)` fires it once on the origin cell before propagating a non-silent audio echo. Firearms, muskets, explosions, alarms, telephones, lasers, instruments, and signal instruments use that shared path. The event payload is:
+
+1. origin cell
+2. source perceivable
+3. numeric `AudioVolume` value (`1` through `7`)
+4. stable noise category
+5. distant-audio template
+
+FutureProg also provides `emitnoise(source, volume, type, echo)`. The source must be a located character or item; the echo uses `{0}` for direction and may use `{1}` for the attenuated volume. This lets an action hook declare that a builder-defined action made noise while receiving normal audio propagation and the same single origin event as native emitters.
+
+The intent is to support content-authored reactions through hooks and progs. A game can, for example, attach a `NoiseEmitted` hook to cells and use its prog to make zombies investigate the source or to update a zone-wide noise register. Those policies remain game content rather than engine behavior. A `NoiseEmitted` handler must not call `emitnoise` for the same sound, because doing so recursively emits another event.
+
 ### Hook Dispatch
 Hooks are installed on event-capable perceivables. When those perceivables process an event, installed hooks of the matching type are eligible to run.
 

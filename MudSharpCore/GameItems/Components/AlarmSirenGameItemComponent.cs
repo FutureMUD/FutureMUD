@@ -256,7 +256,8 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 			OutputRange.Local);
 		foreach (var location in Parent.TrueLocations.Distinct())
 		{
-			location.HandleAudioEcho("You hear an alarm siren {0}.", _prototype.AlarmVolume, Parent, Parent.RoomLayer);
+			location.HandleAudioEcho("You hear an alarm siren {0}.", _prototype.AlarmVolume, Parent,
+				Parent.RoomLayer, true, "alarm");
 		}
 	}
 

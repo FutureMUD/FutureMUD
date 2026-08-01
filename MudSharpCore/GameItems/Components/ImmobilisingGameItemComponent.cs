@@ -67,8 +67,22 @@ public class ImmobilisingGameItemComponent : WearableGameItemComponent, IImmobil
         foreach (var wound in WornBy.Wounds.OfType<IImmobilisableWound>()
                                     .Where(x => x.ImmobilisingItem == Parent))
         {
-            wound.ImmobilisingItem = null;
+            wound.ImmobilisingItem = FindReplacementImmobilisingItem(
+                WornBy,
+                wound,
+                WornBy.WornItems
+                      .Where(x => x != Parent && x.IsItemType<IImmobilise>())
+                      .Select(x => (Item: x, Profile: x.GetItemType<IWearable>()?.CurrentProfile))
+                      .Where(x => x.Profile is not null));
         }
+    }
+
+    internal static IGameItem FindReplacementImmobilisingItem(
+        IBody body,
+        IImmobilisableWound wound,
+        IEnumerable<(IGameItem Item, IWearProfile Profile)> candidates)
+    {
+        return candidates.FirstOrDefault(x => WoundsCoveredByProfile(body, x.Profile).Contains(wound)).Item;
     }
 
     #endregion

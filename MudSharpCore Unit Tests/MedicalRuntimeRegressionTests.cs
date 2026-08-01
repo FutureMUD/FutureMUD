@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
 using MudSharp.Body.Implementations;
+using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
@@ -85,6 +86,36 @@ public class MedicalRuntimeRegressionTests
 		var result = ImmobilisingGameItemComponent.WoundsCoveredByProfile(body.Object, wearProfile.Object).ToList();
 
 		CollectionAssert.AreEqual(new[] { covered.Object }, result);
+	}
+
+	[TestMethod]
+	public void FindReplacementImmobilisingItem_UsesAnotherWornSplintCoveringTheFracture()
+	{
+		var bone = new Mock<IBone>();
+		var wearLocation = new Mock<IWear>();
+		wearLocation.SetupGet(x => x.BoneInfo)
+		            .Returns(new Dictionary<IBone, BodypartInternalInfo>
+		            {
+			            [bone.Object] = new BodypartInternalInfo(1.0, true, "arm")
+		            });
+		var wearProfile = new Mock<IWearProfile>();
+		var body = new Mock<IBody>();
+		wearProfile.Setup(x => x.Profile(body.Object))
+		           .Returns(new Dictionary<IWear, IWearlocProfile>
+		           {
+			           [wearLocation.Object] = Mock.Of<IWearlocProfile>()
+		           });
+		var wound = new Mock<IImmobilisableWound>();
+		wound.SetupGet(x => x.Bodypart).Returns(bone.Object);
+		body.SetupGet(x => x.Wounds).Returns(new IWound[] { wound.Object });
+		var remainingSplint = Mock.Of<IGameItem>();
+
+		var result = ImmobilisingGameItemComponent.FindReplacementImmobilisingItem(
+			body.Object,
+			wound.Object,
+			new[] { (remainingSplint, wearProfile.Object) });
+
+		Assert.AreSame(remainingSplint, result);
 	}
 
 }

@@ -485,13 +485,26 @@ public partial class CombatSeeder
 				var baseComponent = context.GameItemComponentProtos
 					.Single(x => x.Name == $"MusketCartridge_{boreName}" && x.EditableItem.RevisionStatus == 4);
 				var baseDefinition = XElement.Parse(baseComponent.Definition);
-				var bore = double.Parse(baseDefinition.Element("BulletBore")!.Value);
+				var bore = double.Parse(
+					baseDefinition.Element("BulletBore")?.Value ??
+					throw new InvalidOperationException(
+						$"Cannot seed MusketPaperCartridge_{boreName}: the base cartridge component has no BulletBore value."),
+					System.Globalization.CultureInfo.InvariantCulture);
 				var musketDefinition = context.GameItemComponentProtos
 					.Where(x => x.Type == "Musket")
 					.AsEnumerable()
 					.Select(x => XElement.Parse(x.Definition))
-					.First(x => Math.Abs(double.Parse(x.Element("BulletBore")!.Value) - bore) < 0.000001);
-				var powderMass = double.Parse(musketDefinition.Element("PowderVolumePerShot")!.Value);
+					.FirstOrDefault(x =>
+						double.TryParse(x.Element("BarrelBore")?.Value, System.Globalization.NumberStyles.Float,
+							System.Globalization.CultureInfo.InvariantCulture, out var musketBore) &&
+						Math.Abs(musketBore - bore) < 0.000001) ??
+					throw new InvalidOperationException(
+						$"Cannot seed MusketPaperCartridge_{boreName}: no Musket component has a matching BarrelBore value.");
+				var powderMass = double.Parse(
+					musketDefinition.Element("PowderVolumePerShot")?.Value ??
+					throw new InvalidOperationException(
+						$"Cannot seed MusketPaperCartridge_{boreName}: the matching Musket component has no PowderVolumePerShot value."),
+					System.Globalization.CultureInfo.InvariantCulture);
 				var definition = new XElement(baseDefinition);
 				definition.Add(new XElement("PowderMass", powderMass), new XElement("IncludesWad", true));
 				EnsureComponent("MusketCartridge", $"MusketPaperCartridge_{boreName}",

@@ -218,7 +218,7 @@ Adds ignition- and form-specific muzzleloader components. These require the runt
 
 Adds paper-cartridge, buckshot, and buck-and-ball payload profiles using the existing musket-ammunition family after the payload extension described below.
 
-Implementation status: all seven single-projectile paper-cartridge rows are seeded with explicit charge and wad data. The four multi-projectile rows remain deferred.
+Implementation status: all seven single-projectile paper-cartridge rows are seeded with explicit charge and wad data. The updater matches each cartridge `BulletBore` to the source `Musket` component's `BarrelBore`, ignoring incomplete legacy `Musket` definitions that do not declare a bore. The four multi-projectile rows remain deferred.
 
 | Component prototype | Catalogue row uses | Purpose |
 |---|---:|---|

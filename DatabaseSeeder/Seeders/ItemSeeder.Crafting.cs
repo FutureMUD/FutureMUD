@@ -2428,44 +2428,53 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		_deferCraftProductSave = true;
 		try
 		{
-			SeedHistoricFoundationCrafts();
-			SeedPrimaryProductionCommodityCrafts();
-			SeedAntiquityHellenicClothingCrafts();
-			SeedAntiquityEgyptianClothingCrafts();
-			SeedAntiquityRomanClothingCrafts();
-			SeedAntiquityCelticClothingCrafts();
-			SeedAntiquityGermanicClothingCrafts();
-			SeedAntiquityKushiteClothingCrafts();
-			SeedAntiquityPunicClothingCrafts();
-			SeedAntiquityPersianClothingCrafts();
-			SeedAntiquityEtruscanClothingCrafts();
-			SeedAntiquityAnatolianClothingCrafts();
-			SeedAntiquityScythianSarmatianClothingCrafts();
-			SeedAntiquityEquipmentCrafts();
-			SeedAntiquityJewelleryCrafts();
-			SeedAntiquityWritingCrafts();
-			SeedAntiquityMedicalCrafts();
-			SeedAntiquityFurnitureAndContainerCrafts();
-			SeedAntiquityRepairKitCrafts();
-			SeedAntiquityLeatherPreparationCrafts();
-			SeedAntiquityLeatherClothingCrafts();
-			SeedAntiquityLeatherArmourCrafts();
-			SeedAntiquityLeatherContainerCrafts();
-			SeedAntiquityLeatherFurnishingCrafts();
-			SeedAntiquityApiaryCrafts();
-			SeedAntiquityAgriculturalProcessingCrafts();
-			SeedAntiquityFoodCrafts();
-			SeedMedievalProductionChainCrafts();
-			SeedMedievalClothingCrafts();
-			SeedMedievalEquipmentCrafts();
-			SeedMedievalWritingAdministrationCrafts();
-			SeedMedievalMedicalApothecaryCrafts();
-			SeedMedievalJewelleryDevotionalCrafts();
-			SeedMedievalFurnitureAndContainerCrafts();
-			SeedMedievalFoodBeverageCrafts();
-			SeedPreIndustrialFoodCatalogueCrafts();
-			SeedMedievalRepairKitCrafts();
-			SeedMedievalComponentGapCrafts();
+			RunSeedStage("Creating historic and primary-production crafts", () =>
+			{
+				SeedHistoricFoundationCrafts();
+				SeedPrimaryProductionCommodityCrafts();
+			});
+			RunSeedStage("Creating antiquity crafts", () =>
+			{
+				SeedAntiquityHellenicClothingCrafts();
+				SeedAntiquityEgyptianClothingCrafts();
+				SeedAntiquityRomanClothingCrafts();
+				SeedAntiquityCelticClothingCrafts();
+				SeedAntiquityGermanicClothingCrafts();
+				SeedAntiquityKushiteClothingCrafts();
+				SeedAntiquityPunicClothingCrafts();
+				SeedAntiquityPersianClothingCrafts();
+				SeedAntiquityEtruscanClothingCrafts();
+				SeedAntiquityAnatolianClothingCrafts();
+				SeedAntiquityScythianSarmatianClothingCrafts();
+				SeedAntiquityEquipmentCrafts();
+				SeedAntiquityJewelleryCrafts();
+				SeedAntiquityWritingCrafts();
+				SeedAntiquityMedicalCrafts();
+				SeedAntiquityFurnitureAndContainerCrafts();
+				SeedAntiquityRepairKitCrafts();
+				SeedAntiquityLeatherPreparationCrafts();
+				SeedAntiquityLeatherClothingCrafts();
+				SeedAntiquityLeatherArmourCrafts();
+				SeedAntiquityLeatherContainerCrafts();
+				SeedAntiquityLeatherFurnishingCrafts();
+				SeedAntiquityApiaryCrafts();
+				SeedAntiquityAgriculturalProcessingCrafts();
+				SeedAntiquityFoodCrafts();
+			});
+			RunSeedStage("Creating medieval and pre-industrial crafts", () =>
+			{
+				SeedMedievalProductionChainCrafts();
+				SeedMedievalClothingCrafts();
+				SeedMedievalEquipmentCrafts();
+				SeedMedievalWritingAdministrationCrafts();
+				SeedMedievalMedicalApothecaryCrafts();
+				SeedMedievalJewelleryDevotionalCrafts();
+				SeedMedievalFurnitureAndContainerCrafts();
+				SeedMedievalFoodBeverageCrafts();
+				SeedPreIndustrialFoodCatalogueCrafts();
+				SeedMedievalRepairKitCrafts();
+				SeedMedievalComponentGapCrafts();
+			});
 		}
 		finally
 		{

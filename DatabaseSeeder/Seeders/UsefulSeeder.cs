@@ -270,14 +270,34 @@ public partial class UsefulSeeder : IDatabaseSeeder
             Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
         {
             ("ai",
-                "Do you want to install the stock AI example package? This includes repeatable command, combat, mount, scavenging and wandering examples, plus the newer arena, arboreal, den-builder and lair-scavenger samples.\n\nPlease answer #3yes#f or #3no#f: ",
+                """
+                #BStock AI Examples#0
+
+                #6This package installs:#0
+                  #3-#0 commandable-owner and clan-rank command examples
+                  #3-#0 door guard, sparring, aggression, rescue and self-care behaviours
+                  #3-#0 wandering, tracking, scavenging and mount behaviours
+                  #3-#0 arena participant, arboreal wanderer, den-builder and lair-scavenger examples
+
+                Install this package? Please answer #3yes#f or #3no#f:
+                """,
                 (context, questions) => ClassifyAiPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
                 (answer, context) =>
                 {
                     if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("covers",
-                "Do you want to install a collection of simple ranged covers?\n\nPlease answer #3yes#f or #3no#f: ",
+                """
+                #BSimple Ranged Covers#0
+
+                #6This package installs terrain-linked cover definitions for:#0
+                  #3-#0 urban locations: doorways, corners, windows and street furniture
+                  #3-#0 rural and wild terrain: trees, brush, hedges, grass, rocks and fallen timber
+                  #3-#0 aquatic, coastal and riparian terrain: seaweed, dunes, reeds and dense vegetation
+                  #3-#0 other common scenes: rubble, walls, vehicles, smoke, fog, furniture and staircases
+
+                Install this package? Please answer #3yes#f or #3no#f:
+                """,
                 (context, questions) => context.Terrains.Count() > 1 &&
                                         ClassifyRangedCoverPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
                 (answer, context) =>
@@ -285,28 +305,78 @@ public partial class UsefulSeeder : IDatabaseSeeder
                         if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("items",
-                "#DItem Package 1#F\n\nDo you want to include a package of standard item definitions, which includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys, basic writing implements, insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.), destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, dice, torches and lanterns, repair kits, water sources, smokeable tobacco, drag aids, timepieces, market stalls, market good weights and pre-modern builder variants.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
+                """
+                #BStandard Item Components#0
+
+                #6This package installs reusable component prototypes for:#0
+                  #3-#0 containers, liquid containers, doors, locks, latches, keys and document storage
+                  #3-#0 writing surfaces and implements, seals, measuring instruments, tables and chairs
+                  #3-#0 clothing insulation, glasses, identity obscurers, worn expansions and trait changers
+                  #3-#0 destroyable items, variables, ranged-cover items, medical items and prosthetics
+                  #3-#0 dice, lighting, water sources, smokeables, drag aids, timepieces and repair kits
+                  #3-#0 market stalls, market-good weights, offerings, incense, and Antiquity and medieval builder components
+                  #3-#0 general tools for blacksmithing, armouring, weaponsmithing, woodcrafting, textiles, leatherwork,
+                      parchmentmaking, papermaking, bookbinding, pottery, masonry, glassblowing, lapidary, jewellery,
+                      apothecary, medicine and woodblock printing
+
+                Install this package? Please answer #3yes#f or #3no#f:
+                """,
                 (context, questions) => true,
                 (answer, context) =>
                 {
                     if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("modernitems",
-                "Do you want to install some common modern setting item component types like batteries, chargers, power plugs, powered lights, radios, electrical outlets and generators, telephones and cellular devices, computer and automation components, breathing and emergency medical gear, electric heaters and coolers, fireplaces, campfires, grid creators, liquid grids and fuel generators?\n\nPlease answer #3yes#f or #3no#f: ",
+                """
+                #BModern Item Components#0
+
+                #6This package installs reusable component prototypes for:#0
+                  #3-#0 disposable and rechargeable batteries, powered devices and battery chargers
+                  #3-#0 electrical sockets, power supplies, generators, lights and signal cable
+                  #3-#0 telephones, mobile phones, radios, personal computers and automation housings
+                  #3-#0 electricity, liquid and telecommunications grid creators, feeders, outlets and pumps
+                  #3-#0 oxygen containers, defibrillators, thrusters and zero-gravity anchors and tethers
+                  #3-#0 electric, consumable-fuel, solid-fuel and liquid-fuel heaters and coolers
+
+                Install this package? Please answer #3yes#f or #3no#f:
+                """,
                 (context, questions) => ClassifyModernPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
                 (answer, context) =>
                 {
                     if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("tags",
-                "Do you want to install pre-made tags for use with items, crafts and projects? The main reason not to do this is if you are planning on an implementation that substantially differs from the one that comes with this seeder.\n\nPlease answer #3yes#f or #3no#f: ",
+                """
+                #BStock Tag Hierarchy#0
+
+                #6This package installs a shared hierarchy for:#0
+                  #3-#0 historical eras, cultures and institutions
+                  #3-#0 material functions, commodities, food and drink, consumables and market categories
+                  #3-#0 craft, tool, repair, medical, military, animal, household and writing classifications
+                  #3-#0 agriculture, textiles, primary-production resources, deposits and commodity grades
+
+                #1Skip this only if you are replacing the stock item, craft and project taxonomy.#0
+
+                Install this package? Please answer #3yes#f or #3no#f:
+                """,
                 (context, questions) => context.Tags.All(x => x.Name != "Aluminothermic Welding Portion"),
                 (answer, context) =>
                 {
                     if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("autobuilder",
-                "Do you want to install the wilderness grouped autobuilder package for the stock terrain catalogue? This adds a terrain-aware grouped random-description room template, a random-features area template, and supporting terrain feature tags so builders can immediately generate wilderness-heavy areas that match the seeded terrains, especially when paired with Terrain Planner.\n\nPlease answer #3yes#f or #3no#f: ",
+                """
+                #BWilderness Terrain Autobuilder#0
+
+                #6This package installs:#0
+                  #3-#0 a terrain-aware random-description room template
+                  #3-#0 a random-features area template for the installed terrain catalogue
+                  #3-#0 descriptive tags for terrain features, physical layers, sounds, smells, resources and roads
+                  #3-#0 wilderness-focused prose for cave, desert, forest, glacial, open-land, road, rock, volcanic,
+                      water and wetland terrain
+
+                This is a good companion to #3Terrain Planner#0. Install this package? Please answer #3yes#f or #3no#f:
+                """,
                 (context, questions) => context.Terrains.Count() > 1 &&
                                         ClassifyAutobuilderPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
                 (answer, context) =>
@@ -314,14 +384,35 @@ public partial class UsefulSeeder : IDatabaseSeeder
                     if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("hints",
-                "Do you want to install some newbie hints that will instruct new users about the key commands and engine concepts that they need to know?\n\nPlease answer #3yes#f or #3no#f: ",
+                """
+                #BNew Player Hints#0
+
+                #6This package installs in-game hints covering:#0
+                  #3-#0 help, command syntax, character information and account settings
+                  #3-#0 roleplay, communication, staff support and player availability
+                  #3-#0 inventory, skills, movement, positioning, surveying and ranged targeting
+                  #3-#0 names, aliases, introductions, exits, currency, journals and plans
+
+                Install this package? Please answer #3yes#f or #3no#f:
+                """,
                 (context, questions) => context.NewPlayerHints.Count() == 0,
                 (answer, context) =>
                 {
                     if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("dreams",
-                "Do you want to install some dream templates?\n\nPlease answer #3yes#f or #3no#f: ",
+                """
+                #BDream Templates#0
+
+                #6This package always installs universal dreams about:#0
+                  #3-#0 anxiety, pursuit, exposure, disorientation and everyday frustrations
+                  #3-#0 familiar homes and places, work and domestic routines, comfort and connection
+                  #3-#0 uncanny landscapes, altered bodies, strange people and surreal objects
+
+                You can optionally add #3modern#0 or #3old#0 era-specific dreams in the next question.
+
+                Install this package? Please answer #3yes#f or #3no#f:
+                """,
                 (context, questions) => context.Dreams.Count() == 0,
                 (answer, context) =>
                 {
@@ -329,14 +420,15 @@ public partial class UsefulSeeder : IDatabaseSeeder
                 }),
             ("dream-eras",
                 """
-                The dream seeder will install a number of universal human dreams that are not specific to one setting or time period. However, you can also seed a few additional setting or era specific packages as well.
+                #BOptional Dream Packages#0
 
-                This could include the following:
+                #6Universal dreams will be installed. Add any of these packages:#0
+                  #3modern#0 - travel and city routines, battery and charger anxiety, unread messages, online identity,
+                            password resets, deliveries, browser tabs and group chats
+                  #3old#0    - woods, fields, livestock, water, haymaking, orchards, harvests, broken carts, weather,
+                            crop blight, lost children and other pre-modern rural life
 
-                #Bmodern#0 - a collection of dreams from the modern day, including things like cars, clocks, mobile phones, computers, social media, etc.
-                #Bold#0 - a collection of dreams from pre-modern periods, that include universal human experiences of that era like nature, harvests, famine, war, etc.
-
-                Please list each of the extra packages you'd like to include separated by spaces, or simply a blank line to include only the universal ones: 
+                List packages separated by spaces, or submit a blank line for universal dreams only:
                 """,
                 (context, questions) => questions["dreams"].EqualToAny("yes", "y"),
                 (answer, context) =>
@@ -436,11 +528,15 @@ public partial class UsefulSeeder : IDatabaseSeeder
     public string Tagline => "A collection of useful stock items, AI, tags, covers and helpers";
 
     public string FullDescription =>
-        @"This package gives options for a bunch of things that are not absolutely essential and that you might want to implement differently, but that I have already gone to the effort of having set up and think you might like to use.
+        @"#BKickstart Package#0
 
-This includes things like useful game item components, AI templates, helper tags, ranged covers, newbie hints and other building helpers.
+#6Choose from stock starter content for:#0
+  #3-#0 reusable item component prototypes for general and modern settings
+  #3-#0 AI behaviour examples, terrain-aware ranged covers and wilderness autobuilder templates
+  #3-#0 a shared tag hierarchy for stock items, crafts and projects
+  #3-#0 new-player hints and universal or era-specific dream templates
 
-Inside the package there are a few numbered #D""Core Item Packages""#3. The reason for this is that there have been updates to the useful seeder since its first release, and these sub-packages were for earlier adopters to update their existing MUDs with. I recommend that you install all of the Core Item Packages as they are appropriate for any MUD in nearly any setting.";
+These options are not required by the engine. Install the packages that suit your game, and skip a package only when you intend to supply a substantially different replacement.";
 
     private FuturemudDatabaseContext _context = null!;
 

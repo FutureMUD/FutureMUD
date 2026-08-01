@@ -491,6 +491,16 @@ The exception details were as follows:
                     .Where(x => x.Enabled)
                     .ToList()
                 ;
+            SeederDependencyPlan dependencyPlan = SeederMetadataRegistry.GetDependencyPlan(seeders);
+            if (dependencyPlan.Errors.Any())
+            {
+                throw new InvalidOperationException(
+                    $"The database seeder dependency registry is invalid: {string.Join("; ", dependencyPlan.Errors)}");
+            }
+
+            Dictionary<Type, int> dependencyOrder = dependencyPlan.OrderedSeeders
+                .Select((seeder, index) => new { SeederType = seeder.GetType(), Index = index })
+                .ToDictionary(x => x.SeederType, x => x.Index);
 
             if (!string.IsNullOrEmpty(errorMessage))
             {
@@ -508,7 +518,7 @@ The exception details were as follows:
                 assessedSeeders = seeders
                     .Select(seeder => (Seeder: seeder, Assessment: seeder.AssessSeedData(context)))
                     .OrderBy(x => GetMenuSortRank(x.Assessment.Status))
-                    .ThenBy(x => x.Seeder.SortOrder)
+                    .ThenBy(x => dependencyOrder[x.Seeder.GetType()])
                     .ThenBy(x => x.Seeder.Name)
                     .ToList();
                 visibleSeeders = assessedSeeders
@@ -654,6 +664,16 @@ The exception details were as follows:
 
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine();
+        }
+
+        if (assessment.Status == SeederAssessmentStatus.Blocked)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            ConsoleLayoutHelper.WriteWrapped(
+                "This package cannot be installed until the listed prerequisites are satisfied.");
+            Console.ForegroundColor = ConsoleColor.White;
+            WaitForReturnToMenu();
+            return;
         }
 
         Console.WriteLine("Do you want to install this package?");

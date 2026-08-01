@@ -38,8 +38,11 @@ public sealed record SeederMetadata(
     IReadOnlyCollection<SeederPrerequisite> Prerequisites,
     string? RerunSummary = null,
     string? UpdateSummary = null,
-    string? OwnershipSummary = null)
+    string? OwnershipSummary = null,
+    IReadOnlyCollection<Type>? DependencySeederTypes = null)
 {
+    public IReadOnlyCollection<Type> RequiredSeederTypes => DependencySeederTypes ?? Array.Empty<Type>();
+
     public static SeederMetadata Default { get; } = new(
         SeederRepeatabilityMode.OneShot,
         SeederUpdateCapability.None,
@@ -53,3 +56,7 @@ public sealed record SeederAssessment(
     IReadOnlyCollection<string> MissingPrerequisites,
     IReadOnlyCollection<string> Warnings,
     IReadOnlyCollection<string> Notes);
+
+public sealed record SeederDependencyPlan(
+    IReadOnlyList<IDatabaseSeeder> OrderedSeeders,
+    IReadOnlyCollection<string> Errors);

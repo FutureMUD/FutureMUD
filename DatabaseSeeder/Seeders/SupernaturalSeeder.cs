@@ -107,7 +107,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 			: ShouldSeedResult.MayAlreadyBeInstalled;
 	}
 
-	private static bool HasPrerequisites(FuturemudDatabaseContext context)
+	internal static bool HasPrerequisites(FuturemudDatabaseContext context)
 	{
 		string[] requiredBodies =
 		[

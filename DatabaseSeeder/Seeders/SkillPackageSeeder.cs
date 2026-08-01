@@ -124,12 +124,6 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 (context, answers) => true, (text, context) =>
                 {
                     if (!text.EqualToAny("yes", "y", "no", "n")) { return (false, "Please answer #3yes#F or #3no#F."); } return (true, string.Empty);
-                }),
-            ("extendedprofessional",
-                "Do you want to create skills for non-functional, non-crafting professional skills - for example labouring, lawyering, engineering etc? You might want to do this if you are making the kid of MUD where people with those skills can get paid for those skills by getting a job. Otherwise, you may wish to leave them out as nobody likes a wasted skill pick.\n\nPlease answer #3yes#F or #3no#F. ",
-                (context, answers) => true, (text, context) =>
-                {
-                    if (!text.EqualToAny("yes", "y", "no", "n")) { return (false, "Please answer #3yes#F or #3no#F."); } return (true, string.Empty);
                 })
         };
 
@@ -162,8 +156,14 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 @"The $0 skill covers your ability to move around while carrying heavy loads, such as a full set of armour, gear, or similar. The higher this skill, the less stamina you will use when moving while encumbered and the higher your encumbrance limits."),
             new SkillDetails("Riding", "Ride", "Athletic", "min(99,3*agi + 2*con)", "General", "General", true,
                 1.0,
-                @"The $0 skill covers your ability to handle and ride animal mounts.")
-        };
+                @"The $0 skill covers your ability to handle and ride animal mounts."),
+			new SkillDetails("Rowing", "Row", "Athletic", "min(99,3*str + 2*con)", "General", "General", true,
+				1.0,
+				@"The $0 skill covers your ability to row a boat or other watercraft. The higher it is, the faster you can row and the less stamina it will cost you."),
+			new SkillDetails("Balancing", "Balance", "Athletic", "min(99,3*dex + 2*con)", "General", "General", true,
+				1.0,
+				@"The $0 skill covers your ability to maintain your balance in challenging situations, and is used to resist knockdown."),
+		};
 
     private IEnumerable<SkillDetails> BroadAthleticSkills =>
         new[]
@@ -620,7 +620,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
         TraitDefinition forageTrait = GetSkill("Forage", "Survival");
         TraitDefinition armourUseTrait = skills["Armour Use"];
         TraitDefinition trackTrait = GetSkill("Track", "Tracking", "Survival");
-        TraitDefinition poisonTrait = GetSkill("Poisoning", "Chemistry", "Herbalism", "Medicine");
+		TraitDefinition rowTrait = GetSkill("Row", "Rowing", "Survival");
+		TraitDefinition paddleTrait = GetSkill("Paddle", "Paddling", "Swim", "Swimming", "Survival");
+		TraitDefinition balancingTrait = GetSkill("Balance", "Balancing", "Athletics", "Survival");
+		TraitDefinition poisonTrait = GetSkill("Poisoning", "Chemistry", "Herbalism", "Medicine");
         TraitDefinition? lawTrait = skills.GetValueOrDefault("Law");
 
         foreach (CheckType check in Enum.GetValues(typeof(CheckType)).OfType<CheckType>().Distinct().ToList())
@@ -1224,7 +1227,19 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                     AddCheck(check, new TraitExpression { Expression = $"track:{trackTrait.Id}" },
                         templates["Skill Check"].Id, Difficulty.Impossible);
                     continue;
-                default:
+                case CheckType.RowVehicleCheck:
+					AddCheck(check, new TraitExpression { Expression = $"row:{rowTrait.Id}" },
+						templates["Skill Check"].Id, Difficulty.Impossible);
+					continue;
+                case CheckType.PaddleVehicleCheck:
+					AddCheck(check, new TraitExpression { Expression = $"paddle:{paddleTrait.Id}" },
+						templates["Skill Check"].Id, Difficulty.Impossible);
+					continue;
+                case CheckType.BoatStabilityCheck:
+					AddCheck(check, new TraitExpression { Expression = $"athletics:{balancingTrait.Id}" },
+						templates["Skill Check"].Id, Difficulty.Impossible);
+					continue;
+				default:
                     throw new ArgumentOutOfRangeException();
             }
         }
@@ -1499,15 +1514,12 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
             }
         }
 
-        if (questionAnswers["extendedprofessional"].EqualToAny("yes", "y"))
-        {
-            foreach (SkillDetails skill in ProfessionalSkills)
-            {
-                AddSkill(skill);
-            }
-        }
+		foreach (SkillDetails skill in ProfessionalSkills)
+		{
+			AddSkill(skill);
+		}
 
-        return skills;
+		return skills;
     }
 
 	internal static string ResolveSeededSkillNameForTesting(

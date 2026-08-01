@@ -84,7 +84,7 @@ designed to be used when the MUD is newly installed.
 From time to time new updates to the seeder may bring content for those who have 
 already got an established game, in this case these packages will be clearly 
 marked. You should backup your database before using this tool in that scenario 
-        just in case.
+just in case.
 
 Please press enter to begin.".WriteLineConsole();
         Console.ReadLine();

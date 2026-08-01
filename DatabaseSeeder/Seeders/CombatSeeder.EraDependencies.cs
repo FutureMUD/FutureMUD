@@ -127,9 +127,9 @@ public partial class CombatSeeder
 			double baseDifficulty, double stackedDifficulty)
 		{
 			var donor = context.ArmourTypes.FirstOrDefault(x => x.Name == donorName) ??
-			            throw new InvalidOperationException(
-				            $"Cannot seed {componentName}: the foundational armour type '{donorName}' is missing. " +
-				            "Run Combat with the installweapons choice enabled first.");
+						throw new InvalidOperationException(
+							$"Cannot seed {componentName}: the foundational armour type '{donorName}' is missing. " +
+							"Run Combat with the installweapons choice enabled first.");
 			var armour = context.ArmourTypes.FirstOrDefault(x => x.Name == name);
 			if (armour is null)
 			{
@@ -159,9 +159,9 @@ public partial class CombatSeeder
 				.Include(x => x.WeaponAttacks)
 				.ThenInclude(x => x.CombatMessagesWeaponAttacks)
 				.FirstOrDefault(x => x.Name == donorName) ??
-			            throw new InvalidOperationException(
-				            $"Cannot seed {componentName}: the foundational weapon type '{donorName}' is missing. " +
-				            "Run Combat with the installweapons choice enabled first.");
+						throw new InvalidOperationException(
+							$"Cannot seed {componentName}: the foundational weapon type '{donorName}' is missing. " +
+							"Run Combat with the installweapons choice enabled first.");
 			var weapon = context.WeaponTypes.FirstOrDefault(x => x.Name == name);
 			if (weapon is null)
 			{
@@ -253,9 +253,9 @@ public partial class CombatSeeder
 			Action<RangedWeaponTypes>? configure = null, string? meleeDonorName = null)
 		{
 			var donor = context.RangedWeaponTypes.FirstOrDefault(x => x.Name == donorName) ??
-			            throw new InvalidOperationException(
-				            $"Cannot seed {componentName}: the foundational ranged-weapon type '{donorName}' is missing. " +
-				            "Run Combat with the installranged choice enabled first.");
+						throw new InvalidOperationException(
+							$"Cannot seed {componentName}: the foundational ranged-weapon type '{donorName}' is missing. " +
+							"Run Combat with the installranged choice enabled first.");
 			var ranged = context.RangedWeaponTypes.FirstOrDefault(x => x.Name == name);
 			if (ranged is null)
 			{
@@ -305,10 +305,10 @@ public partial class CombatSeeder
 		long RequireTagId(string name)
 		{
 			return context.Tags
-				       .AsEnumerable()
-				       .SingleOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Id ??
-			       throw new InvalidOperationException(
-				       $"Cannot seed combat profile: the required tag '{name}' is missing. Run the Useful Items package first.");
+					   .AsEnumerable()
+					   .SingleOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Id ??
+				   throw new InvalidOperationException(
+					   $"Cannot seed combat profile: the required tag '{name}' is missing. Run the Useful Items package first.");
 		}
 
 		void EnsureSpannedCrossbow(string name, string componentName, string toolTagName,
@@ -325,162 +325,159 @@ public partial class CombatSeeder
 				.ToString();
 		}
 
-		if (questionAnswers["installweapons"].EqualToAny("yes", "y"))
+
+		EnsureArmour("Brigandine", "Armour_Brigandine", "Metal Scale", 1, 1, 2);
+		EnsureArmour("Buff Leather", "Armour_BuffLeather", "Boiled Leather", 1, 1, 2);
+		EnsureArmour("Chain and Plate", "Armour_ChainAndPlate", "Platemail", 1, 2, 3);
+		EnsureArmour("Padded", "Armour_Padded", "Ultra Heavy Clothing", 1, 1, 2);
+		EnsureArmour("Plate Light", "Armour_PlateLight", "Platemail", 1, 1, 2);
+		EnsureArmour("Plate Medium", "Armour_PlateMedium", "Platemail", 1, 2, 3);
+		EnsureArmour("Proofed Plate", "Armour_ProofedPlate", "Platemail", 2, 2, 4);
+		EnsureArmour("Rattan", "Armour_Rattan", "Leather Scale", 1, 1, 2);
+		EnsureArmour("Rigid Metal", "Armour_RigidMetal", "Platemail", 1, 2, 3);
+		EnsureArmour("Coat of Plates", "Armour_CoatOfPlates", "Platemail", 1, 2, 3);
+		EnsureArmour("Splinted", "Armour_Splinted", "Studded Leather", 1, 1, 2);
+
+		EnsureWeapon("Bayonet", "Melee_Bayonet", "Dagger", WeaponClassification.Lethal, 2);
+		EnsureWeapon("Hooked Polearm", "Melee_HookedPolearm", "Halberd", WeaponClassification.Lethal, 4);
+		EnsureWeapon("Lance", "Melee_Lance", "Long Spear", WeaponClassification.Lethal, 5);
+		EnsureWeapon("Poleblade", "Melee_Poleblade", "Halberd", WeaponClassification.Lethal, 4);
+		EnsureWeapon("Sabre", "Melee_Sabre", "Longsword", WeaponClassification.Lethal, 3);
+		EnsureWeapon("Smallsword", "Melee_Smallsword", "Rapier", WeaponClassification.Lethal, 2);
+		EnsureWeapon("Training Bayonet", "Melee_Training_Bayonet", "Training Dagger",
+			WeaponClassification.Training, 2);
+		EnsureWeapon("Training Lance", "Melee_Training_Lance", "Training Spear",
+			WeaponClassification.Training, 5);
+		EnsureWeapon("Training Poleblade", "Melee_Training_Poleblade", "Training Halberd",
+			WeaponClassification.Training, 4);
+		EnsureWeapon("Training Sabre", "Melee_Training_Sabre", "Training Longsword",
+			WeaponClassification.Training, 3);
+		EnsureWeapon("Training Smallsword", "Melee_Training_Smallsword", "Training Rapier",
+			WeaponClassification.Training, 2);
+
+		foreach (var (name, style) in new[]
+				 {
+						 ("Bayonet_Plug", "Plug"),
+						 ("Bayonet_Socket", "Socket"),
+						 ("Bayonet_Sword", "Sword")
+					 })
 		{
-			EnsureArmour("Brigandine", "Armour_Brigandine", "Metal Scale", 1, 1, 2);
-			EnsureArmour("Buff Leather", "Armour_BuffLeather", "Boiled Leather", 1, 1, 2);
-			EnsureArmour("Chain and Plate", "Armour_ChainAndPlate", "Platemail", 1, 2, 3);
-			EnsureArmour("Padded", "Armour_Padded", "Ultra Heavy Clothing", 1, 1, 2);
-			EnsureArmour("Plate Light", "Armour_PlateLight", "Platemail", 1, 1, 2);
-			EnsureArmour("Plate Medium", "Armour_PlateMedium", "Platemail", 1, 2, 3);
-			EnsureArmour("Proofed Plate", "Armour_ProofedPlate", "Platemail", 2, 2, 4);
-			EnsureArmour("Rattan", "Armour_Rattan", "Leather Scale", 1, 1, 2);
-			EnsureArmour("Rigid Metal", "Armour_RigidMetal", "Platemail", 1, 2, 3);
-			EnsureArmour("Coat of Plates", "Armour_CoatOfPlates", "Platemail", 1, 2, 3);
-			EnsureArmour("Splinted", "Armour_Splinted", "Studded Leather", 1, 1, 2);
-
-			EnsureWeapon("Bayonet", "Melee_Bayonet", "Dagger", WeaponClassification.Lethal, 2);
-			EnsureWeapon("Hooked Polearm", "Melee_HookedPolearm", "Halberd", WeaponClassification.Lethal, 4);
-			EnsureWeapon("Lance", "Melee_Lance", "Long Spear", WeaponClassification.Lethal, 5);
-			EnsureWeapon("Poleblade", "Melee_Poleblade", "Halberd", WeaponClassification.Lethal, 4);
-			EnsureWeapon("Sabre", "Melee_Sabre", "Longsword", WeaponClassification.Lethal, 3);
-			EnsureWeapon("Smallsword", "Melee_Smallsword", "Rapier", WeaponClassification.Lethal, 2);
-			EnsureWeapon("Training Bayonet", "Melee_Training_Bayonet", "Training Dagger",
-				WeaponClassification.Training, 2);
-			EnsureWeapon("Training Lance", "Melee_Training_Lance", "Training Spear",
-				WeaponClassification.Training, 5);
-			EnsureWeapon("Training Poleblade", "Melee_Training_Poleblade", "Training Halberd",
-				WeaponClassification.Training, 4);
-			EnsureWeapon("Training Sabre", "Melee_Training_Sabre", "Training Longsword",
-				WeaponClassification.Training, 3);
-			EnsureWeapon("Training Smallsword", "Melee_Training_Smallsword", "Training Rapier",
-				WeaponClassification.Training, 2);
-
-			foreach (var (name, style) in new[]
-			         {
-				         ("Bayonet_Plug", "Plug"),
-				         ("Bayonet_Socket", "Socket"),
-				         ("Bayonet_Sword", "Sword")
-			         })
-			{
-				EnsureComponent("BayonetAttachment", name,
-					$"Turns an item into a {style.ToLowerInvariant()} bayonet attachment",
-					new XElement("Definition",
-						new XElement("Style", style),
-						new XElement("MinimumBore", 0.45),
-						new XElement("MaximumBore", 0.8))
-						.ToString());
-			}
+			EnsureComponent("BayonetAttachment", name,
+				$"Turns an item into a {style.ToLowerInvariant()} bayonet attachment",
+				new XElement("Definition",
+					new XElement("Style", style),
+					new XElement("MinimumBore", 0.45),
+					new XElement("MaximumBore", 0.8))
+					.ToString());
 		}
 
-		if (questionAnswers["installranged"].EqualToAny("yes", "y"))
+
+		EnsureRanged("Composite Bow Heavy", "CompositeBow_Heavy", "Bow", "Longbow", x =>
 		{
-			EnsureRanged("Composite Bow Heavy", "CompositeBow_Heavy", "Bow", "Longbow", x =>
-			{
-				x.DefaultRangeInRooms = 5;
-				x.StaminaPerLoadStage *= 1.2;
-				x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 3";
-			});
-			EnsureRanged("Composite Bow Light", "CompositeBow_Light", "Bow", "Shortbow", x =>
-			{
-				x.DefaultRangeInRooms = Math.Max(3, x.DefaultRangeInRooms);
-				x.LoadDelay *= 0.8;
-			});
-			EnsureRanged("Composite Bow War", "CompositeBow_War", "Bow", "Longbow", x =>
-			{
-				x.DefaultRangeInRooms = 4;
-				x.LoadDelay *= 0.9;
-			});
-			EnsureRanged("Yumi", "Yumi", "Bow", "Longbow", x =>
-			{
-				x.DefaultRangeInRooms = 5;
-				x.AlwaysRequiresTwoHandsToWield = true;
-			});
+			x.DefaultRangeInRooms = 5;
+			x.StaminaPerLoadStage *= 1.2;
+			x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 3";
+		});
+		EnsureRanged("Composite Bow Light", "CompositeBow_Light", "Bow", "Shortbow", x =>
+		{
+			x.DefaultRangeInRooms = Math.Max(3, x.DefaultRangeInRooms);
+			x.LoadDelay *= 0.8;
+		});
+		EnsureRanged("Composite Bow War", "CompositeBow_War", "Bow", "Longbow", x =>
+		{
+			x.DefaultRangeInRooms = 4;
+			x.LoadDelay *= 0.9;
+		});
+		EnsureRanged("Yumi", "Yumi", "Bow", "Longbow", x =>
+		{
+			x.DefaultRangeInRooms = 5;
+			x.AlwaysRequiresTwoHandsToWield = true;
+		});
 
-			EnsureRanged("East Asian Crossbow", "Crossbow_EastAsian", "Crossbow", "Crossbow");
-			EnsureRanged("Heavy Crossbow", "Crossbow_Heavy", "Crossbow", "Crossbow", x =>
-			{
-				x.DefaultRangeInRooms = 5;
-				x.LoadDelay *= 1.5;
-				x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 4";
-			});
-			EnsureRanged("Light Crossbow", "Crossbow_Light", "Crossbow", "Hand Crossbow", x =>
-			{
-				x.DefaultRangeInRooms = 3;
-				x.AlwaysRequiresTwoHandsToWield = false;
-			});
-			EnsureRanged("Pellet Crossbow", "Crossbow_Pellet", "Crossbow", "Crossbow", x =>
-			{
-				x.DefaultRangeInRooms = 2;
-				x.SpecificAmmunitionGrade = "Sling Bullet";
-				x.DamageBonusExpression = $"({x.DamageBonusExpression}) - 3";
-			});
-			EnsureSpannedCrossbow("Cranequin Crossbow", "Crossbow_Cranequin", "Cranequin", x =>
-			{
-				x.ReadyDelay *= 3.0;
-				x.StaminaPerLoadStage *= 0.9;
-				x.DefaultRangeInRooms = 6;
-				x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 6";
-			});
-			EnsureSpannedCrossbow("Goat's Foot Crossbow", "Crossbow_GoatsFoot", "Goat's Foot", x =>
-			{
-				x.ReadyDelay *= 1.5;
-				x.StaminaPerLoadStage *= 1.15;
-				x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 2";
-			});
-			EnsureSpannedCrossbow("Lever Crossbow", "Crossbow_Lever", "Lever", x =>
-			{
-				x.ReadyDelay *= 1.75;
-				x.StaminaPerLoadStage *= 1.2;
-				x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 3";
-			});
-			EnsureSpannedCrossbow("Spanning Hook Crossbow", "Crossbow_SpanningHook", "Spanning Hook", x =>
-			{
-				x.ReadyDelay *= 1.25;
-				x.StaminaPerLoadStage *= 1.1;
-				x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 1";
-			});
-			EnsureSpannedCrossbow("Windlass Crossbow", "Crossbow_Windlass", "Windlass", x =>
-			{
-				x.ReadyDelay *= 2.5;
-				x.DefaultRangeInRooms = 5;
-				x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 5";
-			});
+		EnsureRanged("East Asian Crossbow", "Crossbow_EastAsian", "Crossbow", "Crossbow");
+		EnsureRanged("Heavy Crossbow", "Crossbow_Heavy", "Crossbow", "Crossbow", x =>
+		{
+			x.DefaultRangeInRooms = 5;
+			x.LoadDelay *= 1.5;
+			x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 4";
+		});
+		EnsureRanged("Light Crossbow", "Crossbow_Light", "Crossbow", "Hand Crossbow", x =>
+		{
+			x.DefaultRangeInRooms = 3;
+			x.AlwaysRequiresTwoHandsToWield = false;
+		});
+		EnsureRanged("Pellet Crossbow", "Crossbow_Pellet", "Crossbow", "Crossbow", x =>
+		{
+			x.DefaultRangeInRooms = 2;
+			x.SpecificAmmunitionGrade = "Sling Bullet";
+			x.DamageBonusExpression = $"({x.DamageBonusExpression}) - 3";
+		});
+		EnsureSpannedCrossbow("Cranequin Crossbow", "Crossbow_Cranequin", "Cranequin", x =>
+		{
+			x.ReadyDelay *= 3.0;
+			x.StaminaPerLoadStage *= 0.9;
+			x.DefaultRangeInRooms = 6;
+			x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 6";
+		});
+		EnsureSpannedCrossbow("Goat's Foot Crossbow", "Crossbow_GoatsFoot", "Goat's Foot", x =>
+		{
+			x.ReadyDelay *= 1.5;
+			x.StaminaPerLoadStage *= 1.15;
+			x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 2";
+		});
+		EnsureSpannedCrossbow("Lever Crossbow", "Crossbow_Lever", "Lever", x =>
+		{
+			x.ReadyDelay *= 1.75;
+			x.StaminaPerLoadStage *= 1.2;
+			x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 3";
+		});
+		EnsureSpannedCrossbow("Spanning Hook Crossbow", "Crossbow_SpanningHook", "Spanning Hook", x =>
+		{
+			x.ReadyDelay *= 1.25;
+			x.StaminaPerLoadStage *= 1.1;
+			x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 1";
+		});
+		EnsureSpannedCrossbow("Windlass Crossbow", "Crossbow_Windlass", "Windlass", x =>
+		{
+			x.ReadyDelay *= 2.5;
+			x.DefaultRangeInRooms = 5;
+			x.DamageBonusExpression = $"({x.DamageBonusExpression}) + 5";
+		});
 
-			EnsureRanged("Long Blowgun", "Blowgun_Long", "Blowgun", "Blowgun", x =>
-			{
-				x.DefaultRangeInRooms = 2;
-				x.AlwaysRequiresTwoHandsToWield = true;
-			});
-			EnsureRanged("Short Blowgun", "Blowgun_Short", "Blowgun", "Blowgun", x =>
-			{
-				x.DefaultRangeInRooms = 1;
-				x.AlwaysRequiresTwoHandsToWield = false;
-				x.LoadDelay *= 0.8;
-			});
-			EnsureRanged("Throwing Club", "Throwing_Club", "ThrownWeapon", "Throwing Axe", null, "Club");
-			EnsureRanged("Throwing Disc", "Throwing_Disc", "ThrownWeapon", "Throwing Knife", x =>
-			{
-				x.DefaultRangeInRooms = 1;
-				x.DamageBonusExpression = $"({x.DamageBonusExpression}) - 2";
-			}, "Dagger");
+		EnsureRanged("Long Blowgun", "Blowgun_Long", "Blowgun", "Blowgun", x =>
+		{
+			x.DefaultRangeInRooms = 2;
+			x.AlwaysRequiresTwoHandsToWield = true;
+		});
+		EnsureRanged("Short Blowgun", "Blowgun_Short", "Blowgun", "Blowgun", x =>
+		{
+			x.DefaultRangeInRooms = 1;
+			x.AlwaysRequiresTwoHandsToWield = false;
+			x.LoadDelay *= 0.8;
+		});
+		EnsureRanged("Throwing Club", "Throwing_Club", "ThrownWeapon", "Throwing Axe", null, "Club");
+		EnsureRanged("Throwing Disc", "Throwing_Disc", "ThrownWeapon", "Throwing Knife", x =>
+		{
+			x.DefaultRangeInRooms = 1;
+			x.DamageBonusExpression = $"({x.DamageBonusExpression}) - 2";
+		}, "Dagger");
 
-			var slingBullet = context.AmmunitionTypes.FirstOrDefault(x => x.Name == "Sling Bullet") ??
-			                  throw new InvalidOperationException(
-				                  "Cannot seed Crossbow_Pellet: the foundational ammunition type 'Sling Bullet' is missing. " +
-				                  "Run Combat with the installranged choice enabled first.");
-			var types = slingBullet.RangedWeaponTypes
-				.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-				.ToHashSet(StringComparer.Ordinal);
-			if (types.Add(((int)RangedWeaponType.Crossbow).ToString()))
-			{
-				slingBullet.RangedWeaponTypes = types.OrderBy(x => x).ListToCommaSeparatedValues(" ");
-				added++;
-			}
+		var slingBullet = context.AmmunitionTypes.FirstOrDefault(x => x.Name == "Sling Bullet") ??
+						  throw new InvalidOperationException(
+							  "Cannot seed Crossbow_Pellet: the foundational ammunition type 'Sling Bullet' is missing. " +
+							  "Run Combat with the installranged choice enabled first.");
+		var types = slingBullet.RangedWeaponTypes
+			.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+			.ToHashSet(StringComparer.Ordinal);
+		if (types.Add(((int)RangedWeaponType.Crossbow).ToString()))
+		{
+			slingBullet.RangedWeaponTypes = types.OrderBy(x => x).ListToCommaSeparatedValues(" ");
+			added++;
 		}
+
 
 		if (questionAnswers.TryGetValue("installmuskets", out var installMuskets) &&
-		    installMuskets.EqualToAny("yes", "y"))
+			installMuskets.EqualToAny("yes", "y"))
 		{
 			var paperTagId = RequireTagId("Paper Cartridges");
 			foreach (var boreName in new[] { "0.45 Bore", "0.55 Bore", "0.6 Bore", "0.65 Bore", "0.7 Bore", "0.75 Bore", "0.8 Bore" })
@@ -502,11 +499,11 @@ public partial class CombatSeeder
 					definition.ToString());
 
 				foreach (var item in context.GameItemProtos
-					         .Include(x => x.GameItemProtosGameItemComponentProtos)
-					         .Include(x => x.GameItemProtosTags)
-					         .Where(x => x.GameItemProtosGameItemComponentProtos.Any(y =>
-						         y.GameItemComponentProtoId == baseComponent.Id &&
-						         y.GameItemComponentRevision == baseComponent.RevisionNumber)))
+							 .Include(x => x.GameItemProtosGameItemComponentProtos)
+							 .Include(x => x.GameItemProtosTags)
+							 .Where(x => x.GameItemProtosGameItemComponentProtos.Any(y =>
+								 y.GameItemComponentProtoId == baseComponent.Id &&
+								 y.GameItemComponentRevision == baseComponent.RevisionNumber)))
 				{
 					if (item.GameItemProtosTags.All(x => x.TagId != paperTagId))
 					{

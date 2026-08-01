@@ -370,8 +370,7 @@ public partial class CombatSeeder
 					AddCheck(check,
 						new TraitExpression
 						{
-							Expression =
-								$"(0.5 * dodge:{(skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id}) + (0.5 * athletics:{skills["Athletics"].Id})"
+							Expression = $"(balance:{(skills.GetValueOrDefault("Balancing") ?? skills.GetValueOrDefault("Balance") ?? skills.GetValueOrDefault("Athletics") ?? skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id})"
 						}, template.Id, Difficulty.Impossible);
 					continue;
                 case CheckType.StruggleFreeFromDrag:

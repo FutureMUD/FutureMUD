@@ -32,5 +32,44 @@ public class ImmobilisingGameItemComponent : WearableGameItemComponent, IImmobil
         return new ImmobilisingGameItemComponent(this, newParent, temporary);
     }
 
+    public override void UpdateWear(IBody body, IWearProfile profile)
+    {
+        ClearImmobilisedWounds();
+        base.UpdateWear(body, profile);
+
+        if (body is null || profile is null)
+        {
+            return;
+        }
+
+        foreach (var wound in WoundsCoveredByProfile(body, profile))
+        {
+            wound.ImmobilisingItem ??= Parent;
+        }
+    }
+
+    internal static IEnumerable<IImmobilisableWound> WoundsCoveredByProfile(IBody body, IWearProfile profile)
+    {
+        var coveredBones = profile.Profile(body)
+                                  .SelectMany(x => x.Key.BoneInfo.Keys)
+                                  .ToHashSet();
+        return body.Wounds.OfType<IImmobilisableWound>()
+                   .Where(x => coveredBones.Contains(x.Bodypart));
+    }
+
+    private void ClearImmobilisedWounds()
+    {
+        if (WornBy is null)
+        {
+            return;
+        }
+
+        foreach (var wound in WornBy.Wounds.OfType<IImmobilisableWound>()
+                                    .Where(x => x.ImmobilisingItem == Parent))
+        {
+            wound.ImmobilisingItem = null;
+        }
+    }
+
     #endregion
 }

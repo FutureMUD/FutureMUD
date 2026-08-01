@@ -204,13 +204,12 @@ public partial class Body
 
         if (!ignoreAids)
         {
-            List<ICrutch> crutches = HeldItems.SelectNotNull(x => x.GetItemType<ICrutch>()).ToList();
+            List<ICrutch> crutches = HeldOrWieldedItems.SelectNotNull(x => x.GetItemType<ICrutch>()).ToList();
             foreach (ILimb limb in nonWorkingLimbs.ToArray())
             {
                 ICrutch matchingCrutch =
                     crutches.FirstOrDefault(x =>
-                        _heldItems.First(y => y.Item1 == x.Parent).Item2.Alignment.LeftRightOnly() ==
-                        limb.RootBodypart.Alignment.LeftRightOnly());
+                        CrutchMatchesLimb(BodypartLocationOfInventoryItem(x.Parent), limb));
                 if (matchingCrutch != null)
                 {
                     crutches.Remove(matchingCrutch);
@@ -241,13 +240,12 @@ public partial class Body
             ? Prototype.MinimumLegsToStand + 1
             : Prototype.MinimumLegsToStand;
 
-        List<ICrutch> crutches = HeldItems.SelectNotNull(x => x.GetItemType<ICrutch>()).ToList();
+        List<ICrutch> crutches = HeldOrWieldedItems.SelectNotNull(x => x.GetItemType<ICrutch>()).ToList();
         foreach (ILimb limb in nonWorkingLegs.ToArray())
         {
             ICrutch matchingCrutch =
                 crutches.FirstOrDefault(x =>
-                    _heldItems.First(y => y.Item1 == x.Parent).Item2.Alignment.LeftRightOnly() ==
-                    limb.RootBodypart.Alignment.LeftRightOnly());
+                    CrutchMatchesLimb(BodypartLocationOfInventoryItem(x.Parent), limb));
             if (matchingCrutch != null)
             {
                 crutches.Remove(matchingCrutch);
@@ -281,13 +279,12 @@ public partial class Body
             ? Prototype.MinimumLegsToStand + 1
             : Prototype.MinimumLegsToStand;
 
-        List<ICrutch> crutches = HeldItems.SelectNotNull(x => x.GetItemType<ICrutch>()).ToList();
+        List<ICrutch> crutches = HeldOrWieldedItems.SelectNotNull(x => x.GetItemType<ICrutch>()).ToList();
         foreach (ILimb limb in nonWorkingLegs.ToArray())
         {
             ICrutch matchingCrutch =
                 crutches.FirstOrDefault(x =>
-                    _heldItems.First(y => y.Item1 == x.Parent).Item2.Alignment.LeftRightOnly() ==
-                    limb.RootBodypart.Alignment.LeftRightOnly());
+                    CrutchMatchesLimb(BodypartLocationOfInventoryItem(x.Parent), limb));
             if (matchingCrutch != null)
             {
                 crutches.Remove(matchingCrutch);
@@ -306,6 +303,12 @@ public partial class Body
         (List<ILimb> workingLegs, List<ILimb> _) = GetLegInformation(true);
         (List<ILimb> workingArms, List<ILimb> _) = GetArmAndAppendagesInformation();
         return workingLegs.Count >= 1 || workingArms.Count >= 1;
+    }
+
+    internal static bool CrutchMatchesLimb(IBodypart crutchLocation, ILimb limb)
+    {
+        return crutchLocation is not null &&
+               crutchLocation.Alignment.LeftRightOnly() == limb.RootBodypart.Alignment.LeftRightOnly();
     }
 
     private readonly DoubleCounter<Type> _cachedOrganFunctionsByType = new();

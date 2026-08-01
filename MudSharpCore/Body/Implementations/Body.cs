@@ -907,21 +907,27 @@ public partial class Body : PerceiverItem, IBody
                      .Where(
                          x =>
                              SeveredRoots.All(y => !x.DownstreamOfPart(y)) ||
-                             Prosthetics.Any(y => x.DownstreamOfPart(y.TargetBodypart) && y.Functional))
+                             Prosthetics.Any(y => y.Functional &&
+                                                  (x.DownstreamOfPart(y.TargetBodypart) ||
+                                                   ProstheticTargetsBodypart(y, x))))
                      .ToList();
         _wieldLocs =
             Bodyparts.OfType<IWield>()
                      .Where(
                          x =>
                              SeveredRoots.All(y => !x.DownstreamOfPart(y)) ||
-                             Prosthetics.Any(y => x.DownstreamOfPart(y.TargetBodypart) && y.Functional))
+                             Prosthetics.Any(y => y.Functional &&
+                                                  (x.DownstreamOfPart(y.TargetBodypart) ||
+                                                   ProstheticTargetsBodypart(y, x))))
                      .ToList();
         _wearlocs =
             Bodyparts.OfType<IWear>()
                      .Where(
                          x =>
                              SeveredRoots.All(y => !x.DownstreamOfPart(y)) ||
-                             Prosthetics.Any(y => x.DownstreamOfPart(y.TargetBodypart) && y.Functional))
+                             Prosthetics.Any(y => y.Functional &&
+                                                  (x.DownstreamOfPart(y.TargetBodypart) ||
+                                                   ProstheticTargetsBodypart(y, x))))
                      .ToList();
         _limbs = Prototype.Limbs.Where(x => x.Parts.Any(y => Bodyparts.Contains(y))).ToList();
     }

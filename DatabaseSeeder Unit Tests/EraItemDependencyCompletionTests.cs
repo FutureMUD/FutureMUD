@@ -451,10 +451,20 @@ public class EraItemDependencyCompletionTests
 	}
 
 	[TestMethod]
-	public void MusketPaperCartridgeUpsert_UsesMatchingChargeAndIsIdempotent()
+	public void MusketPaperCartridgeUpsert_UsesMatchingBarrelBoreAndIgnoresIncompleteMusketDefinitions()
 	{
 		using FuturemudDatabaseContext context = BuildCombatContext();
 		context.Tags.Add(new Tag { Id = 6, Name = "Paper Cartridges" });
+		context.GameItemComponentProtos.Add(new GameItemComponentProto
+		{
+			Id = 50,
+			RevisionNumber = 0,
+			Type = "Musket",
+			Name = "Incomplete Legacy Musket",
+			Description = "A legacy musket component without a barrel-bore value.",
+			Definition = "<Definition><PowderVolumePerShot>1</PowderVolumePerShot></Definition>",
+			EditableItem = CurrentEditableItem(50)
+		});
 		var bores = new[] { "0.45 Bore", "0.55 Bore", "0.6 Bore", "0.65 Bore", "0.7 Bore", "0.75 Bore", "0.8 Bore" };
 		for (var i = 0; i < bores.Length; i++)
 		{
@@ -478,7 +488,7 @@ public class EraItemDependencyCompletionTests
 				Name = $"TestMusket_{bores[i]}",
 				Description = "test musket",
 				Definition =
-					$"<Definition><BulletBore>{bore}</BulletBore><PowderVolumePerShot>{7.0 + i / 10.0}</PowderVolumePerShot></Definition>",
+					$"<Definition><BarrelBore>{bore}</BarrelBore><PowderVolumePerShot>{7.0 + i / 10.0}</PowderVolumePerShot></Definition>",
 				EditableItem = CurrentEditableItem(200 + i)
 			});
 		}

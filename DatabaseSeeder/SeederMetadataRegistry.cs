@@ -29,7 +29,8 @@ public static class SeederMetadataRegistry
                 ],
                 RerunSummary: "Reruns reuse the stock time package by canonical clock, timezone, and calendar identities.",
                 UpdateSummary: "Reruns repair or complete stock clocks, calendars, timezones, and shard/zone bindings without deleting older setups.",
-                OwnershipSummary: "Seeder-owned time records are tracked by stable names and aliases."
+                OwnershipSummary: "Seeder-owned time records are tracked by stable names and aliases.",
+                DependencySeederTypes: [typeof(CoreDataSeeder)]
             ),
             nameof(CelestialSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Additive,
@@ -38,7 +39,8 @@ public static class SeederMetadataRegistry
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any())
                 ],
                 RerunSummary: "Designed as an additive package for more suns, moons, and related celestial objects.",
-                UpdateSummary: "Reruns are intended to add stock celestial packages rather than reconcile edits to existing objects."
+                UpdateSummary: "Reruns are intended to add stock celestial packages rather than reconcile edits to existing objects.",
+                DependencySeederTypes: [typeof(CoreDataSeeder)]
             ),
             nameof(AttributeSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.OneShot,
@@ -46,7 +48,8 @@ public static class SeederMetadataRegistry
                 [
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any())
                 ],
-                RerunSummary: "Attribute setup is intentionally treated as a one-shot design choice unless a later plan approves repeatability."
+                RerunSummary: "Attribute setup is intentionally treated as a one-shot design choice unless a later plan approves repeatability.",
+                DependencySeederTypes: [typeof(CoreDataSeeder)]
             ),
             nameof(SkillPackageSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -57,7 +60,8 @@ public static class SeederMetadataRegistry
                 ],
                 RerunSummary: "Reruns reuse the stock skill package templates, improvers, admin language, checks, and seeded skills by stable names.",
                 UpdateSummary: "This remains an alternative to the Skill Example seeder, not a companion package.",
-                OwnershipSummary: "Stock skill-package records are keyed by check type, template name, decorator name, improver name, and seeded trait/language names."
+                OwnershipSummary: "Stock skill-package records are keyed by check type, template name, decorator name, improver name, and seeded trait/language names.",
+                DependencySeederTypes: [typeof(AttributeSeeder)]
             ),
             nameof(SkillSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -67,7 +71,8 @@ public static class SeederMetadataRegistry
                     Requirement("Attributes must already be seeded.", context => context.TraitDefinitions.Any(x => x.Type == 1))
                 ],
                 RerunSummary: "Reruns reuse the shared skill scaffolding and example records by stable names.",
-                UpdateSummary: "This remains an alternative to the full Skill Package seeder, not a companion package."
+                UpdateSummary: "This remains an alternative to the full Skill Package seeder, not a companion package.",
+                DependencySeederTypes: [typeof(AttributeSeeder)]
             ),
             nameof(CurrencySeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Additive,
@@ -75,7 +80,8 @@ public static class SeederMetadataRegistry
                 [
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any())
                 ],
-                RerunSummary: "Designed as an additive package for installing more stock currencies."
+                RerunSummary: "Designed as an additive package for installing more stock currencies.",
+                DependencySeederTypes: [typeof(CoreDataSeeder)]
             ),
             nameof(EconomySeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Additive,
@@ -91,7 +97,8 @@ public static class SeederMetadataRegistry
                 ],
                 RerunSummary: "Reruns install missing stock economy packages for other eras and can restore missing stock-owned market categories, influence templates, populations, shoppers, and helper progs.",
                 UpdateSummary: "Rerunning the same era refreshes the seeded template market, populations, shopper definitions, and stress helper progs without creating duplicates.",
-                OwnershipSummary: "Stock economy content is tracked by stable era-specific names plus a shared EconomySeeder prefix for helper records."
+                OwnershipSummary: "Stock economy content is tracked by stable era-specific names plus a shared EconomySeeder prefix for helper records.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(CurrencySeeder), typeof(TimeSeeder), typeof(UsefulSeeder)]
             ),
             nameof(ClanSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Additive,
@@ -101,7 +108,8 @@ public static class SeederMetadataRegistry
                     Requirement("The Time seeder must have installed at least one clock.", context => context.Clocks.Any()),
                     Requirement("The Currency seeder must have installed at least one currency.", context => context.Currencies.Any())
                 ],
-                RerunSummary: "Designed as an additive package for installing more stock clan templates."
+                RerunSummary: "Designed as an additive package for installing more stock clan templates.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(CurrencySeeder), typeof(TimeSeeder)]
             ),
             nameof(HumanSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.OneShot,
@@ -111,15 +119,29 @@ public static class SeederMetadataRegistry
                     Requirement("Skills must already be seeded.", context => context.TraitDefinitions.Any(x => x.Type == 0)),
                     Requirement("The Time seeder must have installed at least one calendar.", context => context.Calendars.Any())
                 ],
-                RerunSummary: "Currently treated as a one-shot humanoid race and anatomy bootstrap."
+                RerunSummary: "Currently treated as a one-shot humanoid race and anatomy bootstrap.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(TimeSeeder)]
             ),
             nameof(CombatSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.OneShot,
                 SeederUpdateCapability.None,
                 [
-                    Requirement("The Human seeder must have installed the Human race.", context => context.Races.Any(x => x.Name == "Human"))
+                    Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
+                    Requirement("Attributes must already be seeded for combat formulas.", context => context.TraitDefinitions.Any(x => x.Type == 1)),
+                    Requirement("Shared skill infrastructure (Skill Check, General Skill, Veterancy Skill, Skill Improver, AlwaysTrue and AlwaysFalse) must already exist.", context =>
+                        context.CheckTemplates.Any(x => x.Name == "Skill Check") &&
+                        context.TraitDecorators.Any(x => x.Name == "General Skill") &&
+                        context.TraitDecorators.Any(x => x.Name == "Veterancy Skill") &&
+                        context.Improvers.Any(x => x.Name == "Skill Improver") &&
+                        context.FutureProgs.Any(x => x.FunctionName == "AlwaysTrue") &&
+                        context.FutureProgs.Any(x => x.FunctionName == "AlwaysFalse")),
+                    Requirement("The Human seeder must have installed the Human race.", context => context.Races.Any(x => x.Name == "Human")),
+                    Requirement("UsefulSeeder crossbow spanning-tool tags must already exist.", context =>
+                        new[] { "Cranequin", "Goat's Foot", "Lever", "Spanning Hook", "Windlass" }
+                            .All(tag => context.Tags.Any(x => x.Name == tag)))
                 ],
-                RerunSummary: "Currently treated as a one-shot combat bootstrap pending modular reconciliation work."
+                RerunSummary: "Currently treated as a one-shot combat bootstrap pending modular reconciliation work.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(AttributeSeeder), typeof(HumanSeeder), typeof(UsefulSeeder)]
             ),
             nameof(ChargenSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -130,7 +152,8 @@ public static class SeederMetadataRegistry
                 ],
                 RerunSummary: "Reruns reuse stock chargen resources, special-application static settings, helper progs, canonical storyboard stages, and the default starting-location role by stable keys.",
                 UpdateSummary: "Reruns repair missing stock screens, helper progs, dependencies, and special-application settings without creating duplicate storyboard rows for the same chargen stage.",
-                OwnershipSummary: "Chargen storyboards are tracked as one canonical row per chargen stage, helper progs are tracked by function name, and the default starting-location role is tracked by stable name."
+                OwnershipSummary: "Chargen storyboards are tracked as one canonical row per chargen stage, helper progs are tracked by function name, and the default starting-location role is tracked by stable name.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder)]
             ),
             nameof(StockMeritsSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -145,7 +168,8 @@ public static class SeederMetadataRegistry
                 ],
                 RerunSummary: "Reruns reuse the stock merits, flaws, and helper FutureProgs by canonical names.",
                 UpdateSummary: "Reruns repair missing stock merits, flaws, and tag-driven helper progs without changing chargen mode or chargen-resource costs.",
-                OwnershipSummary: "Stock merit content is tracked by stable merit names and helper FutureProg function names."
+                OwnershipSummary: "Stock merit content is tracked by stable merit names and helper FutureProg function names.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder), typeof(ChargenSeeder)]
             ),
             nameof(CultureSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -154,7 +178,8 @@ public static class SeederMetadataRegistry
                     Requirement("The Human seeder must have installed the Human race.", context => context.Races.Any(x => x.Name == "Human")),
                     Requirement("A skill decorator must already exist.", context => context.TraitDecorators.Any(x => x.Name.Contains("Skill"))),
                     Requirement("Chargen height filtering progs must already exist.", context => context.FutureProgs.Any(x => x.FunctionName == "MaximumHeightChargen"))
-                ]
+                ],
+                DependencySeederTypes: [typeof(HumanSeeder), typeof(ChargenSeeder)]
             ),
             nameof(ArenaSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -163,7 +188,8 @@ public static class SeederMetadataRegistry
                     Requirement("At least one economic zone must exist.", context => context.EconomicZones.Any())
                 ],
                 RerunSummary: "Reruns reuse the same named arena package and refresh stock-owned combatant classes, event types, event sides, and helper progs.",
-                UpdateSummary: "Live arena configuration such as room links, finances, schedules, ratings, and events is preserved."
+                UpdateSummary: "Live arena configuration such as room links, finances, schedules, ratings, and events is preserved.",
+                DependencySeederTypes: [typeof(EconomySeeder)]
             ),
             nameof(UsefulSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -173,18 +199,29 @@ public static class SeederMetadataRegistry
                 ],
                 RerunSummary: "This package can be rerun to install missing stock kickstart content without duplicating its tracked packages.",
                 UpdateSummary: "Reruns also refresh the stock wilderness autobuilder room template, area template, and supporting terrain-feature tags by stable names.",
-                OwnershipSummary: "Kickstart now owns stock items, AI, helper tags, the wilderness autobuilder room+area starter package, ranged covers, hints, and dream content; core terrain foundations are seeded separately."
+                OwnershipSummary: "Kickstart now owns stock items, AI, helper tags, the wilderness autobuilder room+area starter package, ranged covers, hints, and dream content; core terrain foundations are seeded separately.",
+                DependencySeederTypes: [typeof(CoreDataSeeder)]
             ),
             nameof(AgricultureSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
                 SeederUpdateCapability.RepairExisting,
                 [
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
-                    Requirement("Core utility progs must include AlwaysTrue.", context => context.FutureProgs.Any(x => x.FunctionName == "AlwaysTrue"))
+                    Requirement("Core utility progs must include AlwaysTrue.", context => context.FutureProgs.Any(x => x.FunctionName == "AlwaysTrue")),
+                    Requirement("UsefulSeeder agriculture tags must already exist.", context =>
+                        new[]
+                        {
+                            "Seeds", "Seeded Yield", "Agriculture Seedable", "Bee Hive", "Hive Stand",
+                            "Raw Honeycomb", "Pressed Honey", "Rendered Beeswax", "Raw Milk",
+                            "Raw Textile Fibre", "Egg Product", "Manure Commodity"
+                        }.All(tag => context.Tags.Any(x => x.Name == tag))),
+                    Requirement("A Farming trait must already exist.", context =>
+                        context.TraitDefinitions.Any(x => x.Name == "Farming"))
                 ],
                 RerunSummary: "Reruns reuse stock agriculture definitions, operation rows, and their project templates by stable names.",
                 UpdateSummary: "Reruns refresh stock field profiles, crops, herds, woodlands, operations, and project-backed labour templates without duplicating rows.",
-                OwnershipSummary: "Stock agriculture content is tracked by stable profile, crop, herd, woodland, operation, and project names."
+                OwnershipSummary: "Stock agriculture content is tracked by stable profile, crop, herd, woodland, operation, and project names.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(UsefulSeeder)]
             ),
             nameof(PrimaryProductionSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -207,7 +244,8 @@ public static class SeederMetadataRegistry
                 ],
                 RerunSummary: "Reruns reuse stock primary-production local project templates by deterministic names.",
                 UpdateSummary: "Reruns refresh stock project definitions, labour, material requirements, and resource/commodity actions without duplicating templates.",
-                OwnershipSummary: "Stock primary-production project content is tracked by the Stock Primary Production project-name prefix."
+                OwnershipSummary: "Stock primary-production project content is tracked by the Stock Primary Production project-name prefix.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(UsefulSeeder), typeof(ItemSeeder)]
             ),
             nameof(CookingSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -223,7 +261,8 @@ public static class SeederMetadataRegistry
                 ],
                 RerunSummary: "Reruns install missing prepared-food stock records without mutating the legacy Food component.",
                 UpdateSummary: "This package owns direct prepared-food examples, stackable serving examples, and stock CookedFoodProduct recipe examples by stable names.",
-                OwnershipSummary: "Stock prepared-food content is tracked by CookingSeeder component names, item short descriptions, tags, and recipe names."
+                OwnershipSummary: "Stock prepared-food content is tracked by CookingSeeder component names, item short descriptions, tags, and recipe names.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(UsefulSeeder)]
             ),
             nameof(AIStorytellerSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -232,7 +271,8 @@ public static class SeederMetadataRegistry
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any())
                 ],
                 RerunSummary: "This package is designed to be rerun safely.",
-                UpdateSummary: "Reruns reuse and update existing stock storyteller sample records."
+                UpdateSummary: "Reruns reuse and update existing stock storyteller sample records.",
+                DependencySeederTypes: [typeof(CoreDataSeeder)]
             ),
             nameof(HealthSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -245,7 +285,8 @@ public static class SeederMetadataRegistry
                             .All(tag => context.Tags.Any(x => x.Name == tag)))
                 ],
                 RerunSummary: "Reruns reuse stock medical knowledges, procedures, phases, and drugs by stable names.",
-                UpdateSummary: "Forward-only upgrades add or refresh higher-tech stock content without removing lower-tech content."
+                UpdateSummary: "Forward-only upgrades add or refresh higher-tech stock content without removing lower-tech content.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder), typeof(UsefulSeeder)]
             ),
             nameof(AnimalSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.OneShot,
@@ -253,7 +294,8 @@ public static class SeederMetadataRegistry
                 [
                     Requirement("The Human seeder must have installed the Humanoid body.", context => context.BodyProtos.Any(x => x.Name == "Humanoid")),
                     Requirement("The Core seeder must have installed the Simple name culture.", context => context.NameCultures.Any(x => x.Name == "Simple"))
-                ]
+                ],
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder)]
             ),
             nameof(MythicalAnimalSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -273,9 +315,12 @@ public static class SeederMetadataRegistry
                         context.CorpseModels.Any(x => x.Name == "Organic Human Corpse") &&
                         context.CorpseModels.Any(x => x.Name == "Organic Animal Corpse") &&
                         new[] { "Non-Human HP", "Non-Human HP Plus", "Non-Human Full Model" }
-                            .All(strategy => context.HealthStrategies.Any(x => x.Name == strategy)))
+                            .All(strategy => context.HealthStrategies.Any(x => x.Name == strategy))),
+                    Requirement("The complete mythical-animal foundation, including height-weight models and Acid Spit, must already exist.",
+                        MythicalAnimalSeeder.HasPrerequisites)
                 ],
-                RerunSummary: "Reruns install missing stock mythic races without duplicating existing entries."
+                RerunSummary: "Reruns install missing stock mythic races without duplicating existing entries.",
+                DependencySeederTypes: [typeof(HumanSeeder), typeof(AnimalSeeder), typeof(CombatSeeder)]
             ),
             nameof(SupernaturalSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -292,18 +337,27 @@ public static class SeederMetadataRegistry
                                 context.CharacteristicProfiles.Any(x => x.Name == profile) ||
                                 context.CharacteristicDefinitions.Any(x => x.Name == profile))),
                     Requirement("Stock natural attacks and non-human health strategies must already exist.", context =>
-                        new[] { "Bite", "Carnivore Bite", "Claw High Swipe", "Claw Low Swipe", "Animal Barge", "Wing Buffet" }
+                        new[]
+                        {
+                            "Bite", "Carnivore Bite", "Carnivore Low Bite", "Claw High Swipe", "Claw Low Swipe",
+                            "Animal Barge", "Animal Barge Pushback", "Horn Gore", "Wing Buffet", "Tail Spike",
+                            "Acid Spit", "Llama Spit", "Dragonfire Breath", "Tusk Sweep", "Head Ram", "Headbutt",
+                            "Claw Clamp", "Tree Haul", "Water Drag", "Tail Slap"
+                        }
                             .All(attack => context.WeaponAttacks.Any(x => x.Name == attack)) &&
                         NonHumanSeederHealthStrategyHelper.AllStrategyNames.All(strategy => context.HealthStrategies.Any(x => x.Name == strategy))),
                     Requirement("Stock helper progs, corpse models, and at least one calendar must already exist.", context =>
                         new[] { "AlwaysTrue", "AlwaysFalse", "AlwaysZero" }.All(prog => context.FutureProgs.Any(x => x.FunctionName == prog)) &&
                         context.CorpseModels.Any(x => x.Name == "Organic Human Corpse") &&
                         context.CorpseModels.Any(x => x.Name == "Organic Animal Corpse") &&
-                        context.Calendars.Any())
+                        context.Calendars.Any()),
+                    Requirement("The complete supernatural foundation, including blood, breathable atmosphere, required attributes and health strategies, must already exist.",
+                        SupernaturalSeeder.HasPrerequisites)
                 ],
                 RerunSummary: "Reruns install or refresh the stock supernatural race catalogue, body prototypes, form merits, cultures, name cultures, attacks, and non-breather settings.",
                 UpdateSummary: "Existing builder-customized worlds keep their records; stock-owned supernatural records are repaired by stable names without deleting custom extensions.",
-                OwnershipSummary: "Supernatural stock content is tracked by stable race, body, culture, name-culture, merit, attack, and corpse-model names."
+                OwnershipSummary: "Supernatural stock content is tracked by stable race, body, culture, name-culture, merit, attack, and corpse-model names.",
+                DependencySeederTypes: [typeof(HumanSeeder), typeof(AnimalSeeder), typeof(MythicalAnimalSeeder), typeof(CombatSeeder), typeof(TimeSeeder)]
             ),
             nameof(WeatherSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -313,7 +367,8 @@ public static class SeederMetadataRegistry
                     Requirement("The Celestial seeder must have installed at least one celestial object.", context => context.Celestials.Any())
                 ],
                 RerunSummary: "Reruns reuse the canonical weather catalog, seasons, climate models, and regional climates by stable names.",
-                UpdateSummary: "Reruns refresh stock climate definitions without auto-retargeting runtime weather controllers or duplicating northern/southern climate rows."
+                UpdateSummary: "Reruns refresh stock climate definitions without auto-retargeting runtime weather controllers or duplicating northern/southern climate rows.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(CelestialSeeder)]
             ),
             nameof(RobotSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -337,7 +392,8 @@ public static class SeederMetadataRegistry
                         new[] { "Jab", "Cross", "Hook", "Elbow", "Bite", "Snap Kick", "Carnivore Bite", "Claw Low Swipe", "Claw High Swipe" }
                             .All(attack => context.WeaponAttacks.Any(x => x.Name == attack)))
                 ],
-                RerunSummary: "Reruns install missing stock robot races, bodies, and procedures without duplicating existing entries."
+                RerunSummary: "Reruns install missing stock robot races, bodies, and procedures without duplicating existing entries.",
+                DependencySeederTypes: [typeof(HumanSeeder), typeof(AnimalSeeder), typeof(CombatSeeder), typeof(UsefulSeeder)]
             ),
             nameof(ItemSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.OneShot,
@@ -349,7 +405,8 @@ public static class SeederMetadataRegistry
                         context.GameItemComponentProtos.Any(x => x.Name == "Destroyable_Misc") &&
                         context.GameItemComponentProtos.Any(x => x.Name == "Torch_Infinite") &&
                         context.Tags.Any(x => x.Name == "Functions"))
-                ]
+                ],
+                DependencySeederTypes: [typeof(UsefulSeeder)]
             ),
             nameof(AnimalButcherySeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -372,7 +429,8 @@ public static class SeederMetadataRegistry
                 ],
                 RerunSummary: "Reruns reuse stock animal butchery item, product and profile names, then attach missing eligible stock races.",
                 UpdateSummary: "Existing builder-authored butchery profiles are preserved; only stock-owned profiles and unassigned eligible stock races are repaired.",
-                OwnershipSummary: "Stock butchery content is tracked by the Stock Butchery profile/product prefix plus the Butchery Output tag."
+                OwnershipSummary: "Stock butchery content is tracked by the Stock Butchery profile/product prefix plus the Butchery Output tag.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(UsefulSeeder), typeof(AnimalSeeder)]
             ),
             nameof(LawSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -380,7 +438,8 @@ public static class SeederMetadataRegistry
                 [
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
                     Requirement("The Currency seeder must have installed at least one currency.", context => context.Currencies.Any())
-                ]
+                ],
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(CurrencySeeder)]
             ),
             _ => SeederMetadata.Default
         };
@@ -493,6 +552,73 @@ public static class SeederMetadataRegistry
                     notes
                 );
         }
+    }
+
+    /// <summary>
+    /// Produces a stable installation order from the declared seeder dependencies. A dependency is only
+    /// an ordering hint; the database-backed prerequisite predicates remain the source of truth for
+    /// whether a package can run in a particular world.
+    /// </summary>
+    public static SeederDependencyPlan GetDependencyPlan(IEnumerable<IDatabaseSeeder> seeders)
+    {
+        Dictionary<Type, IDatabaseSeeder> seedersByType = seeders
+            .GroupBy(x => x.GetType())
+            .ToDictionary(x => x.Key, x => x.First());
+        Dictionary<Type, HashSet<Type>> prerequisitesBySeeder = seedersByType.Keys
+            .ToDictionary(x => x, _ => new HashSet<Type>());
+        List<string> errors = new();
+
+        foreach ((Type seederType, IDatabaseSeeder seeder) in seedersByType)
+        {
+            foreach (Type prerequisiteType in seeder.Metadata.RequiredSeederTypes.Distinct())
+            {
+                if (prerequisiteType == seederType)
+                {
+                    errors.Add($"{seeder.Name} cannot depend on itself.");
+                    continue;
+                }
+
+                if (!seedersByType.ContainsKey(prerequisiteType))
+                {
+                    errors.Add(
+                        $"{seeder.Name} declares unavailable prerequisite seeder {prerequisiteType.Name}.");
+                    continue;
+                }
+
+                prerequisitesBySeeder[seederType].Add(prerequisiteType);
+            }
+        }
+
+        List<Type> orderedTypes = new();
+        HashSet<Type> remainingTypes = prerequisitesBySeeder.Keys.ToHashSet();
+        while (remainingTypes.Any())
+        {
+            List<Type> readyTypes = remainingTypes
+                .Where(x => prerequisitesBySeeder[x].All(prerequisite => !remainingTypes.Contains(prerequisite)))
+                .OrderBy(x => seedersByType[x].SortOrder)
+                .ThenBy(x => seedersByType[x].Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (!readyTypes.Any())
+            {
+                string cycle = string.Join(", ", remainingTypes
+                    .Select(x => seedersByType[x].Name)
+                    .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+                    .ToList());
+                errors.Add($"Seeder dependency cycle detected between: {cycle}.");
+                orderedTypes.AddRange(remainingTypes
+                    .OrderBy(x => seedersByType[x].SortOrder)
+                    .ThenBy(x => seedersByType[x].Name, StringComparer.OrdinalIgnoreCase));
+                break;
+            }
+
+            orderedTypes.AddRange(readyTypes);
+            remainingTypes.ExceptWith(readyTypes);
+        }
+
+        return new SeederDependencyPlan(
+            orderedTypes.Select(x => seedersByType[x]).ToList(),
+            errors);
     }
 
     private static SeederPrerequisite Requirement(string description, Func<FuturemudDatabaseContext, bool> predicate)

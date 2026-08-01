@@ -151,6 +151,15 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
     {
+        List<string> missingPrerequisites = ((IDatabaseSeeder)this).Metadata.Prerequisites
+            .Where(x => !x.IsSatisfied(context))
+            .Select(x => x.Description)
+            .ToList();
+        if (missingPrerequisites.Any())
+        {
+            return $"Combat cannot be installed because the following prerequisites are missing: {missingPrerequisites.ListToString()}.";
+        }
+
         IReadOnlyDictionary<string, string> effectiveAnswers =
             CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
         effectiveAnswers = CombatSeederMessageStyleHelper.MergeQuestionAnswersWithRecordedChoice(context, effectiveAnswers);

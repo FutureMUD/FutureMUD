@@ -220,7 +220,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 				template.MaximumDrinkSatiatedHours));
 	}
 
-    private static bool HasPrerequisites(FuturemudDatabaseContext context)
+    internal static bool HasPrerequisites(FuturemudDatabaseContext context)
     {
         string[] requiredBodies = new[]
         {

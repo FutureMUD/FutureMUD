@@ -117,7 +117,7 @@ public partial class ItemSeeder
         return $"UnusedInput - 100.00% of {StableSimpleItemDescription(stableReference)} ($i{inputIndex})";
     }
 
-    private MudSharp.Models.Craft? AddAntiquityCraft(
+	private MudSharp.Models.Craft? AddAntiquityCraft(
         string name,
         string category,
         string blurb,
@@ -133,10 +133,11 @@ public partial class ItemSeeder
         IEnumerable<string> products,
         IEnumerable<string>? failProducts = null,
         string knowledgeSubtype = "General",
-        string? knowledgeDescription = null,
-        string? knowledgeLongDescription = null)
-    {
-        return AddCraft(
+		string? knowledgeDescription = null,
+		string? knowledgeLongDescription = null)
+	{
+		var phaseList = phases.ToList();
+		return AddCraft(
             name,
             category,
             blurb,
@@ -148,9 +149,9 @@ public partial class ItemSeeder
             difficulty,
             Outcome.MinorFail,
             5,
-            3,
-            false,
-            phases,
+			Math.Min(3, phaseList.Count),
+			false,
+			phaseList,
             inputs,
             tools,
             products,

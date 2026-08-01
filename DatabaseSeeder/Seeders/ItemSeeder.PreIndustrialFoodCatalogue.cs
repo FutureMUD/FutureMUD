@@ -98,6 +98,7 @@ public partial class ItemSeeder
 	private void SeedPreIndustrialFoodCatalogueScope(FoodCatalogueScope scope)
 	{
 		ValidatePreIndustrialFoodCatalogue();
+		RefreshPreIndustrialFoodIdentifierAllocators();
 		EnsurePreIndustrialFoodCatalogueTags();
 
 		foreach (var liquid in PreIndustrialFoodCatalogue.Liquids.Where(x => x.Scope == scope))
@@ -791,12 +792,10 @@ public partial class ItemSeeder
 	{
 		if (_nextPreIndustrialFoodTagId is null)
 		{
-			var existing = _context!.Tags.Any() ? _context.Tags.Max(x => x.Id) : 0L;
-			var local = _context.Tags.Local.Any() ? _context.Tags.Local.Max(x => x.Id) : 0L;
-			_nextPreIndustrialFoodTagId = Math.Max(existing, local) + 1L;
+			RefreshPreIndustrialFoodIdentifierAllocators();
 		}
 
-		var result = _nextPreIndustrialFoodTagId.Value;
+		var result = _nextPreIndustrialFoodTagId!.Value;
 		_nextPreIndustrialFoodTagId = result + 1L;
 		return result;
 	}
@@ -805,16 +804,10 @@ public partial class ItemSeeder
 	{
 		if (_nextPreIndustrialFoodComponentId is null)
 		{
-			var existing = _context!.GameItemComponentProtos.Any()
-				? _context.GameItemComponentProtos.Max(x => x.Id)
-				: 0L;
-			var local = _context.GameItemComponentProtos.Local.Any()
-				? _context.GameItemComponentProtos.Local.Max(x => x.Id)
-				: 0L;
-			_nextPreIndustrialFoodComponentId = Math.Max(existing, local) + 1L;
+			RefreshPreIndustrialFoodIdentifierAllocators();
 		}
 
-		var result = _nextPreIndustrialFoodComponentId.Value;
+		var result = _nextPreIndustrialFoodComponentId!.Value;
 		_nextPreIndustrialFoodComponentId = result + 1L;
 		return result;
 	}
@@ -823,14 +816,25 @@ public partial class ItemSeeder
 	{
 		if (_nextPreIndustrialFoodLiquidId is null)
 		{
-			var existing = _context!.Liquids.Any() ? _context.Liquids.Max(x => x.Id) : 0L;
-			var local = _context.Liquids.Local.Any() ? _context.Liquids.Local.Max(x => x.Id) : 0L;
-			_nextPreIndustrialFoodLiquidId = Math.Max(existing, local) + 1L;
+			RefreshPreIndustrialFoodIdentifierAllocators();
 		}
 
-		var result = _nextPreIndustrialFoodLiquidId.Value;
+		var result = _nextPreIndustrialFoodLiquidId!.Value;
 		_nextPreIndustrialFoodLiquidId = result + 1L;
 		return result;
+	}
+
+	private void RefreshPreIndustrialFoodIdentifierAllocators()
+	{
+		_nextPreIndustrialFoodTagId = Math.Max(
+			_context!.Tags.Any() ? _context.Tags.Max(x => x.Id) : 0L,
+			_context.Tags.Local.Any() ? _context.Tags.Local.Max(x => x.Id) : 0L) + 1L;
+		_nextPreIndustrialFoodComponentId = Math.Max(
+			_context.GameItemComponentProtos.Any() ? _context.GameItemComponentProtos.Max(x => x.Id) : 0L,
+			_context.GameItemComponentProtos.Local.Any() ? _context.GameItemComponentProtos.Local.Max(x => x.Id) : 0L) + 1L;
+		_nextPreIndustrialFoodLiquidId = Math.Max(
+			_context.Liquids.Any() ? _context.Liquids.Max(x => x.Id) : 0L,
+			_context.Liquids.Local.Any() ? _context.Liquids.Local.Max(x => x.Id) : 0L) + 1L;
 	}
 
 	private EditableItem NewPreIndustrialFoodEditableItem()

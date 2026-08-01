@@ -95,7 +95,7 @@ public partial class ItemSeeder
 		         {
 			         ("earlymodern_military_tool_cranequin", "cranequin", "a steel cranequin",
 				         "This compact rack-and-pinion cranequin hooks over a crossbow stock and turns through a geared handle to draw an exceptionally heavy prod.",
-				         2900.0, 190.0m, "steel", "Cranequin", "Destroyable_HeavyMetal"),
+				         2900.0, 190.0m, "mild steel", "Cranequin", "Destroyable_HeavyMetal"),
 			         ("earlymodern_military_tool_goats_foot", "lever", "an iron goat's-foot lever",
 				         "This hinged iron goat's-foot lever braces against a crossbow stock and uses its hooked jaws to draw the string with one strong motion.",
 				         1450.0, 80.0m, "wrought iron", "Goat's Foot", "Destroyable_HeavyMetal"),

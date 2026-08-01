@@ -113,7 +113,7 @@ public partial class ItemSeeder
 			[(1, 1)]);
 
 		AddCraft("mill cleaned grain into flour", "Food Processing", "mill cleaned grain into flour", "milling grain",
-			"a flour milling task", "HasMilling", null, null, null, milling, Difficulty.Normal, Outcome.MinorFail, 5, 3,
+			"a flour milling task", "HasMilling", null, null, null, milling, Difficulty.Normal, Outcome.MinorFail, 5, 2,
 			false,
 			SimpleFoodPhases("$0 feed|feeds $i1 into $t1 and grind|grinds it between stones.",
 				"$0 sift|sifts the meal into flour and bran."),
@@ -160,7 +160,7 @@ public partial class ItemSeeder
 			[(1, 1)]);
 
 		AddCraft("press fruit must", "Food Processing", "press fruit into must", "pressing fruit must",
-			"a fruit pressing task", "HasBrewing", null, null, null, brewing, Difficulty.Normal, Outcome.MinorFail, 5, 3,
+			"a fruit pressing task", "HasBrewing", null, null, null, brewing, Difficulty.Normal, Outcome.MinorFail, 5, 2,
 			false,
 			SimpleFoodPhases("$0 crush|crushes $i1 and load|loads it into $t1.",
 				"$0 press|presses the fruit down into a wet must."),
@@ -183,7 +183,7 @@ public partial class ItemSeeder
 
 		AddCraft("press vegetable oil from oilseed mash", "Food Processing", "press edible oil from oilseed mash",
 			"pressing vegetable oil", "an oil pressing task", "HasMilling", null, null, null, milling,
-			Difficulty.Normal, Outcome.MinorFail, 5, 3,
+			Difficulty.Normal, Outcome.MinorFail, 5, 2,
 			false,
 			SimpleFoodPhases("$0 load|loads $i1 into $t1 and begin|begins applying pressure.",
 				"$0 draw|draws off the oil into $p1 and set|sets aside the press cake."),
@@ -198,7 +198,7 @@ public partial class ItemSeeder
 
 		AddCraft("press olive oil from olive mash", "Food Processing", "press olive oil from crushed olive mash",
 			"pressing olive oil", "an olive oil pressing task", "HasMilling", null, null, null, milling,
-			Difficulty.Normal, Outcome.MinorFail, 5, 3,
+			Difficulty.Normal, Outcome.MinorFail, 5, 2,
 			false,
 			SimpleFoodPhases("$0 load|loads $i1 into $t1 and begin|begins applying pressure.",
 				"$0 draw|draws off the olive oil into $p1 and set|sets aside the olive press cake."),
@@ -273,7 +273,7 @@ public partial class ItemSeeder
 			[]);
 
 		AddCraft("render animal fat", "Food Processing", "render animal fat", "rendering animal fat",
-			"a fat rendering task", "HasCooking", null, null, null, cooking, Difficulty.Normal, Outcome.MinorFail, 5, 3,
+			"a fat rendering task", "HasCooking", null, null, null, cooking, Difficulty.Normal, Outcome.MinorFail, 5, 2,
 			false,
 			SimpleFoodPhases("$0 heat|heats $i1 slowly in $t1 over $t2.",
 				"$0 skim|skims the rendered fat away from the solids."),
@@ -319,7 +319,7 @@ public partial class ItemSeeder
 			[(1, 1)]);
 
 		AddCraft("smoke prepared meat", "Food Processing", "smoke meat for storage", "smoking meat",
-			"a meat smoking task", "HasCooking", null, null, null, cooking, Difficulty.Normal, Outcome.MinorFail, 5, 3,
+			"a meat smoking task", "HasCooking", null, null, null, cooking, Difficulty.Normal, Outcome.MinorFail, 5, 2,
 			false,
 			SimpleFoodPhases("$0 hang|hangs $i1 from $t1 over the smoke.",
 				"$0 gather|gathers the smoked meat."),
@@ -330,7 +330,7 @@ public partial class ItemSeeder
 			[(1, 1)]);
 
 		AddCraft("boil meat broth", "Cooking", "boil meat and bones into broth", "boiling meat broth",
-			"a broth boiling task", "HasCooking", null, null, null, cooking, Difficulty.Easy, Outcome.MinorFail, 5, 3,
+			"a broth boiling task", "HasCooking", null, null, null, cooking, Difficulty.Easy, Outcome.MinorFail, 5, 2,
 			false,
 			SimpleFoodPhases("$0 simmer|simmers $i1 in $i2 inside $t1.",
 				"$0 strain|strains the savoury broth into $p1."),
@@ -349,7 +349,7 @@ public partial class ItemSeeder
 		var brewing = _traits["Brewing"] ?? _traits["Brewer"] ?? cooking;
 
 		AddCraft("mash grain wort", "Brewing", "mash grain into wort", "mashing grain wort",
-			"a mashing task", "HasBrewing", null, null, null, brewing, Difficulty.Normal, Outcome.MinorFail, 5, 3, false,
+			"a mashing task", "HasBrewing", null, null, null, brewing, Difficulty.Normal, Outcome.MinorFail, 5, 2, false,
 			SimpleFoodPhases("$0 stir|stirs $i1 into hot water in $t1.",
 				"$0 draw|draws off a sweet grain wort."),
 			[
@@ -667,6 +667,9 @@ public partial class ItemSeeder
 		Difficulty difficulty = Difficulty.Normal)
 	{
 		var selector = EnsureAntiquityPreparedFoodSelectorProg(suffix);
+		var phaseList = (phases ?? SimpleFoodPhases(
+			"$0 prepare|prepares $i1 and the other ingredients.",
+			"$0 finish|finishes the dish and set|sets aside $p1.")).ToList();
 		AddCraft(
 			name,
 			"Cooking",
@@ -679,11 +682,9 @@ public partial class ItemSeeder
 			difficulty,
 			Outcome.MinorFail,
 			5,
-			3,
+			Math.Min(3, phaseList.Count),
 			false,
-			phases ?? SimpleFoodPhases(
-				"$0 prepare|prepares $i1 and the other ingredients.",
-				"$0 finish|finishes the dish and set|sets aside $p1."),
+			phaseList,
 			inputs,
 			tools,
 			[$"ProgCookedFoodProduct - {selector}"],
@@ -769,10 +770,12 @@ public partial class ItemSeeder
 		IEnumerable<(int Seconds, string Echo, string FailEcho)>? phases = null,
 		Difficulty difficulty = Difficulty.Normal)
 	{
+		var phaseList = (phases ?? SimpleFoodPhases(
+			"$0 prepare|prepares $i1 and the other ingredients.",
+			"$0 finish|finishes the dish and set|sets aside $p1.")).ToList();
 		AddCraft(name, "Cooking", blurb, action, itemSdesc, culture.Knowledge, trait.Name, null, difficulty,
-			Outcome.MinorFail, 5, 3, false,
-			phases ?? SimpleFoodPhases("$0 prepare|prepares $i1 and the other ingredients.",
-				"$0 finish|finishes the dish and set|sets aside $p1."),
+			Outcome.MinorFail, 5, Math.Min(3, phaseList.Count), false,
+			phaseList,
 			inputs,
 			tools,
 			[product],

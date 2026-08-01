@@ -6,6 +6,7 @@ using MudSharp.Models;
 using Parlot.Fluent;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -82,8 +83,11 @@ The items and crafts are fairly universal and of approximately medieval to renei
     private DictionaryWithDefault<string, TraitDefinition> _traits = new(StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, GameItemProto> _items = new(StringComparer.InvariantCultureIgnoreCase);
 	private Dictionary<string, Craft> _craftsByNameAndCategory = new(StringComparer.OrdinalIgnoreCase);
-    private long _nextId = 1;
+	private long _nextId = 1;
 	private bool _deferCraftProductSave;
+	private Stopwatch? _progressStopwatch;
+	private int _progressStage;
+	private int _progressStageCount;
 
     private FuturemudDatabaseContext? _context;
     private IReadOnlyDictionary<string, string>? _questionAnswers;
@@ -167,17 +171,100 @@ The items and crafts are fairly universal and of approximately medieval to renei
     {
         _context = context;
         _questionAnswers = questionAnswers;
-        InitialiseDependencies();
+        BeginProgressReporting(questionAnswers);
+        RunSeedStage("Loading item prerequisites", InitialiseDependencies);
         SeedReworkItems();
         SeedCrafts();
 		if (questionAnswers.TryGetValue("eras", out var eras))
 		{
-			SeedVehicleItemsAndPrototypes(eras);
+			if (ParseVehicleEraTokens(eras).Count > 0)
+			{
+				RunSeedStage("Creating vehicle items and prototypes", () =>
+				{
+					SeedVehicleItemsAndPrototypes(eras);
+				});
+			}
 		}
-        _context.SaveChanges();
+        RunSeedStage("Saving item and craft changes", () => _context.SaveChanges());
+		Console.WriteLine($"[Item Seeder] Completed in {_progressStopwatch!.Elapsed.TotalSeconds:N1}s.");
 
         return "The operation completed successfully.";
     }
+
+	private void BeginProgressReporting(IReadOnlyDictionary<string, string> questionAnswers)
+	{
+		_progressStopwatch = Stopwatch.StartNew();
+		_progressStage = 0;
+		_progressStageCount = 5; // Prerequisites, three craft batches, and the final save.
+
+		if (!questionAnswers.TryGetValue("eras", out var eras))
+		{
+			return;
+		}
+
+		if (HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern"))
+		{
+			_progressStageCount++;
+		}
+
+		if (HasAnyEra(eras, "medieval", "renaissance", "earlymodern"))
+		{
+			_progressStageCount++;
+		}
+
+		_progressStageCount += new[] { "antiquity", "medieval", "renaissance", "earlymodern" }
+			.Count(era => eras.Contains(era, StringComparison.InvariantCultureIgnoreCase));
+
+		if (HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern"))
+		{
+			_progressStageCount++;
+		}
+
+		if (ParseVehicleEraTokens(eras).Count > 0)
+		{
+			_progressStageCount++;
+		}
+	}
+
+	private void RunSeedStage(string description, Action action)
+	{
+		if (_progressStopwatch is null)
+		{
+			action();
+			return;
+		}
+
+		_progressStage++;
+		var startingItemCount = CountNewEntities<GameItemProto>();
+		var startingCraftCount = CountNewEntities<Craft>();
+		var stageStopwatch = Stopwatch.StartNew();
+		Console.WriteLine($"[Item Seeder] [{_progressStage}/{_progressStageCount}] {description}...");
+		action();
+
+		var newItemCount = CountNewEntities<GameItemProto>() - startingItemCount;
+		var newCraftCount = CountNewEntities<Craft>() - startingCraftCount;
+		var additions = new List<string>();
+		if (newItemCount > 0)
+		{
+			additions.Add($"{newItemCount:N0} new item{(newItemCount == 1 ? string.Empty : "s")}");
+		}
+
+		if (newCraftCount > 0)
+		{
+			additions.Add($"{newCraftCount:N0} new craft{(newCraftCount == 1 ? string.Empty : "s")}");
+		}
+
+		var additionSummary = additions.Count == 0 ? string.Empty : $"; {additions.ListToString()}";
+		Console.WriteLine(
+			$"[Item Seeder] [{_progressStage}/{_progressStageCount}] Completed in {stageStopwatch.Elapsed.TotalSeconds:N1}s{additionSummary}.");
+	}
+
+	private int CountNewEntities<TEntity>() where TEntity : class
+	{
+		return _context!.ChangeTracker
+			.Entries<TEntity>()
+			.Count(x => x.State == EntityState.Added);
+	}
 
     /// <inheritdoc />
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
@@ -926,61 +1013,73 @@ The items and crafts are fairly universal and of approximately medieval to renei
 
 		if (HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern"))
 		{
-			SeedSharedPreIndustrialBaselineItems();
-			SeedSharedPreIndustrialFoodFoundation();
+			RunSeedStage("Creating shared pre-industrial foundations", () =>
+			{
+				SeedSharedPreIndustrialBaselineItems();
+				SeedSharedPreIndustrialFoodFoundation();
+			});
 		}
 
 		if (HasAnyEra(eras, "medieval", "renaissance", "earlymodern"))
 		{
-			SeedSharedPreIndustrialFoodCatalogue();
-			SeedSharedPreIndustrialLeisureItems();
+			RunSeedStage("Creating shared food catalogue and leisure items", () =>
+			{
+				SeedSharedPreIndustrialFoodCatalogue();
+				SeedSharedPreIndustrialLeisureItems();
+			});
 		}
 
 		if (eras.Contains("antiquity", StringComparison.InvariantCultureIgnoreCase))
 		{
-			SeedAntiquityClothing();
-			SeedAntiquityHouseholdCraftTools();
-			SeedAntiquityWritingImplementsAndDocuments();
-			SeedAntiquityMedicalItems();
-			SeedAntiquityJewellery();
-			SeedAntiquityArmour();
-			SeedAntiquityContainers();
-			SeedAntiquityDoorsAndLocks();
-			SeedAntiquityRepairKits();
-			SeedAntiquityHouseholdFurniture();
-			SeedAntiquityWeaponsShieldsAccessories();
-			SeedAntiquityApiaryItems();
-			SeedAntiquityFoodAndBeverageItems();
-			SeedAntiquityComponentGapItems();
+			RunSeedStage("Creating antiquity items", () =>
+			{
+				SeedAntiquityClothing();
+				SeedAntiquityHouseholdCraftTools();
+				SeedAntiquityWritingImplementsAndDocuments();
+				SeedAntiquityMedicalItems();
+				SeedAntiquityJewellery();
+				SeedAntiquityArmour();
+				SeedAntiquityContainers();
+				SeedAntiquityDoorsAndLocks();
+				SeedAntiquityRepairKits();
+				SeedAntiquityHouseholdFurniture();
+				SeedAntiquityWeaponsShieldsAccessories();
+				SeedAntiquityApiaryItems();
+				SeedAntiquityFoodAndBeverageItems();
+				SeedAntiquityComponentGapItems();
+			});
 		}
 
 		if (eras.Contains("medieval", StringComparison.InvariantCultureIgnoreCase))
 		{
-			SeedMedievalClothing();
-			SeedMedievalHouseholdCraftTools();
-			SeedMedievalWritingAdministrationAndDocuments();
-			SeedMedievalMedicalAndApothecaryItems();
-			SeedMedievalJewelleryAndDevotionalGoods();
-			SeedMedievalArmour();
-			SeedMedievalContainers();
-			SeedMedievalDoorsLocksAndStrongboxes();
-			SeedMedievalRepairKits();
-			SeedMedievalHouseholdFurniture();
-			SeedMedievalWeaponsShieldsAccessories();
-			SeedMedievalFoodAndBeverageItems();
-			SeedMedievalFoodCatalogue();
-			SeedMedievalFoodProductionFoundationItems();
-			SeedMedievalComponentGapItems();
+			RunSeedStage("Creating medieval items", () =>
+			{
+				SeedMedievalClothing();
+				SeedMedievalHouseholdCraftTools();
+				SeedMedievalWritingAdministrationAndDocuments();
+				SeedMedievalMedicalAndApothecaryItems();
+				SeedMedievalJewelleryAndDevotionalGoods();
+				SeedMedievalArmour();
+				SeedMedievalContainers();
+				SeedMedievalDoorsLocksAndStrongboxes();
+				SeedMedievalRepairKits();
+				SeedMedievalHouseholdFurniture();
+				SeedMedievalWeaponsShieldsAccessories();
+				SeedMedievalFoodAndBeverageItems();
+				SeedMedievalFoodCatalogue();
+				SeedMedievalFoodProductionFoundationItems();
+				SeedMedievalComponentGapItems();
+			});
 		}
 
 		if (eras.Contains("renaissance", StringComparison.InvariantCultureIgnoreCase))
 		{
-			SeedRenaissanceItems();
+			RunSeedStage("Creating renaissance items", SeedRenaissanceItems);
 		}
 
 		if (eras.Contains("earlymodern", StringComparison.InvariantCultureIgnoreCase))
 		{
-			SeedEarlyModernItems();
+			RunSeedStage("Creating early modern items", SeedEarlyModernItems);
 		}
 
 		if (eras.Contains("revolution", StringComparison.InvariantCultureIgnoreCase))
@@ -1003,6 +1102,9 @@ The items and crafts are fairly universal and of approximately medieval to renei
 
 		}
 
-		SeedDocumentedClothingOutfitManifests(eras);
+		if (HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern"))
+		{
+			RunSeedStage("Creating documented clothing outfits", () => SeedDocumentedClothingOutfitManifests(eras));
+		}
 	}
 }

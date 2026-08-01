@@ -31,7 +31,7 @@ public abstract class BodypartGroupDescriber : SaveableItem, IBodypartGroupDescr
         // Run the rule for the list of bodyparts and get a score. Higher scores at the start of the list.
         List<BodypartGroupResult> results =
             describers.Select(x => x.Match(bodyparts))
-                      .Where(x => x.IsMatch)
+                      .Where(x => x.IsMatch && (x.Matches?.Count ?? 0) > 0)
                       .OrderByDescending(x => x.MatchScore)
                       .ToList();
 

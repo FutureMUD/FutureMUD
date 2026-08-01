@@ -922,7 +922,7 @@ public partial class Body
                                               (y.Item1.GetItemType<IWearable>()?.GloballyTransparent ?? false) &&
                                               !y.Item2.HidesSeveredBodyparts) &&
                                  actor.Body.Prosthetics.All(y =>
-                                     x != y.TargetBodypart && !x.DownstreamOfPart(y.TargetBodypart)))
+                                     !ProstheticTargetsBodypart(y, x) && !x.DownstreamOfPart(y.TargetBodypart)))
                          .GroupBy(x => actor.Body.GetLimbFor(x))
                          .ToList();
                 foreach (IGrouping<ILimb, IBodypart> item in severs.OrderByDescending(x => x.Key != null))
@@ -944,7 +944,7 @@ public partial class Body
                     actor.Body.SeveredRoots.Where(
                         x =>
                             !(x is IOrganProto) &&
-                            !x.Significant && Prosthetics.All(y => x != y.TargetBodypart) &&
+                            !x.Significant && actor.Body.Prosthetics.All(y => !ProstheticTargetsBodypart(y, x)) &&
                             actor.Body.WornItemsProfilesFor(x).All(y => !y.Item2.HidesSeveredBodyparts)).ToList();
                 if (insignificantSevers.Any())
                 {

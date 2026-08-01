@@ -291,7 +291,7 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
                 return sb.ToString();
             case DescriptionType.Evaluate:
-                sb.AppendLine($"This is something that can be worn by those with a body type of {Profiles.Select(x => x.DesignedBody.Name.ColourValue()).ListToString(conjunction: "or ")}.");
+                sb.AppendLine($"This is something that can be worn by those with a body type of {Profiles.Select(x => x.DesignedBody).Distinct().Select(x => x.Name.ColourValue()).ListToString(conjunction: "or ")}.");
                 if (Bulky)
                 {
                     sb.AppendLine($"It is considered bulky, and cannot be worn over other bulky items.");

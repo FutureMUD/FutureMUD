@@ -112,6 +112,8 @@ Stock item content uses the `GameItem` health strategy seeded in `CoreDataSeeder
 | `ICorpse` and `CorpseGameItemComponent` | Turns items into corpses and severed remains with owner and decay context |
 | `ICannula` and `CannulaGameItemComponent` | Supports vascular access and cannulation procedures |
 | `IVBagGameItemComponent` | Supports infused liquids and IV-style medical logistics |
+| `IImmobilise` and `ImmobilisingGameItemComponent` | Associates a worn splint or cast with fractures beneath its active wear profile |
+| `ICrutch` and `CrutchGameItemComponent` | Lets a correctly side-aligned held or wielded mobility aid substitute for an unusable leg |
 | `IProvideGasForBreathing` and `RebreatherGameItemComponent` | Supplies breathable gas to bodies that need it |
 | `BreathingFilterGameItemComponent` | Modifies the breathing stream through equipment |
 | `IDefibrillator` and `DefibrillatorGameItemComponent` | Equipment-gated electrical rescue support |
@@ -120,7 +122,7 @@ Stock item content uses the `GameItem` health strategy seeded in `CoreDataSeeder
 | `IOrganImplant` and `ImplantOrganGameItemComponent` | Implanted artificial organs and organ augmentation |
 | `ImplantPowerPlantGameItemComponent`, `ImplantPowerRouterGameItemComponent`, `ImplantPowerSupplyGameItemComponent` | Power infrastructure for advanced implants |
 | `ImplantRadioGameItemComponent`, `ImplantTraitChangerGameItemComponent`, container-style implant components | Advanced implant payloads that sit adjacent to the health framework |
-| Prosthetic component prototypes in seeders | Replacement limbs and eyes that restore or replace severed functionality |
+| Prosthetic component prototypes in seeders | Replacement limbs and eyes that restore compatible severed functionality; functional exact-target prostheses do not disable their replacement bodypart |
 
 ### Design implication
 The item system makes health extensible without constantly adding new commands. Once the correct interfaces and components exist, bodies, surgeries, breathing, and treatment code can discover and use those items through shared contracts.

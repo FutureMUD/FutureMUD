@@ -99,7 +99,7 @@ namespace MudSharp.Form.Material
             XElement root = base.SaveToXml();
             root.Add(new XAttribute("instancetype", "blood"));
             root.Add(new XAttribute("source", Source?.Id ?? 0));
-            root.Add(new XAttribute("race", Race.Id));
+            root.Add(new XAttribute("race", Race?.Id ?? 0));
             root.Add(new XAttribute("bloodtype", BloodType?.Id ?? 0));
             return root;
         }

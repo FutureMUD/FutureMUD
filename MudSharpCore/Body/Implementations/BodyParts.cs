@@ -297,7 +297,7 @@ public partial class Body
                            .Where(x => x.Applies(Actor)).ToList();
 
         List<IBodypart> severedParts = _severedRoots
-                           .Where(x => Prosthetics.All(y => y.TargetBodypart != x))
+                           .Where(x => Prosthetics.All(y => !ProstheticTargetsBodypart(y, x)))
                            .Concat(merits.SelectMany(x => x.RemovedBodyparts(Actor)))
                            .Distinct()
                            .ToList();
@@ -358,6 +358,20 @@ public partial class Body
 
     public IEnumerable<IBodypart> SeveredRoots => _severedRoots;
 
+    internal static bool ProstheticTargetsBodypart(IProsthetic prosthetic, IBodypart bodypart)
+    {
+        return prosthetic.TargetBodypart == bodypart ||
+               prosthetic.TargetBodypart.CountsAs(bodypart) ||
+               bodypart.CountsAs(prosthetic.TargetBodypart);
+    }
+
+    internal static bool NonFunctionalProstheticDisablesBodypart(IProsthetic prosthetic, IBodypart bodypart)
+    {
+        return !prosthetic.Functional &&
+               (bodypart.DownstreamOfPart(prosthetic.TargetBodypart) ||
+                ProstheticTargetsBodypart(prosthetic, bodypart));
+    }
+
     public CanUseBodypartResult CanUseBodypart(IBodypart part)
     {
         CanUseLimbResult limbResult = CanUseLimb(GetLimbFor(part));
@@ -396,8 +410,7 @@ public partial class Body
             return CanUseBodypartResult.CantUsePartDamage;
         }
 
-        return Prosthetics.Any(
-            x => (!x.Functional && part.DownstreamOfPart(x.TargetBodypart)) || part == x.TargetBodypart)
+        return Prosthetics.Any(x => NonFunctionalProstheticDisablesBodypart(x, part))
             ? CanUseBodypartResult.CantUseNonFunctionalProsthetic
             : CanUseBodypartResult.CanUse;
 

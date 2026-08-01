@@ -55,12 +55,16 @@ public class DefibrillatorGameItemComponent : GameItemComponent, IDefibrillator
 
         if (CharacterState.Able.HasFlag(target.Actor.State))
         {
-            return $"{target.Actor.HowSeen(shocker, true)} is conscious and therefore not in need of defibrillation.";
+            return CharacterInstanceIdentityComparer.SamePhysicalInstance(shocker, target.Actor)
+                ? "You are conscious and therefore not in need of defibrillation."
+                : $"{target.Actor.HowSeen(shocker, true)} is conscious and therefore not in need of defibrillation.";
         }
 
         List<IBodypart> targetParts = target.Bodyparts.Where(x => x.Organs.Any(y => y is HeartProto)).ToList();
         List<IGameItem> preventingRemoval = targetParts.SelectMany(x =>
-            target.WornItemsProfilesFor(x).Where(y => y.Item2.PreventsRemoval).Select(y => y.Item1)).ToList();
+            target.WornItemsProfilesFor(x).Where(y => y.Item2.PreventsRemoval).Select(y => y.Item1))
+            .Distinct()
+            .ToList();
         if (preventingRemoval.Any())
         {
             return
@@ -114,10 +118,11 @@ public class DefibrillatorGameItemComponent : GameItemComponent, IDefibrillator
         CheckOutcome result = check.Check(shocker, Difficulty.Normal, target,
             externalBonus: StandardCheck.BonusesPerDifficultyLevel * ((int)Parent.Quality - 5));
 
-        if (RandomUtilities.DoubleRandom(0.0, 1.0) <= (1.0 + result.Outcome.CheckDegrees() * 0.15) *
+        bool successfulShock = RandomUtilities.DoubleRandom(0.0, 1.0) <= (1.0 + result.Outcome.CheckDegrees() * 0.15) *
             Gameworld.GetStaticDouble(heartFunction <= 0.0
                 ? "DefibrillatorReviveChance"
-                : "DefibrillatorStabiliseChance"))
+                : "DefibrillatorStabiliseChance");
+        if (successfulShock)
         {
             foreach (Tuple<HeartProto, double> heart in heartFunctions)
             {
@@ -135,6 +140,10 @@ public class DefibrillatorGameItemComponent : GameItemComponent, IDefibrillator
                 }
             }
         }
+
+        shocker.Send(successfulShock
+            ? $"{Parent.HowSeen(shocker, true)} reports that the heart rhythm has stabilised."
+            : $"{Parent.HowSeen(shocker, true)} reports no effective change in heart rhythm.");
     }
 
     public double PowerConsumptionInWatts => 0.0;

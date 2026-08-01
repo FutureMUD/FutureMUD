@@ -1084,14 +1084,6 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
                                 $"$0's efforts to relocate {Describe(WoundExaminationType.Look, Outcome.MajorPass).Colour(Telnet.Cyan)} has been {(testOutcome == Outcome.MajorPass ? "majorly" : testOutcome == Outcome.Pass ? "" : "marginally")} unsuccessful.",
                                 treater, treater)));
                     }
-
-                    if (testOutcome != Outcome.MinorFail)
-                    {
-                        Parent.OutputHandler.Send(
-                            $"The pain levels in your {Bodypart.FullDescription()} shoot up {(testOutcome == Outcome.MajorFail ? "enormously" : "substantially")} due to the unsuccessful treatment."
-                                .Colour(Telnet.Red));
-                    }
-                    // TODO - temporary pain?
                 }
                 else
                 {

@@ -50,34 +50,18 @@ public partial class TimeSeeder : IDatabaseSeeder
         {
             ("secondsmultiplier", @"How many in-game seconds do you want to pass per real second?
 
-When making your decision on this setting you should consider a few 'side effects' of the choice you make. For example, if you choose a ratio that is a factor of 24 (so 1, 2, 3, 4, 6, or 8) the in-game time at a given real time of the day will always be the same. This means that if a person always logged in at the same real time each day it would also be the same in-game time.
+#BLabMUD#0 used a #22:1#0 ratio
+#BSOI#0, #BHarshlands#0 and #BAtonement#0 all use/used a #24:1#0 ratio
+#BArmageddon#0 used a #224:1#0 ratio
 
-This could be disadvantageous if that time was always at night for example, and their character couldn't do things that they needed to do in the daytime. There is a little bit of variation because time in FutureMUD does not run while the MUD is not running, but hopefully your downtime is minimal and so this previous advice should be broadly true.
-
-Another consideration is the realism of the scenario. If you use a rate that is especially high, time goes by so fast that it basically has to be ignored in-game. When a single conversation might take 3 in-game days to play out, it does somewhat ruin the immersion. For this reason, I recommend against ratios much higher than 10.
-
-Personally, I recommend either 2 or 5 as a ratio but you are free to choose what you will, and you can also adjust this setting later without issue if you change your mind.
-
-With all that in mind, what whole number of in-game seconds should be added for every 1 real second that passes? ",
+What whole number of in-game seconds should be added for every 1 real second that passes? ",
                 (context, answers) => true,
                 (answer, context) =>
                 {
                     if (!uint.TryParse(answer, out uint value) || value <= 0) { return (false, "You must supply a valid positive integer."); } return (true, string.Empty);
                 }),
             ("mode",
-                @"There are several pre-made calendars that you can choose to use. If you are using a calendar that is not one of the ones listed below, I suggest that you use the latin-ancient calendar and modify the generated file as that calendar makes the most use of advanced features for examples.
-
-Broadly speaking, there are eight calendars for you to choose from:
-
-#AGregorian#F - which is the calendar most of the world uses in the modern era
-#AJulian#F - which is very similar to the Gregorian calendar but with different leap year rules
-#ARoman#F - which was a calendar used in the Roman republic before the Julian reforms
-#AMiddle-Earth#F - various calendars described by J.R.R. Tolkien for Middle-Earth
-#ATranquility#F: The 13-month, 28 day Tranquility calendar, commencing at the Moon Landing
-#ACalendare Republicain#F: The French Republican calendar (including decimal clock) from the French Revolution
-#AMission#F: A sci-fi generation ship calendar with 360 day years, 36 day months and 6 day weeks
-#ASeasonal 360#F: A simple 360 day fantasy calendar with three months per season and a 6 day week
-#AAstronomical and Historical Approximations#F: deterministic Hijri, Hebrew, Old Persian, Babylonian and East Asian calendar packages
+                @"There are several pre-made calendars that you can choose to use. If you are using a calendar that is not listed here, you can choose one of these and then later edit it yourself in game.
 
 The specific available calendars are as follows:
 

@@ -369,9 +369,11 @@ The syntax is #3seal <target> with <stamp> [using <medium>]#0.", AutoHelp.HelpAr
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoCombatCommand]
 	[NoMovementCommand]
-	[HelpInfo("break seal",
-		"The #3break seal#0 command breaks the seal on a sealed item without otherwise opening, reading, or writing it. The syntax is #3break seal <target>#0.",
-		AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("break seal", @"The #3break seal#0 command breaks an item's seal without otherwise opening, reading or altering it. This may leave evidence through the item's seal state.
+
+	The syntax is:
+
+	#3break seal <sealed item>#0", AutoHelp.HelpArgOrNoArg)]
 	protected static void Break(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -490,9 +492,11 @@ The syntax is #3seal <target> with <stamp> [using <medium>]#0.", AutoHelp.HelpAr
 	}
 
 	[PlayerCommand("Compare", "compare")]
-	[HelpInfo("compare",
-		"The #3compare seal#0 command compares a seal impression against a seal stamp or another sealed item. The syntax is #3compare seal <sealed item> with <stamp|sealed item>#0.",
-		AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("compare", @"The #3compare seal#0 command compares a sealed item's impression with a seal stamp or another sealed item to determine whether they match.
+
+	The syntax is:
+
+	#3compare seal <sealed item> with <stamp|sealed item>#0", AutoHelp.HelpArgOrNoArg)]
 	protected static void Compare(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -558,9 +562,11 @@ The syntax is #3seal <target> with <stamp> [using <medium>]#0.", AutoHelp.HelpAr
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoCombatCommand]
 	[NoMovementCommand]
-	[HelpInfo("weigh",
-		"The #3weigh#0 command weighs an item using a measuring instrument. The syntax is #3weigh <item> on <instrument>#0.",
-		AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("weigh", @"The #3weigh#0 command weighs an item using a suitable measuring instrument that you can manipulate.
+
+	The syntax is:
+
+	#3weigh <item> on <instrument>#0", AutoHelp.HelpArgOrNoArg)]
 	protected static void Weigh(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -621,9 +627,11 @@ The syntax is #3seal <target> with <stamp> [using <medium>]#0.", AutoHelp.HelpAr
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoCombatCommand]
 	[NoMovementCommand]
-	[HelpInfo("measure",
-		"The #3measure#0 command measures weight or liquid volume with a measuring instrument. Length measurement is not implemented in this pass. The syntax is #3measure <target> with <instrument>#0.",
-		AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("measure", @"The #3measure#0 command measures an item with a compatible instrument. Current instruments can report weight or fluid volume; length measurement is not available.
+
+	The syntax is:
+
+	#3measure <target> with <instrument>#0", AutoHelp.HelpArgOrNoArg)]
 	protected static void Measure(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -3979,6 +3987,11 @@ The syntax is as follows:
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [NoHideCommand]
+    [HelpInfo("smoke", @"The #3smoke#0 command uses a held smokeable item. The item determines whether it must be lit, how it is consumed, and any effects it produces. You can attach a parenthesised emote.
+
+The syntax is:
+
+	#3smoke <item> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Smoke(ICharacter character, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -4020,6 +4033,11 @@ The syntax is as follows:
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [NoHideCommand]
+    [HelpInfo("puff", @"The #3puff#0 command takes a puff from a held puffable item, such as a suitable pipe or electronic device. You can attach a parenthesised emote.
+
+The syntax is:
+
+	#3puff <item> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Puff(ICharacter character, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -4220,6 +4238,11 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [RequiredCharacterState(CharacterState.Able)]
     [NoHideCommand]
+    [HelpInfo("light", @"The #3light#0 command lights a lightable item. An ignition source is optional; whether one is required depends on the item. You can attach a parenthesised emote.
+
+The syntax is:
+
+	#3light <item> [<ignition source>] [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Light(ICharacter character, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -4277,6 +4300,11 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [RequiredCharacterState(CharacterState.Able)]
     [NoHideCommand]
+    [HelpInfo("extinguish", @"The #3extinguish#0 command puts out a visible lightable item. You can attach a parenthesised emote.
+
+The syntax is:
+
+	#3extinguish <item> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Extinguish(ICharacter character, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -4320,6 +4348,11 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
     [RequiredCharacterState(CharacterState.Able)]
     [NoHideCommand]
     [NoCombatCommand]
+    [HelpInfo("knock", @"The #3knock#0 command knocks on a door. You can name the exit direction or the installed door itself, and attach a parenthesised emote.
+
+The syntax is:
+
+	#3knock <exit|door> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Knock(ICharacter character, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -5120,6 +5153,11 @@ The syntax is as follows:
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [CommandPermission(PermissionLevel.NPC)]
     [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("junk", @"The #3junk#0 command permanently destroys a held item, where game permissions allow it. You must type the full command word. Containers with contents require confirmation through #3accept#0.
+
+The syntax is:
+
+	#3junk <held item>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Junk(ICharacter character, string command)
     {
         if (!character.Gameworld.GetStaticBool("PlayersCanJunk") && !character.IsAdministrator())
@@ -5261,6 +5299,14 @@ The syntax is as follows:
     [PlayerCommand("Open", "open")]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("open", @"The #3open#0 command opens a door, container, or other openable item that you can manipulate. You can name a door by exit, a door and exit together, an item, a permitted character's external item, or an automation service panel on an item.
+
+The common syntax is:
+
+	#3open <exit|item>#0
+	#3open <door> <exit>#0
+	#3open <character> <external item>#0
+	#3open <item|exit> <panel|housing>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Open(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -6130,6 +6176,14 @@ The syntax is as follows:
     [PlayerCommand("Close", "close", "cl", "clo")]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("close", @"The #3close#0 command closes a door, container, or other closeable item that you can manipulate. The aliases #3cl#0 and #3clo#0 work the same way. It accepts the same door, item, permitted-inventory and automation-panel forms as #3open#0.
+
+The common syntax is:
+
+	#3close <exit|item>#0
+	#3close <door> <exit>#0
+	#3close <character> <external item>#0
+	#3close <item|exit> <panel|housing>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Close(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -6748,6 +6802,12 @@ The syntax for this command is as follows:
     [PlayerCommand("Connect", "connect")]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("connect", @"The #3connect#0 command joins two compatible connectable items. The second item may be an external implant on a character; name the character and, when necessary, the implant. You can attach a parenthesised emote.
+
+The syntax is:
+
+	#3connect <item> <item> [(<emote>)]#0
+	#3connect <item> <character> [<external implant>] [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Connect(ICharacter? actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -6856,6 +6916,12 @@ The syntax for this command is as follows:
     [PlayerCommand("Disconnect", "disconnect")]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("disconnect", @"The #3disconnect#0 command separates two connected compatible items. The second item may be an external implant on a character; name the character and, when necessary, the implant. You can attach a parenthesised emote.
+
+The syntax is:
+
+	#3disconnect <item> <item> [(<emote>)]#0
+	#3disconnect <item> <character> [<external implant>] [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Disconnect(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -6951,6 +7017,12 @@ The syntax for this command is as follows:
 
     [PlayerCommand("Select", "select")]
     [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("select", @"The #3select#0 command chooses an option on a selectable item in your possession or nearby. If there is more than one selectable item, name the item first. You can attach a parenthesised emote.
+
+The syntax is:
+
+	#3select <option> [(<emote>)]#0
+	#3select <item> <option> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Select(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -7032,6 +7104,11 @@ The syntax for this command is as follows:
 
     [PlayerCommand("Insert", "insert")]
     [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("insert", @"The #3insert#0 command places a held insertable item into a nearby compatible receptacle. If there is exactly one suitable nearby receptacle, you may omit it. You can attach a parenthesised emote.
+
+The syntax is:
+
+	#3insert <held item> [<receptacle>] [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Insert(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -8047,6 +8124,11 @@ The syntax is as follows:
     #endregion
 
     [PlayerCommand("Sharpen", "sharpen")]
+    [HelpInfo("sharpen", @"The #3sharpen#0 command sharpens a held item using a visible sharpening tool that you can manipulate.
+
+The syntax is:
+
+	#3sharpen <held item> <sharpener>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Sharpen(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -8103,9 +8185,11 @@ The syntax is as follows:
     [PlayerCommand("Lob", "lob")]
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
-    [HelpInfo("lob",
-        "The lob command allows you to lob an item into another room or layer. You can lob the item into the room without regard to where it lands, or you can specify a target in that room to try to lob it near. The syntax is LOB <item> <direction> [<target>] or LOB <item> <layer> [<target>].",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("lob", @"The #3lob#0 command throws a held item into an adjacent room or another room layer. You may specify a target to aim near and append a parenthesised emote. Closed doors block lobs unless they can be fired through.
+
+The syntax is:
+
+	#3lob <item> <direction|layer> [<target>] [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Lob(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -8362,6 +8446,11 @@ The syntax is as follows:
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoMeleeCombatCommand]
+    [HelpInfo("bundle", @"The #3bundle#0 command combines two or more compatible local or held items into a single pile. Every named item must be bundleable and accessible.
+
+The syntax is:
+
+	#3bundle <item> <item> [<item> ...]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Bundle(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -8437,6 +8526,11 @@ The syntax is as follows:
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoMeleeCombatCommand]
+    [HelpInfo("roll", @"The #3roll#0 command rolls a held die or a bundle containing only dice. By default the dice are rolled onto the ground; name a compatible table to roll them onto it. You can attach a parenthesised emote.
+
+The syntax is:
+
+	#3roll <die|dice bundle> [<table>] [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Roll(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

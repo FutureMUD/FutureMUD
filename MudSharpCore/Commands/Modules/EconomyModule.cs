@@ -437,9 +437,11 @@ internal partial class EconomyModule : Module<ICharacter>
     [PlayerCommand("Count", "count")]
     [RequiredCharacterState(CharacterState.Conscious)]
     [NoCombatCommand]
-    [HelpInfo("count",
-        "The count command is used to take stock of the physical currency that you are carrying (including in containers), to help you understand how much money you have. It will also display a list of bank accounts that you own (though you need to go to a bank to see the balances of these).",
-        AutoHelp.HelpArg)]
+    [HelpInfo("count", @"The #3count#0 command totals physical currency carried on your person, including suitable containers, and lists bank accounts you own. It does not show bank balances; visit the relevant bank for those.
+
+The syntax is:
+
+	#3count#0", AutoHelp.HelpArg)]
     protected static void Count(ICharacter character, string command)
     {
         Dictionary<ICurrency, decimal> results = new();
@@ -10696,6 +10698,7 @@ The syntax for working with categories is as follows:
 
     [PlayerCommand("MarketCategory", "marketcategory", "mc")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("marketcategory", MarketCategoryHelpText, AutoHelp.HelpArgOrNoArg)]
     protected static void MarketCategory(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -10939,6 +10942,7 @@ The syntax for this command is as follows:
 
     [PlayerCommand("Market", "market")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("market", MarketHelpText, AutoHelp.HelpArgOrNoArg)]
     protected static void Market(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -11175,6 +11179,7 @@ The syntax for this command is as follows:
 
     [PlayerCommand("MarketPopulation", "marketpopulation", "mp")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("marketpopulation", MarketPopulationHelpText, AutoHelp.HelpArgOrNoArg)]
     protected static void MarketPopulation(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

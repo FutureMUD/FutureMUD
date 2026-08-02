@@ -34,6 +34,15 @@ public class SharedModule : Module<ICharacter>
     [PlayerCommand("Vis", "vis")]
     [DisplayOptions(CommandDisplayOptions.DisplayToAdminsAndNPCs)]
     [CustomModuleName("Storyteller")]
+    [HelpInfo("vis", @"The #3vis#0 command removes administrator invisibility from yourself or a visible target. The ordinary form produces the normal appearance echo; use the silent form when you only want administrators to see the change.
+
+Possessed NPCs may use this command, but unpossessed NPCs cannot. Supplying no target makes yourself visible.
+
+The syntax is:
+
+	#3vis#0
+	#3vis silent#0
+	#3vis <target>#0", AutoHelp.HelpArg)]
     protected static void Vis(ICharacter actor, string input)
     {
         if (actor is INPC)
@@ -100,6 +109,15 @@ public class SharedModule : Module<ICharacter>
     [CommandPermission(PermissionLevel.JuniorAdmin)]
     [DisplayOptions(CommandDisplayOptions.DisplayToAdminsAndNPCs)]
     [CustomModuleName("Storyteller")]
+    [HelpInfo("invis", @"The #3invis#0 command applies administrator invisibility to yourself or a visible target. Invisible administrators remain visible to the administrative audience, while ordinary characters do not receive the usual presence echoes.
+
+Use the silent form for a discrete transition visible only to administrators. Supplying no target makes yourself invisible.
+
+The syntax is:
+
+	#3invis#0
+	#3invis silent#0
+	#3invis <target>#0", AutoHelp.HelpArg)]
     protected static void Invis(ICharacter actor, string input)
     {
         if (actor is INPC)
@@ -283,6 +301,16 @@ This command is useful when you write-up a bunch of room creation commands in a 
     [PlayerCommand("Echo", "echo")]
     [DisplayOptions(CommandDisplayOptions.DisplayToAdminsAndNPCs)]
     [CustomModuleName("Storyteller")]
+    [HelpInfo("echo", @"The #3echo#0 command sends a staff-authored emote to everyone in your current location. Use normal emote markup, including #6@#0 for yourself, #6~target#0 for characters and #6*target#0 for items.
+
+You can make the echo require an auditory, visual, or both types of perception check by supplying an option and a difficulty before the echo text.
+
+The syntax is:
+
+	#3echo <emote text>#0
+	#3echo -a <difficulty> <emote text>#0
+	#3echo -v <difficulty> <emote text>#0
+	#3echo -av <difficulty> <emote text>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Echo(ICharacter actor, string input)
     {
         if (actor is INPC)
@@ -391,6 +419,13 @@ This command is useful when you write-up a bunch of room creation commands in a 
     [PlayerCommand("ZEcho", "zecho")]
     [DisplayOptions(CommandDisplayOptions.DisplayToAdminsAndNPCs)]
     [CustomModuleName("Storyteller")]
+    [HelpInfo("zecho", @"The #3zecho#0 command sends a staff-authored message to every character in your current zone. It is intended for zone-wide narration or coordination rather than a normal local echo.
+
+ANSI colour substitutions are supported, but this command sends a plain message rather than parsing player-emote target markup.
+
+The syntax is:
+
+	#3zecho <message>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void ZEcho(ICharacter actor, string input)
     {
         if (actor is INPC)
@@ -425,6 +460,14 @@ This command is useful when you write-up a bunch of room creation commands in a 
     [PlayerCommand("PEcho", "pecho")]
     [DisplayOptions(CommandDisplayOptions.DisplayToAdminsAndNPCs)]
     [CustomModuleName("Storyteller")]
+    [HelpInfo("pecho", @"The #3pecho#0 command sends an emote privately to one or more visible characters. Separate multiple targets with commas. Each recipient sees the emote as a personal echo, while you receive confirmation of what was sent.
+
+Use normal emote markup in the message. This is a staff-facing delivery tool and does not broadcast the echo to the room.
+
+The syntax is:
+
+	#3pecho <target> <emote text>#0
+	#3pecho <target one>,<target two> <emote text>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void PEcho(ICharacter actor, string input)
     {
         if (actor is INPC)

@@ -53,7 +53,12 @@ Syntax:
 		actor.OutputHandler.Send($"You take control of {vehicle.Name.ColourName()}.");
 	}
 
-	private const string VehicleStatusHelp = @"Use #3vehiclestatus#0 to see the condition and movement readiness of the vehicle you are aboard, or #3vehiclestatus <vehicle>#0 to inspect a vehicle exterior in your location.";
+	private const string VehicleStatusHelp = @"The #3vehiclestatus#0 command reports a vehicle's condition and readiness to move. With no argument it inspects the vehicle you are aboard; name a vehicle to inspect an exterior vehicle in your current location. #3vehiclecheck#0 is an alias.
+
+The syntax is:
+
+	#3vehiclestatus#0
+	#3vehiclestatus <vehicle>#0";
 
 	[PlayerCommand("VehicleStatus", "vehiclestatus", "vehiclecheck")]
 	[HelpInfo("vehiclestatus", VehicleStatusHelp, AutoHelp.HelpArg)]

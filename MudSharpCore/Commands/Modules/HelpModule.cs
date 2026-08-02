@@ -809,6 +809,16 @@ The syntax for this is as follows:
     }
 
     [PlayerCommand("Help", "help")]
+    [HelpInfo("help", @"The #3help#0 command searches the game's help files and built-in command help. With no arguments it lists available categories. Use #3help on#0 to browse a category, or provide a topic; quoted text is useful for multi-word names.
+
+The syntax is:
+
+	#3help#0
+	#3help <topic>#0
+	#3help <category> <topic>#0
+	#3help on <category>#0
+
+For example, #3help get#0 shows the help for getting items, and #3help on commands#0 lists built-in command help.", AutoHelp.HelpArg)]
     protected static void Help(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

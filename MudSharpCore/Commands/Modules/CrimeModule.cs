@@ -1266,6 +1266,13 @@ There are the following syntaxes for this command:
     [PlayerCommand("TakeCustody", "takecustody")]
     [RequiredCharacterState(CharacterState.Able)]
     [MustBeAnEnforcer]
+    [HelpInfo("takecustody", @"The #3takecustody#0 command is used by an enforcer to place a nearby wanted person, or someone serving a custodial sentence, in their custody. If you enforce more than one applicable jurisdiction, you can name the jurisdiction; otherwise the command selects the most relevant one.
+
+The syntax is:
+
+	#3takecustody <target> [<jurisdiction>]#0
+
+The target must remain close to their custodian. Use #3transfercustody#0 to hand custody to another enforcer, or #3endcustody#0 to release it.", AutoHelp.HelpArgOrNoArg)]
     protected static void TakeCustody(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1450,6 +1457,11 @@ The syntax is #3transfercustody <prisoner> <enforcer>#0.", AutoHelp.HelpArg)]
     [PlayerCommand("EndCustody", "endcustody")]
     [RequiredCharacterState(CharacterState.Able)]
     [MustBeAnEnforcer]
+    [HelpInfo("endcustody", @"The #3endcustody#0 command releases a nearby person from custody that you currently hold. Administrators can release custody held by another enforcer.
+
+The syntax is:
+
+	#3endcustody <target>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void EndCustody(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1540,6 +1552,14 @@ The syntax is either #3patrols#0 or #3patrols <jurisdiction>#0 if you are an enf
 
     [PlayerCommand("PermitWork", "permitwork", "permitworkproperty")]
     [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("permitwork", @"The #3permitwork#0 command grants a visible person temporary permission to work in the current area. The #3permitworkproperty#0 form is specifically for a property containing your current location. You must be authorised to grant that access.
+
+The syntax is:
+
+	#3permitwork <target> <duration>#0
+	#3permitworkproperty <target> <duration>#0
+
+Durations use ordinary time units such as #3hours#0, #3days#0 or #3weeks#0; months and years are not accepted.", AutoHelp.HelpArgOrNoArg)]
     protected static void PermitWork(ICharacter actor, string input)
     {
         StringStack ss = new(input);

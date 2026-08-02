@@ -348,6 +348,11 @@ For example, if you set the omote of #2a white cotton shirt#0 to #6folded in a n
 
     [PlayerCommand("Tables", "tables")]
     [RequiredCharacterState(CharacterState.Awake)]
+    [HelpInfo("tables", @"The #3tables#0 command lists the tables in your current location, their associated chairs, and the people using them with their current positions.
+
+The syntax is:
+
+	#3tables#0", AutoHelp.HelpArg)]
     protected static void Tables(ICharacter character, string input)
     {
         StringBuilder sb = new();
@@ -1224,6 +1229,11 @@ For example:
     [RequiredCharacterState(CharacterState.Awake)]
     [NoCombatCommand]
     [NoMovementCommand]
+    [HelpInfo("sleep", @"The #3sleep#0 command puts your character to sleep when their current position and circumstances permit it. You may include a parenthesised emote to describe settling down.
+
+The syntax is:
+
+	#3sleep [(<emote>)]#0", AutoHelp.HelpArg)]
     protected static void Sleep(ICharacter actor, string input)
     {
         if (actor.EffectsOfType<IPreventSleepEffect>().FirstOrDefault() is { } sleepBlocker)
@@ -1252,6 +1262,11 @@ For example:
 
     [PlayerCommand("Wake", "wake")]
     [NoCombatCommand]
+    [HelpInfo("wake", @"The #3wake#0 command wakes your character from ordinary sleep. Magical sleep and other effects may prevent waking. You may include a parenthesised emote to describe waking.
+
+The syntax is:
+
+	#3wake [(<emote>)]#0", AutoHelp.HelpArg)]
     protected static void Wake(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1289,6 +1304,11 @@ For example:
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoMeleeCombatCommand]
+    [HelpInfo("fly", @"The #3fly#0 command begins flying when your character is capable of it. If you are already flying, the command can instead accept a normal position expression. Add a parenthesised emote when beginning flight.
+
+The syntax is:
+
+	#3fly [(<emote>)]#0", AutoHelp.HelpArg)]
     protected static void Fly(ICharacter actor, string input)
     {
         Match positionMatch = _positionRegex.Match(input);
@@ -1327,6 +1347,11 @@ For example:
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoMeleeCombatCommand]
+    [HelpInfo("land", @"The #3land#0 command ends flight. When you are high in the air, use #3land !#0 to confirm that you intend to fall. You may include a parenthesised emote.
+
+The syntax is:
+
+	#3land [!] [(<emote>)]#0", AutoHelp.HelpArg)]
     protected static void Land(ICharacter actor, string input)
     {
         string playerEmote = new StringStack(input.RemoveFirstWord()).PopParentheses();
@@ -1352,6 +1377,11 @@ For example:
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoMeleeCombatCommand]
+    [HelpInfo("dive", @"The #3dive#0 command moves your character downward while swimming or flying. #3descend#0 is an alias. You may include a parenthesised emote.
+
+The syntax is:
+
+	#3dive [(<emote>)]#0", AutoHelp.HelpArg)]
     protected static void Dive(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1383,6 +1413,11 @@ For example:
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoMeleeCombatCommand]
+    [HelpInfo("ascend", @"The #3ascend#0 command moves your character upward while swimming or flying. You may include a parenthesised emote.
+
+The syntax is:
+
+	#3ascend [(<emote>)]#0", AutoHelp.HelpArg)]
     protected static void Ascend(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1414,6 +1449,11 @@ For example:
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoMeleeCombatCommand]
+    [HelpInfo("swim", @"The #3swim#0 command changes your character into a swimming position when they are in an appropriate body of water.
+
+The syntax is:
+
+	#3swim#0", AutoHelp.HelpArg)]
     protected static void Swim(ICharacter actor, string command)
     {
         if (actor.PositionState == PositionSwimming.Instance)
@@ -1436,6 +1476,11 @@ For example:
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoMeleeCombatCommand]
+    [HelpInfo("climb", @"The #3climb#0 command moves your character up or down a climbable route. The alias #3cli#0 works the same way. #3trees#0, #3roof#0 and #3rooftop#0 can be used as upward forms from ground level. You may add a parenthesised emote.
+
+The syntax is:
+
+	#3climb <up|down|trees|roof> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Climb(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

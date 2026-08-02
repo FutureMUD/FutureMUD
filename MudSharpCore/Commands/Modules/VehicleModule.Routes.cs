@@ -486,7 +486,13 @@ Schedules use #3<reference departure> | <recurrence>#0. Recurrences accept forms
 		actor.OutputHandler.Send($"Journey #{journey.Id.ToString("N0", actor)} has been asked to resume from its durable checkpoint.");
 	}
 
-	private const string TransitHelp = @"Use #3transit departures [destination]#0 to see upcoming departures at your location, #3transit services [destination]#0 to browse enabled services, or #3transit status <service|vehicle>#0 for live journey status.";
+	private const string TransitHelp = @"The #3transit#0 command provides timetable and live-status information for configured transport services. Filter departures or services by a destination, or inspect a service or vehicle's active journey status.
+
+The syntax is:
+
+	#3transit departures [<destination>]#0
+	#3transit services [<destination>]#0
+	#3transit status <service|vehicle>#0";
 
 	[PlayerCommand("Transit", "transit")]
 	[RequiredCharacterState(CharacterState.Able)]

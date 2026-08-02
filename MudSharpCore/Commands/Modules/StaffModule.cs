@@ -106,8 +106,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
     }
 
     [PlayerCommand("PartInfo", "partinfo")]
-    [HelpInfo("partinfo", "Full info report on a body's specific bodypart. Syntax: partinfo <target> <partName>",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("partinfo", @"The #3partinfo#0 staff command displays a detailed diagnostic report for one of a character's body parts or organs, including material, connections, hit values, modifiers, vital status and attached organs.
+
+The syntax is:
+
+	#3partinfo <target> <bodypart|organ>#0", AutoHelp.HelpArgOrNoArg)]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
     protected static void PartInfo(ICharacter actor, string input)
     {
@@ -169,6 +172,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("SetHeight", "setheight")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("setheight", @"The #3setheight#0 staff command changes a visible character's height. It also recalculates that character's blood volume.
+
+The syntax is:
+
+	#3setheight <target> <height>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void SetHeight(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -208,6 +216,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("SetWeight", "setweight")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("setweight", @"The #3setweight#0 staff command changes a visible character's weight. It also recalculates that character's blood volume.
+
+The syntax is:
+
+	#3setweight <target> <weight>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void SetWeight(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -247,9 +260,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("SetCharacteristic", "setcharacteristic")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("setcharacteristic",
-        "This command is used to set a characteristic for a character or item. The syntax is setcharacteristic <target> <definition> <value>.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("setcharacteristic", @"The #3setcharacteristic#0 staff command sets a supported characteristic on a visible character or item. Definitions and values may be selected by ID or name.
+
+The syntax is:
+
+	#3setcharacteristic <target> <definition|id> <value|id>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void SetCharacteristic(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -306,6 +321,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("GiveAccent", "giveaccent")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("giveaccent", @"The #3giveaccent#0 staff command grants a character an accent, selected by name or ID. You may give an optional difficulty that controls the accent's familiarity.
+
+The syntax is:
+
+	#3giveaccent <target> <accent|id> [<difficulty>]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void GiveAccent(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -377,8 +397,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("GiveKnowledge", "giveknowledge")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("giveknowledge", "Grant Knowledge to character via: giveknowledge <character> <knowledge>",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("giveknowledge", @"The #3giveknowledge#0 staff command grants a knowledge to a visible character.
+
+The syntax is:
+
+	#3giveknowledge <character> <knowledge>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void GiveKnowledge(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -423,8 +446,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("RemoveKnowledge", "removeknowledge")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("removeknowledge", "Remove Knowledge from character via: removeknowledge <character> <knowledge>",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("removeknowledge", @"The #3removeknowledge#0 staff command removes a knowledge from a visible character.
+
+The syntax is:
+
+	#3removeknowledge <character> <knowledge>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void RemoveKnowledge(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -464,7 +490,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("GiveMerit", "givemerit")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("givemerit", "Grant a merit. Syntax: givemerit <target> <meritname>", AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("givemerit", @"The #3givemerit#0 staff command grants a merit or flaw to a visible character. The merit must be valid for that character.
+
+The syntax is:
+
+	#3givemerit <target> <merit>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void GiveMerit(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -539,7 +569,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("RemoveMerit", "removemerit")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("removemerit", "Remove a merit. Syntax: removemerit <target> <meritname>", AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("removemerit", @"The #3removemerit#0 staff command removes a merit or flaw from a visible character.
+
+The syntax is:
+
+	#3removemerit <target> <merit>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void RemoveMerit(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -605,8 +639,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("FinishTattoo", "finishtattoo")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("finishtattoo", "Finishes someone's unfinished tatoo. Syntax: finishtattoo <target> <tattoo>",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("finishtattoo", @"The #3finishtattoo#0 staff command immediately completes one of a character's unfinished tattoos.
+
+The syntax is:
+
+	#3finishtattoo <target> <tattoo>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void FinishTattoo(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -641,8 +678,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("GiveTattoo", "givetattoo")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("givetattoo", "Gives someone a tattoo. #3Syntax: givetattoo <target> <tattoo> <bodypart> [slot=text]#0",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("givetattoo", @"The #3givetattoo#0 staff command adds a tattoo to a target body part. Supply any tattoo pattern slots as #3slot=text#0 arguments.
+
+The syntax is:
+
+	#3givetattoo <target> <tattoo> <bodypart> [<slot>=<text> ...]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void GiveTattoo(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -712,8 +752,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("GiveScar", "givescar")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("givescar", "Gives someone a generated scar. #3Syntax: givescar <target> <bodypart> <damage|surgery> <type> <severity>#0",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("givescar", @"The #3givescar#0 staff command creates a generated scar on a target body part, using the selected damage or surgery source, scar type and severity.
+
+The syntax is:
+
+	#3givescar <target> <bodypart> <damage|surgery> <type> <severity>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void GiveScar(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -797,8 +840,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("RemoveScar", "removescar")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("removescar", "Removes one of someone's scars. #3Syntax: removescar <target> <scar>#0",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("removescar", @"The #3removescar#0 staff command removes one of a visible character's scars.
+
+The syntax is:
+
+	#3removescar <target> <scar>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void RemoveScar(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -834,8 +880,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("SetGender", "setgender")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("setgender", "Sets gender of a target character. Syntax: #3setgender <target> <gender>#0",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("setgender", @"The #3setgender#0 staff command changes a visible character's gender.
+
+The syntax is:
+
+	#3setgender <target> <gender>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void SetGender(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -873,8 +922,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("SetAge", "setage")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("setage", "Sets age of a target character. Maintains existing birthday. Syntax: #3setage <target> <age>#0",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("setage", @"The #3setage#0 staff command changes a visible character's age while retaining their existing birthday relationship.
+
+The syntax is:
+
+	#3setage <target> <age>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void SetAge(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -912,8 +964,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("SetBirthday", "setbirthday")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("setbirthday", "Sets the birthday of a target character. Syntax: #3setbirthday <target> <date>#0",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("setbirthday", @"The #3setbirthday#0 staff command changes a visible character's birthday. The date must be valid in the character's game calendar and cannot be in the future.
+
+The syntax is:
+
+	#3setbirthday <target> <date>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void SetBirthday(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -948,6 +1003,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("ALock", "alock")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("alock", @"The #3alock#0 staff command toggles an administrator lock on a door, lockable item, or a particular lock installed in a lockable item. An administrator lock prevents ordinary manipulation.
+
+The syntax is:
+
+	#3alock <exit|item> [<lock>]#0", AutoHelp.HelpArg)]
     protected static void ALock(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1030,6 +1090,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("Drugs", "drugs")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("drugs", @"The #3drugs#0 staff command reports a visible character's active and latent drug dosages.
+
+The syntax is:
+
+	#3drugs <target>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Drugs(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1051,6 +1116,11 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("Sober", "sober")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("sober", @"The #3sober#0 staff command immediately clears intoxication and related bodily effects from a character or corpse body.
+
+The syntax is:
+
+	#3sober <target>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Sober(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1073,9 +1143,12 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("Effect", "effect")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("effect",
-        "This command allows you to view effects on individuals or items, as well as remove those effects. You should be VERY careful when manually removing effects; some could have unintended consequences. The syntax is EFFECT LIST <target> [<subtarget>] or EFFECT REMOVE <target> [<subtarget>] <position>",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("effect", @"The #3effect#0 staff command lists effects on an individual or item and can remove a selected effect. Removing effects can break persistent state or active actions, so inspect the list and use removal only when you understand the effect.
+
+The syntax is:
+
+	#3effect list <target> [<subtarget>]#0
+	#3effect remove <target> [<subtarget>] <position>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Effect(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1518,6 +1591,11 @@ Plane lists accept IDs, aliases, quoted names, or comma-separated tokens, e.g. #
 
     [PlayerCommand("Ban", "ban")]
     [CommandPermission(PermissionLevel.SeniorAdmin)]
+    [HelpInfo("ban", @"The #3ban#0 staff command suspends an account. After selecting the account, it opens an editor for the ban reason. You cannot ban yourself or an account with equal or greater authority.
+
+The syntax is:
+
+	#3ban <account>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Ban(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1565,6 +1643,11 @@ Plane lists accept IDs, aliases, quoted names, or comma-separated tokens, e.g. #
 
     [PlayerCommand("Unban", "unban")]
     [CommandPermission(PermissionLevel.SeniorAdmin)]
+    [HelpInfo("unban", @"The #3unban#0 staff command removes an account suspension.
+
+The syntax is:
+
+	#3unban <account>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Unban(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1603,6 +1686,11 @@ Plane lists accept IDs, aliases, quoted names, or comma-separated tokens, e.g. #
 
     [PlayerCommand("Siteban", "siteban")]
     [CommandPermission(PermissionLevel.SeniorAdmin)]
+    [HelpInfo("siteban", @"The #3siteban#0 staff command blocks an IP address or wildcard mask. Use #3!#0 for a permanent ban; otherwise supply a date and time in your local account format. Any remaining text records the reason.
+
+The syntax is:
+
+	#3siteban <ip-address|mask> <date-time|!> [<reason>]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Siteban(ICharacter character, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1657,6 +1745,11 @@ Plane lists accept IDs, aliases, quoted names, or comma-separated tokens, e.g. #
 
     [PlayerCommand("Unsiteban", "unsiteban")]
     [CommandPermission(PermissionLevel.SeniorAdmin)]
+    [HelpInfo("unsiteban", @"The #3unsiteban#0 staff command removes an active IP ban by its ID or exact mask. Use #3sitebans#0 to find the ID.
+
+The syntax is:
+
+	#3unsiteban <id|ip mask>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Unsiteban(ICharacter character, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1693,6 +1786,11 @@ Plane lists accept IDs, aliases, quoted names, or comma-separated tokens, e.g. #
 
     [PlayerCommand("Sitebans", "sitebans")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("sitebans", @"The #3sitebans#0 staff command lists active IP bans, including their IDs, masks, issuing staff member, reason and expiry.
+
+The syntax is:
+
+	#3sitebans#0", AutoHelp.HelpArg)]
     protected static void Sitebans(ICharacter character, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1721,6 +1819,11 @@ Plane lists accept IDs, aliases, quoted names, or comma-separated tokens, e.g. #
 
     [PlayerCommand("RandomNames", "randomnames")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("randomnames", @"The #3randomnames#0 staff command generates five sample names from a configured name culture and one of its random-name profiles. Each may be selected by name prefix or ID.
+
+The syntax is:
+
+	#3randomnames <culture|id> <profile|id>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void RandomNames(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1783,6 +1886,11 @@ Plane lists accept IDs, aliases, quoted names, or comma-separated tokens, e.g. #
 
     [PlayerCommand("ResetPassword", "resetpassword")]
     [CommandPermission(PermissionLevel.HighAdmin)]
+    [HelpInfo("resetpassword", @"The #3resetpassword#0 staff command creates a new random password for an account and sends it to the account's email address. Founders also see the generated password in game.
+
+The syntax is:
+
+	#3resetpassword <account>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void ResetPassword(ICharacter actor, string input)
     {
         string account = input.RemoveFirstWord();
@@ -2225,6 +2333,13 @@ The syntax is simply #3broadcast <message>#0.", AutoHelp.HelpArgOrNoArg)]
 
     [PlayerCommand("Wizlock", "wizlock")]
     [CommandPermission(PermissionLevel.SeniorAdmin)]
+    [HelpInfo("wizlock", @"The #3wizlock#0 command manages maintenance-mode restrictions. With no argument it toggles the normal maintenance set (login and chargen restrictions). #3status#0 reports the current flags, while #3login#0 and #3chargen#0 toggle those restrictions separately.
+
+The syntax is:
+
+	#3wizlock#0
+	#3wizlock status#0
+	#3wizlock <login|chargen>#0", AutoHelp.HelpArg)]
     protected static void Wizlock(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -3182,7 +3297,7 @@ There are three ways to use this command:
         actor.OutputHandler.Send(sb.ToString());
     }
 
-    private static string GridHelpText =>
+    private const string GridHelpText =
         @"The #3grid#0 command is used to view, edit and create grids, which are ways in which certain resources (like electricity or water) are shared across multiple rooms with different inputs and outputs pulling dynamically from it.
 
 A room can only have one of each kind of grid at a time, and the grids must be added to rooms to apply there. Other items (like electrical sockets) can be connected to the grid once it's there.
@@ -3202,6 +3317,7 @@ You can use the following subcommands with the grid command:
 
     [PlayerCommand("Grid", "grid")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("grid", GridHelpText, AutoHelp.HelpArg)]
     protected static void Grid(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

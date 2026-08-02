@@ -470,9 +470,11 @@ The syntax is:
     [NoCombatCommand]
     [NoMovementCommand]
     [CustomModuleName("Game")]
-    [HelpInfo("typo",
-        @"This command is used to report a typo in the world building, whether it be rooms, items, NPCs, echoes or whatever you have noticed that is off. Simply type #6typo#0 and you will be dropped into an editor where you can describe the typo that you saw. This command will record your current location so there is no need to include that information.",
-        AutoHelp.HelpArg)]
+    [HelpInfo("typo", @"The #3typo#0 command reports a text or world-building error for staff review. It opens an editor for the report and automatically records your current location, so describe what is wrong and the text you expected instead.
+
+The syntax is:
+
+	#3typo#0", AutoHelp.HelpArg)]
     protected static void Typo(ICharacter actor, string command)
     {
         actor.OutputHandler.Send("Describe the typo that you have observed in the text editor below.");
@@ -529,6 +531,12 @@ The syntax is:
 
     [PlayerCommand("Roles", "roles")]
     [CustomModuleName("Game")]
+    [HelpInfo("roles", @"The #3roles#0 command shows the character-creation roles that your character selected. Administrators may also inspect the roles selected by a visible target.
+
+The syntax is:
+
+	#3roles#0
+	#3roles <target>#0", AutoHelp.HelpArg)]
     protected static void Roles(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -607,7 +615,11 @@ See also the #3names#0 command and the #3introduce#0 command.";
     [PlayerCommand("Names", "names")]
     [RequiredCharacterState(CharacterState.Conscious)]
     [CustomModuleName("Game")]
-    [HelpInfo("names", @"The #3names#0 command is used to view your real name and any aliases. See also the #3alias#0 command and the #3introduce#0 command.", AutoHelp.HelpArg)]
+    [HelpInfo("names", @"The #3names#0 command lists your character's real name and any configured aliases. Use #3alias#0 to manage aliases and #3introduce#0 to share a name with another character.
+
+The syntax is:
+
+	#3names#0", AutoHelp.HelpArg)]
     protected static void Names(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -771,6 +783,13 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
 
     [PlayerCommand("Social", "social")]
     [CustomModuleName("Game")]
+    [HelpInfo("social", @"The #3social#0 command displays the authored echoes and targeting forms for one social that your character can use. It is a reference command; enter the social's own name to perform it.
+
+Use #3socials#0 to list the socials currently available to you.
+
+The syntax is:
+
+	#3social <social>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Social(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -814,6 +833,13 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
 
     [PlayerCommand("Socials", "socials")]
     [CustomModuleName("Game")]
+    [HelpInfo("socials", @"The #3socials#0 command lists the socials currently available to your character, including whether each social supports no target, a single target, multiple targets or a direction.
+
+Use #3social <social>#0 to inspect the exact echoes for a particular social.
+
+The syntax is:
+
+	#3socials#0", AutoHelp.HelpArg)]
     protected static void Socials(ICharacter actor, string command)
     {
         if (!actor.CommandTree.Commands.Socials.Any())
@@ -846,6 +872,11 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
 
     [PlayerCommand("Save", "save")]
     [CustomModuleName("Game")]
+    [HelpInfo("save", @"The #3save#0 command saves your character's current persistent state. Most important state is also saved by normal gameplay, but this command lets you request an immediate save before ending a session or after making a meaningful change.
+
+The syntax is:
+
+	#3save#0", AutoHelp.HelpArg)]
     protected static void Save(ICharacter actor, string command)
     {
         actor.Send("Saving your character...");

@@ -74,7 +74,11 @@ internal class PerceptionModule : Module<ICharacter>
 
     [PlayerCommand("Exits", "exits")]
     [RequiredCharacterState(CharacterState.Conscious)]
-    [HelpInfo("Exits", @"This command allows you to see what exits are present at the location you're in. The syntax is #3exits#0.", AutoHelp.HelpArg)]
+    [HelpInfo("Exits", @"The #3exits#0 command lists the exits available from your current location, including their directions and any information your character can perceive about them.
+
+The syntax is:
+
+	#3exits#0", AutoHelp.HelpArg)]
     protected static void Exits(ICharacter actor, string input)
     {
         List<ICellExit> exits = actor

@@ -1346,6 +1346,14 @@ The syntax is:
 
     [PlayerCommand("ShowPatrols", "showpatrols")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("showpatrols", @"The #3showpatrols#0 command is an administrative operational report for automatic law-enforcement patrols. It shows active patrol composition and state, along with inactive routes, their staffing requirements and any reason they cannot begin.
+
+With no argument it reports every legal authority. Supply a legal authority to restrict the report to that authority.
+
+The syntax is:
+
+	#3showpatrols#0
+	#3showpatrols <legal authority>#0", AutoHelp.HelpArg)]
     protected static void ShowPatrols(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

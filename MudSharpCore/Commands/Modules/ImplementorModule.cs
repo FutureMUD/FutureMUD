@@ -67,6 +67,11 @@ public class ImplementorModule : Module<ICharacter>
 
     [PlayerCommand("CommandLevels", "commandlevels")]
     [CommandPermission(PermissionLevel.Founder)]
+    [HelpInfo("commandlevels", @"The #3commandlevels#0 founder command lists registered commands grouped by their required permission level. With no argument it starts at the lowest permission level; supply a permission level to limit the report.
+
+The syntax is:
+
+	#3commandlevels [<permission level>]#0", AutoHelp.HelpArg)]
     protected static void CommandLevels(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -97,6 +102,12 @@ public class ImplementorModule : Module<ICharacter>
 
     [PlayerCommand("CurrencyTest", "currencytest")]
     [CommandPermission(PermissionLevel.HighAdmin)]
+    [HelpInfo("currencytest", @"The #3currencytest#0 diagnostic command shows how a numeric base-currency value is described in every configured currency and description pattern. The #3convert#0 form instead parses a currency amount using your current currency.
+
+The syntax is:
+
+	#3currencytest <base amount>#0
+	#3currencytest convert <currency amount>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void CurrencyTest(ICharacter actor, string input)
     {
         if (string.IsNullOrEmpty(input.RemoveFirstWord()))
@@ -150,6 +161,11 @@ public class ImplementorModule : Module<ICharacter>
 
     [PlayerCommand("TestMXP", "testmxp")]
     [CommandPermission(PermissionLevel.Founder)]
+    [HelpInfo("testmxp", @"The #3testmxp#0 founder diagnostic displays sample MXP formatting, links and image markup so that client support can be verified.
+
+The syntax is:
+
+	#3testmxp#0", AutoHelp.HelpArg)]
     protected static void Showoff(ICharacter actor, string input)
     {
         StringBuilder sb = new();
@@ -170,6 +186,11 @@ public class ImplementorModule : Module<ICharacter>
 
     [PlayerCommand("TestGPT", "testgpt")]
     [CommandPermission(PermissionLevel.Founder)]
+    [HelpInfo("testgpt", @"The #3testgpt#0 founder diagnostic sends a prompt to a configured GPT thread and displays the response. The thread can be named or identified by ID.
+
+The syntax is:
+
+	#3testgpt <thread|id> <prompt>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void TestGPT(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -217,6 +238,11 @@ public class ImplementorModule : Module<ICharacter>
 
     [PlayerCommand("TestAnthropic", "testanthropic")]
     [CommandPermission(PermissionLevel.Founder)]
+    [HelpInfo("testanthropic", @"The #3testanthropic#0 founder diagnostic sends a prompt using the selected GPT thread's configured prompt through the Anthropic provider. The thread can be named or identified by ID.
+
+The syntax is:
+
+	#3testanthropic <thread|id> <prompt>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void TestAnthropic(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -264,6 +290,11 @@ public class ImplementorModule : Module<ICharacter>
 
     [PlayerCommand("TestGemini", "testgemini")]
     [CommandPermission(PermissionLevel.Founder)]
+    [HelpInfo("testgemini", @"The #3testgemini#0 founder diagnostic sends a prompt using the selected GPT thread's configured prompt through the Gemini provider. The thread can be named or identified by ID.
+
+The syntax is:
+
+	#3testgemini <thread|id> <prompt>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void TestGemini(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -311,6 +342,11 @@ public class ImplementorModule : Module<ICharacter>
 
     [PlayerCommand("TestUnicode", "testunicode")]
     [CommandPermission(PermissionLevel.Founder)]
+    [HelpInfo("testunicode", @"The #3testunicode#0 founder diagnostic displays sample non-ASCII and combining-character text for client rendering checks.
+
+The syntax is:
+
+	#3testunicode#0", AutoHelp.HelpArg)]
     protected static void Unicode(ICharacter actor, string input)
     {
         actor.OutputHandler.Send("Здравствуйте, комраде! Я скажу в юникоде.");

@@ -79,6 +79,13 @@ internal class InventoryModule : Module<ICharacter>
 
     [PlayerCommand("Inventory", "inventory", "inv", "i", "equipment")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("inventory", @"The #3inventory#0 command displays the items you are carrying, wearing, holding and wielding. It is the quickest way to check both your equipment and the things available for ordinary inventory commands.
+
+The aliases #3inv#0, #3i#0 and #3equipment#0 all show the same display.
+
+The syntax is:
+
+	#3inventory#0", AutoHelp.HelpArg)]
     protected static void Inventory(ICharacter actor, string input)
     {
         actor.DisplayInventory();
@@ -432,6 +439,14 @@ The syntax is as follows:
 
     [PlayerCommand("Unwield", "unwield")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("unwield", @"The #3unwield#0 command stops wielding a held weapon or other wielded item, leaving it held where possible. In combat, the action may be queued and completed according to the combat action rules.
+
+You can append a parenthetical emote to describe the action.
+
+The syntax is:
+
+	#3unwield <item>#0
+	#3unwield <item> (<emote>)#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Unwield(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -466,6 +481,16 @@ The syntax is as follows:
 
     [PlayerCommand("Wield", "wield")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("wield", @"The #3wield#0 command prepares a held wieldable item for use. If your body has several wielding locations, you can name one; use the #3twohanded#0 form when you need to require a two-handed grip.
+
+The available hand or wielder descriptions are body-specific. In combat, wielding is handled as a combat action and may be queued.
+
+The syntax is:
+
+	#3wield <item>#0
+	#3wield <item> <wielder>#0
+	#3wield <item> twohanded [<wielder>]#0
+	#3wield <item> [<wielder>] [twohanded] (<emote>)#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Wield(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -572,9 +597,18 @@ The syntax is as follows:
         }
     }
 
-    [PlayerCommand("Put", "put", "pu")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Put(ICharacter actor, string input)
+	[PlayerCommand("Put", "put", "pu")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("put", @"The #3put#0 command moves something you are holding into a container. You can name a container carried by another character when they permit you to manipulate their inventory. Use an optional parenthesised emote to describe the action.
+
+	The syntax is:
+
+	#3put [<quantity>] <item> [<container-owner>] <container> [(<emote>)]#0
+	#3put [exactly] <currency> [<container-owner>] <container> [(<emote>)]#0
+	#3put <weight> <commodity> [<container-owner>] <container> [(<emote>)]#0
+
+	For example, #3put 3 apple backpack#0, #3put exactly 5 silver purse#0, or #3put 2kg grain cart sack#0. Quantities and weights split stackable items or commodities where possible.", AutoHelp.HelpArgOrNoArg)]
+	protected static void Put(ICharacter actor, string input)
     {
         Match match = PutCommandRegex.Match(input.RemoveFirstWord());
         Match currencyMatch = PutCurrencyRegex.Match(input.RemoveFirstWord());
@@ -738,10 +772,17 @@ The syntax is as follows:
         }
     }
 
-    [PlayerCommand("Take", "take")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    [NoMeleeCombatCommand]
-    protected static void Take(ICharacter actor, string input)
+	[PlayerCommand("Take", "take")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[NoMeleeCombatCommand]
+	[HelpInfo("take", @"The #3take#0 command removes an item directly from another character or corpse. If the item is inside an accessible external container, name that container after the target. This is distinct from #3get#0, which takes items from the room or your own containers.
+
+	The syntax is:
+
+	#3take [<quantity>] <item> <target> [<target-container>] [(<emote>)]#0
+
+	For example, #3take coin guard purse#0 takes a coin from the guard's purse, while #3take 2 bandage patient#0 takes two bandages directly from the patient. The target must permit inventory manipulation when a container is involved.", AutoHelp.HelpArgOrNoArg)]
+	protected static void Take(ICharacter actor, string input)
     {
         string text = input.RemoveFirstWord();
         if (string.IsNullOrEmpty(text))
@@ -868,9 +909,18 @@ The syntax is as follows:
         }
     }
 
-    [PlayerCommand("Get", "get", "ge", "g")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Get(ICharacter actor, string input)
+	[PlayerCommand("Get", "get", "ge", "g")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("get", @"The #3get#0 command picks up an item from your location or removes one from a container that you can manipulate. The aliases #3ge#0 and #3g#0 work the same way. Append a parenthesised emote to describe the action.
+
+	The syntax is:
+
+	#3get [<quantity>] <item> [<container>] [(<emote>)]#0
+	#3get [exactly] <currency> [<container>] [(<emote>)]#0
+	#3get <weight> <commodity> [<container>] [(<emote>)]#0
+
+	For example, #3get sword#0, #3get 2 apple basket#0, or #3get 500g flour sack#0. If the named container is a corpse, the command follows the same rules as taking from a corpse.", AutoHelp.HelpArgOrNoArg)]
+	protected static void Get(ICharacter actor, string input)
     {
         if (new StringStack(input.RemoveFirstWord()).IsFinished)
         {
@@ -1093,9 +1143,18 @@ The syntax is as follows:
         }
     }
 
-    [PlayerCommand("Drop", "drop", "dro", "dr")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Drop(ICharacter actor, string input)
+	[PlayerCommand("Drop", "drop", "dro", "dr")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("drop", @"The #3drop#0 command places a held item, some currency, or part of a commodity on the ground. The aliases #3dro#0 and #3dr#0 work the same way. Prefix the command with #3new#0 when you want the dropped items kept as a separate stack, and append a parenthesised emote when desired.
+
+	The syntax is:
+
+	#3drop [new] [<quantity>] <item> [(<emote>)]#0
+	#3drop [new] [exactly] <currency> [(<emote>)]#0
+	#3drop [new] <weight> <commodity> [(<emote>)]#0
+
+	For example, #3drop all#0 drops everything you are holding, #3drop new 3 arrow#0 keeps three arrows separate, and #3drop exactly 2 silver#0 drops that precise amount of currency.", AutoHelp.HelpArgOrNoArg)]
+	protected static void Drop(ICharacter actor, string input)
     {
         if (string.IsNullOrWhiteSpace(input.RemoveFirstWord()))
         {
@@ -1241,9 +1300,18 @@ The syntax is as follows:
         }
     }
 
-    [PlayerCommand("Give", "give")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Give(ICharacter actor, string input)
+	[PlayerCommand("Give", "give")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("give", @"The #3give#0 command hands a held item, currency, or a measured part of a commodity to another character or a corpse. You can attach a parenthesised emote to describe the exchange.
+
+	The syntax is:
+
+	#3give [<quantity>] <item> <target> [(<emote>)]#0
+	#3give [exactly] <currency> <target> [(<emote>)]#0
+	#3give <weight> <commodity> <target> [(<emote>)]#0
+
+	For example, #3give 2 apple traveller#0, #3give exactly 5 silver merchant#0, or #3give 1kg grain horse#0. You cannot give items to non-allies while either of you is in combat.", AutoHelp.HelpArgOrNoArg)]
+	protected static void Give(ICharacter actor, string input)
     {
         Match match = GiveCommandRegex.Match(input.RemoveFirstWord());
         Match currencyMatch = GiveCurrencyRegex.Match(input.RemoveFirstWord());
@@ -1421,6 +1489,15 @@ The syntax is as follows:
 
     [PlayerCommand("Wear", "wear", "wea")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("wear", @"The #3wear#0 command puts a held wearable item on your body. Some items support more than one wear profile; name the profile when you need a specific arrangement rather than the item's default.
+
+In combat, wearing is handled as a combat action and may be queued. You can append a parenthetical emote to describe the action.
+
+The syntax is:
+
+	#3wear <item>#0
+	#3wear <item> <profile>#0
+	#3wear <item> [<profile>] (<emote>)#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Wear(ICharacter actor, string input)
     {
         Match match = WearCommandRegex.Match(input.RemoveFirstWord());
@@ -1486,6 +1563,14 @@ The syntax is as follows:
 
     [PlayerCommand("Remove", "remove", "rem", "rm")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("remove", @"The #3remove#0 command takes off an outermost worn item. You cannot remove an item that is covered by another garment until the covering item has been removed first.
+
+In combat, removal is handled as a combat action and may be queued. The aliases #3rem#0 and #3rm#0 are equivalent.
+
+The syntax is:
+
+	#3remove <item>#0
+	#3remove <item> (<emote>)#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Remove(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1529,6 +1614,15 @@ The syntax is as follows:
     [PlayerCommand("Dress", "dress")]
     [NoMeleeCombatCommand]
     [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("dress", @"The #3dress#0 command lets you put a held wearable item onto another character, with their consent where required. You cannot use it on yourself; use #3wear#0 and #3remove#0 for your own clothing.
+
+You can also grant a visible character ten minutes of consent to dress or undress you. Use #3dress me none#0 to withdraw every active consent early.
+
+The syntax is:
+
+	#3dress <person> <item> [<profile>] [(<emote>)]#0
+	#3dress me <person>#0
+	#3dress me none#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Dress(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1686,6 +1780,16 @@ The syntax is as follows:
 
     [PlayerCommand("Sheathe", "sheathe")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("sheathe", @"The #3sheathe#0 command puts a held item into a compatible sheath. If you omit the item or sheath, the body chooses an available compatible item or destination where possible.
+
+Use a parenthetical emote at the beginning, after the item, or after the sheath to describe the action.
+
+The syntax is:
+
+	#3sheathe#0
+	#3sheathe <item>#0
+	#3sheathe <item> <sheath>#0
+	#3sheathe [<item>] [<sheath>] (<emote>)#0", AutoHelp.HelpArg)]
     protected static void Sheath(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1730,6 +1834,16 @@ The syntax is as follows:
 
     [PlayerCommand("Draw", "draw", "dra", "dr")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("draw", @"The #3draw#0 command removes a wieldable item from a compatible sheath and readies it. With no item named, it attempts to draw the first available suitable item; you can also select a wielding location or require a two-handed grip.
+
+In combat, drawing is handled as a combat action and may be queued. The aliases #3dra#0 and #3dr#0 are equivalent.
+
+The syntax is:
+
+	#3draw#0
+	#3draw <item>#0
+	#3draw <item> <wielder>#0
+	#3draw [<item>] [<wielder>] [twohanded] [(<emote>)]#0", AutoHelp.HelpArg)]
     protected static void Draw(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -3014,6 +3128,13 @@ The valid syntaxes are:
     }
 
     [PlayerCommand("Outfits", "outfits")]
+    [HelpInfo("outfits", @"The #3outfits#0 command lists the saved outfits available to your character. The display shows how many garments each outfit contains and how much of it is currently worn or present nearby.
+
+Use #3outfit#0 to create, edit, wear or otherwise manage an individual saved outfit.
+
+The syntax is:
+
+	#3outfits#0", AutoHelp.HelpArg)]
     protected static void Outfits(ICharacter actor, string command)
     {
         OutfitList(actor, new StringStack(command.RemoveFirstWord()));

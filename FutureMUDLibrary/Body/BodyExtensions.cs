@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MudSharp.GameItems;
 
 namespace MudSharp.Body
 {
@@ -41,6 +42,15 @@ namespace MudSharp.Body
 
     public static class BodyExtensions
     {
+        public static IEnumerable<IWield> FunctioningWieldingLocationsAvailableFor(this IBody body,
+            IGameItem item = null)
+        {
+            return body.WieldLocs.Where(x =>
+                body.CanUseBodypart(x) == CanUseBodypartResult.CanUse &&
+                body.HeldItemsFor(x).All(y => y == item) &&
+                body.WieldedItemsFor(x).All(y => y == item));
+        }
+
         public static IBodypart GetBodypartByName<T>(this T parts, string name, bool abbreviationsPermitted = true) where T : IEnumerable<IBodypart>
         {
             if (abbreviationsPermitted)

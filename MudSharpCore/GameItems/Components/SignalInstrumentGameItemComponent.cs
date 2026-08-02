@@ -1,5 +1,6 @@
 #nullable enable
 
+using MudSharp.Body;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
@@ -109,7 +110,7 @@ public class SignalInstrumentGameItemComponent : InstrumentGameItemComponent, IS
 			return $"You are not using {Parent.HowSeen(actor)} in one of its permitted ways.";
 		}
 
-		var availableHands = actor.Body.FunctioningFreeHands.Count() + (handheld ? 1 : 0);
+		var availableHands = actor.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count();
 		return availableHands < RequiredHands
 			? $"You need {RequiredHands.ToString("N0", actor)} functioning hand{(RequiredHands == 1 ? "" : "s")} to sound {Parent.HowSeen(actor)}."
 			: string.Empty;

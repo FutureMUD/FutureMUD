@@ -178,7 +178,7 @@ public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyE
             return false;
         }
 
-        if (!readier.Body.FunctioningFreeHands.Any())
+        if (readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
         {
             return false;
         }
@@ -203,7 +203,7 @@ public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyE
             return $"{Parent.HowSeen(readier, true)} must first be wielded before it can be readied.";
         }
 
-        if (!readier.Body.FunctioningFreeHands.Any())
+        if (readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
         {
             return $"You need at least one functioning free {readier.Body.WielderDescriptionSingular} to ready a bow.";
         }

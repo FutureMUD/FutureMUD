@@ -146,8 +146,8 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 			return false;
 		}
 
-		if (WeaponType.RequiresFreeHandToReady && !readier.Body.FunctioningFreeHands.Any() &&
-			readier.Body.WieldedHandCount(Parent) < 2)
+		if (WeaponType.RequiresFreeHandToReady &&
+		    readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
 		{
 			return false;
 		}
@@ -172,8 +172,8 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 			return $"{Parent.HowSeen(readier, true)} must first be wielded before it can be readied.";
 		}
 
-		if (WeaponType.RequiresFreeHandToReady && !readier.Body.FunctioningFreeHands.Any() &&
-			readier.Body.WieldedHandCount(Parent) < 2)
+		if (WeaponType.RequiresFreeHandToReady &&
+		    readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
 		{
 			return $"You need at least one free {readier.Body.WielderDescriptionSingular} to ready {Parent.HowSeen(readier)}.";
 		}

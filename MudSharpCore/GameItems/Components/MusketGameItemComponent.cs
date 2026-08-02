@@ -644,8 +644,8 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanReady(ICharacter readier)
     {
-        if (WeaponType.RequiresFreeHandToReady && !readier.Body.FunctioningFreeHands.Any() &&
-            readier.Body.WieldedHandCount(Parent) < 2)
+        if (WeaponType.RequiresFreeHandToReady &&
+            readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
         {
             return false;
         }
@@ -656,8 +656,8 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotReady(ICharacter readier)
     {
-        if (WeaponType.RequiresFreeHandToReady && !readier.Body.FunctioningFreeHands.Any() &&
-            readier.Body.WieldedHandCount(Parent) < 2)
+        if (WeaponType.RequiresFreeHandToReady &&
+            readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
         {
             return
                 $"You need at least one free {readier.Body.WielderDescriptionSingular} to ready {Parent.HowSeen(readier)}.";

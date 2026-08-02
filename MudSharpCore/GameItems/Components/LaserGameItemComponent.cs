@@ -306,8 +306,8 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
             return false;
         }
 
-        if (WeaponType.RequiresFreeHandToReady && !readier.Body.FunctioningFreeHands.Any() &&
-            readier.Body.WieldedHandCount(Parent) < 2)
+        if (WeaponType.RequiresFreeHandToReady &&
+            readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
         {
             return false;
         }
@@ -322,8 +322,8 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
             return $"{Parent.HowSeen(readier, true)} is already ready to fire, and does not need further readying.";
         }
 
-        if (WeaponType.RequiresFreeHandToReady && !readier.Body.FunctioningFreeHands.Any() &&
-            readier.Body.WieldedHandCount(Parent) < 2)
+        if (WeaponType.RequiresFreeHandToReady &&
+            readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
         {
             return
                 $"You need at least one free {readier.Body.WielderDescriptionSingular} to ready {Parent.HowSeen(readier)}.";

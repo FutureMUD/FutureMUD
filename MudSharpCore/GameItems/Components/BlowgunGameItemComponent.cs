@@ -173,8 +173,8 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 			return false;
 		}
 
-		if (WeaponType.RequiresFreeHandToReady && !readier.Body.FunctioningFreeHands.Any() &&
-			readier.Body.WieldedHandCount(Parent) < 2)
+		if (WeaponType.RequiresFreeHandToReady &&
+		    readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
 		{
 			return false;
 		}
@@ -205,8 +205,8 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 			return breathCheck.Reason;
 		}
 
-		if (WeaponType.RequiresFreeHandToReady && !readier.Body.FunctioningFreeHands.Any() &&
-			readier.Body.WieldedHandCount(Parent) < 2)
+		if (WeaponType.RequiresFreeHandToReady &&
+		    readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
 		{
 			return $"You need at least one free {readier.Body.WielderDescriptionSingular} to ready {Parent.HowSeen(readier)}.";
 		}

@@ -24,6 +24,17 @@ internal class TimeModule : Module<ICharacter>
     [PlayerCommand("Time", "time")]
     [CustomModuleName("World")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("time", @"The #3time#0 command reports what your character can determine about the current time, season, visible celestial objects and local calendars. The precision of the date and time shown depends on the relevant checks, while visible timepieces may provide their own readings.
+
+Administrators can also inspect the current mud instant or preview the next occurrence of supported astronomical events for a celestial object.
+
+The syntax is:
+
+	#3time#0
+	#3time instant#0
+	#3time event <sunrise|sunset|newmoon|fullmoon> <celestial> [<occurrence>]#0
+	#3time event solarlongitude <celestial> <degrees> [<occurrence>]#0
+	#3time event visiblecrescent <sun> <moon> [<occurrence>]#0", AutoHelp.HelpArg)]
     protected static void Time(ICharacter actor, string input)
     {
         var command = new StringStack(input.RemoveFirstWord());

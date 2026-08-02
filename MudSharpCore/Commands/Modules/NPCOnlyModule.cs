@@ -26,6 +26,11 @@ The syntax is:
     public static NPCOnlyModule Instance { get; } = new();
 
     [PlayerCommand("Pause", "pause")]
+    [HelpInfo("pause", @"The NPC-only #3pause#0 command toggles whether the NPC's AI routines are paused. While paused, the NPC retains its state but does not continue its normal AI behaviour until you use the command again.
+
+The syntax is:
+
+	#3pause#0", AutoHelp.HelpArg)]
     protected static void Pause(ICharacter actor, string command)
     {
         if (actor.EffectsOfType<PauseAI>().Any())
@@ -40,6 +45,11 @@ The syntax is:
     }
 
     [PlayerCommand("Doorguard", "doorguard")]
+    [HelpInfo("doorguard", @"The NPC-only #3doorguard#0 command toggles door-guard mode. An NPC in this mode acts as a guard for the doorway according to the door-guard effect and associated AI behaviour.
+
+The syntax is:
+
+	#3doorguard#0", AutoHelp.HelpArg)]
     protected static void DoorGuard(ICharacter actor, string command)
     {
         if (actor.AffectedBy<IDoorguardModeEffect>())
@@ -122,6 +132,14 @@ The syntax is:
 	}
 
     [PlayerCommand("Enforcer", "enforcer")]
+    [HelpInfo("enforcer", @"The NPC-only #3enforcer#0 command toggles enforcement mode for an NPC with an Enforcer AI. When enabling it, name a legal authority only if the NPC is eligible to enforce more than one authority.
+
+Use the command again while it is active to leave enforcement mode.
+
+The syntax is:
+
+	#3enforcer#0
+	#3enforcer <legal authority>#0", AutoHelp.HelpArg)]
     protected static void Enforcer(ICharacter actor, string command)
     {
         if (actor.AffectedBy<EnforcerEffect>())
@@ -177,6 +195,13 @@ The syntax is:
     }
 
     [PlayerCommand("Bodyguard", "bodyguard")]
+    [HelpInfo("bodyguard", @"The NPC-only #3bodyguard#0 command shows or changes the character the NPC is assigned to protect. Clearing the assignment stops the NPC from bodyguarding anyone.
+
+The syntax is:
+
+	#3bodyguard#0
+	#3bodyguard <target>#0
+	#3bodyguard off#0", AutoHelp.HelpArg)]
     protected static void Bodyguard(ICharacter actor, string command)
     {
         INPC npc = (INPC)actor;
@@ -224,6 +249,11 @@ The syntax is:
     }
 
     [PlayerCommand("IgnoreForce", "ignoreforce")]
+    [HelpInfo("ignoreforce", @"The NPC-only #3ignoreforce#0 command toggles whether the NPC ignores staff #3force#0 commands. Use it to protect scripted or possessed NPC behaviour from accidental forced input; use it again to restore normal response to force.
+
+The syntax is:
+
+	#3ignoreforce#0", AutoHelp.HelpArg)]
     protected static void IgnoreForce(ICharacter actor, string command)
     {
         if (actor.AffectedBy<IgnoreForce>())
@@ -238,6 +268,11 @@ The syntax is:
     }
 
     [PlayerCommand("Return", "return")]
+    [HelpInfo("return", @"The #3return#0 command ends an administrator's possession of an NPC and returns control to the original character. It only works while you are currently possessing an NPC.
+
+The syntax is:
+
+	#3return#0", AutoHelp.HelpArg)]
     protected static void Return(ICharacter actor, string input)
     {
         Switched switched = actor.EffectsOfType<Switched>().FirstOrDefault();

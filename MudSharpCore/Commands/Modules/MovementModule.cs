@@ -25,6 +25,16 @@ internal partial class MovementModule : Module<ICharacter>
     [DelayBlock("movement", "You cannot move until you stop {0}.")]
     [RequiredCharacterState(CharacterState.Able)]
     [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
+    [HelpInfo("move", @"Movement commands take you through an available exit in the named direction. The short compass forms such as #3n#0 and #3sw#0 are aliases for their full names. #3enter#0 and #3leave#0 use the corresponding available exit where one is present.
+
+You can attach a parenthetical emote to describe how you depart. While you are already moving, further movement commands may be queued; in melee combat you must first get out of melee range.
+
+The syntax is:
+
+	#3north#0, #3south#0, #3east#0, #3west#0, #3up#0 or #3down#0
+	#3northeast#0, #3northwest#0, #3southeast#0 or #3southwest#0
+	#3enter#0 or #3leave#0
+	#3<direction> (<emote>)#0", AutoHelp.HelpArg)]
     protected static void Move(ICharacter actor, string input)
     {
         if (actor.Combat != null && actor.MeleeRange)
@@ -507,6 +517,14 @@ The syntax for this command is as follows:
     }
 
     [PlayerCommand("Speed", "speed")]
+    [HelpInfo("speed", @"The #3speed#0 command shows or changes the pace you use when moving. Available speeds depend on your current body position, and the chosen speed is remembered separately for each position.
+
+Using the command by itself lists the speeds you can currently adopt. Choose one by name to use it for the position it belongs to.
+
+The syntax is:
+
+	#3speed#0
+	#3speed <speed>#0", AutoHelp.HelpArg)]
     protected static void Speed(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());

@@ -1781,9 +1781,12 @@ All of the following commands must happen with an edited clan selected:
     }
 
     [PlayerCommand("Clans", "clans")]
-    [HelpInfo("clan",
-        "This command is used to view clans that you are a member of, or template clans. The syntax is either CLANS or CLANS TEMPLATES",
-        AutoHelp.HelpArg)]
+    [HelpInfo("clans", @"The #3clans#0 command displays your current clan memberships, ranks, appointments, pay information and any accessible treasury information. The template form lists the clan templates available to use when creating a clan.
+
+The syntax is:
+
+	#3clans#0
+	#3clans templates#0", AutoHelp.HelpArg)]
     protected static void Clans(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1883,9 +1886,11 @@ All of the following commands must happen with an edited clan selected:
     [NoCombatCommand]
     [NoHideCommand]
     [NoMovementCommand]
-    [HelpInfo("Payday",
-        "This command is used to check which paydays you have, how much backpay you are owed, and to collect your pay when in the presence of your clan's paymaster. The syntax is simply PAYDAY for all 3 scenarios.",
-        AutoHelp.HelpArg)]
+    [HelpInfo("payday", @"The #3payday#0 command reports your clan pay arrangements and unpaid backpay. When you are in the appropriate clan administrative location with an eligible paymaster, it also collects available pay.
+
+The syntax is:
+
+	#3payday#0", AutoHelp.HelpArg)]
     protected static void Payday(ICharacter actor, string command)
     {
         List<IClanMembership> memberships = actor.ClanMemberships.Where(x => x.Clan.AdministrationCells.Contains(actor.Location))
@@ -7699,9 +7704,11 @@ return 0",
     #endregion Clan Sub-Commands
 
     [PlayerCommand("Notables", "notables")]
-    [HelpInfo("notables",
-        "The notables command is used to view notable individuals that all people would be aware of in your society, like leaders and public figures. The syntax is simply NOTABLES.",
-        AutoHelp.HelpArg)]
+    [HelpInfo("notables", @"The #3notables#0 command lists public figures that your character would generally know about through the visible ranks and appointments of relevant clans in the current sphere.
+
+The syntax is:
+
+	#3notables#0", AutoHelp.HelpArg)]
     protected static void Notables(ICharacter actor, string command)
     {
         string sphere =

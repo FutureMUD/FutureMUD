@@ -37,6 +37,11 @@ internal class HealthModule : Module<ICharacter>
     [NoMeleeCombatCommand]
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [HelpInfo("cpr", @"The #3cpr#0 command begins cardiopulmonary resuscitation on an unresponsive nearby character when CPR is enabled for the game. It is not for conscious or breathing patients.
+
+The syntax is:
+
+	#3cpr <target>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void CPR(ICharacter actor, string command)
     {
         if (!actor.Gameworld.GetStaticBool("CPRAllowed"))
@@ -94,6 +99,11 @@ internal class HealthModule : Module<ICharacter>
     [NoMeleeCombatCommand]
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
+    [HelpInfo("defibrillate", @"The #3defibrillate#0 command uses a held defibrillator on a nearby character. The device controls the actual shock and its requirements.
+
+The syntax is:
+
+	#3defibrillate <target>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Defibrillate(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -125,6 +135,11 @@ internal class HealthModule : Module<ICharacter>
     [NoMovementCommand]
     [NoMeleeCombatCommand]
     [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("vitals", @"The #3vitals#0 command checks breathing and pulse. With no target it checks your own vitals; checking a conscious other character requires their consent.
+
+The syntax is:
+
+	#3vitals [<target>]#0", AutoHelp.HelpArg)]
     protected static void Vitals(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -233,9 +248,11 @@ internal class HealthModule : Module<ICharacter>
     [NoMeleeCombatCommand]
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
-    [HelpInfo("relocate",
-        "This grizzly command allows you to relocate one of your own or another's bones or joints. The syntax to use this command is: relocate <target> <bodypart>.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("relocate", @"The #3relocate#0 command attempts to set a dislocated bone or joint on yourself or a nearby patient. It requires a target and body part, and may require consent or medical equipment depending on the wound.
+
+The syntax is:
+
+	#3relocate <target> <bodypart>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Relocate(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -380,7 +397,11 @@ internal class HealthModule : Module<ICharacter>
     [NoHideCommand]
     [NoMeleeCombatCommand]
     [NoMovementCommand]
-    [HelpInfo("bind", "Bind bleeding wounds to stop the bleeding. Syntax: bind [<target>]", AutoHelp.HelpArg)]
+    [HelpInfo("bind", @"The #3bind#0 command applies immediate bandaging to visible bleeding wounds. With no target it treats your own wounds; treating a conscious patient may require consent and suitable bandages.
+
+The syntax is:
+
+	#3bind [<target>]#0", AutoHelp.HelpArg)]
     protected static void Bind(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -596,8 +617,11 @@ Options:
     [NoHideCommand]
     [NoMovementCommand]
     [NoMeleeCombatCommand]
-    [HelpInfo("suture", "Stitch up a wound to reduce its chance of reopening. Syntax: suture [<target>]",
-        AutoHelp.HelpArg)]
+    [HelpInfo("suture", @"The #3suture#0 command stitches suitable wounds to reduce their chance of reopening. With no target it treats your own wounds; treating a conscious patient may require consent and appropriate equipment.
+
+The syntax is:
+
+	#3suture [<target>]#0", AutoHelp.HelpArg)]
     protected static void Suture(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -747,9 +771,11 @@ Options:
     [NoHideCommand]
     [NoCombatCommand]
     [NoMovementCommand]
-    [HelpInfo("tend",
-        "Tend to a target's wounds so that they heal a little faster, or to apply anti-inflammatory care that reduces pain. Syntax: tend [<target>]",
-        AutoHelp.HelpArg)]
+    [HelpInfo("tend", @"The #3tend#0 command provides general wound care, improving recovery or reducing pain where the patient's wounds can benefit. With no target it tends your own wounds; treating a conscious patient may require consent.
+
+The syntax is:
+
+	#3tend [<target>]#0", AutoHelp.HelpArg)]
     protected static void Tend(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1125,6 +1151,12 @@ The syntaxes available include:
     [NoHideCommand]
     [NoCombatCommand]
     [NoMovementCommand]
+    [HelpInfo("dislodge", @"The #3dislodge#0 command removes a visible lodged item from a wound, or uses an item's own dislodgement behaviour. With no target it examines your own lodged wounds. Some lodged items require surgery and cannot be removed this way.
+
+The syntax is:
+
+	#3dislodge [<character>] <lodged item>#0
+	#3dislodge <item> [<arguments>]#0", AutoHelp.HelpArg)]
     protected static void Dislodge(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1607,6 +1639,11 @@ The syntax is as follows:
     [NoHideCommand]
     [NoMovementCommand]
     [NoMeleeCombatCommand]
+    [HelpInfo("triage", @"The #3triage#0 command begins the best triage procedure your character knows for a patient. With no target it triages yourself. A conscious patient must consent, and the procedure may have its own knowledge, tool and condition requirements.
+
+The syntax is:
+
+	#3triage [<target>]#0", AutoHelp.HelpArg)]
     protected static void Triage(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1720,6 +1757,11 @@ The syntax is as follows:
     }
 
     [PlayerCommand("Wounds", "wounds")]
+    [HelpInfo("wounds", @"The #3wounds#0 command lists wounds visible to you on your own body, together with significant missing or severed body parts.
+
+The syntax is:
+
+	#3wounds#0", AutoHelp.HelpArg)]
     protected static void Wounds(ICharacter actor, string command)
     {
         StringBuilder sb = new();
@@ -2038,6 +2080,11 @@ The syntax is as follows:
 
     [PlayerCommand("Cure", "cure")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("cure", @"The #3cure#0 staff command heals a target's wounds. With no target it treats yourself. It can treat all wounds one stage, focus on a body part, restore blood, clear infections, advance bone-fracture healing, or fully clear wounds and related conditions with #3all#0.
+
+The syntax is:
+
+	#3cure [<target>] [<bodypart|all|blood|infections|bones>]#0", AutoHelp.HelpArg)]
     protected static void Cure(ICharacter actor, string command)
     {
         if (!actor.IsAdministrator())
@@ -2555,6 +2602,11 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
     }
 
     [PlayerCommand("Health", "health")]
+    [HelpInfo("health", @"The #3health#0 command displays your health summary. Junior administrators and above receive a detailed diagnostic report and may name another woundable target.
+
+The syntax is:
+
+	#3health [<target>]#0", AutoHelp.HelpArg)]
     protected static void Health(ICharacter actor, string command)
     {
         if (!actor.IsAdministrator(PermissionLevel.JuniorAdmin))
@@ -2782,6 +2834,11 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 
     [PlayerCommand("Sever", "sever")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("sever", @"The #3sever#0 staff command removes a specified body part or organ from a character or corpse, creating the severed item where appropriate.
+
+The syntax is:
+
+	#3sever <target> <bodypart|organ>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Sever(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2869,6 +2926,11 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 
     [PlayerCommand("Unsever", "unsever")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("unsever", @"The #3unsever#0 staff command restores a severed body part or organ. Use #3all#0 to restore every supported severed part, organ and bone.
+
+The syntax is:
+
+	#3unsever <target> <bodypart|organ|all>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Unsever(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2944,6 +3006,11 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 
     [PlayerCommand("InstallImplant", "installimplant")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("installimplant", @"The #3installimplant#0 staff command installs a held implant into a character or corpse. Some implants define their own target body part; otherwise name the body part explicitly.
+
+The syntax is:
+
+	#3installimplant <held implant> <target> [<bodypart>]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void InstallImplant(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -3011,6 +3078,11 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 
     [PlayerCommand("PowerImplant", "powerimplant")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("powerimplant", @"The #3powerimplant#0 staff command connects an installed powered implant to an installed implant power plant on the same target.
+
+The syntax is:
+
+	#3powerimplant <target> <powered implant> <power plant implant>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void PowerImplant(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -3069,6 +3141,11 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 
     [PlayerCommand("ConnectImplants", "connectimplant")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("connectimplant", @"The #3connectimplant#0 staff command connects an installed implant to one of the target's neural-interface implants. Connecting it to a new neural interface removes any existing neural-interface connection for that implant.
+
+The syntax is:
+
+	#3connectimplant <target> <implant> <neural interface>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void ConnectImplant(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -3143,6 +3220,11 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 
     [PlayerCommand("Implants", "implants")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("implants", @"The #3implants#0 staff command lists a character or corpse's installed implants, including their target body parts, power arrangements and neural-interface links.
+
+The syntax is:
+
+	#3implants <target>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Implants(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -3174,6 +3256,12 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 
     [PlayerCommand("Infect", "infect")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("infect", @"The #3infect#0 staff command creates an infection on a target wound or body part using the target location's infection settings. If you omit the final wound or body-part selection, it chooses an eligible one at random.
+
+The syntax is:
+
+	#3infect wound <target> [<wound>]#0
+	#3infect bodypart <target> [<bodypart|organ>]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Infect(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -3265,9 +3353,11 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 
     [PlayerCommand("Exsanguinate", "exsanguinate")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("exsanguinate",
-        "This command allows you to change the current blood percentage of a character. The syntax is EXSANGUINATE <target> [<percentage>]. If you omit the percentage, it will set the blood to 0%.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("exsanguinate", @"The #3exsanguinate#0 staff command sets a visible character's current blood volume as a percentage of their normal total. Omitting the percentage sets it to zero.
+
+The syntax is:
+
+	#3exsanguinate <target> [<percentage>]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Exsanguinate(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());

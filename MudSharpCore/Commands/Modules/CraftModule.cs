@@ -28,6 +28,11 @@ internal class CraftModule : Module<ICharacter>
     public static CraftModule Instance { get; } = new();
 
     [PlayerCommand("Crafts", "crafts")]
+    [HelpInfo("crafts", @"The #3crafts#0 command lists the crafts your character can perform. Supply category prefixes to narrow the list, #3+text#0 to require text in the craft name, or #3-text#0 to exclude it. You can combine filters.
+
+The syntax is:
+
+	#3crafts [<category>] [+<name text>] [-<name text>]#0", AutoHelp.HelpArg)]
     protected static void Crafts(ICharacter actor, string input)
     {
         List<ICraft> crafts = (actor.IsAdministrator()
@@ -466,9 +471,11 @@ The full list of filters for craft list is below:
     }
 
     [PlayerCommand("Materials", "materials")]
-    [HelpInfo("materials",
-        "This command is an alias for the CRAFT PREVIEW option. It shows a preview of what materials would be used if you were to execute the craft at the moment. The syntax is MATERIALS <craft>.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("materials", @"The #3materials#0 command previews the tools and materials that would be consumed if you began a craft now. It is equivalent to the craft-preview option and does not begin the craft.
+
+The syntax is:
+
+	#3materials <craft>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Materials(ICharacter actor, string input)
     {
         CraftPreview(actor, new StringStack(input.RemoveFirstWord()));
@@ -666,9 +673,11 @@ You can use the following syntax:
     }
 
     [PlayerCommand("Projects", "projects")]
-    [HelpInfo("projects",
-        "This command shows you personal projects that you have in progress and projects in the local area.",
-        AutoHelp.HelpArg)]
+    [HelpInfo("projects", @"The #3projects#0 command lists projects you are working on and projects active in your local area. Use #3project#0 for detailed project actions such as starting, joining, supplying and claiming.
+
+The syntax is:
+
+	#3projects#0", AutoHelp.HelpArg)]
     protected static void Projects(ICharacter actor, string input)
     {
         StringBuilder sb = new();
@@ -824,6 +833,7 @@ You can use the following options with this command:
 Note: See the closely related #3projects#0 command for information about your current projects.";
 
     [PlayerCommand("Project", "project")]
+    [HelpInfo("project", ProjectPlayerHelp, AutoHelp.HelpArgOrNoArg, ProjectAdminHelp)]
     protected static void Project(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1909,6 +1919,11 @@ Note: See the closely related #3projects#0 command for information about your cu
     [NoHideCommand]
     [NoMovementCommand]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [HelpInfo("butcher", @"The #3butcher#0 command begins breaking down an organic corpse or body part into its configured products. Some creatures have product subcategories, which you can name to process only that portion. The required tools and the available products depend on the target's butchery profile.
+
+The syntax is:
+
+	#3butcher <corpse|body part> [<subcategory>]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Butcher(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -2000,6 +2015,11 @@ Note: See the closely related #3projects#0 command for information about your cu
     [NoHideCommand]
     [NoMovementCommand]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [HelpInfo("salvage", @"The #3salvage#0 command begins dismantling a non-organic wreck or part into its configured components. Some targets have product subcategories, which you can name to process only that portion. The required tools and results depend on the target's salvage profile.
+
+The syntax is:
+
+	#3salvage <wreck|part> [<subcategory>]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Salvage(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -2092,6 +2112,11 @@ Note: See the closely related #3projects#0 command for information about your cu
     [NoHideCommand]
     [NoMovementCommand]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [HelpInfo("skin", @"The #3skin#0 command removes an intact pelt, fur or skin from a whole corpse. The corpse must be suitable, not too decayed, not already skinned, and you must have any required tools.
+
+The syntax is:
+
+	#3skin <corpse>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Skin(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

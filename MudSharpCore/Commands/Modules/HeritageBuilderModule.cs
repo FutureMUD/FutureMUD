@@ -1491,6 +1491,7 @@ The correct syntax for this command is as follows:
 
     [PlayerCommand("Culture", "culture")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("culture", CultureHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Culture(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1740,6 +1741,7 @@ The correct syntax for this command is as follows:
 
     [PlayerCommand("Ethnicity", "ethnicity")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("ethnicity", EthnicityHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Ethnicity(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

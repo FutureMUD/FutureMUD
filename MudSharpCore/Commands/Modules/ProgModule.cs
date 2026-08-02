@@ -3037,6 +3037,13 @@ You can use the following filters with #3hook list#0:
     #region Schedules
     [PlayerCommand("Schedules", "schedules")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("schedules", @"The #3schedules#0 command lists every recurring FutureProg schedule in the game, showing the prog, in-game interval and next execution time. Use #3schedule#0 to create or remove an individual schedule.
+
+Schedules use in-character time rather than real time, so their apparent real-world interval depends on the game's time ratio.
+
+The syntax is:
+
+	#3schedules#0", AutoHelp.HelpArg)]
     protected static void Schedules(ICharacter actor, string input)
     {
         actor.Send(StringUtilities.GetTextTable(

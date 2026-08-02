@@ -598,7 +598,13 @@ Additionally, admins can use the following options:
 
     [PlayerCommand("Consider", "consider", "con")]
     [RequiredCharacterState(CharacterState.Conscious)]
-    [HelpInfo("consider", @"The consider command is used to get key information about another character that might not be readily apparent from their description alone. This includes things like estimates of height, weight, ethnicity and key features. The syntax is simply #3consider <target>#0.", AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("consider", @"The #3consider#0 command gives you observational details about a visible character that may not be obvious from their description, including approximate height, weight, relative build, and—where your character can infer it—age or ethnicity.
+
+The syntax is:
+
+	#3consider <target>#0
+
+The alias #3con#0 works the same way.", AutoHelp.HelpArgOrNoArg)]
     protected static void Consider(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -641,9 +647,11 @@ Additionally, admins can use the following options:
     }
 
     [PlayerCommand("SkillCategories", "skillcategories")]
-    [HelpInfo("skillcategories",
-        "The SKILLCATEGORIES command allows you to view all of your skills and their current levels, but splits the output by categories.",
-        AutoHelp.HelpArg)]
+    [HelpInfo("skillcategories", @"The #3skillcategories#0 command lists your visible skills and current levels grouped by their skill category. It is useful for discovering the category names accepted by #3skills <category>#0.
+
+The syntax is:
+
+	#3skillcategories#0", AutoHelp.HelpArg)]
     protected static void SkillCategories(ICharacter actor, string input)
     {
         StringBuilder sb = new();
@@ -674,9 +682,15 @@ Additionally, admins can use the following options:
     }
 
     [PlayerCommand("Skills", "skills", "sk", "ski", "skil")]
-    [HelpInfo("skills",
-        "This command is used to view the current level of your skills. The most basic syntax is to simply type SKILLS with no arguments, which shows you all of your skills and their current level. Additionally, you can filter by categories by using SKILL <CATEGORY>. See the SKILLCATEGORIES command to see what categories of skills you have. Finally, administrators can specify a target for the SKILLS command to see someone else's skills.",
-        AutoHelp.HelpArg)]
+    [HelpInfo("skills", @"The #3skills#0 command lists your visible skills and their current levels. Use a category name to narrow the list; #3skillcategories#0 displays the available categories. Administrators may instead name a visible character to inspect that character's skills.
+
+The syntax is:
+
+	#3skills#0
+	#3skills <category>#0
+	#3skills <target>#0 - administrators only
+
+The aliases #3sk#0, #3ski#0 and #3skil#0 work the same way.", AutoHelp.HelpArg)]
     protected static void Skills(ICharacter actor, string input)
     {
         bool adminMode = actor.IsAdministrator();
@@ -755,9 +769,13 @@ Additionally, admins can use the following options:
     }
 
     [PlayerCommand("SkillAudit", "skillaudit", "saudit")]
-    [HelpInfo("skillaudit",
-        "This command is used to view detailed information about your skill levels and their prospects for improvement. The syntax is simply SKILLAUDIT.",
-        AutoHelp.HelpArg)]
+    [HelpInfo("skillaudit", @"The #3skillaudit#0 command gives a detailed report on each visible skill's current improvement prospects. It identifies the minimum practical and theoretical difficulties at which the skill can still improve, or reports when it cannot improve further.
+
+The syntax is:
+
+	#3skillaudit#0
+
+The alias #3saudit#0 works the same way.", AutoHelp.HelpArg)]
     protected static void SkillAudit(ICharacter actor, string input)
     {
         StringBuilder sb = new();
@@ -919,7 +937,11 @@ See {"help knowledges".Colour(Telnet.Yellow)} for more information.");
     }
 
     [PlayerCommand("Quirks", "merits", "flaws", "quirks")]
-    [HelpInfo("quirks", @"The quirks command allows you to view your own quirks (merits and flaws). It will also show you the status of those quirks and whether they currently apply or not, if they are conditional. The syntax is simply #3quirks#0.", AutoHelp.HelpArg,
+    [HelpInfo("quirks", @"The #3quirks#0 command lists your merits and flaws, including whether each conditional quirk currently applies. #3merits#0 and #3flaws#0 are aliases.
+
+The syntax is:
+
+	#3quirks#0", AutoHelp.HelpArg,
         @"The quirks command allows you to view yours or another's quirks (merits and flaws). It will also show you the status of those quirks and whether they currently apply or not, if they are conditional. 
 
 The syntax is as follows:
@@ -1572,8 +1594,16 @@ You can also use this command to test against someone else. This always echoes.
         }
     }
 
-    [PlayerCommand("Plan", "plan")]
-    protected static void Plan(ICharacter actor, string input)
+	[PlayerCommand("Plan", "plan")]
+	[HelpInfo("plan", @"The #3plan#0 command lets you record short- and long-term roleplay plans for your character. With no arguments it shows both plans. Giving #3short#0 or #3long#0 without text clears that plan; administrators may also view an online character's plans.
+
+	The syntax is:
+
+	#3plan#0
+	#3plan short [<plan text>]#0
+	#3plan long [<plan text>]#0
+	#3plan <online character>#0", AutoHelp.HelpArg)]
+	protected static void Plan(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
         if (ss.IsFinished)
@@ -1651,8 +1681,14 @@ You can also use this command to test against someone else. This always echoes.
         }
     }
 
-    [PlayerCommand("Dmote", "dmote")]
-    protected static void Dmote(ICharacter actor, string input)
+	[PlayerCommand("Dmote", "dmote")]
+	[HelpInfo("dmote", @"The #3dmote#0 command sets a personal description addition that other characters can see in your description. It is suitable for a temporary visible detail, not an action. Use #3dmote clear#0 to remove it.
+
+	The syntax is:
+
+	#3dmote <description text>#0
+	#3dmote clear#0", AutoHelp.HelpArgOrNoArg)]
+	protected static void Dmote(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
         if (ss.IsFinished)
@@ -1680,9 +1716,16 @@ You can also use this command to test against someone else. This always echoes.
         actor.Send("You set your dmote to: {0}", ss.SafeRemainingArgument.Colour(Telnet.Cyan));
     }
 
-    [PlayerCommand("Undub", "undub")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void UnDub(ICharacter actor, string command)
+	[PlayerCommand("Undub", "undub")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("undub", @"The #3undub#0 command removes one of your private dubs. Removing a character dub also removes that character's ally status, if any.
+
+	The syntax is:
+
+	#3undub <dub>#0
+
+	Use #3dubs#0 to review your existing dubs.", AutoHelp.HelpArgOrNoArg)]
+	protected static void UnDub(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
         if (ss.IsFinished)
@@ -1840,9 +1883,11 @@ Syntax:
 
     [PlayerCommand("DubName", "dubname")]
     [RequiredCharacterState(CharacterState.Conscious)]
-    [HelpInfo("dubname",
-        "This command allows you to manually set an introduced name for a character. You must first have given them a dub. The syntax is DUBNAME <person> <name>",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("dubname", @"The #3dubname#0 command records the name by which a character has introduced themself to you. You must already have an identity dub for that character; this changes the introduced-name field of that dub, not its targeting keywords.
+
+The syntax is:
+
+	#3dubname <person> <introduced name>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void DubName(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1873,9 +1918,14 @@ Syntax:
             $"You update your dub name for {target.HowSeen(actor)} to {dub.IntroducedName.ColourName()}.");
     }
 
-    [PlayerCommand("Dubs", "dubs")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Dubs(ICharacter actor, string command)
+	[PlayerCommand("Dubs", "dubs")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("dubs", @"The #3dubs#0 command lists your private recognition keywords, the last description recorded for each target, any introduced name, and character ally status. Optional words filter the list by a dub keyword or remembered description.
+
+	The syntax is:
+
+	#3dubs [<filter> ...]#0", AutoHelp.HelpArg)]
+	protected static void Dubs(ICharacter actor, string command)
     {
         if (!actor.Dubs.Any())
         {
@@ -1925,9 +1975,14 @@ Syntax:
         );
     }
 
-    [PlayerCommand("Allies", "allies")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Allies(ICharacter actor, string input)
+	[PlayerCommand("Allies", "allies")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("allies", @"The #3allies#0 command lists the characters whom you have marked as allies. An ally must first be someone you have dubbed. The list shows whether each ally is trusted; trusted allies may be allowed to perform much more invasive actions on your character.
+
+	The syntax is:
+
+	#3allies#0", AutoHelp.HelpArg)]
+	protected static void Allies(ICharacter actor, string input)
     {
         if (!actor.AllyIDs.Any())
         {
@@ -1951,9 +2006,16 @@ Syntax:
         );
     }
 
-    [PlayerCommand("Ally", "ally")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Ally(ICharacter actor, string input)
+	[PlayerCommand("Ally", "ally")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("ally", @"The #3ally#0 command marks a visible character whom you have already dubbed as an ally. Add #3trusted#0 only when you intend to let that person bypass many ordinary resistance checks; it is a deliberately high-trust setting.
+
+	The syntax is:
+
+	#3ally <target> [trusted]#0
+
+	Use #3unally#0 to remove the status and #3allies#0 to review it.", AutoHelp.HelpArg)]
+	protected static void Ally(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
         if (ss.IsFinished || ss.Peek().EqualTo("help") || ss.Peek().EqualTo("?"))
@@ -2005,9 +2067,15 @@ Syntax:
         }
     }
 
-    [PlayerCommand("Unally", "unally")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Unally(ICharacter actor, string input)
+	[PlayerCommand("Unally", "unally")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("unally", @"The #3unally#0 command removes ally status from a character. You can target a visible character, or prefix one of your existing character dubs with #3*#0 when the person is not present.
+
+	The syntax is:
+
+	#3unally <target>#0
+	#3unally *<dub>#0", AutoHelp.HelpArg)]
+	protected static void Unally(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
         if (ss.IsFinished || ss.Peek().EqualTo("help") || ss.Peek().EqualTo("?"))
@@ -2931,9 +2999,11 @@ You can use the following options with this command:
 
     [PlayerCommand("Uncovered", "uncovered")]
     [RequiredCharacterState(CharacterState.Conscious)]
-    [HelpInfo("uncovered",
-        "The uncovered command allows you to view the bodyparts that are uncovered for a particular target, including yourself. The syntax is uncovered <target>.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("uncovered", @"The #3uncovered#0 command shows which body parts on a visible character are currently uncovered by opaque worn items. It is useful when choosing locations for clothing, tattoos, scars, examinations or other body-targeted actions.
+
+The syntax is:
+
+	#3uncovered <target>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Uncovered(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

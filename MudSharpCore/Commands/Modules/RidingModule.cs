@@ -14,7 +14,11 @@ public class RidingModule : Module<ICharacter>
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoHideCommand]
-    [HelpInfo("mount", @"Use #3mount <mount>#0 to ride a mountable creature. Mounting bareback is allowed, but missing saddles, bridles, reins and similar tack make control and staying mounted harder.", AutoHelp.HelpArg)]
+    [HelpInfo("mount", @"The #3mount#0 command mounts a rideable creature. Bareback riding may be possible, but appropriate saddles, bridles, reins and other tack improve control and make staying mounted easier.
+
+The syntax is:
+
+	#3mount <mount>#0", AutoHelp.HelpArg)]
     protected static void Mount(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -81,7 +85,11 @@ public class RidingModule : Module<ICharacter>
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoHideCommand]
-    [HelpInfo("dismount", @"Use #3dismount#0 to get off your current mount.", AutoHelp.HelpArg)]
+    [HelpInfo("dismount", @"The #3dismount#0 command gets your character off their current mount.
+
+The syntax is:
+
+	#3dismount#0", AutoHelp.HelpArg)]
     protected static void Dismount(ICharacter actor, string command)
     {
         if (actor.RidingMount is null)
@@ -98,7 +106,11 @@ public class RidingModule : Module<ICharacter>
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoHideCommand]
-    [HelpInfo("buck", @"Use #3buck#0 to try to throw off your primary rider, or #3buck <rider>#0 to target a specific rider.", AutoHelp.HelpArg)]
+    [HelpInfo("buck", @"The #3buck#0 command makes a mount attempt to throw off a rider. With no argument it targets the primary rider; name a rider to target that rider instead.
+
+The syntax is:
+
+	#3buck [<rider>]#0", AutoHelp.HelpArg)]
     protected static void Buck(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

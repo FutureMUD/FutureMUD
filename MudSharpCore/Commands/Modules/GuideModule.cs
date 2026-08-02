@@ -101,6 +101,13 @@ The syntax to edit roles is as follows:
 
     [PlayerCommand("Available", "available")]
     [CommandPermission(PermissionLevel.Guide)]
+    [HelpInfo("available", @"The #3available#0 command toggles your player-guide availability flag. Players can use this flag to identify guides who are currently open to enquiries.
+
+Use the command again to remove the flag when you are no longer available.
+
+The syntax is:
+
+	#3available#0", AutoHelp.HelpArg)]
     protected static void Available(ICharacter actor, string input)
     {
         if (actor.AffectedBy<IAdminAvailableEffect>())
@@ -117,6 +124,13 @@ The syntax to edit roles is as follows:
 
     [PlayerCommand("Send", "send")]
     [CommandPermission(PermissionLevel.Guide)]
+    [HelpInfo("send", @"The #3send#0 command delivers a staff or player-guide message to a character. Player Guides can send to characters currently marked as new players; higher staff permissions may send to any connected character.
+
+The recipient may be identified by their account name, or by character name when your authority permits it.
+
+The syntax is:
+
+	#3send <account|character> <message>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Send(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -149,6 +163,13 @@ The syntax to edit roles is as follows:
 
     [PlayerCommand("Applications", "applications", "apps")]
     [CommandPermission(PermissionLevel.Guide)]
+    [HelpInfo("applications", @"The #3applications#0 command lists submitted character applications awaiting review. The list includes the application ID, account, proposed name, required approval authority and time spent in the queue.
+
+Use #3application view#0 or #3application review#0 with an application identifier to work on one entry.
+
+The syntax is:
+
+	#3applications#0", AutoHelp.HelpArg)]
     protected static void Applications(ICharacter character, string command)
     {
         using (new FMDB())
@@ -181,6 +202,15 @@ The syntax to edit roles is as follows:
 
     [PlayerCommand("Application", "application")]
     [CommandPermission(PermissionLevel.Guide)]
+    [HelpInfo("application", @"The #3application#0 command opens or reviews a submitted character application. Use the numeric application ID from #3applications#0, or an unambiguous beginning of the submitted character name.
+
+The list form is an alias for #3applications#0. The review workflow guides you through the available approval actions.
+
+The syntax is:
+
+	#3application list#0
+	#3application view <id|name>#0
+	#3application review <id|name>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Application(ICharacter character, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

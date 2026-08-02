@@ -1053,6 +1053,11 @@ Enter your text below:");
 
     [PlayerCommand("Zones", "zones")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("zones", @"The #3zones#0 command lists every zone in the game, including its local time, local date, cell count and shard. Use #3zone#0 to create or edit zone definitions, and #3rezone#0 to move the current cell into a different zone.
+
+The syntax is:
+
+	#3zones#0", AutoHelp.HelpArg)]
     protected static void Zones(ICharacter actor, string command)
     {
         actor.OutputHandler.Send(
@@ -1173,9 +1178,11 @@ Possible filter options include:
 
     [PlayerCommand("Rezone", "rezone")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("rezone",
-        "This command is used to change a room into a different zone. The usage is REZONE <new zone>. You must use this command from inside the room you want to rezone.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("rezone", @"The #3rezone#0 builder command moves the current room into a different zone. Use it from the room whose zone you are changing; the target zone may be identified by ID or name.
+
+The syntax is:
+
+	#3rezone <zone|id>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Rezone(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1778,6 +1785,13 @@ You can use the following subcommands:
 
     [PlayerCommand("Shards", "shards")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("shards", @"The #3shards#0 command lists all configured shards, including their calendars, clocks, celestial objects, sky templates and ambient illumination. A shard is the top-level world or realm grouping used by zones and cells.
+
+Use #3shard#0 to create or edit a specific shard.
+
+The syntax is:
+
+	#3shards#0", AutoHelp.HelpArg)]
     protected static void Shards(ICharacter actor, string input)
     {
         actor.OutputHandler.Send(

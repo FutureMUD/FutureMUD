@@ -27,6 +27,14 @@ internal class CommunicationsModule : Module<ICharacter>
 
     [PlayerCommand("Think", "think")]
     [RequiredCharacterState(CharacterState.SleepingOrBetter)]
+    [HelpInfo("think", @"The #3think#0 command lets you express an internal thought. It is normally private, but characters connected to you by an applicable telepathy effect may perceive it according to that effect's settings.
+
+You can attach a parenthetical emote before the thought to describe how you think it. Think text is normalised into a sentence before it is shown.
+
+The syntax is:
+
+	#3think <thought>#0
+	#3think (<emote>) <thought>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Think(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -72,6 +80,14 @@ internal class CommunicationsModule : Module<ICharacter>
 
     [PlayerCommand("Feel", "feel")]
     [RequiredCharacterState(CharacterState.SleepingOrBetter)]
+    [HelpInfo("feel", @"The #3feel#0 command expresses an internal feeling or emotional state. It is normally private, but characters connected to you by an applicable telepathy effect may perceive it according to that effect's settings.
+
+Use normal emote markup for the feeling itself. A parenthetical emote immediately after the command can describe the manner in which the feeling is experienced.
+
+The syntax is:
+
+	#3feel <emote text>#0
+	#3feel (<emote>) <emote text>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Feel(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -140,9 +156,11 @@ internal class CommunicationsModule : Module<ICharacter>
     }
 
     [PlayerCommand("Languages", "languages")]
-    [HelpInfo("languages",
-        "The languages command allows you to view which languages you know and how well you know them. The syntax is simply LANGUAGES.",
-        AutoHelp.HelpArg)]
+    [HelpInfo("languages", @"The #3languages#0 command lists every language known by your character and your current ability with each one. It is useful when choosing a language with #3speak#0 or checking whether you can understand another character.
+
+The syntax is:
+
+	#3languages#0", AutoHelp.HelpArg)]
     protected static void Languages(ICharacter actor, string input)
     {
         StringBuilder sb = new();
@@ -157,6 +175,13 @@ internal class CommunicationsModule : Module<ICharacter>
     }
 
     [PlayerCommand("PreferAccent", "preferaccent")]
+    [HelpInfo("preferaccent", @"The #3preferaccent#0 command selects the accent you prefer to use for a language. When you have several accents for the same language, this is the accent automatically selected by #3speak#0 unless you explicitly choose another one.
+
+You only need to include the language when you know accents with the same name in more than one language.
+
+The syntax is:
+
+	#3preferaccent <accent> [<language>]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void PreferAccent(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -185,6 +210,14 @@ internal class CommunicationsModule : Module<ICharacter>
     }
 
     [PlayerCommand("Accents", "accents")]
+    [HelpInfo("accents", @"The #3accents#0 command lists accents known by your character, grouped by language. Your preferred accent is marked in the display; use #3preferaccent#0 to change it.
+
+Supplying a language narrows the list to accents for that language. The language name may be abbreviated when it remains unambiguous.
+
+The syntax is:
+
+	#3accents#0
+	#3accents <language>#0", AutoHelp.HelpArg)]
     protected static void Accents(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -307,6 +340,13 @@ The syntax is as follows:
     }
 
     [PlayerCommand("Semote", "semote")]
+    [HelpInfo("semote", @"The #3semote#0 command sends a silent emote. Use it for visible actions that do not themselves make an audible speech or sound echo.
+
+It uses the same emote markup as #3emote#0, including #6@#0 for yourself, #6~target#0 for characters and #6*target#0 for items.
+
+The syntax is:
+
+	#3semote <emote text>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Semote(ICharacter actor, string input)
     {
         if (string.IsNullOrWhiteSpace(input.RemoveFirstWord()))
@@ -320,6 +360,13 @@ The syntax is as follows:
     }
 
     [PlayerCommand("Hemote", "hemote")]
+    [HelpInfo("hemote", @"The #3hemote#0 command sends a hidden emote: observers must notice it before they receive the echo. Use it for subtle actions that may escape attention rather than for actions that should be openly visible.
+
+It uses the normal #3emote#0 markup rules, including #6@#0 for yourself, #6~target#0 for characters and #6*target#0 for items.
+
+The syntax is:
+
+	#3hemote <emote text>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Hemote(ICharacter actor, string input)
     {
         string message = input.RemoveFirstWord();
@@ -389,6 +436,15 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 
     [PlayerCommand("Say", "say", ".")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("say", @"The #3say#0 command speaks aloud to people who can hear you in your current location. Your selected language and accent, set with #3speak#0, determine how the speech is presented.
+
+You can put a parenthetical emote before the words to add accompanying action or delivery. The #3.#0 alias is equivalent to #3say#0.
+
+The syntax is:
+
+	#3say <message>#0
+	#3say (<emote>) <message>#0
+	#3. <message>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Say(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -419,6 +475,15 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 
     [PlayerCommand("Sing", "sing")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("sing", @"The #3sing#0 command sings aloud using your current language and accent. Separate verses or lines with #6/#0; each non-empty segment is presented as a separate sung line.
+
+You can put a parenthetical emote before the lyrics to describe your performance.
+
+The syntax is:
+
+	#3sing <lyrics>#0
+	#3sing <line one> / <line two>#0
+	#3sing (<emote>) <lyrics>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Sing(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -463,6 +528,15 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 
     [PlayerCommand("SingTo", "singto")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("singto", @"The #3singto#0 command sings to a particular visible person or object. The target receives the directed presentation while the song is still audible in the location.
+
+Separate lyric lines with #6/#0, and put an optional parenthetical emote after the target and before the lyrics.
+
+The syntax is:
+
+	#3singto <target> <lyrics>#0
+	#3singto <target> (<emote>) <lyrics>#0
+	#3singto <target> <line one> / <line two>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void SingTo(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -514,6 +588,16 @@ If you care about getting grammatically correct echoes to yourself (for log purp
     [PlayerCommand("Talk", "talk", "talkto")]
     [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
     [RequiredCharacterState(CharacterState.SleepingOrBetter)]
+    [HelpInfo("talk", @"The #3talk#0 command is a conversational alternative to #3say#0. It uses your current language and accent, but has its own presentation style. Use #3talkto#0 when you want to direct the conversation at a visible person or object.
+
+An optional parenthetical emote goes before the message. #3talk#0 does not take a target; use the #3talkto#0 alias for that form.
+
+The syntax is:
+
+	#3talk <message>#0
+	#3talk (<emote>) <message>#0
+	#3talkto <target> <message>#0
+	#3talkto <target> (<emote>) <message>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Talk(ICharacter actor, string input)
     {
         StringStack ss = new(input);
@@ -563,6 +647,16 @@ If you care about getting grammatically correct echoes to yourself (for log purp
     [PlayerCommand("Transmit", "transmit", "transmitwith")]
     [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
     [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("transmit", @"The #3transmit#0 command sends speech through suitable transmitting equipment available to your character. It uses your current language and accent. Use #3transmitwith#0 to choose the specific item to operate when more than one transmitter is available.
+
+The selected item must be something you can manipulate and must support manual transmission. A parenthetical emote may be placed before the message.
+
+The syntax is:
+
+	#3transmit <message>#0
+	#3transmit (<emote>) <message>#0
+	#3transmitwith <item> <message>#0
+	#3transmitwith <item> (<emote>) <message>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Transmit(ICharacter actor, string input)
     {
         StringStack ss = new(input);
@@ -894,6 +988,15 @@ The syntax is:
     [PlayerCommand("Tell", "tell", "sayto")]
     [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("tell", @"The #3tell#0 command speaks directly to a visible person or object. It still uses ordinary speech, so others nearby may hear it; it is not a private communication channel.
+
+Use the #3sayto#0 alias for the same command. A parenthetical emote after the target can describe the delivery of the message.
+
+The syntax is:
+
+	#3tell <target> <message>#0
+	#3tell <target> (<emote>) <message>#0
+	#3sayto <target> <message>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Tell(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -933,6 +1036,16 @@ The syntax is:
     [PlayerCommand("Shout", "shout", "shoutat")]
     [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("shout", @"The #3shout#0 command sends forceful speech that carries farther than ordinary conversation. Use #3shoutat#0 to direct that shout at a visible person or object.
+
+Your current language and accent are used. A parenthetical emote can be placed before the shouted message.
+
+The syntax is:
+
+	#3shout <message>#0
+	#3shout (<emote>) <message>#0
+	#3shoutat <target> <message>#0
+	#3shoutat <target> (<emote>) <message>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Shout(ICharacter actor, string input)
     {
         StringStack ss = new(input);
@@ -1111,6 +1224,16 @@ Your in-room emote uses normal emote syntax. If you omit the #6@#0 token, your s
     [PlayerCommand("LoudSay", "loudsay", "loudtell")]
     [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("loudsay", @"The #3loudsay#0 command speaks loudly in your current location. It is useful when you want a more forceful delivery without using the longer-ranging #3shout#0 or #3yell#0 commands.
+
+Use #3loudtell#0 to direct the loud speech at a visible target. A parenthetical emote can describe the delivery.
+
+The syntax is:
+
+	#3loudsay <message>#0
+	#3loudsay (<emote>) <message>#0
+	#3loudtell <target> <message>#0
+	#3loudtell <target> (<emote>) <message>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void LoudSay(ICharacter actor, string input)
     {
         StringStack ss = new(input);
@@ -1160,6 +1283,16 @@ Your in-room emote uses normal emote syntax. If you omit the #6@#0 token, your s
     [PlayerCommand("Yell", "yell", "yellat")]
     [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("yell", @"The #3yell#0 command projects speech as a yell, carrying it farther than normal conversation. Use #3yellat#0 to direct the yell at a visible person or object.
+
+Your current language and accent apply. You can attach a parenthetical emote before the words to describe the action.
+
+The syntax is:
+
+	#3yell <message>#0
+	#3yell (<emote>) <message>#0
+	#3yellat <target> <message>#0
+	#3yellat <target> (<emote>) <message>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Yell(ICharacter actor, string input)
     {
         StringStack ss = new(input);
@@ -1209,6 +1342,16 @@ Your in-room emote uses normal emote syntax. If you omit the #6@#0 token, your s
     [PlayerCommand("Whisper", "whisper", "whisperto")]
     [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
     [RequiredCharacterState(CharacterState.SleepingOrBetter)]
+    [HelpInfo("whisper", @"The #3whisper#0 command speaks quietly. Use #3whisperto#0 to direct the whisper at a visible person or object; nearby characters may still hear it according to the normal perception rules.
+
+Whispers use your current language and accent. A parenthetical emote can be placed before the whispered message.
+
+The syntax is:
+
+	#3whisper <message>#0
+	#3whisper (<emote>) <message>#0
+	#3whisperto <target> <message>#0
+	#3whisperto <target> (<emote>) <message>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Whisper(ICharacter actor, string input)
     {
         StringStack ss = new(input);
@@ -1742,7 +1885,11 @@ You can use the following syntax with this command:
 
     [PlayerCommand("Boards", "boards")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("boards", @"The #3boards#0 command is used to review which boards exist in the game, which you can interact with and edit with the related #3board#0 command. The syntax is simply #3boards#0.", AutoHelp.HelpArg)]
+    [HelpInfo("boards", @"The #3boards#0 command lists every discussion board configured in the game and the number of posts on each. It is an administrative overview; use #3board#0 to inspect or maintain individual boards and their posts.
+
+The syntax is:
+
+	#3boards#0", AutoHelp.HelpArg)]
     protected static void Boards(ICharacter actor, string input)
     {
         StringBuilder sb = new("There are the following boards available:\n");

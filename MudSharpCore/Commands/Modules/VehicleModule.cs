@@ -159,7 +159,11 @@ Syntax:
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMovementCommand]
 	[NoHideCommand]
-	[HelpInfo("disembark", "Use #3disembark#0 to leave the vehicle you are currently aboard. A room-scale vehicle requires an open docking exit from your current compartment and places you in that docking's exterior cell.", AutoHelp.HelpArg)]
+	[HelpInfo("disembark", @"The #3disembark#0 command leaves the vehicle you are aboard. For a room-scale vehicle, you must use an open docking exit from your current compartment; you appear in that docking's exterior cell.
+
+	The syntax is:
+
+	#3disembark#0", AutoHelp.HelpArg)]
 	protected static void Disembark(ICharacter actor, string input)
 	{
 		var vehicle = actor.Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(actor));
@@ -445,7 +449,12 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|engine|externallypulled
 	[NoHideCommand]
 	[NoCombatCommand]
 	[NoMovementCommand]
-	[HelpInfo("hitch", "Use #3hitch <towpoint>@<vehicle> <towpoint>@<target> [with <hitch item>]#0 to link vehicles for towing, or #3hitch <character> <character|towpoint@vehicle> [with <hitch item>]#0 to hitch a character or mount to pull something. Non-direct tow point types require compatible hitch gear or a legacy drag aid; direct hand/manual/pull-style points do not.", AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("hitch", @"The #3hitch#0 command connects compatible vehicle tow points, or connects a character or mount to a tow point. Non-direct tow points require suitable hitch gear; direct hand/manual/pull points do not.
+
+	The syntax is:
+
+	#3hitch <towpoint>@<vehicle> <towpoint>@<target> [with <hitch item>]#0
+	#3hitch <character> <character|towpoint>@<vehicle> [with <hitch item>]#0", AutoHelp.HelpArgOrNoArg)]
 	protected static void Hitch(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -665,7 +674,13 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|engine|externallypulled
 	[NoHideCommand]
 	[NoCombatCommand]
 	[NoMovementCommand]
-	[HelpInfo("unhitch", "Use #3unhitch <vehicle>#0, #3unhitch <towpoint>@<vehicle>#0, or #3unhitch <character>#0 to remove tow or character hitches and release any reserved hitch gear.", AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("unhitch", @"The #3unhitch#0 command removes a vehicle tow or character hitch and releases any reserved hitch gear.
+
+	The syntax is:
+
+	#3unhitch <vehicle>#0
+	#3unhitch <towpoint>@<vehicle>#0
+	#3unhitch <character>#0", AutoHelp.HelpArgOrNoArg)]
 	protected static void Unhitch(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());

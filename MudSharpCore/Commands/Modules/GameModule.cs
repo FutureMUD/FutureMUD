@@ -38,9 +38,11 @@ internal class GameModule : Module<ICharacter>
     public override int CommandsDisplayOrder => 0;
 
     [PlayerCommand("SkillLevels", "skilllevels")]
-    [HelpInfo("skilllevels",
-        @"This command allows you to see the skill level descriptors for one of your skills or stats, in the order that they appear. The syntax is SKILLLEVELS <skill/attribute>.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("skilllevels", @"The #3skilllevels#0 command lists the named skill or attribute's descriptive level bands in order. Administrators can inspect any defined trait; other characters can inspect only their own traits.
+
+The syntax is:
+
+	#3skilllevels <skill|attribute>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void SkillLevels(ICharacter actor, string command)
     {
         string traitName = command.RemoveFirstWord();
@@ -84,9 +86,11 @@ internal class GameModule : Module<ICharacter>
     }
 
 	[PlayerCommand("Command", "command")]
-	[HelpInfo("command",
-		"This command is used to issue commands to NPCs and AI-controlled characters that you are authorised to issue commands to. Commands can be issued even when you can't see your target or are unconscious. The syntax is COMMAND <target> <input that you want them to enter>.",
-		AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("command", @"The #3command#0 command instructs an NPC or AI-controlled character that is configured to accept your orders. Eligibility is determined by that character's AI, and the target may be resolved even when ordinary sight or consciousness rules would prevent it.
+
+	The syntax is:
+
+	#3command <target> <command text>#0", AutoHelp.HelpArgOrNoArg)]
 	protected static void Command(ICharacter actor, string command)
 	{
         StringStack ss = new(command.RemoveFirstWord());
@@ -366,17 +370,25 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
         actor.Send(sb.ToString());
     }
 
-    [PlayerCommand("More", "more")]
-    protected static void More(ICharacter actor, string input)
+	[PlayerCommand("More", "more")]
+	[HelpInfo("more", @"The #3more#0 command continues output that has been paused by the game's pager. It is most useful when a long list or report tells you that more text is available.
+
+	The syntax is:
+
+	#3more#0", AutoHelp.HelpArg)]
+	protected static void More(ICharacter actor, string input)
     {
         actor.OutputHandler.More();
     }
 
     [PlayerCommand("Keyword", "keyword")]
     [RequiredCharacterState(CharacterState.Conscious)]
-    [HelpInfo("keyword",
-        "The keyword command allows you to trial the results of using a particular keyword to target something. The syntax is KEYWORD <keyword>, or KEYWORD IN <container> <keyword> to test the contents of a container.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("keyword", @"The #3keyword#0 command shows what visible people and items match a targeting keyword. Prefixing a keyword with a number follows normal target-selection numbering. Use the #3in#0 form to test only a container's visible contents.
+
+The syntax is:
+
+	#3keyword <keyword>[.<keyword> ...]#0
+	#3keyword in <container> <keyword>[.<keyword> ...]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Keyword(ICharacter actor, string input)
     {
         input = input.RemoveFirstWord().ToLowerInvariant();
@@ -499,8 +511,13 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
         actor.OutputHandler.Send(sb.ToString());
     }
 
-    [PlayerCommand("Statistics", "statistics", "stats")]
-    protected static void Statistics(ICharacter actor, string input)
+	[PlayerCommand("Statistics", "statistics", "stats")]
+	[HelpInfo("statistics", @"The #3statistics#0 command displays public information about the game, including its engine version, uptime, player-account activity, world size and record online population. The alias #3stats#0 is equivalent.
+
+	The syntax is:
+
+	#3statistics#0", AutoHelp.HelpArg)]
+	protected static void Statistics(ICharacter actor, string input)
     {
         StringBuilder sb = new();
         sb.AppendLine($"The following statistics are available regarding {actor.Gameworld.Name.Proper()}:");
@@ -564,8 +581,13 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
         actor.AddEffect(new CommandDelay(actor, "Statistics"), TimeSpan.FromSeconds(10));
     }
 
-    [PlayerCommand("Who", "who")]
-    protected static void Who(ICharacter actor, string input)
+	[PlayerCommand("Who", "who")]
+	[HelpInfo("who", @"The #3who#0 command shows the current online population. Depending on the game's configuration, it can also identify active staff, meeting places, guests and groups to which your character belongs.
+
+	The syntax is:
+
+	#3who#0", AutoHelp.HelpArg)]
+	protected static void Who(ICharacter actor, string input)
     {
         List<ICharacter> whocharacters =
             actor.Gameworld.Characters
@@ -720,9 +742,15 @@ The syntax for this command is as follows:
         }
     }
 
-    [PlayerCommand("Stop", "stop")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Stop(ICharacter actor, string input)
+	[PlayerCommand("Stop", "stop")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("stop", @"The #3stop#0 command cancels an action that your character is currently performing, where that action allows cancellation. Use #3stop playing#0 specifically to stop playing an instrument.
+
+	The syntax is:
+
+	#3stop#0
+	#3stop playing#0", AutoHelp.HelpArg)]
+	protected static void Stop(ICharacter actor, string input)
     {
         var ss = new StringStack(input.RemoveFirstWord());
         if (ss.SafeRemainingArgument.EqualTo("playing"))
@@ -741,16 +769,26 @@ The syntax for this command is as follows:
         actor.Stop(false);
     }
 
-    [PlayerCommand("Manifest", "manifest")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Manifest(ICharacter actor, string input)
+	[PlayerCommand("Manifest", "manifest")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("manifest", @"The #3manifest#0 command makes your character physically present when an applicable planar state, effect or merit permits it. It has no effect for characters without a suitable manifestation state.
+
+	The syntax is:
+
+	#3manifest#0", AutoHelp.HelpArg)]
+	protected static void Manifest(ICharacter actor, string input)
     {
         ChangePlanarManifestation(actor, true);
     }
 
-    [PlayerCommand("Dissipate", "dissipate")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Dissipate(ICharacter actor, string input)
+	[PlayerCommand("Dissipate", "dissipate")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("dissipate", @"The #3dissipate#0 command makes your character non-corporeal when an applicable planar state, effect or merit permits it. It is the counterpart to #3manifest#0.
+
+	The syntax is:
+
+	#3dissipate#0", AutoHelp.HelpArg)]
+	protected static void Dissipate(ICharacter actor, string input)
     {
         ChangePlanarManifestation(actor, false);
     }
@@ -1072,9 +1110,14 @@ The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
             flags: OutputFlags.SuppressObscured));
     }
 
-    [PlayerCommand("Learn", "learn")]
-    [CommandPermission(PermissionLevel.Player)]
-    protected static void Learn(ICharacter actor, string input)
+	[PlayerCommand("Learn", "learn")]
+	[CommandPermission(PermissionLevel.Player)]
+	[HelpInfo("learn", @"The #3learn#0 command reports your current learning state: learning fatigue, skill and knowledge progress, cooldowns, branch modifiers, and any accents for which you are not gaining familiarity. It is an information command; lessons are initiated by other gameplay actions such as teaching.
+
+	The syntax is:
+
+	#3learn#0", AutoHelp.HelpArg)]
+	protected static void Learn(ICharacter actor, string input)
     {
         LearningFatigueEffect fatigue = actor.EffectsOfType<LearningFatigueEffect>().FirstOrDefault();
         IncreasedBranchChance branch = actor.EffectsOfType<IncreasedBranchChance>().FirstOrDefault();
@@ -1196,12 +1239,17 @@ The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
         actor.OutputHandler.Send(sb.ToString());
     }
 
-    [PlayerCommand("Quit", "quit")]
-    [RequiredCharacterState(CharacterState.Quittable)]
-    [DelayBlock("general", "You must first stop {0} before you can quit.")]
-    [NoCombatCommand]
-    [NoMovementCommand]
-    protected static void Quit(ICharacter actor, string input)
+	[PlayerCommand("Quit", "quit")]
+	[RequiredCharacterState(CharacterState.Quittable)]
+	[DelayBlock("general", "You must first stop {0} before you can quit.")]
+	[NoCombatCommand]
+	[NoMovementCommand]
+	[HelpInfo("quit", @"The #3quit#0 command safely ends your current character session. You must type the full command word, be out of combat and movement, and normally be in a safe location. Effects or game rules may prevent quitting temporarily.
+
+	The syntax is:
+
+	#3quit#0", AutoHelp.HelpArg)]
+	protected static void Quit(ICharacter actor, string input)
     {
         if (actor is NPC.NPC)
         {
@@ -1664,9 +1712,17 @@ You can also type 'forage' on its own to see what kinds of yields you can search
         return matches.Single();
     }
 
-    [PlayerCommand("Implant", "implant")]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Implant(ICharacter actor, string input)
+	[PlayerCommand("Implant", "implant")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("implant", @"The #3implant#0 command sends a command through an installed, powered and connected direct neural interface implant. #3implant status#0 asks each connected interface to report its status. Otherwise, supply the implant command alias, its command, and any command-specific arguments.
+
+	The syntax is:
+
+	#3implant status#0
+	#3implant <alias> <command> [<arguments>]#0
+
+	The commands available through an implant depend on the installed implant type.", AutoHelp.HelpArgOrNoArg)]
+	protected static void Implant(ICharacter actor, string input)
     {
         if (!actor.Gameworld.GetStaticBool("ImplantCommandEnabled"))
         {
@@ -1730,9 +1786,11 @@ You can also type 'forage' on its own to see what kinds of yields you can search
     [NoHideCommand]
     [NoCombatCommand]
     [NoMovementCommand]
-    [HelpInfo("clean",
-        "The clean command allows you to clean items that have become dirty. You can clean a specific item, you can CLEAN MINE to clean all items on your person, and you can CLEAN ALL to clean all items on your person and in the vicinity. Note that with respect to items that you are wearing, you can only clean your external layers; if you want to clean your underpants, you must first remove your trousers. Also note that certain kinds of messes require specific liquids or solvents to remove.",
-        AutoHelp.HelpArg)]
+    [HelpInfo("clean", @"The #3clean#0 command removes dirt and other mess from items. With no argument, or #3all#0, it cleans accessible items on you and nearby; #3mine#0 limits it to your possessions. Worn items must be on an accessible outer layer, and some messes require a suitable solvent.
+
+The syntax is:
+
+	#3clean [<item>|all|mine]#0", AutoHelp.HelpArg)]
     protected static void Clean(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1764,10 +1822,17 @@ You can also type 'forage' on its own to see what kinds of yields you can search
         CleanTarget(actor, target);
     }
 
-    [PlayerCommand("Accept", "accept", "decline", "abort")]
-    [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
-    [RequiredCharacterState(CharacterState.Conscious)]
-    protected static void Accept(ICharacter actor, string input)
+	[PlayerCommand("Accept", "accept", "decline", "abort")]
+	[DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("accept", @"The #3accept#0, #3decline#0 and #3abort#0 commands resolve pending proposals such as transactions, offers and other consent-based actions. With no argument, they act on the first pending proposal; #3?#0 lists pending proposals, and #3all#0 affects each one. You may add a comment when choosing a specific proposal.
+
+	The syntax is:
+
+	#3accept|decline|abort [<proposal>] [<comment>]#0
+	#3accept|decline|abort all#0
+	#3accept|decline|abort ?#0", AutoHelp.HelpArg)]
+	protected static void Accept(ICharacter actor, string input)
     {
         StringStack ss = new(input);
         string cmd = ss.PopSpeech();
@@ -1971,8 +2036,13 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                 return 1;
             });
 
-    [PlayerCommand("Commands", "commands")]
-    protected static void _Commands(ICharacter actor, string input)
+	[PlayerCommand("Commands", "commands")]
+	[HelpInfo("commands", @"The #3commands#0 command lists the player commands currently available to your character. Games may show the list in functional groups or as a single alphabetical list.
+
+	The syntax is:
+
+	#3commands#0", AutoHelp.HelpArg)]
+	protected static void _Commands(ICharacter actor, string input)
     {
         if (actor.Gameworld.GetStaticBool("SplitCommandsIntoGroups"))
         {

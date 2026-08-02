@@ -1871,9 +1871,12 @@ Similarly to reverse the above you can use the following:
     [RequiredCharacterState(CharacterState.Able)]
     [NoMeleeCombatCommand]
     [NoHideCommand]
-    [HelpInfo("interpose",
-        "This command allows you to physically place yourself between a target and their ranged attackers, so that you are more likely to get hit than they. The syntax is #3INTERPOSE <target>#0, or #3INTERPOSE STOP#0 to stop. You can interpose more than one target at a time if they are substantially smaller than you.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("interpose", @"The #3interpose#0 command makes you shield a nearby target from ranged attacks, increasing the chance that you are hit instead. You can protect multiple sufficiently small targets. Repeating the target removes that protection.
+
+The syntax is:
+
+	#3interpose <target>#0
+	#3interpose <stop|cancel|off|none>#0", AutoHelp.HelpArgOrNoArg)]
     [DelayBlock("general", "You must first stop {0} before you can fight.")]
     protected static void Interpose(ICharacter actor, string command)
     {
@@ -2504,6 +2507,11 @@ The syntax is as follows:
     [PlayerCommand("Unload", "unload")]
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [HelpInfo("unload", @"The #3unload#0 command unloads a held or wielded ranged weapon, including an eligible attached weapon. With no target it chooses the first weapon you can unload.
+
+The syntax is:
+
+	#3unload [<ranged weapon>]#0", AutoHelp.HelpArg)]
     protected static void Unload(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -2542,6 +2550,11 @@ The syntax is as follows:
     [PlayerCommand("Ready", "ready")]
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [HelpInfo("ready", @"The #3ready#0 command prepares a held or wielded ranged weapon for firing. With no target it chooses the first weapon you can ready. In combat it may be queued as your next action.
+
+The syntax is:
+
+	#3ready [<ranged weapon>]#0", AutoHelp.HelpArg)]
     protected static void Ready(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -2591,6 +2604,11 @@ The syntax is as follows:
     [PlayerCommand("Unready", "unready")]
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [HelpInfo("unready", @"The #3unready#0 command returns a readied held or wielded ranged weapon to its unready state. With no target it chooses the first weapon you can unready.
+
+The syntax is:
+
+	#3unready [<ranged weapon>]#0", AutoHelp.HelpArg)]
     protected static void Unready(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -2630,6 +2648,13 @@ The syntax is as follows:
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [HelpInfo("aim", @"The #3aim#0 command begins aiming a wielded ranged weapon at a target you can see or have seen at range. In melee combat, omitting arguments aims the first suitable weapon at your combat target. You can select a weapon explicitly, aim at #3sky#0 or #3air#0, and eligible weapons can be aimed at your own body part outside combat.
+
+The syntax is:
+
+	#3aim [<target>]#0
+	#3aim <weapon> <target|sky|air>#0
+	#3aim self <body part>#0", AutoHelp.HelpArg)]
     protected static void Aim(ICharacter actor, string command)
     {
         List<IRangedWeapon> weapons =
@@ -2869,6 +2894,11 @@ The syntax is as follows:
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [DelayBlock("general", "aim", "You must first stop {0} before you can do that.")]
+    [HelpInfo("fire", @"The #3fire#0 command fires the ranged weapon that you have already aimed. First use #3aim#0; in combat, firing may be queued as your next combat action.
+
+The syntax is:
+
+	#3fire#0", AutoHelp.HelpArg)]
     protected static void Fire(ICharacter actor, string command)
     {
         if (actor.Aim != null && actor.Combat != null)
@@ -2972,6 +3002,13 @@ The syntax is as follows:
     [NoMovementCommand]
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "aim", "You must first stop {0} before you can do that.")]
+    [HelpInfo("cover", @"The #3cover#0 command seeks protection from ranged attacks. With no argument it selects the best nearby cover; #3move#0 chooses the best cover that still permits movement, and a target selects a particular cover. Use #3stand self#0 to leave cover.
+
+The syntax is:
+
+	#3cover#0
+	#3cover move#0
+	#3cover <cover>#0", AutoHelp.HelpArg)]
     protected static void Cover(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -3077,6 +3114,11 @@ The syntax is as follows:
     [NoMovementCommand]
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "aim", "You must first stop {0} before you can do that.")]
+    [HelpInfo("charge", @"The #3charge#0 command closes the distance to enter melee with a combat target. It is available only while in combat but outside melee range. With no argument it charges your current target; name another valid opponent to choose them instead.
+
+The syntax is:
+
+	#3charge [<target>]#0", AutoHelp.HelpArg)]
     protected static void Charge(ICharacter actor, string command)
     {
         if (actor.Combat == null)
@@ -3130,6 +3172,11 @@ The syntax is as follows:
     [NoMovementCommand]
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "aim", "You must first stop {0} before you can do that.")]
+    [HelpInfo("engage", @"The #3engage#0 command moves you into melee range with a combat target without using a charge. It is available only while in combat but outside melee range. With no argument it uses your current target; name another valid opponent to choose them instead.
+
+The syntax is:
+
+	#3engage [<target>]#0", AutoHelp.HelpArg)]
     protected static void Engage(ICharacter actor, string command)
     {
         if (actor.Combat == null)

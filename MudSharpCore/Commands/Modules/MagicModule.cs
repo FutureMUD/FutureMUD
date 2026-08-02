@@ -17,6 +17,20 @@ public class MagicModule : Module<ICharacter>
 
     public static MagicModule Instance { get; } = new();
 
+    private const string MagicHelp = @"The #3magic#0 command is the administrative entry point for authoring and inspecting the magic system. Each subcommand opens a dedicated builder workflow; use its own #3help#0 form for detailed syntax once you have selected the subsystem.
+
+The syntax is:
+
+	#3magic school#0 - edit magic schools
+	#3magic capability#0 - edit who can use magic
+	#3magic resource#0 - edit magic resources
+	#3magic regenerator#0 - edit resource regeneration rules
+	#3magic power#0 - edit hard-coded powers for a school
+	#3magic spell#0 - edit spell templates
+	#3magic portals#0 - inspect active transient portals
+	#3magic portalnetwork#0 - edit durable portal and rune topology
+	#3magic anchors [<tag>]#0 - inspect active magic-tag anchors";
+
     public static void EnsureMagicSchoolVerbRegistered(string verb)
     {
         var commandText = verb?.CollapseString().ToLowerInvariant();
@@ -244,6 +258,7 @@ public class MagicModule : Module<ICharacter>
 
     [PlayerCommand("Magic", "magic")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("magic", MagicHelp, AutoHelp.HelpArg)]
     protected static void Magic(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -279,19 +294,7 @@ public class MagicModule : Module<ICharacter>
                 MagicSpell(actor, ss);
                 return;
             default:
-                actor.OutputHandler.Send(@"You can use the following sub commands to edit different components of the magic system. See individual commands for help on them:
-
-	#3magic school#0 - magic schools are types of magic
-	#3magic capability#0 - magic capabilities control who can use magic
-	#3magic resource#0 - magic resources are power for spells and abilities
-	#3magic regenerator#0 - magic regenerators produce magic resources based on rules
-	#3magic power#0 - magic powers are customisable hard-coded powers for a magic school
-	#3magic spell#0 - magic spells are completely flexible and editable templates for magical effects
-	#3magic portals#0 - inspects active transient magical portals
-	#3magic portalnetwork#0 - edits durable portal/rune topology
-	#3magic anchors [tag]#0 - inspects active magic-tag anchors on rooms and items
-
-#ENote - It's relatively easy to add new spell effect types. Reach out to Japheth on the FutureMUD discord if you want something added.#0".SubstituteANSIColour());
+                actor.OutputHandler.Send(MagicHelp.SubstituteANSIColour());
                 return;
         }
     }

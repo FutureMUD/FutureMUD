@@ -2420,6 +2420,13 @@ The following commands are specific to those who own a property (or who are mana
 
     [PlayerCommand("Properties", "properties")]
     [CustomModuleName("Economy")]
+    [HelpInfo("properties", @"The #3properties#0 command reports properties relevant to your current economic zone and your character. It lists nearby properties offered for sale or lease, followed by property that you own or in which you have an ownership interest.
+
+Use #3property#0 for the detailed ownership, sale, lease and management actions on an individual property.
+
+The syntax is:
+
+	#3properties#0", AutoHelp.HelpArg)]
     protected static void Properties(ICharacter actor, string command)
     {
         StringBuilder sb = new();

@@ -1827,6 +1827,7 @@ You can use the following filters with #3wearprofile list#0:
 
     [PlayerCommand("WearProfile", "wearprofile", "wp")]
     [CommandPermission(PermissionLevel.HighAdmin)]
+    [HelpInfo("wearprofile", WearProfileHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void WearProfile(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2312,6 +2313,7 @@ The syntax for this command is as follows:
 
     [PlayerCommand("Gas", "gas")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("gas", GasHelpText, AutoHelp.HelpArgOrNoArg)]
     protected static void Gas(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2585,6 +2587,7 @@ The syntax for this command is as follows:
 
     [PlayerCommand("Liquid", "liquid")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("liquid", LiquidHelpText, AutoHelp.HelpArgOrNoArg)]
     protected static void Liquid(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -4068,6 +4071,7 @@ You can use the following syntax with this command:
 	#3bodypartshape set name <name>#0 - renames a bodypart shape";
 
     [PlayerCommand("BodypartShape", "bodypartshapes", "bps", "shape")]
+    [HelpInfo("bodypartshape", BodypartShapesHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void BodypartShape(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -4470,6 +4474,7 @@ The syntax for this command is as follows:
 	#3nph set text#0 - drops you into an editor to change the hint text";
 
     [PlayerCommand("NewPlayerHint", "newplayerhint", "nph")]
+    [HelpInfo("newplayerhint", NewPlayerHintHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void NewPlayerHint(ICharacter actor, string input)
     {
         GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.NewPlayerHintHelper);
@@ -5069,6 +5074,7 @@ You can also use the following filters with #3drug list#0:
 
     [PlayerCommand("Drug", "drug")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("drug", DrugsHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Drug(ICharacter actor, string command)
     {
         GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.DrugHelper);

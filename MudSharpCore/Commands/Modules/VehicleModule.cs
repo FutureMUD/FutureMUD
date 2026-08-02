@@ -1362,35 +1362,66 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|engine|externallypulled
 		       candidates.FirstOrDefault(x => x.TowType.StartsWith(text, System.StringComparison.InvariantCultureIgnoreCase));
 	}
 
-	private const string VehicleAdminHelp = @"The #3vehicle#0 command manages live vehicle instances.
+	private const string VehicleAdminHelp = @"#5Vehicle Administration#0
 
-Syntax:
-	#3vehicle list#0
-	#3vehicle show <id|name>#0
-	#3vehicle retire <id|name>#0
-	#3vehicle repair <id|name>#0
-	#3vehicle repair <id|name> damage <zone|all>#0
-	#3vehicle repair <id|name> hitch <link|all>#0
-	#3vehicle access <id|name> list#0
-	#3vehicle access <id|name> grant <character> <board|control|service|repair|hitch|all> <1-3>#0
-	#3vehicle access <id|name> revoke <character|row id> [tag]#0
-	#3vehicle access <id|name> apply <preset> <character>#0
-	#3vehicle access <id|name> clone <source vehicle>#0
-	#3vehicle access preset list|show <name>#0
-	#3vehicle access preset set <name> <board|control|service|repair|hitch|all> <1-3>#0
-	#3vehicle access preset remove <name> <tag>#0
-	#3vehicle access preset delete <name>#0
-	#3vehicle access preset reset <name|all>#0
-	#3vehicle audit <id|name|here|zone|prototype <id|name>|all> [readiness|access|resources|hitch|damage|route|journey|interior|docking|recovery|all]#0
-	#3vehicle recover <id|name> [projection|install|hitch|interior|docking|all] [fix]#0
-	#3vehicle fleet <here|zone|prototype <id|name>|all> access apply <preset> <character>#0
-	#3vehicle fleet <scope> access grant <character> <tag> <1-3>#0
-	#3vehicle fleet <scope> access revoke <character|row id> [tag]#0
-	#3vehicle fleet <scope> access clone <source vehicle>#0
-	#3vehicle fleet <scope> recover <projection|install|hitch|interior|docking|all> [fix]#0
-	#3vehicle relink <id|name> <item id|local item>#0
+The #3vehicle#0 command manages #2live vehicle instances#0. A live vehicle is the canonical record of its location, occupants, movement, access, installed modules, damage and towing state. Its exterior item is a visible projection of that record, not the vehicle itself.
 
-#3projection fix#0 recreates missing authored access-point and cargo-space projection items. A missing exterior projection still requires #3vehicle relink#0.";
+Use #3vehicleproto#0 to author, revise and create vehicles. Use this command after creation to inspect an instance, diagnose operational problems, repair safe projection/link drift, manage crew access, or retire a vehicle. These commands use a vehicle ID or live vehicle name; players normally interact with the exterior item instead.
+
+#5Start Here#0
+
+	#3vehicle list#0 - lists all live vehicles, their scale and canonical location
+	#3vehicle show <id|name>#0 - shows the complete live state, including projection synchronisation, occupants, access, modules, damage, towing and readiness
+	#3vehicle retire <id|name>#0 - permanently retires an eligible live vehicle; RoomScale interiors, journeys and hitches must be clear first
+
+#5Access And Crew Authority#0
+
+Vehicle access is a per-character operational permission system. The tags are #3board#0, #3control#0, #3service#0, #3repair#0 and #3hitch#0; #3all#0 grants every tag. Level #21#0 permits boarding, level #22#0 permits operational actions, and level #23#0 permits all actions. Vehicles with no access rows remain permissive for compatibility.
+
+	#3vehicle access <id|name> list#0 - lists the vehicle's access rows
+	#3vehicle access <id|name> grant <character> <board|control|service|repair|hitch|all> <1-3>#0 - adds or updates a grant
+	#3vehicle access <id|name> revoke <character|row id> [tag]#0 - removes a row, all of a character's grants, or one tagged grant
+	#3vehicle access <id|name> apply <preset> <character>#0 - applies a named access preset to one character
+	#3vehicle access <id|name> clone <source vehicle>#0 - copies all access rows from another vehicle
+
+Presets are reusable static crew roles. They are useful when many vehicles share the same driver, engineer or crew permissions:
+
+	#3vehicle access preset list#0 - lists all presets
+	#3vehicle access preset show <name>#0 - shows one preset's grants
+	#3vehicle access preset set <name> <board|control|service|repair|hitch|all> <1-3>#0 - adds or changes a preset grant
+	#3vehicle access preset remove <name> <tag>#0 - removes one grant from a preset
+	#3vehicle access preset delete <name>#0 - deletes a preset
+	#3vehicle access preset reset <name|all>#0 - restores a preset or all presets to their seeded defaults
+
+#5Diagnosis, Repair And Recovery#0
+
+#3vehicle show#0 is the best first diagnostic. #3vehicle audit#0 reports findings without changing anything. #3vehicle recover ... fix#0 only applies safe, specific recovery actions; omit #3fix#0 to preview them. A missing exterior is deliberately not recreated because it could attach the wrong item: repair it explicitly with #3vehicle relink#0.
+
+	#3vehicle repair <id|name>#0 - repairs the current exterior component link and synchronises it to the vehicle's canonical location
+	#3vehicle repair <id|name> damage <zone|all>#0 - clears vehicle damage-zone wounds and recalculates damage status; it does not clear manual disables
+	#3vehicle repair <id|name> hitch <link|all>#0 - re-enables a repaired persistent hitch/tow link only when graph validation succeeds
+	#3vehicle audit <scope> [mode]#0 - reports operational findings for a scope
+	#3vehicle recover <id|name> [projection|install|hitch|interior|docking|all] [fix]#0 - previews or applies recovery for one vehicle
+	#3vehicle relink <id|name> <item id|local item>#0 - attaches a replacement exterior item that already has the vehicle exterior component
+
+A #3scope#0 is a vehicle ID/name, #3here#0, #3zone#0, #3prototype <id|name>#0, or #3all#0. An audit #3mode#0 is #3readiness#0, #3access#0, #3resources#0, #3hitch#0, #3damage#0, #3route#0, #3journey#0, #3interior#0, #3docking#0, #3recovery#0 or #3all#0.
+
+#5Fleet Operations#0
+
+Fleet operations perform the same inspection, recovery or access change over a scope. Use them for a vehicle family, a local group, or an entire fleet:
+
+	#3vehicle fleet <scope> audit [mode]#0 - audits every vehicle in the scope
+	#3vehicle fleet <scope> recover <projection|install|hitch|interior|docking|all> [fix]#0 - previews or applies recovery across the scope
+	#3vehicle fleet <scope> access apply <preset> <character>#0 - applies a preset across the scope
+	#3vehicle fleet <scope> access grant <character> <tag> <1-3>#0 - grants an access tag across the scope
+	#3vehicle fleet <scope> access revoke <character|row id> [tag]#0 - revokes matching access across the scope
+	#3vehicle fleet <scope> access clone <source vehicle>#0 - copies grants from one vehicle to every other vehicle in the scope
+
+#5Related Commands#0
+
+Player and crew workflow: #3embark#0, #3disembark#0, #3vehiclecontrol#0, #3vehiclestatus#0, #3vehiclepropulsion#0, #3vehicleaccess#0, #3drive#0, #3hitch#0, #3unhitch#0, #3install#0, #3uninstall#0 and #3repair#0.
+
+Builder and service workflow: #3vehicleproto#0 authors the revisioned definition; #3vehicleroute#0 authors RouteCell itineraries; #3vehicleservice#0 operates scheduled services; and #3cell set route#0 authors the RouteCell geometry that route vehicles use.";
 
 	[PlayerCommand("Vehicle", "vehicle")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -2628,18 +2659,59 @@ Syntax:
 		actor.OutputHandler.Send($"You relink {vehicle.Name.ColourName()} to {item.HowSeen(actor)}.");
 	}
 
-	private const string VehicleProtoHelp = @"The #3vehicleproto#0 command manages vehicle prototypes.
+	private const string VehicleProtoHelp = @"#5Vehicle Prototype Building#0
 
-Syntax:
-	#3vehicleproto list#0
-	#3vehicleproto show <id|name>#0
+The #3vehicleproto#0 command authors #2revisioned vehicle definitions#0. A prototype describes the vehicle's exterior shell, scale, occupants, controls, movement, access/cargo projections, installation points, towing and damage. It is not an item component and it is not a live vehicle.
+
+Creating a live vehicle is a separate final step. The factory creates its exterior item and canonical vehicle record from the selected valid prototype; normally this is the approved current revision. Do not use ordinary item loading to create a vehicle shell.
+
+#5Vehicle Scales#0
+
+#2ItemScale#0 is a small item-sized vehicle with an exterior item, slots and controls but no interior cells (for example, a bicycle or wheelchair).
+
+#2RoomContainer#0 is one exterior item with compartments, passenger/crew slots and stations, but occupants remain associated with that exterior rather than walking through interior cells (for example, a car, wagon or small boat).
+
+#2RoomScale#0 creates persistent hosted interior cells. Compartments become physical interior locations connected by authored links, and access points become dockings. Use it for vehicles whose passengers should walk between rooms, such as trains, ships and large mobile platforms.
+
+#5Prototype Lifecycle#0
+
+#6New or Edit#3 -> #6Configure with Set#3 -> #6Submit for review#3 -> #6Approve as current#3 -> #6Create live vehicles#0
+
+Editing a current prototype automatically creates a new revision. Existing vehicles retain the prototype revision from which they were created; approving a revision does not silently alter them.
+
+#5Prototype Commands#0
+
+	#3vehicleproto list#0 - lists all prototype revisions and their status
+	#3vehicleproto show <id|name>#0 - shows a prototype, including child-definition IDs needed by #3set#0 commands
+	#3vehicleproto new <name>#0 - creates a new prototype and starts editing it
+	#3vehicleproto edit <exact id|name>#0 - starts the selected editable revision, or creates a new revision from the current one
+	#3vehicleproto close#0 - stops editing without submitting
+	#3vehicleproto set <option> ...#0 - changes the prototype currently being edited; type #3vehicleproto set#0 by itself for the complete option reference
+	#3vehicleproto submit <comment>#0 - validates the edited prototype and submits it for review
+	#3vehicleproto approve <exact id|quoted name> <comment>#0 - approves a valid pending revision and makes it current
+	#3vehicleproto create <id|name>#0 - creates a live vehicle at your current location from a valid prototype revision
+
+#5A Minimal Cell-Exit Vehicle#0
+
+The usual starting sequence is:
+
 	#3vehicleproto new <name>#0
-	#3vehicleproto edit <exact id|name>#0
-	#3vehicleproto close#0
+	#3vehicleproto set scale <itemscale|roomcontainer|roomscale>#0
+	#3vehicleproto set exterior <item proto>#0
+	#3vehicleproto set compartment add <name>#0
+	#3vehicleproto set slot add <compartment id> driver 1 <name>#0
+	#3vehicleproto set station add <slot id> <name>#0
+	#3vehicleproto set movement cell#0
+	#3vehicleproto set movement propulsion add <movement id> <mode>#0
 	#3vehicleproto submit <comment>#0
-	#3vehicleproto approve <exact id|quoted name> <comment>#0
-	#3vehicleproto set <building command>#0
-	#3vehicleproto create <id|name>#0";
+	#3vehicleproto approve <id> <comment>#0
+	#3vehicleproto create <id|name>#0
+
+Use #3vehicleproto show#0 after each structural step to obtain the generated compartment, slot, station, movement and projection IDs. Submission explains any remaining required configuration.
+
+#5Related Commands#0
+
+Use #3vehicle#0 for live-instance inspection, recovery, access grants and retirement. Players use #3embark#0, #3vehiclecontrol#0, #3vehiclestatus#0, #3vehiclepropulsion#0 and #3drive#0. Use #3install#0/#3uninstall#0 for installed modules, #3hitch#0/#3unhitch#0 for tow links, and #3vehicleroute#0 plus #3vehicleservice#0 for scheduled RouteCell transport.";
 
 	[PlayerCommand("VehicleProto", "vehicleproto", "vproto")]
 	[CommandPermission(PermissionLevel.Admin)]

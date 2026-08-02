@@ -329,7 +329,7 @@ public partial class ItemSeeder
 	{
 		var path = GetAntiquityMedicalCraftPath(stableReference);
 		var visibleName = SanitiseHouseholdCraftDisplayName(item.ShortDescription);
-		var craftName = BuildUniqueAntiquityEquipmentCraftName(usedCraftNames, path.Verb,
+		var craftName = BuildUniqueVisibleCraftName(usedCraftNames, path.Verb,
 			StripLeadingArticle(visibleName));
 
 		AddAntiquityCraft(

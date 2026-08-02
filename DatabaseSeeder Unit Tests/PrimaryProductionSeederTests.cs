@@ -102,23 +102,23 @@ public class PrimaryProductionSeederTests
 
 		string[] expectedCraftNames =
 		[
-			"primary production - sort and roast bog iron ore",
-			"primary production - smelt bog iron bloomery charge",
-			"primary production - wash magnetite iron sands",
-			"primary production - smelt tatara iron sands",
-			"primary production - rake solar salt pan",
-			"primary production - burn shell quicklime",
-			"primary production - burn coral quicklime",
-			"primary production - quarry obsidian blade cores",
-			"primary production - split greenstone adze blanks",
-			"primary production - leach wood ash",
-			"primary production - evaporate lye to potash",
-			"primary production - burn barilla plants to ash",
-			"primary production - burn kelp to ash",
-			"primary production - wash kelp ash alkali",
-			"primary production - calcine barilla ash soda",
-			"primary production - prepare soda lime glass batch",
-			"primary production - calcine gypsum plaster"
+			"sort and roast bog iron ore",
+			"smelt bog iron bloomery charge",
+			"wash magnetite iron sands",
+			"smelt tatara iron sands",
+			"rake solar salt pan",
+			"burn shell quicklime",
+			"burn coral quicklime",
+			"quarry obsidian blade cores",
+			"split greenstone adze blanks",
+			"leach wood ash",
+			"evaporate lye to potash",
+			"burn barilla plants to ash",
+			"burn kelp to ash",
+			"wash kelp ash alkali",
+			"calcine barilla ash soda",
+			"prepare soda lime glass batch",
+			"calcine gypsum plaster"
 		];
 
 		foreach (string craftName in expectedCraftNames)
@@ -126,13 +126,13 @@ public class PrimaryProductionSeederTests
 			Assert.IsTrue(craftSpecs.Any(x => x.Name == craftName), $"Missing craft {craftName}.");
 		}
 
-		var glassBatchCraft = craftSpecs.Single(x => x.Name == "primary production - prepare soda lime glass batch");
+		var glassBatchCraft = craftSpecs.Single(x => x.Name == "prepare soda lime glass batch");
 		Assert.IsTrue(glassBatchCraft.Inputs.Any(x => x.Contains("soda ash", StringComparison.Ordinal) &&
 		                                             x.Contains("Soda Ash Commodity", StringComparison.Ordinal)));
 		Assert.IsFalse(glassBatchCraft.Inputs.Any(x => x.Contains("Potash Commodity", StringComparison.OrdinalIgnoreCase)),
 			"Soda-lime glass batch should not require potash as its soda ash input.");
 
-		var plasterCraft = craftSpecs.Single(x => x.Name == "primary production - calcine gypsum plaster");
+		var plasterCraft = craftSpecs.Single(x => x.Name == "calcine gypsum plaster");
 		Assert.IsTrue(plasterCraft.Products.Any(x => x.Contains("Plaster Commodity", StringComparison.Ordinal)));
 		Assert.IsFalse(plasterCraft.Products.Any(x => x.Contains("Mortar Commodity", StringComparison.OrdinalIgnoreCase)),
 			"Plaster output should not be tagged as mortar.");

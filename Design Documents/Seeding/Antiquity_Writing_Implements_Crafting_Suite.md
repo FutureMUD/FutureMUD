@@ -89,7 +89,7 @@ Commodity crafts create the upstream stock used by final crafts:
 - `Scrollmaking Stock`
 - `Bookbinding Stock`
 
-Final crafts are knowledge-gated through the shared `AddCraft` overload used by the antiquity craft suites. The helper upserts the deterministic `ItemSeederAppear...`, `ItemSeederCanUse...`, and `ItemSeederWhyCannotUse...` progs for the selected skill and knowledge gate. The suite does not seed bespoke `HasLiteracy`, `HasHandwriting`, or `HasPainting` progs.
+Final crafts are knowledge-gated through the shared `AddCraft` overload used by the antiquity craft suites. The helper upserts compact deterministic `CrAp...`, `CrUse...`, and `CrWhy...` progs for the selected skill and knowledge gate, with immediately preceding comments for every knowledge or trait ID used in the prog text. The suite does not seed bespoke `HasLiteracy`, `HasHandwriting`, or `HasPainting` progs.
 
 ## Discovery Boundary
 

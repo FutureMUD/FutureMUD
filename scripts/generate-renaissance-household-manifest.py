@@ -127,6 +127,15 @@ def description(sdesc: str, material: str) -> str:
 	return f"{sdesc.capitalize()} is made chiefly from {material}. Its construction and fittings follow the documented Renaissance household form shown by its outward appearance."
 
 
+def stable_reference(category: str, prefix: str, slug: str) -> str:
+	"""Build a product-facing identifier without repeating a package path segment."""
+	prefix_parts = prefix.split("_")
+	slug_parts = slug.split("_")
+	if prefix_parts and slug_parts and prefix_parts[-1].casefold() == slug_parts[0].casefold():
+		slug_parts = slug_parts[1:]
+	return f"renaissance_{CATEGORY[category]}_{prefix}_{'_'.join(slug_parts)}"
+
+
 def parse_base(cp: dict[str, tuple[str, ...]]) -> list[tuple]:
 	packages = package_data()
 	current = ""
@@ -146,7 +155,7 @@ def parse_base(cp: dict[str, tuple[str, ...]]) -> list[tuple]:
 		size, quality = size_quality.split("/")
 		weight, cost = weight_cost.split("/")
 		culture_code = next(code for code, (tag, _) in CULTURES.items() if tag == culture_tag)
-		result.append((f"renaissance_{CATEGORY[category]}_{prefix}_{slug}", noun(sdesc), sdesc, description(sdesc, material), SIZE[size], QUALITY[quality], weight, cost, material, tags(culture_code, tag_codes), cp[component_code], culture_code))
+		result.append((stable_reference(category, prefix, slug), noun(sdesc), sdesc, description(sdesc, material), SIZE[size], QUALITY[quality], weight, cost, material, tags(culture_code, tag_codes), cp[component_code], culture_code))
 	if len(result) != 400:
 		raise ValueError(f"Expected 400 base household rows, found {len(result)}")
 	return result

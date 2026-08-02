@@ -628,7 +628,7 @@ public partial class ItemSeeder
 		IReadOnlyList<MedievalProductionTool> tools,
 		string? returnedInputStableReference = null)
 	{
-		var name = $"medieval industry - {action}";
+		var name = action;
 		return new MedievalProductionCraftSpec(
 			phase,
 			name,
@@ -879,6 +879,7 @@ public partial class ItemSeeder
 			return;
 		}
 
+		var usedCraftNames = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 		foreach (var item in _items
 			         .Where(includesItem)
 			         .OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
@@ -886,11 +887,8 @@ public partial class ItemSeeder
 			var material = GetMaterialName(item.Value);
 			var amount = Math.Max(1.0, item.Value.Weight * 0.75);
 			var displayName = item.Value.ShortDescription;
-			var craftName = $"{verb} {item.Key.Replace('_', ' ')}";
-			if (craftName.Length > 100)
-			{
-				craftName = craftName[..100];
-			}
+			var craftName = BuildUniqueVisibleCraftName(usedCraftNames, verb,
+				StripLeadingArticle(displayName));
 
 			AddCraft(
 				craftName,

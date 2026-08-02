@@ -1952,7 +1952,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_religious_religious_chapel_door",
+			"medieval_door_religious_chapel_door",
 			"door",
 			"a chapel side door",
 			null,
@@ -1981,7 +1981,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_religious_religious_lockable_chapel_door",
+			"medieval_door_religious_lockable_chapel_door",
 			"door",
 			"a lockable chapel side door",
 			null,
@@ -2010,7 +2010,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_religious_religious_screen_gate",
+			"medieval_door_religious_screen_gate",
 			"gate",
 			"a sanctuary screen gate",
 			null,
@@ -2039,7 +2039,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_religious_religious_vestry_door",
+			"medieval_door_religious_vestry_door",
 			"door",
 			"a vestry store door",
 			null,
@@ -2532,7 +2532,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_mediterranean_mediterranean_bead_door_hanging",
+			"medieval_door_mediterranean_bead_door_hanging",
 			"hanging",
 			"a shell-bead doorway hanging",
 			null,
@@ -2561,7 +2561,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_mediterranean_mediterranean_bronze_grille",
+			"medieval_door_mediterranean_bronze_grille",
 			"grate",
 			"a bronze barred grille",
 			null,
@@ -2590,7 +2590,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_mediterranean_mediterranean_bronze_studded_door",
+			"medieval_door_mediterranean_bronze_studded_door",
 			"door",
 			"a bronze-studded door",
 			null,
@@ -2619,7 +2619,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_mediterranean_mediterranean_cypress_courtyard_door",
+			"medieval_door_mediterranean_cypress_courtyard_door",
 			"door",
 			"a cypress courtyard door",
 			null,
@@ -2648,7 +2648,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_mediterranean_mediterranean_lockable_cypress_door",
+			"medieval_door_mediterranean_lockable_cypress_door",
 			"door",
 			"a lockable cypress courtyard door",
 			null,
@@ -2677,7 +2677,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_mediterranean_mediterranean_lockable_villa_gate",
+			"medieval_door_mediterranean_lockable_villa_gate",
 			"gate",
 			"a lockable villa gate",
 			null,
@@ -2706,7 +2706,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_mediterranean_mediterranean_villa_gate",
+			"medieval_door_mediterranean_villa_gate",
 			"gate",
 			"a villa courtyard gate",
 			null,
@@ -2735,7 +2735,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_mediterranean_mediterranean_warehouse_gate",
+			"medieval_door_mediterranean_warehouse_gate",
 			"gate",
 			"a harbourside warehouse gate",
 			null,
@@ -2996,7 +2996,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_south_asian_south_asian_bamboo_screen_door",
+			"medieval_door_south_asian_bamboo_screen_door",
 			"screen",
 			"a woven bamboo screen door",
 			null,
@@ -3025,7 +3025,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_south_asian_south_asian_bazaar_grille",
+			"medieval_door_south_asian_bazaar_grille",
 			"grate",
 			"an iron bazaar grille",
 			null,
@@ -3054,7 +3054,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_south_asian_south_asian_carved_teak_gate",
+			"medieval_door_south_asian_carved_teak_gate",
 			"gate",
 			"a carved teak compound gate",
 			null,
@@ -3083,7 +3083,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_south_asian_south_asian_cotton_door_cloth",
+			"medieval_door_south_asian_cotton_door_cloth",
 			"hanging",
 			"a cotton doorway cloth",
 			null,
@@ -3112,7 +3112,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_south_asian_south_asian_lockable_teak_door",
+			"medieval_door_south_asian_lockable_teak_door",
 			"door",
 			"a lockable teak courtyard door",
 			null,
@@ -3141,7 +3141,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_south_asian_south_asian_lockable_teak_gate",
+			"medieval_door_south_asian_lockable_teak_gate",
 			"gate",
 			"a lockable carved teak gate",
 			null,
@@ -3170,7 +3170,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_south_asian_south_asian_stable_gate",
+			"medieval_door_south_asian_stable_gate",
 			"gate",
 			"a teak stable gate",
 			null,
@@ -3199,7 +3199,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_south_asian_south_asian_teak_courtyard_door",
+			"medieval_door_south_asian_teak_courtyard_door",
 			"door",
 			"a teak courtyard door",
 			null,
@@ -3228,7 +3228,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_east_asian_east_asian_bamboo_lattice_gate",
+			"medieval_door_east_asian_bamboo_lattice_gate",
 			"gate",
 			"a bamboo lattice gate",
 			null,
@@ -3257,7 +3257,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_east_asian_east_asian_compound_gate",
+			"medieval_door_east_asian_compound_gate",
 			"gate",
 			"a timber compound gate",
 			null,
@@ -3286,7 +3286,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_east_asian_east_asian_iron_grille",
+			"medieval_door_east_asian_iron_grille",
 			"grate",
 			"an iron lattice grille",
 			null,
@@ -3315,7 +3315,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_east_asian_east_asian_lockable_panel_door",
+			"medieval_door_east_asian_lockable_panel_door",
 			"door",
 			"a lockable pine panel door",
 			null,
@@ -3344,7 +3344,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_east_asian_east_asian_lockable_storehouse_door",
+			"medieval_door_east_asian_lockable_storehouse_door",
 			"door",
 			"a lockable storehouse door",
 			null,
@@ -3373,7 +3373,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_east_asian_east_asian_paper_screen_door",
+			"medieval_door_east_asian_paper_screen_door",
 			"screen",
 			"a paper screen door",
 			null,
@@ -3402,7 +3402,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_east_asian_east_asian_pine_panel_door",
+			"medieval_door_east_asian_pine_panel_door",
 			"door",
 			"a pine panel door",
 			null,
@@ -3431,7 +3431,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_door_east_asian_east_asian_storehouse_door",
+			"medieval_door_east_asian_storehouse_door",
 			"door",
 			"a heavy storehouse door",
 			null,

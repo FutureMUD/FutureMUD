@@ -1,9 +1,12 @@
 #nullable enable
 
+using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MudSharp_Unit_Tests;
 
@@ -44,6 +47,52 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 		var dispatcher = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.cs");
 		AssertBranches(RenaissanceBranches, dispatcher);
 		AssertBranches(EarlyModernBranches, dispatcher);
+	}
+
+	[TestMethod]
+	public void GeneratedHouseholdAndMilitaryReferencesAreProductFocused()
+	{
+		var renaissanceReferences = ItemSeeder.RenaissanceHouseholdItemSpecsForTesting
+			.Select(x => x.StableReference)
+			.ToArray();
+		var earlyModernReferences = ItemSeeder.EarlyModernSupportedMilitaryItemSpecsForTesting
+			.Select(x => x.StableReference)
+			.ToArray();
+
+		Assert.AreEqual(renaissanceReferences.Length, renaissanceReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+		Assert.AreEqual(earlyModernReferences.Length, earlyModernReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+		Assert.IsFalse(renaissanceReferences.Any(x => x.Contains("_expansion_", StringComparison.OrdinalIgnoreCase)));
+		Assert.IsFalse(earlyModernReferences.Any(x => x.Contains("_naval_naval_", StringComparison.OrdinalIgnoreCase)));
+		CollectionAssert.Contains(renaissanceReferences, "renaissance_furniture_nac_lamp_table_02");
+		CollectionAssert.Contains(earlyModernReferences, "earlymodern_military_naval_rope_coil_issue");
+	}
+
+	[TestMethod]
+	public void EraItemStableReferencesAvoidProcessProvenanceAndRepeatedSegments()
+	{
+		var stableReferences = Directory
+			.GetFiles(SourcePath("DatabaseSeeder", "Seeders"), "ItemSeeder*.cs")
+			.SelectMany(File.ReadLines)
+			.SelectMany(line => Regex.Matches(line, "\"((?:antiquity|medieval|renaissance|earlymodern)_[a-z0-9_]+)\"", RegexOptions.IgnoreCase)
+				.Select(match => match.Groups[1].Value))
+			.ToArray();
+
+		Assert.IsTrue(stableReferences.Length > 0);
+		Assert.IsFalse(stableReferences.Any(reference =>
+			reference.Contains("_expansion_", StringComparison.OrdinalIgnoreCase) ||
+			reference.Contains("_rework_", StringComparison.OrdinalIgnoreCase) ||
+			reference.Contains("_pass_", StringComparison.OrdinalIgnoreCase) ||
+			reference.Contains("_content_pass_", StringComparison.OrdinalIgnoreCase)),
+			"Item stable references must identify the product, not the design or content pass that introduced it.");
+		Assert.IsFalse(stableReferences.Any(HasRepeatedReferenceSegment),
+			"Item stable references must not repeat an adjacent package or culture segment.");
+	}
+
+	private static bool HasRepeatedReferenceSegment(string stableReference)
+	{
+		var segments = stableReference.Split('_');
+		return segments.Zip(segments.Skip(1), (first, second) =>
+			string.Equals(first, second, StringComparison.OrdinalIgnoreCase)).Any(x => x);
 	}
 
 	private static void AssertBranches(IReadOnlyDictionary<string, string> branches, string dispatcher)

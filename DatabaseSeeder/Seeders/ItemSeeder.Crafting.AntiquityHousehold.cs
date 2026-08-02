@@ -126,9 +126,10 @@ public partial class ItemSeeder
 			.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase)
 			.ToList();
 
+		var usedCraftNames = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 		foreach (var target in targetItems)
 		{
-			SeedAntiquityHouseholdFinishedCraft(target.Key, target.Value);
+			SeedAntiquityHouseholdFinishedCraft(target.Key, target.Value, usedCraftNames);
 		}
 	}
 
@@ -553,7 +554,8 @@ public partial class ItemSeeder
 			]);
 	}
 
-	private void SeedAntiquityHouseholdFinishedCraft(string stableReference, GameItemProto item)
+	private void SeedAntiquityHouseholdFinishedCraft(string stableReference, GameItemProto item,
+		IDictionary<string, int> usedCraftNames)
 	{
 		var material = GetMaterialName(item);
 		var componentNames = GetItemComponentNames(item).ToList();
@@ -570,7 +572,7 @@ public partial class ItemSeeder
 		var displayName = SanitiseHouseholdCraftDisplayName(item.ShortDescription);
 
 		AddCraft(
-			$"make {stableReference["antiquity_".Length..].Replace('_', ' ')}",
+			BuildUniqueVisibleCraftName(usedCraftNames, "make", StripLeadingArticle(displayName)),
 			path.Category,
 			$"{path.Verb} {displayName}",
 			$"{path.Gerund} {displayName}",

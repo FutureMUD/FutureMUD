@@ -201,7 +201,7 @@ public partial class ItemSeeder
 		var path = GetAntiquityJewelleryCraftPath(material, materialScanText);
 		var inputs = BuildAntiquityJewelleryFinalInputs(item, material, materialScanText, path);
 		var displayName = SanitiseAntiquityJewelleryVisibleName(item.ShortDescription);
-		var craftName = BuildUniqueAntiquityEquipmentCraftName(usedCraftNames, "make", StripLeadingArticle(displayName));
+		var craftName = BuildUniqueVisibleCraftName(usedCraftNames, "make", StripLeadingArticle(displayName));
 
 		AddAntiquityCraft(
 			craftName,

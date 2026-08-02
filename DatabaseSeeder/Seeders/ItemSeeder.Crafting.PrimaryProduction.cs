@@ -719,9 +719,8 @@ public partial class ItemSeeder
 		IReadOnlyList<string> products,
 		IReadOnlyList<string>? failProducts = null)
 	{
-		var prefixedName = $"primary production - {name}";
 		return new PrimaryProductionCraftSpec(
-			prefixedName,
+			name,
 			category,
 			blurb,
 			name,

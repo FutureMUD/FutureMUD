@@ -687,7 +687,7 @@ public partial class ItemSeeder
 			BuildAntiquityEquipmentProduct(item, variableStyle, variableInputIndex)
 		};
 		var visibleName = SanitiseAntiquityEquipmentVisibleName(item.ShortDescription);
-		var craftName = BuildUniqueAntiquityEquipmentCraftName(usedCraftNames, "make",
+		var craftName = BuildUniqueVisibleCraftName(usedCraftNames, "make",
 			StripLeadingArticle(visibleName));
 
 		AddAntiquityCraft(
@@ -1272,7 +1272,7 @@ public partial class ItemSeeder
 		       AntiquityLeatherFurnishingStableReferences.ContainsKey(stableReference);
 	}
 
-	private static string BuildUniqueAntiquityEquipmentCraftName(IDictionary<string, int> usedCraftNames,
+	private static string BuildUniqueVisibleCraftName(IDictionary<string, int> usedCraftNames,
 		string prefix, string displayName)
 	{
 		var baseName = $"{prefix} {displayName}".Replace("  ", " ", StringComparison.OrdinalIgnoreCase).Trim();

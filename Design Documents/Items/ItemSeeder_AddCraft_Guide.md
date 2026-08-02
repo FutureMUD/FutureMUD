@@ -24,6 +24,12 @@ The core typed specs are:
 
 The old string-heavy `AddCraft` overload remains for stock spreadsheet imports. It builds these specs and calls the typed implementation.
 
+## Player-Facing Craft Text
+
+`Name`, `Action`, and `ActiveCraftItemSdesc` are player-facing. Keep `Name` to the action and product, not the era, package, stable reference, or the implementation pass that supplied it. For example, prefer `build bamboo lattice gate` to `build medieval door east asian east asian bamboo lattice gate`.
+
+The active item sdesc is a short description, not a sentence. New stock calls should use the form `an in-progress <product> craft`, for example `an in-progress bronze armour lamella stock craft`. The importer also normalises older `<action> in progress`, `<product> being made`, and `<product> process` forms to that convention.
+
 ## Where To Invoke It
 
 Stock craft definitions live in `SeedCrafts()` in `DatabaseSeeder/Seeders/ItemSeeder.Crafting.cs`.
@@ -213,7 +219,7 @@ These fields are visible in different parts of the crafting workflow. Write them
 | `category` | Groups crafts in craft lists and builder displays. | Short stable category, usually title case or established stock spelling such as `Weaponcrafting`, `Armorcrafting`, `Cooking`. Do not make one-off categories unless the catalogue genuinely needs one. |
 | `blurb` | Shown in craft detail output as the quick explanation of what the craft does. | Lower-case imperative/infinitive phrase with an object, no period: `forge a sword blade`, `temper a fine blade`, `assemble a simple widget`. |
 | `action` | Used by active-craft effects and interruption messages such as "You can't move while you are ...". | Lower-case gerund phrase that reads after "are": `forging a sword blade`, `assembling a simple widget`, `sewing a padded vest`. |
-| `itemsdesc` | Short description of the temporary active craft item/process in the room. | Lower-case noun phrase, normally with an article: `a sword-blademaking event`, `an unfinished sword assembly`, `a widget assembly process`. It should describe the visible work-in-progress, not the finished item unless that is literally what is present. |
+| `itemsdesc` | Short description of the temporary active craft item/process in the room. | Use `an in-progress <product> craft`, for example `an in-progress sword blade craft`. It should describe the visible work-in-progress, not a process sentence or the finished item unless that is literally what is present. |
 
 Echoes are emote text. Use `$0` for the crafter, `$iN` for inputs, `$tN` for tools, `$pN` for success products, and `$fN` for fail products. Keep grammar natural with FutureMUD's `verb|verbs` format, for example `$0 hammer|hammers $i1 against $t2.`
 
@@ -359,9 +365,9 @@ AddCraft(
 That call generates and uses:
 
 ```text
-ItemSeederAppearWeaponcrafting46
-ItemSeederCanUseWeaponcrafting46
-ItemSeederWhyCannotUseWeaponcrafting46
+CrApTWea<TraitId>46
+CrUseTWea<TraitId>46
+CrWhyTWea<TraitId>46
 ```
 
 Pass `null` instead of `46` if merely having the trait is enough.
@@ -378,7 +384,7 @@ AddCraft(
 	"Tailoring",
 	"cut a master garment pattern",
 	"cutting a master garment pattern",
-	"a master pattern-cutting process",
+	"an in-progress master pattern-cutting craft",
 	"Master Pattern Cutting",
 	"Tailoring",
 	null,
@@ -457,16 +463,16 @@ AddCraft(
 	knowledgeLongDescription: "Specialised weaponsmithing knowledge for controlling pattern-welded metals during tempering.");
 ```
 
-Those calls upsert the named knowledge and generate deterministic progs in these shapes:
+Those calls upsert the named knowledge and generate compact deterministic progs in these shapes. `Abbr` is the first three characters of each name word; the persisted IDs keep the abbreviated names unique and recognisable:
 
 ```text
-ItemSeederAppearKnowledge<Knowledge>
-ItemSeederCanUseKnowledge<Knowledge>
-ItemSeederWhyCannotUseKnowledge<Knowledge>
+CrApK<KnowledgeAbbr><KnowledgeId>
+CrUseK<KnowledgeAbbr><KnowledgeId>
+CrWhyK<KnowledgeAbbr><KnowledgeId>
 
-ItemSeederAppearKnowledge<Knowledge><Trait><Minimum>
-ItemSeederCanUseKnowledge<Knowledge><Trait><Minimum>
-ItemSeederWhyCannotUseKnowledge<Knowledge><Trait><Minimum>
+CrApK<KnowledgeAbbr><KnowledgeId>T<TraitAbbr><TraitId><Minimum>
+CrUseK<KnowledgeAbbr><KnowledgeId>T<TraitAbbr><TraitId><Minimum>
+CrWhyK<KnowledgeAbbr><KnowledgeId>T<TraitAbbr><TraitId><Minimum>
 ```
 
 ## Typed Spec Example
@@ -600,19 +606,19 @@ The legacy string overload still exposes completion directly and also accepts op
 Trait-gated overloads accept a `traitName` and optional `minimumTraitValue`. They create deterministic FutureProgs:
 
 ```text
-ItemSeederAppear<Trait><Minimum?>
-ItemSeederCanUse<Trait><Minimum?>
-ItemSeederWhyCannotUse<Trait><Minimum?>
+CrApT<TraitAbbr><TraitId><Minimum?>
+CrUseT<TraitAbbr><TraitId><Minimum?>
+CrWhyT<TraitAbbr><TraitId><Minimum?>
 ```
 
-Without a minimum, the generated boolean progs check whether the character has the skill. With a minimum, they check `GetTrait(@ch, ToTrait("<id>")) >= minimum`. The generated why prog returns a short builder-safe explanation.
+Without a minimum, the generated boolean progs check whether the character has the skill. With a minimum, they check `GetTrait(@ch, ToTrait("<id>")) >= minimum`. Every generated use of a trait or knowledge ID is immediately preceded by an explanatory FutureProg comment, for example `// Trait 38 = "Armourcrafting"` or `// Knowledge 20 = "Ancient Armour Crafting"`. The generated why prog returns a short builder-safe explanation.
 
 Knowledge-gated overloads accept `knowledgeName`, `traitName`, and optional `minimumTraitValue`. They upsert the `Knowledges` row by name and create deterministic FutureProgs:
 
 ```text
-ItemSeederAppearKnowledge<Knowledge><TraitMinimum?>
-ItemSeederCanUseKnowledge<Knowledge><TraitMinimum?>
-ItemSeederWhyCannotUseKnowledge<Knowledge><TraitMinimum?>
+CrApK<KnowledgeAbbr><KnowledgeId>[T<TraitAbbr><TraitId><Minimum>]
+CrUseK<KnowledgeAbbr><KnowledgeId>[T<TraitAbbr><TraitId><Minimum>]
+CrWhyK<KnowledgeAbbr><KnowledgeId>[T<TraitAbbr><TraitId><Minimum>]
 ```
 
 Without a minimum, the generated boolean progs check `@ch.Knowledges.Any(x, @x.Id == <knowledge id>)`. With a minimum, they first check the knowledge and then check the trait value. The generated why prog explains the missing knowledge before the missing trait value.
@@ -745,11 +751,11 @@ The runtime scans success and fail echoes for tokens and uses them to infer when
 | `$pN` | Success product N. The first success-echo reference sets the phase where the product appears. |
 | `$fN` | Fail product N. Only valid in fail echoes; the first reference sets the fail-product phase. |
 
-If an input is never referenced, it is consumed at phase 1. If a tool is never referenced, it is required in every normal phase. Unreferenced success and fail products default to `failPhase`.
+If an input is never referenced, it is consumed at phase 1. The engine requires an unreferenced tool in every normal phase. ItemSeeder prevents that fallback for stock crafts by appending every missing `$tN` reference to the work phase immediately before `failPhase` (or phase 1 when there is no earlier work phase). Authors should still put every tool in a natural echo at the exact phase where it is used; the automatic reference is a safe fallback, not a substitute for a good echo. Unreferenced success and fail products default to `failPhase`.
 
 Failure is not decided until `failPhase`. Before that phase:
 
-- Fail echoes are not used as failure output before `failPhase`, so they should not carry meaningful failure narration. In tuple import calls, repeat the normal echo before `failPhase`; in typed specs, omit `FailEcho` to have the seeder copy `Echo`.
+- Fail echoes are not used as failure output before `failPhase`, so they should not carry meaningful failure narration. ItemSeeder always persists the normal `Echo` as `FailEcho` before `failPhase`, even if a source tuple supplied a different value; authors should omit those redundant early failure descriptions.
 - Do not reference `$fN` before `failPhase`. Fail products before the fail phase should never be used.
 - Avoid referencing `$pN` before `failPhase` unless the product is intentionally created before success/failure diverges and should exist even if the later check fails.
 

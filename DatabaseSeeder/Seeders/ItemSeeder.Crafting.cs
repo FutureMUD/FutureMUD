@@ -611,27 +611,45 @@ return ""You cannot forage for clay while swimming or underwater.""
 end if
 return ""There is no useful clay that is accessible in the biome you're in.""");
 
-        AddProg("HasCarpentryAdept", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], @$"return GetTrait(@ch, ToTrait(""{_traits["Carpentry"]?.Id ?? _traits["Woodcraft"]?.Id ?? _traits.First().Value.Id}"")) >= 46");
-        AddProg("HasCarpentryMaster", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return GetTrait(@ch, ToTrait(""{_traits["Carpentry"]?.Id ?? _traits["Woodcraft"]?.Id ?? _traits.First().Value.Id}"")) >= 61");
-        AddProg("HasLabouring", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Labouring"]?.Id ?? _traits["Labourer"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasCarpentry", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Carpentry"]?.Id ?? _traits["Woodcraft"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasConstruction", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Constructing"]?.Id ?? _traits["Construction"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasButchering", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Butchering"]?.Id ?? _traits["Butchery"]?.Id ?? _traits["Surviving"]?.Id ?? _traits["Survival"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasCooking", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Cooking"]?.Id ?? _traits["Cook"]?.Id ?? _traits["Surviving"]?.Id ?? _traits["Survival"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasThreshing", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Threshing"]?.Id ?? _traits["Thresher"]?.Id ?? _traits["Farming"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasMilling", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Milling"]?.Id ?? _traits["Miller"]?.Id ?? _traits["Cooking"]?.Id ?? _traits["Cook"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasBrewing", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Brewing"]?.Id ?? _traits["Brewer"]?.Id ?? _traits["Cooking"]?.Id ?? _traits["Cook"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasBlacksmithing", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Blacksmithing"]?.Id ?? _traits["Metalcraft"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasWeaponcrafting", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Weaponcrafting"]?.Id ?? _traits["Weaponsmith"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasArmourcrafting", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Armourcrafting"]?.Id ?? _traits["Armourer"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasSurvival", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Surviving"]?.Id ?? _traits["Survival"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasTailoring", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Tailoring"]?.Id ?? _traits["Tailor"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasLeatherworking", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Leathermaking"]?.Id ?? _traits["Hideworking"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasLocksmithing", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Locksmithing"]?.Id ?? _traits["Locksmith"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasForestry", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Lumberjacking"]?.Id ?? _traits["Lumberjack"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasFarming", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Farming"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasPottery", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Pottery"]?.Id ?? _traits["Potter"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasBasicPharmacology", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Pharmacology"]?.Id ?? _traits["Medicine"]?.Id ?? _traits.First().Value.Id})");
+		TraitDefinition ResolveTrait(params string[] names)
+		{
+			foreach (var name in names)
+			{
+				if (_traits.TryGetValue(name, out var trait))
+				{
+					return trait;
+				}
+			}
+
+			return _traits.First().Value;
+		}
+
+		string HasTraitText(TraitDefinition trait) => $@"{FutureProgReferenceComment("Trait", trait.Id, trait.Name)}
+return @ch.Skills.Any(x, @x.Id == {trait.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)})";
+		string MinimumTraitText(TraitDefinition trait, int minimum) => $@"{FutureProgReferenceComment("Trait", trait.Id, trait.Name)}
+return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)}"")) >= {minimum.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+
+		AddProg("HasCarpentryAdept", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], MinimumTraitText(ResolveTrait("Carpentry", "Woodcraft"), 46));
+		AddProg("HasCarpentryMaster", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], MinimumTraitText(ResolveTrait("Carpentry", "Woodcraft"), 61));
+		AddProg("HasLabouring", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Labouring", "Labourer")));
+		AddProg("HasCarpentry", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Carpentry", "Woodcraft")));
+		AddProg("HasConstruction", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Constructing", "Construction")));
+		AddProg("HasButchering", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Butchering", "Butchery", "Surviving", "Survival")));
+		AddProg("HasCooking", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Cooking", "Cook", "Surviving", "Survival")));
+		AddProg("HasThreshing", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Threshing", "Thresher", "Farming")));
+		AddProg("HasMilling", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Milling", "Miller", "Cooking", "Cook")));
+		AddProg("HasBrewing", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Brewing", "Brewer", "Cooking", "Cook")));
+		AddProg("HasBlacksmithing", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Blacksmithing", "Metalcraft")));
+		AddProg("HasWeaponcrafting", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Weaponcrafting", "Weaponsmith")));
+		AddProg("HasArmourcrafting", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Armourcrafting", "Armourer")));
+		AddProg("HasSurvival", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Surviving", "Survival")));
+		AddProg("HasTailoring", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Tailoring", "Tailor")));
+		AddProg("HasLeatherworking", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Leathermaking", "Hideworking")));
+		AddProg("HasLocksmithing", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Locksmithing", "Locksmith")));
+		AddProg("HasForestry", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Lumberjacking", "Lumberjack")));
+		AddProg("HasFarming", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Farming")));
+		AddProg("HasPottery", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Pottery", "Potter")));
+		AddProg("HasBasicPharmacology", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Pharmacology", "Medicine")));
 
         _context.SaveChanges();
     }
@@ -1915,8 +1933,91 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 		return specs;
 	}
 
+	private static CraftDefinitionSpec NormaliseCraftDefinition(CraftDefinitionSpec spec)
+	{
+		if (spec.Phases.Count == 0)
+		{
+			return spec;
+		}
+
+		var phases = spec.Phases.ToArray();
+		var missingToolIndexes = Enumerable.Range(1, spec.Tools.Count)
+			.Where(toolIndex => phases.All(phase => !ReferencesTool(phase.Echo, toolIndex)))
+			.ToList();
+		if (missingToolIndexes.Count > 0)
+		{
+			var workPhaseIndex = Math.Clamp(spec.FailPhase - 2, 0, phases.Length - 1);
+			phases[workPhaseIndex] = phases[workPhaseIndex] with
+			{
+				Echo = AppendToolReferences(phases[workPhaseIndex].Echo, missingToolIndexes)
+			};
+		}
+
+		for (var phaseIndex = 0; phaseIndex < Math.Min(spec.FailPhase - 1, phases.Length); phaseIndex++)
+		{
+			phases[phaseIndex] = phases[phaseIndex] with { FailEcho = phases[phaseIndex].Echo };
+		}
+
+		return spec with
+		{
+			ActiveCraftItemSdesc = NormaliseActiveCraftItemSdesc(spec.ActiveCraftItemSdesc),
+			Phases = phases
+		};
+	}
+
+	private static bool ReferencesTool(string echo, int toolIndex)
+	{
+		return Regex.IsMatch(echo, $@"\$t{toolIndex.ToString(System.Globalization.CultureInfo.InvariantCulture)}(?!\d)", RegexOptions.IgnoreCase);
+	}
+
+	private static string AppendToolReferences(string echo, IReadOnlyList<int> toolIndexes)
+	{
+		var references = toolIndexes
+			.Select(index => $"$t{index.ToString(System.Globalization.CultureInfo.InvariantCulture)}")
+			.ToList();
+		var referenceText = references.Count switch
+		{
+			1 => references[0],
+			2 => string.Join(" and ", references),
+			_ => $"{string.Join(", ", references.Take(references.Count - 1))} and {references[^1]}"
+		};
+		var sentence = echo.TrimEnd();
+		sentence = sentence.TrimEnd('.', '!', '?');
+		return $"{sentence}, using {referenceText}.";
+	}
+
+	private static string NormaliseActiveCraftItemSdesc(string activeCraftItemSdesc)
+	{
+		var text = activeCraftItemSdesc.Trim();
+		if (text.EndsWith(" in progress", StringComparison.OrdinalIgnoreCase))
+		{
+			text = text[..^" in progress".Length];
+		}
+		else if (text.EndsWith(" being made", StringComparison.OrdinalIgnoreCase))
+		{
+			text = text[..^" being made".Length];
+		}
+		else if (text.EndsWith(" process", StringComparison.OrdinalIgnoreCase))
+		{
+			text = text[..^" process".Length];
+		}
+		else
+		{
+			return activeCraftItemSdesc;
+		}
+
+		var subject = Regex.Replace(text.Trim(), @"^(?:a|an|the)\s+", string.Empty, RegexOptions.IgnoreCase);
+		subject = Regex.Replace(subject,
+			@"^(?:assemble|build|construct|craft|create|cut|forge|form|make|prepare|process|sew|shape|smelt)\s+",
+			string.Empty, RegexOptions.IgnoreCase);
+		subject = Regex.Replace(subject, @"\s+into\s+", " ", RegexOptions.IgnoreCase);
+		subject = Regex.Replace(subject, @"\s+", " ").Trim();
+		return string.IsNullOrWhiteSpace(subject) ? activeCraftItemSdesc : $"an in-progress {subject} craft";
+	}
+
 	private MudSharp.Models.Craft AddCraft(CraftDefinitionSpec spec, IEnumerable<CraftValidationError>? importErrors = null)
 	{
+		spec = NormaliseCraftDefinition(spec);
 		Craft? existing = FindExistingCraft(spec.Name, spec.Category);
 		if (existing is not null)
 		{
@@ -2231,15 +2332,44 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 			$"Unknown trait {traitName}. Tried: {string.Join(", ", attemptedNames)}");
 	}
 
-	private static string SanitiseFutureProgNamePart(string text)
-	{
-		string value = new(text.Where(char.IsLetterOrDigit).ToArray());
-		return string.IsNullOrWhiteSpace(value) ? "Trait" : value;
-	}
-
 	private static string EscapeFutureProgText(string text)
 	{
 		return text.Replace(@"\", @"\\").Replace("\"", "\\\"");
+	}
+
+	private static string FutureProgReferenceComment(string type, long id, string name)
+	{
+		return $"// {type} {id.ToString(System.Globalization.CultureInfo.InvariantCulture)} = \"{EscapeFutureProgText(name)}\"";
+	}
+
+	private static string AbbreviateFutureProgNamePart(string text)
+	{
+		var abbreviation = new StringBuilder();
+		foreach (Match match in Regex.Matches(text, @"[A-Z]+(?=[A-Z][a-z]|\b)|[A-Z]?[a-z]+|\d+"))
+		{
+			var part = match.Value;
+			abbreviation.Append(part[..Math.Min(3, part.Length)]);
+		}
+
+		return abbreviation.Length > 0 ? abbreviation.ToString() : "Ref";
+	}
+
+	private static string TraitGateProgName(string purpose, TraitDefinition trait, int? minimumTraitValue)
+	{
+		var minimum = minimumTraitValue?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+		return $"Cr{purpose}T{AbbreviateFutureProgNamePart(trait.Name)}{trait.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)}{minimum}";
+	}
+
+	private static string KnowledgeGateProgName(string purpose, MudSharp.Models.Knowledge knowledge, TraitDefinition trait,
+		int? minimumTraitValue)
+	{
+		var knowledgePart = $"K{AbbreviateFutureProgNamePart(knowledge.Name)}{knowledge.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+		if (minimumTraitValue is null)
+		{
+			return $"Cr{purpose}{knowledgePart}";
+		}
+
+		return $"Cr{purpose}{knowledgePart}T{AbbreviateFutureProgNamePart(trait.Name)}{trait.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)}{minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 	}
 
 	private void SaveFutureProgsIfRequired(params FutureProg[] progs)
@@ -2306,20 +2436,22 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 	private (FutureProg AppearProg, FutureProg CanUseProg, FutureProg WhyCannotUseProg, TraitDefinition Trait) EnsureTraitGateProgs(string traitName, int? minimumTraitValue)
 	{
 		TraitDefinition trait = LookupTraitDefinition(traitName);
-		string suffix = $"{SanitiseFutureProgNamePart(trait.Name)}{(minimumTraitValue is null ? "" : minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture))}";
+		string traitComment = FutureProgReferenceComment("Trait", trait.Id, trait.Name);
 		string booleanText = minimumTraitValue is null
-			? $@"return @ch.Skills.Any(x, @x.Id == {trait.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)})"
-			: $@"return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)}"")) >= {minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+			? $@"{traitComment}
+return @ch.Skills.Any(x, @x.Id == {trait.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)})"
+			: $@"{traitComment}
+return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)}"")) >= {minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 		string traitText = EscapeFutureProgText(trait.Name);
 		string whyText = minimumTraitValue is null
 			? $@"return ""You do not have the {traitText} skill."""
 			: $@"return ""You need at least {minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)} in {traitText} to do that craft.""";
 
-		FutureProg appearProg = EnsureFutureProg($"ItemSeederAppear{suffix}", "Crafting", "Access", ProgVariableTypes.Boolean, "",
+		FutureProg appearProg = EnsureFutureProg(TraitGateProgName("Ap", trait, minimumTraitValue), "Crafting", "Access", ProgVariableTypes.Boolean, "",
 			[(ProgVariableTypes.Character, "ch")], booleanText);
-		FutureProg canUseProg = EnsureFutureProg($"ItemSeederCanUse{suffix}", "Crafting", "Access", ProgVariableTypes.Boolean, "",
+		FutureProg canUseProg = EnsureFutureProg(TraitGateProgName("Use", trait, minimumTraitValue), "Crafting", "Access", ProgVariableTypes.Boolean, "",
 			[(ProgVariableTypes.Character, "ch")], booleanText);
-		FutureProg whyCannotUseProg = EnsureFutureProg($"ItemSeederWhyCannotUse{suffix}", "Crafting", "Access", ProgVariableTypes.Text, "",
+		FutureProg whyCannotUseProg = EnsureFutureProg(TraitGateProgName("Why", trait, minimumTraitValue), "Crafting", "Access", ProgVariableTypes.Text, "",
 			[(ProgVariableTypes.Character, "ch")], whyText);
 		SaveFutureProgsIfRequired(appearProg, canUseProg, whyCannotUseProg);
 		return (appearProg, canUseProg, whyCannotUseProg, trait);
@@ -2343,31 +2475,35 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 			knowledgeTeachDifficulty,
 			knowledgeLearnable);
 
-		string suffix =
-			$"Knowledge{SanitiseFutureProgNamePart(knowledge.Name)}{(minimumTraitValue is null ? "" : $"{SanitiseFutureProgNamePart(trait.Name)}{minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}")}";
 		string knowledgeId = knowledge.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
 		string traitId = trait.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+		string knowledgeComment = FutureProgReferenceComment("Knowledge", knowledge.Id, knowledge.Name);
+		string traitComment = FutureProgReferenceComment("Trait", trait.Id, trait.Name);
 		string knowledgeCheck = $@"@ch.Knowledges.Any(x, @x.Id == {knowledgeId})";
 		string booleanText = minimumTraitValue is null
-			? $@"return {knowledgeCheck}"
-			: $@"if (not({knowledgeCheck}))
+			? $@"{knowledgeComment}
+return {knowledgeCheck}"
+			: $@"{knowledgeComment}
+if (not({knowledgeCheck}))
 	return false
 end if
+{traitComment}
 return GetTrait(@ch, ToTrait(""{traitId}"")) >= {minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 		string knowledgeText = EscapeFutureProgText(knowledge.Name);
 		string traitText = EscapeFutureProgText(trait.Name);
 		string whyText = minimumTraitValue is null
 			? $@"return ""You do not know the {knowledgeText} knowledge."""
-			: $@"if (not({knowledgeCheck}))
+			: $@"{knowledgeComment}
+if (not({knowledgeCheck}))
 	return ""You do not know the {knowledgeText} knowledge.""
 end if
 return ""You need at least {minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)} in {traitText} to do that craft.""";
 
-		FutureProg appearProg = EnsureFutureProg($"ItemSeederAppear{suffix}", "Crafting", "Access", ProgVariableTypes.Boolean, "",
+		FutureProg appearProg = EnsureFutureProg(KnowledgeGateProgName("Ap", knowledge, trait, minimumTraitValue), "Crafting", "Access", ProgVariableTypes.Boolean, "",
 			[(ProgVariableTypes.Character, "ch")], booleanText);
-		FutureProg canUseProg = EnsureFutureProg($"ItemSeederCanUse{suffix}", "Crafting", "Access", ProgVariableTypes.Boolean, "",
+		FutureProg canUseProg = EnsureFutureProg(KnowledgeGateProgName("Use", knowledge, trait, minimumTraitValue), "Crafting", "Access", ProgVariableTypes.Boolean, "",
 			[(ProgVariableTypes.Character, "ch")], booleanText);
-		FutureProg whyCannotUseProg = EnsureFutureProg($"ItemSeederWhyCannotUse{suffix}", "Crafting", "Access", ProgVariableTypes.Text, "",
+		FutureProg whyCannotUseProg = EnsureFutureProg(KnowledgeGateProgName("Why", knowledge, trait, minimumTraitValue), "Crafting", "Access", ProgVariableTypes.Text, "",
 			[(ProgVariableTypes.Character, "ch")], whyText);
 		SaveFutureProgsIfRequired(appearProg, canUseProg, whyCannotUseProg);
 		return (appearProg, canUseProg, whyCannotUseProg, trait, knowledge);

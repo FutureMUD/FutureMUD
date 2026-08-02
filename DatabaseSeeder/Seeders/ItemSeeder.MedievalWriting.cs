@@ -7621,7 +7621,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_writing_writing_desk_drawers",
+			"medieval_writing_desk_drawers",
 			"desk",
 			"a small writing desk",
 			null,

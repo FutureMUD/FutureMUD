@@ -2742,7 +2742,7 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_jewellery_ring_ring_signet_of_silver_gilt",
+			"medieval_jewellery_ring_signet_of_silver_gilt",
 			"ring",
 			"a ring signet of silver-gilt",
 			null,

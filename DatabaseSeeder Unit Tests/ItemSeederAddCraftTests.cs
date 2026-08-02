@@ -490,6 +490,43 @@ public class ItemSeederAddCraftTests
 	}
 
 	[TestMethod]
+	public void ItemSeeder_AddCraft_NormalisesActiveSdescAndPhaseToolAndFailureEchoes()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context);
+
+		var craft = new ItemSeeder().AddCraftForTesting(context, new ItemSeeder.CraftDefinitionSpec
+		{
+			Name = "test normalised craft",
+			Category = "Testing",
+			Blurb = "normalised test",
+			Action = "cut bronze into armour lamella stock",
+			ActiveCraftItemSdesc = "cut bronze into armour lamella stock in progress",
+			AppearProg = context.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue"),
+			Trait = context.TraitDefinitions.Single(x => x.Name == "Crafting"),
+			FailPhase = 3,
+			Phases =
+			[
+				new ItemSeeder.CraftPhaseSpec { Seconds = 12, Echo = "$0 inspect|inspects $i1.", FailEcho = "$0 spoil|spoils $i1." },
+				new ItemSeeder.CraftPhaseSpec { Seconds = 12, Echo = "$0 work|works $i1.", FailEcho = "$0 ruin|ruins $i1." },
+				new ItemSeeder.CraftPhaseSpec { Seconds = 12, Echo = "$0 finish|finishes $i1 and set|sets aside $p1.", FailEcho = "$0 botch|botches $i1 and recover|recovers $f1." }
+			],
+			Inputs = [new ItemSeeder.CraftInputSpec("Tag - 1x an item with the Ingredient tag", "Tag", "1x an item with the Ingredient tag", [], 1.0)],
+			Tools = [new ItemSeeder.CraftToolSpec("TagTool - Held - an item with the Tool Tag tag", "TagTool", "Held - an item with the Tool Tag tag", [], 1.0, true)],
+			Products = [new ItemSeeder.CraftProductSpec("SimpleProduct - 1x a simple test product (#101)", "SimpleProduct", "1x a simple test product (#101)", [], false, null)],
+			FailProducts = [new ItemSeeder.CraftProductSpec("SimpleProduct - 1x a failed test product (#106)", "SimpleProduct", "1x a failed test product (#106)", [], true, null)]
+		});
+
+		Assert.AreEqual("an in-progress bronze armour lamella stock craft", craft.ActiveCraftItemSdesc);
+		var phases = craft.CraftPhases.OrderBy(x => x.PhaseNumber).ToList();
+		Assert.AreEqual(phases[0].Echo, phases[0].FailEcho);
+		Assert.IsFalse(phases[0].Echo.Contains("$t1", StringComparison.Ordinal));
+		Assert.AreEqual(phases[1].Echo, phases[1].FailEcho);
+		Assert.IsTrue(phases[1].Echo.Contains("using $t1", StringComparison.Ordinal));
+		Assert.AreEqual("$0 botch|botches $i1 and recover|recovers $f1.", phases[2].FailEcho);
+	}
+
+	[TestMethod]
 	public void ItemSeeder_AddCraft_TraitGateCreatesDeterministicProgsAndUsesThem()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -508,12 +545,14 @@ public class ItemSeederAddCraftTests
 			[]
 		);
 
-		var appear = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederAppearCrafting40");
-		var canUse = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederCanUseCrafting40");
-		var whyCannot = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederWhyCannotUseCrafting40");
+		var appear = context.FutureProgs.Single(x => x.FunctionName == "CrApTCra140");
+		var canUse = context.FutureProgs.Single(x => x.FunctionName == "CrUseTCra140");
+		var whyCannot = context.FutureProgs.Single(x => x.FunctionName == "CrWhyTCra140");
 		Assert.AreEqual(appear.Id, craft.AppearInCraftsListProgId);
 		Assert.AreEqual(canUse.Id, craft.CanUseProgId);
 		Assert.AreEqual(whyCannot.Id, craft.WhyCannotUseProgId);
+		Assert.IsFalse(appear.FunctionName.StartsWith("ItemSeeder", StringComparison.Ordinal));
+		Assert.IsTrue(appear.FunctionText.StartsWith("// Trait 1 = \"Crafting\"", StringComparison.Ordinal));
 		Assert.IsTrue(appear.FunctionText.Contains(">= 40"));
 		Assert.IsTrue(whyCannot.FunctionText.Contains("You need at least 40"));
 	}
@@ -540,8 +579,9 @@ public class ItemSeederAddCraftTests
 
 		Assert.AreEqual(9, craft.CheckTraitId);
 		Assert.AreEqual("Woodcraft", craft.CheckTrait.Name);
-		var appear = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederAppearWoodcraft40");
+		var appear = context.FutureProgs.Single(x => x.FunctionName == "CrApTWoo940");
 		Assert.IsTrue(appear.FunctionText.Contains(@"ToTrait(""9"")"));
+		Assert.IsTrue(appear.FunctionText.StartsWith("// Trait 9 = \"Woodcraft\"", StringComparison.Ordinal));
 	}
 
 	[TestMethod]
@@ -568,9 +608,12 @@ public class ItemSeederAddCraftTests
 
 		Assert.AreEqual(9, craft.CheckTraitId);
 		Assert.AreEqual("First Aid", craft.CheckTrait.Name);
+		var knowledge = context.Knowledges.Single(x => x.Name == "Ancient Medical Treatment Supplies");
 		var appear = context.FutureProgs.Single(x =>
-			x.FunctionName == "ItemSeederAppearKnowledgeAncientMedicalTreatmentSuppliesFirstAid20");
+			x.FunctionName == $"CrApKAncMedTreSup{knowledge.Id}TFirAid920");
 		Assert.IsTrue(appear.FunctionText.Contains(@"ToTrait(""9"")"));
+		Assert.IsTrue(appear.FunctionText.StartsWith($"// Knowledge {knowledge.Id} = \"Ancient Medical Treatment Supplies\"", StringComparison.Ordinal));
+		Assert.IsTrue(appear.FunctionText.Contains("// Trait 9 = \"First Aid\""));
 	}
 
 	[TestMethod]
@@ -603,13 +646,14 @@ public class ItemSeederAddCraftTests
 		Assert.AreEqual("advanced stitching techniques", knowledge.Description);
 		Assert.AreEqual((int)(LearnableType.LearnableAtSkillUp | LearnableType.LearnableFromTeacher), knowledge.LearnableType);
 
-		var appear = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederAppearKnowledgeAdvancedStitching");
-		var canUse = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederCanUseKnowledgeAdvancedStitching");
-		var whyCannot = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederWhyCannotUseKnowledgeAdvancedStitching");
+		var appear = context.FutureProgs.Single(x => x.FunctionName == $"CrApKAdvSti{knowledge.Id}");
+		var canUse = context.FutureProgs.Single(x => x.FunctionName == $"CrUseKAdvSti{knowledge.Id}");
+		var whyCannot = context.FutureProgs.Single(x => x.FunctionName == $"CrWhyKAdvSti{knowledge.Id}");
 		Assert.AreEqual(appear.Id, craft.AppearInCraftsListProgId);
 		Assert.AreEqual(canUse.Id, craft.CanUseProgId);
 		Assert.AreEqual(whyCannot.Id, craft.WhyCannotUseProgId);
 		Assert.IsTrue(appear.FunctionText.Contains($"@x.Id == {knowledge.Id}"));
+		Assert.IsTrue(appear.FunctionText.StartsWith($"// Knowledge {knowledge.Id} = \"Advanced Stitching\"", StringComparison.Ordinal));
 		Assert.IsFalse(appear.FunctionText.Contains("GetTrait"));
 		Assert.IsTrue(whyCannot.FunctionText.Contains("Advanced Stitching"));
 	}
@@ -637,13 +681,15 @@ public class ItemSeederAddCraftTests
 		);
 
 		var knowledge = context.Knowledges.Single(x => x.Name == "Master Pattern Cutting");
-		var appear = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederAppearKnowledgeMasterPatternCuttingCrafting55");
-		var canUse = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederCanUseKnowledgeMasterPatternCuttingCrafting55");
-		var whyCannot = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederWhyCannotUseKnowledgeMasterPatternCuttingCrafting55");
+		var appear = context.FutureProgs.Single(x => x.FunctionName == $"CrApKMasPatCut{knowledge.Id}TCra155");
+		var canUse = context.FutureProgs.Single(x => x.FunctionName == $"CrUseKMasPatCut{knowledge.Id}TCra155");
+		var whyCannot = context.FutureProgs.Single(x => x.FunctionName == $"CrWhyKMasPatCut{knowledge.Id}TCra155");
 		Assert.AreEqual(appear.Id, craft.AppearInCraftsListProgId);
 		Assert.AreEqual(canUse.Id, craft.CanUseProgId);
 		Assert.AreEqual(whyCannot.Id, craft.WhyCannotUseProgId);
 		Assert.IsTrue(appear.FunctionText.Contains($"@x.Id == {knowledge.Id}"));
+		Assert.IsTrue(appear.FunctionText.StartsWith($"// Knowledge {knowledge.Id} = \"Master Pattern Cutting\"", StringComparison.Ordinal));
+		Assert.IsTrue(appear.FunctionText.Contains("// Trait 1 = \"Crafting\""));
 		Assert.IsTrue(appear.FunctionText.Contains("GetTrait"));
 		Assert.IsTrue(appear.FunctionText.Contains(">= 55"));
 		Assert.IsTrue(whyCannot.FunctionText.Contains("Master Pattern Cutting"));
@@ -674,11 +720,13 @@ public class ItemSeederAddCraftTests
 
 		Assert.AreEqual(9, craft.CheckTraitId);
 		Assert.AreEqual("Wood Work", craft.CheckTrait.Name);
+		var knowledge = context.Knowledges.Single(x => x.Name == "Ancient Toolmaking");
 		var appear = context.FutureProgs.Single(x =>
-			x.FunctionName == "ItemSeederAppearKnowledgeAncientToolmakingWoodWork35");
+			x.FunctionName == $"CrApKAncToo{knowledge.Id}TWooWor935");
 		var whyCannot = context.FutureProgs.Single(x =>
-			x.FunctionName == "ItemSeederWhyCannotUseKnowledgeAncientToolmakingWoodWork35");
+			x.FunctionName == $"CrWhyKAncToo{knowledge.Id}TWooWor935");
 		Assert.IsTrue(appear.FunctionText.Contains(@"ToTrait(""9"")"));
+		Assert.IsTrue(appear.FunctionText.StartsWith($"// Knowledge {knowledge.Id} = \"Ancient Toolmaking\"", StringComparison.Ordinal));
 		Assert.IsTrue(whyCannot.FunctionText.Contains("Wood Work"));
 	}
 

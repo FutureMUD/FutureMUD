@@ -447,7 +447,7 @@ Every seeded item prototype, craft, project, knowledge, and helper prog should u
 | Content Type | Prefix |
 | --- | --- |
 | Item prototypes | `primary_production_` |
-| Craft names | `primary production - ` or category-specific names |
+| Craft names | Player-facing action and product text; category supplies the primary-production context. |
 | Project names | `Primary Production - ` |
 | Knowledge | `Primary Production - ` |
 | FutureProg helpers | `Stock Primary Production - ` |
@@ -1550,7 +1550,7 @@ The main design decision in this phase was to avoid adding a new fixture/scenery
 
 The reusable craft layer is now seeded through `ItemSeeder.Crafting.PrimaryProduction.cs` and is wired immediately after `SeedHistoricFoundationCrafts()` in the shared craft seeder:
 
-- The catalogue adds deterministic `primary production - ...` craft names under `Primary Production / ...` categories and gates them behind `Primary Production - Historic Commodity Work` knowledge.
+- The catalogue adds deterministic action-and-product craft names under `Primary Production / ...` categories and gates them behind `Primary Production - Historic Commodity Work` knowledge.
 - Ore-preparation crafts now cover sample assay plus break, sort, wash, and roast chains for iron, copper, tin, and lead ores.
 - Masonry and binder crafts now cover dressed limestone and sandstone blocks, aggregate, slaked lime, lime mortar, and gypsum plaster.
 - Clay, brick, tile, refractory, and glass batch crafts now cover prepared clay, green bricks, roof tile stock, crucible clay stock, and soda-lime glass batch.

@@ -116,7 +116,8 @@ public class ReadiedRangedWeaponDrainStamina : Effect
 			return;
 		}
 
-		if (WeaponComponent.ReadiedUseRequiresFreeHand && !CharacterOwner.Body.FunctioningFreeHands.Any())
+		if (WeaponComponent.ReadiedUseRequiresFreeHand &&
+		    CharacterOwner.Body.FunctioningWieldingLocationsAvailableFor(Weapon).Count() < 2)
 		{
 			CharacterOwner.OutputHandler.Handle(new EmoteOutput(
 				new Emote(WeaponComponent.ReadiedStaminaNoFreeHandEmote, CharacterOwner, Weapon, CharacterOwner),

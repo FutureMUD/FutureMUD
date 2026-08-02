@@ -577,7 +577,7 @@ For the initial historical-arms tranche, verify locked till selection, container
 
 For the standards, signals, and instruments tranche, additionally verify:
 
-1. all nine Antiquity instruments can start, tick, stop, and interrupt through their intended physical use mode;
+1. all nine Antiquity instruments can start, tick, stop, and interrupt through their intended physical use mode, including on inventory-model bodies carrying unrelated items;
 2. the four signal profiles accept only their named patterns, enforce a per-item cooldown, and keep failed audio unrecognisable;
 3. all six standard profiles begin unowned, unclaimed, unassociated, unplanted, and at zero captures;
 4. character and clan ownership, a configured `CanBearProg`, hostile transfers, recovery, planting, ownership changes, copy/reset behavior, and exact-once hooks follow the custody contract;

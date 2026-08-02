@@ -252,6 +252,43 @@ public class SealAndMeasurementComponentTests
 	}
 
 	[TestMethod]
+	public void Instrument_InventoryModelUsesPhysicalHandsInsteadOfOccupiedGrabInventory()
+	{
+		var gameworld = CreateGameworld();
+		var proto = CreateProto<InstrumentGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(625, "Instrument", new XElement("Definition",
+				new XElement("Family", "Guitar"),
+				new XElement("PerformanceTrait", 0),
+				new XElement("Difficulty", Difficulty.Automatic),
+				new XElement("Volume", "Decent"),
+				new XElement("RequiredHands", 2),
+				new XElement("UseModes", "Handheld"),
+				new XElement("InitialStamina", 2.0),
+				new XElement("TickStamina", 1.0),
+				new XElement("TickSeconds", 10),
+				new XElement("Positions"),
+				new XElement("Styles", new XElement("Style", "folk")),
+				new XElement("LocalPlayEmote", "@ play|plays $1."),
+				new XElement("LocalTickEmote", "@ continue|continues playing $1."),
+				new XElement("DistantPlayEmote", "You hear music {0}."),
+				new XElement("FailureEmote", "@ fail|fails to play $1."),
+				new XElement("StopEmote", "@ stop|stops playing $1.")).ToString()));
+		var parent = CreateParent(gameworld.Object, 626L, "guitar");
+		var (actor, body, _) = CreateInstrumentActor(gameworld.Object, parent);
+		var carriedItem = CreateParent(gameworld.Object, 627L, "book");
+		var inventory = body.Object.HoldLocs.Single();
+		body.Setup(x => x.HeldItemsFor(inventory)).Returns([parent.Object, carriedItem.Object]);
+		body.SetupGet(x => x.HeldOrWieldedItems).Returns([parent.Object, carriedItem.Object]);
+		var component = (InstrumentGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+
+		Assert.AreEqual(string.Empty, component.WhyCannotPlay(actor.Object, "folk"));
+
+		var occupiedHand = body.Object.WieldLocs.First();
+		body.Setup(x => x.WieldedItemsFor(occupiedHand)).Returns([carriedItem.Object]);
+		StringAssert.Contains(component.WhyCannotPlay(actor.Object, "folk"), "2 functioning hands");
+	}
+
+	[TestMethod]
 	public void SignalInstrument_FailedSignalIsNeutralSuppressesHookAndAppliesCooldown()
 	{
 		var trait = new Mock<ITraitDefinition>();
@@ -1064,11 +1101,17 @@ public class SealAndMeasurementComponentTests
 		var cell = new Mock<ICell>();
 		var position = new Mock<IPositionState>();
 		var output = new Mock<IOutputHandler>();
-		var firstHand = new Mock<IGrab>();
-		var secondHand = new Mock<IGrab>();
+		var inventory = new Mock<IGrab>();
+		var firstHand = new Mock<IWield>();
+		var secondHand = new Mock<IWield>();
 		body.SetupGet(x => x.HeldOrWieldedItems).Returns([instrument.Object]);
 		body.SetupGet(x => x.WornItems).Returns([]);
-		body.SetupGet(x => x.FunctioningFreeHands).Returns([firstHand.Object, secondHand.Object]);
+		body.SetupGet(x => x.HoldLocs).Returns([inventory.Object]);
+		body.SetupGet(x => x.WieldLocs).Returns([firstHand.Object, secondHand.Object]);
+		body.Setup(x => x.CanUseBodypart(It.IsAny<IBodypart>())).Returns(CanUseBodypartResult.CanUse);
+		body.Setup(x => x.HeldItemsFor(It.IsAny<IBodypart>())).Returns(Array.Empty<IGameItem>());
+		body.Setup(x => x.HeldItemsFor(inventory.Object)).Returns([instrument.Object]);
+		body.Setup(x => x.WieldedItemsFor(It.IsAny<IBodypart>())).Returns(Array.Empty<IGameItem>());
 		instrument.SetupGet(x => x.Location).Returns(cell.Object);
 		instrument.SetupGet(x => x.InInventoryOf).Returns((IBody)null!);
 		instrument.SetupGet(x => x.ContainedIn).Returns((IGameItem)null!);

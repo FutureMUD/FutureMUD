@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using MudSharp.Accounts;
+using MudSharp.Body;
 using MudSharp.Character.Heritage;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
@@ -2235,7 +2236,7 @@ The syntax is as follows:
             return false;
         }
 
-        if (!character.Body.FunctioningFreeHands.Any())
+        if (!character.Body.FunctioningWieldingLocationsAvailableFor().Any())
         {
             character.OutputHandler.Send("You need a free hand to split off that ammunition before poisoning it.");
             return false;

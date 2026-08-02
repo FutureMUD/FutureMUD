@@ -731,6 +731,10 @@ Transit output includes scheduled and expected time, platform, destination, boar
 
 `vehicle` commands inspect and repair live instances.
 
+The command help deliberately separates the two vehicle layers. `vehicleproto` authors a revisioned definition and the factory creates a live vehicle from a selected valid prototype, normally the approved current revision; `vehicle` then operates on that live vehicle's canonical state. The exterior item is a visible projection and target for player actions, not the canonical record. Staff should start with `vehicle show` before attempting a repair or recovery, because it presents both sides of that relationship and the current readiness diagnostics.
+
+The builder help groups `vehicleproto set` into identity/exterior, compartments and control, movement, propulsion, projections/modules, towing and damage. This mirrors the normal authoring order and makes the generated child IDs from `vehicleproto show` explicit inputs to later settings. It also links the related live commands: `install`/`uninstall`, `hitch`/`unhitch`, `vehiclepropulsion`, `vehicleroute`, `vehicleservice`, and `cell set route`.
+
 Current commands:
 
 - `vehicle list`
@@ -745,6 +749,7 @@ Current commands:
 - `vehicle audit <id|name|here|zone|prototype <id|name>|all> [readiness|access|resources|hitch|damage|interior|docking|recovery|all]`
 - `vehicle recover <id|name> [projection|install|hitch|interior|docking|all] [fix]`
 - `vehicle fleet <scope> access apply|grant|revoke|clone ...`
+- `vehicle fleet <scope> audit [readiness|access|resources|hitch|damage|route|journey|interior|docking|recovery|all]`
 - `vehicle fleet <scope> recover <projection|install|hitch|interior|docking|all> [fix]`
 - `vehicle repair <id|name>`
 - `vehicle repair <id|name> damage <zone|all>`

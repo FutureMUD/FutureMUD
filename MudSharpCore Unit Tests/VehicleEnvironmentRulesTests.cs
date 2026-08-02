@@ -6,6 +6,7 @@ using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
+using MudSharp.Commands.Modules;
 using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -189,6 +190,39 @@ public class VehicleEnvironmentRulesTests
 		StringAssert.Contains(help, "movement propulsion multiplier <propulsion id>");
 		StringAssert.Contains(help, "movement propulsion terraintag <propulsion id>");
 		StringAssert.Contains(help, "slot propulsion <id>");
+	}
+
+	[TestMethod]
+	public void VehicleCommandHelp_ExplainsTheLiveVehicleAndPrototypeWorkflows()
+	{
+		var vehicleHelp = (string)typeof(VehicleModule)
+			.GetField("VehicleAdminHelp", BindingFlags.Static | BindingFlags.NonPublic)!
+			.GetRawConstantValue()!;
+		var prototypeHelp = (string)typeof(VehicleModule)
+			.GetField("VehicleProtoHelp", BindingFlags.Static | BindingFlags.NonPublic)!
+			.GetRawConstantValue()!;
+
+		StringAssert.Contains(vehicleHelp, "live vehicle instances");
+		StringAssert.Contains(vehicleHelp, "vehicle fleet <scope> audit [mode]");
+		StringAssert.Contains(vehicleHelp, "Related Commands");
+		StringAssert.Contains(prototypeHelp, "Vehicle Scales");
+		StringAssert.Contains(prototypeHelp, "Prototype Lifecycle");
+		StringAssert.Contains(prototypeHelp, "vehicleproto set");
+		StringAssert.Contains(prototypeHelp, "Existing vehicles retain the prototype revision");
+	}
+
+	[TestMethod]
+	public void VehiclePrototypeBuildingHelp_GroupsAndExplainsTheSetCommands()
+	{
+		var help = (string)typeof(VehiclePrototype)
+			.GetField("BuildingHelp", BindingFlags.Static | BindingFlags.NonPublic)!
+			.GetRawConstantValue()!;
+
+		StringAssert.Contains(help, "Compartments, Occupants And Control");
+		StringAssert.Contains(help, "Cell-Exit Propulsion");
+		StringAssert.Contains(help, "Access, Cargo And Modules");
+		StringAssert.Contains(help, "Towing And Damage");
+		StringAssert.Contains(help, "thing@vehicle");
 	}
 
 	[TestMethod]

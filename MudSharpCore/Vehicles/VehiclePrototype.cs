@@ -703,68 +703,113 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		}
 	}
 
-	private const string BuildingHelp = @"You can use the following options with this vehicle prototype:
+	private const string BuildingHelp = @"#5Vehicle Prototype Settings#0
 
-	#3name <name>#0 - sets the name
-	#3desc <description>#0 - sets the description
-	#3scale <itemscale|roomcontainer|roomscale>#0 - sets the vehicle scale
-	#3exterior <item proto>#0 - links the exterior item prototype
+All options below are used as #3vehicleproto set <option> ...#0 while editing a vehicle prototype. The IDs returned by #3vehicleproto show#0 identify the child definitions created by these commands. Build the exterior, compartments, slots, station and movement profile first; then add the optional systems that the vehicle needs.
+
+#5Identity And Exterior#0
+
+	#3name <name>#0 - sets the prototype name
+	#3desc <description>#0 - sets the builder-facing prototype description
+	#3scale <itemscale|roomcontainer|roomscale>#0 - selects the occupancy/interior model; see #3vehicleproto help#0 for the scale meanings
+	#3exterior <item proto>#0 - links the visible exterior shell and automatically adds the required vehicle-exterior component to that item prototype
+
+#5Compartments, Occupants And Control#0
+
+A compartment groups seats and controls. It becomes a persistent walkable interior cell only for #3roomscale#0 vehicles; for ItemScale and RoomContainer vehicles it still keeps the vehicle's authoring structure organised.
+
 	#3compartment add <name>#0 - adds a compartment
-	#3compartment remove <id>#0 - removes a compartment
-	#3compartment interior <id> <terrain id|name> <indoors|windows|outdoors|dark|climateexposed>#0 - sets hosted-cell terrain and exposure
-	#3compartment link add <source id> <destination id> <out direction> <in direction> ""<out target>"" ""<in target>""#0 - links two hosted compartments
-	#3compartment link remove <id>#0 - removes a hosted compartment link
+	#3compartment remove <id>#0 - removes a compartment and its dependent definitions
+	#3compartment interior <id> <terrain id|name> <indoors|windows|outdoors|dark|climateexposed>#0 - sets the hosted interior cell's terrain and exposure; required for RoomScale interiors
+	#3compartment link add <source id> <destination id> <out direction> <in direction> ""<out target>"" ""<in target>""#0 - adds a two-way walkable link between RoomScale compartments
+	#3compartment link remove <id>#0 - removes an authored compartment link
+
+Slots determine where occupants ride. A driver slot with a control station can take vehicle control; passenger and crew slots provide capacity without automatically granting authority.
+
 	#3slot add <compartment id> <driver|passenger|crew> <capacity> <name>#0 - adds an occupant slot
-	#3slot propulsion <id>#0 - toggles whether occupants in a slot contribute to rowing
-	#3slot cover <id> <same|above|below|all> <cover id|name|none>#0 - sets directional ranged cover
-	#3slot stability <id> <difficulty>#0 - sets the base boat stability difficulty
+	#3slot propulsion <id>#0 - toggles whether able occupants in this slot contribute when the selected mode is rowed
+	#3slot cover <id> <same|above|below|all> <cover id|name|none>#0 - sets directional ranged cover for occupants in the slot
+	#3slot stability <id> <difficulty>#0 - sets the base stability difficulty for occupants of a surface-water vehicle
 	#3slot remove <id>#0 - removes an occupant slot
-	#3station add <slot id> <name>#0 - adds a control station
-	#3station primary <id>#0 - toggles a primary station
+	#3station add <slot id> <name>#0 - adds a control station to a driver slot
+	#3station primary <id>#0 - toggles whether a control station is the primary station
 	#3station remove <id>#0 - removes a control station
-	#3movement cell#0 - ensures a cell-exit movement profile
-	#3movement route#0 - ensures a longitudinal RouteCell movement profile
-	#3movement route speed <distance>/<time>#0 - sets longitudinal route speed
-	#3movement route propulsion <powered|externallypulled|enginepowered>#0 - sets route propulsion
-	#3movement route fuel <liquid id|none> <volume>/<distance>#0 - sets route fuel use
-	#3movement route power <watts>#0 - sets continuous route power draw
-	#3movement route automatic#0 - toggles automatic-operation capability
-	#3movement fuel <id> <liquid id|none> <volume>#0 - configures movement fuel use
-	#3movement power <id> <watts>#0 - configures movement power spike use
-	#3movement enginepower <id> <watts>#0 - configures minimum mechanical engine power
-	#3movement role <id> <role|none>#0 - configures required installed module role
-	#3movement environment <id> <unrestricted|surfacewater>#0 - configures the movement environment
-	#3movement waterexposure <id> <protected|exposed>#0 - configures occupant water exposure
-	#3movement propulsion add <movement id> <selfpowered|rowed|sail|outboard|engine|externallypulled|riderpowered|none>#0 - adds a propulsion mode
-	#3movement propulsion remove <propulsion id>#0 - removes a propulsion mode
-	#3movement propulsion default <propulsion id>#0 - selects the default mode
-	#3movement propulsion time <propulsion id> <seconds>#0 - sets base traversal time
-	#3movement propulsion trait <propulsion id> <trait id|name>#0 - sets the propulsion trait
-	#3movement propulsion difficulty <propulsion id> <difficulty>#0 - sets the propulsion check difficulty
-	#3movement propulsion speed <propulsion id> <expression>#0 - sets the speed multiplier expression
-	#3movement propulsion stamina <propulsion id> <expression>#0 - sets the stamina-cost expression
-	#3movement propulsion multiplier <propulsion id> <multiplier>#0 - sets the rider-powered default stamina multiplier
-	#3movement propulsion terrain <propulsion id> <terrain id|name> <multiplier|none>#0 - sets a rider stamina terrain override
-	#3movement propulsion terraintag <propulsion id> <tag id|name> <multiplier|none>#0 - sets a rider stamina terrain-tag override
-	#3movement access <id>#0 - toggles requiring access points closed
-	#3movement tow <id>#0 - toggles requiring valid tow links
+
+#5Movement Profiles#0
+
+A profile defines how the vehicle moves. A #3cell#0 profile drives through ordinary cell exits; a #3route#0 profile moves longitudinally along RouteCells. The same prototype may have one of each. New cell-exit vehicles need a cell profile and at least one compatible propulsion mode before they can be submitted.
+
+	#3movement cell#0 - adds the ordinary cell-exit movement profile
+	#3movement route#0 - adds the longitudinal RouteCell movement profile
 	#3movement remove <id>#0 - removes a movement profile
-	#3access add <compartment id|none> <door|hatch|ramp|canopy|servicepanel> <item proto> <name>#0 - adds an access point
-	#3access open <id>#0 - toggles whether the access point starts open
-	#3access closedmove <id>#0 - toggles whether it must be closed to move
+	#3movement fuel <id> <liquid id|none> <volume>#0 - sets or clears cell-exit fuel consumed by a movement
+	#3movement power <id> <watts>#0 - sets the cell-exit electrical power spike needed by a movement
+	#3movement enginepower <id> <watts>#0 - sets the minimum aggregate installed mechanical engine power for an engine-driven profile
+	#3movement role <id> <role|none>#0 - sets or clears the installed module role required to move
+	#3movement access <id>#0 - toggles whether applicable access points must be closed before movement
+	#3movement tow <id>#0 - toggles whether a valid tow link is required before movement
+
+Cell-exit environments govern where a profile can travel. #3surfacewater#0 requires surface water at ground level at both ends. #3protected#0 keeps occupants out of normal immersion; #3exposed#0 suits open craft such as boards.
+
+	#3movement environment <id> <unrestricted|surfacewater>#0 - sets the cell-exit movement environment
+	#3movement waterexposure <id> <protected|exposed>#0 - sets the surface-water occupant exposure policy
+
+RouteCell profiles are for trains, large platforms and other travel along metre-based route cells:
+
+	#3movement route speed <distance>/<time>#0 - sets longitudinal speed, for example #310m/2s#0
+	#3movement route propulsion <powered|externallypulled|enginepowered>#0 - selects route propulsion and its readiness model
+	#3movement route fuel <liquid id|none> <volume>/<distance>#0 - sets or clears route fuel use
+	#3movement route power <watts>#0 - sets continuous route electrical power draw
+	#3movement route automatic#0 - toggles automatic-operation capability; only powered routes can be automatic
+
+#5Cell-Exit Propulsion#0
+
+Propulsion rows are selectable runtime modes. The controller uses #3vehiclepropulsion#0 while stationary to inspect or select an authored mode; movement never silently switches to another one. Surface-water profiles support #3selfpowered#0, #3rowed#0, #3sail#0, #3outboard#0 or exclusive #3none#0. Unrestricted terrestrial profiles support #3engine#0, #3externallypulled#0, #3riderpowered#0 or exclusive #3none#0.
+
+	#3movement propulsion add <movement id> <selfpowered|rowed|sail|outboard|engine|externallypulled|riderpowered|none>#0 - adds a compatible propulsion mode
+	#3movement propulsion remove <propulsion id>#0 - removes a propulsion mode
+	#3movement propulsion default <propulsion id>#0 - selects the mode initially active on new vehicles
+	#3movement propulsion time <propulsion id> <seconds>#0 - sets base traversal time
+	#3movement propulsion trait <propulsion id> <trait id|name>#0 - sets the trait used by human-powered modes
+	#3movement propulsion difficulty <propulsion id> <difficulty>#0 - sets the check difficulty for that trait
+	#3movement propulsion speed <propulsion id> <expression>#0 - sets the mode's speed multiplier expression
+	#3movement propulsion stamina <propulsion id> <expression>#0 - sets the mode's stamina-cost expression
+	#3movement propulsion multiplier <propulsion id> <multiplier>#0 - sets the rider-powered default stamina multiplier
+	#3movement propulsion terrain <propulsion id> <terrain id|name> <multiplier|none>#0 - adds, changes or clears a rider stamina terrain override
+	#3movement propulsion terraintag <propulsion id> <tag id|name> <multiplier|none>#0 - adds, changes or clears a rider stamina terrain-tag override
+
+#5Access, Cargo And Modules#0
+
+Access and cargo points are canonical vehicle systems projected as ordinary targetable items. Their projection item prototypes are automatically given the required component. At runtime, use the preferred targeting form #3thing@vehicle#0, such as #3open hatch@car#0 or #3put crate trunk@car#0.
+
+	#3access add <compartment id|none> <door|hatch|ramp|canopy|servicepanel> <item proto> <name>#0 - adds an access point and its projection
+	#3access open <id>#0 - toggles whether an access point starts open
+	#3access closedmove <id>#0 - toggles whether an access point must be closed for movement
 	#3access remove <id>#0 - removes an access point
-	#3cargo add <compartment id|none> <access id|none> <item proto> <name>#0 - adds a cargo space
+	#3cargo add <compartment id|none> <access id|none> <item proto> <name>#0 - adds a cargo-space projection; the item prototype must already be a normal container
 	#3cargo remove <id>#0 - removes a cargo space
-	#3installpoint add <access id|none> <mount type> <required role|none> <required true|false> <name>#0 - adds an install point
-	#3installpoint remove <id>#0 - removes an install point
-	#3tow add <access id|none> <tow type> <tow|towed|both> <max weight> [pull <multiplier>] <name>#0 - adds a tow point
-	#3tow <id> stress <warning|failstart|maxchance|damage> <value>#0 - sets tow-stress tuning
-	#3tow <id> stress reset#0 - clears tow-stress tuning overrides
+	#3installpoint add <access id|none> <mount type> <required role|none> <required true|false> <name>#0 - adds a module mount, optionally required for movement
+	#3installpoint remove <id>#0 - removes a module mount
+
+Use #3install <module> <vehicle> [point]#0 and #3uninstall <module@vehicle>#0 to operate installation points on live vehicles. Engine and outboard modules must be installed in compatible mounts before their modes can provide propulsion.
+
+#5Towing And Damage#0
+
+Tow points define where a vehicle can tow or be towed. Non-direct points need compatible hitch gear at runtime. Tow-stress settings override the global policy for that point; percentage values such as #390%#0 and decimal ratios such as #30.90#0 are accepted.
+
+	#3tow add <access id|none> <tow type> <tow|towed|both> <max weight> [pull <multiplier>] <name>#0 - adds a tow point; #3pull#0 scales character or mount pull capacity at this point
+	#3tow <id> stress <warning|failstart|maxchance|damage> <value>#0 - sets a tow-stress override
+	#3tow <id> stress reset#0 - clears all tow-stress overrides for that point
 	#3tow remove <id>#0 - removes a tow point
-	#3damage add <max damage> <hit weight> <disable threshold> <destroy threshold> <disables movement true|false> <name>#0 - adds a damage zone
-	#3damage <zone id> effect add <wholemovement|movement|access|cargo|install|tow> <id|all> [disabled|destroyed]#0 - adds a damage effect
-	#3damage <zone id> effect remove <effect id>#0 - removes a damage effect
-	#3damage remove <id>#0 - removes a damage zone";
+
+Damage zones receive exterior damage and can disable systems at authored thresholds. Effects may target the entire movement system or a specific movement, access, cargo, installation or tow child definition.
+
+	#3damage add <max damage> <hit weight> <disable threshold> <destroy threshold> <disables movement true|false> <name>#0 - adds a weighted damage zone
+	#3damage <zone id> effect add <wholemovement|movement|access|cargo|install|tow> <id|all> [disabled|destroyed]#0 - adds a threshold effect
+	#3damage <zone id> effect remove <effect id>#0 - removes a threshold effect
+	#3damage remove <id>#0 - removes a damage zone
+
+Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0 for live damage/link repairs, and #3vehicle audit#0 to diagnose a vehicle family.";
 
 	private bool BuildingCommandName(ICharacter actor, StringStack command)
 	{

@@ -174,6 +174,11 @@ The items and crafts are fairly universal and of approximately medieval to renei
         _questionAnswers = questionAnswers;
         BeginProgressReporting(questionAnswers);
         RunSeedStage("Loading item prerequisites", InitialiseDependencies);
+		if (_questionAnswers.TryGetValue("eras", out var requestedEras) && HasAnyEra(requestedEras, "renaissance"))
+		{
+			RunSeedStage("Validating Renaissance military prerequisites", ValidateRenaissanceMilitaryPrerequisites);
+		}
+
         SeedReworkItems();
 		if (_questionAnswers.TryGetValue("eras", out var selectedEras) &&
 			HasAnyEra(selectedEras, "antiquity", "medieval", "renaissance", "earlymodern"))
@@ -211,6 +216,11 @@ The items and crafts are fairly universal and of approximately medieval to renei
 		}
 
 		if (HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern"))
+		{
+			_progressStageCount++;
+		}
+
+		if (HasAnyEra(eras, "renaissance"))
 		{
 			_progressStageCount++;
 		}

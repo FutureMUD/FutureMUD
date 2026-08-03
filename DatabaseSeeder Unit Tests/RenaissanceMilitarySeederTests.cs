@@ -25,7 +25,7 @@ public class RenaissanceMilitarySeederTests
 			["Ranged weapons"] = 11,
 			["Firearms & ammunition"] = 15,
 			["Artillery"] = 17,
-			["Armour & barding"] = 18,
+			["Armour & barding"] = 98,
 			["Shields"] = 8,
 			["Military support & field gear"] = 13
 		};
@@ -35,7 +35,7 @@ public class RenaissanceMilitarySeederTests
 	{
 		var specs = ItemSeeder.RenaissanceMilitaryItemSpecsForTesting.ToArray();
 
-		Assert.AreEqual(96, specs.Length);
+		Assert.AreEqual(176, specs.Length);
 		Assert.AreEqual(specs.Length,
 			specs.Select(x => x.StableReference).Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		CollectionAssert.AreEquivalent(
@@ -67,7 +67,9 @@ public class RenaissanceMilitarySeederTests
 		var specs = ItemSeeder.RenaissanceMilitaryItemSpecsForTesting.ToArray();
 
 		Assert.AreEqual(specs.Length,
-			Regex.Matches(design, @"^\| renaissance_military_[a-z0-9_]+ \|", RegexOptions.Multiline).Count);
+			Regex.Matches(design,
+				@"^\| renaissance_military_[a-z0-9_]+ \| (?:Melee weapons|Ranged weapons|Firearms & ammunition|Artillery|Armour & barding|Shields|Military support & field gear) \|",
+				RegexOptions.Multiline).Count);
 		foreach (var spec in specs)
 		{
 			StringAssert.Contains(design, $"| {spec.StableReference} |");
@@ -80,6 +82,7 @@ public class RenaissanceMilitarySeederTests
 		}
 
 		StringAssert.Contains(design, "## Culture and admission matrix");
+		StringAssert.Contains(design, "## Renaissance armour outfit manifests");
 		StringAssert.Contains(design, "Handgonnes are not seeded");
 		StringAssert.Contains(design, "FutureMUD/FutureMUD#575 supplied the required item-component groundwork");
 	}
@@ -137,10 +140,43 @@ public class RenaissanceMilitarySeederTests
 		CollectionAssert.Contains(specs["renaissance_military_corselet_breast_and_back"].Components.ToArray(), "Armour_PlateMedium");
 		CollectionAssert.Contains(specs["renaissance_military_buckler_fist_grip"].Components.ToArray(), "Shield_Buckler");
 		CollectionAssert.Contains(specs["renaissance_military_barding_chanfron"].Components.ToArray(), "Wear_Chanfron");
+		CollectionAssert.Contains(specs["renaissance_military_char_aina_mughal"].Components.ToArray(), "Wear_Cuirass");
+		CollectionAssert.Contains(specs["renaissance_military_kote_japanese"].Components.ToArray(), "Wear_ArmHarness");
+		CollectionAssert.Contains(specs["renaissance_military_caparison_japanese"].Components.ToArray(), "Wear_Caparison");
 		CollectionAssert.Contains(specs["renaissance_military_cartridge_bandolier"].Components.ToArray(),
 			"Container_CartridgeBandolier");
 		Assert.IsTrue(specs["renaissance_military_matchlock_arquebus"].Skinnable);
 		Assert.IsFalse(specs["renaissance_military_paper_cartridge_055"].Skinnable);
+	}
+
+	[TestMethod]
+	public void ArmourOutfitManifests_HaveCompleteGlobalCoverageAndValidMilitaryReferences()
+	{
+		var outfits = ItemSeeder.RenaissanceMilitaryArmourOutfitManifestSpecsForTesting;
+		var references = ItemSeeder.RenaissanceMilitaryItemSpecsForTesting
+			.Select(x => x.StableReference)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+		Assert.AreEqual(62, outfits.Count);
+		Assert.AreEqual(56, outfits.Count(x => x.StableKey.StartsWith(
+			"renaissance_military_armour_outfit_", StringComparison.Ordinal)));
+		Assert.AreEqual(6, outfits.Count(x => x.StableKey.StartsWith(
+			"renaissance_military_mount_outfit_", StringComparison.Ordinal)));
+		Assert.AreEqual(outfits.Count, outfits.Select(x => x.StableKey).Distinct(StringComparer.OrdinalIgnoreCase).Count());
+		Assert.AreEqual(outfits.Count, outfits.Select(x => x.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
+		Assert.IsTrue(outfits.All(x => x.ItemStableReferences.Count > 0));
+		Assert.IsTrue(outfits.All(x => x.ItemStableReferences.All(references.Contains)));
+		Assert.IsTrue(outfits.All(x => x.ItemStableReferences.Count ==
+			x.ItemStableReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count()));
+		var items = ItemSeeder.RenaissanceMilitaryItemSpecsForTesting
+			.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
+		Assert.IsTrue(outfits.All(outfit =>
+		{
+			var wearProfiles = outfit.ItemStableReferences
+				.SelectMany(reference => items[reference].Components.Where(x => x.StartsWith("Wear_", StringComparison.Ordinal)))
+				.ToArray();
+			return wearProfiles.Length == wearProfiles.Distinct(StringComparer.OrdinalIgnoreCase).Count();
+		}), "Renaissance armour outfits must not repeat wearable profiles.");
 	}
 
 	[TestMethod]
@@ -172,8 +208,11 @@ public class RenaissanceMilitarySeederTests
 			.Where(x => x.UniqueName!.StartsWith("renaissance_military_"))
 			.ToDictionary(x => x.UniqueName, StringComparer.OrdinalIgnoreCase);
 
-		Assert.AreEqual(96, firstCount);
+		Assert.AreEqual(176, firstCount);
 		Assert.AreEqual(firstCount, stock.Count);
+		Assert.AreEqual(62, context.OutfitTemplates.Count());
+		Assert.AreEqual(62, context.OutfitTemplates.Count(x => x.Description.Contains(
+			"[[ItemSeederOutfitManifest:renaissance_military_", StringComparison.Ordinal)));
 		Assert.IsTrue(stock["renaissance_military_matchlock_arquebus"].PermitPlayerSkins);
 		Assert.IsFalse(stock["renaissance_military_paper_cartridge_055"].PermitPlayerSkins);
 		StringAssert.Contains(stock["renaissance_military_falconet_bronze"].BuilderNotes, "component profile");

@@ -33,6 +33,26 @@ public interface IAmmoPrototype : IExclusiveGameItemComponentPrototype<IAmmo>
 {
 }
 
+public interface IArtilleryPiecePrototype : IExclusiveGameItemComponentPrototype<IArtilleryPiece>, IRangedWeaponPlatformPrototype
+{
+}
+
+public interface IArtilleryAmmunitionPrototype : IExclusiveGameItemComponentPrototype<IArtilleryAmmunition>, IAmmoPrototype
+{
+}
+
+public interface IArtilleryChamberPrototype : IExclusiveGameItemComponentPrototype<IArtilleryChamber>
+{
+}
+
+public interface IArtilleryMountPrototype : IExclusiveGameItemComponentPrototype<IArtilleryMount>
+{
+}
+
+public interface IWeaponCarrierAttachmentPrototype : IExclusiveGameItemComponentPrototype<IWeaponCarrierAttachment>
+{
+}
+
 public interface IAmmoClipPrototype : IExclusiveGameItemComponentPrototype<IAmmoClip>, IContainerPrototype
 {
 }
@@ -480,7 +500,15 @@ public interface IQualityByTagPrototype : IExclusiveGameItemComponentPrototype<I
 {
 }
 
-public interface IRangedWeaponPrototype : IExclusiveGameItemComponentPrototype<IRangedWeapon>, IWieldablePrototype
+public interface IRangedWeaponPlatformPrototype : IExclusiveGameItemComponentPrototype<IRangedWeaponPlatform>
+{
+}
+
+public interface IEmplaceableRangedWeaponPrototype : IExclusiveGameItemComponentPrototype<IEmplaceableRangedWeapon>, IRangedWeaponPrototype
+{
+}
+
+public interface IRangedWeaponPrototype : IExclusiveGameItemComponentPrototype<IRangedWeapon>, IWieldablePrototype, IRangedWeaponPlatformPrototype
 {
 }
 
@@ -537,6 +565,10 @@ public interface ISharpenPrototype : IExclusiveGameItemComponentPrototype<ISharp
 }
 
 public interface ISheathPrototype : IExclusiveGameItemComponentPrototype<ISheath>
+{
+}
+
+public interface IMultiSlotSheathPrototype : IExclusiveGameItemComponentPrototype<IMultiSlotSheath>, ISheathPrototype
 {
 }
 

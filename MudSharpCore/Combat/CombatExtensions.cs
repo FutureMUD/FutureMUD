@@ -1093,6 +1093,7 @@ public static class CombatExtensions
             case BuiltInCombatMoveType.ForcedMovementClinch:
 			case BuiltInCombatMoveType.PullToMelee:
 			case BuiltInCombatMoveType.PullToMeleeUnarmed:
+			case BuiltInCombatMoveType.CouchedLanceAttack:
 			case BuiltInCombatMoveType.AquaticVehicleAttack:
                 return true;
             default:
@@ -1124,6 +1125,8 @@ public static class CombatExtensions
 				return "Pull to Melee";
 			case BuiltInCombatMoveType.PullToMeleeUnarmed:
 				return "Pull to Melee (Natural)";
+			case BuiltInCombatMoveType.CouchedLanceAttack:
+				return "Couched Lance Attack";
 			case BuiltInCombatMoveType.AquaticVehicleAttack:
 				return "Aquatic Vehicle Attack";
             case BuiltInCombatMoveType.ChargeToMelee:

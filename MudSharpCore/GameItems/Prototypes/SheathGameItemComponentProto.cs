@@ -7,11 +7,12 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class SheathGameItemComponentProto : GameItemComponentProto, ISheathPrototype, IContainerPrototype
+public class SheathGameItemComponentProto : GameItemComponentProto, IMultiSlotSheathPrototype, IContainerPrototype
 {
     public SizeCategory MaximumSize { get; protected set; }
     public Difficulty StealthDrawDifficulty { get; protected set; }
     public bool DesignedForGuns { get; protected set; }
+    public int Capacity { get; protected set; } = 1;
 
     public override string TypeDescription => "Sheath";
 
@@ -31,6 +32,7 @@ public class SheathGameItemComponentProto : GameItemComponentProto, ISheathProto
 
         attr = root.Attribute("DesignedForGuns");
         DesignedForGuns = attr != null && bool.Parse(attr.Value);
+        Capacity = Math.Max(1, (int?)root.Attribute("Capacity") ?? 1);
     }
 
     public static void RegisterComponentInitialiser(GameItemComponentManager manager)
@@ -67,6 +69,7 @@ public class SheathGameItemComponentProto : GameItemComponentProto, ISheathProto
             new XAttribute("StealthDrawDifficulty", (int)StealthDrawDifficulty),
             new XAttribute("MaximumSize", (int)MaximumSize),
             new XAttribute("DesignedForGuns", DesignedForGuns)
+            ,new XAttribute("Capacity", Capacity)
         ).ToString();
     }
 
@@ -142,8 +145,22 @@ public class SheathGameItemComponentProto : GameItemComponentProto, ISheathProto
         return true;
     }
 
+    private bool BuildingCommandCapacity(ICharacter character, StringStack command)
+    {
+        if (!int.TryParse(command.PopSpeech(), out var capacity) || capacity < 1 || capacity > 8)
+        {
+            character.OutputHandler.Send("You must specify a sheath capacity between 1 and 8.");
+            return false;
+        }
+
+        Capacity = capacity;
+        Changed = true;
+        character.OutputHandler.Send($"This sheath can now carry {Capacity.ToString("N0", character).ColourValue()} weapon{(Capacity == 1 ? "" : "s")}.");
+        return true;
+    }
+
     private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tsize <size> - the maximum size of the item this sheath can hold\n\tdifficulty <difficulty> - the difficulty to stealthily draw from this sheath\n\tgun - toggles whether the sheath is for guns or melee weapons";
+        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tsize <size> - the maximum size of the item this sheath can hold\n\tcapacity <number> - sets the number of independently selectable weapon slots\n\tdifficulty <difficulty> - the difficulty to stealthily draw from this sheath\n\tgun - toggles whether the sheath is for guns or melee weapons";
 
     public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -160,6 +177,9 @@ public class SheathGameItemComponentProto : GameItemComponentProto, ISheathProto
             case "stealthdifficulty":
             case "stealth difficulty":
                 return BuildingCommandStealthDrawDifficulty(character, command);
+            case "capacity":
+            case "slots":
+                return BuildingCommandCapacity(character, command);
             case "guns":
             case "firearms":
             case "gun":

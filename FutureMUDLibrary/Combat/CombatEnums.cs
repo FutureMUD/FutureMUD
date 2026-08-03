@@ -119,7 +119,12 @@ namespace MudSharp.Combat
 		AquaticVehicleAttack,
 		PullToMelee,
 		PullToMeleeUnarmed,
-    }
+		/// <summary>
+		/// A lance attack delivered as part of a mounted charge. It is intentionally
+		/// not a general melee option; ChargeToMeleeMove invokes it when appropriate.
+		/// </summary>
+		CouchedLanceAttack,
+	}
 
     [Flags]
     public enum ForcedMovementTypes
@@ -198,7 +203,8 @@ namespace MudSharp.Combat
         Crossbow,
         Sling,
         Musket,
-        Blowgun
+        Blowgun,
+        Artillery
     }
 
     public enum RangedScatterType

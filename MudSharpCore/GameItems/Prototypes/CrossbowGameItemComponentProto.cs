@@ -9,7 +9,7 @@ using MudSharp.GameItems.Inventory.Plans;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, IMeleeWeaponPrototype, IConditionDegradingComponentPrototype
+public class CrossbowGameItemComponentProto : GameItemComponentProto, IEmplaceableRangedWeaponPrototype, IMeleeWeaponPrototype, IConditionDegradingComponentPrototype
 {
     public override string TypeDescription => "Crossbow";
 
@@ -60,6 +60,9 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
     public IInventoryPlanTemplate? ReadyTemplate { get; private set; }
     public ITag? RequiredSpanningToolTag { get; private set; }
     public string ReadyEmote { get; private set; } = "@ span|spans $1 with $2 until $3 is ready to fire.";
+	public int MagazineCapacity { get; private set; } = 1;
+	public bool RequiresEmplacement { get; private set; }
+	public bool RepeatsWithoutReady { get; private set; }
 
     #region Constructors
 
@@ -100,6 +103,9 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
             Gameworld.Tags.Get(long.Parse(root.Element("RequiredSpanningToolTag")?.Value ?? "0"));
         ReadyEmote = root.Element("ReadyEmote")?.Value ??
                      "@ span|spans $1 with $2 until $3 is ready to fire.";
+		MagazineCapacity = Math.Clamp((int?)root.Element("MagazineCapacity") ?? 1, 1, 32);
+		RequiresEmplacement = (bool?)root.Element("RequiresEmplacement") ?? false;
+		RepeatsWithoutReady = (bool?)root.Element("RepeatsWithoutReady") ?? MagazineCapacity > 1;
         RebuildReadyTemplate();
         ConditionMaintenance.LoadFromXml(root);
     }
@@ -118,6 +124,9 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
                 new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
                 new XElement("RequiredSpanningToolTag", RequiredSpanningToolTag?.Id ?? 0),
                 new XElement("ReadyEmote", new XCData(ReadyEmote)),
+				new XElement("MagazineCapacity", MagazineCapacity),
+				new XElement("RequiresEmplacement", RequiresEmplacement),
+				new XElement("RepeatsWithoutReady", RepeatsWithoutReady),
                 ConditionMaintenance.SaveToXml()
             ).ToString();
     }
@@ -175,6 +184,9 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
 	#3whycantwield none#0 - clears the whycantwield prog
 	#3spanningtool <tag>|none#0 - sets an optional required spanning-tool tag
 	#3readyemote <emote>#0 - sets the tool-spanning emote; $0 is the user, $1 the crossbow, $2 the tool and $3 the bolt
+	#3magazine <capacity>#0 - sets magazine capacity for repeating crossbows
+	#3repeat#0 - toggles whether a repeating crossbow remains ready between shots
+	#3emplacement#0 - toggles whether the crossbow must be emplaced before use
 	#3condition <option>#0 - configures optional condition degradation";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -208,6 +220,26 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
             case "readyemote":
             case "ready emote":
                 return BuildingCommandReadyEmote(actor, command);
+			case "magazine":
+			case "capacity":
+				if (!int.TryParse(command.PopSpeech(), out var capacity) || capacity < 1 || capacity > 32)
+				{
+					actor.Send("Magazine capacity must be between 1 and 32.");
+					return false;
+				}
+				MagazineCapacity = capacity;
+				Changed = true;
+				return true;
+			case "repeat":
+			case "repeating":
+				RepeatsWithoutReady = !RepeatsWithoutReady;
+				Changed = true;
+				return true;
+			case "emplacement":
+			case "emplaced":
+				RequiresEmplacement = !RequiresEmplacement;
+				Changed = true;
+				return true;
             default:
                 return base.BuildingCommand(actor, command);
         }

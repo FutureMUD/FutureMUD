@@ -12,7 +12,7 @@ namespace MudSharp.Combat
         IPerceiver Target { get; set; }
         double AimPercentage { get; set; }
         IEnumerable<ICellExit> Path { get; set; }
-        IRangedWeapon Weapon { get; set; }
+		IRangedWeaponPlatform Weapon { get; set; }
         event EventHandler AimInvalidated;
         void ReleaseEvents();
     }

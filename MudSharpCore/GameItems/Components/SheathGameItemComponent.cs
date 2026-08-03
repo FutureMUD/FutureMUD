@@ -7,7 +7,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.GameItems.Components;
 
-public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
+public class SheathGameItemComponent : GameItemComponent, IMultiSlotSheath, IContainer
 {
     protected SheathGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
@@ -15,25 +15,35 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
     public override void Delete()
     {
         base.Delete();
-        Content?.Delete();
+        foreach (var content in _contents.ToList())
+        {
+            content.Parent.Delete();
+        }
     }
 
     public override void Quit()
     {
         base.Quit();
-        Content?.Parent.Quit();
+        foreach (var content in _contents)
+        {
+            content.Parent.Quit();
+        }
     }
 
     public override void Login()
     {
-        Content?.Parent.Login();
+        foreach (var content in _contents)
+        {
+            content.Parent.Login();
+        }
     }
 
     public override bool Take(IGameItem item)
     {
-        if (_content?.Parent == item)
+        var content = _contents.FirstOrDefault(x => x.Parent == item);
+        if (content is not null)
         {
-            _content = null;
+            _contents.Remove(content);
             Changed = true;
             return true;
         }
@@ -48,7 +58,7 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
 
     public override bool PreventsMerging(IGameItemComponent component)
     {
-        return Content != null;
+        return _contents.Count > 0;
     }
 
     public override bool DescriptionDecorator(DescriptionType type)
@@ -63,29 +73,30 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
         {
             case DescriptionType.Short:
                 return
-                    $"{description}{(Content != null ? $" bearing {Content.Parent.Name.ToLowerInvariant().A_An(colour: Telnet.Green)}" : "")}";
+                    $"{description}{(_contents.Count > 0 ? $" bearing {_contents.Select(x => x.Parent.Name.ToLowerInvariant().A_An(colour: Telnet.Green)).ListToString()}" : "")}";
             case DescriptionType.Contents:
                 return
-                    $"{description}{(Content != null ? $"\n\nIt contains {Content.Parent.HowSeen(voyeur)}." : "\n\nIt is currently empty.")}";
+                    $"{description}{(_contents.Count > 0 ? $"\n\nIt contains {_contents.Select(x => x.Parent.HowSeen(voyeur)).ListToString()}." : "\n\nIt is currently empty.")}";
         }
 
         return description;
     }
 
     public override int DecorationPriority => -1;
-    public override double ComponentWeight => Content?.Parent.Weight ?? 0.0;
+    public override double ComponentWeight => _contents.Sum(x => x.Parent.Weight);
 
     public override double ComponentBuoyancy(double fluidDensity)
     {
-        return Content?.Parent.Buoyancy(fluidDensity) ?? 0.0;
+        return _contents.Sum(x => x.Parent.Buoyancy(fluidDensity));
     }
 
     public override bool SwapInPlace(IGameItem existingItem, IGameItem newItem)
     {
-        if (Content != null && Content == existingItem.GetItemType<IWieldable>())
+        var content = _contents.FirstOrDefault(x => x == existingItem.GetItemType<IWieldable>());
+        if (content is not null)
         {
-            Content = null;
-            Content = newItem.GetItemType<IWieldable>();
+            _contents.Remove(content);
+            TryAdd(newItem.GetItemType<IWieldable>());
             return true;
         }
 
@@ -94,29 +105,48 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
 
     public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
     {
-        if (Content == null)
+        if (_contents.Count == 0)
         {
             return false;
         }
 
         ISheath newItemSheath = newItem?.GetItemType<ISheath>();
-        if (newItemSheath != null && newItemSheath.MaximumSize >= Content.Parent.Size)
+        if (newItemSheath != null && _contents.All(x => newItemSheath.CanSheath(x.Parent)))
         {
-            newItemSheath.Content = Content;
-            Content.Parent.ContainedIn = newItemSheath.Parent;
-            Content = null;
+            foreach (var content in _contents.ToList())
+            {
+                if (newItemSheath is IMultiSlotSheath multiSlotSheath)
+                {
+                    multiSlotSheath.TryAdd(content);
+                }
+                else
+                {
+                    newItemSheath.Content = content;
+                }
+            }
+
+            _contents.Clear();
         }
         else
         {
             if (location != null)
             {
-                InsertAtParentSpatialLocation(Content.Parent, location);
-                Content.Parent.ContainedIn = null;
-                Content = null;
+                foreach (var content in _contents.ToList())
+                {
+                    InsertAtParentSpatialLocation(content.Parent, location);
+                    content.Parent.ContainedIn = null;
+                }
+
+                _contents.Clear();
             }
             else
             {
-                Content.Parent.Delete();
+                foreach (var content in _contents)
+                {
+                    content.Parent.Delete();
+                }
+
+                _contents.Clear();
             }
         }
 
@@ -130,10 +160,8 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
 
     protected override string SaveToXml()
     {
-        return new XElement("Definition", new object[]
-            {
-                new XElement("Content", Content?.Parent.Id.ToString() ?? "")
-            }
+        return new XElement("Definition",
+            new XElement("Contents", _contents.Select(x => new XElement("Content", x.Parent.Id)))
         ).ToString();
     }
 
@@ -141,33 +169,63 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
 
     public SizeCategory MaximumSize => _prototype.MaximumSize;
 
-    private IWieldable _content;
+    private readonly List<IWieldable> _contents = new();
+
+    public int Capacity => _prototype.Capacity;
+
+    public IEnumerable<IWieldable> WieldableContents => _contents;
 
     public IWieldable Content
     {
-        get => _content;
+        get => _contents.FirstOrDefault();
         set
         {
-            if (_content != value && _content != null)
+            foreach (var existing in _contents.Where(x => x != value).ToList())
             {
-                _content.Parent.ContainedIn = null;
+                existing.Parent.ContainedIn = null;
             }
 
-            _content = value;
-            if (_content != null)
+            _contents.Clear();
+            if (value != null)
             {
-                if (_noSave)
-                {
-                    _content.Parent.LoadTimeSetContainedIn(Parent);
-                }
-                else
-                {
-                    _content.Parent.ContainedIn = Parent;
-                }
+                TryAdd(value);
             }
 
             Changed = true;
         }
+    }
+
+    public bool TryAdd(IWieldable content)
+    {
+        if (content is null || _contents.Contains(content) || _contents.Count >= Capacity)
+        {
+            return false;
+        }
+
+        _contents.Add(content);
+        if (_noSave)
+        {
+            content.Parent.LoadTimeSetContainedIn(Parent);
+        }
+        else
+        {
+            content.Parent.ContainedIn = Parent;
+        }
+
+        Changed = true;
+        return true;
+    }
+
+    public bool TryRemove(IWieldable content)
+    {
+        if (!_contents.Remove(content))
+        {
+            return false;
+        }
+
+        content.Parent.ContainedIn = null;
+        Changed = true;
+        return true;
     }
 
     public Difficulty StealthDrawDifficulty => _prototype.StealthDrawDifficulty;
@@ -176,7 +234,7 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
 
     public bool CanSheath(IGameItem item)
     {
-        if (Content is not null)
+        if (_contents.Count >= Capacity)
         {
             return false;
         }
@@ -207,7 +265,7 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
 
     public string WhyCannotSheath(IGameItem item)
     {
-        if (Content is not null)
+        if (_contents.Count >= Capacity)
         {
             return "the sheathe already has something in it";
         }
@@ -255,15 +313,20 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
 
     private void LoadFromXml(XElement root)
     {
-        XElement content = root.Element("Content");
-        if (!string.IsNullOrEmpty(content?.Value))
+        var contents = root.Element("Contents")?.Elements("Content") ?? root.Elements("Content");
+        foreach (var content in contents)
         {
+            if (string.IsNullOrEmpty(content.Value))
+            {
+                continue;
+            }
+
             IGameItem contentItem = Gameworld.TryGetItem(long.Parse(content.Value), true);
             contentItem.Get(null);
             IWieldable wieldable = contentItem.GetItemType<IWieldable>();
             if (wieldable != null)
             {
-                Content = wieldable;
+                TryAdd(wieldable);
             }
             else
             {
@@ -280,7 +343,10 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
 
     public override void FinaliseLoad()
     {
-        _content?.Parent.FinaliseLoadTimeTasks();
+        foreach (var content in _contents)
+        {
+            content.Parent.FinaliseLoadTimeTasks();
+        }
     }
 
     #endregion
@@ -288,7 +354,7 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
     #region Implementation of IContainer
 
     /// <inheritdoc />
-    public IEnumerable<IGameItem> Contents => _content?.Parent is not null ? [_content?.Parent] : [];
+    public IEnumerable<IGameItem> Contents => _contents.Select(x => x.Parent);
 
     /// <inheritdoc />
     public string ContentsPreposition => "in";
@@ -317,13 +383,13 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
     /// <inheritdoc />
     public bool CanTake(ICharacter taker, IGameItem item, int quantity)
     {
-        return _content?.Parent == item;
+        return _contents.Any(x => x.Parent == item);
     }
 
     /// <inheritdoc />
     public IGameItem Take(ICharacter taker, IGameItem item, int quantity)
     {
-        Content = null;
+        TryRemove(item.GetItemType<IWieldable>()!);
         return item;
     }
 
@@ -344,7 +410,10 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
     {
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
-        Content = null;
+        foreach (var content in _contents.ToList())
+        {
+            TryRemove(content);
+        }
         if (emptier is not null)
         {
             if (intoContainer == null)

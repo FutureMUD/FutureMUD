@@ -37,6 +37,8 @@ That interface should:
 
 The runtime component in `MudSharpCore` should then implement that interface.
 
+Crew-served artillery is the reference for a shared capability that must not inherit an unrelated interaction model. Add `IRangedWeaponPlatform` for common load/aim/fire callers, retain `IRangedWeapon` for wieldable weapons, and implement `IArtilleryPiece` directly for a local-cell platform. The paired `ArtilleryAmmunition`, `ArtilleryChamber`, `ArtilleryMount`, and `WeaponCarrierAttachment` prototypes must each have a matching exclusivity marker in `GameItemComponentPrototypeInterfaces.cs`, a database loader, a builder loader, type help, version-tolerant XML defaults, and lifecycle handling for contained or connected items.
+
 If the feature also needs shared immutable value objects rather than only a query surface, place those models in `FutureMUDLibrary` too. The recorded-audio implementation is the reference pattern:
 - immutable playback data lives in `MudSharp.Form.Audio`
 - gameplay-facing item queries live behind interfaces such as `IAudioStorageTape` and `IAnsweringMachine`

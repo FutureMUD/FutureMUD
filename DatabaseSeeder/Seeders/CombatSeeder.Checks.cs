@@ -130,6 +130,7 @@ public partial class CombatSeeder
         EnsureSkill(gerund ? "Wrestling" : "Subdue");
         EnsureSkill(gerund ? "Warding" : "Ward");
         EnsureSkill(gerund ? "Throwing" : "Throwing");
+		EnsureSkill("Gunnery");
         EnsureSkill(gerund ? "Veterancy" : "Veterancy", "Veterancy Skill");
         if (questionAnswers["parryoption"].ToLowerInvariant().EqualToAny("yes", "y"))
         {

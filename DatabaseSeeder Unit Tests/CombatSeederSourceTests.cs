@@ -311,7 +311,7 @@ public class CombatSeederSourceTests
 	[TestMethod]
 	public void EraDependencyCombatContent_ExposesExactSupportedComponentSetAndAssociations()
 	{
-		string[] expectedNames =
+		string[] foundationalNames =
 		[
 			"Armour_Brigandine", "Armour_BuffLeather", "Armour_ChainAndPlate", "Armour_Padded",
 			"Armour_PlateLight", "Armour_PlateMedium", "Armour_ProofedPlate", "Armour_Rattan",
@@ -330,15 +330,22 @@ public class CombatSeederSourceTests
 			"MusketPaperCartridge_0.8 Bore"
 		];
 
+		var expectedNames = foundationalNames
+			.Concat(CombatSeeder.EarlyModernMilitaryCompletionComponentNames)
+			.ToArray();
+
 		CollectionAssert.AreEquivalent(expectedNames,
 			CombatSeeder.EraDependencyCombatComponentNamesForTesting.ToArray());
-		Assert.AreEqual(49, expectedNames.Length);
+		Assert.AreEqual(140, expectedNames.Length);
 
 		string source = SeederSourceTestHelper.ReadPartialFamily("CombatSeeder");
 		StringAssert.Contains(source,
 			"EnsureWeapon(\"Lance\", \"Melee_Lance\", \"Long Spear\"");
 		StringAssert.Contains(source,
 			"EnsureWeapon(\"Hooked Polearm\", \"Melee_HookedPolearm\", \"Halberd\"");
+		StringAssert.Contains(source, "EnsureEarlyModernSpecialAttack(lance");
+		StringAssert.Contains(source, "BuiltInCombatMoveType.CouchedLanceAttack");
+		StringAssert.Contains(source, "EnsureEarlyModernSpecialAttack(hookedPolearm");
 		StringAssert.Contains(source,
 			"EnsureRanged(\"Pellet Crossbow\", \"Crossbow_Pellet\", \"Crossbow\", \"Crossbow\"");
 		StringAssert.Contains(source, "SpecificAmmunitionGrade = \"Sling Bullet\"");
@@ -346,16 +353,15 @@ public class CombatSeederSourceTests
 		StringAssert.Contains(source, "installweapons choice enabled first");
 		StringAssert.Contains(source, "installranged choice enabled first");
 
-		foreach (string deferred in new[]
+		foreach (string completed in new[]
 		         {
 			         "Crossbow_Repeating", "Crossbow_Repeating_Light", "Crossbow_Wall",
-			         "Musket_Doglock_Blunderbuss75", "Container_CartridgeBandolier", "Holster_PairedSaddle",
-			         "Artillery_CoehornMortar", "WeaponLanyard_Pistol",
-			         "ArtilleryShot_12lb", "SignalInstrument_FieldDrum"
+			         "Musket_Doglock_Blunderbuss75", "Holster_PairedSaddle", "Artillery_CoehornMortar",
+			         "WeaponLanyard_Pistol", "ArtilleryShot_12lb"
 		         })
 		{
-			Assert.IsFalse(expectedNames.Contains(deferred, StringComparer.OrdinalIgnoreCase),
-				$"{deferred} is not owned by the combat seeder's supported component set.");
+			Assert.IsTrue(expectedNames.Contains(completed, StringComparer.OrdinalIgnoreCase),
+				$"{completed} must be owned by the combat seeder's completed component set.");
 		}
 	}
 

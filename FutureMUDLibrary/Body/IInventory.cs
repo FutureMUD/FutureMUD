@@ -28,6 +28,7 @@ namespace MudSharp.Body
         Prosthetic,
         Implanted,
         Attached,
+		Hanging,
         Consumed,
         ConsumedLiquid
     }

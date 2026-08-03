@@ -5514,6 +5514,7 @@ resolvedOpenable:
 The syntax is as follows:
 
 	#3attach <item> <target> [slot]#0 - attaches an item to a belt or compatible firearm slot
+	#3attach <gunflint|pyrite> <musket>#0 - installs one ignition stone in a compatible lock
 	#3attach <prosthetic> [<target player>]#0 - attaches a prosthetic to a player (or yourself if not specified)",
         AutoHelp.HelpArgOrNoArg)]
     [RequiredCharacterState(CharacterState.Able)]
@@ -5534,6 +5535,23 @@ The syntax is as follows:
             AttachFirearmAttachment(actor, firearmAttachment, ss);
             return;
         }
+
+		if (targetItem.GetItemType<IWeaponCarrierAttachment>() is { } carrierAttachment)
+		{
+			AttachWeaponCarrier(actor, carrierAttachment, ss);
+			return;
+		}
+
+		if (!ss.IsFinished && actor.TargetItem(ss.PopSpeech())?.GetItemType<MusketGameItemComponent>() is { } musket)
+		{
+			if (!musket.TryInstallIgnitionStone(actor, targetItem, out var ignitionReason))
+			{
+				actor.Send(ignitionReason);
+				return;
+			}
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ fit|fits $0 to $1.", actor, targetItem, musket.Parent)));
+			return;
+		}
 
         IBeltable targetAsBeltable = targetItem.GetItemType<IBeltable>();
         if (targetAsBeltable == null)
@@ -5653,6 +5671,89 @@ The syntax is as follows:
             new Emote("@ attach|attaches $0 to $1.", actor, attachment.Parent, hostItem),
             flags: OutputFlags.SuppressObscured));
     }
+
+    private static void AttachWeaponCarrier(ICharacter actor, IWeaponCarrierAttachment carrier, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.Send($"Which weapon do you want to attach {carrier.Parent.HowSeen(actor)} to?");
+			return;
+		}
+
+		var weapon = actor.TargetHeldItem(command.PopSpeech());
+		if (weapon is null)
+		{
+			actor.Send("You are not holding a weapon like that.");
+			return;
+		}
+
+		if (!carrier.Attach(weapon, actor, out var reason))
+		{
+			actor.Send(reason);
+			return;
+		}
+
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ attach|attaches $0 to $1.", actor, carrier.Parent, weapon)));
+	}
+
+	[PlayerCommand("Recover", "recover")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("recover", "Syntax: recover <weapon>\n\nRecovers a weapon that is hanging from one of your worn or held weapon carriers.", AutoHelp.HelpArg)]
+	protected static void RecoverHangingWeapon(ICharacter actor, string command)
+	{
+		var name = new StringStack(command.RemoveFirstWord()).SafeRemainingArgument;
+		var carriers = actor.Body.WornItems
+			.Concat(actor.Body.HeldOrWieldedItems)
+			.SelectNotNull(x => x.GetItemType<WeaponCarrierAttachmentGameItemComponent>())
+			.ToList();
+		var weapon = carriers.Select(x => x.AttachedWeapon).SelectNotNull(x => x).GetFromItemListByKeyword(name, actor);
+		var carrier = carriers.FirstOrDefault(x => x.AttachedWeapon == weapon);
+		if (carrier is null)
+		{
+			actor.Send("You are not carrying a hanging weapon like that.");
+			return;
+		}
+		var recoveredWeapon = carrier.AttachedWeapon;
+		if (!carrier.Recover(actor, out var reason))
+		{
+			actor.Send(reason);
+			return;
+		}
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ recover|recovers $1 from $2.", actor, actor, recoveredWeapon, carrier.Parent)));
+	}
+
+	[PlayerCommand("Release Weapon", "releaseweapon")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("releaseweapon", "Syntax: releaseweapon <weapon>\n\nReleases a weapon that is hanging from one of your weapon carriers. The normal #3release <weapon>#0 form also works when you are not grappling or dragging.", AutoHelp.HelpArg)]
+	protected static void ReleaseHangingWeapon(ICharacter actor, string command)
+	{
+		if (!TryReleaseHangingWeapon(actor, command))
+		{
+			actor.Send("You are not carrying a hanging weapon like that.");
+		}
+	}
+
+	internal static bool TryReleaseHangingWeapon(ICharacter actor, string command)
+	{
+		var name = new StringStack(command.RemoveFirstWord()).SafeRemainingArgument;
+		var carriers = actor.Body.WornItems
+			.Concat(actor.Body.HeldOrWieldedItems)
+			.SelectNotNull(x => x.GetItemType<WeaponCarrierAttachmentGameItemComponent>())
+			.ToList();
+		var weapon = carriers.Select(x => x.AttachedWeapon).SelectNotNull(x => x).GetFromItemListByKeyword(name, actor);
+		var carrier = carriers.FirstOrDefault(x => x.AttachedWeapon == weapon);
+		if (carrier is null)
+		{
+			return false;
+		}
+		var releasedWeapon = carrier.AttachedWeapon;
+		if (!carrier.Release(actor, out var reason))
+		{
+			return false;
+		}
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ release|releases $1 from $2.", actor, actor, releasedWeapon, carrier.Parent)));
+		return true;
+	}
 
     private static void AttachProsthetic(ICharacter actor, IGameItem targetItem, StringStack ss)
     {
@@ -5884,6 +5985,17 @@ The syntax is as follows:
             DetachFirearmAttachment(actor, targetBelt, firearmHost, ss);
             return;
         }
+
+		if (targetBelt?.GetItemType<IWeaponCarrierAttachment>() is { } carrier)
+		{
+			if (!carrier.Detach(actor, out var reason))
+			{
+				actor.Send(reason);
+				return;
+			}
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ detach|detaches the weapon from $1.", actor, actor, targetBelt)));
+			return;
+		}
 
         if (targetBelt?.GetItemType<IBelt>() == null)
         {

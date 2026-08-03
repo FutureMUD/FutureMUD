@@ -9,10 +9,11 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.GameItems.Components;
 
-public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMeleeWeapon, IConditionDegradingComponent
+public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWeapon, IMeleeWeapon, IConditionDegradingComponent
 {
     protected CrossbowGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
+	private readonly List<IAmmo> _magazine = new();
     public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;
     public int ItemQualityStages => _prototype.ConditionMaintenance.QualityPenaltyStages(Parent);
 
@@ -48,17 +49,28 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
     {
         _prototype = rhs._prototype;
 
-        LoadedAmmo = rhs.LoadedAmmo;
+        // Do not duplicate or share the physical bolt when copying an item.
+        LoadedAmmo = null;
         PrimaryWieldedLocation = rhs.PrimaryWieldedLocation;
         IsReadied = rhs.IsReadied;
+		IsEmplaced = false;
     }
 
     protected void LoadFromXml(XElement root)
     {
         PrimaryWieldedLocation =
             Gameworld.BodypartPrototypes.Get(long.Parse(root.Element("Wielded")?.Value ?? "0")) as IWield;
-        LoadedAmmo = Gameworld.TryGetItem(long.Parse(root.Element("Loaded")?.Value ?? "0"), true)?.GetItemType<IAmmo>();
+		LoadedAmmo = Gameworld.TryGetItem(long.Parse(root.Element("Loaded")?.Value ?? "0"), true)?.GetItemType<IAmmo>();
+		foreach (var element in root.Element("Magazine")?.Elements("Item") ?? [])
+		{
+			var ammunition = Gameworld.TryGetItem(long.Parse(element.Value), true)?.GetItemType<IAmmo>();
+			if (ammunition is not null && ammunition != LoadedAmmo)
+			{
+				_magazine.Add(ammunition);
+			}
+		}
         IsReadied = bool.TryParse(root.Element("IsReadied")?.Value, out var isReadied) && isReadied;
+		IsEmplaced = (bool?)root.Element("IsEmplaced") ?? false;
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -75,7 +87,9 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
         return new XElement("Definition",
             new XElement("Wielded", PrimaryWieldedLocation?.Id ?? 0),
             new XElement("Loaded", LoadedAmmo?.Parent.Id ?? 0),
-            new XElement("IsReadied", IsReadied)
+			new XElement("Magazine", _magazine.Select(x => new XElement("Item", x.Parent.Id))),
+            new XElement("IsReadied", IsReadied),
+			new XElement("IsEmplaced", IsEmplaced)
         ).ToString();
     }
 
@@ -142,22 +156,72 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
     /// <inheritdoc />
     public bool CanWield(ICharacter actor)
     {
+		if (_prototype.RequiresEmplacement)
+		{
+			return false;
+		}
         return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
     }
 
     /// <inheritdoc />
     public string WhyCannotWield(ICharacter actor)
     {
+		if (_prototype.RequiresEmplacement)
+		{
+			return $"{Parent.HowSeen(actor, true)} is an emplaced crossbow and cannot be wielded.";
+		}
         return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
     }
 
     public bool ReadyToFire => IsLoaded && IsReadied;
 
-    public bool IsLoaded => LoadedAmmo != null;
+	public bool IsLoaded => LoadedAmmo != null;
     public bool IsReadied { get; set; }
+	public bool IsEmplaced { get; private set; }
+
+	public bool Emplace(ICharacter actor, out string reason)
+	{
+		if (!_prototype.RequiresEmplacement)
+		{
+			reason = $"{Parent.HowSeen(actor, true)} does not require emplacement.";
+			return false;
+		}
+		if (Parent.InInventoryOf is not null || Parent.Location != actor.Location)
+		{
+			reason = "You must place that crossbow in the room before emplacing it.";
+			return false;
+		}
+		IsEmplaced = true;
+		Changed = true;
+		reason = string.Empty;
+		return true;
+	}
+
+	public bool Limber(ICharacter actor, out string reason)
+	{
+		if (!IsEmplaced)
+		{
+			reason = $"{Parent.HowSeen(actor, true)} is not emplaced.";
+			return false;
+		}
+		if (IsReadied || LoadedAmmo is not null)
+		{
+			reason = "You must unready and unload that crossbow before moving it.";
+			return false;
+		}
+		IsEmplaced = false;
+		Changed = true;
+		reason = string.Empty;
+		return true;
+	}
 
     public bool CanReady(ICharacter readier)
     {
+		if (_prototype.RequiresEmplacement && !IsEmplaced)
+		{
+			return false;
+		}
+
         if (!IsLoaded)
         {
             return false;
@@ -185,6 +249,11 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
 
     public string WhyCannotReady(ICharacter readier)
     {
+		if (_prototype.RequiresEmplacement && !IsEmplaced)
+		{
+			return $"You must emplace {Parent.HowSeen(readier)} before readying it.";
+		}
+
         if (!IsLoaded)
         {
             return $"You must first load a quarrel before you can ready {Parent.HowSeen(readier)}.";
@@ -287,7 +356,7 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
 
     public IAmmo LoadedAmmo { get; set; }
 
-    public IEnumerable<IGameItem> MagazineContents => new[] { LoadedAmmo?.Parent }.SelectNotNull(x => x);
+	public IEnumerable<IGameItem> MagazineContents => new[] { LoadedAmmo?.Parent }.SelectNotNull(x => x).Concat(_magazine.Select(x => x.Parent));
     public IEnumerable<IGameItem> AllContainedItems => MagazineContents;
 
     public bool CanUnload(ICharacter loader)
@@ -308,7 +377,7 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
                 $"You cannot unload {Parent.HowSeen(loader)} until you have unwound the tension and unreadied it for fire.";
         }
 
-        throw new NotImplementedException("Unknown WhyCannotUnload reason in BowGameItemComponent.WhyCannotLoad.");
+		return $"You cannot unload {Parent.HowSeen(loader)} for an unknown reason.";
     }
 
     public IEnumerable<IGameItem> Unload(ICharacter loader)
@@ -332,7 +401,12 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
 
     public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
-        if (LoadedAmmo != null)
+		if (_prototype.RequiresEmplacement && !IsEmplaced)
+		{
+			return false;
+		}
+
+		if (LoadedAmmo != null && _magazine.Count + 1 >= _prototype.MagazineCapacity)
         {
             return false;
         }
@@ -343,7 +417,12 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
 
     public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
-        if (LoadedAmmo != null)
+		if (_prototype.RequiresEmplacement && !IsEmplaced)
+		{
+			return $"You must emplace {Parent.HowSeen(loader)} before loading it.";
+		}
+
+		if (LoadedAmmo != null && _magazine.Count + 1 >= _prototype.MagazineCapacity)
         {
             return $"You cannot load {Parent.HowSeen(loader)} because it is already loaded!";
         }
@@ -359,7 +438,7 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
                     $"You cannot load {Parent.HowSeen(loader)} because you don't have enough working {loader.Body.WielderDescriptionPlural}.";
         }
 
-        throw new NotImplementedException();
+		return $"You cannot load {Parent.HowSeen(loader)} with the items you currently have available.";
     }
 
     public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
@@ -381,14 +460,14 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
         if (ammoStack != null && ammoStack.Quantity > 1)
         {
             IGameItem newammo = ammoStack.Split(1);
-            LoadedAmmo = newammo.GetItemType<IAmmo>();
+			AddToMagazine(newammo.GetItemType<IAmmo>()!);
             loader.OutputHandler.Handle(new EmoteOutput(new Emote("@ load|loads $1 in $0.", loader, Parent, newammo)));
             plan.FinalisePlan();
         }
         else
         {
             loader.Body.Take(ammo);
-            LoadedAmmo = ammo.GetItemType<IAmmo>();
+			AddToMagazine(ammo.GetItemType<IAmmo>()!);
             loader.OutputHandler.Handle(new EmoteOutput(new Emote("@ load|loads $1 in $0.", loader, Parent, ammo)));
             plan.FinalisePlanWithExemptions(new List<IGameItem> { ammo });
         }
@@ -398,11 +477,16 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
 
     public bool CanFire(ICharacter actor, IPerceivable target)
     {
-        return LoadedAmmo != null && IsReadied;
+		return (!_prototype.RequiresEmplacement || IsEmplaced) && LoadedAmmo != null && IsReadied;
     }
 
     public string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+		if (_prototype.RequiresEmplacement && !IsEmplaced)
+		{
+			return $"You must emplace {Parent.HowSeen(actor)} before firing it.";
+		}
+
         if (LoadedAmmo == null)
         {
             return $"You cannot fire {Parent.HowSeen(actor)} because it is not loaded.";
@@ -413,20 +497,29 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
             return $"You have not wound up {Parent.HowSeen(actor)}. You must do so before firing.";
         }
 
-        throw new ApplicationException(
-            "Unknown WhyCannotFire reason in CrossbowGameItemComponent.WhyCannotFire");
+		return $"You cannot fire {Parent.HowSeen(actor)} in its current state.";
     }
 
     public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
         OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
     {
+		if (!CanFire(actor, target))
+		{
+			actor.Send(WhyCannotFire(actor, target));
+			return;
+		}
+
         actor.OutputHandler.Handle(new EmoteOutput(
             new Emote("@ pull|pulls the trigger on $1 and send|sends $2 whizzing off towards $0.", actor,
                 target ?? (IPerceivable)new DummyPerceivable("the sky"), Parent, LoadedAmmo.Parent),
             style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
         IAmmo ammo = LoadedAmmo;
-        LoadedAmmo = null;
-        IsReadied = false;
+		LoadedAmmo = _magazine.FirstOrDefault();
+		if (LoadedAmmo is not null)
+		{
+			_magazine.RemoveAt(0);
+		}
+		IsReadied = LoadedAmmo is not null && _prototype.RepeatsWithoutReady;
         Changed = true;
         ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo.Parent, WeaponType,
             defenseEmote);
@@ -454,7 +547,23 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
     public override void FinaliseLoad()
     {
         LoadedAmmo?.Parent.FinaliseLoadTimeTasks();
+		foreach (var ammunition in _magazine)
+		{
+			ammunition.Parent.FinaliseLoadTimeTasks();
+		}
     }
+
+	private void AddToMagazine(IAmmo ammunition)
+	{
+		if (LoadedAmmo is null)
+		{
+			LoadedAmmo = ammunition;
+			return;
+		}
+
+		_magazine.Add(ammunition);
+		ammunition.Parent.ContainedIn = Parent;
+	}
 
 
     #region Implementation of IMeleeWeapon
@@ -467,6 +576,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
     {
         base.Quit();
         LoadedAmmo?.Parent.Quit();
+		foreach (var ammunition in _magazine)
+		{
+			ammunition.Parent.Quit();
+		}
     }
 
     public override void Delete()
@@ -474,10 +587,23 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
         base.Delete();
         LoadedAmmo?.Parent.ContainedIn = null;
         LoadedAmmo?.Parent.Delete();
+		foreach (var ammunition in _magazine)
+		{
+			ammunition.Parent.ContainedIn = null;
+			ammunition.Parent.Delete();
+		}
+		_magazine.Clear();
     }
 
     public override void Login()
     {
         LoadedAmmo?.Login();
+		foreach (var ammunition in _magazine)
+		{
+			ammunition.Parent.Login();
+		}
     }
+
+	public override bool PreventsMovement() => _prototype.RequiresEmplacement && IsEmplaced;
+	public override string WhyPreventsMovement(ICharacter mover) => "it is emplaced and must be limbered first";
 }

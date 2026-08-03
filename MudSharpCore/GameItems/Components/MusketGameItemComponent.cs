@@ -20,7 +20,7 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace MudSharp.GameItems.Components;
 
-public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt, IMeleeWeapon,
+public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt, IMeleeWeapon, IEmplaceableRangedWeapon,
     IConditionDegradingComponent
 {
     protected MusketGameItemComponentProto _prototype;
@@ -42,6 +42,7 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
     public MusketGameItemComponent(MusketGameItemComponentProto proto, IGameItem parent, bool temporary = false) : base(parent, proto, temporary)
     {
         _prototype = proto;
+		IgnitionStrikesRemaining = 100;
     }
 
     public MusketGameItemComponent(Models.GameItemComponent component, MusketGameItemComponentProto proto, IGameItem parent) : base(component, parent)
@@ -55,16 +56,32 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
     public MusketGameItemComponent(MusketGameItemComponent rhs, IGameItem newParent, bool temporary = false) : base(rhs, newParent, temporary)
     {
         _prototype = rhs._prototype;
+		// A copied item must not share physical barrel contents or attached items with its source.
+		IsReadied = rhs.IsReadied;
+		NeedsCleaning = rhs.NeedsCleaning;
+		IsJammed = rhs.IsJammed;
+		LoadStage = rhs.LoadStage;
+		TapLoaded = rhs.TapLoaded;
+		MatchLit = rhs.MatchLit;
+		WheelWound = rhs.WheelWound;
+		IgnitionStrikesRemaining = rhs.IgnitionStrikesRemaining;
+		IsEmplaced = rhs.IsEmplaced;
+		PrimaryWieldedLocation = rhs.PrimaryWieldedLocation;
     }
 
     protected void LoadFromXml(XElement root)
     {
-        IsReadied = bool.Parse(root.Element("IsReadied").Value);
-        NeedsCleaning = bool.Parse(root.Element("NeedsCleaning").Value);
-        IsJammed = bool.Parse(root.Element("IsJammed").Value);
-        LoadStage = int.Parse(root.Element("LoadStage").Value);
+        IsReadied = bool.TryParse(root.Element("IsReadied")?.Value, out var isReadied) && isReadied;
+        NeedsCleaning = !bool.TryParse(root.Element("NeedsCleaning")?.Value, out var needsCleaning) || needsCleaning;
+        IsJammed = bool.TryParse(root.Element("IsJammed")?.Value, out var isJammed) && isJammed;
+        LoadStage = int.TryParse(root.Element("LoadStage")?.Value, out var loadStage) ? loadStage : 0;
+		TapLoaded = bool.TryParse(root.Element("TapLoaded")?.Value, out var tapLoaded) && tapLoaded;
+		MatchLit = bool.TryParse(root.Element("MatchLit")?.Value, out var matchLit) && matchLit;
+		WheelWound = bool.TryParse(root.Element("WheelWound")?.Value, out var wheelWound) && wheelWound;
+		IgnitionStrikesRemaining = Math.Max(0, int.TryParse(root.Element("IgnitionStrikesRemaining")?.Value, out var strikes) ? strikes : 100);
+		IsEmplaced = bool.TryParse(root.Element("IsEmplaced")?.Value, out var isEmplaced) && isEmplaced;
         PrimaryWieldedLocation = Gameworld.BodypartPrototypes.Get(long.Parse(root.Element("Wielded")?.Value ?? "0")) as IWield;
-        foreach (XElement element in root.Element("Magazine").Elements("Item"))
+        foreach (XElement element in root.Element("Magazine")?.Elements("Item") ?? [])
         {
             IGameItem item = Gameworld.TryGetItem(long.Parse(element.Value), true);
             if (item is null)
@@ -112,6 +129,10 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
             new XElement("NeedsCleaning", NeedsCleaning),
             new XElement("IsJammed", IsJammed),
             new XElement("TapLoaded", TapLoaded),
+			new XElement("MatchLit", MatchLit),
+			new XElement("WheelWound", WheelWound),
+			new XElement("IgnitionStrikesRemaining", IgnitionStrikesRemaining),
+			new XElement("IsEmplaced", IsEmplaced),
             new XElement("Wielded", PrimaryWieldedLocation?.Id ?? 0),
             new XElement("Bayonet", _bayonet?.Parent.Id ?? 0),
             new XElement("Sights", _sights?.Parent.Id ?? 0),
@@ -374,6 +395,46 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
     public bool NeedsCleaning { get; set; }
     public bool TapLoaded { get; set; }
+	public bool IsEmplaced { get; private set; }
+
+	public bool Emplace(ICharacter actor, out string reason)
+	{
+		if (!_prototype.RequiresRest)
+		{
+			reason = $"{Parent.HowSeen(actor, true)} does not require a rest or emplacement.";
+			return false;
+		}
+		if (Parent.InInventoryOf is not null || Parent.Location != actor.Location)
+		{
+			reason = "You must place that musket in the room before emplacing it on a rest.";
+			return false;
+		}
+		IsEmplaced = true;
+		Changed = true;
+		reason = string.Empty;
+		return true;
+	}
+
+	public bool Limber(ICharacter actor, out string reason)
+	{
+		if (!IsEmplaced)
+		{
+			reason = $"{Parent.HowSeen(actor, true)} is not emplaced on a rest.";
+			return false;
+		}
+		if (IsReadied || IsLoaded)
+		{
+			reason = "You must unready and unload that musket before removing it from its rest.";
+			return false;
+		}
+		IsEmplaced = false;
+		Changed = true;
+		reason = string.Empty;
+		return true;
+	}
+	public bool MatchLit { get; private set; }
+	public bool WheelWound { get; private set; }
+	public int IgnitionStrikesRemaining { get; private set; }
 
     private readonly List<IGameItem> _magazineContents = new();
 
@@ -644,6 +705,18 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanReady(ICharacter readier)
     {
+		if (_prototype.RequiresRest && !IsEmplaced)
+		{
+			return false;
+		}
+		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock && !MatchLit && !HasMatchCord(readier))
+		{
+			return false;
+		}
+		if (_prototype.IgnitionFamily is not MusketIgnitionFamily.Matchlock && IgnitionStrikesRemaining <= 0)
+		{
+			return false;
+		}
         if (WeaponType.RequiresFreeHandToReady &&
             readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
         {
@@ -656,6 +729,18 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotReady(ICharacter readier)
     {
+		if (_prototype.RequiresRest && !IsEmplaced)
+		{
+			return $"You must emplace {Parent.HowSeen(readier)} on a rest before readying it.";
+		}
+		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock && !MatchLit && !HasMatchCord(readier))
+		{
+			return $"{Parent.HowSeen(readier, true)} needs a length of match cord before it can be readied.";
+		}
+		if (_prototype.IgnitionFamily is not MusketIgnitionFamily.Matchlock && IgnitionStrikesRemaining <= 0)
+		{
+			return $"{Parent.HowSeen(readier, true)} needs a fresh {(_prototype.IgnitionFamily == MusketIgnitionFamily.Wheellock ? "pyrite" : "flint")} before it can be readied.";
+		}
         if (WeaponType.RequiresFreeHandToReady &&
             readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
         {
@@ -677,6 +762,19 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
         readier.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.ReadyEmote, readier, readier, Parent),
             flags: OutputFlags.InnerWrap));
+		switch (_prototype.IgnitionFamily)
+		{
+			case MusketIgnitionFamily.Matchlock:
+				if (!MatchLit)
+				{
+					ConsumeMatchCord(readier);
+				}
+				MatchLit = true;
+				break;
+			case MusketIgnitionFamily.Wheellock:
+				WheelWound = true;
+				break;
+		}
         IsReadied = true;
         Changed = true;
         return true;
@@ -793,8 +891,14 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanFire(ICharacter actor, IPerceivable target)
     {
-        return ReadyToFire &&
+		return ReadyToFire &&
                !IsJammed &&
+			   (!_prototype.RequiresRest || IsEmplaced) &&
+			   (_prototype.IgnitionFamily != MusketIgnitionFamily.Matchlock || MatchLit) &&
+			   (_prototype.IgnitionFamily != MusketIgnitionFamily.Matchlock ||
+				actor.Location.CurrentWeather(actor)?.Precipitation.PrecipitationIntensityForGunpowder() <= 0.5) &&
+			   (_prototype.IgnitionFamily != MusketIgnitionFamily.Wheellock || WheelWound) &&
+			   (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock || IgnitionStrikesRemaining > 0) &&
                _bayonet?.Parent.GetItemType<IBayonetAttachment>()?.BlocksFiring != true;
     }
 
@@ -816,12 +920,36 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             return $"You cannot fire {Parent.HowSeen(actor)} because it has not been readied.";
         }
 
+		if (_prototype.RequiresRest && !IsEmplaced)
+		{
+			return $"You must emplace {Parent.HowSeen(actor)} on a rest before firing it.";
+		}
+
         if (_bayonet?.Parent.GetItemType<IBayonetAttachment>()?.BlocksFiring == true)
         {
-            return
-                $"You cannot fire {Parent.HowSeen(actor)} while its plug bayonet is seated in the muzzle.";
+            return $"You cannot fire {Parent.HowSeen(actor)} while its plug bayonet is seated in the muzzle.";
         }
 
+		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Wheellock && !WheelWound)
+		{
+			return $"You must wind the wheel of {Parent.HowSeen(actor)} before firing it.";
+		}
+
+		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock && !MatchLit)
+		{
+			return $"You must light the match of {Parent.HowSeen(actor)} before firing it.";
+		}
+
+		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock &&
+			actor.Location.CurrentWeather(actor)?.Precipitation.PrecipitationIntensityForGunpowder() > 0.5)
+		{
+			return $"The exposed match of {Parent.HowSeen(actor)} is too wet to fire reliably.";
+		}
+
+		if (_prototype.IgnitionFamily is not MusketIgnitionFamily.Matchlock && IgnitionStrikesRemaining <= 0)
+		{
+			return $"{Parent.HowSeen(actor, true)} needs a fresh ignition stone before it can fire.";
+		}
         throw new ApplicationException(
             "Unknown WhyCannotFire reason in MusketGameItemComponent.WhyCannotFire");
     }
@@ -829,6 +957,20 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
     {
+		if (!CanFire(actor, target))
+		{
+			actor.Send(WhyCannotFire(actor, target));
+			return;
+		}
+
+		if (_prototype.IgnitionFamily is not MusketIgnitionFamily.Matchlock)
+		{
+			IgnitionStrikesRemaining = Math.Max(0, IgnitionStrikesRemaining - 1);
+		}
+		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Wheellock)
+		{
+			WheelWound = false;
+		}
         IAmmunitionType type = null;
         IGameItemProto bulletProto = null;
         IGameItem ball = null;
@@ -1024,10 +1166,89 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             }
         }
 
-        ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, bullet, WeaponType, defenseEmote);
+		var projectileCount = bulletProto is null ? 1 : Math.Clamp(ammo.AmmoType.ProjectileCount, 1, 32);
+		for (var projectileIndex = 0; projectileIndex < projectileCount; projectileIndex++)
+		{
+			var projectile = projectileIndex == 0
+				? bullet
+				: bulletProto.CreateNew();
+			if (projectile is null)
+			{
+				continue;
+			}
+
+			projectile.Login();
+			var projectileOutcome = FirearmMath.ProjectileOutcome(shotOutcome, null, 0, projectileIndex,
+				ammo.AmmoType.SpreadPenalty, 1.0);
+			var projectileBodypart = projectileIndex == 0
+				? bodypart
+				: (target as IHaveABody)?.Body?.RandomBodyPartGeometry(Orientation.Centre, Alignment.Front,
+					Facing.Front) ?? bodypart;
+			ammo.Fire(actor, target, projectileOutcome, coverOutcome, defenseOutcome, projectileBodypart, projectile,
+				WeaponType, projectileIndex == 0 ? defenseEmote : null,
+				new RangedFireContext(projectileIndex, projectileCount, ammo.AmmoType.ScatterType));
+		}
         UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
             (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
     }
+
+	/// <summary>
+	/// Installs one physical gunflint or pyrite piece and restores the lock's strike reserve.
+	/// The item must be a stackable source of the correct material; a one-unit split is consumed.
+	/// </summary>
+	public bool TryInstallIgnitionStone(ICharacter actor, IGameItem stone, out string reason)
+	{
+		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock)
+		{
+			reason = "Matchlocks use match cord rather than an ignition stone.";
+			return false;
+		}
+		if (stone == Parent || stone.GetItemType<IStackable>() is null)
+		{
+			reason = "You must use a stackable gunflint or pyrite piece.";
+			return false;
+		}
+
+		var requiredMaterial = _prototype.IgnitionFamily == MusketIgnitionFamily.Wheellock ? "pyrite" : "flint";
+		if (!stone.Material.Name.EqualTo(requiredMaterial))
+		{
+			reason = $"{Parent.HowSeen(actor, true)} requires {requiredMaterial.ColourName()}.";
+			return false;
+		}
+
+		var stack = stone.GetItemType<IStackable>()!;
+		var consumed = stack.Quantity > 1 ? stack.Split(1) : stone;
+		if (consumed == stone)
+		{
+			actor.Body.Take(stone);
+		}
+		consumed.Delete();
+		IgnitionStrikesRemaining = 100;
+		WheelWound = false;
+		Changed = true;
+		reason = string.Empty;
+		return true;
+	}
+
+	private static bool HasMatchCord(ICharacter actor) => actor.Body.AllItems.Any(x =>
+		x.GetItemType<IStackable>() is not null && x.Name.Contains("match cord", StringComparison.InvariantCultureIgnoreCase));
+
+	private static void ConsumeMatchCord(ICharacter actor)
+	{
+		var cord = actor.Body.AllItems.FirstOrDefault(x =>
+			x.GetItemType<IStackable>() is not null && x.Name.Contains("match cord", StringComparison.InvariantCultureIgnoreCase));
+		if (cord is null)
+		{
+			return;
+		}
+		var stack = cord.GetItemType<IStackable>()!;
+		var consumed = stack.Quantity > 1 ? stack.Split(1) : cord;
+		if (consumed == cord)
+		{
+			actor.Body.Take(cord);
+		}
+		consumed.Delete();
+	}
 
     #endregion
 

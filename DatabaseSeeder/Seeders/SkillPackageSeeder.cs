@@ -1129,6 +1129,9 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 case CheckType.FireBow:
                 case CheckType.FireCrossbow:
                 case CheckType.FireFirearm:
+				case CheckType.AimArtillery:
+				case CheckType.LoadArtillery:
+				case CheckType.FireArtillery:
                 case CheckType.FireSling:
                 case CheckType.FireBlowgun:
                 case CheckType.KeepAimTargetMoved:

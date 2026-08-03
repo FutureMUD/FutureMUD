@@ -212,6 +212,9 @@ namespace MudSharp.RPG.Checks
 		PaddleVehicleCheck = 203, // Called when a controller self-propels a surface-water vehicle
 		RowVehicleCheck = 204, // Called for each rower contributing to a surface-water vehicle move
 		BoatStabilityCheck = 205, // Called when an occupant may be knocked from a surface-water vehicle
+		AimArtillery = 206,
+		LoadArtillery = 207,
+		FireArtillery = 208
     }
 
     public enum FailIfTraitMissingType

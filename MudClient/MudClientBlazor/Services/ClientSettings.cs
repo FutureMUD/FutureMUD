@@ -26,6 +26,7 @@ public sealed class ClientSettings
 	public bool SemicolonCommandStackingEnabled { get; set; } = true;
 	public string CommandStackingDelimiter { get; set; } = ";";
 	public bool NewlineCommandStackingEnabled { get; set; } = true;
+	public int StackedCommandDelayMs { get; set; } = 100;
 
 	public static IReadOnlyList<ClientFontOption> FontOptions => AvailableFonts;
 
@@ -44,7 +45,8 @@ public sealed class ClientSettings
 			ClearInputAfterSend = ClearInputAfterSend,
 			SemicolonCommandStackingEnabled = SemicolonCommandStackingEnabled,
 			CommandStackingDelimiter = CommandStackingDelimiter,
-			NewlineCommandStackingEnabled = NewlineCommandStackingEnabled
+			NewlineCommandStackingEnabled = NewlineCommandStackingEnabled,
+			StackedCommandDelayMs = StackedCommandDelayMs
 		};
 	}
 
@@ -70,6 +72,7 @@ public sealed class ClientSettings
 		normalized.MessageLineHeight = Math.Clamp(settings.MessageLineHeight, 1.0, 3.0);
 		normalized.MessageSpacingPx = Math.Clamp(settings.MessageSpacingPx, 0, 100);
 		normalized.CommandStackingDelimiter = NormalizeDelimiter(settings.CommandStackingDelimiter, defaults.CommandStackingDelimiter);
+		normalized.StackedCommandDelayMs = Math.Clamp(settings.StackedCommandDelayMs, 50, 2_000);
 		return normalized;
 	}
 

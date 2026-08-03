@@ -53,14 +53,16 @@ public class QuickAliasSettingsTests
 	}
 
 	[Fact]
-	public void LoginPassword_IsSerializedForLocalStorage()
+	public void CreatePersistentCopy_RemovesLoginPasswordFromLocalStoragePayload()
 	{
 		var settings = QuickAliasSettings.CreateDefault();
 		settings.Login.Password = "secret";
 
-		var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+		var json = JsonSerializer.Serialize(
+			QuickAliasSettings.CreatePersistentCopy(settings),
+			new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
-		Assert.Contains("secret", json);
+		Assert.DoesNotContain("secret", json);
 		Assert.Contains("password", json, StringComparison.OrdinalIgnoreCase);
 	}
 

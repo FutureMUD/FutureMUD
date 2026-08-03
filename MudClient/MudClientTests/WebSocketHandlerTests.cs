@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MudWebSocketProxy.Handlers;
+using MudWebSocketProxy.Security;
 
 namespace MudClientTests;
 
@@ -49,7 +50,10 @@ public class WebSocketHandlerTests
 			.AddInMemoryCollection(values)
 			.Build();
 
-		return new WebSocketHandler(new TestLogger<WebSocketHandler>(), configuration);
+		return new WebSocketHandler(
+			new TestLogger<WebSocketHandler>(),
+			configuration,
+			ProxyLimits.FromConfiguration(configuration));
 	}
 
 	private static int GetUnusedTcpPort()

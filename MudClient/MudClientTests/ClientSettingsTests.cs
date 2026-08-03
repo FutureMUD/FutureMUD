@@ -15,6 +15,7 @@ public class ClientSettingsTests
 			MessageLeftOffsetPx = 900,
 			MessageLineHeight = 0.1,
 			MessageSpacingPx = 900,
+			StackedCommandDelayMs = 1,
 			CommandStackingDelimiter = "\\"
 		});
 
@@ -24,6 +25,7 @@ public class ClientSettingsTests
 		Assert.Equal(500, normalized.MessageLeftOffsetPx);
 		Assert.Equal(1.0, normalized.MessageLineHeight);
 		Assert.Equal(100, normalized.MessageSpacingPx);
+		Assert.Equal(50, normalized.StackedCommandDelayMs);
 		Assert.Equal(";", normalized.CommandStackingDelimiter);
 	}
 

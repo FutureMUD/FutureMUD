@@ -116,6 +116,15 @@ public sealed class QuickAliasSettings
 		return normalized;
 	}
 
+	public static QuickAliasSettings CreatePersistentCopy(QuickAliasSettings settings)
+	{
+		ArgumentNullException.ThrowIfNull(settings);
+
+		var persistent = Normalize(settings);
+		persistent.Login.Password = string.Empty;
+		return persistent;
+	}
+
 	private static LoginAliasSettings NormalizeLogin(LoginAliasSettings? savedLogin)
 	{
 		var defaultLogin = CreateDefaultLogin();

@@ -288,6 +288,12 @@ jobs:
         if: needs.prepare.outputs.package_kind == 'mudclient'
         shell: pwsh
         run: dotnet workload install wasm-tools
+      - name: Audit Web MUD Client dependencies
+        if: needs.prepare.outputs.package_kind == 'mudclient'
+        shell: pwsh
+        run: |
+          dotnet restore MudClient/MudClientSolution.sln -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=true -p:NuGetAuditMode=all "-p:WarningsAsErrors=NU1900;NU1901;NU1902;NU1903;NU1904"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run targeted tests
         if: needs.prepare.outputs.tests != ''
         shell: pwsh

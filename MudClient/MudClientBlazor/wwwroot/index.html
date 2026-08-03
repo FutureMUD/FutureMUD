@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>MudClientBlazor</title>
+	<title>FutureMUD Web Client</title>
 	<base href="/" />
 	<link rel="icon" type="image/png" href="icon-192.png" />
 	<link rel="stylesheet" href="css/app.css" />
@@ -12,125 +12,7 @@
 	<!-- If you add any scoped CSS files, uncomment the following to load them
 	<link href="MudClientBlazor.styles.css" rel="stylesheet" /> -->
 
-	<script>
-		window.registerSendCommandHandler = function (dotNetHelper) {
-			window.sendCommand = function (id) {
-				dotNetHelper.invokeMethodAsync('SendCommandById', id);
-			};
-		};
-
-		window.mudClientHotkeys = (function () {
-			let dotNetHelper = null;
-			let keydownHandler = null;
-			let enabled = true;
-			let boundCodes = new Set();
-
-			function isNumpadCode(code) {
-				return code && code.indexOf('Numpad') === 0;
-			}
-
-			function isPrintableKey(event) {
-				return typeof event.key === 'string' && event.key.length === 1;
-			}
-
-			function isEditableTarget(target) {
-				return !!(target && target.closest && target.closest('input, textarea, select, [contenteditable]'));
-			}
-
-			function shouldIgnoreEvent(event, code) {
-				if (!enabled ||
-					event.defaultPrevented ||
-					event.ctrlKey ||
-					event.altKey ||
-					event.metaKey ||
-					event.shiftKey) {
-					return true;
-				}
-
-				const target = event.target;
-				if (isEditableTarget(target) && isPrintableKey(event) && !isNumpadCode(code)) {
-					return true;
-				}
-
-				return !!(target && target.closest && target.closest('[data-hotkey-settings="true"]'));
-			}
-
-			function handleKeydown(event) {
-				const code = event.code || '';
-				if (!code || shouldIgnoreEvent(event, code) || !boundCodes.has(code)) {
-					return;
-				}
-
-				event.preventDefault();
-				event.stopPropagation();
-				if (event.stopImmediatePropagation) {
-					event.stopImmediatePropagation();
-				}
-
-				if (dotNetHelper) {
-					dotNetHelper.invokeMethodAsync('HandleHotkeyCode', code);
-				}
-			}
-
-			return {
-				register: function (helper) {
-					if (keydownHandler) {
-						document.removeEventListener('keydown', keydownHandler, true);
-					}
-
-					dotNetHelper = helper;
-					keydownHandler = handleKeydown;
-					document.addEventListener('keydown', keydownHandler, true);
-				},
-				setBoundCodes: function (codes) {
-					boundCodes = new Set(codes || []);
-				},
-				setEnabled: function (value) {
-					enabled = !!value;
-				},
-				dispose: function () {
-					if (keydownHandler) {
-						document.removeEventListener('keydown', keydownHandler, true);
-					}
-
-					keydownHandler = null;
-					dotNetHelper = null;
-					boundCodes = new Set();
-				}
-			};
-		})();
-
-		window.scrollToBottom = (element) => {
-			if (element) {
-				// Use requestAnimationFrame to ensure the DOM has updated
-				window.requestAnimationFrame(() => {
-					element.scrollTop = element.scrollHeight;
-				});
-			}
-		};
-
-		window.getSelectionStart = function (elementId) {
-			var element = document.getElementById(elementId);
-			return element.selectionStart;
-		};
-		window.getSelectionEnd = function (elementId) {
-			var element = document.getElementById(elementId);
-			return element.selectionEnd;
-		};
-		window.setSelectionRange = function (elementId, startPosition, endPosition) {
-			var element = document.getElementById(elementId);
-			element.focus();
-			var end = typeof endPosition === 'number' ? endPosition : startPosition;
-			element.setSelectionRange(startPosition, end);
-		};
-
-		window.triggerDownload = function (filename, dataUri) {
-			var link = document.createElement('a');
-			link.href = dataUri;
-			link.download = filename;
-			link.click();
-		};
-	</script>
+	<script src="js/mudclient.js"></script>
 
 </head>
 

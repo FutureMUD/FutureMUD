@@ -13,9 +13,9 @@
 	<div class="app-grid">
 		<div class="play-surface">
 			<div class="message-container" @ref="MessageContainer">
-				@foreach (var message in Messages)
+				@foreach (var message in _transcript.RenderedEntries)
 				{
-					<div>@(new MarkupString(message))</div>
+					<div @key="message.Id">@(new MarkupString(message.Html))</div>
 				}
 			</div>
 
@@ -77,11 +77,17 @@
 					  @bind="UserInput"
 					  @bind:event="oninput"
 					  @onkeydown="HandleKeyDown"
-					  @onkeydown:preventDefault="true"
 					  class="input-field"
 					  placeholder="Type a command..."
 					  autocomplete="off">
 			</textarea>
+			<div class="input-toolbar">
+				<label class="client-button secondary-button file-input-button">
+					Load text file
+					<InputFile OnChange="LoadTextFileAsync" accept=".txt,text/plain" />
+				</label>
+				<span class="input-help">Loads up to 1 MiB into the command box for review; it is not sent automatically.</span>
+			</div>
 		</div>
 
 		@if (_hotkeySettingsOpen)
@@ -178,6 +184,11 @@
 							<input type="checkbox" checked="@ClientSettingsDraft.NewlineCommandStackingEnabled" @onchange="args => UpdateNewlineCommandStacking(args.Value)" />
 							<span>Split pasted new lines into commands</span>
 						</label>
+						<label>
+							<span>Delay between stacked commands (ms)</span>
+							<input class="settings-input" type="number" min="50" max="2000" step="25" value="@ClientSettingsDraft.StackedCommandDelayMs" @oninput="args => UpdateStackedCommandDelay(args.Value?.ToString())" aria-label="Delay between stacked commands in milliseconds" />
+							<small>100 ms is responsive while still pacing FutureMUD input. Quick Login keeps its safer prompt delay.</small>
+						</label>
 					</div>
 				</div>
 
@@ -206,6 +217,7 @@
 								   value="@QuickAliasDraft.Login.Password"
 								   @oninput="args => UpdateLoginPassword(args.Value?.ToString())"
 								   aria-label="Login password" />
+							<small>Kept only in this tab's memory and never saved to browser storage.</small>
 						</label>
 					</div>
 				</div>
@@ -307,6 +319,11 @@
 			</div>
 
 			<div class="button-container">
+				@if (_isSendingBatch)
+				{
+					<span class="batch-progress" role="status">@_batchProgressText</span>
+					<button type="button" class="client-button secondary-button" @onclick="CancelCommandBatch">Cancel Batch</button>
+				}
 				<button type="button" class="client-button primary-button" @onclick="ToggleConnection">@connectionButtonText</button>
 				<button type="button" class="client-button secondary-button" @onclick="SaveLog">Save Log</button>
 				<button type="button" class="client-button secondary-button" @onclick="ToggleHotkeySettings">Settings</button>
@@ -319,8 +336,12 @@
 	private const string HotkeyStorageKey = "MudClientBlazor.HotkeySettings.v1";
 	private const string QuickAliasStorageKey = "MudClientBlazor.QuickAliasSettings.v1";
 	private const string ClientSettingsStorageKey = "MudClientBlazor.ClientSettings.v1";
+	private const long MaximumTextFileBytes = 1_048_576;
+	private const int MaximumCommandsPerBatch = 5_000;
+	private const int MaximumCommandBytes = 16_384;
+	private const int MaximumWebSocketMessageBytes = 262_144;
+	private const int MaximumPendingServerCharacters = 1_000_000;
 	private static readonly TimeSpan LoginAliasStepDelay = TimeSpan.FromMilliseconds(750);
-	private static readonly TimeSpan StackedCommandDelay = TimeSpan.FromMilliseconds(750);
 	private static readonly JsonSerializerOptions HotkeyJsonOptions = new(JsonSerializerDefaults.Web)
 	{
 		WriteIndented = true
@@ -384,11 +405,17 @@
 		};
 
 	private string UserInput { get; set; } = string.Empty;
-	private List<string> Messages { get; set; } = new List<string>();
+	private readonly ClientTranscript _transcript = new();
 	private ClientWebSocket? _clientWebSocket;
-	private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+	private CancellationTokenSource _cancellationTokenSource = new();
+	private CancellationTokenSource? _batchCancellationTokenSource;
+	private readonly SemaphoreSlim _sendSemaphore = new(1, 1);
+	private readonly SemaphoreSlim _commandSequenceSemaphore = new(1, 1);
+	private readonly TelnetStreamParser _telnetStreamParser = new();
+	private readonly Decoder _utf8Decoder = new UTF8Encoding(false, false).GetDecoder();
+	private readonly StringBuilder _pendingServerText = new();
 	private ElementReference MessageContainer;
-	private List<string> CommandHistory { get; set; } = new List<string>();
+	private List<string> CommandHistory { get; set; } = new();
 	private int CommandHistoryIndex { get; set; } = -1;
 	private AnsiMxpParser _ansiMxpParser = new AnsiMxpParser();
 	private Uri? _webSocketEndpoint;
@@ -403,6 +430,8 @@
 	private IReadOnlyList<string> ClientSettingsDraftErrors { get; set; } = [];
 	private string? HotkeySettingsError { get; set; }
 	private bool _hotkeySettingsOpen;
+	private bool _isSendingBatch;
+	private string _batchProgressText = string.Empty;
 
 
 	// Declare the object reference
@@ -422,6 +451,7 @@
 		// Pass the object reference to JavaScript
 		await JSRuntime.InvokeVoidAsync("registerSendCommandHandler", _objectReference);
 		await JSRuntime.InvokeVoidAsync("mudClientHotkeys.register", _objectReference);
+		await JSRuntime.InvokeVoidAsync("mudClientInput.register", "userInput");
 		await LoadClientSettingsAsync();
 		await LoadHotkeySettingsAsync();
 		await LoadQuickAliasSettingsAsync();
@@ -432,7 +462,7 @@
 		}
 		catch (Exception ex)
 		{
-			Messages.Add($"Client configuration error: {EscapeHtml(GetDetailedExceptionMessage(ex))}");
+			AddMessage($"Client configuration error: {EscapeHtml(GetDetailedExceptionMessage(ex))}");
 			isConnected = false;
 			return;
 		}
@@ -478,7 +508,7 @@
 		catch (Exception ex)
 		{
 			Logger.LogWarning(ex, "Unable to load client settings.");
-			Messages.Add("Could not load saved client settings; using defaults.");
+			AddMessage("Could not load saved client settings; using defaults.");
 		}
 
 		ApplyClientSettings(settings);
@@ -500,7 +530,7 @@
 		catch (Exception ex)
 		{
 			Logger.LogWarning(ex, "Unable to load hotkey settings.");
-			Messages.Add("Could not load saved hotkey settings; using defaults.");
+			AddMessage("Could not load saved hotkey settings; using defaults.");
 		}
 
 		ApplyHotkeySettings(settings);
@@ -517,13 +547,25 @@
 			if (!string.IsNullOrWhiteSpace(json))
 			{
 				var savedSettings = JsonSerializer.Deserialize<QuickAliasSettings>(json, HotkeyJsonOptions);
+				var hadPersistedPassword = !string.IsNullOrEmpty(savedSettings?.Login?.Password);
+				if (savedSettings?.Login != null)
+				{
+					savedSettings.Login.Password = string.Empty;
+				}
+
 				settings = QuickAliasSettings.Normalize(savedSettings);
+				if (hadPersistedPassword)
+				{
+					var sanitizedJson = JsonSerializer.Serialize(QuickAliasSettings.CreatePersistentCopy(settings), HotkeyJsonOptions);
+					await JSRuntime.InvokeVoidAsync("localStorage.setItem", QuickAliasStorageKey, sanitizedJson);
+					AddMessage("A previously saved Quick Login password was removed from browser storage.");
+				}
 			}
 		}
 		catch (Exception ex)
 		{
 			Logger.LogWarning(ex, "Unable to load quick alias settings.");
-			Messages.Add("Could not load saved quick alias settings; using defaults.");
+			AddMessage("Could not load saved quick alias settings; using defaults.");
 		}
 
 		ApplyQuickAliasSettings(settings);
@@ -574,7 +616,7 @@
 		{
 			var json = JsonSerializer.Serialize(settings, HotkeyJsonOptions);
 			await JSRuntime.InvokeVoidAsync("localStorage.setItem", HotkeyStorageKey, json);
-			var quickAliasJson = JsonSerializer.Serialize(quickAliasSettings, HotkeyJsonOptions);
+			var quickAliasJson = JsonSerializer.Serialize(QuickAliasSettings.CreatePersistentCopy(quickAliasSettings), HotkeyJsonOptions);
 			await JSRuntime.InvokeVoidAsync("localStorage.setItem", QuickAliasStorageKey, quickAliasJson);
 			var clientSettingsJson = JsonSerializer.Serialize(clientSettings, HotkeyJsonOptions);
 			await JSRuntime.InvokeVoidAsync("localStorage.setItem", ClientSettingsStorageKey, clientSettingsJson);
@@ -714,6 +756,16 @@
 		ClientSettingsDraft.NewlineCommandStackingEnabled = value is bool enabled && enabled;
 	}
 
+	private void UpdateStackedCommandDelay(string? value)
+	{
+		if (int.TryParse(value, out var parsed))
+		{
+			ClientSettingsDraft.StackedCommandDelayMs = parsed;
+		}
+
+		ValidateClientSettingsDraft();
+	}
+
 	private void UpdateDraftEnabled(HotkeyBinding binding, object? value)
 	{
 		binding.IsEnabled = value is bool enabled && enabled;
@@ -827,11 +879,15 @@
 
 			foreach (var step in LoginAliasCommandSequence.Build(CurrentQuickAliasSettings.Login))
 			{
-				await SendSingleCommandAsync(
+				var completed = await SendSingleCommandAsync(
 					step.Command,
 					step.EchoCommand,
 					step.LogCommandText,
 					step.AddToHistory);
+				if (!completed)
+				{
+					break;
+				}
 
 				if (step.DelayAfterCommand)
 				{
@@ -991,11 +1047,6 @@
 			"AltLeft" or "AltRight" or "MetaLeft" or "MetaRight";
 	}
 
-	private static bool HasHotkeyModifier(KeyboardEventArgs args)
-	{
-		return args.CtrlKey || args.AltKey || args.MetaKey || args.ShiftKey;
-	}
-
 	private async Task<bool> ConnectToWebSocketAsync(Uri endpoint)
 	{
 		if (_clientWebSocket?.State == WebSocketState.Open)
@@ -1005,18 +1056,21 @@
 
 		try
 		{
+			_clientWebSocket?.Dispose();
 			_clientWebSocket = new ClientWebSocket();
+			_telnetStreamParser.Reset();
+			_utf8Decoder.Reset();
+			_pendingServerText.Clear();
 			await _clientWebSocket.ConnectAsync(endpoint, _cancellationTokenSource.Token);
 			isConnected = true;
-			Messages.Add($"Connected to WebSocket proxy at {EscapeHtml(endpoint.ToString())}.");
-			Console.WriteLine($"Connected to WebSocket proxy at {endpoint}");
+			AddMessage($"Connected to WebSocket proxy at {EscapeHtml(endpoint.ToString())}.");
 			_ = ReceiveMessagesAsync(_clientWebSocket);
 			return true;
 		}
 		catch (Exception ex)
 		{
 			isConnected = false;
-			Messages.Add(
+			AddMessage(
 				$"Error connecting to WebSocket proxy at {EscapeHtml(endpoint.ToString())}: {EscapeHtml(GetDetailedExceptionMessage(ex))}. " +
 				"Make sure MudWebSocketProxy is running and listening on that endpoint.");
 			return false;
@@ -1025,23 +1079,48 @@
 
 	private async Task ReceiveMessagesAsync(ClientWebSocket webSocket)
 	{
-		var buffer = new byte[40960];
+		var buffer = new byte[40_960];
 
 		while (webSocket.State == WebSocketState.Open)
 		{
 			try
 			{
-				var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cancellationTokenSource.Token);
-				if (result.MessageType == WebSocketMessageType.Close)
+				using var message = new MemoryStream();
+				WebSocketReceiveResult result;
+				do
 				{
-					Messages.Add("<font color='yellow'>The MUD has disconnected.</font>");
-					isConnected = false;
-					await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
-					await InvokeAsync(StateHasChanged);
-					break;
+					result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cancellationTokenSource.Token);
+					if (result.MessageType == WebSocketMessageType.Close)
+					{
+						await FlushPendingServerTextAsync();
+						AddMessage("<span style=\"color:yellow\">The MUD has disconnected.</span>");
+						isConnected = false;
+						await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+						await InvokeAsync(StateHasChanged);
+						return;
+					}
+
+					if (message.Length + result.Count > MaximumWebSocketMessageBytes)
+					{
+						await webSocket.CloseAsync(WebSocketCloseStatus.MessageTooBig, "Proxy message is too large", CancellationToken.None);
+						AddMessage("The proxy sent an oversized message and the connection was closed.");
+						isConnected = false;
+						return;
+					}
+
+					message.Write(buffer, 0, result.Count);
 				}
-				Logger.LogInformation("Received telnet message.");
-				await ProcessReceivedData(buffer, result.Count);
+				while (!result.EndOfMessage);
+
+				var payload = message.ToArray();
+				if (result.MessageType == WebSocketMessageType.Text)
+				{
+					AddMessage(EscapeHtml(Encoding.UTF8.GetString(payload)));
+					await InvokeAsync(StateHasChanged);
+					continue;
+				}
+
+				await ProcessReceivedData(payload);
 			}
 			catch (Exception ex)
 			{
@@ -1051,138 +1130,70 @@
 				}
 
 				isConnected = false;
-				Messages.Add($"Error receiving message from WebSocket proxy: {EscapeHtml(GetDetailedExceptionMessage(ex))}");
+				AddMessage($"Error receiving message from WebSocket proxy: {EscapeHtml(GetDetailedExceptionMessage(ex))}");
+				await InvokeAsync(StateHasChanged);
 				break;
 			}
 		}
 	}
 
-	private async Task ProcessReceivedData(byte[] data, int length)
+	private async Task ProcessReceivedData(byte[] data)
 	{
-		Logger.LogInformation("Inside process receive data.");
-		int index = 0;
-		var outputBuffer = new List<byte>();
-
-		while (index < length)
+		var reachedRecordBoundary = false;
+		foreach (var telnetEvent in _telnetStreamParser.Feed(data))
 		{
-			byte b = data[index];
-
-			if (b == TelnetConstants.IAC)
+			switch (telnetEvent)
 			{
-				Logger.LogInformation("Received an IAC byte");
-				if (index + 1 < length && data[index + 1] == TelnetConstants.IAC)
+				case TelnetDataEvent dataEvent:
 				{
-					// Escaped IAC byte
-					outputBuffer.Add(TelnetConstants.IAC);
-					index += 2;
+					var characterCount = _utf8Decoder.GetCharCount(dataEvent.Data, 0, dataEvent.Data.Length, false);
+					var characters = new char[characterCount];
+					_utf8Decoder.GetChars(dataEvent.Data, 0, dataEvent.Data.Length, characters, 0, false);
+					_pendingServerText.Append(characters);
+					if (_pendingServerText.Length > MaximumPendingServerCharacters)
+					{
+						throw new InvalidDataException("MUD output exceeded the client record limit before a Telnet prompt boundary.");
+					}
+					break;
 				}
-				else
+				case TelnetNegotiationEvent negotiationEvent:
 				{
-					// Telnet command
-					int commandLength = await HandleTelnetCommandAsync(data, index, length);
-					index += commandLength;
+					await HandleTelnetNegotiationAsync(negotiationEvent.Command, negotiationEvent.Option);
+					break;
 				}
-			}
-			else
-			{
-				// Regular data, add to output buffer
-				outputBuffer.Add(b);
-				index++;
+				case TelnetSubnegotiationEvent subnegotiationEvent:
+					await HandleTelnetSubnegotiationAsync(subnegotiationEvent.Option, subnegotiationEvent.Data);
+					break;
+				case TelnetCommandEvent commandEvent:
+					HandleTelnetCommand(commandEvent.Command);
+					reachedRecordBoundary |= commandEvent.Command is TelnetConstants.GA or TelnetConstants.EOR;
+					break;
 			}
 		}
 
-		// Convert output buffer to string and process ANSI/ MXP
-		if (outputBuffer.Count > 0)
+		if (reachedRecordBoundary)
 		{
-			string message = Encoding.UTF8.GetString(outputBuffer.ToArray());
-			string parsedMessage = _ansiMxpParser.Parse(message);
-			if (string.IsNullOrWhiteSpace(parsedMessage))
-			{
-				return;
-			}
-			Messages.Add(parsedMessage);
-
-			// Invoke StateHasChanged to update the UI
-			await InvokeAsync(StateHasChanged);
-
-			// Wait for the UI to finish rendering
-			await InvokeAsync(() => { });
-
-			// Scroll to bottom using JavaScript Interop
-			await JSRuntime.InvokeVoidAsync("scrollToBottom", MessageContainer);
+			await FlushPendingServerTextAsync();
 		}
 	}
 
-	private async Task<int> HandleTelnetCommandAsync(byte[] data, int startIndex, int length)
+	private async Task FlushPendingServerTextAsync()
 	{
-		int index = startIndex;
-
-		if (index + 1 >= length)
+		if (_pendingServerText.Length == 0)
 		{
-			Logger.LogInformation("Incomplete telnet command received.");
-			return 1;
+			return;
 		}
 
-		byte command = data[index + 1];
-
-		if (command == TelnetConstants.IAC)
+		var parsedMessage = _ansiMxpParser.Parse(_pendingServerText.ToString());
+		_pendingServerText.Clear();
+		if (string.IsNullOrWhiteSpace(parsedMessage))
 		{
-			Logger.LogInformation("Escaped IAC byte detected.");
-			// This is an escaped IAC byte (255), should be treated as data
-			// We'll handle it in ProcessReceivedData by adding a single IAC byte
-			return 2;
+			return;
 		}
 
-		// Handle Telnet command
-		switch (command)
-		{
-			case TelnetConstants.WILL:
-			case TelnetConstants.WONT:
-			case TelnetConstants.DO:
-			case TelnetConstants.DONT:
-				if (index + 2 >= length)
-				{
-					Logger.LogInformation("Incomplete telnet negotiation command received.");
-					// Not enough data
-					return 1;
-				}
-				byte option = data[index + 2];
-				Logger.LogInformation($"Telnet negotiation command received: Command={command}, Option={option}");
-				await HandleTelnetNegotiationAsync(command, option);
-				return 3;
-
-			case TelnetConstants.SB:
-				// Handle subnegotiation
-				int endIndex = FindSubnegotiationEnd(data, index + 2, length);
-				if (endIndex == -1)
-				{
-					// SE not found, incomplete subnegotiation
-					Logger.LogInformation("Incomplete telnet subnegotiation received.");
-					return length - index;
-				}
-				var subnegotiationData = data.Skip(index + 2).Take(endIndex - (index + 2)).ToArray();
-				Logger.LogInformation($"Telnet subnegotiation received: Option={data[index + 2]}, Length={subnegotiationData.Length}");
-				await HandleTelnetSubnegotiationAsync(subnegotiationData);
-				return (endIndex - index) + 2; // +2 for IAC SE
-
-			default:
-				// Other commands like IAC GA or IAC EOR
-				Logger.LogInformation($"Telnet command received: Command={command}");
-				HandleTelnetCommand(command);
-				return 2;
-		}
-	}
-
-	private int FindSubnegotiationEnd(byte[] data, int startIndex, int length)
-	{
-		for (int i = startIndex; i < length - 1; i++)
-		{
-			if (data[i] == TelnetConstants.IAC && data[i + 1] == TelnetConstants.SE)
-			{
-				return i;
-			}
-		}
-		return -1; // Not found
+		AddMessage(parsedMessage);
+		await InvokeAsync(StateHasChanged);
+		await JSRuntime.InvokeVoidAsync("scrollToBottomIfNearBottom", MessageContainer);
 	}
 
 	private async Task HandleTelnetNegotiationAsync(byte command, byte option)
@@ -1192,31 +1203,33 @@
 			case TelnetConstants.TELOPT_CHARSET:
 				if (command == TelnetConstants.DO)
 				{
-					// Server asks us to enable CHARSET
 					await SendTelnetCommandAsync(TelnetConstants.WILL, TelnetConstants.TELOPT_CHARSET);
 				}
 				else if (command == TelnetConstants.WILL)
 				{
-					// Server will enable CHARSET
-					// Initiate subnegotiation to request UTF-8
-					await SendCharsetSubnegotiationAsync();
-				}
-				else if (command == TelnetConstants.DONT || command == TelnetConstants.WONT)
-				{
-					// Server refuses CHARSET, handle accordingly
+					await SendTelnetCommandAsync(TelnetConstants.DO, TelnetConstants.TELOPT_CHARSET);
 				}
 				break;
 
 			case TelnetConstants.TELOPT_MXP:
 				if (command == TelnetConstants.WILL)
 				{
-					// Server is offering MXP (IAC WILL TELOPT_MXP)
-					// We respond with IAC DO TELOPT_MXP
 					await SendTelnetCommandAsync(TelnetConstants.DO, TelnetConstants.TELOPT_MXP);
 				}
-				else if (command == TelnetConstants.DONT || command == TelnetConstants.WONT)
+				else if (command == TelnetConstants.DO)
 				{
-					// Server refuses MXP, handle accordingly
+					await SendTelnetCommandAsync(TelnetConstants.WILL, TelnetConstants.TELOPT_MXP);
+				}
+				break;
+
+			case TelnetConstants.TELOPT_EOR:
+				if (command == TelnetConstants.WILL)
+				{
+					await SendTelnetCommandAsync(TelnetConstants.DO, TelnetConstants.TELOPT_EOR);
+				}
+				else if (command == TelnetConstants.DO)
+				{
+					await SendTelnetCommandAsync(TelnetConstants.WILL, TelnetConstants.TELOPT_EOR);
 				}
 				break;
 
@@ -1236,66 +1249,48 @@
 		}
 	}
 
-	private async Task HandleTelnetSubnegotiationAsync(byte[] data)
+	private async Task HandleTelnetSubnegotiationAsync(byte option, byte[] data)
 	{
-		if (data == null || data.Length == 0)
-			return;
-
-		byte option = data[0];
-
 		switch (option)
 		{
 			case TelnetConstants.TELOPT_CHARSET:
-				await HandleCharsetSubnegotiationAsync(data.Skip(1).ToArray());
+				await HandleCharsetSubnegotiationAsync(data);
 				break;
 			case TelnetConstants.TELOPT_MXP:
 				// Server has initiated MXP subnegotiation
 				// We need to send the MXP initialization string
 				await SendMxpInitializationAsync();
 				break;
-			// Handle other subnegotiations if needed
-
 			default:
-				// Ignore unsupported subnegotiations
 				break;
 		}
 	}
 
 	private async Task SendMxpInitializationAsync()
 	{
-		// Send the MXP initialization string
 		string mxpInitString = "\x1B[1z<SUPPORTS +i +color +font +b +strong +ul +a +send +em +underline +u +italic>";
-
-		// Convert the string to bytes using the appropriate encoding
-		byte[] data = Encoding.UTF8.GetBytes(mxpInitString).Concat(new byte[] { 255, 239 });
+		byte[] data = Encoding.UTF8.GetBytes(mxpInitString).Concat([TelnetConstants.IAC, TelnetConstants.EOR]);
 
 		await SendBytesAsync(data);
 	}
 
 	private async Task HandleCharsetSubnegotiationAsync(byte[] data)
 	{
-		if (data.Length > 0)
+		if (data.Length < 3 || data[0] != 1)
 		{
-			byte command = data[0];
+			return;
+		}
 
-			if (command == 1) // CHARSET REQUEST
-			{
-				// Extract the list of supported charsets
-				var charsetList = Encoding.ASCII.GetString(data, 1, data.Length - 1);
-				var charsets = charsetList.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-				// Check if UTF-8 is supported
-				if (charsets.Contains("UTF-8", StringComparer.OrdinalIgnoreCase))
-				{
-					// Send CHARSET ACCEPT UTF-8
-					await SendCharsetAcceptAsync("UTF-8");
-				}
-				else
-				{
-					// Send CHARSET REJECT
-					await SendCharsetRejectAsync();
-				}
-			}
+		var separator = (char)data[1];
+		var charsetList = Encoding.ASCII.GetString(data, 2, data.Length - 2);
+		var charsets = charsetList.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+		if (charsets.Contains("UTF-8", StringComparer.OrdinalIgnoreCase))
+		{
+			await SendCharsetAcceptAsync("UTF-8");
+		}
+		else
+		{
+			await SendCharsetRejectAsync();
 		}
 	}
 
@@ -1303,25 +1298,6 @@
 	{
 		var commandBytes = new byte[] { TelnetConstants.IAC, command, option };
 		await SendBytesAsync(commandBytes);
-	}
-
-	private async Task SendCharsetSubnegotiationAsync()
-	{
-		// Send IAC SB CHARSET REQUEST IAC SE
-		var data = new List<byte>
-		{
-			TelnetConstants.IAC,
-			TelnetConstants.SB,
-			TelnetConstants.TELOPT_CHARSET,
-			1  // CHARSET REQUEST
-		};
-		// List of charsets we support
-		string supportedCharsets = "UTF-8";
-		data.AddRange(Encoding.ASCII.GetBytes(supportedCharsets));
-		data.Add(TelnetConstants.IAC);
-		data.Add(TelnetConstants.SE);
-
-		await SendBytesAsync(data.ToArray());
 	}
 
 	private async Task SendCharsetAcceptAsync(string charset)
@@ -1379,28 +1355,43 @@
 
 	private async Task SendBytesAsync(byte[] data)
 	{
-		if (_clientWebSocket?.State == WebSocketState.Open)
+		await SendFrameAsync(data, _cancellationTokenSource.Token);
+	}
+
+	private async Task SendFrameAsync(byte[] data, CancellationToken cancellationToken)
+	{
+		await _sendSemaphore.WaitAsync(cancellationToken);
+		try
 		{
-			await _clientWebSocket.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Binary, true, _cancellationTokenSource.Token);
+			if (_clientWebSocket?.State != WebSocketState.Open)
+			{
+				throw new WebSocketException("The WebSocket proxy connection is not open.");
+			}
+
+			await _clientWebSocket.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Binary, true, cancellationToken);
+		}
+		finally
+		{
+			_sendSemaphore.Release();
 		}
 	}
 
 
-	private async Task SendMessageAsync(string inputMessage)
+	private async Task<bool> SendMessageAsync(string inputMessage)
 	{
-		await SendMessageAsync(inputMessage, echoCommand: true, logCommandText: true, addToHistory: true, splitCommands: true);
+		return await SendMessageAsync(inputMessage, echoCommand: true, logCommandText: true, addToHistory: true, splitCommands: true);
 	}
 
-	private async Task SendSingleCommandAsync(
+	private async Task<bool> SendSingleCommandAsync(
 		string inputMessage,
 		bool echoCommand,
 		bool logCommandText,
 		bool addToHistory)
 	{
-		await SendMessageAsync(inputMessage, echoCommand, logCommandText, addToHistory, splitCommands: false);
+		return await SendMessageAsync(inputMessage, echoCommand, logCommandText, addToHistory, splitCommands: false);
 	}
 
-	private async Task SendMessageAsync(
+	private async Task<bool> SendMessageAsync(
 		string inputMessage,
 		bool echoCommand,
 		bool logCommandText,
@@ -1409,9 +1400,9 @@
 	{
 		if (_clientWebSocket?.State != WebSocketState.Open)
 		{
-			Messages.Add("Not connected to the MUD. Start MudWebSocketProxy and use Reconnect.");
+			AddMessage("Not connected to the MUD. Start MudWebSocketProxy and use Reconnect.");
 			await InvokeAsync(StateHasChanged);
-			return;
+			return false;
 		}
 
 		if (addToHistory)
@@ -1420,59 +1411,115 @@
 		}
 
 		var commands = splitCommands ? CommandSplitter.Split(inputMessage, CurrentClientSettings) : [inputMessage];
-
-		for (var commandIndex = 0; commandIndex < commands.Count; commandIndex++)
+		if (commands.Count == 0)
 		{
-			var command = commands[commandIndex];
-			if (logCommandText)
+			commands = [string.Empty];
+		}
+
+		if (commands.Count > MaximumCommandsPerBatch)
+		{
+			AddMessage($"That input contains {commands.Count:N0} commands; the client limit is {MaximumCommandsPerBatch:N0} per batch.");
+			await InvokeAsync(StateHasChanged);
+			return false;
+		}
+
+		var isBatch = commands.Count > 1;
+		using var batchCancellation = isBatch
+			? CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token)
+			: null;
+		var cancellationToken = batchCancellation?.Token ?? _cancellationTokenSource.Token;
+		var completed = true;
+
+		await _commandSequenceSemaphore.WaitAsync(cancellationToken);
+		try
+		{
+			if (isBatch)
 			{
-				Logger.LogInformation("Sending Command: {Command}", command);
-			}
-			else
-			{
-				Logger.LogInformation("Sending sensitive command.");
+				_batchCancellationTokenSource = batchCancellation;
+				_isSendingBatch = true;
 			}
 
-			if (string.IsNullOrWhiteSpace(command))
+			for (var commandIndex = 0; commandIndex < commands.Count; commandIndex++)
 			{
-				await _clientWebSocket.SendAsync(new ArraySegment<byte>([13, 255, 239]), WebSocketMessageType.Binary, true, _cancellationTokenSource.Token);
-				continue;
-			}
+				cancellationToken.ThrowIfCancellationRequested();
+				var command = commands[commandIndex];
+				var commandBytes = Encoding.UTF8.GetBytes(command);
+				if (commandBytes.Length > MaximumCommandBytes)
+				{
+					AddMessage($"Command {commandIndex + 1:N0} is larger than the {MaximumCommandBytes / 1024:N0} KiB client limit; the batch was stopped.");
+					completed = false;
+					break;
+				}
 
-			if (echoCommand)
-			{
-				string formattedCommand = $"\x1B[33m{EscapeHtml(command)}\x1B[0m";
-				Messages.Add(_ansiMxpParser.Parse(formattedCommand));
-			}
-			
+				if (logCommandText)
+				{
+					Logger.LogInformation("Sending command with {ByteCount} UTF-8 bytes.", commandBytes.Length);
+				}
+				else
+				{
+					Logger.LogInformation("Sending sensitive command.");
+				}
 
-			// Send the command to the server
-			var bytes = Encoding.UTF8.GetBytes(command).Concat(new byte[] { 13, 255, 239 });
-			await _clientWebSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Binary, true, _cancellationTokenSource.Token);
-			if (logCommandText)
-			{
-				Logger.LogInformation("Sent Command: {Command}", command);
-			}
-			else
-			{
-				Logger.LogInformation("Sent sensitive command.");
-			}
+				if (echoCommand && !string.IsNullOrWhiteSpace(command))
+				{
+					AddMessage(_ansiMxpParser.Parse($"\x1B[33m{command}\x1B[0m"));
+				}
 
-			// Give prompt-driven commands, especially login steps, time to advance before sending the next command.
-			if (commandIndex < commands.Count - 1)
-			{
-				await Task.Delay(StackedCommandDelay);
+				var payload = commandBytes.Concat(new byte[] { 13, TelnetConstants.IAC, TelnetConstants.EOR }).ToArray();
+				await SendFrameAsync(payload, cancellationToken);
+
+				if (isBatch)
+				{
+					_batchProgressText = $"Sending {commandIndex + 1:N0} of {commands.Count:N0}";
+					if (commandIndex % 10 == 0 || commandIndex == commands.Count - 1)
+					{
+						await InvokeAsync(StateHasChanged);
+					}
+				}
+
+				if (commandIndex < commands.Count - 1)
+				{
+					await Task.Delay(CurrentClientSettings.StackedCommandDelayMs, cancellationToken);
+				}
 			}
 		}
-		
-		// Invoke StateHasChanged to update the UI
+		catch (OperationCanceledException) when (isBatch && batchCancellation?.IsCancellationRequested == true)
+		{
+			completed = false;
+			AddMessage("Stacked command batch cancelled.");
+		}
+		catch (Exception ex) when (ex is WebSocketException or ObjectDisposedException or InvalidOperationException)
+		{
+			completed = false;
+			isConnected = false;
+			Logger.LogWarning(ex, "Command sending stopped because the proxy connection closed.");
+			AddMessage("Command sending stopped because the proxy connection closed.");
+		}
+		finally
+		{
+			if (isBatch)
+			{
+				_batchCancellationTokenSource = null;
+				_isSendingBatch = false;
+				_batchProgressText = string.Empty;
+			}
+
+			_commandSequenceSemaphore.Release();
+		}
+
 		await InvokeAsync(StateHasChanged);
+		await JSRuntime.InvokeVoidAsync("scrollToBottomIfNearBottom", MessageContainer);
+		return completed;
+	}
 
-		// Wait for the UI to finish rendering
-		await InvokeAsync(() => { });
+	private void CancelCommandBatch()
+	{
+		_batchCancellationTokenSource?.Cancel();
+	}
 
-		// Scroll to bottom using JavaScript Interop
-		await JSRuntime.InvokeVoidAsync("scrollToBottom", MessageContainer);
+	private void AddMessage(string html)
+	{
+		_transcript.Add(html);
 	}
 
 	private void AddToCommandHistory(string input)
@@ -1516,213 +1563,113 @@
 		return string.Join(" ", messages);
 	}
 
-	private async Task HandleKeyPress(KeyboardEventArgs e)
-	{
-		// Get the character corresponding to the key
-		string inputChar = e.Key;
-
-		// Handle special cases if necessary
-		if (e.Key == "Enter" || e.Key == "Tab")
-			return;
-
-		int selectionStart = await JSRuntime.InvokeAsync<int>("getSelectionStart", "userInput");
-		int selectionEnd = await JSRuntime.InvokeAsync<int>("getSelectionEnd", "userInput");
-
-		// Insert the character at the cursor position
-		UserInput = UserInput.Remove(selectionStart, selectionEnd - selectionStart)
-							 .Insert(selectionStart, inputChar);
-
-		await InvokeAsync(StateHasChanged);
-
-		// Move cursor position after the inserted character
-		await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart + inputChar.Length);
-	}
-
 	private async Task HandleKeyDown(KeyboardEventArgs e)
 	{
-		if (!_hotkeySettingsOpen &&
-		    !HasHotkeyModifier(e) &&
-		    HotkeyInputPolicy.ShouldSendHotkeyFromEditableField(e.Code, e.Key) &&
-		    HotkeyMap.TryGetCommand(e.Code, out var hotkeyCommand))
+		if (e.Key == "Enter" && !e.ShiftKey)
 		{
-			await SendMessageAsync(hotkeyCommand);
+			var completed = await SendMessageAsync(UserInput);
+			if (!completed)
+			{
+				return;
+			}
+			if (CurrentClientSettings.ClearInputAfterSend)
+			{
+				UserInput = string.Empty;
+			}
+			else
+			{
+				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", 0, UserInput.Length);
+			}
+
+			CommandHistoryIndex = CommandHistory.Count;
 			return;
 		}
 
-		int selectionStart = await JSRuntime.InvokeAsync<int>("getSelectionStart", "userInput");
-		int selectionEnd = await JSRuntime.InvokeAsync<int>("getSelectionEnd", "userInput");
+		if (e.Key == "ArrowUp")
+		{
+			if (e.CtrlKey && CommandHistory.Count > 0)
+			{
+				CommandHistoryIndex = 0;
+				UserInput = CommandHistory[CommandHistoryIndex];
+			}
+			else if (CommandHistory.Count > 0 && CommandHistoryIndex > 0)
+			{
+				CommandHistoryIndex--;
+				UserInput = CommandHistory[CommandHistoryIndex];
+			}
 
-		if (e.Key == "Enter")
-		{
-			if (e.ShiftKey)
-			{
-				// Insert a newline at the cursor position
-				UserInput = UserInput.Remove(selectionStart, selectionEnd - selectionStart)
-										.Insert(selectionStart, "\n");
-				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart + 1);
-			}
-			else
-			{
-				// Send the message
-				await SendMessageAsync(UserInput);
-				if (CurrentClientSettings.ClearInputAfterSend)
-				{
-					UserInput = string.Empty;
-				}
-				else
-				{
-					await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", 0, UserInput.Length);
-				}
-				CommandHistoryIndex = CommandHistory.Count;
-			}
+			await InvokeAsync(StateHasChanged);
+			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+			return;
 		}
-		else if (e.Key == "Backspace")
-		{
-			if (selectionStart > 0 || selectionEnd > selectionStart)
-			{
-				if (selectionEnd > selectionStart)
-				{
-					// Delete selected text
-					UserInput = UserInput.Remove(selectionStart, selectionEnd - selectionStart);
-				}
-				else
-				{
-					// Delete character before the cursor
-					UserInput = UserInput.Remove(selectionStart - 1, 1);
-					selectionStart--;
-				}
-				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart);
-			}
-		}
-		else if (e.Key == "Delete")
-		{
-			if (selectionStart < UserInput.Length || selectionEnd > selectionStart)
-			{
-				if (selectionEnd > selectionStart)
-				{
-					// Delete selected text
-					UserInput = UserInput.Remove(selectionStart, selectionEnd - selectionStart);
-				}
-				else
-				{
-					// Delete character after the cursor
-					UserInput = UserInput.Remove(selectionStart, 1);
-				}
-				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart);
-			}
-		}
-		else if (e.Key == "ArrowLeft")
-		{
-			// Move cursor left
-			selectionStart = Math.Max(selectionStart - 1, 0);
-			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart);
-		}
-		else if (e.Key == "ArrowRight")
-		{
-			// Move cursor right
-			selectionStart = Math.Min(selectionStart + 1, UserInput.Length);
-			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart);
-		}
-		else if (e.Key == "ArrowUp")
-		{
-			if (e.CtrlKey)
-			{
-				// Ctrl+ArrowUp moves to the first command in the history
-				if (CommandHistory.Count > 0)
-				{
-					CommandHistoryIndex = 0;
-					UserInput = CommandHistory[CommandHistoryIndex];
-					await InvokeAsync(StateHasChanged);
-					await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
-				}
-			}
-			else
-			{
-				// Navigate command history up
-				if (CommandHistory.Count > 0 && CommandHistoryIndex > 0)
-				{
-					CommandHistoryIndex--;
-					UserInput = CommandHistory[CommandHistoryIndex];
-					await InvokeAsync(StateHasChanged);
-					await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
-				}
-			}
-		}
-		else if (e.Key == "ArrowDown")
-		{if (e.CtrlKey)
-			{
-				// Ctrl+ArrowDown moves to the last command in the history
-				if (CommandHistory.Count > 0)
-				{
-					CommandHistoryIndex = CommandHistory.Count - 1;
-					UserInput = CommandHistory[CommandHistoryIndex];
-					await InvokeAsync(StateHasChanged);
-					await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
-				}
-			}
-			else
-			{
-				// Navigate command history down
-				if (CommandHistoryIndex < CommandHistory.Count - 1)
-				{
-					CommandHistoryIndex++;
-					UserInput = CommandHistory[CommandHistoryIndex];
-				}
-				else
-				{
-					CommandHistoryIndex = CommandHistory.Count;
-					UserInput = string.Empty;
-				}
 
-				await InvokeAsync(StateHasChanged);
-				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
-			}
-		}
-		else if (e.Key == "Home")
+		if (e.Key == "ArrowDown")
 		{
-			if (e.CtrlKey)
+			if (e.CtrlKey && CommandHistory.Count > 0)
 			{
-				// Ctrl+Home: Move to the start of command history
-				if (CommandHistory.Count > 0)
-				{
-					CommandHistoryIndex = 0;
-					UserInput = CommandHistory[CommandHistoryIndex];
-					await InvokeAsync(StateHasChanged);
-					await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
-				}
+				CommandHistoryIndex = CommandHistory.Count - 1;
+				UserInput = CommandHistory[CommandHistoryIndex];
+			}
+			else if (CommandHistoryIndex < CommandHistory.Count - 1)
+			{
+				CommandHistoryIndex++;
+				UserInput = CommandHistory[CommandHistoryIndex];
 			}
 			else
 			{
-				// Move the cursor to the start of the input
-				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", 0);
-			}
-		}
-		else if (e.Key == "End")
-		{
-			if (e.CtrlKey)
-			{
-				// Ctrl+End: Move to the end of the command history (empty input)
 				CommandHistoryIndex = CommandHistory.Count;
 				UserInput = string.Empty;
-				await InvokeAsync(StateHasChanged);
-				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", 0);
 			}
-			else
-			{
-				// Move the cursor to the end of the input
-				await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
-			}
-		}
-		else if (e.Key.Length == 1 && !e.CtrlKey && !e.AltKey && !e.MetaKey)
-		{
-			// Handle character input
-			UserInput = UserInput.Remove(selectionStart, selectionEnd - selectionStart)
-									.Insert(selectionStart, e.Key);
-			selectionStart += e.Key.Length;
-			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", selectionStart);
+
+			await InvokeAsync(StateHasChanged);
+			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+			return;
 		}
 
-		await InvokeAsync(StateHasChanged);
+		if (e.Key == "Home" && e.CtrlKey && CommandHistory.Count > 0)
+		{
+			CommandHistoryIndex = 0;
+			UserInput = CommandHistory[CommandHistoryIndex];
+			await InvokeAsync(StateHasChanged);
+			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+			return;
+		}
+
+		if (e.Key == "End" && e.CtrlKey)
+		{
+			CommandHistoryIndex = CommandHistory.Count;
+			UserInput = string.Empty;
+			await InvokeAsync(StateHasChanged);
+			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", 0);
+		}
+	}
+
+	private async Task LoadTextFileAsync(InputFileChangeEventArgs args)
+	{
+		var file = args.File;
+		if (file.Size > MaximumTextFileBytes)
+		{
+			AddMessage($"{EscapeHtml(file.Name)} is larger than the 1 MiB text import limit.");
+			await InvokeAsync(StateHasChanged);
+			return;
+		}
+
+		try
+		{
+			await using var stream = file.OpenReadStream(MaximumTextFileBytes, _cancellationTokenSource.Token);
+			using var reader = new StreamReader(stream, Encoding.UTF8, true);
+			UserInput = await reader.ReadToEndAsync(_cancellationTokenSource.Token);
+			var lineCount = UserInput.Count(character => character == '\n') + (UserInput.Length > 0 ? 1 : 0);
+			AddMessage($"Loaded {EscapeHtml(file.Name)} ({file.Size:N0} bytes, {lineCount:N0} lines) for review.");
+			await InvokeAsync(StateHasChanged);
+			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+		}
+		catch (Exception ex) when (ex is IOException or InvalidOperationException)
+		{
+			Logger.LogWarning(ex, "Unable to load text file {FileName}.", file.Name);
+			AddMessage($"Could not load {EscapeHtml(file.Name)} as a UTF-8 text file.");
+			await InvokeAsync(StateHasChanged);
+		}
 	}
 
 	public async ValueTask DisposeAsync()
@@ -1730,6 +1677,8 @@
 		try
 		{
 			await JSRuntime.InvokeVoidAsync("mudClientHotkeys.dispose");
+			await JSRuntime.InvokeVoidAsync("mudClientInput.dispose");
+			await JSRuntime.InvokeVoidAsync("disposeSendCommandHandler");
 		}
 		catch (JSDisconnectedException)
 		{
@@ -1738,6 +1687,7 @@
 		{
 		}
 
+		_batchCancellationTokenSource?.Cancel();
 		_cancellationTokenSource.Cancel();
 
 		if (_clientWebSocket?.State is WebSocketState.Open or WebSocketState.CloseReceived)
@@ -1751,6 +1701,8 @@
 		}
 
 		_cancellationTokenSource.Dispose();
+		_sendSemaphore.Dispose();
+		_commandSequenceSemaphore.Dispose();
 		_objectReference?.Dispose();
 	}
 
@@ -1810,7 +1762,8 @@
 		if (_clientWebSocket?.State == WebSocketState.Open)
 		{
 			await _clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by user", CancellationToken.None);
-			Messages.Add("Disconnected from the MUD.");
+			await FlushPendingServerTextAsync();
+			AddMessage("Disconnected from the MUD.");
 		}
 
 		isConnected = false;
@@ -1824,12 +1777,12 @@
 		{
 			if (_webSocketEndpoint == null)
 			{
-				Messages.Add("Cannot reconnect because the WebSocket proxy endpoint is not configured.");
+				AddMessage("Cannot reconnect because the WebSocket proxy endpoint is not configured.");
 				isConnected = false;
 			}
 			else if (await ConnectToWebSocketAsync(_webSocketEndpoint))
 			{
-				Messages.Add("Reconnected to the MUD.");
+				AddMessage("Reconnected to the MUD.");
 			}
 
 			await InvokeAsync(StateHasChanged);
@@ -1865,14 +1818,14 @@
 
 		// Build the HTML log content with embedded CSS
 		var logContent = new StringBuilder();
-		logContent.Append("<html><head><title>MUD Log</title>");
+		logContent.Append("<html><head><meta charset='utf-8'><meta http-equiv='Content-Security-Policy' content=\"default-src 'none'; style-src 'unsafe-inline'; img-src https: data:;\"><title>MUD Log</title>");
 		logContent.Append(css);
 		logContent.Append("</head><body><div class='message-container'>");
 
 		// Loop through messages and add them to the log
-		foreach (var message in Messages)
+		foreach (var message in _transcript.LogEntries)
 		{
-			logContent.Append($"<div>{message}</div>");
+			logContent.Append($"<div>{message.Html}</div>");
 		}
 		logContent.Append("</div></body></html>");
 
@@ -1881,6 +1834,6 @@
 
 		// Trigger download in the browser
 		var jsContent = $"data:text/html;base64,{logBlob}";
-		await JSRuntime.InvokeVoidAsync("triggerDownload", $"mud_log_{DateTime.UtcNow:u}.html", jsContent);
+		await JSRuntime.InvokeVoidAsync("triggerDownload", $"mud-log-{DateTime.UtcNow:yyyyMMdd-HHmmss}.html", jsContent);
 	}
 }

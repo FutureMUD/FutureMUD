@@ -47,6 +47,8 @@ body {
 }
 
 button,
+input,
+select,
 textarea {
 	font: inherit;
 }
@@ -110,6 +112,8 @@ textarea {
 
 .message-container > div {
 	max-width: var(--client-message-wrap-width, none);
+	content-visibility: auto;
+	contain-intrinsic-size: auto 1.5em;
 }
 
 .message-container::-webkit-scrollbar,
@@ -403,9 +407,50 @@ textarea {
 }
 
 .input-container {
+	display: grid;
+	gap: 0.55rem;
 	padding: clamp(0.65rem, 1.15vw, 0.95rem);
 	background: var(--panel-bg);
 	border-bottom: 1px solid var(--border-subtle);
+}
+
+.input-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	min-width: 0;
+}
+
+.file-input-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	cursor: pointer;
+}
+
+.file-input-button input[type="file"] {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.input-help,
+.batch-progress {
+	color: var(--text-muted);
+	font-size: 0.82rem;
+}
+
+.batch-progress {
+	display: inline-flex;
+	align-items: center;
+	white-space: nowrap;
 }
 
 .settings-panel {
@@ -893,6 +938,11 @@ a:hover {
 	}
 
 	.status-footer {
+		flex-direction: column;
+	}
+
+	.input-toolbar {
+		align-items: stretch;
 		flex-direction: column;
 	}
 

@@ -46,7 +46,7 @@ public class AnsiMxpParserTests
 		var result = new AnsiMxpParser().Parse(input);
 
 		Assert.Equal(
-			"<img class=\"mxp-image\" src=\"http://stream1.gifsoup.com/view3/3414762/batman-thumbs-up-o.gif\" alt=\"batman-thumbs-up-o.gif\" loading=\"lazy\" />",
+			"<img class=\"mxp-image\" src=\"http://stream1.gifsoup.com/view3/3414762/batman-thumbs-up-o.gif\" alt=\"batman-thumbs-up-o.gif\" loading=\"lazy\" decoding=\"async\" referrerpolicy=\"no-referrer\" />",
 			result);
 	}
 
@@ -59,8 +59,9 @@ public class AnsiMxpParserTests
 
 		// Since IDs are dynamic, we can't assert the exact output
 		Assert.Contains("class=\"mxp-send-link\"", result);
-		Assert.Contains("href=\"javascript:void(0)\"", result);
-		Assert.Contains("onclick=\"javascript:sendCommand(", result);
+		Assert.Contains("href=\"#\"", result);
+		Assert.Contains("data-mxp-command-id=\"0\"", result);
+		Assert.DoesNotContain("onclick", result, StringComparison.OrdinalIgnoreCase);
 		Assert.Contains("Look Around", result);
 		Assert.True(parser.TryGetSendCommand(0, out var command));
 		Assert.Equal("look", command);
@@ -75,7 +76,7 @@ public class AnsiMxpParserTests
 		var result = parser.Parse(input);
 
 		Assert.Equal(
-			"<a class=\"mxp-send-link\" href=\"javascript:void(0)\" onclick=\"javascript:sendCommand(0); return false;\" title=\"a pair of steel-capped, vivid indigo shoes\">(covered)</a>",
+			"<a class=\"mxp-send-link\" href=\"#\" data-mxp-command-id=\"0\" title=\"a pair of steel-capped, vivid indigo shoes\">(covered)</a>",
 			result);
 		Assert.True(parser.TryGetSendCommand(0, out var command));
 		Assert.Equal("look", command);
@@ -90,7 +91,7 @@ public class AnsiMxpParserTests
 		var result = parser.Parse(input);
 
 		Assert.Equal(
-			"<a class=\"mxp-send-link\" href=\"javascript:void(0)\" onclick=\"javascript:sendCommand(0); return false;\" title=\"look at &quot;shoes&quot;\">&lt;covered&gt;</a>",
+			"<a class=\"mxp-send-link\" href=\"#\" data-mxp-command-id=\"0\" title=\"look at &quot;shoes&quot;\">&lt;covered&gt;</a>",
 			result);
 		Assert.True(parser.TryGetSendCommand(0, out var command));
 		Assert.Equal("look shoes", command);

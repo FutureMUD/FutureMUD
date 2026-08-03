@@ -7,8 +7,11 @@ namespace MudClientBlazor.Services;
 
 public class AnsiMxpParser
 {
+	private const int MaximumSendCommands = 4_096;
+	private const int MaximumSendCommandLength = 16_384;
 	private int _sendButtonId;
 	private readonly Dictionary<int, string> _sendCommands = new();
+	private readonly Queue<int> _sendCommandOrder = new();
 
 	public bool TryGetSendCommand(int id, [NotNullWhen(true)] out string? command)
 	{
@@ -241,7 +244,7 @@ public class AnsiMxpParser
 				string? command = GetAttributeValue(attrs, "HREF");
 				string text = match.Groups["sendText"].Value;
 
-				if (string.IsNullOrWhiteSpace(command))
+				if (string.IsNullOrWhiteSpace(command) || command.Length > MaximumSendCommandLength)
 				{
 					output.Append(EscapeHtml(match.Value));
 					lastIndex = match.Index + match.Length;
@@ -250,11 +253,16 @@ public class AnsiMxpParser
 
 				int id = _sendButtonId++;
 				_sendCommands[id] = command;
+				_sendCommandOrder.Enqueue(id);
+				while (_sendCommandOrder.Count > MaximumSendCommands)
+				{
+					_sendCommands.Remove(_sendCommandOrder.Dequeue());
+				}
 
 				var hint = GetAttributeValue(attrs, "HINT");
 				var titleAttribute = string.IsNullOrWhiteSpace(hint) ? string.Empty : $" title=\"{EscapeHtml(hint)}\"";
 
-				output.Append($"<a class=\"mxp-send-link\" href=\"javascript:void(0)\" onclick=\"javascript:sendCommand({id}); return false;\"{titleAttribute}>");
+				output.Append($"<a class=\"mxp-send-link\" href=\"#\" data-mxp-command-id=\"{id}\"{titleAttribute}>");
 				AppendEscapedText(output, text, allowAutoLinks: false);
 				output.Append("</a>");
 			}
@@ -584,7 +592,7 @@ public class AnsiMxpParser
 			? fileName
 			: new Uri(safeSrc).Segments.LastOrDefault()?.Trim('/') ?? "MXP image";
 
-		markup = $"<img class=\"mxp-image\" src=\"{EscapeHtml(safeSrc)}\" alt=\"{EscapeHtml(alt)}\" loading=\"lazy\" />";
+		markup = $"<img class=\"mxp-image\" src=\"{EscapeHtml(safeSrc)}\" alt=\"{EscapeHtml(alt)}\" loading=\"lazy\" decoding=\"async\" referrerpolicy=\"no-referrer\" />";
 		return true;
 	}
 

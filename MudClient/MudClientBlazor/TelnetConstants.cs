@@ -18,6 +18,7 @@ public static class TelnetConstants
 	public const byte TELOPT_STATUS = 5;
 	public const byte TELOPT_TIMING_MARK = 6;
 	public const byte TELOPT_TTYPE = 24;
+	public const byte TELOPT_EOR = 25;
 	public const byte TELOPT_NAWS = 31;
 	public const byte TELOPT_TERMINAL_SPEED = 32;
 	public const byte TELOPT_REMOTE_FLOW_CONTROL = 33;

@@ -47,7 +47,7 @@ Use `CADDY_CONFIG` and `CADDY_FRAGMENTS_DIR` for nonstandard Caddyfile locations
 
 ## Build A Release
 
-The production release is created by an annotated `mudclient-v<version>` tag in the FutureMUD repository. The normal product workflow runs the client tests, produces self-contained Windows x64, Linux x64, and Linux ARM64 packages, smoke-publishes them to a temporary website host, and promotes the validated archives to futuremud.com.
+The production release is created by an annotated `mudclient-v<version>` tag in the FutureMUD repository. The normal product workflow installs the WebAssembly build tools, fails closed if NuGet advisory data is unavailable or any direct/transitive dependency is vulnerable, runs the client tests, produces self-contained Windows x64, Linux x64, and Linux ARM64 packages, smoke-publishes them to a temporary website host, and promotes the validated archives to futuremud.com.
 
 You can also build a local package from a machine with the .NET 10 SDK. For optimized Blazor WebAssembly output, install the WebAssembly build tools once before publishing:
 
@@ -77,9 +77,19 @@ Edit `proxy/appsettings.json`:
   },
   "WebSocketServer": {
     "Path": "/ws",
+	"RequireOrigin": true,
     "AllowedOrigins": [
       "https://play.example.com"
     ]
+	},
+	"ProxyLimits": {
+	  "MaximumConcurrentConnections": 200,
+	  "MaximumConnectionsPerIp": 20,
+	  "MaximumClientMessageBytes": 65536,
+	  "MaximumClientMessagesPerSecond": 30,
+	  "MaximumClientBytesPerSecond": 131072,
+	  "MaximumMudBytesPerSecond": 2097152,
+	  "MudConnectionTimeoutSeconds": 10
   }
 }
 ```
@@ -87,6 +97,8 @@ Edit `proxy/appsettings.json`:
 Set `MudServer` to the telnet address and port as seen from the web server. For the intended same-server install, keep `127.0.0.1`.
 
 Set `AllowedOrigins` to the exact public web origin. Use `http://...` only for local testing; production should be `https://...`.
+
+Keep `RequireOrigin` enabled in production. It rejects originless WebSocket upgrades as well as browser origins not listed in `AllowedOrigins`. The proxy also applies global and per-address connection ceilings, a MUD connect timeout, a maximum client message size, per-connection client message/byte rates, and a generous MUD-to-browser output ceiling. The packaged defaults accommodate normal play and the client's paced multi-line sender; raise them only after reviewing the public-edge capacity and abuse implications.
 
 The Blazor client defaults to:
 
@@ -99,6 +111,12 @@ The Blazor client defaults to:
 ```
 
 That is the easiest production setup because the browser automatically turns it into `wss://your-site/ws` when the page is served over HTTPS.
+
+The supplied Caddy and Nginx examples restrict framing and browser capabilities, set a no-referrer policy, prevent content-type sniffing, and use a Content Security Policy compatible with Blazor WebAssembly and FutureMUD ANSI/MXP output. Preserve those headers when integrating the client into an existing site. The proxy should remain bound to loopback so only the trusted local reverse proxy can supply forwarded client addresses.
+
+Quick Login usernames and aliases are browser-local preferences. Passwords are deliberately held only in the current tab's memory and are removed from older saved settings when loaded. Let the browser or a password manager retain credentials instead of weakening this boundary.
+
+The client can load a UTF-8 text file of up to 1 MiB into the command box for review. It never sends a selected file automatically. Newline stacking then sends at the configured pace (100 ms by default), while Quick Login retains a separate 750 ms prompt-transition delay. The client and proxy both cap batch/message sizes and rates; these are safety controls, not substitutes for normal FutureMUD account and command permissions.
 
 ## Linux Service
 

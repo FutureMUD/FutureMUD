@@ -51,7 +51,7 @@ Invoke-DotNet @(
 Invoke-DotNet @(
 	"publish", "MudWebSocketProxy/MudWebSocketProxy.csproj", "-c", $Configuration, "--no-restore",
 	"-r", $RuntimeIdentifier, "--self-contained", "true", "-p:PublishSingleFile=true",
-	"-p:IncludeNativeLibrariesForSelfExtract=true", "-p:Version=$Version",
+	"-p:IncludeNativeLibrariesForSelfExtract=true", "-p:DebugType=embedded", "-p:Version=$Version",
 	"-p:ContinuousIntegrationBuild=true", "-o", $proxyPublish)
 
 New-Item -ItemType Directory -Force -Path (Join-Path $packageRoot "web"), (Join-Path $packageRoot "proxy") | Out-Null

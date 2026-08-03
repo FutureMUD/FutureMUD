@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.WebSockets;
+using Microsoft.AspNetCore.HttpOverrides;
+using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MudWebSocketProxy.Handlers;
+using MudWebSocketProxy.Security;
 
 namespace MudWebSocketProxy;
 
@@ -42,11 +45,21 @@ public class Program
 		});
 
 		builder.Services.AddTransient<WebSocketHandler>();
+		builder.Services.AddSingleton(ProxyLimits.FromConfiguration(builder.Configuration));
+		builder.Services.AddSingleton<ProxyConnectionLimiter>();
 
 		builder.Logging.ClearProviders();
 		builder.Logging.AddConsole();
 
 		var app = builder.Build();
+		var forwardedHeadersOptions = new ForwardedHeadersOptions
+		{
+			ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+			ForwardLimit = 1
+		};
+		forwardedHeadersOptions.KnownProxies.Add(IPAddress.Loopback);
+		forwardedHeadersOptions.KnownProxies.Add(IPAddress.IPv6Loopback);
+		app.UseForwardedHeaders(forwardedHeadersOptions);
 		app.UseCors();
 		app.UseWebSockets();
 
@@ -63,8 +76,17 @@ public class Program
 					return;
 				}
 
-				var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+				var connectionLimiter = context.RequestServices.GetRequiredService<ProxyConnectionLimiter>();
+				var clientAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+				using var connectionLease = connectionLimiter.TryAcquire(clientAddress);
+				if (connectionLease == null)
+				{
+					context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+					await context.Response.WriteAsync("Too many active WebSocket connections.");
+					return;
+				}
 
+				var webSocket = await context.WebSockets.AcceptWebSocketAsync();
 				var webSocketHandler = context.RequestServices.GetRequiredService<WebSocketHandler>();
 				await webSocketHandler.HandleWebSocketAsync(context, webSocket);
 			}
@@ -90,28 +112,24 @@ public class Program
 	private static bool IsRequestOriginAllowed(HttpContext context, IConfiguration configuration)
 	{
 		var origin = context.Request.Headers.Origin.ToString();
-		return string.IsNullOrWhiteSpace(origin) || IsConfiguredOriginAllowed(origin, configuration);
+		var requireOrigin = configuration.GetValue("WebSocketServer:RequireOrigin", true);
+		return WebSocketOriginPolicy.IsAllowed(
+			origin,
+			requireOrigin,
+			configuration
+				.GetSection("WebSocketServer:AllowedOrigins")
+				.GetChildren()
+				.Select(section => section.Value));
 	}
 
 	private static bool IsConfiguredOriginAllowed(string origin, IConfiguration configuration)
 	{
-		var normalizedOrigin = NormalizeOrigin(origin);
-		return configuration
-			.GetSection("WebSocketServer:AllowedOrigins")
-			.GetChildren()
-			.Select(section => section.Value)
-			.Where(allowedOrigin => !string.IsNullOrWhiteSpace(allowedOrigin))
-			.Select(allowedOrigin => NormalizeOrigin(allowedOrigin!))
-			.Any(allowedOrigin => string.Equals(allowedOrigin, normalizedOrigin, StringComparison.OrdinalIgnoreCase));
-	}
-
-	private static string NormalizeOrigin(string origin)
-	{
-		if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
-		{
-			return uri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
-		}
-
-		return origin.Trim().TrimEnd('/');
+		return WebSocketOriginPolicy.IsAllowed(
+			origin,
+			true,
+			configuration
+				.GetSection("WebSocketServer:AllowedOrigins")
+				.GetChildren()
+				.Select(section => section.Value));
 	}
 }

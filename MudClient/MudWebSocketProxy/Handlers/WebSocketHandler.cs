@@ -1,10 +1,11 @@
-﻿using System.Net.Sockets;
+using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
+using MudWebSocketProxy.Security;
 
 namespace MudWebSocketProxy.Handlers;
 
-public class WebSocketHandler
+public sealed class WebSocketHandler
 {
 	private const string ClientConfigurationErrorMessage =
 		"Proxy configuration error. Check the proxy logs for details.";
@@ -14,11 +15,16 @@ public class WebSocketHandler
 
 	private readonly ILogger<WebSocketHandler> _logger;
 	private readonly IConfiguration _configuration;
+	private readonly ProxyLimits _limits;
 
-	public WebSocketHandler(ILogger<WebSocketHandler> logger, IConfiguration configuration)
+	public WebSocketHandler(
+		ILogger<WebSocketHandler> logger,
+		IConfiguration configuration,
+		ProxyLimits limits)
 	{
 		_logger = logger;
 		_configuration = configuration;
+		_limits = limits;
 	}
 
 	public async Task HandleWebSocketAsync(HttpContext context, WebSocket webSocket)
@@ -28,7 +34,7 @@ public class WebSocketHandler
 
 		if (string.IsNullOrWhiteSpace(mudServerAddress) ||
 		    !int.TryParse(mudServerPortText, out var mudServerPort) ||
-		    mudServerPort is < 1 or > 65535)
+		    mudServerPort is < 1 or > 65_535)
 		{
 			_logger.LogError(
 				"Proxy configuration error: MudServer:Address and MudServer:Port must be configured before the proxy can connect to the MUD server.");
@@ -36,23 +42,55 @@ public class WebSocketHandler
 			return;
 		}
 
+		using var connectionCancellation = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted);
 		try
 		{
 			using var tcpClient = new TcpClient();
-			await tcpClient.ConnectAsync(mudServerAddress, mudServerPort);
-			_logger.LogInformation("MUD connection established to {Address}:{Port}", mudServerAddress, mudServerPort);
-			using var networkStream = tcpClient.GetStream();
+			using (var connectTimeout = CancellationTokenSource.CreateLinkedTokenSource(connectionCancellation.Token))
+			{
+				connectTimeout.CancelAfter(_limits.MudConnectionTimeout);
+				await tcpClient.ConnectAsync(mudServerAddress, mudServerPort, connectTimeout.Token);
+			}
 
-			var receiveFromWebSocketTask = ReceiveFromWebSocketAsync(webSocket, networkStream);
-			var sendToWebSocketTask = SendToWebSocketAsync(webSocket, networkStream);
+			tcpClient.NoDelay = true;
+			_logger.LogInformation("MUD connection established to {Address}:{Port}", mudServerAddress, mudServerPort);
+			await using var networkStream = tcpClient.GetStream();
+
+			var receiveFromWebSocketTask = ReceiveFromWebSocketAsync(webSocket, networkStream, connectionCancellation.Token);
+			var sendToWebSocketTask = SendToWebSocketAsync(webSocket, networkStream, connectionCancellation.Token);
 
 			await Task.WhenAny(receiveFromWebSocketTask, sendToWebSocketTask);
+			await connectionCancellation.CancelAsync();
 
-			if (webSocket.State == WebSocketState.Open)
+			try
 			{
-				await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Connection closed", CancellationToken.None);
+				await Task.WhenAll(receiveFromWebSocketTask, sendToWebSocketTask);
 			}
-			_logger.LogInformation("MUD Connection Closed");
+			catch (OperationCanceledException) when (connectionCancellation.IsCancellationRequested)
+			{
+			}
+			catch (Exception ex) when (
+				connectionCancellation.IsCancellationRequested &&
+				ex is IOException or WebSocketException or ObjectDisposedException)
+			{
+				_logger.LogDebug("Proxy transport closed while its paired relay task was stopping.");
+			}
+
+			await CloseIfOpenAsync(webSocket, WebSocketCloseStatus.NormalClosure, "Connection closed");
+			_logger.LogInformation("MUD connection closed");
+		}
+		catch (OperationCanceledException) when (!context.RequestAborted.IsCancellationRequested)
+		{
+			_logger.LogWarning(
+				"Timed out connecting to MUD server {Address}:{Port} after {Timeout}.",
+				mudServerAddress,
+				mudServerPort,
+				_limits.MudConnectionTimeout);
+			await SendErrorAndCloseAsync(webSocket, ClientConnectionErrorMessage);
+		}
+		catch (OperationCanceledException)
+		{
+			_logger.LogDebug("WebSocket proxy connection was cancelled.");
 		}
 		catch (SocketException ex)
 		{
@@ -79,108 +117,112 @@ public class WebSocketHandler
 
 	private static async Task SendErrorAndCloseAsync(WebSocket webSocket, string message)
 	{
-		if (webSocket.State == WebSocketState.Open)
+		if (webSocket.State != WebSocketState.Open)
 		{
-			var bytes = Encoding.UTF8.GetBytes(message);
-			await webSocket.SendAsync(
-				new ArraySegment<byte>(bytes),
-				WebSocketMessageType.Text,
-				true,
-				CancellationToken.None);
-
-			await webSocket.CloseAsync(WebSocketCloseStatus.InternalServerError, "Proxy connection error", CancellationToken.None);
+			return;
 		}
+
+		var bytes = Encoding.UTF8.GetBytes(message);
+		await webSocket.SendAsync(
+			new ArraySegment<byte>(bytes),
+			WebSocketMessageType.Text,
+			true,
+			CancellationToken.None);
+
+		await webSocket.CloseOutputAsync(
+			WebSocketCloseStatus.InternalServerError,
+			"Proxy connection error",
+			CancellationToken.None);
 	}
 
-	private async Task ReceiveFromWebSocketAsync(WebSocket webSocket, NetworkStream networkStream)
+	private async Task ReceiveFromWebSocketAsync(
+		WebSocket webSocket,
+		NetworkStream networkStream,
+		CancellationToken cancellationToken)
 	{
-		try
+		var buffer = new byte[16_384];
+		var trafficLimiter = new ClientTrafficLimiter(_limits, DateTimeOffset.UtcNow);
+
+		while (webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
 		{
-			var buffer = new byte[40960];
-
-			while (webSocket.State == WebSocketState.Open)
+			using var message = new MemoryStream();
+			WebSocketReceiveResult result;
+			do
 			{
-				var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
+				result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
 				if (result.MessageType == WebSocketMessageType.Close)
 				{
-					break;
+					return;
 				}
 
-				if (result.MessageType == WebSocketMessageType.Binary)
+				if (result.MessageType != WebSocketMessageType.Binary)
 				{
-					await networkStream.WriteAsync(buffer, 0, result.Count);
-					await networkStream.FlushAsync();
+					await CloseIfOpenAsync(webSocket, WebSocketCloseStatus.InvalidMessageType, "Binary messages are required");
+					return;
 				}
-				else if (result.MessageType == WebSocketMessageType.Text)
+
+				if (message.Length + result.Count > _limits.MaximumClientMessageBytes)
 				{
-					// Optionally handle text messages if needed
-					_logger.LogWarning("Received Text message from client; expected Binary.");
+					await CloseIfOpenAsync(webSocket, WebSocketCloseStatus.MessageTooBig, "Client message is too large");
+					return;
 				}
-				else
-				{
-					_logger.LogWarning($"Received unsupported message type: {result.MessageType}");
-				}
+
+				message.Write(buffer, 0, result.Count);
 			}
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "An error occurred in ReceiveFromWebSocketAsync");
+			while (!result.EndOfMessage);
+
+			var messageLength = checked((int)message.Length);
+			if (!trafficLimiter.TryConsumeMessage(messageLength, DateTimeOffset.UtcNow))
+			{
+				await CloseIfOpenAsync(webSocket, WebSocketCloseStatus.PolicyViolation, "Client send rate exceeded");
+				return;
+			}
+
+			if (message.TryGetBuffer(out var segment))
+			{
+				await networkStream.WriteAsync(segment.AsMemory(0, messageLength), cancellationToken);
+			}
 		}
 	}
 
-	private async Task SendToWebSocketAsync(WebSocket webSocket, NetworkStream networkStream)
+	private async Task SendToWebSocketAsync(
+		WebSocket webSocket,
+		NetworkStream networkStream,
+		CancellationToken cancellationToken)
 	{
-		try
+		var buffer = new byte[40_960];
+		var trafficLimiter = new ByteTrafficLimiter(_limits.MaximumMudBytesPerSecond, DateTimeOffset.UtcNow);
+
+		while (webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
 		{
-			var buffer = new byte[40960];
-
-			while (webSocket.State == WebSocketState.Open)
+			var bytesRead = await networkStream.ReadAsync(buffer, cancellationToken);
+			if (bytesRead == 0)
 			{
-				int bytesRead = 0;
-				try
-				{
-					bytesRead = await networkStream.ReadAsync(buffer, 0, buffer.Length);
-				}
-				catch (Exception ex)
-				{
-					_logger.LogError(ex, "Error reading from network stream.");
-					break;
-				}
-
-				if (bytesRead == 0)
-				{
-					// The MUD server closed the connection
-					_logger.LogInformation("MUD server closed the connection.");
-					break;
-				}
-
-				try
-				{
-					// Send the bytes directly to the WebSocket client as a binary message
-					await webSocket.SendAsync(
-						new ArraySegment<byte>(buffer, 0, bytesRead),
-						WebSocketMessageType.Binary,
-						true,
-						CancellationToken.None
-					);
-				}
-				catch (Exception ex)
-				{
-					_logger.LogError(ex, "Error sending message to WebSocket client.");
-					break;
-				}
+				return;
 			}
 
-			// Close the WebSocket connection if it's still open
-			if (webSocket.State == WebSocketState.Open)
+			if (!trafficLimiter.TryConsume(bytesRead, DateTimeOffset.UtcNow))
 			{
-				await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+				await CloseIfOpenAsync(webSocket, WebSocketCloseStatus.PolicyViolation, "MUD output rate exceeded");
+				return;
 			}
+
+			await webSocket.SendAsync(
+				new ArraySegment<byte>(buffer, 0, bytesRead),
+				WebSocketMessageType.Binary,
+				true,
+				cancellationToken);
 		}
-		catch (Exception ex)
+	}
+
+	private static async Task CloseIfOpenAsync(
+		WebSocket webSocket,
+		WebSocketCloseStatus status,
+		string description)
+	{
+		if (webSocket.State == WebSocketState.Open)
 		{
-			_logger.LogError(ex, "An error occurred in SendToWebSocketAsync");
+			await webSocket.CloseOutputAsync(status, description, CancellationToken.None);
 		}
 	}
 }

@@ -72,7 +72,7 @@ if (-not $SkipTests) {
 }
 
 Invoke-DotNet @("publish", "MudClientBlazor/MudClientBlazor.csproj", "-c", $Configuration, "--no-restore", "-o", $webPublish)
-Invoke-DotNet @("publish", "MudWebSocketProxy/MudWebSocketProxy.csproj", "-c", $Configuration, "-r", $RuntimeIdentifier, "--self-contained", "true", "-p:PublishSingleFile=true", "-o", $proxyPublish)
+Invoke-DotNet @("publish", "MudWebSocketProxy/MudWebSocketProxy.csproj", "-c", $Configuration, "-r", $RuntimeIdentifier, "--self-contained", "true", "-p:PublishSingleFile=true", "-p:IncludeNativeLibrariesForSelfExtract=true", "-p:DebugType=embedded", "-o", $proxyPublish)
 
 New-Item -ItemType Directory -Force -Path (Join-Path $packageRoot "web"), (Join-Path $packageRoot "proxy") | Out-Null
 Copy-Item -Path (Join-Path $webPublish "*") -Destination (Join-Path $packageRoot "web") -Recurse -Force

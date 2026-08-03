@@ -90,6 +90,7 @@ cat >"$config_path" <<EOF
   },
   "WebSocketServer": {
     "Path": "/ws",
+	"RequireOrigin": true,
     "AllowedOrigins": [
       "https://$domain"
     ]
@@ -110,7 +111,15 @@ cat >"$fragment_path" <<EOF
 $domain {
 	root * $install_root/web/wwwroot
 	encode gzip zstd
-	handle /ws* {
+	header {
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' wss:; img-src 'self' https: data:; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+		Referrer-Policy "no-referrer"
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+	}
+	handle /ws {
 		reverse_proxy 127.0.0.1:5000
 	}
 	try_files {path} {path}/ /index.html

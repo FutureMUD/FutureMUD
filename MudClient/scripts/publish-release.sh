@@ -49,7 +49,7 @@ if [[ "$skip_tests" != "1" ]]; then
 fi
 
 dotnet publish MudClientBlazor/MudClientBlazor.csproj -c "$configuration" --no-restore -o "$web_publish"
-dotnet publish MudWebSocketProxy/MudWebSocketProxy.csproj -c "$configuration" -r "$runtime_identifier" --self-contained true -p:PublishSingleFile=true -o "$proxy_publish"
+dotnet publish MudWebSocketProxy/MudWebSocketProxy.csproj -c "$configuration" -r "$runtime_identifier" --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=embedded -o "$proxy_publish"
 
 mkdir -p "$package_root/web" "$package_root/proxy"
 cp -R "$web_publish"/. "$package_root/web/"

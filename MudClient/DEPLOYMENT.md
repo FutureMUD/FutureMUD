@@ -32,8 +32,8 @@ Linux additionally requires systemd, bash, curl, unzip, and Caddy v2 managed by 
 After verifying the website's published SHA-256 checksum, extract the downloaded package to `/opt/mudclient` and run the installer from that directory:
 
 ~~~bash
-unzip mudclient-1.0.0-linux-x64.zip -d /tmp/mudclient-package
-sudo mv /tmp/mudclient-package/mudclient-1.0.0-linux-x64 /opt/mudclient
+unzip mudclient-1.0.1-linux-x64.zip -d /tmp/mudclient-package
+sudo mv /tmp/mudclient-package/mudclient-1.0.1-linux-x64 /opt/mudclient
 sudo bash /opt/mudclient/deploy/linux/install-mudclient.sh play.example.com
 ~~~
 
@@ -56,7 +56,7 @@ dotnet workload install wasm-tools
 ```
 
 ```powershell
-.\scripts\Publish-ProductPackage.ps1 -RuntimeIdentifier win-x64 -Version 1.0.0
+.\scripts\Publish-ProductPackage.ps1 -RuntimeIdentifier win-x64 -Version 1.0.1
 ```
 
 ```bash

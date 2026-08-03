@@ -25,6 +25,8 @@ OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder.Renaissance.MilitaryManifestD
 
 START = "<!-- RENAISSANCE MILITARY CATALOGUE START -->"
 END = "<!-- RENAISSANCE MILITARY CATALOGUE END -->"
+ARMOUR_OUTFIT_START = "<!-- RENAISSANCE ARMOUR OUTFIT MANIFEST START -->"
+ARMOUR_OUTFIT_END = "<!-- RENAISSANCE ARMOUR OUTFIT MANIFEST END -->"
 CATEGORIES = (
 	"Melee weapons",
 	"Ranged weapons",
@@ -35,6 +37,7 @@ CATEGORIES = (
 	"Military support & field gear",
 )
 REFERENCE = re.compile(r"^renaissance_military_[a-z0-9_]+$")
+OUTFIT_REFERENCE = re.compile(r"^renaissance_military_(?:armour|mount)_outfit_[a-z0-9_]+$")
 ARTICLE_SDESC = re.compile(r"^(?:a|an) [a-z0-9][a-z0-9'\- ]+$", re.IGNORECASE)
 
 
@@ -60,6 +63,27 @@ def table_rows() -> list[list[str]]:
 		rows.append(cells)
 	if not rows:
 		raise ValueError("Renaissance military catalogue has no rows")
+	return rows
+
+
+def armour_outfit_rows() -> list[list[str]]:
+	lines = read_lines(SOURCE)
+	try:
+		start = lines.index(ARMOUR_OUTFIT_START) + 1
+		end = lines.index(ARMOUR_OUTFIT_END)
+	except ValueError as error:
+		raise ValueError("Renaissance armour outfit manifest markers are missing") from error
+
+	rows: list[list[str]] = []
+	for line in lines[start:end]:
+		if not line.startswith("| renaissance_military_"):
+			continue
+		cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+		if len(cells) != 5:
+			raise ValueError(f"Expected five cells in Renaissance armour outfit row: {line}")
+		rows.append(cells)
+	if not rows:
+		raise ValueError("Renaissance armour outfit manifest has no rows")
 	return rows
 
 
@@ -182,6 +206,57 @@ def validate(rows: list[list[str]]) -> None:
 			f"Catalogue total is {declared['Total']}, but the source table contains {len(rows)}")
 
 
+def validate_armour_outfits(outfits: list[list[str]], rows: list[list[str]]) -> None:
+	items = {row[0]: row for row in rows}
+	keys: set[str] = set()
+	names: set[str] = set()
+	kinds = Counter()
+	for key, name, description, kind, references in outfits:
+		if not OUTFIT_REFERENCE.fullmatch(key):
+			raise ValueError(f"Invalid Renaissance armour outfit key: {key}")
+		if key in keys:
+			raise ValueError(f"Duplicate Renaissance armour outfit key: {key}")
+		keys.add(key)
+		if not name or len(name) > 200:
+			raise ValueError(f"Renaissance armour outfit name is missing or exceeds 200 characters: {key}")
+		if name.casefold() in names:
+			raise ValueError(f"Duplicate Renaissance armour outfit name: {name}")
+		names.add(name.casefold())
+		if not description:
+			raise ValueError(f"Renaissance armour outfit description is required: {key}")
+		if kind not in {"Personal", "Mount"}:
+			raise ValueError(f"Unsupported Renaissance armour outfit type for {key}: {kind}")
+		if kind == "Personal" and not key.startswith("renaissance_military_armour_outfit_"):
+			raise ValueError(f"Personal Renaissance armour outfit has the wrong key prefix: {key}")
+		if kind == "Mount" and not key.startswith("renaissance_military_mount_outfit_"):
+			raise ValueError(f"Mount Renaissance armour outfit has the wrong key prefix: {key}")
+		kinds[kind] += 1
+		references = split_values(references)
+		if not references:
+			raise ValueError(f"Renaissance armour outfit has no item references: {key}")
+		if len(set(references)) != len(references):
+			raise ValueError(f"Renaissance armour outfit repeats item references: {key}")
+		missing = set(references) - items.keys()
+		if missing:
+			raise ValueError(f"Renaissance armour outfit references missing military items for {key}: {', '.join(sorted(missing))}")
+		wear_components: list[str] = []
+		for reference in references:
+			item = items[reference]
+			if item[1] != "Armour & barding":
+				raise ValueError(f"Renaissance armour outfit references a non-armour item for {key}: {reference}")
+			profiles = [component for component in split_values(item[12]) if component.startswith("Wear_")]
+			if not profiles:
+				raise ValueError(f"Renaissance armour outfit item has no wearable profile for {key}: {reference}")
+			wear_components.extend(profiles)
+		duplicates = sorted({component for component in wear_components if wear_components.count(component) > 1})
+		if duplicates:
+			raise ValueError(f"Renaissance armour outfit repeats wearable profiles for {key}: {', '.join(duplicates)}")
+	if len(outfits) != 62 or kinds != Counter({"Personal": 56, "Mount": 6}):
+		raise ValueError(
+			"Expected exactly 56 personal and 6 mount Renaissance armour outfits; "
+			f"found Personal={kinds['Personal']}, Mount={kinds['Mount']}")
+
+
 def cs(value: str) -> str:
 	return json.dumps(value, ensure_ascii=False)
 
@@ -202,9 +277,17 @@ def render(row: list[str]) -> str:
 	)
 
 
+def render_outfit(row: list[str]) -> str:
+	key, name, description, _kind, references = row
+	items = ", ".join(cs(reference) for reference in split_values(references))
+	return f"\t\tnew({cs(key)}, {cs(name)}, {cs(description)}, [{items}]),"
+
+
 def generate() -> str:
 	rows = table_rows()
 	validate(rows)
+	outfits = armour_outfit_rows()
+	validate_armour_outfits(outfits, rows)
 	counts = Counter(row[1] for row in rows)
 	return "\n".join([
 		"// <auto-generated>",
@@ -225,8 +308,14 @@ def generate() -> str:
 		*(render(row) for row in rows),
 		"\t];",
 		"",
+		"\tprivate static readonly OutfitManifestSpec[] RenaissanceMilitaryArmourOutfitManifestSpecs =",
+		"\t[",
+		*(render_outfit(outfit) for outfit in outfits),
+		"\t];",
+		"",
 		*(f"\tinternal const int RenaissanceMilitary{re.sub(r'[^A-Za-z0-9]', '', category.title())}RowCount = {counts[category]};" for category in CATEGORIES),
 		f"\tinternal const int RenaissanceMilitaryCatalogueRowCount = {len(rows)};",
+		f"\tinternal const int RenaissanceMilitaryArmourOutfitCount = {len(outfits)};",
 		"}",
 		"",
 	])

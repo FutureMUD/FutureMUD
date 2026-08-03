@@ -38,6 +38,11 @@ public partial class ItemSeeder
 		IReadOnlyCollection<string> Tags,
 		IReadOnlyCollection<string> Components);
 
+	internal sealed record RenaissanceMilitaryArmourOutfitManifestTestData(
+		string StableKey,
+		string Name,
+		IReadOnlyList<string> ItemStableReferences);
+
 	private static IReadOnlyList<string> RenaissanceMilitaryRequiredMaterials => RenaissanceMilitaryItemSpecs
 		.Select(x => x.Material)
 		.Distinct(StringComparer.OrdinalIgnoreCase)
@@ -94,6 +99,8 @@ public partial class ItemSeeder
 				spec.BuilderNotes,
 				allowLegacyShortDescriptionMatch: false);
 		}
+
+		UpsertOutfitManifests(RenaissanceMilitaryArmourOutfitManifestSpecs);
 	}
 
 	private void ValidateRenaissanceMilitaryPrerequisites()
@@ -155,6 +162,11 @@ public partial class ItemSeeder
 				x.Material,
 				x.Tags,
 				x.Components))
+			.ToArray();
+
+	internal static IReadOnlyList<RenaissanceMilitaryArmourOutfitManifestTestData> RenaissanceMilitaryArmourOutfitManifestSpecsForTesting =>
+		RenaissanceMilitaryArmourOutfitManifestSpecs
+			.Select(x => new RenaissanceMilitaryArmourOutfitManifestTestData(x.StableKey, x.Name, x.ItemStableReferences))
 			.ToArray();
 
 	internal static IReadOnlyList<string> RenaissanceMilitaryMaterialsForTesting => RenaissanceMilitaryRequiredMaterials;

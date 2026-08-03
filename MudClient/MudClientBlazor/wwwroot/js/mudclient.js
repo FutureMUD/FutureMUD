@@ -101,23 +101,42 @@
 	window.mudClientInput = (function () {
 		let element = null;
 		let handler = null;
+		let dotNetHelper = null;
+
+		function requestHistoryNavigation(event, direction) {
+			const selectionStart = element.selectionStart;
+			const selectionEnd = element.selectionEnd;
+			const jumpToBoundary = event.ctrlKey;
+			window.requestAnimationFrame(function () {
+				if (!element ||
+					element.selectionStart !== selectionStart ||
+					element.selectionEnd !== selectionEnd ||
+					!dotNetHelper) {
+					return;
+				}
+
+				dotNetHelper.invokeMethodAsync('NavigateCommandHistory', direction, jumpToBoundary);
+			});
+		}
 
 		return {
-			register: function (elementId) {
+			register: function (elementId, helper) {
 				this.dispose();
 				element = document.getElementById(elementId);
 				if (!element) {
 					return;
 				}
+				dotNetHelper = helper;
 
 				handler = function (event) {
-					const shouldPrevent =
-						(event.key === 'Enter' && !event.shiftKey) ||
-						event.key === 'ArrowUp' ||
-						event.key === 'ArrowDown' ||
-						(event.ctrlKey && (event.key === 'Home' || event.key === 'End'));
-					if (shouldPrevent) {
+					if (event.key === 'Enter' && !event.shiftKey) {
 						event.preventDefault();
+						return;
+					}
+
+					if (!event.shiftKey && !event.altKey && !event.metaKey &&
+						(event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+						requestHistoryNavigation(event, event.key === 'ArrowUp' ? 'up' : 'down');
 					}
 				};
 				element.addEventListener('keydown', handler);
@@ -129,26 +148,135 @@
 
 				element = null;
 				handler = null;
+				dotNetHelper = null;
 			}
 		};
 	})();
 
-	window.scrollToBottomIfNearBottom = function (element) {
-		if (!element) {
-			return;
+	window.mudClientTranscript = (function () {
+		let element = null;
+		let mutationObserver = null;
+		let scrollHandler = null;
+		let keydownHandler = null;
+		let isPinnedToBottom = true;
+		let scrollFrame = null;
+
+		function updatePinnedState() {
+			if (!element) {
+				return;
+			}
+
+			isPinnedToBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 2;
 		}
 
-		const previousHeight = Number.parseFloat(element.dataset.previousScrollHeight || '0');
-		const referenceHeight = previousHeight > 0 ? previousHeight : element.scrollHeight;
-		const wasNearBottom = referenceHeight - element.clientHeight - element.scrollTop < 160;
-		element.dataset.previousScrollHeight = String(element.scrollHeight);
-		if (wasNearBottom || previousHeight === 0) {
-			window.requestAnimationFrame(function () {
-				element.scrollTop = element.scrollHeight;
-				element.dataset.previousScrollHeight = String(element.scrollHeight);
+		function scrollToBottom() {
+			if (!element) {
+				return;
+			}
+
+			element.scrollTop = element.scrollHeight;
+			isPinnedToBottom = true;
+		}
+
+		function scheduleScrollToBottom() {
+			if (scrollFrame !== null || !isPinnedToBottom) {
+				return;
+			}
+
+			scrollFrame = window.requestAnimationFrame(function () {
+				scrollFrame = null;
+				if (isPinnedToBottom) {
+					scrollToBottom();
+				}
 			});
 		}
-	};
+
+		function scrollBy(amount) {
+			if (!element) {
+				return;
+			}
+
+			element.scrollTop += amount;
+			updatePinnedState();
+		}
+
+		function handleKeydown(event) {
+			if (!element || event.altKey || event.metaKey) {
+				return;
+			}
+
+			switch (event.key) {
+				case 'Home':
+					event.preventDefault();
+					element.scrollTop = 0;
+					updatePinnedState();
+					break;
+				case 'End':
+					event.preventDefault();
+					scrollToBottom();
+					break;
+				case 'PageUp':
+					event.preventDefault();
+					scrollBy(-element.clientHeight);
+					break;
+				case 'PageDown':
+					event.preventDefault();
+					scrollBy(element.clientHeight);
+					break;
+				case 'ArrowUp':
+					event.preventDefault();
+					scrollBy(-Math.max(24, parseFloat(getComputedStyle(element).lineHeight) || 24));
+					break;
+				case 'ArrowDown':
+					event.preventDefault();
+					scrollBy(Math.max(24, parseFloat(getComputedStyle(element).lineHeight) || 24));
+					break;
+			}
+		}
+
+		return {
+			register: function (outputElement) {
+				this.dispose();
+				element = outputElement;
+				if (!element) {
+					return;
+				}
+
+				updatePinnedState();
+				scrollToBottom();
+				scrollHandler = updatePinnedState;
+				keydownHandler = handleKeydown;
+				element.addEventListener('scroll', scrollHandler, { passive: true });
+				element.addEventListener('keydown', keydownHandler);
+				mutationObserver = new MutationObserver(scheduleScrollToBottom);
+				mutationObserver.observe(element, { childList: true, subtree: true });
+			},
+			dispose: function () {
+				if (element && scrollHandler) {
+					element.removeEventListener('scroll', scrollHandler);
+				}
+
+				if (element && keydownHandler) {
+					element.removeEventListener('keydown', keydownHandler);
+				}
+
+				if (mutationObserver) {
+					mutationObserver.disconnect();
+				}
+
+				if (scrollFrame !== null) {
+					window.cancelAnimationFrame(scrollFrame);
+				}
+
+				element = null;
+				mutationObserver = null;
+				scrollHandler = null;
+				keydownHandler = null;
+				isPinnedToBottom = true;
+				scrollFrame = null;
+			}
+		};
+	})();
 
 	window.getSelectionStart = function (elementId) {
 		const element = document.getElementById(elementId);

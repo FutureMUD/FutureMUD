@@ -12,7 +12,7 @@
 <div class="app-root" style="@GetClientStyle()">
 	<div class="app-grid">
 		<div class="play-surface">
-			<div class="message-container" @ref="MessageContainer">
+			<div class="message-container" @ref="MessageContainer" tabindex="0" role="region" aria-label="MUD output">
 				@foreach (var message in _transcript.RenderedEntries)
 				{
 					<div @key="message.Id">@(new MarkupString(message.Html))</div>
@@ -451,7 +451,6 @@
 		// Pass the object reference to JavaScript
 		await JSRuntime.InvokeVoidAsync("registerSendCommandHandler", _objectReference);
 		await JSRuntime.InvokeVoidAsync("mudClientHotkeys.register", _objectReference);
-		await JSRuntime.InvokeVoidAsync("mudClientInput.register", "userInput");
 		await LoadClientSettingsAsync();
 		await LoadHotkeySettingsAsync();
 		await LoadQuickAliasSettingsAsync();
@@ -469,6 +468,17 @@
 
 		// Connect to the local WebSocket proxy. The proxy then connects to the telnet MUD server.
 		await ConnectToWebSocketAsync(_webSocketEndpoint);
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender)
+		{
+			return;
+		}
+
+		await JSRuntime.InvokeVoidAsync("mudClientInput.register", "userInput", _objectReference);
+		await JSRuntime.InvokeVoidAsync("mudClientTranscript.register", MessageContainer);
 	}
 
 	private IEnumerable<HotkeyBinding> DesktopHotkeyBindings => GetOrderedActiveHotkeyBindings(DesktopHotkeySortOrder);
@@ -1063,7 +1073,7 @@
 			_pendingServerText.Clear();
 			await _clientWebSocket.ConnectAsync(endpoint, _cancellationTokenSource.Token);
 			isConnected = true;
-			AddMessage($"Connected to WebSocket proxy at {EscapeHtml(endpoint.ToString())}.");
+			AddMessage(_ansiMxpParser.Parse("\x1B[92mConnected to the MUD.\x1B[0m\n"));
 			_ = ReceiveMessagesAsync(_clientWebSocket);
 			return true;
 		}
@@ -1193,7 +1203,6 @@
 
 		AddMessage(parsedMessage);
 		await InvokeAsync(StateHasChanged);
-		await JSRuntime.InvokeVoidAsync("scrollToBottomIfNearBottom", MessageContainer);
 	}
 
 	private async Task HandleTelnetNegotiationAsync(byte command, byte option)
@@ -1508,7 +1517,6 @@
 		}
 
 		await InvokeAsync(StateHasChanged);
-		await JSRuntime.InvokeVoidAsync("scrollToBottomIfNearBottom", MessageContainer);
 		return completed;
 	}
 
@@ -1582,66 +1590,38 @@
 			}
 
 			CommandHistoryIndex = CommandHistory.Count;
+		}
+	}
+
+	[JSInvokable]
+	public async Task NavigateCommandHistory(string direction, bool jumpToBoundary)
+	{
+		var historyDirection = direction.ToLowerInvariant() switch
+		{
+			"up" => CommandHistoryDirection.Up,
+			"down" => CommandHistoryDirection.Down,
+			_ => (CommandHistoryDirection?)null
+		};
+
+		if (historyDirection is null)
+		{
 			return;
 		}
 
-		if (e.Key == "ArrowUp")
+		var navigation = CommandHistoryNavigator.Navigate(
+			CommandHistory,
+			CommandHistoryIndex,
+			historyDirection.Value,
+			jumpToBoundary);
+		if (!navigation.HasChanged)
 		{
-			if (e.CtrlKey && CommandHistory.Count > 0)
-			{
-				CommandHistoryIndex = 0;
-				UserInput = CommandHistory[CommandHistoryIndex];
-			}
-			else if (CommandHistory.Count > 0 && CommandHistoryIndex > 0)
-			{
-				CommandHistoryIndex--;
-				UserInput = CommandHistory[CommandHistoryIndex];
-			}
-
-			await InvokeAsync(StateHasChanged);
-			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
 			return;
 		}
 
-		if (e.Key == "ArrowDown")
-		{
-			if (e.CtrlKey && CommandHistory.Count > 0)
-			{
-				CommandHistoryIndex = CommandHistory.Count - 1;
-				UserInput = CommandHistory[CommandHistoryIndex];
-			}
-			else if (CommandHistoryIndex < CommandHistory.Count - 1)
-			{
-				CommandHistoryIndex++;
-				UserInput = CommandHistory[CommandHistoryIndex];
-			}
-			else
-			{
-				CommandHistoryIndex = CommandHistory.Count;
-				UserInput = string.Empty;
-			}
-
-			await InvokeAsync(StateHasChanged);
-			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
-			return;
-		}
-
-		if (e.Key == "Home" && e.CtrlKey && CommandHistory.Count > 0)
-		{
-			CommandHistoryIndex = 0;
-			UserInput = CommandHistory[CommandHistoryIndex];
-			await InvokeAsync(StateHasChanged);
-			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
-			return;
-		}
-
-		if (e.Key == "End" && e.CtrlKey)
-		{
-			CommandHistoryIndex = CommandHistory.Count;
-			UserInput = string.Empty;
-			await InvokeAsync(StateHasChanged);
-			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", 0);
-		}
+		CommandHistoryIndex = navigation.Index;
+		UserInput = navigation.Input!;
+		await InvokeAsync(StateHasChanged);
+		await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
 	}
 
 	private async Task LoadTextFileAsync(InputFileChangeEventArgs args)
@@ -1678,6 +1658,7 @@
 		{
 			await JSRuntime.InvokeVoidAsync("mudClientHotkeys.dispose");
 			await JSRuntime.InvokeVoidAsync("mudClientInput.dispose");
+			await JSRuntime.InvokeVoidAsync("mudClientTranscript.dispose");
 			await JSRuntime.InvokeVoidAsync("disposeSendCommandHandler");
 		}
 		catch (JSDisconnectedException)
@@ -1780,9 +1761,9 @@
 				AddMessage("Cannot reconnect because the WebSocket proxy endpoint is not configured.");
 				isConnected = false;
 			}
-			else if (await ConnectToWebSocketAsync(_webSocketEndpoint))
+			else
 			{
-				AddMessage("Reconnected to the MUD.");
+				await ConnectToWebSocketAsync(_webSocketEndpoint);
 			}
 
 			await InvokeAsync(StateHasChanged);

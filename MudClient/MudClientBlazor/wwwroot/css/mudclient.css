@@ -116,6 +116,11 @@ textarea {
 	contain-intrinsic-size: auto 1.5em;
 }
 
+.message-container:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: -2px;
+}
+
 .message-container::-webkit-scrollbar,
 .hotkey-strip::-webkit-scrollbar,
 .input-field::-webkit-scrollbar {

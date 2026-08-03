@@ -201,7 +201,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 			"AddAntiquityCraft(",
 			"knowledgeSubtype:",
 			"SanitiseAntiquityJewelleryVisibleName(item.ShortDescription)",
-			"BuildUniqueAntiquityEquipmentCraftName"
+			"BuildUniqueVisibleCraftName"
 		})
 		{
 			Assert.IsTrue(craftRoot.Contains(expected, StringComparison.Ordinal) ||
@@ -242,9 +242,9 @@ public class ItemSeederAntiquityRemainingCraftingTests
 
 		AssertContains(craftRoot, "SeedAntiquityEquipmentCrafts();");
 		AssertContains(craftRoot, "AddProg(\"HasWeaponcrafting\"");
-		AssertContains(craftRoot, "_traits[\"Weaponcrafting\"]?.Id ?? _traits[\"Weaponsmith\"]?.Id");
+		AssertContains(craftRoot, "HasTraitText(ResolveTrait(\"Weaponcrafting\", \"Weaponsmith\"))");
 		AssertContains(craftRoot, "AddProg(\"HasArmourcrafting\"");
-		AssertContains(craftRoot, "_traits[\"Armourcrafting\"]?.Id ?? _traits[\"Armourer\"]?.Id");
+		AssertContains(craftRoot, "HasTraitText(ResolveTrait(\"Armourcrafting\", \"Armourer\"))");
 
 		foreach (var expected in new[]
 		{
@@ -362,7 +362,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityEquipment.cs");
 
 		AssertContains(craftSource, "SanitiseAntiquityEquipmentVisibleName(item.ShortDescription)");
-		AssertContains(craftSource, "BuildUniqueAntiquityEquipmentCraftName");
+		AssertContains(craftSource, "BuildUniqueVisibleCraftName");
 		Assert.IsFalse(craftSource.Contains("stableReference[\"antiquity_\"", StringComparison.Ordinal),
 			"Visible equipment craft names should not be generated from stable references because those may contain culture names.");
 

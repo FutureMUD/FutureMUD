@@ -41,11 +41,11 @@ public class AimInformation : IAimInformation
     }
 
     public IEnumerable<ICellExit> Path { get; set; }
-    public IRangedWeapon Weapon { get; set; }
+	public IRangedWeaponPlatform Weapon { get; set; }
 
     public event EventHandler AimInvalidated;
 
-    public AimInformation(IPerceiver target, IPerceiver shooter, IEnumerable<ICellExit> path, IRangedWeapon weapon)
+	public AimInformation(IPerceiver target, IPerceiver shooter, IEnumerable<ICellExit> path, IRangedWeaponPlatform weapon)
     {
         Shooter = shooter;
         Target = target;

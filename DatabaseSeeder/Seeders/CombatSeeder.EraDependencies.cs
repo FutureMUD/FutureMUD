@@ -3,8 +3,13 @@
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Combat;
 using MudSharp.Database;
+using MudSharp.Form.Audio;
 using MudSharp.Framework;
+using MudSharp.GameItems.Interfaces;
+using MudSharp.Health;
 using MudSharp.Models;
+using MudSharp.PerceptionEngine;
+using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,7 +69,25 @@ public partial class CombatSeeder
 		"MusketPaperCartridge_0.65 Bore",
 		"MusketPaperCartridge_0.7 Bore",
 		"MusketPaperCartridge_0.75 Bore",
-		"MusketPaperCartridge_0.8 Bore"
+		"MusketPaperCartridge_0.8 Bore",
+		.. EarlyModernMilitaryCompletionComponentNames
+	];
+
+	internal static IReadOnlyList<string> EarlyModernMilitaryCompletionComponentNames =>
+	[
+		"Crossbow_Repeating", "Crossbow_Repeating_Light", "Crossbow_Wall",
+		"Musket_Doglock_Blunderbuss75", "Musket_Doglock_Carbine60", "Musket_Doglock_Musket70",
+		"Musket_Flintlock_Blunderbuss75", "Musket_Flintlock_Carbine60", "Musket_Flintlock_FowlingPiece60", "Musket_Flintlock_WallGun80",
+		"Musket_Matchlock_Arquebus55", "Musket_Matchlock_Blunderbuss75", "Musket_Matchlock_Caliver60", "Musket_Matchlock_Carbine60", "Musket_Matchlock_FowlingPiece60", "Musket_Matchlock_HeavyMusket80", "Musket_Matchlock_Jezail65", "Musket_Matchlock_Musket75", "Musket_Matchlock_Tanegashima60", "Musket_Matchlock_Toradar65", "Musket_Matchlock_WallGun80",
+		"Musket_Miquelet_Blunderbuss75", "Musket_Miquelet_Carbine60", "Musket_Miquelet_Escopeta65", "Musket_Miquelet_Musket70",
+		"Musket_Snaphaunce_Carbine60", "Musket_Snaphaunce_FowlingPiece60", "Musket_Snaphaunce_LongGun65", "Musket_Snaphaunce_Musket70",
+		"Musket_Wheellock_Carbine60", "Musket_Wheellock_FowlingPiece60", "Musket_Wheellock_LongGun65", "Musket_Wheellock_Rifle55",
+		"Pistol_Doglock55", "Pistol_Flintlock_Duelling45", "Pistol_Matchlock55", "Pistol_Miquelet55", "Pistol_Snaphaunce55", "Pistol_Wheellock45", "Pistol_Wheellock55",
+		"MusketBuckAndBall_0.65 Bore", "MusketBuckAndBall_0.75 Bore", "MusketBuckshot_0.55 Bore", "MusketBuckshot_0.75 Bore",
+		"Artillery_CoehornMortar", "Artillery_Culverin", "Artillery_DemiCannon", "Artillery_DemiCulverin", "Artillery_Falcon", "Artillery_Falconet", "Artillery_FieldGun12lb", "Artillery_FieldGun3lb", "Artillery_FieldGun6lb", "Artillery_FieldGun9lb", "Artillery_FieldMortar", "Artillery_FullCannon", "Artillery_Minion", "Artillery_NavalGun18lb", "Artillery_NavalGun24lb", "Artillery_NavalGun32lb", "Artillery_Peterero", "Artillery_Saker", "Artillery_SiegeMortar", "Artillery_SwivelGun",
+		"ArtilleryCaseShot_12lb", "ArtilleryCaseShot_3lb", "ArtilleryCaseShot_6lb", "ArtilleryGrapeshot_Heavy", "ArtilleryGrapeshot_Light", "ArtilleryGrapeshot_Medium", "ArtilleryShell_Carcass", "ArtilleryShell_Heavy", "ArtilleryShell_Light", "ArtilleryShot_12lb", "ArtilleryShot_18lb", "ArtilleryShot_1lb", "ArtilleryShot_24lb", "ArtilleryShot_32lb", "ArtilleryShot_3lb", "ArtilleryShot_6lb", "ArtilleryShot_9lb", "ArtilleryShot_Bar", "ArtilleryStoneShot_Heavy", "ArtilleryStoneShot_Light",
+		"ArtilleryMount_Swivel", "WeaponLanyard_Pistol", "WeaponLoop_LongGun", "WeaponSling_Carbine", "WeaponSling_LongGun",
+		"ArtilleryChamber_Peterero", "Holster_PairedSaddle"
 	];
 
 	internal int EnsureEraDependencyCombatContentForTesting(FuturemudDatabaseContext context,
@@ -249,6 +272,67 @@ public partial class CombatSeeder
 			return weapon;
 		}
 
+		void EnsureEarlyModernSpecialAttack(WeaponType weapon, string donorWeaponName, string? donorAttackName,
+			string attackName, BuiltInCombatMoveType moveType)
+		{
+			var donorWeapon = context.WeaponTypes
+				.Include(x => x.WeaponAttacks)
+				.ThenInclude(x => x.CombatMessagesWeaponAttacks)
+				.FirstOrDefault(x => x.Name == donorWeaponName) ?? weapon;
+			var donorAttack = donorWeapon.WeaponAttacks.FirstOrDefault(x => x.Name == donorAttackName) ??
+			                  donorWeapon.WeaponAttacks.First(x => x.MoveType == (int)BuiltInCombatMoveType.UseWeaponAttack);
+			var name = $"{weapon.Name}: {attackName}";
+			var attack = context.WeaponAttacks
+				.Include(x => x.CombatMessagesWeaponAttacks)
+				.FirstOrDefault(x => x.WeaponTypeId == weapon.Id && x.Name == name);
+			if (attack is null)
+			{
+				attack = new WeaponAttack { WeaponTypeId = weapon.Id, Name = name };
+				context.WeaponAttacks.Add(attack);
+				added++;
+			}
+
+			attack.Verb = donorAttack.Verb;
+			attack.FutureProgId = donorAttack.FutureProgId;
+			attack.BaseAttackerDifficulty = donorAttack.BaseAttackerDifficulty;
+			attack.BaseBlockDifficulty = donorAttack.BaseBlockDifficulty;
+			attack.BaseDodgeDifficulty = donorAttack.BaseDodgeDifficulty;
+			attack.BaseParryDifficulty = donorAttack.BaseParryDifficulty;
+			attack.BaseAngleOfIncidence = donorAttack.BaseAngleOfIncidence;
+			attack.RecoveryDifficultySuccess = donorAttack.RecoveryDifficultySuccess;
+			attack.RecoveryDifficultyFailure = donorAttack.RecoveryDifficultyFailure;
+			attack.MoveType = (int)moveType;
+			attack.Intentions = donorAttack.Intentions;
+			attack.ExertionLevel = donorAttack.ExertionLevel;
+			attack.DamageType = donorAttack.DamageType;
+			attack.DamageExpressionId = donorAttack.DamageExpressionId;
+			attack.StunExpressionId = donorAttack.StunExpressionId;
+			attack.PainExpressionId = donorAttack.PainExpressionId;
+			attack.Weighting = donorAttack.Weighting;
+			attack.MaximumTargets = donorAttack.MaximumTargets;
+			attack.BodypartShapeId = donorAttack.BodypartShapeId;
+			attack.StaminaCost = donorAttack.StaminaCost;
+			attack.BaseDelay = donorAttack.BaseDelay;
+			attack.Orientation = donorAttack.Orientation;
+			attack.Alignment = donorAttack.Alignment;
+			attack.AdditionalInfo = donorAttack.AdditionalInfo;
+			attack.HandednessOptions = donorAttack.HandednessOptions;
+			attack.RequiredPositionStateIds = donorAttack.RequiredPositionStateIds;
+			attack.OnUseProgId = donorAttack.OnUseProgId;
+			context.SaveChanges();
+
+			foreach (var message in donorAttack.CombatMessagesWeaponAttacks.Where(x =>
+				!attack.CombatMessagesWeaponAttacks.Any(y => y.CombatMessageId == x.CombatMessageId)))
+			{
+				context.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
+				{
+					CombatMessageId = message.CombatMessageId,
+					WeaponAttackId = attack.Id
+				});
+			}
+			context.SaveChanges();
+		}
+
 		RangedWeaponTypes EnsureRanged(string name, string componentName, string componentType, string donorName,
 			Action<RangedWeaponTypes>? configure = null, string? meleeDonorName = null)
 		{
@@ -339,8 +423,10 @@ public partial class CombatSeeder
 		EnsureArmour("Splinted", "Armour_Splinted", "Studded Leather", 1, 1, 2);
 
 		EnsureWeapon("Bayonet", "Melee_Bayonet", "Dagger", WeaponClassification.Lethal, 2);
-		EnsureWeapon("Hooked Polearm", "Melee_HookedPolearm", "Halberd", WeaponClassification.Lethal, 4);
-		EnsureWeapon("Lance", "Melee_Lance", "Long Spear", WeaponClassification.Lethal, 5);
+		var hookedPolearm = EnsureWeapon("Hooked Polearm", "Melee_HookedPolearm", "Halberd", WeaponClassification.Lethal, 4);
+		var lance = EnsureWeapon("Lance", "Melee_Lance", "Long Spear", WeaponClassification.Lethal, 5);
+		EnsureEarlyModernSpecialAttack(hookedPolearm, "Quarterstaff", "Quarterstaff Hook and Pull", "Hook and Pull", BuiltInCombatMoveType.PullToMelee);
+		EnsureEarlyModernSpecialAttack(lance, "Long Spear", null, "Couched Charge", BuiltInCombatMoveType.CouchedLanceAttack);
 		EnsureWeapon("Poleblade", "Melee_Poleblade", "Halberd", WeaponClassification.Lethal, 4);
 		EnsureWeapon("Sabre", "Melee_Sabre", "Longsword", WeaponClassification.Lethal, 3);
 		EnsureWeapon("Smallsword", "Melee_Smallsword", "Rapier", WeaponClassification.Lethal, 2);
@@ -530,6 +616,199 @@ public partial class CombatSeeder
 					}
 				}
 			}
+		}
+
+		// The Early Modern catalogue deliberately keeps every weapon family as a separately named,
+		// stable component.  Definitions are derived from live donors so a clean install never relies
+		// on brittle database IDs from a development database.
+		if (context.GameItemComponentProtos.Any(x => x.Type == "Ammunition" && x.EditableItem.RevisionStatus == 4) &&
+			context.GameItemComponentProtos.Any(x => x.Type == "Musket" && x.EditableItem.RevisionStatus == 4) &&
+			context.RangedWeaponTypes.Any(x => x.Name == "Musket"))
+		{
+		XElement CloneDefinition(GameItemComponentProto component) => XElement.Parse(component.Definition);
+		void SetElement(XElement definition, string name, object value) => definition.SetElementValue(name, value);
+		var musketDonor = context.GameItemComponentProtos
+			.FirstOrDefault(x => x.Type == "Musket" && x.EditableItem.RevisionStatus == 4) ??
+			throw new InvalidOperationException("Cannot seed Early Modern muskets because no Musket donor component exists. Run Combat with installmuskets enabled first.");
+		var cartridgeDonor = context.GameItemComponentProtos
+			.FirstOrDefault(x => x.Type == "MusketCartridge" && x.EditableItem.RevisionStatus == 4) ??
+			throw new InvalidOperationException("Cannot seed Early Modern cartridge profiles because no MusketCartridge donor component exists.");
+		var ammunitionDonor = context.GameItemComponentProtos
+			.FirstOrDefault(x => x.Type == "Ammunition" && x.EditableItem.RevisionStatus == 4) ??
+			throw new InvalidOperationException("Cannot seed artillery ammunition because no Ammunition donor component exists. Run Combat with installranged enabled first.");
+
+		AmmunitionTypes EnsureArtilleryAmmunitionType(string name, string profile, ArtilleryPayloadType payload,
+			int projectileCount, RangedScatterType? scatterType, double spreadPenalty, string damage)
+		{
+			var existing = context.AmmunitionTypes.FirstOrDefault(x => x.Name == name);
+			if (existing is not null)
+			{
+				var changed = existing.RangedWeaponTypes != ((int)RangedWeaponType.Artillery).ToString() ||
+					existing.ProjectileCount != projectileCount || existing.ScatterType != (int?)scatterType ||
+					Math.Abs(existing.SpreadPenalty - spreadPenalty) > 0.0001 || existing.DamageExpression != damage;
+				existing.SpecificType = profile;
+				existing.RangedWeaponTypes = ((int)RangedWeaponType.Artillery).ToString();
+				existing.ProjectileCount = projectileCount;
+				existing.ScatterType = scatterType is null ? null : (int)scatterType.Value;
+				existing.SpreadPenalty = spreadPenalty;
+				existing.DamageExpression = damage;
+				existing.StunExpression = damage;
+				existing.PainExpression = damage;
+				if (changed) added++;
+				return existing;
+			}
+
+			var ammunition = new AmmunitionTypes
+			{
+				Name = name,
+				SpecificType = profile,
+				RangedWeaponTypes = ((int)RangedWeaponType.Artillery).ToString(),
+				BaseAccuracy = 0.0,
+				Loudness = (int)AudioVolume.ExtremelyLoud,
+				BreakChanceOnHit = payload is ArtilleryPayloadType.StoneShot ? 0.75 : 0.15,
+				BreakChanceOnMiss = payload is ArtilleryPayloadType.StoneShot ? 0.9 : 0.25,
+				BaseBlockDifficulty = (int)Difficulty.Impossible,
+				BaseDodgeDifficulty = (int)Difficulty.Insane,
+				DamageExpression = damage,
+				StunExpression = damage,
+				PainExpression = damage,
+				DamageType = (int)DamageType.Ballistic,
+				ProjectileCount = projectileCount,
+				ScatterType = scatterType is null ? null : (int)scatterType.Value,
+				SpreadPenalty = spreadPenalty
+			};
+			context.AmmunitionTypes.Add(ammunition);
+			context.SaveChanges();
+			added++;
+			return ammunition;
+		}
+
+		string ArtilleryProfileForPiece(string name) => name switch
+		{
+			var x when x.Contains("Swivel") || x.Contains("Falcon") || x.Contains("Peterero") || x.Contains("Coehorn") => "light",
+			var x when x.Contains("Demi") || x.Contains("Saker") || x.Contains("FieldGun3") || x.Contains("FieldGun6") || x.Contains("FieldMortar") => "medium",
+			_ => "heavy"
+		};
+
+		(string Profile, ArtilleryPayloadType Payload, int ProjectileCount, RangedScatterType? Scatter, double SpreadPenalty, string Damage) ArtilleryAmmunitionData(string name)
+		{
+			var payload = name.Contains("Grape") ? ArtilleryPayloadType.Grapeshot :
+				name.Contains("Case") ? ArtilleryPayloadType.CaseShot : name.Contains("Carcass") ? ArtilleryPayloadType.Carcass :
+				name.Contains("Shell") ? ArtilleryPayloadType.Shell : name.Contains("Stone") ? ArtilleryPayloadType.StoneShot :
+				name.Contains("Bar") ? ArtilleryPayloadType.BarShot : ArtilleryPayloadType.SolidShot;
+			var profile = name.Contains("1lb") || name.Contains("3lb") || name.Contains("6lb") || name.Contains("Light") ? "light" :
+				name.Contains("9lb") || name.Contains("12lb") || name.Contains("Medium") ? "medium" : "heavy";
+			var count = name.Contains("Grapeshot_Light") ? 6 : name.Contains("Grapeshot_Medium") ? 9 :
+				name.Contains("Grapeshot_Heavy") ? 12 : payload == ArtilleryPayloadType.CaseShot ? 10 : 1;
+			var scatter = count > 1 ? RangedScatterType.Spread : (RangedScatterType?)null;
+			var damage = payload switch
+			{
+				ArtilleryPayloadType.Grapeshot or ArtilleryPayloadType.CaseShot => "8 + degree * 3",
+				ArtilleryPayloadType.StoneShot => "18 + degree * 5",
+				ArtilleryPayloadType.Shell or ArtilleryPayloadType.Carcass => "22 + degree * 6",
+				_ => "30 + degree * 8"
+			};
+			return (profile, payload, count, scatter, count > 1 ? 0.45 : 0.0, damage);
+		}
+
+		var musketProfiles = new (string Name, string Ignition, double Bore, bool Rifled, bool Rested)[]
+		{
+			("Musket_Doglock_Blunderbuss75", "Doglock", 0.75, false, false), ("Musket_Doglock_Carbine60", "Doglock", 0.60, false, false), ("Musket_Doglock_Musket70", "Doglock", 0.70, false, false),
+			("Musket_Flintlock_Blunderbuss75", "Flintlock", 0.75, false, false), ("Musket_Flintlock_Carbine60", "Flintlock", 0.60, false, false), ("Musket_Flintlock_FowlingPiece60", "Flintlock", 0.60, false, false), ("Musket_Flintlock_WallGun80", "Flintlock", 0.80, false, true),
+			("Musket_Matchlock_Arquebus55", "Matchlock", 0.55, false, false), ("Musket_Matchlock_Blunderbuss75", "Matchlock", 0.75, false, false), ("Musket_Matchlock_Caliver60", "Matchlock", 0.60, false, false), ("Musket_Matchlock_Carbine60", "Matchlock", 0.60, false, false), ("Musket_Matchlock_FowlingPiece60", "Matchlock", 0.60, false, false), ("Musket_Matchlock_HeavyMusket80", "Matchlock", 0.80, false, true), ("Musket_Matchlock_Jezail65", "Matchlock", 0.65, true, false), ("Musket_Matchlock_Musket75", "Matchlock", 0.75, false, false), ("Musket_Matchlock_Tanegashima60", "Matchlock", 0.60, false, false), ("Musket_Matchlock_Toradar65", "Matchlock", 0.65, true, false), ("Musket_Matchlock_WallGun80", "Matchlock", 0.80, false, true),
+			("Musket_Miquelet_Blunderbuss75", "Miquelet", 0.75, false, false), ("Musket_Miquelet_Carbine60", "Miquelet", 0.60, false, false), ("Musket_Miquelet_Escopeta65", "Miquelet", 0.65, false, false), ("Musket_Miquelet_Musket70", "Miquelet", 0.70, false, false),
+			("Musket_Snaphaunce_Carbine60", "Snaphaunce", 0.60, false, false), ("Musket_Snaphaunce_FowlingPiece60", "Snaphaunce", 0.60, false, false), ("Musket_Snaphaunce_LongGun65", "Snaphaunce", 0.65, true, false), ("Musket_Snaphaunce_Musket70", "Snaphaunce", 0.70, false, false),
+			("Musket_Wheellock_Carbine60", "Wheellock", 0.60, false, false), ("Musket_Wheellock_FowlingPiece60", "Wheellock", 0.60, false, false), ("Musket_Wheellock_LongGun65", "Wheellock", 0.65, true, false), ("Musket_Wheellock_Rifle55", "Wheellock", 0.55, true, false),
+			("Pistol_Doglock55", "Doglock", 0.55, false, false), ("Pistol_Flintlock_Duelling45", "Flintlock", 0.45, true, false), ("Pistol_Matchlock55", "Matchlock", 0.55, false, false), ("Pistol_Miquelet55", "Miquelet", 0.55, false, false), ("Pistol_Snaphaunce55", "Snaphaunce", 0.55, false, false), ("Pistol_Wheellock45", "Wheellock", 0.45, true, false), ("Pistol_Wheellock55", "Wheellock", 0.55, false, false)
+		};
+		foreach (var profile in musketProfiles)
+		{
+			var ranged = EnsureRanged(profile.Name.Replace('_', ' '), profile.Name, "Musket", "Musket", x =>
+			{
+				if (profile.Rifled)
+				{
+					x.DefaultRangeInRooms += 2;
+					x.LoadDelay *= 1.2;
+				}
+				if (profile.Rested)
+				{
+					x.StaminaToFire *= 0.75;
+				}
+			});
+			var definition = CloneDefinition(musketDonor);
+			SetElement(definition, "RangedWeaponType", ranged.Id);
+			SetElement(definition, "BarrelBore", profile.Bore.ToString(System.Globalization.CultureInfo.InvariantCulture));
+			SetElement(definition, "Ignition", profile.Ignition);
+			SetElement(definition, "Rifled", profile.Rifled);
+			SetElement(definition, "RequiresRest", profile.Rested);
+			EnsureComponent("Musket", profile.Name, $"An {profile.Ignition.ToLowerInvariant()} {profile.Name.Replace('_', ' ').ToLowerInvariant()} profile", definition.ToString());
+		}
+
+		foreach (var (name, donorName, capacity, emplaced) in new[]
+		{
+			("Crossbow_Repeating", "Crossbow", 8, false), ("Crossbow_Repeating_Light", "Hand Crossbow", 6, false), ("Crossbow_Wall", "Crossbow", 1, true)
+		})
+		{
+			var ranged = EnsureRanged(name.Replace('_', ' '), name, "Crossbow", donorName, x => x.AmmunitionCapacity = capacity);
+			var component = context.GameItemComponentProtos.Single(x => x.Name == name && x.EditableItem.RevisionStatus == 4);
+			var definition = CloneDefinition(component);
+			SetElement(definition, "MagazineCapacity", capacity);
+			SetElement(definition, "RequiresEmplacement", emplaced);
+			component.Definition = definition.ToString();
+		}
+
+		foreach (var (name, bore, projectileCount) in new[]
+		{
+			("MusketBuckshot_0.55 Bore", 0.55, 8), ("MusketBuckshot_0.75 Bore", 0.75, 12), ("MusketBuckAndBall_0.65 Bore", 0.65, 7), ("MusketBuckAndBall_0.75 Bore", 0.75, 9)
+		})
+		{
+			var definition = CloneDefinition(cartridgeDonor);
+			SetElement(definition, "BulletBore", bore.ToString(System.Globalization.CultureInfo.InvariantCulture));
+			SetElement(definition, "ProjectileCount", projectileCount);
+			EnsureComponent("MusketCartridge", name, $"A multi-projectile musket cartridge for {bore:0.00} bore firearms", definition.ToString());
+		}
+
+		foreach (var name in EarlyModernMilitaryCompletionComponentNames.Where(x => x.StartsWith("Artillery_")).ToList())
+		{
+			var gunnery = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Gunnery") ??
+				throw new InvalidOperationException("Cannot seed artillery profiles because the Gunnery trait is missing.");
+			var ranged = EnsureRanged(name.Replace('_', ' '), name, "ArtilleryPiece", "Musket", x =>
+			{
+				x.RangedWeaponType = (int)RangedWeaponType.Artillery;
+				x.FireTraitId = gunnery.Id;
+				x.OperateTraitId = gunnery.Id;
+				x.DefaultRangeInRooms = Math.Max(x.DefaultRangeInRooms, 8);
+			});
+			var mechanism = name == "Artillery_Peterero" ? "RemovableChamber" : "MuzzleLoading";
+			EnsureComponent("ArtilleryPiece", name, $"A crew-served {name.Replace('_', ' ').ToLowerInvariant()}",
+				new XElement("Definition", new XElement("RangedWeaponType", ranged.Id), new XElement("ArtilleryProfile", ArtilleryProfileForPiece(name)),
+					new XElement("LoadingMechanism", mechanism), new XElement("MinimumCrew", name.Contains("Swivel") ? 1 : 3), new XElement("RequiresEmplacement", true)).ToString());
+		}
+
+		foreach (var name in EarlyModernMilitaryCompletionComponentNames.Where(x => x.StartsWith("ArtilleryShot_") || x.StartsWith("ArtilleryStone") || x.StartsWith("ArtilleryGrape") || x.StartsWith("ArtilleryCase") || x.StartsWith("ArtilleryShell")))
+		{
+			var data = ArtilleryAmmunitionData(name);
+			var ammoType = EnsureArtilleryAmmunitionType(name.Replace('_', ' '), data.Profile, data.Payload,
+				data.ProjectileCount, data.Scatter, data.SpreadPenalty, data.Damage);
+			var definition = CloneDefinition(ammunitionDonor);
+			SetElement(definition, "AmmoType", ammoType.Id);
+			SetElement(definition, "ArtilleryProfile", data.Profile);
+			SetElement(definition, "PayloadType", data.Payload);
+			EnsureComponent("ArtilleryAmmunition", name, $"Artillery ammunition profile {name.Replace('_', ' ')}", definition.ToString());
+		}
+
+		EnsureComponent("ArtilleryMount", "ArtilleryMount_Swivel", "A configurable swivel-gun mount",
+			new XElement("Definition", new XElement("Fixed", false), new XElement("TraverseArc", 360), new XElement("ElevationArc", 60)).ToString());
+		EnsureComponent("ArtilleryChamber", "ArtilleryChamber_Peterero", "A reusable removable chamber for a peterero", new XElement("Definition", new XElement("ArtilleryProfile", "light")).ToString());
+		var sheathDonor = context.GameItemComponentProtos.FirstOrDefault(x => x.Type == "Sheath" && x.EditableItem.RevisionStatus == 4) ??
+			throw new InvalidOperationException("Cannot seed Holster_PairedSaddle because no Sheath donor component exists.");
+		var pairedHolster = CloneDefinition(sheathDonor);
+		SetElement(pairedHolster, "Capacity", 2);
+		EnsureComponent("Sheath", "Holster_PairedSaddle", "A two-slot paired saddle holster", pairedHolster.ToString());
+		foreach (var (name, profile) in new[] { ("WeaponLanyard_Pistol", "pistol"), ("WeaponLoop_LongGun", "longgun"), ("WeaponSling_Carbine", "carbine"), ("WeaponSling_LongGun", "longgun") })
+		{
+			EnsureComponent("WeaponCarrierAttachment", name, $"A {profile} weapon carrier", new XElement("Definition", new XElement("CompatibleProfile", profile), new XElement("RetainsDroppedWeapon", true)).ToString());
+		}
 		}
 
 		context.SaveChanges();

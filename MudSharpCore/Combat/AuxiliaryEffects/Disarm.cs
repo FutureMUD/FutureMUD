@@ -151,6 +151,17 @@ If omitted, the defense trait defaults to the auxiliary action's check trait and
 
 	internal static void PlaceDisarmedItem(IGameItem item, ICharacter target)
 	{
+		var body = target.Body;
+		var carrier = body is null ? null : body.WornItems
+			.Concat(body.HeldOrWieldedItems)
+			.SelectNotNull(x => x?.GetItemType<IWeaponCarrierAttachment>())
+			.FirstOrDefault(x => x.AttachedWeapon == item && x.TryRetain(item, target));
+		if (carrier is not null)
+		{
+			target.OutputHandler.Handle(new EmoteOutput(new Emote("$0 is caught by $1.", target, item, carrier.Parent),
+				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+			return;
+		}
 		item.RoomLayer = target.RoomLayer;
 		item.InsertAtSource(target);
 	}

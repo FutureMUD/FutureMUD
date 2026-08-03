@@ -27,6 +27,8 @@ public static class CombatMoveFactory
 					return new PushbackMove(assailant, weapon, attack, singleTarget);
 				case BuiltInCombatMoveType.PullToMelee:
 					return new PullToMeleeMove(assailant, weapon, attack, singleTarget);
+				case BuiltInCombatMoveType.CouchedLanceAttack:
+					return new CouchedLanceMove(assailant, weapon, attack, singleTarget);
 			}
 
 			throw new ApplicationException(

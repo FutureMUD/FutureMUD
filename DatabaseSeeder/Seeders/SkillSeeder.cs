@@ -402,6 +402,9 @@ Again, the choices you make here can be fixed later so don't stress it too great
                 case CheckType.UnjamGun:
                 case CheckType.FireCrossbow:
                 case CheckType.FireFirearm:
+				case CheckType.AimArtillery:
+				case CheckType.LoadArtillery:
+				case CheckType.FireArtillery:
                 case CheckType.FireSling:
                 case CheckType.FireBlowgun:
                 case CheckType.KeepAimTargetMoved:

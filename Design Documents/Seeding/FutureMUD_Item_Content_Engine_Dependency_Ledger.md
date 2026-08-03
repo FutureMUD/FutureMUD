@@ -1,15 +1,15 @@
 # FutureMUD Item Content Engine Dependency Ledger
 
-This is the consolidated backlog for seeded item requests that the current engine cannot represent honestly. The corresponding data-only pass seeds only supported content; none of the 90 prototype names below appears in the maintained seeded item-component catalogue.
+This is the consolidated backlog for seeded item requests that the current engine cannot represent honestly. The Early Modern military closure described below is implemented and seeded; the remaining backlog is limited to the listed Antiquity references.
 
 ## Status
 
-- Deferred item-component prototypes: **90**.
-- Early Modern military partition: **66 supported** and **90 deferred**, from the original 156 requests.
+- Deferred item-component prototypes: **0** for the Early Modern military ledger.
+- Early Modern military partition: **156 supported** and **0 deferred**, from the original 156 requests.
 - Additional Renaissance household deferrals: **0**.
 - Antiquity item references awaiting engine work: **7**.
-- New runtime component families still proposed: **4**, with **45** directly dependent military prototypes.
-- This ledger is a backlog only. It does not authorize placeholder components, runtime APIs, database migrations, or item rows that advertise unsupported behaviour.
+- New runtime component families delivered: **5**, with **45** directly dependent military prototypes.
+- The military entries below document delivered runtime seams, persisted XML, builder surfaces, and seeder ownership; they are not placeholder component rows.
 
 ## Existing component-family enhancements
 
@@ -31,7 +31,7 @@ The first tranche is implemented, seeded idempotently, exported, documented, and
 
 ### Crossbow magazine and emplacement behaviour — 3 prototypes
 
-The four earlier supported crossbow profiles and five tool-spanned profiles use behavior the ranged system can now express. These three still require repeating magazines or emplacement constraints.
+Repeating profiles persist magazine and cycle state, while wall crossbows require emplacement before loading or firing.
 
 | Prototype | Catalogue uses |
 | --- | ---: |
@@ -41,7 +41,7 @@ The four earlier supported crossbow profiles and five tool-spanned profiles use 
 
 ### Ignition-specific muzzleloaders — 37 prototypes
 
-These profiles remain under the existing `Musket` family, but require ignition-family state, lock readiness, weather interaction, rifling/spread flags, and rest or bayonet-mount constraints before they can be truthful.
+These profiles use persisted ignition-family state, match and wheel readiness, ignition-stone wear, weather interaction, rifling/rest flags, and existing bayonet restrictions.
 
 | Prototype | Catalogue uses |
 | --- | ---: |
@@ -85,7 +85,7 @@ These profiles remain under the existing `Musket` family, but require ignition-f
 
 ### Multi-projectile musket ammunition — 4 prototypes
 
-Measured single-projectile paper cartridges are supported. These profiles still require multiple projectile payloads and spread.
+Measured paper cartridges use the shared projectile-count and scatter path for buckshot and buck-and-ball loads.
 
 | Prototype | Catalogue uses |
 | --- | ---: |
@@ -101,16 +101,13 @@ Measured single-projectile paper cartridges are supported. These profiles still 
 
 ### Existing melee-family enhancements
 
-The data pass seeds `Melee_Lance` and `Melee_HookedPolearm` using supported attacks. Their names and current move sets do not claim the following deferred mechanics:
-
-- `Melee_Lance`: mounted/couched charge checks, movement-linked impact, bracing, and dismount consequences.
-- `Melee_HookedPolearm`: explicit hook, pull, trip, anti-rider, and forced-dismount attacks.
+`Melee_Lance` has a charge-only couched attack that uses capped mount speed/reach and the established mounted knockdown path. `Melee_HookedPolearm` adds a pull attack beside the donor trip moves; a successful opposed hook against a rider uses that same displacement path.
 
 ## New component families and dependent military prototypes — 45
 
-### `MuzzleloadingArtillery` — 20 dependents
+### `ArtilleryPiece` — complete
 
-This family must model crew loading, charge and projectile state, vent/priming, elevation, traverse, recoil, fouling, misfire, and mount/emplacement rules.
+Implemented as the shared crew-served ranged platform with persisted loading/emplacement state, removable-chamber support, mounts, crew roles, movement vetoes, and direct room-level operation.
 
 | Dependent prototype | Catalogue uses |
 | --- | ---: |
@@ -137,7 +134,7 @@ This family must model crew loading, charge and projectile state, vent/priming, 
 
 ### `ArtilleryAmmunition` — 20 dependents
 
-This family must represent nominal shot class, compatible guns, solid/stone/bar/multi-projectile payloads, shell fuses, spread, impact effects, and recoverability.
+This family persists nominal calibre class and compatible artillery profiles. Solid, stone, and bar projectiles use single ballistic rounds; grapeshot and case shot use the shared projectile-count and spread pipeline. Shell and carcass rows retain their selected fuse in the artillery firing solution before the normal projectile lifecycle resolves.
 
 | Dependent prototype | Catalogue uses |
 | --- | ---: |
@@ -168,7 +165,7 @@ This family must represent nominal shot class, compatible guns, solid/stone/bar/
 | --- | ---: |
 | `ArtilleryMount_Swivel` | 1 |
 
-The family must relate a gun to a host socket or carriage with installation, removal, elevation, traverse, and fixed/transportable state.
+The family relates a gun to a host socket or carriage with installation, removal, elevation, traverse, and fixed/transportable state.
 
 ### `WeaponCarrierAttachment` — 4 dependents
 
@@ -179,7 +176,7 @@ The family must relate a gun to a host socket or carriage with installation, rem
 | `WeaponSling_Carbine` | 3 |
 | `WeaponSling_LongGun` | 6 |
 
-The family must retain or carry a specific compatible weapon and model attachment point, draw/release timing, retention, and the transition between carried and wielded state.
+The family retains or carries a specific compatible weapon and models attachment point, retention, and the transition between carried, wielded, and hanging state.
 
 ### Completed `MilitaryStandard` family — 6 supported profiles
 

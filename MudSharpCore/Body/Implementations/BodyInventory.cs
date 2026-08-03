@@ -10,6 +10,7 @@ using MudSharp.Events;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Size;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
 using MudSharp.RPG.Law;
@@ -498,7 +499,7 @@ public partial class Body
 
         if (!CanWield(item, specificHand, flags))
         {
-            if (!silent)
+		if (!silent)
             {
                 OutputHandler.Send(WhyCannotWield(item, specificHand, flags));
             }
@@ -727,7 +728,7 @@ public partial class Body
             IWieldable wielditem =
                 ExternalItems
                 .SelectNotNull(x => x.GetItemType<ISheath>())
-                .SelectNotNull(x => x.Content)
+                .SelectMany(x => x is IMultiSlotSheath multi ? multi.WieldableContents : x.Content is null ? [] : [x.Content])
                 .FirstOrDefault();
             if (wielditem == null)
             {
@@ -776,9 +777,9 @@ public partial class Body
     {
         if (item == null)
         {
-            IWieldable wielditem =
-                ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>()).SelectNotNull(x => x.Content)
-                             .FirstOrDefault();
+            IWieldable wielditem = ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>())
+                                             .SelectMany(x => x is IMultiSlotSheath multi ? multi.WieldableContents : x.Content is null ? [] : [x.Content])
+                                             .FirstOrDefault();
             if (wielditem == null)
             {
                 return "You do not have anything that can be drawn.";
@@ -831,16 +832,24 @@ public partial class Body
         {
             item =
                 ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>())
-                             .SelectNotNull(x => x.Content)
+                             .SelectMany(x => x is IMultiSlotSheath multi ? multi.WieldableContents : x.Content is null ? [] : [x.Content])
                              .FirstOrDefault()
                              ?.Parent;
         }
 
         IWieldable wieldItem = item.GetItemType<IWieldable>();
         ISheath sheathItem =
-            ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>()).FirstOrDefault(x => x.Content == wieldItem);
+            ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>()).FirstOrDefault(x =>
+                x is IMultiSlotSheath multi ? multi.WieldableContents.Contains(wieldItem) : x.Content == wieldItem);
 
-        sheathItem.Content = null;
+        if (sheathItem is IMultiSlotSheath concreteSheath)
+        {
+            concreteSheath.TryRemove(wieldItem);
+        }
+        else
+        {
+            sheathItem.Content = null;
+        }
         sheathItem.Parent.Changed = true;
         item.Get(this);
         if (!silent)
@@ -857,9 +866,9 @@ public partial class Body
         else
         {
             Wield(item, specificHand, null, silent, flags);
-        }
+		}
 
-        InventoryChanged = true;
+		InventoryChanged = true;
         OnInventoryChange?.Invoke(InventoryState.Sheathed, InventoryState.Wielded, item);
         item.InvokeInventoryChange(InventoryState.Sheathed, InventoryState.Wielded);
         CheckConsequences();
@@ -897,7 +906,7 @@ public partial class Body
 
         bool SheathIsSuitable(ISheath isheath)
         {
-            if (isheath.Content != null)
+            if (!isheath.CanSheath(item))
             {
                 return false;
             }
@@ -1004,7 +1013,7 @@ public partial class Body
 
         (bool Success, string ReasonText, WhyCannotSheatheReason Reason) SheathIsSuitable(ISheath isheath)
         {
-            if (isheath.Content != null)
+            if (!isheath.CanSheath(item))
             {
                 return (false, $"{isheath.Parent.HowSeen(Actor, true)} is not empty.", WhyCannotSheatheReason.NotEmpty);
             }
@@ -1131,7 +1140,7 @@ public partial class Body
         {
             targetSheathComponent =
                 ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>())
-                             .FirstOrDefault(x => x.Content == null && x.MaximumSize >= item.Size);
+                              .FirstOrDefault(x => x.CanSheath(item));
             sheath = targetSheathComponent.Parent;
         }
         else
@@ -1150,7 +1159,14 @@ public partial class Body
 
         item.Drop(null);
         Take(item);
-        targetSheathComponent.Content = targetItemWieldable;
+        if (targetSheathComponent is IMultiSlotSheath concreteSheath)
+        {
+            concreteSheath.TryAdd(targetItemWieldable);
+        }
+        else
+        {
+            targetSheathComponent.Content = targetItemWieldable;
+        }
         sheath.Changed = true;
         Actor.HandleEvent(EventType.CharacterSheatheItem, Actor, item, sheath);
         item.HandleEvent(EventType.ItemSheathed, Actor, item, sheath);
@@ -2132,6 +2148,25 @@ public partial class Body
             output.Append(playerEmote);
             OutputHandler.Handle(output);
         }
+
+		var retainingCarrier = WornItems
+			.Concat(HeldOrWieldedItems)
+			.SelectNotNull(x => x.GetItemType<IWeaponCarrierAttachment>())
+			.FirstOrDefault(x => x.AttachedWeapon == droppedItem && x.TryRetain(droppedItem, Actor));
+		if (retainingCarrier is not null)
+		{
+			InventoryChanged = true;
+			OnInventoryChange?.Invoke(wasWielded ? InventoryState.Wielded : InventoryState.Held,
+				InventoryState.Hanging, droppedItem);
+			droppedItem.InvokeInventoryChange(wasWielded ? InventoryState.Wielded : InventoryState.Held,
+				InventoryState.Hanging);
+			if (!silent)
+			{
+				OutputHandler.Handle(new EmoteOutput(new Emote("$0 is caught by $1.", Actor, droppedItem, retainingCarrier.Parent)));
+			}
+			CheckConsequences();
+			return;
+		}
 
         InventoryChanged = true;
         OnInventoryChange?.Invoke(wasWielded ? InventoryState.Wielded : InventoryState.Held, InventoryState.Dropped,

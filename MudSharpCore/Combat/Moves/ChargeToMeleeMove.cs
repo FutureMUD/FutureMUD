@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body.Position;
 using MudSharp.Construction.Boundary;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
 using MudSharp.Vehicles;
@@ -72,6 +73,7 @@ public class ChargeToMeleeMove : CombatMoveBase
             return outcome;
         }
 
+        var couchedLance = GetCouchedLance(target);
         Assailant.MeleeRange = true;
         if (target.CombatTarget == Assailant)
         {
@@ -82,6 +84,7 @@ public class ChargeToMeleeMove : CombatMoveBase
         if (response is ReceiveChargeMove receiveCharge)
         {
             HandleReceiveCharge(receiveCharge, target);
+            ResolveCouchedLance(couchedLance, target, new HelplessDefenseMove { Assailant = target });
             _delay = 0;
             return new CombatMoveResult { MoveWasSuccessful = true };
         }
@@ -93,6 +96,7 @@ public class ChargeToMeleeMove : CombatMoveBase
             Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(message, Assailant, Assailant, target),
                 style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
             standAndFire.ResolveMove(new HelplessDefenseMove { Assailant = Assailant });
+            ResolveCouchedLance(couchedLance, target, new HelplessDefenseMove { Assailant = target });
             _delay = 0;
             return new CombatMoveResult { MoveWasSuccessful = true };
         }
@@ -104,12 +108,49 @@ public class ChargeToMeleeMove : CombatMoveBase
                 BuiltInCombatMoveType.ChargeToMelee, Outcome.NotTested, null);
             Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(message, Assailant, Assailant, target),
                 style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+            ResolveCouchedLance(couchedLance, target, new HelplessDefenseMove { Assailant = target });
             _delay = 0;
             return new CombatMoveResult { MoveWasSuccessful = true };
         }
 
-        throw new NotImplementedException();
+		// A defender can legitimately select an ordinary melee defence while a charge closes.
+		// It has no special interception semantics, so resolve the charge as a normal close rather
+		// than leaving a reachable combat path to throw.
+		Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(
+			Gameworld.CombatMessageManager.GetMessageFor(Assailant, target, null, null,
+				BuiltInCombatMoveType.ChargeToMelee, Outcome.NotTested, null), Assailant, Assailant, target),
+			style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+		ResolveCouchedLance(couchedLance, target, response);
+		_delay = 0;
+		return new CombatMoveResult { MoveWasSuccessful = true };
     }
+
+	private (IMeleeWeapon Weapon, IWeaponAttack Attack)? GetCouchedLance(ICharacter target)
+	{
+		if (Assailant.RidingMount is null)
+		{
+			return null;
+		}
+
+		return Assailant.Body.WieldedItems
+			.SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
+			.SelectMany(weapon => weapon.WeaponType.Attacks
+				.Where(attack => CouchedLanceMove.CanCouch(Assailant, weapon, attack, target))
+				.Select(attack => (Weapon: weapon, Attack: attack)))
+			.OrderByDescending(x => x.Weapon.WeaponType.Reach)
+			.FirstOrDefault();
+	}
+
+	private void ResolveCouchedLance((IMeleeWeapon Weapon, IWeaponAttack Attack)? couch, ICharacter target,
+		ICombatMove defense)
+	{
+		if (couch is null)
+		{
+			return;
+		}
+
+		new CouchedLanceMove(Assailant, couch.Value.Weapon, couch.Value.Attack, target).ResolveMove(defense);
+	}
 
     private void HandleReceiveCharge(ReceiveChargeMove receiveCharge, ICharacter target)
     {

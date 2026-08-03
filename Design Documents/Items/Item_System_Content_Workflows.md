@@ -7,6 +7,12 @@ This document explains the builder-facing workflows developers use when creating
 
 The focus is not general builder onboarding. The focus is the minimum command surface developers need when implementing or testing item-system changes.
 
+## Artillery and weapon-carrier workflow
+
+Use `comp edit new artillery`, `artilleryammo`, `artillerychamber`, `artillerymount`, or `weaponcarrier` to author the corresponding component. Artillery pieces require an artillery ranged type, profile, loading mechanism, crew range, emplacement setting, and arcs; ammunition and chambers use matching profile strings (a `|`-separated list is valid for a deliberately compatible family). At runtime, use `artillery <piece> join [role]`, then the documented loading drill, `aim` or `aimpath`, and `fire`; use `emplace` / `artillery ... limber` and `mount` / `unmount` to manage physical installation.
+
+Weapon carriers use `attach` and `detach` to establish or remove the relation and ordinary `sheathe` / `draw` to stow or retrieve an attached weapon. A retained dropped weapon is hanging, so `recover <weapon>` returns it to inventory and `release <weapon>` drops it deliberately.
+
 ## Working with Component Prototypes
 ### Discover available component types
 Use:

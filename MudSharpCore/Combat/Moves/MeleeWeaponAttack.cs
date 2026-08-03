@@ -2,6 +2,7 @@
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
+using MudSharp.Combat.AuxiliaryEffects;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
@@ -526,9 +527,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
                             new EmoteOutput(new Emote("@ lose|loses &0's grip on $1, sending it flying!",
                                     Assailant, Assailant, Weapon.Parent), style: OutputStyle.CombatMessage,
                                 flags: OutputFlags.InnerWrap));
-                        Assailant.Body.Take(Weapon.Parent);
-                        Weapon.Parent.RoomLayer = Assailant.RoomLayer;
-                        Weapon.Parent.InsertAtSource(Assailant);
+						Assailant.Body.Take(Weapon.Parent);
+						Disarm.PlaceDisarmedItem(Weapon.Parent, Assailant);
                         Weapon.Parent.AddEffect(new CombatNoGetEffect(Weapon.Parent,
                             Assailant.Combat), TimeSpan.FromSeconds(90));
                         Assailant.AddEffect(new CombatGetItemEffect(Assailant, Weapon.Parent));

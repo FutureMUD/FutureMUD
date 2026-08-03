@@ -56,6 +56,13 @@ public class PullToMeleeMove : MeleeWeaponAttack
 					"@ haul|hauls $1 into melee range!", Assailant, Assailant, target),
 				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 			PullTargetIntoMelee(Assailant, target);
+			if (Weapon.WeaponType.Name.EqualTo("Hooked Polearm") && target.RidingMount is not null)
+			{
+				target.OutputHandler.Handle(new EmoteOutput(new Emote(
+					"@ are|is pulled from $1 by the hooked polearm!", target, target, target.RidingMount),
+					style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+				target.DoCombatKnockdown(Math.Max(1, (int)opposed.Degree));
+			}
 			return;
 		}
 

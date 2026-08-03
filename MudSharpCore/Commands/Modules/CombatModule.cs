@@ -245,6 +245,10 @@ You can use the command in one of three ways:
         StringStack ss = new(command.RemoveFirstWord());
         if (!actor.EffectsOfType<IGrappling>().Any() && !actor.AffectedBy<Dragging>())
         {
+			if (ManipulationModule.TryReleaseHangingWeapon(actor, command))
+			{
+				return;
+			}
             actor.Send("You are not holding anyone that you can release.");
             return;
         }
@@ -2901,10 +2905,10 @@ The syntax is:
 	#3fire#0", AutoHelp.HelpArg)]
     protected static void Fire(ICharacter actor, string command)
     {
-        if (actor.Aim != null && actor.Combat != null)
+		if (actor.Aim?.Weapon is IRangedWeapon aimedWeapon && actor.Combat != null)
         {
             if (actor.TakeOrQueueCombatAction(
-                    SelectedCombatAction.GetEffectFireItem(actor, actor.Aim.Target, actor.Aim.Weapon)) &&
+					SelectedCombatAction.GetEffectFireItem(actor, actor.Aim.Target, aimedWeapon)) &&
                 actor.Gameworld.GetStaticBool("EchoQueuedActions"))
             {
                 actor.Send(
@@ -2997,6 +3001,318 @@ The syntax is:
 
         actor.Aim = null;
     }
+
+    [PlayerCommand("Artillery", "artillery")]
+    [RequiredCharacterState(CharacterState.Able)]
+    [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [HelpInfo("artillery", @"The #3artillery#0 command operates a nearby crew-served artillery piece. You must join its crew before loading, priming, firing, emplacing, or limbering it. Artillery pieces are deliberately operated in the room rather than wielded.
+
+The syntax is:
+
+	#3artillery <piece> status#0
+	#3artillery <piece> join [role]|leave#0
+	#3artillery <piece> emplace|limber|load|unload|ready|unready#0
+	#3artillery <piece> chamberload <chamber> <ammunition>|chamberunload <chamber>#0
+	#3artillery <piece> mount <mount>|unmount#0
+	#3artillery <piece> aim <bearing> <distance> <elevation> [traverse]#0
+	#3artillery <piece> aimpath <bearing> <distance> <elevation> <traverse> <cellId> [cellId ...]#0
+	#3artillery <piece> fuse <seconds>|none#0
+	#3artillery <piece> fire [target|air]#0", AutoHelp.HelpArg)]
+    protected static void Artillery(ICharacter actor, string command)
+    {
+        var arguments = new StringStack(command.RemoveFirstWord());
+        if (arguments.IsFinished)
+        {
+            actor.Send("Which artillery piece do you want to operate?");
+            return;
+        }
+
+        var item = actor.TargetLocalOrHeldItem(arguments.PopSpeech());
+        var piece = item?.GetItemType<IArtilleryPiece>();
+        if (piece is null)
+        {
+            actor.Send("You do not see an artillery piece like that.");
+            return;
+        }
+
+        var action = arguments.IsFinished ? "status" : arguments.PopForSwitch();
+        switch (action)
+        {
+            case "status":
+                actor.Send($"{item.HowSeen(actor, true)} is {(piece.IsEmplaced ? "emplaced" : "limbered").ColourValue()}, " +
+                           $"{(piece.IsLoaded ? "loaded" : "empty").ColourValue()}, " +
+                           $"{(piece.IsReadied ? "primed" : "unprimed").ColourValue()}, with crew: " +
+                           piece.Crew.Select(x => x.HowSeen(actor)).ListToString() + ".");
+                return;
+            case "join":
+                if (piece.TryJoinCrew(actor, arguments.IsFinished ? "crew" : arguments.SafeRemainingArgument, out var reason))
+                {
+                    actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ join|joins the crew of $1.", actor, actor, item)));
+                }
+                else
+                {
+                    actor.Send(reason);
+                }
+                return;
+            case "leave":
+                if (piece.LeaveCrew(actor)) actor.Send($"You leave the crew of {item.HowSeen(actor)}.");
+                else actor.Send("You are not assigned to that artillery crew.");
+                return;
+            case "emplace":
+				if (!piece.CanPerform(actor, ArtilleryCrewAction.Command, out var emplaceReason))
+				{
+					actor.Send(emplaceReason);
+					return;
+				}
+                piece.Emplace(actor);
+				actor.Send($"You emplace {item.HowSeen(actor)}.");
+                return;
+            case "limber":
+				if (!piece.CanPerform(actor, ArtilleryCrewAction.Command, out var limberReason))
+				{
+					actor.Send(limberReason);
+					return;
+				}
+                piece.Limber(actor);
+				actor.Send($"You limber {item.HowSeen(actor)} and release its crew assignments.");
+                return;
+			case "mount":
+			{
+				if (!piece.CanPerform(actor, ArtilleryCrewAction.Command, out var mountReason))
+				{
+					actor.Send(mountReason);
+					return;
+				}
+				var mountItem = actor.TargetLocalOrHeldItem(arguments.SafeRemainingArgument);
+				var mount = mountItem?.GetItemType<IArtilleryMount>();
+				if (mount is null)
+				{
+					actor.Send("You do not see an artillery mount like that.");
+					return;
+				}
+				if (!mount.Install(piece))
+				{
+					actor.Send(mount.WhyCannotInstall(piece));
+					return;
+				}
+				actor.Send($"You install {item.HowSeen(actor)} on {mountItem.HowSeen(actor)}.");
+				return;
+			}
+			case "unmount":
+			{
+				if (!piece.CanPerform(actor, ArtilleryCrewAction.Command, out var unmountReason))
+				{
+					actor.Send(unmountReason);
+					return;
+				}
+				var mount = item.ContainedIn?.GetItemType<IArtilleryMount>();
+				if (mount?.InstalledPiece != item)
+				{
+					actor.Send("That artillery piece is not installed on a mount.");
+					return;
+				}
+				mount.Remove()?.InsertAtSource(actor);
+				actor.Send($"You remove {item.HowSeen(actor)} from its artillery mount.");
+				return;
+			}
+            case "load":
+                if (!piece.CanLoad(actor)) actor.Send(piece.WhyCannotLoad(actor));
+                else piece.Load(actor);
+                return;
+            case "unload":
+                if (!piece.CanUnload(actor)) actor.Send(piece.WhyCannotUnload(actor));
+                else piece.Unload(actor);
+                return;
+			case "chamberload":
+			{
+				if (!piece.CanPerform(actor, ArtilleryCrewAction.LoadProjectile, out var chamberLoadReason))
+				{
+					actor.Send(chamberLoadReason);
+					return;
+				}
+				var chamberItem = actor.TargetLocalOrHeldItem(arguments.PopSpeech());
+				var ammunitionItem = actor.TargetLocalOrHeldItem(arguments.SafeRemainingArgument);
+				var chamber = chamberItem?.GetItemType<IArtilleryChamber>();
+				var ammunition = ammunitionItem?.GetItemType<IArtilleryAmmunition>();
+				if (chamber is null || ammunition is null)
+				{
+					actor.Send("You must specify a removable artillery chamber and compatible artillery ammunition.");
+					return;
+				}
+				if (!chamber.TryLoad(ammunition))
+				{
+					actor.Send("That chamber is already loaded or is incompatible with that artillery ammunition.");
+					return;
+				}
+				actor.Send($"You preload {chamberItem.HowSeen(actor)} with {ammunitionItem.HowSeen(actor)}.");
+				return;
+			}
+			case "chamberunload":
+			{
+				if (!piece.CanPerform(actor, ArtilleryCrewAction.LoadProjectile, out var chamberUnloadReason))
+				{
+					actor.Send(chamberUnloadReason);
+					return;
+				}
+				var chamberItem = actor.TargetLocalOrHeldItem(arguments.SafeRemainingArgument);
+				var chamber = chamberItem?.GetItemType<IArtilleryChamber>();
+				var ammunition = chamber?.Unload();
+				if (ammunition is null)
+				{
+					actor.Send("That removable artillery chamber is not loaded.");
+					return;
+				}
+				ammunition.Parent.InsertAtSource(actor);
+				actor.Send($"You unload {ammunition.Parent.HowSeen(actor)} from {chamberItem.HowSeen(actor)}.");
+				return;
+			}
+            case "ready":
+                if (!piece.CanReady(actor)) actor.Send(piece.WhyCannotReady(actor));
+                else piece.Ready(actor);
+                return;
+            case "unready":
+                if (!piece.CanUnready(actor)) actor.Send(piece.WhyCannotUnready(actor));
+                else piece.Unready(actor);
+                return;
+            case "fire":
+            {
+				IPerceiver target = null;
+                if (!arguments.IsFinished && !arguments.SafeRemainingArgument.EqualToAny("air", "sky"))
+                {
+					target = actor.Target(arguments.SafeRemainingArgument) as IPerceiver;
+                    if (target is null)
+                    {
+                        actor.Send("You do not see a target like that for the artillery piece.");
+                        return;
+                    }
+                }
+
+                if (!piece.CanFire(actor, target))
+                {
+                    actor.Send(piece.WhyCannotFire(actor, target));
+                    return;
+                }
+
+                piece.Fire(actor, target, Outcome.NotTested, Outcome.NotTested,
+                    new OpposedOutcome(Outcome.NotTested, Outcome.NotTested), null, null, null);
+                return;
+            }
+			case "aim":
+			{
+				if (!double.TryParse(arguments.PopSpeech(), out var bearing) ||
+					!double.TryParse(arguments.PopSpeech(), out var distance) ||
+					!double.TryParse(arguments.PopSpeech(), out var elevation))
+				{
+					actor.Send("The syntax is artillery <piece> aim <bearing> <distance> <elevation>.");
+					return;
+				}
+
+				var traverse = arguments.IsFinished ? 0.0 :
+					double.TryParse(arguments.PopSpeech(), out var parsedTraverse) ? parsedTraverse : double.NaN;
+				if (double.IsNaN(traverse))
+				{
+					actor.Send("Traverse must be a number of degrees.");
+					return;
+				}
+
+				if (!piece.SetFiringSolution(actor, new ArtilleryFiringSolution(bearing, distance, elevation, traverse, []), out var solutionReason))
+				{
+					actor.Send(solutionReason);
+					return;
+				}
+
+				actor.Send($"You set {item.HowSeen(actor)} to bearing {bearing.ToString("N1", actor).ColourValue()}, distance {distance.ToString("N1", actor).ColourValue()}, and elevation {elevation.ToString("N1", actor).ColourValue()}.");
+				return;
+			}
+			case "aimpath":
+			{
+				if (!double.TryParse(arguments.PopSpeech(), out var bearing) ||
+					!double.TryParse(arguments.PopSpeech(), out var distance) ||
+					!double.TryParse(arguments.PopSpeech(), out var elevation) ||
+					!double.TryParse(arguments.PopSpeech(), out var traverse))
+				{
+					actor.Send("The syntax is artillery <piece> aimpath <bearing> <distance> <elevation> <traverse> <cellId> [cellId ...].");
+					return;
+				}
+				var cells = new List<long>();
+				while (!arguments.IsFinished)
+				{
+					if (!long.TryParse(arguments.PopSpeech(), out var cellId) || cellId <= 0)
+					{
+						actor.Send("Every indirect firing-path entry must be a positive cell ID.");
+						return;
+					}
+					cells.Add(cellId);
+				}
+				if (cells.Count == 0)
+				{
+					actor.Send("An indirect firing solution requires at least one reachable cell.");
+					return;
+				}
+				if (!piece.SetFiringSolution(actor,
+						new ArtilleryFiringSolution(bearing, distance, elevation, traverse, cells), out var pathReason))
+				{
+					actor.Send(pathReason);
+					return;
+				}
+				actor.Send($"You set an indirect firing path for {item.HowSeen(actor)} through {cells.Count.ToString(actor).ColourValue()} cell{(cells.Count == 1 ? string.Empty : "s")}.");
+				return;
+			}
+			case "fuse":
+			{
+				TimeSpan? fuse;
+				if (arguments.SafeRemainingArgument.EqualToAny("none", "impact"))
+				{
+					fuse = null;
+				}
+				else if (double.TryParse(arguments.SafeRemainingArgument, out var seconds) && seconds >= 0.0)
+				{
+					fuse = TimeSpan.FromSeconds(seconds);
+				}
+				else
+				{
+					actor.Send("The syntax is artillery <piece> fuse <seconds>|none.");
+					return;
+				}
+				if (!piece.SetFuse(actor, fuse, out var fuseReason))
+				{
+					actor.Send(fuseReason);
+					return;
+				}
+				actor.Send(fuse is null ? "You set the artillery piece for impact ignition." : $"You set a {fuse.Value.TotalSeconds.ToString("N1", actor).ColourValue()} second artillery fuse.");
+				return;
+			}
+            default:
+                actor.Send("Use artillery <piece> status, join, leave, emplace, limber, mount, unmount, load, unload, chamberload, chamberunload, ready, unready, aim, fuse, or fire.");
+                return;
+        }
+    }
+
+	[PlayerCommand("Emplace", "emplace")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("emplace", "Syntax: emplace <ranged weapon>|emplace limber <ranged weapon>\n\nEmplaces or limbers a wall crossbow or a musket that requires a rest. The weapon must be in the room before it can be emplaced.", AutoHelp.HelpArg)]
+	protected static void EmplaceRangedWeapon(ICharacter actor, string command)
+	{
+		var arguments = new StringStack(command.RemoveFirstWord());
+		var limber = arguments.Peek().EqualTo("limber");
+		if (limber)
+		{
+			arguments.PopSpeech();
+		}
+		var item = actor.TargetLocalOrHeldItem(arguments.SafeRemainingArgument);
+		var weapon = item?.GetItemType<IEmplaceableRangedWeapon>();
+		if (weapon is null)
+		{
+			actor.Send("You do not see an emplaceable ranged weapon like that.");
+			return;
+		}
+		if (!(limber ? weapon.Limber(actor, out var reason) : weapon.Emplace(actor, out reason)))
+		{
+			actor.Send(reason);
+			return;
+		}
+		actor.Send($"You {(limber ? "limber" : "emplace")} {item.HowSeen(actor)}.");
+	}
 
     [PlayerCommand("Cover", "cover")]
     [NoMovementCommand]

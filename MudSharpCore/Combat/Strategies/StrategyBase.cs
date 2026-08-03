@@ -788,16 +788,16 @@ public abstract class StrategyBase : ICombatStrategy
             }
         }
 
-        if (combatant.Aim?.Weapon.ReadyToFire == true)
+		if (combatant.Aim?.Weapon is IRangedWeapon aimedWeapon && aimedWeapon.ReadyToFire)
         {
-            if (combatant.CanSpendStamina(combatant.Aim.Weapon.WeaponType.StaminaToFire) &&
+			if (combatant.CanSpendStamina(aimedWeapon.WeaponType.StaminaToFire) &&
                 combatant.Aim.AimPercentage >= combatant.CombatSettings.RequiredMinimumAim)
             {
                 return new RangedWeaponAttackMove(combatant, combatant.CombatTarget as ICharacter,
-                    combatant.Aim.Weapon);
+					aimedWeapon);
             }
 
-            return new AimRangedWeaponMove(combatant, combatant.CombatTarget as ICharacter, combatant.Aim.Weapon);
+			return new AimRangedWeaponMove(combatant, combatant.CombatTarget as ICharacter, aimedWeapon);
         }
 
         List<IRangedWeapon> nonReadyWeapons = GetNotReadyButLoadableWeapons(combatant).ToList();

@@ -97,6 +97,12 @@ A component may:
 Runtime item behaviour is usually discovered by interface lookup on components. Code commonly asks questions like:
 - does this item have an `IContainer`?
 - does this item have an `IProduceLight`?
+
+### Crew-served ranged platforms and weapon retention
+
+`IRangedWeaponPlatform` is the shared load, ready, aim, fire, and ammunition-containment contract. Handheld launchers continue to implement `IRangedWeapon : IRangedWeaponPlatform, IWieldable`; a crew-served `IArtilleryPiece` implements the platform directly and is found in the local cell rather than a character's hands. Its mutable XML records the loading drill, loaded ammunition or removable chamber, emplacement/readied state, and an optional spatial firing solution. Crew assignments are intentionally transient: they are released when a crew member leaves the cell, becomes unable, logs out, or the piece is limbered.
+
+`IArtilleryAmmunition`, `IArtilleryChamber`, and `IArtilleryMount` keep calibre-profile compatibility, contained ammunition, installation, and movement vetoes local to their live components. `IWeaponCarrierAttachment` similarly persists its attached item and `Detached`, `Carried`, `Wielded`, or `Hanging` state. A retained weapon is contained by the carrier while hanging; it is never silently re-equipped after a drop or disarm.
 - does this item have an `IImplant`?
 
 ### `IGameItemComponentProto`

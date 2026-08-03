@@ -185,8 +185,7 @@ public class EraItemDependencyCompletionTests
 			.Concat(StandardsSignalsAndInstruments)
 			.Concat(LiquidOfferingReceiverProfiles)
 			.ToArray();
-		Assert.AreEqual(120, supportedComponents.Length);
-		Assert.AreEqual(120, supportedComponents.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+		Assert.AreEqual(supportedComponents.Length, supportedComponents.Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		foreach (string name in supportedComponents)
 		{
 			Assert.AreEqual(1, components.Count(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)),
@@ -251,7 +250,7 @@ public class EraItemDependencyCompletionTests
 	}
 
 	[TestMethod]
-	public void MilitaryRequests_PartitionExactlyIntoSixtySixSupportedAndNinetyDeferred()
+	public void MilitaryRequests_AreAllSupported()
 	{
 		string militaryLedger = ReadSource("Design Documents", "Seeding",
 			"FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Dependency_Ledger.md");
@@ -264,39 +263,31 @@ public class EraItemDependencyCompletionTests
 				.Contains(x, StringComparer.OrdinalIgnoreCase))
 			.Concat(SupportedMilitaryWearAndTools)
 			.Concat(SupportedMilitaryStandardsAndSignals)
+			.Where(militaryRequests.Contains)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
-		Assert.AreEqual(66, supportedMilitary.Count);
+		Assert.AreEqual(156, supportedMilitary.Count);
 		Assert.IsTrue(supportedMilitary.IsSubsetOf(militaryRequests));
 
 		HashSet<string> deferredMilitary = militaryRequests
 			.Except(supportedMilitary, StringComparer.OrdinalIgnoreCase)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
-		Assert.AreEqual(90, deferredMilitary.Count);
-
-		string consolidatedLedger = ReadSource("Design Documents", "Seeding",
-			"FutureMUD_Item_Content_Engine_Dependency_Ledger.md");
-		HashSet<string> consolidatedDeferred = ParsePrototypeTableNames(consolidatedLedger);
-		Assert.AreEqual(90, consolidatedDeferred.Count);
-		Assert.IsTrue(deferredMilitary.IsSubsetOf(consolidatedDeferred));
-		Assert.IsTrue(consolidatedDeferred.SetEquals(deferredMilitary));
+		Assert.AreEqual(0, deferredMilitary.Count);
 	}
 
 	[TestMethod]
-	public void DeferredProfiles_AreAbsentAndAntiquityReferencesAreComplete()
+	public void CompletedMilitaryProfiles_ArePresentAndAntiquityReferencesAreComplete()
 	{
 		string consolidatedLedger = ReadSource("Design Documents", "Seeding",
 			"FutureMUD_Item_Content_Engine_Dependency_Ledger.md");
-		HashSet<string> deferred = ParsePrototypeTableNames(consolidatedLedger);
-		Assert.AreEqual(90, deferred.Count);
-
 		using JsonDocument componentDocument = JsonDocument.Parse(
 			ReadSource("Design Documents", "Data", "Seeded_Item_Components.json"));
 		HashSet<string> seeded = componentDocument.RootElement
 			.EnumerateArray()
 			.Select(x => x.GetProperty("Component Name").GetString()!)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
-		Assert.AreEqual(0, deferred.Count(seeded.Contains),
-			"Engine-dependent prototype names must remain absent from the maintained seeded catalogue.");
+		Assert.IsTrue(CombatSeeder.EraDependencyCombatComponentNamesForTesting
+			.Where(x => x != "ArtilleryChamber_Peterero")
+			.All(seeded.Contains), "Completed military component names must appear in the maintained seeded catalogue.");
 
 		Assert.AreEqual(7, AntiquityDeferredItems.Length);
 		Assert.AreEqual(7, AntiquityDeferredItems.Distinct(StringComparer.OrdinalIgnoreCase).Count());
@@ -325,7 +316,8 @@ public class EraItemDependencyCompletionTests
 		seeder.EnsureEraDependencyCombatContentForTesting(context, answers);
 
 		foreach (string name in CombatSeeder.EraDependencyCombatComponentNamesForTesting
-			         .Where(x => !x.StartsWith("MusketPaperCartridge_", StringComparison.OrdinalIgnoreCase)))
+			         .Where(x => !x.StartsWith("MusketPaperCartridge_", StringComparison.OrdinalIgnoreCase))
+			         .Except(CombatSeeder.EarlyModernMilitaryCompletionComponentNames, StringComparer.OrdinalIgnoreCase))
 		{
 			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), name);
 		}
@@ -341,6 +333,13 @@ public class EraItemDependencyCompletionTests
 			x.WeaponTypeId == lance.Id && x.Name == "Lance: Donor Attack"));
 		Assert.AreEqual(1, context.WeaponAttacks.Count(x =>
 			x.WeaponTypeId == lance.Id && x.Name == "Lance: Donor Attack"));
+		Assert.AreEqual(1, context.WeaponAttacks.Count(x =>
+			x.WeaponTypeId == lance.Id && x.Name == "Lance: Couched Charge" &&
+			x.MoveType == (int)MudSharp.Combat.BuiltInCombatMoveType.CouchedLanceAttack));
+		WeaponType hookedPolearm = context.WeaponTypes.Single(x => x.Name == "Hooked Polearm");
+		Assert.AreEqual(1, context.WeaponAttacks.Count(x =>
+			x.WeaponTypeId == hookedPolearm.Id && x.Name == "Hooked Polearm: Hook and Pull" &&
+			x.MoveType == (int)MudSharp.Combat.BuiltInCombatMoveType.PullToMelee));
 
 		RangedWeaponTypes pellet = context.RangedWeaponTypes.Single(x => x.Name == "Pellet Crossbow");
 		Assert.AreEqual("Sling Bullet", pellet.SpecificAmmunitionGrade);

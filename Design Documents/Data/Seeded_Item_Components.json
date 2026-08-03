@@ -20973,5 +20973,460 @@
         "Component Name":  "ZeroGravityTether_3Room",
         "Component Description":  "Turns an item into a zero-gravity tether with a three-room maximum length.",
         "Component Type":  "ZeroGravityTether"
+    },
+    {
+        "Component Name":  "Crossbow_Repeating",
+        "Component Description":  "Early Modern military component profile Crossbow_Repeating.",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Repeating_Light",
+        "Component Description":  "Early Modern military component profile Crossbow_Repeating_Light.",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Crossbow_Wall",
+        "Component Description":  "Early Modern military component profile Crossbow_Wall.",
+        "Component Type":  "Crossbow"
+    },
+    {
+        "Component Name":  "Musket_Doglock_Blunderbuss75",
+        "Component Description":  "Early Modern military component profile Musket_Doglock_Blunderbuss75.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Doglock_Carbine60",
+        "Component Description":  "Early Modern military component profile Musket_Doglock_Carbine60.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Doglock_Musket70",
+        "Component Description":  "Early Modern military component profile Musket_Doglock_Musket70.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Flintlock_Blunderbuss75",
+        "Component Description":  "Early Modern military component profile Musket_Flintlock_Blunderbuss75.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Flintlock_Carbine60",
+        "Component Description":  "Early Modern military component profile Musket_Flintlock_Carbine60.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Flintlock_FowlingPiece60",
+        "Component Description":  "Early Modern military component profile Musket_Flintlock_FowlingPiece60.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Flintlock_WallGun80",
+        "Component Description":  "Early Modern military component profile Musket_Flintlock_WallGun80.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Matchlock_Arquebus55",
+        "Component Description":  "Early Modern military component profile Musket_Matchlock_Arquebus55.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Matchlock_Blunderbuss75",
+        "Component Description":  "Early Modern military component profile Musket_Matchlock_Blunderbuss75.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Matchlock_Caliver60",
+        "Component Description":  "Early Modern military component profile Musket_Matchlock_Caliver60.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Matchlock_Carbine60",
+        "Component Description":  "Early Modern military component profile Musket_Matchlock_Carbine60.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Matchlock_FowlingPiece60",
+        "Component Description":  "Early Modern military component profile Musket_Matchlock_FowlingPiece60.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Matchlock_HeavyMusket80",
+        "Component Description":  "Early Modern military component profile Musket_Matchlock_HeavyMusket80.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Matchlock_Jezail65",
+        "Component Description":  "Early Modern military component profile Musket_Matchlock_Jezail65.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Matchlock_Musket75",
+        "Component Description":  "Early Modern military component profile Musket_Matchlock_Musket75.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Matchlock_Tanegashima60",
+        "Component Description":  "Early Modern military component profile Musket_Matchlock_Tanegashima60.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Matchlock_Toradar65",
+        "Component Description":  "Early Modern military component profile Musket_Matchlock_Toradar65.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Matchlock_WallGun80",
+        "Component Description":  "Early Modern military component profile Musket_Matchlock_WallGun80.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Miquelet_Blunderbuss75",
+        "Component Description":  "Early Modern military component profile Musket_Miquelet_Blunderbuss75.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Miquelet_Carbine60",
+        "Component Description":  "Early Modern military component profile Musket_Miquelet_Carbine60.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Miquelet_Escopeta65",
+        "Component Description":  "Early Modern military component profile Musket_Miquelet_Escopeta65.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Miquelet_Musket70",
+        "Component Description":  "Early Modern military component profile Musket_Miquelet_Musket70.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Snaphaunce_Carbine60",
+        "Component Description":  "Early Modern military component profile Musket_Snaphaunce_Carbine60.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Snaphaunce_FowlingPiece60",
+        "Component Description":  "Early Modern military component profile Musket_Snaphaunce_FowlingPiece60.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Snaphaunce_LongGun65",
+        "Component Description":  "Early Modern military component profile Musket_Snaphaunce_LongGun65.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Snaphaunce_Musket70",
+        "Component Description":  "Early Modern military component profile Musket_Snaphaunce_Musket70.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Wheellock_Carbine60",
+        "Component Description":  "Early Modern military component profile Musket_Wheellock_Carbine60.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Wheellock_FowlingPiece60",
+        "Component Description":  "Early Modern military component profile Musket_Wheellock_FowlingPiece60.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Wheellock_LongGun65",
+        "Component Description":  "Early Modern military component profile Musket_Wheellock_LongGun65.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Musket_Wheellock_Rifle55",
+        "Component Description":  "Early Modern military component profile Musket_Wheellock_Rifle55.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Pistol_Doglock55",
+        "Component Description":  "Early Modern military component profile Pistol_Doglock55.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Pistol_Flintlock_Duelling45",
+        "Component Description":  "Early Modern military component profile Pistol_Flintlock_Duelling45.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Pistol_Matchlock55",
+        "Component Description":  "Early Modern military component profile Pistol_Matchlock55.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Pistol_Miquelet55",
+        "Component Description":  "Early Modern military component profile Pistol_Miquelet55.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Pistol_Snaphaunce55",
+        "Component Description":  "Early Modern military component profile Pistol_Snaphaunce55.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Pistol_Wheellock45",
+        "Component Description":  "Early Modern military component profile Pistol_Wheellock45.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "Pistol_Wheellock55",
+        "Component Description":  "Early Modern military component profile Pistol_Wheellock55.",
+        "Component Type":  "Musket"
+    },
+    {
+        "Component Name":  "MusketBuckAndBall_0.65 Bore",
+        "Component Description":  "Early Modern military component profile MusketBuckAndBall_0.65 Bore.",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketBuckAndBall_0.75 Bore",
+        "Component Description":  "Early Modern military component profile MusketBuckAndBall_0.75 Bore.",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketBuckshot_0.55 Bore",
+        "Component Description":  "Early Modern military component profile MusketBuckshot_0.55 Bore.",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "MusketBuckshot_0.75 Bore",
+        "Component Description":  "Early Modern military component profile MusketBuckshot_0.75 Bore.",
+        "Component Type":  "MusketCartridge"
+    },
+    {
+        "Component Name":  "Artillery_CoehornMortar",
+        "Component Description":  "Early Modern military component profile Artillery_CoehornMortar.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_Culverin",
+        "Component Description":  "Early Modern military component profile Artillery_Culverin.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_DemiCannon",
+        "Component Description":  "Early Modern military component profile Artillery_DemiCannon.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_DemiCulverin",
+        "Component Description":  "Early Modern military component profile Artillery_DemiCulverin.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_Falcon",
+        "Component Description":  "Early Modern military component profile Artillery_Falcon.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_Falconet",
+        "Component Description":  "Early Modern military component profile Artillery_Falconet.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_FieldGun12lb",
+        "Component Description":  "Early Modern military component profile Artillery_FieldGun12lb.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_FieldGun3lb",
+        "Component Description":  "Early Modern military component profile Artillery_FieldGun3lb.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_FieldGun6lb",
+        "Component Description":  "Early Modern military component profile Artillery_FieldGun6lb.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_FieldGun9lb",
+        "Component Description":  "Early Modern military component profile Artillery_FieldGun9lb.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_FieldMortar",
+        "Component Description":  "Early Modern military component profile Artillery_FieldMortar.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_FullCannon",
+        "Component Description":  "Early Modern military component profile Artillery_FullCannon.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_Minion",
+        "Component Description":  "Early Modern military component profile Artillery_Minion.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_NavalGun18lb",
+        "Component Description":  "Early Modern military component profile Artillery_NavalGun18lb.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_NavalGun24lb",
+        "Component Description":  "Early Modern military component profile Artillery_NavalGun24lb.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_NavalGun32lb",
+        "Component Description":  "Early Modern military component profile Artillery_NavalGun32lb.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_Peterero",
+        "Component Description":  "Early Modern military component profile Artillery_Peterero.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_Saker",
+        "Component Description":  "Early Modern military component profile Artillery_Saker.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_SiegeMortar",
+        "Component Description":  "Early Modern military component profile Artillery_SiegeMortar.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "Artillery_SwivelGun",
+        "Component Description":  "Early Modern military component profile Artillery_SwivelGun.",
+        "Component Type":  "ArtilleryPiece"
+    },
+    {
+        "Component Name":  "ArtilleryCaseShot_12lb",
+        "Component Description":  "Early Modern military component profile ArtilleryCaseShot_12lb.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryCaseShot_3lb",
+        "Component Description":  "Early Modern military component profile ArtilleryCaseShot_3lb.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryCaseShot_6lb",
+        "Component Description":  "Early Modern military component profile ArtilleryCaseShot_6lb.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryGrapeshot_Heavy",
+        "Component Description":  "Early Modern military component profile ArtilleryGrapeshot_Heavy.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryGrapeshot_Light",
+        "Component Description":  "Early Modern military component profile ArtilleryGrapeshot_Light.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryGrapeshot_Medium",
+        "Component Description":  "Early Modern military component profile ArtilleryGrapeshot_Medium.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryShell_Carcass",
+        "Component Description":  "Early Modern military component profile ArtilleryShell_Carcass.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryShell_Heavy",
+        "Component Description":  "Early Modern military component profile ArtilleryShell_Heavy.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryShell_Light",
+        "Component Description":  "Early Modern military component profile ArtilleryShell_Light.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryShot_12lb",
+        "Component Description":  "Early Modern military component profile ArtilleryShot_12lb.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryShot_18lb",
+        "Component Description":  "Early Modern military component profile ArtilleryShot_18lb.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryShot_1lb",
+        "Component Description":  "Early Modern military component profile ArtilleryShot_1lb.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryShot_24lb",
+        "Component Description":  "Early Modern military component profile ArtilleryShot_24lb.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryShot_32lb",
+        "Component Description":  "Early Modern military component profile ArtilleryShot_32lb.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryShot_3lb",
+        "Component Description":  "Early Modern military component profile ArtilleryShot_3lb.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryShot_6lb",
+        "Component Description":  "Early Modern military component profile ArtilleryShot_6lb.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryShot_9lb",
+        "Component Description":  "Early Modern military component profile ArtilleryShot_9lb.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryShot_Bar",
+        "Component Description":  "Early Modern military component profile ArtilleryShot_Bar.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryStoneShot_Heavy",
+        "Component Description":  "Early Modern military component profile ArtilleryStoneShot_Heavy.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryStoneShot_Light",
+        "Component Description":  "Early Modern military component profile ArtilleryStoneShot_Light.",
+        "Component Type":  "ArtilleryAmmunition"
+    },
+    {
+        "Component Name":  "ArtilleryMount_Swivel",
+        "Component Description":  "Early Modern military component profile ArtilleryMount_Swivel.",
+        "Component Type":  "ArtilleryMount"
+    },
+    {
+        "Component Name":  "WeaponLanyard_Pistol",
+        "Component Description":  "Early Modern military component profile WeaponLanyard_Pistol.",
+        "Component Type":  "WeaponCarrierAttachment"
+    },
+    {
+        "Component Name":  "WeaponLoop_LongGun",
+        "Component Description":  "Early Modern military component profile WeaponLoop_LongGun.",
+        "Component Type":  "WeaponCarrierAttachment"
+    },
+    {
+        "Component Name":  "WeaponSling_Carbine",
+        "Component Description":  "Early Modern military component profile WeaponSling_Carbine.",
+        "Component Type":  "WeaponCarrierAttachment"
+    },
+    {
+        "Component Name":  "WeaponSling_LongGun",
+        "Component Description":  "Early Modern military component profile WeaponSling_LongGun.",
+        "Component Type":  "WeaponCarrierAttachment"
+    },
+    {
+        "Component Name":  "ArtilleryChamber_Peterero",
+        "Component Description":  "Early Modern military component profile ArtilleryChamber_Peterero.",
+        "Component Type":  "ArtilleryChamber"
+    },
+    {
+        "Component Name":  "Holster_PairedSaddle",
+        "Component Description":  "A two-slot paired saddle holster.",
+        "Component Type":  "Sheath"
     }
 ]

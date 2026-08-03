@@ -16,7 +16,7 @@ using System.Management;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWeaponPrototype, IBeltPrototype, IMeleeWeaponPrototype, IConditionDegradingComponentPrototype
+public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWeaponPrototype, IBeltPrototype, IMeleeWeaponPrototype, IEmplaceableRangedWeaponPrototype, IConditionDegradingComponentPrototype
 {
     public static ISolid GunpowderMaterial => Futuremud.Games.First().Materials.Get(Futuremud.Games.First().GetStaticLong("GunpowderMaterialId"));
 
@@ -83,6 +83,11 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
 
         _powderVolumePerShot = double.Parse(root.Element("PowderVolumePerShot").Value);
         _barrelBore = double.Parse(root.Element("BarrelBore").Value);
+		IgnitionFamily = root.Element("Ignition")?.Value.TryParseEnum<MusketIgnitionFamily>(out var ignition) == true
+			? ignition
+			: MusketIgnitionFamily.Flintlock;
+		IsRifled = (bool?)root.Element("Rifled") ?? false;
+		RequiresRest = (bool?)root.Element("RequiresRest") ?? false;
 
         MisfireChance = new TraitExpression(root.Element("MisfireChance").Value, Gameworld);
         JamChance = new TraitExpression(root.Element("JamChance").Value, Gameworld);
@@ -119,7 +124,6 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
             new XElement("LoadEmoteBall", new XCData(LoadEmoteBall)),
             new XElement("LoadEmoteRamrod", new XCData(LoadEmoteRamrod)),
             new XElement("LoadEmoteTap", new XCData(LoadEmoteTap)),
-            new XElement("LoadEmoteClean", new XCData(LoadEmoteClean)),
             new XElement("ReadyEmote", new XCData(ReadyEmote)),
             new XElement("UnloadEmote", new XCData(UnloadEmote)),
             new XElement("UnreadyEmote", new XCData(UnreadyEmote)),
@@ -134,6 +138,9 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
             new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
             new XElement("PowderVolumePerShot", PowderVolumePerShot),
             new XElement("BarrelBore", BarrelBore),
+			new XElement("Ignition", IgnitionFamily),
+			new XElement("Rifled", IsRifled),
+			new XElement("RequiresRest", RequiresRest),
             new XElement("MisfireChance", MisfireChance.OriginalFormulaText),
             new XElement("JamChance", JamChance.OriginalFormulaText),
             new XElement("CatastrophyDamageFormula", CatastrophyDamageFormula.OriginalExpression),
@@ -371,6 +378,9 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
     public ITraitExpression MisfireChance { get; set; }
     public ITraitExpression JamChance { get; set; }
     public ExpressionEngine.Expression CatastrophyDamageFormula { get; set; }
+	public MusketIgnitionFamily IgnitionFamily { get; private set; } = MusketIgnitionFamily.Flintlock;
+	public bool IsRifled { get; private set; }
+	public bool RequiresRest { get; private set; }
     public ConditionMaintenanceProfile ConditionMaintenance { get; } = new(ConditionMaintenanceProfile.DefaultRangedOrMeleeUseExpression);
 
     #endregion
@@ -458,6 +468,19 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
                 return BuildingCommandCatastrophyDamage(actor, command);
             case "bore":
                 return BuildingCommandBore(actor, command);
+			case "ignition":
+				return BuildingCommandIgnition(actor, command);
+			case "rifled":
+				IsRifled = !IsRifled;
+				Changed = true;
+				actor.Send($"This musket is now {(IsRifled ? "rifled" : "smoothbore").ColourValue()}.");
+				return true;
+			case "rest":
+			case "requiresrest":
+				RequiresRest = !RequiresRest;
+				Changed = true;
+				actor.Send($"This musket {(RequiresRest ? "now requires" : "no longer requires").ColourValue()} a rest or emplacement.");
+				return true;
             case "canwield":
             case "canwieldprog":
                 return BuildingCommandCanWieldProg(actor, command);
@@ -520,7 +543,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
 
         if (command.SafeRemainingArgument.EqualTo("none"))
         {
-            CanWieldProg = null;
+			WhyCannotWieldProg = null;
             Changed = true;
             actor.OutputHandler.Send($"This item will no longer use a prog to determine if it can be wielded.");
             return true;
@@ -644,6 +667,20 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
         actor.OutputHandler.Send($"The following emote will now be used when failing to unjam this musket:\n\n{emoteText.ColourCommand()}\n");
         return true;
     }
+
+	private bool BuildingCommandIgnition(ICharacter actor, StringStack command)
+	{
+		if (!command.PopSpeech().TryParseEnum<MusketIgnitionFamily>(out var ignition))
+		{
+			actor.Send($"You must specify one of {Enum.GetValues<MusketIgnitionFamily>().Select(x => x.DescribeEnum()).ListToString()}.");
+			return false;
+		}
+
+		IgnitionFamily = ignition;
+		Changed = true;
+		actor.Send($"This musket now uses {IgnitionFamily.DescribeEnum().ColourName()} ignition.");
+		return true;
+	}
 
     private bool BuildingCommandBore(ICharacter actor, StringStack command)
     {

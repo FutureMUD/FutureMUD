@@ -4,15 +4,15 @@
 
 ## Executive summary
 
-- **Total catalogue references:** **1,861**.
-- **New Early Modern item prototypes:** **1,661**.
+- **Total catalogue references:** **1,864**.
+- **New Early Modern item prototypes:** **1,664**.
 - **Live shared or earlier-era admissions:** **200**: 52 shared military-support aliases, 10 shared gunpowder-support rows, and 138 direct Medieval combat-equipment admissions.
 - **New-domain distribution:** 420 melee weapons; 480 ranged weapons, firearms, artillery, ammunition, and operating tools; 501 armour and shield items; and 260 accessories, standards, field-equipment, and naval-store items.
 - **Descriptions:** `sdesc` only in this catalogue. Ordinary portable rows should use `ldesc = null`; full descriptions remain a later implementation stage.
 - **Uniform authority:** worn uniforms, civilian garments, footwear, hats, rank sashes, badges, epaulettes, and generic dress sword-belts remain owned by `FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md`. This reference owns combat weapons, functional weapon carriers, firearm ammunition systems, armour, shields, artillery, standards, signal equipment, and naval weapon support.
-- **Dependency posture:** no new solid material is required. The catalogue requests 156 named component profiles: 66 are now supported and seeded, while the remaining 90 are grouped in the companion dependency ledger. Functional ammunition, spanning-tool, instrument, signal, and standard tag families are maintained with the completed tranches.
-- **Implemented dependency tranche:** 66 of the 156 named profiles are now seeded. In addition to the first low-complexity tranche, four `SignalInstrument` profiles and six `MilitaryStandard` profiles now back all thirty rows in section 5.6. The remaining 90 names retain their dependency-ledger status.
-- **Implemented prototype tranche:** the Early Modern launcher now seeds the **1,438** new rows whose complete component sets are present in the maintained component export. The remaining **223** source rows are excluded automatically because at least one exact component is still absent; they remain tied to the ledger's engine-dependency work rather than receiving a behaviour-losing substitute.
+- **Dependency posture:** no new solid material is required. All 156 requested named component profiles are now supported and seeded; the three consumable/chamber support rows bring the canonical catalogue to 1,864 references.
+- **Implemented dependency tranche:** all 156 named profiles are seeded, including artillery, carrier, repeating/emplaced crossbow, ignition-specific musket, and paired-holster support.
+- **Implemented prototype tranche:** the Early Modern launcher now seeds all **1,664** new rows whose complete component sets are present in the maintained component export.
 - **Persistence posture:** this tranche extends component XML only and requires no database migration. Legacy cartridge, container, musket, and crossbow definitions keep compatibility defaults.
 
 | Catalogue domain | New rows | Reused/shared rows | Total references |
@@ -21,7 +21,7 @@
 | Ranged weapons, firearms, artillery, ammunition, and firearm support | 480 | 45 | 525 |
 | Armour, shields, and protective equipment | 501 | 68 | 569 |
 | Military accessories, field equipment, standards, and naval stores | 260 | 52 | 312 |
-| **Total** | **1,661** | **200** | **1,861** |
+| **Total** | **1,664** | **200** | **1,864** |
 
 ## Scope and authority
 
@@ -54,8 +54,8 @@ The presence of an item in the catalogue means that builders may admit it where 
 - [Renaissance military reference](./FutureMUD_Renaissance_Military_Firearms_Armour_Design_Reference.md): Renaissance-side survivals and predecessor systems. Reuse from this future catalogue must be explicit rather than invoking the whole Renaissance branch.
 - [Medieval military reference](./Medieval_Military_Seeder_Design_Reference.md): source of the 138 direct admissions and the 52 source rows promoted through shared military-support aliases.
 - [Shared pre-industrial baseline reference](./PreIndustrial_Item_Seeder_Design_Reference.md) and [alias catalogue](./PreIndustrial_Item_Seeder_Alias_Catalogue.md): live `preindustrial_*` dependencies.
-- [Military source dependency ledger](./FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Dependency_Ledger.md): the original 156 military requests and their current 66-supported/90-deferred partition.
-- [Consolidated item-content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md): the authoritative backlog for the 90 remaining military deferrals and 7 dependent Antiquity game-set references.
+- [Military source dependency ledger](./FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Dependency_Ledger.md): the original 156 military requests and their completed 156-supported/0-deferred partition.
+- [Consolidated item-content engine dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md): the historical completion record for this military tranche and the remaining unrelated game-set references.
 
 ## Reuse architecture
 
@@ -265,7 +265,7 @@ Every new row uses the exact tags in its named profile. `SOURCE` means retain th
 | New military accessories, field equipment, standards, and naval stores | Personal field gear, canteens, packs, and camp equipment | 35 |
 | New military accessories, field equipment, standards, and naval stores | Standards, flags, drums, fifes, and signal instruments | 30 |
 | New military accessories, field equipment, standards, and naval stores | Naval stores, boarding equipment, and shipboard weapon support | 40 |
-| **Total new rows** |  | **1,661** |
+| **Total new rows** |  | **1,664** |
 
 ### Reused and admitted rows
 
@@ -2367,20 +2367,23 @@ Implementation status: all thirty rows are seeded. Standards begin unowned, uncl
 | `earlymodern_military_naval_touchhole_vent_cover` | a brass cannon vent cover | `cover` | `brass` | `Small` / `Good` | 420g / 32.0m | `Holdable`<br>`Destroyable_Misc` | `EM-SUPPORT` |
 | `earlymodern_military_naval_boarding_plank` | a cleated boarding plank | `plank` | `oak` | `Large` / `Standard` | 18,000g / 72.0m | `Holdable`<br>`Destroyable_WoodenHeavy` | `EM-SUPPORT` |
 | `earlymodern_military_naval_powder_carriers_box` | a powder carrier's cartridge box | `box` | `cow leather` | `Small` / `Good` | 850g / 74.0m | `Holdable`<br>`Container_Pouch`<br>`Beltable`<br>`Destroyable_Clothing` | `EM-SUPPORT-CONTAINER` |
+| `earlymodern_military_firearm_gunflint_packet` | a packet of shaped gunflints | `packet` | `flint` | `Tiny` / `Standard` | 90g / 18.0m | `Holdable`<br>`Stack_Number` | `EM-SUPPORT` |
+| `earlymodern_military_firearm_pyrite_packet` | a packet of wheellock pyrite pieces | `packet` | `pyrite` | `Tiny` / `Standard` | 90g / 24.0m | `Holdable`<br>`Stack_Number` | `EM-SUPPORT` |
+| `earlymodern_military_naval_peterero_chamber` | a removable peterero firing chamber | `chamber` | `bronze` | `Normal` / `Good` | 8,500g / 360.0m | `Holdable`<br>`ArtilleryChamber_Peterero`<br>`Destroyable_HeavyMetal` | `EM-SUPPORT` |
 
 ## Validation record
 
-- Total stable references: **1,861**; all unique.
-- New stable references: **1,661**; all lowercase snake case.
+- Total stable references: **1,864**; all unique.
+- New stable references: **1,664**; all lowercase snake case.
 - Shared/direct admissions: **200**; all resolve to existing live rows or listed Medieval source rows.
 - New-row primary materials: all exact names in the maintained solid-material export.
 - New-row tag profiles: all exact paths in the maintained tag hierarchy.
 - Existing component names: validated against the maintained component export.
-- Named component requests: exactly **156**, partitioned into **66 supported and seeded** and **90 unresolved** in the companion dependency ledger.
+- Named component requests: exactly **156**, partitioned into **156 supported and seeded** and **0 unresolved** in the companion dependency ledger.
 - New solid materials: **0**.
 - New tags: **0**.
 - Full descriptions: intentionally **0** in this catalogue.
 
 ## Implementation handoff
 
-The supported-row manifest now creates the 1,438 rows whose exact component dependencies are live, with idempotent stable-reference lookup and a neutral generated full-description baseline. It reads the maintained component export when generated and fails closed if the source no longer partitions into supported and deferred rows. Shared dependencies and direct admissions remain source-owned and are never cloned solely to change an era prefix or presentation. The 223 excluded rows remain deferred until their named components and required engine semantics are available.
+The supported-row manifest now creates all 1,664 new rows whose exact component dependencies are live, with idempotent stable-reference lookup and a neutral generated full-description baseline. Shared dependencies and direct admissions remain source-owned and are never cloned solely to change an era prefix or presentation.

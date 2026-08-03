@@ -292,6 +292,8 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
                 case RangedWeaponType.ModernFirearm:
                 case RangedWeaponType.Musket:
                     return CheckType.FireFirearm;
+                case RangedWeaponType.Artillery:
+                    return CheckType.FireArtillery;
                 case RangedWeaponType.Sling:
                     return CheckType.FireSling;
                 case RangedWeaponType.Blowgun:

@@ -2,7 +2,7 @@
 
 The client is published through the FutureMUD product release flow and downloaded from [futuremud.com/downloads](https://futuremud.com/downloads). Each MUD operator hosts it for their own game; futuremud.com publishes the release package but does not run the proxy for individual games.
 
-If you are setting this up for the first time on a Windows game server, start with the [plain-English Windows guide](Deployment/LabMUD_Windows_Guide.md). It explains the small amount of web-server terminology, shows the complete LabMUD example, and includes a safe verification and rollback checklist.
+If you are setting this up for the first time on a Windows game server hosted in AWS, start with the [plain-English Windows and AWS guide](Deployment/Windows_AWS_Web_Client_Guide.md). It explains the small amount of web-server terminology, uses safe placeholder values rather than a live game's infrastructure, and includes a verification and rollback checklist.
 
 This project deploys as two pieces:
 

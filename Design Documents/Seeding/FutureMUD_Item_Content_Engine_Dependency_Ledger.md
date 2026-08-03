@@ -1,11 +1,12 @@
 # FutureMUD Item Content Engine Dependency Ledger
 
-This is the consolidated backlog for seeded item requests that the current engine cannot represent honestly. The Early Modern military closure described below is implemented and seeded; the remaining backlog is limited to the listed Antiquity references.
+This is the consolidated backlog for seeded item requests that the current engine cannot represent honestly. The Early Modern military closure described below is implemented and seeded. The Renaissance military catalogue now consumes the same completed #575 component groundwork; the remaining engine backlog is limited to the listed Antiquity references.
 
 ## Status
 
 - Deferred item-component prototypes: **0** for the Early Modern military ledger.
 - Early Modern military partition: **156 supported** and **0 deferred**, from the original 156 requests.
+- Renaissance military catalogue: **96 source-backed rows**, all validated against existing #575 component profiles before item creation.
 - Additional Renaissance household deferrals: **0**.
 - Antiquity item references awaiting engine work: **7**.
 - New runtime component families delivered: **5**, with **45** directly dependent military prototypes.
@@ -201,6 +202,24 @@ Implemented with prototype defaults plus per-copy identity and association overr
 - `SignalInstrument_SpeakingTrumpet` (3 catalogue uses)
 
 `SignalInstrument` is a military specialization of the general `Instrument` capability, sharing audible performance, skill, range, posture, hand, stamina, and echo infrastructure while adding named command patterns and cooldown-limited signal hooks.
+
+## Renaissance military seeder closure - existing #575 groundwork consumed
+
+The Renaissance catalogue is data-only and does not add a runtime family, persistence field, or migration. It uses the completed `Musket_Matchlock_*`, `Musket_Wheellock_*`, `Pistol_Matchlock*`, `Pistol_Wheellock*`, `MusketBall_*`, `MusketPaperCartridge_*`, `Artillery*`, `ArtilleryMount_Swivel`, weapon-carrier, armour, shield, melee, and ranged profiles already maintained by the Combat and Useful seeders.
+
+| Renaissance family | Rows | Dependency treatment |
+| --- | ---: | --- |
+| Melee weapons | 14 | Existing melee profiles; distinct Renaissance forms only. |
+| Ranged weapons | 11 | Existing bow, crossbow, sling, and ammunition profiles. |
+| Firearms and ammunition | 15 | Matchlock/wheellock and compatible ball or paper-cartridge profiles only. |
+| Artillery | 17 | Early field pieces, compatible shot, and the existing swivel mount; no Coehorn or default later naval patterns. |
+| Armour and barding | 18 | Existing expanded wear and armour profiles. |
+| Shields | 8 | Existing buckler, rotella, pavise, dhal, adarga, targe, hide, and wicker profiles. |
+| Military support and field gear | 13 | Existing bandolier, artillery tool, carrier, standard, and signal profiles. |
+
+The Item seeder checks all three dependency classes before it writes an era item: materials, full tag paths, and component profiles. If an early-gun package was declined, it stops with the missing profile names and directs the builder to rerun Combat's weapons, ranged-weapons, and early-gun packages before rerunning Items. It does not install a declined Combat package. The maintained exports already contain this closure's dependencies, so no material, tag, or component export extension was required.
+
+The canonical table lives in `FutureMUD_Renaissance_Military_Firearms_Armour_Design_Reference.md`; its generator copies authored descriptions verbatim, rejects generic seeding language, validates all maintained dependencies, and produces `ItemSeeder.Renaissance.MilitaryManifestData.Generated.cs`.
 
 ## Antiquity engine gaps — 7 dependent item references
 

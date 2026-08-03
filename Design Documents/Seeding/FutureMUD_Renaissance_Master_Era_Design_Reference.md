@@ -6,7 +6,7 @@
 
 This reference covers `Renaissance`, the Renaissance period roughly 1400-1600 CE. It remains a standalone era reference rather than a combined Renaissance/EarlyModern document.
 
-The shared pre-industrial baseline is now live and is automatically installed when the Renaissance era is selected. `SeedRenaissanceItems()` now seeds the full documented clothing and household catalogues plus the writing/administration and art/science/navigation foundations. The remaining Renaissance military/firearm branch is deliberately engine-gated: matchlock/wheellock ignition, attachment, ammunition, and artillery claims must not be simulated by misleading item rows. Consequently, this reference should not re-author ordinary cross-era tools, writing goods, trade containers, military supports, time/water fixtures, or the dedicated shared print/navigation/gunpowder-support/trade-packaging stock already supplied by the baseline.
+The shared pre-industrial baseline is now live and is automatically installed when the Renaissance era is selected. `SeedRenaissanceItems()` now seeds the full documented clothing and household catalogues plus the writing/administration and art/science/navigation foundations. The Renaissance military/firearm branch is now live as a source-backed 96-row catalogue: FutureMUD/FutureMUD#575 supplied the matchlock/wheellock, artillery, ammunition, carrier, armour, shield, melee, and ranged component profiles it needs. The Item seeder validates that Combat's weapons, ranged weapons, and early-gun packages plus the UsefulSeeder material/tag foundation are present before any Renaissance item stage writes. Consequently, this reference should not re-author ordinary cross-era tools, writing goods, trade containers, military supports, time/water fixtures, or the dedicated shared print/navigation/gunpowder-support/trade-packaging stock already supplied by the baseline.
 
 The Renaissance-specific seeder should emphasize:
 
@@ -14,7 +14,7 @@ The Renaissance-specific seeder should emphasize:
 - Fitted court and urban clothing in western and central Europe, plus distinct contemporary clothing systems elsewhere.
 - Classical-revival, humanist, artistic, civic, and court material culture.
 - Culture-specific print production, printed documents, maps, music, engraving, and book-trade goods beyond the shared print baseline.
-- Transitional armour, pike-and-shot warfare, actual matchlock/wheellock firearms, and ammunition mechanics beyond the shared support objects.
+- Transitional armour, pike-and-shot warfare, matchlock/wheellock firearms, compatible ammunition, and early field artillery through the canonical military catalogue.
 - Expanding maritime trade, first-contact goods, and early colonial/contact-zone material culture, without treating shared packaging as universally prevalent.
 - Strong coverage of Ottoman, Safavid, Mughal/Timurid/Deccan, Ming, Joseon, Japanese, South-east Asian, African, and American contemporaries rather than treating the period as Europe-only.
 
@@ -254,19 +254,14 @@ Avoid making every national style a new base item. Most colour, trim, local name
 
 Do not recreate the live shared gunpowder-support rows: `preindustrial_firearms_powder_horn`, `preindustrial_firearms_powder_flask`, `preindustrial_firearms_priming_flask`, `preindustrial_firearms_shot_pouch`, `preindustrial_firearms_match_cord_bundle`, `preindustrial_firearms_musket_wadding_packet`, `preindustrial_firearms_bullet_mould`, `preindustrial_firearms_ramrod`, `preindustrial_firearms_touchhole_pick`, and `preindustrial_firearms_cleaning_rod`. The baseline also supplies 52 `preindustrial_military_support_*` aliases for sheaths, scabbards, quivers, belts, racks, and armour displays.
 
-Renaissance military goods should add the combat systems and period-specific forms served by that shared support layer:
+The canonical source is `FutureMUD_Renaissance_Military_Firearms_Armour_Design_Reference.md`. It seeds 96 new stable-reference rows: 14 melee weapons, 11 ranged weapons, 15 firearms/ammunition rows, 17 artillery/mount/compatible-shot rows, 18 armour/barding rows, 8 shields, and 13 field-gear rows. The catalogue uses #575's actual matchlock and wheellock muzzleloader profiles, artillery pieces/ammunition/mounts, weapon carriers, and expanded armour, shield, melee, and ranged profiles. Finished arms, armour, shields, artillery, and field goods are skinnable; fungible ammunition is not.
 
-- Actual matchlock arquebus, caliver, early musket, handgonne-like survival, and wheellock pistol families where components allow.
-- Musket balls, loose shot, and historically suitable paper-cartridge or charge-packet forms once ammunition and consumable mechanics are settled.
-- Bandoliers or apostle-style charge sets, gun rests, firearm slings, worms, vent tools not already covered, and specialist gunsmithing equipment.
-- Pike, bill, halberd, partisan, glaive, spear, lance, rapier, sidesword, main-gauche, and complex-hilt sword precursors where component-safe.
-- Transitional armour: full or partial plate harness, breastplate/backplate, faulds, tassets, gorgets, burgonets, morions, cabassets, armets, and close-helmet variants where component and period policy permit.
-- Tournament, pageant, ceremonial, and display armour as skinnable finished goods, without implying superior mechanics merely from decoration.
-- Bucklers, rotella-like round shields, target/targe variants, pavises, dhal/adarga continuities, and regional hide/wicker shields.
+The military table makes an explicit new-item, admission, skin, or not-applicable decision for every Renaissance culture cluster. It adds only forms with a real silhouette, material, component, institutional, or production distinction; existing `preindustrial_*` or earlier references remain the route for ordinary cross-era forms.
 
 Boundary:
 
-- Keep modern firearms, metallic cartridges, percussion caps, revolvers, rifles, machine guns, grenades, modern ballistic armour, and modern explosives out of this branch.
+- Keep flintlock dominance, percussion systems, revolvers, metallic cartridges, modern explosives, Coehorn-era equipment, post-1600-default patterns, modern ballistic armour, and modern naval ordnance out of this branch.
+- Unsupported handgonnes remain excluded. Rifle is not a default row; the supported wheellock long-gun profile is reserved for a specifically justified form.
 - Do not claim explosive, armour-piercing, attachment, loading, or firing behaviour without components.
 
 ### Writing, print, books, documents, and administration

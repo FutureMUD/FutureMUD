@@ -1,12 +1,19 @@
 [CmdletBinding()]
 param(
 	[string]$InstallRoot = 'C:\MudClient',
-	[string]$ConfigRoot = "$env:ProgramData\FutureMUD\MudClient",
+	[string]$ConfigRoot,
 	[switch]$Check,
 	[switch]$Rollback
 )
 
 $ErrorActionPreference = 'Stop'
+$commonApplicationData = [Environment]::GetFolderPath([Environment+SpecialFolder]::CommonApplicationData)
+if ([string]::IsNullOrWhiteSpace($ConfigRoot)) {
+	if ([string]::IsNullOrWhiteSpace($commonApplicationData)) { throw 'Windows did not provide a common application-data directory.' }
+	$ConfigRoot = Join-Path $commonApplicationData 'FutureMUD\MudClient'
+}
+$temporaryRoot = [System.IO.Path]::GetTempPath()
+if ([string]::IsNullOrWhiteSpace($temporaryRoot)) { throw 'Windows did not provide a temporary directory.' }
 $currentPath = Join-Path $InstallRoot 'current'
 $deploymentTool = Join-Path $currentPath 'tools\MudClientDeployment.exe'
 if (-not (Test-Path -LiteralPath $deploymentTool)) { throw 'The deployed MudClient update verifier is unavailable.' }
@@ -23,7 +30,7 @@ function Get-SignedLatestManifest {
 }
 
 if ($Check) {
-	$temp = Join-Path $env:TEMP ("mudclient-update-check-" + [Guid]::NewGuid().ToString('N'))
+	$temp = Join-Path $temporaryRoot ("mudclient-update-check-" + [Guid]::NewGuid().ToString('N'))
 	New-Item -ItemType Directory -Path $temp | Out-Null
 	try {
 		$manifestPath = Get-SignedLatestManifest -Directory $temp
@@ -70,7 +77,7 @@ if ($Rollback) {
 	return
 }
 
-$temp = Join-Path $env:TEMP ("mudclient-update-" + [Guid]::NewGuid().ToString('N'))
+$temp = Join-Path $temporaryRoot ("mudclient-update-" + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $temp | Out-Null
 try {
 	$manifestPath = Get-SignedLatestManifest -Directory $temp

@@ -12,6 +12,11 @@ if ([string]::IsNullOrWhiteSpace($ConfigRoot)) {
 	if ([string]::IsNullOrWhiteSpace($commonApplicationData)) { throw 'Windows did not provide a common application-data directory.' }
 	$ConfigRoot = Join-Path $commonApplicationData 'FutureMUD\MudClient'
 }
+# Updates replace the current release link. Keep the process working directory
+# outside that link so rollback and temporary-directory cleanup remain reliable.
+if (Test-Path -LiteralPath $InstallRoot -PathType Container) {
+	Set-Location -LiteralPath $InstallRoot
+}
 $temporaryRoot = [System.IO.Path]::GetTempPath()
 if ([string]::IsNullOrWhiteSpace($temporaryRoot)) { throw 'Windows did not provide a temporary directory.' }
 $currentPath = Join-Path $InstallRoot 'current'

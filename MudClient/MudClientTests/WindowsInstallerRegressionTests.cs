@@ -18,6 +18,7 @@ public class WindowsInstallerRegressionTests
 	{
 		var script = InstallerScript;
 
+		Assert.Contains("Set-Location -LiteralPath $InstallRoot", script, StringComparison.Ordinal);
 		Assert.Contains("$existingServiceInstaller = if ($previousTarget)", script, StringComparison.Ordinal);
 		Assert.Contains("if ($existingService -and -not [string]::IsNullOrWhiteSpace($existingServiceInstaller) -and (Test-Path -LiteralPath $existingServiceInstaller))", script, StringComparison.Ordinal);
 		Assert.Contains("Invoke-MudClientRollbackStep -Description 'Restoring the previous MudClientProxy service'", script, StringComparison.Ordinal);
@@ -95,6 +96,7 @@ public class WindowsInstallerRegressionTests
 	{
 		var script = UpdaterScript;
 
+		Assert.Contains("Set-Location -LiteralPath $InstallRoot", script, StringComparison.Ordinal);
 		Assert.Contains("$verificationOutput = & $deploymentTool verify-manifest", script, StringComparison.Ordinal);
 		Assert.Contains("$verificationOutput | ForEach-Object { Write-Host $_ }", script, StringComparison.Ordinal);
 	}

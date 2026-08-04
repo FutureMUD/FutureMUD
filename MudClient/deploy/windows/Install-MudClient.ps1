@@ -19,6 +19,12 @@ $principal = [Security.Principal.WindowsPrincipal]::new([Security.Principal.Wind
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { throw 'Run from an elevated PowerShell prompt.' }
 if (-not (Test-Path -LiteralPath $ArchivePath)) { throw "Archive '$ArchivePath' was not found." }
 
+# The installer replaces the current release link. Keep the process working directory
+# outside that link so native cleanup commands still have a valid directory afterwards.
+if (Test-Path -LiteralPath $InstallRoot -PathType Container) {
+	Set-Location -LiteralPath $InstallRoot
+}
+
 $packageRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $packageName = Split-Path -Leaf $packageRoot
 if ($packageName -notmatch '^mudclient-(?<version>\d+\.\d+\.\d+)-(?<runtime>win-x64)$') { throw 'The extracted package folder has an invalid name.' }

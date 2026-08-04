@@ -80,6 +80,12 @@ Fixed fixtures omit `Holdable`. Source-derived movable/installable fixtures pres
 
 The antiquity watch candle alias uses the canonical seeded `beeswax` material rather than the older component-gap source's dynamically-created `wax` name.
 
+## Jewellery and door catalogue extension
+
+`SeedSharedPreIndustrialJewelleryAndDoorHardware()` now adds 60 genuinely cross-era jewellery/devotional prototypes and 90 portable ordinary door, lock, key, latch, and fitting prototypes. They are catalogued in [Pre-Industrial Jewellery and Doors](./FutureMUD_PreIndustrial_Jewellery_Doors_Design_Reference.md) and are deliberately separate from the 385-row admission-manifest inventory, which remains the compatibility-alias and prior named-stock inventory.
+
+The extension supplies only portable forms with existing wearable, door, warded-lock, key, and latch component profiles. It does not create an installed exit, a matched-key system, castle/town-gate leaves, or a portcullis; the loose `Latch_Portcullis_Pawl` fitting is retained as supported workshop hardware only. Its 60/90 rows contribute to the same four-era availability contract as the later Renaissance-owned common layer.
+
 ## Explicit exclusions
 
 The baseline does not promote:
@@ -104,6 +110,7 @@ The baseline does not promote:
 - gunpowder-support rows have no firearm, ammunition, bomb, or explosive components
 - medieval writing tag/component strings contain no backticks
 - all three era admission manifests contain the exact 385-row live inventory
+- the jewellery/door extension is checked independently against its generated catalogue, description, dependency, culture-admission, and direct-craft contracts
 - every admission record has all required decision fields and the correct source
 - historically sensitive printing, firearms, telescope, and commodity-package gates remain explicit
 - generated manifests contain no policy-template or incomplete-work placeholders

@@ -142,6 +142,7 @@ public partial class ItemSeeder
 		SeedPreIndustrialWritingAdministrationAndDocuments();
 		SeedPreIndustrialTradeContainers();
 		SeedPreIndustrialDoorsLocksAndBasicHardware();
+		SeedSharedPreIndustrialJewelleryAndDoorHardware();
 		SeedPreIndustrialCommonToolsAndWorkshopFixtures();
 		SeedPreIndustrialMilitarySupportGoods();
 	}
@@ -156,6 +157,9 @@ public partial class ItemSeeder
 		SeedRenaissanceArtCraftScienceAndNavigation();
 		SeedRenaissanceAgricultureFoodDrinkAndCommodities();
 		SeedRenaissancePrimaryIndustryAndUsefulSeederImpacts();
+		SeedRenaissanceEarlyModernCommonJewelleryAndDoors();
+		SeedRenaissanceJewelleryAndDevotionalGoods();
+		SeedRenaissanceDoorsLocksAndGates();
 		SeedRenaissanceCultureManifest();
 	}
 
@@ -169,6 +173,9 @@ public partial class ItemSeeder
 		SeedEarlyModernScienceNavigationOpticsAndMeasurement();
 		SeedEarlyModernAgricultureFoodDrinkAndCommodities();
 		SeedEarlyModernPrimaryIndustryAndUsefulSeederImpacts();
+		SeedRenaissanceEarlyModernCommonJewelleryAndDoors();
+		SeedEarlyModernJewelleryAndDevotionalGoods();
+		SeedEarlyModernDoorsLocksAndGates();
 		SeedEarlyModernCultureManifest();
 	}
 

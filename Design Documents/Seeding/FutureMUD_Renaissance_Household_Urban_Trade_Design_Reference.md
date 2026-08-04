@@ -2,11 +2,11 @@
 
 ## Status and scope
 
-First-pass implementation catalogue for Renaissance household, urban, merchant, dockside, personal, furniture, domestic, and liquid-container goods, approximately 1400-1600 CE. It contains **400 unique proposed prototypes** in twenty complete functional packages: 100 trade containers, 100 furniture containers/surfaces, 80 personal containers, and 120 domestic/liquid-service containers.
+The live Renaissance household catalogue contains **1,000 direct prototypes**, covering household, urban, merchant, dockside, personal, furniture, domestic, and liquid-container goods for approximately 1400-1600 CE. The original 400-row base is extended by the checked-in expansion catalogues; it is not a 400-row implementation snapshot.
 
-This pass supplies stable references, short descriptions, exact primary materials, size, quality, empty weight, farthing cost, exact component sets, exact tag profiles, date/culture/institution admission, and shared-stock reuse. Nouns/keywords, long and full descriptions, skins, crafts, shops, room packages, and C# calls are deferred.
+This pass supplies stable references, nouns, short descriptions, exact primary materials, size, quality, empty weight, farthing cost, exact component sets, exact tag profiles, date/culture/institution admission, shared-stock reuse, and a one-to-one physical-description overlay. `scripts/generate-renaissance-household-description-overlay.py` owns the long and three-to-four-sentence full descriptions; `scripts/generate-renaissance-household-manifest.py` fails closed if that overlay does not map every current stable reference exactly once. The overlay changes presentation only, leaving row count, stock behaviour, component sets, tags, materials, sizes, qualities, and costs intact.
 
-Dependency status: all dry- and liquid-container profiles used here are now seeded, including `CashRegister_PreIndustrial_TillChest`. The till chest uses the single-container `LockingCashRegister` family so shop, currency, containment, open-state, and lock behavior coexist without a behavior-losing fallback. The complete 400-row base catalogue is now seeded from this source through the Renaissance-era manifest; the generated descriptions deliberately remain a neutral presentation baseline until source-refined descriptions and skins are authored.
+Dependency status: all dry- and liquid-container profiles used here are now seeded, including `CashRegister_PreIndustrial_TillChest`. The till chest uses the single-container `LockingCashRegister` family so shop, currency, containment, open-state, and lock behavior coexist without a behavior-losing fallback. Skins, crafts, shops, and room packages remain outside this household catalogue slice.
 
 ## Stable-reference and row syntax
 
@@ -728,5 +728,5 @@ D|storage_jar|a broad glazed contact-zone jar|earthenware|VL/S|11500/31|CP38|DW-
 - Liquid vessels are finite and non-self-refilling; never substitute `WaterSource` mechanics.
 - Do not stack dry- and liquid-container providers, or another provider onto the requested till, basket, box, cup, bowl, basin, ewer, pitcher, pot, jar, or vat profiles.
 - Contact, mission, tribute, and colonial rows require deliberate builder notes and placement; catalogue presence does not make those systems neutral or universal.
-- Validation: 400 rows; 400 unique stable references; 400 unique sdescs; 147 shared aliases identified; no component/material/interface/portability errors.
+- Validation: 1,000 rows; 1,000 unique stable references; 1,000 unique sdescs; 147 shared aliases identified; a one-to-one description overlay; and no component/material/interface/portability errors.
 

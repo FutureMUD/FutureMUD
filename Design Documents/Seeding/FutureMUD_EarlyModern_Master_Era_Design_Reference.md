@@ -284,7 +284,9 @@ Boundary:
 
 The shared layer already supplies 147 non-regional `preindustrial_trade_*` container/lockbox aliases, promoted ordinary doors, and global packaging for tea, coffee, cacao, tobacco, sugar, spices, indigo, porcelain, glass bottles, silk, and cotton. Use those stable references for the package itself. It does not supply the consumption/service complex or a general household-furniture catalogue.
 
-Early Modern-specific additions should include:
+This slice is now implemented as 1,000 direct household records: 520 furniture/fixed fixtures and 480 container/service forms. The earlier 25-row coffeehouse/tavern foundation is preserved within that total; 36 culture families each receive at least 15 culture-tagged forms. See `FutureMUD_EarlyModern_Household_Furniture_Container_Design_Reference.md` for the generated allocation, quality policy, and component boundary.
+
+Remaining Early Modern-specific additions should include:
 
 - Coffee cups, coffee pots, grinders/roasters, serving trays, coffeehouse benches/tables, account boxes, and newspaper/pamphlet display.
 - Teapots, tea bowls/cups, tea caddies distinct from the shared shipping chest, sugar bowls, strainers, and porcelain table services.

@@ -139,6 +139,28 @@ namespace DatabaseSeeder.Seeders
 				AddTag(context, name, "Culture / Renaissance / Shared");
 			}
 
+			AddTag(context, "Early Modern", "Culture");
+			AddTag(context, "Shared", "Culture / Early Modern");
+			foreach (var name in new[]
+			         {
+				         "Andean Colonial Indigenous", "Caribbean Atlantic Plantation",
+				         "Dutch Republic Low Countries", "Edo Japan", "English British Stuart Georgian",
+				         "English French Dutch Colonial North America", "Ethiopian Red Sea",
+				         "French Baroque Court Urban", "German HRE Austrian", "Global Maritime Chartered Company Trade",
+				         "Indigenous North American Regional Families", "Inner Asian Steppe Frontier", "Italian States",
+				         "Iberian Portuguese Spanish Empires", "Joseon Korea", "Kongo Angola West Central Africa",
+				         "Late Ming Survival Transition", "Mainland South-east Asian Courts",
+				         "Maghrebi North African", "Maratha Rajput Deccan", "Maritime South-east Asian Trade Worlds",
+				         "Mesoamerican Colonial Indigenous", "Mughal Indo-Persian", "Ottoman",
+				         "Polish Lithuanian Hungarian Frontier", "Portuguese Brazil Atlantic Plantation",
+			         "Qing China", "Russian Petrine Post-Petrine", "Ryukyu Maritime East Asia", "Safavid Post-Safavid Persianate",
+				         "Sahelian Hausa Islamic West Africa", "Scandinavian Baltic", "South Indian Coastal Trade",
+			         "Spanish Colonial Americas", "Swahili Coast Indian Ocean Africa", "West African Court Atlantic Trade"
+			         })
+			{
+				AddTag(context, name, "Culture / Early Modern / Shared");
+			}
+
 			AddTag(context, "Institution", "");
 			foreach (var name in new[] { "Court", "Religious", "Guild", "Maritime", "Performance", "Service Household" })
 			{

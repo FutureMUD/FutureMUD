@@ -26,4 +26,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+	<ItemGroup>
+		<None Include="..\deploy\windows\Install-MudClient.ps1" Link="DeploymentScripts\Install-MudClient.ps1" CopyToOutputDirectory="PreserveNewest" />
+		<None Include="..\deploy\windows\MudClientDeployment.Common.ps1" Link="DeploymentScripts\MudClientDeployment.Common.ps1" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
 </Project>

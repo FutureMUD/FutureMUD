@@ -18,6 +18,56 @@ $currentPath = Join-Path $InstallRoot 'current'
 $deploymentTool = Join-Path $currentPath 'tools\MudClientDeployment.exe'
 if (-not (Test-Path -LiteralPath $deploymentTool)) { throw 'The deployed MudClient update verifier is unavailable.' }
 
+function Remove-MudClientPath {
+	param([Parameter(Mandatory = $true)][string]$Path)
+
+	$item = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
+	if (-not $item) { return }
+	if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -eq 0) {
+		Remove-Item -LiteralPath $Path -Recurse -Force
+		return
+	}
+
+	& cmd.exe /d /c "rmdir /q `"$Path`"" | Out-Null
+	if ($LASTEXITCODE -ne 0) {
+		throw "Windows could not remove the reparse point '$Path' (exit code $LASTEXITCODE)."
+	}
+}
+
+function Wait-ForMudClientServiceRemoval {
+	param([int]$TimeoutSeconds = 30)
+
+	$deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+	do {
+		$service = Get-Service -Name 'MudClientProxy' -ErrorAction SilentlyContinue
+		if (-not $service) { return }
+		if ($service.Status -ne 'Stopped') {
+			Stop-Service -Name 'MudClientProxy' -Force -ErrorAction SilentlyContinue
+		}
+		Start-Sleep -Milliseconds 500
+	} while ((Get-Date) -lt $deadline)
+
+	throw "The MudClientProxy service did not finish stopping before the activation timeout."
+}
+
+function Wait-ForMudClientHealth {
+	param([int]$TimeoutSeconds = 30)
+
+	$deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+	do {
+		try {
+			$response = Invoke-WebRequest -UseBasicParsing -TimeoutSec 2 -Uri 'http://127.0.0.1:5000/health'
+			if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300) { return }
+		}
+		catch {
+			# The service may still be starting. Retry until the bounded deadline.
+		}
+		Start-Sleep -Seconds 1
+	} while ((Get-Date) -lt $deadline)
+
+	throw "The MudClientProxy service did not become healthy within $TimeoutSeconds seconds."
+}
+
 function Get-SignedLatestManifest {
 	param([string]$Directory)
 	$manifestPath = Join-Path $Directory 'update-manifest.json'
@@ -62,16 +112,18 @@ if ($Rollback) {
 	$previous = $releases[$index - 1]
 	& (Join-Path $currentPath 'deploy\windows\install-mudclient-proxy.ps1') -Uninstall
 	try {
-		Remove-Item -LiteralPath $currentPath -Force
+		Remove-MudClientPath -Path $currentPath
 		New-Item -ItemType SymbolicLink -Path $currentPath -Target $previous.FullName | Out-Null
 		& (Join-Path $currentPath 'deploy\windows\install-mudclient-proxy.ps1') -InstallRoot $InstallRoot -SettingsPath (Join-Path $ConfigRoot 'proxy\appsettings.json')
-		Invoke-WebRequest http://127.0.0.1:5000/health | Out-Null
+		Wait-ForMudClientHealth
 	}
 	catch {
-		Remove-Item -LiteralPath $currentPath -Force -ErrorAction SilentlyContinue
+		$rollbackError = $_
+		try { Wait-ForMudClientServiceRemoval } catch { Write-Warning $_.Exception.Message }
+		try { Remove-MudClientPath -Path $currentPath } catch { Write-Warning "Could not restore the previous current release: $($_.Exception.Message)" }
 		New-Item -ItemType SymbolicLink -Path $currentPath -Target $originalTarget | Out-Null
 		& (Join-Path $currentPath 'deploy\windows\install-mudclient-proxy.ps1') -InstallRoot $InstallRoot -SettingsPath (Join-Path $ConfigRoot 'proxy\appsettings.json')
-		throw
+		throw $rollbackError
 	}
 	Write-Host "MudClient rolled back to $($previous.Name)."
 	return

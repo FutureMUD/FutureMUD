@@ -1,6 +1,6 @@
 # Windows and AWS Web Client Setup Guide
 
-This is a deliberately plain-English guide for installing FutureMUD Web MUD Client 1.2.4 on a Windows server hosted in AWS. It adds a small HTTPS website alongside an existing FutureMUD game, without changing the game itself or any other applications on the server.
+This is a deliberately plain-English guide for installing FutureMUD Web MUD Client 1.2.5 on a Windows server hosted in AWS. It adds a small HTTPS website alongside an existing FutureMUD game, without changing the game itself or any other applications on the server.
 
 The names and addresses below are examples. Before using a command, replace `play.example.com` with your own player-facing hostname. Do not put a live server's IP address, AWS instance ID, administrator account name, or credentials in a public guide or repository.
 
@@ -64,7 +64,7 @@ Name them clearly, for example `Web MUD Client HTTP` and `Web MUD Client HTTPS`.
 Open an **Administrator PowerShell** window on the Windows server and run the following. It creates a new, dedicated folder and does not overwrite the game installation.
 
 ```powershell
-$version = '1.2.4'
+$version = '1.2.5'
 $archive = "$env:USERPROFILE\Downloads\mudclient-$version-win-x64.zip"
 $staging = "C:\MudClient-$version"
 
@@ -89,7 +89,7 @@ C:\MudClient\web\wwwroot\index.html
 C:\MudClient\deploy\windows\Caddyfile
 ```
 
-For an existing 1.0.1 or 1.1.0 installation, use the same command with `-Migrate`. It preserves the old release and existing Caddyfile, moves proxy/browser settings to `%ProgramData%\FutureMUD\MudClient`, and replaces only the old proxy task with a Windows Service. Version 1.2.4 also resumes a partially completed 1.2.0-1.2.3 migration and reports the original activation error even if a rollback step has its own problem.
+For an existing 1.0.1 or 1.1.0 installation, use the same command with `-Migrate`. It preserves the old release and existing Caddyfile, moves proxy/browser settings to `%ProgramData%\FutureMUD\MudClient`, and replaces only the old proxy task with a correctly hosted native Windows Service. Version 1.2.5 stops the old proxy task and any remaining proxy process before moving its directory, resumes a partially completed 1.2.0-1.2.4 migration, restores the old task if activation fails, and reports the original activation error even if a rollback step has its own problem.
 
 After that one-time migration, an Administrator updates the client with one command:
 

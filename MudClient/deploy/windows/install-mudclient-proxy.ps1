@@ -42,6 +42,14 @@ $proxyExe = Join-Path $InstallRoot "proxy\MudWebSocketProxy.exe"
 if (-not (Test-Path $proxyExe)) {
 	throw "Could not find proxy executable at '$proxyExe'. Unzip the win-x64 release package to '$InstallRoot' first."
 }
+if (-not (Test-Path -LiteralPath $SettingsPath -PathType Leaf)) {
+	throw "Could not find proxy settings at '$SettingsPath'."
+}
+
+& $proxyExe --settings $SettingsPath --validate-settings true
+if ($LASTEXITCODE -ne 0) {
+	throw "The proxy settings at '$SettingsPath' did not pass startup validation."
+}
 
 $existing = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
 if ($existing) {
@@ -61,5 +69,10 @@ New-Service `
 	-Description "Local websocket-to-telnet proxy for the Blazor MUD client." `
 	-StartupType Automatic | Out-Null
 
-Start-Service -Name $ServiceName
+try {
+	Start-Service -Name $ServiceName
+}
+catch {
+	throw "The service '$ServiceName' was installed but could not start. Review the latest MudClientProxy entry in the Windows Application event log. $($_.Exception.Message)"
+}
 Write-Host "Installed and started '$ServiceName' on http://127.0.0.1:$Port."

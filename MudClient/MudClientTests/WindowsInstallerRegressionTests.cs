@@ -17,7 +17,7 @@ public class WindowsInstallerRegressionTests
 		var script = InstallerScript;
 
 		Assert.Contains("$existingServiceInstaller = if ($previousTarget)", script, StringComparison.Ordinal);
-		Assert.Contains("if (-not [string]::IsNullOrWhiteSpace($existingServiceInstaller) -and (Test-Path -LiteralPath $existingServiceInstaller))", script, StringComparison.Ordinal);
+		Assert.Contains("if ($existingService -and -not [string]::IsNullOrWhiteSpace($existingServiceInstaller) -and (Test-Path -LiteralPath $existingServiceInstaller))", script, StringComparison.Ordinal);
 		Assert.Contains("Invoke-MudClientRollbackStep -Description 'Restoring the previous MudClientProxy service'", script, StringComparison.Ordinal);
 		Assert.Contains("throw $activationError", script, StringComparison.Ordinal);
 	}

@@ -248,7 +248,7 @@ catch {
 			}
 		}
 		Invoke-MudClientRollbackStep -Description 'Restoring the previous MudClientProxy service' -Action {
-			if (-not [string]::IsNullOrWhiteSpace($existingServiceInstaller) -and (Test-Path -LiteralPath $existingServiceInstaller)) {
+			if ($existingService -and -not [string]::IsNullOrWhiteSpace($existingServiceInstaller) -and (Test-Path -LiteralPath $existingServiceInstaller)) {
 				Unblock-File -LiteralPath $existingServiceInstaller -ErrorAction SilentlyContinue
 				& $existingServiceInstaller -InstallRoot $InstallRoot
 			}

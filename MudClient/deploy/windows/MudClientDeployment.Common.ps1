@@ -59,3 +59,34 @@ function Move-MudClientLegacyInstallation {
 	}
 	return $legacyPath
 }
+
+function Stop-MudClientLegacyProxyProcess {
+	param(
+		[Parameter(Mandatory = $true)][string]$ProxyRoot,
+		[int]$TimeoutSeconds = 30
+	)
+
+	$normalisedProxyRoot = [System.IO.Path]::GetFullPath($ProxyRoot).TrimEnd('\') + '\'
+	$deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+	do {
+		$legacyProcesses = @(Get-Process -Name 'MudWebSocketProxy' -ErrorAction SilentlyContinue |
+			Where-Object {
+				try {
+					$executablePath = $_.Path
+					-not [string]::IsNullOrWhiteSpace($executablePath) -and
+						[System.IO.Path]::GetFullPath($executablePath).StartsWith(
+							$normalisedProxyRoot,
+							[System.StringComparison]::OrdinalIgnoreCase)
+				}
+				catch {
+					$false
+				}
+			})
+		if ($legacyProcesses.Count -eq 0) { return }
+
+		$legacyProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
+		Start-Sleep -Milliseconds 500
+	} while ((Get-Date) -lt $deadline)
+
+	throw "The legacy MudWebSocketProxy process did not release '$ProxyRoot' within $TimeoutSeconds seconds."
+}

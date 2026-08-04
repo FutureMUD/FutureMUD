@@ -141,6 +141,7 @@ $legacyTaskBackup = Join-Path $ConfigRoot 'legacy-proxy-task.xml'
 $serviceBackup = Join-Path $ConfigRoot 'mudclient-proxy-service.txt'
 $existingService = $null
 $legacyTask = $null
+$legacyTaskWasRunning = $false
 $persistentCaddyfile = Join-Path $InstallRoot 'deploy\windows\Caddyfile'
 $caddyFileCreated = $false
 $createCaddyTask = $false
@@ -169,6 +170,20 @@ if ($CaddyExecutable) {
 }
 try {
 New-Item -ItemType Directory -Force -Path $releaseRoot, (Join-Path $ConfigRoot 'proxy'), (Join-Path $ConfigRoot 'web') | Out-Null
+$existingService = Get-Service -Name MudClientProxy -ErrorAction SilentlyContinue
+if ($existingService) { sc.exe qc MudClientProxy | Set-Content -LiteralPath $serviceBackup -Encoding UTF8 }
+$legacyTask = Get-ScheduledTask -TaskName $legacyTaskName -ErrorAction SilentlyContinue
+if ($legacyTask) {
+	$legacyTaskWasRunning = $legacyTask.State -eq 'Running'
+	Export-ScheduledTask -TaskName $legacyTaskName | Set-Content -LiteralPath $legacyTaskBackup -Encoding UTF8
+	Stop-ScheduledTask -TaskName $legacyTaskName -ErrorAction SilentlyContinue
+	Disable-ScheduledTask -TaskName $legacyTaskName | Out-Null
+}
+if (Test-Path -LiteralPath $existingServiceInstaller) {
+	& $existingServiceInstaller -Uninstall -ErrorAction SilentlyContinue
+}
+Wait-ForMudClientServiceRemoval
+Stop-MudClientLegacyProxyProcess -ProxyRoot $legacyProxy
 $legacyReleasePath = Move-MudClientLegacyInstallation -InstallRoot $InstallRoot -ReleaseRoot $releaseRoot -Migrate:$Migrate
 if ($legacyReleasePath) {
 	if (-not $previousTarget) { $previousTarget = $legacyReleasePath }
@@ -193,18 +208,6 @@ if (-not (Test-Path -LiteralPath $proxySettings)) { Copy-Item -LiteralPath (Join
 if (-not (Test-Path -LiteralPath $webSettings)) { Copy-Item -LiteralPath (Join-Path $releasePath 'web\wwwroot\appsettings.json') -Destination $webSettings }
 Copy-Item -LiteralPath $webSettings -Destination (Join-Path $releasePath 'web\wwwroot\appsettings.json') -Force
 
-$existingService = Get-Service -Name MudClientProxy -ErrorAction SilentlyContinue
-if ($existingService) { sc.exe qc MudClientProxy | Set-Content -LiteralPath $serviceBackup -Encoding UTF8 }
-$legacyTask = Get-ScheduledTask -TaskName $legacyTaskName -ErrorAction SilentlyContinue
-if ($legacyTask) {
-	Export-ScheduledTask -TaskName $legacyTaskName | Set-Content -LiteralPath $legacyTaskBackup -Encoding UTF8
-	Stop-ScheduledTask -TaskName $legacyTaskName -ErrorAction SilentlyContinue
-	Disable-ScheduledTask -TaskName $legacyTaskName | Out-Null
-}
-if (Test-Path -LiteralPath $existingServiceInstaller) {
-	& $existingServiceInstaller -Uninstall -ErrorAction SilentlyContinue
-}
-	Wait-ForMudClientServiceRemoval
 	foreach ($link in @('current', 'web', 'proxy')) {
 		$linkPath = Join-Path $InstallRoot $link
 		Remove-MudClientPath -Path $linkPath
@@ -247,7 +250,11 @@ catch {
 		}
 	}
 	Invoke-MudClientRollbackStep -Description 'Restoring the legacy proxy scheduled task' -Action {
-		if ($legacyTask -and (Test-Path -LiteralPath $legacyTaskBackup)) { schtasks.exe /Create /TN $legacyTaskName /XML $legacyTaskBackup /F | Out-Null }
+		if ($legacyTask -and (Test-Path -LiteralPath $legacyTaskBackup)) {
+			schtasks.exe /Create /TN $legacyTaskName /XML $legacyTaskBackup /F | Out-Null
+			if ($LASTEXITCODE -ne 0) { throw "The legacy proxy scheduled task could not be restored (exit code $LASTEXITCODE)." }
+			if ($legacyTaskWasRunning) { Start-ScheduledTask -TaskName $legacyTaskName }
+		}
 	}
 	Invoke-MudClientRollbackStep -Description 'Removing the newly-created Caddy task' -Action {
 		if ($createCaddyTask) { Unregister-ScheduledTask -TaskName $CaddyTaskName -Confirm:$false -ErrorAction SilentlyContinue }

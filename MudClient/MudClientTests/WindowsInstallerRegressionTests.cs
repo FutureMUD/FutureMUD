@@ -84,5 +84,101 @@ public class WindowsInstallerRegressionTests
 		Assert.DoesNotContain("throw \"Release $version is already staged.\"", script, StringComparison.Ordinal);
 	}
 
+	[Fact]
+	public void InstallerStopsTheLegacyProxyBeforeMovingItsDirectory()
+	{
+		var script = InstallerScript;
+		var findLegacyTask = script.IndexOf("$legacyTask = Get-ScheduledTask", StringComparison.Ordinal);
+		var stopLegacyTask = script.IndexOf("Stop-ScheduledTask -TaskName $legacyTaskName", StringComparison.Ordinal);
+		var stopLegacyProcess = script.IndexOf("Stop-MudClientLegacyProxyProcess -ProxyRoot $legacyProxy", StringComparison.Ordinal);
+		var moveLegacyInstallation = script.IndexOf("$legacyReleasePath = Move-MudClientLegacyInstallation", StringComparison.Ordinal);
+
+		Assert.True(findLegacyTask >= 0);
+		Assert.True(stopLegacyTask > findLegacyTask);
+		Assert.True(stopLegacyProcess > stopLegacyTask);
+		Assert.True(moveLegacyInstallation > stopLegacyProcess);
+		Assert.Contains("if ($legacyTaskWasRunning) { Start-ScheduledTask -TaskName $legacyTaskName }", script, StringComparison.Ordinal);
+	}
+
+	[Fact]
+	public void LegacyProxyStopHelperOnlyTargetsTheLegacyProxyDirectory()
+	{
+		var script = File.ReadAllText(CommonScriptPath);
+
+		Assert.Contains("Get-Process -Name 'MudWebSocketProxy'", script, StringComparison.Ordinal);
+		Assert.Contains("[System.StringComparison]::OrdinalIgnoreCase", script, StringComparison.Ordinal);
+		Assert.Contains("$legacyProcesses | Stop-Process -Force", script, StringComparison.Ordinal);
+		Assert.Contains("The legacy MudWebSocketProxy process did not release", script, StringComparison.Ordinal);
+	}
+
+	[Fact]
+	public void LegacyProxyStopHelperTerminatesOnlyAProxyUnderTheMigratedDirectory()
+	{
+		if (!OperatingSystem.IsWindows()) { return; }
+
+		var testRoot = Path.Combine(Path.GetTempPath(), $"mudclient-proxy-stop-{Guid.NewGuid():N}");
+		var legacyProxyRoot = Path.Combine(testRoot, "install", "proxy");
+		var unrelatedProxyRoot = Path.Combine(testRoot, "unrelated", "proxy");
+		Directory.CreateDirectory(legacyProxyRoot);
+		Directory.CreateDirectory(unrelatedProxyRoot);
+		var commandProcessor = Environment.GetEnvironmentVariable("ComSpec") ?? Path.Combine(Environment.SystemDirectory, "cmd.exe");
+		var legacyExecutable = Path.Combine(legacyProxyRoot, "MudWebSocketProxy.exe");
+		var unrelatedExecutable = Path.Combine(unrelatedProxyRoot, "MudWebSocketProxy.exe");
+		File.Copy(commandProcessor, legacyExecutable);
+		File.Copy(commandProcessor, unrelatedExecutable);
+		using var legacyProcess = StartWaitingProcess(legacyExecutable);
+		using var unrelatedProcess = StartWaitingProcess(unrelatedExecutable);
+
+		try
+		{
+			var command = $". '{EscapePowerShell(CommonScriptPath)}'; " +
+				$"Stop-MudClientLegacyProxyProcess -ProxyRoot '{EscapePowerShell(legacyProxyRoot)}' -TimeoutSeconds 10";
+			var startInfo = new System.Diagnostics.ProcessStartInfo("powershell.exe")
+			{
+				RedirectStandardOutput = true,
+				RedirectStandardError = true,
+				UseShellExecute = false
+			};
+			startInfo.ArgumentList.Add("-NoProfile");
+			startInfo.ArgumentList.Add("-Command");
+			startInfo.ArgumentList.Add(command);
+			using var helperProcess = System.Diagnostics.Process.Start(startInfo)!;
+			var error = helperProcess.StandardError.ReadToEnd();
+			helperProcess.WaitForExit();
+
+			Assert.True(helperProcess.ExitCode == 0, error);
+			Assert.True(legacyProcess.WaitForExit(5_000));
+			Assert.False(unrelatedProcess.HasExited);
+		}
+		finally
+		{
+			StopProcess(unrelatedProcess);
+			StopProcess(legacyProcess);
+			Directory.Delete(testRoot, recursive: true);
+		}
+	}
+
+	private static System.Diagnostics.Process StartWaitingProcess(string executable)
+	{
+		var startInfo = new System.Diagnostics.ProcessStartInfo(executable)
+		{
+			CreateNoWindow = true,
+			RedirectStandardInput = true,
+			RedirectStandardOutput = true,
+			RedirectStandardError = true,
+			UseShellExecute = false
+		};
+		startInfo.ArgumentList.Add("/d");
+		startInfo.ArgumentList.Add("/q");
+		return System.Diagnostics.Process.Start(startInfo)!;
+	}
+
+	private static void StopProcess(System.Diagnostics.Process process)
+	{
+		if (process.HasExited) { return; }
+		process.Kill(entireProcessTree: true);
+		process.WaitForExit();
+	}
+
 	private static string EscapePowerShell(string value) => value.Replace("'", "''", StringComparison.Ordinal);
 }

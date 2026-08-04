@@ -26,9 +26,12 @@ $version = $Matches.version
 $runtime = $Matches.runtime
 $temporaryRoot = [System.IO.Path]::GetTempPath()
 if ([string]::IsNullOrWhiteSpace($temporaryRoot)) { throw 'Windows did not provide a temporary directory.' }
+. (Join-Path $PSScriptRoot 'MudClientDeployment.Common.ps1')
 
 function Remove-MudClientPath {
-	param([Parameter(Mandatory = $true)][string]$Path)
+	param([AllowNull()][AllowEmptyString()][string]$Path)
+
+	if ([string]::IsNullOrWhiteSpace($Path)) { return }
 
 	$item = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
 	if (-not $item) { return }
@@ -40,6 +43,28 @@ function Remove-MudClientPath {
 	& cmd.exe /d /c "rmdir /q `"$Path`"" | Out-Null
 	if ($LASTEXITCODE -ne 0) {
 		throw "Windows could not remove the reparse point '$Path' (exit code $LASTEXITCODE)."
+	}
+}
+
+function Remove-MudClientFile {
+	param([AllowNull()][AllowEmptyString()][string]$Path)
+
+	if ([string]::IsNullOrWhiteSpace($Path)) { return }
+	if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return }
+	Remove-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
+}
+
+function Invoke-MudClientRollbackStep {
+	param(
+		[Parameter(Mandatory = $true)][string]$Description,
+		[Parameter(Mandatory = $true)][scriptblock]$Action
+	)
+
+	try {
+		& $Action
+	}
+	catch {
+		Write-Warning "$Description failed: $($_.Exception.Message)"
 	}
 }
 
@@ -84,12 +109,11 @@ try {
 	Invoke-WebRequest https://futuremud.com/downloads/mudclient/latest/update-manifest.sig -OutFile $signaturePath
 	& (Join-Path $packageRoot 'tools\MudClientDeployment.exe') verify --manifest $manifestPath --signature $signaturePath --archive $ArchivePath --runtime $runtime --expected-version $version
 	if ($LASTEXITCODE -ne 0) { throw 'The archive did not pass signed release verification.' }
+	Get-ChildItem -LiteralPath $packageRoot -Recurse -File | Unblock-File -ErrorAction SilentlyContinue
 }
 finally {
 	foreach ($temporaryFile in @($manifestPath, $signaturePath)) {
-		if (-not [string]::IsNullOrWhiteSpace([string]$temporaryFile)) {
-			Remove-Item -LiteralPath $temporaryFile -Force -ErrorAction SilentlyContinue
-		}
+		Remove-MudClientFile -Path ([string]$temporaryFile)
 	}
 }
 
@@ -106,6 +130,19 @@ $legacyProxy = Join-Path $InstallRoot 'proxy'
 $legacyWeb = Join-Path $InstallRoot 'web'
 $legacyReleasePath = $null
 $previousTarget = if (Test-Path -LiteralPath $currentPath) { [string](Get-Item -LiteralPath $currentPath).Target } else { $null }
+$existingServiceInstaller = if ($previousTarget) {
+	Join-Path $currentPath 'deploy\windows\install-mudclient-proxy.ps1'
+}
+else {
+	Join-Path $InstallRoot 'deploy\windows\install-mudclient-proxy.ps1'
+}
+$releaseServiceInstaller = Join-Path $releasePath 'deploy\windows\install-mudclient-proxy.ps1'
+$legacyTaskName = 'FutureMUD Mud WebSocket Proxy'
+$legacyTaskBackup = Join-Path $ConfigRoot 'legacy-proxy-task.xml'
+$serviceBackup = Join-Path $ConfigRoot 'mudclient-proxy-service.txt'
+$existingService = $null
+$legacyTask = $null
+$legacyTaskWasRunning = $false
 $persistentCaddyfile = Join-Path $InstallRoot 'deploy\windows\Caddyfile'
 $caddyFileCreated = $false
 $createCaddyTask = $false
@@ -128,29 +165,46 @@ if ($CaddyExecutable) {
 		$createCaddyTask = $true
 	}
 	catch {
-		if ($caddyFileCreated) { Remove-Item -LiteralPath $persistentCaddyfile -Force -ErrorAction SilentlyContinue }
+		if ($caddyFileCreated) { Remove-MudClientFile -Path $persistentCaddyfile }
 		throw
 	}
 }
 try {
 New-Item -ItemType Directory -Force -Path $releaseRoot, (Join-Path $ConfigRoot 'proxy'), (Join-Path $ConfigRoot 'web') | Out-Null
-if ((Test-Path -LiteralPath $legacyProxy) -and -not (Get-Item -LiteralPath $legacyProxy).LinkType) {
-	if (-not $Migrate) { throw 'A flat MudClient installation was found. Re-run with -Migrate.' }
-	$legacyPath = Join-Path $releaseRoot ("legacy-" + (Get-Date -Format 'yyyyMMddHHmmss'))
-	$legacyReleasePath = $legacyPath
+$existingService = Get-Service -Name MudClientProxy -ErrorAction SilentlyContinue
+if ($existingService) { sc.exe qc MudClientProxy | Set-Content -LiteralPath $serviceBackup -Encoding UTF8 }
+$legacyTask = Get-ScheduledTask -TaskName $legacyTaskName -ErrorAction SilentlyContinue
+if ($legacyTask) {
+	$legacyTaskWasRunning = $legacyTask.State -eq 'Running'
+	$legacyTaskXml = Export-ScheduledTask -TaskName $legacyTaskName
+	[System.IO.File]::WriteAllText($legacyTaskBackup, $legacyTaskXml, [System.Text.UTF8Encoding]::new($false))
+	Stop-ScheduledTask -TaskName $legacyTaskName -ErrorAction SilentlyContinue
+	Disable-ScheduledTask -TaskName $legacyTaskName | Out-Null
+}
+if ($existingService) {
+	if ($existingService.Status -ne 'Stopped') { Stop-Service -Name MudClientProxy -Force }
+	sc.exe delete MudClientProxy | Out-Null
+	if ($LASTEXITCODE -ne 0) { throw "The existing MudClientProxy service could not be removed (exit code $LASTEXITCODE)." }
+}
+Wait-ForMudClientServiceRemoval
+Stop-MudClientLegacyProxyProcess -ProxyRoot $legacyProxy
+$legacyReleasePath = Move-MudClientLegacyInstallation -InstallRoot $InstallRoot -ReleaseRoot $releaseRoot -Migrate:$Migrate
+if ($legacyReleasePath) {
 	if (-not $previousTarget) { $previousTarget = $legacyReleasePath }
-	New-Item -ItemType Directory -Force -Path $legacyPath | Out-Null
-	Move-Item -LiteralPath $legacyProxy -Destination (Join-Path $legacyPath 'proxy')
-	Move-Item -LiteralPath $legacyWeb -Destination (Join-Path $legacyPath 'web')
 	if (-not (Test-Path -LiteralPath (Join-Path $ConfigRoot 'proxy\appsettings.json'))) {
-		Copy-Item -LiteralPath (Join-Path $legacyPath 'proxy\appsettings.json') -Destination (Join-Path $ConfigRoot 'proxy\appsettings.json')
+		Copy-Item -LiteralPath (Join-Path $legacyReleasePath 'proxy\appsettings.json') -Destination (Join-Path $ConfigRoot 'proxy\appsettings.json')
 	}
-	$legacyWebSettings = Join-Path $legacyPath 'web\wwwroot\appsettings.json'
+	$legacyWebSettings = Join-Path $legacyReleasePath 'web\wwwroot\appsettings.json'
 	if ((Test-Path -LiteralPath $legacyWebSettings) -and -not (Test-Path -LiteralPath (Join-Path $ConfigRoot 'web\appsettings.json'))) {
 		Copy-Item -LiteralPath $legacyWebSettings -Destination (Join-Path $ConfigRoot 'web\appsettings.json')
 	}
 }
-if (Test-Path -LiteralPath $releasePath) { throw "Release $version is already staged." }
+if (Test-Path -LiteralPath $releasePath) {
+	if ($previousTarget -and ([System.IO.Path]::GetFullPath($previousTarget) -eq [System.IO.Path]::GetFullPath($releasePath))) {
+		throw "Release $version is already active."
+	}
+	Remove-MudClientPath -Path $releasePath
+}
 Copy-Item -LiteralPath $packageRoot -Destination $releasePath -Recurse
 $proxySettings = Join-Path $ConfigRoot 'proxy\appsettings.json'
 $webSettings = Join-Path $ConfigRoot 'web\appsettings.json'
@@ -158,28 +212,6 @@ if (-not (Test-Path -LiteralPath $proxySettings)) { Copy-Item -LiteralPath (Join
 if (-not (Test-Path -LiteralPath $webSettings)) { Copy-Item -LiteralPath (Join-Path $releasePath 'web\wwwroot\appsettings.json') -Destination $webSettings }
 Copy-Item -LiteralPath $webSettings -Destination (Join-Path $releasePath 'web\wwwroot\appsettings.json') -Force
 
-$existingServiceInstaller = if (Test-Path -LiteralPath $currentPath) {
-	Join-Path $currentPath 'deploy\windows\install-mudclient-proxy.ps1'
-}
-else {
-	Join-Path $InstallRoot 'deploy\windows\install-mudclient-proxy.ps1'
-}
-$releaseServiceInstaller = Join-Path $releasePath 'deploy\windows\install-mudclient-proxy.ps1'
-$legacyTaskName = 'FutureMUD Mud WebSocket Proxy'
-$legacyTaskBackup = Join-Path $ConfigRoot 'legacy-proxy-task.xml'
-$serviceBackup = Join-Path $ConfigRoot 'mudclient-proxy-service.txt'
-$existingService = Get-Service -Name MudClientProxy -ErrorAction SilentlyContinue
-if ($existingService) { sc.exe qc MudClientProxy | Set-Content -LiteralPath $serviceBackup -Encoding UTF8 }
-$legacyTask = Get-ScheduledTask -TaskName $legacyTaskName -ErrorAction SilentlyContinue
-if ($legacyTask) {
-	Export-ScheduledTask -TaskName $legacyTaskName | Set-Content -LiteralPath $legacyTaskBackup -Encoding UTF8
-	Stop-ScheduledTask -TaskName $legacyTaskName -ErrorAction SilentlyContinue
-	Disable-ScheduledTask -TaskName $legacyTaskName | Out-Null
-}
-if (Test-Path -LiteralPath $existingServiceInstaller) {
-	& $existingServiceInstaller -Uninstall -ErrorAction SilentlyContinue
-}
-	Wait-ForMudClientServiceRemoval
 	foreach ($link in @('current', 'web', 'proxy')) {
 		$linkPath = Join-Path $InstallRoot $link
 		Remove-MudClientPath -Path $linkPath
@@ -200,35 +232,49 @@ if (Test-Path -LiteralPath $existingServiceInstaller) {
 }
 catch {
 	$activationError = $_
-	if ($releaseServiceInstaller -and (Test-Path -LiteralPath $releaseServiceInstaller)) { & $releaseServiceInstaller -Uninstall -ErrorAction SilentlyContinue }
-	try {
-		Wait-ForMudClientServiceRemoval
+	Invoke-MudClientRollbackStep -Description 'Removing the failed MudClientProxy service' -Action {
+		if (Test-Path -LiteralPath $releaseServiceInstaller) { & $releaseServiceInstaller -Uninstall -ErrorAction SilentlyContinue }
 	}
-	catch {
-		Write-Warning $_.Exception.Message
-	}
+	Invoke-MudClientRollbackStep -Description 'Waiting for the failed MudClientProxy service to stop' -Action { Wait-ForMudClientServiceRemoval }
 	if ($previousTarget) {
-		try {
+		Invoke-MudClientRollbackStep -Description 'Restoring the previous MudClient release' -Action {
 			Remove-MudClientPath -Path $currentPath
 			New-Item -ItemType SymbolicLink -Path $currentPath -Target $previousTarget | Out-Null
 		}
-		catch {
-			Write-Warning "Could not restore the previous current release: $($_.Exception.Message)"
-		}
 		foreach ($link in @('web', 'proxy')) {
-			$linkPath = Join-Path $InstallRoot $link
-			if (-not (Get-Item -LiteralPath $linkPath -Force -ErrorAction SilentlyContinue)) { New-Item -ItemType SymbolicLink -Path $linkPath -Target (Join-Path $currentPath $link) | Out-Null }
+			Invoke-MudClientRollbackStep -Description "Restoring the stable $link link" -Action {
+				$linkPath = Join-Path $InstallRoot $link
+				if (-not (Get-Item -LiteralPath $linkPath -Force -ErrorAction SilentlyContinue)) { New-Item -ItemType SymbolicLink -Path $linkPath -Target (Join-Path $currentPath $link) | Out-Null }
+			}
 		}
-		if (Test-Path -LiteralPath $existingServiceInstaller) { & $existingServiceInstaller -InstallRoot $InstallRoot }
+		Invoke-MudClientRollbackStep -Description 'Restoring the previous MudClientProxy service' -Action {
+			if ($existingService -and -not [string]::IsNullOrWhiteSpace($existingServiceInstaller) -and (Test-Path -LiteralPath $existingServiceInstaller)) {
+				Unblock-File -LiteralPath $existingServiceInstaller -ErrorAction SilentlyContinue
+				& $existingServiceInstaller -InstallRoot $InstallRoot
+			}
+		}
 	}
-	if ($legacyTask -and (Test-Path -LiteralPath $legacyTaskBackup)) { schtasks.exe /Create /TN $legacyTaskName /XML $legacyTaskBackup /F | Out-Null }
-	if ($createCaddyTask) { Unregister-ScheduledTask -TaskName $CaddyTaskName -Confirm:$false -ErrorAction SilentlyContinue }
-	if ($caddyFileCreated) { Remove-Item -LiteralPath $persistentCaddyfile -Force -ErrorAction SilentlyContinue }
+	Invoke-MudClientRollbackStep -Description 'Restoring the legacy proxy scheduled task' -Action {
+		if ($legacyTask -and (Test-Path -LiteralPath $legacyTaskBackup)) {
+			$legacyTaskXml = Get-Content -LiteralPath $legacyTaskBackup -Raw
+			Register-ScheduledTask -TaskName $legacyTaskName -Xml $legacyTaskXml -Force | Out-Null
+			if ($legacyTaskWasRunning) { Start-ScheduledTask -TaskName $legacyTaskName }
+		}
+	}
+	Invoke-MudClientRollbackStep -Description 'Removing the newly-created Caddy task' -Action {
+		if ($createCaddyTask) { Unregister-ScheduledTask -TaskName $CaddyTaskName -Confirm:$false -ErrorAction SilentlyContinue }
+	}
+	Invoke-MudClientRollbackStep -Description 'Removing the newly-created Caddyfile' -Action {
+		if ($caddyFileCreated) { Remove-MudClientFile -Path $persistentCaddyfile }
+	}
 	throw $activationError
 }
 $activeReleases = Get-ChildItem -LiteralPath $releaseRoot -Directory | Where-Object Name -notlike 'legacy-*' | Sort-Object { [version]$_.Name }
 while ($activeReleases.Count -gt 3) {
-	Remove-Item -LiteralPath $activeReleases[0].FullName -Recurse -Force
+	$oldestRelease = $activeReleases | Select-Object -First 1
+	if ($oldestRelease -and -not [string]::IsNullOrWhiteSpace([string]$oldestRelease.FullName)) {
+		Remove-MudClientPath -Path $oldestRelease.FullName
+	}
 	$activeReleases = $activeReleases[1..($activeReleases.Count - 1)]
 }
 Write-Host "MudClient $version is active. Future upgrades: & '$InstallRoot\current\deploy\windows\Update-MudClient.ps1'"

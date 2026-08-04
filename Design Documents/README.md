@@ -178,6 +178,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Early Modern Military, Firearms, Uniforms, and Naval](./Seeding/FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md)
 - [Early Modern Writing, Print, Administration, and Finance](./Seeding/FutureMUD_EarlyModern_Writing_Print_Administration_Finance_Design_Reference.md)
 - [Early Modern Household, Coffeehouse, Tavern, and Trade](./Seeding/FutureMUD_EarlyModern_Household_Coffeehouse_Tavern_Trade_Design_Reference.md)
+- [Early Modern Household Furniture and Container Catalogue](./Seeding/FutureMUD_EarlyModern_Household_Furniture_Container_Design_Reference.md)
+- [Household Seeder Coverage Audit](./Seeding/FutureMUD_Household_Seeder_Coverage_Audit.md)
 - [Early Modern Science, Navigation, Optics, and Measurement](./Seeding/FutureMUD_EarlyModern_Science_Navigation_Optics_Measurement_Design_Reference.md)
 - [Early Modern Agriculture, Food, Drink, and Commodities](./Seeding/FutureMUD_EarlyModern_Agriculture_Food_Drink_Commodities_Design_Reference.md)
 - [Early Modern Primary Industry and UsefulSeeder Impact](./Seeding/FutureMUD_EarlyModern_PrimaryIndustry_UsefulSeeder_Impact_Reference.md)

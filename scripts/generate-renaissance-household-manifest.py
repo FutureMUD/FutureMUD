@@ -21,6 +21,7 @@ EXPANSION_SOURCES = (
 	*sorted((ROOT / "Design Documents/Seeding").glob("FutureMUD_Renaissance_Container_Service_Expansion_Catalogue_*.md")),
 )
 OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder.Renaissance.HouseholdUrbanTradeManifestData.Generated.cs"
+DESCRIPTION_OVERLAY = ROOT / "Design Documents/Seeding/FutureMUD_Renaissance_Household_Description_Overlay.tsv"
 
 SIZE = {"T": "Tiny", "VS": "VerySmall", "S": "Small", "N": "Normal", "L": "Large", "VL": "VeryLarge", "H": "Huge", "EN": "Enormous"}
 QUALITY = {"P": "Poor", "SS": "Substandard", "S": "Standard", "G": "Good", "VG": "VeryGood", "GR": "Great", "E": "Excellent"}
@@ -124,7 +125,8 @@ def tags(culture: str, tag_codes: str) -> tuple[str, ...]:
 
 
 def description(sdesc: str, material: str) -> str:
-	return f"{sdesc.capitalize()} is made chiefly from {material}. Its construction and fittings follow the documented Renaissance household form shown by its outward appearance."
+	"""Retain the source-row tuple shape; presentation comes solely from the checked-in overlay."""
+	return ""
 
 
 def stable_reference(category: str, prefix: str, slug: str) -> str:
@@ -180,24 +182,55 @@ def parse_expansion(fx: dict[str, tuple[str, ...]]) -> list[tuple]:
 	return result
 
 
+def description_overlay() -> dict[str, tuple[str | None, str]]:
+	result: dict[str, tuple[str | None, str]] = {}
+	overlay_lines = lines(DESCRIPTION_OVERLAY)
+	if not overlay_lines or overlay_lines[0] != "StableReference\tLongDescription\tFullDescription":
+		raise ValueError("Renaissance household description overlay has an invalid header")
+	for line in overlay_lines[1:]:
+		if not line:
+			continue
+		cells = line.split("\t")
+		if len(cells) != 3:
+			raise ValueError(f"Malformed Renaissance household description row: {line}")
+		stable, ldesc, fdesc = cells
+		if stable in result:
+			raise ValueError(f"Duplicate Renaissance household description: {stable}")
+		if fdesc.count(".") not in {3, 4}:
+			raise ValueError(f"Renaissance household full description must have three to four sentences: {stable}")
+		result[stable] = (ldesc or None, fdesc)
+	return result
+
+
 def cs(value: str) -> str:
 	return json.dumps(value, ensure_ascii=False)
 
 
 def render_row(row: tuple) -> str:
-	stable, item_noun, sdesc, fdesc, size, quality, weight, cost, material, item_tags, components, culture = row
+	stable, item_noun, sdesc, ldesc, fdesc, size, quality, weight, cost, material, item_tags, components, culture = row
 	item_tags_source = ", ".join(cs(value) for value in item_tags)
 	components_source = ", ".join(cs(value) for value in components)
-	return f'\t\tnew({cs(stable)}, {cs(item_noun)}, {cs(sdesc)}, {cs(fdesc)}, SizeCategory.{size}, ItemQuality.{quality}, {weight}.0, {cost}.0m, {cs(material)}, [{item_tags_source}], [{components_source}], {cs(f"Renaissance household catalogue; culture admission {culture} ({CULTURES[culture][1]}).")}),'
+	ldesc_source = "null" if ldesc is None else cs(ldesc)
+	culture_note = f"Renaissance household catalogue; culture admission {culture} ({CULTURES[culture][1]})."
+	return f'\t\tnew({cs(stable)}, {cs(item_noun)}, {cs(sdesc)}, {ldesc_source}, {cs(fdesc)}, SizeCategory.{size}, ItemQuality.{quality}, {weight}.0, {cost}.0m, {cs(material)}, [{item_tags_source}], [{components_source}], {cs(culture_note)}),'
 
 
 def generate() -> str:
-	items = parse_base(base_components()) + parse_expansion(expansion_components())
+	base_and_expansion = parse_base(base_components()) + parse_expansion(expansion_components())
+	overlay = description_overlay()
+	if set(overlay) != {item[0] for item in base_and_expansion}:
+		missing = sorted({item[0] for item in base_and_expansion} - set(overlay))
+		stale = sorted(set(overlay) - {item[0] for item in base_and_expansion})
+		raise ValueError(f"Renaissance household description overlay does not map one-to-one (missing={missing[:3]}, stale={stale[:3]})")
+	items = []
+	for stable, item_noun, sdesc, _, size, quality, weight, cost, material, item_tags, components, culture in base_and_expansion:
+		ldesc, fdesc = overlay[stable]
+		items.append((stable, item_noun, sdesc, ldesc, fdesc, size, quality, weight, cost, material, item_tags, components, culture))
 	if len(items) != 1000 or len({item[0] for item in items}) != 1000:
 		raise ValueError("Renaissance household catalogue must contain 1,000 unique stable references")
 	if len({item[2] for item in items}) != 1000:
 		raise ValueError("Renaissance household catalogue short descriptions must be unique")
-	items = [(item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7], "mother-of-pearl" if item[8] == "mother of pearl" else item[8], item[9], item[10], item[11]) for item in items]
+	items = [(stable, item_noun, sdesc, ldesc, fdesc, size, quality, weight, cost, "mother-of-pearl" if material == "mother of pearl" else material, item_tags, components, culture) for stable, item_noun, sdesc, ldesc, fdesc, size, quality, weight, cost, material, item_tags, components, culture in items]
 	return "\n".join([
 		"// <auto-generated>",
 		"// Generated by scripts/generate-renaissance-household-manifest.py from the canonical Renaissance household catalogues.",

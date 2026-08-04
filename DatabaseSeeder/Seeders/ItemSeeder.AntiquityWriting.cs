@@ -288,8 +288,8 @@ public partial class ItemSeeder
 			false,
 			false,
 			"papyrus",
-			["Functions / Writing Surface / Scroll", "Materials / Writing Product", "Market / Writing Materials / Scrolls"],
-			["Holdable", "Destroyable_Paper", papyrusScroll.Name],
+			["Functions / Writing Surface / Scroll", "Materials / Writing Product", "Market / Writing Materials / Scrolls", "Functions / Security"],
+			["Holdable", "Destroyable_Paper", papyrusScroll.Name, "Sealable_Scroll"],
 			null,
 			null,
 			null,
@@ -972,11 +972,24 @@ public partial class ItemSeeder
 	private GameItemComponentProto EnsureAntiquityWritingComponent(string type, string name, string description,
 		string definition)
 	{
+		var manifestDefinition = new ComponentManifestDefinition(name, description, type, 0, definition);
+		var manifestEntry = RegisterManifestAggregate("component", name, manifestDefinition);
 		if (_components.TryGetValue(name, out var existing))
 		{
+			var liveDefinition = new ComponentManifestDefinition(
+				existing.Name, existing.Description, existing.Type, existing.RevisionNumber, existing.Definition);
+			var disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
+			if (disposition == ManifestAggregateDisposition.Customized)
+			{
+				return existing;
+			}
 			existing.Type = type;
 			existing.Description = description;
 			existing.Definition = definition;
+			if (disposition == ManifestAggregateDisposition.Update)
+			{
+				CompleteManifestAggregate(manifestEntry, existing.Id, manifestDefinition, disposition);
+			}
 			return existing;
 		}
 
@@ -988,10 +1001,22 @@ public partial class ItemSeeder
 			                                x.EditableItem.RevisionStatus == 4);
 		if (existing is not null)
 		{
+			var liveDefinition = new ComponentManifestDefinition(
+				existing.Name, existing.Description, existing.Type, existing.RevisionNumber, existing.Definition);
+			var disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
+			if (disposition == ManifestAggregateDisposition.Customized)
+			{
+				_components[name] = existing;
+				return existing;
+			}
 			existing.Type = type;
 			existing.Description = description;
 			existing.Definition = definition;
 			_components[name] = existing;
+			if (disposition == ManifestAggregateDisposition.Update)
+			{
+				CompleteManifestAggregate(manifestEntry, existing.Id, manifestDefinition, disposition);
+			}
 			return existing;
 		}
 
@@ -1018,6 +1043,7 @@ public partial class ItemSeeder
 
 		_context.GameItemComponentProtos.Add(component);
 		_components[name] = component;
+		CompleteManifestAggregate(manifestEntry, component.Id, manifestDefinition, ManifestAggregateDisposition.Insert);
 		return component;
 	}
 }

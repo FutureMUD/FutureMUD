@@ -124,7 +124,7 @@ public partial class ItemSeeder
 	{
 		var itemSpecs = specs.ToArray();
 		var dependencyIssues = ValidateDocumentedClothingItemDependencies(itemSpecs);
-		if (dependencyIssues.Count > 0)
+		if (!_manifestCaptureOnly && dependencyIssues.Count > 0)
 		{
 			throw new InvalidOperationException(
 				"Documented clothing outfit items cannot be seeded because required dependencies are missing:" +
@@ -133,6 +133,13 @@ public partial class ItemSeeder
 
 		foreach (var spec in itemSpecs)
 		{
+			// Generated outfit admissions can reference a shared item already authored by an earlier
+			// executable module. The earlier stock definition remains the single authority.
+			if (IsManifestAggregateRegistered("item", spec.StableReference))
+			{
+				continue;
+			}
+
 			var item = CreateItem(
 				spec.StableReference,
 				spec.Noun,
@@ -199,7 +206,48 @@ public partial class ItemSeeder
 			.ToList();
 		foreach (var manifest in manifests)
 		{
+			var marker = GetOutfitManifestMarker(manifest.StableKey);
+			var manifestDefinition = new OutfitManifestDefinition(
+				manifest.StableKey,
+				manifest.Name,
+				$"{manifest.Description}{Environment.NewLine}{marker}",
+				(int)OutfitExclusivity.NonExclusive,
+				manifest.ItemStableReferences.ToArray());
+			var manifestEntry = RegisterManifestAggregate(
+				"outfit",
+				manifest.StableKey,
+				manifestDefinition,
+				manifest.ItemStableReferences.Select(x => $"item:{x}"));
+			if (_manifestCaptureOnly)
+			{
+				continue;
+			}
+
+			var existing = templates.SingleOrDefault(x => HasOutfitManifestMarker(x.Description, marker));
+			if (existing is not null)
+			{
+				var liveDefinition = new OutfitManifestDefinition(
+					manifest.StableKey,
+					existing.Name,
+					existing.Description,
+					existing.Exclusivity,
+					existing.OutfitTemplateItems
+						.OrderBy(x => x.WearOrder)
+						.Select(x => x.TemplateKey)
+						.ToArray());
+				var disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
+				if (disposition is ManifestAggregateDisposition.Customized or ManifestAggregateDisposition.Unchanged)
+				{
+					continue;
+				}
+
+				var reconciled = UpsertOutfitManifest(_context, manifest, _items, templates);
+				CompleteManifestAggregate(manifestEntry, reconciled.Id, manifestDefinition, disposition);
+				continue;
+			}
+
 			UpsertOutfitManifest(_context, manifest, _items, templates);
+			CompleteManifestAggregate(manifestEntry, null, manifestDefinition, ManifestAggregateDisposition.Insert);
 		}
 	}
 

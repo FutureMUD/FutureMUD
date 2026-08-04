@@ -60,38 +60,10 @@ public partial class ItemSeeder
 
 	private void SeedSharedPreIndustrialFoodFoundation()
 	{
-		var commodityRoot = EnsureAntiquityTagPath(PreIndustrialFoodCommodityTagPath);
+		EnsureAntiquityTagPath(PreIndustrialFoodCommodityTagPath);
 		foreach (var name in PreIndustrialFoodCommodityTagNames)
 		{
-			var tag = _context!.Tags.Local
-				.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ??
-			          _context.Tags
-				          .AsEnumerable()
-				          .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-			if (tag is null)
-			{
-				tag = new Tag
-				{
-					Id = NextTagId(),
-					Name = name
-				};
-				_context.Tags.Add(tag);
-			}
-
-			tag.Parent = commodityRoot;
-			tag.ParentId = commodityRoot.Id;
-			foreach (var stalePath in _tagsByFullPath
-				         .Where(x => ReferenceEquals(x.Value, tag) &&
-				                     !x.Key.Equals($"{PreIndustrialFoodCommodityTagPath} / {name}",
-					                     StringComparison.OrdinalIgnoreCase))
-				         .Select(x => x.Key)
-				         .ToArray())
-			{
-				_tagsByFullPath.Remove(stalePath);
-			}
-
-			_tags[name] = tag;
-			_tagsByFullPath[$"{PreIndustrialFoodCommodityTagPath} / {name}"] = tag;
+			EnsureAntiquityTagPath($"{PreIndustrialFoodCommodityTagPath} / {name}");
 		}
 
 		foreach (var path in PreIndustrialFoodFunctionalToolTagPaths)

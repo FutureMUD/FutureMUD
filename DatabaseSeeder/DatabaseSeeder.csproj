@@ -35,6 +35,9 @@
 	<Content Include="BlankDatabaseSnapshot.manifest.json">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+	<Content Include="..\Design Documents\Seeding\Seeded_Item_Manifest.json" Link="Seeded_Item_Manifest.json">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
 	<EmbeddedResource Include="Seeders\FoodCatalogue\**\*.tsv" />
 	<EmbeddedResource Include="Seeders\MedicalRepairCatalogue\**\*.tsv" />
   </ItemGroup>

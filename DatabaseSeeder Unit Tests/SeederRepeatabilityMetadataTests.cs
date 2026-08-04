@@ -42,8 +42,9 @@ public class SeederRepeatabilityMetadataTests
 		}
 
 		IDatabaseSeeder itemSeeder = new ItemSeeder();
-		Assert.AreEqual(SeederRepeatabilityMode.OneShot, itemSeeder.Metadata.RepeatabilityMode);
-		Assert.IsFalse(itemSeeder.SafeToRunMoreThanOnce);
+		Assert.AreEqual(SeederRepeatabilityMode.Idempotent, itemSeeder.Metadata.RepeatabilityMode);
+		Assert.AreEqual(SeederUpdateCapability.FullReconcile, itemSeeder.Metadata.UpdateCapability);
+		Assert.IsTrue(itemSeeder.SafeToRunMoreThanOnce);
 	}
 
 	[TestMethod]

@@ -120,8 +120,11 @@ public class ItemSeederAddCraftTests
 			CharacteristicValue(4, 1, "bone white")
 		);
 
+		var alwaysTrue = Prog(1, "AlwaysTrue", ProgVariableTypes.Boolean, "return true");
+		alwaysTrue.Category = "Utility";
+		alwaysTrue.Subcategory = "General";
 		context.FutureProgs.AddRange(
-			Prog(1, "AlwaysTrue", ProgVariableTypes.Boolean, "return true"),
+			alwaysTrue,
 			Prog(2, "AlwaysText", ProgVariableTypes.Text, @"return ""No."""),
 			Prog(3, "OnFinish", ProgVariableTypes.Void, string.Empty),
 			Prog(4, "OnStart", ProgVariableTypes.Void, string.Empty),

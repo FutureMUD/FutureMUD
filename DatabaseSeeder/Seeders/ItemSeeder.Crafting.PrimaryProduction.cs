@@ -84,7 +84,7 @@ public partial class ItemSeeder
 			spec.Tools,
 			spec.Products,
 			spec.FailProducts,
-			knowledgeSubtype: spec.KnowledgeSubtype,
+			knowledgeSubtype: "Primary Production",
 			knowledgeDescription: "Shared historic primary-production commodity transformations.",
 			knowledgeLongDescription: "Shared primary-production knowledge for turning raw deposits and bulk feedstocks into stock commodities used by mining, quarrying, smelting, masonry, clay, glass, salt, alkali, tar, peat, and pigment workflows.");
 	}

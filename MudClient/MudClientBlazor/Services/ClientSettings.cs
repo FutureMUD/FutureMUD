@@ -1,8 +1,14 @@
 namespace MudClientBlazor.Services;
 
+public enum OutputWidthBehavior
+{
+	Wrap,
+	HorizontalScroll
+}
+
 public sealed class ClientSettings
 {
-	public const int CurrentVersion = 1;
+	public const int CurrentVersion = 2;
 	public const string DefaultFontFamily = "Consolas, \"Cascadia Mono\", \"Courier New\", monospace";
 
 	private static readonly IReadOnlyList<ClientFontOption> AvailableFonts =
@@ -22,6 +28,7 @@ public sealed class ClientSettings
 	public int MessageLeftOffsetPx { get; set; }
 	public double MessageLineHeight { get; set; } = 1.48;
 	public int MessageSpacingPx { get; set; } = 6;
+	public OutputWidthBehavior OutputWidthBehavior { get; set; } = OutputWidthBehavior.Wrap;
 	public bool ClearInputAfterSend { get; set; } = true;
 	public bool SemicolonCommandStackingEnabled { get; set; } = true;
 	public string CommandStackingDelimiter { get; set; } = ";";
@@ -42,6 +49,7 @@ public sealed class ClientSettings
 			MessageLeftOffsetPx = MessageLeftOffsetPx,
 			MessageLineHeight = MessageLineHeight,
 			MessageSpacingPx = MessageSpacingPx,
+			OutputWidthBehavior = OutputWidthBehavior,
 			ClearInputAfterSend = ClearInputAfterSend,
 			SemicolonCommandStackingEnabled = SemicolonCommandStackingEnabled,
 			CommandStackingDelimiter = CommandStackingDelimiter,
@@ -71,6 +79,9 @@ public sealed class ClientSettings
 		normalized.MessageLeftOffsetPx = Math.Clamp(settings.MessageLeftOffsetPx, 0, 500);
 		normalized.MessageLineHeight = Math.Clamp(settings.MessageLineHeight, 1.0, 3.0);
 		normalized.MessageSpacingPx = Math.Clamp(settings.MessageSpacingPx, 0, 100);
+		normalized.OutputWidthBehavior = Enum.IsDefined(settings.OutputWidthBehavior)
+			? settings.OutputWidthBehavior
+			: defaults.OutputWidthBehavior;
 		normalized.CommandStackingDelimiter = NormalizeDelimiter(settings.CommandStackingDelimiter, defaults.CommandStackingDelimiter);
 		normalized.StackedCommandDelayMs = Math.Clamp(settings.StackedCommandDelayMs, 50, 2_000);
 		return normalized;

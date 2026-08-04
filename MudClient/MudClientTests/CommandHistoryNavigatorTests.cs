@@ -36,6 +36,20 @@ public class CommandHistoryNavigatorTests
 	}
 
 	[Fact]
+	public void Navigate_DownPastNewestEntry_RestoresDraftInput()
+	{
+		var result = CommandHistoryNavigator.Navigate(
+			History,
+			History.Count - 1,
+			CommandHistoryDirection.Down,
+			false,
+			"say unfinished thought");
+
+		Assert.Equal(History.Count, result.Index);
+		Assert.Equal("say unfinished thought", result.Input);
+	}
+
+	[Fact]
 	public void Navigate_WithControlJump_MovesToRequestedHistoryBoundary()
 	{
 		var oldest = CommandHistoryNavigator.Navigate(History, History.Count, CommandHistoryDirection.Up, true);

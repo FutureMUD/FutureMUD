@@ -191,12 +191,17 @@ Stop-MudClientLegacyProxyProcess -ProxyRoot $legacyProxy
 $legacyReleasePath = Move-MudClientLegacyInstallation -InstallRoot $InstallRoot -ReleaseRoot $releaseRoot -Migrate:$Migrate
 if ($legacyReleasePath) {
 	if (-not $previousTarget) { $previousTarget = $legacyReleasePath }
+	$configWebRoot = Join-Path $ConfigRoot 'web'
 	if (-not (Test-Path -LiteralPath (Join-Path $ConfigRoot 'proxy\appsettings.json'))) {
 		Copy-Item -LiteralPath (Join-Path $legacyReleasePath 'proxy\appsettings.json') -Destination (Join-Path $ConfigRoot 'proxy\appsettings.json')
 	}
 	$legacyWebSettings = Join-Path $legacyReleasePath 'web\wwwroot\appsettings.json'
 	if ((Test-Path -LiteralPath $legacyWebSettings) -and -not (Test-Path -LiteralPath (Join-Path $ConfigRoot 'web\appsettings.json'))) {
 		Copy-Item -LiteralPath $legacyWebSettings -Destination (Join-Path $ConfigRoot 'web\appsettings.json')
+	}
+	$legacyCustomAssets = Join-Path $legacyReleasePath 'web\wwwroot\custom'
+	if ((Test-Path -LiteralPath $legacyCustomAssets) -and -not (Test-Path -LiteralPath (Join-Path $configWebRoot 'custom'))) {
+		Copy-Item -LiteralPath $legacyCustomAssets -Destination (Join-Path $configWebRoot 'custom') -Recurse
 	}
 }
 if (Test-Path -LiteralPath $releasePath) {
@@ -208,9 +213,14 @@ if (Test-Path -LiteralPath $releasePath) {
 Copy-Item -LiteralPath $packageRoot -Destination $releasePath -Recurse
 $proxySettings = Join-Path $ConfigRoot 'proxy\appsettings.json'
 $webSettings = Join-Path $ConfigRoot 'web\appsettings.json'
+$customWebAssets = Join-Path $ConfigRoot 'web\custom'
+$releaseCustomWebAssets = Join-Path $releasePath 'web\wwwroot\custom'
 if (-not (Test-Path -LiteralPath $proxySettings)) { Copy-Item -LiteralPath (Join-Path $releasePath 'proxy\appsettings.json') -Destination $proxySettings }
 if (-not (Test-Path -LiteralPath $webSettings)) { Copy-Item -LiteralPath (Join-Path $releasePath 'web\wwwroot\appsettings.json') -Destination $webSettings }
+if (-not (Test-Path -LiteralPath $customWebAssets)) { Copy-Item -LiteralPath $releaseCustomWebAssets -Destination $customWebAssets -Recurse }
 Copy-Item -LiteralPath $webSettings -Destination (Join-Path $releasePath 'web\wwwroot\appsettings.json') -Force
+New-Item -ItemType Directory -Force -Path $releaseCustomWebAssets | Out-Null
+Get-ChildItem -LiteralPath $customWebAssets -Force | Copy-Item -Destination $releaseCustomWebAssets -Recurse -Force
 
 	foreach ($link in @('current', 'web', 'proxy')) {
 		$linkPath = Join-Path $InstallRoot $link

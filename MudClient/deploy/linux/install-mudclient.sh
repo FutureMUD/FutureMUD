@@ -67,6 +67,7 @@ if [[ -e "$install_root/proxy" && ! -L "$install_root/proxy" ]]; then
 	mkdir -p "$config_root/proxy" "$config_root/web"
 	[[ -f "$config_root/proxy/appsettings.json" ]] || cp -p "$legacy/proxy/appsettings.json" "$config_root/proxy/appsettings.json"
 	[[ ! -f "$legacy/web/wwwroot/appsettings.json" || -f "$config_root/web/appsettings.json" ]] || cp -p "$legacy/web/wwwroot/appsettings.json" "$config_root/web/appsettings.json"
+	[[ ! -d "$legacy/web/wwwroot/custom" || -d "$config_root/web/custom" ]] || cp -a "$legacy/web/wwwroot/custom" "$config_root/web/custom"
 	had_proxy_settings=true
 fi
 
@@ -76,6 +77,7 @@ mkdir -p "$install_root/releases" "$config_root/proxy" "$config_root/web"
 cp -a "$package_root" "$release"
 [[ -f "$config_root/proxy/appsettings.json" ]] || cp -p "$release/proxy/appsettings.json" "$config_root/proxy/appsettings.json"
 [[ -f "$config_root/web/appsettings.json" ]] || cp -p "$release/web/wwwroot/appsettings.json" "$config_root/web/appsettings.json"
+[[ -d "$config_root/web/custom" ]] || cp -a "$release/web/wwwroot/custom" "$config_root/web/custom"
 if [[ -n "$domain" && "$had_proxy_settings" == false ]]; then
 	cat >"$config_root/proxy/appsettings.json" <<EOF
 {
@@ -88,6 +90,8 @@ if [[ -n "$domain" && "$had_proxy_settings" == false ]]; then
 EOF
 fi
 cp -p "$config_root/web/appsettings.json" "$release/web/wwwroot/appsettings.json"
+mkdir -p "$release/web/wwwroot/custom"
+cp -a "$config_root/web/custom/." "$release/web/wwwroot/custom/"
 chmod +x "$release/proxy/MudWebSocketProxy" "$release/tools/MudClientDeployment"
 
 if ! id -u mudclient >/dev/null 2>&1; then

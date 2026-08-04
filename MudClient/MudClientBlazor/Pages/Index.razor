@@ -9,10 +9,15 @@
 @inject ILogger<Index> Logger
 @inject IConfiguration Configuration
 
+<PageTitle>@Branding.Title</PageTitle>
+<HeadContent>
+	<link rel="icon" type="image/png" href="@Branding.IconUrl" />
+</HeadContent>
+
 <div class="app-root" style="@GetClientStyle()">
 	<div class="app-grid">
 		<div class="play-surface">
-			<div class="message-container" @ref="MessageContainer" tabindex="0" role="region" aria-label="MUD output">
+			<div class="@GetMessageContainerClass()" @ref="MessageContainer" tabindex="0" role="region" aria-label="MUD output">
 				@foreach (var message in _transcript.RenderedEntries)
 				{
 					<div @key="message.Id">@(new MarkupString(message.Html))</div>
@@ -148,6 +153,14 @@
 							<span>Wrap width (px)</span>
 							<input class="settings-input" type="number" min="0" max="3000" step="10" value="@ClientSettingsDraft.MessageWrapWidthPx" @oninput="args => UpdateMessageWrapWidth(args.Value?.ToString())" aria-label="Manual message wrap width in pixels" />
 							<small>0 uses the available width.</small>
+						</label>
+						<label>
+							<span>Wide text</span>
+							<select class="settings-input" value="@ClientSettingsDraft.OutputWidthBehavior.ToString()" @onchange="args => UpdateOutputWidthBehavior(args.Value?.ToString())" aria-label="Wide text behavior">
+								<option value="Wrap">Wrap to window</option>
+								<option value="HorizontalScroll">Scroll horizontally</option>
+							</select>
+							<small>Horizontal scrolling preserves MUD-formatted line widths on narrow screens.</small>
 						</label>
 						<label>
 							<span>Left offset (px)</span>
@@ -312,6 +325,22 @@
 			</section>
 		}
 		
+		@if (_aboutOpen)
+		{
+			<section class="about-panel" role="region" aria-labelledby="about-title">
+				<img class="about-icon" src="@Branding.IconUrl" alt="" />
+				<div class="about-copy">
+					<h2 id="about-title">@Branding.Title</h2>
+					<p>@Branding.AboutText</p>
+					<dl class="about-details">
+						<div><dt>Client</dt><dd>@ProductInformation.Name</dd></div>
+						<div><dt>Version</dt><dd>@ProductInformation.Version</dd></div>
+					</dl>
+				</div>
+				<button type="button" class="client-button secondary-button about-close" @onclick="ToggleAbout">Close</button>
+			</section>
+		}
+
 		<div class="status-footer">
 			<div class="connection-status" aria-live="polite">
 				<span class="connection-dot @(isConnected ? "is-connected" : "is-disconnected")" aria-hidden="true"></span>
@@ -327,6 +356,7 @@
 				<button type="button" class="client-button primary-button" @onclick="ToggleConnection">@connectionButtonText</button>
 				<button type="button" class="client-button secondary-button" @onclick="SaveLog">Save Log</button>
 				<button type="button" class="client-button secondary-button" @onclick="ToggleHotkeySettings">Settings</button>
+				<button type="button" class="client-button secondary-button" title="@AboutButtonTitle" aria-expanded="@_aboutOpen" @onclick="ToggleAbout">About</button>
 			</div>
 		</div>
 	</div>
@@ -405,6 +435,7 @@
 		};
 
 	private string UserInput { get; set; } = string.Empty;
+	private string _commandHistoryDraft = string.Empty;
 	private readonly ClientTranscript _transcript = new();
 	private ClientWebSocket? _clientWebSocket;
 	private CancellationTokenSource _cancellationTokenSource = new();
@@ -426,10 +457,13 @@
 	private QuickAliasSettings QuickAliasDraft { get; set; } = QuickAliasSettings.CreateDefault();
 	private ClientSettings CurrentClientSettings { get; set; } = ClientSettings.CreateDefault();
 	private ClientSettings ClientSettingsDraft { get; set; } = ClientSettings.CreateDefault();
+	private ClientBrandingOptions Branding { get; set; } = new();
+	private static ClientProductInformation ProductInformation => ClientProductInformation.Current;
 	private IReadOnlyList<string> HotkeyDraftErrors { get; set; } = [];
 	private IReadOnlyList<string> ClientSettingsDraftErrors { get; set; } = [];
 	private string? HotkeySettingsError { get; set; }
 	private bool _hotkeySettingsOpen;
+	private bool _aboutOpen;
 	private bool _isSendingBatch;
 	private string _batchProgressText = string.Empty;
 
@@ -445,6 +479,8 @@
 
 	protected override async Task OnInitializedAsync()
 	{
+		Branding = ClientBrandingOptions.FromConfiguration(Configuration);
+
 		// Create the object reference
 		_objectReference = DotNetObjectReference.Create(this);
 
@@ -494,6 +530,14 @@
 		 !string.IsNullOrEmpty(CurrentQuickAliasSettings.Login.Password));
 
 	private bool CanSaveHotkeySettings => HotkeyDraftErrors.Count == 0 && ClientSettingsDraftErrors.Count == 0;
+	private string AboutButtonTitle => $"About {ProductInformation.Name} {ProductInformation.Version}";
+
+	private string GetMessageContainerClass()
+	{
+		return CurrentClientSettings.OutputWidthBehavior == OutputWidthBehavior.HorizontalScroll
+			? "message-container output-scroll-horizontal"
+			: "message-container output-wrap";
+	}
 
 	private string GetClientStyle()
 	{
@@ -709,6 +753,16 @@
 		if (int.TryParse(value, out var parsed))
 		{
 			ClientSettingsDraft.MessageWrapWidthPx = parsed;
+		}
+
+		ValidateClientSettingsDraft();
+	}
+
+	private void UpdateOutputWidthBehavior(string? value)
+	{
+		if (Enum.TryParse<OutputWidthBehavior>(value, out var behavior))
+		{
+			ClientSettingsDraft.OutputWidthBehavior = behavior;
 		}
 
 		ValidateClientSettingsDraft();
@@ -1590,11 +1644,12 @@
 			}
 
 			CommandHistoryIndex = CommandHistory.Count;
+			_commandHistoryDraft = UserInput;
 		}
 	}
 
 	[JSInvokable]
-	public async Task NavigateCommandHistory(string direction, bool jumpToBoundary)
+	public async Task NavigateCommandHistory(string direction, bool jumpToBoundary, string currentInput)
 	{
 		var historyDirection = direction.ToLowerInvariant() switch
 		{
@@ -1608,11 +1663,18 @@
 			return;
 		}
 
+		UserInput = currentInput;
+		if (historyDirection == CommandHistoryDirection.Up && CommandHistoryIndex >= CommandHistory.Count)
+		{
+			_commandHistoryDraft = currentInput;
+		}
+
 		var navigation = CommandHistoryNavigator.Navigate(
 			CommandHistory,
 			CommandHistoryIndex,
 			historyDirection.Value,
-			jumpToBoundary);
+			jumpToBoundary,
+			_commandHistoryDraft);
 		if (!navigation.HasChanged)
 		{
 			return;
@@ -1622,6 +1684,11 @@
 		UserInput = navigation.Input!;
 		await InvokeAsync(StateHasChanged);
 		await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+	}
+
+	private void ToggleAbout()
+	{
+		_aboutOpen = !_aboutOpen;
 	}
 
 	private async Task LoadTextFileAsync(InputFileChangeEventArgs args)

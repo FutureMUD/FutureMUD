@@ -37,6 +37,7 @@ namespace MudSharp.Framework
         public const string RESET = "\x1B[0;39m";
         public const string RESETBACKGROUND = "\x1B[49m";
         public const string RESETNEWLINE = "\x1B[39m\n";
+        public const string RESETBOLD = "\x1B[22m";
         public const string RESETUNDERLINE = "\x1B[24m";
         public const string UNDERLINE = "\x1B[4m";
         public const string RESETBLINK = "\x1B[25m";
@@ -196,7 +197,7 @@ namespace MudSharp.Framework
         public static readonly ANSIColour White = new("White", WHITE, BOLDWHITE, WHITEBACKGROUND,
             BOLDWHITEBACKGROUND);
 
-        public static readonly ANSIColour Black = new("Black", BLACK, BOLDBLACK, BLACKBACKGROUND, BLACKBACKGROUND);
+        public static readonly ANSIColour Black = new("Black", BLACK, BOLDBLACK, BLACKBACKGROUND, BOLDBLACKBACKGROUND);
 
         public static readonly ANSIColour Orange = new("Orange", ORANGE, BOLDORANGE, ORANGEBACKGROUND, BOLDORANGEBACKGROUND);
 
@@ -246,7 +247,7 @@ namespace MudSharp.Framework
             TEXTREDBACKGROUND);
 
         public static readonly ANSIColour VariableGreen = new("Variable Green", VARIABLEGREEN, VARIABLEGREEN,
-            VARIABLEGREENBACKGROUND, VARIABLECYANBACKGROUND);
+            VARIABLEGREENBACKGROUND, VARIABLEGREENBACKGROUND);
 
         public static string Reset(this ANSIColour colour)
         {
@@ -278,6 +279,7 @@ namespace MudSharp.Framework
             "bold magenta".Colour(BoldMagenta),
             "bold white".Colour(BoldWhite),
             "bold black".Colour(BoldBlack),
+            "bold orange".Colour(BoldOrange),
             "bold pink".Colour(BoldPink),
             "function yellow".Colour(FunctionYellow),
             "variable cyan".Colour(VariableCyan),

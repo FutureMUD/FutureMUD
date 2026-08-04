@@ -84,8 +84,9 @@ function Get-SignedLatestManifest {
 	$signaturePath = Join-Path $Directory 'update-manifest.sig'
 	Invoke-WebRequest https://futuremud.com/downloads/mudclient/latest/update-manifest.json -OutFile $manifestPath
 	Invoke-WebRequest https://futuremud.com/downloads/mudclient/latest/update-manifest.sig -OutFile $signaturePath
-	& $deploymentTool verify-manifest --manifest $manifestPath --signature $signaturePath --runtime win-x64
+	$verificationOutput = & $deploymentTool verify-manifest --manifest $manifestPath --signature $signaturePath --runtime win-x64 2>&1
 	if ($LASTEXITCODE -ne 0) { throw 'The latest MudClient manifest failed signature validation.' }
+	$verificationOutput | ForEach-Object { Write-Host $_ }
 	return $manifestPath
 }
 

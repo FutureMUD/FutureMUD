@@ -4,6 +4,8 @@ public class WindowsInstallerRegressionTests
 {
 	private static string InstallerScript => File.ReadAllText(
 		Path.Combine(AppContext.BaseDirectory, "DeploymentScripts", "Install-MudClient.ps1"));
+	private static string UpdaterScript => File.ReadAllText(
+		Path.Combine(AppContext.BaseDirectory, "DeploymentScripts", "Update-MudClient.ps1"));
 	private static string CommonScriptPath => Path.Combine(
 		AppContext.BaseDirectory, "DeploymentScripts", "MudClientDeployment.Common.ps1");
 	private static string ProxyProgram => File.ReadAllText(
@@ -86,6 +88,15 @@ public class WindowsInstallerRegressionTests
 		Assert.Contains("throw \"Release $version is already active.\"", script, StringComparison.Ordinal);
 		Assert.Contains("Remove-MudClientPath -Path $releasePath", script, StringComparison.Ordinal);
 		Assert.DoesNotContain("throw \"Release $version is already staged.\"", script, StringComparison.Ordinal);
+	}
+
+	[Fact]
+	public void UpdaterCapturesManifestVerificationOutputBeforeReturningTheManifestPath()
+	{
+		var script = UpdaterScript;
+
+		Assert.Contains("$verificationOutput = & $deploymentTool verify-manifest", script, StringComparison.Ordinal);
+		Assert.Contains("$verificationOutput | ForEach-Object { Write-Host $_ }", script, StringComparison.Ordinal);
 	}
 
 	[Fact]

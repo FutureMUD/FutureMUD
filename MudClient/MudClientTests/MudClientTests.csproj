@@ -28,6 +28,7 @@
 
 	<ItemGroup>
 		<None Include="..\deploy\windows\Install-MudClient.ps1" Link="DeploymentScripts\Install-MudClient.ps1" CopyToOutputDirectory="PreserveNewest" />
+		<None Include="..\deploy\windows\Update-MudClient.ps1" Link="DeploymentScripts\Update-MudClient.ps1" CopyToOutputDirectory="PreserveNewest" />
 		<None Include="..\deploy\windows\MudClientDeployment.Common.ps1" Link="DeploymentScripts\MudClientDeployment.Common.ps1" CopyToOutputDirectory="PreserveNewest" />
 		<None Include="..\deploy\windows\install-mudclient-proxy.ps1" Link="DeploymentScripts\install-mudclient-proxy.ps1" CopyToOutputDirectory="PreserveNewest" />
 		<None Include="..\MudWebSocketProxy\Program.cs" Link="SourceFiles\MudWebSocketProxy.Program.cs" CopyToOutputDirectory="PreserveNewest" />

@@ -33,12 +33,12 @@ Linux additionally requires systemd, bash, curl, unzip, and Caddy v2 managed by 
 
 MudClient 1.2.0 is the first release with a safe upgrade layout. Its release files are immutable under `releases/<version>`; `current`, `web`, and `proxy` stay at stable paths so an upgrade does not alter Caddy, DNS, TLS, firewall, MUD, or database configuration. Operator settings are moved to `/etc/mudclient` on Linux and `%ProgramData%\FutureMUD\MudClient` on Windows.
 
-To migrate an existing 1.0.1 or 1.1.0 Linux installation, download and extract the 1.3.0 archive once, then run the installer with the original archive:
+To migrate an existing 1.0.1 or 1.1.0 Linux installation, download and extract the 1.3.1 archive once, then run the installer with the original archive:
 
 ~~~bash
-unzip mudclient-1.3.0-linux-x64.zip -d /tmp/mudclient-1.3.0
-sudo bash /tmp/mudclient-1.3.0/mudclient-1.3.0-linux-x64/deploy/linux/install-mudclient.sh \
-  --archive "$PWD/mudclient-1.3.0-linux-x64.zip" --migrate
+unzip mudclient-1.3.1-linux-x64.zip -d /tmp/mudclient-1.3.1
+sudo bash /tmp/mudclient-1.3.1/mudclient-1.3.1-linux-x64/deploy/linux/install-mudclient.sh \
+  --archive "$PWD/mudclient-1.3.1-linux-x64.zip" --migrate
 ~~~
 
 The command keeps the old release as a rollback target, copies proxy and browser settings to durable locations, and retains the existing Caddy configuration. It briefly restarts only the private proxy, so connected browser sessions disconnect and can reconnect; the MUD itself is not restarted.
@@ -51,14 +51,14 @@ sudo /opt/mudclient/current/deploy/linux/update-mudclient.sh
 
 Use `--check` to inspect the signed latest manifest without changing files, or `--rollback` to activate the previous local release. The updater verifies an Ed25519-signed manifest and archive SHA-256 before staging, preserves two prior releases, and restores the prior release if the proxy health check fails.
 
-On Windows, extract the 1.3.0 archive once and run this from an elevated PowerShell window:
+On Windows, extract the 1.3.1 archive once and run this from an elevated PowerShell window:
 
 ~~~powershell
-& 'C:\staging\mudclient-1.3.0-win-x64\deploy\windows\Install-MudClient.ps1' `
-  -ArchivePath 'C:\Users\Administrator\Downloads\mudclient-1.3.0-win-x64.zip' -Migrate
+& 'C:\staging\mudclient-1.3.1-win-x64\deploy\windows\Install-MudClient.ps1' `
+  -ArchivePath 'C:\Users\Administrator\Downloads\mudclient-1.3.1-win-x64.zip' -Migrate
 ~~~
 
-Version 1.3.0 can resume an interrupted 1.2.0-1.2.4 migration. It stops the legacy proxy scheduled task and any remaining proxy process before moving the old directories, completes a partially moved legacy `proxy`/`web` pair, reuses the preserved legacy release, and replaces an inactive staged copy before retrying. It also supplies the required .NET Windows Service lifetime for the native `MudClientProxy` service. If activation fails, the legacy task is restored to its previous running state, rollback warnings are reported separately, and the original activation error remains visible.
+Version 1.3.1 can resume an interrupted 1.2.0-1.2.4 migration. It stops the legacy proxy scheduled task and any remaining proxy process before moving the old directories, completes a partially moved legacy `proxy`/`web` pair, reuses the preserved legacy release, and replaces an inactive staged copy before retrying. It also supplies the required .NET Windows Service lifetime for the native `MudClientProxy` service. If activation fails, the legacy task is restored to its previous running state, rollback warnings are reported separately, and the original activation error remains visible.
 
 If a failed earlier migration left stale `current`, `web`, or `proxy` links, stop the proxy and remove only those reparse points before retrying. This does not remove ordinary configuration directories:
 
@@ -87,16 +87,16 @@ Later Windows updates use:
 After verifying the website's published SHA-256 checksum, extract the downloaded package to `/opt/mudclient` and run the installer from that directory:
 
 ~~~bash
-unzip mudclient-1.3.0-linux-x64.zip -d /tmp/mudclient-package
-sudo bash /tmp/mudclient-package/mudclient-1.3.0-linux-x64/deploy/linux/install-mudclient.sh \
-  --archive "$PWD/mudclient-1.3.0-linux-x64.zip" --domain play.example.com
+unzip mudclient-1.3.1-linux-x64.zip -d /tmp/mudclient-package
+sudo bash /tmp/mudclient-package/mudclient-1.3.1-linux-x64/deploy/linux/install-mudclient.sh \
+  --archive "$PWD/mudclient-1.3.1-linux-x64.zip" --domain play.example.com
 ~~~
 
 The script creates the unprivileged proxy service, writes the exact trusted public origin, adds an isolated Caddy site fragment, validates Caddy before reload, and checks the private health endpoint. The selected domain must already resolve to the host. To connect to a MUD on a private network rather than the same machine:
 
 ~~~bash
-sudo bash /tmp/mudclient-package/mudclient-1.3.0-linux-x64/deploy/linux/install-mudclient.sh \
-  --archive "$PWD/mudclient-1.3.0-linux-x64.zip" --domain play.example.com --mud-host 10.0.0.20 --mud-port 4000
+sudo bash /tmp/mudclient-package/mudclient-1.3.1-linux-x64/deploy/linux/install-mudclient.sh \
+  --archive "$PWD/mudclient-1.3.1-linux-x64.zip" --domain play.example.com --mud-host 10.0.0.20 --mud-port 4000
 ~~~
 
 Use `CADDY_CONFIG` and `CADDY_FRAGMENTS_DIR` for nonstandard Caddyfile locations. The installer saves `.before-mudclient-install` backups of the files it changes; review those and take a normal deployment backup before upgrading an existing installation.
@@ -112,7 +112,7 @@ dotnet workload install wasm-tools
 ```
 
 ```powershell
-.\scripts\Publish-ProductPackage.ps1 -RuntimeIdentifier win-x64 -Version 1.3.0
+.\scripts\Publish-ProductPackage.ps1 -RuntimeIdentifier win-x64 -Version 1.3.1
 ```
 
 ```bash

@@ -480,7 +480,7 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
             case "desc":
                 return description;
             case "desc+title":
-                return $"{description} titled {"\"".ColourBold(Telnet.White)}{Title.ColourBold(Telnet.White)}\"";
+                return $"{description} titled \"{Title.ColourBold(Telnet.White)}\"";
             default:
                 throw new ApplicationException(
                     $"Invalid option for WrittenItemSDescStyle: '{titleSetting}'. Valid options are 'title', 'desc' and 'desc+title'");

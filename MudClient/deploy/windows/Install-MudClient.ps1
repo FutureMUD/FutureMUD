@@ -28,7 +28,9 @@ $temporaryRoot = [System.IO.Path]::GetTempPath()
 if ([string]::IsNullOrWhiteSpace($temporaryRoot)) { throw 'Windows did not provide a temporary directory.' }
 
 function Remove-MudClientPath {
-	param([Parameter(Mandatory = $true)][string]$Path)
+	param([AllowNull()][AllowEmptyString()][string]$Path)
+
+	if ([string]::IsNullOrWhiteSpace($Path)) { return }
 
 	$item = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
 	if (-not $item) { return }
@@ -41,6 +43,14 @@ function Remove-MudClientPath {
 	if ($LASTEXITCODE -ne 0) {
 		throw "Windows could not remove the reparse point '$Path' (exit code $LASTEXITCODE)."
 	}
+}
+
+function Remove-MudClientFile {
+	param([AllowNull()][AllowEmptyString()][string]$Path)
+
+	if ([string]::IsNullOrWhiteSpace($Path)) { return }
+	if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return }
+	Remove-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
 }
 
 function Wait-ForMudClientServiceRemoval {
@@ -87,9 +97,7 @@ try {
 }
 finally {
 	foreach ($temporaryFile in @($manifestPath, $signaturePath)) {
-		if (-not [string]::IsNullOrWhiteSpace([string]$temporaryFile)) {
-			Remove-Item -LiteralPath $temporaryFile -Force -ErrorAction SilentlyContinue
-		}
+		Remove-MudClientFile -Path ([string]$temporaryFile)
 	}
 }
 
@@ -128,7 +136,7 @@ if ($CaddyExecutable) {
 		$createCaddyTask = $true
 	}
 	catch {
-		if ($caddyFileCreated) { Remove-Item -LiteralPath $persistentCaddyfile -Force -ErrorAction SilentlyContinue }
+		if ($caddyFileCreated) { Remove-MudClientFile -Path $persistentCaddyfile }
 		throw
 	}
 }
@@ -223,12 +231,15 @@ catch {
 	}
 	if ($legacyTask -and (Test-Path -LiteralPath $legacyTaskBackup)) { schtasks.exe /Create /TN $legacyTaskName /XML $legacyTaskBackup /F | Out-Null }
 	if ($createCaddyTask) { Unregister-ScheduledTask -TaskName $CaddyTaskName -Confirm:$false -ErrorAction SilentlyContinue }
-	if ($caddyFileCreated) { Remove-Item -LiteralPath $persistentCaddyfile -Force -ErrorAction SilentlyContinue }
+	if ($caddyFileCreated) { Remove-MudClientFile -Path $persistentCaddyfile }
 	throw $activationError
 }
 $activeReleases = Get-ChildItem -LiteralPath $releaseRoot -Directory | Where-Object Name -notlike 'legacy-*' | Sort-Object { [version]$_.Name }
 while ($activeReleases.Count -gt 3) {
-	Remove-Item -LiteralPath $activeReleases[0].FullName -Recurse -Force
+	$oldestRelease = $activeReleases | Select-Object -First 1
+	if ($oldestRelease -and -not [string]::IsNullOrWhiteSpace([string]$oldestRelease.FullName)) {
+		Remove-MudClientPath -Path $oldestRelease.FullName
+	}
 	$activeReleases = $activeReleases[1..($activeReleases.Count - 1)]
 }
 Write-Host "MudClient $version is active. Future upgrades: & '$InstallRoot\current\deploy\windows\Update-MudClient.ps1'"

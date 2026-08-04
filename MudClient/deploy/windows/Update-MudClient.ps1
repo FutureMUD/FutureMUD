@@ -19,7 +19,9 @@ $deploymentTool = Join-Path $currentPath 'tools\MudClientDeployment.exe'
 if (-not (Test-Path -LiteralPath $deploymentTool)) { throw 'The deployed MudClient update verifier is unavailable.' }
 
 function Remove-MudClientPath {
-	param([Parameter(Mandatory = $true)][string]$Path)
+	param([AllowNull()][AllowEmptyString()][string]$Path)
+
+	if ([string]::IsNullOrWhiteSpace($Path)) { return }
 
 	$item = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
 	if (-not $item) { return }
@@ -32,6 +34,14 @@ function Remove-MudClientPath {
 	if ($LASTEXITCODE -ne 0) {
 		throw "Windows could not remove the reparse point '$Path' (exit code $LASTEXITCODE)."
 	}
+}
+
+function Remove-MudClientDirectory {
+	param([AllowNull()][AllowEmptyString()][string]$Path)
+
+	if ([string]::IsNullOrWhiteSpace($Path)) { return }
+	if (-not (Test-Path -LiteralPath $Path -PathType Container)) { return }
+	Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 function Wait-ForMudClientServiceRemoval {
@@ -87,7 +97,7 @@ if ($Check) {
 		(Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json).version
 	}
 	finally {
-		Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction SilentlyContinue
+		Remove-MudClientDirectory -Path $temp
 	}
 	return
 }
@@ -150,5 +160,5 @@ try {
 	& (Join-Path $package 'deploy\windows\Install-MudClient.ps1') -ArchivePath $archive -InstallRoot $InstallRoot -ConfigRoot $ConfigRoot
 }
 finally {
-	Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction SilentlyContinue
+	Remove-MudClientDirectory -Path $temp
 }

@@ -376,6 +376,7 @@ Please answer #3primitive#F, #3pre-modern#0, #3medieval#0, #3renaissance#0, #3ea
                 (ProgVariableTypes.Trait, "trait"));
         }
 
+        public bool SafeToRunMoreThanOnce => true;
         public int SortOrder => 250;
         public string Name => "Health Seeder";
         public string Tagline => "Sets up surgeries, drugs, and medical starter content";

@@ -33,21 +33,29 @@ public partial class CoreDataSeeder
 			double preMultiplierBaseOffset, double postMultiplierBaseOffset, UnitType type, bool describer,
 			bool spaceBetween, string system, bool defaultUnitForSystem)
 		{
-			context.UnitsOfMeasure.Add(new UnitOfMeasure
+			var unit = context.UnitsOfMeasure.Find(id);
+			if (unit is not null && !unit.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
 			{
-				Id = id,
-				Name = name,
-				PrimaryAbbreviation = primaryAbbreviation,
-				Abbreviations = abbreviations,
-				BaseMultiplier = baseMultiplier,
-				PreMultiplierBaseOffset = preMultiplierBaseOffset,
-				PostMultiplierBaseOffset = postMultiplierBaseOffset,
-				Type = (int)type,
-				Describer = describer,
-				SpaceBetween = spaceBetween,
-				System = system,
-				DefaultUnitForSystem = defaultUnitForSystem
-			});
+				throw new InvalidOperationException($"Unable to reconcile unit {id}: it is named '{unit.Name}' rather than the stock unit '{name}'.");
+			}
+
+			if (unit is null)
+			{
+				unit = new UnitOfMeasure { Id = id };
+				context.UnitsOfMeasure.Add(unit);
+			}
+
+			unit.Name = name;
+			unit.PrimaryAbbreviation = primaryAbbreviation;
+			unit.Abbreviations = abbreviations;
+			unit.BaseMultiplier = baseMultiplier;
+			unit.PreMultiplierBaseOffset = preMultiplierBaseOffset;
+			unit.PostMultiplierBaseOffset = postMultiplierBaseOffset;
+			unit.Type = (int)type;
+			unit.Describer = describer;
+			unit.SpaceBetween = spaceBetween;
+			unit.System = system;
+			unit.DefaultUnitForSystem = defaultUnitForSystem;
 		}
 
 		AddUnit(1, "gram", "g", "gram grams g", 1.0, 0.0, 0.0, UnitType.Mass, true, true, metricSystem, true);

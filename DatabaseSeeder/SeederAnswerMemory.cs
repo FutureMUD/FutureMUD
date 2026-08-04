@@ -27,6 +27,12 @@ public static class SeederAnswerMemory
             }
         }
 
+        string? seederAnswer = GetLatestSeederAnswer(context, seeder.Name, question.Id);
+        if (!string.IsNullOrWhiteSpace(seederAnswer))
+        {
+            return seederAnswer;
+        }
+
         return question.DefaultAnswerResolver?.Invoke(context, currentAnswers);
     }
 
@@ -78,5 +84,27 @@ public static class SeederAnswerMemory
             .ThenByDescending(x => x.Id)
             .Select(x => x.Answer)
             .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
+    }
+
+    public static string? GetLatestSeederAnswer(FuturemudDatabaseContext context, string seederName, string questionId)
+    {
+        return context.SeederChoices
+            .Where(x => x.Seeder == seederName && x.Choice == questionId)
+            .OrderByDescending(x => x.DateTime)
+            .ThenByDescending(x => x.Id)
+            .Select(x => x.Answer)
+            .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
+    }
+
+    public static IReadOnlyDictionary<string, string> GetLatestSeederAnswers(FuturemudDatabaseContext context,
+        string seederName)
+    {
+        return context.SeederChoices
+            .Where(x => x.Seeder == seederName)
+            .OrderByDescending(x => x.DateTime)
+            .ThenByDescending(x => x.Id)
+            .AsEnumerable()
+            .GroupBy(x => x.Choice, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Key, x => x.First().Answer, StringComparer.OrdinalIgnoreCase);
     }
 }

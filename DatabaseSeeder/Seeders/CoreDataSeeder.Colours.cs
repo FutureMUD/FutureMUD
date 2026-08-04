@@ -24,6 +24,11 @@ public partial class CoreDataSeeder
 {
     public void SeedColours(FuturemudDatabaseContext context)
     {
+		if (context.Colours.Any())
+		{
+			return;
+		}
+
         CharacteristicDefinition colourDef = new()
         {
             Type = 2,

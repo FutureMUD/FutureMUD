@@ -413,6 +413,7 @@ return {(offenderOutranksVictim ? "false" : "true")}";
         return authority;
     }
 
+    public bool SafeToRunMoreThanOnce => true;
     public int SortOrder => 5000;
     public string Name => "Law Seeder";
     public string Tagline => "Sets up Legal Enforcement, Laws, and some related AI.";

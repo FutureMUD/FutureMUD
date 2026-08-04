@@ -49,6 +49,10 @@ The current registered seeder surface in `DatabaseSeeder/Seeders` is:
 - `ItemSeeder`
 - `LawSeeder`
 
+## Repeatability Status Update
+
+Core foundation catalogues are now safely repairable on rerun without revisiting bootstrap-world creation. Attributes, the human and animal baselines, and Combat are repeat-safe stock packages that retain their installed structural choices. Combat remains one package for builders while its seed work is internally ordered into independently assessed modules. ItemSeeder is deliberately unchanged: it remains a one-shot content package apart from its limited stock-craft install-missing behavior.
+
 ## Rubric
 Each system is classified with the following fields:
 

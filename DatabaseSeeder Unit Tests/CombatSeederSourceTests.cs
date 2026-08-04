@@ -286,7 +286,7 @@ public class CombatSeederSourceTests
 		string combatSeeder = GetCombatSeederSource();
 
 		StringAssert.Contains(combatSeeder, "EnsureStockAuxiliaryContent(context)");
-		StringAssert.Contains(combatSeeder, "auxiliaryResult");
+		StringAssert.Contains(combatSeeder, "ReconcileAuxiliaryCombatContent");
 		StringAssert.Contains(helper, "EnsureTag(context, \"Shiny\", functions)");
 		StringAssert.Contains(helper, "EnsureTag(context, \"Reflective\", functions)");
 		StringAssert.Contains(helper, "\"Auxiliary_CanThrowSandOrDirt\"");
@@ -409,7 +409,7 @@ public class CombatSeederSourceTests
 		string combatSeeder = GetCombatSeederSource();
 
 		StringAssert.Contains(combatSeeder, "ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context)");
-		StringAssert.Contains(combatSeeder, "stock manual combat command bindings");
+		StringAssert.Contains(combatSeeder, "ReconcileAuxiliaryCombatContent");
 		StringAssert.Contains(helper, "EnsureStockManualCombatCommands");
 		StringAssert.Contains(helper, "primaryVerb: \"bash\"");
 		StringAssert.Contains(helper, "ManualCombatActionKind.AuxiliaryAction");
@@ -510,7 +510,8 @@ public class CombatSeederSourceTests
 		string source = GetCombatSeederSource();
 
 		StringAssert.Contains(source, "EnsurePrimitiveRangedContent(context, skills);");
-		StringAssert.Contains(source, "primitiveRangedCount = EnsurePrimitiveRangedContent(context);");
+		StringAssert.Contains(source, "new CombatSeederModule(\"ranged\"");
+		StringAssert.Contains(source, "EnsurePrimitiveRangedContent(context)");
 		StringAssert.Contains(source, "EnsureVariableCheck(CheckType.FireBlowgun);");
 		StringAssert.Contains(source, "EnsureRangedType(");
 		StringAssert.Contains(source, "\"Sling\"");
@@ -603,7 +604,7 @@ public class CombatSeederSourceTests
 		}
 
 		StringAssert.Contains(source, "EnsureExpandedStockCombatContent(context, effectiveAnswers, skills);");
-		StringAssert.Contains(source, "expandedStockResult = EnsureExpandedStockCombatContent(context, questionAnswers);");
+		StringAssert.Contains(source, "ReconcileExpandedCombatContent");
 		StringAssert.Contains(source, "CombatStockExpansionResult");
 		StringAssert.Contains(source, "EnsureMeleeWeaponComponent(created);");
 	}

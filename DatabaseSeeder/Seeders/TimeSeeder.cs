@@ -302,6 +302,7 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
         ]);
     }
 
+    public bool SafeToRunMoreThanOnce => true;
     public int SortOrder => 5;
     public string Name => "Time Seeder";
     public string Tagline => "Sets up Calendars and Clocks";

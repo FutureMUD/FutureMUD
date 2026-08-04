@@ -452,6 +452,16 @@ Exclude by default:
 - Industrial gases and modern chemical apparatus.
 - Universal use of shared telescope, coffee, tea, cacao, tobacco, sugar, or gunpowder-support stock without culture/date admission.
 
+## Finished-item craft catalogue
+
+Renaissance-owned item prototypes have a complete product-focused craft layer. The generated jewellery and door routes retain their specialist material, tool, and knowledge paths. Every other `renaissance_*` prototype is routed by `SeedRenaissanceFinishedItemCrafts` using its configured material as a commodity input and an existing shared workshop tool.
+
+The layer deliberately uses only the shared Hammer, Saw, Sewing Needle, Shears, Awl Punch, Anvil, Forge Tongs, and Hot Fire tags. Their providers are seeded shared items admitted to both Medieval and Renaissance installs, and the shared historic/primary craft routes are installed whenever either era is selected. This keeps all craft inputs tied to primary commodities, agriculture, butchery, or an earlier craft route without inventing era-specific tool tags.
+
+The executable `Seeded_Item_Manifest.json` records every simple craft product as an `item:<stable reference>` dependency. The DatabaseSeeder coverage gate measures all direct `medieval_*` and `renaissance_*` items against those craft-product dependencies and requires more than 98% coverage; the intended current result is complete coverage.
+
+For offline maintenance, `DatabaseSeeder --capture-item-manifest-in-memory` rebuilds the complete generated manifest in an isolated in-memory context. It is suitable for catalogue verification and never connects to or alters a game database.
+
 ## Open implementation decisions
 
 1. Whether matchlock, wheellock, arquebus, caliver, and early musket need new firearm components or can be approximated safely with existing ranged-weapon components.
@@ -479,6 +489,7 @@ Before implementation, each Renaissance-specific row or manifest should confirm:
 - Portable items include `Holdable`; fixtures omit it.
 - Component-dependent claims are backed by actual components.
 - The implemented jewellery/door slice retains its generated 1,000-per-family availability contract, literal `CreateItem(...)` rows, and direct workshop-craft coverage.
+- The finished-item craft catalogue uses natural per-family phases, an `an in-progress <product> craft` active description, pre-failure echo parity, and only shared tool tags with seeded providers.
 - Culture-specific prototypes are justified by form, material, component, institution, or production technology.
 - Skins, not prototypes, handle most local names, colours, motifs, heraldry, inscriptions, and status variation.
 - Shared baseline verification tests continue to pass, including idempotency, stable-reference uniqueness, valid dependencies, portability rules, lifecycle rewrites, no firearm/explosive components in support rows, and clean medieval-writing strings.

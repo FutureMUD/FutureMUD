@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using MudSharp.Database;
 using MudSharp.Framework;
+using MudSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -223,34 +224,67 @@ The exception details were as follows:
 	{
 		var captureIndex = Array.FindIndex(args,
 			x => x.Equals("--capture-item-manifest", StringComparison.OrdinalIgnoreCase));
-		if (captureIndex < 0)
+		var captureInMemory = args.Any(x =>
+			x.Equals("--capture-item-manifest-in-memory", StringComparison.OrdinalIgnoreCase));
+		if (captureIndex < 0 && !captureInMemory)
 		{
 			return false;
 		}
 
-		ConnectionString = captureIndex + 1 < args.Length &&
-		                   !args[captureIndex + 1].StartsWith("--", StringComparison.Ordinal)
-			? args[captureIndex + 1]
-			: Environment.GetEnvironmentVariable("FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING");
-#if DEBUG
-		ConnectionString ??=
-			"server=localhost;port=3307;database=demo_dbo;uid=futuremud;password=rpiengine2020;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
-#endif
-		if (string.IsNullOrWhiteSpace(ConnectionString))
+		if (!captureInMemory)
 		{
-			throw new InvalidOperationException(
-				"--capture-item-manifest requires FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING or a connection string argument.");
+			ConnectionString = captureIndex + 1 < args.Length &&
+			                   !args[captureIndex + 1].StartsWith("--", StringComparison.Ordinal)
+				? args[captureIndex + 1]
+				: Environment.GetEnvironmentVariable("FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING");
+#if DEBUG
+			ConnectionString ??=
+				"server=localhost;port=3307;database=demo_dbo;uid=futuremud;password=rpiengine2020;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
+#endif
+			if (string.IsNullOrWhiteSpace(ConnectionString))
+			{
+				throw new InvalidOperationException(
+					"--capture-item-manifest requires FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING or a connection string argument.");
+			}
 		}
 
 		var repositoryRoot = ItemSeederManifestCatalogue.FindRepositoryRoot();
 		var outputPath = Path.Combine(repositoryRoot,
 			ItemSeederManifestCatalogue.DefaultRelativePath.Replace('/', Path.DirectorySeparatorChar));
-		using var context = CreateContext();
+		using var context = captureInMemory ? CreateItemManifestCaptureContext() : CreateContext();
 		var document = new Seeders.ItemSeeder().CaptureManifest(context, repositoryRoot);
 		Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
 		File.WriteAllText(outputPath, ItemSeederManifestCatalogue.Serialize(document));
 		Console.WriteLine($"Captured {document.Entries.Count:N0} ItemSeeder aggregates to {outputPath}.");
 		return true;
+	}
+
+	private static FuturemudDatabaseContext CreateItemManifestCaptureContext()
+	{
+		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase($"ItemSeederManifestCapture-{Guid.NewGuid():N}")
+			.Options;
+		var context = new FuturemudDatabaseContext(options);
+		context.Accounts.Add(new Account
+		{
+			Id = 1,
+			Name = "ItemSeeder Manifest Capture",
+			CultureName = "en-AU",
+			TimeZoneId = "UTC",
+			UnitPreference = "Metric"
+		});
+		context.TraitDefinitions.Add(new TraitDefinition
+		{
+			Id = 1,
+			Name = "Crafting",
+			Type = 0,
+			OwnerScope = 0,
+			TraitGroup = "Crafting",
+			ChargenBlurb = string.Empty,
+			ValueExpression = string.Empty
+		});
+		context.SaveChanges();
+		return context;
 	}
 
     private static void RefreshBlankDatabaseSnapshot(Version version)

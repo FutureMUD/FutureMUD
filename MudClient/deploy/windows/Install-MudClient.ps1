@@ -26,6 +26,57 @@ $version = $Matches.version
 $runtime = $Matches.runtime
 $temporaryRoot = [System.IO.Path]::GetTempPath()
 if ([string]::IsNullOrWhiteSpace($temporaryRoot)) { throw 'Windows did not provide a temporary directory.' }
+
+function Remove-MudClientPath {
+	param([Parameter(Mandatory = $true)][string]$Path)
+
+	$item = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
+	if (-not $item) { return }
+	if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -eq 0) {
+		Remove-Item -LiteralPath $Path -Recurse -Force
+		return
+	}
+
+	& cmd.exe /d /c "rmdir /q `"$Path`"" | Out-Null
+	if ($LASTEXITCODE -ne 0) {
+		throw "Windows could not remove the reparse point '$Path' (exit code $LASTEXITCODE)."
+	}
+}
+
+function Wait-ForMudClientServiceRemoval {
+	param([int]$TimeoutSeconds = 30)
+
+	$deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+	do {
+		$service = Get-Service -Name 'MudClientProxy' -ErrorAction SilentlyContinue
+		if (-not $service) { return }
+		if ($service.Status -ne 'Stopped') {
+			Stop-Service -Name 'MudClientProxy' -Force -ErrorAction SilentlyContinue
+		}
+		Start-Sleep -Milliseconds 500
+	} while ((Get-Date) -lt $deadline)
+
+	throw "The MudClientProxy service did not finish stopping before the activation timeout."
+}
+
+function Wait-ForMudClientHealth {
+	param([int]$TimeoutSeconds = 30)
+
+	$deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+	do {
+		try {
+			$response = Invoke-WebRequest -UseBasicParsing -TimeoutSec 2 -Uri 'http://127.0.0.1:5000/health'
+			if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300) { return }
+		}
+		catch {
+			# The service may still be starting. Retry until the bounded deadline.
+		}
+		Start-Sleep -Seconds 1
+	} while ((Get-Date) -lt $deadline)
+
+	throw "The MudClientProxy service did not become healthy within $TimeoutSeconds seconds."
+}
+
 $manifestPath = Join-Path $temporaryRoot "mudclient-update-manifest-$PID.json"
 $signaturePath = Join-Path $temporaryRoot "mudclient-update-manifest-$PID.sig"
 try {
@@ -128,15 +179,16 @@ if ($legacyTask) {
 if (Test-Path -LiteralPath $existingServiceInstaller) {
 	& $existingServiceInstaller -Uninstall -ErrorAction SilentlyContinue
 }
+	Wait-ForMudClientServiceRemoval
 	foreach ($link in @('current', 'web', 'proxy')) {
 		$linkPath = Join-Path $InstallRoot $link
-		if (Test-Path -LiteralPath $linkPath) { Remove-Item -LiteralPath $linkPath -Force }
+		Remove-MudClientPath -Path $linkPath
 	}
 		New-Item -ItemType SymbolicLink -Path $currentPath -Target $releasePath | Out-Null
 	New-Item -ItemType SymbolicLink -Path (Join-Path $InstallRoot 'web') -Target (Join-Path $InstallRoot 'current\web') | Out-Null
 	New-Item -ItemType SymbolicLink -Path (Join-Path $InstallRoot 'proxy') -Target (Join-Path $InstallRoot 'current\proxy') | Out-Null
 		& $releaseServiceInstaller -InstallRoot $InstallRoot -SettingsPath $proxySettings
-		Invoke-WebRequest http://127.0.0.1:5000/health | Out-Null
+		Wait-ForMudClientHealth
 		if ($createCaddyTask) {
 			$action = New-ScheduledTaskAction -Execute $CaddyExecutable -Argument "run --config `"$persistentCaddyfile`" --adapter caddyfile" -WorkingDirectory (Split-Path -Parent $CaddyExecutable)
 			$trigger = New-ScheduledTaskTrigger -AtStartup
@@ -147,20 +199,32 @@ if (Test-Path -LiteralPath $existingServiceInstaller) {
 		}
 }
 catch {
+	$activationError = $_
 	if ($releaseServiceInstaller -and (Test-Path -LiteralPath $releaseServiceInstaller)) { & $releaseServiceInstaller -Uninstall -ErrorAction SilentlyContinue }
+	try {
+		Wait-ForMudClientServiceRemoval
+	}
+	catch {
+		Write-Warning $_.Exception.Message
+	}
 	if ($previousTarget) {
-		Remove-Item -LiteralPath $currentPath -Force -ErrorAction SilentlyContinue
-		New-Item -ItemType SymbolicLink -Path $currentPath -Target $previousTarget | Out-Null
+		try {
+			Remove-MudClientPath -Path $currentPath
+			New-Item -ItemType SymbolicLink -Path $currentPath -Target $previousTarget | Out-Null
+		}
+		catch {
+			Write-Warning "Could not restore the previous current release: $($_.Exception.Message)"
+		}
 		foreach ($link in @('web', 'proxy')) {
 			$linkPath = Join-Path $InstallRoot $link
-			if (-not (Test-Path -LiteralPath $linkPath)) { New-Item -ItemType SymbolicLink -Path $linkPath -Target (Join-Path $currentPath $link) | Out-Null }
+			if (-not (Get-Item -LiteralPath $linkPath -Force -ErrorAction SilentlyContinue)) { New-Item -ItemType SymbolicLink -Path $linkPath -Target (Join-Path $currentPath $link) | Out-Null }
 		}
 		if (Test-Path -LiteralPath $existingServiceInstaller) { & $existingServiceInstaller -InstallRoot $InstallRoot }
 	}
 	if ($legacyTask -and (Test-Path -LiteralPath $legacyTaskBackup)) { schtasks.exe /Create /TN $legacyTaskName /XML $legacyTaskBackup /F | Out-Null }
 	if ($createCaddyTask) { Unregister-ScheduledTask -TaskName $CaddyTaskName -Confirm:$false -ErrorAction SilentlyContinue }
 	if ($caddyFileCreated) { Remove-Item -LiteralPath $persistentCaddyfile -Force -ErrorAction SilentlyContinue }
-	throw
+	throw $activationError
 }
 $activeReleases = Get-ChildItem -LiteralPath $releaseRoot -Directory | Where-Object Name -notlike 'legacy-*' | Sort-Object { [version]$_.Name }
 while ($activeReleases.Count -gt 3) {

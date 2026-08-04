@@ -22,6 +22,13 @@ if ($Uninstall) {
 		}
 
 		sc.exe delete $ServiceName | Out-Null
+		$deadline = (Get-Date).AddSeconds(30)
+		do {
+			$remainingService = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
+			if (-not $remainingService) { break }
+			Start-Sleep -Milliseconds 500
+		} while ((Get-Date) -lt $deadline)
+		if ($remainingService) { throw "The service '$ServiceName' did not finish uninstalling." }
 		Write-Host "Removed service '$ServiceName'."
 	}
 	else {

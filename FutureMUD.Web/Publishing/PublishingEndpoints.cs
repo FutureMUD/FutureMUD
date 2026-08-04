@@ -72,6 +72,42 @@ public static partial class PublishingEndpoints
 
 	public static IEndpointRouteBuilder MapDownloadEndpoints(this IEndpointRouteBuilder endpoints)
 	{
+		endpoints.MapGet("/downloads/{product}/latest/update-manifest.json", async Task<IResult> (
+			HttpContext context,
+			string product,
+			ReleaseStore store,
+			CancellationToken token) =>
+		{
+			var release = await store.GetLiveReleaseAsync(product, token);
+			var path = release is { HasUpdateManifest: true }
+				? Path.Combine(Path.GetDirectoryName(store.GetLiveArtifactPath(product, "release.json"))!, "update-manifest.json")
+				: string.Empty;
+			if (string.IsNullOrEmpty(path) || !File.Exists(path))
+			{
+				return Results.NotFound();
+			}
+			context.Response.Headers.CacheControl = "no-cache,no-store";
+			return Results.File(path, "application/json");
+		});
+
+		endpoints.MapGet("/downloads/{product}/latest/update-manifest.sig", async Task<IResult> (
+			HttpContext context,
+			string product,
+			ReleaseStore store,
+			CancellationToken token) =>
+		{
+			var release = await store.GetLiveReleaseAsync(product, token);
+			var path = release is { HasUpdateManifest: true }
+				? Path.Combine(Path.GetDirectoryName(store.GetLiveArtifactPath(product, "release.json"))!, "update-manifest.sig")
+				: string.Empty;
+			if (string.IsNullOrEmpty(path) || !File.Exists(path))
+			{
+				return Results.NotFound();
+			}
+			context.Response.Headers.CacheControl = "no-cache,no-store";
+			return Results.File(path, "application/octet-stream");
+		});
+
 		endpoints.MapGet("/downloads/{product}/{version}/{fileName}", async Task<IResult> (
 			HttpContext context,
 			string product,

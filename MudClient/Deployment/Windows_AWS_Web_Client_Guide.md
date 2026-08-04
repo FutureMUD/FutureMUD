@@ -1,6 +1,6 @@
 # Windows and AWS Web Client Setup Guide
 
-This is a deliberately plain-English guide for installing FutureMUD Web MUD Client 1.1.0 on a Windows server hosted in AWS. It adds a small HTTPS website alongside an existing FutureMUD game, without changing the game itself or any other applications on the server.
+This is a deliberately plain-English guide for installing FutureMUD Web MUD Client 1.2.0 on a Windows server hosted in AWS. It adds a small HTTPS website alongside an existing FutureMUD game, without changing the game itself or any other applications on the server.
 
 The names and addresses below are examples. Before using a command, replace `play.example.com` with your own player-facing hostname. Do not put a live server's IP address, AWS instance ID, administrator account name, or credentials in a public guide or repository.
 
@@ -59,12 +59,12 @@ On the Windows server, open **Windows Defender Firewall with Advanced Security**
 
 Name them clearly, for example `Web MUD Client HTTP` and `Web MUD Client HTTPS`. Do not add a firewall rule for `5000` or the MUD's Telnet port.
 
-## Step 2: Download and unpack the client
+## Step 2: Install once, then use the updater
 
 Open an **Administrator PowerShell** window on the Windows server and run the following. It creates a new, dedicated folder and does not overwrite the game installation.
 
 ```powershell
-$version = '1.1.0'
+$version = '1.2.0'
 $archive = "$env:USERPROFILE\Downloads\mudclient-$version-win-x64.zip"
 $staging = "C:\MudClient-$version"
 
@@ -72,9 +72,11 @@ Invoke-WebRequest "https://futuremud.com/downloads/mudclient/$version/mudclient-
 Get-FileHash $archive -Algorithm SHA256
 New-Item -ItemType Directory -Path $staging -Force
 Expand-Archive -LiteralPath $archive -DestinationPath $staging -Force
-New-Item -ItemType Directory -Path C:\MudClient -Force
-Copy-Item "$staging\mudclient-$version-win-x64\*" C:\MudClient -Recurse -Force
+& "$staging\mudclient-$version-win-x64\deploy\windows\Install-MudClient.ps1" `
+  -ArchivePath $archive -InstallRoot C:\MudClient
 ```
+
+If Caddy is already installed at `C:\Caddy\caddy.exe` and this is a dedicated client site, add `-CaddyExecutable C:\Caddy\caddy.exe -CaddyDomain play.example.com` to have the installer validate the dedicated Caddyfile and create its task. It never installs Caddy or replaces an existing Caddy task or Caddyfile.
 
 Compare the hash printed by `Get-FileHash` with the `SHA-256` link beside the Windows download on [futuremud.com/downloads](https://futuremud.com/downloads). They must match exactly.
 
@@ -82,14 +84,24 @@ After this step, the following files must exist:
 
 ```text
 C:\MudClient\proxy\MudWebSocketProxy.exe
-C:\MudClient\proxy\appsettings.json
+C:\ProgramData\FutureMUD\MudClient\proxy\appsettings.json
 C:\MudClient\web\wwwroot\index.html
 C:\MudClient\deploy\windows\Caddyfile
 ```
 
+For an existing 1.0.1 or 1.1.0 installation, use the same command with `-Migrate`. It preserves the old release and existing Caddyfile, moves proxy/browser settings to `%ProgramData%\FutureMUD\MudClient`, and replaces only the old proxy task with a Windows Service.
+
+After that one-time migration, an Administrator updates the client with one command:
+
+```powershell
+& 'C:\MudClient\current\deploy\windows\Update-MudClient.ps1'
+```
+
+Use `-Check` to inspect the signed latest release or `-Rollback` to return to the previous local release. An update briefly disconnects web-client players while the private proxy restarts, but does not restart the MUD, database, Caddy task, DNS, TLS, AWS security group, or firewall.
+
 ## Step 3: Tell the proxy where the MUD is
 
-Open `C:\MudClient\proxy\appsettings.json` in Notepad and replace its contents with this JSON. Change the `Port` if your MUD uses a port other than `4000`, and replace `play.example.com` with the exact public HTTPS hostname that players will use.
+Open `C:\ProgramData\FutureMUD\MudClient\proxy\appsettings.json` in Notepad and replace its contents with this JSON. Change the `Port` if your MUD uses a port other than `4000`, and replace `play.example.com` with the exact public HTTPS hostname that players will use.
 
 ```json
 {
@@ -127,23 +139,19 @@ Do not use your public hostname as the `MudServer` address. That would send the 
 
 The allowed origin must match the player URL exactly: it has no trailing slash, no extra `www`, and uses `https` in production.
 
-## Step 4: Make the private proxy start automatically
+## Step 4: Verify the private proxy Windows Service
 
-Use Windows **Task Scheduler**. This avoids leaving a console window open and starts the proxy even when nobody is logged on.
+The installer has already created and started the native `MudClientProxy` Windows Service. Do not create the old `FutureMUD Mud WebSocket Proxy` scheduled task; a 1.0.1/1.1.0 migration disables it after exporting a backup.
 
-1. In Task Scheduler, select **Create Task** (not "Create Basic Task").
-2. On **General**, name it `FutureMUD Mud WebSocket Proxy`, choose **Run whether user is logged on or not**, and choose `SYSTEM` as the account.
-3. On **Triggers**, add **At startup**.
-4. On **Actions**, add **Start a program** with:
+After changing `appsettings.json`, restart and verify the service:
 
-   | Field | Value |
-   | --- | --- |
-   | Program/script | `C:\MudClient\proxy\MudWebSocketProxy.exe` |
-   | Add arguments | `--urls http://127.0.0.1:5000` |
-   | Start in | `C:\MudClient\proxy` |
+```powershell
+Restart-Service MudClientProxy
+Get-Service MudClientProxy
+Invoke-WebRequest http://127.0.0.1:5000/health
+```
 
-5. On **Settings**, allow the task to be run on demand and set it to restart on failure (for example, after one minute, up to three times).
-6. Save the task, right-click it, and choose **Run**. Its status should become **Running**.
+The service listens only at `127.0.0.1:5000`. It is not supposed to be reachable from another computer.
 
 The proxy listens only at `127.0.0.1:5000`. It is not supposed to be reachable from another computer.
 
@@ -212,17 +220,17 @@ From a different computer and browser:
 3. Confirm the MUD login banner appears and use a non-staff test account to log in.
 4. Disconnect and reconnect once.
 
-If the page loads but the client reports that it cannot connect, first check that the proxy task is **Running**. Then re-check that `AllowedOrigins` exactly matches the browser address.
+If the page loads but the client reports that it cannot connect, first check that the `MudClientProxy` service is **Running**. Then re-check that `AllowedOrigins` exactly matches the browser address.
 
 ## Rollback
 
-This takes down only the web client; it does not touch the MUD itself:
+To return to the retained prior client release without touching the MUD, run:
 
-1. In Task Scheduler, select `FutureMUD Mud WebSocket Proxy` and `FutureMUD Web Client HTTPS`.
-2. Choose **End**, then choose **Disable** for each task.
-3. Remove the AWS and Windows Firewall rules for TCP `80` and `443` only if they were added solely for this client.
+```powershell
+& 'C:\MudClient\current\deploy\windows\Update-MudClient.ps1' -Rollback
+```
 
-Leave all existing game and administration rules unchanged.
+To remove the client entirely, stop `MudClientProxy` and the dedicated Caddy task, then remove the AWS and Windows Firewall rules for TCP `80` and `443` only if they were added solely for this client. Leave all existing game and administration rules unchanged.
 
 ## Final record to keep privately
 
@@ -231,7 +239,7 @@ Keep the following values in your private administrator notes, not in a public r
 | Item | Value to record |
 | --- | --- |
 | Public client address | Your HTTPS player URL |
-| Proxy scheduled task | `FutureMUD Mud WebSocket Proxy` |
+| Proxy Windows Service | `MudClientProxy` |
 | Proxy listener | `127.0.0.1:5000` only |
 | MUD listener used by proxy | The configured private address and port |
 | Client files | `C:\MudClient` |

@@ -33,6 +33,7 @@ public sealed class CreateReleaseRequest
 	public string SourceCommit { get; init; } = string.Empty;
 	public IReadOnlyList<ReleaseArtifactRequest> Artifacts { get; init; } = [];
 	public ReleaseArtifactRequest? DocumentationCatalogue { get; init; }
+	public SignedUpdateManifestRequest? UpdateManifest { get; init; }
 }
 
 public sealed class ReleaseArtifactRequest
@@ -54,6 +55,7 @@ public sealed class StagedRelease
 	public string Status { get; set; } = "staged";
 	public IReadOnlyList<ReleaseArtifactRequest> Artifacts { get; init; } = [];
 	public ReleaseArtifactRequest? DocumentationCatalogue { get; init; }
+	public SignedUpdateManifestRequest? UpdateManifest { get; init; }
 	public Dictionary<string, List<int>> ReceivedChunks { get; init; } = new(StringComparer.Ordinal);
 }
 
@@ -63,5 +65,24 @@ public sealed class PublicRelease
 	public string Version { get; init; } = string.Empty;
 	public string SourceCommit { get; init; } = string.Empty;
 	public DateTimeOffset PublishedAtUtc { get; init; }
+	public IReadOnlyList<ReleaseArtifactRequest> Artifacts { get; init; } = [];
+	public bool HasUpdateManifest { get; init; }
+}
+
+public sealed class SignedUpdateManifestRequest
+{
+	public string KeyId { get; init; } = string.Empty;
+	public string ContentBase64 { get; init; } = string.Empty;
+	public string SignatureBase64 { get; init; } = string.Empty;
+}
+
+public sealed class MudClientUpdateManifest
+{
+	public const int CurrentSchemaVersion = 1;
+	public int SchemaVersion { get; init; }
+	public string Product { get; init; } = string.Empty;
+	public string Version { get; init; } = string.Empty;
+	public string SourceCommit { get; init; } = string.Empty;
+	public string KeyId { get; init; } = string.Empty;
 	public IReadOnlyList<ReleaseArtifactRequest> Artifacts { get; init; } = [];
 }

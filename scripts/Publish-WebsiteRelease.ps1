@@ -5,7 +5,10 @@ param(
 	[Parameter(Mandatory = $true)][string]$Version,
 	[Parameter(Mandatory = $true)][string]$SourceCommit,
 	[Parameter(Mandatory = $true)][string]$ArtifactDirectory,
-	[string]$DocumentationCatalogue
+	[string]$DocumentationCatalogue,
+	[string]$UpdateManifest,
+	[string]$UpdateManifestSignature,
+	[string]$UpdateManifestKeyId
 )
 
 $ErrorActionPreference = 'Stop'
@@ -56,6 +59,16 @@ if ($DocumentationCatalogue) {
 		fileName = $documentationFile.Name
 		size = $documentationFile.Length
 		sha256 = (Get-FileHash -LiteralPath $documentationFile.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+	}
+}
+if ($UpdateManifest -or $UpdateManifestSignature -or $UpdateManifestKeyId) {
+	if (-not $UpdateManifest -or -not $UpdateManifestSignature -or -not $UpdateManifestKeyId) {
+		throw 'Update manifest, signature, and key ID must be provided together.'
+	}
+	$request.updateManifest = @{
+		keyId = $UpdateManifestKeyId
+		contentBase64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes((Get-Item -LiteralPath $UpdateManifest).FullName))
+		signatureBase64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes((Get-Item -LiteralPath $UpdateManifestSignature).FullName))
 	}
 }
 

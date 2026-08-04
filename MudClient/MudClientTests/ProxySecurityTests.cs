@@ -89,4 +89,20 @@ public class ProxySecurityTests
 		Assert.False(WebSocketOriginPolicy.IsAllowed(null, true, ["https://play.example.com"]));
 		Assert.True(WebSocketOriginPolicy.IsAllowed(null, false, ["https://play.example.com"]));
 	}
+
+	[Fact]
+	public void ProxyConfigurationValidator_RejectsUnsafeProductionOriginConfiguration()
+	{
+		var configuration = new ConfigurationBuilder()
+			.AddInMemoryCollection(new Dictionary<string, string?>
+			{
+				["MudServer:Address"] = "127.0.0.1",
+				["MudServer:Port"] = "4000",
+				["WebSocketServer:RequireOrigin"] = "false",
+				["WebSocketServer:AllowedOrigins:0"] = "https://play.example.com"
+			})
+			.Build();
+
+		Assert.Throws<InvalidOperationException>(() => ProxyConfigurationValidator.Validate(configuration));
+	}
 }

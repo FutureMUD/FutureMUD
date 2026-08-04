@@ -36,10 +36,11 @@ package_name="mudclient-$runtime_identifier"
 package_root="$output_root/$package_name"
 web_publish="$output_root/_web"
 proxy_publish="$output_root/_proxy-$runtime_identifier"
+deployment_publish="$output_root/_deployment-$runtime_identifier"
 zip_path="$output_root/$package_name.zip"
 tar_path="$output_root/$package_name.tar.gz"
 
-rm -rf "$package_root" "$web_publish" "$proxy_publish"
+rm -rf "$package_root" "$web_publish" "$proxy_publish" "$deployment_publish"
 mkdir -p "$output_root"
 
 dotnet restore MudClientSolution.sln
@@ -50,10 +51,13 @@ fi
 
 dotnet publish MudClientBlazor/MudClientBlazor.csproj -c "$configuration" --no-restore -o "$web_publish"
 dotnet publish MudWebSocketProxy/MudWebSocketProxy.csproj -c "$configuration" -r "$runtime_identifier" --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=embedded -o "$proxy_publish"
+dotnet restore MudClientDeployment/MudClientDeployment.csproj -r "$runtime_identifier"
+dotnet publish MudClientDeployment/MudClientDeployment.csproj -c "$configuration" -r "$runtime_identifier" --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=embedded -o "$deployment_publish"
 
-mkdir -p "$package_root/web" "$package_root/proxy"
+mkdir -p "$package_root/web" "$package_root/proxy" "$package_root/tools"
 cp -R "$web_publish"/. "$package_root/web/"
 cp -R "$proxy_publish"/. "$package_root/proxy/"
+cp -R "$deployment_publish"/. "$package_root/tools/"
 cp -R deploy "$package_root/deploy"
 cp DEPLOYMENT.md "$package_root/DEPLOYMENT.md"
 printf "Start with DEPLOYMENT.md. The Blazor static site is in web/wwwroot and the websocket proxy is in proxy/.\n" > "$package_root/README.txt"

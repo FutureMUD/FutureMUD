@@ -514,6 +514,10 @@ public partial class ItemSeeder
 			text,
 			parameterList.Select(x => new ProgParameterManifestDefinition((long)x.Type, x.Name)).ToArray());
 		var manifestEntry = RegisterManifestAggregate("prog", name, manifestDefinition);
+		if (_manifestCaptureOnly && _progs.TryGetValue(name, out var capturedProg))
+		{
+			return capturedProg;
+		}
 
 		ProgManifestDefinition LiveDefinition(FutureProg prog)
 		{
@@ -746,7 +750,10 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 		AddProg("HasPottery", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Pottery", "Potter")));
 		AddProg("HasBasicPharmacology", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], HasTraitText(ResolveTrait("Pharmacology", "Medicine")));
 
-        _context.SaveChanges();
+		if (!_manifestCaptureOnly)
+		{
+			_context.SaveChanges();
+		}
     }
 
     private Regex ConversionRegex = new(@"^(?<type>\w+?) - (?<details>.+)$", RegexOptions.IgnoreCase);
@@ -2116,7 +2123,11 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 		}
 
 		var manifestDefinition = BuildCraftManifestDefinition(spec);
-		var manifestEntry = RegisterManifestAggregate("craft", stableKey, manifestDefinition);
+		var manifestEntry = RegisterManifestAggregate(
+			"craft",
+			stableKey,
+			manifestDefinition,
+			GetCraftProductManifestDependencies(spec));
 		var managedRecord = FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey);
 		var existing = FindExistingCraft(spec.Name, spec.Category);
 		if (_manifestCaptureOnly)
@@ -2220,7 +2231,27 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 		var appliedFingerprint = ItemSeederManifestCatalogue.Fingerprint(BuildLiveCraftManifestDefinition(dbitem));
 		RecordAppliedManifestEntry(manifestEntry, dbitem.Id, dbitem.RevisionNumber, appliedFingerprint);
 		IncrementManifestResult(manifestEntry.Module, x => x with { Inserted = x.Inserted + 1 });
-        return dbitem;
+		return dbitem;
+	}
+
+	private IEnumerable<string> GetCraftProductManifestDependencies(CraftDefinitionSpec spec)
+	{
+		var stableReferencesById = _items
+			.Where(x => !string.IsNullOrWhiteSpace(x.Value.UniqueName) && x.Value.Id > 0)
+			.GroupBy(x => x.Value.Id)
+			.ToDictionary(x => x.Key, x => x.First().Value.UniqueName);
+
+		foreach (var product in spec.Products)
+		{
+			var match = Regex.Match(product.Details, @"\(#(?<id>\d+)\)");
+			if (!match.Success || !long.TryParse(match.Groups["id"].Value, out var itemId) ||
+			    !stableReferencesById.TryGetValue(itemId, out var stableReference))
+			{
+				continue;
+			}
+
+			yield return $"item:{stableReference}";
+		}
 	}
 
 	private bool IsRepairableMissingCraftStock(Craft craft, CraftDefinitionSpec spec)
@@ -2703,7 +2734,8 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
 	private void SaveFutureProgsIfRequired(params FutureProg[] progs)
 	{
-		if (progs.Any(prog => _context!.Entry(prog).State is EntityState.Added or EntityState.Modified))
+		if (!_manifestCaptureOnly &&
+		    progs.Any(prog => _context!.Entry(prog).State is EntityState.Added or EntityState.Modified))
 		{
 			_context!.SaveChanges();
 		}
@@ -2801,7 +2833,10 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 		if (isNew)
 		{
 			CompleteManifestAggregate(manifestEntry, null, manifestDefinition, ManifestAggregateDisposition.Insert);
-			_context.SaveChanges();
+			if (!_manifestCaptureOnly)
+			{
+				_context.SaveChanges();
+			}
 		}
 		else
 		{
@@ -3025,6 +3060,14 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 				{
 					using var manifestModule = UseManifestModule("crafts", "renaissance", "earlymodern");
 					SeedRenaissanceEarlyModernJewelleryDoorCrafts();
+				});
+			}
+			if (HasAnyEra(eras, "renaissance"))
+			{
+				RunSeedStage("Creating Renaissance finished-item crafts", () =>
+				{
+					using var manifestModule = UseManifestModule("crafts", "renaissance");
+					SeedRenaissanceFinishedItemCrafts();
 				});
 			}
 		}

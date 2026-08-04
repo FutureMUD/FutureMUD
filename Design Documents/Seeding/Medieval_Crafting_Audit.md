@@ -23,6 +23,7 @@ The medieval `ItemSeeder` item and craft implementation was reset for a from-scr
 - `SeedMedievalFoodProductionFoundationItems` seeds six food-production tools or apparatus and eleven prepared foods.
 - `SeedMedievalFoodBeverageCrafts` now seeds the phase-ordered 48-craft Medieval food, beverage, and preservation foundation when the `medieval` era is selected.
 - The eight remaining Medieval craft launch points now generate idempotent material-based crafts for their direct item-family outputs. Each uses an exact target prototype product, the prototype's configured material as its terminal commodity input, a live tagged workshop tool, and a family-specific knowledge and skill gate. The residual-stock launcher also catches every remaining `medieval_*` prototype so a documented direct item cannot be left without a craft path while dedicated recipes are subsequently refined.
+- The executable ItemSeeder manifest now records direct item products on craft entries. The shared coverage test measures every `medieval_*` and `renaissance_*` item against those product dependencies and enforces more than 98% coverage across the two active catalogue eras.
 - The old authored outfit catalogue, explicit culture catalogue, generated helper/data model, and medieval craft helper families have been removed.
 
 ## Shared Baseline Admission
@@ -167,7 +168,7 @@ The live medieval treatment, drug-delivery, mobility, prosthetic, and specialist
 
 ## Shared Historic Foundations
 
-The shared `historic_*` workshop foundation content remains active for antiquity or medieval installs. It is not part of the medieval reset payload.
+The shared `historic_*` workshop foundation content remains active for every implemented pre-industrial era, including Medieval and Renaissance installs. It is not part of the medieval reset payload.
 
 - Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.HistoricFoundation.cs`.
 - Crafts live in `DatabaseSeeder/Seeders/ItemSeeder.Crafting.HistoricFoundation.cs`.

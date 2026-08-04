@@ -17,8 +17,7 @@ public partial class ItemSeeder
 	private bool ShouldSeedHistoricCrafts()
 	{
 		return _questionAnswers?.TryGetValue("eras", out var eras) == true &&
-		       (eras.Contains("antiquity", StringComparison.InvariantCultureIgnoreCase) ||
-		        eras.Contains("medieval", StringComparison.InvariantCultureIgnoreCase));
+		       HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern");
 	}
 
 	private Craft? AddHistoricCraft(

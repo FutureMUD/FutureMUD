@@ -18,6 +18,8 @@ The Renaissance-specific seeder should emphasize:
 - Expanding maritime trade, first-contact goods, and early colonial/contact-zone material culture, without treating shared packaging as universally prevalent.
 - Strong coverage of Ottoman, Safavid, Mughal/Timurid/Deccan, Ming, Joseon, Japanese, South-east Asian, African, and American contemporaries rather than treating the period as Europe-only.
 
+The jewellery/devotional and doors/locks/gates slice is now live. It adds 60/90 four-era `preindustrial_*` prototypes, 220/240 Renaissance-owned forms explicitly admitted by Early Modern, and 720/670 Renaissance culture-admitted forms. This gives the Renaissance exactly 1,000 new available prototypes in each report family without cloning the common layer. The canonical row contracts are [Renaissance Jewellery and Devotional Goods](./FutureMUD_Renaissance_Jewellery_Devotional_Seeder_Design_Reference.md), [Renaissance Doors, Locks, and Gates](./FutureMUD_Renaissance_Doors_Locks_Gates_Seeder_Design_Reference.md), and the [cross-era admission ledger](./FutureMUD_Renaissance_EarlyModern_Jewellery_Doors_Admission_Ledger.md).
+
 ## Scope and era model
 
 - Era token: `Renaissance`.
@@ -430,6 +432,8 @@ The shared baseline reference and alias catalogue already exist and should be tr
 7. `FutureMUD_Renaissance_Agriculture_Food_Drink_Commodities_Design_Reference.md`
 8. `FutureMUD_Renaissance_PrimaryIndustry_UsefulSeeder_Impact_Reference.md`
 9. `FutureMUD_Renaissance_Culture_Manifest_Reference.md`
+10. `FutureMUD_Renaissance_Jewellery_Devotional_Seeder_Design_Reference.md` (implemented)
+11. `FutureMUD_Renaissance_Doors_Locks_Gates_Seeder_Design_Reference.md` (implemented)
 
 The admission manifest is complete and maps all 385 live shared rows to cultures/contact scopes, date anchors, institutions, professions, shops, crafts, prevalence, trade status, and component reality. It does not clone item prototypes.
 
@@ -473,6 +477,7 @@ Before implementation, each Renaissance-specific row or manifest should confirm:
 - Materials, tags, and components exactly match maintained seeded data.
 - Portable items include `Holdable`; fixtures omit it.
 - Component-dependent claims are backed by actual components.
+- The implemented jewellery/door slice retains its generated 1,000-per-family availability contract, literal `CreateItem(...)` rows, and direct workshop-craft coverage.
 - Culture-specific prototypes are justified by form, material, component, institution, or production technology.
 - Skins, not prototypes, handle most local names, colours, motifs, heraldry, inscriptions, and status variation.
 - Shared baseline verification tests continue to pass, including idempotency, stable-reference uniqueness, valid dependencies, portability rules, lifecycle rewrites, no firearm/explosive components in support rows, and clean medieval-writing strings.

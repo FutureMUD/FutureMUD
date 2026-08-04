@@ -24,6 +24,8 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 			["FutureMUD_Renaissance_Art_Craft_Science_Navigation_Design_Reference.md"] = "SeedRenaissanceArtCraftScienceAndNavigation",
 			["FutureMUD_Renaissance_Agriculture_Food_Drink_Commodities_Design_Reference.md"] = "SeedRenaissanceAgricultureFoodDrinkAndCommodities",
 			["FutureMUD_Renaissance_PrimaryIndustry_UsefulSeeder_Impact_Reference.md"] = "SeedRenaissancePrimaryIndustryAndUsefulSeederImpacts",
+			["FutureMUD_Renaissance_Jewellery_Devotional_Seeder_Design_Reference.md"] = "SeedRenaissanceJewelleryAndDevotionalGoods",
+			["FutureMUD_Renaissance_Doors_Locks_Gates_Seeder_Design_Reference.md"] = "SeedRenaissanceDoorsLocksAndGates",
 			["FutureMUD_Renaissance_Culture_Manifest_Reference.md"] = "SeedRenaissanceCultureManifest"
 		};
 
@@ -38,6 +40,8 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 			["FutureMUD_EarlyModern_Science_Navigation_Optics_Measurement_Design_Reference.md"] = "SeedEarlyModernScienceNavigationOpticsAndMeasurement",
 			["FutureMUD_EarlyModern_Agriculture_Food_Drink_Commodities_Design_Reference.md"] = "SeedEarlyModernAgricultureFoodDrinkAndCommodities",
 			["FutureMUD_EarlyModern_PrimaryIndustry_UsefulSeeder_Impact_Reference.md"] = "SeedEarlyModernPrimaryIndustryAndUsefulSeederImpacts",
+			["FutureMUD_EarlyModern_Jewellery_Devotional_Seeder_Design_Reference.md"] = "SeedEarlyModernJewelleryAndDevotionalGoods",
+			["FutureMUD_EarlyModern_Doors_Locks_Gates_Seeder_Design_Reference.md"] = "SeedEarlyModernDoorsLocksAndGates",
 			["FutureMUD_EarlyModern_Culture_Manifest_Reference.md"] = "SeedEarlyModernCultureManifest"
 		};
 

@@ -2628,6 +2628,8 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 				SeedMedievalRepairKitCrafts();
 				SeedMedievalComponentGapCrafts();
 			});
+			RunSeedStage("Creating Renaissance and Early Modern jewellery and door crafts",
+				SeedRenaissanceEarlyModernJewelleryDoorCrafts);
 		}
 		finally
 		{

@@ -178,6 +178,12 @@ The items and crafts are fairly universal and of approximately medieval to renei
 		{
 			RunSeedStage("Validating Renaissance military prerequisites", ValidateRenaissanceMilitaryPrerequisites);
 		}
+		if (_questionAnswers.TryGetValue("eras", out requestedEras) &&
+			HasAnyEra(requestedEras, "renaissance", "earlymodern"))
+		{
+			RunSeedStage("Validating Renaissance and Early Modern jewellery and door prerequisites",
+				ValidateRenaissanceEarlyModernJewelleryDoorsPrerequisites);
+		}
 
         SeedReworkItems();
 		if (_questionAnswers.TryGetValue("eras", out var selectedEras) &&
@@ -208,7 +214,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
 	{
 		_progressStopwatch = Stopwatch.StartNew();
 		_progressStage = 0;
-		_progressStageCount = 7; // Prerequisites, craft progs, the item flush, three craft batches, and the final save.
+		_progressStageCount = 8; // Prerequisites, craft progs, the item flush, four craft batches, and the final save.
 
 		if (!questionAnswers.TryGetValue("eras", out var eras))
 		{
@@ -221,6 +227,11 @@ The items and crafts are fairly universal and of approximately medieval to renei
 		}
 
 		if (HasAnyEra(eras, "renaissance"))
+		{
+			_progressStageCount++;
+		}
+
+		if (HasAnyEra(eras, "renaissance", "earlymodern"))
 		{
 			_progressStageCount++;
 		}

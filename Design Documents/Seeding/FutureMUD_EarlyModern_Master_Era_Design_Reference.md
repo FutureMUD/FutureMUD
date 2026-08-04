@@ -18,6 +18,8 @@ The Early Modern-specific seeder should emphasize:
 - Intensified Atlantic, Indian Ocean, Pacific, and Eurasian trade, colonial/contact-zone objects, plantation commodities, and export systems, while keeping sensitive historical contexts intentional.
 - Ottoman, Safavid/post-Safavid, Mughal, Qing, Edo, Joseon, South-east Asian, African, Indigenous American, and colonial American material cultures as active contemporaries.
 
+The jewellery/devotional and doors/locks/gates slice is now live. Early Modern receives 60/90 four-era `preindustrial_*` prototypes, the 220/240 Renaissance-owned common forms by explicit admission, and 720/670 Early Modern culture-admitted forms. This gives Early Modern exactly 1,000 new available prototypes in each report family without invoking the whole Renaissance branch. The canonical row contracts are [Early Modern Jewellery and Devotional Goods](./FutureMUD_EarlyModern_Jewellery_Devotional_Seeder_Design_Reference.md), [Early Modern Doors, Locks, and Gates](./FutureMUD_EarlyModern_Doors_Locks_Gates_Seeder_Design_Reference.md), and the [cross-era admission ledger](./FutureMUD_Renaissance_EarlyModern_Jewellery_Doors_Admission_Ledger.md).
+
 ## Scope and era model
 
 - Era token: `EarlyModern`.
@@ -423,6 +425,8 @@ The shared baseline reference and alias catalogue already exist and should be tr
 7. `FutureMUD_EarlyModern_Agriculture_Food_Drink_Commodities_Design_Reference.md`
 8. `FutureMUD_EarlyModern_PrimaryIndustry_UsefulSeeder_Impact_Reference.md`
 9. `FutureMUD_EarlyModern_Culture_Manifest_Reference.md`
+10. `FutureMUD_EarlyModern_Jewellery_Devotional_Seeder_Design_Reference.md` (implemented)
+11. `FutureMUD_EarlyModern_Doors_Locks_Gates_Seeder_Design_Reference.md` (implemented)
 
 The admission manifest is complete and maps all 385 live shared rows to cultures/contact scopes, date anchors, institutions, professions, shops, military systems, crafts, prevalence, trade status, and component reality. It does not clone item prototypes.
 
@@ -467,6 +471,7 @@ Before implementation, each Early Modern-specific row or manifest should confirm
 - Materials, tags, and components exactly match maintained seeded data.
 - Portable items include `Holdable`; fixtures omit it.
 - Component-dependent claims are backed by actual components.
+- The implemented jewellery/door slice retains its generated 1,000-per-family availability contract, literal `CreateItem(...)` rows, and direct workshop-craft coverage.
 - Culture-specific prototypes are justified by form, material, component, institution, production technology, or historically significant contact-zone role.
 - Skins, not prototypes, handle most local names, colours, motifs, heraldry, inscriptions, company marks, regimental marks, and status variation.
 - Sensitive contact-zone, plantation, enslavement, mission, and colonial objects are intentionally included rather than casually implied.

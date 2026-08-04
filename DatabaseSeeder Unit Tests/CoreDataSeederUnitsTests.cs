@@ -74,4 +74,19 @@ public class CoreDataSeederUnitsTests
 		Assert.IsTrue(context.UnitsOfMeasure.Any(x => x.System == "Imperial" && x.DefaultUnitForSystem && x.Name == "fahrenheit"));
 		Assert.IsTrue(context.UnitsOfMeasure.Any(x => x.System == "Metric" && x.DefaultUnitForSystem && x.Name == "kg/m2"));
 	}
+
+	[TestMethod]
+	public void SeedUnitsOfMeasure_RerunReusesFixedIdentifiersAndRefreshesStockFields()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedUnitsOfMeasure(context);
+		int count = context.UnitsOfMeasure.Count();
+		context.UnitsOfMeasure.Find(1L)!.PrimaryAbbreviation = "broken";
+		context.SaveChanges();
+
+		SeedUnitsOfMeasure(context);
+
+		Assert.AreEqual(count, context.UnitsOfMeasure.Count());
+		Assert.AreEqual("g", context.UnitsOfMeasure.Find(1L)!.PrimaryAbbreviation);
+	}
 }

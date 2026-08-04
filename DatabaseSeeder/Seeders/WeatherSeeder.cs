@@ -72,6 +72,7 @@ Please answer #3full#F, #3soak#F or #3none#f. ",
     };
 
     /// <inheritdoc />
+    public bool SafeToRunMoreThanOnce => true;
     public int SortOrder => 300;
 
     /// <inheritdoc />

@@ -49,7 +49,7 @@ Which combat balance profile should the stock combat seeders use for this world?
 #Bcombat-rebalance#F - use the new style combat rebalance profile (more lethal but less grindy)
 
 Your choice: ",
-                (context, answers) => true,
+                (context, answers) => !HasHumanFoundation(context),
                 (text, context) =>
                 {
                     return (text.EqualToAny("stock", "combat-rebalance", "combat rebalance", "combatrebalance",
@@ -68,7 +68,7 @@ The valid choices are as follows:
 #Bfull#F	- this system uses the full medical model, where the only way to die is via death of the brain.
 
 Your choice: ",
-                (context, answers) => true,
+                (context, answers) => !HasHumanFoundation(context),
                 (text, context) =>
                 {
                     switch (text.ToLowerInvariant())
@@ -86,7 +86,7 @@ Your choice: ",
 
 Do you want to use a hands system for inventory (like RPI Engine) or a 'general inventory' unrelated to hands, like most traditional MUDs?
 
-Please answer #Bhands#F or #Binventory#F: ", (context, answers) => true,
+Please answer #Bhands#F or #Binventory#F: ", (context, answers) => !HasHumanFoundation(context),
                 (text, context) =>
                 {
                     switch (text.ToLowerInvariant())
@@ -102,7 +102,7 @@ Please answer #Bhands#F or #Binventory#F: ", (context, answers) => true,
             ),
             ("sever",
                 "Do you want the bodyparts to be built as severable? If you choose no, then bodypart severing will effectively be disabled for humans.\n\nPlease answer #3yes#F or #3no#F: ",
-                (context, answers) => !answers["model"].EqualTo("hp"),
+                (context, answers) => !HasHumanFoundation(context) && !answers["model"].EqualTo("hp"),
                 (text, context) =>
                 {
                     switch (text.ToLowerInvariant())
@@ -123,7 +123,7 @@ Please answer #Bhands#F or #Binventory#F: ", (context, answers) => true,
 #Bimplied#0 - don't create separate bone bodyparts, but change the base bodytypes to be ""bony"" and able to be broken
 #Bnone#F - don't include bones, disable bone breaking mechanics
 
-Please choose your answer: ", (context, answers) => true,
+Please choose your answer: ", (context, answers) => !HasHumanFoundation(context),
                 (text, context) =>
                 {
                     switch (text.ToLowerInvariant())
@@ -143,7 +143,7 @@ This characteristic allows you to capture miscellaneous descriptors not otherwis
 
 The seeder comes with a number of these, such as 'bullnecked' or 'freckles', and you can feel free to add or remove these afterwards.
 
-Please answer #3yes#F or #3no#F: ", (context, answers) => true,
+Please answer #3yes#F or #3no#F: ", (context, answers) => !HasHumanFoundation(context),
                 (text, context) =>
                 {
                     switch (text.ToLowerInvariant())
@@ -165,7 +165,7 @@ The non-binary gender can choose options from either gender for characteristics 
 
 If you choose no, the only gender options will be male and female.
 
-Please answer #3yes#F or #3no#F: ", (context, answers) => true,
+Please answer #3yes#F or #3no#F: ", (context, answers) => !HasHumanFoundation(context),
                 (text, context) =>
                 {
                     switch (text.ToLowerInvariant())
@@ -189,7 +189,7 @@ The full list is as follows: #6beefcake#0, #6punk#0, #6wretch#0, #6unit#0, #6fru
 
 Would you like to include these extra person words?
 
-Please answer #3yes#F or #3no#F: ", (context, answers) => true,
+Please answer #3yes#F or #3no#F: ", (context, answers) => !HasHumanFoundation(context),
                 (text, context) =>
                 {
                     switch (text.ToLowerInvariant())
@@ -209,6 +209,7 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
     {
         _context = context;
         _questionAnswers = CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
+		_questionAnswers = MergeRecordedHumanAnswers(context, _questionAnswers);
         _combatBalanceProfile = CombatBalanceProfileHelper.GetSelectedProfile(context, _questionAnswers);
         _context.Database.BeginTransaction();
         bool hasMissingDisfigurementTemplates = HasMissingHumanDisfigurementTemplates(_context);
@@ -971,11 +972,35 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 	}
 
     public int SortOrder => 50;
+    public bool SafeToRunMoreThanOnce => true;
     public string Name => "Human Seeder";
     public string Tagline => "Adds a human race and associated data to the game";
 
     public string FullDescription =>
         @"This package installs a human race along with all necessary associated data such as wearables. This human race package should most likely be used by a majority of MUDs that have humans in them at all.";
+
+	private static bool HasHumanFoundation(FuturemudDatabaseContext context) =>
+		context.Races.Any(x => x.Name == "Humanoid");
+
+	private IReadOnlyDictionary<string, string> MergeRecordedHumanAnswers(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> currentAnswers)
+	{
+		var answers = new Dictionary<string, string>(currentAnswers, StringComparer.OrdinalIgnoreCase);
+		foreach (var answer in SeederAnswerMemory.GetLatestSeederAnswers(context, Name))
+		{
+			answers.TryAdd(answer.Key, answer.Value);
+		}
+
+		answers.TryAdd("balance", "stock");
+		answers.TryAdd("model", "full");
+		answers.TryAdd("inventory", "hands");
+		answers.TryAdd("sever", "yes");
+		answers.TryAdd("bones", "full");
+		answers.TryAdd("distinctive", "yes");
+		answers.TryAdd("nonbinary", "yes");
+		answers.TryAdd("includeextraperson", "yes");
+		return answers;
+	}
 
     private NameCulture SetupNameCultures()
     {

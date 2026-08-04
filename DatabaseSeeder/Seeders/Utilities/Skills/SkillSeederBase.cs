@@ -10,6 +10,8 @@ namespace DatabaseSeeder.Seeders;
 
 public abstract class SkillSeederBase : IDatabaseSeeder
 {
+	public virtual bool SafeToRunMoreThanOnce => true;
+
     private static readonly (Difficulty Difficulty, int Modifier)[] StandardSkillModifiers =
     [
         (Difficulty.Automatic, 100),

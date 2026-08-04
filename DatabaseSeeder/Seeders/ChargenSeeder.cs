@@ -976,6 +976,7 @@ return 10"
                     x.Name == DefaultStartingLocationRoleName) == 1));
     }
 
+    public bool SafeToRunMoreThanOnce => true;
     public int SortOrder => 100;
     public string Name => "Character Creation";
     public string Tagline => "Sets up Character Creation and Guest Logins";

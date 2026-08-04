@@ -1028,7 +1028,16 @@ public partial class CoreDataSeeder
         {
 	        var stockAtmosphere = new StockTerrainAtmosphere(atmosphere, atmosphereType);
 	        stockTerrainAtmospheres[name] = stockAtmosphere;
-	        if (terrainsAlreadyInstalled)
+	        var matchingTerrains = context.Terrains
+		        .Where(x => x.Name == name)
+		        .Take(2)
+		        .ToList();
+	        if (matchingTerrains.Count > 1)
+	        {
+		        throw new InvalidOperationException($"Unable to reconcile stock terrain '{name}' because multiple terrains use that name.");
+	        }
+
+	        if (matchingTerrains.SingleOrDefault() is not null)
 	        {
 		        return;
 	        }

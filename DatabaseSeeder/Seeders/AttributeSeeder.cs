@@ -1,6 +1,7 @@
 ﻿using MudSharp.Body.Traits;
 using MudSharp.Database;
 using MudSharp.Framework;
+using MudSharp.FutureProg;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ public class AttributeSeeder : IDatabaseSeeder
 #BSimple#F - Physique, Speed, Intelligence, Spirit
 #BArm#F    - Strength, Agility, Wisdom, Endurance
 
-What is your selection? ", (context, answers) => true,
+What is your selection? ", (context, answers) => !HasAttributeFoundation(context),
                 (text, context) =>
                 {
                     switch (text.ToLowerInvariant())
@@ -55,7 +56,7 @@ What is your selection? ", (context, answers) => true,
 #BModern#F - Range-based descriptions with 0-100 stat scale.
 #BRaw#F    - Show the raw value for the attribute
 
-What is your selection? ", (context, answers) => true,
+What is your selection? ", (context, answers) => !HasAttributeFoundation(context),
                 (text, context) =>
                 {
                     switch (text.ToLowerInvariant())
@@ -74,6 +75,11 @@ What is your selection? ", (context, answers) => true,
 
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
     {
+        if (HasAttributeFoundation(context))
+        {
+            return ReconcileExistingAttributes(context);
+        }
+
         context.Database.BeginTransaction();
         SeedAttributes(context, questionAnswers);
         context.Database.CommitTransaction();
@@ -87,7 +93,7 @@ What is your selection? ", (context, answers) => true,
             return ShouldSeedResult.PrerequisitesNotMet;
         }
 
-        if (context.TraitDefinitions.Any(x => x.Type == 1))
+        if (HasAttributeFoundation(context))
         {
             return ShouldSeedResult.MayAlreadyBeInstalled;
         }
@@ -96,6 +102,7 @@ What is your selection? ", (context, answers) => true,
     }
 
     public int SortOrder => 10;
+    public bool SafeToRunMoreThanOnce => true;
     public string Name => "Attributes";
     public string Tagline => "Sets up attributes for your game";
 
@@ -103,6 +110,63 @@ What is your selection? ", (context, answers) => true,
         @"This package installs a default setup for attributes. This is a necessary pre-requisite for nearly everything that comes after. This package has several built-in options, but if none of them suit what you want to do you will need to manually place your attributes into the database before running any other package after this one.
 
 Keep in mind that you can always change the names or details of any of these attributes afterwards. At this point the most important decision you will make is about the ""shape"" of your attributes.";
+
+	private static bool HasAttributeFoundation(FuturemudDatabaseContext context) =>
+		context.TraitDefinitions.Any(x => x.Type == 1);
+
+	private static string ReconcileExistingAttributes(FuturemudDatabaseContext context)
+	{
+		using var transaction = context.Database.BeginTransaction();
+		var improver = SeederRepeatabilityHelper.EnsureNamedEntity(
+			context.Improvers,
+			"Non-Improving",
+			x => x.Name,
+			() =>
+			{
+				var created = new Improver();
+				context.Improvers.Add(created);
+				return created;
+			});
+		improver.Name = "Non-Improving";
+		improver.Definition = "<Definition/>";
+		improver.Type = "non-improving";
+
+		var staminaTrait = context.TraitDefinitions
+			.Where(x => x.Type == 1)
+			.AsEnumerable()
+			.FirstOrDefault(x => x.Name.In("Constitution", "Body", "Physique", "Endurance", "Stamina"));
+		if (staminaTrait is null)
+		{
+			throw new InvalidOperationException("Unable to reconcile Attributes because the installed attribute shape has no recognised stamina trait.");
+		}
+
+		var maxStamina = SeederRepeatabilityHelper.EnsureProg(
+			context,
+			"MaximumStamina",
+			"Character",
+			"Stamina",
+			ProgVariableTypes.Number,
+			"Determines the maximum stamina for all characters in game",
+			$"return 100+GetTrait(@ch, ToTrait({staminaTrait.Id}))*10",
+			true,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Character, "ch"));
+		var setting = SeederRepeatabilityHelper.EnsureNamedEntity(
+			context.StaticConfigurations,
+			"MaximumStaminaProg",
+			x => x.SettingName,
+			() =>
+			{
+				var created = new StaticConfiguration { SettingName = "MaximumStaminaProg" };
+				context.StaticConfigurations.Add(created);
+				return created;
+			});
+		setting.Definition = maxStamina.Id.ToString();
+		context.SaveChanges();
+		transaction.Commit();
+		return "Reconciled the installed attribute package without changing its structural shape.";
+	}
 
     private static void SeedAttributes(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> questionAnswers)

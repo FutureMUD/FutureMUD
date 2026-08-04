@@ -68,6 +68,7 @@ public class ArenaSeeder : IDatabaseSeeder
 				ValidateZone)
 		};
 
+	public bool SafeToRunMoreThanOnce => true;
 	public int SortOrder => 110;
 
 	public string Name => "Arena";

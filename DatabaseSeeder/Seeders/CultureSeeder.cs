@@ -149,6 +149,7 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOpt
 		return repeatability;
     }
 
+    public bool SafeToRunMoreThanOnce => true;
     public int SortOrder => 101;
     public string Name => "Culture Seeder";
     public string Tagline => "Add Name Cultures, Random Names and optionally culture packs";

@@ -246,7 +246,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
 	public IEnumerable<(string Id, string Question,
 		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
         Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions
-        => NonHumanSeederQuestions.GetQuestions();
+        => NonHumanSeederQuestions.GetQuestions(context => !context.BodyProtos.Any(x => x.Name == "Quadruped Base"));
 
     #region Core Methods
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
@@ -255,6 +255,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
         _context = context;
         _questionAnswers = CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
         _questionAnswers = CombatSeederMessageStyleHelper.MergeQuestionAnswersWithRecordedChoice(context, _questionAnswers);
+		_questionAnswers = MergeRecordedAnimalAnswers(context, _questionAnswers);
         _combatBalanceProfile = CombatBalanceProfileHelper.GetSelectedProfile(context, _questionAnswers);
         bool hasMissingDisfigurementTemplates = HasMissingAnimalDisfigurementTemplates(_context);
         if (_context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
@@ -1077,6 +1078,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
     }
     #endregion
     public int SortOrder => 300;
+    public bool SafeToRunMoreThanOnce => true;
     public string Name => "Animal Seeder";
     public string Tagline => "Installs body types for animals";
 
@@ -1086,6 +1088,21 @@ public partial class AnimalSeeder : IDatabaseSeeder
 Warning: There is an enormous amount of data contained in this seeder, and it may take a long time to run.";
 
     public bool Enabled => true;
+
+	private IReadOnlyDictionary<string, string> MergeRecordedAnimalAnswers(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> currentAnswers)
+	{
+		var answers = new Dictionary<string, string>(currentAnswers, StringComparer.OrdinalIgnoreCase);
+		foreach (var answer in SeederAnswerMemory.GetLatestSeederAnswers(context, Name))
+		{
+			answers.TryAdd(answer.Key, answer.Value);
+		}
+
+		answers.TryAdd("model", "hp");
+		answers.TryAdd("random", "static");
+		answers.TryAdd("messagestyle", "compact");
+		return answers;
+	}
 
 
 

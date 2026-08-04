@@ -11,8 +11,10 @@ internal static class NonHumanSeederQuestions
 {
     internal static IEnumerable<(string Id, string Question,
         Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
-        Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> GetQuestions()
+        Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> GetQuestions(
+            Func<FuturemudDatabaseContext, bool>? includeStructuralQuestions = null)
     {
+		includeStructuralQuestions ??= _ => true;
         return
         [
             ("model",
@@ -27,7 +29,7 @@ The valid choices are as follows:
 #Bfull#F	- this system uses the full medical model, where the only way to die is via death of the brain.
 
 Your choice: ",
-                (context, answers) => true,
+                (context, answers) => includeStructuralQuestions(context),
                 (text, context) => text.ToLowerInvariant() switch
                 {
                     "hp" or "hpplus" or "full" => (true, string.Empty),
@@ -48,7 +50,7 @@ There are three options that you can choose for randomness:
 #BRandom#F: In this option damage can be 20-100% of the maximum. This means outcomes will vary wildly.
 
 Which option do you want to use for random results in your non-human damage formulas? ",
-                (context, answers) => !CombatBalanceProfileHelper.UsesCombatRebalance(context, answers),
+                (context, answers) => includeStructuralQuestions(context) && !CombatBalanceProfileHelper.UsesCombatRebalance(context, answers),
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("static", "partial", "random"),
@@ -77,7 +79,7 @@ Combat messages can be presented in a number of different styles. Fundamentally,
 You can change your decision later, you're just going to have to go and edit your combat messages (mostly the defenses) to match the style you want. One advantage to doing Sentences or Sparse is that you can easily colour whole elements if you prefer (some people prefer not to of course).
 
 You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ",
-                (context, answers) => string.IsNullOrWhiteSpace(CombatSeederMessageStyleHelper.GetRecordedChoice(context)),
+                (context, answers) => includeStructuralQuestions(context) && string.IsNullOrWhiteSpace(CombatSeederMessageStyleHelper.GetRecordedChoice(context)),
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("compact", "sentences", "sparse"),

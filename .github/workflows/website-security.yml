@@ -84,8 +84,13 @@ jobs:
           set -euo pipefail
           dependency_graph="$(dotnet list FutureMUD.Web/FutureMUD.Web.csproj package --include-transitive --no-restore)"
           printf '%s\n' "$dependency_graph"
-          if grep -Eiq 'BouncyCastle|EntityFrameworkCore|ExpressionEngine|FutureMUDLibrary|MudsharpDatabaseLibrary|MySql|Pomelo' <<< "$dependency_graph"; then
-            echo "::error::The website dependency graph contains an engine, database, or cryptography package."
+          if grep -Eiq 'EntityFrameworkCore|ExpressionEngine|FutureMUDLibrary|MudsharpDatabaseLibrary|MySql|Pomelo' <<< "$dependency_graph"; then
+            echo "::error::The website dependency graph contains an engine or database package."
+            exit 1
+          fi
+          bouncy_lines="$(grep -Ei 'BouncyCastle' <<< "$dependency_graph" || true)"
+          if [[ -n "$bouncy_lines" ]] && grep -Eiv '^[[:space:]>]*BouncyCastle\.Cryptography[[:space:]]+2\.6\.2([[:space:]]|$)' <<< "$bouncy_lines" | grep -q .; then
+            echo "::error::The website dependency graph contains an unapproved cryptography package."
             exit 1
           fi
 

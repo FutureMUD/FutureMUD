@@ -17,7 +17,8 @@ public static class CommandHistoryNavigator
 		IReadOnlyList<string> commandHistory,
 		int currentIndex,
 		CommandHistoryDirection direction,
-		bool jumpToBoundary)
+		bool jumpToBoundary,
+		string draftInput = "")
 	{
 		ArgumentNullException.ThrowIfNull(commandHistory);
 
@@ -32,7 +33,7 @@ public static class CommandHistoryNavigator
 		return direction switch
 		{
 			CommandHistoryDirection.Up => NavigateUp(commandHistory, index, jumpToBoundary),
-			CommandHistoryDirection.Down => NavigateDown(commandHistory, index, jumpToBoundary),
+			CommandHistoryDirection.Down => NavigateDown(commandHistory, index, jumpToBoundary, draftInput),
 			_ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
 		};
 	}
@@ -54,7 +55,8 @@ public static class CommandHistoryNavigator
 	private static CommandHistoryNavigation NavigateDown(
 		IReadOnlyList<string> commandHistory,
 		int currentIndex,
-		bool jumpToBoundary)
+		bool jumpToBoundary,
+		string draftInput)
 	{
 		if (currentIndex >= commandHistory.Count)
 		{
@@ -63,7 +65,7 @@ public static class CommandHistoryNavigator
 
 		var nextIndex = jumpToBoundary ? commandHistory.Count - 1 : currentIndex + 1;
 		return nextIndex == commandHistory.Count
-			? new CommandHistoryNavigation(nextIndex, string.Empty)
+			? new CommandHistoryNavigation(nextIndex, draftInput)
 			: new CommandHistoryNavigation(nextIndex, commandHistory[nextIndex]);
 	}
 }

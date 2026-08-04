@@ -103,20 +103,27 @@
 		let handler = null;
 		let dotNetHelper = null;
 
-		function requestHistoryNavigation(event, direction) {
-			const selectionStart = element.selectionStart;
-			const selectionEnd = element.selectionEnd;
-			const jumpToBoundary = event.ctrlKey;
-			window.requestAnimationFrame(function () {
-				if (!element ||
-					element.selectionStart !== selectionStart ||
-					element.selectionEnd !== selectionEnd ||
-					!dotNetHelper) {
-					return;
-				}
+		function isAtHistoryBoundary(direction) {
+			if (!element || element.selectionStart !== element.selectionEnd) {
+				return false;
+			}
 
-				dotNetHelper.invokeMethodAsync('NavigateCommandHistory', direction, jumpToBoundary);
-			});
+			const input = element.value || '';
+			if (direction === 'up') {
+				return input.lastIndexOf('\n', element.selectionStart - 1) === -1;
+			}
+
+			return input.indexOf('\n', element.selectionEnd) === -1;
+		}
+
+		function requestHistoryNavigation(event, direction) {
+			if (!isAtHistoryBoundary(direction) || !dotNetHelper) {
+				return;
+			}
+
+			event.preventDefault();
+			const jumpToBoundary = event.ctrlKey;
+			dotNetHelper.invokeMethodAsync('NavigateCommandHistory', direction, jumpToBoundary, element.value || '');
 		}
 
 		return {
@@ -158,15 +165,39 @@
 		let mutationObserver = null;
 		let scrollHandler = null;
 		let keydownHandler = null;
+		let interactionHandler = null;
+		let contentLoadHandler = null;
 		let isPinnedToBottom = true;
 		let scrollFrame = null;
+		let observedScrollHeight = 0;
+		let hasUserScrollIntent = false;
+
+		function isAtBottom() {
+			return !!element && element.scrollTop + element.clientHeight >= element.scrollHeight - 4;
+		}
 
 		function updatePinnedState() {
 			if (!element) {
 				return;
 			}
 
-			isPinnedToBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 2;
+			const currentScrollHeight = element.scrollHeight;
+			if (!hasUserScrollIntent && isPinnedToBottom && currentScrollHeight !== observedScrollHeight) {
+				scheduleScrollToBottom();
+				return;
+			}
+
+			isPinnedToBottom = isAtBottom();
+			observedScrollHeight = currentScrollHeight;
+			hasUserScrollIntent = false;
+		}
+
+		function noteUserScrollIntent() {
+			hasUserScrollIntent = true;
+			if (scrollFrame !== null) {
+				window.cancelAnimationFrame(scrollFrame);
+				scrollFrame = null;
+			}
 		}
 
 		function scrollToBottom() {
@@ -176,6 +207,8 @@
 
 			element.scrollTop = element.scrollHeight;
 			isPinnedToBottom = true;
+			observedScrollHeight = element.scrollHeight;
+			hasUserScrollIntent = false;
 		}
 
 		function scheduleScrollToBottom() {
@@ -196,6 +229,7 @@
 				return;
 			}
 
+			noteUserScrollIntent();
 			element.scrollTop += amount;
 			updatePinnedState();
 		}
@@ -208,6 +242,7 @@
 			switch (event.key) {
 				case 'Home':
 					event.preventDefault();
+					noteUserScrollIntent();
 					element.scrollTop = 0;
 					updatePinnedState();
 					break;
@@ -246,8 +281,14 @@
 				scrollToBottom();
 				scrollHandler = updatePinnedState;
 				keydownHandler = handleKeydown;
+				interactionHandler = noteUserScrollIntent;
+				contentLoadHandler = scheduleScrollToBottom;
 				element.addEventListener('scroll', scrollHandler, { passive: true });
 				element.addEventListener('keydown', keydownHandler);
+				element.addEventListener('wheel', interactionHandler, { passive: true });
+				element.addEventListener('touchstart', interactionHandler, { passive: true });
+				element.addEventListener('pointerdown', interactionHandler, { passive: true });
+				element.addEventListener('load', contentLoadHandler, true);
 				mutationObserver = new MutationObserver(scheduleScrollToBottom);
 				mutationObserver.observe(element, { childList: true, subtree: true });
 			},
@@ -258,6 +299,16 @@
 
 				if (element && keydownHandler) {
 					element.removeEventListener('keydown', keydownHandler);
+				}
+
+				if (element && interactionHandler) {
+					element.removeEventListener('wheel', interactionHandler);
+					element.removeEventListener('touchstart', interactionHandler);
+					element.removeEventListener('pointerdown', interactionHandler);
+				}
+
+				if (element && contentLoadHandler) {
+					element.removeEventListener('load', contentLoadHandler, true);
 				}
 
 				if (mutationObserver) {
@@ -272,8 +323,12 @@
 				mutationObserver = null;
 				scrollHandler = null;
 				keydownHandler = null;
+				interactionHandler = null;
+				contentLoadHandler = null;
 				isPinnedToBottom = true;
 				scrollFrame = null;
+				observedScrollHeight = 0;
+				hasUserScrollIntent = false;
 			}
 		};
 	})();

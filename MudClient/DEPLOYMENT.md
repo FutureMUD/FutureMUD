@@ -33,12 +33,12 @@ Linux additionally requires systemd, bash, curl, unzip, and Caddy v2 managed by 
 
 MudClient 1.2.0 is the first release with a safe upgrade layout. Its release files are immutable under `releases/<version>`; `current`, `web`, and `proxy` stay at stable paths so an upgrade does not alter Caddy, DNS, TLS, firewall, MUD, or database configuration. Operator settings are moved to `/etc/mudclient` on Linux and `%ProgramData%\FutureMUD\MudClient` on Windows.
 
-To migrate an existing 1.0.1 or 1.1.0 Linux installation, download and extract the 1.2.5 archive once, then run the installer with the original archive:
+To migrate an existing 1.0.1 or 1.1.0 Linux installation, download and extract the 1.3.0 archive once, then run the installer with the original archive:
 
 ~~~bash
-unzip mudclient-1.2.5-linux-x64.zip -d /tmp/mudclient-1.2.5
-sudo bash /tmp/mudclient-1.2.5/mudclient-1.2.5-linux-x64/deploy/linux/install-mudclient.sh \
-  --archive "$PWD/mudclient-1.2.5-linux-x64.zip" --migrate
+unzip mudclient-1.3.0-linux-x64.zip -d /tmp/mudclient-1.3.0
+sudo bash /tmp/mudclient-1.3.0/mudclient-1.3.0-linux-x64/deploy/linux/install-mudclient.sh \
+  --archive "$PWD/mudclient-1.3.0-linux-x64.zip" --migrate
 ~~~
 
 The command keeps the old release as a rollback target, copies proxy and browser settings to durable locations, and retains the existing Caddy configuration. It briefly restarts only the private proxy, so connected browser sessions disconnect and can reconnect; the MUD itself is not restarted.
@@ -51,14 +51,14 @@ sudo /opt/mudclient/current/deploy/linux/update-mudclient.sh
 
 Use `--check` to inspect the signed latest manifest without changing files, or `--rollback` to activate the previous local release. The updater verifies an Ed25519-signed manifest and archive SHA-256 before staging, preserves two prior releases, and restores the prior release if the proxy health check fails.
 
-On Windows, extract the 1.2.5 archive once and run this from an elevated PowerShell window:
+On Windows, extract the 1.3.0 archive once and run this from an elevated PowerShell window:
 
 ~~~powershell
-& 'C:\staging\mudclient-1.2.5-win-x64\deploy\windows\Install-MudClient.ps1' `
-  -ArchivePath 'C:\Users\Administrator\Downloads\mudclient-1.2.5-win-x64.zip' -Migrate
+& 'C:\staging\mudclient-1.3.0-win-x64\deploy\windows\Install-MudClient.ps1' `
+  -ArchivePath 'C:\Users\Administrator\Downloads\mudclient-1.3.0-win-x64.zip' -Migrate
 ~~~
 
-Version 1.2.5 can resume an interrupted 1.2.0-1.2.4 migration. It stops the legacy proxy scheduled task and any remaining proxy process before moving the old directories, completes a partially moved legacy `proxy`/`web` pair, reuses the preserved legacy release, and replaces an inactive staged copy before retrying. It also supplies the required .NET Windows Service lifetime for the native `MudClientProxy` service. If activation fails, the legacy task is restored to its previous running state, rollback warnings are reported separately, and the original activation error remains visible.
+Version 1.3.0 can resume an interrupted 1.2.0-1.2.4 migration. It stops the legacy proxy scheduled task and any remaining proxy process before moving the old directories, completes a partially moved legacy `proxy`/`web` pair, reuses the preserved legacy release, and replaces an inactive staged copy before retrying. It also supplies the required .NET Windows Service lifetime for the native `MudClientProxy` service. If activation fails, the legacy task is restored to its previous running state, rollback warnings are reported separately, and the original activation error remains visible.
 
 If a failed earlier migration left stale `current`, `web`, or `proxy` links, stop the proxy and remove only those reparse points before retrying. This does not remove ordinary configuration directories:
 
@@ -87,16 +87,16 @@ Later Windows updates use:
 After verifying the website's published SHA-256 checksum, extract the downloaded package to `/opt/mudclient` and run the installer from that directory:
 
 ~~~bash
-unzip mudclient-1.2.5-linux-x64.zip -d /tmp/mudclient-package
-sudo bash /tmp/mudclient-package/mudclient-1.2.5-linux-x64/deploy/linux/install-mudclient.sh \
-  --archive "$PWD/mudclient-1.2.5-linux-x64.zip" --domain play.example.com
+unzip mudclient-1.3.0-linux-x64.zip -d /tmp/mudclient-package
+sudo bash /tmp/mudclient-package/mudclient-1.3.0-linux-x64/deploy/linux/install-mudclient.sh \
+  --archive "$PWD/mudclient-1.3.0-linux-x64.zip" --domain play.example.com
 ~~~
 
 The script creates the unprivileged proxy service, writes the exact trusted public origin, adds an isolated Caddy site fragment, validates Caddy before reload, and checks the private health endpoint. The selected domain must already resolve to the host. To connect to a MUD on a private network rather than the same machine:
 
 ~~~bash
-sudo bash /tmp/mudclient-package/mudclient-1.2.5-linux-x64/deploy/linux/install-mudclient.sh \
-  --archive "$PWD/mudclient-1.2.5-linux-x64.zip" --domain play.example.com --mud-host 10.0.0.20 --mud-port 4000
+sudo bash /tmp/mudclient-package/mudclient-1.3.0-linux-x64/deploy/linux/install-mudclient.sh \
+  --archive "$PWD/mudclient-1.3.0-linux-x64.zip" --domain play.example.com --mud-host 10.0.0.20 --mud-port 4000
 ~~~
 
 Use `CADDY_CONFIG` and `CADDY_FRAGMENTS_DIR` for nonstandard Caddyfile locations. The installer saves `.before-mudclient-install` backups of the files it changes; review those and take a normal deployment backup before upgrading an existing installation.
@@ -112,7 +112,7 @@ dotnet workload install wasm-tools
 ```
 
 ```powershell
-.\scripts\Publish-ProductPackage.ps1 -RuntimeIdentifier win-x64 -Version 1.2.5
+.\scripts\Publish-ProductPackage.ps1 -RuntimeIdentifier win-x64 -Version 1.3.0
 ```
 
 ```bash
@@ -167,6 +167,47 @@ The Blazor client defaults to:
 ```
 
 That is the easiest production setup because the browser automatically turns it into `wss://your-site/ws` when the page is served over HTTPS.
+
+### Custom title, icon, and styling
+
+Each deployment can brand the browser client without rebuilding it. Before the first install, edit `web/wwwroot/appsettings.json` in the extracted package:
+
+```json
+{
+  "ClientBranding": {
+    "Title": "Example MUD",
+    "IconUrl": "custom/example-icon.png",
+    "AboutText": "The official browser client for Example MUD."
+  },
+  "WebSocketServer": {
+    "Endpoint": "/ws"
+  }
+}
+```
+
+`Title` is used for the browser tab and About panel. `IconUrl` must be a local relative path; it is used for the browser icon and in the About panel. `AboutText` is plain text. Do not put passwords, tokens, private hostnames, or other secrets in this public browser configuration.
+
+Put the icon and any other branding images in `web/wwwroot/custom/`. Edit `web/wwwroot/custom/custom.css` to override the standard theme; that stylesheet loads after the normal client CSS. Images beside the stylesheet can be referenced with relative URLs such as `url("background.jpg")`. The included file has a commented background/theme example.
+
+The installers preserve these files across upgrades in:
+
+- Linux: `/etc/mudclient/web/appsettings.json` and `/etc/mudclient/web/custom/`
+- Windows: `%ProgramData%\FutureMUD\MudClient\web\appsettings.json` and `%ProgramData%\FutureMUD\MudClient\web\custom\`
+
+For an already active installation, edit the durable copies and then copy them into the active web root so the change takes effect immediately. Future upgrades will continue to start from the durable copies:
+
+```bash
+sudo cp -p /etc/mudclient/web/appsettings.json /opt/mudclient/web/wwwroot/appsettings.json
+sudo cp -a /etc/mudclient/web/custom/. /opt/mudclient/web/wwwroot/custom/
+```
+
+```powershell
+$config = "$env:ProgramData\FutureMUD\MudClient\web"
+Copy-Item -LiteralPath "$config\appsettings.json" -Destination 'C:\MudClient\web\wwwroot\appsettings.json' -Force
+Get-ChildItem -LiteralPath "$config\custom" -Force | Copy-Item -Destination 'C:\MudClient\web\wwwroot\custom' -Recurse -Force
+```
+
+Reload the browser client after changing the configuration or CSS. Use a hard refresh if the old icon or stylesheet is still cached.
 
 The supplied Caddy and Nginx examples restrict framing and browser capabilities, set a no-referrer policy, prevent content-type sniffing, and use a Content Security Policy compatible with Blazor WebAssembly and FutureMUD ANSI/MXP output. Preserve those headers when integrating the client into an existing site. The proxy should remain bound to loopback so only the trusted local reverse proxy can supply forwarded client addresses.
 

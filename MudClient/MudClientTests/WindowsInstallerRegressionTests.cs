@@ -107,6 +107,16 @@ public class WindowsInstallerRegressionTests
 	}
 
 	[Fact]
+	public void InstallerPreservesDeploymentBrandingAssetsAcrossReleases()
+	{
+		var script = InstallerScript;
+
+		Assert.Contains("$customWebAssets = Join-Path $ConfigRoot 'web\\custom'", script, StringComparison.Ordinal);
+		Assert.Contains("Get-ChildItem -LiteralPath $customWebAssets -Force | Copy-Item", script, StringComparison.Ordinal);
+		Assert.Contains("$legacyCustomAssets = Join-Path $legacyReleasePath 'web\\wwwroot\\custom'", script, StringComparison.Ordinal);
+	}
+
+	[Fact]
 	public void ProxyConfiguresTheWindowsServiceLifetimeAndEventLog()
 	{
 		var program = ProxyProgram;

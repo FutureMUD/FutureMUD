@@ -284,7 +284,7 @@ public class ItemSeederAntiquityFoodCraftingTests
 		AssertContains(progSource, "HasMilling");
 		AssertContains(progSource, "HasBrewing");
 		AssertContains(ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs"),
-			"RunSeedStage(\"Creating crafting support progs\", CreateProgs);");
+			"RunSeedStage(\"Creating crafting support progs\", () =>");
 		AssertContains(ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs"), "public bool Enabled => true;");
 		AssertRegexContains(craftSource, @"AddCraft\(""thresh grain into heads""[\s\S]*?""HasThreshing""");
 		AssertRegexContains(craftSource, @"AddCraft\(""winnow threshed grain""[\s\S]*?""HasThreshing""");

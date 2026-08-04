@@ -42,7 +42,7 @@ public partial class ItemSeeder
 			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.ToArray();
 
-		if (issues.Length > 0)
+		if (!_manifestCaptureOnly && issues.Length > 0)
 		{
 			throw new InvalidOperationException(
 				$"{catalogueName} cannot be seeded because required dependencies are missing:{Environment.NewLine}" +

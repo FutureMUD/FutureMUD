@@ -27,10 +27,8 @@ public partial class ItemSeeder : IDatabaseSeeder
     #BMedieval#0 - The medieval period, roughly 500 to 1400 CE
     #BRenaissance#0 - The renaissance period, roughly 1400 to 1600 CE
     #BEarlyModern#0 - The enlightenment and early modern period, roughly 1600 to 1750 CE
-    #BRevolution#0 - The age of revolutions, roughly 1750 to 1850 CE
-    #BModern#0 - The modern era, roughly 1850 CE to 1945 CE
-    #BAtomic#0 - The atomic age, roughly 1945 CE to 1990 CE
-    #BComputer#0 - Computer and digital age, roughly 1990 CE to present day
+
+Later eras are intentionally unavailable until they have implemented manifest modules; selecting an era therefore always installs real content.
 
 
 Please enter the eras that you want to be created, separated by spaces.
@@ -45,10 +43,6 @@ What is your choice? ", (context, answers) => true,
 							case "medieval":
 							case "renaissance":
 							case "earlymodern":
-							case "revolution":
-							case "modern":
-							case "atomic":
-							case "computer":
 								continue;
 							default:
 								return (false,
@@ -68,11 +62,10 @@ What is your choice? ", (context, answers) => true,
     public string Tagline => "A starter collection of items and crafts";
 
     /// <inheritdoc />
-    public string FullDescription => @"This seeder sets up an item and craft package, to further simplify your building.
+	public string FullDescription => BuildManifestBackedDescription();
 
-This comes with over 850 items and 171 crafts, which while not totally comprehensive, is enough to get you started and give you plenty of examples to copy off for your own building.
-
-The items and crafts are fairly universal and of approximately medieval to reneissance level technology. You can simply not use the items that aren't appropriate for your world. You can also disable any crafts you're not interested in using.";
+	/// <inheritdoc />
+	public bool SafeToRunMoreThanOnce => true;
 
     private Dictionary<string, GameItemComponentProto> _components = new(StringComparer.InvariantCultureIgnoreCase);
     private Dictionary<string, Tag> _tags = new(StringComparer.InvariantCultureIgnoreCase);
@@ -103,7 +96,18 @@ The items and crafts are fairly universal and of approximately medieval to renei
             throw new ApplicationException("Context cannot be null at this point.");
         }
 
-        _components = _context.GameItemComponentProtos.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+		_components = _context.GameItemComponentProtos.Local
+			.AsEnumerable()
+			.Concat(_context.GameItemComponentProtos
+				.Include(x => x.EditableItem)
+				.AsEnumerable())
+			.GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+			.ToDictionary(
+				x => x.Key,
+				x => x.FirstOrDefault(y => y.EditableItem?.RevisionStatus == 4) ??
+				     x.FirstOrDefault(y => y.EditableItem?.RevisionStatus is 1 or 2) ??
+				     x.OrderByDescending(y => y.RevisionNumber).First(),
+				StringComparer.OrdinalIgnoreCase);
         _tags = _context.Tags
             .AsEnumerable()
             .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
@@ -138,8 +142,29 @@ The items and crafts are fairly universal and of approximately medieval to renei
         _tagsByFullPath = tagList
             .GroupBy(BuildTagFullPath, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(x => x.Key, x => x.OrderBy(tag => tag.Id).First(), StringComparer.OrdinalIgnoreCase);
-        _materials = _context.Materials.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-        _liquids = _context.Liquids.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+		var materialGroups = _context.Materials
+			.AsEnumerable()
+			.GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+			.ToArray();
+		var liquidGroups = _context.Liquids
+			.AsEnumerable()
+			.GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+			.ToArray();
+		if (!_manifestCaptureOnly)
+		{
+			var ambiguousMaterials = materialGroups.Where(x => x.Count() > 1).Select(x => x.Key).ToArray();
+			var ambiguousLiquids = liquidGroups.Where(x => x.Count() > 1).Select(x => x.Key).ToArray();
+			if (ambiguousMaterials.Length > 0 || ambiguousLiquids.Length > 0)
+			{
+				throw new InvalidOperationException(
+					$"ItemSeeder preflight found ambiguous canonical identities. Materials: {ambiguousMaterials.ListToString()}; liquids: {ambiguousLiquids.ListToString()}.");
+			}
+		}
+
+		_materials = materialGroups.ToDictionary(x => x.Key, x => x.OrderBy(y => y.Id).First(),
+			StringComparer.OrdinalIgnoreCase);
+		_liquids = liquidGroups.ToDictionary(x => x.Key, x => x.OrderBy(y => y.Id).First(),
+			StringComparer.OrdinalIgnoreCase);
 		_nextItemId = _context.GameItemProtos.Any()
             ? _context.GameItemProtos.Max(x => x.Id) + 1
             : 1;
@@ -151,18 +176,54 @@ The items and crafts are fairly universal and of approximately medieval to renei
         }
 		IndexStockSkillPackageTraitAliases();
 
-        foreach (GameItemProto item in _context.GameItemProtos)
-        {
-            _items[item.ShortDescription] = item;
-            if (!string.IsNullOrWhiteSpace(item.UniqueName))
-            {
-                _items[item.UniqueName] = item;
-            }
-        }
+		var itemPrototypes = _context.GameItemProtos
+			.Include(x => x.EditableItem)
+			.Include(x => x.GameItemProtosTags)
+			.Include(x => x.GameItemProtosGameItemComponentProtos)
+			.AsEnumerable()
+			.ToArray();
+		var activeStableReferenceConflicts = itemPrototypes
+			.Where(x => !string.IsNullOrWhiteSpace(x.UniqueName) && x.EditableItem?.RevisionStatus is 1 or 2 or 4)
+			.GroupBy(x => x.UniqueName, StringComparer.OrdinalIgnoreCase)
+			.Where(x => x.Select(y => y.Id).Distinct().Count() > 1)
+			.Select(x => $"{x.Key} ({string.Join(", ", x.Select(y => y.Id).Distinct().OrderBy(y => y))})")
+			.ToArray();
+		if (activeStableReferenceConflicts.Length > 0)
+		{
+			throw new InvalidOperationException(
+				$"ItemSeeder preflight found stable references active on multiple logical IDs: {string.Join("; ", activeStableReferenceConflicts)}.");
+		}
+
+		_items = new Dictionary<string, GameItemProto>(StringComparer.InvariantCultureIgnoreCase);
+		foreach (var group in itemPrototypes.GroupBy(x => x.Id))
+		{
+			var item = group.FirstOrDefault(x => x.EditableItem?.RevisionStatus == 4) ??
+			           group.FirstOrDefault(x => x.EditableItem?.RevisionStatus is 1 or 2) ??
+			           group.OrderByDescending(x => x.RevisionNumber).First();
+			if (!string.IsNullOrWhiteSpace(item.UniqueName))
+			{
+				_items[item.UniqueName] = item;
+			}
+		}
+
+		foreach (var group in itemPrototypes.GroupBy(x => x.ShortDescription, StringComparer.OrdinalIgnoreCase)
+		         .Where(x => x.Select(y => y.Id).Distinct().Count() == 1))
+		{
+			var item = group.FirstOrDefault(x => x.EditableItem?.RevisionStatus == 4) ??
+			           group.FirstOrDefault(x => x.EditableItem?.RevisionStatus is 1 or 2) ??
+			           group.OrderByDescending(x => x.RevisionNumber).First();
+			_items[group.Key] = item;
+		}
 
 		_craftsByNameAndCategory = _context.Crafts.Local
 			.AsEnumerable()
-			.Concat(_context.Crafts.AsEnumerable())
+			.Concat(_context.Crafts
+				.Include(x => x.EditableItem)
+				.Include(x => x.CraftPhases)
+				.Include(x => x.CraftInputs)
+				.Include(x => x.CraftTools)
+				.Include(x => x.CraftProducts)
+				.AsEnumerable())
 			.GroupBy(x => CraftLookupKey(x.Name, x.Category), StringComparer.OrdinalIgnoreCase)
 			.ToDictionary(x => x.Key, x => x.OrderBy(craft => craft.Id).First(), StringComparer.OrdinalIgnoreCase);
     }
@@ -171,14 +232,26 @@ The items and crafts are fairly universal and of approximately medieval to renei
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
     {
         _context = context;
-        _questionAnswers = questionAnswers;
-        BeginProgressReporting(questionAnswers);
+		if (!_manifestCaptureOnly)
+		{
+			ItemSeederManifestCatalogue.LoadForRuntime();
+		}
+
+		var resolvedEras = ResolveSelectedEras(context, questionAnswers);
+		_questionAnswers = new Dictionary<string, string>(questionAnswers, StringComparer.OrdinalIgnoreCase)
+		{
+			["eras"] = string.Join(" ", resolvedEras)
+		};
+		BeginProgressReporting(_questionAnswers);
+		using var transaction = context.Database.IsRelational() ? context.Database.BeginTransaction() : null;
+		try
+		{
         RunSeedStage("Loading item prerequisites", InitialiseDependencies);
-		if (_questionAnswers.TryGetValue("eras", out var requestedEras) && HasAnyEra(requestedEras, "renaissance"))
+		if (!_manifestCaptureOnly && _questionAnswers.TryGetValue("eras", out var requestedEras) && HasAnyEra(requestedEras, "renaissance"))
 		{
 			RunSeedStage("Validating Renaissance military prerequisites", ValidateRenaissanceMilitaryPrerequisites);
 		}
-		if (_questionAnswers.TryGetValue("eras", out requestedEras) &&
+		if (!_manifestCaptureOnly && _questionAnswers.TryGetValue("eras", out requestedEras) &&
 			HasAnyEra(requestedEras, "renaissance", "earlymodern"))
 		{
 			RunSeedStage("Validating Renaissance and Early Modern jewellery and door prerequisites",
@@ -192,22 +265,48 @@ The items and crafts are fairly universal and of approximately medieval to renei
 			RunSeedStage("Saving item changes before crafting", SaveItemChangesBeforeCrafting);
 		}
 
-		RunSeedStage("Creating crafting support progs", CreateProgs);
+		RunSeedStage("Creating crafting support progs", () =>
+		{
+			using var manifestModule = UseManifestModule("foundations");
+			CreateProgs();
+		});
         SeedCrafts();
-		if (questionAnswers.TryGetValue("eras", out var eras))
+		if (_questionAnswers.TryGetValue("eras", out var eras))
 		{
 			if (ParseVehicleEraTokens(eras).Count > 0)
 			{
 				RunSeedStage("Creating vehicle items and prototypes", () =>
 				{
+					using var manifestModule = UseManifestModule("vehicles", ParseVehicleEraTokens(eras).ToArray());
 					SeedVehicleItemsAndPrototypes(eras);
 				});
 			}
 		}
-        RunSeedStage("Saving item and craft changes", () => _context.SaveChanges());
+		RetireMissingManagedRecords();
+		if (!_manifestCaptureOnly)
+		{
+			RunSeedStage("Saving item and craft changes", () => _context.SaveChanges());
+		}
+		if (_manifestCaptureOnly)
+		{
+			transaction?.Rollback();
+		}
+		else
+		{
+			transaction?.Commit();
+		}
 		Console.WriteLine($"[Item Seeder] Completed in {_progressStopwatch!.Elapsed.TotalSeconds:N1}s.");
 
-        return "The operation completed successfully.";
+		var summary = BuildManifestResultSummary();
+		return string.IsNullOrWhiteSpace(summary)
+			? "The operation completed successfully."
+			: $"The operation completed successfully.{Environment.NewLine}{summary}";
+		}
+		catch
+		{
+			transaction?.Rollback();
+			throw;
+		}
     }
 
 	private void BeginProgressReporting(IReadOnlyDictionary<string, string> questionAnswers)
@@ -297,6 +396,11 @@ The items and crafts are fairly universal and of approximately medieval to renei
 
 	private void SaveItemChangesBeforeCrafting()
 	{
+		if (_manifestCaptureOnly)
+		{
+			return;
+		}
+
 		_context!.SaveChanges();
 		DetachTrackedEntities(entity => entity is GameItemProto or
 			GameItemComponent or
@@ -351,8 +455,67 @@ The items and crafts are fairly universal and of approximately medieval to renei
             return ShouldSeedResult.PrerequisitesNotMet;
         }
 
-        return ShouldSeedResult.ReadyToInstall;
+		return context.SeederManagedRecords.Any(x => x.Seeder == Name && !x.Retired)
+			? ShouldSeedResult.MayAlreadyBeInstalled
+			: ShouldSeedResult.ReadyToInstall;
     }
+
+	/// <inheritdoc />
+	public SeederAssessment AssessSeedData(FuturemudDatabaseContext context)
+	{
+		var missingPrerequisites = SeederMetadataRegistry.GetMetadata(this).Prerequisites
+			.Where(x => !x.IsSatisfied(context))
+			.Select(x => x.Description)
+			.ToArray();
+		if (missingPrerequisites.Length > 0)
+		{
+			return new SeederAssessment(SeederAssessmentStatus.Blocked,
+				"Required ItemSeeder foundations are missing.", missingPrerequisites, [], []);
+		}
+
+		ItemSeederManifestDocument manifest;
+		try
+		{
+			manifest = ItemSeederManifestCatalogue.LoadForRuntime();
+		}
+		catch (Exception exception)
+		{
+			return new SeederAssessment(SeederAssessmentStatus.Blocked,
+				"The executable ItemSeeder manifest is missing or invalid.", [], [exception.Message], []);
+		}
+
+		var records = context.SeederManagedRecords
+			.Where(x => x.Seeder == Name)
+			.AsEnumerable()
+			.ToArray();
+		if (records.Length == 0)
+		{
+			return new SeederAssessment(SeederAssessmentStatus.ReadyToInstall,
+				"No ItemSeeder provenance is installed.", [], [],
+				[$"{manifest.Entries.Count:N0} manifest aggregates are available across four implemented eras."]);
+		}
+
+		var installedEras = records
+			.Where(x => !x.Retired && ImplementedEraKeys.Contains(x.Module, StringComparer.OrdinalIgnoreCase))
+			.Select(x => x.Module)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		var expected = manifest.Entries
+			.Where(x => x.EraAdmissions.Count == 0 || x.EraAdmissions.Any(installedEras.Contains))
+			.ToDictionary(x => ManagedRecordIdentity(x.EntityType, x.StableKey), StringComparer.OrdinalIgnoreCase);
+		var installed = records.ToDictionary(x => ManagedRecordIdentity(x.EntityType, x.StableKey),
+			StringComparer.OrdinalIgnoreCase);
+		var updateAvailable = records.Any(x => x.Retired) ||
+		                      expected.Keys.Any(x => !installed.TryGetValue(x, out var record) || record.Retired) ||
+		                      expected.Any(x => installed.TryGetValue(x.Key, out var record) &&
+			                      !record.AppliedFingerprint.Equals(x.Value.Fingerprint, StringComparison.OrdinalIgnoreCase));
+		return updateAvailable
+			? new SeederAssessment(SeederAssessmentStatus.UpdateAvailable,
+				"The installed ItemSeeder package has missing, retired, or revised manifest aggregates.", [], [],
+				["A rerun will repair untouched stock and preserve customized aggregates."])
+			: new SeederAssessment(SeederAssessmentStatus.InstalledCurrent,
+				"Installed ItemSeeder provenance matches the current manifest.", [], [],
+				["Rerun to add another implemented era; installed eras are never removed."]);
+	}
 
     /// <inheritdoc />
     public bool Enabled => true;
@@ -380,31 +543,132 @@ The items and crafts are fairly universal and of approximately medieval to renei
 	{
 		var tagList = BuildReworkItemTagList(tags);
 		var componentList = components as IReadOnlyCollection<string> ?? components.ToArray();
-
-		if (_items.TryGetValue(stableReference, out var existing))
+		var definition = BuildItemManifestDefinition(
+			stableReference,
+			noun,
+			sdesc,
+			ldesc,
+			fdesc,
+			(int)size,
+			(int)quality,
+			weightInGrams,
+			inherentCost,
+			skinnable,
+			hideFromPlayers,
+			material,
+			tagList,
+			componentList,
+			morphToUniqueReference,
+			morphEmote,
+			morphTimer,
+			destroyedItemUniqueReference);
+		var lifecycleDependencies = new[] { morphToUniqueReference, destroyedItemUniqueReference }
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.Select(x => $"item:{x}")
+			.ToArray();
+		var manifestEntry = RegisterManifestAggregate(
+			"item",
+			stableReference,
+			definition,
+			lifecycleDependencies,
+			morphToUniqueReference is null && destroyedItemUniqueReference is null
+				? ItemSeederOwnershipPolicy.StockAggregate
+				: ItemSeederOwnershipPolicy.RequiredRelationship);
+		if (_manifestCaptureOnly)
 		{
-			ApplyReworkItemMetadata(existing, stableReference, tagList, builderNotes);
-			ApplyItemLifecycleSettings(existing, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
-			return existing;
+			if (!_materials.TryGetValue(definition.Material, out var capturedMaterial))
+			{
+				capturedMaterial = new Material
+				{
+					Id = -(_materials.Count + 1L),
+					Name = definition.Material,
+					MaterialDescription = definition.Material
+				};
+				_materials[definition.Material] = capturedMaterial;
+			}
+
+			var capturedItem = new GameItemProto
+			{
+				Id = _nextItemId++,
+				RevisionNumber = 0,
+				Name = definition.Noun,
+				UniqueName = GameItemProtoLookupExtensions.NormaliseUniqueName(stableReference),
+				ShortDescription = definition.ShortDescription,
+				LongDescription = definition.LongDescription,
+				FullDescription = definition.FullDescription,
+				Keywords = definition.Keywords,
+				MaterialId = capturedMaterial.Id,
+				Size = definition.Size,
+				Weight = definition.WeightInGrams,
+				BaseItemQuality = definition.Quality,
+				CostInBaseCurrency = definition.Cost,
+				PermitPlayerSkins = definition.Skinnable,
+				IsHiddenFromPlayers = definition.HiddenFromPlayers,
+				MorphTimeSeconds = definition.MorphTimeSeconds,
+				MorphEmote = definition.MorphEmote,
+				BuilderNotes = BuildReworkItemBuilderNotes(stableReference, tagList, builderNotes)
+			};
+			CacheReworkItem(stableReference, capturedItem);
+			return capturedItem;
 		}
 
-		existing = _context!.GameItemProtos.Local
-			.AsEnumerable()
-			.FirstOrDefault(x => x.UniqueName?.Equals(stableReference, StringComparison.OrdinalIgnoreCase) == true) ??
-				   _context.GameItemProtos.AsEnumerable()
-					   .FirstOrDefault(x => x.UniqueName?.Equals(stableReference, StringComparison.OrdinalIgnoreCase) == true);
+		var managedRecord = FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey);
+		var existing = FindItemByStableReference(stableReference);
 		if (existing is null && allowLegacyShortDescriptionMatch)
 		{
-			existing = _context.GameItemProtos.AsEnumerable()
-				.FirstOrDefault(x =>
-					string.IsNullOrWhiteSpace(x.UniqueName) &&
-					x.ShortDescription.Equals(sdesc, StringComparison.OrdinalIgnoreCase));
+			existing = FindExactLegacyItemMatch(stableReference, sdesc, definition);
 		}
+
 		if (existing is not null)
 		{
-			ApplyReworkItemMetadata(existing, stableReference, tagList, builderNotes);
+			if (_manifestCaptureOnly)
+			{
+				CacheReworkItem(stableReference, existing);
+				return existing;
+			}
+
+			if (managedRecord is not null && managedRecord.LogicalId is not null && managedRecord.LogicalId != existing.Id)
+			{
+				IncrementManifestResult(manifestEntry.Module, x => x with { Blocked = x.Blocked + 1 });
+				throw new InvalidOperationException(
+					$"ItemSeeder ownership conflict for item:{stableReference}: provenance names logical ID {managedRecord.LogicalId:N0}, but the active stable reference resolves to {existing.Id:N0}.");
+			}
+
+			var liveDefinition = BuildLiveItemManifestDefinition(existing, stableReference);
+			var liveFingerprint = ItemSeederManifestCatalogue.Fingerprint(liveDefinition);
+			if (managedRecord is null && !liveFingerprint.Equals(manifestEntry.Fingerprint, StringComparison.OrdinalIgnoreCase))
+			{
+				IncrementManifestResult(manifestEntry.Module, x => x with { Blocked = x.Blocked + 1 });
+				throw new InvalidOperationException(
+					$"Unmanaged item conflict for stable reference '{stableReference}'. The uniquely matched record does not have the stock signature and will not be claimed or overwritten.");
+			}
+
+			if (managedRecord is not null &&
+			    !liveFingerprint.Equals(managedRecord.AppliedFingerprint, StringComparison.OrdinalIgnoreCase))
+			{
+				if (IsRepairableMissingItemStock(liveDefinition, definition))
+				{
+					ApplyItemManifestDefinition(existing, definition, tagList, componentList, builderNotes);
+					CacheReworkItem(stableReference, existing);
+					ApplyItemLifecycleSettings(existing, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
+					RecordAppliedManifestEntry(manifestEntry, existing.Id, existing.RevisionNumber);
+					IncrementManifestResult(manifestEntry.Module, x => x with { Updated = x.Updated + 1 });
+					return existing;
+				}
+
+				MarkManifestAggregateCustomized(manifestEntry.EntityType, manifestEntry.StableKey);
+				IncrementManifestResult(manifestEntry.Module, x => x with { Customized = x.Customized + 1 });
+				CacheReworkItem(stableReference, existing);
+				return existing;
+			}
+
+			var changed = !liveFingerprint.Equals(manifestEntry.Fingerprint, StringComparison.OrdinalIgnoreCase);
+			ApplyItemManifestDefinition(existing, definition, tagList, componentList, builderNotes);
 			CacheReworkItem(stableReference, existing);
 			ApplyItemLifecycleSettings(existing, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
+			RecordAppliedManifestEntry(manifestEntry, existing.Id, existing.RevisionNumber);
+			IncrementManifestResult(manifestEntry.Module,
+				x => changed ? x with { Updated = x.Updated + 1 } : x with { Unchanged = x.Unchanged + 1 });
 			return existing;
 		}
 
@@ -489,7 +753,121 @@ The items and crafts are fairly universal and of approximately medieval to renei
 		_context!.GameItemProtos.Add(dbitem);
 		CacheReworkItem(stableReference, dbitem);
 		ApplyItemLifecycleSettings(dbitem, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
+		RecordAppliedManifestEntry(manifestEntry, dbitem.Id, dbitem.RevisionNumber);
+		IncrementManifestResult(manifestEntry.Module, x => x with { Inserted = x.Inserted + 1 });
 		return dbitem;
+	}
+
+	private GameItemProto? FindItemByStableReference(string stableReference)
+	{
+		var matches = _context!.GameItemProtos.Local
+			.AsEnumerable()
+			.Concat(_context.GameItemProtos
+				.Include(x => x.EditableItem)
+				.Include(x => x.GameItemProtosTags)
+				.Include(x => x.GameItemProtosGameItemComponentProtos)
+				.AsEnumerable())
+			.Where(x => x.UniqueName?.Equals(stableReference, StringComparison.OrdinalIgnoreCase) == true)
+			.GroupBy(x => (x.Id, x.RevisionNumber))
+			.Select(x => x.First())
+			.ToArray();
+		var activeLogicalIds = matches
+			.Where(x => x.EditableItem?.RevisionStatus is 1 or 2 or 4)
+			.Select(x => x.Id)
+			.Distinct()
+			.ToArray();
+		if (activeLogicalIds.Length > 1)
+		{
+			throw new InvalidOperationException(
+				$"Stable item reference '{stableReference}' is active on multiple logical prototype IDs: {string.Join(", ", activeLogicalIds.OrderBy(x => x))}.");
+		}
+
+		var logicalId = activeLogicalIds.SingleOrDefault();
+		var candidates = logicalId == 0 ? matches : matches.Where(x => x.Id == logicalId).ToArray();
+		return candidates.FirstOrDefault(x => x.EditableItem?.RevisionStatus == 4) ??
+		       candidates.FirstOrDefault(x => x.EditableItem?.RevisionStatus is 1 or 2) ??
+		       candidates.OrderByDescending(x => x.RevisionNumber).FirstOrDefault();
+	}
+
+	private GameItemProto? FindExactLegacyItemMatch(
+		string stableReference,
+		string shortDescription,
+		ItemManifestDefinition definition)
+	{
+		var candidates = _context!.GameItemProtos
+			.Include(x => x.EditableItem)
+			.Include(x => x.GameItemProtosTags)
+			.Include(x => x.GameItemProtosGameItemComponentProtos)
+			.AsEnumerable()
+			.Where(x => string.IsNullOrWhiteSpace(x.UniqueName) &&
+			            x.ShortDescription.Equals(shortDescription, StringComparison.OrdinalIgnoreCase))
+			.ToArray();
+		var expectedFingerprint = ItemSeederManifestCatalogue.Fingerprint(definition);
+		var exactMatches = candidates
+			.Where(x => ItemSeederManifestCatalogue.Fingerprint(BuildLiveItemManifestDefinition(x, stableReference))
+				.Equals(expectedFingerprint, StringComparison.OrdinalIgnoreCase))
+			.ToArray();
+		if (candidates.Length > 1)
+		{
+			throw new InvalidOperationException(
+				$"Legacy item adoption for '{stableReference}' is ambiguous: {candidates.Length:N0} unmanaged records use the stock short description. Adoption requires one unique candidate with the complete stock signature.");
+		}
+
+		if (exactMatches.Length == 1)
+		{
+			return exactMatches[0];
+		}
+
+		if (candidates.Length > 0)
+		{
+			throw new InvalidOperationException(
+				$"Unmanaged legacy item conflict for '{stableReference}': {candidates.Length:N0} record(s) use the stock short description but none has the complete stock signature. No record was claimed or overwritten.");
+		}
+
+		return null;
+	}
+
+	private void ApplyItemManifestDefinition(
+		GameItemProto item,
+		ItemManifestDefinition definition,
+		IEnumerable<string> tags,
+		IEnumerable<string> components,
+		string? builderNotes)
+	{
+		item.Name = definition.Noun;
+		item.UniqueName = GameItemProtoLookupExtensions.NormaliseUniqueName(definition.StableReference);
+		item.Keywords = definition.Keywords;
+		item.MaterialId = _materials[definition.Material].Id;
+		item.Size = definition.Size;
+		item.Weight = definition.WeightInGrams;
+		item.ReadOnly = false;
+		item.LongDescription = definition.LongDescription;
+		item.BaseItemQuality = definition.Quality;
+		item.ShortDescription = definition.ShortDescription;
+		item.FullDescription = definition.FullDescription;
+		item.PermitPlayerSkins = definition.Skinnable;
+		item.CostInBaseCurrency = definition.Cost;
+		item.IsHiddenFromPlayers = definition.HiddenFromPlayers;
+		ApplyReworkItemMetadata(item, definition.StableReference, tags, builderNotes);
+		var existingComponents = item.GameItemProtosGameItemComponentProtos
+			.Select(x => (x.GameItemComponentProtoId, x.GameItemComponentRevision))
+			.ToHashSet();
+		foreach (var componentName in components.Where(x => !string.IsNullOrWhiteSpace(x)))
+		{
+			var component = _components[componentName];
+			if (!existingComponents.Add((component.Id, component.RevisionNumber)))
+			{
+				continue;
+			}
+
+			item.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+			{
+				GameItemProto = item,
+				GameItemComponent = component,
+				GameItemComponentProtoId = component.Id,
+				GameItemComponentRevision = component.RevisionNumber
+			});
+		}
 	}
 
 	private void CacheReworkItem(string stableReference, GameItemProto item)
@@ -1057,9 +1435,57 @@ The items and crafts are fairly universal and of approximately medieval to renei
 	}
 
 
+	private static readonly string[] ImplementedEraKeys = ["antiquity", "medieval", "renaissance", "earlymodern"];
+
+	private static IReadOnlyCollection<string> ParseEraTokens(string? eras)
+	{
+		return (eras ?? string.Empty)
+			.Split([' ', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+			.Select(x => x.ToLowerInvariant())
+			.Where(x => ImplementedEraKeys.Contains(x, StringComparer.OrdinalIgnoreCase))
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.OrderBy(x => Array.IndexOf(ImplementedEraKeys, x))
+			.ToArray();
+	}
+
+	private IReadOnlyCollection<string> ResolveSelectedEras(
+		FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> questionAnswers)
+	{
+		var eras = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		if (questionAnswers.TryGetValue("eras", out var requested))
+		{
+			eras.UnionWith(ParseEraTokens(requested));
+		}
+
+		if (!_manifestCaptureOnly)
+		{
+			eras.UnionWith(ParseEraTokens(SeederAnswerMemory.GetLatestSeederAnswer(context, Name, "eras")));
+			foreach (var module in context.SeederManagedRecords
+			         .Where(x => x.Seeder == Name && !x.Retired)
+			         .Select(x => x.Module)
+			         .Distinct()
+			         .AsEnumerable())
+			{
+				if (ImplementedEraKeys.Contains(module, StringComparer.OrdinalIgnoreCase))
+				{
+					eras.Add(module);
+				}
+			}
+		}
+
+		if (eras.Count == 0)
+		{
+			throw new InvalidOperationException("At least one implemented ItemSeeder era must be selected.");
+		}
+
+		return ImplementedEraKeys.Where(eras.Contains).ToArray();
+	}
+
 	private static bool HasAnyEra(string eras, params string[] eraKeys)
 	{
-		return eraKeys.Any(x => eras.Contains(x, StringComparison.InvariantCultureIgnoreCase));
+		var selected = ParseEraTokens(eras);
+		return eraKeys.Any(x => selected.Contains(x, StringComparer.OrdinalIgnoreCase));
 	}
 
 	public void SeedReworkItems()
@@ -1074,6 +1500,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
 		{
 			RunSeedStage("Creating shared pre-industrial foundations", () =>
 			{
+				using var manifestModule = UseManifestModule("shared-preindustrial", "antiquity", "medieval", "renaissance", "earlymodern");
 				SeedSharedPreIndustrialBaselineItems();
 				SeedSharedPreIndustrialFoodFoundation();
 			});
@@ -1083,6 +1510,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
 		{
 			RunSeedStage("Creating shared food catalogue and leisure items", () =>
 			{
+				using var manifestModule = UseManifestModule("shared-preindustrial", "medieval", "renaissance", "earlymodern");
 				SeedSharedPreIndustrialFoodCatalogue();
 				SeedSharedPreIndustrialLeisureItems();
 			});
@@ -1092,6 +1520,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
 		{
 			RunSeedStage("Creating antiquity items", () =>
 			{
+				using var manifestModule = UseManifestModule("antiquity", "antiquity");
 				SeedAntiquityClothing();
 				SeedAntiquityHouseholdCraftTools();
 				SeedAntiquityWritingImplementsAndDocuments();
@@ -1113,6 +1542,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
 		{
 			RunSeedStage("Creating medieval items", () =>
 			{
+				using var manifestModule = UseManifestModule("medieval", "medieval");
 				SeedMedievalClothing();
 				SeedMedievalHouseholdCraftTools();
 				SeedMedievalWritingAdministrationAndDocuments();
@@ -1133,37 +1563,29 @@ The items and crafts are fairly universal and of approximately medieval to renei
 
 		if (eras.Contains("renaissance", StringComparison.InvariantCultureIgnoreCase))
 		{
-			RunSeedStage("Creating renaissance items", SeedRenaissanceItems);
+			RunSeedStage("Creating renaissance items", () =>
+			{
+				using var manifestModule = UseManifestModule("renaissance", "renaissance");
+				SeedRenaissanceItems();
+			});
 		}
 
 		if (eras.Contains("earlymodern", StringComparison.InvariantCultureIgnoreCase))
 		{
-			RunSeedStage("Creating early modern items", SeedEarlyModernItems);
-		}
-
-		if (eras.Contains("revolution", StringComparison.InvariantCultureIgnoreCase))
-		{
-
-		}
-
-		if (eras.Contains("modern", StringComparison.InvariantCultureIgnoreCase))
-		{
-
-		}
-
-		if (eras.Contains("atomic", StringComparison.InvariantCultureIgnoreCase))
-		{
-
-		}
-
-		if (eras.Contains("computer", StringComparison.InvariantCultureIgnoreCase))
-		{
-
+			RunSeedStage("Creating early modern items", () =>
+			{
+				using var manifestModule = UseManifestModule("earlymodern", "earlymodern");
+				SeedEarlyModernItems();
+			});
 		}
 
 		if (HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern"))
 		{
-			RunSeedStage("Creating documented clothing outfits", () => SeedDocumentedClothingOutfitManifests(eras));
+			RunSeedStage("Creating documented clothing outfits", () =>
+			{
+				using var manifestModule = UseManifestModule("outfits", "antiquity", "medieval", "renaissance", "earlymodern");
+				SeedDocumentedClothingOutfitManifests(eras);
+			});
 		}
 	}
 }

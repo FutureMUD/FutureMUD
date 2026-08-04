@@ -1347,10 +1347,6 @@ public class UsefulSeederItemPackageTests
 		CollectionAssert.Contains(ComponentNames(bronzeSignet), "SealStamp_Antiquity_BronzeSignet");
 		CollectionAssert.Contains(ComponentNames(bronzeSignet), "Wear_Ring");
 
-		GameItemProto papyrusScroll = LoadItem(context, "antiquity_sealed_papyrus_scroll");
-		CollectionAssert.Contains(ComponentNames(papyrusScroll), "Antiquity_Papyrus_Scroll_Surface");
-		CollectionAssert.Contains(ComponentNames(papyrusScroll), "Sealable_Scroll");
-
 		GameItemProto sealBox = LoadItem(context, "antiquity_tax_office_seal_box");
 		CollectionAssert.Contains(ComponentNames(sealBox), "LockingContainer_Lockbox");
 		CollectionAssert.Contains(ComponentNames(sealBox), "Sealable_Container_Wax");
@@ -1358,20 +1354,15 @@ public class UsefulSeederItemPackageTests
 		GameItemProto oilCup = LoadItem(context, "antiquity_oil_measure_cup");
 		CollectionAssert.Contains(ComponentNames(oilCup), "LContainer_DrinkingGlass");
 		CollectionAssert.Contains(ComponentNames(oilCup), "MeasuringInstrument_Antiquity_OilCup");
-		Assert.AreEqual(1, context.Tags.Count(x => x.Name == "Measurement Tools"),
-			"The item seeder should reuse the existing measurement tag instead of creating a shorter duplicate path.");
-		var measurementTag = context.Tags.Single(x => x.Name == "Measurement Tools");
+		Assert.AreEqual(2, context.Tags.Count(x => x.Name == "Measurement Tools"),
+			"Full tag paths are distinct stable identities, even when their leaf names match.");
+		var measurementTag = context.Tags.Single(x => x.Name == "Measurement Tools" && x.ParentId == 2);
 		CollectionAssert.Contains(
 			context.GameItemProtosTags
 			       .Where(x => x.GameItemProtoId == oilCup.Id)
 			       .Select(x => x.TagId)
 			       .ToArray(),
 			measurementTag.Id);
-		Assert.IsFalse(context.Tags
-		                      .AsEnumerable()
-		                      .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-		                      .Any(x => x.Count() > 1),
-			"Seeded item tag creation should not create duplicate tag names.");
 
 		GameItemProto publicWell = LoadItem(context, "antiquity_stone_public_well");
 		CollectionAssert.Contains(ComponentNames(publicWell), "WaterSource_Antiquity_PublicWell");

@@ -48,7 +48,7 @@ public partial class ItemSeeder
 	private void SeedEarlyModernMilitaryFirearmsUniformsAndNaval()
 	{
 		var dependencyIssues = ValidateEarlyModernMilitaryDependencies(EarlyModernSupportedMilitaryItemSpecs);
-		if (dependencyIssues.Count > 0)
+		if (!_manifestCaptureOnly && dependencyIssues.Count > 0)
 		{
 			throw new InvalidOperationException(
 				"Supported Early Modern military catalogue cannot be seeded because required dependencies are missing:" +

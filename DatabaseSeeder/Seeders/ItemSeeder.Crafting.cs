@@ -504,9 +504,71 @@ public partial class ItemSeeder
 	private FutureProg EnsureFutureProg(string name, string category, string subcategory, ProgVariableTypes returnType,
 		string comment, IEnumerable<(ProgVariableTypes Type, string Name)> parameters, string text)
 	{
+		var parameterList = parameters.ToArray();
+		var manifestDefinition = new ProgManifestDefinition(
+			name,
+			category,
+			subcategory,
+			(long)returnType,
+			comment,
+			text,
+			parameterList.Select(x => new ProgParameterManifestDefinition((long)x.Type, x.Name)).ToArray());
+		var manifestEntry = RegisterManifestAggregate("prog", name, manifestDefinition);
+
+		ProgManifestDefinition LiveDefinition(FutureProg prog)
+		{
+			var progParameters = prog.FutureProgsParameters
+				.Concat(_context!.FutureProgsParameters.Local.Where(x => x.FutureProgId == prog.Id))
+				.Concat(_context.FutureProgsParameters.Where(x => x.FutureProgId == prog.Id))
+				.GroupBy(x => x.ParameterIndex)
+				.Select(x => x.First())
+				.OrderBy(x => x.ParameterIndex)
+				.Select(x => new ProgParameterManifestDefinition(x.ParameterType, x.ParameterName))
+				.ToArray();
+			return new ProgManifestDefinition(
+				prog.FunctionName,
+				prog.Category,
+				prog.Subcategory,
+				prog.ReturnType,
+				prog.FunctionComment,
+				prog.FunctionText,
+				progParameters);
+		}
+
+		FutureProg ReconcileExisting(FutureProg prog)
+		{
+			var disposition = InspectManifestAggregate(manifestEntry, prog.Id, LiveDefinition(prog));
+			if (disposition is ManifestAggregateDisposition.Customized or ManifestAggregateDisposition.Unchanged)
+			{
+				return prog;
+			}
+
+			prog.Category = category;
+			prog.Subcategory = subcategory;
+			prog.ReturnType = (long)returnType;
+			prog.FunctionComment = comment;
+			prog.FunctionText = text;
+			_context!.FutureProgsParameters.RemoveRange(
+				_context.FutureProgsParameters.Where(x => x.FutureProgId == prog.Id));
+			prog.FutureProgsParameters.Clear();
+			var index = 0;
+			foreach (var parameter in parameterList)
+			{
+				prog.FutureProgsParameters.Add(new FutureProgsParameter
+				{
+					FutureProg = prog,
+					ParameterIndex = index++,
+					ParameterType = (long)parameter.Type,
+					ParameterName = parameter.Name
+				});
+			}
+			CompleteManifestAggregate(manifestEntry, prog.Id, manifestDefinition, disposition);
+			return prog;
+		}
+
 		if (_progs.TryGetValue(name, out var existing))
 		{
-			return existing;
+			return ReconcileExisting(existing);
 		}
 
 		var contextProg = _context!.FutureProgs.Local
@@ -517,7 +579,7 @@ public partial class ItemSeeder
 		if (contextProg is not null)
 		{
 			_progs[name] = contextProg;
-			return contextProg;
+			return ReconcileExisting(contextProg);
 		}
 
 		FutureProg prog = new()
@@ -533,7 +595,7 @@ public partial class ItemSeeder
 		};
 		_context.FutureProgs.Add(prog);
 		int index = 0;
-		foreach ((ProgVariableTypes type, string? varname) in parameters)
+		foreach ((ProgVariableTypes type, string? varname) in parameterList)
 		{
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
@@ -545,6 +607,7 @@ public partial class ItemSeeder
 		}
 
 		_progs[name] = prog;
+		CompleteManifestAggregate(manifestEntry, null, manifestDefinition, ManifestAggregateDisposition.Insert);
 		return prog;
 	}
 
@@ -560,21 +623,53 @@ public partial class ItemSeeder
 			EnsureFutureProg(name, category, subcategory, returnType, comment, parameters, text);
         }
 
-        if (_context.VariableDefinitions.All(x => x.Property != "constructioncooldown"))
-        {
-            _context.VariableDefinitions.Add(new VariableDefinition
-            {
-                ContainedType = (long)ProgVariableTypes.DateTime,
-                OwnerType = 8,
-                Property = "constructioncooldown"
-            });
-            _context.VariableDefaults.Add(new VariableDefault
-            {
-                OwnerType = 8,
-                Property = "constructioncooldown",
-                DefaultValue = "<var>01/01/0001 00:00:00</var>"
-            });
-        }
+		const string constructionCooldown = "constructioncooldown";
+		const long constructionOwnerType = 8;
+		const string constructionDefault = "<var>01/01/0001 00:00:00</var>";
+		var variableManifest = new VariableManifestDefinition(
+			constructionOwnerType,
+			constructionCooldown,
+			(long)ProgVariableTypes.DateTime,
+			constructionDefault);
+		var variableEntry = RegisterManifestAggregate("variable", constructionCooldown, variableManifest);
+		var variable = _context.VariableDefinitions.AsEnumerable().FirstOrDefault(x =>
+			x.Property == constructionCooldown && x.OwnerType == constructionOwnerType);
+		var variableDefault = _context.VariableDefaults.AsEnumerable().FirstOrDefault(x =>
+			x.Property == constructionCooldown && x.OwnerType == constructionOwnerType);
+		if (variable is null)
+		{
+			variable = new VariableDefinition
+			{
+				ContainedType = (long)ProgVariableTypes.DateTime,
+				OwnerType = constructionOwnerType,
+				Property = constructionCooldown
+			};
+			_context.VariableDefinitions.Add(variable);
+		}
+		if (variableDefault is null)
+		{
+			variableDefault = new VariableDefault
+			{
+				OwnerType = constructionOwnerType,
+				Property = constructionCooldown,
+				DefaultValue = constructionDefault
+			};
+			_context.VariableDefaults.Add(variableDefault);
+		}
+		var variableDisposition = _context.Entry(variable).State == EntityState.Added ||
+		                          _context.Entry(variableDefault).State == EntityState.Added
+			? ManifestAggregateDisposition.Insert
+			: InspectManifestAggregate(variableEntry, 0, new VariableManifestDefinition(
+				variable.OwnerType,
+				variable.Property,
+				variable.ContainedType,
+				variableDefault.DefaultValue));
+		if (variableDisposition is ManifestAggregateDisposition.Insert or ManifestAggregateDisposition.Update)
+		{
+			variable.ContainedType = (long)ProgVariableTypes.DateTime;
+			variableDefault.DefaultValue = constructionDefault;
+			CompleteManifestAggregate(variableEntry, null, variableManifest, variableDisposition);
+		}
 
 
         AddProg("CanDigGrave", "Crafting", "General", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], @"return IsTagged(@ch.Location.Terrain, ""Diggable Soil"")");
@@ -1749,12 +1844,6 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
     private MudSharp.Models.Craft? AddCraft(string name, string category, string blurb, string action, string itemsdesc, string appearProg, string? canUseProg, string? whyCantProg, string? onFinishProg, MudSharp.Models.TraitDefinition trait, Difficulty difficulty, Outcome threshold, int freeChecks, int failPhase, bool interrupatable, IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failProducts, List<(int Product, int Input)>? productMaterialInputIndexes = null, List<(int Product, int Input)>? failProductMaterialInputIndexes = null, string? onStartProg = null, string? onCancelProg = null)
     {
-		Craft? existing = FindExistingCraft(name, category);
-		if (existing is not null)
-		{
-			return existing;
-		}
-
         List<CraftValidationError> importErrors = [];
 		var inputSpecs = ParseImportSpecs(inputs, name, "input", ParseInputSpec, importErrors);
 		var toolSpecs = ParseImportSpecs(tools, name, "tool", ParseToolSpec, importErrors);
@@ -1797,12 +1886,6 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
 	private MudSharp.Models.Craft? AddCraft(string name, string category, string blurb, string action, string itemsdesc, string traitName, int? minimumTraitValue, Difficulty difficulty, Outcome threshold, int freeChecks, int failPhase, bool interrupatable, IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failProducts, List<(int Product, int Input)>? productMaterialInputIndexes = null, List<(int Product, int Input)>? failProductMaterialInputIndexes = null, string? onFinishProg = null, string? onStartProg = null, string? onCancelProg = null)
 	{
-		Craft? existing = FindExistingCraft(name, category);
-		if (existing is not null)
-		{
-			return existing;
-		}
-
 		(FutureProg appearProg, FutureProg canUseProg, FutureProg whyCannotUseProg, TraitDefinition trait) =
 			EnsureTraitGateProgs(traitName, minimumTraitValue);
 		return AddCraft(
@@ -1846,12 +1929,6 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 		Difficulty knowledgeTeachDifficulty = Difficulty.Normal,
 		LearnableType knowledgeLearnable = LearnableType.LearnableAtSkillUp | LearnableType.LearnableFromTeacher)
 	{
-		Craft? existing = FindExistingCraft(name, category);
-		if (existing is not null)
-		{
-			return existing;
-		}
-
 		(FutureProg appearProg, FutureProg canUseProg, FutureProg whyCannotUseProg, TraitDefinition trait, _) =
 			EnsureKnowledgeGateProgs(
 				knowledgeName,
@@ -2018,18 +2095,107 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 	private MudSharp.Models.Craft AddCraft(CraftDefinitionSpec spec, IEnumerable<CraftValidationError>? importErrors = null)
 	{
 		spec = NormaliseCraftDefinition(spec);
-		Craft? existing = FindExistingCraft(spec.Name, spec.Category);
-		if (existing is not null)
+		List<CraftValidationError> errors = _manifestCaptureOnly
+			? []
+			: importErrors?.ToList() ?? [];
+		if (!_manifestCaptureOnly)
 		{
-			return existing;
+			errors.AddRange(ValidateCraftSpec(spec));
 		}
-
-		List<CraftValidationError> errors = importErrors?.ToList() ?? [];
-		errors.AddRange(ValidateCraftSpec(spec));
 		if (errors.Count > 0)
 		{
 			throw new ApplicationException(
 				$"Craft '{spec.Name}' has {errors.Count.ToString(System.Globalization.CultureInfo.InvariantCulture)} validation error(s):\n - {string.Join("\n - ", errors.Select(x => x.ToString()))}");
+		}
+
+		var stableKey = $"{spec.Category.Trim()}/{spec.Name.Trim()}";
+		if (IsManifestAggregateRegistered("craft", stableKey))
+		{
+			return FindExistingCraft(spec.Name, spec.Category) ??
+			       _craftsByNameAndCategory[CraftLookupKey(spec.Name, spec.Category)];
+		}
+
+		var manifestDefinition = BuildCraftManifestDefinition(spec);
+		var manifestEntry = RegisterManifestAggregate("craft", stableKey, manifestDefinition);
+		var managedRecord = FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey);
+		var existing = FindExistingCraft(spec.Name, spec.Category);
+		if (_manifestCaptureOnly)
+		{
+			if (existing is not null)
+			{
+				return existing;
+			}
+
+			var capturedCraft = new Craft
+			{
+				Id = _nextCraftId++,
+				RevisionNumber = 0,
+				Name = spec.Name,
+				Category = spec.Category
+			};
+			_craftsByNameAndCategory[CraftLookupKey(spec.Name, spec.Category)] = capturedCraft;
+			return capturedCraft;
+		}
+		if (existing is not null)
+		{
+			var liveFingerprint = ItemSeederManifestCatalogue.Fingerprint(BuildLiveCraftManifestDefinition(existing));
+			if (managedRecord is not null && managedRecord.LogicalId is not null && managedRecord.LogicalId != existing.Id)
+			{
+				IncrementManifestResult(manifestEntry.Module, x => x with { Blocked = x.Blocked + 1 });
+				throw new InvalidOperationException(
+					$"ItemSeeder ownership conflict for craft:{stableKey}: provenance names logical ID {managedRecord.LogicalId:N0}, but the natural key resolves to {existing.Id:N0}.");
+			}
+
+			if (managedRecord is not null &&
+			    !liveFingerprint.Equals(managedRecord.AppliedFingerprint, StringComparison.OrdinalIgnoreCase))
+			{
+				if (IsRepairableMissingCraftStock(existing, spec))
+				{
+					RebuildCraft(existing, spec);
+					var repairedFingerprint = ItemSeederManifestCatalogue.Fingerprint(BuildLiveCraftManifestDefinition(existing));
+					RecordAppliedManifestEntry(manifestEntry, existing.Id, existing.RevisionNumber, repairedFingerprint);
+					IncrementManifestResult(manifestEntry.Module, x => x with { Updated = x.Updated + 1 });
+					return existing;
+				}
+
+				MarkManifestAggregateCustomized(manifestEntry.EntityType, manifestEntry.StableKey);
+				IncrementManifestResult(manifestEntry.Module, x => x with { Customized = x.Customized + 1 });
+				return existing;
+			}
+
+			CraftLiveDefinition expectedDefinition;
+			try
+			{
+				expectedDefinition = BuildExpectedLiveCraftDefinition(existing, spec);
+			}
+			catch (Exception exception) when (managedRecord is null)
+			{
+				IncrementManifestResult(manifestEntry.Module, x => x with { Blocked = x.Blocked + 1 });
+				throw new InvalidOperationException(
+					$"Unmanaged craft conflict for '{stableKey}'. The legacy row cannot be proven to have the complete stock signature and will not be claimed or overwritten.",
+					exception);
+			}
+
+			var expectedFingerprint = ItemSeederManifestCatalogue.Fingerprint(expectedDefinition);
+			if (managedRecord is null && !liveFingerprint.Equals(expectedFingerprint, StringComparison.OrdinalIgnoreCase))
+			{
+				IncrementManifestResult(manifestEntry.Module, x => x with { Blocked = x.Blocked + 1 });
+				throw new InvalidOperationException(
+					$"Unmanaged craft conflict for '{stableKey}'. The legacy row does not have the complete stock signature and will not be claimed or overwritten.");
+			}
+
+			if (liveFingerprint.Equals(expectedFingerprint, StringComparison.OrdinalIgnoreCase))
+			{
+				RecordAppliedManifestEntry(manifestEntry, existing.Id, existing.RevisionNumber, liveFingerprint);
+				IncrementManifestResult(manifestEntry.Module, x => x with { Unchanged = x.Unchanged + 1 });
+				return existing;
+			}
+
+			RebuildCraft(existing, spec);
+			var rebuiltFingerprint = ItemSeederManifestCatalogue.Fingerprint(BuildLiveCraftManifestDefinition(existing));
+			RecordAppliedManifestEntry(manifestEntry, existing.Id, existing.RevisionNumber, rebuiltFingerprint);
+			IncrementManifestResult(manifestEntry.Module, x => x with { Updated = x.Updated + 1 });
+			return existing;
 		}
 
         Craft dbitem = new()
@@ -2047,77 +2213,231 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
                 ReviewerComment = "Auto-generated by the system",
                 ReviewerDate = _now
             },
-            Name = spec.Name,
-            Category = spec.Category,
-            Blurb = spec.Blurb,
-            ActionDescription = spec.Action,
-            ActiveCraftItemSdesc = spec.ActiveCraftItemSdesc,
-            AppearInCraftsListProgId = spec.AppearProg!.Id,
-            CanUseProgId = spec.CanUseProg?.Id,
-            WhyCannotUseProgId = spec.WhyCannotUseProg?.Id,
-			OnUseProgStartId = spec.OnStartProg?.Id,
-            OnUseProgCompleteId = spec.OnFinishProg?.Id,
-			OnUseProgCancelId = spec.OnCancelProg?.Id,
-            CheckTrait = spec.Trait!,
-			CheckTraitId = spec.Trait!.Id,
-            CheckDifficulty = (int)spec.Difficulty,
-            FailThreshold = (int)spec.Threshold,
-            FreeSkillChecks = spec.FreeChecks,
-            FailPhase = spec.FailPhase,
-            Interruptable = spec.Interruptable,
-            QualityFormula = "5 + (outcome/3) + (variable/20)",
-            CheckQualityWeighting = 1.0,
-            InputQualityWeighting = 1.0,
-            ToolQualityWeighting = 1.0,
-            IsPracticalCheck = true
-        };
+		};
 		_context!.Crafts.Add(dbitem);
+		RebuildCraft(dbitem, spec, removeExistingChildren: false);
 		_craftsByNameAndCategory[CraftLookupKey(dbitem.Name, dbitem.Category)] = dbitem;
-        int i = 1;
-        foreach (CraftPhaseSpec phase in spec.Phases)
-        {
-			dbitem.CraftPhases.Add(new CraftPhase
-            {
-                Craft = dbitem,
-                Echo = phase.Echo,
-                FailEcho = string.IsNullOrWhiteSpace(phase.FailEcho) ? phase.Echo : phase.FailEcho,
-                PhaseLengthInSeconds = phase.Seconds,
-                PhaseNumber = i++,
+		var appliedFingerprint = ItemSeederManifestCatalogue.Fingerprint(BuildLiveCraftManifestDefinition(dbitem));
+		RecordAppliedManifestEntry(manifestEntry, dbitem.Id, dbitem.RevisionNumber, appliedFingerprint);
+		IncrementManifestResult(manifestEntry.Module, x => x with { Inserted = x.Inserted + 1 });
+        return dbitem;
+	}
+
+	private bool IsRepairableMissingCraftStock(Craft craft, CraftDefinitionSpec spec)
+	{
+		if (!craft.Name.Equals(spec.Name, StringComparison.Ordinal) ||
+		    !craft.Category.Equals(spec.Category, StringComparison.Ordinal) ||
+		    craft.Blurb != spec.Blurb ||
+		    craft.ActionDescription != spec.Action ||
+		    craft.ActiveCraftItemSdesc != spec.ActiveCraftItemSdesc ||
+		    craft.AppearInCraftsListProgId != spec.AppearProg!.Id ||
+		    craft.CanUseProgId != spec.CanUseProg?.Id ||
+		    craft.WhyCannotUseProgId != spec.WhyCannotUseProg?.Id ||
+		    craft.OnUseProgStartId != spec.OnStartProg?.Id ||
+		    craft.OnUseProgCompleteId != spec.OnFinishProg?.Id ||
+		    craft.OnUseProgCancelId != spec.OnCancelProg?.Id ||
+		    craft.CheckTraitId != spec.Trait!.Id ||
+		    craft.CheckDifficulty != (int)spec.Difficulty ||
+		    craft.FailThreshold != (int)spec.Threshold ||
+		    craft.FreeSkillChecks != spec.FreeChecks ||
+		    craft.FailPhase != spec.FailPhase ||
+		    craft.Interruptable != spec.Interruptable ||
+		    craft.QualityFormula != "5 + (outcome/3) + (variable/20)" ||
+		    craft.CheckQualityWeighting != 1.0 ||
+		    craft.InputQualityWeighting != 1.0 ||
+		    craft.ToolQualityWeighting != 1.0 ||
+		    !craft.IsPracticalCheck)
+		{
+			return false;
+		}
+
+		var expectedProductCount = spec.Products.Count + spec.FailProducts.Count;
+		var hasDeletion = craft.CraftPhases.Count < spec.Phases.Count ||
+		                  craft.CraftInputs.Count < spec.Inputs.Count ||
+		                  craft.CraftTools.Count < spec.Tools.Count ||
+		                  craft.CraftProducts.Count < expectedProductCount;
+		if (!hasDeletion || craft.CraftPhases.Count > spec.Phases.Count ||
+		    craft.CraftInputs.Count > spec.Inputs.Count || craft.CraftTools.Count > spec.Tools.Count ||
+		    craft.CraftProducts.Count > expectedProductCount)
+		{
+			return false;
+		}
+
+		var expectedPhases = spec.Phases.Select((x, index) => new CraftLivePhase(
+			index + 1, x.Seconds, x.Echo, string.IsNullOrWhiteSpace(x.FailEcho) ? x.Echo : x.FailEcho,
+			(int)x.Exertion, x.Stamina)).ToDictionary(x => x.Number);
+		if (craft.CraftPhases.Any(x => !expectedPhases.TryGetValue(x.PhaseNumber, out var expected) ||
+		    expected != new CraftLivePhase(x.PhaseNumber, x.PhaseLengthInSeconds, x.Echo, x.FailEcho,
+			    x.ExertionLevel, x.StaminaUsage)))
+		{
+			return false;
+		}
+
+		var expectedInputs = spec.Inputs.Select(x =>
+		{
+			var built = BuildInputDefinition(x);
+			return new CraftLiveInput(built.TypeName, x.QualityWeight, built.Definition);
+		}).ToArray();
+		var liveInputs = craft.CraftInputs.OrderBy(x => x.OriginalAdditionTime).ThenBy(x => x.Id)
+			.Select(x => new CraftLiveInput(x.InputType, x.InputQualityWeight, x.Definition)).ToArray();
+		if (!liveInputs.SequenceEqual(expectedInputs.Take(liveInputs.Length)))
+		{
+			return false;
+		}
+
+		var expectedTools = spec.Tools.Select(x =>
+		{
+			var built = BuildToolDefinition(x);
+			return new CraftLiveTool(built.TypeName, x.QualityWeight, (int)built.State, x.UseToolDuration,
+				built.Definition);
+		}).ToArray();
+		var liveTools = craft.CraftTools.OrderBy(x => x.OriginalAdditionTime).ThenBy(x => x.Id)
+			.Select(x => new CraftLiveTool(x.ToolType, x.ToolQualityWeight, x.DesiredState, x.UseToolDuration,
+				x.Definition)).ToArray();
+		return liveTools.SequenceEqual(expectedTools.Take(liveTools.Length));
+	}
+
+	private CraftLiveDefinition BuildExpectedLiveCraftDefinition(Craft craft, CraftDefinitionSpec spec)
+	{
+		var inputs = spec.Inputs
+			.Select(x =>
+			{
+				var definition = BuildInputDefinition(x);
+				return new CraftLiveInput(definition.TypeName, x.QualityWeight, definition.Definition);
+			})
+			.ToArray();
+		var tools = spec.Tools
+			.Select(x =>
+			{
+				var definition = BuildToolDefinition(x);
+				return new CraftLiveTool(
+					definition.TypeName,
+					x.QualityWeight,
+					(int)definition.State,
+					x.UseToolDuration,
+					definition.Definition);
+			})
+			.ToArray();
+		var products = spec.Products.Concat(spec.FailProducts)
+			.Select(x =>
+			{
+				var definition = BuildProductDefinition(craft, x);
+				return new CraftLiveProduct(
+					definition.TypeName,
+					x.IsFailProduct,
+					x.MaterialDefiningInputIndex,
+					definition.Definition);
+			})
+			.OrderBy(x => x.IsFailProduct)
+			.ToArray();
+
+		return new CraftLiveDefinition(
+			spec.Name,
+			spec.Category,
+			spec.Blurb,
+			spec.Action,
+			spec.ActiveCraftItemSdesc,
+			spec.AppearProg!.Id,
+			spec.CanUseProg?.Id,
+			spec.WhyCannotUseProg?.Id,
+			spec.OnStartProg?.Id,
+			spec.OnFinishProg?.Id,
+			spec.OnCancelProg?.Id,
+			spec.Trait!.Id,
+			(int)spec.Difficulty,
+			(int)spec.Threshold,
+			spec.FreeChecks,
+			spec.FailPhase,
+			spec.Interruptable,
+			"5 + (outcome/3) + (variable/20)",
+			1.0,
+			1.0,
+			1.0,
+			true,
+			spec.Phases.Select((x, index) => new CraftLivePhase(
+				index + 1,
+				x.Seconds,
+				x.Echo,
+				string.IsNullOrWhiteSpace(x.FailEcho) ? x.Echo : x.FailEcho,
+				(int)x.Exertion,
+				x.Stamina)).ToArray(),
+			inputs,
+			tools,
+			products);
+	}
+
+	private void RebuildCraft(Craft craft, CraftDefinitionSpec spec, bool removeExistingChildren = true)
+	{
+		if (removeExistingChildren)
+		{
+			_context!.CraftProducts.RemoveRange(craft.CraftProducts);
+			_context.CraftTools.RemoveRange(craft.CraftTools);
+			_context.CraftInputs.RemoveRange(craft.CraftInputs);
+			_context.CraftPhases.RemoveRange(craft.CraftPhases);
+			craft.CraftProducts.Clear();
+			craft.CraftTools.Clear();
+			craft.CraftInputs.Clear();
+			craft.CraftPhases.Clear();
+		}
+
+		craft.Name = spec.Name;
+		craft.Category = spec.Category;
+		craft.Blurb = spec.Blurb;
+		craft.ActionDescription = spec.Action;
+		craft.ActiveCraftItemSdesc = spec.ActiveCraftItemSdesc;
+		craft.AppearInCraftsListProgId = spec.AppearProg!.Id;
+		craft.CanUseProgId = spec.CanUseProg?.Id;
+		craft.WhyCannotUseProgId = spec.WhyCannotUseProg?.Id;
+		craft.OnUseProgStartId = spec.OnStartProg?.Id;
+		craft.OnUseProgCompleteId = spec.OnFinishProg?.Id;
+		craft.OnUseProgCancelId = spec.OnCancelProg?.Id;
+		craft.CheckTrait = spec.Trait!;
+		craft.CheckTraitId = spec.Trait!.Id;
+		craft.CheckDifficulty = (int)spec.Difficulty;
+		craft.FailThreshold = (int)spec.Threshold;
+		craft.FreeSkillChecks = spec.FreeChecks;
+		craft.FailPhase = spec.FailPhase;
+		craft.Interruptable = spec.Interruptable;
+		craft.QualityFormula = "5 + (outcome/3) + (variable/20)";
+		craft.CheckQualityWeighting = 1.0;
+		craft.InputQualityWeighting = 1.0;
+		craft.ToolQualityWeighting = 1.0;
+		craft.IsPracticalCheck = true;
+
+		var phaseNumber = 1;
+		foreach (var phase in spec.Phases)
+		{
+			craft.CraftPhases.Add(new CraftPhase
+			{
+				Craft = craft,
+				Echo = phase.Echo,
+				FailEcho = string.IsNullOrWhiteSpace(phase.FailEcho) ? phase.Echo : phase.FailEcho,
+				PhaseLengthInSeconds = phase.Seconds,
+				PhaseNumber = phaseNumber++,
 				ExertionLevel = (int)phase.Exertion,
 				StaminaUsage = phase.Stamina
-            });
-        }
+			});
+		}
 
-        foreach (CraftInputSpec input in spec.Inputs)
-        {
-            CraftInput dbinput = ConvertToInput(dbitem, input);
-            dbitem.CraftInputs.Add(dbinput);
-        }
+		foreach (var input in spec.Inputs)
+		{
+			craft.CraftInputs.Add(ConvertToInput(craft, input));
+		}
 
-        foreach (CraftToolSpec tool in spec.Tools)
-        {
-            CraftTool dbtool = ConvertToTool(dbitem, tool);
-            dbitem.CraftTools.Add(dbtool);
-        }
+		foreach (var tool in spec.Tools)
+		{
+			craft.CraftTools.Add(ConvertToTool(craft, tool));
+		}
 
-        // We have to save before products because some of the product types depend on input IDs
-        _context.SaveChanges();
+		_context!.SaveChanges();
+		foreach (var product in spec.Products.Concat(spec.FailProducts))
+		{
+			craft.CraftProducts.Add(ConvertToProduct(craft, product));
+		}
 
-        foreach (CraftProductSpec product in spec.Products)
-        {
-            dbitem.CraftProducts.Add(ConvertToProduct(dbitem, product));
-        }
-
-        foreach (CraftProductSpec product in spec.FailProducts)
-        {
-            dbitem.CraftProducts.Add(ConvertToProduct(dbitem, product));
-        }
-
+		_context.SaveChanges();
 		if (_deferCraftProductSave)
 		{
-			// Persist and detach each completed craft so later craft saves do not repeatedly scan the
-			// whole seeded catalogue. Product definitions have already consumed the database input IDs.
-			_context.SaveChanges();
 			DetachTrackedEntities(entity => entity is Craft or
 				CraftPhase or
 				CraftInput or
@@ -2125,11 +2445,6 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 				CraftProduct or
 				EditableItem);
 		}
-		else
-		{
-			_context.SaveChanges();
-		}
-        return dbitem;
 	}
 
     private static int? GetMaterialDefiningInputIndex(List<(int Product, int Input)>? indexes, int productNumber)
@@ -2327,6 +2642,20 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 				return trait;
 			}
 		}
+		if (_manifestCaptureOnly)
+		{
+			var capturedTrait = new TraitDefinition
+			{
+				Id = -(_traits.Count + 1L),
+				Name = traitName.Trim(),
+				Alias = traitName.Trim(),
+				TraitGroup = "Captured ItemSeeder Dependency",
+				ChargenBlurb = string.Empty,
+				ValueExpression = "0"
+			};
+			_traits[traitName] = capturedTrait;
+			return capturedTrait;
+		}
 
 		throw new ApplicationException(
 			$"Unknown trait {traitName}. Tried: {string.Join(", ", attemptedNames)}");
@@ -2395,6 +2724,13 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 		{
 			throw new ApplicationException("Knowledge name cannot be blank");
 		}
+		if (IsManifestAggregateRegistered("knowledge", trimmedName))
+		{
+			return _context!.Knowledges.Local.FirstOrDefault(x =>
+				       x.Name.Equals(trimmedName, StringComparison.OrdinalIgnoreCase)) ??
+			       _context.Knowledges.AsEnumerable().First(x =>
+				       x.Name.Equals(trimmedName, StringComparison.OrdinalIgnoreCase));
+		}
 
 		FutureProg alwaysTrueProg = EnsureAlwaysTrueProg();
 		string description = string.IsNullOrWhiteSpace(knowledgeDescription)
@@ -2414,6 +2750,42 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 				_context.Knowledges.Add(created);
 				return created;
 			});
+		var manifestDefinition = new KnowledgeManifestDefinition(
+			trimmedName,
+			string.IsNullOrWhiteSpace(knowledgeType) ? "Crafting" : knowledgeType.Trim(),
+			string.IsNullOrWhiteSpace(knowledgeSubtype) ? "General" : knowledgeSubtype.Trim(),
+			description,
+			longDescription,
+			(int)learnable,
+			(int)learnDifficulty,
+			(int)teachDifficulty,
+			Math.Max(1, learningSessionsRequired),
+			alwaysTrueProg.FunctionName,
+			alwaysTrueProg.FunctionName);
+		var manifestEntry = RegisterManifestAggregate("knowledge", trimmedName, manifestDefinition);
+		var isNew = _context.Entry(knowledge).State == EntityState.Added;
+		if (!isNew)
+		{
+			var liveDefinition = new KnowledgeManifestDefinition(
+				knowledge.Name,
+				knowledge.Type,
+				knowledge.Subtype,
+				knowledge.Description,
+				knowledge.LongDescription,
+				knowledge.LearnableType,
+				knowledge.LearnDifficulty,
+				knowledge.TeachDifficulty,
+				knowledge.LearningSessionsRequired,
+				knowledge.CanAcquireProg?.FunctionName ??
+				_context.FutureProgs.Where(x => x.Id == knowledge.CanAcquireProgId).Select(x => x.FunctionName).FirstOrDefault() ?? string.Empty,
+				knowledge.CanLearnProg?.FunctionName ??
+				_context.FutureProgs.Where(x => x.Id == knowledge.CanLearnProgId).Select(x => x.FunctionName).FirstOrDefault() ?? string.Empty);
+			var disposition = InspectManifestAggregate(manifestEntry, knowledge.Id, liveDefinition);
+			if (disposition is ManifestAggregateDisposition.Customized or ManifestAggregateDisposition.Unchanged)
+			{
+				return knowledge;
+			}
+		}
 
 		knowledge.Name = trimmedName;
 		knowledge.Type = string.IsNullOrWhiteSpace(knowledgeType) ? "Crafting" : knowledgeType.Trim();
@@ -2426,9 +2798,14 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 		knowledge.LearningSessionsRequired = Math.Max(1, learningSessionsRequired);
 		knowledge.CanAcquireProg = alwaysTrueProg;
 		knowledge.CanLearnProg = alwaysTrueProg;
-		if (_context.Entry(knowledge).State == EntityState.Added)
+		if (isNew)
 		{
+			CompleteManifestAggregate(manifestEntry, null, manifestDefinition, ManifestAggregateDisposition.Insert);
 			_context.SaveChanges();
+		}
+		else
+		{
+			CompleteManifestAggregate(manifestEntry, knowledge.Id, manifestDefinition, ManifestAggregateDisposition.Update);
 		}
 		return knowledge;
 	}
@@ -2572,8 +2949,13 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		       throw new ApplicationException($"Craft '{name}' was not created.");
 	}
 
-    private void SeedCrafts()
+	private void SeedCrafts()
     {
+		if (_questionAnswers?.TryGetValue("eras", out var eras) != true || string.IsNullOrWhiteSpace(eras))
+		{
+			return;
+		}
+
         // Reset nextID
 		_nextCraftId = _context!.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
 
@@ -2583,12 +2965,16 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		{
 			RunSeedStage("Creating historic and primary-production crafts", () =>
 			{
+				using var manifestModule = UseManifestModule("crafts", "antiquity", "medieval", "renaissance", "earlymodern");
 				SeedHistoricFoundationCrafts();
 				SeedPrimaryProductionCommodityCrafts();
 			});
-			RunSeedStage("Creating antiquity crafts", () =>
+			if (HasAnyEra(eras, "antiquity"))
 			{
-				SeedAntiquityHellenicClothingCrafts();
+				RunSeedStage("Creating antiquity crafts", () =>
+				{
+					using var manifestModule = UseManifestModule("crafts", "antiquity");
+					SeedAntiquityHellenicClothingCrafts();
 				SeedAntiquityEgyptianClothingCrafts();
 				SeedAntiquityRomanClothingCrafts();
 				SeedAntiquityCelticClothingCrafts();
@@ -2612,11 +2998,15 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 				SeedAntiquityLeatherFurnishingCrafts();
 				SeedAntiquityApiaryCrafts();
 				SeedAntiquityAgriculturalProcessingCrafts();
-				SeedAntiquityFoodCrafts();
-			});
-			RunSeedStage("Creating medieval and pre-industrial crafts", () =>
+					SeedAntiquityFoodCrafts();
+				});
+			}
+			if (HasAnyEra(eras, "medieval", "renaissance", "earlymodern"))
 			{
-				SeedMedievalProductionChainCrafts();
+				RunSeedStage("Creating medieval and pre-industrial crafts", () =>
+				{
+					using var manifestModule = UseManifestModule("crafts", "medieval", "renaissance", "earlymodern");
+					SeedMedievalProductionChainCrafts();
 				SeedMedievalClothingCrafts();
 				SeedMedievalEquipmentCrafts();
 				SeedMedievalWritingAdministrationCrafts();
@@ -2626,10 +3016,17 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 				SeedMedievalFoodBeverageCrafts();
 				SeedPreIndustrialFoodCatalogueCrafts();
 				SeedMedievalRepairKitCrafts();
-				SeedMedievalComponentGapCrafts();
-			});
-			RunSeedStage("Creating Renaissance and Early Modern jewellery and door crafts",
-				SeedRenaissanceEarlyModernJewelleryDoorCrafts);
+					SeedMedievalComponentGapCrafts();
+				});
+			}
+			if (HasAnyEra(eras, "renaissance", "earlymodern"))
+			{
+				RunSeedStage("Creating Renaissance and Early Modern jewellery and door crafts", () =>
+				{
+					using var manifestModule = UseManifestModule("crafts", "renaissance", "earlymodern");
+					SeedRenaissanceEarlyModernJewelleryDoorCrafts();
+				});
+			}
 		}
 		finally
 		{

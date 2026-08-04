@@ -56,7 +56,7 @@ public partial class ItemSeeder
 			tools,
 			products,
 			failProducts ?? [],
-			knowledgeSubtype: knowledgeSubtype,
+			knowledgeSubtype: "Foundations",
 			knowledgeDescription: "Shared historic workshop foundations for antiquity and medieval installs.",
 			knowledgeLongDescription: "Shared historic workshop foundations for cross-era stock such as hearths, looms, kilns, shears, awls, querns, and general apparatus.");
 	}

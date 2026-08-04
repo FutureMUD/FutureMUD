@@ -526,6 +526,13 @@ public partial class ItemSeeder
 	{
 		if (_tagsByFullPath.TryGetValue(path, out var existing))
 		{
+			var separator = path.LastIndexOf(" / ", StringComparison.Ordinal);
+			var definition = new TagManifestDefinition(
+				path,
+				separator < 0 ? path : path[(separator + 3)..],
+				separator < 0 ? null : path[..separator]);
+			var entry = RegisterManifestAggregate("tag", path, definition);
+			InspectManifestAggregate(entry, existing.Id, definition);
 			return existing;
 		}
 
@@ -537,25 +544,27 @@ public partial class ItemSeeder
 			fullPath = string.IsNullOrWhiteSpace(fullPath) ? part : $"{fullPath} / {part}";
 			if (_tagsByFullPath.TryGetValue(fullPath, out existing))
 			{
+				var cachedDefinition = new TagManifestDefinition(fullPath, part,
+					parent is null ? null : fullPath[..fullPath.LastIndexOf(" / ", StringComparison.Ordinal)]);
+				var cachedEntry = RegisterManifestAggregate("tag", fullPath, cachedDefinition);
+				InspectManifestAggregate(cachedEntry, existing.Id, cachedDefinition);
 				parent = existing;
 				continue;
 			}
 
 			var parentId = parent?.Id;
-			_tags.TryGetValue(part, out var cachedTag);
 			existing = _context!.Tags.Local
 			                    .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase) &&
 			                                         x.ParentId == parentId) ??
 			           _context.Tags
 			                   .AsEnumerable()
 			                   .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase) &&
-			                                        x.ParentId == parentId) ??
-			           cachedTag ??
-			           _context.Tags.Local
-			                   .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase)) ??
-			           _context.Tags
-			                   .AsEnumerable()
-			                   .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase));
+			                                        x.ParentId == parentId);
+			var tagDefinition = new TagManifestDefinition(
+				fullPath,
+				part,
+				parent is null ? null : fullPath[..fullPath.LastIndexOf(" / ", StringComparison.Ordinal)]);
+			var tagEntry = RegisterManifestAggregate("tag", fullPath, tagDefinition);
 			if (existing is null)
 			{
 				existing = new Tag
@@ -566,6 +575,11 @@ public partial class ItemSeeder
 					ParentId = parent?.Id
 				};
 				_context.Tags.Add(existing);
+				CompleteManifestAggregate(tagEntry, existing.Id, tagDefinition, ManifestAggregateDisposition.Insert);
+			}
+			else
+			{
+				InspectManifestAggregate(tagEntry, existing.Id, tagDefinition);
 			}
 
 			_tagsByFullPath[fullPath] = existing;
@@ -622,8 +636,23 @@ public partial class ItemSeeder
 
 	private GameItemComponentProto EnsurePreparedFoodComponent(string name, string description, string definition)
 	{
+		var manifestDefinition = new ComponentManifestDefinition(name, description, "PreparedFood", 0, definition);
+		var manifestEntry = RegisterManifestAggregate("component", name, manifestDefinition);
 		if (_components.TryGetValue(name, out var component))
 		{
+			var liveDefinition = new ComponentManifestDefinition(
+				component.Name,
+				component.Description,
+				component.Type,
+				component.RevisionNumber,
+				component.Definition);
+			var disposition = InspectManifestAggregate(manifestEntry, component.Id, liveDefinition);
+			if (disposition == ManifestAggregateDisposition.Update)
+			{
+				component.Description = description;
+				component.Definition = definition;
+				CompleteManifestAggregate(manifestEntry, component.Id, manifestDefinition, disposition);
+			}
 			return component;
 		}
 
@@ -639,6 +668,7 @@ public partial class ItemSeeder
 		};
 		_context!.GameItemComponentProtos.Add(component);
 		_components[name] = component;
+		CompleteManifestAggregate(manifestEntry, component.Id, manifestDefinition, ManifestAggregateDisposition.Insert);
 		return component;
 	}
 
@@ -702,11 +732,30 @@ public partial class ItemSeeder
 	private void EnsureAntiquityLiquid(string name, string description, string longDescription, string taste,
 		string smell, string colour, double alcohol, double water, params string[] tagNames)
 	{
+		var tagPaths = tagNames
+			.Where(_tags.ContainsKey)
+			.Select(tagName => _tagsByFullPath.First(x => x.Value.Id == _tags[tagName].Id).Key)
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.ToArray();
+		var manifestDefinition = new LiquidManifestDefinition(
+			name, description, longDescription, taste, smell, 500, 200, alcohol, water, 0.2, water, 1.0, 1.02,
+			true, 0.6, 0.0001, 4184.0, colour, 1.0, 0, 0.01, 1.0, false, string.Empty, tagPaths);
+		var manifestEntry = RegisterManifestAggregate("liquid", name, manifestDefinition);
 		if (_liquids.TryGetValue(name, out var existing))
 		{
+			var disposition = InspectManifestAggregate(manifestEntry, existing.Id, BuildLiveLiquidManifestDefinition(existing));
+			if (disposition == ManifestAggregateDisposition.Customized)
+			{
+				return;
+			}
 			foreach (var tagName in tagNames)
 			{
 				EnsureLiquidHasTag(existing, tagName);
+			}
+			if (disposition == ManifestAggregateDisposition.Update)
+			{
+				ApplyAntiquityLiquidDefinition(existing, manifestDefinition);
+				CompleteManifestAggregate(manifestEntry, existing.Id, manifestDefinition, disposition);
 			}
 
 			return;
@@ -754,6 +803,36 @@ public partial class ItemSeeder
 		{
 			EnsureLiquidHasTag(liquid, tagName);
 		}
+		CompleteManifestAggregate(manifestEntry, liquid.Id, manifestDefinition, ManifestAggregateDisposition.Insert);
+	}
+
+	private static void ApplyAntiquityLiquidDefinition(Liquid liquid, LiquidManifestDefinition definition)
+	{
+		liquid.Description = definition.Description;
+		liquid.LongDescription = definition.LongDescription;
+		liquid.TasteText = definition.Taste;
+		liquid.VagueTasteText = definition.Taste;
+		liquid.SmellText = definition.Smell;
+		liquid.VagueSmellText = definition.Smell;
+		liquid.TasteIntensity = definition.TasteIntensity;
+		liquid.SmellIntensity = definition.SmellIntensity;
+		liquid.AlcoholLitresPerLitre = definition.Alcohol;
+		liquid.WaterLitresPerLitre = definition.Water;
+		liquid.FoodSatiatedHoursPerLitre = definition.FoodSatiation;
+		liquid.DrinkSatiatedHoursPerLitre = definition.DrinkSatiation;
+		liquid.Viscosity = definition.Viscosity;
+		liquid.Density = definition.Density;
+		liquid.Organic = definition.Organic;
+		liquid.ThermalConductivity = definition.ThermalConductivity;
+		liquid.ElectricalConductivity = definition.ElectricalConductivity;
+		liquid.SpecificHeatCapacity = definition.SpecificHeatCapacity;
+		liquid.DisplayColour = definition.DisplayColour;
+		liquid.SolventVolumeRatio = definition.SolventVolumeRatio;
+		liquid.InjectionConsequence = definition.InjectionConsequence;
+		liquid.ResidueVolumePercentage = definition.ResidueVolumePercentage;
+		liquid.RelativeEnthalpy = definition.RelativeEnthalpy;
+		liquid.LeaveResidueInRooms = definition.LeaveResidueInRooms;
+		liquid.SurfaceReactionInfo = definition.SurfaceReactionInfo;
 	}
 
 	private void EnsureLiquidHasTag(Liquid liquid, string tagName)
@@ -781,8 +860,22 @@ public partial class ItemSeeder
 	private void EnsureCommoditySpoilageRule(string name, string description, Material? material, Tag? materialTag,
 		Tag? commodityTag, Material resultMaterial, Tag? resultCommodityTag, TimeSpan spoilTime, string? echo)
 	{
+		var manifestDefinition = new CommoditySpoilageManifestDefinition(
+			name,
+			description,
+			true,
+			0,
+			material?.Name,
+			materialTag?.Name,
+			commodityTag?.Name,
+			resultMaterial.Name,
+			resultCommodityTag?.Name,
+			(long)spoilTime.TotalSeconds,
+			echo);
+		var manifestEntry = RegisterManifestAggregate("commodity-spoilage", name, manifestDefinition);
 		var existing = _context!.CommoditySpoilageRules.AsEnumerable().FirstOrDefault(x => x.Name == name) ??
 		               _context.CommoditySpoilageRules.Local.AsEnumerable().FirstOrDefault(x => x.Name == name);
+		var disposition = ManifestAggregateDisposition.Insert;
 		if (existing is null)
 		{
 			existing = new CommoditySpoilageRule
@@ -790,6 +883,34 @@ public partial class ItemSeeder
 				Name = name
 			};
 			_context.CommoditySpoilageRules.Add(existing);
+		}
+		else
+		{
+			string? MaterialName(long? id) => id is null
+				? null
+				: _materials.Values.FirstOrDefault(x => x.Id == id)?.Name ??
+				  _context.Materials.Where(x => x.Id == id).Select(x => x.Name).FirstOrDefault();
+			string? TagName(long? id) => id is null
+				? null
+				: _tags.Values.FirstOrDefault(x => x.Id == id)?.Name ??
+				  _context.Tags.Where(x => x.Id == id).Select(x => x.Name).FirstOrDefault();
+			var liveDefinition = new CommoditySpoilageManifestDefinition(
+				existing.Name,
+				existing.Description,
+				existing.Enabled,
+				existing.Priority,
+				MaterialName(existing.MaterialId),
+				TagName(existing.MaterialTagId),
+				TagName(existing.CommodityTagId),
+				MaterialName(existing.ResultMaterialId) ?? string.Empty,
+				TagName(existing.ResultCommodityTagId),
+				existing.SecondsUntilSpoiled,
+				existing.SpoilEcho);
+			disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
+			if (disposition is ManifestAggregateDisposition.Customized or ManifestAggregateDisposition.Unchanged)
+			{
+				return;
+			}
 		}
 
 		existing.Description = description;
@@ -802,6 +923,7 @@ public partial class ItemSeeder
 		existing.ResultCommodityTagId = resultCommodityTag?.Id;
 		existing.SecondsUntilSpoiled = (long)spoilTime.TotalSeconds;
 		existing.SpoilEcho = echo;
+		CompleteManifestAggregate(manifestEntry, existing.Id, manifestDefinition, disposition);
 	}
 
 	private sealed record AntiquityFoodCultureSpec(

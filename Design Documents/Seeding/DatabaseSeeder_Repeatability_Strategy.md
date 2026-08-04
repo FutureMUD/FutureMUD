@@ -51,7 +51,7 @@ For source-only catalogue fixes, prefer invariant tests that scan the seed defin
 
 - `CoreDataSeeder` is now `Idempotent` / `RepairExisting` only for its foundation catalogues. A detected rerun skips account and game-identity questions and never recreates bootstrap accounts, characters, cells, shards, zones, channels, settings, or helper progs. It reconciles stock tags, materials, liquids, gases, terrain foundations and forage profiles, units, colours, default planes, and hearing profiles by stable stock identities.
 - `AttributeSeeder`, `HumanSeeder`, `AnimalSeeder`, and `CombatSeeder` are now repeat-safe and declared `Idempotent` / `FullReconcile`. Their recorded structural choices are reused on a rerun; when a choice cannot be recovered safely, the seeder preserves the installed shape rather than converting it.
-- Rerunnable metadata seeders now all declare `SafeToRunMoreThanOnce`. `ItemSeeder` remains `OneShot` / `None`; its narrow stock-craft install-missing path does not change that classification.
+- Rerunnable metadata seeders now all declare `SafeToRunMoreThanOnce`. `ItemSeeder` is `Idempotent` / `FullReconcile`, backed by an executable aggregate manifest and durable `SeederManagedRecords` provenance.
 - Combat remains one user-facing menu package. Its reconciliation is internally split into foundation, melee/shield, ranged, early-firearm, modern-firearm, armour, era-dependency, and auxiliary/manual-command modules with dependency ordering. Missing firearm modules remain opt-in; installed firearm modules are repaired when Combat is rerun.
 - Stock reconciliation adds missing named records and required links, refreshes canonical stock scalar data where a stable ownership key exists, and retains builder-added extensions. Duplicate natural keys, incompatible fixed IDs, or unresolvable structural choices are reported rather than guessed.
 
@@ -68,7 +68,7 @@ For source-only catalogue fixes, prefer invariant tests that scan the seed defin
 - `AgricultureSeeder` installs repair-capable stock agriculture profiles, crop/herd/woodland definitions, operations, and backing local project templates by stable names, including broad stock coverage for common crops and rough land-expansion profiles.
 - `PrimaryProductionSeeder` installs repair-capable stock primary-production local projects by deterministic project names, using stock visible resource props, commodity outputs, and bulk commodity requirements.
 - `StockMeritsSeeder` now provides a repair-capable stock merits and flaws package built around stable merit names and tag-driven helper FutureProgs.
-- `ItemSeeder` craft authoring now inserts missing stock craft rows by `Name + Category` and skips matching existing craft rows without adding duplicate phases, inputs, tools, or products. This is a narrow stock-craft install-missing behavior, not full `ItemSeeder` repeatability.
+- `ItemSeeder` now registers its stock items, crafts, outfits, supporting definitions, lifecycle relationships, and complete vehicle graphs through one executable manifest. The checked-in `Seeded_Item_Manifest.json` is a generated review artefact; the executable registry is authoritative.
 - Shared answer reuse is no longer combat-only. The live shared-answer wave covers combat message style, damage randomness, human health model, and non-human health model.
 - Many legacy seeders still rely on coarse installed-state checks such as `Accounts.Any()`, `WeaponAttacks.Any()`, `ClimateModels.Any()`, `ChargenScreenStoryboards.Any()`, or `SurgicalProcedures.Any()`. Phase 2 is the wave intended to replace those with deterministic stock-key detection.
 - Duplicate `SortOrder` values were previously unstable in the menu flow; the structured assessment/menu work now gives that ordering deterministic tie-breaking.
@@ -102,7 +102,7 @@ For source-only catalogue fixes, prefer invariant tests that scan the seed defin
 | `WeatherSeeder` | 300 | Requires account and at least one celestial | Deterministic stock-key check on seeded climate/weather markers | None | Upserts stock weather events, including natural-light attenuation, plus seasons, climate models, regional climates, and rain settings by stable names; `full` and `soak` explicitly reconcile `PuddlesEnabled` to true and false respectively | Repairs seeded package in place | `Idempotent` / `RepairExisting` | Medium | Keep controller assignment builder-owned and expand regression coverage only where needed |
 | `MythicalAnimalSeeder` | 302 | Requires human and animal body frameworks, corpse models, characteristic profiles, and non-human strategies | `MayAlreadyBeInstalled` only when all stock mythic races exist | Non-human health model, damage randomness, and combat message style are now shareable | Installs incrementally and skips existing stock mythic races | Install-missing only | `Idempotent` / `InstallMissing` | Medium | Document exact skip behavior and preserve as repeatable package |
 | `RobotSeeder` | 305 | Requires humanoid and animal body frameworks, characteristic profiles, corpse models, tool tags, progs, and prerequisite attacks | `MayAlreadyBeInstalled` only when all tracked robot content exists | None | Installs incrementally and skips existing stock robot records | Install-missing only | `Idempotent` / `InstallMissing` | Medium | Document exact skip behavior and preserve as repeatable package |
-| `ItemSeeder` | 400 | Requires Useful item component prerequisites | Always `ReadyToInstall` once prerequisites exist | None | Large item content remains broadly one-shot; `AddCraft` now installs missing stock craft rows by `Name + Category` and skips matching existing rows without duplicating children | Stock craft rows only: install missing / skip existing. No item-prototype repair or full craft refresh | Overall `OneShot`; craft rows have limited `InstallMissing` behavior | High | Keep the craft-row skip behavior narrow and create explicit stock package ownership before declaring broader ItemSeeder repeatability |
+| `ItemSeeder` | 400 | Requires Useful item component prerequisites | Provenance-backed fresh/current/update status | Recalls installed eras; reruns retain installed eras and may add implemented eras | Reconciles manifest-owned aggregate graphs by stable identity and last-applied fingerprint | Repairs untouched stock, restores required links, preserves builder-customized aggregates, retires removed definitions without deletion | `Idempotent` / `FullReconcile` | High | Keep every persistence path behind the manifest registry and check the generated manifest in CI |
 | `PrimaryProductionSeeder` | 420 | Requires account, `AlwaysTrue`, primary-production tags/materials, primary-production visible resource props, bloomery apparatus, and stock labour traits | Deterministic stock-key check on `Stock Primary Production: ` project names | None | Upserts stock prospecting, extraction, quarrying, kiln, smelting, salt, tar, peat, pigment, and coal local project templates by deterministic names | Repairs stock-owned project definitions, labour, material requirements, and actions in place | `Idempotent` / `RepairExisting` | Medium | Keep resource-site placement builder-owned and expand database-backed rerun coverage after more primary-production chains ship |
 | `LawSeeder` | 5000 | Requires account and currency | Deterministic stock-key check within legal authorities | None | Upserts named authorities, legal classes, witness profiles, enforcement groups, and stock laws by stable names | Repairs seeded package in place | `Idempotent` / `RepairExisting` | Medium | Add same-authority rerun tests and confirm live runtime references stay intact |
 
@@ -130,8 +130,18 @@ For source-only catalogue fixes, prefer invariant tests that scan the seed defin
 - `CurrencySeeder`
 - `ClanSeeder`
 
-### High-risk or coarse-gated seeders
-- `ItemSeeder` overall, except the narrow stock-craft install-missing/skip-existing behavior in `AddCraft`
+### Manifest-backed full reconciliation
+- `ItemSeeder`, with foundations, shared pre-industrial, Antiquity, Medieval, Renaissance, Early Modern, lifecycle, outfit, craft, and vehicle modules
+
+## ItemSeeder Ownership and Revision Rules
+
+- Stable references identify logical item prototypes; several revisions of one logical ID are valid, while the same active reference on multiple logical IDs blocks the run.
+- Provenance is stored per logical aggregate. Item, craft, outfit, and vehicle fingerprints include their owned child graphs.
+- A legacy row is adopted only when its unique identity and complete canonical signature match. Drifted or ambiguous untracked rows remain unmanaged and block mutation.
+- A managed aggregate is refreshed only while its live fingerprint matches the last applied stock fingerprint. Any builder modification preserves the entire aggregate.
+- Builder-added records and relationships are retained. Removed stock is marked retired in provenance and is never deleted.
+- Revolution, Modern, Atomic, and Computer are not selectable until executable modules contain real stock definitions.
+- `--check-item-manifest` validates the checked-in registry without a database. `--export-item-manifest [path]` exports the same canonical document without connecting to a database.
 
 ## System-Level Findings
 ### Menu and status flow

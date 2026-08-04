@@ -51,7 +51,7 @@ The current registered seeder surface in `DatabaseSeeder/Seeders` is:
 
 ## Repeatability Status Update
 
-Core foundation catalogues are now safely repairable on rerun without revisiting bootstrap-world creation. Attributes, the human and animal baselines, and Combat are repeat-safe stock packages that retain their installed structural choices. Combat remains one package for builders while its seed work is internally ordered into independently assessed modules. ItemSeeder is deliberately unchanged: it remains a one-shot content package apart from its limited stock-craft install-missing behavior.
+Core foundation catalogues are safely repairable on rerun without revisiting bootstrap-world creation. Attributes, the human and animal baselines, Combat, and ItemSeeder are repeat-safe stock packages. ItemSeeder now uses an executable module registry plus durable aggregate provenance to reconcile untouched stock while preserving builder customization. Its implemented era boundary is explicit: Antiquity, Medieval, Renaissance, and Early Modern have real modules; later no-op era choices are unavailable.
 
 ## Rubric
 Each system is classified with the following fields:

@@ -56,6 +56,16 @@ internal class Program
             return;
         }
 
+		if (TryCaptureItemManifest(args))
+		{
+			return;
+		}
+
+		if (ItemSeederManifestCatalogue.TryHandleCommand(args))
+		{
+			return;
+		}
+
         string password = "", user = "", database = "";
 
         Console.ForegroundColor = ConsoleColor.Magenta;
@@ -208,6 +218,40 @@ The exception details were as follows:
 		}
 #endif
     }
+
+	private static bool TryCaptureItemManifest(string[] args)
+	{
+		var captureIndex = Array.FindIndex(args,
+			x => x.Equals("--capture-item-manifest", StringComparison.OrdinalIgnoreCase));
+		if (captureIndex < 0)
+		{
+			return false;
+		}
+
+		ConnectionString = captureIndex + 1 < args.Length &&
+		                   !args[captureIndex + 1].StartsWith("--", StringComparison.Ordinal)
+			? args[captureIndex + 1]
+			: Environment.GetEnvironmentVariable("FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING");
+#if DEBUG
+		ConnectionString ??=
+			"server=localhost;port=3307;database=demo_dbo;uid=futuremud;password=rpiengine2020;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
+#endif
+		if (string.IsNullOrWhiteSpace(ConnectionString))
+		{
+			throw new InvalidOperationException(
+				"--capture-item-manifest requires FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING or a connection string argument.");
+		}
+
+		var repositoryRoot = ItemSeederManifestCatalogue.FindRepositoryRoot();
+		var outputPath = Path.Combine(repositoryRoot,
+			ItemSeederManifestCatalogue.DefaultRelativePath.Replace('/', Path.DirectorySeparatorChar));
+		using var context = CreateContext();
+		var document = new Seeders.ItemSeeder().CaptureManifest(context, repositoryRoot);
+		Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+		File.WriteAllText(outputPath, ItemSeederManifestCatalogue.Serialize(document));
+		Console.WriteLine($"Captured {document.Entries.Count:N0} ItemSeeder aggregates to {outputPath}.");
+		return true;
+	}
 
     private static void RefreshBlankDatabaseSnapshot(Version version)
     {

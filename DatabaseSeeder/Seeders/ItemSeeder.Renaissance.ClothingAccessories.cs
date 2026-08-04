@@ -91,7 +91,7 @@ public partial class ItemSeeder
 			_materials.Keys,
 			_tagsByFullPath.Keys,
 			_components.Keys);
-		if (issues.Count > 0)
+		if (!_manifestCaptureOnly && issues.Count > 0)
 		{
 			throw new InvalidOperationException(
 				"Renaissance clothing cannot be seeded because required dependencies are missing:" +

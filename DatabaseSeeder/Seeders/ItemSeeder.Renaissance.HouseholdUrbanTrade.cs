@@ -52,7 +52,7 @@ public partial class ItemSeeder
 	private void SeedRenaissanceHouseholdUrbanAndTrade()
 	{
 		var dependencyIssues = ValidateRenaissanceHouseholdDependencies(RenaissanceHouseholdItemSpecs);
-		if (dependencyIssues.Count > 0)
+		if (!_manifestCaptureOnly && dependencyIssues.Count > 0)
 		{
 			throw new InvalidOperationException(
 				"Renaissance household catalogue cannot be seeded because required dependencies are missing:" +

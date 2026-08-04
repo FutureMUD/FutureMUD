@@ -34,7 +34,8 @@ public partial class ItemSeeder
 		}
 
 		foreach (var target in _items
-		         .Where(x => IsRenaissanceEarlyModernJewelleryDoorReference(x.Key))
+		         .Where(x => IsRenaissanceEarlyModernJewelleryDoorReference(x.Key) &&
+		                     RenaissanceEarlyModernJewelleryDoorsCraftNamesByStableReference.ContainsKey(x.Key))
 		         .OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
 		{
 			SeedRenaissanceEarlyModernJewelleryDoorFinishedCraft(target.Key, target.Value);

@@ -44,6 +44,7 @@ INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('2026
 INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20260726211712_VehicleRiderPoweredPropulsion','9.0.11');
 INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20260727101435_CombatPositionAttackPreference','9.0.11');
 INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20260730053720_FirearmAttachmentsAndProjectileAmmunition','9.0.11');
+INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20260804125523_SeederManagedRecordProvenance','9.0.11');
 /*!40000 ALTER TABLE `__efmigrationshistory` ENABLE KEYS */;
 
 --
@@ -8325,6 +8326,34 @@ CREATE TABLE IF NOT EXISTS `regionalclimates_seasons` (
 
 /*!40000 ALTER TABLE `regionalclimates_seasons` DISABLE KEYS */;
 /*!40000 ALTER TABLE `regionalclimates_seasons` ENABLE KEYS */;
+
+--
+-- Definition of seedermanagedrecords
+--
+
+DROP TABLE IF EXISTS `seedermanagedrecords`;
+CREATE TABLE IF NOT EXISTS `seedermanagedrecords` (
+  `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `Seeder` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Module` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `EntityType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `StableKey` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `LogicalId` bigint(20) DEFAULT NULL,
+  `RevisionNumber` int(11) DEFAULT NULL,
+  `AppliedFingerprint` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `ManifestVersion` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `AppliedAt` datetime NOT NULL,
+  `Retired` bit(1) NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_SeederManagedRecords_Identity` (`Seeder`,`EntityType`,`StableKey`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table seedermanagedrecords
+--
+
+/*!40000 ALTER TABLE `seedermanagedrecords` DISABLE KEYS */;
+/*!40000 ALTER TABLE `seedermanagedrecords` ENABLE KEYS */;
 
 --
 -- Definition of seederchoices

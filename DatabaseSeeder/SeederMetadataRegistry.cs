@@ -398,8 +398,8 @@ public static class SeederMetadataRegistry
                 DependencySeederTypes: [typeof(HumanSeeder), typeof(AnimalSeeder), typeof(CombatSeeder), typeof(UsefulSeeder)]
             ),
             nameof(ItemSeeder) => new SeederMetadata(
-                SeederRepeatabilityMode.OneShot,
-                SeederUpdateCapability.None,
+				SeederRepeatabilityMode.Idempotent,
+				SeederUpdateCapability.FullReconcile,
                 [
                     Requirement("Useful item component prerequisites must already exist.", context =>
                         context.GameItemComponentProtos.Any(x => x.Name == "Container_Table") &&
@@ -407,7 +407,10 @@ public static class SeederMetadataRegistry
                         context.GameItemComponentProtos.Any(x => x.Name == "Destroyable_Misc") &&
                         context.GameItemComponentProtos.Any(x => x.Name == "Torch_Infinite") &&
                         context.Tags.Any(x => x.Name == "Functions"))
-                ],
+				],
+				RerunSummary: "Reruns reconcile the installed ItemSeeder eras and can add newly selected implemented eras without removing prior content.",
+				UpdateSummary: "Manifest-owned stock aggregates are repaired when untouched; builder-customized aggregates are preserved and reported.",
+				OwnershipSummary: "Durable SeederManagedRecords provenance owns stock aggregate definitions and required stock links. Builder additions and customized aggregate graphs are retained; ambiguous untracked identities block before mutation.",
                 DependencySeederTypes: [typeof(UsefulSeeder)]
             ),
             nameof(AnimalButcherySeeder) => new SeederMetadata(

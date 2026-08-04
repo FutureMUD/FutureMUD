@@ -70,7 +70,7 @@ public partial class ItemSeeder
 			_materials.Keys,
 			_tagsByFullPath.Keys,
 			_components.Keys);
-		if (issues.Count > 0)
+		if (!_manifestCaptureOnly && issues.Count > 0)
 		{
 			throw BuildRenaissanceMilitaryPrerequisiteException(issues);
 		}

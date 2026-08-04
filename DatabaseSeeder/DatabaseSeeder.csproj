@@ -36,6 +36,7 @@
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
 	<EmbeddedResource Include="Seeders\FoodCatalogue\**\*.tsv" />
+	<EmbeddedResource Include="Seeders\MedicalRepairCatalogue\**\*.tsv" />
   </ItemGroup>
 
 </Project>

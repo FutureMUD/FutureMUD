@@ -5845,5 +5845,81 @@
                      "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric",
                      "Materials / Manufactured Materials"
                  ]
+    },
+    {
+        "Material Name": "benzoin resin",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "camphor",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "cinchona bark",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "guaiacum wood",
+        "Tags": ["Materials / Natural Materials / Wood / Hardwood"]
+    },
+    {
+        "Material Name": "ipecacuanha root",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "opium gum",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "Peruvian balsam",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "rhubarb root",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "senna leaf",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "sarsaparilla root",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "sassafras bark",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "turpentine resin",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "Epsom salts",
+        "Tags": ["Materials / Natural Materials / Stone"]
+    },
+    {
+        "Material Name": "calomel",
+        "Tags": ["Materials / Natural Materials / Stone"]
+    },
+    {
+        "Material Name": "tartar emetic",
+        "Tags": ["Materials / Natural Materials / Stone"]
+    },
+    {
+        "Material Name": "bezoar",
+        "Tags": ["Materials / Natural Materials / Animal Product"]
+    },
+    {
+        "Material Name": "myrrh resin",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "ergot",
+        "Tags": ["Materials / Natural Materials / Food / Herb"]
+    },
+    {
+        "Material Name": "green vitriol",
+        "Tags": ["Materials / Natural Materials / Stone"]
     }
 ]

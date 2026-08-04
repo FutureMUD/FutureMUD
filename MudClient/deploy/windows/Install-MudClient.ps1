@@ -109,6 +109,7 @@ try {
 	Invoke-WebRequest https://futuremud.com/downloads/mudclient/latest/update-manifest.sig -OutFile $signaturePath
 	& (Join-Path $packageRoot 'tools\MudClientDeployment.exe') verify --manifest $manifestPath --signature $signaturePath --archive $ArchivePath --runtime $runtime --expected-version $version
 	if ($LASTEXITCODE -ne 0) { throw 'The archive did not pass signed release verification.' }
+	Get-ChildItem -LiteralPath $packageRoot -Recurse -File | Unblock-File -ErrorAction SilentlyContinue
 }
 finally {
 	foreach ($temporaryFile in @($manifestPath, $signaturePath)) {
@@ -175,12 +176,15 @@ if ($existingService) { sc.exe qc MudClientProxy | Set-Content -LiteralPath $ser
 $legacyTask = Get-ScheduledTask -TaskName $legacyTaskName -ErrorAction SilentlyContinue
 if ($legacyTask) {
 	$legacyTaskWasRunning = $legacyTask.State -eq 'Running'
-	Export-ScheduledTask -TaskName $legacyTaskName | Set-Content -LiteralPath $legacyTaskBackup -Encoding UTF8
+	$legacyTaskXml = Export-ScheduledTask -TaskName $legacyTaskName
+	[System.IO.File]::WriteAllText($legacyTaskBackup, $legacyTaskXml, [System.Text.UTF8Encoding]::new($false))
 	Stop-ScheduledTask -TaskName $legacyTaskName -ErrorAction SilentlyContinue
 	Disable-ScheduledTask -TaskName $legacyTaskName | Out-Null
 }
-if (Test-Path -LiteralPath $existingServiceInstaller) {
-	& $existingServiceInstaller -Uninstall -ErrorAction SilentlyContinue
+if ($existingService) {
+	if ($existingService.Status -ne 'Stopped') { Stop-Service -Name MudClientProxy -Force }
+	sc.exe delete MudClientProxy | Out-Null
+	if ($LASTEXITCODE -ne 0) { throw "The existing MudClientProxy service could not be removed (exit code $LASTEXITCODE)." }
 }
 Wait-ForMudClientServiceRemoval
 Stop-MudClientLegacyProxyProcess -ProxyRoot $legacyProxy
@@ -245,14 +249,15 @@ catch {
 		}
 		Invoke-MudClientRollbackStep -Description 'Restoring the previous MudClientProxy service' -Action {
 			if (-not [string]::IsNullOrWhiteSpace($existingServiceInstaller) -and (Test-Path -LiteralPath $existingServiceInstaller)) {
+				Unblock-File -LiteralPath $existingServiceInstaller -ErrorAction SilentlyContinue
 				& $existingServiceInstaller -InstallRoot $InstallRoot
 			}
 		}
 	}
 	Invoke-MudClientRollbackStep -Description 'Restoring the legacy proxy scheduled task' -Action {
 		if ($legacyTask -and (Test-Path -LiteralPath $legacyTaskBackup)) {
-			schtasks.exe /Create /TN $legacyTaskName /XML $legacyTaskBackup /F | Out-Null
-			if ($LASTEXITCODE -ne 0) { throw "The legacy proxy scheduled task could not be restored (exit code $LASTEXITCODE)." }
+			$legacyTaskXml = Get-Content -LiteralPath $legacyTaskBackup -Raw
+			Register-ScheduledTask -TaskName $legacyTaskName -Xml $legacyTaskXml -Force | Out-Null
 			if ($legacyTaskWasRunning) { Start-ScheduledTask -TaskName $legacyTaskName }
 		}
 	}

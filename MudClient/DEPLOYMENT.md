@@ -58,7 +58,7 @@ On Windows, extract the 1.2.5 archive once and run this from an elevated PowerSh
   -ArchivePath 'C:\Users\Administrator\Downloads\mudclient-1.2.5-win-x64.zip' -Migrate
 ~~~
 
-Version 1.2.5 can resume an interrupted 1.2.0-1.2.4 migration. It stops the legacy proxy scheduled task and any remaining proxy process before moving the old directories, completes a partially moved legacy `proxy`/`web` pair, reuses the preserved legacy release, and replaces an inactive staged copy before retrying. If activation fails, the legacy task is restored to its previous running state, rollback warnings are reported separately, and the original activation error remains visible.
+Version 1.2.5 can resume an interrupted 1.2.0-1.2.4 migration. It stops the legacy proxy scheduled task and any remaining proxy process before moving the old directories, completes a partially moved legacy `proxy`/`web` pair, reuses the preserved legacy release, and replaces an inactive staged copy before retrying. It also supplies the required .NET Windows Service lifetime for the native `MudClientProxy` service. If activation fails, the legacy task is restored to its previous running state, rollback warnings are reported separately, and the original activation error remains visible.
 
 If a failed earlier migration left stale `current`, `web`, or `proxy` links, stop the proxy and remove only those reparse points before retrying. This does not remove ordinary configuration directories:
 

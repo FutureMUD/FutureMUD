@@ -6,6 +6,10 @@ public class WindowsInstallerRegressionTests
 		Path.Combine(AppContext.BaseDirectory, "DeploymentScripts", "Install-MudClient.ps1"));
 	private static string CommonScriptPath => Path.Combine(
 		AppContext.BaseDirectory, "DeploymentScripts", "MudClientDeployment.Common.ps1");
+	private static string ProxyProgram => File.ReadAllText(
+		Path.Combine(AppContext.BaseDirectory, "SourceFiles", "MudWebSocketProxy.Program.cs"));
+	private static string ProxyServiceInstaller => File.ReadAllText(
+		Path.Combine(AppContext.BaseDirectory, "DeploymentScripts", "install-mudclient-proxy.ps1"));
 
 	[Fact]
 	public void RollbackGuardsOptionalPathsAndPreservesTheActivationError()
@@ -98,6 +102,32 @@ public class WindowsInstallerRegressionTests
 		Assert.True(stopLegacyProcess > stopLegacyTask);
 		Assert.True(moveLegacyInstallation > stopLegacyProcess);
 		Assert.Contains("if ($legacyTaskWasRunning) { Start-ScheduledTask -TaskName $legacyTaskName }", script, StringComparison.Ordinal);
+		Assert.Contains("Register-ScheduledTask -TaskName $legacyTaskName -Xml $legacyTaskXml -Force", script, StringComparison.Ordinal);
+		Assert.DoesNotContain("schtasks.exe /Create", script, StringComparison.OrdinalIgnoreCase);
+	}
+
+	[Fact]
+	public void ProxyConfiguresTheWindowsServiceLifetimeAndEventLog()
+	{
+		var program = ProxyProgram;
+
+		Assert.Contains("builder.Services.AddWindowsService", program, StringComparison.Ordinal);
+		Assert.Contains("options.ServiceName = \"MudClientProxy\"", program, StringComparison.Ordinal);
+		Assert.Contains("logging.AddEventLog", program, StringComparison.Ordinal);
+		Assert.Contains("validateSettingsOnly", program, StringComparison.Ordinal);
+		Assert.Contains("MudClient proxy settings are valid.", program, StringComparison.Ordinal);
+	}
+
+	[Fact]
+	public void ServiceInstallerValidatesSettingsBeforeRegisteringTheService()
+	{
+		var script = ProxyServiceInstaller;
+		var validation = script.IndexOf("--validate-settings true", StringComparison.Ordinal);
+		var registration = script.IndexOf("New-Service", StringComparison.Ordinal);
+
+		Assert.True(validation >= 0);
+		Assert.True(registration > validation);
+		Assert.Contains("Windows Application event log", script, StringComparison.Ordinal);
 	}
 
 	[Fact]

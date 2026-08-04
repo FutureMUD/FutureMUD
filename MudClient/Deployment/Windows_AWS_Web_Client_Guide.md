@@ -89,7 +89,7 @@ C:\MudClient\web\wwwroot\index.html
 C:\MudClient\deploy\windows\Caddyfile
 ```
 
-For an existing 1.0.1 or 1.1.0 installation, use the same command with `-Migrate`. It preserves the old release and existing Caddyfile, moves proxy/browser settings to `%ProgramData%\FutureMUD\MudClient`, and replaces only the old proxy task with a Windows Service. Version 1.2.5 stops the old proxy task and any remaining proxy process before moving its directory, resumes a partially completed 1.2.0-1.2.4 migration, restores the old task if activation fails, and reports the original activation error even if a rollback step has its own problem.
+For an existing 1.0.1 or 1.1.0 installation, use the same command with `-Migrate`. It preserves the old release and existing Caddyfile, moves proxy/browser settings to `%ProgramData%\FutureMUD\MudClient`, and replaces only the old proxy task with a correctly hosted native Windows Service. Version 1.2.5 stops the old proxy task and any remaining proxy process before moving its directory, resumes a partially completed 1.2.0-1.2.4 migration, restores the old task if activation fails, and reports the original activation error even if a rollback step has its own problem.
 
 After that one-time migration, an Administrator updates the client with one command:
 

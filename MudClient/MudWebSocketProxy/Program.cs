@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.WebSockets;
 using Microsoft.AspNetCore.HttpOverrides;
+using System.Runtime.Versioning;
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,10 +16,15 @@ public class Program
 	public static void Main(string[] args)
 	{
 		var settingsPath = GetSettingsPath(args);
+		var validateSettingsOnly = args.Contains("--validate-settings", StringComparer.Ordinal);
 		var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 		{
 			Args = args,
 			ContentRootPath = AppContext.BaseDirectory
+		});
+		builder.Services.AddWindowsService(options =>
+		{
+			options.ServiceName = "MudClientProxy";
 		});
 
 		// Add WebSocket support
@@ -39,6 +45,11 @@ public class Program
 			.AddEnvironmentVariables()
 			.AddCommandLine(args);
 		ProxyConfigurationValidator.Validate(builder.Configuration);
+		if (validateSettingsOnly)
+		{
+			Console.WriteLine("MudClient proxy settings are valid.");
+			return;
+		}
 
 		builder.Services.AddCors(options =>
 		{
@@ -57,6 +68,10 @@ public class Program
 
 		builder.Logging.ClearProviders();
 		builder.Logging.AddConsole();
+		if (OperatingSystem.IsWindows())
+		{
+			ConfigureWindowsEventLogging(builder.Logging);
+		}
 
 		var app = builder.Build();
 		var forwardedHeadersOptions = new ForwardedHeadersOptions
@@ -114,6 +129,15 @@ public class Program
 		}));
 
 		app.Run();
+	}
+
+	[SupportedOSPlatform("windows")]
+	private static void ConfigureWindowsEventLogging(ILoggingBuilder logging)
+	{
+		logging.AddEventLog(options =>
+		{
+			options.SourceName = "MudClientProxy";
+		});
 	}
 
 	private static bool IsRequestOriginAllowed(HttpContext context, IConfiguration configuration)

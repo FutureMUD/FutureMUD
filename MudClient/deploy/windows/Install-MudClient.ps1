@@ -3,13 +3,18 @@ param(
 	[Parameter(Mandatory = $true)][string]$ArchivePath,
 	[string]$InstallRoot = "C:\MudClient",
 	[switch]$Migrate,
-	[string]$ConfigRoot = "$env:ProgramData\FutureMUD\MudClient",
+	[string]$ConfigRoot,
 	[string]$CaddyExecutable,
 	[string]$CaddyDomain,
 	[string]$CaddyTaskName = 'FutureMUD Web Client HTTPS'
 )
 
 $ErrorActionPreference = 'Stop'
+$commonApplicationData = [Environment]::GetFolderPath([Environment+SpecialFolder]::CommonApplicationData)
+if ([string]::IsNullOrWhiteSpace($ConfigRoot)) {
+	if ([string]::IsNullOrWhiteSpace($commonApplicationData)) { throw 'Windows did not provide a common application-data directory.' }
+	$ConfigRoot = Join-Path $commonApplicationData 'FutureMUD\MudClient'
+}
 $principal = [Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent())
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { throw 'Run from an elevated PowerShell prompt.' }
 if (-not (Test-Path -LiteralPath $ArchivePath)) { throw "Archive '$ArchivePath' was not found." }
@@ -19,8 +24,10 @@ $packageName = Split-Path -Leaf $packageRoot
 if ($packageName -notmatch '^mudclient-(?<version>\d+\.\d+\.\d+)-(?<runtime>win-x64)$') { throw 'The extracted package folder has an invalid name.' }
 $version = $Matches.version
 $runtime = $Matches.runtime
-$manifestPath = Join-Path $env:TEMP "mudclient-update-manifest-$PID.json"
-$signaturePath = Join-Path $env:TEMP "mudclient-update-manifest-$PID.sig"
+$temporaryRoot = [System.IO.Path]::GetTempPath()
+if ([string]::IsNullOrWhiteSpace($temporaryRoot)) { throw 'Windows did not provide a temporary directory.' }
+$manifestPath = Join-Path $temporaryRoot "mudclient-update-manifest-$PID.json"
+$signaturePath = Join-Path $temporaryRoot "mudclient-update-manifest-$PID.sig"
 try {
 	Invoke-WebRequest https://futuremud.com/downloads/mudclient/latest/update-manifest.json -OutFile $manifestPath
 	Invoke-WebRequest https://futuremud.com/downloads/mudclient/latest/update-manifest.sig -OutFile $signaturePath
@@ -28,7 +35,11 @@ try {
 	if ($LASTEXITCODE -ne 0) { throw 'The archive did not pass signed release verification.' }
 }
 finally {
-	Remove-Item -LiteralPath $manifestPath,$signaturePath -Force -ErrorAction SilentlyContinue
+	foreach ($temporaryFile in @($manifestPath, $signaturePath)) {
+		if (-not [string]::IsNullOrWhiteSpace([string]$temporaryFile)) {
+			Remove-Item -LiteralPath $temporaryFile -Force -ErrorAction SilentlyContinue
+		}
+	}
 }
 
 $releaseRoot = Join-Path $InstallRoot 'releases'

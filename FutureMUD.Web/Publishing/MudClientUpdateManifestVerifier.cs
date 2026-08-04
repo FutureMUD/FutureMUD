@@ -57,7 +57,7 @@ public static class MudClientUpdateManifestVerifier
 			manifest.SchemaVersion != MudClientUpdateManifest.CurrentSchemaVersion ||
 			manifest.Product != product || manifest.Version != version ||
 			!string.Equals(manifest.SourceCommit, sourceCommit, StringComparison.OrdinalIgnoreCase) ||
-			manifest.KeyId != request.KeyId || manifest.Artifacts.Count != artifacts.Count ||
+			manifest.KeyId != request.KeyId || manifest.Artifacts is null || manifest.Artifacts.Count != artifacts.Count ||
 			!manifest.Artifacts.OrderBy(item => item.Runtime).Select(ArtifactKey)
 				.SequenceEqual(artifacts.OrderBy(item => item.Runtime).Select(ArtifactKey), StringComparer.Ordinal))
 		{

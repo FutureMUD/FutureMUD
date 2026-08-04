@@ -46,7 +46,8 @@ public static partial class UpdateManifestVerifier
 			!string.Equals(manifest.Product, "mudclient", StringComparison.Ordinal) ||
 			!VersionRegex().IsMatch(manifest.Version) ||
 			!CommitRegex().IsMatch(manifest.SourceCommit) ||
-			!string.Equals(manifest.KeyId, ProductionKeyId, StringComparison.Ordinal))
+			!string.Equals(manifest.KeyId, ProductionKeyId, StringComparison.Ordinal) ||
+			manifest.Artifacts is null)
 		{
 			throw new InvalidDataException("The update manifest has invalid identity metadata.");
 		}
@@ -65,6 +66,14 @@ public static partial class UpdateManifestVerifier
 			!string.Equals(artifact.FileName, $"mudclient-{manifest.Version}-{expectedRuntime}.zip", StringComparison.Ordinal))
 		{
 			throw new InvalidDataException("The update manifest artifact metadata is invalid.");
+		}
+	}
+
+	public static void ValidateExpectedVersion(UpdateManifest manifest, string expectedVersion)
+	{
+		if (!string.Equals(manifest.Version, expectedVersion, StringComparison.Ordinal))
+		{
+			throw new InvalidDataException("The package version does not match the signed update manifest.");
 		}
 	}
 

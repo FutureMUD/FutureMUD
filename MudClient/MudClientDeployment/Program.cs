@@ -3,7 +3,6 @@
 using MudClientDeployment;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Signers;
-using Org.BouncyCastle.Security;
 
 return await RunAsync(args);
 
@@ -13,17 +12,11 @@ static async Task<int> RunAsync(string[] args)
 	{
 		if (args.Length == 0 || args[0] is "--help" or "-h")
 		{
-			Console.WriteLine("Usage: MudClientDeployment verify --manifest <path> --signature <path> --archive <path> --runtime <rid>");
+			Console.WriteLine("Usage: MudClientDeployment verify-manifest --manifest <path> --signature <path> --runtime <rid> [--expected-version <version>]");
+			Console.WriteLine("       MudClientDeployment verify --manifest <path> --signature <path> --archive <path> --runtime <rid> [--expected-version <version>]");
 			return args.Length == 0 ? 2 : 0;
 		}
 
-		if (args[0] == "generate-key")
-		{
-			var privateKey = new Ed25519PrivateKeyParameters(new SecureRandom());
-			Console.WriteLine($"privateKeyBase64={Convert.ToBase64String(privateKey.GetEncoded())}");
-			Console.WriteLine($"publicKeyBase64={Convert.ToBase64String(privateKey.GeneratePublicKey().GetEncoded())}");
-			return 0;
-		}
 		if (args[0] == "sign")
 		{
 			var signingOptions = ParseOptions(args[1..]);
@@ -40,7 +33,7 @@ static async Task<int> RunAsync(string[] args)
 			return 0;
 		}
 
-		if (args[0] != "verify")
+		if (args[0] is not ("verify" or "verify-manifest"))
 		{
 			throw new InvalidDataException("The deployment command is not recognised.");
 		}
@@ -48,7 +41,6 @@ static async Task<int> RunAsync(string[] args)
 		var options = ParseOptions(args[1..]);
 		var manifestPath = GetRequired(options, "manifest");
 		var signaturePath = GetRequired(options, "signature");
-		var archivePath = GetRequired(options, "archive");
 		var runtime = GetRequired(options, "runtime");
 		var publicKey = Convert.FromBase64String(UpdateManifestVerifier.ProductionPublicKeyBase64);
 		var manifestBytes = await File.ReadAllBytesAsync(manifestPath);
@@ -58,7 +50,15 @@ static async Task<int> RunAsync(string[] args)
 			signatureBytes,
 			runtime,
 			publicKey);
-		await UpdateManifestVerifier.VerifyArchiveAsync(manifest, runtime, archivePath, CancellationToken.None);
+		if (options.TryGetValue("expected-version", out var expectedVersion))
+		{
+			UpdateManifestVerifier.ValidateExpectedVersion(manifest, expectedVersion);
+		}
+		if (args[0] == "verify")
+		{
+			var archivePath = GetRequired(options, "archive");
+			await UpdateManifestVerifier.VerifyArchiveAsync(manifest, runtime, archivePath, CancellationToken.None);
+		}
 		Console.WriteLine($"Verified MudClient {manifest.Version} for {runtime}.");
 		return 0;
 	}

@@ -160,27 +160,7 @@ The client can load a UTF-8 text file of up to 1 MiB into the command box for re
 
 ## Linux Service
 
-Copy the package to `/opt/mudclient`, then adjust ownership:
-
-```bash
-sudo useradd --system --home /opt/mudclient --shell /usr/sbin/nologin mudclient
-sudo mkdir -p /opt/mudclient
-sudo unzip mudclient-linux-x64.zip -d /opt/mudclient-tmp
-sudo cp -R /opt/mudclient-tmp/mudclient-linux-x64/. /opt/mudclient/
-sudo chown -R mudclient:mudclient /opt/mudclient
-sudo chmod +x /opt/mudclient/proxy/MudWebSocketProxy
-```
-
-Install the systemd service template:
-
-```bash
-sudo cp /opt/mudclient/deploy/linux/mudclient-proxy.service /etc/systemd/system/mudclient-proxy.service
-sudo systemctl daemon-reload
-sudo systemctl enable --now mudclient-proxy
-sudo systemctl status mudclient-proxy
-```
-
-The service listens on `http://127.0.0.1:5000`.
+The installer creates the unprivileged `mudclient` account and `mudclient-proxy.service`. It launches the stable `proxy` path with `--settings /etc/mudclient/proxy/appsettings.json`; never copy a package over `/opt/mudclient` or hand-edit that generated service during a normal update. The service listens on `http://127.0.0.1:5000`.
 
 ## Web Server
 
@@ -198,20 +178,9 @@ Then open the public web address and connect from the client.
 
 ## Windows Service
 
-Unzip `mudclient-win-x64.zip` to `C:\MudClient`, edit `C:\MudClient\proxy\appsettings.json`, then run PowerShell as Administrator:
+The installer creates the native `MudClientProxy` service and passes `%ProgramData%\FutureMUD\MudClient\proxy\appsettings.json` as its external settings file. Do not create a scheduled task for the proxy. If the service needs a manual restart after an operator configuration change, use `Restart-Service MudClientProxy` from an elevated PowerShell prompt.
 
-```powershell
-Set-ExecutionPolicy -Scope Process Bypass
-C:\MudClient\deploy\windows\install-mudclient-proxy.ps1
-```
-
-Use `deploy\windows\Caddyfile` as the matching static-file and websocket reverse-proxy example for Caddy on Windows.
-
-To remove the Windows service:
-
-```powershell
-C:\MudClient\deploy\windows\install-mudclient-proxy.ps1 -Uninstall
-```
+Use the persistent `C:\MudClient\deploy\windows\Caddyfile` as the matching static-file and websocket reverse-proxy example for Caddy on Windows. Its stable web and proxy paths do not change during normal updates.
 
 ## Troubleshooting
 

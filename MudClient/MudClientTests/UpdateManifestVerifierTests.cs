@@ -47,6 +47,14 @@ public class UpdateManifestVerifierTests
 		Assert.Throws<InvalidDataException>(() => UpdateManifestVerifier.Verify(bytes, signature, "linux-x64", privateKey.GeneratePublicKey().GetEncoded()));
 	}
 
+	[Fact]
+	public void ValidateExpectedVersion_RejectsAMismatchedPackageVersion()
+	{
+		var manifest = new UpdateManifest { Version = "1.2.0" };
+
+		Assert.Throws<InvalidDataException>(() => UpdateManifestVerifier.ValidateExpectedVersion(manifest, "1.2.1"));
+	}
+
 	private static byte[] Sign(byte[] bytes, Ed25519PrivateKeyParameters privateKey)
 	{
 		var signer = new Ed25519Signer();

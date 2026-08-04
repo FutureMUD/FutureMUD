@@ -416,13 +416,31 @@ jobs:
         with:
           ref: ${{ needs.prepare.outputs.publisher_revision }}
           persist-credentials: false
-          sparse-checkout: scripts/Publish-WebsiteRelease.ps1
+          sparse-checkout: |
+            scripts/Publish-WebsiteRelease.ps1
+            scripts/New-MudClientUpdateManifest.ps1
+            MudClient/MudClientDeployment
           sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: package-*
           path: artifacts
           merge-multiple: true
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        if: needs.prepare.outputs.package_kind == 'mudclient'
+        with:
+          dotnet-version: '10.0.x'
+      - name: Sign MudClient update manifest
+        if: needs.prepare.outputs.package_kind == 'mudclient'
+        shell: pwsh
+        env:
+          FUTUREMUD_MUDCLIENT_UPDATE_SIGNING_PRIVATE_KEY: ${{ secrets.FUTUREMUD_MUDCLIENT_UPDATE_SIGNING_PRIVATE_KEY }}
+          SOURCE_REVISION: ${{ needs.prepare.outputs.source_revision }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          ./scripts/New-MudClientUpdateManifest.ps1 -ArtifactDirectory artifacts -Version $env:VERSION -SourceCommit $env:SOURCE_REVISION -OutputPath artifacts/update-manifest.json
+          dotnet run --project MudClient/MudClientDeployment/MudClientDeployment.csproj -p:NuGetAudit=false -- sign --manifest artifacts/update-manifest.json --signature artifacts/update-manifest.sig
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Publish to futuremud.com
         shell: pwsh
         env:
@@ -437,4 +455,7 @@ jobs:
             throw 'Prepared publishing metadata failed production validation.'
           }
           $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
-          ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product $env:PRODUCT -Version $env:VERSION -SourceCommit $env:SOURCE_REVISION -ArtifactDirectory artifacts -DocumentationCatalogue $documentation
+          $updateManifest = if ($env:PRODUCT -eq 'mudclient') { 'artifacts/update-manifest.json' } else { '' }
+          $updateSignature = if ($env:PRODUCT -eq 'mudclient') { 'artifacts/update-manifest.sig' } else { '' }
+          $updateKeyId = if ($env:PRODUCT -eq 'mudclient') { 'futuremud-mudclient-2026-08' } else { '' }
+          ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product $env:PRODUCT -Version $env:VERSION -SourceCommit $env:SOURCE_REVISION -ArtifactDirectory artifacts -DocumentationCatalogue $documentation -UpdateManifest $updateManifest -UpdateManifestSignature $updateSignature -UpdateManifestKeyId $updateKeyId

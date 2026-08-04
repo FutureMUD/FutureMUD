@@ -14,6 +14,7 @@ public class Program
 {
 	public static void Main(string[] args)
 	{
+		var settingsPath = GetSettingsPath(args);
 		var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 		{
 			Args = args,
@@ -29,9 +30,15 @@ public class Program
 		// Add configuration support
 		builder.Configuration
 			.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-			.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+			.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+		if (settingsPath is not null)
+		{
+			builder.Configuration.AddJsonFile(settingsPath, optional: false, reloadOnChange: true);
+		}
+		builder.Configuration
 			.AddEnvironmentVariables()
 			.AddCommandLine(args);
+		ProxyConfigurationValidator.Validate(builder.Configuration);
 
 		builder.Services.AddCors(options =>
 		{
@@ -131,5 +138,23 @@ public class Program
 				.GetSection("WebSocketServer:AllowedOrigins")
 				.GetChildren()
 				.Select(section => section.Value));
+	}
+
+	private static string? GetSettingsPath(IReadOnlyList<string> args)
+	{
+		string? path = null;
+		for (var index = 0; index < args.Count; index++)
+		{
+			if (!string.Equals(args[index], "--settings", StringComparison.Ordinal))
+			{
+				continue;
+			}
+			if (path is not null || index + 1 >= args.Count || !Path.IsPathFullyQualified(args[index + 1]))
+			{
+				throw new InvalidOperationException("--settings must occur once and use an absolute path.");
+			}
+			path = args[++index];
+		}
+		return path;
 	}
 }

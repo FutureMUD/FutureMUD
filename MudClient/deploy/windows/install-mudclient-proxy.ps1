@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
 	[string]$InstallRoot = "C:\MudClient",
+	[string]$SettingsPath = "C:\ProgramData\FutureMUD\MudClient\proxy\appsettings.json",
 	[string]$ServiceName = "MudClientProxy",
 	[int]$Port = 5000,
 	[switch]$Uninstall
@@ -45,7 +46,7 @@ if ($existing) {
 	Start-Sleep -Seconds 2
 }
 
-$binaryPath = "`"$proxyExe`" --urls http://127.0.0.1:$Port"
+$binaryPath = "`"$proxyExe`" --urls http://127.0.0.1:$Port --settings `"$SettingsPath`""
 New-Service `
 	-Name $ServiceName `
 	-BinaryPathName $binaryPath `

@@ -18,7 +18,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MudClientBlazor\MudClientBlazor.csproj" />
-    <ProjectReference Include="..\MudWebSocketProxy\MudWebSocketProxy.csproj" />
+		<ProjectReference Include="..\MudWebSocketProxy\MudWebSocketProxy.csproj" />
+		<ProjectReference Include="..\MudClientDeployment\MudClientDeployment.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -8,7 +8,7 @@ Type=simple
 User=mudclient
 Group=mudclient
 WorkingDirectory=/opt/mudclient/proxy
-ExecStart=/opt/mudclient/proxy/MudWebSocketProxy --urls http://127.0.0.1:5000
+ExecStart=/opt/mudclient/proxy/MudWebSocketProxy --urls http://127.0.0.1:5000 --settings /etc/mudclient/proxy/appsettings.json
 Restart=always
 RestartSec=5
 Environment=ASPNETCORE_ENVIRONMENT=Production

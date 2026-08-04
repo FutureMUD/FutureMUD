@@ -36,8 +36,8 @@ public class CoreDataSeederGasTests
 			"Expected several stock breathable atmosphere variants.");
 		Assert.IsTrue(CoreDataSeeder.StockEconomicGasNamesForTesting.Count >= 30,
 			"Expected at least 30 non-atmosphere stock gases.");
-		Assert.IsTrue(CoreDataSeeder.StockEconomicGasNamesForTesting.Count <= 50,
-			"Expected no more than 50 non-atmosphere stock gases in this first pass.");
+		Assert.IsTrue(CoreDataSeeder.StockEconomicGasNamesForTesting.Count <= 55,
+			"Expected no more than 55 non-atmosphere stock gases after the historical medical expansion.");
 		Assert.AreEqual(CoreDataSeeder.StockGasNamesForTesting.Count, context.Gases.Count());
 
 		foreach (string gasName in CoreDataSeeder.StockGasNamesForTesting)
@@ -69,7 +69,8 @@ public class CoreDataSeederGasTests
 		foreach (string gasName in new[]
 		         {
 			         "Hydrogen", "Chlorine", "Nitrogen", "Natural Gas", "Acetylene", "Carbon Dioxide", "Propane",
-			         "Butane", "Neon", "Argon", "Ethylene", "Nitrous Oxide"
+			         "Butane", "Neon", "Argon", "Ethylene", "Nitrous Oxide",
+			         "Benzoin Fumigation Smoke", "Hartshorn Vapour"
 		         })
 		{
 			Assert.IsTrue(gases.ContainsKey(gasName), $"Expected stock economic gas {gasName} to be seeded.");

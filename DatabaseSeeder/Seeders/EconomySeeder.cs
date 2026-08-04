@@ -118,14 +118,17 @@ public class EconomySeeder : IDatabaseSeeder
 		{
 			["Medicine"] =
 			[
-				("Simple Medicine", 0.30m),
-				("Treatment Supplies", 0.20m),
-				("Herbal Medicine", 0.16m),
+				("Simple Medicine", 0.25m),
+				("Treatment Supplies", 0.17m),
+				("Herbal Medicine", 0.13m),
 				("Apothecary Goods", 0.05m),
-				("Standard Medicine", 0.14m),
-				("Surgical Supplies", 0.07m),
-				("Prosthetics and Mobility", 0.05m),
-				("High-Quality Medicine", 0.03m)
+				("Standard Medicine", 0.12m),
+				("Surgical Supplies", 0.06m),
+				("Prosthetics and Mobility", 0.04m),
+				("High-Quality Medicine", 0.02m),
+				("Chemical Medicine", 0.08m),
+				("Public Health", 0.04m),
+				("Veterinary Medicine", 0.04m)
 			],
 			["Writing Materials"] =
 			[
@@ -223,6 +226,18 @@ public class EconomySeeder : IDatabaseSeeder
 				("High-Quality Tools", 0.15m)
 			]
 		};
+
+	private static readonly IReadOnlyList<(string CategoryName, decimal Weight)> LegacyMedicineCombinationCategoryWeights =
+	[
+		("Simple Medicine", 0.30m),
+		("Treatment Supplies", 0.20m),
+		("Herbal Medicine", 0.16m),
+		("Apothecary Goods", 0.05m),
+		("Standard Medicine", 0.14m),
+		("Surgical Supplies", 0.07m),
+		("Prosthetics and Mobility", 0.05m),
+		("High-Quality Medicine", 0.03m)
+	];
 
     private static readonly IReadOnlyList<EraDefinition> EraDefinitions =
     [
@@ -2552,17 +2567,13 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 
 		Dictionary<string, MarketCategory> categoriesByName =
 			componentCategories.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
-		List<string> missingCategoryNames = definitions
-			.Select(x => x.CategoryName)
-			.Where(x => !categoriesByName.ContainsKey(x))
-			.OrderBy(x => x)
-			.ToList();
-		if (missingCategoryNames.Any())
+		if (familyName.Equals("Medicine", StringComparison.OrdinalIgnoreCase) &&
+		    !categoriesByName.ContainsKey("Chemical Medicine") &&
+		    !categoriesByName.ContainsKey("Public Health") &&
+		    !categoriesByName.ContainsKey("Veterinary Medicine"))
 		{
-			throw new InvalidOperationException(
-				$"The stock combination category {familyName} is missing weighted child categories: {missingCategoryNames.ListToString()}.");
+			definitions = LegacyMedicineCombinationCategoryWeights;
 		}
-
 		List<string> unexpectedCategoryNames = categoriesByName.Keys
 			.Where(x => definitions.All(y => !y.CategoryName.Equals(x, StringComparison.OrdinalIgnoreCase)))
 			.OrderBy(x => x)
@@ -2573,8 +2584,18 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 				$"The stock combination category {familyName} has no seeded weights for direct child categories: {unexpectedCategoryNames.ListToString()}.");
 		}
 
-		return definitions
+		List<(MarketCategory Category, decimal Weight)> available = definitions
+			.Where(x => categoriesByName.ContainsKey(x.CategoryName))
 			.Select(x => (Category: categoriesByName[x.CategoryName], Weight: x.Weight))
+			.ToList();
+		decimal availableWeight = available.Sum(x => x.Weight);
+		if (availableWeight <= 0.0m)
+		{
+			throw new InvalidOperationException($"The stock combination category {familyName} has no available weighted child categories.");
+		}
+
+		return available
+			.Select(x => (x.Category, x.Weight / availableWeight))
 			.ToList();
 	}
 

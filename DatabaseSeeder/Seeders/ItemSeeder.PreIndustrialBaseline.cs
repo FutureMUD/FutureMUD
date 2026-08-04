@@ -160,6 +160,7 @@ public partial class ItemSeeder
 		SeedRenaissanceEarlyModernCommonJewelleryAndDoors();
 		SeedRenaissanceJewelleryAndDevotionalGoods();
 		SeedRenaissanceDoorsLocksAndGates();
+		SeedRenaissanceMedicalAndRepair();
 		SeedRenaissanceCultureManifest();
 	}
 
@@ -176,6 +177,7 @@ public partial class ItemSeeder
 		SeedRenaissanceEarlyModernCommonJewelleryAndDoors();
 		SeedEarlyModernJewelleryAndDevotionalGoods();
 		SeedEarlyModernDoorsLocksAndGates();
+		SeedEarlyModernMedicalAndRepair();
 		SeedEarlyModernCultureManifest();
 	}
 

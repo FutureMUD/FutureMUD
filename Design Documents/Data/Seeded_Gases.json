@@ -435,5 +435,13 @@
                      "Materials / Gases / Elemental Gases / Noble Gases",
                      "Materials / Gases / Industrial Gases"
                  ]
+    },
+    {
+        "Gas Name": "Benzoin Fumigation Smoke",
+        "Tags": ["Materials / Gases / Industrial Gases", "Materials / Gases / Industrial Gases / Medical Gases"]
+    },
+    {
+        "Gas Name": "Hartshorn Vapour",
+        "Tags": ["Materials / Gases / Industrial Gases", "Materials / Gases / Industrial Gases / Medical Gases"]
     }
 ]

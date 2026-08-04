@@ -9,7 +9,7 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ItemSeeder
 {
-	private sealed record EraCatalogueItemSpec(
+	internal sealed record EraCatalogueItemSpec(
 		string StableReference,
 		string Noun,
 		string ShortDescription,

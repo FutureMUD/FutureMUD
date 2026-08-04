@@ -409,7 +409,13 @@ public class UsefulSeederItemPackageTests
 			CreateTag(2, "Weapons"),
 			CreateTag(3, "Tools"),
 			CreateTag(4, "Cordage"),
-			CreateTag(5, "Composite Bow"));
+			CreateTag(5, "Composite Bow"),
+			CreateTag(6, "Clockwork"),
+			CreateTag(7, "Firearm"),
+			CreateTag(8, "Medical Instrument"),
+			CreateTag(9, "Optical Instrument"),
+			CreateTag(10, "Printing Equipment"),
+			CreateTag(11, "Scientific Instrument"));
 
 		context.TraitDefinitions.AddRange(
 			CreateSkill(101, "Tailoring"),
@@ -1474,6 +1480,16 @@ public class UsefulSeederItemPackageTests
 		{
 			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected one component named {name}.");
 			Assert.AreEqual("RepairKit", context.GameItemComponentProtos.Single(x => x.Name == name).Type);
+		}
+
+		foreach (var family in new[] { "Clockwork", "Firearm", "Medical_Instrument", "Optical_Instrument", "Printing_Equipment", "Scientific_Instrument" })
+		{
+			foreach (var suffix in new[] { string.Empty, "_Good", "_Poor" })
+			{
+				var name = $"Repair_{family}{suffix}";
+				Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected one component named {name}.");
+				Assert.AreEqual("RepairKit", context.GameItemComponentProtos.Single(x => x.Name == name).Type);
+			}
 		}
 
 		AssertRepairKitDefinition(context, "Repair_Wood", "Carpentry", WoundSeverity.Grievous, 1000.0, 0.0, "oak");

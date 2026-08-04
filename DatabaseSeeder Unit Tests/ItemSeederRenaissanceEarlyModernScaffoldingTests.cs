@@ -26,6 +26,7 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 			["FutureMUD_Renaissance_PrimaryIndustry_UsefulSeeder_Impact_Reference.md"] = "SeedRenaissancePrimaryIndustryAndUsefulSeederImpacts",
 			["FutureMUD_Renaissance_Jewellery_Devotional_Seeder_Design_Reference.md"] = "SeedRenaissanceJewelleryAndDevotionalGoods",
 			["FutureMUD_Renaissance_Doors_Locks_Gates_Seeder_Design_Reference.md"] = "SeedRenaissanceDoorsLocksAndGates",
+			["FutureMUD_Renaissance_EarlyModern_Medical_Repair_Design_Reference.md"] = "SeedRenaissanceMedicalAndRepair",
 			["FutureMUD_Renaissance_Culture_Manifest_Reference.md"] = "SeedRenaissanceCultureManifest"
 		};
 
@@ -42,6 +43,7 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 			["FutureMUD_EarlyModern_PrimaryIndustry_UsefulSeeder_Impact_Reference.md"] = "SeedEarlyModernPrimaryIndustryAndUsefulSeederImpacts",
 			["FutureMUD_EarlyModern_Jewellery_Devotional_Seeder_Design_Reference.md"] = "SeedEarlyModernJewelleryAndDevotionalGoods",
 			["FutureMUD_EarlyModern_Doors_Locks_Gates_Seeder_Design_Reference.md"] = "SeedEarlyModernDoorsLocksAndGates",
+			["FutureMUD_Renaissance_EarlyModern_Medical_Repair_Design_Reference.md"] = "SeedEarlyModernMedicalAndRepair",
 			["FutureMUD_EarlyModern_Culture_Manifest_Reference.md"] = "SeedEarlyModernCultureManifest"
 		};
 

@@ -511,3 +511,9 @@ The most important practical consequences are:
 - the stock repo also now includes a rerunnable robot package that seeds robot chassis, robot races, robot health strategies, and robot maintenance procedures
 - low-tech treatment and prosthetic play are well represented in seeded items
 - higher-tech medical play is mostly a runtime capability awaiting fuller stock content
+
+## Renaissance and Early Modern Medical Stock
+
+`HealthSeeder` accepts `renaissance` and `earlymodern` (also `early-modern`) as rerunnable pre-modern procedure tiers. Renaissance inherits medieval stock and adds historically attested preparations; Early Modern inherits Renaissance and adds laudanum and later apothecary preparations. Unsupported historical claims are deliberately represented as props or adverse-effect approximations: Jesuit bark is not a malaria cure because no malaria model exists; mercurial, antimonial, calomel, emetic, and purgative preparations do not receive invented therapeutic benefits; inoculation, quarantine, obstetric, dental, and public-health equipment remain item/tags rather than disease, pregnancy, or population-health mechanics.
+
+The two stock gases, `Benzoin Fumigation Smoke` and `Hartshorn Vapour`, carry their corresponding inhaled drug only after the relevant Health tier is installed. This preserves CoreData's gas ownership and HealthSeeder's drug-ID ownership while allowing reruns to repair the binding.

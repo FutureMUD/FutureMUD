@@ -473,6 +473,12 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Lacquerware", "Repairing");
             AddTag(context, "Cordage", "Repairing");
             AddTag(context, "Composite Bow", "Repairing");
+            AddTag(context, "Clockwork", "Repairing");
+            AddTag(context, "Firearm", "Repairing");
+            AddTag(context, "Medical Instrument", "Repairing");
+            AddTag(context, "Optical Instrument", "Repairing");
+            AddTag(context, "Printing Equipment", "Repairing");
+            AddTag(context, "Scientific Instrument", "Repairing");
             AddTag(context, "Sharpening", "Functions");
 
             AddTag(context, "Medical Treatment", "Functions");
@@ -488,6 +494,16 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Fumigation", "Medical Treatment");
             AddTag(context, "Styptic", "Medical Treatment");
             AddTag(context, "Antidote", "Medical Treatment");
+            AddTag(context, "Chemical Remedy", "Medical Treatment");
+            AddTag(context, "Bloodletting", "Medical Treatment");
+            AddTag(context, "Cupping", "Medical Treatment");
+            AddTag(context, "Dental Treatment", "Medical Treatment");
+            AddTag(context, "Diagnostic Prop", "Medical Treatment");
+            AddTag(context, "Inoculation Prop", "Medical Treatment");
+            AddTag(context, "Obstetric Aid", "Medical Treatment");
+            AddTag(context, "Public Health", "Medical Treatment");
+            AddTag(context, "Quarantine", "Medical Treatment");
+            AddTag(context, "Veterinary Treatment", "Medical Treatment");
 
             // Functional catalogue roles distinct from market/pricing categories
             AddTag(context, "Military Equipment", "Functions");
@@ -1890,8 +1906,12 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "High-Quality Tools", "Professional Tools");
 
             AddTag(context, "Repair Supplies", "Market");
+			AddTag(context, "Chemical Medicine", "Medicine");
+			AddTag(context, "Public Health", "Medicine");
+			AddTag(context, "Veterinary Medicine", "Medicine");
             AddTag(context, "General Repair Supplies", "Repair Supplies");
             AddTag(context, "Specialist Repair Supplies", "Repair Supplies");
+            AddTag(context, "Precision Repair Supplies", "Repair Supplies");
             AddTag(context, "Weapon and Armour Repair Supplies", "Repair Supplies");
 
             AddTag(context, "Raw Materials", "Market");

@@ -70,6 +70,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Medieval Jewellery Seeder Design Reference](./Seeding/Medieval_Jewellery_Seeder_Design_Reference.md)
 - [Medieval Writing, Books, and Documents Seeder Design Reference](./Seeding/FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md)
 - [Medieval Treatment Items, Drugs, and Repair Kits Design Reference](./Seeding/FutureMUD_Medieval_Treatment_Drugs_Repair_Kits_Design_Reference.md)
+- [Renaissance and Early Modern Medical and Repair Catalogue](./Seeding/FutureMUD_Renaissance_EarlyModern_Medical_Repair_Design_Reference.md)
 - [Pre-Industrial Shared Item Seeder Design Reference](./Seeding/PreIndustrial_Item_Seeder_Design_Reference.md)
 - [Pre-Industrial Item Seeder Alias Catalogue](./Seeding/PreIndustrial_Item_Seeder_Alias_Catalogue.md)
 - [Pre-Industrial Food Catalogue Design Reference](./Seeding/PreIndustrial_Food_Catalogue_Design_Reference.md)

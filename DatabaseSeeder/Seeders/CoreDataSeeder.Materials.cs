@@ -304,6 +304,24 @@ public partial class CoreDataSeeder
 			"Herb");
 		AddMaterial("yarrow", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
 			"Herb");
+		AddMaterial("benzoin resin", MaterialBehaviourType.Paste, 1.1, true, 1000, 1000, 0.1, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("camphor", MaterialBehaviourType.Powder, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("cinchona bark", MaterialBehaviourType.Plant, 0.8, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("guaiacum wood", MaterialBehaviourType.Wood, 1.1, true, 40000, 10000, 0.05, 0.14, 0.0001, 500, "Hardwood");
+		AddMaterial("ipecacuanha root", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("opium gum", MaterialBehaviourType.Paste, 1.1, true, 1000, 1000, 0.1, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("Peruvian balsam", MaterialBehaviourType.Paste, 1.1, true, 1000, 1000, 0.1, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("rhubarb root", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("senna leaf", MaterialBehaviourType.Plant, 0.6, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("sarsaparilla root", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("sassafras bark", MaterialBehaviourType.Plant, 0.8, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("turpentine resin", MaterialBehaviourType.Paste, 0.9, true, 1000, 1000, 0.1, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("Epsom salts", MaterialBehaviourType.Powder, 1.7, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Stone");
+		AddMaterial("calomel", MaterialBehaviourType.Powder, 6.3, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Stone");
+		AddMaterial("tartar emetic", MaterialBehaviourType.Powder, 2.0, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Stone");
+		AddMaterial("bezoar", MaterialBehaviourType.Stone, 2.0, true, 60000000, 200000, 0.0, 0.14, 0.0001, 500, "Animal Product");
+		AddMaterial("ergot", MaterialBehaviourType.Plant, 0.7, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("green vitriol", MaterialBehaviourType.Powder, 1.9, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Stone");
 		EnsureTag(materials["alum"], "Textile Mordant");
 		EnsureTag(materials["ephedra"], "Herb");
 		EnsureTag(materials["foxglove"], "Herb");

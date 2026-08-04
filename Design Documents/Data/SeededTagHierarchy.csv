@@ -2255,3 +2255,23 @@ Space	Extraterrestrial	Terrain / Wild / Extraterrestrial / Space
 Littoral	Wild	Terrain / Wild / Littoral
 Riparian	Wild	Terrain / Wild / Riparian
 Terrestrial	Wild	Terrain / Wild / Terrestrial
+Chemical Remedy	Medical Treatment	Functions / Medical Treatment / Chemical Remedy
+Bloodletting	Medical Treatment	Functions / Medical Treatment / Bloodletting
+Cupping	Medical Treatment	Functions / Medical Treatment / Cupping
+Dental Treatment	Medical Treatment	Functions / Medical Treatment / Dental Treatment
+Diagnostic Prop	Medical Treatment	Functions / Medical Treatment / Diagnostic Prop
+Inoculation Prop	Medical Treatment	Functions / Medical Treatment / Inoculation Prop
+Obstetric Aid	Medical Treatment	Functions / Medical Treatment / Obstetric Aid
+Public Health	Medical Treatment	Functions / Medical Treatment / Public Health
+Quarantine	Medical Treatment	Functions / Medical Treatment / Quarantine
+Veterinary Treatment	Medical Treatment	Functions / Medical Treatment / Veterinary Treatment
+Clockwork	Repairing	Functions / Repairing / Clockwork
+Firearm	Repairing	Functions / Repairing / Firearm
+Medical Instrument	Repairing	Functions / Repairing / Medical Instrument
+Optical Instrument	Repairing	Functions / Repairing / Optical Instrument
+Printing Equipment	Repairing	Functions / Repairing / Printing Equipment
+Scientific Instrument	Repairing	Functions / Repairing / Scientific Instrument
+Chemical Medicine	Medicine	Market / Medicine / Chemical Medicine
+Public Health	Medicine	Market / Medicine / Public Health
+Veterinary Medicine	Medicine	Market / Medicine / Veterinary Medicine
+Precision Repair Supplies	Repair Supplies	Market / Repair Supplies / Precision Repair Supplies

@@ -429,6 +429,7 @@ The shared baseline reference and alias catalogue already exist and should be tr
 9. `FutureMUD_EarlyModern_Culture_Manifest_Reference.md`
 10. `FutureMUD_EarlyModern_Jewellery_Devotional_Seeder_Design_Reference.md` (implemented)
 11. `FutureMUD_EarlyModern_Doors_Locks_Gates_Seeder_Design_Reference.md` (implemented)
+12. `FutureMUD_Renaissance_EarlyModern_Medical_Repair_Design_Reference.md` (implemented: 732 Early Modern medical-and-repair rows)
 
 The admission manifest is complete and maps all 385 live shared rows to cultures/contact scopes, date anchors, institutions, professions, shops, military systems, crafts, prevalence, trade status, and component reality. It does not clone item prototypes.
 

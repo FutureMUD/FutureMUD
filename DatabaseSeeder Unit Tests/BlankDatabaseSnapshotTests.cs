@@ -27,6 +27,16 @@ public class BlankDatabaseSnapshotTests
     }
 
 	[TestMethod]
+	public void CommittedBlankSnapshot_RecordsLatestMigrationInHistory()
+	{
+		string assetDirectory = GetDatabaseSeederProjectDirectory();
+		string snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(assetDirectory));
+		string latestMigrationId = GetLatestMigrationIdFromSource();
+
+		StringAssert.Contains(snapshot, $"VALUES('{latestMigrationId}',");
+	}
+
+	[TestMethod]
 	public void CommittedBlankSnapshot_AppendedDeltasUseDumpTableCasing()
 	{
 		var snapshotPath = BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory());

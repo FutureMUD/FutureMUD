@@ -59,9 +59,9 @@ public class PreparedFoodGameItemComponentProto : GameItemComponentProto, IPrepa
 		sb.AppendLine($"On-eat prog: {(Profile.OnEatProg is null ? "none".ColourError() : $"#{Profile.OnEatProg.Id.ToString("N0", actor)} ({Profile.OnEatProg.Name})".ColourName())}");
 		sb.AppendLine($"On-stale prog: {(Profile.OnStaleProg is null ? "none".ColourError() : $"#{Profile.OnStaleProg.Id.ToString("N0", actor)} ({Profile.OnStaleProg.Name})".ColourName())}");
 		sb.AppendLine();
-		sb.AppendLine($"Default ingredients: {(Profile.Ingredients.Any() ? Profile.Ingredients.Select(x => $"{x.Role}: {x.Description}").ListToString() : "none")}");
-		sb.AppendLine($"Default drug doses: {(Profile.DrugDoses.Any() ? Profile.DrugDoses.Select(x => $"{x.Drug?.Name ?? "unknown"} {x.Grams.ToString("N4", actor)}g").ListToString() : "none")}");
-		sb.AppendLine($"Stale drug doses: {(Profile.StaleDrugDoses.Any() ? Profile.StaleDrugDoses.Select(x => $"{x.Drug?.Name ?? "unknown"} {x.Grams.ToString("N4", actor)}g").ListToString() : "none")}");
+		sb.AppendLine($"Default ingredients: {(Profile.Ingredients.Any() ? Profile.Ingredients.Select(x => $"{x.Role.ColourName()}: {x.Description.ColourValue()}").ListToString() : "none".ColourError())}");
+		sb.AppendLine($"Default drug doses: {(Profile.DrugDoses.Any() ? Profile.DrugDoses.Select(x => $"{x.Drug?.Name.ColourName() ?? "unknown"} @ {$"{Gameworld.UnitManager.DescribeDecimal(x.Grams, UnitType.FluidVolume, actor)}".ColourValue()}").ListToString() : "none".ColourError())}");
+		sb.AppendLine($"Stale drug doses: {(Profile.StaleDrugDoses.Any() ? Profile.StaleDrugDoses.Select(x => $"{x.Drug?.Name.ColourName() ?? "unknown"} @ {$"{Gameworld.UnitManager.DescribeDecimal(x.Grams, UnitType.FluidVolume, actor)}".ColourValue()}").ListToString() : "none".ColourError())}");
 		return sb.ToString();
 	}
 

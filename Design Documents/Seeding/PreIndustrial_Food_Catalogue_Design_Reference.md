@@ -45,7 +45,7 @@ The item schema records:
 - stable reference and shared/era scope;
 - prepared-food or intermediate kind;
 - culinary family;
-- noun and individually authored short, full, and taste descriptions;
+- a concise grammatical head noun and individually authored short, full, and taste descriptions;
 - material;
 - standard nutrition and freshness bands;
 - item quality, weight, and cost;
@@ -61,6 +61,8 @@ The liquid schema records:
 - admission profile.
 
 No description text is assembled from ingredient-name templates. The loader serialises component XML and common metadata, but every catalogue row supplies its own player-facing prose.
+
+The noun is normally one word and names the head of the short-description noun phrase: `pottage` for `a root-and-fish pottage`, `cluster` for `a cluster of fresh dates`, and `bowl` for `a bowl of jellied eel`. `scripts/normalise-preindustrial-food-nouns.py --check` derives and verifies that field across every item TSV so stable-reference slugs or collapsed phrases cannot leak into the runtime noun.
 
 ## Stable references and ownership
 
@@ -186,6 +188,7 @@ Regression tests enforce:
 - unique stable references, liquid names, short descriptions, full descriptions, tastes, and smell/long-description prose where applicable;
 - no six-word description scaffold repeated more than eight times across a prose field family;
 - valid embedded TSV schemas;
+- concise head nouns synchronized by `scripts/normalise-preindustrial-food-nouns.py --check`;
 - source-backed materials, tags, and required base components;
 - one stock-owned PreparedFood component per edible prototype;
 - no legacy `Food` component on catalogue dishes;

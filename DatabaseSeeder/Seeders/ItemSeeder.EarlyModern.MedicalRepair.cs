@@ -8,6 +8,10 @@ public partial class ItemSeeder
 {
 	private void SeedEarlyModernMedicalAndRepair()
 	{
-		SeedStraightforwardEraCatalogueItems("Early Modern medical and repair catalogue", EraMedicalRepairCatalogue.EarlyModern.Select(x => x.ToItemSpec()));
+		SeedStraightforwardEraCatalogueItems(
+			"Renaissance survivals and Early Modern medical and repair additions",
+			EraMedicalRepairCatalogue.Renaissance
+				.Concat(EraMedicalRepairCatalogue.EarlyModern)
+				.Select(x => x.ToItemSpec()));
 	}
 }

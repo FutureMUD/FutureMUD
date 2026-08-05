@@ -329,6 +329,8 @@ The regional volumes contain 41 placements that point back to common or another 
 
 These manifests turn the regional outfit minimums into concrete builder-facing stock. They are intentionally representative rather than universal: colour, trim, exact local terminology, gender admission, office, faith, rank, and narrower culture remain skins or downstream culture/date gates. Item order is inner-to-outer wear order. Every reference is explicit so seeding fails closed if a required prototype cannot be created.
 
+Persisted template names use the concise `Renaissance <outfit>` form. Template descriptions retain admission and purpose, but omit the source-document filename; source ownership remains in the generator and stable manifest key.
+
 The regional volumes provide only a broad North American contact placeholder and explicitly prohibit its use without a narrower regional design pass. No stock North American outfit is inferred here. Its prototype rows remain available for a future locally anchored manifest.
 
 ### Western, Mediterranean, and European frontier manifests — 14

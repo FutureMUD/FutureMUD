@@ -15,13 +15,13 @@ public class ItemSeederEraMedicalRepairCatalogueTests
 	[TestMethod]
 	public void EraMedicalRepairCatalogues_HaveTheContractedCountsAndUniqueProducts()
 	{
-		Assert.AreEqual(366, EraMedicalRepairCatalogue.Renaissance.Count);
-		Assert.AreEqual(732, EraMedicalRepairCatalogue.EarlyModern.Count);
+		Assert.AreEqual(134, EraMedicalRepairCatalogue.Renaissance.Count);
+		Assert.AreEqual(44, EraMedicalRepairCatalogue.EarlyModern.Count);
 
 		var items = EraMedicalRepairCatalogue.Renaissance
 			.Concat(EraMedicalRepairCatalogue.EarlyModern)
 			.ToArray();
-		Assert.AreEqual(1098, items.Length);
+		Assert.AreEqual(178, items.Length);
 		Assert.AreEqual(items.Length, items.Select(x => x.StableReference).Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		Assert.AreEqual(items.Length, items.Select(x => x.ShortDescription).Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		Assert.IsTrue(items.All(x => x.FullDescription.Count(c => c == '.') == 3));
@@ -29,7 +29,13 @@ public class ItemSeederEraMedicalRepairCatalogueTests
 		Assert.IsTrue(items.All(x => x.Components.Length == x.Components.Distinct(StringComparer.OrdinalIgnoreCase).Count()));
 		Assert.IsTrue(items.All(x => HasCorrectArticle(x.ShortDescription)));
 		Assert.IsFalse(items.Any(x => x.StableReference.Contains("_pass_", StringComparison.OrdinalIgnoreCase) ||
-			                         x.StableReference.Contains("_expansion_", StringComparison.OrdinalIgnoreCase)));
+		                         x.StableReference.Contains("_expansion_", StringComparison.OrdinalIgnoreCase)));
+		Assert.IsFalse(items.Any(x => x.StableReference.Contains("_college_", StringComparison.OrdinalIgnoreCase) ||
+		                         x.StableReference.Contains("_infirmary_", StringComparison.OrdinalIgnoreCase) ||
+		                         x.StableReference.Contains("_academy_", StringComparison.OrdinalIgnoreCase)),
+			"Institutional ownership is not a stock-item variant.");
+		Assert.IsTrue(items.All(x => x.Tags.All(tag => !x.Tags.Any(other => !string.Equals(tag, other, StringComparison.OrdinalIgnoreCase) && other.StartsWith(tag + " / ", StringComparison.OrdinalIgnoreCase)))),
+			"Catalogue rows should carry only the most specific tag in each hierarchy.");
 		var cuppingGlass = items.First(x => x.StableReference.Contains("cupping_glass", StringComparison.OrdinalIgnoreCase));
 		Assert.AreEqual("glass", cuppingGlass.Material);
 		Assert.IsFalse(cuppingGlass.FullDescription.Contains("wrought iron", StringComparison.OrdinalIgnoreCase));
@@ -46,8 +52,8 @@ public class ItemSeederEraMedicalRepairCatalogueTests
 				$"Delivery component must match its named medicine: {drug.StableReference}");
 		}
 
-		Assert.AreEqual(96, EraMedicalRepairCatalogue.Renaissance.Count(x => x.Category == "Clinical surgery"));
-		Assert.AreEqual(154, EraMedicalRepairCatalogue.EarlyModern.Count(x => x.Category == "Drugs delivery"));
+		Assert.AreEqual(20, EraMedicalRepairCatalogue.Renaissance.Count(x => x.Category == "Clinical surgery"));
+		Assert.AreEqual(15, EraMedicalRepairCatalogue.EarlyModern.Count(x => x.Category == "Drugs delivery"));
 		AssertRepresentativeComponent(items, "adjustable_crutch", "Crutch");
 		AssertRepresentativeComponent(items, "aromatic_vinegar_cloth", "Antiseptic_Single");
 		AssertRepresentativeComponent(items, "animal_bandage", "Bandage_Simple");
@@ -66,7 +72,9 @@ public class ItemSeederEraMedicalRepairCatalogueTests
 			"powdered_pearl", "sympathetic_powder", "weapon_salve", "royal_touch_token", "astrological_diagnostic_glass"
 		})
 		{
-			Assert.IsTrue(EraMedicalRepairCatalogue.EarlyModern.Any(x =>
+			Assert.IsTrue(EraMedicalRepairCatalogue.Renaissance
+				.Concat(EraMedicalRepairCatalogue.EarlyModern)
+				.Any(x =>
 				x.StableReference.Contains(historicalGapProp, StringComparison.OrdinalIgnoreCase)),
 				$"Expected Early Modern gap prop {historicalGapProp}.");
 		}
@@ -90,12 +98,10 @@ public class ItemSeederEraMedicalRepairCatalogueTests
 				Assert.IsTrue(tags.Contains(tag), $"Missing tag export for {item.StableReference}: {tag}");
 		}
 
-		foreach (var repairTarget in new[] { "Clockwork", "Firearm", "Medical Instrument", "Optical Instrument", "Printing Equipment", "Scientific Instrument" })
-		{
-			var path = $"Functions / Repairing / {repairTarget}";
-			Assert.IsTrue(items.Any(x => x.Category != "Repair" && x.Tags.Contains(path, StringComparer.OrdinalIgnoreCase)),
-				$"The {repairTarget} repair kit needs a representative non-kit target item.");
-		}
+		Assert.AreEqual(18, EraMedicalRepairCatalogue.Renaissance.Count(x => x.Category == "Repair"));
+		Assert.IsTrue(EraMedicalRepairCatalogue.Renaissance
+			.Where(x => x.Category == "Repair")
+			.All(x => x.Components.Count(component => component.StartsWith("Repair_", StringComparison.Ordinal)) == 1));
 	}
 
 	[TestMethod]
@@ -108,8 +114,8 @@ public class ItemSeederEraMedicalRepairCatalogueTests
 		StringAssert.Contains(dispatcher, "SeedRenaissanceMedicalAndRepair();");
 		StringAssert.Contains(dispatcher, "SeedEarlyModernMedicalAndRepair();");
 		var text = File.ReadAllText(reference);
-		StringAssert.Contains(text, "**366**");
-		StringAssert.Contains(text, "**732**");
+		StringAssert.Contains(text, "**134**");
+		StringAssert.Contains(text, "**44**");
 		StringAssert.Contains(text, "engine-extension");
 		StringAssert.Contains(text, "prop-only");
 	}

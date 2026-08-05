@@ -74,6 +74,25 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 	}
 
 	[TestMethod]
+	public void GeneratedEarlyModernMilitaryItems_HaveSubstantiveAppearanceProseAndLeafTags()
+	{
+		var items = ItemSeeder.EarlyModernSupportedMilitaryItemSpecsForTesting.ToArray();
+		Assert.AreEqual(1664, items.Length);
+
+		foreach (var item in items)
+		{
+			Assert.IsTrue(item.FullDescription.Length >= 160,
+				$"{item.StableReference} needs a substantive full description.");
+			Assert.AreEqual(4, Regex.Matches(item.FullDescription, @"[.!?](?:\s|$)").Count,
+				$"{item.StableReference} should have four appearance-focused sentences.");
+			Assert.IsFalse(item.FullDescription.Contains("documented Early Modern", StringComparison.OrdinalIgnoreCase));
+			Assert.IsFalse(item.Tags.Any(tag => item.Tags.Any(other =>
+				other.StartsWith($"{tag} / ", StringComparison.OrdinalIgnoreCase))),
+				$"{item.StableReference} has a redundant parent tag.");
+		}
+	}
+
+	[TestMethod]
 	public void EraItemStableReferencesAvoidProcessProvenanceAndRepeatedSegments()
 	{
 		var stableReferences = Directory

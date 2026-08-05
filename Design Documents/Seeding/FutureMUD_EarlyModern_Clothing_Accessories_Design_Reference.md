@@ -1,6 +1,6 @@
 # FutureMUD Early Modern Clothing and Accessories Design Reference
 
-> Civilian first pass, military-uniform second pass, noble/jewellery third pass, religious clothing/accessories fourth pass, and headwear/footwear fifth pass. Full descriptions are intentionally deferred.
+> Civilian first pass, military-uniform second pass, noble/jewellery third pass, religious clothing/accessories fourth pass, and headwear/footwear fifth pass. Seeder generation supplies substantive appearance descriptions from each row's form, material, wearable profile, and quality.
 
 ## Executive summary
 
@@ -6980,7 +6980,7 @@ The generic gorget, epaulettes, shoulder knots, sashes, badges, cords, crossbelt
 
 ## First-pass civilian item catalogue
 
-This catalogue contains the **317 stable references actually used by the first-pass manifests**. Full descriptions are deferred. Usage count records how many of the 350 manifests include the reference.
+This catalogue contains the **317 stable references actually used by the first-pass manifests**. Generated full descriptions cover visible construction, material texture, worn form, and finish. Usage count records how many of the 350 manifests include the reference.
 
 Rows marked as cross-era admissions are not duplicate Early Modern prototypes. Their source references should be ensured idempotently when the Early Modern branch is installed.
 
@@ -11072,7 +11072,7 @@ The shared jewellery forms and culture-family pieces below are complete player-f
 
 ## Noble clothing, jewellery, and regalia catalogue
 
-All rows below are new Early Modern prototypes. Full descriptions remain deferred. The same authoring contract as the first two passes applies: portable, skinnable, player-visible, one wearable profile, exact variable component, no morph or destroyed-item link, and farthing-denominated cost. Jewellery is intentionally inert apart from wear behaviour, except for the functional noble signet ring, which uses the existing seal-stamp component.
+All rows below are new Early Modern prototypes. Generated full descriptions follow the same substantive appearance contract as the first two passes. The same authoring contract applies: portable, skinnable, player-visible, one wearable profile, exact variable component, no morph or destroyed-item link, and farthing-denominated cost. Jewellery is intentionally inert apart from wear behaviour, except for the functional noble signet ring, which uses the existing seal-stamp component.
 
 ### 1. Shared noble foundations and jewellery — 27
 
@@ -12815,7 +12815,7 @@ The manifests are builder-facing. Earlier-era reference prefixes are intentional
 
 ## Fourth-pass religious clothing and accessory catalogue
 
-This table contains the **73** new Early Modern rows only. Earlier-era admissions remain in their source catalogues and are listed separately below. Full descriptions remain deferred.
+This table contains the **73** new Early Modern rows only. Earlier-era admissions remain in their source catalogues and are listed separately below. Generated full descriptions cover their visible form, material, construction, and finish.
 
 | Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
 |---|---|---|---|---|---:|---|---|---|
@@ -12991,7 +12991,7 @@ Footwear is separated by use rather than merely by culture: hard work shoes, wal
 - Wigs use the existing `Wear_Wig` and `Wig` components. They change visible hair presentation only and carry no office, class, legal-status, or disguise entitlement.
 - Court, religious, official, mourning, Qing seasonal, South Asian court, and locally ceremonial rows require explicit institution/status/date admission.
 - Contact and colonial rows must still identify local continuity, import, imposed form, local manufacture, or genuine hybrid use. Clothing does not encode legal status.
-- Full descriptions remain deferred. The new rows reserve stable references and provide exact materials, components, tags, weights, costs, and builder-facing admission notes.
+- Generated full descriptions provide a substantive visible baseline from the exact materials, components, forms, and quality grades. Row admission notes remain source-side maintenance information and are not copied into prototype builder comments.
 
 ### Fifth-pass item catalogue — 84
 
@@ -13162,6 +13162,7 @@ Footwear is separated by use rather than merely by culture: hard work shoes, wal
 ## ItemSeeder outfit-manifest implementation
 
 - The ItemSeeder now seeds the exact prototype dependency union used by these manifests, including individually admitted medieval, Renaissance, and shared pre-industrial rows, before outfit creation.
+- Persisted template names use `Early Modern <outfit label>` without repeating the surrounding catalogue grouping. A grouping qualifier is included only when otherwise-generic labels would collide. Template comments keep their grouping and collection context but omit source-document filenames.
 - The ItemSeeder also seeds all **84** fifth-pass standalone headwear and footwear prototypes under the Early Modern era gate. They remain deliberately absent from the outfit manifests, so this adds no placements or changes to the **883** documented outfits.
 - All **883** concrete manifests in the first four passes are upserted as global stock `OutfitTemplate` rows: 350 civilian, 220 military/naval, 216 noble/court, and 97 religious.
 - Every template item is initially `Worn`, keeps the document order as wear order, uses the stable prototype reference as its template key, and leaves the wear profile blank so runtime selects the prototype's default wearable profile.

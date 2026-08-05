@@ -4,7 +4,7 @@
 
 The shared pre-industrial baseline is the reusable item layer for the Antiquity, Medieval, Renaissance, and Early Modern selections in `ItemSeeder`. It allows later eras to reuse persistent workshop, writing, trade, civic, and military-support forms without renaming or directly seeding broad earlier-era catalogues.
 
-The implementation preserves all existing `antiquity_*`, `medieval_*`, `historic_*`, and `primary_production_*` stable references. Cross-era compatibility rows use new `preindustrial_*` stable references and source-attribution builder notes.
+The implementation preserves all existing `antiquity_*`, `medieval_*`, `historic_*`, and `primary_production_*` stable references. Cross-era compatibility rows use new `preindustrial_*` stable references and retain source attribution in the seeder definition and manifest without adding stock-only builder comments.
 
 ## Dispatch and repeatability
 
@@ -34,11 +34,13 @@ The complete source-to-alias mapping is maintained in [Pre-Industrial Item Seede
 
 Alias rows copy the source item's form, material, size, quality, weight, cost, components, and functional/market tags. Antiquity and Medieval era tags are replaced with `Era / Pre-Industrial Era`. Lifecycle references between wrapped items are rewritten to their shared aliases so a pre-industrial lit fixture does not morph into a medieval-only prototype.
 
-The builder note format is:
+The source-attribution field retained in the seeder definition is:
 
 ```text
 Shared pre-industrial alias derived from <source stable reference>; original <source era> reference retained for compatibility.
 ```
+
+This field is not persisted into `GameItemProto.BuilderNotes`. A rerun removes an older seeded copy of the line while preserving unrelated builder-authored notes.
 
 ## New shared stock
 

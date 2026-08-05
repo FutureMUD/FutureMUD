@@ -422,10 +422,6 @@ public partial class ItemSeeder
 		item.IsHiddenFromPlayers = false;
 		item.PermitPlayerSkins = false;
 		item.UniqueName = entry.StableReference;
-		item.BuilderNotes = MergeBuilderNotes(
-			RemovePriorFoodBuilderNotes(item.BuilderNotes),
-			BuildFoodBuilderNotes(entry));
-
 		ReconcileFoodItemTags(item, tags);
 		ReconcileFoodItemComponents(item, componentNames, preparedComponent);
 		CacheReworkItem(entry.StableReference, item);
@@ -789,22 +785,6 @@ public partial class ItemSeeder
 		return
 			$"Hand-authored pre-industrial food catalogue row. Scope: {ScopeDisplay(entry.Scope)}. " +
 			$"Admission profile: {entry.AdmissionProfile}. Nutrition band: {entry.Nutrition}.";
-	}
-
-	private static string? RemovePriorFoodBuilderNotes(string? builderNotes)
-	{
-		if (string.IsNullOrWhiteSpace(builderNotes))
-		{
-			return builderNotes;
-		}
-
-		var retained = builderNotes
-			.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries)
-			.Where(x => !x.TrimStart().StartsWith(
-				"Hand-authored pre-industrial food catalogue row.",
-				StringComparison.OrdinalIgnoreCase))
-			.ToArray();
-		return retained.Length == 0 ? null : string.Join(Environment.NewLine, retained);
 	}
 
 	private Tag EnsurePreIndustrialFoodTagPath(string path)

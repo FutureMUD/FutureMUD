@@ -25,6 +25,16 @@ public class RenaissanceEarlyModernMedicalFoundationTests
 	}
 
 	[TestMethod]
+	public void ItemSeeder_PreflightsHistoricalMedicalHealthComponents()
+	{
+		var dispatcher = Read("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
+		var support = Read("DatabaseSeeder", "Seeders", "ItemSeeder.EraCatalogueSupport.cs");
+		StringAssert.Contains(dispatcher, "Validating historical medical prerequisites");
+		StringAssert.Contains(support, "ValidateHistoricalMedicalPrerequisites");
+		StringAssert.Contains(support, "Run the Health Seeder with the {requiredHealthTier} option before Items.");
+	}
+
+	[TestMethod]
 	public void MaintainedExports_ContainMedicalFoundationsWithoutDuplicates()
 	{
 		AssertJsonNames("Seeded_Materials.json", "Material Name", "benzoin resin", "camphor", "cinchona bark", "myrrh resin", "opium gum", "Peruvian balsam", "Epsom salts", "calomel", "tartar emetic", "bezoar", "ergot", "green vitriol");

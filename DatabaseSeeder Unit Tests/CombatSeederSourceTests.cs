@@ -610,6 +610,20 @@ public class CombatSeederSourceTests
 	}
 
 	[TestMethod]
+	public void CombatSeederSource_EarlyFirearmRerunsUseTheCanonicalMusketCartridgeComponent()
+	{
+		string source = SeederSourceTestHelper.ReadPartialFamily("CombatSeeder");
+
+		StringAssert.Contains(source, "context.RangedWeaponTypes.Any(x => x.Name == \"Flintlock Musket\")");
+		StringAssert.Contains(source, "\"Musket\", \"Flintlock Musket\"");
+		StringAssert.Contains(source, "\"ArtilleryPiece\", \"Flintlock Musket\"");
+		StringAssert.Contains(source, "OrderByDescending(x => x.Id)");
+		Assert.IsFalse(source.Contains(
+			".Single(x => x.Name == $\"MusketCartridge_{boreName}\" && x.EditableItem.RevisionStatus == 4)",
+			StringComparison.Ordinal));
+	}
+
+	[TestMethod]
 	public void CombatSeederSource_SpearSuites_HaveShieldRequiredSwordAndBoardAttacks()
 	{
 		string source = GetCombatSeederSource();

@@ -75,10 +75,19 @@ What is your choice? ", (context, answers) => true,
     private Dictionary<string, FutureProg> _progs = new(StringComparer.InvariantCultureIgnoreCase);
     private DictionaryWithDefault<string, TraitDefinition> _traits = new(StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, GameItemProto> _items = new(StringComparer.InvariantCultureIgnoreCase);
+	private Dictionary<string, GameItemProto> _itemsByStableReference = new(StringComparer.OrdinalIgnoreCase);
+	private Dictionary<long, GameItemProto> _itemsById = [];
+	private Dictionary<long, string> _itemStableReferencesById = [];
+	private Dictionary<string, IReadOnlyList<GameItemProto>> _legacyItemsByShortDescription =
+		new(StringComparer.OrdinalIgnoreCase);
+	private Dictionary<string, SeederManagedRecord> _managedRecordsByIdentity =
+		new(StringComparer.OrdinalIgnoreCase);
 	private Dictionary<string, Craft> _craftsByNameAndCategory = new(StringComparer.OrdinalIgnoreCase);
 	private long _nextItemId = 1;
 	private long _nextCraftId = 1;
+	private long _nextCraftInputId = 1;
 	private bool _deferCraftProductSave;
+	private int _deferredCraftPersistenceCount;
 	private Stopwatch? _progressStopwatch;
 	private int _progressStage;
 	private int _progressStageCount;
@@ -91,10 +100,19 @@ What is your choice? ", (context, answers) => true,
 
     private void InitialiseDependencies()
     {
-        if (_context is null)
-        {
-            throw new ApplicationException("Context cannot be null at this point.");
-        }
+		if (_context is null)
+		{
+			throw new ApplicationException("Context cannot be null at this point.");
+		}
+
+		_managedRecordsByIdentity = _manifestCaptureOnly
+			? new Dictionary<string, SeederManagedRecord>(StringComparer.OrdinalIgnoreCase)
+			: _context.SeederManagedRecords
+				.Where(x => x.Seeder == Name)
+				.AsEnumerable()
+				.GroupBy(x => ManagedRecordIdentity(x.EntityType, x.StableKey), StringComparer.OrdinalIgnoreCase)
+				.ToDictionary(x => x.Key, x => x.OrderByDescending(record => record.AppliedAt).First(),
+					StringComparer.OrdinalIgnoreCase);
 
 		_components = _context.GameItemComponentProtos.Local
 			.AsEnumerable()
@@ -195,14 +213,24 @@ What is your choice? ", (context, answers) => true,
 		}
 
 		_items = new Dictionary<string, GameItemProto>(StringComparer.InvariantCultureIgnoreCase);
+		_itemsByStableReference = new(StringComparer.OrdinalIgnoreCase);
+		_itemsById = [];
+		_itemStableReferencesById = [];
+		_legacyItemsByShortDescription = itemPrototypes
+			.Where(x => string.IsNullOrWhiteSpace(x.UniqueName))
+			.GroupBy(x => x.ShortDescription, StringComparer.OrdinalIgnoreCase)
+			.ToDictionary(x => x.Key, x => (IReadOnlyList<GameItemProto>)x.ToArray(), StringComparer.OrdinalIgnoreCase);
 		foreach (var group in itemPrototypes.GroupBy(x => x.Id))
 		{
 			var item = group.FirstOrDefault(x => x.EditableItem?.RevisionStatus == 4) ??
 			           group.FirstOrDefault(x => x.EditableItem?.RevisionStatus is 1 or 2) ??
 			           group.OrderByDescending(x => x.RevisionNumber).First();
+			_itemsById[item.Id] = item;
 			if (!string.IsNullOrWhiteSpace(item.UniqueName))
 			{
 				_items[item.UniqueName] = item;
+				_itemsByStableReference[item.UniqueName] = item;
+				_itemStableReferencesById[item.Id] = item.UniqueName;
 			}
 		}
 
@@ -256,6 +284,8 @@ What is your choice? ", (context, answers) => true,
 		{
 			RunSeedStage("Validating Renaissance and Early Modern jewellery and door prerequisites",
 				ValidateRenaissanceEarlyModernJewelleryDoorsPrerequisites);
+			RunSeedStage("Validating historical medical prerequisites",
+				() => ValidateHistoricalMedicalPrerequisites(requestedEras));
 		}
 
         SeedReworkItems();
@@ -409,6 +439,7 @@ What is your choice? ", (context, answers) => true,
 			GameItemProtosOnLoadProgs or
 			GameItemProtosTags or
 			GameItemProtoExtraDescription or
+			SeederManagedRecord or
 			EditableItem);
 	}
 
@@ -450,6 +481,11 @@ What is your choice? ", (context, answers) => true,
             context.GameItemComponentProtos.All(x => x.Name != "Insulation_Minor") ||
             context.GameItemComponentProtos.All(x => x.Name != "Destroyable_Misc") ||
             context.GameItemComponentProtos.All(x => x.Name != "Torch_Infinite") ||
+			new[]
+			{
+				"Wear_Saddle", "Wear_Bridle", "Wear_Chanfron", "Wear_Criniere", "Wear_Croupiere",
+				"Wear_Flanchards", "Wear_Peytral", "Wear_Caparison"
+			}.Any(name => context.GameItemComponentProtos.All(x => x.Name != name)) ||
             context.Tags.All(x => x.Name != "Functions"))
         {
             return ShouldSeedResult.PrerequisitesNotMet;
@@ -760,33 +796,7 @@ What is your choice? ", (context, answers) => true,
 
 	private GameItemProto? FindItemByStableReference(string stableReference)
 	{
-		var matches = _context!.GameItemProtos.Local
-			.AsEnumerable()
-			.Concat(_context.GameItemProtos
-				.Include(x => x.EditableItem)
-				.Include(x => x.GameItemProtosTags)
-				.Include(x => x.GameItemProtosGameItemComponentProtos)
-				.AsEnumerable())
-			.Where(x => x.UniqueName?.Equals(stableReference, StringComparison.OrdinalIgnoreCase) == true)
-			.GroupBy(x => (x.Id, x.RevisionNumber))
-			.Select(x => x.First())
-			.ToArray();
-		var activeLogicalIds = matches
-			.Where(x => x.EditableItem?.RevisionStatus is 1 or 2 or 4)
-			.Select(x => x.Id)
-			.Distinct()
-			.ToArray();
-		if (activeLogicalIds.Length > 1)
-		{
-			throw new InvalidOperationException(
-				$"Stable item reference '{stableReference}' is active on multiple logical prototype IDs: {string.Join(", ", activeLogicalIds.OrderBy(x => x))}.");
-		}
-
-		var logicalId = activeLogicalIds.SingleOrDefault();
-		var candidates = logicalId == 0 ? matches : matches.Where(x => x.Id == logicalId).ToArray();
-		return candidates.FirstOrDefault(x => x.EditableItem?.RevisionStatus == 4) ??
-		       candidates.FirstOrDefault(x => x.EditableItem?.RevisionStatus is 1 or 2) ??
-		       candidates.OrderByDescending(x => x.RevisionNumber).FirstOrDefault();
+		return _itemsByStableReference.GetValueOrDefault(stableReference);
 	}
 
 	private GameItemProto? FindExactLegacyItemMatch(
@@ -794,13 +804,9 @@ What is your choice? ", (context, answers) => true,
 		string shortDescription,
 		ItemManifestDefinition definition)
 	{
-		var candidates = _context!.GameItemProtos
-			.Include(x => x.EditableItem)
-			.Include(x => x.GameItemProtosTags)
-			.Include(x => x.GameItemProtosGameItemComponentProtos)
-			.AsEnumerable()
-			.Where(x => string.IsNullOrWhiteSpace(x.UniqueName) &&
-			            x.ShortDescription.Equals(shortDescription, StringComparison.OrdinalIgnoreCase))
+		var candidates = _legacyItemsByShortDescription
+			.GetValueOrDefault(shortDescription, [])
+			.Where(x => x.ShortDescription.Equals(shortDescription, StringComparison.OrdinalIgnoreCase))
 			.ToArray();
 		var expectedFingerprint = ItemSeederManifestCatalogue.Fingerprint(definition);
 		var exactMatches = candidates
@@ -873,10 +879,13 @@ What is your choice? ", (context, answers) => true,
 	private void CacheReworkItem(string stableReference, GameItemProto item)
 	{
 		_items[stableReference] = item;
+		_itemsByStableReference[stableReference] = item;
+		_itemsById[item.Id] = item;
 		_items[item.ShortDescription] = item;
 		if (!string.IsNullOrWhiteSpace(item.UniqueName))
 		{
 			_items[item.UniqueName] = item;
+			_itemStableReferencesById[item.Id] = item.UniqueName;
 		}
 	}
 

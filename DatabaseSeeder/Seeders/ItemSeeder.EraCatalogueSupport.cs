@@ -3,12 +3,44 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MudSharp.Framework;
 using MudSharp.GameItems;
 
 namespace DatabaseSeeder.Seeders;
 
 public partial class ItemSeeder
 {
+	private void ValidateHistoricalMedicalPrerequisites(string eras)
+	{
+		var specifications = Enumerable.Empty<EraCatalogueItemSpec>();
+		if (HasAnyEra(eras, "renaissance"))
+		{
+			specifications = specifications.Concat(EraMedicalRepairCatalogue.Renaissance.Select(x => x.ToItemSpec()));
+		}
+
+		if (HasAnyEra(eras, "earlymodern"))
+		{
+			specifications = specifications.Concat(EraMedicalRepairCatalogue.EarlyModern.Select(x => x.ToItemSpec()));
+		}
+
+		var missingComponents = specifications
+			.SelectMany(x => x.Components)
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.Where(component => !_components.ContainsKey(component))
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.ToArray();
+		if (missingComponents.Length == 0)
+		{
+			return;
+		}
+
+		var requiredHealthTier = HasAnyEra(eras, "earlymodern") ? "earlymodern" : "renaissance";
+		throw new InvalidOperationException(
+			$"The selected historical medical catalogue requires Health Seeder at the {requiredHealthTier} tier. " +
+			$"Run the Health Seeder with the {requiredHealthTier} option before Items. Missing components: " +
+			missingComponents.ListToString() + ".");
+	}
+
 	internal sealed record EraCatalogueItemSpec(
 		string StableReference,
 		string Noun,

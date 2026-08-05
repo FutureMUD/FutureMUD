@@ -91,6 +91,7 @@ public partial class ItemSeeder
 		["Weaponcrafting", "Weaponsmith", "Weapon Crafting", "Weapon Craft", "Weaponcraft", "Weaponsmithing"],
 		["Blacksmithing", "Metalcraft", "Metalworking", "Metal Work", "Metalwork", "Smithing"],
 		["Silversmithing", "Silversmith", "Silver Smithing", "Silver Smith"],
+		["Goldsmithing", "Goldsmith", "Gold Smithing", "Gold Smith"],
 		["Bowmaking", "Bowyer", "Bow Making", "Bowyer Craft"],
 		["Fletching", "Fletcher"],
 		["Pottery", "Potter"],
@@ -102,15 +103,18 @@ public partial class ItemSeeder
 		["Baking", "Baker"],
 		["Dyeing", "Dyecraft", "Dye Craft", "Dyer"],
 		["Glassworking", "Glasswork", "Glass Work", "Glassworker"],
-		["Gemcraft", "Gem Craft", "Gemcutting", "Gem Cutting"],
+		["Glassblowing", "Glassblower", "Glass Blowing"],
+		["Gemcraft", "Gem Craft"],
+		["Lapidary", "Gemcutting", "Gem Cutting"],
 		["Perfumery", "Perfumer"],
 		["Brewing", "Brewer"],
 		["Distilling", "Distiller"],
 		["Cooking", "Cookery", "Cook"],
-		["Carpentry", "Woodcraft", "Woodworking", "Wood Work", "Woodwork", "Carpenter", "Joinery", "Constructing", "Construction"],
+		["Carpentry", "Woodcraft", "Woodworking", "Wood Work", "Woodwork", "Carpenter", "Joinery"],
 		["Basketry", "Basketmaker", "Basket Making"],
 		["Coopering", "Cooper"],
 		["Ropemaking", "Ropemaker", "Rope Making"],
+		["Fulling", "Fuller"],
 		["Lacquerwork", "Lacquerer", "Lacquer Work"],
 		["Lumberjacking", "Lumberjack"],
 		["Masonry", "Stonecraft", "Stoneworking", "Stone Work", "Stonework", "Mason"],
@@ -122,6 +126,23 @@ public partial class ItemSeeder
 		["Wheelmaking", "Wheelwright", "Wheel Making"],
 		["Candlemaking", "Candlery", "Candle Making"],
 		["Leathermaking", "Hideworking", "Leatherworking", "Leather Work", "Leatherwork", "Leather Making", "Hide Work"],
+		["Parchmentmaking", "Parchmenter", "Parchment Making"],
+		["Papermaking", "Papermaker", "Paper Making"],
+		["Bookbinding", "Bookbinder", "Book Binding"],
+		["Calligraphy", "Calligrapher"],
+		["Scribing", "Scribe"],
+		["Woodblock Printing", "Block Printer", "WoodblockPrinting"],
+		["Movable Type Printing", "Printer", "MovableTypePrinting"],
+		["Gunsmithing", "Gunsmith", "Gun Smithing"],
+		["Powdermaking", "Powdermaker", "Powder Making"],
+		["Lensmaking", "Lensmaker", "Lens Making"],
+		["Clockmaking", "Clockmaker", "Clock Making"],
+		["Instrument Making", "Instrument Maker", "InstrumentMaking"],
+		["Navigation", "Navigator"],
+		["Cartography", "Cartographer"],
+		["Surveying", "Surveyor"],
+		["Engraving", "Engraver"],
+		["Chemistry", "Chemist"],
 		["Winemaking", "Winemaker", "Wine Making"],
 		["Foraging", "Forage"],
 		["Skinning", "Skin"],
@@ -130,12 +151,14 @@ public partial class ItemSeeder
 		["Surviving", "Survival"],
 		["Animal Breeding", "Husbandry"],
 		["Beekeeping", "Beekeeper"],
+		["Apothecary", "Pharmacology"],
 		["Medicine", "First Aid", "Healing", "Patient Care", "Diagnosis", "Surgery", "Pharmacology", "Herbalism"],
 		["Law", "Lawyer"],
 		["Labouring", "Labourer", "Laboring", "Laborer"],
 		["Supervising", "Supervisor"],
 		["Painting", "Paint"],
 		["Civil Engineering", "Civil Engineer"],
+		["Constructing", "Construction"],
 		["Administration", "Administrator"],
 		["Performance", "Performer"],
 		["Investigation", "Investigator"],
@@ -986,6 +1009,11 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
     {
         if (HasValue(match.Groups["craftid"]) && long.TryParse(match.Groups["craftid"].Value, out long id))
         {
+			if (_itemsById.TryGetValue(id, out GameItemProto? cachedItem))
+			{
+				return cachedItem;
+			}
+
             return _context!.GameItemProtos.FirstOrDefault(x => x.Id == id);
         }
 
@@ -997,6 +1025,11 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
         Match match = RequireMatch(ItemReferenceRegex, text, $"Invalid item reference {text}");
         if (HasValue(match.Groups["craftid"]) && long.TryParse(match.Groups["craftid"].Value, out long id))
         {
+			if (_itemsById.TryGetValue(id, out GameItemProto? cachedItem))
+			{
+				return cachedItem;
+			}
+
             GameItemProto? itemById = _context!.GameItemProtos.FirstOrDefault(x => x.Id == id);
             if (itemById is not null)
             {
@@ -1373,6 +1406,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
         (string typename, string definition) = BuildInputDefinition(spec);
         CraftInput input = new()
         {
+			Id = _deferCraftProductSave ? _nextCraftInputId++ : 0,
             Craft = craft,
             InputQualityWeight = spec.QualityWeight,
             OriginalAdditionTime = DateTime.UtcNow,
@@ -2166,6 +2200,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 					var repairedFingerprint = ItemSeederManifestCatalogue.Fingerprint(BuildLiveCraftManifestDefinition(existing));
 					RecordAppliedManifestEntry(manifestEntry, existing.Id, existing.RevisionNumber, repairedFingerprint);
 					IncrementManifestResult(manifestEntry.Module, x => x with { Updated = x.Updated + 1 });
+					QueueDeferredCraftPersistence();
 					return existing;
 				}
 
@@ -2206,6 +2241,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 			var rebuiltFingerprint = ItemSeederManifestCatalogue.Fingerprint(BuildLiveCraftManifestDefinition(existing));
 			RecordAppliedManifestEntry(manifestEntry, existing.Id, existing.RevisionNumber, rebuiltFingerprint);
 			IncrementManifestResult(manifestEntry.Module, x => x with { Updated = x.Updated + 1 });
+			QueueDeferredCraftPersistence();
 			return existing;
 		}
 
@@ -2231,21 +2267,17 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 		var appliedFingerprint = ItemSeederManifestCatalogue.Fingerprint(BuildLiveCraftManifestDefinition(dbitem));
 		RecordAppliedManifestEntry(manifestEntry, dbitem.Id, dbitem.RevisionNumber, appliedFingerprint);
 		IncrementManifestResult(manifestEntry.Module, x => x with { Inserted = x.Inserted + 1 });
+		QueueDeferredCraftPersistence();
 		return dbitem;
 	}
 
 	private IEnumerable<string> GetCraftProductManifestDependencies(CraftDefinitionSpec spec)
 	{
-		var stableReferencesById = _items
-			.Where(x => !string.IsNullOrWhiteSpace(x.Value.UniqueName) && x.Value.Id > 0)
-			.GroupBy(x => x.Value.Id)
-			.ToDictionary(x => x.Key, x => x.First().Value.UniqueName);
-
 		foreach (var product in spec.Products)
 		{
 			var match = Regex.Match(product.Details, @"\(#(?<id>\d+)\)");
 			if (!match.Success || !long.TryParse(match.Groups["id"].Value, out var itemId) ||
-			    !stableReferencesById.TryGetValue(itemId, out var stableReference))
+			    !_itemStableReferencesById.TryGetValue(itemId, out var stableReference))
 			{
 				continue;
 			}
@@ -2460,22 +2492,70 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 			craft.CraftTools.Add(ConvertToTool(craft, tool));
 		}
 
-		_context!.SaveChanges();
+		if (!_deferCraftProductSave)
+		{
+			_context!.SaveChanges();
+		}
 		foreach (var product in spec.Products.Concat(spec.FailProducts))
 		{
 			craft.CraftProducts.Add(ConvertToProduct(craft, product));
 		}
 
-		_context.SaveChanges();
-		if (_deferCraftProductSave)
+		if (!_deferCraftProductSave)
 		{
-			DetachTrackedEntities(entity => entity is Craft or
-				CraftPhase or
-				CraftInput or
-				CraftTool or
-				CraftProduct or
-				EditableItem);
+			_context!.SaveChanges();
 		}
+	}
+
+	private void BeginDeferredCraftPersistence()
+	{
+		_nextCraftInputId = _context!.CraftInputs
+			.OrderByDescending(x => x.Id)
+			.Select(x => x.Id)
+			.FirstOrDefault() + 1;
+		_deferredCraftPersistenceCount = 0;
+	}
+
+	private void QueueDeferredCraftPersistence()
+	{
+		if (!_deferCraftProductSave)
+		{
+			return;
+		}
+
+		_deferredCraftPersistenceCount++;
+		if (_deferredCraftPersistenceCount >= 128)
+		{
+			FlushDeferredCraftPersistence();
+		}
+	}
+
+	private void FlushDeferredCraftPersistence()
+	{
+		if (!_deferCraftProductSave || _deferredCraftPersistenceCount == 0)
+		{
+			return;
+		}
+
+		SaveCraftChanges();
+		DetachTrackedEntities(entity => entity is Craft or
+			CraftPhase or
+			CraftInput or
+			CraftTool or
+			CraftProduct or
+			SeederManagedRecord or
+			EditableItem);
+		_deferredCraftPersistenceCount = 0;
+	}
+
+	private void SaveCraftChanges()
+	{
+		if (!_context!.ChangeTracker.AutoDetectChangesEnabled)
+		{
+			_context.ChangeTracker.DetectChanges();
+		}
+
+		_context.SaveChanges();
 	}
 
     private static int? GetMaterialDefiningInputIndex(List<(int Product, int Input)>? indexes, int productNumber)
@@ -2737,12 +2817,20 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 		if (!_manifestCaptureOnly &&
 		    progs.Any(prog => _context!.Entry(prog).State is EntityState.Added or EntityState.Modified))
 		{
-			_context!.SaveChanges();
+			SaveCraftChanges();
 		}
 	}
 
 	private FutureProg EnsureAlwaysTrueProg()
 	{
+		// AlwaysTrue is core infrastructure, not ItemSeeder-owned content. Reuse it
+		// verbatim so its independently maintained signature is never claimed or
+		// treated as an unsafe ItemSeeder conflict.
+		if (_progs.TryGetValue("AlwaysTrue", out var existingProg))
+		{
+			return existingProg;
+		}
+
 		return EnsureFutureProg("AlwaysTrue", "Utility", "General", ProgVariableTypes.Boolean, "",
 			[], "return true");
 	}
@@ -2835,7 +2923,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 			CompleteManifestAggregate(manifestEntry, null, manifestDefinition, ManifestAggregateDisposition.Insert);
 			if (!_manifestCaptureOnly)
 			{
-				_context.SaveChanges();
+				SaveCraftChanges();
 			}
 		}
 		else
@@ -2942,6 +3030,35 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		return AddCraft(spec);
 	}
 
+	internal MudSharp.Models.Craft AddCraftWithDeferredPersistenceForTesting(
+		FuturemudDatabaseContext context,
+		CraftDefinitionSpec spec)
+	{
+		InitialiseCraftAuthoringForTesting(context);
+		var previousDeferCraftProductSave = _deferCraftProductSave;
+		var previousAutoDetectChanges = _context!.ChangeTracker.AutoDetectChangesEnabled;
+		_deferCraftProductSave = true;
+		_context.ChangeTracker.AutoDetectChangesEnabled = false;
+		BeginDeferredCraftPersistence();
+		try
+		{
+			var craft = AddCraft(spec);
+			FlushDeferredCraftPersistence();
+			return context.Crafts
+				.Include(x => x.CraftPhases)
+				.Include(x => x.CraftInputs)
+				.Include(x => x.CraftTools)
+				.Include(x => x.CraftProducts)
+				.Single(x => x.Id == craft.Id && x.RevisionNumber == craft.RevisionNumber);
+		}
+		finally
+		{
+			_deferCraftProductSave = previousDeferCraftProductSave;
+			_context.ChangeTracker.AutoDetectChangesEnabled = previousAutoDetectChanges;
+			_deferredCraftPersistenceCount = 0;
+		}
+	}
+
 	internal MudSharp.Models.Craft AddCraftFromImportsForTesting(FuturemudDatabaseContext context, string name, string category,
 		IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs, IEnumerable<string> tools,
 		IEnumerable<string> products, IEnumerable<string> failProducts, List<(int Product, int Input)>? productMaterialInputIndexes = null,
@@ -2995,7 +3112,10 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		_nextCraftId = _context!.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
 
 		var previousDeferCraftProductSave = _deferCraftProductSave;
+		var previousAutoDetectChanges = _context!.ChangeTracker.AutoDetectChangesEnabled;
 		_deferCraftProductSave = true;
+		_context.ChangeTracker.AutoDetectChangesEnabled = false;
+		BeginDeferredCraftPersistence();
 		try
 		{
 			RunSeedStage("Creating historic and primary-production crafts", () =>
@@ -3070,10 +3190,13 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 					SeedRenaissanceFinishedItemCrafts();
 				});
 			}
+			FlushDeferredCraftPersistence();
 		}
 		finally
 		{
 			_deferCraftProductSave = previousDeferCraftProductSave;
+			_context!.ChangeTracker.AutoDetectChangesEnabled = previousAutoDetectChanges;
+			_deferredCraftPersistenceCount = 0;
 		}
 	}
 

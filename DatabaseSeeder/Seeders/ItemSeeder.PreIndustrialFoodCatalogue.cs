@@ -637,7 +637,13 @@ public partial class ItemSeeder
 			1.0, 0, 0.01, 1.0, false, string.Empty, tagPaths);
 		var manifestEntry = RegisterManifestAggregate("liquid", entry.Name, manifestDefinition);
 		var disposition = ManifestAggregateDisposition.Insert;
-		if (!_liquids.TryGetValue(entry.Name, out var liquid))
+		var hasExistingLiquid = _liquids.TryGetValue(entry.Name, out var existingLiquid);
+		Liquid liquid;
+		if (hasExistingLiquid)
+		{
+			liquid = existingLiquid!;
+		}
+		else
 		{
 			liquid = new Liquid
 			{
@@ -651,8 +657,15 @@ public partial class ItemSeeder
 		{
 			return;
 		}
-		else
+		if (hasExistingLiquid)
 		{
+			if (FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey) is null)
+			{
+				// Core and Kickstart seeders own their stock liquids. Reuse an existing liquid without
+				// claiming it or overwriting its tailored properties.
+				return;
+			}
+
 			disposition = InspectManifestAggregate(manifestEntry, liquid.Id, BuildLiveLiquidManifestDefinition(liquid));
 			if (disposition is ManifestAggregateDisposition.Customized or ManifestAggregateDisposition.Unchanged)
 			{

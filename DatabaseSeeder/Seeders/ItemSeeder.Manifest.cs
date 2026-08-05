@@ -832,11 +832,28 @@ public partial class ItemSeeder
 			return null;
 		}
 
-		var localRecord = _context!.SeederManagedRecords.Local.FirstOrDefault(x =>
-			x.Seeder == Name && x.EntityType == entityType && x.StableKey == stableKey &&
-			_context.Entry(x).State != EntityState.Deleted);
-		return localRecord ?? _context.SeederManagedRecords.FirstOrDefault(x =>
-			       x.Seeder == Name && x.EntityType == entityType && x.StableKey == stableKey);
+		var identity = ManagedRecordIdentity(entityType, stableKey);
+		if (_managedRecordsByIdentity.TryGetValue(identity, out var cachedRecord))
+		{
+			var entry = _context!.Entry(cachedRecord);
+			if (entry.State == EntityState.Detached)
+			{
+				_context.Attach(cachedRecord);
+				entry = _context.Entry(cachedRecord);
+			}
+
+			if (entry.State != EntityState.Deleted)
+			{
+				return cachedRecord;
+			}
+
+			_managedRecordsByIdentity.Remove(identity);
+		}
+
+		// InitialiseDependencies indexed every existing record for this seeder. A miss is
+		// therefore a genuinely new aggregate; querying it again once per new item or
+		// craft turns a fresh installation into thousands of database round-trips.
+		return null;
 	}
 
 	private void RecordAppliedManifestEntry(
@@ -860,6 +877,7 @@ public partial class ItemSeeder
 				StableKey = entry.StableKey
 			};
 			_context!.SeederManagedRecords.Add(record);
+			_managedRecordsByIdentity[ManagedRecordIdentity(entry.EntityType, entry.StableKey)] = record;
 		}
 
 		record.Module = entry.Module;

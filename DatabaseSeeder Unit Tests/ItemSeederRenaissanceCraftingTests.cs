@@ -25,6 +25,9 @@ public class ItemSeederRenaissanceCraftingTests
 		StringAssert.Contains(source, "an in-progress {StripLeadingArticle(displayName)} craft");
 		StringAssert.Contains(source, "Commodity - {materialAmount} grams of {material}");
 		StringAssert.Contains(source, "SimpleProduct - 1x {displayName} (#{item.Value.Id})");
+		StringAssert.Contains(source, "\"Labouring\", 15");
+		Assert.IsFalse(source.Contains("\"Crafting\", 15", StringComparison.Ordinal),
+			"The generic Renaissance craft path must use a concrete stock skill, not the Crafting category.");
 		Assert.IsTrue(ItemSeeder.ShouldSeedRenaissanceFinishedItemCraftsForTesting("renaissance"));
 		Assert.IsFalse(ItemSeeder.ShouldSeedRenaissanceFinishedItemCraftsForTesting("medieval"));
 	}

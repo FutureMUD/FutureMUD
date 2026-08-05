@@ -14,7 +14,8 @@ public sealed record SeederQuestion(
     string? SharedAnswerKey = null,
     Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, string?>? DefaultAnswerResolver = null,
     Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, ConsoleQuestionDisplay>? DisplayResolver = null,
-    bool AutoReuseLastAnswer = false)
+    bool AutoReuseLastAnswer = false,
+    bool PersistAnswer = true)
 {
     public ConsoleQuestionDisplay ResolveDisplay(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> currentAnswers)

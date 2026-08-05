@@ -1,5 +1,6 @@
 #nullable enable
 
+using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -242,6 +243,17 @@ public class RenaissanceMilitarySeederTests
 		Assert.IsTrue(gate >= 0, "Renaissance prerequisite gate was not registered in SeedData.");
 		Assert.IsTrue(rework >= 0 && gate < rework,
 			"Renaissance prerequisite gate must run before any rework item stage can write.");
+	}
+
+	[TestMethod]
+	public void ItemSeederMetadata_RequiresAnimalMountedWearComponents()
+	{
+		var metadata = SeederMetadataRegistry.GetMetadata(new ItemSeeder());
+		var dependencyTypes = (metadata.DependencySeederTypes ?? []).ToArray();
+
+		CollectionAssert.Contains(dependencyTypes, typeof(AnimalSeeder));
+		Assert.IsTrue(metadata.Prerequisites.Any(x =>
+			x.Description == "Animal-mounted gear wear-profile components must already exist."));
 	}
 
 	private static FuturemudDatabaseContext BuildContext()

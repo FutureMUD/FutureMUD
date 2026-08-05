@@ -18,6 +18,11 @@ public static class SeederAnswerMemory
         SeederQuestion question,
         IReadOnlyDictionary<string, string> currentAnswers)
     {
+        if (!question.PersistAnswer)
+        {
+            return question.DefaultAnswerResolver?.Invoke(context, currentAnswers);
+        }
+
         if (!string.IsNullOrWhiteSpace(question.SharedAnswerKey))
         {
             string? sharedAnswer = GetLatestSharedAnswer(context, question.SharedAnswerKey);
@@ -47,8 +52,20 @@ public static class SeederAnswerMemory
         Dictionary<string, SeederQuestion> questionLookup = questions.ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
         HashSet<string> persistedSharedKeys = new(StringComparer.OrdinalIgnoreCase);
 
+        foreach (SeederQuestion question in questionLookup.Values.Where(x => !x.PersistAnswer))
+        {
+            context.SeederChoices.RemoveRange(context.SeederChoices.Where(x =>
+                x.Seeder == seeder.Name &&
+                x.Choice == question.Id));
+        }
+
         foreach (KeyValuePair<string, string> answer in answers)
         {
+            if (questionLookup.TryGetValue(answer.Key, out SeederQuestion? question) && !question.PersistAnswer)
+            {
+                continue;
+            }
+
             context.SeederChoices.Add(new SeederChoice
             {
                 Version = version,
@@ -58,7 +75,7 @@ public static class SeederAnswerMemory
                 DateTime = timestamp
             });
 
-            if (!questionLookup.TryGetValue(answer.Key, out SeederQuestion? question) ||
+            if (!questionLookup.TryGetValue(answer.Key, out question) ||
                 string.IsNullOrWhiteSpace(question.SharedAnswerKey) ||
                 !persistedSharedKeys.Add(question.SharedAnswerKey))
             {

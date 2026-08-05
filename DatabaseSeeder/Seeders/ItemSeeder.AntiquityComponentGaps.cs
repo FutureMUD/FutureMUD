@@ -138,6 +138,11 @@ public partial class ItemSeeder
 		var manifestEntry = RegisterManifestAggregate("material", name, definition);
 		if (_materials.TryGetValue(name, out var existing))
 		{
+			if (FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey) is null)
+			{
+				return existing;
+			}
+
 			var liveDefinition = new MaterialManifestDefinition(
 				existing.Name,
 				existing.MaterialDescription,
@@ -165,6 +170,11 @@ public partial class ItemSeeder
 		if (existing is not null)
 		{
 			_materials[name] = existing;
+			if (FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey) is null)
+			{
+				return existing;
+			}
+
 			var liveDefinition = new MaterialManifestDefinition(
 				existing.Name,
 				existing.MaterialDescription,

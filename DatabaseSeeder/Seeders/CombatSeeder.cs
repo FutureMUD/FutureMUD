@@ -317,7 +317,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 	private static bool HasCombatFoundation(FuturemudDatabaseContext context) => context.WeaponAttacks.Any();
 
 	private static bool HasEarlyFirearms(FuturemudDatabaseContext context) =>
-		context.WeaponTypes.Any(x => x.Name.Contains("Flintlock"));
+		context.RangedWeaponTypes.Any(x => x.Name == "Flintlock Musket");
 
 	private static bool HasModernFirearms(FuturemudDatabaseContext context) =>
 		context.RangedWeaponTypes.Any(x => x.Name.Contains("Shotgun") || x.Name.Contains("Rifle"));

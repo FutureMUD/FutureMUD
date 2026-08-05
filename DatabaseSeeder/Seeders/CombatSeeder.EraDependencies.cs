@@ -569,7 +569,12 @@ public partial class CombatSeeder
 			foreach (var boreName in new[] { "0.45 Bore", "0.55 Bore", "0.6 Bore", "0.65 Bore", "0.7 Bore", "0.75 Bore", "0.8 Bore" })
 			{
 				var baseComponent = context.GameItemComponentProtos
-					.Single(x => x.Name == $"MusketCartridge_{boreName}" && x.EditableItem.RevisionStatus == 4);
+					.Where(x => x.Name == $"MusketCartridge_{boreName}" && x.EditableItem.RevisionStatus == 4)
+					.OrderByDescending(x => x.Id)
+					.FirstOrDefault() ??
+					throw new InvalidOperationException(
+						$"Cannot seed MusketPaperCartridge_{boreName}: the base musket cartridge component is missing. " +
+						"Run Combat with installmuskets enabled first.");
 				var baseDefinition = XElement.Parse(baseComponent.Definition);
 				var bore = double.Parse(
 					baseDefinition.Element("BulletBore")?.Value ??
@@ -623,7 +628,7 @@ public partial class CombatSeeder
 		// on brittle database IDs from a development database.
 		if (context.GameItemComponentProtos.Any(x => x.Type == "Ammunition" && x.EditableItem.RevisionStatus == 4) &&
 			context.GameItemComponentProtos.Any(x => x.Type == "Musket" && x.EditableItem.RevisionStatus == 4) &&
-			context.RangedWeaponTypes.Any(x => x.Name == "Musket"))
+			context.RangedWeaponTypes.Any(x => x.Name == "Flintlock Musket"))
 		{
 		XElement CloneDefinition(GameItemComponentProto component) => XElement.Parse(component.Definition);
 		void SetElement(XElement definition, string name, object value) => definition.SetElementValue(name, value);
@@ -723,7 +728,7 @@ public partial class CombatSeeder
 		};
 		foreach (var profile in musketProfiles)
 		{
-			var ranged = EnsureRanged(profile.Name.Replace('_', ' '), profile.Name, "Musket", "Musket", x =>
+			var ranged = EnsureRanged(profile.Name.Replace('_', ' '), profile.Name, "Musket", "Flintlock Musket", x =>
 			{
 				if (profile.Rifled)
 				{
@@ -772,7 +777,7 @@ public partial class CombatSeeder
 		{
 			var gunnery = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Gunnery") ??
 				throw new InvalidOperationException("Cannot seed artillery profiles because the Gunnery trait is missing.");
-			var ranged = EnsureRanged(name.Replace('_', ' '), name, "ArtilleryPiece", "Musket", x =>
+			var ranged = EnsureRanged(name.Replace('_', ' '), name, "ArtilleryPiece", "Flintlock Musket", x =>
 			{
 				x.RangedWeaponType = (int)RangedWeaponType.Artillery;
 				x.FireTraitId = gunnery.Id;

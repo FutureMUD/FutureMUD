@@ -1307,6 +1307,24 @@ public class UsefulSeederItemPackageTests
 		usefulSeeder.SeedAntiquityComponentGapCoverageForTesting(context);
 		usefulSeeder.SeedEraDependencyComponentsForTesting(context);
 		usefulSeeder.SeedGeneralCoverageForTesting(context);
+		var earthenware = context.Materials.SingleOrDefault(x => x.Name == "earthenware");
+		if (earthenware is null)
+		{
+			earthenware = new Material
+			{
+				Id = context.Materials.Any() ? context.Materials.Max(x => x.Id) + 1 : 1,
+				Name = "earthenware",
+				MaterialDescription = "earthenware",
+				BehaviourType = (int)MaterialBehaviourType.Ceramic,
+				ResidueColour = "white"
+			};
+			context.Materials.Add(earthenware);
+		}
+		else
+		{
+			earthenware.ResidueColour = "white";
+		}
+		context.SaveChanges();
 		EnsureComponentMarkers(context,
 			"Destroyable_Misc",
 			"Destroyable_Furniture",

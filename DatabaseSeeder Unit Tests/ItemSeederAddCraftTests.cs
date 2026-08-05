@@ -493,6 +493,48 @@ public class ItemSeederAddCraftTests
 	}
 
 	[TestMethod]
+	public void ItemSeeder_AddCraft_DeferredPersistenceRetainsInputReferences()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context);
+
+		var craft = new ItemSeeder().AddCraftWithDeferredPersistenceForTesting(context,
+			new ItemSeeder.CraftDefinitionSpec
+			{
+				Name = "test deferred craft",
+				Category = "Testing",
+				Blurb = "deferred test",
+				Action = "testing deferred persistence",
+				ActiveCraftItemSdesc = "a deferred craft event",
+				AppearProg = context.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue"),
+				Trait = context.TraitDefinitions.Single(x => x.Name == "Crafting"),
+				FailPhase = 1,
+				Phases = [new ItemSeeder.CraftPhaseSpec { Seconds = 12, Echo = "$0 work|works." }],
+				Inputs =
+				[
+					new ItemSeeder.CraftInputSpec("Tag - 1x an item with the Ingredient tag", "Tag",
+						"1x an item with the Ingredient tag", [], 1.0)
+				],
+				Products =
+				[
+					new ItemSeeder.CraftProductSpec(
+						"UnusedInput - 25% of 1x an item with the Ingredient tag ($i1)",
+						"UnusedInput",
+						"25% of 1x an item with the Ingredient tag ($i1)",
+						[],
+						false,
+						null)
+				]
+			});
+
+		var input = craft.CraftInputs.Single();
+		var product = craft.CraftProducts.Single();
+		Assert.IsTrue(input.Id > 0);
+		Assert.AreEqual(input.Id,
+			long.Parse(XElement.Parse(product.Definition).Element("WhichInputId")!.Value));
+	}
+
+	[TestMethod]
 	public void ItemSeeder_AddCraft_NormalisesActiveSdescAndPhaseToolAndFailureEchoes()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -585,6 +627,54 @@ public class ItemSeederAddCraftTests
 		var appear = context.FutureProgs.Single(x => x.FunctionName == "CrApTWoo940");
 		Assert.IsTrue(appear.FunctionText.Contains(@"ToTrait(""9"")"));
 		Assert.IsTrue(appear.FunctionText.StartsWith("// Trait 9 = \"Woodcraft\"", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
+	public void ItemSeeder_AddCraft_TraitGateResolvesNoGerundParchmentmakingSkillPackageName()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context);
+		AddSkillTrait(context, 9, "Parchmenter");
+
+		var craft = new ItemSeeder().AddTraitGatedCraftFromImportsForTesting(
+			context,
+			"test parchmentmaking alias craft",
+			"Testing",
+			"Parchmentmaking",
+			40,
+			BasicPhases(),
+			BasicInputs(),
+			BasicTools(),
+			BasicProducts(),
+			[]
+		);
+
+		Assert.AreEqual(9, craft.CheckTraitId);
+		Assert.AreEqual("Parchmenter", craft.CheckTrait.Name);
+	}
+
+	[TestMethod]
+	public void ItemSeeder_AddCraft_TraitGateResolvesApothecaryToComplexSkillPackagePharmacology()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context);
+		AddSkillTrait(context, 9, "Pharmacology");
+
+		var craft = new ItemSeeder().AddTraitGatedCraftFromImportsForTesting(
+			context,
+			"test apothecary alias craft",
+			"Testing",
+			"Apothecary",
+			40,
+			BasicPhases(),
+			BasicInputs(),
+			BasicTools(),
+			BasicProducts(),
+			[]
+		);
+
+		Assert.AreEqual(9, craft.CheckTraitId);
+		Assert.AreEqual("Pharmacology", craft.CheckTrait.Name);
 	}
 
 	[TestMethod]

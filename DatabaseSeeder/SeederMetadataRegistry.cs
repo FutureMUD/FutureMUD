@@ -406,12 +406,18 @@ public static class SeederMetadataRegistry
                         context.GameItemComponentProtos.Any(x => x.Name == "Insulation_Minor") &&
                         context.GameItemComponentProtos.Any(x => x.Name == "Destroyable_Misc") &&
                         context.GameItemComponentProtos.Any(x => x.Name == "Torch_Infinite") &&
-                        context.Tags.Any(x => x.Name == "Functions"))
+						context.Tags.Any(x => x.Name == "Functions")),
+					Requirement("Animal-mounted gear wear-profile components must already exist.", context =>
+						new[]
+						{
+							"Wear_Saddle", "Wear_Bridle", "Wear_Chanfron", "Wear_Criniere", "Wear_Croupiere",
+							"Wear_Flanchards", "Wear_Peytral", "Wear_Caparison"
+						}.All(name => context.GameItemComponentProtos.Any(x => x.Name == name)))
 				],
 				RerunSummary: "Reruns reconcile the installed ItemSeeder eras and can add newly selected implemented eras without removing prior content.",
 				UpdateSummary: "Manifest-owned stock aggregates are repaired when untouched; builder-customized aggregates are preserved and reported.",
 				OwnershipSummary: "Durable SeederManagedRecords provenance owns stock aggregate definitions and required stock links. Builder additions and customized aggregate graphs are retained; ambiguous untracked identities block before mutation.",
-                DependencySeederTypes: [typeof(UsefulSeeder)]
+                DependencySeederTypes: [typeof(UsefulSeeder), typeof(AnimalSeeder)]
             ),
             nameof(AnimalButcherySeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,

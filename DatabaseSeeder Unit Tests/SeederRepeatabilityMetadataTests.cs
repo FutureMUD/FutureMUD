@@ -79,4 +79,42 @@ public class SeederRepeatabilityMetadataTests
 		Assert.AreEqual("simple", SeederAnswerMemory.GetLatestSeederAnswer(context, "Attributes", "choice"));
 		Assert.AreEqual("simple", SeederAnswerMemory.GetLatestSeederAnswers(context, "Attributes")["choice"]);
 	}
+
+	[TestMethod]
+	public void CoreSeeder_PasswordAnswerIsNotPersistedAndRemovesLegacyPlaintextAnswer()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		context.SeederChoices.Add(new SeederChoice
+		{
+			Id = 1,
+			Seeder = "Core",
+			Choice = "password",
+			Answer = "legacy plaintext password",
+			Version = "test",
+			DateTime = DateTime.UtcNow
+		});
+		context.SaveChanges();
+
+		IDatabaseSeeder seeder = new CoreDataSeeder();
+		SeederAnswerMemory.PersistAnswers(
+			context,
+			seeder,
+			seeder.Questions,
+			new Dictionary<string, string>
+			{
+				["gamename"] = "DemoMUD",
+				["password"] = "new plaintext password"
+			},
+			"test",
+			DateTime.UtcNow);
+		context.SaveChanges();
+
+		SeederQuestion passwordQuestion = seeder.Questions.Single(x => x.Id == "password");
+		Assert.IsFalse(passwordQuestion.PersistAnswer);
+		Assert.IsNull(SeederAnswerMemory.GetRememberedAnswer(context, seeder, passwordQuestion,
+			new Dictionary<string, string>()));
+
+		Assert.IsFalse(context.SeederChoices.Any(x => x.Seeder == "Core" && x.Choice == "password"));
+		Assert.IsTrue(context.SeederChoices.Any(x => x.Seeder == "Core" && x.Choice == "gamename"));
+	}
 }

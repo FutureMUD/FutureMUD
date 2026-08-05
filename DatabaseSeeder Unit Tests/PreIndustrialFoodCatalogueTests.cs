@@ -210,6 +210,17 @@ public class PreIndustrialFoodCatalogueTests
 	}
 
 	[TestMethod]
+	public void ExistingStockFoodLiquids_AreReusedWithoutTakingOwnership()
+	{
+		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialFoodCatalogue.cs");
+		StringAssert.Contains(source, "var hasExistingLiquid = _liquids.TryGetValue(entry.Name, out var existingLiquid);");
+		StringAssert.Contains(source, "if (hasExistingLiquid)");
+		StringAssert.Contains(source,
+			"FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey) is null");
+		StringAssert.Contains(source, "Core and Kickstart seeders own their stock liquids.");
+	}
+
+	[TestMethod]
 	public void MaintainedExports_CoverPreparedComponentsLiquidsAndTags()
 	{
 		var items = ItemSeeder.PreIndustrialFoodItemsForTesting;

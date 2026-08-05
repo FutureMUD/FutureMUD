@@ -249,7 +249,7 @@ public partial class ItemSeeder
 				"This knowledge covers Renaissance carpentry and joinery from forestry and primary-production timber commodities.");
 		}
 
-		return Path("General craftwork", "make", "making a finished item", "Crafting", 15,
+		return Path("General craftwork", "make", "making a finished item", "Labouring", 15,
 			Difficulty.Normal, 0.75, 10.0, "general",
 			["TagTool - Held - an item with the Hammer tag"],
 			"This knowledge covers Renaissance finished goods whose configured material is supplied as a primary commodity or earlier craft stock.");

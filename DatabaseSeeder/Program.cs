@@ -67,7 +67,7 @@ internal class Program
 			return;
 		}
 
-        string password = "", user = "", database = "";
+        string user = "", database = "";
 
         Console.ForegroundColor = ConsoleColor.Magenta;
 
@@ -150,13 +150,10 @@ Please press enter to begin.".WriteLineConsole();
                         case "uid":
                             user = match.Groups["value"].Value;
                             break;
-                        case "password":
-                            password = match.Groups["value"].Value;
-                            break;
                     }
                 }
 
-                if (!string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(database))
+                if (!string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(database))
                 {
                     FileStream bfs = new(Path.Combine(installationDirectory, "Backup-MUD.bat"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
                     using StreamReader breader = new(bfs);
@@ -177,10 +174,9 @@ set CUR_MS=%time:~9,2%
 
 SET backupdir={Path.Combine(installationDirectory, "Backups")}
 SET mysqluername={user}
-SET mysqlpassword={password}
 SET database={database}
 
-""C:\Program Files\MySQL\MySQL Workbench 8.0\mysqldump.exe"" -u%mysqluername% -p%mysqlpassword% %database% > %backupdir%\%database%_%CUR_YYYY%%CUR_MM%%CUR_DD%-%CUR_HH%%CUR_NN%%CUR_SS%.sql");
+""C:\Program Files\MySQL\MySQL Workbench 8.0\mysqldump.exe"" -u%mysqluername% -p %database% > %backupdir%\%database%_%CUR_YYYY%%CUR_MM%%CUR_DD%-%CUR_HH%%CUR_NN%%CUR_SS%.sql");
                     }
                 #endregion
                 }
@@ -574,7 +570,12 @@ The exception details were as follows:
 
             Console.WriteLine();
             Console.Write("Your choice: ");
-            string choice = Console.ReadLine() ?? string.Empty;
+            string? choice = Console.ReadLine();
+            if (choice is null)
+            {
+                return;
+            }
+
             if (choice.EqualToAny("quit", "q", "exit", "stop"))
             {
                 return;
@@ -695,6 +696,11 @@ The exception details were as follows:
             "Please type #3yes#F or #3no#F: ".WriteLineConsole();
             Console.WriteLine();
             string? answer = Console.ReadLine();
+            if (answer is null)
+            {
+                return;
+            }
+
             if (answer.EqualToAny("yes", "y"))
             {
                 DoSeederQuestions(context, seeder);
@@ -798,7 +804,12 @@ The exception details were as follows:
 
                 Console.WriteLine();
                 Console.Write("> ");
-                string answer = Console.ReadLine() ?? string.Empty;
+                string? answer = Console.ReadLine();
+                if (answer is null)
+                {
+                    return;
+                }
+
                 if (answer.EqualToAny("quit", "back", "exit"))
                 {
                     return;
@@ -820,12 +831,23 @@ The exception details were as follows:
 
         SafeClear();
         $"Applying the data from the #2{seeder.Name}#F seeder...".WriteLineConsole();
-        string result = seeder.SeedData(context, answers);
-        Console.WriteLine(result);
-        string version = (Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0)).ToString();
-        DateTime now = DateTime.UtcNow;
-        SeederAnswerMemory.PersistAnswers(context, seeder, questions, answers, version, now);
-        context.SaveChanges();
+        try
+        {
+            string result = seeder.SeedData(context, answers);
+            Console.WriteLine(result);
+            string version = (Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0)).ToString();
+            DateTime now = DateTime.UtcNow;
+            SeederAnswerMemory.PersistAnswers(context, seeder, questions, answers, version, now);
+            context.SaveChanges();
+        }
+        catch (Exception exception)
+        {
+            context.Database.CurrentTransaction?.Rollback();
+            context.ChangeTracker.Clear();
+            Console.ForegroundColor = ConsoleColor.Red;
+            ConsoleLayoutHelper.WriteWrapped($"The {seeder.Name} seeder failed: {exception.Message}");
+            Console.ForegroundColor = ConsoleColor.White;
+        }
     }
 
     internal static string ResolveQuestionAnswer(string answer, string? defaultAnswer)

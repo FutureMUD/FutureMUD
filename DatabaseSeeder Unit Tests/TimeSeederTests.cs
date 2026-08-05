@@ -184,6 +184,24 @@ public class TimeSeederTests
     }
 
     [DataTestMethod]
+    [DataRow("gregorian-us", "Gregorian Calendar (EN-US)", "American", "january/01/1200")]
+    [DataRow("gregorian-uk", "Gregorian Calendar (EN-UK)", "British", "01/january/1200")]
+    public void SeedData_GregorianModes_DescribeTheirSelectedDateConvention(string mode, string shortName,
+        string convention, string date)
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        TimeSeeder seeder = new();
+
+        seeder.SeedData(context, Answers(mode));
+
+        Calendar calendar = context.Calendars.Single();
+        XElement definition = XElement.Parse(calendar.Definition);
+        Assert.AreEqual(shortName, definition.Element("shortname")?.Value);
+        StringAssert.Contains(definition.Element("fullname")?.Value ?? string.Empty, convention);
+        Assert.AreEqual(date, calendar.Date);
+    }
+
+    [DataTestMethod]
     [DataRow("islamic-hijri")]
     [DataRow("hebrew")]
     [DataRow("old-persian")]

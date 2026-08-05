@@ -266,7 +266,19 @@ internal static class ItemSeederManifestCatalogue
 			var relativePath = Path.GetRelativePath(repositoryRoot, path).Replace('\\', '/');
 			hash.AppendData(Encoding.UTF8.GetBytes(relativePath));
 			hash.AppendData([0]);
-			hash.AppendData(File.ReadAllBytes(path));
+			var bytes = File.ReadAllBytes(path);
+			var hasUtf8Bom = bytes.Length >= 3 &&
+			                 bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF;
+			// Hash a platform-independent text representation while retaining an intentional UTF-8 BOM.
+			var source = File.ReadAllText(path)
+				.Replace("\r\n", "\n", StringComparison.Ordinal)
+				.Replace("\r", "\n", StringComparison.Ordinal);
+			if (hasUtf8Bom)
+			{
+				hash.AppendData(Encoding.UTF8.GetPreamble());
+			}
+
+			hash.AppendData(Encoding.UTF8.GetBytes(source));
 			hash.AppendData([0]);
 		}
 

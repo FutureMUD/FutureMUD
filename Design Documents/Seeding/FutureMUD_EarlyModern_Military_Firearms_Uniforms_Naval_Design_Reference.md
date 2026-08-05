@@ -1,6 +1,6 @@
 # FutureMUD Early Modern Military, Firearms, Armour, Ammunition, Accessories, and Naval Seeder Design Reference
 
-> Complete catalogue for the 1600-1750 Early Modern branch. Full descriptions are intentionally deferred; this document fixes stable references, short descriptions, nouns, materials, physical values, exact or planned component prototypes, tag profiles, reuse policy, and dependency requirements.
+> Complete catalogue for the 1600-1750 Early Modern branch. The generated manifest derives substantive appearance-focused full descriptions from each row's stable product/form, material, and quality; this document fixes those source fields alongside stable references, short descriptions, nouns, physical values, exact or planned component prototypes, tag profiles, reuse policy, and dependency requirements.
 
 ## Executive summary
 
@@ -8,7 +8,7 @@
 - **New Early Modern item prototypes:** **1,664**.
 - **Live shared or earlier-era admissions:** **200**: 52 shared military-support aliases, 10 shared gunpowder-support rows, and 138 direct Medieval combat-equipment admissions.
 - **New-domain distribution:** 420 melee weapons; 480 ranged weapons, firearms, artillery, ammunition, and operating tools; 501 armour and shield items; and 260 accessories, standards, field-equipment, and naval-store items.
-- **Descriptions:** `sdesc` only in this catalogue. Ordinary portable rows should use `ldesc = null`; full descriptions remain a later implementation stage.
+- **Descriptions:** every generated row has a four-sentence, appearance-focused full description derived from its source fields. Ordinary portable rows use `ldesc = null`.
 - **Uniform authority:** worn uniforms, civilian garments, footwear, hats, rank sashes, badges, epaulettes, and generic dress sword-belts remain owned by `FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md`. This reference owns combat weapons, functional weapon carriers, firearm ammunition systems, armour, shields, artillery, standards, signal equipment, and naval weapon support.
 - **Dependency posture:** no new solid material is required. All 156 requested named component profiles are now supported and seeded; the three consumable/chamber support rows bring the canonical catalogue to 1,864 references.
 - **Implemented dependency tranche:** all 156 named profiles are seeded, including artillery, carrier, repeating/emplaced crossbow, ignition-specific musket, and paired-holster support.
@@ -280,7 +280,7 @@ Every new row uses the exact tags in its named profile. `SOURCE` means retain th
 
 ## Item catalogue
 
-Full descriptions are deferred. Rows marked `SOURCE` or `SHARED` are dependencies, not new Early Modern clones.
+Rows marked `SOURCE` or `SHARED` are dependencies, not new Early Modern clones. Generated rows receive their full descriptions from the canonical product/form, material, and quality fields rather than from builder notes or implementation provenance.
 
 ### 1. Shared and direct admissions — 200
 
@@ -2382,8 +2382,8 @@ Implementation status: all thirty rows are seeded. Standards begin unowned, uncl
 - Named component requests: exactly **156**, partitioned into **156 supported and seeded** and **0 unresolved** in the companion dependency ledger.
 - New solid materials: **0**.
 - New tags: **0**.
-- Full descriptions: intentionally **0** in this catalogue.
+- Full descriptions: **1,664** generated, each with four appearance-focused sentences derived from canonical source fields.
 
 ## Implementation handoff
 
-The supported-row manifest now creates all 1,664 new rows whose exact component dependencies are live, with idempotent stable-reference lookup and a neutral generated full-description baseline. Shared dependencies and direct admissions remain source-owned and are never cloned solely to change an era prefix or presentation.
+The supported-row manifest now creates all 1,664 new rows whose exact component dependencies are live, with idempotent stable-reference lookup, substantive generated full descriptions, and leaf-only hierarchical tags. Shared dependencies and direct admissions remain source-owned and are never cloned solely to change an era prefix or presentation.

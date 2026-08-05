@@ -44,6 +44,9 @@ public class ItemSeederClothingOutfitManifestTests
 		Assert.AreEqual(all.Length, all.Select(x => x.StableKey).Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		Assert.AreEqual(all.Length, all.Select(x => x.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		Assert.IsTrue(all.All(x => x.Name.Length <= 200));
+		Assert.IsTrue(all.All(x => !x.Name.Contains(":", StringComparison.Ordinal)));
+		Assert.IsTrue(all.All(x => !x.Description.Contains("Source:", StringComparison.OrdinalIgnoreCase)));
+		Assert.IsTrue(all.All(x => !x.Description.Contains(".md", StringComparison.OrdinalIgnoreCase)));
 		Assert.IsTrue(all.All(x => x.ItemStableReferences.Count > 0));
 		Assert.IsTrue(all.All(x =>
 			x.ItemStableReferences.Count == x.ItemStableReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count()));
@@ -57,6 +60,9 @@ public class ItemSeederClothingOutfitManifestTests
 				.ToArray();
 			return components.Length == components.Distinct(StringComparer.OrdinalIgnoreCase).Count();
 		}), "Renaissance outfits must not require two items through the same default wearable component.");
+		Assert.AreEqual(
+			"Early Modern Maritime South-east Asian port artisan male",
+			earlyModern.Single(x => x.StableKey == "earlymodern_outfit_0213").Name);
 	}
 
 	[TestMethod]
@@ -78,6 +84,20 @@ public class ItemSeederClothingOutfitManifestTests
 		Assert.AreEqual(1323, generatedReferences.Count);
 		Assert.AreEqual(202, ItemSeeder.RenaissanceOutfitItemStableReferencesForTesting.Count);
 		Assert.AreEqual(471, ItemSeeder.RenaissanceClothingItemStableReferencesForTesting.Count);
+	}
+
+	[TestMethod]
+	public void DocumentedClothingItems_HaveSubstantiveAppearanceDescriptions()
+	{
+		var items = ItemSeeder.DocumentedClothingItemDescriptionsForTesting;
+
+		Assert.IsTrue(items.Count > 1300);
+		Assert.IsTrue(items.All(x => x.FullDescription.Length >= 300));
+		Assert.IsTrue(items.All(x => x.FullDescription.Count(character => character == '.') >= 4));
+		Assert.IsTrue(items.All(x => !x.FullDescription.Contains(
+			"recognisable form and drape", StringComparison.OrdinalIgnoreCase)));
+		Assert.IsTrue(items.All(x => !x.FullDescription.Contains(
+			"documented form", StringComparison.OrdinalIgnoreCase)));
 	}
 
 	[TestMethod]

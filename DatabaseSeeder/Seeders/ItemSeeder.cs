@@ -642,7 +642,7 @@ What is your choice? ", (context, answers) => true,
 				IsHiddenFromPlayers = definition.HiddenFromPlayers,
 				MorphTimeSeconds = definition.MorphTimeSeconds,
 				MorphEmote = definition.MorphEmote,
-				BuilderNotes = BuildReworkItemBuilderNotes(stableReference, tagList, builderNotes)
+				BuilderNotes = null
 			};
 			CacheReworkItem(stableReference, capturedItem);
 			return capturedItem;
@@ -713,7 +713,7 @@ What is your choice? ", (context, answers) => true,
 			Id = _nextItemId++,
 			Name = noun.ToLowerInvariant(),
 			UniqueName = GameItemProtoLookupExtensions.NormaliseUniqueName(stableReference),
-			BuilderNotes = BuildReworkItemBuilderNotes(stableReference, tagList, builderNotes),
+			BuilderNotes = null,
 			Keywords = new ExplodedString(sdesc.Strip_A_An()).Words.Distinct().ListToCommaSeparatedValues(" "),
 			MaterialId = _materials[material].Id,
 			EditableItem = new EditableItem
@@ -1028,7 +1028,21 @@ What is your choice? ", (context, answers) => true,
 			}
 		}
 
-		return tagList;
+		return RemoveRedundantParentTags(tagList);
+	}
+
+	private static IReadOnlyCollection<string> RemoveRedundantParentTags(IEnumerable<string> tags)
+	{
+		var distinctTags = tags
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.Select(x => x.Trim())
+			.Distinct(StringComparer.InvariantCultureIgnoreCase)
+			.ToArray();
+		return distinctTags
+			.Where(candidate => !distinctTags.Any(other =>
+				!candidate.Equals(other, StringComparison.InvariantCultureIgnoreCase) &&
+				other.StartsWith($"{candidate} /", StringComparison.InvariantCultureIgnoreCase)))
+			.ToArray();
 	}
 
 	private static IEnumerable<string> InferReworkFunctionalTags(string tag)
@@ -1049,22 +1063,63 @@ What is your choice? ", (context, answers) => true,
 	}
 
 	private void ApplyReworkItemMetadata(GameItemProto item,
-										 string stableReference,
-										 IEnumerable<string> tags,
-										 string? builderNotes)
+									 string stableReference,
+									 IEnumerable<string> tags,
+									 string? builderNotes)
 	{
 		item.UniqueName = string.IsNullOrWhiteSpace(item.UniqueName)
 			? GameItemProtoLookupExtensions.NormaliseUniqueName(stableReference)
 			: item.UniqueName;
-		item.BuilderNotes = MergeBuilderNotes(
-			item.BuilderNotes,
-			BuildReworkItemBuilderNotes(stableReference, tags, builderNotes));
+		item.BuilderNotes = RemoveSeededBuilderNotes(item.BuilderNotes, stableReference, tags, builderNotes);
 		ApplyReworkItemTags(item, tags);
+	}
+
+	private static string? RemoveSeededBuilderNotes(
+		string? existingNotes,
+		string stableReference,
+		IEnumerable<string> tags,
+		string? builderNotes)
+	{
+		if (string.IsNullOrWhiteSpace(existingNotes))
+		{
+			return null;
+		}
+
+		var seededLines = BuildReworkItemBuilderNotes(stableReference, tags, builderNotes)
+			.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries)
+			.Select(x => x.Trim())
+			.ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+		var retainedLines = existingNotes
+			.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries)
+			.Select(x => x.Trim())
+			.Where(x => !seededLines.Contains(x))
+			.ToArray();
+		return retainedLines.Length == 0 ? null : string.Join(Environment.NewLine, retainedLines);
 	}
 
 	private void ApplyReworkItemTags(GameItemProto item, IEnumerable<string> tags)
 	{
+		var desiredPaths = tags
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.Select(x => x.Trim())
+			.ToArray();
 		var existingTagIds = item.GameItemProtosTags
+			.Select(x => x.TagId)
+			.ToHashSet();
+		var redundantParentIds = _tagsByFullPath
+			.Where(x => existingTagIds.Contains(x.Value.Id) && desiredPaths.Any(desired =>
+				desired.StartsWith($"{x.Key} /", StringComparison.InvariantCultureIgnoreCase)))
+			.Select(x => x.Value.Id)
+			.ToHashSet();
+		foreach (var obsoleteTag in item.GameItemProtosTags
+			         .Where(x => redundantParentIds.Contains(x.TagId))
+			         .ToArray())
+		{
+			item.GameItemProtosTags.Remove(obsoleteTag);
+			_context?.GameItemProtosTags.Remove(obsoleteTag);
+		}
+
+		existingTagIds = item.GameItemProtosTags
 			.Select(x => x.TagId)
 			.ToHashSet();
 
@@ -1368,6 +1423,11 @@ What is your choice? ", (context, answers) => true,
 			.SelectMany(InferReworkFunctionalTags)
 			.Distinct(StringComparer.InvariantCultureIgnoreCase)
 			.ToList();
+	}
+
+	internal static IReadOnlyCollection<string> RemoveRedundantParentTagsForTesting(IEnumerable<string> tags)
+	{
+		return RemoveRedundantParentTags(tags);
 	}
 
 	internal GameItemProto? CreateReworkItemForTesting(FuturemudDatabaseContext context,

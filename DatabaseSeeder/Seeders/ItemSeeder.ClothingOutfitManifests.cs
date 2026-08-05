@@ -38,7 +38,12 @@ public partial class ItemSeeder
 	internal sealed record ClothingOutfitManifestTestData(
 		string StableKey,
 		string Name,
+		string Description,
 		IReadOnlyList<string> ItemStableReferences);
+
+	internal sealed record ClothingItemDescriptionTestData(
+		string StableReference,
+		string FullDescription);
 
 	internal static IReadOnlyList<ClothingOutfitManifestTestData> AntiquityOutfitManifestSpecsForTesting =>
 		ToTestData(AntiquityOutfitManifestSpecs);
@@ -58,6 +63,13 @@ public partial class ItemSeeder
 			.Concat(EarlyModernOutfitReferencedItemSpecs)
 			.Select(x => x.StableReference)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+	internal static IReadOnlyList<ClothingItemDescriptionTestData> DocumentedClothingItemDescriptionsForTesting =>
+		AntiquityOutfitSupplementalItemSpecs
+			.Concat(RenaissanceClothingItemSpecs)
+			.Concat(EarlyModernOutfitReferencedItemSpecs)
+			.Select(x => new ClothingItemDescriptionTestData(x.StableReference, x.FullDescription))
+			.ToArray();
 
 	internal static IReadOnlySet<string> RenaissanceOutfitItemStableReferencesForTesting =>
 		RenaissanceClothingItemSpecs
@@ -90,8 +102,66 @@ public partial class ItemSeeder
 	private static IReadOnlyList<ClothingOutfitManifestTestData> ToTestData(IEnumerable<OutfitManifestSpec> specs)
 	{
 		return specs
-			.Select(x => new ClothingOutfitManifestTestData(x.StableKey, x.Name, x.ItemStableReferences))
+			.Select(x => new ClothingOutfitManifestTestData(x.StableKey, x.Name, x.Description, x.ItemStableReferences))
 			.ToArray();
+	}
+
+	private static string BuildDocumentedClothingFullDescription(
+		string shortDescription,
+		string noun,
+		string material,
+		IReadOnlyCollection<string> components,
+		ItemQuality quality)
+	{
+		var article = char.ToUpperInvariant(shortDescription[0]) + shortDescription[1..];
+		var materialKey = material.ToLowerInvariant();
+		string construction;
+		string materialDetail;
+		if (new[] { "gold", "silver", "brass", "bronze", "iron", "steel" }.Contains(materialKey))
+		{
+			construction = "worked and joined";
+			materialDetail = $"The {material} has been smoothed on the broad faces while shallow tool traces remain around the joins and recessed edges.";
+		}
+		else if (new[] { "leather", "deer leather", "rawhide", "fur" }.Contains(materialKey))
+		{
+			construction = "cut and stitched";
+			materialDetail = $"The {material} shows a supple grain across the larger panels, with doubled edges and close stitching where repeated movement would otherwise pull it out of shape.";
+		}
+		else if (new[] { "wood", "straw", "raffia cloth", "barkcloth", "featherwork", "beadwork", "horsehair" }.Contains(materialKey))
+		{
+			construction = "shaped and bound";
+			materialDetail = $"The {material} keeps its natural texture visible, and the bindings follow the change from broad surfaces to narrower edges without hiding how the piece was assembled.";
+		}
+		else
+		{
+			construction = "cut and sewn";
+			materialDetail = $"The {material} falls in visible folds between reinforced seams, with the weave left clear at the hems and turned edges.";
+		}
+
+		var wearComponent = components.FirstOrDefault(x => x.StartsWith("Wear_", StringComparison.Ordinal)) ?? string.Empty;
+		string formDetail;
+		if (new[] { "Boot", "Shoe", "Sandal", "Stocking", "Leg_Wrap" }.Any(wearComponent.Contains))
+			formDetail = $"The {noun} is built around the foot and ankle, with a firm lower edge and an opening arranged for secure wear without disguising the shape described above.";
+		else if (new[] { "Hat", "Hood", "Turban", "Veil", "Mask", "Coif" }.Any(wearComponent.Contains))
+			formDetail = $"Its crown, folds, or framing edges hold the {noun} around the head while leaving the characteristic outline plainly visible from the front and side.";
+		else if (new[] { "Trousers", "Breeches", "Skirt", "Loincloth", "Breechcloth" }.Any(wearComponent.Contains))
+			formDetail = $"A reinforced waist carries the {noun}, from which the lower panels fall with enough room for ordinary movement while retaining their deliberate cut.";
+		else if (new[] { "Robe", "Dress", "Cloak", "Cape", "Mantle", "Tabard" }.Any(wearComponent.Contains))
+			formDetail = $"The main panels settle from the shoulders into a controlled fall, and the hem and opening give the {noun} its recognisable proportion when worn.";
+		else if (new[] { "Glove", "Sleeve", "Shirt", "Tunic", "Jacket", "Vest", "Bra" }.Any(wearComponent.Contains))
+			formDetail = $"The body and openings are proportioned for close, practical wear, with reinforcement placed where the {noun} bends or fastens rather than spread as decoration.";
+		else
+			formDetail = $"The contact points and fastenings are kept smooth, while the visible body of the {noun} carries the shape and surface detail that distinguish it at a glance.";
+
+		var finish = quality switch
+		{
+			ItemQuality.Standard => "The finish is practical and even, though small irregularities at the less-visible seams show ordinary hand work.",
+			ItemQuality.Good => "Careful finishing keeps the seams, borders, and fastenings even, with only discreet hand-worked variation remaining.",
+			ItemQuality.VeryGood => "Fine finishing has made the borders and fastenings exceptionally even, with ornament and structure resolved cleanly rather than heavily.",
+			ItemQuality.Great => "Exceptionally precise finishing leaves the borders, joins, and ornament balanced from every commonly viewed angle.",
+			_ => "The finish is serviceable, with the construction left legible wherever close inspection reaches an edge or join."
+		};
+		return $"{article} is {construction} from {material} so that the outward silhouette of the {noun} remains clear. {materialDetail} {formDetail} {finish}";
 	}
 
 	private void SeedDocumentedClothingOutfitManifests(string eras)

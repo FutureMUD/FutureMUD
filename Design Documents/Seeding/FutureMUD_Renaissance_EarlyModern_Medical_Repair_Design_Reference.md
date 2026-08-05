@@ -2,14 +2,14 @@
 
 **Status:** implemented generated item catalogue; data prerequisites are owned by the health and useful-seeder foundation slice.  **Era bands:** Renaissance 1400-1600; Early Modern 1600-1750.
 
-The catalogue is deliberately product-led. A row is admitted only when its form, delivery, institution, repair target, or practical use differs; it does not multiply cosmetic colourways or provenance labels. `scripts/generate-era-medical-repair-catalogues.py --check` validates the generated embedded TSV catalogues.
+The catalogue is deliberately product-led. A row is admitted only when its physical form, delivery component, material, repair grade/target, or practical use differs. Institution, owner, colourway, and imagined price-tier labels are not item variants: a builder can place the same well-described instrument in a college, infirmary, fleet, or household. Regional plants and distinct preparations remain where their material form is visible in the description. `scripts/generate-era-medical-repair-catalogues.py --check` validates the generated embedded TSV catalogues.
 
 | Era | Clinical / surgery | Apothecary / pharmacy | Drugs / delivery | Public health | Mobility / prosthesis | Veterinary | Repair | Raw medical stock | Total |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Renaissance | 96 | 70 | 60 | 38 | 32 | 22 | 30 | 18 | **366** |
-| Early Modern | 168 | 142 | 154 | 82 | 74 | 46 | 66 | included in pharmacy | **732** |
+| Renaissance | 20 | 23 | 12 | 17 | 15 | 12 | 18 | 17 | **134** |
+| Early Modern additions | 7 | 20 | 15 | inherited | 2 | inherited | inherited | included in pharmacy | **44** |
 
-Renaissance stock includes barber-surgeon, apothecary, hospital, campaign, obstetric, dental, veterinary, mobility and precision-repair forms current to 1400-1600. It excludes cinchona, ipecacuanha, variolation, isolated quinine, vaccination, ether, and post-1600 medical technology. Early Modern adds professional pocket, naval and hospital cases, pharmacy and public-health forms, variolation props, eighteenth-century surgical material, and raw pharmacy stock such as cinchona bark, ipecacuanha root, calomel, tartar emetic and Epsom salts. It excludes isolated quinine, vaccination and post-1750 technology; ether remains excluded.
+Renaissance stock includes one substantive example of each barber-surgeon, apothecary, campaign, obstetric, dental, veterinary, mobility and precision-repair form current to 1400-1600. It excludes cinchona, ipecacuanha, variolation, isolated quinine, vaccination, ether, and post-1600 medical technology. The Early Modern installation inherits those 134 still-current products rather than cloning them under new stable references, then adds 44 genuinely later forms (including the tooth key, tourniquet, variolation implements, articulated knee and hearing trumpet), eighteenth-century drug preparations, and distinct pharmacy stock such as cinchona bark, ipecacuanha root, calomel, tartar emetic and Epsom salts. It excludes isolated quinine, vaccination and post-1750 technology; ether remains excluded.
 
 ## Mechanical gap ledger
 

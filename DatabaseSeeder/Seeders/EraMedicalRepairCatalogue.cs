@@ -58,20 +58,20 @@ internal static class EraMedicalRepairCatalogue
 	private static string[] Split(string value) => value.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 	private static void Validate(IReadOnlyCollection<EraMedicalRepairCatalogueEntry> entries)
 	{
-		if (entries.Count != 1098 || entries.Count(x => x.StableReference.StartsWith("renaissance_", StringComparison.Ordinal)) != 366 || entries.Count(x => x.StableReference.StartsWith("earlymodern_", StringComparison.Ordinal)) != 732)
-			throw new InvalidDataException("Medical-repair catalogue counts are not 366 Renaissance and 732 Early Modern.");
+		if (entries.Count != 178 || entries.Count(x => x.StableReference.StartsWith("renaissance_", StringComparison.Ordinal)) != 134 || entries.Count(x => x.StableReference.StartsWith("earlymodern_", StringComparison.Ordinal)) != 44)
+			throw new InvalidDataException("Medical-repair catalogue counts are not 134 Renaissance/shared and 44 distinct Early Modern additions.");
 		if (entries.Select(x => x.StableReference).Distinct(StringComparer.OrdinalIgnoreCase).Count() != entries.Count || entries.Select(x => x.ShortDescription).Distinct(StringComparer.OrdinalIgnoreCase).Count() != entries.Count)
 			throw new InvalidDataException("Medical-repair catalogue has duplicate product references or short descriptions.");
 		ValidateCategoryCounts(entries, "renaissance_", new Dictionary<string, int>
 		{
-			["Clinical surgery"] = 96, ["Apothecary"] = 70, ["Drugs delivery"] = 60,
-			["Public health"] = 38, ["Mobility prosthesis"] = 32, ["Veterinary"] = 22,
-			["Repair"] = 30, ["Raw medical stock"] = 18
+			["Clinical surgery"] = 20, ["Apothecary"] = 23, ["Drugs delivery"] = 12,
+			["Public health"] = 17, ["Mobility prosthesis"] = 15, ["Veterinary"] = 12,
+			["Repair"] = 18, ["Raw medical stock"] = 17
 		});
 		ValidateCategoryCounts(entries, "earlymodern_", new Dictionary<string, int>
 		{
-			["Clinical surgery"] = 168, ["Apothecary pharmacy"] = 142, ["Drugs delivery"] = 154,
-			["Public health"] = 82, ["Mobility prosthesis"] = 74, ["Veterinary"] = 46, ["Repair"] = 66
+			["Clinical surgery"] = 7, ["Apothecary pharmacy"] = 20, ["Drugs delivery"] = 15,
+			["Mobility prosthesis"] = 2
 		});
 		if (entries.Any(x => x.FullDescription.Count(c => c == '.') != 3)) throw new InvalidDataException("Medical-repair full descriptions must have three sentences.");
 		if (entries.Any(x => x.Tags.Distinct(StringComparer.OrdinalIgnoreCase).Count() != x.Tags.Length ||

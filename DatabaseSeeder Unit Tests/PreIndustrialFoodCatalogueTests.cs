@@ -98,6 +98,24 @@ public class PreIndustrialFoodCatalogueTests
 	}
 
 	[TestMethod]
+	public void Catalogue_NounsAreConciseGrammaticalHeads()
+	{
+		var items = ItemSeeder.PreIndustrialFoodItemsForTesting;
+		Assert.IsTrue(items.All(x => Regex.IsMatch(x.Noun, @"^[\p{L}]+(?:['-][\p{L}]+)*$")),
+			"Food catalogue nouns must be single lexical head nouns rather than phrases or stable-reference slugs.");
+		Assert.AreEqual("pottage", items.Single(x =>
+			x.StableReference == "preindustrial_food_root_and_fish_pottage").Noun);
+		Assert.AreEqual("cluster", items.Single(x =>
+			x.StableReference == "preindustrial_food_fresh_date_cluster").Noun);
+		Assert.AreEqual("bowl", items.Single(x =>
+			x.StableReference == "preindustrial_food_jellied_eel_bowl").Noun);
+
+		var normalizer = ReadSource("scripts", "normalise-preindustrial-food-nouns.py");
+		StringAssert.Contains(normalizer, "def head_noun(short_description: str)");
+		StringAssert.Contains(normalizer, "--check");
+	}
+
+	[TestMethod]
 	public void Catalogue_UsesMaintainedMaterialsAndStandardNutritionQualityPolicies()
 	{
 		var materials = ReadMaterialCatalogue();

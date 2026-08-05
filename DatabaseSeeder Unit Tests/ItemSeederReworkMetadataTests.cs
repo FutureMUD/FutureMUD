@@ -102,7 +102,7 @@ public class ItemSeederReworkMetadataTests
 	}
 
 	[TestMethod]
-	public void InferReworkFunctionalTags_MirrorsMarketTagsWithoutRemovingThem()
+	public void InferReworkFunctionalTags_MirrorsMarketTags()
 	{
 		var inferredTags = ItemSeeder.InferReworkFunctionalTagsForTesting(
 			[
@@ -123,6 +123,28 @@ public class ItemSeederReworkMetadataTests
 	}
 
 	[TestMethod]
+	public void RemoveRedundantParentTags_KeepsOnlyMostSpecificTagPerHierarchyBranch()
+	{
+		var tags = ItemSeeder.RemoveRedundantParentTagsForTesting(
+		[
+			"Era / Early Modern Era",
+			"Functions / Military Equipment",
+			"Functions / Military Equipment / Military Weapons",
+			"Market / Military Goods",
+			"Market / Military Goods / Weapons",
+			"Market / Military Goods / Weapons / Spears"
+		]);
+
+		CollectionAssert.AreEquivalent(
+		new[]
+		{
+			"Era / Early Modern Era",
+			"Functions / Military Equipment / Military Weapons",
+			"Market / Military Goods / Weapons / Spears"
+		}, tags.ToArray());
+	}
+
+	[TestMethod]
 	public void CreateReworkItem_AssignsStableReferenceAsUniqueName()
 	{
 		using var context = BuildContext();
@@ -137,8 +159,7 @@ public class ItemSeederReworkMetadataTests
 
 		Assert.IsNotNull(item);
 		Assert.AreEqual("antiquity_short_wool_chiton", item!.UniqueName);
-		StringAssert.Contains(item.BuilderNotes, "Stock unique reference: antiquity_short_wool_chiton.");
-		StringAssert.Contains(item.BuilderNotes, "Cultures: Hellenic.");
+		Assert.IsNull(item.BuilderNotes);
 	}
 
 	[TestMethod]
@@ -289,8 +310,40 @@ public class ItemSeederReworkMetadataTests
 		Assert.AreNotEqual(roman!.Id, hellenic!.Id);
 		Assert.AreEqual("antiquity_roman_bronze_greaves", roman.UniqueName);
 		Assert.AreEqual("antiquity_hellenic_bronze_greaves", hellenic.UniqueName);
-		StringAssert.Contains(roman.BuilderNotes, "Cultures: Roman.");
-		StringAssert.Contains(hellenic.BuilderNotes, "Cultures: Hellenic.");
+		Assert.IsNull(roman.BuilderNotes);
+		Assert.IsNull(hellenic.BuilderNotes);
+	}
+
+	[TestMethod]
+	public void CreateReworkItem_RerunRemovesSeederNotesButPreservesBuilderNotes()
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		var seeder = new ItemSeeder();
+		var item = seeder.CreateReworkItemForTesting(
+			context,
+			"preindustrial_test_noted_item",
+			"item",
+			"a shared noted item",
+			"wool",
+			"Seeder-only source note.");
+		Assert.IsNotNull(item);
+		item!.BuilderNotes = "Stock unique reference: preindustrial_test_noted_item.\n" +
+		                     "Cultures: Shared Pre-Industrial.\n" +
+		                     "Seeder-only source note.\n" +
+		                     "Builder-authored note.";
+		context.SaveChanges();
+
+		var rerun = seeder.CreateReworkItemForTesting(
+			context,
+			"preindustrial_test_noted_item",
+			"item",
+			"a shared noted item",
+			"wool",
+			"Seeder-only source note.");
+
+		Assert.AreSame(item, rerun);
+		Assert.AreEqual("Builder-authored note.", rerun!.BuilderNotes);
 	}
 
 	[TestMethod]

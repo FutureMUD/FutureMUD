@@ -216,7 +216,7 @@ public class RenaissanceMilitarySeederTests
 			"[[ItemSeederOutfitManifest:renaissance_military_", StringComparison.Ordinal)));
 		Assert.IsTrue(stock["renaissance_military_matchlock_arquebus"].PermitPlayerSkins);
 		Assert.IsFalse(stock["renaissance_military_paper_cartridge_055"].PermitPlayerSkins);
-		StringAssert.Contains(stock["renaissance_military_falconet_bronze"].BuilderNotes, "component profile");
+		Assert.IsNull(stock["renaissance_military_falconet_bronze"].BuilderNotes);
 	}
 
 	[TestMethod]

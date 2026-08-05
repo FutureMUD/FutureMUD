@@ -79,8 +79,8 @@ def parse_simple_outfits(path: Path, era: str) -> list[Outfit]:
 	return [
 		Outfit(
 			f"{era.casefold()}_outfit_{index:04d}",
-			f"{era}: {title}",
-			f"Builder-facing {era.lower()} clothing outfit documented in {path.name}.",
+			f"{era} {title}",
+			f"Builder-facing {era.lower()} clothing outfit for {title}.",
 			tuple(items),
 		)
 		for index, (title, items) in enumerate(parsed, 1)
@@ -114,14 +114,30 @@ def parse_early_modern_outfits() -> list[Outfit]:
 		if current is not None and (match := re.match(r"^[-*] `([^`]+)`", line)):
 			current[3].append(match.group(1))
 
+	labels = [title.split("—", 1)[-1].strip() for _, _, title, _ in parsed]
+	label_counts = {label.casefold(): sum(x.casefold() == label.casefold() for x in labels) for label in labels}
+	draft_names: list[str] = []
+	for (_, grouping, _, _), label in zip(parsed, labels, strict=True):
+		if label_counts[label.casefold()] == 1 or not grouping:
+			draft_names.append(f"Early Modern {label}")
+			continue
+		qualifier = re.split(r"\s*/\s*|\s+-\s+", grouping, maxsplit=1)[0]
+		draft_names.append(f"Early Modern {qualifier} {label}")
+	draft_name_counts = {
+		name.casefold(): sum(x.casefold() == name.casefold() for x in draft_names)
+		for name in draft_names
+	}
+
 	outfits: list[Outfit] = []
-	for index, (section, grouping, title, items) in enumerate(parsed, 1):
-		label = title.split("—", 1)[-1].strip()
-		name = f"Early Modern: {grouping} - {label}" if grouping else f"Early Modern: {label}"
-		description = (
-			f"Builder-facing early modern clothing outfit from the {section.lower()} section of "
-			f"{EARLY_MODERN_DOC.name}; documented grouping: {grouping}."
+	for index, ((section, grouping, _, items), label, draft_name) in enumerate(
+		zip(parsed, labels, draft_names, strict=True), 1
+	):
+		name = (
+			f"Early Modern {grouping} {label}"
+			if draft_name_counts[draft_name.casefold()] > 1
+			else draft_name
 		)
+		description = f"Grouping: {grouping}. Collection: {section}."
 		outfits.append(Outfit(f"earlymodern_outfit_{index:04d}", name, description, tuple(items)))
 	return outfits
 
@@ -144,9 +160,8 @@ def parse_renaissance_outfits() -> list[Outfit]:
 		outfits.append(
 			Outfit(
 				stable_key,
-				cells[1],
-				f"Admission: {cells[2]}. Purpose: {cells[3]}. "
-				f"Source: {RENAISSANCE_MASTER_DOC.name}.",
+				re.sub(r"^Renaissance:\s*", "Renaissance ", cells[1]),
+				f"Admission: {cells[2]}. Purpose: {cells[3]}.",
 				item_references,
 			)
 		)
@@ -177,12 +192,81 @@ def split_tick_list(value: str) -> tuple[str, ...]:
 	return tuple(re.findall(r"`([^`]+)`", value))
 
 
-def generic_full_description(short_description: str, noun: str, material: str) -> str:
+def authored_full_description(
+	short_description: str,
+	noun: str,
+	material: str,
+	components: tuple[str, ...] | list[str],
+	quality: str,
+) -> str:
 	article = short_description[0].upper() + short_description[1:]
+	material_key = material.casefold()
+	if material_key in {"gold", "silver", "brass", "bronze", "iron", "steel"}:
+		construction = "worked and joined"
+		material_detail = (
+			f"The {material} has been smoothed on the broad faces while shallow tool traces remain around "
+			"the joins and recessed edges."
+		)
+	elif material_key in {"leather", "deer leather", "rawhide", "fur"}:
+		construction = "cut and stitched"
+		material_detail = (
+			f"The {material} shows a supple grain across the larger panels, with doubled edges and close stitching "
+			"where repeated movement would otherwise pull it out of shape."
+		)
+	elif material_key in {"wood", "straw", "raffia cloth", "barkcloth", "featherwork", "beadwork", "horsehair"}:
+		construction = "shaped and bound"
+		material_detail = (
+			f"The {material} keeps its natural texture visible, and the bindings follow the change from broad surfaces "
+			"to narrower edges without hiding how the piece was assembled."
+		)
+	else:
+		construction = "cut and sewn"
+		material_detail = (
+			f"The {material} falls in visible folds between reinforced seams, with the weave left clear at the hems "
+			"and turned edges."
+		)
+
+	wear_component = next((component for component in components if component.startswith("Wear_")), "")
+	if any(token in wear_component for token in ("Boot", "Shoe", "Sandal", "Stocking", "Leg_Wrap")):
+		form_detail = (
+			f"The {noun} is built around the foot and ankle, with a firm lower edge and an opening arranged for "
+			"secure wear without disguising the shape described above."
+		)
+	elif any(token in wear_component for token in ("Hat", "Hood", "Turban", "Veil", "Mask", "Coif")):
+		form_detail = (
+			f"Its crown, folds, or framing edges hold the {noun} around the head while leaving the characteristic "
+			"outline plainly visible from the front and side."
+		)
+	elif any(token in wear_component for token in ("Trousers", "Breeches", "Skirt", "Loincloth", "Breechcloth")):
+		form_detail = (
+			f"A reinforced waist carries the {noun}, from which the lower panels fall with enough room for ordinary "
+			"movement while retaining their deliberate cut."
+		)
+	elif any(token in wear_component for token in ("Robe", "Dress", "Cloak", "Cape", "Mantle", "Tabard")):
+		form_detail = (
+			f"The main panels settle from the shoulders into a controlled fall, and the hem and opening give the {noun} "
+			"its recognisable proportion when worn."
+		)
+	elif any(token in wear_component for token in ("Glove", "Sleeve", "Shirt", "Tunic", "Jacket", "Vest", "Bra")):
+		form_detail = (
+			f"The body and openings are proportioned for close, practical wear, with reinforcement placed where the "
+			f"{noun} bends or fastens rather than spread as decoration."
+		)
+	else:
+		form_detail = (
+			f"The contact points and fastenings are kept smooth, while the visible body of the {noun} carries the "
+			"shape and surface detail that distinguish it at a glance."
+		)
+
+	finish = {
+		"Standard": "The finish is practical and even, though small irregularities at the less-visible seams show ordinary hand work.",
+		"Good": "Careful finishing keeps the seams, borders, and fastenings even, with only discreet hand-worked variation remaining.",
+		"VeryGood": "Fine finishing has made the borders and fastenings exceptionally even, with ornament and structure resolved cleanly rather than heavily.",
+		"Great": "Exceptionally precise finishing leaves the borders, joins, and ornament balanced from every commonly viewed angle.",
+	}.get(quality, "The finish is serviceable, with the construction left legible wherever close inspection reaches an edge or join.")
 	return (
-		f"{article} is made principally from {material}, with its seams, edges, joins, and fastening points "
-		f"finished for regular wear. Its construction gives the {noun} the recognisable form and drape "
-		"shown by its outward appearance."
+		f"{article} is {construction} from {material} so that the outward silhouette of the {noun} remains clear. "
+		f"{material_detail} {form_detail} {finish}"
 	)
 
 
@@ -199,7 +283,7 @@ def item_from_9_cell_row(row: list[str]) -> Item:
 		stable_reference,
 		noun,
 		short_description,
-		generic_full_description(short_description, noun, material),
+		authored_full_description(short_description, noun, material, components, quality.replace(" ", "")),
 		size.replace(" ", ""),
 		quality.replace(" ", ""),
 		weight.removesuffix("g").strip(),
@@ -329,7 +413,7 @@ def parse_full_bullet_specs(path: Path) -> dict[str, Item]:
 		market = "Luxury Clothing" if quality in {"Good", "VeryGood", "Great", "Excellent"} else "Standard Clothing"
 		items[data["ref"]] = Item(
 			data["ref"], data["noun"], data["sdesc"],
-			generic_full_description(data["sdesc"], data["noun"], data["material"]),
+			authored_full_description(data["sdesc"], data["noun"], data["material"], components, quality),
 			data["size"].replace(" ", ""), quality, data["weight"], data["cost"], "$" in data["sdesc"],
 			data["material"],
 			("Era / Antiquity Era", "Functions / Worn Items / Bodywear", f"Market / Clothing / {market}"),
@@ -368,7 +452,9 @@ def renaissance_admission_items() -> dict[str, Item]:
 		weight, cost = weights[key]
 		insulation = "Insulation_Moderate" if material in {"wool", "broadcloth"} else "Insulation_Minor"
 		items[key] = Item(
-			key, noun, short_description, generic_full_description(short_description, noun, material),
+			key, noun, short_description,
+			authored_full_description(short_description, noun, material,
+				("Holdable", "Destroyable_Clothing", component, "Armour_LightClothing", insulation), "Good"),
 			"Normal", "Good", weight, cost, False, material,
 			("Era / Renaissance Era", "Market / Clothing / Religious Clothing", "Institution / Religious"),
 			("Holdable", "Destroyable_Clothing", component, "Armour_LightClothing", insulation),
@@ -597,7 +683,7 @@ def renaissance_item_from_catalogue_row(row: list[str]) -> Item:
 		stable_reference,
 		noun,
 		short_description,
-		generic_full_description(short_description, noun, material),
+		authored_full_description(short_description, noun, material, components, quality),
 		"Small" if component in {
 			"Wear_Boots", "Wear_Gloves", "Wear_Hat", "Wear_Head_Veil", "Wear_Hood", "Wear_Leg_Wraps",
 			"Wear_Mask", "Wear_Sandals", "Wear_Shoes", "Wear_Stockings", "Wear_Turban"
@@ -634,7 +720,8 @@ def render_item_array(name: str, items: list[Item]) -> list[str]:
 	for item in items:
 		lines.append(
 			f"\t\tnew({cs(item.stable_reference)}, {cs(item.noun)}, {cs(item.short_description)}, "
-			f"{cs(item.full_description)}, SizeCategory.{item.size}, ItemQuality.{item.quality}, {item.weight}, {item.cost}m, "
+			f"BuildDocumentedClothingFullDescription({cs(item.short_description)}, {cs(item.noun)}, {cs(item.material)}, "
+			f"{array(item.components)}, ItemQuality.{item.quality}), SizeCategory.{item.size}, ItemQuality.{item.quality}, {item.weight}, {item.cost}m, "
 			f"{str(item.skinnable).lower()}, {cs(item.material)}, {array(item.tags)}, {array(item.components)}, {cs(item.builder_notes)}),"
 		)
 	lines.extend(["\t];", ""])
@@ -742,6 +829,14 @@ def generate() -> str:
 		"antiquity_straight_linen_kalasiris",
 	}
 	antiquity_items = [antiquity_source_items[key] for key in sorted(antiquity_missing_refs)]
+	for item in [*antiquity_items, *renaissance_items.values(), *early_modern_items.values()]:
+		description = authored_full_description(
+			item.short_description, item.noun, item.material, item.components, item.quality
+		)
+		if len(description) < 300 or description.count(".") < 4:
+			raise ValueError(f"Clothing description is not substantive enough for {item.stable_reference}")
+		if "recognisable form and drape" in description or "documented form" in description:
+			raise ValueError(f"Clothing description retains generic scaffold prose for {item.stable_reference}")
 
 	lines = [
 		"// <auto-generated>",

@@ -28,10 +28,18 @@ def profile_tags() -> dict[str, tuple[str, ...]]:
 	for line in read(SOURCE):
 		match = re.match(r"^\| `([^`]+)` \| (.+) \|$", line)
 		if match and match.group(1).startswith("EM-"):
-			profiles[match.group(1)] = ticks(match.group(2))
+			profiles[match.group(1)] = leaf_tags(ticks(match.group(2)))
 	if len(profiles) != 29:
 		raise ValueError(f"Expected 29 Early Modern military tag profiles, found {len(profiles)}")
 	return profiles
+
+
+def leaf_tags(tags: tuple[str, ...]) -> tuple[str, ...]:
+	"""Remove a hierarchy parent when its more-specific child is already assigned."""
+	return tuple(
+		tag for tag in tags
+		if not any(other.startswith(f"{tag} / ") for other in tags)
+	)
 
 
 def available_components() -> set[str]:
@@ -70,13 +78,59 @@ def cs(value: str) -> str:
 	return json.dumps(value, ensure_ascii=False)
 
 
-def description(sdesc: str, noun: str, material: str) -> str:
-	return f"{sdesc.capitalize()} is made chiefly from {material}. Its construction follows the documented Early Modern military form shown by its outward appearance."
+def description(stable: str, sdesc: str, noun: str, material: str, quality: str) -> str:
+	"""Build substantive, product-specific stock prose from the canonical row fields.
+
+	The catalogue deliberately keeps prose generated: every row's stable product/form,
+	material, and quality remain the source of truth while avoiding implementation notes.
+	"""
+	form_words = [word for word in stable.removeprefix("earlymodern_military_").split("_")
+		if word not in {"accessory", "armour", "armor", "artillery", "firearm", "melee", "military",
+			"naval", "ranged", "tool", "issue", "reinforced", "ornate", "service"}]
+	form = " ".join(form_words)
+	if "armor" in stable or "armour" in stable:
+		profile = f"The {form} arrangement is shaped to overlap and follow the body, leaving the edges and fastenings plainly visible."
+	elif "shield" in stable:
+		profile = f"The {form} arrangement gives it a broad face, clear rim, and readily visible hand fittings."
+	elif "melee" in stable or "boarding" in stable:
+		profile = f"The {form} arrangement balances the working end against a firm grip or shaft, giving the weapon a direct, martial line."
+	elif "firearm" in stable or "ranged" in stable:
+		profile = f"The {form} arrangement sets its stock, barrel, and small fittings in a compact, deliberate line."
+	elif "artillery" in stable or "cannon" in stable or "gun" in stable:
+		profile = f"The {form} arrangement uses heavy fittings and reinforced working surfaces for a stout, service-built appearance."
+	elif "uniform" in stable or "coat" in stable or "sash" in stable:
+		profile = f"The {form} cut is defined by its seams and visible fastenings, giving the garment a disciplined, formal appearance."
+	else:
+		profile = f"The {form} arrangement sets its fittings and working surfaces in a clear, practical pattern."
+	quality_details = {
+		"ExtremelyPoor": "roughly finished, with uneven edges and a neglected surface",
+		"VeryPoor": "plainly made, with tool marks left visible across the surface",
+		"Poor": "serviceable but roughly worked, with small irregularities at its joins",
+		"Substandard": "workmanlike but spare, with a few coarse marks in the finish",
+		"Standard": "plainly finished, with practical edges and uncomplicated fittings",
+		"Good": "carefully finished, with clean joins and a restrained, even surface",
+		"VeryGood": "finely finished, with crisp details and a deliberately polished surface",
+		"Great": "expertly finished, with precise joins and a richly maintained surface",
+		"Excellent": "exceptionally finished, with precise details and a lustrous, controlled surface",
+		"Legendary": "lavishly finished, with immaculate details and a striking, ceremonial surface",
+	}.get(quality, "carefully finished, with clean joins and an even surface")
+	return (
+		f"{sdesc.capitalize()} is fashioned chiefly from {material}, with the {noun} kept clear in its silhouette. "
+		f"{profile} "
+		f"The {material} is {quality_details}. "
+		f"Close inspection picks out the proportions and joinery of this {form} pattern."
+	)
 
 
 def render(row: tuple) -> str:
 	stable, noun, sdesc, material, size, quality, weight, cost, tags, components, profile = row
-	return f'\t\tnew({cs(stable)}, {cs(noun)}, {cs(sdesc)}, {cs(description(sdesc, noun, material))}, SizeCategory.{size}, ItemQuality.{quality}, {weight}, {cost}m, {cs(material)}, [{", ".join(cs(tag) for tag in tags)}], [{", ".join(cs(component) for component in components)}], {cs(f"Early Modern military source profile {profile}; only currently supported component dependencies are seeded.")}),'
+	builder_notes = cs(f"Early Modern military source profile {profile}; only currently supported component dependencies are seeded.")
+	parts = [
+		f'\t\tnew({cs(stable)}, {cs(noun)}, {cs(sdesc)}, BuildEarlyModernMilitaryDescription({cs(stable)}, {cs(sdesc)}, {cs(noun)}, {cs(material)}, ItemQuality.{quality}), ',
+		f'SizeCategory.{size}, ItemQuality.{quality}, {weight}, {cost}m, {cs(material)}, ',
+		f'[{", ".join(cs(tag) for tag in tags)}], [{", ".join(cs(component) for component in components)}], {builder_notes}),',
+	]
+	return "".join(parts)
 
 
 def generate() -> str:

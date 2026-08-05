@@ -20,7 +20,9 @@ public partial class ItemSeeder
 
 		if (HasAnyEra(eras, "earlymodern"))
 		{
-			specifications = specifications.Concat(EraMedicalRepairCatalogue.EarlyModern.Select(x => x.ToItemSpec()));
+			specifications = specifications
+				.Concat(EraMedicalRepairCatalogue.Renaissance.Select(x => x.ToItemSpec()))
+				.Concat(EraMedicalRepairCatalogue.EarlyModern.Select(x => x.ToItemSpec()));
 		}
 
 		var missingComponents = specifications

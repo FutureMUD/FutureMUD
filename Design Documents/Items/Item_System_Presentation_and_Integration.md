@@ -180,6 +180,8 @@ Items and components can be discovered and manipulated through FutureProg-facing
 
 Variable-driven items are a common integration point between item content and scripting.
 
+The `wound(perceiver, type, amount|formula)` FutureProg overloads accept damageable items without body-bearing components as well as characters and body-backed items. Bodyless items receive damage with no bodypart so their normal item health strategy resolves it; the function returns true when damage dispatch succeeds, even when material resistance prevents a visible wound. Null or non-mortal perceivers and invalid damage types or formulas return false.
+
 `exposetoliquid(item, liquidId, volume[, driedPercentage])` accepts numeric base-unit or unit-bearing text volumes. The optional percentage ranges from 0 to 100 and splits the supplied volume between normal fresh exposure and the liquid's configured dried residue; 0 preserves the original behaviour and 100 adds residue without wetting, flowing or filling. Dry requests fail without mutation when the liquid has no usable dried-residue definition.
 
 Surface residue descriptions receive the seeded quantity token with its expected trailing space and render as separate description lines, avoiding joined output such as `somedried` or `and It is ...`.

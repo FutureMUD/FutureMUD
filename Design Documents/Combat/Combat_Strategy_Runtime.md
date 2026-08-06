@@ -52,6 +52,13 @@ Ranged cover is independently authored for attacks from the same level, above, a
 - clinch attempts, break-clinch attempts, grapples, and magic attack powers;
 - movement into melee by allowing the move unless a derived strategy overrides it.
 
+The racial `CanDefend` flag suppresses ordinary defensive reactions but does not bypass strategy-specific
+responses to an opponent's `BreakClinchMove`. A standard melee strategy still answers that move with a
+helpless defense, preserving the former uncontested escape behaviour, while a clinch strategy may contest
+the escape when its existing posture, stamina, mounting, consciousness, and blocking-effect checks allow it.
+The contest continues to use the normal `ResistBreakClinch` check, so a low or zero defensive trait makes the
+holder weak without being an absolute substitute for the standard strategy's helpless response.
+
 `RangeBaseStrategy` handles ranged defenses, receive-charge opportunities, and ranged-natural defenses. It delegates magic power attack defense to `StandardMeleeStrategy` so ranged-mode combatants still use ordinary ward/block/parry/dodge coverage against magic. Ranged strategies normally rely on the melee-range setter to switch them to their preferred melee strategy once melee range is established.
 
 `WardStrategy` extends melee defense by trying a ward defense before falling back to standard defense. Wards are available against start-clinch, weapon attacks, and magic attack powers when the defender is not ward-beaten, has stamina, the assailant is upright, and the defender has a usable warding weapon or unarmed ward attack.

@@ -56,7 +56,7 @@ public partial class ItemSeeder
 		.ToArray();
 
 	private static IReadOnlyList<string> RenaissanceMilitaryRequiredComponents => RenaissanceMilitaryItemSpecs
-		.SelectMany(x => x.Components)
+		.SelectMany(x => EnsureBeltCapacityComponent(x.Noun, x.ShortDescription, x.Tags, x.Components))
 		.Distinct(StringComparer.OrdinalIgnoreCase)
 		.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
 		.ToArray();

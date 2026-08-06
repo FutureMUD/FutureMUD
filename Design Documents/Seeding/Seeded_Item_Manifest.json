@@ -1,7 +1,7 @@
 {
   "manifestVersion": "1",
-  "sourceFingerprint": "fc9b05717ed0788cc73fe3fb20cec50fe1e9d9ee1b72c20b170e58794dc47ffc",
-  "generatedAtUtc": "2026-08-05T12:29:00.3578796Z",
+  "sourceFingerprint": "9fbf5daeac2a2a6b797977b0d1e836fbd0c161cd83b24757d2ed9558c419067a",
+  "generatedAtUtc": "2026-08-06T11:13:26.0165162Z",
   "entries": [
     {
       "entityType": "commodity-spoilage",
@@ -375,7 +375,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d2fe42b17c7e40a42a0b3b1fc87405bde9ac10b1ad0fec01e89c08968de265a0"
+      "fingerprint": "89135a2079e4ceb18c79e4e51765454ff006ba74f9953c80f6e02350d4b02343"
     },
     {
       "entityType": "item",
@@ -3521,7 +3521,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3a79855bdcd2ab46069e88650d6923d93a6d25ca026242aef6fc9ee86227f858"
+      "fingerprint": "df0448feb1a929e60ba9b96e870bb05ccd2452847c0f98448273749fba59fff4"
     },
     {
       "entityType": "item",
@@ -3796,7 +3796,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8bd9506d0d461825d86a29f924325233b2ef3f2f8d3f7bdc68bb98d587b786b8"
+      "fingerprint": "b4bb62953e16ddee657ece6efa8054b68fb8d285efd1e1dffc22ef357e735359"
     },
     {
       "entityType": "item",
@@ -4093,7 +4093,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9d27d18f2e7847080eb17c660876818cd250d6156ffbfc6abb5613f9d799dd27"
+      "fingerprint": "4f17b82ebc50598036f00540e3080826824019a7a3ef04e5dfa82f826356eccd"
     },
     {
       "entityType": "item",
@@ -4148,7 +4148,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "87f4e6485ce2cd2e356a2cd4c48afaa9eaf46963670cee8e19dfb1ee3cd7c6d5"
+      "fingerprint": "66f6ac9218d9cce1d273e2013ebaab4569e24d21bb726b372323c2378c5a27ba"
     },
     {
       "entityType": "item",
@@ -6146,7 +6146,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "17f4cf9e6c39de0d56cadc6e913bf0843cdcd4584200e1ccccc64c96fa847ced"
+      "fingerprint": "04bb2e7dcbeba9b2eaf78dcd56661e59f4d35fc4cf353d50b07dfe7e28afa7d9"
     },
     {
       "entityType": "item",
@@ -6685,7 +6685,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "cc61cc83c75f4392b4367d776c842cd66b2709b3b3cfd5856ac3136b25adc783"
+      "fingerprint": "cbd603e1d1811c9016d937b8473c354ce0ad60a1fdb715af94332dfda25dd244"
     },
     {
       "entityType": "item",
@@ -7521,7 +7521,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "7648fcaad956a5e3cb5e240717f92f7bf05ceeba84bdfcaefbfb070848a46e23"
+      "fingerprint": "30c8adee746cf574e083bfbecf3f50015cf7bd7f42dff17bde9825d34fb1a640"
     },
     {
       "entityType": "item",
@@ -7664,7 +7664,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e7eaf33b6b52800384f20d6f6522412dd6d019c7e6cea0744da228f06c32c8c2"
+      "fingerprint": "2c2ef1ebe001a24043f55165545c858f293480efd27c40a1a4aa97faef1f51e4"
     },
     {
       "entityType": "item",
@@ -7675,7 +7675,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0f8d181cf3ab72926e462579698921fd172daa9cf1f78197c080d3116db475ef"
+      "fingerprint": "316a4e8c749692cc12ed0936ab8e1f155b7511843420bb829cf841b859a667d3"
     },
     {
       "entityType": "item",
@@ -7950,7 +7950,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "edfdb21b69575563a951b40c57275ec658c7344709fd5e5c6934cd222dc30695"
+      "fingerprint": "e48aecfc1f7e2bbf83fc4f5d1a26a4030e12097cc9d685621f629ee828670ba5"
     },
     {
       "entityType": "item",
@@ -8269,7 +8269,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9915499fdd1abe73a0a4c1578b9eb5edafeb7b2714898a5661754bab5081ff2e"
+      "fingerprint": "9821ce68dbfcc387fa3ce54d18a066b44f1e95041458a488eb789d42f0734375"
     },
     {
       "entityType": "item",
@@ -9819,7 +9819,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "67afa944ed44c50e8897a33abf9a232edd31ce44f74d1f5082342343e36f7b7f"
+      "fingerprint": "88ab03a0b23edb27b225fd853f00ac0c77251a15c25874026d4666d56df29562"
     },
     {
       "entityType": "item",
@@ -10127,7 +10127,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "881263e79269aedcb45db1a4edca1110842878688f087744378149b11deb106a"
+      "fingerprint": "2f480324d073897efc32a334a92b230d9a824d013cc85386eb67065e63a53d9e"
     },
     {
       "entityType": "item",
@@ -11403,7 +11403,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a96bfbaa75bb1a600cdf13f20ef717299dd1c210568d6550ce51a512edf074d1"
+      "fingerprint": "e285882e8fe791abd18358af1d0f1a15ee6c5608f52460d12ab630841a882163"
     },
     {
       "entityType": "item",
@@ -13988,7 +13988,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ae79cb8cdd002cb2f1ce8b47de809644e7b38fb28c0e40fd3021e030f5549ab1"
+      "fingerprint": "18d07417bcf966ea85ec0cae80f0ff5704162fc341a5e2e11c67e0567d84c12a"
     },
     {
       "entityType": "item",
@@ -14714,7 +14714,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "14dc38e829afcd9616692bcea2bca7a5b263f5c91348c0f2ed07db3b8c86795e"
+      "fingerprint": "5841ee36601eefe0c838b5a1e160adc2e859091f43a7f5f2a2cbad6265a131ff"
     },
     {
       "entityType": "item",
@@ -14769,7 +14769,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "80ea2a2a2b4e8074c5d059ff631f9a22325bcb9adf190483dfb2db52156f2a20"
+      "fingerprint": "8797491d21a1325c9a7bb06870422e0152cf470485050df2f3d79abe065f1a7b"
     },
     {
       "entityType": "item",
@@ -15297,7 +15297,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3a4c8be1057ae63bbe5972d663f94188e89f70272d52bd62b5fe717b0ea1d187"
+      "fingerprint": "fafa23045f1b91bb4487e2cfbebcd5b7251865079aa72b06b1297ee3e8aba452"
     },
     {
       "entityType": "item",
@@ -15418,7 +15418,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8c5a06b800ab15f687057f63fc069d2e2b00c558a96129feed3734c416c859b5"
+      "fingerprint": "b90278cde19eb5699e1737f67de5d5c10615683e03f5896f5d35d14250e906bc"
     },
     {
       "entityType": "item",
@@ -15737,7 +15737,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b62f80227173f4dde841d8c121bb49c67899da56d586e3408d0d2b3057db997c"
+      "fingerprint": "453a4d6a542bc29aee3b4f61fef821186b752bcdcb269cfcfcc7d6631ab70ea5"
     },
     {
       "entityType": "item",
@@ -15814,7 +15814,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c288c622330db37c24067ed22288c1f994bcf07de19c85bad9bbfb91d6386029"
+      "fingerprint": "6647416746e615fea29546e51ca0ad4310646e436c39ef52bd42f3fc729c929f"
     },
     {
       "entityType": "item",
@@ -216023,7 +216023,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "7f7c69a0df980a4aa49a9c5c6e9c6a3ba7ff3664875e4b99f6d869f3cf0c400d"
+      "fingerprint": "2820c7bf0a015154a1af938298f20966f4198ac427dc1321283205a81c5fe920"
     },
     {
       "entityType": "item",
@@ -216034,7 +216034,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5fb0d3ec997a0f1ae10ca028875f6417ea2d2905a6089fd0802e99e574631e95"
+      "fingerprint": "a092cee5f03efb48183ff1c9d179356fafed3fd2982fd54a6d0157c9e800c4a7"
     },
     {
       "entityType": "item",
@@ -216045,7 +216045,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0fcd09c87f4d9592b64ecdfa261396e090d7cf7528db25c75e3cc75e5b9ffc52"
+      "fingerprint": "ce786bb9bc0c26bba90f29ec7c10050da13410aa998eb9f5876c48e1c340d156"
     },
     {
       "entityType": "item",
@@ -225868,7 +225868,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f66fc6905ef1a7e3829f63b94ddf0c3825ae8c354e99ca13d2390257ad45a637"
+      "fingerprint": "d6dfdcd94219b59036a8009fe69f20a1156a8fc2cb7c2468bb9ba4f4c0e43fc2"
     },
     {
       "entityType": "item",
@@ -237294,7 +237294,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e9c43b3c6d6c17b968d6b4ef3529e23237a66b521ceb107c465e3b43f072f2bc"
+      "fingerprint": "be4636b14dedbf33631cb2e8e37cadfca5653430d89df37e54a792b6bfbf58c9"
     },
     {
       "entityType": "item",
@@ -239571,7 +239571,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "2e4041cc4bb166ed9ba1d3c6c2a3d29053d2e3248201b4bdf294a9ec0400e8f8"
+      "fingerprint": "a7c68891e021aab695904f87493d0682be6d0f34bd52d2eeba4678964b2c4da6"
     },
     {
       "entityType": "item",
@@ -246391,7 +246391,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "2784516c5993fe52589326a2efe200d53d7cac72289aed02bbd7bbfad9713c01"
+      "fingerprint": "d4d8a1f582c46c161f3e1db45a29cb7b2c872afdb650921e2585b6d11a574f3a"
     },
     {
       "entityType": "item",
@@ -252353,7 +252353,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "73d0cc070a6f65e15d3ac8706452d3b60293e4ead5e0fab5376b5d89a4a813b0"
+      "fingerprint": "817b9e5fca8b6fe504547592c85a8abf83cd36791b1d7267bfe534bda3b9ba79"
     },
     {
       "entityType": "item",
@@ -252969,7 +252969,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "271ff808f52cf6d65e35402559f5b2e75ec55cd1b66a545f54745b72269e7444"
+      "fingerprint": "2f3eec251d60e91e7adc54e994bdd923f8f8939d7a066448489fecfdd43f73e4"
     },
     {
       "entityType": "item",
@@ -258407,7 +258407,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3aaaddb01ea570a7330e61f0e470ddf8b82c054c382a3d6db3516e7b6cc840a2"
+      "fingerprint": "d6b7cc4b3b71f1525340bf41601ec12156b23098e8884234687242dc0a4ff0eb"
     },
     {
       "entityType": "item",
@@ -260717,7 +260717,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "fd795c1c6470bd6c4b58b9f7e23d66a582ff4a800aca6a118732358c1b7ca23c"
+      "fingerprint": "baf7e6d3c1c9c224396d0c032cac0bc0f389244eba86ab04d5c6719a4599105c"
     },
     {
       "entityType": "item",
@@ -263643,7 +263643,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "bb4b99eed2e15b5864477e4c616ba41bdc12c3c8ef98ac3ca2a213d53f073b9c"
+      "fingerprint": "8277d009a09a1f7d21f9ab5c28f0c3a2f086af7467bad80f73e1caecde3824bc"
     },
     {
       "entityType": "item",
@@ -264391,7 +264391,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0a63746b0aa46c2df3c272d590470af3d23350649c1d5ed6a1cf5dbb3440037a"
+      "fingerprint": "88002828e1cf81d6bd065d4374e9741eb7e02a6517a73b77a13bb0851fe44e83"
     },
     {
       "entityType": "item",
@@ -265326,7 +265326,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "46a26532418bed4adc4ad74252fc98aab1631ed359b9ba902bb6dd13326d95cd"
+      "fingerprint": "2e9d2c1c471297a946176bc335e27107107b4729964bccd8bf6b5975a36fd62c"
     },
     {
       "entityType": "item",
@@ -266371,7 +266371,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "76c090a5d1a98099b537c756f052887ab334302102c241f275e2a265ed4b2f28"
+      "fingerprint": "17bf8bc9a950bb432be93527391359e1185eef0e6f802453de23b4ce5ee1217f"
     },
     {
       "entityType": "item",
@@ -268659,7 +268659,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c644b6769b084b5b8b22c98c8ba7b52890712f158e25196f00ac35a1eac882bc"
+      "fingerprint": "3c6f504093330c88c58efa2a13987176c8d81d6ac8e28b6e9b932af65fa7e32c"
     },
     {
       "entityType": "item",
@@ -268692,7 +268692,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1d71ade4b0b671edef08d342126d9e4eb803c5a0918564ad33738109a6fe998c"
+      "fingerprint": "f50076ea9d20633bf82f447bee2888a4fc012d4834e8c1feee57ea65e466b65f"
     },
     {
       "entityType": "item",
@@ -268736,7 +268736,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d8b02c97ff29f14731145992beaafe805862fc9fbd133db1d7a93dbad8632de3"
+      "fingerprint": "3b954ca294729b8526589c3f573d77e5f5ae972f0c6c58b63e85e1d2634451d3"
     },
     {
       "entityType": "item",
@@ -269198,7 +269198,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1306f55d819c1b5dcf45585f14e2e757e42f8e0ad51470ac09266c054615ca9d"
+      "fingerprint": "4de0e6e6aae178db4f3efd9fdc3a29dc25877d359b86609d1c0f1069d9b0de60"
     },
     {
       "entityType": "item",
@@ -269209,7 +269209,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "19f371a54ada56f47a53e9955ffcd6aa93065ee872d1b0d91417218f3b092635"
+      "fingerprint": "58720c9b71b2931f3c167df7bd4da881a6becf49e032c72f0bfbefc66c720181"
     },
     {
       "entityType": "item",
@@ -269319,7 +269319,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c5407b8ac94de7df6c4a2d7fe3f3712fe93dfd1f5e09a180b7bb447d650dcee2"
+      "fingerprint": "eff3555cfcb80cb893875242ea9d3e20737350220ab24523621bacbbdd012d0e"
     },
     {
       "entityType": "item",
@@ -269341,7 +269341,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ec24443ab43bb1bd2071985254d33c6777a39a5962004b9261701cf09dff53a8"
+      "fingerprint": "b6ccc2f196bafc65fd303dc0deb0d5483ca373dc8a61d6e065130ce0f4f2aa38"
     },
     {
       "entityType": "item",
@@ -275974,7 +275974,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "bb497863898f7280db6ba670de464b54a25bb95ffee07650750995f018568819"
+      "fingerprint": "810e2d1aed4c14c2eabee716c38ee9da2a2c8336fed2f0e78d544a286f5d2bec"
     },
     {
       "entityType": "item",
@@ -275985,7 +275985,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f7eff3f620e800e2510f674625876c6ef5166c170efa2ed045ece269ea857c64"
+      "fingerprint": "ea46d78c9a5462ebd3985ae68bcd0aa45512ac1807142af5f7720dcfee7aef5a"
     },
     {
       "entityType": "item",
@@ -276495,7 +276495,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c32d9d94787edeb8b17daf22b5b0155e803ed44f3c7a51bee3fc9c6bdb377a8f"
+      "fingerprint": "e82fb08ad3753f52a6a5cffc06d393514e943957d021a23e4ce010c16a84e433"
     },
     {
       "entityType": "item",
@@ -280075,7 +280075,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5c826ae9e76580e3f3d60c31a864f03c23c19f1236c42220248951003c947d8b"
+      "fingerprint": "d35da4f5bdd508a80b4bbca1912dbedeabbef53e6398cf408cae1c8719ab2d5e"
     },
     {
       "entityType": "item",
@@ -281573,7 +281573,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "72ac7e82ec69a3a8336a721743bdbc32bc3a77751b2ebb8b7484e90e0a860dea"
+      "fingerprint": "d256ddc11c6b48cafdb1f2c662be7fddbfaa7ed33ca5a5f458ce9d3b02b328a6"
     },
     {
       "entityType": "item",
@@ -281615,7 +281615,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "485c9e390f7e3c6c6d9ca32917853f343ba3a47929f1e6c04eb4778cc8652b24"
+      "fingerprint": "25aa0a39a7ce6066a61970501f3189a5e259167364f29ae4403888085738b8bd"
     },
     {
       "entityType": "item",
@@ -285535,7 +285535,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5d150e4f68a6cf4c9bf222b41a5a5e4405a4bcf5d141a09c3543e62180cc5160"
+      "fingerprint": "819b38070e8d2a310903049f5ba30686e5dbdf902d2b80f2cdc6da3b34d568c2"
     },
     {
       "entityType": "item",
@@ -285605,7 +285605,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a740141cfde10a9a164bd991f7dc05f50236bd534970c79d360262608fd0f926"
+      "fingerprint": "e8d17696b70abdbefbab067750b53c2bb155bc5cebbcfabdcb71237196934741"
     },
     {
       "entityType": "item",
@@ -285619,7 +285619,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ebce52e6e56663deb72927f92d685c80cf34590bc37fc81d54de2f7ae7aa340c"
+      "fingerprint": "693b5686093d57395684c1faf83377accb42e82d670b6d1e2fbd8444d85c91d3"
     },
     {
       "entityType": "item",
@@ -285633,7 +285633,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "bd5f0fdd6e404c48ee92bb158efa2666781db2121592c680dedc7957ad38c646"
+      "fingerprint": "1e4d25d99b761801f2cb8ffa3c605ca8b2e9954b1f6602a91126295fb6651064"
     },
     {
       "entityType": "item",
@@ -286235,7 +286235,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "294ecd832ccd1a2879898701f3c23d5508f5ec5211487fca51e3a2d5b654b6b1"
+      "fingerprint": "8bbd5c6ee5155de880033652102f9d63e53bb84f30aa64e43fe625f507d1df87"
     },
     {
       "entityType": "item",
@@ -288601,7 +288601,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d3d18790dcb698b9c6f05bea826f21ad81fec6555321015c8adc019ffcf3e057"
+      "fingerprint": "0b4803298a5d12f82a56dc3a494699cae8b5d6e4a3d4389d6cdbf3e652f982bd"
     },
     {
       "entityType": "item",
@@ -288937,7 +288937,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e359141a2d139b2d06e6ab41b377230018d723e3c73b58e2f86a9ededbdb877c"
+      "fingerprint": "9323ab4c68e08a66ddc6836fdf84df4762ee82c682cf781467ab67b466d21288"
     },
     {
       "entityType": "item",
@@ -289343,7 +289343,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c088adc71ab55b2104b92cc83e1937c56e87d77f8b07a44dfd0c368e187e634b"
+      "fingerprint": "c9554e0d95bcf7e71829de4a5c3d7a82efb69134d03627d3f8745136be347563"
     },
     {
       "entityType": "item",
@@ -358923,7 +358923,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0ba2b43ac1d3aac9cd718a83670ab4da6d4244fae3441d1d7e9d928d3a6a4c25"
+      "fingerprint": "ddc6dd81256b711cc99e9ca1883fda7453d42e7412efa1e033e01820b240eda3"
     },
     {
       "entityType": "item",
@@ -361090,7 +361090,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "2fb030b25ce1b3a4c26ac0f7714e694c6bf86387774e089956687964b3743022"
+      "fingerprint": "20c2320842db53a1641852ba58615adc37d55339d249145aec74d9caf3461595"
     },
     {
       "entityType": "item",
@@ -390276,7 +390276,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1628cce9d0d7a5f6b0ab62c011b4f6684978e1cb19e8153f8b6c0def2772e4a6"
+      "fingerprint": "afd0b57bcfa54f1fe17c1f2d8771ce309f4fd48cb86e76a9cc61212e54098b37"
     },
     {
       "entityType": "item",
@@ -390290,7 +390290,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9f67da32910f8b88c9657ba4602ac2f5d9616a8c2780e6b24629945bbd87ccf8"
+      "fingerprint": "47b4b9996bb51ca45803af5e4a658714886fe44ad9f06dd9b24422e92a3099ab"
     },
     {
       "entityType": "item",
@@ -390304,7 +390304,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0a991a232e3c8d4199906fc47672e0a8e6eec4f227266b26f768436d6c194868"
+      "fingerprint": "562ccaad3753b0094492e37be9be88bcfabf9a9df5466a3212b1646fccb2a8b6"
     },
     {
       "entityType": "item",
@@ -420503,7 +420503,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5dc1fd5dd75906ea9c514ede5b4857b333f1dfbdaf591025737e2ed6904cefdc"
+      "fingerprint": "658249975bac2f9c0068631d9c8845e6898ec39f6501a1b17a649fc8d9542040"
     },
     {
       "entityType": "item",
@@ -420587,7 +420587,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b3adfabc926ef96fc2392e002878721b56e0a7a747a3bf6ff1be2566c224e464"
+      "fingerprint": "7ab7c4ffc421e151fb0b9b826e8c025356fa123ccff2bd7c42aef41ef923da1e"
     },
     {
       "entityType": "item",
@@ -420811,7 +420811,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "2f2268166e9be873844f095a7a700ac26477ae2c7055a04f89238d669a8eebdd"
+      "fingerprint": "58f07cb1dda59891836a82a5e39f9b2ed2b999130ea5e972fdd8f051e2c50331"
     },
     {
       "entityType": "item",

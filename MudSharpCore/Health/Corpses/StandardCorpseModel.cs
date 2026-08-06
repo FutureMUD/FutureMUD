@@ -338,9 +338,9 @@ public class StandardCorpseModel : CorpseModel
         IBody originalBody, IPerceiver voyeur, double eatenPercentage)
     {
         return
-            ReplaceDescriptionVariables(DecayStringsDictionary[type][state], originalCharacter, originalBody, voyeur, state,
-                    eatenPercentage, originalBody.VisibleWounds(voyeur, WoundExaminationType.Look).ToList())
-                .ProperSentences();
+            ReplaceDescriptionVariables(DecayStringsDictionary[type][state].ProperSentences(), originalCharacter,
+                originalBody, voyeur, state, eatenPercentage,
+                originalBody.VisibleWounds(voyeur, WoundExaminationType.Look).ToList());
     }
 
     public override string DescribeSevered(DescriptionType type, DecayState state, ICharacter originalCharacter,

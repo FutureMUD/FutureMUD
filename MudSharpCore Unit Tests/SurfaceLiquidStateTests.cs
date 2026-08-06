@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Form.Material;
@@ -86,6 +87,67 @@ public class SurfaceLiquidStateTests
 
 		Assert.AreEqual(0, changed);
 		Assert.IsTrue(state.IsEmpty);
+	}
+
+	[TestMethod]
+	public void TryAddDriedLiquid_AddsResidueWithoutChangingWetLiquidAndMarksChangedOnce()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var changed = 0;
+		var residue = CreateSolid("salt").Object;
+		var wetLiquid = CreateLiquid("water").Object;
+		var driedLiquid = CreateLiquid("salt water");
+		driedLiquid.Setup(x => x.DriedResidue).Returns(residue);
+		driedLiquid.Setup(x => x.ResidueVolumePercentage).Returns(0.25);
+		var state = new SurfaceLiquidState(gameworld.Object, () => changed++);
+		state.AddLiquid(new LiquidMixture(wetLiquid, 3.0, gameworld.Object));
+		changed = 0;
+
+		var result = state.TryAddDriedLiquid(new LiquidMixture(driedLiquid.Object, 4.0, gameworld.Object));
+
+		Assert.IsTrue(result);
+		Assert.AreEqual(3.0, state.LiquidVolume, 0.0001);
+		Assert.AreEqual(1.0, state.ResidueWeight, 0.0001);
+		Assert.AreEqual(1, changed);
+	}
+
+	[TestMethod]
+	public void TryAddDriedLiquid_ResidueRoundTripsThroughXml()
+	{
+		var residue = CreateSolid("salt");
+		var liquid = CreateLiquid("salt water");
+		liquid.Setup(x => x.DriedResidue).Returns(residue.Object);
+		liquid.Setup(x => x.ResidueVolumePercentage).Returns(0.25);
+		var materials = new Mock<IUneditableAll<ISolid>>();
+		materials.Setup(x => x.Get(residue.Object.Id)).Returns(residue.Object);
+		var liquids = new Mock<IUneditableAll<ILiquid>>();
+		liquids.Setup(x => x.Get(liquid.Object.Id)).Returns(liquid.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.Materials).Returns(materials.Object);
+		gameworld.SetupGet(x => x.Liquids).Returns(liquids.Object);
+		var state = new SurfaceLiquidState(gameworld.Object);
+		state.TryAddDriedLiquid(new LiquidMixture(liquid.Object, 4.0, gameworld.Object));
+
+		var loaded = new SurfaceLiquidState(gameworld.Object, state.SaveToXml());
+
+		Assert.AreEqual(1.0, loaded.ResidueWeight, 0.0001);
+		Assert.AreSame(residue.Object, loaded.Residues.Single().Material);
+		Assert.AreSame(liquid.Object, loaded.Residues.Single().OriginalLiquid);
+	}
+
+	[TestMethod]
+	public void TryAddDriedLiquid_LiquidWithoutResidueReturnsFalseWithoutMutation()
+	{
+		var changed = 0;
+		var gameworld = new Mock<IFuturemud>();
+		var liquid = CreateLiquid("water").Object;
+		var state = new SurfaceLiquidState(gameworld.Object, () => changed++);
+
+		var result = state.TryAddDriedLiquid(new LiquidMixture(liquid, 4.0, gameworld.Object));
+
+		Assert.IsFalse(result);
+		Assert.IsTrue(state.IsEmpty);
+		Assert.AreEqual(0, changed);
 	}
 
 	[TestMethod]

@@ -154,6 +154,37 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 		_changed?.Invoke();
 	}
 
+	public bool TryAddDriedLiquid(LiquidMixture liquid, bool roomSurface = false)
+	{
+		var added = false;
+		foreach (var instance in liquid.Instances)
+		{
+			if (instance.Liquid.DriedResidue is null ||
+			    roomSurface && !instance.Liquid.LeaveResiduesInRooms)
+			{
+				continue;
+			}
+
+			var weight = instance.Amount * instance.Liquid.ResidueVolumePercentage;
+			if (weight <= 0.0 || !double.IsFinite(weight))
+			{
+				continue;
+			}
+
+			AddResidue(instance.Liquid.DriedResidue, instance.Liquid, weight);
+			added = true;
+		}
+
+		if (!added)
+		{
+			return false;
+		}
+
+		LastResolvedUtc = DateTime.UtcNow;
+		_changed?.Invoke();
+		return true;
+	}
+
 	public LiquidMixture? RemoveLiquidVolume(double volume)
 	{
 		if (volume <= 0.0 || ContaminatingLiquid.IsEmpty)

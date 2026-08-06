@@ -151,6 +151,29 @@ public class SurfaceLiquidStateTests
 	}
 
 	[TestMethod]
+	public void GetAdditionalText_MultipleResidues_HasTemplateSpacingAndNoConjunction()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var bloodResidue = CreateSolid("dried blood");
+		bloodResidue.Setup(x => x.ResidueDesc).Returns("It is caked with {0}dried blood.");
+		var ichorResidue = CreateSolid("dried ichor");
+		ichorResidue.Setup(x => x.ResidueDesc).Returns("It is caked with {0}dried ichor.");
+		var blood = CreateLiquid("blood");
+		blood.Setup(x => x.DriedResidue).Returns(bloodResidue.Object);
+		blood.Setup(x => x.ResidueVolumePercentage).Returns(0.25);
+		var ichor = CreateLiquid("ichor");
+		ichor.Setup(x => x.DriedResidue).Returns(ichorResidue.Object);
+		ichor.Setup(x => x.ResidueVolumePercentage).Returns(0.25);
+		var state = new SurfaceLiquidState(gameworld.Object);
+		state.TryAddDriedLiquid(new LiquidMixture(blood.Object, 4.0, gameworld.Object));
+		state.TryAddDriedLiquid(new LiquidMixture(ichor.Object, 4.0, gameworld.Object));
+
+		var result = state.GetAdditionalText(0.0, 1.0, new Mock<IPerceiver>().Object, false);
+
+		Assert.AreEqual("It is caked with some dried blood.\n\tIt is caked with some dried ichor.", result);
+	}
+
+	[TestMethod]
 	public void ResolveDrying_DriesElapsedIntervalsAndCreatesResidue()
 	{
 		var gameworld = new Mock<IFuturemud>();

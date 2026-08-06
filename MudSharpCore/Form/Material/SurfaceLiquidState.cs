@@ -389,11 +389,11 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 		{
 			var text = string.IsNullOrWhiteSpace(x.Material.ResidueDesc)
 				? $"It is stained with {x.Material.MaterialDescription.ToLowerInvariant()}."
-				: string.Format(x.Material.ResidueDesc, "some");
+				: string.Format(x.Material.ResidueDesc, "some ");
 			return colour && x.Material.ResidueColour is not null ? text.Colour(x.Material.ResidueColour) : text;
 		}));
 
-		return texts.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ListToString(separator: "\n\t");
+		return string.Join("\n\t", texts.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct());
 	}
 
 	public XElement SaveToXml()

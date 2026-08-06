@@ -182,6 +182,8 @@ Variable-driven items are a common integration point between item content and sc
 
 `exposetoliquid(item, liquidId, volume[, driedPercentage])` accepts numeric base-unit or unit-bearing text volumes. The optional percentage ranges from 0 to 100 and splits the supplied volume between normal fresh exposure and the liquid's configured dried residue; 0 preserves the original behaviour and 100 adds residue without wetting, flowing or filling. Dry requests fail without mutation when the liquid has no usable dried-residue definition.
 
+Surface residue descriptions receive the seeded quantity token with its expected trailing space and render as separate description lines, avoiding joined output such as `somedried` or `and It is ...`.
+
 Commodity piles participate in the same characteristic scripting surface once they have characteristic values. A FutureProg can call `loadcommodity(...)` to create the pile, then apply colour-like metadata with `setcharacteristic(item, definition, value)`. `characteristicvalue`, `characteristicid`, and item `.variables` read those commodity-owned values, and the description decorator renders values in stable definition-name order before the material/tag text.
 
 Items now also expose ownership metadata to FutureProg. The item `owner` property can be null and, when present, currently surfaces character or clan owners. Item ownership helper functions support direct ownership checks, property-trust checks, clan-aware trust checks, and ownership mutation for individual items or deep item trees.

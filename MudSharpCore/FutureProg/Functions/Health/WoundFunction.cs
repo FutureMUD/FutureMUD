@@ -192,15 +192,15 @@ internal class WoundFunction : BuiltInFunction
 
         IBodypart part = null;
 
-        if (thing is IHaveABody ihb)
+        if (thing is IHaveABody { Body: { } body })
         {
             if (ParameterFunctions.Count > 3)
             {
                 string partText = ParameterFunctions[3].Result?.GetObject?.ToString() ?? "";
-                part = ihb.Body.Bodyparts.GetByIdOrName(partText);
+                part = body.Bodyparts.GetByIdOrName(partText);
             }
 
-            part ??= ihb.Body.RandomBodypart;
+            part ??= body.RandomBodypart;
         }
 
 

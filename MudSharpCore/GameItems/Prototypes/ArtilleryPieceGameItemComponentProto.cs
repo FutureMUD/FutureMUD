@@ -1,6 +1,8 @@
 using MudSharp.Accounts;
 using MudSharp.Combat;
+using MudSharp.Form.Material;
 using MudSharp.Framework.Revision;
+using MudSharp.Framework.Units;
 using MudSharp.GameItems.Components;
 
 #nullable enable
@@ -13,6 +15,13 @@ namespace MudSharp.GameItems.Prototypes;
 /// </summary>
 public class ArtilleryPieceGameItemComponentProto : GameItemComponentProto, IArtilleryPiecePrototype
 {
+	public const string SpongeTagName = "Artillery Sponge";
+	public const string WaddingTagName = "Artillery Wadding";
+	public const string RammerTagName = "Artillery Rammer";
+	public const string VentToolTagName = "Artillery Vent Tool";
+	public const string LinstockTagName = "Artillery Linstock";
+	public const string FuseTagName = "Artillery Fuse";
+
 	public override string TypeDescription => "Artillery Piece";
 	public IRangedWeaponType? RangedWeaponType { get; private set; }
 	public string ArtilleryProfile { get; private set; } = "general";
@@ -23,6 +32,17 @@ public class ArtilleryPieceGameItemComponentProto : GameItemComponentProto, IArt
 	public double MaximumTraverse { get; private set; } = 180.0;
 	public double MaximumElevation { get; private set; } = 45.0;
 	public double MaximumDepression { get; private set; } = 5.0;
+	public double PowderMass { get; private set; } = 1500.0;
+	public double PrimingPowderMass { get; private set; } = 25.0;
+	public ISolid? GunpowderMaterial =>
+		Gameworld.Materials.Get(Gameworld.GetStaticLong("GunpowderMaterialId")) ??
+		Gameworld.Materials.GetByName(MusketGameItemComponentProto.GunpowderMaterialName) as ISolid;
+	public ITag? SpongeTag => ResolveTag("SpongeTag", SpongeTagName);
+	public ITag? WaddingTag => ResolveTag("WaddingTag", WaddingTagName);
+	public ITag? RammerTag => ResolveTag("RammerTag", RammerTagName);
+	public ITag? VentToolTag => ResolveTag("VentToolTag", VentToolTagName);
+	public ITag? LinstockTag => ResolveTag("LinstockTag", LinstockTagName);
+	public ITag? FuseTag => ResolveTag("FuseTag", FuseTagName);
 	private readonly Dictionary<string, HashSet<ArtilleryCrewAction>> _crewRoles =
 		new(StringComparer.InvariantCultureIgnoreCase);
 
@@ -51,6 +71,14 @@ public class ArtilleryPieceGameItemComponentProto : GameItemComponentProto, IArt
 		MaximumTraverse = Math.Clamp((double?)root.Element("MaximumTraverse") ?? 180.0, 0.0, 360.0);
 		MaximumElevation = Math.Clamp((double?)root.Element("MaximumElevation") ?? 45.0, 0.0, 90.0);
 		MaximumDepression = Math.Clamp((double?)root.Element("MaximumDepression") ?? 5.0, 0.0, 90.0);
+		PowderMass = Math.Max(0.001, (double?)root.Element("PowderMass") ?? 1500.0);
+		PrimingPowderMass = Math.Max(0.001, (double?)root.Element("PrimingPowderMass") ?? 25.0);
+		_tagIds["SpongeTag"] = (long?)root.Element("SpongeTag") ?? 0;
+		_tagIds["WaddingTag"] = (long?)root.Element("WaddingTag") ?? 0;
+		_tagIds["RammerTag"] = (long?)root.Element("RammerTag") ?? 0;
+		_tagIds["VentToolTag"] = (long?)root.Element("VentToolTag") ?? 0;
+		_tagIds["LinstockTag"] = (long?)root.Element("LinstockTag") ?? 0;
+		_tagIds["FuseTag"] = (long?)root.Element("FuseTag") ?? 0;
 		_crewRoles.Clear();
 		foreach (var role in root.Element("CrewRoles")?.Elements("Role") ?? [])
 		{
@@ -78,6 +106,14 @@ public class ArtilleryPieceGameItemComponentProto : GameItemComponentProto, IArt
 			new XElement("MaximumTraverse", MaximumTraverse),
 			new XElement("MaximumElevation", MaximumElevation),
 			new XElement("MaximumDepression", MaximumDepression),
+			new XElement("PowderMass", PowderMass),
+			new XElement("PrimingPowderMass", PrimingPowderMass),
+			new XElement("SpongeTag", SpongeTag?.Id ?? 0),
+			new XElement("WaddingTag", WaddingTag?.Id ?? 0),
+			new XElement("RammerTag", RammerTag?.Id ?? 0),
+			new XElement("VentToolTag", VentToolTag?.Id ?? 0),
+			new XElement("LinstockTag", LinstockTag?.Id ?? 0),
+			new XElement("FuseTag", FuseTag?.Id ?? 0),
 			new XElement("CrewRoles", _crewRoles.Select(x => new XElement("Role", new XAttribute("name", x.Key),
 				x.Value.Order().Select(y => new XElement("Action", y)))))).ToString();
 	}
@@ -105,7 +141,17 @@ public class ArtilleryPieceGameItemComponentProto : GameItemComponentProto, IArt
 		manager.AddTypeHelpInfo("ArtilleryPiece", "Makes an item a portable, crew-served artillery piece", BuildingHelpText);
 	}
 
-	private const string BuildingHelpText = "Options: ranged <type>, profile <name>, mechanism <muzzleloading|removablechamber>, crew <minimum> [maximum], emplacement <true|false>, arc <traverse> <elevation> <depression>.";
+	private const string BuildingHelpText = @"You can use the following options:
+
+	#3ranged <type>#0 - sets the artillery ranged weapon type
+	#3profile <name>#0 - sets the ammunition and chamber compatibility profile
+	#3mechanism <muzzleloading|removablechamber>#0 - sets the loading mechanism
+	#3crew <minimum> [maximum]#0 - sets the required and maximum crew
+	#3emplacement <true|false>#0 - controls whether the piece must be mounted or emplaced
+	#3arc <traverse> <elevation> <depression>#0 - sets the firing arcs in degrees
+	#3powder <mass>#0 - sets the physical gunpowder charge per shot
+	#3primer <mass>#0 - sets the physical priming-powder charge
+	#3spongetag|wadtag|rammertag|venttag|linstocktag|fusetag <tag>#0 - sets a physical tool or consumable tag";
 	public override string ShowBuildingHelp => BuildingHelpText;
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -152,9 +198,67 @@ public class ArtilleryPieceGameItemComponentProto : GameItemComponentProto, IArt
 				RequiresEmplacement = emplacement;
 				Changed = true;
 				return true;
+			case "powder":
+				return BuildingCommandMass(actor, command, false);
+			case "primer":
+				return BuildingCommandMass(actor, command, true);
+			case "spongetag":
+				return BuildingCommandTag(actor, command, "SpongeTag");
+			case "wadtag":
+				return BuildingCommandTag(actor, command, "WaddingTag");
+			case "rammertag":
+				return BuildingCommandTag(actor, command, "RammerTag");
+			case "venttag":
+				return BuildingCommandTag(actor, command, "VentToolTag");
+			case "linstocktag":
+				return BuildingCommandTag(actor, command, "LinstockTag");
+			case "fusetag":
+				return BuildingCommandTag(actor, command, "FuseTag");
 			default:
 				return base.BuildingCommand(actor, command);
 		}
+	}
+
+	private readonly Dictionary<string, long> _tagIds = new(StringComparer.OrdinalIgnoreCase);
+
+	private ITag? ResolveTag(string key, string fallbackName)
+	{
+		return Gameworld.Tags.Get(_tagIds.GetValueOrDefault(key)) ?? Gameworld.Tags.GetByName(fallbackName);
+	}
+
+	private bool BuildingCommandTag(ICharacter actor, StringStack command, string key)
+	{
+		var text = command.SafeRemainingArgument;
+		var tag = long.TryParse(text, out var id) ? Gameworld.Tags.Get(id) : Gameworld.Tags.GetByName(text);
+		if (tag is null)
+		{
+			actor.Send("There is no such item tag.");
+			return false;
+		}
+		_tagIds[key] = tag.Id;
+		Changed = true;
+		actor.Send($"The {key.ToLowerInvariant()} is now {tag.Name.ColourName()}.");
+		return true;
+	}
+
+	private bool BuildingCommandMass(ICharacter actor, StringStack command, bool primer)
+	{
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, actor, out var mass) || mass <= 0.0)
+		{
+			actor.Send("You must specify a positive mass.");
+			return false;
+		}
+		if (primer)
+		{
+			PrimingPowderMass = mass;
+		}
+		else
+		{
+			PowderMass = mass;
+		}
+		Changed = true;
+		actor.Send($"The {(primer ? "primer" : "main charge")} now uses {Gameworld.UnitManager.DescribeExact(mass, UnitType.Mass, actor).ColourValue()} of gunpowder.");
+		return true;
 	}
 
 	public override bool CanSubmit() => RangedWeaponType is not null && !string.IsNullOrWhiteSpace(ArtilleryProfile) && base.CanSubmit();

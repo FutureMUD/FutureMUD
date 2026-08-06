@@ -4,6 +4,10 @@ Firearm attachments appear through the host item's attached-item aggregation and
 
 Artillery is deliberately visible and targetable as a local-cell object, not as an invisible extension of a crew member. Its status reports emplacement, load/readiness, and active crew; an installed piece is addressed through its mount. Weapon-carrier attachments retain their relationship across normal description and connected-item traversal. A hanging retained weapon remains visibly on its carrier until recovered or released.
 
+Black-powder loading echoes name the physical tool or consumable used at that stage. Inserted powder, wads, ammunition, primers, match cord, ignition stones, and fuses participate in containment, weight, buoyancy, persistence, deletion, and unloading even when they are not separately listed in a room description. Environmental failure messages distinguish submersion, heavy precipitation, and an atmosphere that cannot sustain a match; vacuum suppresses propagated gunshot and artillery audio.
+
+Firing into the air is a completed ranged action: musket and artillery paths consume their real physical load, return to an empty/unreadied state, and clear any out-of-combat aiming effect rather than leaving a character aiming an empty weapon.
+
 ## Scope
 This document explains how item behaviour is presented to players and how items integrate with adjacent runtime systems.
 
@@ -41,7 +45,7 @@ This is how components add behavioural presentation without forcing all descript
 
 Examples include:
 - containers showing fullness, open state, and contents
-- commodity piles replacing the generated short/full description with quantity, commodity characteristics, material, and optional tag
+- commodity piles replacing the generated short/full description with quantity, commodity characteristics, material, and optional tag; when a functional tag already begins with the material name, the decorator presents it once (`gunpowder commodities`, not `gunpowder gunpowder commodities`)
 - locks or connections contributing extra information
 - connector-driven items showing their current grid membership and physical links
 - stable tickets showing the lodged mount, stable, lodger, and current outstanding fees when the ticket still points at an active stay

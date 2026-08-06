@@ -50,6 +50,19 @@ public partial class ItemSeeder
 				x.FailProducts.ToArray()))
 			.ToArray();
 
+	internal static IReadOnlyCollection<PrimaryProductionCraftSpecTestData> BlackPowderCraftSpecsForTesting =>
+		BlackPowderCraftSpecs()
+			.Select(x => new PrimaryProductionCraftSpecTestData(
+				x.Name,
+				x.Category,
+				x.Trait,
+				x.KnowledgeSubtype,
+				x.Inputs.ToArray(),
+				x.Tools.ToArray(),
+				x.Products.ToArray(),
+				x.FailProducts.ToArray()))
+			.ToArray();
+
 	private void SeedPrimaryProductionCommodityCrafts()
 	{
 		if (!ShouldSeedHistoricCrafts())
@@ -87,6 +100,80 @@ public partial class ItemSeeder
 			knowledgeSubtype: "Primary Production",
 			knowledgeDescription: "Shared historic primary-production commodity transformations.",
 			knowledgeLongDescription: "Shared primary-production knowledge for turning raw deposits and bulk feedstocks into stock commodities used by mining, quarrying, smelting, masonry, clay, glass, salt, alkali, tar, peat, and pigment workflows.");
+	}
+
+	private void SeedBlackPowderCrafts()
+	{
+		foreach (var spec in BlackPowderCraftSpecs())
+		{
+			AddCraft(
+				spec.Name,
+				spec.Category,
+				spec.Blurb,
+				spec.Action,
+				spec.ActiveDescription,
+				"Gunpowder Manufacture - Corning Black Powder",
+				spec.Trait,
+				spec.MinimumTraitValue,
+				spec.Difficulty,
+				Outcome.MinorFail,
+				5,
+				3,
+				false,
+				BlackPowderCraftPhases(),
+				spec.Inputs,
+				spec.Tools,
+				spec.Products,
+				spec.FailProducts,
+				knowledgeSubtype: spec.KnowledgeSubtype,
+				knowledgeDescription: "Safe preparation of measured black-powder ingredients.",
+				knowledgeLongDescription: "Practical knowledge for weighing, separately milling, damp-incorporating, and corning saltpeter, charcoal, and sulfur into physical gunpowder commodity stock.");
+		}
+	}
+
+	private static IReadOnlyList<PrimaryProductionCraftSpec> BlackPowderCraftSpecs()
+	{
+		return
+		[
+			new PrimaryProductionCraftSpec(
+				"mill and corn black powder",
+				"Powdermaking",
+				"weigh, mill, damp-incorporate, and corn a batch of black powder",
+				"milling and corning black powder",
+				"an in-progress batch of black powder",
+				"Powdermaking",
+				25,
+				Difficulty.Hard,
+				"Gunpowder Manufacture",
+				[
+					CommodityInput(750.0, "saltpeter", "Saltpeter Commodity"),
+					CommodityInput(150.0, "charcoal", "Charcoal Fuel Commodity"),
+					CommodityInput(100.0, "sulfur"),
+					WaterUse(0.25)
+				],
+				[HeldTool("Mortar and Pestle")],
+				[CommodityOutput(900.0, "gunpowder", "Gunpowder Commodity")],
+				[])
+		];
+	}
+
+	private static (int Seconds, string Echo, string FailEcho)[] BlackPowderCraftPhases()
+	{
+		return
+		[
+			(30,
+				"$0 carefully weigh|weighs $i1, $i2, and $i3 into separate portions.",
+				"$0 mismeasure|mismeasures the separate portions of $i1, $i2, and $i3."),
+			(60,
+				"$0 grind|grinds each dry ingredient separately with $t1, keeping the powders apart.",
+				"$0 grind|grinds the ingredients unevenly with $t1, leaving coarse material through the batch."),
+			(60,
+				"$0 dampen|dampens the powders with $i4 and carefully incorporate|incorporates them into a uniform paste.",
+				"$0 dampen|dampens the powders with $i4, but fail|fails to incorporate the mixture evenly."),
+			(45,
+				"$0 break|breaks the damp cake into even grains and set|sets aside $p1 to dry.",
+				"$0 break|breaks the damp cake into irregular grains, spoiling the batch before it can be dried.")
+		];
 	}
 
 	private static IReadOnlyList<PrimaryProductionCraftSpec> PrimaryProductionCraftSpecs()

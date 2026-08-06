@@ -28,6 +28,7 @@ function Get-Family {
 		"^preindustrial_optics_" { return "Optics" }
 		"^preindustrial_science_" { return "Science" }
 		"^preindustrial_firearms_" { return "Gunpowder support" }
+		"^preindustrial_artillery_" { return "Gunpowder support" }
 		default { throw "Unrecognised pre-industrial family: $StableReference" }
 	}
 }
@@ -156,8 +157,8 @@ function Get-ComponentReality {
 		return "Descriptive instrument or fixture; no sensing, accuracy, or navigation mechanic"
 	}
 
-	if ($StableReference -match "^preindustrial_firearms_") {
-		return "Holdable, container, or stack support only; no firearm, ammunition, bomb, or explosive mechanic"
+	if ($StableReference -match "^preindustrial_(firearms|artillery)_") {
+		return "Seeded holdable, container, stack, and functional tags support physical loading; no firearm or ammunition component is implied"
 	}
 
 	if ($StableReference -match "^preindustrial_trade_") {
@@ -268,7 +269,7 @@ function New-AdmissionRecord {
 		}
 	}
 
-	if ($stableReference -match "^preindustrial_firearms_") {
+	if ($stableReference -match "^preindustrial_(firearms|artillery)_") {
 		$admittingContext = "approved firearm unit, armoury, gunsmith, powder store, ship, fort, or military supplier"
 		$availability = "Restricted military"
 		$tradeStatus = "Controlled military technology or contact transfer"
@@ -556,7 +557,7 @@ function ConvertTo-ManifestMarkdown {
 	$lines.Add("")
 	$lines.Add("This manifest governs admission of the implemented shared pre-industrial item layer into $($Era.Label) content, $($Era.Range). It records a decision for every live shared prototype and never clones or authors item prototypes.")
 	$lines.Add("")
-	$lines.Add("The inventory is derived from ``PreIndustrial_Item_Seeder_Alias_Catalogue.md`` and ``PreIndustrialNewItemSpecs`` in ``ItemSeeder.PreIndustrialBaseline.cs``. The current contract is **385 unique shared rows**: **342 compatibility aliases** and **43 shared-authored rows**.")
+	$lines.Add("The inventory is derived from ``PreIndustrial_Item_Seeder_Alias_Catalogue.md`` and ``PreIndustrialNewItemSpecs`` in ``ItemSeeder.PreIndustrialBaseline.cs``. The current contract is **390 unique shared rows**: **342 compatibility aliases** and **48 shared-authored rows**.")
 	$lines.Add("")
 	$lines.Add("## Admission contract")
 	$lines.Add("")
@@ -576,7 +577,7 @@ function ConvertTo-ManifestMarkdown {
 	$lines.Add("")
 	$lines.Add("## Maintenance and acceptance")
 	$lines.Add("")
-	$lines.Add("- The record set exactly matches the live 385-row shared baseline and contains no duplicate stable references.")
+	$lines.Add("- The record set exactly matches the live 390-row shared baseline and contains no duplicate stable references.")
 	$lines.Add("- Every record has a culture/contact scope, date window, admitting context, availability, trade/contact decision, and component-reality statement.")
 	$lines.Add("- High-risk printing, optics, gunpowder-support, and named global-trade packages have explicit era-specific gates.")
 	$lines.Add("- Shared rows remain tagged ``Era / Pre-Industrial Era``; admission does not create era-prefixed clones.")
@@ -608,8 +609,8 @@ foreach ($match in [regex]::Matches($sharedSource, $newItemPattern)) {
 }
 
 $uniqueCount = ($items.StableReference | Sort-Object -Unique).Count
-if ($items.Count -ne 385 -or $uniqueCount -ne 385) {
-	throw "Expected 385 unique shared pre-industrial rows, found $($items.Count) rows and $uniqueCount unique references."
+if ($items.Count -ne 390 -or $uniqueCount -ne 390) {
+	throw "Expected 390 unique shared pre-industrial rows, found $($items.Count) rows and $uniqueCount unique references."
 }
 
 $eras = @(
@@ -658,8 +659,8 @@ if ($Check -and $differences.Count -gt 0) {
 }
 
 if ($Check) {
-	Write-Output "Admission manifests are current: 3 files, 385 rows each."
+	Write-Output "Admission manifests are current: 3 files, 390 rows each."
 }
 else {
-	Write-Output "Generated 3 admission manifests with 385 rows each."
+	Write-Output "Generated 3 admission manifests with 390 rows each."
 }

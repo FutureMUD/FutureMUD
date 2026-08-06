@@ -277,6 +277,14 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
         ? Material.Name
         : $"{string.Join(" ", _characteristics.OrderBy(x => x.Key.Name).ThenBy(x => x.Key.Id).Select(x => x.Value.GetValue.ToLowerInvariant()))} {Material.Name}";
 
+    internal static string DescribeTaggedCommodity(string materialDescription, string tagName)
+    {
+        var pluralTag = tagName.ToLowerInvariant().Pluralise();
+        return pluralTag.StartsWith($"{materialDescription} ", StringComparison.InvariantCultureIgnoreCase)
+            ? pluralTag
+            : $"{materialDescription} {pluralTag}";
+    }
+
     public override int DecorationPriority => -1;
 
     public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type,
@@ -289,7 +297,7 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
                 {
                     if (Tag is not null)
                     {
-                        return $"{QuantityDescription(Weight)}{CharacteristicMaterialDescription} {Tag.Name.ToLowerInvariant().Pluralise()}".Colour(Material.ResidueColour);
+                        return $"{QuantityDescription(Weight)}{DescribeTaggedCommodity(CharacteristicMaterialDescription, Tag.Name)}".Colour(Material.ResidueColour);
                     }
 
                     return $"{QuantityDescription(Weight)}{CharacteristicMaterialDescription}".Colour(Material.ResidueColour);
@@ -298,7 +306,7 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
                 if (Tag is not null)
                 {
                     return
-                        $"{Gameworld.UnitManager.DescribeMostSignificantExact(Weight, Framework.Units.UnitType.Mass, voyeur)} of {CharacteristicMaterialDescription} {Tag.Name.ToLowerInvariant().Pluralise()}".Colour(Material.ResidueColour);
+                        $"{Gameworld.UnitManager.DescribeMostSignificantExact(Weight, Framework.Units.UnitType.Mass, voyeur)} of {DescribeTaggedCommodity(CharacteristicMaterialDescription, Tag.Name)}".Colour(Material.ResidueColour);
                 }
 
                 return
@@ -307,7 +315,7 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
                 if (Tag is not null)
                 {
                     return
-                        $"This is a commoditised form of {Tag.Name.ToLowerInvariant().Pluralise().ColourName()} of {CharacteristicMaterialName.Colour(Material.ResidueColour)} material.";
+                        $"This is a commoditised form of {DescribeTaggedCommodity(CharacteristicMaterialName, Tag.Name).Colour(Material.ResidueColour)}.";
                 }
 
                 return $"This is a commoditised form of the {CharacteristicMaterialName.Colour(Material.ResidueColour)} material.";

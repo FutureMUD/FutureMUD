@@ -90,6 +90,38 @@ public partial class CombatSeeder
 		"ArtilleryChamber_Peterero", "Holster_PairedSaddle"
 	];
 
+	internal static string ArtilleryProfileForPieceForTesting(string name) => name switch
+	{
+		var x when x.Contains("Swivel") || x.Contains("Falcon") || x.Contains("Minion") ||
+		           x.Contains("Peterero") || x.Contains("Coehorn") || x.Contains("Saker") ||
+		           x.Contains("FieldGun3") || x.Contains("FieldGun6") || x.Contains("FieldMortar") => "light",
+		var x when x.Contains("DemiCulverin") || x.Contains("FieldGun9") || x.Contains("FieldGun12") => "medium",
+		_ => "heavy"
+	};
+
+	internal static string ArtilleryAmmunitionProfileForTesting(string name) =>
+		name.Contains("1lb") || name.Contains("3lb") || name.Contains("6lb") || name.Contains("Light")
+			? "light"
+			: name.Contains("9lb") || name.Contains("12lb") || name.Contains("Medium")
+				? "medium"
+				: "heavy";
+
+	internal static double ArtilleryPowderMassForPieceForTesting(string name) => name switch
+	{
+		"Artillery_SwivelGun" or "Artillery_Peterero" or "Artillery_Falconet" => 350.0,
+		"Artillery_CoehornMortar" => 500.0,
+		"Artillery_Falcon" or "Artillery_FieldGun3lb" => 700.0,
+		"Artillery_Minion" or "Artillery_Saker" or "Artillery_FieldGun6lb" => 1400.0,
+		"Artillery_FieldMortar" => 1500.0,
+		"Artillery_DemiCulverin" or "Artillery_FieldGun9lb" => 2000.0,
+		"Artillery_FieldGun12lb" => 2700.0,
+		"Artillery_Culverin" or "Artillery_NavalGun18lb" => 4100.0,
+		"Artillery_SiegeMortar" => 4500.0,
+		"Artillery_NavalGun24lb" => 5400.0,
+		"Artillery_DemiCannon" or "Artillery_FullCannon" or "Artillery_NavalGun32lb" => 7300.0,
+		_ => throw new InvalidOperationException($"No physical gunpowder charge has been specified for {name}.")
+	};
+
 	internal int EnsureEraDependencyCombatContentForTesting(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers)
 	{
@@ -124,9 +156,15 @@ public partial class CombatSeeder
 				.FirstOrDefault(x => x.Name == name && x.EditableItem.RevisionStatus == 4);
 			if (existing is not null)
 			{
+				if (existing.Type == type && existing.Description == description && existing.Definition == definition)
+				{
+					return existing;
+				}
+
 				existing.Type = type;
 				existing.Description = description;
 				existing.Definition = definition;
+				added++;
 				return existing;
 			}
 
@@ -688,21 +726,13 @@ public partial class CombatSeeder
 			return ammunition;
 		}
 
-		string ArtilleryProfileForPiece(string name) => name switch
-		{
-			var x when x.Contains("Swivel") || x.Contains("Falcon") || x.Contains("Peterero") || x.Contains("Coehorn") => "light",
-			var x when x.Contains("Demi") || x.Contains("Saker") || x.Contains("FieldGun3") || x.Contains("FieldGun6") || x.Contains("FieldMortar") => "medium",
-			_ => "heavy"
-		};
-
 		(string Profile, ArtilleryPayloadType Payload, int ProjectileCount, RangedScatterType? Scatter, double SpreadPenalty, string Damage) ArtilleryAmmunitionData(string name)
 		{
 			var payload = name.Contains("Grape") ? ArtilleryPayloadType.Grapeshot :
 				name.Contains("Case") ? ArtilleryPayloadType.CaseShot : name.Contains("Carcass") ? ArtilleryPayloadType.Carcass :
 				name.Contains("Shell") ? ArtilleryPayloadType.Shell : name.Contains("Stone") ? ArtilleryPayloadType.StoneShot :
 				name.Contains("Bar") ? ArtilleryPayloadType.BarShot : ArtilleryPayloadType.SolidShot;
-			var profile = name.Contains("1lb") || name.Contains("3lb") || name.Contains("6lb") || name.Contains("Light") ? "light" :
-				name.Contains("9lb") || name.Contains("12lb") || name.Contains("Medium") ? "medium" : "heavy";
+			var profile = ArtilleryAmmunitionProfileForTesting(name);
 			var count = name.Contains("Grapeshot_Light") ? 6 : name.Contains("Grapeshot_Medium") ? 9 :
 				name.Contains("Grapeshot_Heavy") ? 12 : payload == ArtilleryPayloadType.CaseShot ? 10 : 1;
 			var scatter = count > 1 ? RangedScatterType.Spread : (RangedScatterType?)null;
@@ -746,6 +776,21 @@ public partial class CombatSeeder
 			SetElement(definition, "Ignition", profile.Ignition);
 			SetElement(definition, "Rifled", profile.Rifled);
 			SetElement(definition, "RequiresRest", profile.Rested);
+			SetElement(definition, "LoadEmotePowder",
+				"@ pour|pours a small priming charge into the pan of $1, close|closes the pan cover, rest|rests the gun butt-first on the ground, and pour|pours $2 down the barrel.");
+			SetElement(definition, "ReadyEmote", profile.Ignition switch
+			{
+				"Matchlock" => "@ lower|lowers the serpentine of $1 toward its priming pan.",
+				"Wheellock" => "@ wind|winds the wheel-lock mechanism of $1 and set|sets its sear.",
+				_ => "@ pull|pulls the cock of $1 into the firing position."
+			});
+			SetElement(definition, "UnreadyEmote", profile.Ignition switch
+			{
+				"Matchlock" => "@ raise|raises the serpentine of $1 safely away from its priming pan.",
+				"Wheellock" => "@ ease|eases the wheel-lock mechanism of $1 out of the firing position.",
+				_ => "@ gently lower|lowers the cock of $1 out of the firing position."
+			});
+			SetElement(definition, "UnloadEmote", "@ empty|empties the barrel of $1 and recover|recovers $2.");
 			EnsureComponent("Musket", profile.Name, $"An {profile.Ignition.ToLowerInvariant()} {profile.Name.Replace('_', ' ').ToLowerInvariant()} profile", definition.ToString());
 		}
 
@@ -773,6 +818,12 @@ public partial class CombatSeeder
 			EnsureComponent("MusketCartridge", name, $"A multi-projectile musket cartridge for {bore:0.00} bore firearms", definition.ToString());
 		}
 
+		var artillerySpongeTagId = RequireTagId("Artillery Sponge");
+		var artilleryWaddingTagId = RequireTagId("Artillery Wadding");
+		var artilleryRammerTagId = RequireTagId("Artillery Rammer");
+		var artilleryVentToolTagId = RequireTagId("Artillery Vent Tool");
+		var artilleryLinstockTagId = RequireTagId("Artillery Linstock");
+		var artilleryFuseTagId = RequireTagId("Artillery Fuse");
 		foreach (var name in EarlyModernMilitaryCompletionComponentNames.Where(x => x.StartsWith("Artillery_")).ToList())
 		{
 			var gunnery = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Gunnery") ??
@@ -786,8 +837,20 @@ public partial class CombatSeeder
 			});
 			var mechanism = name == "Artillery_Peterero" ? "RemovableChamber" : "MuzzleLoading";
 			EnsureComponent("ArtilleryPiece", name, $"A crew-served {name.Replace('_', ' ').ToLowerInvariant()}",
-				new XElement("Definition", new XElement("RangedWeaponType", ranged.Id), new XElement("ArtilleryProfile", ArtilleryProfileForPiece(name)),
-					new XElement("LoadingMechanism", mechanism), new XElement("MinimumCrew", name.Contains("Swivel") ? 1 : 3), new XElement("RequiresEmplacement", true)).ToString());
+				new XElement("Definition",
+					new XElement("RangedWeaponType", ranged.Id),
+					new XElement("ArtilleryProfile", ArtilleryProfileForPieceForTesting(name)),
+					new XElement("LoadingMechanism", mechanism),
+					new XElement("MinimumCrew", name.Contains("Swivel") ? 1 : 3),
+					new XElement("RequiresEmplacement", true),
+					new XElement("PowderMass", ArtilleryPowderMassForPieceForTesting(name)),
+					new XElement("PrimingPowderMass", 25.0),
+					new XElement("SpongeTag", artillerySpongeTagId),
+					new XElement("WaddingTag", artilleryWaddingTagId),
+					new XElement("RammerTag", artilleryRammerTagId),
+					new XElement("VentToolTag", artilleryVentToolTagId),
+					new XElement("LinstockTag", artilleryLinstockTagId),
+					new XElement("FuseTag", artilleryFuseTagId)).ToString());
 		}
 
 		foreach (var name in EarlyModernMilitaryCompletionComponentNames.Where(x => x.StartsWith("ArtilleryShot_") || x.StartsWith("ArtilleryStone") || x.StartsWith("ArtilleryGrape") || x.StartsWith("ArtilleryCase") || x.StartsWith("ArtilleryShell")))

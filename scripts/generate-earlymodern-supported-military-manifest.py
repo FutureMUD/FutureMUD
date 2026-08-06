@@ -29,8 +29,8 @@ def profile_tags() -> dict[str, tuple[str, ...]]:
 		match = re.match(r"^\| `([^`]+)` \| (.+) \|$", line)
 		if match and match.group(1).startswith("EM-"):
 			profiles[match.group(1)] = leaf_tags(ticks(match.group(2)))
-	if len(profiles) != 29:
-		raise ValueError(f"Expected 29 Early Modern military tag profiles, found {len(profiles)}")
+	if len(profiles) != 32:
+		raise ValueError(f"Expected 32 Early Modern military tag profiles, found {len(profiles)}")
 	return profiles
 
 

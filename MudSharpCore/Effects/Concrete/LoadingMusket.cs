@@ -97,6 +97,9 @@ public class LoadingMusket : CharacterActionWithTarget
         LoadMode = loadMode;
         WhyCannotMoveEmoteString = "@ cannot move because #0 %0|are|is loading $1";
         ActionDescription = "loading $1";
+		LDescAddendum = "loading $1";
+		_blocks.Add("general");
+		_blocks.Add("movement");
     }
 
     protected override string SpecificEffectType => "LoadingMusket";

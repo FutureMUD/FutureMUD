@@ -146,6 +146,13 @@ public class RenaissanceMilitarySeederTests
 		CollectionAssert.Contains(specs["renaissance_military_caparison_japanese"].Components.ToArray(), "Wear_Caparison");
 		CollectionAssert.Contains(specs["renaissance_military_cartridge_bandolier"].Components.ToArray(),
 			"Container_CartridgeBandolier");
+		CollectionAssert.Contains(specs["renaissance_military_linstock_ash"].Tags.ToArray(),
+			"Functions / Tools / Artillery Tools / Artillery Linstock");
+		CollectionAssert.Contains(specs["renaissance_military_artillery_ramrod"].Tags.ToArray(),
+			"Functions / Tools / Artillery Tools / Artillery Rammer");
+		CollectionAssert.AreEquivalent(
+			new[] { "renaissance_military_linstock_ash", "renaissance_military_artillery_ramrod" },
+			ItemSeeder.RenaissanceBlackPowderSupportStableReferencesForTesting.ToArray());
 		Assert.IsTrue(specs["renaissance_military_matchlock_arquebus"].Skinnable);
 		Assert.IsFalse(specs["renaissance_military_paper_cartridge_055"].Skinnable);
 	}

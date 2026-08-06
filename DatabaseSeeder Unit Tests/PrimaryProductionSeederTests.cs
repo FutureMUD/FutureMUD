@@ -140,6 +140,26 @@ public class PrimaryProductionSeederTests
 	}
 
 	[TestMethod]
+	public void BlackPowderCraft_UsesMeasuredPhysicalInputsToolAndMaterialBackedCommodityOutput()
+	{
+		var craft = ItemSeeder.BlackPowderCraftSpecsForTesting.Single();
+
+		Assert.AreEqual("mill and corn black powder", craft.Name);
+		Assert.AreEqual("Powdermaking", craft.Trait);
+		Assert.AreEqual("Gunpowder Manufacture", craft.KnowledgeSubtype);
+		Assert.IsTrue(craft.Inputs.Any(x => x.Contains("750 grams of saltpeter", StringComparison.Ordinal) &&
+		                                      x.Contains("Saltpeter Commodity", StringComparison.Ordinal)));
+		Assert.IsTrue(craft.Inputs.Any(x => x.Contains("150 grams of charcoal", StringComparison.Ordinal) &&
+		                                      x.Contains("Charcoal Fuel Commodity", StringComparison.Ordinal)));
+		Assert.IsTrue(craft.Inputs.Any(x => x.Contains("100 grams of sulfur", StringComparison.Ordinal)));
+		Assert.IsTrue(craft.Inputs.Any(x => x.Contains("0.25 litres of Water", StringComparison.Ordinal)));
+		CollectionAssert.Contains(craft.Tools.ToArray(),
+			"TagTool - Held - an item with the Mortar and Pestle tag");
+		CollectionAssert.Contains(craft.Products.ToArray(),
+			"CommodityProduct - 900 grams of gunpowder commodity; tag Gunpowder Commodity");
+	}
+
+	[TestMethod]
 	public void PrimaryProductionContracts_ExposeToolsCraftsProjectsAndRepeatabilityMetadata()
 	{
 		var itemSpecs = ItemSeeder.PrimaryProductionItemSpecsForTesting.ToArray();

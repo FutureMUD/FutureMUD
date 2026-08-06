@@ -757,7 +757,7 @@ public partial class CombatSeeder
    <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
    <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
    <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
-   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnloadEmote><![CDATA[@ empty|empties the barrel of $1 and recover|recovers $2.]]></UnloadEmote>
    <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
    <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
    <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
@@ -806,7 +806,7 @@ public partial class CombatSeeder
    <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
    <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
    <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
-   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnloadEmote><![CDATA[@ empty|empties the barrel of $1 and recover|recovers $2.]]></UnloadEmote>
    <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
    <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
    <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
@@ -855,7 +855,7 @@ public partial class CombatSeeder
    <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
    <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
    <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
-   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnloadEmote><![CDATA[@ empty|empties the barrel of $1 and recover|recovers $2.]]></UnloadEmote>
    <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
    <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
    <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
@@ -959,7 +959,7 @@ public partial class CombatSeeder
    <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
    <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
    <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
-   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnloadEmote><![CDATA[@ empty|empties the barrel of $1 and recover|recovers $2.]]></UnloadEmote>
    <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
    <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
    <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
@@ -1008,7 +1008,7 @@ public partial class CombatSeeder
    <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
    <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
    <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
-   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnloadEmote><![CDATA[@ empty|empties the barrel of $1 and recover|recovers $2.]]></UnloadEmote>
    <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
    <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
    <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
@@ -1057,7 +1057,7 @@ public partial class CombatSeeder
    <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
    <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
    <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
-   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnloadEmote><![CDATA[@ empty|empties the barrel of $1 and recover|recovers $2.]]></UnloadEmote>
    <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
    <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
    <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
@@ -1106,7 +1106,7 @@ public partial class CombatSeeder
    <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
    <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
    <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
-   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnloadEmote><![CDATA[@ empty|empties the barrel of $1 and recover|recovers $2.]]></UnloadEmote>
    <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
    <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
    <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>

@@ -87,6 +87,8 @@ Current runtime corpse model types:
 | `StandardCorpseModel` | Decaying corpse model with terrain-based decay and decay-state descriptions | Seeded in stock human and animal content |
 | `NonDecayingCorpseModel` | Static corpse description model with no decay progression | Runtime support present; not broadly stock seeded |
 
+`StandardCorpseModel` sentence-cases its own description template before inserting character descriptions. This preserves the intended lowercase continuation at visual line wraps already present in those inserted descriptions.
+
 ### Severed bodyparts
 Severed parts are part of the same conceptual system as corpses. Wounds can reference severed bodyparts, corpse models can describe severed remains, and cleanup or restoration flows may need to manage them explicitly.
 

@@ -30,6 +30,7 @@ public interface ISurfaceLiquidState
 	ILiquid? LiquidRequired { get; }
 	double LiquidAmountConsumed { get; }
 	void AddLiquid(LiquidMixture liquid);
+	bool TryAddDriedLiquid(LiquidMixture liquid, bool roomSurface = false);
 	LiquidMixture? RemoveLiquidVolume(double volume);
 	bool CleanWithLiquid(LiquidMixture? liquid, double amount);
 	void Dry(double amount, bool roomSurface = false);

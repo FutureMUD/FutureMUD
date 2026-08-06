@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import argparse
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 
@@ -50,6 +50,61 @@ class Item:
 	tags: tuple[str, ...]
 	components: tuple[str, ...]
 	builder_notes: str
+
+
+BELT_CAPACITY_WEAR_COMPONENTS = {"Wear_Waist", "Wear_Sash", "Wear_Bandolier"}
+SIX_SLOT_BELT_WEAR_COMPONENTS = {"Wear_Sash", "Wear_Bandolier"}
+SIX_SLOT_BELT_ITEM_TERMS = {
+	"baldric",
+	"bandolier",
+	"crossbelt",
+	"harness",
+	"obi",
+	"sash",
+}
+BELT_LIKE_ITEM_TERMS = {
+	"baldric",
+	"bandolier",
+	"belt",
+	"crossbelt",
+	"cummerbund",
+	"girdle",
+	"harness",
+	"obi",
+	"sash",
+}
+
+
+def with_belt_capacity(item: Item) -> Item:
+	if not BELT_CAPACITY_WEAR_COMPONENTS.intersection(item.components):
+		return item
+
+	words = set(re.findall(r"[a-z0-9]+", f"{item.noun} {item.short_description}".casefold()))
+	if not BELT_LIKE_ITEM_TERMS.intersection(words):
+		return item
+
+	if SIX_SLOT_BELT_WEAR_COMPONENTS.intersection(item.components) or SIX_SLOT_BELT_ITEM_TERMS.intersection(words):
+		belt_component = "Belt_6"
+	elif any(tag.startswith("Functions / Military Equipment") for tag in item.tags):
+		belt_component = "Belt_4"
+	else:
+		belt_component = "Belt_2"
+
+	existing_belt_component = next(
+		(component for component in item.components if component.startswith("Belt_")),
+		None,
+	)
+	if existing_belt_component is None:
+		return replace(item, components=(*item.components, belt_component))
+	if existing_belt_component != "Belt_2" or existing_belt_component == belt_component:
+		return item
+	return replace(
+		item,
+		components=tuple(
+			belt_component if component == existing_belt_component else component
+			for component in item.components
+		),
+	)
 
 
 def read(path: Path) -> list[str]:
@@ -776,6 +831,10 @@ def generate() -> str:
 			early_modern_items[stable_reference] = renaissance_admissions[stable_reference]
 		else:
 			raise ValueError(f"No documented or live-source item definition for {stable_reference}")
+	early_modern_items = {
+		stable_reference: with_belt_capacity(item)
+		for stable_reference, item in early_modern_items.items()
+	}
 	if len(early_modern_items) != 1033:
 		raise ValueError(f"Unexpected Early Modern clothing catalogue count: {len(early_modern_items)}")
 	for item in early_modern_items.values():
@@ -789,9 +848,11 @@ def generate() -> str:
 	if len(renaissance_rows) != 471:
 		raise ValueError(f"Unexpected Renaissance clothing catalogue count: {len(renaissance_rows)}")
 	renaissance_items = {
-		stable_reference: early_modern_items.get(
-			stable_reference,
-			renaissance_item_from_catalogue_row(row)
+		stable_reference: with_belt_capacity(
+			early_modern_items.get(
+				stable_reference,
+				renaissance_item_from_catalogue_row(row)
+			)
 		)
 		for stable_reference, row in sorted(renaissance_rows.items())
 	}
@@ -828,7 +889,7 @@ def generate() -> str:
 		"antiquity_simple_linen_shendyt",
 		"antiquity_straight_linen_kalasiris",
 	}
-	antiquity_items = [antiquity_source_items[key] for key in sorted(antiquity_missing_refs)]
+	antiquity_items = [with_belt_capacity(antiquity_source_items[key]) for key in sorted(antiquity_missing_refs)]
 	for item in [*antiquity_items, *renaissance_items.values(), *early_modern_items.values()]:
 		description = authored_full_description(
 			item.short_description, item.noun, item.material, item.components, item.quality

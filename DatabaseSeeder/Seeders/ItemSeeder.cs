@@ -556,6 +556,36 @@ What is your choice? ", (context, answers) => true,
     /// <inheritdoc />
     public bool Enabled => true;
 
+	private static readonly string[] BeltCapacityWearComponents =
+	[
+		"Wear_Waist",
+		"Wear_Sash",
+		"Wear_Bandolier"
+	];
+
+	private static readonly string[] BeltLikeItemTerms =
+	[
+		"baldric",
+		"bandolier",
+		"belt",
+		"crossbelt",
+		"cummerbund",
+		"girdle",
+		"harness",
+		"obi",
+		"sash"
+	];
+
+	private static readonly string[] SixSlotBeltItemTerms =
+	[
+		"baldric",
+		"bandolier",
+		"crossbelt",
+		"harness",
+		"obi",
+		"sash"
+	];
+
 	GameItemProto? CreateItem(string stableReference,
 												  string noun,
 												  string sdesc,
@@ -578,7 +608,7 @@ What is your choice? ", (context, answers) => true,
 												  bool allowLegacyShortDescriptionMatch = true)
 	{
 		var tagList = BuildReworkItemTagList(tags);
-		var componentList = components as IReadOnlyCollection<string> ?? components.ToArray();
+		var componentList = EnsureBeltCapacityComponent(noun, sdesc, tagList, components);
 		var definition = BuildItemManifestDefinition(
 			stableReference,
 			noun,
@@ -792,6 +822,71 @@ What is your choice? ", (context, answers) => true,
 		RecordAppliedManifestEntry(manifestEntry, dbitem.Id, dbitem.RevisionNumber);
 		IncrementManifestResult(manifestEntry.Module, x => x with { Inserted = x.Inserted + 1 });
 		return dbitem;
+	}
+
+	private static IReadOnlyCollection<string> EnsureBeltCapacityComponent(
+		string noun,
+		string shortDescription,
+		IReadOnlyCollection<string> tags,
+		IEnumerable<string> components)
+	{
+		var componentList = components.ToArray();
+		if (!componentList.Any(x => BeltCapacityWearComponents.Contains(x, StringComparer.OrdinalIgnoreCase)) ||
+		    !IsBeltLikeItem(noun, shortDescription))
+		{
+			return componentList;
+		}
+
+		var beltComponent = componentList.Any(x =>
+			BeltCapacityWearComponents.Skip(1).Contains(x, StringComparer.OrdinalIgnoreCase)) ||
+			IsSixSlotBeltItem(noun, shortDescription)
+			? "Belt_6"
+			: tags.Any(x => x.StartsWith("Functions / Military Equipment", StringComparison.OrdinalIgnoreCase))
+				? "Belt_4"
+				: "Belt_2";
+		var existingBeltComponent = componentList.FirstOrDefault(x =>
+			x.StartsWith("Belt_", StringComparison.OrdinalIgnoreCase));
+		if (existingBeltComponent is null)
+		{
+			return componentList.Append(beltComponent).ToArray();
+		}
+
+		if (!existingBeltComponent.Equals("Belt_2", StringComparison.OrdinalIgnoreCase) ||
+		    existingBeltComponent.Equals(beltComponent, StringComparison.OrdinalIgnoreCase))
+		{
+			return componentList;
+		}
+
+		return componentList
+			.Select(x => x.Equals(existingBeltComponent, StringComparison.OrdinalIgnoreCase) ? beltComponent : x)
+			.ToArray();
+	}
+
+	internal static IReadOnlyCollection<string> EnsureBeltCapacityComponentsForTesting(
+		string noun,
+		string shortDescription,
+		IReadOnlyCollection<string> tags,
+		IEnumerable<string> components)
+	{
+		return EnsureBeltCapacityComponent(noun, shortDescription, tags, components);
+	}
+
+	private static bool IsBeltLikeItem(string noun, string shortDescription)
+	{
+		var words = GetItemWords(noun, shortDescription);
+		return BeltLikeItemTerms.Any(term => words.Contains(term, StringComparer.OrdinalIgnoreCase));
+	}
+
+	private static bool IsSixSlotBeltItem(string noun, string shortDescription)
+	{
+		var words = GetItemWords(noun, shortDescription);
+		return SixSlotBeltItemTerms.Any(term => words.Contains(term, StringComparer.OrdinalIgnoreCase));
+	}
+
+	private static string[] GetItemWords(string noun, string shortDescription)
+	{
+		return $"{noun} {shortDescription}"
+			.Split([' ', '-', '_'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 	}
 
 	private GameItemProto? FindItemByStableReference(string stableReference)

@@ -5847,7 +5847,8 @@ public partial class ItemSeeder
 						"Wear_Waist",
 						"Destroyable_Clothing",
 						"Insulation_Minor",
-						"Armour_LightClothing"
+						"Armour_LightClothing",
+						"Belt_4"
 					],
 					null,
 					null,
@@ -5878,7 +5879,8 @@ public partial class ItemSeeder
 						"Wear_Waist",
 						"Destroyable_Clothing",
 						"Insulation_Minor",
-						"Armour_LightClothing"
+						"Armour_LightClothing",
+						"Belt_2"
 					],
 					null,
 					null,
@@ -5910,7 +5912,8 @@ public partial class ItemSeeder
 						"Destroyable_Clothing",
 						"Insulation_Moderate",
 						"Armour_LightClothing",
-						"Variable_BasicColour"
+						"Variable_BasicColour",
+						"Belt_6"
 					],
 					null,
 					null,
@@ -8400,7 +8403,7 @@ public partial class ItemSeeder
 					false,
 					"leather",
 					[ "Era / Medieval Era", "Functions / Military Equipment", "Functions / Worn Items / Belts", "Market / Military Goods" ],
-					[ "Holdable", "Wear_Sash", "Belt_2", "Destroyable_Clothing" ],
+					[ "Holdable", "Wear_Sash", "Belt_6", "Destroyable_Clothing" ],
 					null,
 					null,
 					null,
@@ -8526,7 +8529,7 @@ public partial class ItemSeeder
 					false,
 					"cow leather",
 					[ "Era / Medieval Era", "Functions / Military Equipment", "Functions / Worn Items / Belts", "Market / Military Goods" ],
-					[ "Holdable", "Wear_Waist", "Belt_2", "Destroyable_Clothing" ],
+					[ "Holdable", "Wear_Waist", "Belt_4", "Destroyable_Clothing" ],
 					null,
 					null,
 					null,
@@ -8862,7 +8865,7 @@ public partial class ItemSeeder
 					false,
 					"leather",
 					[ "Era / Medieval Era", "Functions / Military Equipment", "Functions / Worn Items / Belts", "Market / Military Goods" ],
-					[ "Holdable", "Wear_Waist", "Belt_2", "Destroyable_Clothing" ],
+					[ "Holdable", "Wear_Waist", "Belt_4", "Destroyable_Clothing" ],
 					null,
 					null,
 					null,

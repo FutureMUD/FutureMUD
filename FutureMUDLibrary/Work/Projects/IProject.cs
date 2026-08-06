@@ -19,7 +19,7 @@ namespace MudSharp.Work.Projects
 		bool CanInitiateProject(ICharacter actor);
 		string WhyCannotInitiateProject(ICharacter actor);
 		string ShowToPlayer(ICharacter actor);
-		void InitiateProject(ICharacter actor);
+		IActiveProject InitiateProject(ICharacter actor);
 		bool CanCancelProject(ICharacter actor, IActiveProject local);
 		string WhyCannotCancelProject(ICharacter actor, IActiveProject local);
 		IActiveProject LoadActiveProject(Models.ActiveProject project);

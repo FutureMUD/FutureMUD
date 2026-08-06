@@ -13,20 +13,24 @@ public partial class Character
 		character.CurrentProjectLabourId = _currentProject.Labour?.Id;
 		character.CurrentProjectHours = CurrentProjectHours;
 		character.CurrentProjectProjectHours = CurrentProjectProjectHours;
+		character.ProjectLabourQueueLooping = ProjectQueueOwner._projectLabourQueueLooping;
 
 		FMDB.Context.ProjectLabourQueues.RemoveRange(character.ProjectLabourQueues);
 		foreach (var entry in ProjectQueueOwner._projectLabourQueue.OrderBy(x => x.QueueOrder))
 		{
-			if (entry.Project == null || entry.Labour == null)
-			{
-				continue;
-			}
-
 			character.ProjectLabourQueues.Add(new MudSharp.Models.ProjectLabourQueue
 			{
 				Character = character,
 				ActiveProjectId = entry.ProjectId,
+				ProjectId = entry.ProjectDefinitionId,
 				ProjectLabourRequirementId = entry.LabourId,
+				EntryType = (int)entry.EntryType,
+				LabourPreference = entry.LabourPreference,
+				CompletionMode = (int)entry.CompletionMode,
+				TargetHours = entry.TargetHours,
+				ElapsedHours = entry.ElapsedHours,
+				WatchedPhaseId = entry.WatchedPhaseId,
+				ClaimingCharacterInstanceId = entry.ClaimingCharacterInstanceId,
 				QueueOrder = entry.QueueOrder,
 				QueuedAt = entry.QueuedAt
 			});
@@ -54,6 +58,7 @@ public partial class Character
 			? currentProjectHours
 			: currentProjectProjectHours;
 		_projectLabourQueue.Clear();
+		_projectLabourQueueLooping = character.ProjectLabourQueueLooping;
 		foreach (var queue in character.ProjectLabourQueues.OrderBy(x => x.QueueOrder))
 		{
 			_projectLabourQueue.Add(new ProjectLabourQueueEntry(queue, Gameworld, this));
@@ -98,8 +103,10 @@ public partial class Character
 	private readonly List<IActiveProject> _personalProjects = new();
 	public IEnumerable<IPersonalProject> PersonalProjects => ProjectIdentityOwner._personalProjects.OfType<IPersonalProject>();
 	private readonly List<ProjectLabourQueueEntry> _projectLabourQueue = new();
+	private bool _projectLabourQueueLooping;
 	public IEnumerable<IProjectLabourQueueEntry> ProjectLabourQueue =>
 		ProjectQueueOwner._projectLabourQueue.OrderBy(x => x.QueueOrder);
+	public bool ProjectLabourQueueLooping => ProjectQueueOwner._projectLabourQueueLooping;
 
 	private (IActiveProject Project, IProjectLabourRequirement Labour) _currentProject;
 
@@ -176,25 +183,96 @@ public partial class Character
 
 	public IProjectLabourQueueEntry QueueProjectLabour(IActiveProject project, IProjectLabourRequirement labour)
 	{
-		var owner = ProjectQueueOwner;
-		var existing = owner._projectLabourQueue.FirstOrDefault(x => x.Project == project && x.Labour == labour);
-		if (existing != null)
-		{
-			return existing;
-		}
+		return QueueProjectLabour(project, labour.Name, ProjectLabourQueueCompletionMode.JoinOnce, 0.0);
+	}
 
-		var entry = new ProjectLabourQueueEntry(owner, project, labour, owner._projectLabourQueue.Count + 1);
+	public IProjectLabourQueueEntry QueueProjectLabour(IActiveProject project, string labourPreference,
+		ProjectLabourQueueCompletionMode completionMode, double targetHours)
+	{
+		var owner = ProjectQueueOwner;
+		var entry = new ProjectLabourQueueEntry(owner, project, null, owner._projectLabourQueue.Count + 1,
+			labourPreference, completionMode, targetHours);
 		owner._projectLabourQueue.Add(entry);
 		owner.Changed = true;
 		return entry;
 	}
 
+	public IProjectLabourQueueEntry QueueProjectStart(IProject project, string labourPreference,
+		ProjectLabourQueueCompletionMode completionMode, double targetHours)
+	{
+		var owner = ProjectQueueOwner;
+		var entry = new ProjectLabourQueueEntry(owner, project, labourPreference, completionMode, targetHours,
+			owner._projectLabourQueue.Count + 1);
+		owner._projectLabourQueue.Add(entry);
+		owner.Changed = true;
+		return entry;
+	}
+
+	public bool SetProjectLabourQueueMode(int position, ProjectLabourQueueCompletionMode completionMode,
+		double targetHours)
+	{
+		var entry = ProjectQueueOwner.QueueEntryAt(position);
+		if (entry is null || (completionMode == ProjectLabourQueueCompletionMode.Duration && targetHours <= 0.0))
+		{
+			return false;
+		}
+
+		entry.SetCompletionMode(completionMode, targetHours);
+		ProjectQueueOwner.Changed = true;
+		return true;
+	}
+
+	public bool SetProjectLabourQueueLabour(int position, string labourPreference)
+	{
+		var entry = ProjectQueueOwner.QueueEntryAt(position);
+		if (entry is null)
+		{
+			return false;
+		}
+
+		entry.SetLabourPreference(labourPreference);
+		ProjectQueueOwner.Changed = true;
+		return true;
+	}
+
+	public bool MoveProjectQueueEntry(int position, int newPosition)
+	{
+		var owner = ProjectQueueOwner;
+		var entries = owner._projectLabourQueue.OrderBy(x => x.QueueOrder).ToList();
+		if (position < 1 || position > entries.Count || newPosition < 1 || newPosition > entries.Count)
+		{
+			return false;
+		}
+
+		var entry = entries[position - 1];
+		entries.RemoveAt(position - 1);
+		entries.Insert(newPosition - 1, entry);
+		for (var i = 0; i < entries.Count; i++)
+		{
+			entries[i].QueueOrder = i + 1;
+		}
+
+		owner.Changed = true;
+		return true;
+	}
+
+	public bool SetProjectLabourQueueLooping(bool looping)
+	{
+		var owner = ProjectQueueOwner;
+		if (looping && owner._projectLabourQueue.Any(x => x.CompletionMode == ProjectLabourQueueCompletionMode.JoinOnce))
+		{
+			return false;
+		}
+
+		owner._projectLabourQueueLooping = looping;
+		owner.Changed = true;
+		return true;
+	}
+
 	public bool RemoveProjectQueueEntry(int position)
 	{
 		var owner = ProjectQueueOwner;
-		var entry = owner._projectLabourQueue
-			.OrderBy(x => x.QueueOrder)
-			.ElementAtOrDefault(position - 1);
+		var entry = owner.QueueEntryAt(position);
 		if (entry == null)
 		{
 			return false;
@@ -218,6 +296,80 @@ public partial class Character
 		owner.Changed = true;
 	}
 
+	public void HandleProjectQueuePhaseChange(IActiveProject project)
+	{
+		var owner = ProjectQueueOwner;
+		foreach (var entry in owner._projectLabourQueue
+			.Where(x => x.IsLinkedTo(project) && x.ClaimingCharacterInstanceId.HasValue)
+			.ToList())
+		{
+			if (entry.DurationReached || entry.CompletionMode == ProjectLabourQueueCompletionMode.PhaseCompletion)
+			{
+				owner.CompleteQueueCycle(entry);
+			}
+		}
+	}
+
+	public void HandleProjectQueueProjectEnd(IActiveProject project)
+	{
+		var owner = ProjectQueueOwner;
+		foreach (var entry in owner._projectLabourQueue.Where(x => x.IsLinkedTo(project)).ToList())
+		{
+			entry.ClearActiveProjectLink();
+			owner.CompleteQueueCycle(entry);
+		}
+	}
+
+	public void RecordQueuedProjectLabour(IActiveProject project, double fundedHours)
+	{
+		var entry = ProjectQueueOwner._projectLabourQueue
+			.FirstOrDefault(x => x.IsLinkedTo(project) && x.IsClaimedBy(this));
+		entry?.AddFundedHours(fundedHours);
+		if (entry is not null)
+		{
+			ProjectQueueOwner.Changed = true;
+		}
+	}
+
+	public bool CompleteQueuedDurationIfReached(IActiveProject project)
+	{
+		var owner = ProjectQueueOwner;
+		var entry = owner._projectLabourQueue
+			.FirstOrDefault(x => x.IsLinkedTo(project) && x.IsClaimedBy(this) && x.DurationReached);
+		if (entry is null)
+		{
+			return false;
+		}
+
+		owner.CompleteQueueCycle(entry);
+		return true;
+	}
+
+	public void CompleteQueuedProjectLabour(IActiveProject project)
+	{
+		var owner = ProjectQueueOwner;
+		var entry = owner._projectLabourQueue
+			.FirstOrDefault(x => x.IsLinkedTo(project) && x.IsClaimedBy(this));
+		if (entry is not null)
+		{
+			owner.CompleteQueueCycle(entry);
+		}
+	}
+
+	public void ReleaseQueuedProjectLabourClaim(IActiveProject project)
+	{
+		var owner = ProjectQueueOwner;
+		var entry = owner._projectLabourQueue
+			.FirstOrDefault(x => x.IsLinkedTo(project) && x.IsClaimedBy(this));
+		if (entry is null)
+		{
+			return;
+		}
+
+		entry.ReleaseClaim();
+		owner.Changed = true;
+	}
+
 	public bool TryJoinQueuedProjectLabour()
 	{
 		if (CurrentProject.Project != null)
@@ -226,26 +378,36 @@ public partial class Character
 		}
 
 		var owner = ProjectQueueOwner;
-		while (owner._projectLabourQueue.Any())
+		var claimed = owner._projectLabourQueue.FirstOrDefault(x => x.IsClaimedBy(this));
+		if (claimed is not null && owner.TryActivateQueueEntry(this, claimed))
 		{
-			var next = owner._projectLabourQueue.OrderBy(x => x.QueueOrder).First();
-			switch (next.StatusFor(this))
+			return true;
+		}
+		if (claimed is not null)
+		{
+			claimed.ReleaseClaim();
+			owner.Changed = true;
+		}
+
+		foreach (var next in owner._projectLabourQueue.OrderBy(x => x.QueueOrder).ToList())
+		{
+			if (next.ClaimingCharacterInstanceId.HasValue)
 			{
-				case ProjectLabourQueueStatus.Stale:
-					OutputHandler.Send(
-						$"Your queued project labour entry for {(next.Project?.Name ?? "an unknown project").ColourName()} / {(next.Labour?.Name ?? "an unknown labour requirement").ColourValue()} has become stale and has been removed.");
-					owner._projectLabourQueue.Remove(next);
-					owner.RenumberProjectQueue();
-					owner.Changed = true;
-					continue;
-				case ProjectLabourQueueStatus.Ready:
-					owner._projectLabourQueue.Remove(next);
-					owner.RenumberProjectQueue();
-					owner.Changed = true;
-					next.Project.TryJoinLabour(this, next.Labour, true, out _);
-					return true;
-				default:
-					return false;
+				continue;
+			}
+
+			if (next.StatusFor(this) == ProjectLabourQueueStatus.Stale)
+			{
+				OutputHandler.Send($"Your queued project labour entry for {(next.Project?.Name ?? "an unknown project").ColourName()} has become stale and has been removed.");
+				owner._projectLabourQueue.Remove(next);
+				owner.RenumberProjectQueue();
+				owner.Changed = true;
+				continue;
+			}
+
+			if (owner.TryActivateQueueEntry(this, next))
+			{
+				return true;
 			}
 		}
 
@@ -259,5 +421,48 @@ public partial class Character
 		{
 			entry.QueueOrder = ++i;
 		}
+	}
+
+	private ProjectLabourQueueEntry QueueEntryAt(int position)
+	{
+		return _projectLabourQueue.OrderBy(x => x.QueueOrder).ElementAtOrDefault(position - 1);
+	}
+
+	private bool TryActivateQueueEntry(ICharacter actor, ProjectLabourQueueEntry entry)
+	{
+		if (!entry.TryActivate(actor, out _, out var labour, out _))
+		{
+			return false;
+		}
+
+		if (entry.CompletionMode == ProjectLabourQueueCompletionMode.JoinOnce)
+		{
+			CompleteQueueCycle(entry);
+		}
+		else
+		{
+			entry.Claim(actor, labour!);
+			Changed = true;
+		}
+
+		return true;
+	}
+
+	private void CompleteQueueCycle(ProjectLabourQueueEntry entry)
+	{
+		if (_projectLabourQueueLooping && entry.CompletionMode != ProjectLabourQueueCompletionMode.JoinOnce)
+		{
+			_projectLabourQueue.Remove(entry);
+			entry.ResetForNextCycle();
+			entry.QueueOrder = _projectLabourQueue.Count;
+			_projectLabourQueue.Add(entry);
+			RenumberProjectQueue();
+			Changed = true;
+			return;
+		}
+
+		_projectLabourQueue.Remove(entry);
+		RenumberProjectQueue();
+		Changed = true;
 	}
 }

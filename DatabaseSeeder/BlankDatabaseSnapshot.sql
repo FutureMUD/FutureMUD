@@ -14850,3 +14850,36 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 
 -- Dump completed on 2026-07-22 20:54:44
 -- Total time: 0:0:0:1:986 (d:h:m:s:ms)
+
+-- EF-generated idempotent delta: 20260805124030_ProjectQueueSchedulingAndLaunchEntries
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260805124030_ProjectQueueSchedulingAndLaunchEntries') THEN
+
+        ALTER TABLE `projectlabourqueues` DROP FOREIGN KEY `FK_ProjectLabourQueues_ActiveProjects`;
+        ALTER TABLE `projectlabourqueues` DROP FOREIGN KEY `FK_ProjectLabourQueues_ProjectLabourRequirements`;
+        ALTER TABLE `projectlabourqueues` MODIFY COLUMN `ProjectLabourRequirementId` bigint(20) NULL;
+        ALTER TABLE `projectlabourqueues` MODIFY COLUMN `ActiveProjectId` bigint(20) NULL;
+        ALTER TABLE `projectlabourqueues` ADD `ClaimingCharacterInstanceId` bigint(20) NULL;
+        ALTER TABLE `projectlabourqueues` ADD `CompletionMode` int(11) NOT NULL DEFAULT 0;
+        ALTER TABLE `projectlabourqueues` ADD `ElapsedHours` double NOT NULL DEFAULT 0.0;
+        ALTER TABLE `projectlabourqueues` ADD `EntryType` int(11) NOT NULL DEFAULT 0;
+        ALTER TABLE `projectlabourqueues` ADD `LabourPreference` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+        ALTER TABLE `projectlabourqueues` ADD `ProjectId` bigint(20) NULL;
+        ALTER TABLE `projectlabourqueues` ADD `TargetHours` double NOT NULL DEFAULT 0.0;
+        ALTER TABLE `projectlabourqueues` ADD `WatchedPhaseId` bigint(20) NULL;
+        ALTER TABLE `characters` ADD `ProjectLabourQueueLooping` tinyint(1) NOT NULL DEFAULT FALSE;
+        CREATE INDEX `FK_ProjectLabourQueues_CharacterInstances_idx` ON `projectlabourqueues` (`ClaimingCharacterInstanceId`);
+        ALTER TABLE `projectlabourqueues` ADD CONSTRAINT `FK_ProjectLabourQueues_ActiveProjects` FOREIGN KEY (`ActiveProjectId`) REFERENCES `activeprojects` (`Id`) ON DELETE SET NULL;
+        ALTER TABLE `projectlabourqueues` ADD CONSTRAINT `FK_ProjectLabourQueues_CharacterInstances` FOREIGN KEY (`ClaimingCharacterInstanceId`) REFERENCES `characterinstances` (`Id`) ON DELETE SET NULL;
+        ALTER TABLE `projectlabourqueues` ADD CONSTRAINT `FK_ProjectLabourQueues_ProjectLabourRequirements` FOREIGN KEY (`ProjectLabourRequirementId`) REFERENCES `projectlabourrequirements` (`Id`) ON DELETE SET NULL;
+        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+        VALUES('20260805124030_ProjectQueueSchedulingAndLaunchEntries', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;

@@ -32,7 +32,8 @@ public class SimpleProjectLabour : ProjectLabourBase
             return totalRemaining;
         }
 
-        double hourlyProgress = active.Sum(x => HourlyProgress(x.Character, true));
+        double hourlyProgress = active.Sum(x =>
+            HourlyProgress(x.Character, true) * ProjectLabourContributionMeritService.MultiplierFor(x.Character, project));
         if (hourlyProgress <= 0.0)
         {
             return totalRemaining;

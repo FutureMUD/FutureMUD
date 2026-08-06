@@ -23,13 +23,14 @@ public class PersonalProject : Project
         };
     }
 
-    public override void InitiateProject(ICharacter actor)
-    {
+	public override IActiveProject InitiateProject(ICharacter actor)
+	{
         actor.OutputHandler.Send($"You begin the {Name.Colour(Telnet.Cyan)} personal project.");
         ActivePersonalProject project = new(this, actor);
-        Gameworld.Add(project);
-        actor.AddPersonalProject(project);
-    }
+		Gameworld.Add(project);
+		actor.AddPersonalProject(project);
+		return project;
+	}
 
     protected override string WhyCannotCancelProjectInvariant(ICharacter actor, IActiveProject local)
     {

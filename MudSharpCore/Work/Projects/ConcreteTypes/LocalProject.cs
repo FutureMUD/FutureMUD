@@ -58,13 +58,14 @@ public class LocalProject : Project
         return sb.ToString();
     }
 
-    public override void InitiateProject(ICharacter actor)
-    {
+	public override IActiveProject InitiateProject(ICharacter actor)
+	{
         actor.OutputHandler.Handle(
             new EmoteOutput(new Emote($"@ begin|begins the {Name.Colour(Telnet.Cyan)} local project.", actor, actor)));
-        ActiveLocalProject project = new(this, actor);
-        Gameworld.Add(project);
-    }
+		ActiveLocalProject project = new(this, actor);
+		Gameworld.Add(project);
+		return project;
+	}
 
     protected override string WhyCannotCancelProjectFallback(ICharacter actor, IActiveProject local)
     {

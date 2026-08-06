@@ -528,7 +528,7 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
     }
 
 
-    protected readonly List<(ICharacter Character, IProjectLabourRequirement Labour)> _activeLabour = new();
+	protected readonly List<(ICharacter Character, IProjectLabourRequirement Labour)> _activeLabour = new();
 
     public IEnumerable<(ICharacter Character, IProjectLabourRequirement Labour)> ActiveLabour
     {
@@ -692,16 +692,16 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
             .ThenBy(x => x.Id);
     }
 
-    protected void TryJoinQueuedProjectLabourFor(IEnumerable<ICharacter> characters)
-    {
-        foreach (var character in characters
-                     .Where(x => x != null)
-                     .DistinctBy(x => x.InstanceId)
-                     .Where(x => x.CurrentProject.Project == null))
-        {
-            character.TryJoinQueuedProjectLabour();
-        }
-    }
+	protected void TryJoinQueuedProjectLabourFor(IEnumerable<ICharacter> characters)
+	{
+		foreach (var character in characters
+				     .Where(x => x != null)
+				     .DistinctBy(x => x.InstanceId)
+				     .Where(x => x.CurrentProject.Project == null))
+		{
+			character.TryJoinQueuedProjectLabour();
+		}
+	}
 
     protected double? MandatoryMaterialCompletionRatio()
     {
@@ -823,59 +823,69 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
 
     public abstract string ProjectsCommandOutput(ICharacter actor);
 
-    public virtual void DoProjectsTick()
-    {
-        double multiplier = Gameworld.GetStaticDouble("ProjectProgressMultiplier");
-        var activeLabour = ActiveLabour.ToList();
-        foreach ((ICharacter Character, IProjectLabourRequirement Labour) labour in activeLabour)
-        {
-            if (!ActiveLabour.Any(x => x.Character == labour.Character && x.Labour == labour.Labour))
-            {
-                continue;
-            }
+	public virtual void DoProjectsTick()
+	{
+		var multiplier = Gameworld.GetStaticDouble("ProjectProgressMultiplier");
+		var activeLabour = ActiveLabour.ToList();
+		foreach ((ICharacter Character, IProjectLabourRequirement Labour) labour in activeLabour)
+		{
+			if (!ActiveLabour.Any(x => x.Character == labour.Character && x.Labour == labour.Labour))
+			{
+				continue;
+			}
 
-            var labourHours = 1.0 * multiplier;
-            if (!CanPayLabourContribution(labour.Labour, labourHours, out var paymentError))
-            {
-                labour.Character.OutputHandler.Send(
-                    $"You stop working on the {labour.Labour.Name.ColourName()} task of the {Name.ColourName()} project because {paymentError}.");
-                Leave(labour.Character);
-                continue;
-            }
+			var labourHours = 1.0 * multiplier;
+			if (!CanPayLabourContribution(labour.Labour, labourHours, out var paymentError))
+			{
+				labour.Character.OutputHandler.Send(
+					$"You stop working on the {labour.Labour.Name.ColourName()} task of the {Name.ColourName()} project because {paymentError}.");
+				labour.Character.ReleaseQueuedProjectLabourClaim(this);
+				Leave(labour.Character);
+				labour.Character.TryJoinQueuedProjectLabour();
+				continue;
+			}
 
-            var requiresPayment = LabourPaymentRateFor(labour.Labour) > 0.0M;
-            var payment = AwardLabourPayment(labour.Character, labour.Labour, labourHours);
-            if (requiresPayment && payment <= 0.0M)
-            {
-                labour.Character.OutputHandler.Send(
-                    $"You stop working on the {labour.Labour.Name.ColourName()} task of the {Name.ColourName()} project because the project could not reserve your labour payment.");
-                Leave(labour.Character);
-                continue;
-            }
+			var requiresPayment = LabourPaymentRateFor(labour.Labour) > 0.0M;
+			var payment = AwardLabourPayment(labour.Character, labour.Labour, labourHours);
+			if (requiresPayment && payment <= 0.0M)
+			{
+				labour.Character.OutputHandler.Send(
+					$"You stop working on the {labour.Labour.Name.ColourName()} task of the {Name.ColourName()} project because the project could not reserve your labour payment.");
+				labour.Character.ReleaseQueuedProjectLabourClaim(this);
+				Leave(labour.Character);
+				labour.Character.TryJoinQueuedProjectLabour();
+				continue;
+			}
 
-            var currentActiveLabour = ActiveLabour.ToList();
-            double supervisorMultiplier = currentActiveLabour.Aggregate(1.0,
-                (sum, y) => sum * y.Labour.ProgressMultiplierForOtherLabourPerPercentageComplete(labour.Labour, this));
-            var hourlyProgress = labour.Labour.HourlyProgress(labour.Character);
-            var progress = hourlyProgress * multiplier * supervisorMultiplier;
-            AgricultureProjectSkillTracker.RecordLabourTick(this, labour.Character, labour.Labour, labourHours,
-                progress);
-            if (FulfilLabour(labour.Labour, progress))
-            {
-                break;
-            }
-        }
+			var currentActiveLabour = ActiveLabour.ToList();
+			var supervisorMultiplier = currentActiveLabour.Aggregate(1.0,
+				(sum, y) => sum * y.Labour.ProgressMultiplierForOtherLabourPerPercentageComplete(labour.Labour, this));
+			var hourlyProgress = labour.Labour.HourlyProgress(labour.Character);
+			var progress = hourlyProgress * multiplier * supervisorMultiplier;
+			progress *= ProjectLabourContributionMeritService.MultiplierFor(labour.Character, this);
+			AgricultureProjectSkillTracker.RecordLabourTick(this, labour.Character, labour.Labour, labourHours,
+				progress);
+			labour.Character.RecordQueuedProjectLabour(this, labourHours);
+			labour.Character.CurrentProjectHours += labourHours;
+			labour.Character.CurrentProjectProjectHours += labourHours;
+			foreach (ILabourImpactActionAtTick impact in labour.Labour.LabourImpacts.OfType<ILabourImpactActionAtTick>())
+			{
+				impact.DoAction(labour.Character, this, labour.Labour);
+			}
 
-        foreach ((ICharacter Character, IProjectLabourRequirement Labour) labour in ActiveLabour)
-        {
-            labour.Character.CurrentProjectHours += 1.0 * multiplier;
-            labour.Character.CurrentProjectProjectHours += 1.0 * multiplier;
-            foreach (ILabourImpactActionAtTick impact in labour.Labour.LabourImpacts.OfType<ILabourImpactActionAtTick>())
-            {
-                impact.DoAction(labour.Character, this, labour.Labour);
-            }
-        }
-    }
+			if (FulfilLabour(labour.Labour, progress))
+			{
+				break;
+			}
+
+			if (labour.Character.CompleteQueuedDurationIfReached(this) &&
+				labour.Character.CurrentProject.Project == this)
+			{
+				Leave(labour.Character);
+				labour.Character.TryJoinQueuedProjectLabour();
+			}
+		}
+	}
 
     public virtual string ShowToPlayer(ICharacter actor)
     {

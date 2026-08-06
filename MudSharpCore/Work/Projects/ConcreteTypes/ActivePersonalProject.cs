@@ -27,17 +27,19 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
         protected init { }
     }
 
-    public override void Cancel(ICharacter actor)
-    {
-        actor.OutputHandler.Send($"You cancel your personal project '{Name.Colour(Telnet.Cyan)}'.");
-        ProjectDefinition.OnCancelProg?.Execute(this);
-        var workers = ClearWorkersFromProject();
+	public override void Cancel(ICharacter actor)
+	{
+		actor.OutputHandler.Send($"You cancel your personal project '{Name.Colour(Telnet.Cyan)}'.");
+		ProjectDefinition.OnCancelProg?.Execute(this);
+		var workers = ClearWorkersFromProject();
+		var queueParticipants = workers.Append(CharacterOwner).DistinctBy(x => x.InstanceId).ToList();
+		foreach (var worker in queueParticipants)
+		{
+			worker.HandleProjectQueueProjectEnd(this);
+		}
         CharacterOwner.RemovePersonalProject(this);
         Delete();
-        foreach (var worker in workers.DefaultIfEmpty(CharacterOwner))
-        {
-            worker.TryJoinQueuedProjectLabour();
-        }
+		TryJoinQueuedProjectLabourFor(queueParticipants);
     }
 
     private List<ICharacter> ClearWorkersFromProject()
@@ -84,6 +86,10 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
             if (nextPhase != null)
             {
                 ClearWorkersFromProject();
+				foreach (var worker in resumeList)
+				{
+					worker.HandleProjectQueuePhaseChange(this);
+				}
                 CurrentPhase = nextPhase;
                 _labourProgress.Clear();
                 _materialProgress.Clear();
@@ -98,6 +104,12 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
 
                 foreach (var worker in resumeList)
                 {
+					if (worker.ProjectLabourQueue.Any(x => x.Project == this &&
+							x.ClaimingCharacterInstanceId == worker.InstanceId))
+					{
+						continue;
+					}
+
                     var newLabour =
                         CurrentPhase.LabourRequirements
                                     .FirstOrDefault(x =>
@@ -117,10 +129,8 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
                     }
                 }
 
-                foreach (var worker in resumeList.Where(x => x.CurrentProject.Project == null).DefaultIfEmpty(CharacterOwner))
-                {
-                    worker.TryJoinQueuedProjectLabour();
-                }
+				TryJoinQueuedProjectLabourFor(resumeList.Where(x => x.CurrentProject.Project == null)
+					.DefaultIfEmpty(CharacterOwner));
 
                 return true;
             }
@@ -131,14 +141,16 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
                     $"Your {ProjectDefinition.Name.Colour(Telnet.Cyan)} personal project has been completed.");
             }
 
-            ProjectDefinition.OnFinishProg?.Execute(this);
-            var workers = ClearWorkersFromProject();
+			ProjectDefinition.OnFinishProg?.Execute(this);
+			var workers = ClearWorkersFromProject();
+			var queueParticipants = workers.Append(CharacterOwner).DistinctBy(x => x.InstanceId).ToList();
+			foreach (var worker in queueParticipants)
+			{
+				worker.HandleProjectQueueProjectEnd(this);
+			}
             CharacterOwner.RemovePersonalProject(this);
             Delete();
-            foreach (var worker in workers.DefaultIfEmpty(CharacterOwner))
-            {
-                worker.TryJoinQueuedProjectLabour();
-            }
+			TryJoinQueuedProjectLabourFor(queueParticipants);
             return true;
         }
 

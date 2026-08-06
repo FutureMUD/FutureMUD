@@ -467,6 +467,9 @@ namespace MudSharp.Database
                 entity.HasIndex(e => e.CharacterId)
                     .HasDatabaseName("FK_ProjectLabourQueues_Characters_idx");
 
+				entity.HasIndex(e => e.ClaimingCharacterInstanceId)
+					.HasDatabaseName("FK_ProjectLabourQueues_CharacterInstances_idx");
+
                 entity.HasIndex(e => new { e.CharacterId, e.QueueOrder })
                     .HasDatabaseName("IX_ProjectLabourQueues_Character_QueueOrder")
                     .IsUnique();
@@ -477,10 +480,22 @@ namespace MudSharp.Database
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.ActiveProjectId).HasColumnType("bigint(20)");
+				entity.Property(e => e.ProjectId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.ProjectLabourRequirementId).HasColumnType("bigint(20)");
+				entity.Property(e => e.ClaimingCharacterInstanceId).HasColumnType("bigint(20)");
+				entity.Property(e => e.WatchedPhaseId).HasColumnType("bigint(20)");
+				entity.Property(e => e.EntryType).HasColumnType("int(11)").HasDefaultValue(0);
+				entity.Property(e => e.CompletionMode).HasColumnType("int(11)").HasDefaultValue(0);
+				entity.Property(e => e.TargetHours).HasColumnType("double");
+				entity.Property(e => e.ElapsedHours).HasColumnType("double");
+
+				entity.Property(e => e.LabourPreference)
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 
                 entity.Property(e => e.QueueOrder).HasColumnType("int(11)");
 
@@ -489,7 +504,7 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.ActiveProject)
                     .WithMany(p => p.ProjectLabourQueues)
                     .HasForeignKey(d => d.ActiveProjectId)
-                    .OnDelete(DeleteBehavior.Cascade)
+					.OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK_ProjectLabourQueues_ActiveProjects");
 
                 entity.HasOne(d => d.Character)
@@ -501,8 +516,14 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.ProjectLabourRequirement)
                     .WithMany(p => p.ProjectLabourQueues)
                     .HasForeignKey(d => d.ProjectLabourRequirementId)
-                    .OnDelete(DeleteBehavior.Cascade)
+					.OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK_ProjectLabourQueues_ProjectLabourRequirements");
+
+				entity.HasOne(d => d.ClaimingCharacterInstance)
+					.WithMany(p => p.ClaimedProjectLabourQueues)
+					.HasForeignKey(d => d.ClaimingCharacterInstanceId)
+					.OnDelete(DeleteBehavior.SetNull)
+					.HasConstraintName("FK_ProjectLabourQueues_CharacterInstances");
             });
 
             modelBuilder.Entity<Ally>(entity =>

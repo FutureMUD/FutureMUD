@@ -8,6 +8,7 @@ public partial class CharacterInstance
 	public CharacterInstance()
 	{
 		AnchoredInstances = new HashSet<CharacterInstance>();
+		ClaimedProjectLabourQueues = new HashSet<ProjectLabourQueue>();
 	}
 
 	public long Id { get; set; }
@@ -51,4 +52,5 @@ public partial class CharacterInstance
 	public virtual Cell Location { get; set; }
 	public virtual CharacterInstance AnchorInstance { get; set; }
 	public virtual ICollection<CharacterInstance> AnchoredInstances { get; set; }
+	public virtual ICollection<ProjectLabourQueue> ClaimedProjectLabourQueues { get; set; }
 }

@@ -14,6 +14,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.NPC.AI;
 using MudSharp.PerceptionEngine.Handlers;
+using MudSharp.RPG.Merits;
 using MudSharp.Work.Projects;
 using MudSharp.Work.Projects.ConcreteTypes;
 using ActiveProjectModel = MudSharp.Models.ActiveProject;
@@ -141,6 +142,52 @@ public class ProjectWorkerAITests
 		Assert.AreEqual(0, project.FulfilLabourCalls);
 		Assert.IsNull(worker.Object.CurrentProject.Project);
 		Assert.IsFalse(ProjectPaymentService.OutstandingPayablesFor(worker.Object).Any());
+	}
+
+	[TestMethod]
+	public void ActiveProjectTick_DurationQueueAdvanceDoesNotCreditTheNextAssignment()
+	{
+		var currency = Currency(1, "crowns");
+		var gameworld = Gameworld(currency.Object);
+		gameworld.Setup(x => x.GetStaticDouble("ProjectProgressMultiplier")).Returns(0.25);
+		var labour = Labour(5, "Masonry");
+		var nextLabour = Labour(6, "Carpentry");
+		labour.Setup(x => x.HourlyProgress(It.IsAny<ICharacter>(), It.IsAny<bool>())).Returns(4.0);
+		labour.Setup(x => x.ProgressMultiplierForOtherLabourPerPercentageComplete(It.IsAny<IProjectLabourRequirement>(), It.IsAny<IActiveProject>()))
+			.Returns(1.0);
+		labour.SetupGet(x => x.LabourImpacts).Returns(Array.Empty<ILabourImpact>());
+		nextLabour.SetupGet(x => x.LabourImpacts).Returns(Array.Empty<ILabourImpact>());
+		var completionAction = new Mock<IProjectAction>();
+		var phase = new Mock<IProjectPhase>();
+		phase.SetupGet(x => x.LabourRequirements).Returns([labour.Object, nextLabour.Object]);
+		phase.SetupGet(x => x.MaterialRequirements).Returns(Array.Empty<IProjectMaterialRequirement>());
+		phase.SetupGet(x => x.CompletionActions).Returns([completionAction.Object]);
+		var definition = new Mock<IProject>();
+		definition.SetupGet(x => x.Id).Returns(100);
+		definition.SetupGet(x => x.RevisionNumber).Returns(1);
+		definition.SetupGet(x => x.Name).Returns("Duration Wall");
+		definition.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		definition.SetupGet(x => x.Phases).Returns([phase.Object]);
+		var worker = Character(20, "Worker", gameworld.Object);
+		worker.SetupGet(x => x.Merits).Returns(Array.Empty<IMerit>());
+		worker.SetupProperty(x => x.CurrentProjectHours);
+		worker.SetupProperty(x => x.CurrentProjectProjectHours);
+		var project = new TestActiveProject(definition.Object, worker.Object, 200);
+		project.Join(worker.Object, labour.Object);
+		worker.Setup(x => x.CompleteQueuedDurationIfReached(project)).Returns(true);
+		worker.Setup(x => x.TryJoinQueuedProjectLabour())
+			.Callback(() =>
+			{
+				worker.Object.CurrentProjectHours = 0.0;
+				worker.Object.CurrentProjectProjectHours = 0.0;
+				project.Join(worker.Object, nextLabour.Object);
+			});
+
+		project.DoProjectsTick();
+
+		Assert.AreSame(nextLabour.Object, worker.Object.CurrentProject.Labour);
+		Assert.AreEqual(0.0, worker.Object.CurrentProjectHours, 0.0001);
+		Assert.AreEqual(0.0, worker.Object.CurrentProjectProjectHours, 0.0001);
 	}
 
 	[TestMethod]

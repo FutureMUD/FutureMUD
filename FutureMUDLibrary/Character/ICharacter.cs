@@ -539,11 +539,26 @@ namespace MudSharp.Character
         double CurrentProjectHours { get; set; }
         double CurrentProjectProjectHours { get; set; }
         IEnumerable<IProjectLabourQueueEntry> ProjectLabourQueue { get; }
+		bool ProjectLabourQueueLooping { get; }
         void AddPersonalProject(IActiveProject project);
         void RemovePersonalProject(IActiveProject project);
         IProjectLabourQueueEntry QueueProjectLabour(IActiveProject project, IProjectLabourRequirement labour);
+		IProjectLabourQueueEntry QueueProjectLabour(IActiveProject project, string labourPreference,
+			ProjectLabourQueueCompletionMode completionMode, double targetHours);
+		IProjectLabourQueueEntry QueueProjectStart(IProject project, string labourPreference,
+			ProjectLabourQueueCompletionMode completionMode, double targetHours);
+		bool SetProjectLabourQueueMode(int position, ProjectLabourQueueCompletionMode completionMode, double targetHours);
+		bool SetProjectLabourQueueLabour(int position, string labourPreference);
+		bool MoveProjectQueueEntry(int position, int newPosition);
+		bool SetProjectLabourQueueLooping(bool looping);
         bool RemoveProjectQueueEntry(int position);
         void ClearProjectQueue();
+		void HandleProjectQueuePhaseChange(IActiveProject project);
+		void HandleProjectQueueProjectEnd(IActiveProject project);
+		void RecordQueuedProjectLabour(IActiveProject project, double fundedHours);
+		bool CompleteQueuedDurationIfReached(IActiveProject project);
+		void CompleteQueuedProjectLabour(IActiveProject project);
+		void ReleaseQueuedProjectLabourClaim(IActiveProject project);
         bool TryJoinQueuedProjectLabour();
     }
 }

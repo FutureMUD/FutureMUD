@@ -3176,6 +3176,11 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 			}
 			if (HasAnyEra(eras, "renaissance", "earlymodern"))
 			{
+				RunSeedStage("Creating Renaissance and Early Modern black-powder crafts", () =>
+				{
+					using var manifestModule = UseManifestModule("crafts", "renaissance", "earlymodern");
+					SeedBlackPowderCrafts();
+				});
 				RunSeedStage("Creating Renaissance and Early Modern jewellery and door crafts", () =>
 				{
 					using var manifestModule = UseManifestModule("crafts", "renaissance", "earlymodern");
@@ -3196,6 +3201,37 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		{
 			_deferCraftProductSave = previousDeferCraftProductSave;
 			_context!.ChangeTracker.AutoDetectChangesEnabled = previousAutoDetectChanges;
+			_deferredCraftPersistenceCount = 0;
+		}
+	}
+
+	private void SeedBlackPowderCraftsOnly()
+	{
+		if (_questionAnswers?.TryGetValue("eras", out var eras) != true || string.IsNullOrWhiteSpace(eras) ||
+		    !HasAnyEra(eras, "renaissance", "earlymodern"))
+		{
+			return;
+		}
+
+		_nextCraftId = _context!.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max() + 1;
+		var previousDeferCraftProductSave = _deferCraftProductSave;
+		var previousAutoDetectChanges = _context.ChangeTracker.AutoDetectChangesEnabled;
+		_deferCraftProductSave = true;
+		_context.ChangeTracker.AutoDetectChangesEnabled = false;
+		BeginDeferredCraftPersistence();
+		try
+		{
+			RunSeedStage("Reconciling the physical black-powder craft", () =>
+			{
+				using var manifestModule = UseManifestModule("crafts", "renaissance", "earlymodern");
+				SeedBlackPowderCrafts();
+			});
+			FlushDeferredCraftPersistence();
+		}
+		finally
+		{
+			_deferCraftProductSave = previousDeferCraftProductSave;
+			_context.ChangeTracker.AutoDetectChangesEnabled = previousAutoDetectChanges;
 			_deferredCraftPersistenceCount = 0;
 		}
 	}

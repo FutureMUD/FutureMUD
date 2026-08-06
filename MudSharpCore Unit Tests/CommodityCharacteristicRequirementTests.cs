@@ -301,6 +301,15 @@ public class CommodityCharacteristicRequirementTests
 	}
 
 	[TestMethod]
+	public void CommodityComponent_TagDescription_DoesNotRepeatMaterialName()
+	{
+		Assert.AreEqual("gunpowder commodities",
+			CommodityGameItemComponent.DescribeTaggedCommodity("gunpowder", "Gunpowder Commodity"));
+		Assert.AreEqual("linen fabric bolts",
+			CommodityGameItemComponent.DescribeTaggedCommodity("linen", "Fabric Bolt"));
+	}
+
+	[TestMethod]
 	public void CommodityComponent_SetRemoveAndClear_ValidateDefinitionValues()
 	{
 		var colour = new TestCharacteristicDefinition(1, "colour");

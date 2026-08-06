@@ -796,6 +796,16 @@ public class UsefulSeederItemPackageTests
 		context.Tags.Add(CreateTag(11, "Aluminothermic Welding Portion"));
 		context.SaveChanges();
 
+		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, UsefulSeeder.ClassifyTagPackagePresence(context));
+
+		var nextId = 12L;
+		foreach (var marker in UsefulSeeder.StockTagPackageMarkersForTesting
+			         .Where(x => !x.Equals("Aluminothermic Welding Portion", StringComparison.OrdinalIgnoreCase)))
+		{
+			context.Tags.Add(CreateTag(nextId++, marker));
+		}
+		context.SaveChanges();
+
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyTagPackagePresence(context));
 	}
 

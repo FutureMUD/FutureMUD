@@ -186,6 +186,9 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Ignition Source", "Material Functions");
             AddTag(context, "Fire", "Material Functions");
             AddTag(context, "Musket Wadding", "Material Functions");
+			AddTag(context, "Artillery Wadding", "Material Functions");
+			AddTag(context, "Artillery Fuse", "Material Functions");
+			AddTag(context, "Match Cord", "Material Functions");
             AddTag(context, "Textile Commodity", "Material Functions");
             AddTag(context, "Raw Textile Fibre", "Textile Commodity");
             AddTag(context, "Prepared Textile Fibre", "Textile Commodity");
@@ -258,6 +261,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Saltpeter Deposit", "Visible Resource Deposit");
             AddTag(context, "Vitriol Copperas Deposit", "Visible Resource Deposit");
             AddTag(context, "Primary Production Commodity", "Primary Production");
+			AddTag(context, "Gunpowder Commodity", "Primary Production Commodity");
             AddTag(context, "Raw Ore Commodity", "Primary Production Commodity");
             AddTag(context, "Low Grade Ore Commodity", "Raw Ore Commodity");
             AddTag(context, "Medium Grade Ore Commodity", "Raw Ore Commodity");
@@ -427,6 +431,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Sulfur Deposit Resource", "Sulfur Resource");
 
             AddTag(context, "Primary Production Commodity", "Primary Production");
+			AddTag(context, "Gunpowder Commodity", "Primary Production Commodity");
             AddTag(context, "Sample Ore Commodity", "Primary Production Commodity");
             AddTag(context, "Raw Ore Commodity", "Primary Production Commodity");
             AddTag(context, "Broken Ore Commodity", "Primary Production Commodity");
@@ -685,6 +690,15 @@ namespace DatabaseSeeder.Seeders
 
             // Tools
             AddTag(context, "Tools", "Functions");
+			AddTag(context, "Firearm Tools", "Tools");
+			AddTag(context, "Musket Ramrod", "Firearm Tools");
+			AddTag(context, "Musket Cleaning Rod", "Firearm Tools");
+			AddTag(context, "Musket Unjamming Tool", "Firearm Tools");
+			AddTag(context, "Artillery Tools", "Tools");
+			AddTag(context, "Artillery Sponge", "Artillery Tools");
+			AddTag(context, "Artillery Rammer", "Artillery Tools");
+			AddTag(context, "Artillery Vent Tool", "Artillery Tools");
+			AddTag(context, "Artillery Linstock", "Artillery Tools");
             AddTag(context, "Timekeeping Tools", "Tools");
 
             AddTag(context, "Mining Tool", "Tools");
@@ -2053,7 +2067,32 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Mould Brick", "Consumables");
             #endregion
 
-            context.SaveChanges();
+			context.SaveChanges();
+
+			void SetStaticId(string settingName, long id)
+			{
+				var setting = context.StaticConfigurations.Find(settingName);
+				if (setting is null)
+				{
+					setting = new StaticConfiguration { SettingName = settingName };
+					context.StaticConfigurations.Add(setting);
+				}
+				setting.Definition = id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+			}
+
+			SetStaticId("MusketRamrodTag", _tags["Musket Ramrod"].Id);
+			SetStaticId("MusketCleaningRamrodTag", _tags["Musket Cleaning Rod"].Id);
+			SetStaticId("MusketUnjammingToolTag", _tags["Musket Unjamming Tool"].Id);
+			SetStaticId("MusketMatchCordTag", _tags["Match Cord"].Id);
+			SetStaticId("MusketIgnitionSourceTag", _tags["Ignition Source"].Id);
+			SetStaticId("WadItemTagId", _tags["Musket Wadding"].Id);
+			var gunpowder = context.Materials.AsEnumerable()
+				.FirstOrDefault(x => x.Name.Equals("gunpowder", StringComparison.OrdinalIgnoreCase));
+			if (gunpowder is not null)
+			{
+				SetStaticId("GunpowderMaterialId", gunpowder.Id);
+			}
+			context.SaveChanges();
         }
 
         internal void SeedTagsForTesting(FuturemudDatabaseContext context)

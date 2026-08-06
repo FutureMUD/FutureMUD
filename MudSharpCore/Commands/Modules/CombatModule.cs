@@ -2441,7 +2441,7 @@ The syntax is as follows:
 
 	#3load#0 - loads your first available ranged weapon
 	#3load <item>#0 - loads a specific ranged weapon
-	#3load <item> blank|noclean|tap|noclean#0 - special loading modes for some types of weapons", AutoHelp.HelpArg)]
+	#3load <item> blank|noclean|tap|tapnoclean#0 - special loading modes for some types of weapons", AutoHelp.HelpArg)]
     protected static void Load(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -2944,6 +2944,8 @@ The syntax is:
             {
                 aiming.Aim.Weapon.Fire(actor, null, Outcome.NotTested, Outcome.NotTested,
                     new OpposedOutcome(Outcome.NotTested, Outcome.NotTested), null, null, null);
+				actor.RemoveEffect(aiming, true);
+				actor.Aim = null;
                 return;
             }
 
@@ -3040,8 +3042,8 @@ The syntax is:
         {
             case "status":
                 actor.Send($"{item.HowSeen(actor, true)} is {(piece.IsEmplaced ? "emplaced" : "limbered").ColourValue()}, " +
-                           $"{(piece.IsLoaded ? "loaded" : "empty").ColourValue()}, " +
-                           $"{(piece.IsReadied ? "primed" : "unprimed").ColourValue()}, with crew: " +
+						   $"at the {piece.LoadingStage.DescribeEnum().ColourValue()} loading stage with {piece.AllContainedItems.Count().ToString(actor).ColourValue()} physical load item(s), " +
+						   $"{(piece.IsReadied ? "ignition ready" : "ignition not ready").ColourValue()}, with crew: " +
                            piece.Crew.Select(x => x.HowSeen(actor)).ListToString() + ".");
                 return;
             case "join":
@@ -3067,7 +3069,12 @@ The syntax is:
                 piece.Emplace(actor);
 				actor.Send($"You emplace {item.HowSeen(actor)}.");
                 return;
-            case "limber":
+			case "limber":
+				if (piece.LoadingStage != ArtilleryLoadingStage.Empty || piece.AllContainedItems.Any())
+				{
+					actor.Send("You must unload every physical charge item before limbering that artillery piece.");
+					return;
+				}
 				if (!piece.CanPerform(actor, ArtilleryCrewAction.Command, out var limberReason))
 				{
 					actor.Send(limberReason);
@@ -3139,12 +3146,24 @@ The syntax is:
 					actor.Send("You must specify a removable artillery chamber and compatible artillery ammunition.");
 					return;
 				}
-				if (!chamber.TryLoad(ammunition))
+				var loadedAmmunitionItem = ammunitionItem;
+				if (ammunitionItem.GetItemType<IStackable>() is { Quantity: > 1 } stack)
 				{
+					loadedAmmunitionItem = stack.Split(1);
+					loadedAmmunitionItem.Login();
+					loadedAmmunitionItem.HandleEvent(EventType.ItemFinishedLoading, loadedAmmunitionItem);
+				}
+				else
+				{
+					actor.Body.Take(ammunitionItem);
+				}
+				if (!chamber.TryLoad(loadedAmmunitionItem.GetItemType<IArtilleryAmmunition>()))
+				{
+					loadedAmmunitionItem.InsertAtSource(actor);
 					actor.Send("That chamber is already loaded or is incompatible with that artillery ammunition.");
 					return;
 				}
-				actor.Send($"You preload {chamberItem.HowSeen(actor)} with {ammunitionItem.HowSeen(actor)}.");
+				actor.Send($"You preload {chamberItem.HowSeen(actor)} with {loadedAmmunitionItem.HowSeen(actor)}.");
 				return;
 			}
 			case "chamberunload":

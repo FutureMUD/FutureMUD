@@ -348,7 +348,7 @@ The foundational gap patch now supplies exact type metal, printing ink, glass bl
 
 ### Still required or subject to audit
 
-- Blackpowder, saltpetre/nitre, brimstone/sulfur, charcoal grades, lead shot, cartridge paper, gunflints, and production/safety chains.
+- Blackpowder ingredient refining and grading beyond the stock physical commodity craft, lead-shot and cartridge-paper production, gunflint shaping, and expanded production/safety chains.
 - Gunsmithing: barrels, locks, springs, screws, stock blanks, actual firearm components, repair tools, and ammunition manufacture.
 - Printing: movable type item stock, composing/locking materials, press hardware, paper reams, and functional publishing crafts using the live type-metal and printing-ink materials.
 - Glass and optics: clear/lens/mirror glass, telescope and microscope lens systems, polishing powders, and optician crafts.

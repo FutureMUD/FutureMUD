@@ -18,11 +18,29 @@ namespace MudSharp.GameItems.Prototypes;
 
 public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWeaponPrototype, IBeltPrototype, IMeleeWeaponPrototype, IEmplaceableRangedWeaponPrototype, IConditionDegradingComponentPrototype
 {
-    public static ISolid GunpowderMaterial => Futuremud.Games.First().Materials.Get(Futuremud.Games.First().GetStaticLong("GunpowderMaterialId"));
+	public const string GunpowderMaterialName = "gunpowder";
+	public const string WadTagName = "Musket Wadding";
+	public const string RamrodTagName = "Musket Ramrod";
+	public const string CleaningRodTagName = "Musket Cleaning Rod";
+	public const string UnjammingToolTagName = "Musket Unjamming Tool";
+	public const string MatchCordTagName = "Match Cord";
+	public const string IgnitionSourceTagName = "Ignition Source";
 
-    public static ITag WadItemTag => Futuremud.Games.First().Tags.Get(Futuremud.Games.First().GetStaticLong("WadItemTagId"));
-    public static ITag RamrodTag => Futuremud.Games.First().Tags.Get(Futuremud.Games.First().GetStaticLong("MusketRamrodTag"));
-    public static ITag MusketUnjammingToolTag => Futuremud.Games.First().Tags.Get(Futuremud.Games.First().GetStaticLong("MusketUnjammingToolTag"));
+	public ISolid? GunpowderMaterial =>
+		Gameworld.Materials.Get(Gameworld.GetStaticLong("GunpowderMaterialId")) ??
+		Gameworld.Materials.GetByName(GunpowderMaterialName) as ISolid;
+
+	public ITag? WadItemTag => ResolveTag("WadItemTagId", WadTagName);
+	public ITag? RamrodTag => ResolveTag("MusketRamrodTag", RamrodTagName);
+	public ITag? CleaningRodTag => ResolveTag("MusketCleaningRamrodTag", CleaningRodTagName);
+	public ITag? MusketUnjammingToolTag => ResolveTag("MusketUnjammingToolTag", UnjammingToolTagName);
+	public ITag? MatchCordTag => ResolveTag("MusketMatchCordTag", MatchCordTagName);
+	public ITag? IgnitionSourceTag => ResolveTag("MusketIgnitionSourceTag", IgnitionSourceTagName);
+
+	private ITag? ResolveTag(string setting, string fallbackName)
+	{
+		return Gameworld.Tags.Get(Gameworld.GetStaticLong(setting)) ?? Gameworld.Tags.GetByName(fallbackName);
+	}
 
     public override string TypeDescription => "Musket";
 
@@ -36,10 +54,10 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
         LoadEmoteCartridge = "$0 bite|bites open $2 and pour|pours a small amount of the charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and shove|shoves the cartridge down into the barrel.";
         LoadEmotePowder = "$0 pour|pours a small amount of charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and pour|pours $2 down the barrel.";
         LoadEmoteClean = "$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.";
-        LoadEmoteRamrod = "$0 push|pushes the ram-end of the $1 into the barrel of $1, tamping down on the loaded shot.";
+        LoadEmoteRamrod = "$0 push|pushes the ram-end of $2 into the barrel of $1, tamping down on the loaded shot.";
         LoadEmoteTap = "$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.";
         ReadyEmote = "$0 pull|pulls the cock into the fire position on $1.";
-        UnloadEmote = "$0 empty|empties and discard|discards the contents of the barrel of $1.";
+		UnloadEmote = "@ empty|empties the barrel of $1 and recover|recovers $2.";
         UnreadyEmote = "$0 gently lower|lowers the cock of $1 out of the firing position.";
         StartUnjamEmote = "$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.";
         FinishUnjamEmote = "$0 successfully dislodge|dislodges the blockage in the barrel of $1, and discard|discards the debris.";
@@ -187,11 +205,14 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
 
     private void CalculateLoadTemplates()
     {
+		bool HasTag(IGameItem item, ITag? tag) => tag is not null && item.IsA(tag);
+
         LoadTemplateClean = new InventoryPlanTemplate(Gameworld, new[]
             {
                 new InventoryPlanPhaseTemplate(1, new[]
                 {
-                    InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, Gameworld.GetStaticLong("MusketCleaningRamrodTag"), 0, null, null, 1, originalReference: "ramrod"),
+					InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+						item => HasTag(item, CleaningRodTag), null, 1, originalReference: "ramrod"),
                     InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
                         item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null, originalReference: "musket")
                 })
@@ -200,18 +221,23 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
         {
                 new InventoryPlanPhaseTemplate(1, new[]
                 {
-                    new InventoryPlanActionConsumeCommodity(Gameworld, PowderVolumePerShot, GunpowderMaterial, 0, null, null)
-                    {
-                        OriginalReference = "gunpowder"
-                    },
+					new InventoryPlanActionHold(Gameworld, 0, 0, item =>
+						item.GetItemType<ICommodity>() is { } commodity &&
+						commodity.Material == GunpowderMaterial &&
+						commodity.Weight >= PowderVolumePerShot, null, 0)
+					{
+						OriginalReference = "gunpowder",
+						QuantityIsOptional = true,
+						ItemsAlreadyInPlaceOverrideFitnessScore = true
+					},
                     InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
                         item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null, originalReference: "musket")
                 })
             });
-        LoadTemplateLoadBall = new InventoryPlanTemplate(Gameworld, new[]
-        {
-                new InventoryPlanPhaseTemplate(1, new[]
-                {
+		LoadTemplateLoadBall = new InventoryPlanTemplate(Gameworld, new[]
+		{
+			new InventoryPlanPhaseTemplate(1, new[]
+			{
                     InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0, item =>
                     {
                         MusketBallGameItemComponent ball = item.GetItemType<MusketBallGameItemComponent>();
@@ -226,7 +252,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
                         }
 
                         return true;
-                    }, null, 1, originalReference: "ball", fitnessscorer: item =>
+                    }, null, 0, originalReference: "ball", fitnessscorer: item =>
                     {
                         MusketBallGameItemComponent ball = item.GetItemType<MusketBallGameItemComponent>();
                         if (ball is null)
@@ -234,12 +260,24 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
                             return 0.0;
                         }
 
-                        return int.MaxValue - BarrelBore + ball.BulletBore;
-                    }),
-                    InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+						return int.MaxValue - BarrelBore + ball.BulletBore;
+					}),
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+					item => HasTag(item, WadItemTag), null, 0, originalReference: "wad"),
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.InRoom, 0, 0,
                         item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null, originalReference: "musket")
-                })
-            });
+			})
+		});
+		LoadTemplateLoadWad = new InventoryPlanTemplate(Gameworld, new[]
+		{
+			new InventoryPlanPhaseTemplate(1, new[]
+			{
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+					item => HasTag(item, WadItemTag), null, 0, originalReference: "wad"),
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+					item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null, originalReference: "musket")
+			})
+		});
         LoadTemplateLoadCartridge = new InventoryPlanTemplate(Gameworld, new[]
         {
                 new InventoryPlanPhaseTemplate(1, new[]
@@ -247,7 +285,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
                     InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0, item =>
                     {
                         return IsCompatibleCartridgeForLoading(item.GetItemType<IMusketCartridge>());
-                    }, null, 1, originalReference: "cartridge", fitnessscorer: item =>
+                    }, null, 0, originalReference: "cartridge", fitnessscorer: item =>
                     {
                         IMusketCartridge cartridge = item.GetItemType<IMusketCartridge>();
                         if (cartridge is null)
@@ -265,7 +303,8 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
         {
                 new InventoryPlanPhaseTemplate(1, new[]
                 {
-                    InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, Gameworld.GetStaticLong("MusketRamrodTag"), 0, null, null, 1, originalReference: "ramrod"),
+					InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+						item => HasTag(item, RamrodTag), null, 1, originalReference: "ramrod"),
                     InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
                         item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null, originalReference: "musket")
                 })
@@ -282,11 +321,22 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
         {
             new InventoryPlanPhaseTemplate(1, new[]
             {
-                InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, Gameworld.GetStaticLong("MusketUnjammingToolTag"), 0, null, null, 1, originalReference: "ramrod"),
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+					item => HasTag(item, MusketUnjammingToolTag), null, 1, originalReference: "ramrod"),
                 InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
                     item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null, originalReference: "musket")
             })
         });
+		MatchCordTemplate = new InventoryPlanTemplate(Gameworld, new[]
+		{
+			new InventoryPlanPhaseTemplate(1, new[]
+			{
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+					item => HasTag(item, MatchCordTag), null, 0, originalReference: "matchcord"),
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+					item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null, originalReference: "musket")
+			})
+		});
     }
 
     internal bool IsCompatibleCartridgeForLoading(IMusketCartridge? cartridge)
@@ -326,10 +376,12 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
     public IInventoryPlanTemplate LoadTemplateClean { get; set; }
     public IInventoryPlanTemplate LoadTemplateLoadPowder { get; set; }
     public IInventoryPlanTemplate LoadTemplateLoadBall { get; set; }
+	public IInventoryPlanTemplate LoadTemplateLoadWad { get; set; }
     public IInventoryPlanTemplate LoadTemplateLoadCartridge { get; set; }
     public IInventoryPlanTemplate LoadTemplateLoadRamrod { get; set; }
     public IInventoryPlanTemplate LoadTemplateFinishLoading { get; set; }
     public IInventoryPlanTemplate UnjamTemplate { get; set; }
+	public IInventoryPlanTemplate MatchCordTemplate { get; set; }
 
     public string LoadEmoteClean { get; set; }
     public string LoadEmoteCartridge { get; set; }
@@ -385,25 +437,27 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
 
     #endregion
 
-    public const string BuildingHelpText = @"You can use the following options:
+    public const string BuildingHelpText = @"A musket is a physical muzzle-loading firearm. Loose loads consume a measured gunpowder commodity, tagged wadding, and a typed musket ball; cartridges remain physical packaged ammunition. Cleaning, ramming, unjamming, match cord, and ignition stones likewise use real items.
 
-	#3name <name>#0 - sets the name of the component
-	#3desc <desc>#0 - sets the description of the component
-	#3ranged <ranged type>#0 - sets the ranged weapon type for this component. See #3show ranges#0 for a list.
-	#3ejectonfire#0 - toggles whether casings are ejected on fire or on ready
-	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
-	#3canwield none#0 - removes a canwield prog
-	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
-	#3whycantwield none#0 - clears the whycantwield prog
-	#3condition <option>#0 - configures optional condition degradation
-	#3sighttag <tag>|none#0 - sets the tag accepted by the reserved sight attachment slot
-	#3load <emote>#0 - sets the emote for loading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
-	#3unload <emote>#0 - sets the emote for unloading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
-	#3ready <emote>#0 - sets the emote for readying this gun. $0 is the loader, $1 is the gun.
-	#3unready <emote>#0 - sets the emote for unreadying this gun. $0 is the loader, $1 is the gun and $2 is the chambered round.
-	#3unreadyempty <emote>#0 - sets the emote for unreadying this gun when there is no chambered round. $0 is the loader, $1 is the gun.
-	#3fire <emote>#0 - sets the emote for firing the gun. $0 is the firer, $1 is the target, $2 is the gun.
-	#3fireempty <emote>#0 - sets the emote for firing the gun when it is empty. $0 is the firer, $1 is the target, $2 is the gun.";
+The functional tool tags are installed by the Useful Seeder. This component controls weapon profile, charge, bore, ignition family, attachment slots, condition, and the echoes for each drill step.
+
+	#3ranged <ranged type>#0 - sets the ranged weapon type; see #3show ranges#0
+	#3melee <melee type>#0 - sets the weapon's melee profile
+	#3powder <mass>#0 - sets the required gunpowder commodity mass per shot
+	#3bore <number>#0 - sets the largest accepted ball or cartridge bore
+	#3ignition <family>#0 - sets the lock family
+	#3rifled#0 - toggles rifling
+	#3rest#0 - toggles whether the weapon must be emplaced
+	#3canwield <prog|none>#0 - sets or clears the wield permission prog
+	#3whycantwield <prog|none>#0 - sets or clears its failure-message prog
+	#3condition <option>#0 - configures condition degradation
+	#3sighttag <tag|none>#0 - configures the reserved sight slot
+	#3loadclean|loadpowder|loadball|loadcartridge|loadramrod|loadtap <emote>#0 - sets a loading-step echo
+	#3unload|ready|unready <emote>#0 - sets the corresponding handling echo
+	#3unjamstart|unjamfail|unjamfinish <emote>#0 - sets unjamming echoes
+	#3fire|firejam|firemisfire|firecatastrophy <emote>#0 - sets firing-result echoes
+	#3misfire|jam <formula>#0 - sets the corresponding probability formula
+	#3catastrophy <formula>#0 - sets catastrophic damage";
 
     public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -452,6 +506,8 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
             case "firemisfire":
                 return BuildingCommandFireEmoteMisfire(actor, command);
             case "firecatasrophy":
+			case "firecatastrophy":
+			case "firecatastrophe":
                 return BuildingCommandFireEmoteCatastrophy(actor, command);
             case "melee":
             case "meleetype":
@@ -465,6 +521,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
             case "jam":
                 return BuildingCommandJam(actor, command);
             case "catastrophy":
+			case "catastrophe":
                 return BuildingCommandCatastrophyDamage(actor, command);
             case "bore":
                 return BuildingCommandBore(actor, command);

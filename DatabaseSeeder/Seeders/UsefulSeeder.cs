@@ -161,7 +161,22 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "SolidFuelHeaterCooler_WoodStove"
     ];
 
-    private const string StockTagPackageMarker = "Aluminothermic Welding Portion";
+    private static readonly string[] StockTagPackageMarkers =
+    [
+		"Aluminothermic Welding Portion",
+		"Gunpowder Commodity",
+		"Musket Cleaning Rod",
+		"Musket Ramrod",
+		"Musket Unjamming Tool",
+		"Musket Wadding",
+		"Match Cord",
+		"Artillery Sponge",
+		"Artillery Wadding",
+		"Artillery Rammer",
+		"Artillery Vent Tool",
+		"Artillery Linstock",
+		"Artillery Fuse"
+    ];
 
     private static readonly string[] StockRangedCoverPackageMarkers =
     [
@@ -359,7 +374,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
 
                 Install this package? Please answer #3yes#f or #3no#f:
                 """,
-                (context, questions) => context.Tags.All(x => x.Name != "Aluminothermic Welding Portion"),
+                (context, questions) => ClassifyTagPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
                 (answer, context) =>
                 {
                     if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
@@ -579,10 +594,11 @@ These options are not required by the engine. Install the packages that suit you
 
     internal static ShouldSeedResult ClassifyTagPackagePresence(FuturemudDatabaseContext context)
     {
-        return context.Tags.Any(x => x.Name == StockTagPackageMarker)
-            ? ShouldSeedResult.MayAlreadyBeInstalled
-            : ShouldSeedResult.ReadyToInstall;
+		return SeederRepeatabilityHelper.ClassifyByPresence(
+			StockTagPackageMarkers.Select(marker => context.Tags.Any(x => x.Name == marker)));
     }
+
+	internal static IReadOnlyCollection<string> StockTagPackageMarkersForTesting => StockTagPackageMarkers;
 
     internal static ShouldSeedResult ClassifyRangedCoverPackagePresence(FuturemudDatabaseContext context)
     {

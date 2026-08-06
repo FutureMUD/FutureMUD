@@ -9,6 +9,16 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ItemSeeder
 {
+	private static readonly IReadOnlySet<string> EarlyModernBlackPowderSupportStableReferences =
+		new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"earlymodern_military_naval_cannon_sponge",
+			"earlymodern_military_naval_artillery_linstock",
+			"earlymodern_military_firearm_gunflint_packet",
+			"earlymodern_military_firearm_pyrite_packet",
+			"earlymodern_military_naval_peterero_chamber"
+		};
+
 	private sealed record EarlyModernMilitaryItemSpec(
 		string StableReference,
 		string Noun,
@@ -46,6 +56,9 @@ public partial class ItemSeeder
 				x.Tags,
 				x.Components))
 			.ToArray();
+
+	internal static IReadOnlySet<string> EarlyModernBlackPowderSupportStableReferencesForTesting =>
+		EarlyModernBlackPowderSupportStableReferences;
 
 	private static string BuildEarlyModernMilitaryDescription(
 		string stableReference,
@@ -128,6 +141,35 @@ public partial class ItemSeeder
 		}
 
 		SeedEarlyModernCrossbowSpanningTools();
+	}
+
+	private void SeedEarlyModernBlackPowderSupportItems()
+	{
+		foreach (var spec in EarlyModernSupportedMilitaryItemSpecs.Where(x =>
+			         EarlyModernBlackPowderSupportStableReferences.Contains(x.StableReference)))
+		{
+			CreateItem(
+				spec.StableReference,
+				spec.Noun,
+				spec.ShortDescription,
+				null,
+				spec.FullDescription,
+				spec.Size,
+				spec.Quality,
+				spec.WeightInGrams,
+				spec.Cost,
+				false,
+				false,
+				spec.Material,
+				spec.Tags,
+				spec.Components,
+				null,
+				null,
+				null,
+				null,
+				spec.BuilderNotes,
+				allowLegacyShortDescriptionMatch: false);
+		}
 	}
 
 	private void SeedEarlyModernCrossbowSpanningTools()

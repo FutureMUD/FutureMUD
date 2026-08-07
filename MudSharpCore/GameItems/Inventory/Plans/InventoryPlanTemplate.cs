@@ -1360,10 +1360,21 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 		if (actor.Location.GameItemsInImmediateVicinity(actor).Contains(item) &&
             actor.Body.CanGet(item, quantity, ItemCanGetIgnore.IgnoreInventoryPlans))
         {
-            actor.Body.Get(item, quantity, silent: silent, ignoreFlags: ItemCanGetIgnore.IgnoreInventoryPlans);
+			var gottenItem = actor.Body.Get(item, quantity, null, silent,
+				ItemCanGetIgnore.IgnoreInventoryPlans, null);
+			if (gottenItem is null)
+			{
+				return new InventoryPlanActionResult
+				{
+					PrimaryTarget = item,
+					ActionState = DesiredItemState.Unknown,
+					OriginalReference = originalReference
+				};
+			}
+
             return new InventoryPlanActionResult
             {
-                PrimaryTarget = item,
+				PrimaryTarget = gottenItem,
                 ActionState = DesiredItemState.Held,
                 OriginalReference = originalReference
             };
@@ -1387,10 +1398,22 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 actor.Body.Open(openable, null, null);
             }
 
-            actor.Body.Get(item, container.Parent, quantity, silent: silent, ignoreFlags: ItemCanGetIgnore.IgnoreInventoryPlans);
+			var gottenItem = actor.Body.Get(item, container.Parent, quantity, null, silent,
+				ItemCanGetIgnore.IgnoreInventoryPlans, null);
+			if (gottenItem is null)
+			{
+				return new InventoryPlanActionResult
+				{
+					PrimaryTarget = item,
+					SecondaryTarget = container.Parent,
+					ActionState = DesiredItemState.Unknown,
+					OriginalReference = originalReference
+				};
+			}
+
             return new InventoryPlanActionResult
             {
-                PrimaryTarget = item,
+				PrimaryTarget = gottenItem,
                 SecondaryTarget = container.Parent,
                 ActionState = DesiredItemState.Held,
                 OriginalReference = originalReference

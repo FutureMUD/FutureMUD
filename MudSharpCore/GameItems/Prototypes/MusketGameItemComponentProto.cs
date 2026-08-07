@@ -212,7 +212,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
                 new InventoryPlanPhaseTemplate(1, new[]
                 {
 					InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
-						item => HasTag(item, CleaningRodTag), null, 1, originalReference: "ramrod"),
+						item => HasTag(item, CleaningRodTag), null, 1, originalReference: "cleaning rod"),
                     InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
                         item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null, originalReference: "musket")
                 })
@@ -252,7 +252,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
                         }
 
                         return true;
-                    }, null, 0, originalReference: "ball", fitnessscorer: item =>
+					}, null, 1, originalReference: "ball", fitnessscorer: item =>
                     {
                         MusketBallGameItemComponent ball = item.GetItemType<MusketBallGameItemComponent>();
                         if (ball is null)
@@ -263,8 +263,8 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
 						return int.MaxValue - BarrelBore + ball.BulletBore;
 					}),
 				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
-					item => HasTag(item, WadItemTag), null, 0, originalReference: "wad"),
-				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.InRoom, 0, 0,
+					item => HasTag(item, WadItemTag), null, 1, originalReference: "wad"),
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
                         item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null, originalReference: "musket")
 			})
 		});
@@ -273,7 +273,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
 			new InventoryPlanPhaseTemplate(1, new[]
 			{
 				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
-					item => HasTag(item, WadItemTag), null, 0, originalReference: "wad"),
+					item => HasTag(item, WadItemTag), null, 1, originalReference: "wad"),
 				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
 					item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null, originalReference: "musket")
 			})
@@ -285,7 +285,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
                     InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0, item =>
                     {
                         return IsCompatibleCartridgeForLoading(item.GetItemType<IMusketCartridge>());
-                    }, null, 0, originalReference: "cartridge", fitnessscorer: item =>
+					}, null, 1, originalReference: "cartridge", fitnessscorer: item =>
                     {
                         IMusketCartridge cartridge = item.GetItemType<IMusketCartridge>();
                         if (cartridge is null)
@@ -332,7 +332,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
 			new InventoryPlanPhaseTemplate(1, new[]
 			{
 				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
-					item => HasTag(item, MatchCordTag), null, 0, originalReference: "matchcord"),
+					item => HasTag(item, MatchCordTag), null, 1, originalReference: "matchcord"),
 				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
 					item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null, originalReference: "musket")
 			})

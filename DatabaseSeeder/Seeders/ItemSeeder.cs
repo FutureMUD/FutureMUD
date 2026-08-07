@@ -1725,12 +1725,14 @@ What is your choice? ",
 				"Functions / Material Functions / Musket Wadding");
 			EnsureFocusedItemTag("preindustrial_firearms_ramrod",
 				"Functions / Tools / Firearm Tools / Musket Ramrod");
+			EnsureFocusedItemComponent("preindustrial_firearms_ramrod", "Beltable");
 			EnsureFocusedItemTag("preindustrial_firearms_touchhole_pick",
 				"Functions / Tools / Firearm Tools / Musket Unjamming Tool");
 			EnsureFocusedItemTag("preindustrial_firearms_touchhole_pick",
 				"Functions / Tools / Artillery Tools / Artillery Vent Tool");
 			EnsureFocusedItemTag("preindustrial_firearms_cleaning_rod",
 				"Functions / Tools / Firearm Tools / Musket Cleaning Rod");
+			EnsureFocusedItemComponent("preindustrial_firearms_cleaning_rod", "Beltable");
 		});
 
 		if (HasAnyEra(eras, "renaissance"))
@@ -1779,6 +1781,25 @@ What is your choice? ",
 		{
 			GameItemProto = item,
 			TagId = tag.Id
+		});
+	}
+
+	private void EnsureFocusedItemComponent(string stableReference, string componentName)
+	{
+		if (!_itemsByStableReference.TryGetValue(stableReference, out var item) ||
+		    !_components.TryGetValue(componentName, out var component) ||
+		    item.GameItemProtosGameItemComponentProtos.Any(x =>
+			    x.GameItemComponentProtoId == component.Id && x.GameItemComponentRevision == component.RevisionNumber))
+		{
+			return;
+		}
+
+		item.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+		{
+			GameItemProto = item,
+			GameItemComponent = component,
+			GameItemComponentProtoId = component.Id,
+			GameItemComponentRevision = component.RevisionNumber
 		});
 	}
 

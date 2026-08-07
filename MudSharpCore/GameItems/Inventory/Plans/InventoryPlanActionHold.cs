@@ -51,9 +51,14 @@ public class InventoryPlanActionHold : InventoryPlanAction
 
     public int Quantity { get; set; }
 
-    public bool QuantityIsOptional { get; init; }
+	public bool QuantityIsOptional { get; init; }
 
-    protected double GetItemFitness(ICharacter executor, IGameItem item)
+	/// <summary>
+	/// 	Controls whether this action reports a one-item split from a stack as its result instead of the source stack.
+	/// </summary>
+	public bool UseRetrievedItemAsResult { get; init; }
+
+	protected double GetItemFitness(ICharacter executor, IGameItem item)
     {
         if ((DesiredTag is not null && !item.IsA(DesiredTag)) || !(PrimaryItemSelector?.Invoke(item) ?? true) ||
             (item.GetItemType<IStackable>()?.Quantity ?? 1) < Quantity)

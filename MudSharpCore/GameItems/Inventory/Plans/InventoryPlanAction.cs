@@ -112,37 +112,38 @@ public abstract class InventoryPlanAction : IInventoryPlanAction, IHaveFuturemud
         }
     }
 
-    public static IInventoryPlanAction LoadAction(IFuturemud gameworld, DesiredItemState state, long primaryTag,
-        long secondaryTag, Func<IGameItem, bool> primaryselector, Func<IGameItem, bool> secondaryselector,
-        int quantity = 0, Func<IGameItem, double> fitnessscorer = default, bool preferitemsinplace = true,
-        object originalReference = null)
+	public static IInventoryPlanAction LoadAction(IFuturemud gameworld, DesiredItemState state, long primaryTag,
+		long secondaryTag, Func<IGameItem, bool> primaryselector, Func<IGameItem, bool> secondaryselector,
+		int quantity = 0, Func<IGameItem, double> fitnessscorer = default, bool preferitemsinplace = true,
+		object originalReference = null, bool useRetrievedItemAsResult = false)
     {
         switch (state)
         {
             case DesiredItemState.Attached:
                 return new InventoryPlanActionAttach(gameworld, primaryTag, secondaryTag, primaryselector,
                     secondaryselector)
-                {
-                    PrimaryItemFitnessScorer = fitnessscorer,
-                    ItemsAlreadyInPlaceOverrideFitnessScore = preferitemsinplace,
-                    OriginalReference = originalReference
-                };
-            case DesiredItemState.Consumed:
-                return new InventoryPlanActionConsume(gameworld, quantity, primaryTag, secondaryTag, primaryselector,
-                    secondaryselector)
-                {
-                    PrimaryItemFitnessScorer = fitnessscorer,
-                    ItemsAlreadyInPlaceOverrideFitnessScore = preferitemsinplace,
-                    OriginalReference = originalReference
-                };
+				{
+					PrimaryItemFitnessScorer = fitnessscorer,
+					ItemsAlreadyInPlaceOverrideFitnessScore = preferitemsinplace,
+					OriginalReference = originalReference
+				};
+			case DesiredItemState.Consumed:
+				return new InventoryPlanActionConsume(gameworld, quantity, primaryTag, secondaryTag, primaryselector,
+					secondaryselector)
+				{
+					PrimaryItemFitnessScorer = fitnessscorer,
+					ItemsAlreadyInPlaceOverrideFitnessScore = preferitemsinplace,
+					OriginalReference = originalReference
+				};
             case DesiredItemState.Held:
                 return new InventoryPlanActionHold(gameworld, primaryTag, secondaryTag, primaryselector,
                     secondaryselector, quantity)
-                {
-                    PrimaryItemFitnessScorer = fitnessscorer,
-                    ItemsAlreadyInPlaceOverrideFitnessScore = preferitemsinplace,
-                    OriginalReference = originalReference
-                };
+				{
+					PrimaryItemFitnessScorer = fitnessscorer,
+					ItemsAlreadyInPlaceOverrideFitnessScore = preferitemsinplace,
+					OriginalReference = originalReference,
+					UseRetrievedItemAsResult = useRetrievedItemAsResult
+				};
             case DesiredItemState.InContainer:
                 return new InventoryPlanActionPut(gameworld, primaryTag, secondaryTag, primaryselector,
                     secondaryselector)

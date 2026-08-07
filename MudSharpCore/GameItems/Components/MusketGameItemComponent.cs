@@ -944,6 +944,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 				primarySelector, inventoryAction.SecondaryItemSelector, hold.Quantity)
 			{
 				QuantityIsOptional = hold.QuantityIsOptional,
+				UseRetrievedItemAsResult = hold.UseRetrievedItemAsResult,
 				PrimaryItemFitnessScorer = inventoryAction.PrimaryItemFitnessScorer,
 				ItemsAlreadyInPlaceOverrideFitnessScore = inventoryAction.ItemsAlreadyInPlaceOverrideFitnessScore,
 				OriginalReference = action.OriginalReference

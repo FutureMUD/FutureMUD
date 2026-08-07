@@ -734,6 +734,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 				{
 					OriginalReference = reference,
 					QuantityIsOptional = true,
+					UseRetrievedItemAsResult = quantity == 1,
 					ItemsAlreadyInPlaceOverrideFitnessScore = true
 				}
 			])

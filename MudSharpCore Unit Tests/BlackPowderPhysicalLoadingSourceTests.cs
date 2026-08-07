@@ -43,8 +43,10 @@ public class BlackPowderPhysicalLoadingSourceTests
 		StringAssert.Contains(prototypeSource, "null, 1, originalReference: \"wad\"");
 		StringAssert.Contains(prototypeSource, "null, 1, originalReference: \"cartridge\"");
 		StringAssert.Contains(prototypeSource, "null, 1, originalReference: \"matchcord\"");
+		StringAssert.Contains(prototypeSource, "useRetrievedItemAsResult: true");
 		var inventoryPlanSource = ReadSource("MudSharpCore", "GameItems", "Inventory", "Plans",
 			"InventoryPlanTemplate.cs");
+		StringAssert.Contains(inventoryPlanSource, "UseRetrievedItemAsResult");
 		StringAssert.Contains(inventoryPlanSource, "PrimaryTarget = gottenItem");
 		StringAssert.Contains(inventoryPlanSource, "actor.Body.Get(item, quantity, null, silent,");
 		Assert.IsFalse(source.Contains("CommodityGameItemComponentProto.CreateNewCommodity", StringComparison.Ordinal));
@@ -80,6 +82,7 @@ public class BlackPowderPhysicalLoadingSourceTests
 		StringAssert.Contains(source, "linstockPlan.FinalisePlan()");
 		StringAssert.Contains(source, "int quantity = 1");
 		StringAssert.Contains(source, "reference, 0)");
+		StringAssert.Contains(source, "UseRetrievedItemAsResult = quantity == 1");
 		StringAssert.Contains(source, "firingTarget ?? Parent");
 		Assert.IsFalse(source.Contains("Set a reachable indirect firing solution or select a visible target before firing.", StringComparison.Ordinal));
 		StringAssert.Contains(source, "stand|stands down $0 from immediate ignition readiness");

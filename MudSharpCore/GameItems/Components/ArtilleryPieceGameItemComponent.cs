@@ -720,19 +720,21 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 	private IInventoryPlan CreateCommodityPlan(ICharacter actor, double mass, string reference)
 	{
 		return CreateHoldPlan(actor, item => item.GetItemType<ICommodity>() is { } commodity &&
-			commodity.Material == _prototype.GunpowderMaterial && commodity.Weight >= mass, reference);
+			commodity.Material == _prototype.GunpowderMaterial && commodity.Weight >= mass, reference, 0);
 	}
 
-	private IInventoryPlan CreateHoldPlan(ICharacter actor, Func<IGameItem, bool> predicate, string reference)
+	private IInventoryPlan CreateHoldPlan(ICharacter actor, Func<IGameItem, bool> predicate, string reference,
+		int quantity = 1)
 	{
 		var template = new InventoryPlanTemplate(Gameworld,
 		[
 			new InventoryPlanPhaseTemplate(1,
 			[
-				new InventoryPlanActionHold(Gameworld, 0, 0, predicate, null, 0)
+				new InventoryPlanActionHold(Gameworld, 0, 0, predicate, null, quantity)
 				{
 					OriginalReference = reference,
 					QuantityIsOptional = true,
+					UseRetrievedItemAsResult = quantity == 1,
 					ItemsAlreadyInPlaceOverrideFitnessScore = true
 				}
 			])

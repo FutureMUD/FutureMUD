@@ -1,7 +1,7 @@
 {
   "manifestVersion": "1",
-  "sourceFingerprint": "ee16ee057c97abcb5a4c26f53563133492585888e12c973e41cbe0b91042e25e",
-  "generatedAtUtc": "2026-08-06T15:23:04.0532637Z",
+  "sourceFingerprint": "59d76ab5ea2cc6fb938ca511003ad45d1561f2d54e5038bed401bc6cfe295225",
+  "generatedAtUtc": "2026-08-07T11:52:30.7681698Z",
   "entries": [
     {
       "entityType": "commodity-spoilage",
@@ -391918,7 +391918,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "4bf7753462e59eefe8fb886dfb8df1352265831ab06a3f49b8cb84c358c5ab3e"
+      "fingerprint": "d75ea3adbcbe71e69c3545da71a861a1b165f3a527f18b85c5938b125f75fd88"
     },
     {
       "entityType": "item",
@@ -392002,7 +392002,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "52cacc9ed6c194bc6b82b810202e57f38b37ec50ae8e1714777411052380f2ab"
+      "fingerprint": "9ec0a3d26149c33316942bcd8efae578668f1c7d6ff7f570c27af5546c88cbe9"
     },
     {
       "entityType": "item",

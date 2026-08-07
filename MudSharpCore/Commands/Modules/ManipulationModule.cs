@@ -5542,7 +5542,11 @@ The syntax is as follows:
 			return;
 		}
 
-		if (!ss.IsFinished && actor.TargetItem(ss.PopSpeech())?.GetItemType<MusketGameItemComponent>() is { } musket)
+		var targetAsBeltable = targetItem.GetItemType<IBeltable>();
+		if (!ss.IsFinished &&
+		    actor.TargetItem(ss.PeekSpeech())?.GetItemType<MusketGameItemComponent>() is { } musket &&
+		    (targetAsBeltable is null ||
+		     musket.CanAttachBeltable(targetAsBeltable) == IBeltCanAttachBeltableResult.NotValidType))
 		{
 			if (!musket.TryInstallIgnitionStone(actor, targetItem, out var ignitionReason))
 			{
@@ -5553,7 +5557,6 @@ The syntax is as follows:
 			return;
 		}
 
-        IBeltable targetAsBeltable = targetItem.GetItemType<IBeltable>();
         if (targetAsBeltable == null)
         {
             if (targetItem.IsItemType<IProsthetic>())

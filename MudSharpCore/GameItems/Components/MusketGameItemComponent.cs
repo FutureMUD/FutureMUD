@@ -115,6 +115,13 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
             connectedItem.GetItemType<IBeltable>().ConnectedTo = this;
         }
 
+        connectedItem = Gameworld.TryGetItem(long.Parse(root.Element("CleaningRod")?.Value ?? "0"), true);
+        if (connectedItem?.IsItemType<IBeltable>() == true)
+        {
+            _cleaningRod = connectedItem.GetItemType<IBeltable>();
+            connectedItem.GetItemType<IBeltable>().ConnectedTo = this;
+        }
+
 		_matchCord = Gameworld.TryGetItem(long.Parse(root.Element("MatchCord")?.Value ?? "0"), true);
 		if (_matchCord is not null)
 		{
@@ -160,6 +167,7 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
             new XElement("Bayonet", _bayonet?.Parent.Id ?? 0),
             new XElement("Sights", _sights?.Parent.Id ?? 0),
             new XElement("Ramrod", _ramrod?.Parent.Id ?? 0),
+			new XElement("CleaningRod", _cleaningRod?.Parent.Id ?? 0),
 			new XElement("MatchCord", _matchCord?.Id ?? 0),
 			new XElement("IgnitionStone", _ignitionStone?.Id ?? 0),
             new XElement("Magazine",
@@ -186,6 +194,7 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
         }
         _bayonet?.Parent.Quit();
         _ramrod?.Parent.Quit();
+		_cleaningRod?.Parent.Quit();
         _sights?.Parent.Quit();
 		_matchCord?.Quit();
 		_ignitionStone?.Quit();
@@ -201,6 +210,7 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
         }
         _bayonet?.Parent.Delete();
         _ramrod?.Parent.Delete();
+		_cleaningRod?.Parent.Delete();
         _sights?.Parent.Delete();
 		_matchCord?.Delete();
 		_ignitionStone?.Delete();
@@ -215,6 +225,7 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
 
         _bayonet?.Parent.Login();
         _ramrod?.Parent.Login();
+		_cleaningRod?.Parent.Login();
         _sights?.Parent.Login();
 		_matchCord?.Login();
 		_ignitionStone?.Login();
@@ -373,7 +384,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             return false;
         }
 
-		IInventoryPlan plan = _prototype.UnjamTemplate.CreatePlan(actor);
+		IInventoryPlan plan = CreateBoundPlan(actor, _prototype.UnjamTemplate);
         if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible)
         {
             return false;
@@ -390,7 +401,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             return $"You cannot unjam {Parent.HowSeen(actor)} because it is not jammed.";
         }
 
-		IInventoryPlan plan = _prototype.UnjamTemplate.CreatePlan(actor);
+		IInventoryPlan plan = CreateBoundPlan(actor, _prototype.UnjamTemplate);
         switch (plan.PlanIsFeasible())
         {
             case InventoryPlanFeasibility.NotFeasibleMissingItems:
@@ -413,13 +424,21 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             return false;
         }
 
-		IInventoryPlan plan = _prototype.UnjamTemplate.CreatePlan(actor);
-        IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
+		IInventoryPlan plan = CreateBoundPlan(actor, _prototype.UnjamTemplate);
+		var plannedTool = plan.ScoutAllTargets()
+			.First(x => x.OriginalReference?.ToString() == "ramrod")
+			.PrimaryTarget;
+		var restoreToolAttachment = IsAttachedToThisWeapon(plannedTool);
+		IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
         IGameItem ramrod = results.FirstOrDefault(x => x.OriginalReference?.ToString() == "ramrod").PrimaryTarget;
 		var effect = new UnjammingGun(actor, this, ramrod,
 			plan.AssociatedEffects.FirstOrDefault(x => x.TargetItem == ramrod).DesiredState)
 		{
-			OnStopAction = _ => plan.FinalisePlanWithExemptions([Parent])
+			OnStopAction = _ =>
+			{
+				plan.FinalisePlanWithExemptions([Parent]);
+				RestoreToolAttachment(actor, ramrod, restoreToolAttachment);
+			}
 		};
 		actor.AddEffect(effect, UnjammingGun.EffectDuration(actor, this, ramrod));
         return true;
@@ -517,30 +536,29 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                     case LoadMode.Blank:
                     case LoadMode.Normal:
                     case LoadMode.Tap:
-                        return _prototype.LoadTemplateClean.CreatePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
+						return CreateBoundPlan(loader, _prototype.LoadTemplateClean).PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
                 }
 
                 goto case 1;
             case 1:
                 // Try Cartridges first
 				if (mode != LoadMode.Blank &&
-					_prototype.LoadTemplateLoadCartridge.CreatePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+					CreateBoundPlan(loader, _prototype.LoadTemplateLoadCartridge).PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
                 {
                     return true;
                 }
 
 				if (BlackPowderWeaponEnvironment.CanHandleExposedPowder(loader) &&
-					_prototype.LoadTemplateLoadPowder.CreatePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+					CreateBoundPlan(loader, _prototype.LoadTemplateLoadPowder).PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
                 {
                     return true;
                 }
 
                 return false;
             case 2:
-				return (mode == LoadMode.Blank ? _prototype.LoadTemplateLoadWad : _prototype.LoadTemplateLoadBall)
-					.CreatePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
+				return ShotBundleFeasibility(loader, mode == LoadMode.Blank) == InventoryPlanFeasibility.Feasible;
             case 3:
-                return _prototype.LoadTemplateLoadRamrod.CreatePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
+				return CreateBoundPlan(loader, _prototype.LoadTemplateLoadRamrod).PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
             default:
                 return false;
         }
@@ -570,13 +588,13 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                     case LoadMode.Blank:
                     case LoadMode.Normal:
                     case LoadMode.Tap:
-                        switch (_prototype.LoadTemplateClean.CreatePlan(loader).PlanIsFeasible())
+						switch (CreateBoundPlan(loader, _prototype.LoadTemplateClean).PlanIsFeasible())
                         {
                             case InventoryPlanFeasibility.NotFeasibleNotEnoughHands:
                             case InventoryPlanFeasibility.NotFeasibleNotEnoughWielders:
                                 return $"You don't have enough {loader.Body.WielderDescriptionPlural} to carry out that action.";
                             case InventoryPlanFeasibility.NotFeasibleMissingItems:
-                                return $"You don't have a ramrod that you can use to clean your weapon.";
+							return $"You don't have a cleaning rod that you can use to clean your weapon.";
                             default:
                                 throw new ArgumentOutOfRangeException();
                         }
@@ -587,7 +605,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 // Try Cartridges first
 				if (mode != LoadMode.Blank)
                 {
-					switch (_prototype.LoadTemplateLoadCartridge.CreatePlan(loader).PlanIsFeasible())
+					switch (CreateBoundPlan(loader, _prototype.LoadTemplateLoadCartridge).PlanIsFeasible())
 					{
 						case InventoryPlanFeasibility.NotFeasibleNotEnoughHands:
 						case InventoryPlanFeasibility.NotFeasibleNotEnoughWielders:
@@ -603,7 +621,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 					return "The precipitation is too heavy to pour an exposed loose-powder charge safely.";
 				}
 
-                switch (_prototype.LoadTemplateLoadPowder.CreatePlan(loader).PlanIsFeasible())
+				switch (CreateBoundPlan(loader, _prototype.LoadTemplateLoadPowder).PlanIsFeasible())
                 {
                     case InventoryPlanFeasibility.NotFeasibleNotEnoughHands:
                     case InventoryPlanFeasibility.NotFeasibleNotEnoughWielders:
@@ -614,8 +632,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                         throw new ArgumentOutOfRangeException();
                 }
             case 2:
-				switch ((mode == LoadMode.Blank ? _prototype.LoadTemplateLoadWad : _prototype.LoadTemplateLoadBall)
-				        .CreatePlan(loader).PlanIsFeasible())
+				switch (ShotBundleFeasibility(loader, mode == LoadMode.Blank))
                 {
                     case InventoryPlanFeasibility.NotFeasibleNotEnoughHands:
                     case InventoryPlanFeasibility.NotFeasibleNotEnoughWielders:
@@ -628,7 +645,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                         throw new ArgumentOutOfRangeException();
                 }
             case 3:
-                switch (_prototype.LoadTemplateLoadRamrod.CreatePlan(loader).PlanIsFeasible())
+                switch (CreateBoundPlan(loader, _prototype.LoadTemplateLoadRamrod).PlanIsFeasible())
                 {
                     case InventoryPlanFeasibility.NotFeasibleNotEnoughHands:
                     case InventoryPlanFeasibility.NotFeasibleNotEnoughWielders:
@@ -699,11 +716,16 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                     case LoadMode.Blank:
                     case LoadMode.Normal:
                     case LoadMode.Tap:
-                        plan = _prototype.LoadTemplateClean.CreatePlan(loader);
-                        results = plan.ExecuteWholePlan();
-                        ramrod = results.FirstOrDefault(x => x.OriginalReference?.ToString() == "ramrod").PrimaryTarget;
-                        loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteClean, loader, loader, Parent, ramrod), flags: OutputFlags.InnerWrap));
-                        plan.FinalisePlanWithExemptions([Parent]);
+						plan = CreateBoundPlan(loader, _prototype.LoadTemplateClean);
+						var plannedCleaningRod = plan.ScoutAllTargets()
+							.First(x => x.OriginalReference?.ToString() == "cleaning rod")
+							.PrimaryTarget;
+						var restoreCleaningRodAttachment = IsAttachedToThisWeapon(plannedCleaningRod);
+						results = plan.ExecuteWholePlan();
+						var cleaningRod = results.First(x => x.OriginalReference?.ToString() == "cleaning rod").PrimaryTarget;
+						loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteClean, loader, loader, Parent, cleaningRod), flags: OutputFlags.InnerWrap));
+						plan.FinalisePlanWithExemptions([Parent]);
+						RestoreToolAttachment(loader, cleaningRod, restoreCleaningRodAttachment);
                         LoadStage = 1;
                         NeedsCleaning = false;
                         Changed = true;
@@ -714,7 +736,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 goto case 1;
             case 1:
                 // Try Cartridges first
-                plan = _prototype.LoadTemplateLoadCartridge.CreatePlan(loader);
+				plan = CreateBoundPlan(loader, _prototype.LoadTemplateLoadCartridge);
 				if (mode != LoadMode.Blank && plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
                 {
                     results = plan.ExecuteWholePlan();
@@ -730,7 +752,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                     return;
                 }
 
-                plan = _prototype.LoadTemplateLoadPowder.CreatePlan(loader);
+				plan = CreateBoundPlan(loader, _prototype.LoadTemplateLoadPowder);
 				results = plan.ExecuteWholePlan();
 				IGameItem powderSource = results.First(x => x.OriginalReference?.ToString() == "gunpowder").PrimaryTarget;
 				IGameItem powder = powderSource.GetByWeight(loader.Body, _prototype.PowderVolumePerShot);
@@ -743,25 +765,28 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 AddEffect();
                 return;
             case 2:
-				plan = (mode == LoadMode.Blank ? _prototype.LoadTemplateLoadWad : _prototype.LoadTemplateLoadBall).CreatePlan(loader);
-                results = plan.ExecuteWholePlan();
+				plan = CreateBoundPlan(loader,
+					mode == LoadMode.Blank ? _prototype.LoadTemplateLoadWad : _prototype.LoadTemplateLoadBall);
+				results = plan.ScoutAllTargets().ToList();
 				var wadSource = results.First(x => x.OriginalReference?.ToString() == "wad").PrimaryTarget;
-				IGameItem wad = TakeOnePhysicalItem(loader, wadSource);
+				IGameItem ballSource = mode == LoadMode.Blank
+					? null
+					: results.First(x => x.OriginalReference?.ToString() == "ball").PrimaryTarget;
+				var (loadingBundle, wad, ball) = CreateLoadingBundle(loader, wadSource, ballSource);
+				plan = CreateLoadingBundlePlan(loader, loadingBundle);
+				results = plan.ExecuteWholePlan();
+				var bundleContents = loadingBundle.GetItemType<IContainer>();
+				wad = bundleContents.Take(loader, wad, 0);
 				ContainLoadedItem(wad);
-				IGameItem ball = null;
-				IGameItem ballSource = null;
-				if (mode != LoadMode.Blank)
+				if (ball is not null)
 				{
-					ballSource = results.First(x => x.OriginalReference?.ToString() == "ball").PrimaryTarget;
-					ball = TakeOnePhysicalItem(loader, ballSource);
+					ball = bundleContents.Take(loader, ball, 0);
 					ContainLoadedItem(ball);
 				}
 				var shotPerceivable = (IPerceivable)ball ?? new DummyPerceivable("the blank charge");
 				loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteBall, loader, loader,
 					Parent, shotPerceivable, wad), flags: OutputFlags.InnerWrap));
-				plan.FinalisePlanWithExemptions(ball is null ? [wad, Parent] : [ball, wad, Parent]);
-				ReleaseSplitSourceFromHands(loader, wadSource, wad);
-				ReleaseSplitSourceFromHands(loader, ballSource, ball);
+				plan.FinalisePlanWithExemptions([Parent]);
                 LoadStage = 3;
                 Changed = true;
                 AddEffect();
@@ -769,7 +794,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             case 3:
                 if (mode.In(LoadMode.Tap, LoadMode.TapNoClean))
                 {
-                    plan = _prototype.LoadTemplateFinishLoading.CreatePlan(loader);
+					plan = CreateBoundPlan(loader, _prototype.LoadTemplateFinishLoading);
                     results = plan.ExecuteWholePlan();
                     loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteTap, loader, loader, Parent), flags: OutputFlags.InnerWrap));
                     plan.FinalisePlanWithExemptions([Parent]);
@@ -778,12 +803,17 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                     Changed = true;
                     return;
                 }
-                plan = _prototype.LoadTemplateLoadRamrod.CreatePlan(loader);
-                results = plan.ExecuteWholePlan();
+				plan = CreateBoundPlan(loader, _prototype.LoadTemplateLoadRamrod);
+				var plannedRamrod = plan.ScoutAllTargets()
+					.First(x => x.OriginalReference?.ToString() == "ramrod")
+					.PrimaryTarget;
+				var restoreRamrodAttachment = IsAttachedToThisWeapon(plannedRamrod);
+				results = plan.ExecuteWholePlan();
                 ramrod = results.FirstOrDefault(x => x.OriginalReference?.ToString() == "ramrod").PrimaryTarget;
                 loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteRamrod, loader, loader, Parent, ramrod), flags: OutputFlags.InnerWrap));
                 plan.FinalisePlanWithExemptions([Parent]);
-                plan = _prototype.LoadTemplateFinishLoading.CreatePlan(loader);
+				RestoreToolAttachment(loader, ramrod, restoreRamrodAttachment);
+				plan = CreateBoundPlan(loader, _prototype.LoadTemplateFinishLoading);
                 results = plan.ExecuteWholePlan();
                 plan.FinalisePlanNoRestore();
                 LoadStage = 4;
@@ -810,21 +840,142 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 		return source;
 	}
 
-	private static void ReleaseSplitSourceFromHands(ICharacter actor, IGameItem source, IGameItem installed)
+	private bool IsAttachedToThisWeapon(IGameItem item)
 	{
-		if (source is null || installed is null || source == installed ||
-		    !actor.Body.HeldOrWieldedItems.Contains(source))
+		return item?.GetItemType<IBeltable>()?.ConnectedTo == this;
+	}
+
+	private void RestoreToolAttachment(ICharacter actor, IGameItem tool, bool shouldRestore)
+	{
+		if (!shouldRestore || tool is null || tool.Destroyed ||
+		    tool.GetItemType<IBeltable>() is not { } beltable || beltable.ConnectedTo == this)
 		{
 			return;
 		}
 
-		actor.Body.Drop(source, silent: true);
+		beltable.ConnectedTo?.RemoveConnectedItem(beltable);
+		actor.Body.Take(tool);
+		AddConnectedItem(beltable);
+		if (beltable.ConnectedTo == this)
+		{
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ attach|attaches $0 to $1.", actor, tool, Parent)));
+		}
+	}
+
+	private InventoryPlanFeasibility ShotBundleFeasibility(ICharacter loader, bool blank)
+	{
+		var handoffPlan = CreateBoundPlan(loader, _prototype.LoadTemplateLoadWad);
+		var feasibility = handoffPlan.PlanIsFeasible();
+		if (feasibility != InventoryPlanFeasibility.Feasible || blank)
+		{
+			return feasibility;
+		}
+
+		var shotPlan = CreateBoundPlan(loader, _prototype.LoadTemplateLoadBall);
+		return shotPlan.ScoutAllTargets().Any(x => x.OriginalReference?.ToString() == "ball" && x.PrimaryTarget is not null)
+			? InventoryPlanFeasibility.Feasible
+			: InventoryPlanFeasibility.NotFeasibleMissingItems;
+	}
+
+	private (IGameItem Bundle, IGameItem Wad, IGameItem Ball) CreateLoadingBundle(ICharacter loader,
+		IGameItem wadSource, IGameItem ballSource)
+	{
+		var wad = ExtractOnePhysicalItem(wadSource);
+		IGameItem ball = ballSource is null ? null : ExtractOnePhysicalItem(ballSource);
+		var bundle = PileGameItemComponentProto.CreateNewBundle(ball is null ? [wad] : [ball, wad]);
+		Gameworld.Add(bundle);
+		bundle.RoomLayer = loader.RoomLayer;
+		bundle.InsertAtSource(loader, true);
+		return (bundle, wad, ball);
+	}
+
+	private static IGameItem ExtractOnePhysicalItem(IGameItem source)
+	{
+		var stack = source.GetItemType<IStackable>();
+		if (stack is not null && stack.Quantity > 1)
+		{
+			var split = stack.Split(1);
+			split.Login();
+			split.HandleEvent(EventType.ItemFinishedLoading, split);
+			return split;
+		}
+
+		source.ContainedIn?.Take(source);
+		source.InInventoryOf?.Take(source);
+		source.Location?.Extract(source);
+		return source;
+	}
+
+	private IInventoryPlan CreateLoadingBundlePlan(ICharacter loader, IGameItem bundle)
+	{
+		return new InventoryPlanTemplate(Gameworld, new[]
+		{
+			new InventoryPlanPhaseTemplate(1, new[]
+			{
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+					item => item == Parent, null, originalReference: "musket"),
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+					item => item == bundle, null, originalReference: "loading bundle")
+			})
+		}).CreatePlan(loader);
+	}
+
+	private IInventoryPlan CreateBoundPlan(ICharacter actor, IInventoryPlanTemplate template)
+	{
+		return new InventoryPlanTemplate(Gameworld, template.Phases.Select(phase =>
+			new InventoryPlanPhaseTemplate(phase.PhaseNumber, phase.Actions.Select(CreateBoundAction)))).CreatePlan(actor);
+	}
+
+	private IInventoryPlanAction CreateBoundAction(IInventoryPlanAction action)
+	{
+		if (action is not InventoryPlanAction inventoryAction)
+		{
+			throw new ArgumentException("Musket inventory plans must use standard inventory-plan actions.", nameof(action));
+		}
+
+		var primarySelector = action.OriginalReference?.ToString() == "musket"
+			? (Func<IGameItem, bool>)(item => item == Parent)
+			: inventoryAction.PrimaryItemSelector;
+		var primaryTagId = action.DesiredTag?.Id ?? 0;
+		var secondaryTagId = action.DesiredSecondaryTag?.Id ?? 0;
+		return action switch
+		{
+			InventoryPlanActionHold hold => new InventoryPlanActionHold(Gameworld, primaryTagId, secondaryTagId,
+				primarySelector, inventoryAction.SecondaryItemSelector, hold.Quantity)
+			{
+				QuantityIsOptional = hold.QuantityIsOptional,
+				UseRetrievedItemAsResult = hold.UseRetrievedItemAsResult,
+				PrimaryItemFitnessScorer = inventoryAction.PrimaryItemFitnessScorer,
+				ItemsAlreadyInPlaceOverrideFitnessScore = inventoryAction.ItemsAlreadyInPlaceOverrideFitnessScore,
+				OriginalReference = action.OriginalReference
+			},
+			InventoryPlanActionWield wield => new InventoryPlanActionWield(Gameworld, primaryTagId, secondaryTagId,
+				primarySelector, inventoryAction.SecondaryItemSelector)
+			{
+				Options = wield.Options,
+				PrimaryItemFitnessScorer = inventoryAction.PrimaryItemFitnessScorer,
+				ItemsAlreadyInPlaceOverrideFitnessScore = inventoryAction.ItemsAlreadyInPlaceOverrideFitnessScore,
+				OriginalReference = action.OriginalReference
+			},
+			_ => throw new ArgumentException($"Unsupported musket inventory-plan action {action.GetType().Name}.",
+				nameof(action))
+		};
 	}
 
 	private void ContainLoadedItem(IGameItem item)
 	{
+		if (item.ContainedIn != Parent)
+		{
+			item.ContainedIn?.Take(item);
+		}
+
+		item.InInventoryOf?.Take(item);
+		item.Location?.Extract(item);
 		item.ContainedIn = Parent;
-		_magazineContents.Add(item);
+		if (!_magazineContents.Contains(item))
+		{
+			_magazineContents.Add(item);
+		}
 	}
 
     /// <inheritdoc />
@@ -1449,11 +1600,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 	}
 
 	private bool HasMatchCord(ICharacter actor) =>
-		_prototype.MatchCordTemplate.CreatePlan(actor).PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
+		CreateBoundPlan(actor, _prototype.MatchCordTemplate).PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
 
 	private void InstallMatchCord(ICharacter actor)
 	{
-		var plan = _prototype.MatchCordTemplate.CreatePlan(actor);
+		var plan = CreateBoundPlan(actor, _prototype.MatchCordTemplate);
 		if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible)
 		{
 			return;
@@ -1466,7 +1617,6 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ fit|fits $1 into the match holder of $0 and light|lights its exposed end.",
 			actor, Parent, installed)));
 		plan.FinalisePlanWithExemptions([installed, Parent]);
-		ReleaseSplitSourceFromHands(actor, source, installed);
 	}
 
     #endregion
@@ -1477,12 +1627,13 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     public SizeCategory MaximumSize => Parent.Size;
 
     /// <inheritdoc />
-    public int MaximumNumberOfBeltedItems => 3;
+    public int MaximumNumberOfBeltedItems => 4;
 
     /// <inheritdoc />
     private IBeltable _bayonet;
 
     private IBeltable _ramrod;
+    private IBeltable _cleaningRod;
     private IBeltable _sights;
     public IEnumerable<IBeltable> ConnectedItems
     {
@@ -1496,6 +1647,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             if (_ramrod is not null)
             {
                 yield return _ramrod;
+            }
+
+            if (_cleaningRod is not null)
+            {
+                yield return _cleaningRod;
             }
 
             if (_sights is not null)
@@ -1516,6 +1672,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         {
             _ramrod = item;
         }
+		else if (_prototype.CleaningRodTag is { } cleaningRodTag && item.Parent.IsA(cleaningRodTag))
+		{
+			_cleaningRod = item;
+		}
         else if (_prototype.SightTag is not null && item.Parent.IsA(_prototype.SightTag))
         {
             _sights = item;
@@ -1540,6 +1700,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         {
             _ramrod = null;
         }
+
+		if (_cleaningRod == item)
+		{
+			_cleaningRod = null;
+		}
 
         if (_sights == item)
         {
@@ -1579,6 +1744,13 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
             return IBeltCanAttachBeltableResult.Success;
         }
+
+		if (_prototype.CleaningRodTag is { } cleaningRodTag && beltable.Parent.IsA(cleaningRodTag))
+		{
+			return _cleaningRod is null
+				? IBeltCanAttachBeltableResult.Success
+				: IBeltCanAttachBeltableResult.FailureExceedMaximumNumber;
+		}
 
         if (_prototype.SightTag is not null && beltable.Parent.IsA(_prototype.SightTag))
         {

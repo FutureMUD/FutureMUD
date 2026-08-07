@@ -1309,8 +1309,8 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         };
     }
 
-    private InventoryPlanActionResult GetItem(ICharacter actor, IGameItem item, object originalReference, int quantity,
-        bool silent, bool wieldOK = false)
+	private InventoryPlanActionResult GetItem(ICharacter actor, IGameItem item, object originalReference, int quantity,
+		bool silent, bool wieldOK = false, bool useRetrievedItemAsResult = false)
     {
         if (actor.Body.HeldItems.Contains(item))
         {
@@ -1359,15 +1359,37 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 
 		if (actor.Location.GameItemsInImmediateVicinity(actor).Contains(item) &&
             actor.Body.CanGet(item, quantity, ItemCanGetIgnore.IgnoreInventoryPlans))
-        {
-            actor.Body.Get(item, quantity, silent: silent, ignoreFlags: ItemCanGetIgnore.IgnoreInventoryPlans);
-            return new InventoryPlanActionResult
-            {
-                PrimaryTarget = item,
-                ActionState = DesiredItemState.Held,
-                OriginalReference = originalReference
-            };
-        }
+		{
+			if (useRetrievedItemAsResult)
+			{
+				var gottenItem = actor.Body.Get(item, quantity, null, silent,
+					ItemCanGetIgnore.IgnoreInventoryPlans, null);
+				if (gottenItem is null)
+				{
+					return new InventoryPlanActionResult
+					{
+						PrimaryTarget = item,
+						ActionState = DesiredItemState.Unknown,
+						OriginalReference = originalReference
+					};
+				}
+
+				return new InventoryPlanActionResult
+				{
+					PrimaryTarget = gottenItem,
+					ActionState = DesiredItemState.Held,
+					OriginalReference = originalReference
+				};
+			}
+
+			actor.Body.Get(item, quantity, silent: silent, ignoreFlags: ItemCanGetIgnore.IgnoreInventoryPlans);
+			return new InventoryPlanActionResult
+			{
+				PrimaryTarget = item,
+				ActionState = DesiredItemState.Held,
+				OriginalReference = originalReference
+			};
+		}
 
         IContainer container =
 			actor.Location.GameItemsInImmediateVicinity(actor).SelectNotNull(x => x.GetItemType<IContainer>())
@@ -1387,14 +1409,39 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 actor.Body.Open(openable, null, null);
             }
 
-            actor.Body.Get(item, container.Parent, quantity, silent: silent, ignoreFlags: ItemCanGetIgnore.IgnoreInventoryPlans);
-            return new InventoryPlanActionResult
-            {
-                PrimaryTarget = item,
-                SecondaryTarget = container.Parent,
-                ActionState = DesiredItemState.Held,
-                OriginalReference = originalReference
-            };
+			if (useRetrievedItemAsResult)
+			{
+				var gottenItem = actor.Body.Get(item, container.Parent, quantity, null, silent,
+					ItemCanGetIgnore.IgnoreInventoryPlans, null);
+				if (gottenItem is null)
+				{
+					return new InventoryPlanActionResult
+					{
+						PrimaryTarget = item,
+						SecondaryTarget = container.Parent,
+						ActionState = DesiredItemState.Unknown,
+						OriginalReference = originalReference
+					};
+				}
+
+				return new InventoryPlanActionResult
+				{
+					PrimaryTarget = gottenItem,
+					SecondaryTarget = container.Parent,
+					ActionState = DesiredItemState.Held,
+					OriginalReference = originalReference
+				};
+			}
+
+			actor.Body.Get(item, container.Parent, quantity, silent: silent,
+				ignoreFlags: ItemCanGetIgnore.IgnoreInventoryPlans);
+			return new InventoryPlanActionResult
+			{
+				PrimaryTarget = item,
+				SecondaryTarget = container.Parent,
+				ActionState = DesiredItemState.Held,
+				OriginalReference = originalReference
+			};
         }
 
         if (item.ContainedIn?.IsItemType<ISheath>() ?? false)
@@ -1457,9 +1504,11 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
     private InventoryPlanActionResult GetItem(ICharacter actor, IGameItem item, IInventoryPlanAction action,
         bool silent, bool wieldOK = false)
     {
-        object originalReference = action?.OriginalReference;
-        int quantity = (action as InventoryPlanActionHold)?.Quantity ?? 0;
-        return GetItem(actor, item, originalReference, quantity, silent, wieldOK);
+		object originalReference = action?.OriginalReference;
+		var holdAction = action as InventoryPlanActionHold;
+		int quantity = holdAction?.Quantity ?? 0;
+		return GetItem(actor, item, originalReference, quantity, silent, wieldOK,
+			holdAction?.UseRetrievedItemAsResult ?? false);
     }
 
     private InventoryPlanActionResult WieldItem(ICharacter actor, IGameItem item, bool silent, object originalReference,

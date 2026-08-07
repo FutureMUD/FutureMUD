@@ -170,6 +170,34 @@ public class PreIndustrialBaselineTests
 	}
 
 	[TestMethod]
+	public void BlackPowderSupportRods_AreAttachableToCompatibleMuskets()
+	{
+		var specs = ItemSeeder.PreIndustrialNewItemSpecsForTesting
+			.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
+
+		foreach (var stableReference in new[]
+		         {
+			         "preindustrial_firearms_ramrod",
+			         "preindustrial_firearms_cleaning_rod"
+		         })
+		{
+			CollectionAssert.Contains(specs[stableReference].Components.ToList(), "Beltable", stableReference);
+		}
+	}
+
+	[TestMethod]
+	public void FocusedBlackPowderRepair_AddsRodAttachmentComponentsToCustomizedStock()
+	{
+		var itemSeederSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
+
+		StringAssert.Contains(itemSeederSource,
+			"EnsureFocusedItemComponent(\"preindustrial_firearms_ramrod\", \"Beltable\")");
+		StringAssert.Contains(itemSeederSource,
+			"EnsureFocusedItemComponent(\"preindustrial_firearms_cleaning_rod\", \"Beltable\")");
+		StringAssert.Contains(itemSeederSource, "GameItemProtosGameItemComponentProtos.Add");
+	}
+
+	[TestMethod]
 	public void PreIndustrialRows_UseMaintainedMaterialsTagsAndComponents()
 	{
 		var materials = ReadJsonPropertySet("Design Documents", "Data", "Seeded_Materials.json", "Material Name");

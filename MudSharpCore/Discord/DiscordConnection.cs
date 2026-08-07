@@ -30,7 +30,7 @@ public sealed class DiscordConnection : IDiscordConnection
     private TcpClient _client;
     private NetworkStream _stream;
     private string _serverAuth;
-    private DateTime _lastConnectionAttempt;
+    private DateTime _lastConnectionAttempt = DateTime.MinValue;
     private readonly List<byte> _incomingBytes = new();
 
     public IFuturemud Gameworld { get; private set; }
@@ -263,6 +263,13 @@ public sealed class DiscordConnection : IDiscordConnection
     {
         if (_client == null)
         {
+#if DEBUG
+            // We usually don't want to connect to the discord bot on debug - abort if we've tried once and failed
+            if (_lastConnectionAttempt > DateTime.MinValue)
+            {
+                return;
+            }
+#endif
             if (DateTime.UtcNow - _lastConnectionAttempt < TimeSpan.FromSeconds(15))
             {
                 return;

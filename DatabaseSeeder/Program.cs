@@ -122,7 +122,7 @@ Please press enter to begin.".WriteLineConsole();
             using StreamWriter config =
                 new(new FileStream(Path.Combine(installationDirectory, "Connection.config"), FileMode.Create,
                     FileAccess.Write));
-            config.WriteLine("127.0.0.1");
+            config.WriteLine("0.0.0.0");
             config.WriteLine("4000");
 
             StartupScriptGenerationResult scriptResult = StartupScriptGenerator.EnsureStartScript(

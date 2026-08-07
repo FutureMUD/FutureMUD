@@ -42,8 +42,8 @@ public abstract class JobListingBase : SaveableItem, IJobListing
             RequiredProject?.CurrentPhase?.LabourRequirements.FirstOrDefault(x =>
                 x.Id == (dbitem.RequiredProjectLabourId ?? 0L));
         BankAccount = Gameworld.BankAccounts.Get(dbitem.BankAccountId ?? 0L);
-        IsArchived = dbitem.IsArchived;
-        IsReadyToBePosted = dbitem.IsReadyToBePosted;
+        _isArchived = dbitem.IsArchived;
+        _isReadyToBePosted = dbitem.IsReadyToBePosted;
         FullTimeEquivalentRatio = dbitem.FullTimeEquivalentRatio;
         foreach (XElement money in XElement.Parse(dbitem.MoneyPaidIn).Elements("Money"))
         {

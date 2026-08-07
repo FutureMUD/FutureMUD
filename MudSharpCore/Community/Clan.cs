@@ -29,7 +29,7 @@ public partial class Clan : SaveableItem, IClan
         Alias = clan.Alias;
         FullName = clan.FullName;
         Description = clan.Description;
-        Calendar = Gameworld.Calendars.Get(clan.CalendarId);
+        _calendar = Gameworld.Calendars.Get(clan.CalendarId);
         ShowClanMembersInWho = clan.ShowClanMembersInWho;
         ShowFamousMembersInNotables = clan.ShowFamousMembersInNotables;
         Sphere = clan.Sphere;

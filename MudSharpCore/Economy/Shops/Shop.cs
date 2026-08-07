@@ -105,7 +105,7 @@ public abstract partial class Shop : SaveableItem, IShop
         _expectedCashBalance = shop.ExpectedCashBalance;
         MinimumFloatToBuyItems = shop.MinimumFloatToBuyItems;
         IsTrading = shop.IsTrading;
-        Currency = gameworld.Currencies.Get(shop.CurrencyId);
+        _currency = gameworld.Currencies.Get(shop.CurrencyId);
         MarketForPricingPurposes = gameworld.Markets.Get(shop.MarketId ?? 0);
         AutoPayTaxes = shop.AutopayTaxes;
         _canShopProg = gameworld.FutureProgs.Get(shop.CanShopProgId ?? 0);

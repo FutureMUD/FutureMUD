@@ -429,7 +429,7 @@ public class CompressorGameItemComponent : PoweredMachineBaseGameItemComponent, 
                     continue;
                 }
 
-                Connect(null, connectable);
+                RestorePersistedConnection(connectable, () => Connect(null, connectable));
                 break;
             }
         }
@@ -463,12 +463,11 @@ public class CompressorGameItemComponent : PoweredMachineBaseGameItemComponent, 
                     continue;
                 }
 
-                Connect(null, connectable);
+                RestorePersistedConnection(connectable, () => Connect(null, connectable));
                 break;
             }
         }
 
         _pendingDependentLoadTimeConnections.Clear();
-        Changed = true;
     }
 }

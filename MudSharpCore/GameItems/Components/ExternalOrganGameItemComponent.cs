@@ -97,7 +97,7 @@ public class ExternalOrganGameItemComponent : GameItemComponent, IExternalBloodO
                     continue;
                 }
 
-                Connect(null, connectable);
+                RestorePersistedConnection(connectable, () => Connect(null, connectable));
                 break;
             }
         }
@@ -131,13 +131,12 @@ public class ExternalOrganGameItemComponent : GameItemComponent, IExternalBloodO
                     continue;
                 }
 
-                Connect(null, connectable);
+                RestorePersistedConnection(connectable, () => Connect(null, connectable));
                 break;
             }
         }
 
         _pendingDependentLoadTimeConnections.Clear();
-        Changed = true;
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)

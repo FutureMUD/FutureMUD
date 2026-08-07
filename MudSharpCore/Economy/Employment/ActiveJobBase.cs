@@ -161,7 +161,7 @@ public abstract class ActiveJobBase : SaveableItem, IActiveJob, ILazyLoadDuringI
     public bool IsJobComplete { get; protected set; }
     public bool AlreadyHadClanPosition { get; }
     public double FullTimeEquivalentRatio => Listing.FullTimeEquivalentRatio;
-    private double _currentPerformance;
+    protected double _currentPerformance;
 
     public double CurrentPerformance
     {

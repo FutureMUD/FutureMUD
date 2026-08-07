@@ -64,7 +64,7 @@ public class Crime : LateInitialisingItem, ICrime
             ? null
             : MudDateTime.FromStoredStringOrFallback(dbitem.TimeOfReport, Gameworld,
                 StoredMudDateTimeFallback.CurrentDateTime, "Crime", dbitem.Id, null, "TimeOfReport");
-        HasBeenConvicted = dbitem.ConvictionRecorded;
+        _hasBeenConvicted = dbitem.ConvictionRecorded;
         _isKnownCrime = dbitem.IsKnownCrime;
         _criminalIdentityIsKnown = dbitem.IsCriminalIdentityKnown;
         _bailPosted = dbitem.BailHasBeenPosted;
@@ -75,7 +75,7 @@ public class Crime : LateInitialisingItem, ICrime
         _fineRecorded = dbitem.FineRecorded;
         _custodialSentenceLength = TimeSpan.FromSeconds(dbitem.CustodialSentenceLength);
         _calculatedBail = dbitem.CalculatedBail;
-        HasBeenFinalised = dbitem.IsFinalised;
+        _hasBeenFinalised = dbitem.IsFinalised;
         _executionPunishment = dbitem.ExecutionPunishment;
         _fineHasBeenPaid = dbitem.FineHasBeenPaid;
         _sentenceHasBeenServed = dbitem.SentenceHasBeenServed;

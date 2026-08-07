@@ -85,7 +85,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         Gameworld = gameworld;
         LoadFromDatabase(character);
         CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
-        LoginDateTime = character.LastLoginTime ?? DateTime.MinValue;
+        _loginDateTime = character.LastLoginTime ?? DateTime.MinValue;
         LastMinutesUpdate = LoginDateTime;
         _dbTotalMinutesPlayed = character.TotalMinutesPlayed;
         LoadEffects(XElement.Parse(character.EffectData.IfNullOrWhiteSpace("<Effects/>")));

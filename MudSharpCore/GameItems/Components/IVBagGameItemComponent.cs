@@ -461,7 +461,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
                     continue;
                 }
 
-                Connect(null, connectable);
+                RestorePersistedConnection(connectable, () => Connect(null, connectable));
                 break;
             }
         }
@@ -495,13 +495,12 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
                     continue;
                 }
 
-                Connect(null, connectable);
+                RestorePersistedConnection(connectable, () => Connect(null, connectable));
                 break;
             }
         }
 
         _pendingDependentLoadTimeConnections.Clear();
-        Changed = true;
     }
 
     #region IOpenable Members

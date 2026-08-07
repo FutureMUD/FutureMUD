@@ -38,7 +38,7 @@ Live crops/outputs cover maize/corn, potatoes, sweet potatoes, cassava, sugarcan
 
 Renaissance selection already receives `SeedPrimaryProductionToolsAndProps()`. Live references include `primary_production_saltpeter_deposit`, `primary_production_sulfur_deposit`, `primary_production_kaolin_deposit`, metal-ore/lead deposits, clay banks, charcoal sites/tools, glass furnaces, and common prospecting/mining/quarrying/smelting apparatus.
 
-The named skills, materials, crop definitions, and generic primary-production commodity references now resolve. Complete chains still require matchlock/wheellock barrels and locks, springs/screws/stocks, safe blackpowder and shot manufacture, functional press crafts, lens/mirror-glass production, clock parts, porcelain/glaze specialisation, finished textile/dye crafts, global-crop processing crafts, and maritime-store projects.
+The named skills, materials, crop definitions, and generic primary-production commodity references now resolve. The era-gated `mill and corn black powder` craft now turns measured physical saltpeter, charcoal, sulfur, and water into material-backed `gunpowder` commodity stock with a tagged mortar and pestle. Complete chains still require matchlock/wheellock barrels and locks, springs/screws/stocks, ingredient-refining and powder-grade variants, shot manufacture, functional press crafts, lens/mirror-glass production, clock parts, porcelain/glaze specialisation, finished textile/dye crafts, global-crop processing crafts, and maritime-store projects.
 
 ## Gate for future implementation
 

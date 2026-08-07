@@ -50,6 +50,21 @@ What is your choice? ", (context, answers) => true,
 						} } return (true, string.Empty);
 				}
 			),
+		("scope",
+				@"This database already has managed ItemSeeder content. You can reconcile the whole selected-era catalogue, or run the much smaller black-powder support repair when you only need the physical ammunition, tools, tags, weapon items, and gunpowder craft used by muskets and artillery.
+
+Enter #Ball#0 for the complete catalogue, or #Bblackpowder#0 for only black-powder weapon support.
+
+What is your choice? ",
+				(context, answers) => context.SeederManagedRecords.Any(x => x.Seeder == "Items"),
+				(text, context) =>
+				{
+					return text.Trim().ToLowerInvariant() switch
+					{
+						"" or "all" or "blackpowder" => (true, string.Empty),
+						_ => (false, "You must enter either 'all' or 'blackpowder'.")
+					};
+				}),
 	};
 
     /// <inheritdoc />
@@ -274,18 +289,38 @@ What is your choice? ", (context, answers) => true,
 		using var transaction = context.Database.IsRelational() ? context.Database.BeginTransaction() : null;
 		try
 		{
-        RunSeedStage("Loading item prerequisites", InitialiseDependencies);
+		RunSeedStage("Loading item prerequisites", InitialiseDependencies);
+		var blackPowderOnly = IsBlackPowderOnlyScope(_questionAnswers);
 		if (!_manifestCaptureOnly && _questionAnswers.TryGetValue("eras", out var requestedEras) && HasAnyEra(requestedEras, "renaissance"))
 		{
 			RunSeedStage("Validating Renaissance military prerequisites", ValidateRenaissanceMilitaryPrerequisites);
 		}
-		if (!_manifestCaptureOnly && _questionAnswers.TryGetValue("eras", out requestedEras) &&
+		if (!blackPowderOnly && !_manifestCaptureOnly && _questionAnswers.TryGetValue("eras", out requestedEras) &&
 			HasAnyEra(requestedEras, "renaissance", "earlymodern"))
 		{
 			RunSeedStage("Validating Renaissance and Early Modern jewellery and door prerequisites",
 				ValidateRenaissanceEarlyModernJewelleryDoorsPrerequisites);
 			RunSeedStage("Validating historical medical prerequisites",
 				() => ValidateHistoricalMedicalPrerequisites(requestedEras));
+		}
+		if (blackPowderOnly)
+		{
+			SeedBlackPowderWeaponSupportItems();
+			RunSeedStage("Saving black-powder item changes before crafting", SaveItemChangesBeforeCrafting);
+			RunSeedStage("Creating black-powder crafting support progs", () =>
+			{
+				using var manifestModule = UseManifestModule("foundations");
+				CreateProgs();
+			});
+			SeedBlackPowderCraftsOnly();
+			RunSeedStage("Saving black-powder item and craft changes", () => _context.SaveChanges());
+			transaction?.Commit();
+			Console.WriteLine($"[Item Seeder] Completed in {_progressStopwatch!.Elapsed.TotalSeconds:N1}s.");
+
+			var focusedSummary = BuildManifestResultSummary();
+			return string.IsNullOrWhiteSpace(focusedSummary)
+				? "The black-powder support reconciliation completed successfully."
+				: $"The black-powder support reconciliation completed successfully.{Environment.NewLine}{focusedSummary}";
 		}
 
         SeedReworkItems();
@@ -343,6 +378,16 @@ What is your choice? ", (context, answers) => true,
 	{
 		_progressStopwatch = Stopwatch.StartNew();
 		_progressStage = 0;
+		if (IsBlackPowderOnlyScope(questionAnswers))
+		{
+			var focusedEras = questionAnswers.GetValueOrDefault("eras", string.Empty);
+			_progressStageCount = 6 +
+			                      new[] { "renaissance", "earlymodern" }
+				                      .Count(era => HasAnyEra(focusedEras, era)) +
+			                      (HasAnyEra(focusedEras, "renaissance") ? 1 : 0);
+			return;
+		}
+
 		_progressStageCount = 8; // Prerequisites, craft progs, the item flush, four craft batches, and the final save.
 
 		if (!questionAnswers.TryGetValue("eras", out var eras))
@@ -382,6 +427,17 @@ What is your choice? ", (context, answers) => true,
 		{
 			_progressStageCount++;
 		}
+	}
+
+	private static bool IsBlackPowderOnlyScope(IReadOnlyDictionary<string, string>? questionAnswers)
+	{
+		return questionAnswers?.TryGetValue("scope", out var scope) == true &&
+		       scope.Equals("blackpowder", StringComparison.OrdinalIgnoreCase);
+	}
+
+	internal static bool IsBlackPowderOnlyScopeForTesting(IReadOnlyDictionary<string, string>? questionAnswers)
+	{
+		return IsBlackPowderOnlyScope(questionAnswers);
 	}
 
 	private void RunSeedStage(string description, Action action)
@@ -1650,6 +1706,80 @@ What is your choice? ", (context, answers) => true,
 	{
 		var selected = ParseEraTokens(eras);
 		return eraKeys.Any(x => selected.Contains(x, StringComparer.OrdinalIgnoreCase));
+	}
+
+	private void SeedBlackPowderWeaponSupportItems()
+	{
+		if (_questionAnswers?.TryGetValue("eras", out var eras) != true || string.IsNullOrWhiteSpace(eras))
+		{
+			return;
+		}
+
+		RunSeedStage("Reconciling shared black-powder ammunition and tools", () =>
+		{
+			using var manifestModule = UseManifestModule("shared-preindustrial", "renaissance", "earlymodern");
+			SeedPreIndustrialMilitarySupportGoods();
+			EnsureFocusedItemTag("preindustrial_firearms_match_cord_bundle",
+				"Functions / Material Functions / Match Cord");
+			EnsureFocusedItemTag("preindustrial_firearms_musket_wadding_packet",
+				"Functions / Material Functions / Musket Wadding");
+			EnsureFocusedItemTag("preindustrial_firearms_ramrod",
+				"Functions / Tools / Firearm Tools / Musket Ramrod");
+			EnsureFocusedItemTag("preindustrial_firearms_touchhole_pick",
+				"Functions / Tools / Firearm Tools / Musket Unjamming Tool");
+			EnsureFocusedItemTag("preindustrial_firearms_touchhole_pick",
+				"Functions / Tools / Artillery Tools / Artillery Vent Tool");
+			EnsureFocusedItemTag("preindustrial_firearms_cleaning_rod",
+				"Functions / Tools / Firearm Tools / Musket Cleaning Rod");
+		});
+
+		if (HasAnyEra(eras, "renaissance"))
+		{
+			RunSeedStage("Reconciling Renaissance firearms and artillery", () =>
+			{
+				using var manifestModule = UseManifestModule("renaissance", "renaissance");
+				SeedRenaissanceBlackPowderSupportItems();
+				EnsureFocusedItemTag("renaissance_military_linstock_ash",
+					"Functions / Tools / Artillery Tools / Artillery Linstock");
+				EnsureFocusedItemTag("renaissance_military_artillery_ramrod",
+					"Functions / Tools / Artillery Tools / Artillery Rammer");
+			});
+		}
+
+		if (HasAnyEra(eras, "earlymodern"))
+		{
+			RunSeedStage("Reconciling Early Modern firearms and artillery", () =>
+			{
+				using var manifestModule = UseManifestModule("earlymodern", "earlymodern");
+				SeedEarlyModernBlackPowderSupportItems();
+				EnsureFocusedItemTag("earlymodern_military_naval_cannon_sponge",
+					"Functions / Tools / Artillery Tools / Artillery Sponge");
+				EnsureFocusedItemTag("earlymodern_military_naval_artillery_linstock",
+					"Functions / Tools / Artillery Tools / Artillery Linstock");
+				EnsureFocusedItemTag("earlymodern_military_firearm_gunflint_packet",
+					"Functions / Material Functions / Ignition Source");
+				EnsureFocusedItemTag("earlymodern_military_firearm_pyrite_packet",
+					"Functions / Material Functions / Ignition Source");
+				EnsureFocusedItemTag("earlymodern_military_naval_peterero_chamber",
+					"Functions / Military Equipment / Military Ammunition");
+			});
+		}
+	}
+
+	private void EnsureFocusedItemTag(string stableReference, string tagPath)
+	{
+		if (!_itemsByStableReference.TryGetValue(stableReference, out var item) ||
+		    !_tagsByFullPath.TryGetValue(tagPath, out var tag) ||
+		    item.GameItemProtosTags.Any(x => x.TagId == tag.Id))
+		{
+			return;
+		}
+
+		item.GameItemProtosTags.Add(new GameItemProtosTags
+		{
+			GameItemProto = item,
+			TagId = tag.Id
+		});
 	}
 
 	public void SeedReworkItems()

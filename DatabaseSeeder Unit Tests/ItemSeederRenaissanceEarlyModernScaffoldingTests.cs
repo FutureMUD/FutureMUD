@@ -93,6 +93,39 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 	}
 
 	[TestMethod]
+	public void EarlyModernBlackPowderSupportItems_HaveRuntimeFunctionalTags()
+	{
+		var items = ItemSeeder.EarlyModernSupportedMilitaryItemSpecsForTesting
+			.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
+
+		CollectionAssert.Contains(items["earlymodern_military_naval_cannon_sponge"].Tags.ToArray(),
+			"Functions / Tools / Artillery Tools / Artillery Sponge");
+		CollectionAssert.Contains(items["earlymodern_military_naval_artillery_linstock"].Tags.ToArray(),
+			"Functions / Tools / Artillery Tools / Artillery Linstock");
+		foreach (var reference in new[]
+		         {
+			         "earlymodern_military_firearm_gunflint_packet",
+			         "earlymodern_military_firearm_pyrite_packet"
+		         })
+		{
+			CollectionAssert.Contains(items[reference].Tags.ToArray(),
+				"Functions / Material Functions / Ignition Source");
+		}
+		CollectionAssert.Contains(items["earlymodern_military_naval_peterero_chamber"].Tags.ToArray(),
+			"Functions / Military Equipment / Military Ammunition");
+		CollectionAssert.AreEquivalent(
+			new[]
+			{
+				"earlymodern_military_naval_cannon_sponge",
+				"earlymodern_military_naval_artillery_linstock",
+				"earlymodern_military_firearm_gunflint_packet",
+				"earlymodern_military_firearm_pyrite_packet",
+				"earlymodern_military_naval_peterero_chamber"
+			},
+			ItemSeeder.EarlyModernBlackPowderSupportStableReferencesForTesting.ToArray());
+	}
+
+	[TestMethod]
 	public void EraItemStableReferencesAvoidProcessProvenanceAndRepeatedSegments()
 	{
 		var stableReferences = Directory

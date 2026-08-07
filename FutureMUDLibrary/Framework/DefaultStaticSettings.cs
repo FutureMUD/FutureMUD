@@ -959,7 +959,9 @@ public static class DefaultStaticSettings
             { "MusketCleaningRamrodTag", "0"},
             { "GunpowderMaterialId", "0"},
             { "WadItemTagId", "0"},
-            { "MusketUnjammingToolTag", "0"},
+			{ "MusketUnjammingToolTag", "0"},
+			{ "MusketMatchCordTag", "0"},
+			{ "MusketIgnitionSourceTag", "0"},
             { "UnjammingGunDurationExpression", "20 - (degrees * 3)"},
             { "MaximumMoveTimeMilliseconds", "60000"}
         };

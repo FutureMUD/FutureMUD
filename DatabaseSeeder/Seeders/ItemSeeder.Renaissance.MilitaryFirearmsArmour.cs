@@ -61,6 +61,13 @@ public partial class ItemSeeder
 		.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
 		.ToArray();
 
+	private static readonly IReadOnlySet<string> RenaissanceBlackPowderSupportStableReferences =
+		new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"renaissance_military_linstock_ash",
+			"renaissance_military_artillery_ramrod"
+		};
+
 	private const string RenaissanceMilitaryPrerequisiteRerunGuidance =
 		"Rerun Combat with its weapons, ranged weapons, and early-gun packages enabled, then rerun UsefulSeeder if any listed material or tag is absent before rerunning Items.";
 
@@ -101,6 +108,35 @@ public partial class ItemSeeder
 		}
 
 		UpsertOutfitManifests(RenaissanceMilitaryArmourOutfitManifestSpecs);
+	}
+
+	private void SeedRenaissanceBlackPowderSupportItems()
+	{
+		foreach (var spec in RenaissanceMilitaryItemSpecs.Where(x =>
+			         RenaissanceBlackPowderSupportStableReferences.Contains(x.StableReference)))
+		{
+			CreateItem(
+				spec.StableReference,
+				spec.Noun,
+				spec.ShortDescription,
+				null,
+				spec.FullDescription,
+				spec.Size,
+				spec.Quality,
+				spec.WeightInGrams,
+				spec.Cost,
+				spec.Skinnable,
+				false,
+				spec.Material,
+				spec.Tags,
+				spec.Components,
+				null,
+				null,
+				null,
+				null,
+				spec.BuilderNotes,
+				allowLegacyShortDescriptionMatch: false);
+		}
 	}
 
 	private void ValidateRenaissanceMilitaryPrerequisites()
@@ -173,6 +209,8 @@ public partial class ItemSeeder
 	internal static IReadOnlyList<string> RenaissanceMilitaryTagsForTesting => RenaissanceMilitaryRequiredTags;
 	internal static IReadOnlyList<string> RenaissanceMilitaryComponentsForTesting => RenaissanceMilitaryRequiredComponents;
 	internal static string RenaissanceMilitaryPrerequisiteRerunGuidanceForTesting => RenaissanceMilitaryPrerequisiteRerunGuidance;
+	internal static IReadOnlySet<string> RenaissanceBlackPowderSupportStableReferencesForTesting =>
+		RenaissanceBlackPowderSupportStableReferences;
 
 	internal static IReadOnlyList<string> ValidateRenaissanceMilitaryDependenciesForTesting(
 		IEnumerable<string> materials,

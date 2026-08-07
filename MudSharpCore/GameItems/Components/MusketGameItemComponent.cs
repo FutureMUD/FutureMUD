@@ -42,7 +42,7 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
     public MusketGameItemComponent(MusketGameItemComponentProto proto, IGameItem parent, bool temporary = false) : base(parent, proto, temporary)
     {
         _prototype = proto;
-		IgnitionStrikesRemaining = 100;
+		IgnitionStrikesRemaining = 0;
     }
 
     public MusketGameItemComponent(Models.GameItemComponent component, MusketGameItemComponentProto proto, IGameItem parent) : base(component, parent)
@@ -55,16 +55,17 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
 
     public MusketGameItemComponent(MusketGameItemComponent rhs, IGameItem newParent, bool temporary = false) : base(rhs, newParent, temporary)
     {
-        _prototype = rhs._prototype;
+		_prototype = rhs._prototype;
 		// A copied item must not share physical barrel contents or attached items with its source.
-		IsReadied = rhs.IsReadied;
+		IsReadied = false;
 		NeedsCleaning = rhs.NeedsCleaning;
 		IsJammed = rhs.IsJammed;
-		LoadStage = rhs.LoadStage;
-		TapLoaded = rhs.TapLoaded;
-		MatchLit = rhs.MatchLit;
-		WheelWound = rhs.WheelWound;
-		IgnitionStrikesRemaining = rhs.IgnitionStrikesRemaining;
+		LoadStage = 0;
+		TapLoaded = false;
+		MatchLit = false;
+		WheelWound = false;
+		IgnitionStrikesRemaining = 0;
+		IsBlankLoad = false;
 		IsEmplaced = rhs.IsEmplaced;
 		PrimaryWieldedLocation = rhs.PrimaryWieldedLocation;
     }
@@ -78,7 +79,8 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
 		TapLoaded = bool.TryParse(root.Element("TapLoaded")?.Value, out var tapLoaded) && tapLoaded;
 		MatchLit = bool.TryParse(root.Element("MatchLit")?.Value, out var matchLit) && matchLit;
 		WheelWound = bool.TryParse(root.Element("WheelWound")?.Value, out var wheelWound) && wheelWound;
-		IgnitionStrikesRemaining = Math.Max(0, int.TryParse(root.Element("IgnitionStrikesRemaining")?.Value, out var strikes) ? strikes : 100);
+		IgnitionStrikesRemaining = Math.Max(0, int.TryParse(root.Element("IgnitionStrikesRemaining")?.Value, out var strikes) ? strikes : 0);
+		IsBlankLoad = bool.TryParse(root.Element("IsBlankLoad")?.Value, out var isBlankLoad) && isBlankLoad;
 		IsEmplaced = bool.TryParse(root.Element("IsEmplaced")?.Value, out var isEmplaced) && isEmplaced;
         PrimaryWieldedLocation = Gameworld.BodypartPrototypes.Get(long.Parse(root.Element("Wielded")?.Value ?? "0")) as IWield;
         foreach (XElement element in root.Element("Magazine")?.Elements("Item") ?? [])
@@ -112,6 +114,26 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
             _ramrod = connectedItem.GetItemType<IBeltable>();
             connectedItem.GetItemType<IBeltable>().ConnectedTo = this;
         }
+
+		_matchCord = Gameworld.TryGetItem(long.Parse(root.Element("MatchCord")?.Value ?? "0"), true);
+		if (_matchCord is not null)
+		{
+			_matchCord.ContainedIn = Parent;
+		}
+		_ignitionStone = Gameworld.TryGetItem(long.Parse(root.Element("IgnitionStone")?.Value ?? "0"), true);
+		if (_ignitionStone is not null)
+		{
+			_ignitionStone.ContainedIn = Parent;
+		}
+		if (_matchCord is null)
+		{
+			MatchLit = false;
+		}
+		if (_ignitionStone is null)
+		{
+			IgnitionStrikesRemaining = 0;
+			WheelWound = false;
+		}
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -132,11 +154,14 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
 			new XElement("MatchLit", MatchLit),
 			new XElement("WheelWound", WheelWound),
 			new XElement("IgnitionStrikesRemaining", IgnitionStrikesRemaining),
+			new XElement("IsBlankLoad", IsBlankLoad),
 			new XElement("IsEmplaced", IsEmplaced),
             new XElement("Wielded", PrimaryWieldedLocation?.Id ?? 0),
             new XElement("Bayonet", _bayonet?.Parent.Id ?? 0),
             new XElement("Sights", _sights?.Parent.Id ?? 0),
             new XElement("Ramrod", _ramrod?.Parent.Id ?? 0),
+			new XElement("MatchCord", _matchCord?.Id ?? 0),
+			new XElement("IgnitionStone", _ignitionStone?.Id ?? 0),
             new XElement("Magazine",
                 from item in _magazineContents
                 select new XElement("Item", item.Id)
@@ -145,11 +170,11 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
     }
     #endregion
 
-    public override double ComponentWeight => MagazineContents.Sum(x => x.Weight);
+    public override double ComponentWeight => AllContainedItems.Sum(x => x.Weight);
 
     public override double ComponentBuoyancy(double fluidDensity)
     {
-        return MagazineContents.Sum(x => x.Buoyancy(fluidDensity));
+		return AllContainedItems.Sum(x => x.Buoyancy(fluidDensity));
     }
 
     public override void Quit()
@@ -162,6 +187,8 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
         _bayonet?.Parent.Quit();
         _ramrod?.Parent.Quit();
         _sights?.Parent.Quit();
+		_matchCord?.Quit();
+		_ignitionStone?.Quit();
     }
 
     public override void Delete()
@@ -175,6 +202,8 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
         _bayonet?.Parent.Delete();
         _ramrod?.Parent.Delete();
         _sights?.Parent.Delete();
+		_matchCord?.Delete();
+		_ignitionStone?.Delete();
     }
 
     public override void Login()
@@ -187,6 +216,8 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
         _bayonet?.Parent.Login();
         _ramrod?.Parent.Login();
         _sights?.Parent.Login();
+		_matchCord?.Login();
+		_ignitionStone?.Login();
     }
 
     public override bool DescriptionDecorator(DescriptionType type)
@@ -342,7 +373,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             return false;
         }
 
-        IInventoryPlan plan = _prototype.LoadTemplateClean.CreatePlan(actor);
+		IInventoryPlan plan = _prototype.UnjamTemplate.CreatePlan(actor);
         if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible)
         {
             return false;
@@ -359,7 +390,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             return $"You cannot unjam {Parent.HowSeen(actor)} because it is not jammed.";
         }
 
-        IInventoryPlan plan = _prototype.LoadTemplateClean.CreatePlan(actor);
+		IInventoryPlan plan = _prototype.UnjamTemplate.CreatePlan(actor);
         switch (plan.PlanIsFeasible())
         {
             case InventoryPlanFeasibility.NotFeasibleMissingItems:
@@ -382,10 +413,15 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             return false;
         }
 
-        IInventoryPlan plan = _prototype.LoadTemplateClean.CreatePlan(actor);
+		IInventoryPlan plan = _prototype.UnjamTemplate.CreatePlan(actor);
         IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
         IGameItem ramrod = results.FirstOrDefault(x => x.OriginalReference?.ToString() == "ramrod").PrimaryTarget;
-        actor.AddEffect(new UnjammingGun(actor, this, ramrod, plan.AssociatedEffects.FirstOrDefault(x => x.TargetItem == ramrod).DesiredState), UnjammingGun.EffectDuration(actor, this, ramrod));
+		var effect = new UnjammingGun(actor, this, ramrod,
+			plan.AssociatedEffects.FirstOrDefault(x => x.TargetItem == ramrod).DesiredState)
+		{
+			OnStopAction = _ => plan.FinalisePlanWithExemptions([Parent])
+		};
+		actor.AddEffect(effect, UnjammingGun.EffectDuration(actor, this, ramrod));
         return true;
     }
 
@@ -435,13 +471,18 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 	public bool MatchLit { get; private set; }
 	public bool WheelWound { get; private set; }
 	public int IgnitionStrikesRemaining { get; private set; }
+	public bool IsBlankLoad { get; private set; }
 
     private readonly List<IGameItem> _magazineContents = new();
+	private IGameItem _matchCord;
+	private IGameItem _ignitionStone;
 
     /// <inheritdoc />
     public IEnumerable<IGameItem> MagazineContents => _magazineContents;
 
-    public IEnumerable<IGameItem> AllContainedItems => MagazineContents;
+    public IEnumerable<IGameItem> AllContainedItems => MagazineContents
+		.Concat(_matchCord is null ? [] : new[] { _matchCord })
+		.Concat(_ignitionStone is null ? [] : new[] { _ignitionStone });
 
     /// <inheritdoc />
     public Difficulty AimDifficulty => WeaponType.BaseAimDifficulty;
@@ -455,9 +496,22 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+		if (IsJammed)
+		{
+			return false;
+		}
+		if (!BlackPowderWeaponEnvironment.CanHandlePowder(loader))
+		{
+			return false;
+		}
+
         switch (LoadStage)
         {
             case 0:
+				if (mode.In(LoadMode.NoClean, LoadMode.TapNoClean) || !NeedsCleaning)
+				{
+					goto case 1;
+				}
                 switch (mode)
                 {
                     case LoadMode.Blank:
@@ -469,19 +523,22 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 goto case 1;
             case 1:
                 // Try Cartridges first
-                if (_prototype.LoadTemplateLoadCartridge.CreatePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+				if (mode != LoadMode.Blank &&
+					_prototype.LoadTemplateLoadCartridge.CreatePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
                 {
                     return true;
                 }
 
-                if (_prototype.LoadTemplateLoadPowder.CreatePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+				if (BlackPowderWeaponEnvironment.CanHandleExposedPowder(loader) &&
+					_prototype.LoadTemplateLoadPowder.CreatePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
                 {
                     return true;
                 }
 
                 return false;
             case 2:
-                return _prototype.LoadTemplateLoadBall.CreatePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
+				return (mode == LoadMode.Blank ? _prototype.LoadTemplateLoadWad : _prototype.LoadTemplateLoadBall)
+					.CreatePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
             case 3:
                 return _prototype.LoadTemplateLoadRamrod.CreatePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
             default:
@@ -492,9 +549,22 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+		if (IsJammed)
+		{
+			return $"You must unjam {Parent.HowSeen(loader)} before loading it.";
+		}
+		if (!BlackPowderWeaponEnvironment.CanHandlePowder(loader))
+		{
+			return "You cannot load a black-powder weapon while it is submerged.";
+		}
+
         switch (LoadStage)
         {
             case 0:
+				if (mode.In(LoadMode.NoClean, LoadMode.TapNoClean) || !NeedsCleaning)
+				{
+					goto case 1;
+				}
                 switch (mode)
                 {
                     case LoadMode.Blank:
@@ -515,16 +585,23 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 goto case 1;
             case 1:
                 // Try Cartridges first
-                switch (_prototype.LoadTemplateLoadCartridge.CreatePlan(loader).PlanIsFeasible())
+				if (mode != LoadMode.Blank)
                 {
-                    case InventoryPlanFeasibility.NotFeasibleNotEnoughHands:
-                    case InventoryPlanFeasibility.NotFeasibleNotEnoughWielders:
-                        return $"You don't have enough {loader.Body.WielderDescriptionPlural} to carry out that action.";
-                    case InventoryPlanFeasibility.NotFeasibleMissingItems:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+					switch (_prototype.LoadTemplateLoadCartridge.CreatePlan(loader).PlanIsFeasible())
+					{
+						case InventoryPlanFeasibility.NotFeasibleNotEnoughHands:
+						case InventoryPlanFeasibility.NotFeasibleNotEnoughWielders:
+							return $"You don't have enough {loader.Body.WielderDescriptionPlural} to carry out that action.";
+						case InventoryPlanFeasibility.NotFeasibleMissingItems:
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
                 }
+				if (!BlackPowderWeaponEnvironment.CanHandleExposedPowder(loader))
+				{
+					return "The precipitation is too heavy to pour an exposed loose-powder charge safely.";
+				}
 
                 switch (_prototype.LoadTemplateLoadPowder.CreatePlan(loader).PlanIsFeasible())
                 {
@@ -537,13 +614,16 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                         throw new ArgumentOutOfRangeException();
                 }
             case 2:
-                switch (_prototype.LoadTemplateLoadBall.CreatePlan(loader).PlanIsFeasible())
+				switch ((mode == LoadMode.Blank ? _prototype.LoadTemplateLoadWad : _prototype.LoadTemplateLoadBall)
+				        .CreatePlan(loader).PlanIsFeasible())
                 {
                     case InventoryPlanFeasibility.NotFeasibleNotEnoughHands:
                     case InventoryPlanFeasibility.NotFeasibleNotEnoughWielders:
                         return $"You don't have enough {loader.Body.WielderDescriptionPlural} to carry out that action.";
                     case InventoryPlanFeasibility.NotFeasibleMissingItems:
-                        return $"You don't have a musket ball that you could use to load your weapon.";
+						return mode == LoadMode.Blank
+							? "You don't have tagged musket wadding for the blank charge."
+							: "You need both a compatible musket ball and tagged musket wadding.";
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -559,7 +639,9 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                         throw new ArgumentOutOfRangeException();
                 }
             default:
-                throw new ApplicationException("Unknown WhyCannotLoad reason in MusketGameItemComponent.WhyCannotLoad");
+				return IsLoaded
+					? $"{Parent.HowSeen(loader, true)} is already fully loaded."
+					: $"{Parent.HowSeen(loader, true)} cannot be loaded from its current state.";
         }
     }
 
@@ -594,9 +676,9 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             ));
         }
 
-        if (!CanLoad(loader))
+		if (!CanLoad(loader, ignoreEmpty, mode))
         {
-            loader.Send(WhyCannotLoad(loader));
+			loader.Send(WhyCannotLoad(loader, ignoreEmpty, mode));
             return;
         }
 
@@ -606,8 +688,9 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         switch (LoadStage)
         {
             case 0:
-                if (!NeedsCleaning)
+				if (!NeedsCleaning || mode.In(LoadMode.NoClean, LoadMode.TapNoClean))
                 {
+					LoadStage = 1;
                     goto case 1;
                 }
 
@@ -632,43 +715,53 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             case 1:
                 // Try Cartridges first
                 plan = _prototype.LoadTemplateLoadCartridge.CreatePlan(loader);
-                if (plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+				if (mode != LoadMode.Blank && plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
                 {
                     results = plan.ExecuteWholePlan();
-                    IGameItem cartridge = results.First(x => x.OriginalReference?.ToString() == "cartridge").PrimaryTarget;
+					IGameItem cartridgeSource = results.First(x => x.OriginalReference?.ToString() == "cartridge").PrimaryTarget;
+					IGameItem cartridge = TakeOnePhysicalItem(loader, cartridgeSource);
                     loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteCartridge, loader, loader, Parent, cartridge), flags: OutputFlags.InnerWrap));
-                    loader.Body.Take(cartridge);
-                    cartridge.ContainedIn = Parent;
-                    _magazineContents.Add(cartridge);
+					ContainLoadedItem(cartridge);
                     plan.FinalisePlanWithExemptions([cartridge, Parent]);
                     LoadStage = 3;
+					IsBlankLoad = false;
                     Changed = true;
                     AddEffect();
                     return;
                 }
 
                 plan = _prototype.LoadTemplateLoadPowder.CreatePlan(loader);
-                plan.ExecuteWholePlan();
-                IGameItem powder = CommodityGameItemComponentProto.CreateNewCommodity(MusketGameItemComponentProto.GunpowderMaterial, _prototype.PowderVolumePerShot, null, false);
-                powder.ContainedIn = Parent;
-                _magazineContents.Add(powder);
-                powder.Login();
-                powder.HandleEvent(EventType.ItemFinishedLoading, powder);
+				results = plan.ExecuteWholePlan();
+				IGameItem powderSource = results.First(x => x.OriginalReference?.ToString() == "gunpowder").PrimaryTarget;
+				IGameItem powder = powderSource.GetByWeight(loader.Body, _prototype.PowderVolumePerShot);
+				ContainLoadedItem(powder);
                 loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmotePowder, loader, loader, Parent, powder), flags: OutputFlags.InnerWrap));
-                plan.FinalisePlanWithExemptions([Parent]);
+				plan.FinalisePlanWithExemptions([powder, Parent]);
                 LoadStage = 2;
+				IsBlankLoad = mode == LoadMode.Blank;
                 Changed = true;
                 AddEffect();
                 return;
             case 2:
-                plan = _prototype.LoadTemplateLoadBall.CreatePlan(loader);
+				plan = (mode == LoadMode.Blank ? _prototype.LoadTemplateLoadWad : _prototype.LoadTemplateLoadBall).CreatePlan(loader);
                 results = plan.ExecuteWholePlan();
-                IGameItem ball = results.First(x => x.OriginalReference?.ToString() == "ball").PrimaryTarget;
-                loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteBall, loader, loader, Parent, ball, null), flags: OutputFlags.InnerWrap));
-                loader.Body.Take(ball);
-                ball.ContainedIn = Parent;
-                _magazineContents.Add(ball);
-                plan.FinalisePlanWithExemptions([ball, Parent]);
+				var wadSource = results.First(x => x.OriginalReference?.ToString() == "wad").PrimaryTarget;
+				IGameItem wad = TakeOnePhysicalItem(loader, wadSource);
+				ContainLoadedItem(wad);
+				IGameItem ball = null;
+				IGameItem ballSource = null;
+				if (mode != LoadMode.Blank)
+				{
+					ballSource = results.First(x => x.OriginalReference?.ToString() == "ball").PrimaryTarget;
+					ball = TakeOnePhysicalItem(loader, ballSource);
+					ContainLoadedItem(ball);
+				}
+				var shotPerceivable = (IPerceivable)ball ?? new DummyPerceivable("the blank charge");
+				loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteBall, loader, loader,
+					Parent, shotPerceivable, wad), flags: OutputFlags.InnerWrap));
+				plan.FinalisePlanWithExemptions(ball is null ? [wad, Parent] : [ball, wad, Parent]);
+				ReleaseSplitSourceFromHands(loader, wadSource, wad);
+				ReleaseSplitSourceFromHands(loader, ballSource, ball);
                 LoadStage = 3;
                 Changed = true;
                 AddEffect();
@@ -702,14 +795,52 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         }
     }
 
+	private static IGameItem TakeOnePhysicalItem(ICharacter actor, IGameItem source)
+	{
+		var stack = source.GetItemType<IStackable>();
+		if (stack is not null && stack.Quantity > 1)
+		{
+			var split = stack.Split(1);
+			split.Login();
+			split.HandleEvent(EventType.ItemFinishedLoading, split);
+			return split;
+		}
+
+		actor.Body.Take(source);
+		return source;
+	}
+
+	private static void ReleaseSplitSourceFromHands(ICharacter actor, IGameItem source, IGameItem installed)
+	{
+		if (source is null || installed is null || source == installed ||
+		    !actor.Body.HeldOrWieldedItems.Contains(source))
+		{
+			return;
+		}
+
+		actor.Body.Drop(source, silent: true);
+	}
+
+	private void ContainLoadedItem(IGameItem item)
+	{
+		item.ContainedIn = Parent;
+		_magazineContents.Add(item);
+	}
+
     /// <inheritdoc />
     public bool CanReady(ICharacter readier)
     {
+		if (IsReadied || !IsLoaded || !BlackPowderWeaponEnvironment.CanHandlePowder(readier))
+		{
+			return false;
+		}
 		if (_prototype.RequiresRest && !IsEmplaced)
 		{
 			return false;
 		}
-		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock && !MatchLit && !HasMatchCord(readier))
+		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock &&
+			(!BlackPowderWeaponEnvironment.CanSustainOpenFlame(readier) ||
+			 (_matchCord is null && !HasMatchCord(readier))))
 		{
 			return false;
 		}
@@ -729,11 +860,28 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotReady(ICharacter readier)
     {
+		if (IsReadied)
+		{
+			return $"{Parent.HowSeen(readier, true)} is already readied.";
+		}
+		if (!IsLoaded)
+		{
+			return $"{Parent.HowSeen(readier, true)} must be fully loaded before it can be readied.";
+		}
+		if (!BlackPowderWeaponEnvironment.CanHandlePowder(readier))
+		{
+			return "You cannot ready a black-powder weapon while it is submerged.";
+		}
 		if (_prototype.RequiresRest && !IsEmplaced)
 		{
 			return $"You must emplace {Parent.HowSeen(readier)} on a rest before readying it.";
 		}
-		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock && !MatchLit && !HasMatchCord(readier))
+		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock &&
+			!BlackPowderWeaponEnvironment.CanSustainOpenFlame(readier))
+		{
+			return "A match cord cannot remain lit here; it needs a gaseous atmosphere and reasonably dry weather.";
+		}
+		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock && _matchCord is null && !HasMatchCord(readier))
 		{
 			return $"{Parent.HowSeen(readier, true)} needs a length of match cord before it can be readied.";
 		}
@@ -760,14 +908,12 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             return false;
         }
 
-        readier.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.ReadyEmote, readier, readier, Parent),
-            flags: OutputFlags.InnerWrap));
 		switch (_prototype.IgnitionFamily)
 		{
 			case MusketIgnitionFamily.Matchlock:
-				if (!MatchLit)
+				if (_matchCord is null)
 				{
-					ConsumeMatchCord(readier);
+					InstallMatchCord(readier);
 				}
 				MatchLit = true;
 				break;
@@ -775,6 +921,8 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 				WheelWound = true;
 				break;
 		}
+		readier.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.ReadyEmote, readier, readier, Parent),
+			flags: OutputFlags.InnerWrap));
         IsReadied = true;
         Changed = true;
         return true;
@@ -783,13 +931,13 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanUnready(ICharacter readier)
     {
-        return true;
+		return IsReadied;
     }
 
     /// <inheritdoc />
     public string WhyCannotUnready(ICharacter readier)
     {
-        throw new ApplicationException("Should always be able to unready MusketGameItemComponent");
+		return $"{Parent.HowSeen(readier, true)} is not readied.";
     }
 
     /// <inheritdoc />
@@ -804,6 +952,8 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         readier.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnreadyEmote, readier, readier, Parent),
             flags: OutputFlags.InnerWrap));
         IsReadied = false;
+		MatchLit = false;
+		WheelWound = false;
         Changed = true;
         return true;
     }
@@ -815,6 +965,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         {
             return false;
         }
+		if (IsReadied)
+		{
+			return false;
+		}
 
         if (_magazineContents.Count == 0 && LoadStage <= 1)
         {
@@ -831,6 +985,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         {
             return $"{Parent.HowSeen(loader, true)} is jammed and the jam must be cleared first.";
         }
+		if (IsReadied)
+		{
+			return $"You must unready {Parent.HowSeen(loader)} before unloading it.";
+		}
 
         if (_magazineContents.Count == 0 && LoadStage <= 1)
         {
@@ -878,6 +1036,9 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         Changed = true;
         loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnloadEmote, loader, loader, Parent, removedPerceivable)));
         LoadStage = 0;
+		IsBlankLoad = false;
+		TapLoaded = false;
+		IsReadied = false;
         if (removed is not null)
         {
             removed.InsertAtSource(loader);
@@ -893,10 +1054,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     {
 		return ReadyToFire &&
                !IsJammed &&
+			   BlackPowderWeaponEnvironment.CanHandlePowder(actor) &&
 			   (!_prototype.RequiresRest || IsEmplaced) &&
 			   (_prototype.IgnitionFamily != MusketIgnitionFamily.Matchlock || MatchLit) &&
 			   (_prototype.IgnitionFamily != MusketIgnitionFamily.Matchlock ||
-				actor.Location.CurrentWeather(actor)?.Precipitation.PrecipitationIntensityForGunpowder() <= 0.5) &&
+				BlackPowderWeaponEnvironment.CanSustainOpenFlame(actor)) &&
 			   (_prototype.IgnitionFamily != MusketIgnitionFamily.Wheellock || WheelWound) &&
 			   (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock || IgnitionStrikesRemaining > 0) &&
                _bayonet?.Parent.GetItemType<IBayonetAttachment>()?.BlocksFiring != true;
@@ -920,6 +1082,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             return $"You cannot fire {Parent.HowSeen(actor)} because it has not been readied.";
         }
 
+		if (!BlackPowderWeaponEnvironment.CanHandlePowder(actor))
+		{
+			return "You cannot fire a black-powder weapon while it is submerged.";
+		}
+
 		if (_prototype.RequiresRest && !IsEmplaced)
 		{
 			return $"You must emplace {Parent.HowSeen(actor)} on a rest before firing it.";
@@ -941,9 +1108,9 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 		}
 
 		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock &&
-			actor.Location.CurrentWeather(actor)?.Precipitation.PrecipitationIntensityForGunpowder() > 0.5)
+			!BlackPowderWeaponEnvironment.CanSustainOpenFlame(actor))
 		{
-			return $"The exposed match of {Parent.HowSeen(actor)} is too wet to fire reliably.";
+			return $"The exposed match of {Parent.HowSeen(actor)} cannot burn in this atmosphere or precipitation.";
 		}
 
 		if (_prototype.IgnitionFamily is not MusketIgnitionFamily.Matchlock && IgnitionStrikesRemaining <= 0)
@@ -966,6 +1133,12 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 		if (_prototype.IgnitionFamily is not MusketIgnitionFamily.Matchlock)
 		{
 			IgnitionStrikesRemaining = Math.Max(0, IgnitionStrikesRemaining - 1);
+			if (IgnitionStrikesRemaining == 0 && _ignitionStone is not null)
+			{
+				_ignitionStone.ContainedIn = null;
+				_ignitionStone.Delete();
+				_ignitionStone = null;
+			}
 		}
 		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Wheellock)
 		{
@@ -983,7 +1156,24 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         IAmmo ammo = null;
 
         // If there isn't exactly what we expect in the magazine, we always misfire
-        switch (_magazineContents.Count)
+		if (IsBlankLoad)
+		{
+			var powder = _magazineContents.FirstOrDefault(x =>
+				x.GetItemType<ICommodity>() is { } commodity && commodity.Material == _prototype.GunpowderMaterial);
+			var wad = _prototype.WadItemTag is { } wadTag
+				? _magazineContents.FirstOrDefault(x => x.IsA(wadTag))
+				: null;
+			if (_magazineContents.Count != 2 || powder is null || wad is null)
+			{
+				misfire = true;
+				Gameworld.DebugMessage("Musket blank misfired due to unexpected or missing physical barrel contents");
+			}
+			else
+			{
+				wadused = true;
+			}
+		}
+		else switch (_magazineContents.Count)
         {
             case 1:
                 if (cartridge is null)
@@ -1002,9 +1192,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 break;
             case 2:
             case 3:
-                IGameItem powder = _magazineContents.FirstOrDefault(x => x.GetItemType<CommodityGameItemComponent>() is { } commodity && commodity.Material == MusketGameItemComponentProto.GunpowderMaterial);
+				IGameItem powder = _magazineContents.FirstOrDefault(x => x.GetItemType<ICommodity>() is { } commodity && commodity.Material == _prototype.GunpowderMaterial);
                 ball = _magazineContents.FirstOrDefault(x => x.IsItemType<MusketBallGameItemComponent>());
-                IGameItem wad = _magazineContents.FirstOrDefault(x => x.IsA(MusketGameItemComponentProto.WadItemTag));
+				IGameItem wad = _prototype.WadItemTag is { } wadTag
+					? _magazineContents.FirstOrDefault(x => x.IsA(wadTag))
+					: null;
                 if (powder is null || ball is null || (wad is null && _magazineContents.Count == 3))
                 {
                     misfire = true;
@@ -1060,6 +1252,8 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
         // Handle all the unloading etc
         Changed = true;
+		var wasBlank = IsBlankLoad;
+		IsBlankLoad = false;
         LoadStage = 0;
         NeedsCleaning = true;
         IsReadied = false;
@@ -1075,8 +1269,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 item.Delete();
             }
 
-            actor.Location.HandleAudioEcho("An explosion can be heard {0}.", AudioVolume.ExtremelyLoud, Parent,
-                actor.RoomLayer, true, "explosion");
+			if (BlackPowderWeaponEnvironment.CanPropagateSound(actor))
+			{
+				actor.Location.HandleAudioEcho("An explosion can be heard {0}.", AudioVolume.ExtremelyLoud, Parent,
+					actor.RoomLayer, true, "explosion");
+			}
 
             List<IDamage> damages = new();
             foreach (DamageType damageType in new[] { DamageType.Shrapnel, DamageType.Shockwave, DamageType.Burning })
@@ -1127,8 +1324,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
         // Use the shared audio path so hooks observe one origin event and RouteCells retain
         // their coordinate-aware propagation.
-        actor.Location.HandleAudioEcho("A gun shot can be heard {0}.", AudioVolume.ExtremelyLoud, Parent,
-            actor.RoomLayer, true, "gunshot");
+		if (BlackPowderWeaponEnvironment.CanPropagateSound(actor))
+		{
+			actor.Location.HandleAudioEcho("A gun shot can be heard {0}.", AudioVolume.ExtremelyLoud, Parent,
+				actor.RoomLayer, true, "gunshot");
+		}
 
         List<IGameItem> magContents = _magazineContents.ToList();
         _magazineContents.Clear();
@@ -1155,6 +1355,12 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         }
 
         actor.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.FireEmote, actor, actor, target ?? (IPerceivable)new DummyPerceivable("the air"), Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+		if (wasBlank)
+		{
+			UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+				(int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
+			return;
+		}
         IGameItem bullet = bulletProto?.CreateNew() ?? ball;
         if (bullet is not null)
         {
@@ -1194,7 +1400,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
 	/// <summary>
 	/// Installs one physical gunflint or pyrite piece and restores the lock's strike reserve.
-	/// The item must be a stackable source of the correct material; a one-unit split is consumed.
+	/// The item must be a stackable source of the correct material; a one-unit split remains in the lock.
 	/// </summary>
 	public bool TryInstallIgnitionStone(ICharacter actor, IGameItem stone, out string reason)
 	{
@@ -1203,26 +1409,38 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 			reason = "Matchlocks use match cord rather than an ignition stone.";
 			return false;
 		}
-		if (stone == Parent || stone.GetItemType<IStackable>() is null)
+		if (stone == Parent || stone.GetItemType<IStackable>() is null ||
+		    _prototype.IgnitionSourceTag is null || !stone.IsA(_prototype.IgnitionSourceTag))
 		{
-			reason = "You must use a stackable gunflint or pyrite piece.";
+			reason = "You must use a stackable physical item tagged as an ignition source.";
 			return false;
 		}
 
 		var requiredMaterial = _prototype.IgnitionFamily == MusketIgnitionFamily.Wheellock ? "pyrite" : "flint";
-		if (!stone.Material.Name.EqualTo(requiredMaterial))
+		if (stone.Material?.Name.EqualTo(requiredMaterial) != true)
 		{
 			reason = $"{Parent.HowSeen(actor, true)} requires {requiredMaterial.ColourName()}.";
 			return false;
 		}
 
 		var stack = stone.GetItemType<IStackable>()!;
-		var consumed = stack.Quantity > 1 ? stack.Split(1) : stone;
-		if (consumed == stone)
+		var installed = stack.Quantity > 1 ? stack.Split(1) : stone;
+		if (installed == stone)
 		{
 			actor.Body.Take(stone);
 		}
-		consumed.Delete();
+		else
+		{
+			installed.Login();
+			installed.HandleEvent(EventType.ItemFinishedLoading, installed);
+		}
+		if (_ignitionStone is not null)
+		{
+			_ignitionStone.ContainedIn = null;
+			_ignitionStone.InsertAtSource(actor);
+		}
+		installed.ContainedIn = Parent;
+		_ignitionStone = installed;
 		IgnitionStrikesRemaining = 100;
 		WheelWound = false;
 		Changed = true;
@@ -1230,24 +1448,25 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 		return true;
 	}
 
-	private static bool HasMatchCord(ICharacter actor) => actor.Body.AllItems.Any(x =>
-		x.GetItemType<IStackable>() is not null && x.Name.Contains("match cord", StringComparison.InvariantCultureIgnoreCase));
+	private bool HasMatchCord(ICharacter actor) =>
+		_prototype.MatchCordTemplate.CreatePlan(actor).PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
 
-	private static void ConsumeMatchCord(ICharacter actor)
+	private void InstallMatchCord(ICharacter actor)
 	{
-		var cord = actor.Body.AllItems.FirstOrDefault(x =>
-			x.GetItemType<IStackable>() is not null && x.Name.Contains("match cord", StringComparison.InvariantCultureIgnoreCase));
-		if (cord is null)
+		var plan = _prototype.MatchCordTemplate.CreatePlan(actor);
+		if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible)
 		{
 			return;
 		}
-		var stack = cord.GetItemType<IStackable>()!;
-		var consumed = stack.Quantity > 1 ? stack.Split(1) : cord;
-		if (consumed == cord)
-		{
-			actor.Body.Take(cord);
-		}
-		consumed.Delete();
+		var results = plan.ExecuteWholePlan();
+		var source = results.First(x => x.OriginalReference?.ToString() == "matchcord").PrimaryTarget;
+		var installed = TakeOnePhysicalItem(actor, source);
+		installed.ContainedIn = Parent;
+		_matchCord = installed;
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ fit|fits $1 into the match holder of $0 and light|lights its exposed end.",
+			actor, Parent, installed)));
+		plan.FinalisePlanWithExemptions([installed, Parent]);
+		ReleaseSplitSourceFromHands(actor, source, installed);
 	}
 
     #endregion
@@ -1293,7 +1512,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         {
             _bayonet = item;
         }
-        else if (item.Parent.IsA(MusketGameItemComponentProto.RamrodTag))
+		else if (_prototype.RamrodTag is { } ramrodTag && item.Parent.IsA(ramrodTag))
         {
             _ramrod = item;
         }
@@ -1351,7 +1570,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 : IBeltCanAttachBeltableResult.FailureExceedMaximumNumber;
         }
 
-        if (beltable.Parent.IsA(MusketGameItemComponentProto.RamrodTag))
+		if (_prototype.RamrodTag is { } ramrodTag && beltable.Parent.IsA(ramrodTag))
         {
             if (_ramrod is not null)
             {

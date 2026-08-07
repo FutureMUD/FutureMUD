@@ -4,6 +4,8 @@ Modern `Gun`, `InternalMagazineGun`, and `BoltAction` components can opt into na
 
 Crew-served artillery follows the same composition model without treating a cannon as a wieldable gun: `ArtilleryPiece` implements the shared ranged-platform contract, with sibling `ArtilleryAmmunition`, `ArtilleryChamber`, and `ArtilleryMount` components for payload, removable chamber, and host state. `WeaponCarrierAttachment` is likewise a physical retention relationship, not cosmetic clothing.
 
+Black-powder weapon drills are physical item workflows. A musket or artillery piece never manufactures or virtualises its powder, wad, projectile, match, ignition stone, fuse, or primer: inventory plans locate real items, measured charges split from a gunpowder commodity, and inserted items remain persisted children until firing consumes them or unloading returns them. Cleaning rods, ramrods, unjamming tools, sponges, vent tools, and linstocks are selected by functional tags rather than nouns.
+
 ## Purpose
 This document set explains how the FutureMUD item system is structured, how item behaviour is composed through components, and how developers should add or extend item functionality.
 

@@ -354,7 +354,7 @@ The foundational gap patch now supplies exact type metal, printing ink, glass bl
 
 - Papermaking: rag bales, pulp, mould-and-deckle, press felts, paper reams, sizing, and paper-production crafts.
 - Printing: movable type item stock, type moulds, formes/tympan/frisket where distinct, and functional printing crafts using the live type-metal and printing-ink materials.
-- Gunpowder: saltpetre/nitre, brimstone/sulfur, charcoal grades, blackpowder commodity/craft stock, lead shot, and safe production chains.
+- Gunpowder: ingredient refining and powder grades beyond the stock physical commodity craft, lead-shot production, and expanded safety chains.
 - Firearms and armour: barrels, locks, springs, screws, stock blanks, actual weapon components, ammunition, and period-specific armour manufacture.
 - Glass and optics: clear/lens/mirror glass stock, lens grinding and polishing, and any functional optical component work.
 - Ceramics: porcelain, faience/majolica/stoneware/earthenware/glaze production and cobalt-pigment support.

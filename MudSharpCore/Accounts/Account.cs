@@ -43,7 +43,7 @@ public sealed class Account : SaveableItem, IAccount
         _name = account.Name.Proper();
         _id = account.Id;
         ControllingContext = null;
-        ActLawfully = account.ActLawfully;
+        _actLawfully = account.ActLawfully;
         Authority = authority;
         ActiveCharactersAllowed = account.ActiveCharactersAllowed;
         LastIP = account.LastLoginIp;
@@ -51,23 +51,24 @@ public sealed class Account : SaveableItem, IAccount
         LastLoginTime = account.LastLoginTime ?? DateTime.MinValue;
         CreationDate = account.CreationDate;
         EmailAddress = account.Email;
-        UseMSP = account.UseMsp;
-        UseMCCP = account.UseMccp;
-        UseUnicode = account.UseUnicode;
-        LineFormatLength = account.FormatLength;
-        InnerLineFormatLength = account.InnerFormatLength;
-        PageLength = account.PageLength;
-        TimeZone = TZConvert.GetTimeZoneInfo(account.TimeZoneId);
-        Culture = System.Globalization.CultureInfo.GetCultureInfo(account.CultureName);
-        UnitPreference = account.UnitPreference;
+        _useMsp = account.UseMsp;
+        _useMccp = account.UseMccp;
+        _useUnicode = account.UseUnicode;
+        _lineFormatLength = account.FormatLength;
+        _innerLineFormatLength = account.InnerFormatLength;
+        _pageLength = account.PageLength;
+        _timeZone = TZConvert.GetTimeZoneInfo(account.TimeZoneId);
+        _culture = System.Globalization.CultureInfo.GetCultureInfo(account.CultureName);
+        _unitPreference = account.UnitPreference;
         IsRegistered = account.IsRegistered;
         AccountStatus = (AccountStatus)account.AccessStatus;
-        PromptType = (PromptType)account.PromptType;
-        TabRoomDescriptions = account.TabRoomDescriptions;
-        CodedRoomDescriptionAdditionsOnNewLine = account.CodedRoomDescriptionAdditionsOnNewLine;
-        AppendNewlinesBetweenMultipleEchoesPerPrompt = account.AppendNewlinesBetweenMultipleEchoesPerPrompt;
-        CharacterNameOverlaySetting = (CharacterNameOverlaySetting)account.CharacterNameOverlaySetting;
-        HintsEnabled = account.HintsEnabled;
+        _promptType = (PromptType)account.PromptType;
+        _tabRoomDescriptions = account.TabRoomDescriptions;
+        _codedRoomDescriptionAdditionsOnNewLine = account.CodedRoomDescriptionAdditionsOnNewLine;
+        _appendNewlinesBetweenMultipleEchoesPerPrompt = account.AppendNewlinesBetweenMultipleEchoesPerPrompt;
+        _characterNameOverlaySetting = (CharacterNameOverlaySetting)account.CharacterNameOverlaySetting;
+        _hintsEnabled = account.HintsEnabled;
+        _autoReacquireTargets = account.AutoReacquireTargets;
 
         foreach (IChargenResource resource in Gameworld.ChargenResources)
         {

@@ -10,8 +10,8 @@ public class ProjectPhase : SaveableItem, IProjectPhase
         Gameworld = gameworld;
         _id = phase.Id;
         _name = "Phase";
-        Description = phase.Description;
-        PhaseNumber = phase.PhaseNumber;
+        _description = phase.Description;
+        _phaseNumber = phase.PhaseNumber;
         foreach (Models.ProjectLabourRequirement labour in phase.ProjectLabourRequirements)
         {
             _labourRequirements.Add(ProjectFactory.LoadLabour(labour, gameworld));

@@ -26,7 +26,7 @@ public class ProgSchedule : SaveableItem, IProgSchedule
             dbitem.ReferenceTime = string.Empty;
             dbitem.FutureProgId = prog.Id;
             FMDB.Context.SaveChanges();
-            LoadFromDB(dbitem);
+            LoadFromDB(dbitem, advanceReferenceTime: true);
         }
     }
 
@@ -88,7 +88,7 @@ public class ProgSchedule : SaveableItem, IProgSchedule
         _listener = null;
     }
 
-    private void LoadFromDB(MudSharp.Models.ProgSchedule schedule)
+    private void LoadFromDB(MudSharp.Models.ProgSchedule schedule, bool advanceReferenceTime = false)
     {
         _id = schedule.Id;
         _name = schedule.Name;
@@ -103,9 +103,8 @@ public class ProgSchedule : SaveableItem, IProgSchedule
         Prog = Gameworld.FutureProgs.Get(schedule.FutureProgId);
         var reference = MudDateTime.FromStoredStringOrFallback(schedule.ReferenceDate, Gameworld,
             StoredMudDateTimeFallback.CurrentDateTime, "ProgSchedule", schedule.Id, schedule.Name, "ReferenceDate");
-        NextReferenceTime = Interval.GetNextDateTime(reference);
+        NextReferenceTime = advanceReferenceTime ? Interval.GetNextDateTime(reference) : reference;
         _listener = Interval.CreateListenerFromInterval(NextReferenceTime, SchedulePayload, null, $"Prog Schedule #{Id} {Name.ColourName()}");
-        Changed = true;
     }
 
     public void SchedulePayload(object[] parameters)

@@ -16,7 +16,7 @@ public class ActiveOngoingJob : ActiveJobBase
     public ActiveOngoingJob(ActiveJob dbitem, IJobListing listing, IFuturemud gameworld) : base(dbitem, listing,
         gameworld)
     {
-        CurrentPerformance = dbitem.CurrentPerformance;
+        _currentPerformance = dbitem.CurrentPerformance;
     }
 
     public ActiveOngoingJob(IJobListing listing, ICharacter character, MudDateTime commenced, MudDateTime? ending,

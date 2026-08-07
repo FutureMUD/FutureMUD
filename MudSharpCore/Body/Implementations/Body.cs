@@ -818,7 +818,13 @@ public partial class Body : PerceiverItem, IBody
             {
                 gitem.FinaliseLoadTimeTasks();
                 _prosthetics.Add(prosthetic);
+                var prostheticWasChanged = prosthetic.Changed;
                 prosthetic.InstallProsthetic(this);
+                prosthetic.Changed = prostheticWasChanged;
+                if (!prostheticWasChanged)
+                {
+                    Gameworld.SaveManager.Abort(prosthetic);
+                }
             }
         }
 

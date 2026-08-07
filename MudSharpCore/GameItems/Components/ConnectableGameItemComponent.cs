@@ -372,7 +372,7 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
                     continue;
                 }
 
-                Connect(null, connectable);
+                RestorePersistedConnection(connectable, () => Connect(null, connectable));
                 break;
             }
         }
@@ -406,13 +406,12 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
                     continue;
                 }
 
-                Connect(null, connectable);
+                RestorePersistedConnection(connectable, () => Connect(null, connectable));
                 break;
             }
         }
 
         _pendingDependentLoadTimeConnections.Clear();
-        Changed = true;
     }
 
     #endregion

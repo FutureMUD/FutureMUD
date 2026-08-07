@@ -50,7 +50,7 @@ public class Area : Location, IEditableArea
         _id = area.Id;
         IdInitialised = true;
         _name = area.Name;
-        WeatherController = Gameworld.WeatherControllers.Get(area.WeatherControllerId ?? 0L);
+        _weatherController = Gameworld.WeatherControllers.Get(area.WeatherControllerId ?? 0L);
         foreach (AreasRooms dbroom in area.AreasRooms)
         {
             IRoom room = Gameworld.Rooms.Get(dbroom.RoomId);

@@ -2752,6 +2752,9 @@ For information on the syntax to use in emotes (such as those included in bracke
                                      .ToList();
         var activeStableMountIds = ActiveStablePrimaryMountIdentityIds(activeStableMounts,
             FMDB.Context.CharacterInstances.AsNoTracking());
+#if DEBUG
+        sw.Restart();
+#endif
         List<Npc> npcs = (from npc in FMDB.Context.Npcs
                                     .Include(x => x.NpcsArtificialIntelligences)
                                     .Include(x => x.Character)
@@ -2780,6 +2783,11 @@ For information on the syntax to use in emotes (such as those included in bracke
                           */
                           where !((CharacterState)npc.Character.State).HasFlag(CharacterState.Dead)
                           select npc).ToList();
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"#E...Queried {npcs.Count:N0} NPC records in #2{sw.ElapsedMilliseconds:N0}ms#0");
+        sw.Restart();
+#endif
         List<Npc> loadableNpcs = npcs
                                  .Where(x => ShouldLoadNpcAtBoot(x.CharacterId,
                                      (CharacterState)x.Character.State, activeStableMountIds))
@@ -2814,7 +2822,7 @@ For information on the syntax to use in emotes (such as those included in bracke
         }
 #if DEBUG
         sw.Stop();
-        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+        ConsoleUtilities.WriteLine($"#E...Materialised {loadableNpcs.Count:N0} NPCs in #2{sw.ElapsedMilliseconds:N0}ms#0");
 #endif
         int count = loadableNpcs.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0}#0 NPC{1}.", count, count == 1 ? "" : "s");
@@ -3098,13 +3106,35 @@ For information on the syntax to use in emotes (such as those included in bracke
         int count = progs.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0}#0 FutureProg{1}...Compiling...", count, count == 1 ? "" : "s");
 
+#if DEBUG
+        sw.Restart();
+        List<(IFutureProg Prog, long Milliseconds)> compilationTimes = new();
+#endif
         foreach (IFutureProg prog in _futureProgs)
         {
+#if DEBUG
+            Stopwatch compilationStopwatch = Stopwatch.StartNew();
+#endif
             if (!prog.Compile())
             {
                 ConsoleUtilities.WriteLine("#9FutureProg {0} ({2}) failed to compile: \n{1}#0", prog.Id, prog.CompileError, prog.FunctionName);
             }
+#if DEBUG
+            compilationStopwatch.Stop();
+            compilationTimes.Add((prog, compilationStopwatch.ElapsedMilliseconds));
+#endif
         }
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"#ECompiled {count:N0} FutureProgs in #2{sw.ElapsedMilliseconds:N0}ms#0.");
+        foreach ((IFutureProg prog, long milliseconds) in compilationTimes
+                     .OrderByDescending(x => x.Milliseconds)
+                     .Take(10))
+        {
+            ConsoleUtilities.WriteLine(
+                $"#E...Slow FutureProg #{prog.Id:N0} ({prog.FunctionName}) #2{milliseconds:N0}ms#0");
+        }
+#endif
     }
 
     void IFuturemudLoader.LoadScriptedEvents()

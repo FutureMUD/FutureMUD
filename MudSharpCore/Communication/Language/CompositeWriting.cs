@@ -56,7 +56,6 @@ public class CompositeWriting : LateInitialisingItem, IGraffitiWriting, ILazyLoa
         DrawingSkill = double.Parse(definition.Element("DrawingSkill").Value);
         ShortDescription = definition.Element("ShortDescription").Value;
         IdInitialised = true;
-        Gameworld.SaveManager.AddLazyLoad(this);
     }
 
     public CompositeWriting(CompositeWriting rhs)

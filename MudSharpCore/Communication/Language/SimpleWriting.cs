@@ -47,7 +47,6 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
         WritingColour = gameworld.Colours.Get(writing.WritingColour);
         ImplementType = (WritingImplementType)writing.ImplementType;
         IdInitialised = true;
-        Gameworld.SaveManager.AddLazyLoad(this);
     }
 
     public SimpleWriting(SimpleWriting rhs)

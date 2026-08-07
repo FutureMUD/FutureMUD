@@ -45,7 +45,6 @@ public class Drawing : LateInitialisingItem, IDrawing, ILazyLoadDuringIdleTime
         DrawingSkill = dbitem.DrawingSkill;
         DrawingSize = (DrawingSize)dbitem.DrawingSize;
         _authorId = dbitem.AuthorId;
-        Gameworld.SaveManager.AddLazyLoad(this);
     }
 
     public Drawing(Drawing rhs)

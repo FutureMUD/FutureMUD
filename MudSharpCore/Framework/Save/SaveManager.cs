@@ -18,6 +18,10 @@ public class SaveManager : ISaveManager
     protected readonly List<ISaveable> _saveStack = new();
     protected readonly List<ISaveable> _delayedSaveStack = new();
     protected Queue<ILazyLoadDuringIdleTime> _lazyLoaders = new();
+#if DEBUG
+    private readonly Dictionary<string, (int Count, TimeSpan Duration)> _lazyLoadProfile = new();
+    private Stopwatch _lazyLoadProfileStopwatch;
+#endif
 
     #region ISaveManager Members
 
@@ -341,11 +345,24 @@ public class SaveManager : ISaveManager
             return;
         }
 
+#if DEBUG
+        _lazyLoadProfileStopwatch ??= Stopwatch.StartNew();
+#endif
         Stopwatch sw = new();
         sw.Start();
         while (sw.Elapsed < maximumTime)
         {
-            _lazyLoaders.Dequeue().DoLoad();
+            ILazyLoadDuringIdleTime loader = _lazyLoaders.Dequeue();
+#if DEBUG
+            Stopwatch loaderStopwatch = Stopwatch.StartNew();
+#endif
+            loader.DoLoad();
+#if DEBUG
+            loaderStopwatch.Stop();
+            string loaderType = loader.GetType().Name;
+            _lazyLoadProfile.TryGetValue(loaderType, out (int Count, TimeSpan Duration) current);
+            _lazyLoadProfile[loaderType] = (current.Count + 1, current.Duration + loaderStopwatch.Elapsed);
+#endif
             if (!_lazyLoaders.Any())
             {
                 break;
@@ -353,6 +370,25 @@ public class SaveManager : ISaveManager
         }
 
         sw.Stop();
+#if DEBUG
+        if (_lazyLoaders.Any())
+        {
+            return;
+        }
+
+        _lazyLoadProfileStopwatch.Stop();
+        ConsoleUtilities.WriteLine(
+            $"#ECompleted { _lazyLoadProfile.Values.Sum(x => x.Count):N0} idle lazy loads in #2{_lazyLoadProfileStopwatch.ElapsedMilliseconds:N0}ms#0.");
+        foreach ((string type, (int count, TimeSpan duration)) in _lazyLoadProfile
+                     .OrderByDescending(x => x.Value.Duration)
+                     .Take(10))
+        {
+            ConsoleUtilities.WriteLine($"#E...Lazy {type}: {count:N0} items in #2{duration.TotalMilliseconds:N0}ms#0");
+        }
+
+        _lazyLoadProfile.Clear();
+        _lazyLoadProfileStopwatch = null;
+#endif
     }
 
     private bool _mudBootingMode;
@@ -372,6 +408,9 @@ public class SaveManager : ISaveManager
                 {
                     _lazyLoaders.Enqueue(item);
                 }
+#if DEBUG
+                ConsoleUtilities.WriteLine($"#EQueued {_lazyLoaders.Count:N0} idle lazy-load operations.#0");
+#endif
             }
         }
     }

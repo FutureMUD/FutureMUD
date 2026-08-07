@@ -54,10 +54,6 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
         }
 
         _nominatedBenefactor = dbitem.NominatedBenefactorAccountId;
-        if (AccountStatus != BankAccountStatus.Closed)
-        {
-            Gameworld.SaveManager.AddLazyLoad(this);
-        }
 
         if (!string.IsNullOrEmpty(dbitem.AuthorisedBankPaymentItems))
         {

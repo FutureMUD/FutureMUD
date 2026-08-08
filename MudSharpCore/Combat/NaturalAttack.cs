@@ -24,6 +24,7 @@ public class NaturalAttack : INaturalAttack
         params BuiltInCombatMoveType[] type)
     {
         return type.Contains(Attack.MoveType) &&
+		       attacker.Body.Bodyparts.Contains(Bodypart) &&
                attacker.Body.CanUseBodypart(Bodypart) == CanUseBodypartResult.CanUse &&
                !attacker.Body.HeldItemsFor(Bodypart).Any() &&
                !attacker.Body.WieldedItemsFor(Bodypart).Any() &&

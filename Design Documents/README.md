@@ -43,6 +43,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Discord Bot Protocol and Settings](./Core/Discord_Bot_Protocol_and_Settings.md)
 - [FutureMUD Website and Publishing](./Core/FutureMUD_Website_and_Publishing.md)
 - [FutureMUD Release Process](./Core/FutureMUD_Release_Process.md)
+- [Game Loop, Scheduling, and TCP Runtime](./Core/Game_Loop_and_Scheduling_Runtime.md)
 - [FutureProg Type System](./Core/FutureProg_Type_System.md)
 - [MudSharp 2.0 Release Readiness Audit](./Core/MudSharp_2_0_Release_Readiness_Audit.md)
 - [Outbound Email Delivery](./Core/Outbound_Email_Delivery.md)

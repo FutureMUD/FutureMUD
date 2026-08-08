@@ -166,6 +166,8 @@ This means item features often have consequences for:
 - breathing
 - body-state modelling
 
+The ordinary static item health strategy is demand-gated: it evaluates damage synchronously and reconciles persisted wounds during item login, but does not subscribe the item to a recurring heartbeat. Components that override item wound behaviour, and body-backed items such as corpses, retain their own periodic health semantics.
+
 Generated remains are a special integration point:
 - corpse and severed-bodypart components preserve the source body that created them
 - presentation and medical logic should read anatomy and inventory from that stored source body rather than `OriginalCharacter.Body`

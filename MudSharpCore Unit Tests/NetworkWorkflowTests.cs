@@ -14,6 +14,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MudSharp_Unit_Tests;
@@ -155,6 +156,137 @@ public class NetworkWorkflowTests
 	}
 
 	[TestMethod]
+	public async Task TcpServer_AdmitsAcceptedConnectionOnProcessingThread()
+	{
+		var connections = new List<IPlayerConnection>();
+		var context = CreateControlContext(new List<string>());
+		var callbackThread = 0;
+		var server = new TCPServer(IPAddress.Loopback, 0);
+		server.Bind(connections, connection =>
+		{
+			callbackThread = Environment.CurrentManagedThreadId;
+			connection.Bind(context.Object);
+			connections.Add(connection);
+		});
+
+		await server.StartAsync();
+		using var client = new TcpClient();
+		await client.ConnectAsync(IPAddress.Loopback, server.BoundPort);
+		await WaitUntil(() => server.GetNetworkPerformanceSnapshot().AcceptedConnections == 1);
+
+		var processingThread = Environment.CurrentManagedThreadId;
+		server.ProcessPendingConnections();
+
+		Assert.AreEqual(processingThread, callbackThread);
+		Assert.AreEqual(1, connections.Count);
+		await server.StopAsync();
+		connections[0].Dispose();
+	}
+
+	[TestMethod]
+	public async Task TcpServer_DuplicateStartThrowsAndRepeatedStopIsSafe()
+	{
+		var server = new TCPServer(IPAddress.Loopback, 0);
+		server.Bind(new List<IPlayerConnection>(), _ => { });
+		await server.StartAsync();
+
+		await Assert.ThrowsExceptionAsync<ApplicationException>(async () => await server.StartAsync());
+		await server.StopAsync();
+		await server.StopAsync();
+
+		Assert.IsFalse(server.IsListeningAndResponding);
+	}
+
+	[TestMethod]
+	public async Task PlayerConnection_InputBackpressurePreservesEveryCommandInOrder()
+	{
+		var fixture = await CreateConnectionFixture();
+		try
+		{
+			var expected = Enumerable.Range(0, 24).Select(x => $"command{x}").ToArray();
+			var payload = Encoding.ASCII.GetBytes(string.Join("\r", expected) + "\r");
+			await fixture.Client.GetStream().WriteAsync(payload);
+
+			for (var i = 0; i < expected.Length; i++)
+			{
+				await WaitUntil(() => fixture.Connection.HasIncomingCommands);
+				fixture.Connection.AttemptCommand();
+			}
+
+			CollectionAssert.AreEqual(expected, fixture.Commands);
+		}
+		finally
+		{
+			fixture.Dispose();
+		}
+	}
+
+	[TestMethod]
+	public async Task PlayerConnection_CharsetAccountMutationWaitsForGameThreadProcessing()
+	{
+		var fixture = await CreateConnectionFixture();
+		try
+		{
+			var acknowledgement = new byte[] { Telnet.IAC, Telnet.SB, Telnet.CHARSET, Telnet.ACCEPTED }
+				.Concat(Encoding.ASCII.GetBytes("UTF-8"))
+				.Concat(new byte[] { Telnet.IAC, Telnet.SE })
+				.ToArray();
+			await fixture.Client.GetStream().WriteAsync(acknowledgement);
+			await Task.Delay(50);
+
+			Assert.IsFalse(fixture.Account.Object.UseUnicode);
+			fixture.Connection.ProcessPendingTransportEvents();
+			Assert.IsTrue(fixture.Account.Object.UseUnicode);
+		}
+		finally
+		{
+			fixture.Dispose();
+		}
+	}
+
+	[TestMethod]
+	public async Task PlayerConnection_PartialWritesDrainInOrderBeforeGracefulClose()
+	{
+		var transport = new TestConnectionTransport(maximumWriteSize: 2);
+		var telemetry = new TestNetworkTelemetry();
+		var connection = new PlayerConnection(transport, TimeProvider.System, telemetry);
+		var context = CreateControlContext(new List<string>());
+		connection.Bind(context.Object);
+		connection.StartTransport();
+		connection.AddOutgoing("hello");
+		connection.SendOutgoing();
+		Assert.IsFalse(connection.HasOutgoingCommands, "Committed frames must not be re-enqueued every game tick.");
+		connection.RequestClose(ConnectionCloseMode.Drain);
+
+		await connection.TransportCompletion.WaitAsync(TimeSpan.FromSeconds(2));
+
+		var output = transport.Output;
+		CollectionAssert.AreEqual(new byte[] { Telnet.IAC, Telnet.WILL, Telnet.TELOPT_MXP }, output[..3]);
+		StringAssert.Contains(Encoding.ASCII.GetString(output), "hello");
+		CollectionAssert.AreEqual(new byte[] { Telnet.IAC, Telnet.GA }, output[^2..]);
+		Assert.IsTrue(connection.IsReadyForDisposal);
+		Assert.IsTrue(telemetry.WriteOperations > 1);
+		connection.Dispose();
+	}
+
+	[TestMethod]
+	public async Task PlayerConnection_StagedOutputLimitDisconnectsSlowClient()
+	{
+		var transport = new TestConnectionTransport();
+		var telemetry = new TestNetworkTelemetry();
+		var connection = new PlayerConnection(transport, TimeProvider.System, telemetry);
+		connection.Bind(CreateControlContext(new List<string>()).Object);
+		connection.StartTransport();
+
+		connection.AddOutgoing(new string('x', 1_048_577));
+
+		Assert.AreEqual(ConnectionState.Closing, connection.State);
+		Assert.AreEqual(1, telemetry.SlowClientDisconnects);
+		await connection.TransportCompletion.WaitAsync(TimeSpan.FromSeconds(2));
+		connection.Dispose();
+	}
+
+	[TestMethod]
 	public void PlayerOutputHandler_PaginatesAfterWrappingLongLines()
 	{
 		var handler = CreatePlayerOutputHandler(pageLength: 10, lineLength: 20);
@@ -183,7 +315,6 @@ public class NetworkWorkflowTests
 		for (var i = 0; i < 10 && connection.State != ConnectionState.Closing; i++)
 		{
 			await Task.Delay(25);
-			connection.PrepareIncoming();
 		}
 	}
 
@@ -226,9 +357,37 @@ public class NetworkWorkflowTests
 
 		var connection = new PlayerConnection(serverClient);
 		connection.Bind(context.Object);
+		connection.StartTransport();
 		await ReadAvailableBytes(client);
 
-		return new ConnectionFixture(listener, client, connection, commands);
+		return new ConnectionFixture(listener, client, connection, commands, account);
+	}
+
+	private static Mock<IFuturemudControlContext> CreateControlContext(List<string> commands, int timeout = 60000)
+	{
+		var account = new Mock<IAccount>();
+		account.SetupProperty(x => x.UseUnicode, false);
+		account.SetupGet(x => x.LineFormatLength).Returns(80);
+		account.SetupGet(x => x.PageLength).Returns(50);
+
+		var context = new Mock<IFuturemudControlContext>();
+		context.SetupGet(x => x.Account).Returns(account.Object);
+		context.SetupGet(x => x.Timeout).Returns(timeout);
+		context.SetupGet(x => x.OutputHandler).Returns(new NonPlayerOutputHandler());
+		context.SetupGet(x => x.Closing).Returns(false);
+		context.Setup(x => x.HandleCommand(It.IsAny<string>())).Callback<string>(commands.Add);
+		return context;
+	}
+
+	private static async Task WaitUntil(Func<bool> predicate)
+	{
+		var stopwatch = Stopwatch.StartNew();
+		while (!predicate() && stopwatch.Elapsed < TimeSpan.FromSeconds(2))
+		{
+			await Task.Delay(10);
+		}
+
+		Assert.IsTrue(predicate(), "Timed out waiting for the asynchronous network condition.");
 	}
 
 	private static void WriteClientBytes(TcpClient client, byte[] bytes)
@@ -288,7 +447,8 @@ public class NetworkWorkflowTests
 		TcpListener Listener,
 		TcpClient Client,
 		PlayerConnection Connection,
-		List<string> Commands) : IDisposable
+		List<string> Commands,
+		Mock<IAccount> Account) : IDisposable
 	{
 		public void Dispose()
 		{
@@ -296,5 +456,56 @@ public class NetworkWorkflowTests
 			Client.Dispose();
 			Listener.Stop();
 		}
+	}
+
+	private sealed class TestConnectionTransport(int maximumWriteSize = int.MaxValue) : IConnectionTransport
+	{
+		private readonly List<byte> _output = [];
+
+		public string IP => IPAddress.Loopback.ToString();
+		public EndPoint RemoteEndPoint => new IPEndPoint(IPAddress.Loopback, 4000);
+		public byte[] Output
+		{
+			get
+			{
+				lock (_output)
+				{
+					return _output.ToArray();
+				}
+			}
+		}
+
+		public async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancellationToken)
+		{
+			await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+			return 0;
+		}
+
+		public ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+		{
+			var count = Math.Min(maximumWriteSize, buffer.Length);
+			lock (_output)
+			{
+				_output.AddRange(buffer.Span[..count].ToArray());
+			}
+
+			return ValueTask.FromResult(count);
+		}
+
+		public void Close() { }
+		public void Dispose() { }
+	}
+
+	private sealed class TestNetworkTelemetry : INetworkTelemetrySink
+	{
+		public int WriteOperations { get; private set; }
+		public int SlowClientDisconnects { get; private set; }
+		public void RecordRead(int bytes) { }
+		public void RecordWrite(int bytes) => WriteOperations++;
+		public void RecordInputQueueDepth(int depth) { }
+		public void RecordOutputQueueBytes(long bytes) { }
+		public void RecordSlowClientDisconnect() => SlowClientDisconnects++;
+		public void RecordReadError() { }
+		public void RecordWriteError() { }
 	}
 }

@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
+	<ProjectReference Include="..\MudSharpCore\MudSharpCore.csproj" />
   </ItemGroup>
 
 </Project>

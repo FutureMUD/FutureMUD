@@ -1,5 +1,6 @@
 ﻿using MudSharp.Framework;
 using System;
+using System.Threading.Tasks;
 
 namespace MudSharp.Network
 {
@@ -10,6 +11,12 @@ namespace MudSharp.Network
         Closing,
         Closed
     }
+
+	public enum ConnectionCloseMode
+	{
+		Drain,
+		Abort
+	}
 
     public interface IPlayerConnection : IDisposable
     {
@@ -29,4 +36,16 @@ namespace MudSharp.Network
         void SendOutgoing();
         void NegotiateClientSet();
     }
+
+	/// <summary>
+	/// Optional event-driven transport lifecycle for player connections.
+	/// </summary>
+	public interface IAsyncPlayerConnection
+	{
+		Task TransportCompletion { get; }
+		bool IsReadyForDisposal { get; }
+		void StartTransport();
+		void ProcessPendingTransportEvents();
+		void RequestClose(ConnectionCloseMode mode);
+	}
 }

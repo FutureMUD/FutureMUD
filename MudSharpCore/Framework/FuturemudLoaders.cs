@@ -27,6 +27,7 @@ using MudSharp.Construction.Grids;
 using MudSharp.Database;
 using MudSharp.Discord;
 using MudSharp.Economy;
+using MudSharp.Framework.Diagnostics;
 using MudSharp.Economy.Auctions;
 using MudSharp.Economy.Employment;
 using MudSharp.Economy.Hospitals;
@@ -149,8 +150,10 @@ namespace MudSharp.Framework;
 public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposable
 {
     private List<ICharacterCommandTree> _actorCommandTrees = new();
-    private List<IPlayerConnection> _connections = new();
+    private readonly ConnectionSnapshotRegistry _connections = new();
+	private readonly List<IPlayerConnection> _pendingCommandConnections = [];
     public IServer Server { get; private set; }
+	public IRuntimePerformanceMonitor RuntimePerformanceMonitor { get; }
     public IScheduler Scheduler { get; private set; }
     public IArenaLifecycleService ArenaLifecycleService { get; private set; }
     public IArenaScheduler ArenaScheduler { get; private set; }
@@ -174,7 +177,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
     public IComputerBoardService ComputerBoardService { get; private set; }
     public IComputerMailService ComputerMailService { get; private set; }
     public IComputerFileTransferService ComputerFileTransferService { get; private set; }
-    public IEnumerable<IPlayerConnection> Connections => _connections;
+    public IEnumerable<IPlayerConnection> Connections => _connections.Snapshot;
 
     void IFuturemudLoader.LoadFromDatabase()
     {

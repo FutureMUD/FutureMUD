@@ -1,199 +1,389 @@
-﻿using System.Net;
+#nullable enable
+
+using System.Collections.Concurrent;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using MudSharp.Framework.Diagnostics;
 
 namespace MudSharp.Network;
 
-public sealed class TCPServer : IServer
+public sealed class TCPServer : IServer, IAsyncServer, IRuntimeNetworkPerformanceSource, INetworkTelemetrySink
 {
-    private AddConnectionCallback _addConnection;
-    private IEnumerable<IPlayerConnection> _connections;
+	private readonly object _lifecycleLock = new();
+	private readonly TimeProvider _timeProvider;
+	private readonly ConcurrentQueue<PlayerConnection> _pendingConnections = new();
+	private readonly ConcurrentDictionary<PlayerConnection, byte> _activeConnections = new();
+	private readonly Queue<(IPAddress Address, DateTime Expires)> _floodExpirations = new();
+	private AddConnectionCallback? _addConnection;
+	private IEnumerable<IPlayerConnection>? _connections;
+	private ConnectionSnapshotRegistry? _connectionRegistry;
+	private TcpListener? _listener;
+	private Task? _acceptTask;
+	private CancellationTokenSource? _serverCancellation;
+	private NetworkCounters _counters = new();
+	private int _isListening;
 
-    private TcpListener _listener;
-    private Task _listeningThread;
-    private CancellationTokenSource _listeningThreadCancellationToken;
+	public TCPServer(IPAddress host, int port, TimeProvider? timeProvider = null)
+	{
+		IPAddress = host;
+		Port = port;
+		_timeProvider = timeProvider ?? TimeProvider.System;
+	}
 
-    public TCPServer(IPAddress host, int port)
-    {
-        IPAddress = host;
-        Port = port;
-    }
+	public IPAddress IPAddress { get; }
+	public int Port { get; }
+	internal int BoundPort => _listener?.LocalEndpoint is IPEndPoint endpoint ? endpoint.Port : Port;
+	public bool IsListeningAndResponding => Volatile.Read(ref _isListening) != 0;
+	public Dictionary<IPAddress, TcpConnectionInformation> ConnectionDictionary { get; } = new();
+	public TimeSpan IpFloodKeepAlive { get; } = TimeSpan.FromSeconds(60);
 
-    public IPAddress IPAddress { get; }
+	public void Bind(IEnumerable<IPlayerConnection> connectionList, AddConnectionCallback addConnection)
+	{
+		_connections = connectionList;
+		_connectionRegistry = connectionList as ConnectionSnapshotRegistry;
+		_addConnection = addConnection;
+	}
 
-    public int Port { get; }
+	public void Start()
+	{
+		StartAsync().AsTask().GetAwaiter().GetResult();
+	}
 
-    public bool IsListeningAndResponding =>
-        _listeningThread?.Status.In(TaskStatus.Running, TaskStatus.WaitingForActivation) == true;
+	public ValueTask StartAsync(CancellationToken cancellationToken = default)
+	{
+		lock (_lifecycleLock)
+		{
+			if (IsListeningAndResponding || _acceptTask is { IsCompleted: false })
+			{
+				throw new ApplicationException("Trying to start an already started TCP Listener.");
+			}
 
-    public void Bind(IEnumerable<IPlayerConnection> connectionList, AddConnectionCallback addConnection)
-    {
-        _connections = connectionList;
-        _addConnection = addConnection;
-    }
+			if (_addConnection is null)
+			{
+				throw new InvalidOperationException("The TCP listener must be bound to a connection registry before it starts.");
+			}
 
-    public void Start()
-    {
-        if (IsListeningAndResponding)
-        {
-            throw new ApplicationException("Trying to start an already started TCP Listener.");
-        }
+			_serverCancellation?.Dispose();
+			_serverCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+			_listener = new TcpListener(IPAddress, Port);
+			_listener.Start();
+			Volatile.Write(ref _isListening, 1);
+			ConsoleUtilities.WriteLine("Successfully started listening on #2{0}#0.", IPAddress);
+			_acceptTask = AcceptLoopAsync(_listener, _serverCancellation.Token);
+		}
 
-        _listeningThreadCancellationToken = new CancellationTokenSource();
-        _listeningThread = Task.Factory.StartNew(ListeningDelegate, _listeningThreadCancellationToken.Token,
-            TaskCreationOptions.LongRunning, TaskScheduler.Default);
-    }
+		return ValueTask.CompletedTask;
+	}
 
-    public void Stop()
-    {
-        _listeningThreadCancellationToken?.Cancel();
-        _listener?.Stop();
-    }
+	public void Stop()
+	{
+		StopAsync().AsTask().GetAwaiter().GetResult();
+	}
 
-    /// <summary>
-    /// Forces the processing of all outgoing messages without waiting on the delegate loop
-    /// </summary>
-    public void ProcessAllOutgoing()
-    {
-        IEnumerable<IPlayerConnection> connections;
-        lock (_connections)
-        {
-            connections = _connections.Where(x => x.State != ConnectionState.Closed).ToList();
-        }
+	public async ValueTask StopAsync(CancellationToken cancellationToken = default)
+	{
+		Task? acceptTask;
+		lock (_lifecycleLock)
+		{
+			acceptTask = _acceptTask;
+			if (acceptTask is null && !IsListeningAndResponding)
+			{
+				return;
+			}
 
-        foreach (IPlayerConnection connection in connections)
-        {
-            if (connection.HasOutgoingCommands)
-            {
-                connection.SendOutgoing();
-            }
-        }
-    }
+			Volatile.Write(ref _isListening, 0);
+			_serverCancellation?.Cancel();
+			_listener?.Stop();
+		}
 
-    public Dictionary<IPAddress, TcpConnectionInformation> ConnectionDictionary { get; } = new();
+		if (acceptTask is not null)
+		{
+			await ObserveExpectedCancellationAsync(acceptTask);
+		}
 
-    public TimeSpan IpFloodKeepAlive { get; } = TimeSpan.FromSeconds(60);
+		foreach (var connection in _activeConnections.Keys)
+		{
+			connection.RequestClose(ConnectionCloseMode.Drain);
+		}
 
-    internal bool RecordConnectionAttempt(IPAddress address, DateTime utcNow)
-    {
-        PruneConnectionDictionary(utcNow);
-        if (ConnectionDictionary.TryGetValue(address, out TcpConnectionInformation info))
-        {
-            info.NumberOfConnections += 1;
-        }
-        else
-        {
-            ConnectionDictionary[address] = info = new TcpConnectionInformation
-            { StartOfPeriod = utcNow, NumberOfConnections = 1 };
-        }
+		var completions = _activeConnections.Keys.Select(x => x.TransportCompletion).ToArray();
+		if (completions.Length > 0)
+		{
+			var allConnections = Task.WhenAll(completions);
+			var timeout = Task.Delay(TimeSpan.FromSeconds(5), _timeProvider, cancellationToken);
+			if (await Task.WhenAny(allConnections, timeout) != allConnections)
+			{
+				foreach (var connection in _activeConnections.Keys)
+				{
+					connection.RequestClose(ConnectionCloseMode.Abort);
+				}
 
-        return info.NumberOfConnections > 30;
-    }
+				await Task.WhenAll(_activeConnections.Keys.Select(x => x.TransportCompletion));
+				cancellationToken.ThrowIfCancellationRequested();
+			}
+			else
+			{
+				await allConnections;
+			}
+		}
 
-    internal void PruneConnectionDictionary(DateTime utcNow)
-    {
-        foreach (KeyValuePair<IPAddress, TcpConnectionInformation> connection in ConnectionDictionary.ToArray())
-        {
-            if (utcNow - connection.Value.StartOfPeriod > IpFloodKeepAlive)
-            {
-                ConnectionDictionary.Remove(connection.Key);
-            }
-        }
-    }
+		lock (_lifecycleLock)
+		{
+			_listener = null;
+			_acceptTask = null;
+			_serverCancellation?.Dispose();
+			_serverCancellation = null;
+		}
+	}
 
-    public void ListeningDelegate()
-    {
-        TcpListener tcp = new(IPAddress, Port);
-        _listener = tcp;
-        try
-        {
-            tcp.Start();
-            ConsoleUtilities.WriteLine("Successfully started listening on #2{0}#0.", IPAddress);
-            while (!_listeningThreadCancellationToken.IsCancellationRequested)
-            {
-                IEnumerable<IPlayerConnection> connections;
-                lock (_connections)
-                {
-                    connections = _connections.Where(x => x.State != ConnectionState.Closed).ToList();
-                }
+	public void ProcessPendingConnections()
+	{
+		while (_pendingConnections.TryDequeue(out var connection))
+		{
+			if (!IsListeningAndResponding)
+			{
+				connection.RequestClose(ConnectionCloseMode.Abort);
+				connection.Dispose();
+				continue;
+			}
 
-                foreach (IPlayerConnection connection in connections)
-                {
-                    try
-                    {
-                        if (connection.HasOutgoingCommands)
-                        {
-                            connection.SendOutgoing();
-                        }
+			try
+			{
+				_addConnection!(connection);
+				if (connection.State == ConnectionState.Open)
+				{
+					connection.StartTransport();
+				}
+				else
+				{
+					connection.Dispose();
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("Warning: Exception while admitting a TCP connection - " + e);
+				connection.RequestClose(ConnectionCloseMode.Abort);
+				connection.Dispose();
+			}
+		}
+	}
 
-                        connection.PrepareIncoming();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Warning: Exception in TCPServer.ListeningDelegate connection poll - " + e);
-                        connection.State = ConnectionState.Closing;
-                    }
-                }
+	/// <summary>
+	/// Commits all currently staged output to each connection's asynchronous writer.
+	/// </summary>
+	public void ProcessAllOutgoing()
+	{
+		foreach (var connection in ConnectionSnapshot)
+		{
+			if (connection.State != ConnectionState.Closed && connection.HasOutgoingCommands)
+			{
+				connection.SendOutgoing();
+			}
+		}
+	}
 
-                lock (_connections)
-                {
-                    connections = _connections.Where(x => x.State == ConnectionState.Closing).ToList();
-                }
+	internal bool RecordConnectionAttempt(IPAddress address, DateTime utcNow)
+	{
+		PruneConnectionDictionary(utcNow);
+		if (ConnectionDictionary.TryGetValue(address, out var info))
+		{
+			info.NumberOfConnections++;
+		}
+		else
+		{
+			ConnectionDictionary[address] = info = new TcpConnectionInformation
+			{
+				StartOfPeriod = utcNow,
+				NumberOfConnections = 1
+			};
+			_floodExpirations.Enqueue((address, utcNow + IpFloodKeepAlive));
+		}
 
-                foreach (IPlayerConnection connection in connections)
-                {
-                    connection.Dispose();
-                }
+		return info.NumberOfConnections > 30;
+	}
 
-                while (tcp.Pending())
-                {
-                    TcpClient client = tcp.AcceptTcpClient();
-                    IPAddress address = ((IPEndPoint)client.Client.RemoteEndPoint).Address;
+	internal void PruneConnectionDictionary(DateTime utcNow)
+	{
+		while (_floodExpirations.TryPeek(out var expiration) && utcNow > expiration.Expires)
+		{
+			_floodExpirations.Dequeue();
+			if (ConnectionDictionary.TryGetValue(expiration.Address, out var info) &&
+			    utcNow - info.StartOfPeriod > IpFloodKeepAlive)
+			{
+				ConnectionDictionary.Remove(expiration.Address);
+			}
+		}
+	}
 
-                    if (RecordConnectionAttempt(address, DateTime.UtcNow))
-                    {
-                        client.Client.Shutdown(SocketShutdown.Both);
-                        client.Close();
-                        continue;
-                    }
+	public RuntimeNetworkPerformanceSnapshot GetNetworkPerformanceSnapshot()
+	{
+		var counters = Volatile.Read(ref _counters);
+		return new RuntimeNetworkPerformanceSnapshot(
+			Interlocked.Read(ref counters.AcceptedConnections),
+			Interlocked.Read(ref counters.FloodRejectedConnections),
+			_activeConnections.Count,
+			Interlocked.Read(ref counters.BytesReceived),
+			Interlocked.Read(ref counters.BytesSent),
+			Interlocked.Read(ref counters.ReadOperations),
+			Interlocked.Read(ref counters.WriteOperations),
+			Interlocked.Read(ref counters.InputQueueHighWatermark),
+			Interlocked.Read(ref counters.OutputQueueHighWatermarkBytes),
+			Interlocked.Read(ref counters.SlowClientDisconnects),
+			Interlocked.Read(ref counters.AcceptErrors),
+			Interlocked.Read(ref counters.ReadErrors),
+			Interlocked.Read(ref counters.WriteErrors));
+	}
 
-                    Console.WriteLine("Accepted TCP connection from {0}", client.Client.RemoteEndPoint);
-                    try
-                    {
-                        PlayerConnection newCon = new(client);
-                        _addConnection(newCon);
-                    }
-                    catch (SocketException e)
-                    {
-                        Console.WriteLine("SocketException ({0}) in PlayerConnection Constructor: " + e.Message,
-                            e.ErrorCode);
-                    }
-                    catch (ObjectDisposedException e)
-                    {
-                        Console.WriteLine("ObjectDisposedException in PlayerConnection Constructor: " + e.Message);
-                    }
-                }
+	public void ResetNetworkPerformanceCounters()
+	{
+		Volatile.Write(ref _counters, new NetworkCounters());
+	}
 
-                PruneConnectionDictionary(DateTime.UtcNow);
+	void INetworkTelemetrySink.RecordRead(int bytes)
+	{
+		var counters = Volatile.Read(ref _counters);
+		Interlocked.Add(ref counters.BytesReceived, bytes);
+		Interlocked.Increment(ref counters.ReadOperations);
+	}
 
-                Thread.Sleep(100);
-            }
-        }
-        catch (SocketException) when (_listeningThreadCancellationToken.IsCancellationRequested)
-        {
-            // Expected when Stop interrupts the listener.
-        }
-        catch (ObjectDisposedException) when (_listeningThreadCancellationToken.IsCancellationRequested)
-        {
-            // Expected when Stop interrupts the listener.
-        }
-        finally
-        {
-            tcp.Stop();
-            if (ReferenceEquals(_listener, tcp))
-            {
-                _listener = null;
-            }
-        }
-    }
+	void INetworkTelemetrySink.RecordWrite(int bytes)
+	{
+		var counters = Volatile.Read(ref _counters);
+		Interlocked.Add(ref counters.BytesSent, bytes);
+		Interlocked.Increment(ref counters.WriteOperations);
+	}
+
+	void INetworkTelemetrySink.RecordInputQueueDepth(int depth)
+	{
+		RecordMaximum(ref Volatile.Read(ref _counters).InputQueueHighWatermark, depth);
+	}
+
+	void INetworkTelemetrySink.RecordOutputQueueBytes(long bytes)
+	{
+		RecordMaximum(ref Volatile.Read(ref _counters).OutputQueueHighWatermarkBytes, bytes);
+	}
+
+	void INetworkTelemetrySink.RecordSlowClientDisconnect()
+	{
+		Interlocked.Increment(ref Volatile.Read(ref _counters).SlowClientDisconnects);
+	}
+
+	void INetworkTelemetrySink.RecordReadError()
+	{
+		Interlocked.Increment(ref Volatile.Read(ref _counters).ReadErrors);
+	}
+
+	void INetworkTelemetrySink.RecordWriteError()
+	{
+		Interlocked.Increment(ref Volatile.Read(ref _counters).WriteErrors);
+	}
+
+	private async Task AcceptLoopAsync(TcpListener listener, CancellationToken cancellationToken)
+	{
+		try
+		{
+			while (!cancellationToken.IsCancellationRequested)
+			{
+				TcpClient client;
+				try
+				{
+					client = await listener.AcceptTcpClientAsync(cancellationToken);
+				}
+				catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+				{
+					break;
+				}
+				catch (ObjectDisposedException) when (cancellationToken.IsCancellationRequested)
+				{
+					break;
+				}
+				catch (SocketException) when (cancellationToken.IsCancellationRequested)
+				{
+					break;
+				}
+				catch (Exception e) when (e is SocketException or ObjectDisposedException)
+				{
+					Interlocked.Increment(ref Volatile.Read(ref _counters).AcceptErrors);
+					Console.WriteLine("Warning: Exception accepting a TCP connection - " + e.Message);
+					await Task.Delay(TimeSpan.FromMilliseconds(100), _timeProvider, cancellationToken);
+					continue;
+				}
+
+				var address = client.Client.RemoteEndPoint is IPEndPoint endpoint
+					? endpoint.Address
+					: IPAddress.None;
+				if (RecordConnectionAttempt(address, _timeProvider.GetUtcNow().UtcDateTime))
+				{
+					Interlocked.Increment(ref Volatile.Read(ref _counters).FloodRejectedConnections);
+					client.Dispose();
+					continue;
+				}
+
+				Console.WriteLine("Accepted TCP connection from {0}", client.Client.RemoteEndPoint);
+				var connection = new PlayerConnection(
+					new SocketConnectionTransport(client), _timeProvider, this);
+				_activeConnections.TryAdd(connection, 0);
+				Interlocked.Increment(ref Volatile.Read(ref _counters).AcceptedConnections);
+				_pendingConnections.Enqueue(connection);
+				_ = RemoveCompletedConnectionAsync(connection);
+			}
+		}
+		finally
+		{
+			Volatile.Write(ref _isListening, 0);
+			listener.Stop();
+		}
+	}
+
+	private async Task RemoveCompletedConnectionAsync(PlayerConnection connection)
+	{
+		await connection.TransportCompletion;
+		_activeConnections.TryRemove(connection, out _);
+	}
+
+	private static async Task ObserveExpectedCancellationAsync(Task task)
+	{
+		try
+		{
+			await task;
+		}
+		catch (OperationCanceledException)
+		{
+		}
+	}
+
+	private static void RecordMaximum(ref long target, long value)
+	{
+		var current = Volatile.Read(ref target);
+		while (value > current)
+		{
+			var observed = Interlocked.CompareExchange(ref target, value, current);
+			if (observed == current)
+			{
+				return;
+			}
+
+			current = observed;
+		}
+	}
+
+	private IReadOnlyList<IPlayerConnection> ConnectionSnapshot =>
+		_connectionRegistry?.Snapshot ?? _connections?.ToArray() ?? [];
+
+	private sealed class NetworkCounters
+	{
+		public long AcceptedConnections;
+		public long FloodRejectedConnections;
+		public long BytesReceived;
+		public long BytesSent;
+		public long ReadOperations;
+		public long WriteOperations;
+		public long InputQueueHighWatermark;
+		public long OutputQueueHighWatermarkBytes;
+		public long SlowClientDisconnects;
+		public long AcceptErrors;
+		public long ReadErrors;
+		public long WriteErrors;
+	}
 }

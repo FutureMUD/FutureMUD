@@ -15,7 +15,7 @@ namespace MudSharp.Server;
 
 internal class MudSharp
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         if (TryRunDocumentationExport(args))
         {
@@ -118,8 +118,15 @@ internal class MudSharp
 
             // Post Shutdown Sequence
 
-            Thread.Sleep(500);
-            mud.Server.Stop();
+			await Task.Delay(500);
+			if (mud.Server is IAsyncServer asyncServer)
+			{
+				await asyncServer.StopAsync();
+			}
+			else
+			{
+				mud.Server.Stop();
+			}
             EmailHelper.Instance.EndEmailThread();
         }
 #if DEBUG

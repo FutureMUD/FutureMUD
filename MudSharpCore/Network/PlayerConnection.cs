@@ -1,318 +1,204 @@
-﻿using MudSharp.Character.Name;
+#nullable enable
+
+using System.Buffers;
+using System.Collections.Concurrent;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Channels;
+using MudSharp.Character.Name;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Framework;
 using MudSharp.Server;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
 
 namespace MudSharp.Network;
 
-public class PlayerConnection : IPlayerConnection
+public class PlayerConnection : IPlayerConnection, IAsyncPlayerConnection
 {
-    private static readonly byte[] WillMxp = [Telnet.IAC, Telnet.WILL, Telnet.TELOPT_MXP];
+	private const int ReadBufferSize = 4096;
+	private const int InitialCommandBufferSize = 256;
+	private const int InitialNegotiationBufferSize = 32;
+	private const int IncomingCommandCapacity = 16;
+	private const int ProtocolEventCapacity = 16;
+	private const int OutgoingFrameCapacity = 256;
+	private const int MaximumQueuedOutputBytes = 2 * 1024 * 1024;
+	private const int MaximumPooledOutputBytes = 64 * 1024;
+	private static readonly Encoding Latin1Encoding = StringExtensions.Latin1Encoder;
+	private static readonly byte[] WillMxp = [Telnet.IAC, Telnet.WILL, Telnet.TELOPT_MXP];
+	private static readonly byte[] StartMxp = [Telnet.IAC, Telnet.SB, Telnet.TELOPT_MXP, Telnet.IAC, Telnet.SE];
+	private static readonly byte[] WillEor = [Telnet.IAC, Telnet.WILL, Telnet.TELOPT_EOR];
+	private static readonly byte[] DoEor = [Telnet.IAC, Telnet.DO, Telnet.TELOPT_EOR];
+	private static readonly byte[] Prompt = [Telnet.IAC, Telnet.GA];
+	private static readonly byte[] AlternatePrompt = [Telnet.IAC, Telnet.EOR];
+	private static readonly byte[] BeginWillNegotiation = [Telnet.IAC, Telnet.WILL];
+	private static readonly byte[] DoMxp = [Telnet.IAC, Telnet.DO, Telnet.TELOPT_MXP];
+	private static readonly byte[] SupportsBytes = Encoding.ASCII.GetBytes("\x1B[1z<SUPPORTS");
+	private static readonly byte[] WillCharset = [Telnet.IAC, Telnet.WILL, Telnet.CHARSET];
+	private static readonly byte[] DoCharset = [Telnet.IAC, Telnet.DO, Telnet.CHARSET];
+	private static readonly byte[] DontCharset = [Telnet.IAC, Telnet.DONT, Telnet.CHARSET];
+	private static readonly byte[] RequestUtf8 = BuildSubnegotiation(Telnet.REQUEST, " UTF-8");
+	private static readonly byte[] AcknowledgeUtf8 = BuildSubnegotiation(Telnet.ACCEPTED, "UTF-8");
+	private static readonly byte[] RejectUtf8 = BuildSubnegotiation(Telnet.REJECTED, "UTF-8");
+	private static readonly byte[] StartMxpPayload = MXP.StartMXPBytes();
 
-    private static readonly byte[] StartMxp =
-    [
-        Telnet.IAC, Telnet.SB, Telnet.TELOPT_MXP, Telnet.IAC, Telnet.SE
-    ];
+	private readonly IConnectionTransport _transport;
+	private readonly INetworkTelemetrySink _telemetry;
+	private readonly TimeProvider _timeProvider;
+	private readonly Channel<string> _incomingCommands;
+	private readonly Channel<OutboundFrame> _outgoingFrames;
+	private readonly ConcurrentQueue<ProtocolEvent> _protocolEvents = new();
+	private readonly StringBuilder _outgoingCommands = new();
+	private readonly CancellationTokenSource _readCancellation = new();
+	private readonly CancellationTokenSource _writeCancellation = new();
+	private readonly TaskCompletionSource _transportCompletion =
+		new(TaskCreationOptions.RunContinuationsAsynchronously);
+	private byte[] _readBuffer;
+	private byte[] _incomingCommandBuffer;
+	private int _incomingCommandCount;
+	private byte[] _telnetNegotiationBuffer;
+	private int _telnetNegotiationCount;
+	private bool _inTelnetNegotiation;
+	private bool _inTelnetSubcommand;
+	private bool _pendingTelnetSubcommandEnd;
+	private int _useAlternatePrompt;
+	private int _useUnicode;
+	private int _state;
+	private int _incomingCommandQueueCount;
+	private int _protocolEventCount;
+	private int _hasOutgoingCommands;
+	private long _queuedOutputBytes;
+	private long _lastActivityTimestamp;
+	private long _lastWarningActivityTimestamp;
+	private int _transportStarted;
+	private int _drainRequested;
+	private int _readyForDisposal;
+	private int _disposed;
+	private int _buffersReturned;
+	private bool _fiveMinuteWarning;
+	private bool _twoMinuteWarning;
+	private bool _oneMinuteWarning;
+	private bool _thirtySecondWarning;
 
-    private static readonly byte[] WillEOR = [Telnet.IAC, Telnet.WILL, Telnet.TELOPT_EOR];
+	public PlayerConnection(TcpClient client)
+		: this(new SocketConnectionTransport(client), TimeProvider.System, NullNetworkTelemetrySink.Instance)
+	{
+	}
 
-    private static readonly byte[] DoEOR = [Telnet.IAC, Telnet.DO, Telnet.TELOPT_EOR];
+	internal PlayerConnection(IConnectionTransport transport, TimeProvider timeProvider,
+		INetworkTelemetrySink telemetry)
+	{
+		_transport = transport;
+		_timeProvider = timeProvider;
+		_telemetry = telemetry;
+		_readBuffer = ArrayPool<byte>.Shared.Rent(ReadBufferSize);
+		_incomingCommandBuffer = ArrayPool<byte>.Shared.Rent(InitialCommandBufferSize);
+		_telnetNegotiationBuffer = ArrayPool<byte>.Shared.Rent(InitialNegotiationBufferSize);
+		_incomingCommands = Channel.CreateBounded<string>(new BoundedChannelOptions(IncomingCommandCapacity)
+		{
+			SingleReader = true,
+			SingleWriter = true,
+			FullMode = BoundedChannelFullMode.Wait,
+			AllowSynchronousContinuations = false
+		});
+		_outgoingFrames = Channel.CreateBounded<OutboundFrame>(new BoundedChannelOptions(OutgoingFrameCapacity)
+		{
+			SingleReader = true,
+			SingleWriter = false,
+			FullMode = BoundedChannelFullMode.Wait,
+			AllowSynchronousContinuations = false
+		});
+		MXPSupport = new MXPSupport();
+		_lastActivityTimestamp = _timeProvider.GetTimestamp();
+		_lastWarningActivityTimestamp = _lastActivityTimestamp;
+	}
 
-    private static readonly byte[] Prompt =
-    [
-        Telnet.IAC,
-        Telnet.GA
-    ];
+	public ConnectionState State
+	{
+		get => (ConnectionState)Volatile.Read(ref _state);
+		set => Volatile.Write(ref _state, (int)value);
+	}
 
-    private static readonly byte[] AlternatePrompt =
-    [
-        Telnet.IAC,
-        Telnet.EOR
-    ];
+	public bool HasIncomingCommands => Volatile.Read(ref _incomingCommandQueueCount) > 0;
+	public bool HasOutgoingCommands => Volatile.Read(ref _hasOutgoingCommands) != 0;
+	public string IP => _transport.IP;
+	public MXPSupport MXPSupport { get; }
+	public IPlayerController? ControlPuppet { get; private set; }
+	public long InactivityMilliseconds =>
+		(long)_timeProvider.GetElapsedTime(Volatile.Read(ref _lastActivityTimestamp)).TotalMilliseconds;
+	public Task TransportCompletion => _transportCompletion.Task;
+	public bool IsReadyForDisposal => Volatile.Read(ref _readyForDisposal) != 0;
 
-    private static readonly byte[] BeginWillNegotiation = [Telnet.IAC, Telnet.WILL];
+	public void Bind(IFuturemudControlContext context)
+	{
+		ControlPuppet = context;
+		State = ConnectionState.Open;
+		var timestamp = _timeProvider.GetTimestamp();
+		Volatile.Write(ref _lastActivityTimestamp, timestamp);
+		_lastWarningActivityTimestamp = timestamp;
+	}
 
-    private static readonly byte[] DoMxp = [Telnet.IAC, Telnet.DO, Telnet.TELOPT_MXP];
-    private static readonly byte[] SupportsBytes = Encoding.ASCII.GetBytes("\x1B[1z<SUPPORTS");
+	public void StartTransport()
+	{
+		if (Interlocked.Exchange(ref _transportStarted, 1) != 0)
+		{
+			return;
+		}
 
-    private static readonly byte[] WillCharset =
-    [
-        Telnet.IAC,
-        Telnet.WILL,
-        Telnet.CHARSET
-    ];
+		if (Volatile.Read(ref _disposed) != 0 || State != ConnectionState.Open)
+		{
+			CompleteWithoutStarting();
+			return;
+		}
 
-    private static readonly byte[] DoCharset =
-    [
-        Telnet.IAC,
-        Telnet.DO,
-        Telnet.CHARSET
-    ];
+		QueueRaw(WillMxp);
+		var readTask = ReadPumpAsync();
+		var writeTask = WritePumpAsync();
+		_ = ObserveTransportAsync(readTask, writeTask);
+	}
 
-    private static readonly byte[] DontCharset =
-    [
-        Telnet.IAC,
-        Telnet.DONT,
-        Telnet.CHARSET
-    ];
+	public void ProcessPendingTransportEvents()
+	{
+		while (_protocolEvents.TryDequeue(out var transportEvent))
+		{
+			Interlocked.Decrement(ref _protocolEventCount);
+			switch (transportEvent.Kind)
+			{
+				case ProtocolEventKind.EnableMxp:
+					MXPSupport.UseMXP = true;
+					break;
+				case ProtocolEventKind.Supports:
+					MXPSupport.SetSupport(transportEvent.Text ?? string.Empty);
+					break;
+				case ProtocolEventKind.CharsetAccepted:
+					if (ControlPuppet?.Account is not null)
+					{
+						ControlPuppet.Account.UseUnicode = true;
+					}
+					break;
+				case ProtocolEventKind.CharsetRejected:
+					if (ControlPuppet?.Account is not null)
+					{
+						ControlPuppet.Account.UseUnicode = false;
+					}
+					break;
+			}
+		}
+	}
 
-    private static readonly byte[] RequestUTF8 =
-        new byte[]{
-        Telnet.IAC,
-        Telnet.SB,
-        Telnet.CHARSET,
-        Telnet.REQUEST
-        }.Concat(" UTF-8"u8.ToArray()).Concat(
-            new byte[] { Telnet.IAC, Telnet.SE }
-        ).ToArray();
+	public void AttemptCommand()
+	{
+		if (!_incomingCommands.Reader.TryRead(out var command))
+		{
+			return;
+		}
 
-    private static readonly byte[] AcknowledgeUTF8 =
-        new byte[]{
-            Telnet.IAC,
-            Telnet.SB,
-            Telnet.CHARSET,
-            Telnet.ACCEPTED
-        }.Concat("UTF-8"u8.ToArray()).Concat(
-            new byte[] { Telnet.IAC, Telnet.SE }
-        ).ToArray();
-
-    private static readonly byte[] RejectUTF8 =
-        new byte[]{
-            Telnet.IAC,
-            Telnet.SB,
-            Telnet.CHARSET,
-            Telnet.REJECTED
-        }.Concat("UTF-8"u8.ToArray()).Concat(
-            new byte[] { Telnet.IAC, Telnet.SE }
-        ).ToArray();
-
-    private readonly TcpClient _client;
-    private readonly Stopwatch _inactivityStopwatch = new();
-    private readonly Queue<string> _incomingCommands = new();
-    private readonly List<byte> _incomingCommandBuffer = new(Constants.PlayerConnectionBufferSize);
-    private readonly byte[] _inputBuffer = new byte[Constants.PlayerConnectionBufferSize];
-    private readonly StringBuilder _outgoingCommands = new();
-    private readonly List<byte> _telnetNegotiationBuffer = new(32);
-    private bool _useAlternatePrompt;
-    private bool _inTelnetNegotiation;
-    private bool _inTelnetSubcommand;
-    private bool _pendingTelnetSubcommandEnd;
-    private bool _disposed;
-
-    private bool _fiveMinuteWarning,
-        _twoMinuteWarning,
-        _oneMinuteWarning,
-        _thirtySecondWarning;
-
-    private NetworkStream _stream;
-
-    public PlayerConnection(TcpClient client)
-    {
-        _client = client;
-        _client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-        // Negotiate Telnet protocol support
-        MXPSupport = new MXPSupport();
-        try
-        {
-            SendAll(WillMxp);
-        }
-        catch (SocketException e)
-        {
-            Console.WriteLine("SocketException ({0}) in PlayerConnection Constructor: " + e.Message, e.ErrorCode);
-            DiscardConnection();
-        }
-        catch (ObjectDisposedException e)
-        {
-            Console.WriteLine("ObjectDisposedException in PlayerConnection Constructor: " + e.Message);
-            DiscardConnection();
-        }
-    }
-
-    public ConnectionState State { get; set; }
-
-    public bool HasIncomingCommands { get; private set; }
-
-    public bool HasOutgoingCommands { get; private set; }
-
-    public string IP
-    {
-        get
-        {
-            try
-            {
-                return _client?.Client?.RemoteEndPoint is IPEndPoint endpoint
-                    ? endpoint.Address.ToString()
-                    : "0.0.0.0";
-            }
-            catch (Exception)
-            {
-                return "0.0.0.0";
-            }
-        }
-    }
-
-    public MXPSupport MXPSupport { get; }
-
-    public IPlayerController ControlPuppet { get; private set; }
-
-    public long InactivityMilliseconds => _inactivityStopwatch.ElapsedMilliseconds;
-
-    #region IDisposable Members
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    #endregion
-
-    private void ResetWarnings()
-    {
-        _fiveMinuteWarning = false;
-        _twoMinuteWarning = false;
-        _oneMinuteWarning = false;
-        _thirtySecondWarning = false;
-    }
-
-    public void WarnTimeout()
-    {
-        if (ControlPuppet == null || ControlPuppet.Timeout <= 0)
-        {
-            return;
-        }
-
-        long timeLeft = ControlPuppet.Timeout - InactivityMilliseconds;
-        if (!_thirtySecondWarning && timeLeft <= 30000)
-        {
-            AddOutgoing(
-                $"{"[System Message]".Colour(Telnet.Green)} You will time out in 30 seconds unless you do something.\n");
-            _thirtySecondWarning = true;
-            return;
-        }
-
-        if (!_oneMinuteWarning && timeLeft <= 60000)
-        {
-            AddOutgoing(
-                $"{"[System Message]".Colour(Telnet.Green)} You will time out in 1 minute unless you do something.\n");
-            _oneMinuteWarning = true;
-            return;
-        }
-
-        if (!_twoMinuteWarning && timeLeft <= 120000)
-        {
-            AddOutgoing(
-                $"{"[System Message]".Colour(Telnet.Green)} You will time out in 2 minutes unless you do something.\n");
-            _twoMinuteWarning = true;
-            return;
-        }
-
-        if (!_fiveMinuteWarning && timeLeft <= 300000)
-        {
-            AddOutgoing(
-                $"{"[System Message]".Colour(Telnet.Green)} You will time out in 5 minutes unless you do something.\n");
-            _fiveMinuteWarning = true;
-        }
-    }
-
-    public void NegotiateClientSet()
-    {
-        try
-        {
-            SendAll(WillCharset);
-        }
-        catch (SocketException e)
-        {
-            Console.WriteLine("SocketException ({0}) in PlayerConnection Constructor: " + e.Message, e.ErrorCode);
-            DiscardConnection();
-        }
-        catch (ObjectDisposedException e)
-        {
-            Console.WriteLine("ObjectDisposedException in PlayerConnection Constructor: " + e.Message);
-            DiscardConnection();
-        }
-    }
-
-    private void Dispose(bool disposed)
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        _disposed = true;
-        ControlPuppet?.DetachConnection();
-        ControlPuppet = null;
-        State = ConnectionState.Closed;
-        Futuremud.Games.FirstOrDefault()?.Destroy(this);
-        if (disposed)
-        {
-            try
-            {
-                _client?.Client?.Shutdown(SocketShutdown.Both);
-            }
-            catch
-            {
-                // We don't care about exceptions at this stage, we're already disposing of the socket
-            }
-
-            _stream?.Dispose();
-            _client?.Close();
-        }
-    }
-
-    private void DiscardConnection()
-    {
-        State = ConnectionState.Closing;
-        ControlPuppet?.DetachConnection();
-        ControlPuppet = null;
-    }
-
-    public void Bind(IFuturemudControlContext context)
-    {
-        ControlPuppet = context;
-        try
-        {
-            _stream = _client.GetStream();
-            State = ConnectionState.Open;
-            _inactivityStopwatch.Start();
-        }
-        catch (ObjectDisposedException e)
-        {
-            Console.WriteLine("ObjectDisposedException in PlayerConnection.Bind: " + e.Message);
-            State = ConnectionState.Closed;
-            ControlPuppet = null;
-        }
-        catch (InvalidOperationException e)
-        {
-            Console.WriteLine("InvalidOperationException in PlayerConnection.Bind: " + e.Message);
-            State = ConnectionState.Closed;
-            ControlPuppet = null;
-        }
-        catch (SocketException e)
-        {
-            Console.WriteLine("SocketException ({0}) in PlayerConnection.Bind: " + e.Message, e.ErrorCode);
-            State = ConnectionState.Closed;
-            ControlPuppet = null;
-        }
-    }
-
-    public void AttemptCommand()
-    {
-        string cmd = GetNextCommand();
+		Interlocked.Decrement(ref _incomingCommandQueueCount);
 #if DEBUG
+		ControlPuppet?.HandleCommand(command.TrimEnd('\n'));
 #else
 		try
 		{
-#endif
-
-        ControlPuppet.HandleCommand(cmd);
-#if DEBUG
-#else
+			ControlPuppet?.HandleCommand(command.TrimEnd('\n'));
 		}
 		catch (Exception e)
 		{
@@ -321,22 +207,22 @@ public class PlayerConnection : IPlayerConnection
 			if (ControlPuppet is IFuturemudControlContext fcc)
 			{
 				sb.AppendLine($"Account: {fcc.Account?.Name ?? "N/A"}");
-				if (fcc.Actor is not null)
+				var actor = fcc.Actor;
+				if (actor is not null)
 				{
-					sb.AppendLine($"Character: #{fcc.Actor.Id:N0} {fcc.Actor.PersonalName.GetName(NameStyle.FullName)} - {fcc.Actor.HowSeen(fcc.Actor, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}");
-					var edit = fcc.Actor
-					              .CombinedEffectsOfType<IBuilderEditingEffect>()
-					              .SelectNotNull(x => x.EditingItem as IFrameworkItem)
-					              .ToList();
-					foreach (var item in edit)
+					sb.AppendLine($"Character: #{actor.Id:N0} {actor.PersonalName.GetName(NameStyle.FullName)} - {actor.HowSeen(actor, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}");
+					foreach (var item in actor
+					         .CombinedEffectsOfType<IBuilderEditingEffect>()
+					         .SelectNotNull(x => x?.EditingItem as IFrameworkItem))
 					{
-						sb.AppendLine($"Editing: {item.ToString()}");
+						sb.AppendLine($"Editing: {item}");
 					}
 				}
 			}
+
 			sb.AppendLine("Input:");
 			sb.AppendLine();
-			sb.AppendLine(cmd);
+			sb.AppendLine(command);
 			sb.AppendLine();
 			sb.AppendLine("Exception:");
 			sb.AppendLine();
@@ -345,445 +231,726 @@ public class PlayerConnection : IPlayerConnection
 			Environment.Exit(0);
 		}
 #endif
-    }
+	}
 
-    public void AddOutgoing(string text)
-    {
-        lock (_outgoingCommands)
-        {
-            _outgoingCommands.AppendLine(text);
-        }
-
-        HasOutgoingCommands = true;
-    }
-
-    public void PrepareOutgoing()
-    {
-        try
-        {
-            var controlPuppet = ControlPuppet;
-            var outputHandler = controlPuppet?.OutputHandler;
-            if (controlPuppet is null || outputHandler is null)
-            {
-                return;
-            }
-
-            if (controlPuppet.Closing)
-            {
-                State = ConnectionState.Closing;
-                return;
-            }
-
-            if (State == ConnectionState.Open && HasTimedOut())
-            {
-                if (controlPuppet.Timeout != 0)
-                {
-                    AddOutgoing(
-                        $"{"[System Message]".Colour(Telnet.Green)} You have been timed out due to inactivity.");
-                }
-
-                SendOutgoing();
-                State = ConnectionState.Closing;
-                return;
-            }
-
-            if (!outputHandler.HasBufferedOutput)
-            {
-                return;
-            }
-
-            controlPuppet.CuePrompt();
-            controlPuppet.UpdateObservers();
-
-            lock (_outgoingCommands)
-            {
-                _outgoingCommands.Append(
-                    (controlPuppet.Account != null
-                        ? outputHandler.BufferedOutput.Wrap(controlPuppet.Account.LineFormatLength)
-                        : outputHandler.BufferedOutput)
-                    .SanitiseMXP(MXPSupport));
-                outputHandler.Flush();
-                HasOutgoingCommands = true;
-                if (State == ConnectionState.Closing)
-                {
-                    SendOutgoing();
-                }
-            }
-        }
-        catch (SocketException e)
-        {
-            if (!e.NativeErrorCode.Equals(10035))
-            {
-                Console.WriteLine("Warning: Exception in PlayerConnection.PrepareOutgoing - " + e);
-                DiscardConnection();
-            }
-        }
-#if DEBUG
-#else
-		catch (Exception e)
+	public void AddOutgoing(string text)
+	{
+		var overflow = false;
+		lock (_outgoingCommands)
 		{
-			Console.WriteLine("Warning: Exception in PlayerConnection.PrepareOutgoing - " + e);
-			DiscardConnection();
+			if ((_outgoingCommands.Length + text.Length) * sizeof(char) > MaximumQueuedOutputBytes)
+			{
+				overflow = true;
+			}
+			else
+			{
+				_outgoingCommands.AppendLine(text);
+				Volatile.Write(ref _hasOutgoingCommands, 1);
+			}
 		}
-#endif
-    }
 
-    private void EnqueueCommand(Encoding encoding, List<byte> bytes)
-    {
-        if (bytes.Take(SupportsBytes.Length).SequenceEqual(SupportsBytes))
-        {
-            MXPSupport.SetSupport(Encoding.ASCII.GetString(bytes.ToArray()));
-            return;
-        }
+		if (overflow)
+		{
+			_telemetry.RecordSlowClientDisconnect();
+			RequestClose(ConnectionCloseMode.Abort);
+		}
+	}
 
-        string command = bytes.Count > 0 ? encoding.GetString(bytes.ToArray()) : "";
-#if DEBUG
-        Console.WriteLine($"Player Command: {command}");
-#endif
-        lock (_incomingCommands)
-        {
-            _incomingCommands.Enqueue(command);
-            HasIncomingCommands = true;
-        }
+	public void PrepareOutgoing()
+	{
+		var controlPuppet = ControlPuppet;
+		var outputHandler = controlPuppet?.OutputHandler;
+		if (controlPuppet is null || outputHandler is null)
+		{
+			return;
+		}
 
-        _inactivityStopwatch.Restart();
-        ResetWarnings();
-    }
+		Volatile.Write(ref _useUnicode, controlPuppet.Account?.UseUnicode == true ? 1 : 0);
+		if (controlPuppet.Closing)
+		{
+			RequestClose(ConnectionCloseMode.Drain);
+			return;
+		}
 
-    private void SendAll(byte[] bytes)
-    {
-        if (bytes.Length == 0)
-        {
-            return;
-        }
+		if (State == ConnectionState.Open && HasTimedOut())
+		{
+			if (controlPuppet.Timeout != 0)
+			{
+				AddOutgoing($"{"[System Message]".Colour(Telnet.Green)} You have been timed out due to inactivity.");
+			}
 
-        var offset = 0;
-        while (offset < bytes.Length)
-        {
-            var sent = _client.Client.Send(bytes, offset, bytes.Length - offset, SocketFlags.None);
-            if (sent <= 0)
-            {
-                throw new SocketException((int)SocketError.ConnectionReset);
-            }
+			SendOutgoing();
+			RequestClose(ConnectionCloseMode.Drain);
+			return;
+		}
 
-            offset += sent;
-        }
-    }
+		if (!outputHandler.HasBufferedOutput)
+		{
+			return;
+		}
 
-    private void HandleTelnetNegotiation(IEnumerable<byte> negotiation)
-    {
-        byte[] negSeq = negotiation.ToArray();
+		controlPuppet.CuePrompt();
+		controlPuppet.UpdateObservers();
+		lock (_outgoingCommands)
+		{
+			_outgoingCommands.Append(
+				(controlPuppet.Account is not null
+					? outputHandler.BufferedOutput.Wrap(controlPuppet.Account.LineFormatLength)
+					: outputHandler.BufferedOutput)
+				.SanitiseMXP(MXPSupport));
+			outputHandler.Flush();
+			Volatile.Write(ref _hasOutgoingCommands, 1);
+		}
+	}
 
-        if (negSeq.SequenceEqual(DoMxp))
-        {
-            MXPSupport.UseMXP = true;
-            SendAll(StartMxp);
-            SendAll(MXP.StartMXPBytes());
-            SendAll(WillEOR);
-            return;
-        }
+	/// <summary>
+	/// Compatibility no-op. Incoming data is continuously processed by the asynchronous read pump.
+	/// </summary>
+	public void PrepareIncoming()
+	{
+	}
 
-        if (negSeq.SequenceEqual(DoEOR))
-        {
-            _useAlternatePrompt = true;
-            return;
-        }
+	public void SendOutgoing()
+	{
+		if (ControlPuppet is null)
+		{
+			return;
+		}
 
-        if (negSeq.SequenceEqual(DoCharset))
-        {
-            SendAll(RequestUTF8);
-            return;
-        }
+		string text;
+		lock (_outgoingCommands)
+		{
+			text = _outgoingCommands.ToString();
+			_outgoingCommands.Clear();
+			if (_outgoingCommands.Capacity > MaximumPooledOutputBytes)
+			{
+				_outgoingCommands.Capacity = 1024;
+			}
+			Volatile.Write(ref _hasOutgoingCommands, 0);
+		}
 
-        if (negSeq.SequenceEqual(DontCharset))
-        {
-            return;
-        }
+		var encoding = Volatile.Read(ref _useUnicode) != 0 ? Encoding.UTF8 : Latin1Encoding;
+		var prompt = Volatile.Read(ref _useAlternatePrompt) != 0 ? AlternatePrompt : Prompt;
+		var budgetBytes = encoding.GetByteCount(text) + prompt.Length;
+		QueueFrame(new OutboundFrame(text, encoding, prompt, default, budgetBytes));
+	}
 
-        if (negSeq.SequenceEqual(RejectUTF8))
-        {
-            if (ControlPuppet?.Account is not null)
-            {
-                ControlPuppet.Account.UseUnicode = false;
-            }
-            return;
-        }
+	public void NegotiateClientSet()
+	{
+		QueueRaw(WillCharset);
+	}
 
-        if (negSeq.SequenceEqual(AcknowledgeUTF8))
-        {
-            if (ControlPuppet?.Account is not null)
-            {
-                ControlPuppet.Account.UseUnicode = true;
-            }
-            return;
-        }
+	public void WarnTimeout()
+	{
+		var activityTimestamp = Volatile.Read(ref _lastActivityTimestamp);
+		if (activityTimestamp != _lastWarningActivityTimestamp)
+		{
+			ResetWarnings();
+			_lastWarningActivityTimestamp = activityTimestamp;
+		}
 
-        if (negSeq.Take(BeginWillNegotiation.Length).SequenceEqual(BeginWillNegotiation))
-        {
-            negSeq[1] = Telnet.WONT;
-            SendAll(negSeq.ToArray());
-            return;
-        }
-    }
+		if (ControlPuppet is null || ControlPuppet.Timeout <= 0)
+		{
+			return;
+		}
 
-    private void ResetTelnetNegotiation()
-    {
-        _telnetNegotiationBuffer.Clear();
-        _inTelnetNegotiation = false;
-        _inTelnetSubcommand = false;
-        _pendingTelnetSubcommandEnd = false;
-    }
+		var timeLeft = ControlPuppet.Timeout - InactivityMilliseconds;
+		if (!_thirtySecondWarning && timeLeft <= 30000)
+		{
+			AddOutgoing($"{"[System Message]".Colour(Telnet.Green)} You will time out in 30 seconds unless you do something.\n");
+			_thirtySecondWarning = true;
+			return;
+		}
 
-    private bool TryAppendIncomingCommandByte(byte value)
-    {
-        if (_incomingCommandBuffer.Count >= Constants.PlayerConnectionBufferSize)
-        {
-            DiscardConnection();
-            _incomingCommandBuffer.Clear();
-            return false;
-        }
+		if (!_oneMinuteWarning && timeLeft <= 60000)
+		{
+			AddOutgoing($"{"[System Message]".Colour(Telnet.Green)} You will time out in 1 minute unless you do something.\n");
+			_oneMinuteWarning = true;
+			return;
+		}
 
-        _incomingCommandBuffer.Add(value);
-        return true;
-    }
+		if (!_twoMinuteWarning && timeLeft <= 120000)
+		{
+			AddOutgoing($"{"[System Message]".Colour(Telnet.Green)} You will time out in 2 minutes unless you do something.\n");
+			_twoMinuteWarning = true;
+			return;
+		}
 
-    private bool TryAppendTelnetNegotiationByte(byte value)
-    {
-        if (_telnetNegotiationBuffer.Count >= Constants.PlayerConnectionBufferSize)
-        {
-            DiscardConnection();
-            ResetTelnetNegotiation();
-            return false;
-        }
+		if (!_fiveMinuteWarning && timeLeft <= 300000)
+		{
+			AddOutgoing($"{"[System Message]".Colour(Telnet.Green)} You will time out in 5 minutes unless you do something.\n");
+			_fiveMinuteWarning = true;
+		}
+	}
 
-        _telnetNegotiationBuffer.Add(value);
-        return true;
-    }
+	public void RequestClose(ConnectionCloseMode mode)
+	{
+		State = State == ConnectionState.Closed ? ConnectionState.Closed : ConnectionState.Closing;
+		_incomingCommands.Writer.TryComplete();
+		if (mode == ConnectionCloseMode.Abort)
+		{
+			_readCancellation.Cancel();
+			_writeCancellation.Cancel();
+			_outgoingFrames.Writer.TryComplete();
+			_transport.Close();
+			Volatile.Write(ref _readyForDisposal, 1);
+			if (Volatile.Read(ref _transportStarted) == 0)
+			{
+				CompleteWithoutStarting();
+			}
 
-    private void ProcessIncomingByte(Encoding encoding, byte value)
-    {
-        if (_inTelnetNegotiation)
-        {
-            if (!TryAppendTelnetNegotiationByte(value))
-            {
-                return;
-            }
+			return;
+		}
 
-            if (_telnetNegotiationBuffer.Count == 2 && value == Telnet.IAC)
-            {
-                TryAppendIncomingCommandByte(Telnet.IAC);
-                ResetTelnetNegotiation();
-                return;
-            }
+		if (Interlocked.Exchange(ref _drainRequested, 1) != 0)
+		{
+			return;
+		}
 
-            if (_telnetNegotiationBuffer.Count == 2 && value == Telnet.SB)
-            {
-                _inTelnetSubcommand = true;
-                return;
-            }
+		_readCancellation.Cancel();
+		_outgoingFrames.Writer.TryComplete();
+		if (Volatile.Read(ref _transportStarted) == 0)
+		{
+			_transport.Close();
+			Volatile.Write(ref _readyForDisposal, 1);
+			CompleteWithoutStarting();
+			return;
+		}
 
-            if (_telnetNegotiationBuffer.Count == 2 &&
-                value != Telnet.WILL &&
-                value != Telnet.WONT &&
-                value != Telnet.DO &&
-                value != Telnet.DONT)
-            {
-                HandleTelnetNegotiation(_telnetNegotiationBuffer);
-                ResetTelnetNegotiation();
-                return;
-            }
+		_ = EnforceDrainTimeoutAsync();
+	}
 
-            if (_inTelnetSubcommand)
-            {
-                if (_pendingTelnetSubcommandEnd)
-                {
-                    if (value == Telnet.SE)
-                    {
-                        HandleTelnetNegotiation(_telnetNegotiationBuffer);
-                        ResetTelnetNegotiation();
-                        return;
-                    }
+	public void Dispose()
+	{
+		if (Interlocked.Exchange(ref _disposed, 1) != 0)
+		{
+			return;
+		}
 
-                    _pendingTelnetSubcommandEnd = false;
-                }
+		var controlPuppet = ControlPuppet;
+		ControlPuppet = null;
+		controlPuppet?.DetachConnection();
+		State = ConnectionState.Closed;
+		Futuremud.Games.FirstOrDefault()?.Destroy(this);
+		RequestClose(ConnectionCloseMode.Abort);
+		GC.SuppressFinalize(this);
+	}
 
-                if (value == Telnet.IAC)
-                {
-                    _pendingTelnetSubcommandEnd = true;
-                }
+	private async Task ReadPumpAsync()
+	{
+		try
+		{
+			while (!_readCancellation.IsCancellationRequested)
+			{
+				var bytes = await _transport.ReceiveAsync(
+					_readBuffer.AsMemory(0, ReadBufferSize), _readCancellation.Token);
+				if (bytes == 0)
+				{
+					RequestClose(ConnectionCloseMode.Abort);
+					return;
+				}
 
-                return;
-            }
+				_telemetry.RecordRead(bytes);
+				await ProcessReceivedBytesAsync(_readBuffer.AsMemory(0, bytes), _readCancellation.Token);
+			}
+		}
+		catch (OperationCanceledException) when (_readCancellation.IsCancellationRequested)
+		{
+		}
+		catch (ChannelClosedException) when (State != ConnectionState.Open)
+		{
+		}
+		catch (Exception)
+		{
+			if (State == ConnectionState.Open)
+			{
+				_telemetry.RecordReadError();
+			}
 
-            if (_telnetNegotiationBuffer.Count >= 3)
-            {
-                HandleTelnetNegotiation(_telnetNegotiationBuffer);
-                ResetTelnetNegotiation();
-            }
+			RequestClose(ConnectionCloseMode.Abort);
+		}
+	}
 
-            return;
-        }
+	private async Task WritePumpAsync()
+	{
+		try
+		{
+			await foreach (var frame in _outgoingFrames.Reader.ReadAllAsync(_writeCancellation.Token))
+			{
+				try
+				{
+					if (!frame.Raw.IsEmpty)
+					{
+						await SendAllAsync(frame.Raw, _writeCancellation.Token);
+					}
+					else
+					{
+						await SendEncodedAsync(frame.Encoding!, frame.Text!, _writeCancellation.Token);
+						await SendAllAsync(frame.Prompt, _writeCancellation.Token);
+					}
+				}
+				finally
+				{
+					Interlocked.Add(ref _queuedOutputBytes, -frame.BudgetBytes);
+				}
+			}
 
-        if (value == Telnet.IAC)
-        {
-            _inTelnetNegotiation = true;
-            _telnetNegotiationBuffer.Clear();
-            _telnetNegotiationBuffer.Add(value);
-            return;
-        }
+			if (Volatile.Read(ref _drainRequested) != 0)
+			{
+				_transport.Close();
+				Volatile.Write(ref _readyForDisposal, 1);
+			}
+		}
+		catch (OperationCanceledException) when (_writeCancellation.IsCancellationRequested)
+		{
+		}
+		catch (Exception)
+		{
+			if (State == ConnectionState.Open || Volatile.Read(ref _drainRequested) != 0)
+			{
+				_telemetry.RecordWriteError();
+			}
 
-        if (value == (byte)'\r')
-        {
-            EnqueueCommand(encoding, _incomingCommandBuffer);
-            _incomingCommandBuffer.Clear();
-            return;
-        }
+			RequestClose(ConnectionCloseMode.Abort);
+		}
+		finally
+		{
+			if (Volatile.Read(ref _drainRequested) != 0 && !IsReadyForDisposal)
+			{
+				_transport.Close();
+				Volatile.Write(ref _readyForDisposal, 1);
+			}
+		}
+	}
 
-        if (value == (byte)'\n')
-        {
-            if (_incomingCommandBuffer.Count > 0)
-            {
-                EnqueueCommand(encoding, _incomingCommandBuffer);
-                _incomingCommandBuffer.Clear();
-            }
+	private async Task ObserveTransportAsync(Task readTask, Task writeTask)
+	{
+		try
+		{
+			await Task.WhenAll(readTask, writeTask);
+		}
+		finally
+		{
+			_transport.Dispose();
+			ReturnBuffers();
+			_transportCompletion.TrySetResult();
+		}
+	}
 
-            return;
-        }
+	private async Task EnforceDrainTimeoutAsync()
+	{
+		await Task.Delay(TimeSpan.FromSeconds(2), _timeProvider, CancellationToken.None);
+		if (!IsReadyForDisposal)
+		{
+			RequestClose(ConnectionCloseMode.Abort);
+		}
+	}
 
-        TryAppendIncomingCommandByte(value);
-    }
+	private async ValueTask ProcessReceivedBytesAsync(Memory<byte> memory, CancellationToken cancellationToken)
+	{
+		var encoding = Volatile.Read(ref _useUnicode) != 0 ? Encoding.UTF8 : Latin1Encoding;
+		for (var i = 0; i < memory.Length; i++)
+		{
+			var value = memory.Span[i];
+			if (_inTelnetNegotiation)
+			{
+				if (!TryAppendNegotiationByte(value))
+				{
+					return;
+				}
 
-    public void PrepareIncoming()
-    {
-        try
-        {
-            if (_client.Client.Poll(0, SelectMode.SelectRead) && _client.Client.Available == 0)
-            {
-                DiscardConnection();
-                return;
-            }
+				if (_telnetNegotiationCount == 2 && value == Telnet.IAC)
+				{
+					if (!TryAppendCommandByte(Telnet.IAC))
+					{
+						return;
+					}
 
-            if (!_stream.DataAvailable)
-            {
-                return;
-            }
+					ResetTelnetNegotiation();
+					continue;
+				}
 
-            int bytes = _stream.Read(_inputBuffer, 0, Constants.PlayerConnectionBufferSize);
-            if (bytes == 0)
-            {
-                DiscardConnection();
-                return;
-            }
+				if (_telnetNegotiationCount == 2 && value == Telnet.SB)
+				{
+					_inTelnetSubcommand = true;
+					continue;
+				}
 
-            Encoding encoding = ControlPuppet?.Account?.UseUnicode ?? false
-                ? Encoding.UTF8
-                : Encoding.GetEncoding("iso-8859-1");
+				if (_telnetNegotiationCount == 2 &&
+				    value != Telnet.WILL && value != Telnet.WONT && value != Telnet.DO && value != Telnet.DONT)
+				{
+					HandleTelnetNegotiation(_telnetNegotiationBuffer.AsSpan(0, _telnetNegotiationCount));
+					ResetTelnetNegotiation();
+					continue;
+				}
 
-            byte[] byteArray = _inputBuffer.Take(bytes).ToArray();
-            for (int i = 0; i < byteArray.Length; i++)
-            {
-                ProcessIncomingByte(encoding, byteArray[i]);
-                if (State == ConnectionState.Closing)
-                {
-                    return;
-                }
-            }
+				if (_inTelnetSubcommand)
+				{
+					if (_pendingTelnetSubcommandEnd)
+					{
+						if (value == Telnet.SE)
+						{
+							HandleTelnetNegotiation(_telnetNegotiationBuffer.AsSpan(0, _telnetNegotiationCount));
+							ResetTelnetNegotiation();
+							continue;
+						}
 
-            if (_incomingCommandBuffer.Count >= SupportsBytes.Length &&
-                _incomingCommandBuffer.Take(SupportsBytes.Length).SequenceEqual(SupportsBytes))
-            {
-                EnqueueCommand(encoding, _incomingCommandBuffer);
-                _incomingCommandBuffer.Clear();
-            }
-        }
-        catch (SocketException e)
-        {
-            if (!e.NativeErrorCode.Equals(10035))
-            {
-                DiscardConnection();
-            }
-        }
-        catch (ObjectDisposedException)
-        {
-            DiscardConnection();
-        }
-        catch (IOException)
-        {
-            DiscardConnection();
-        }
-        catch (InvalidOperationException)
-        {
-            DiscardConnection();
-        }
-    }
+						_pendingTelnetSubcommandEnd = false;
+					}
 
-    // TODO: Thread pool this
-    public void SendOutgoing()
-    {
-        if (ControlPuppet == null)
-        {
-            return;
-        }
+					if (value == Telnet.IAC)
+					{
+						_pendingTelnetSubcommandEnd = true;
+					}
 
-        lock (_outgoingCommands)
-        {
-            try
-            {
-                if (ControlPuppet.Account?.UseUnicode ?? false)
-                {
-                    SendAll(Encoding.UTF8.GetBytes(_outgoingCommands.ToString()));
-                }
-                else
-                {
-                    SendAll(Encoding.GetEncoding("iso-8859-1").GetBytes(_outgoingCommands.ToString().ConvertToLatin1()));
-                }
+					continue;
+				}
 
-                SendAll(_useAlternatePrompt ? AlternatePrompt : Prompt);
-                _outgoingCommands.Clear();
-                HasOutgoingCommands = false;
-                if (State == ConnectionState.Closing)
-                {
-                    Dispose();
-                }
-            }
-            catch (SocketException e)
-            {
-                if (!e.NativeErrorCode.Equals(10035))
-                {
-                    DiscardConnection();
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-                DiscardConnection();
-            }
-            catch (IOException)
-            {
-                DiscardConnection();
-            }
-            catch (InvalidOperationException)
-            {
-                DiscardConnection();
-            }
-        }
-    }
+				if (_telnetNegotiationCount >= 3)
+				{
+					HandleTelnetNegotiation(_telnetNegotiationBuffer.AsSpan(0, _telnetNegotiationCount));
+					ResetTelnetNegotiation();
+				}
 
-    private string GetNextCommand()
-    {
-        string command;
-        lock (_incomingCommands)
-        {
-            command = _incomingCommands.Dequeue();
-            HasIncomingCommands = _incomingCommands.Any();
-        }
+				continue;
+			}
 
-        return command.TrimEnd('\n');
-    }
+			if (value == Telnet.IAC)
+			{
+				_inTelnetNegotiation = true;
+				_telnetNegotiationCount = 0;
+				TryAppendNegotiationByte(value);
+				continue;
+			}
 
-    private bool HasTimedOut()
-    {
-        var timeout = ControlPuppet?.Timeout ?? 0;
-        return timeout > 0 && _inactivityStopwatch.ElapsedMilliseconds > timeout;
-    }
+			if (value == (byte)'\r')
+			{
+				await EnqueueCommandAsync(encoding, cancellationToken);
+				continue;
+			}
 
+			if (value == (byte)'\n')
+			{
+				if (_incomingCommandCount > 0)
+				{
+					await EnqueueCommandAsync(encoding, cancellationToken);
+				}
+
+				continue;
+			}
+
+			if (!TryAppendCommandByte(value))
+			{
+				return;
+			}
+		}
+
+		if (_incomingCommandCount >= SupportsBytes.Length &&
+		    _incomingCommandBuffer.AsSpan(0, _incomingCommandCount).StartsWith(SupportsBytes))
+		{
+			await EnqueueCommandAsync(encoding, cancellationToken);
+		}
+	}
+
+	private async ValueTask EnqueueCommandAsync(Encoding encoding, CancellationToken cancellationToken)
+	{
+		if (_incomingCommandBuffer.AsSpan(0, _incomingCommandCount).StartsWith(SupportsBytes))
+		{
+			QueueProtocolEvent(new ProtocolEvent(ProtocolEventKind.Supports,
+				Encoding.ASCII.GetString(_incomingCommandBuffer, 0, _incomingCommandCount)));
+			ResetCommandBuffer();
+			return;
+		}
+
+		var command = _incomingCommandCount == 0
+			? string.Empty
+			: encoding.GetString(_incomingCommandBuffer, 0, _incomingCommandCount);
+		ResetCommandBuffer();
+		var depth = Interlocked.Increment(ref _incomingCommandQueueCount);
+		try
+		{
+			if (!_incomingCommands.Writer.TryWrite(command))
+			{
+				await _incomingCommands.Writer.WriteAsync(command, cancellationToken);
+			}
+		}
+		catch
+		{
+			Interlocked.Decrement(ref _incomingCommandQueueCount);
+			throw;
+		}
+
+		_telemetry.RecordInputQueueDepth(depth);
+		Volatile.Write(ref _lastActivityTimestamp, _timeProvider.GetTimestamp());
+	}
+
+	private void HandleTelnetNegotiation(ReadOnlySpan<byte> negotiation)
+	{
+		if (negotiation.SequenceEqual(DoMxp))
+		{
+			QueueProtocolEvent(new ProtocolEvent(ProtocolEventKind.EnableMxp, null));
+			QueueRaw(StartMxp);
+			QueueRaw(StartMxpPayload);
+			QueueRaw(WillEor);
+			return;
+		}
+
+		if (negotiation.SequenceEqual(DoEor))
+		{
+			Volatile.Write(ref _useAlternatePrompt, 1);
+			return;
+		}
+
+		if (negotiation.SequenceEqual(DoCharset))
+		{
+			QueueRaw(RequestUtf8);
+			return;
+		}
+
+		if (negotiation.SequenceEqual(DontCharset))
+		{
+			return;
+		}
+
+		if (negotiation.SequenceEqual(RejectUtf8))
+		{
+			Volatile.Write(ref _useUnicode, 0);
+			QueueProtocolEvent(new ProtocolEvent(ProtocolEventKind.CharsetRejected, null));
+			return;
+		}
+
+		if (negotiation.SequenceEqual(AcknowledgeUtf8))
+		{
+			Volatile.Write(ref _useUnicode, 1);
+			QueueProtocolEvent(new ProtocolEvent(ProtocolEventKind.CharsetAccepted, null));
+			return;
+		}
+
+		if (negotiation.StartsWith(BeginWillNegotiation))
+		{
+			var response = negotiation.ToArray();
+			response[1] = Telnet.WONT;
+			QueueRaw(response);
+		}
+	}
+
+	private bool TryAppendCommandByte(byte value)
+	{
+		if (_incomingCommandCount >= Constants.PlayerConnectionBufferSize)
+		{
+			_incomingCommandCount = 0;
+			RequestClose(ConnectionCloseMode.Abort);
+			return false;
+		}
+
+		EnsureCapacity(ref _incomingCommandBuffer, _incomingCommandCount + 1);
+		_incomingCommandBuffer[_incomingCommandCount++] = value;
+		return true;
+	}
+
+	private bool TryAppendNegotiationByte(byte value)
+	{
+		if (_telnetNegotiationCount >= Constants.PlayerConnectionBufferSize)
+		{
+			ResetTelnetNegotiation();
+			RequestClose(ConnectionCloseMode.Abort);
+			return false;
+		}
+
+		EnsureCapacity(ref _telnetNegotiationBuffer, _telnetNegotiationCount + 1);
+		_telnetNegotiationBuffer[_telnetNegotiationCount++] = value;
+		return true;
+	}
+
+	private static void EnsureCapacity(ref byte[] buffer, int required)
+	{
+		if (buffer.Length >= required)
+		{
+			return;
+		}
+
+		var replacement = ArrayPool<byte>.Shared.Rent(Math.Min(Constants.PlayerConnectionBufferSize,
+			Math.Max(required, buffer.Length * 2)));
+		buffer.AsSpan().CopyTo(replacement);
+		ArrayPool<byte>.Shared.Return(buffer);
+		buffer = replacement;
+	}
+
+	private void ResetCommandBuffer()
+	{
+		_incomingCommandCount = 0;
+		if (_incomingCommandBuffer.Length <= ReadBufferSize)
+		{
+			return;
+		}
+
+		ArrayPool<byte>.Shared.Return(_incomingCommandBuffer);
+		_incomingCommandBuffer = ArrayPool<byte>.Shared.Rent(InitialCommandBufferSize);
+	}
+
+	private void ResetTelnetNegotiation()
+	{
+		_telnetNegotiationCount = 0;
+		_inTelnetNegotiation = false;
+		_inTelnetSubcommand = false;
+		_pendingTelnetSubcommandEnd = false;
+		if (_telnetNegotiationBuffer.Length <= ReadBufferSize)
+		{
+			return;
+		}
+
+		ArrayPool<byte>.Shared.Return(_telnetNegotiationBuffer);
+		_telnetNegotiationBuffer = ArrayPool<byte>.Shared.Rent(InitialNegotiationBufferSize);
+	}
+
+	private bool QueueRaw(ReadOnlyMemory<byte> bytes)
+	{
+		return bytes.IsEmpty || QueueFrame(new OutboundFrame(null, null, default, bytes, bytes.Length));
+	}
+
+	private bool QueueProtocolEvent(ProtocolEvent protocolEvent)
+	{
+		if (Interlocked.Increment(ref _protocolEventCount) > ProtocolEventCapacity)
+		{
+			Interlocked.Decrement(ref _protocolEventCount);
+			RequestClose(ConnectionCloseMode.Abort);
+			return false;
+		}
+
+		_protocolEvents.Enqueue(protocolEvent);
+		return true;
+	}
+
+	private bool QueueFrame(OutboundFrame frame)
+	{
+		var queued = Interlocked.Add(ref _queuedOutputBytes, frame.BudgetBytes);
+		if (queued > MaximumQueuedOutputBytes)
+		{
+			Interlocked.Add(ref _queuedOutputBytes, -frame.BudgetBytes);
+			_telemetry.RecordSlowClientDisconnect();
+			RequestClose(ConnectionCloseMode.Abort);
+			return false;
+		}
+
+		if (!_outgoingFrames.Writer.TryWrite(frame))
+		{
+			Interlocked.Add(ref _queuedOutputBytes, -frame.BudgetBytes);
+			if (State == ConnectionState.Open)
+			{
+				_telemetry.RecordSlowClientDisconnect();
+			}
+
+			RequestClose(ConnectionCloseMode.Abort);
+			return false;
+		}
+
+		_telemetry.RecordOutputQueueBytes(queued);
+		return true;
+	}
+
+	private async ValueTask SendEncodedAsync(Encoding encoding, string text, CancellationToken cancellationToken)
+	{
+		if (text.Length == 0)
+		{
+			return;
+		}
+
+		var byteCount = encoding.GetByteCount(text);
+		if (byteCount > MaximumPooledOutputBytes)
+		{
+			await SendAllAsync(encoding.GetBytes(text), cancellationToken);
+			return;
+		}
+
+		var buffer = ArrayPool<byte>.Shared.Rent(byteCount);
+		try
+		{
+			var bytesWritten = encoding.GetBytes(text.AsSpan(), buffer);
+			await SendAllAsync(buffer.AsMemory(0, bytesWritten), cancellationToken);
+		}
+		finally
+		{
+			ArrayPool<byte>.Shared.Return(buffer);
+		}
+	}
+
+	private async ValueTask SendAllAsync(ReadOnlyMemory<byte> bytes, CancellationToken cancellationToken)
+	{
+		var offset = 0;
+		while (offset < bytes.Length)
+		{
+			var sent = await _transport.SendAsync(bytes[offset..], cancellationToken);
+			if (sent <= 0)
+			{
+				throw new SocketException((int)SocketError.ConnectionReset);
+			}
+
+			offset += sent;
+			_telemetry.RecordWrite(sent);
+		}
+	}
+
+	private void CompleteWithoutStarting()
+	{
+		_transport.Dispose();
+		ReturnBuffers();
+		_transportCompletion.TrySetResult();
+	}
+
+	private void ReturnBuffers()
+	{
+		if (Interlocked.Exchange(ref _buffersReturned, 1) != 0)
+		{
+			return;
+		}
+
+		ArrayPool<byte>.Shared.Return(_readBuffer);
+		ArrayPool<byte>.Shared.Return(_incomingCommandBuffer);
+		ArrayPool<byte>.Shared.Return(_telnetNegotiationBuffer);
+	}
+
+	private void ResetWarnings()
+	{
+		_fiveMinuteWarning = false;
+		_twoMinuteWarning = false;
+		_oneMinuteWarning = false;
+		_thirtySecondWarning = false;
+	}
+
+	private bool HasTimedOut()
+	{
+		var timeout = ControlPuppet?.Timeout ?? 0;
+		return timeout > 0 && InactivityMilliseconds > timeout;
+	}
+
+	private static byte[] BuildSubnegotiation(byte option, string payload)
+	{
+		var payloadBytes = Encoding.ASCII.GetBytes(payload);
+		var result = new byte[payloadBytes.Length + 6];
+		result[0] = Telnet.IAC;
+		result[1] = Telnet.SB;
+		result[2] = Telnet.CHARSET;
+		result[3] = option;
+		payloadBytes.CopyTo(result, 4);
+		result[^2] = Telnet.IAC;
+		result[^1] = Telnet.SE;
+		return result;
+	}
+
+	private readonly record struct OutboundFrame(
+		string? Text,
+		Encoding? Encoding,
+		ReadOnlyMemory<byte> Prompt,
+		ReadOnlyMemory<byte> Raw,
+		int BudgetBytes);
+
+	private readonly record struct ProtocolEvent(ProtocolEventKind Kind, string? Text);
+
+	private enum ProtocolEventKind
+	{
+		EnableMxp,
+		Supports,
+		CharsetAccepted,
+		CharsetRejected
+	}
 }

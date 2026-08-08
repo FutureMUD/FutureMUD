@@ -123,6 +123,7 @@ public partial class RobotSeeder
             DefaultMaterial = material,
             Size = (int)size,
             Significant = significant,
+			UseLimbSeverDescription = SeederBodyUtilities.UseLimbSeverDescription(type, alias),
             IsVital = isVital,
             IsCore = isCore,
             IsOrgan = isOrgan ? 1 : 0,

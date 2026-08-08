@@ -49,6 +49,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
         RelativeHitChance = proto.RelativeHitChance;
         DefaultMaterial = Gameworld.Materials.Get(proto.DefaultMaterialId);
         Significant = proto.Significant;
+		UseLimbSeverDescription = proto.UseLimbSeverDescription;
         IsVital = proto.IsVital;
         IsCore = proto.IsCore;
         ImplantSpace = proto.ImplantSpace;
@@ -78,6 +79,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
         IsCore = rhs.IsCore;
         DefaultMaterial = rhs.DefaultMaterial;
         Significant = rhs.Significant;
+		UseLimbSeverDescription = rhs.UseLimbSeverDescription;
         IsVital = rhs.IsVital;
         ImplantSpace = rhs.ImplantSpace;
         NaturalArmourType = rhs.NaturalArmourType;
@@ -119,6 +121,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
             RelativeHitChance = (int)RelativeHitChance,
             DefaultMaterialId = DefaultMaterial?.Id ?? 0,
             Significant = Significant,
+			UseLimbSeverDescription = UseLimbSeverDescription,
             IsVital = IsVital,
             ImplantSpace = ImplantSpace,
             ArmourTypeId = NaturalArmourType?.Id,
@@ -179,6 +182,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
         dbitem.RelativeHitChance = (int)RelativeHitChance;
         dbitem.DefaultMaterialId = DefaultMaterial?.Id ?? 0;
         dbitem.Significant = Significant;
+		dbitem.UseLimbSeverDescription = UseLimbSeverDescription;
         dbitem.IsVital = IsVital;
         dbitem.ImplantSpace = ImplantSpace;
         dbitem.ArmourTypeId = NaturalArmourType?.Id;
@@ -225,6 +229,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
             $"Vital?: {IsVital.ToString(builder).Colour(Telnet.Green)}",
             $"Significant?: {Significant.ToString(builder).Colour(Telnet.Green)}"
         );
+		sb.AppendLine($"Limb Sever Echo?: {UseLimbSeverDescription.ToString(builder).Colour(Telnet.Green)}");
         sb.AppendLineColumns((uint)builder.LineFormatLength, 3,
             $"Material: {DefaultMaterial?.Name.Colour(DefaultMaterial.ResidueColour) ?? "None".Colour(Telnet.Red)}",
             $"Armour Type: {NaturalArmourType?.Name.FluentTagMXP("send", $"href='show armour {NaturalArmourType.Id}' hint='Click to show the armour type'") ?? "None".Colour(Telnet.Red)}",
@@ -277,6 +282,10 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
                 return BuildingCommandVital(builder, command);
             case "significant":
                 return BuildingCommandSignificant(builder, command);
+			case "limbsever":
+			case "limbseverecho":
+			case "limbseverdescription":
+				return BuildingCommandLimbSeverDescription(builder, command);
             case "material":
                 return BuildingCommandMaterial(builder, command);
             case "armour":
@@ -552,6 +561,15 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
         builder.OutputHandler.Send($"This bodypart is {(Significant ? "now" : "no longer")} significant.");
         return true;
     }
+
+	private bool BuildingCommandLimbSeverDescription(ICharacter builder, StringStack command)
+	{
+		UseLimbSeverDescription = !UseLimbSeverDescription;
+		Changed = true;
+		builder.OutputHandler.Send(
+			$"Sever echoes will {(UseLimbSeverDescription ? "now name this bodypart's containing limb" : "now name this bodypart directly")}.");
+		return true;
+	}
 
     private bool BuildingCommandVital(ICharacter builder, StringStack command)
     {
@@ -927,6 +945,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
 	#3hit <chances>#0 - sets the hit chances for this bodypart
 	#3vital#0 - toggles whether this is a vital part
 	#3significant#0 - toggles whether this is a significant part
+	#3limbsever#0 - toggles whether sever echoes name the containing limb
 	#3material <material>#0 - sets the material this part is made from
 	#3armour <armour>#0 - sets the default armour type
 	#3implantspace <space>#0 - sets the implant space
@@ -943,6 +962,8 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
     public IBodypartShape Shape { get; protected set; }
 
     public bool Significant { get; set; }
+
+	public bool UseLimbSeverDescription { get; protected set; } = true;
 
     public bool IsVital { get; set; }
 

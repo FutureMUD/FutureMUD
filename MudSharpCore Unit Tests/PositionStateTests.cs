@@ -47,6 +47,14 @@ public class PositionStateTests
 			PositionFloatingInWater.Instance.Describe(voyeur.Object, null, PositionModifier.None, null, false));
 	}
 
+	[TestMethod]
+	public void SprawledMovement_TransitionsToExistingProneCrawlPath()
+	{
+		Assert.AreEqual(MovementAbility.Free, PositionSprawled.Instance.MoveRestrictions);
+		Assert.AreSame(PositionProne.Instance, PositionSprawled.Instance.TransitionOnMovement);
+		Assert.AreEqual("crawl|crawls", PositionSprawled.Instance.TransitionOnMovement.DescribePositionMovement);
+	}
+
 	private static Mock<IPerceivable> GetTarget(string description)
 	{
 		var target = new Mock<IPerceivable>();

@@ -67,7 +67,8 @@ public partial class Cell
 		{
 			if (state.LiquidVolume >= Gameworld.GetStaticDouble("SplashLiquidQuantity"))
 			{
-				var text = $"{PuddleDescription(state.LiquidVolume).A_An()} of {state.ContaminatingLiquid.LiquidDescription} is here.";
+				var text = DescribeSurfaceLiquidRoomLine(PuddleDescription(state.LiquidVolume),
+					state.ContaminatingLiquid.LiquidDescription);
 				sb.AppendLine(colour ? text.Colour(state.ContaminatingLiquid.LiquidColour) : text);
 			}
 
@@ -83,6 +84,11 @@ public partial class Cell
 		}
 
 		return sb.ToString().TrimEnd();
+	}
+
+	internal static string DescribeSurfaceLiquidRoomLine(string amountDescription, string liquidDescription)
+	{
+		return $"{amountDescription.A_An()} of {liquidDescription} is here.".Proper();
 	}
 
 	public void ResolveRoomWeatherExposure(IPerceiver? voyeur)

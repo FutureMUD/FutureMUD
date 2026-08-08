@@ -8,11 +8,25 @@ public class ClinchEffect : CombatEffectBase, IAffectProximity
     {
         Clincher = clincher;
         Target = target;
+		Clincher.OnLeaveCombat += Participant_OnLeaveCombat;
+		Target.OnLeaveCombat += Participant_OnLeaveCombat;
     }
 
     protected override string SpecificEffectType => "ClinchEffect";
     public ICharacter Clincher { get; set; }
     public ICharacter Target { get; set; }
+
+	private void Participant_OnLeaveCombat(IPerceivable participant)
+	{
+		ExpireEffect();
+	}
+
+	public override void RemovalEffect()
+	{
+		Clincher.OnLeaveCombat -= Participant_OnLeaveCombat;
+		Target.OnLeaveCombat -= Participant_OnLeaveCombat;
+		base.RemovalEffect();
+	}
 
     public override string Describe(IPerceiver voyeur)
     {

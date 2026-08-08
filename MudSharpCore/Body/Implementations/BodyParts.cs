@@ -75,17 +75,10 @@ public partial class Body
         ILimb limb = GetLimbFor(bodypart);
         if (!Actor.AffectedBy<SupressWoundMessages>())
         {
-            if (limb != null && bodypart.Significant && !limb.Name.EqualTo(bodypart.Name))
+			if (!(bodypart is IOrganProto))
             {
                 OutputHandler.Handle(
-                    new EmoteOutput(new Emote($"$0's {limb.Name.ToLowerInvariant()} is severed at the {bodypart.FullDescription()}!",
-                        Actor,
-                        Actor)));
-            }
-            else if (!(bodypart is IOrganProto))
-            {
-                OutputHandler.Handle(
-                    new EmoteOutput(new Emote($"$0's {bodypart.FullDescription().ToLowerInvariant()} is severed!", Actor,
+					new EmoteOutput(new Emote(SeverEchoText(bodypart, limb), Actor,
                         Actor)));
             }
         }
@@ -165,6 +158,15 @@ public partial class Body
         RecalculateItemHelpers();
         return newPart;
     }
+
+	internal static string SeverEchoText(IBodypart bodypart, ILimb limb)
+	{
+		var removesLimbRoot = limb is not null &&
+			(limb.RootBodypart == bodypart || limb.RootBodypart.DownstreamOfPart(bodypart));
+		return removesLimbRoot && bodypart.Significant && !limb.Name.EqualTo(bodypart.Name)
+			? $"$0's {limb.Name.ToLowerInvariant()} is severed at the {bodypart.FullDescription()}!"
+			: $"$0's {bodypart.FullDescription().ToLowerInvariant()} is severed!";
+	}
 
     public void RestoreBodypart(IBodypart bodypart)
     {

@@ -89,6 +89,8 @@ Severing now has two runtime paths, both evaluated after the struck-bodypart wou
 - Formula path: if `damage.Bodypart.SeverFormula` is present, `BodyBiology` evaluates it through `ExpressionEngine` with `damage` and numeric `damagetype` parameters. A result of `>= 1` severs the part; `< 1` does not.
 - Legacy path: if no sever formula is present, severing still requires a severable bodypart, the final struck-bodypart packet meeting the modified sever threshold, and a damage type that `CanSever()`.
 
+The sever echo names the containing limb only when the sever point removes that limb's root. Localised severs such as an eye name the actual severed bodypart rather than overstating the loss as the whole head.
+
 Legacy runtime sever threshold:
 
 - `bodypart.SeveredThreshold * Race.BodypartHealthMultiplier`

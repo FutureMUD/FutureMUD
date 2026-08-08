@@ -122,6 +122,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             .Where(template => !_context.Races.Any(x => x.Name == template.Name))
             .ToList();
         Dictionary<string, BodyProto> bodyLookup = BuildBodyCatalogue(Templates.Values);
+		SeederBodyUtilities.RefreshLimbSeverDescriptionFlags(_context, bodyLookup.Values);
         RefreshExistingMythicalRaceDefaults();
         if (templatesToSeed.Count == 0 &&
             !hasMissingDisfigurementTemplates &&

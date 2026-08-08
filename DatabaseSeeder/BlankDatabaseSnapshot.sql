@@ -14883,3 +14883,20 @@ END //
 DELIMITER ;
 CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
+
+-- EF-generated idempotent delta: 20260808112940_AddBodypartLimbSeverDescription
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260808112940_AddBodypartLimbSeverDescription') THEN
+
+        ALTER TABLE `bodypartproto` ADD `UseLimbSeverDescription` bit(1) NOT NULL DEFAULT b'1';
+        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+        VALUES('20260808112940_AddBodypartLimbSeverDescription', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;

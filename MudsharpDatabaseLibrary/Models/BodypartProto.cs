@@ -54,6 +54,7 @@ namespace MudSharp.Models
         public double DamageModifier { get; set; }
         public long DefaultMaterialId { get; set; }
         public bool Significant { get; set; }
+        public bool UseLimbSeverDescription { get; set; } = true;
         public double RelativeInfectability { get; set; }
         public double HypoxiaDamagePerTick { get; set; }
         public bool IsVital { get; set; }

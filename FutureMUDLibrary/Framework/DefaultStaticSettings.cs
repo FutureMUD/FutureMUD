@@ -645,7 +645,16 @@ public static class DefaultStaticSettings
             { "DrawingTraitId", "0" },
             {
                 "EmailServer",
-                @"<Definition>  <Host>mail.yourserver.com</Host>  <Port>26</Port>  <EnableSSL>false</EnableSSL><UseDefaultCredentials>false</UseDefaultCredentials>  <Credentials Username=""staff@yoursever.com"" Password=""password""/></Definition>"
+                @"<Definition>
+  <Version>2</Version>
+  <Enabled>false</Enabled>
+  <Transport>Smtp</Transport>
+  <FailureHandling>
+    <MaxAttempts>6</MaxAttempts>
+    <StoreFailedMessages>false</StoreFailedMessages>
+    <Directory>FailedEmails</Directory>
+  </FailureHandling>
+</Definition>"
             },
             { "ForgerySkillId", "0" },
             { "HandwritingSkillId", "0" },

@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Anthropic.SDK" Version="5.8.0" />
-    <PackageReference Include="MailKit" Version="4.16.0" />
+    <PackageReference Include="MailKit" Version="4.17.0" />
   </ItemGroup>
 
   <ItemGroup>

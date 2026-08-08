@@ -22,6 +22,11 @@ internal class MudSharp
             return;
         }
 
+		if (TryRunGoogleEmailAuthorization(args))
+		{
+			return;
+		}
+
         ConfigureConsoleHost();
 
         IPAddress hostIp;
@@ -193,6 +198,33 @@ internal class MudSharp
 		catch (Exception exception)
 		{
 			Console.Error.WriteLine($"Documentation export failed: {exception.Message}");
+			Environment.ExitCode = 1;
+		}
+
+		return true;
+	}
+
+	private static bool TryRunGoogleEmailAuthorization(string[] args)
+	{
+		if (args.Length == 0 || !args[0].Equals("--authorize-google-email", StringComparison.OrdinalIgnoreCase))
+		{
+			return false;
+		}
+
+		if (args.Length != 3 || !GoogleEmailAuthorization.TryGetScope(args[1], out _))
+		{
+			Console.Error.WriteLine("Usage: MudSharp --authorize-google-email <gmail-api|smtp> <client-secrets.json>");
+			Environment.ExitCode = 2;
+			return true;
+		}
+
+		try
+		{
+			GoogleEmailAuthorization.AuthorizeAsync(args[1], args[2], CancellationToken.None).GetAwaiter().GetResult();
+		}
+		catch (Exception exception)
+		{
+			Console.Error.WriteLine($"Google email authorization failed: {exception.GetType().Name}.");
 			Environment.ExitCode = 1;
 		}
 

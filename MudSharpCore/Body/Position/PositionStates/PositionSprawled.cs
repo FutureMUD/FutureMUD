@@ -13,6 +13,8 @@ public class PositionSprawled : PositionState
 
     public static PositionSprawled Instance => _instance;
     public override string DescribeLocationMovementParticiple => "sprawled";
+	public override MovementAbility MoveRestrictions => MovementAbility.Free;
+	public override IPositionState TransitionOnMovement => PositionProne.Instance;
 
     public override string DefaultDescription()
     {

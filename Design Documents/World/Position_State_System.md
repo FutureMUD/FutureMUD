@@ -49,7 +49,7 @@ Current registered IDs:
 | 5 | `PositionLyingDown` | lying down | restricted by default | low tier |
 | 6 | `PositionProne` | prone | free | low/crawling tier |
 | 7 | `PositionProstrate` | prostrate | free if not in/on a target | low/crawling tier |
-| 8 | `PositionSprawled` | sprawled | restricted by default | lowest tier |
+| 8 | `PositionSprawled` | sprawled | transitions to prone when movement begins | lowest tier |
 | 9 | `PositionStandingAttention` | standing at attention | free | standing tier |
 | 10 | `PositionStandingEasy` | standing at ease | free | standing tier |
 | 11 | `PositionLeaning` | leaning | free | standing tier |

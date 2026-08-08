@@ -1575,7 +1575,14 @@ Plane lists accept IDs, aliases, quoted names, or comma-separated tokens, e.g. #
                 connection?.AddOutgoing($"Your account has been banned by {newNote.Author.Name.TitleCase()}.\n");
                 connection?.PrepareOutgoing();
                 connection?.SendOutgoing();
-                connection?.Dispose();
+				if (connection is IAsyncPlayerConnection asyncConnection)
+				{
+					asyncConnection.RequestClose(ConnectionCloseMode.Drain);
+				}
+				else
+				{
+					connection?.Dispose();
+				}
             }
 
             handler.Send($"You ban account {dbaccount.Name.TitleCase()}.");

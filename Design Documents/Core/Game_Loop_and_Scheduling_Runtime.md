@@ -2,9 +2,13 @@
 
 ## Runtime cadence
 
-`Futuremud.StartGameLoop()` is the authoritative 250 ms game-loop cadence. Each iteration processes player commands, idler warnings, clocks, normal schedules, effect schedules, logging, closed connections, optional Discord work, and the periodic save flush. Remaining time is available to bounded pathfinding and lazy-load work before the thread sleeps.
+`Futuremud.StartGameLoop()` is the authoritative 250 ms game-loop cadence. Each iteration admits accepted TCP connections and applies transport events, then processes player commands, idler warnings, clocks, normal schedules, effect schedules, logging, closed connections, optional Discord work, and the periodic save flush. Remaining time is available to bounded pathfinding and lazy-load work before the thread sleeps.
 
-The TCP server remains a separate synchronous polling loop with a 100 ms cadence. It reads and sends socket traffic only; command execution remains on the game-loop thread.
+The TCP server is event-driven. A cancellable accept task publishes new sockets to a pending queue; the game-loop network phase constructs their menus and control contexts before starting one asynchronous read pump and one single-writer output pump per connection. There is no dedicated polling thread or idle 100 ms wake-up. Socket tasks parse or transmit bytes only: connection admission, account and MXP mutations, commands, link-dead effects, and connection disposal remain game-loop work.
+
+Complete commands enter a bounded sixteen-command channel. A full channel pauses the socket reader and relies on TCP backpressure, so commands are not dropped, reordered, or coalesced. The game loop retains its reusable randomized work list and executes at most one command per ready connection per tick.
+
+All text, prompts, and Telnet negotiation frames share one ordered output writer. Staged and queued output is bounded to 2 MiB and 256 frames per connection. A non-reading client that exceeds either limit is disconnected rather than being allowed to grow the managed heap indefinitely. Ordinary logout, timeout, and administrative closure drains queued output for up to two seconds; socket failure and limit violations abort immediately. Engine shutdown stops acceptance, allows connection drains for up to five seconds, and then aborts any remainder.
 
 ## Schedules and heartbeats
 
@@ -20,8 +24,10 @@ Track decay remains per-cell and fuzzy-minute. A cell with no expired tracks per
 
 ## Diagnostics
 
-Junior administrators can use `debug performance`, `debug performance on`, `debug performance off`, and `debug performance reset`. Monitoring is disabled by default and is in-memory only. When enabled it records loop and scheduler timing, allocations, memory/GC state, heartbeat callback timing, and subscriber counts. It does not create persistence records or alter runtime scheduling behaviour.
+Junior administrators can use `debug performance`, `debug performance on`, `debug performance off`, and `debug performance reset`. Monitoring is disabled by default and is in-memory only. When enabled it records loop and scheduler timing, allocations, memory/GC state, heartbeat callback timing, subscriber counts, network bytes and operations, queue high-water marks, connection counts, slow-client disconnects, and transport errors. Network aggregates are atomic and never retain connection instances. Diagnostics do not create persistence records or alter runtime scheduling behaviour.
 
 ## Boundaries
 
-This runtime model intentionally keeps the 250 ms game loop, 100 ms TCP polling, save/log cadence, and heartbeat callback semantics. Event-driven TCP I/O, callback coalescing, and schedule execution budgets are separate future work because each changes overload or connection behaviour.
+This runtime model intentionally keeps the 250 ms game loop, save/log cadence, heartbeat callback semantics, Telnet protocol, and one-command-per-ready-connection behavior. `IServer` and `IPlayerConnection` remain source-compatible; event-driven implementations advertise optional async lifecycle interfaces, while synchronous implementations retain their existing entry points.
+
+The listener still binds only to the IP address and port in `Connection.config`. TLS termination, `MudClientProxy`, Discord transport, callback coalescing, and schedule execution budgets are outside this runtime boundary. No networking state or diagnostic session is persisted.

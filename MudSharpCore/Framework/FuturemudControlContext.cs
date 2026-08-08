@@ -94,7 +94,14 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
         _connection?.PrepareOutgoing();
         _connection?.SendOutgoing();
         Closing = true;
-        _connection?.Dispose(); // SendOutgoing will dispose a closing connection
+		if (_connection is IAsyncPlayerConnection asyncConnection)
+		{
+			asyncConnection.RequestClose(ConnectionCloseMode.Drain);
+		}
+		else
+		{
+			_connection?.Dispose();
+		}
     }
 
     void IAccountController.DetachConnection()

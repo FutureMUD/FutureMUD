@@ -102,7 +102,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public Futuremud(IServer server)
     {
         Server = server;
-		RuntimePerformanceMonitor = new RuntimePerformanceMonitor();
+		RuntimePerformanceMonitor = new RuntimePerformanceMonitor(server as IRuntimeNetworkPerformanceSource);
         EffectScheduler = new EffectScheduler(this);
 
         _allgames.Add(this);
@@ -316,8 +316,19 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 				var loopAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
 				var phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
 
-                sw.Restart();
-                ProcessPendingCommands();
+				sw.Restart();
+				ProcessNetwork();
+				RecordLoopPhase(RuntimeLoopPhase.Network, sw, collectPerformance, phaseAllocatedBefore);
+				if (sw.ElapsedMilliseconds > 250)
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine($"[PERF] - ProcessNetwork took {sw.ElapsedMilliseconds}ms");
+					Console.ResetColor();
+				}
+
+				phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
+				sw.Restart();
+				ProcessPendingCommands();
 				RecordLoopPhase(RuntimeLoopPhase.PendingCommands, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
                 {
@@ -461,8 +472,9 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 				}
                 //#endif
                 Thread.Sleep(Math.Max(1, 250 - (int)totalTime.ElapsedMilliseconds));
-            }
+			}
 
+			ForceOutgoingMessages();
 			LinearRouteMovement.MaterialiseAllForShutdown(this);
 			RouteVehicleMovementStrategy.MaterialiseAllForShutdown(this);
             SaveManager.Flush();
@@ -2666,8 +2678,28 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 		foreach (var connection in connections)
 		{
 			connection.PrepareOutgoing();
+			if (connection is IAsyncPlayerConnection && connection.HasOutgoingCommands)
+			{
+				connection.SendOutgoing();
+			}
 		}
     }
+
+	private void ProcessNetwork()
+	{
+		if (Server is IAsyncServer asyncServer)
+		{
+			asyncServer.ProcessPendingConnections();
+		}
+
+		foreach (var connection in _connections.Snapshot)
+		{
+			if (connection is IAsyncPlayerConnection asyncConnection)
+			{
+				asyncConnection.ProcessPendingTransportEvents();
+			}
+		}
+	}
 
     public void ForceOutgoingMessages()
     {
@@ -2691,6 +2723,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     private void ClearDeadConnections()
     {
+		foreach (var connection in _connections.Snapshot)
+		{
+			if (connection.State == ConnectionState.Closing &&
+			    connection is IAsyncPlayerConnection { IsReadyForDisposal: true })
+			{
+				connection.Dispose();
+			}
+		}
+
 		_connections.RemoveClosed();
     }
 

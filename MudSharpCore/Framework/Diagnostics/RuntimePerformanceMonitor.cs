@@ -15,6 +15,7 @@ public sealed class RuntimePerformanceMonitor : IRuntimePerformanceMonitor
 	private readonly Dictionary<HeartbeatCallbackKey, TimingStatistics> _heartbeatCallbacks = [];
 	private readonly TimingStatistics _otherHeartbeatCallbacks = new();
 	private readonly Process _process = Process.GetCurrentProcess();
+	private readonly IRuntimeNetworkPerformanceSource _networkPerformanceSource;
 	private TimeSpan _startProcessorTime;
 	private long _startAllocatedBytes;
 	private readonly int[] _startCollections = new int[GC.MaxGeneration + 1];
@@ -24,6 +25,11 @@ public sealed class RuntimePerformanceMonitor : IRuntimePerformanceMonitor
 	private long _totalLoopTicks;
 	private long _maximumLoopTicks;
 	private long _totalLoopAllocatedBytes;
+
+	public RuntimePerformanceMonitor(IRuntimeNetworkPerformanceSource networkPerformanceSource = null)
+	{
+		_networkPerformanceSource = networkPerformanceSource;
+	}
 
 	public bool Enabled { get; private set; }
 
@@ -49,6 +55,7 @@ public sealed class RuntimePerformanceMonitor : IRuntimePerformanceMonitor
 		_totalLoopTicks = 0;
 		_maximumLoopTicks = 0;
 		_totalLoopAllocatedBytes = 0;
+		_networkPerformanceSource?.ResetNetworkPerformanceCounters();
 		_sessionStartTimestamp = Stopwatch.GetTimestamp();
 		_startProcessorTime = _process.TotalProcessorTime;
 		_startAllocatedBytes = GC.GetTotalAllocatedBytes(false);
@@ -179,6 +186,16 @@ public sealed class RuntimePerformanceMonitor : IRuntimePerformanceMonitor
 			{
 				sb.AppendLine($"\t{name}: {statistics.Describe(formatProvider)}");
 			}
+		}
+
+		if (_networkPerformanceSource is not null)
+		{
+			var network = _networkPerformanceSource.GetNetworkPerformanceSnapshot();
+			sb.AppendLine("Network transport:");
+			sb.AppendLine($"\tConnections: accepted {network.AcceptedConnections:N0}, flood-rejected {network.FloodRejectedConnections:N0}, active {network.ActiveConnections:N0}, slow-client disconnects {network.SlowClientDisconnects:N0}");
+			sb.AppendLine($"\tInput: {network.BytesReceived:N0} bytes in {network.ReadOperations:N0} reads, queue high-water {network.InputQueueHighWatermark:N0} commands");
+			sb.AppendLine($"\tOutput: {network.BytesSent:N0} bytes in {network.WriteOperations:N0} writes, queue high-water {network.OutputQueueHighWatermarkBytes:N0} bytes");
+			sb.AppendLine($"\tErrors: accept {network.AcceptErrors:N0}, read {network.ReadErrors:N0}, write {network.WriteErrors:N0}");
 		}
 	}
 

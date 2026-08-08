@@ -5,6 +5,7 @@ namespace MudSharp.Framework.Diagnostics;
 
 public enum RuntimeLoopPhase
 {
+	Network,
 	PendingCommands,
 	IdlerWarnings,
 	Clocks,
@@ -16,6 +17,27 @@ public enum RuntimeLoopPhase
 	SaveFlush,
 	Pathfinding,
 	LazyLoad
+}
+
+public readonly record struct RuntimeNetworkPerformanceSnapshot(
+	long AcceptedConnections,
+	long FloodRejectedConnections,
+	long ActiveConnections,
+	long BytesReceived,
+	long BytesSent,
+	long ReadOperations,
+	long WriteOperations,
+	long InputQueueHighWatermark,
+	long OutputQueueHighWatermarkBytes,
+	long SlowClientDisconnects,
+	long AcceptErrors,
+	long ReadErrors,
+	long WriteErrors);
+
+public interface IRuntimeNetworkPerformanceSource
+{
+	RuntimeNetworkPerformanceSnapshot GetNetworkPerformanceSnapshot();
+	void ResetNetworkPerformanceCounters();
 }
 
 public enum RuntimeSchedulerKind

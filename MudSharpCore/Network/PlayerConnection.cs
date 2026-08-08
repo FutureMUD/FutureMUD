@@ -1,16 +1,22 @@
 ﻿using MudSharp.Character.Name;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Framework;
 using MudSharp.Server;
+using System.Buffers;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace MudSharp.Network;
 
 public class PlayerConnection : IPlayerConnection
 {
+	private const int MaximumPooledOutputBytes = 64 * 1024;
+	private static readonly Encoding Latin1Encoding = StringExtensions.Latin1Encoder;
     private static readonly byte[] WillMxp = [Telnet.IAC, Telnet.WILL, Telnet.TELOPT_MXP];
 
     private static readonly byte[] StartMxp =
@@ -102,6 +108,9 @@ public class PlayerConnection : IPlayerConnection
     private bool _inTelnetSubcommand;
     private bool _pendingTelnetSubcommandEnd;
     private bool _disposed;
+	private int _state;
+	private int _hasIncomingCommands;
+	private int _hasOutgoingCommands;
 
     private bool _fiveMinuteWarning,
         _twoMinuteWarning,
@@ -132,11 +141,23 @@ public class PlayerConnection : IPlayerConnection
         }
     }
 
-    public ConnectionState State { get; set; }
+    public ConnectionState State
+	{
+		get => (ConnectionState)Volatile.Read(ref _state);
+		set => Volatile.Write(ref _state, (int)value);
+	}
 
-    public bool HasIncomingCommands { get; private set; }
+    public bool HasIncomingCommands
+	{
+		get => Volatile.Read(ref _hasIncomingCommands) != 0;
+		private set => Volatile.Write(ref _hasIncomingCommands, value ? 1 : 0);
+	}
 
-    public bool HasOutgoingCommands { get; private set; }
+    public bool HasOutgoingCommands
+	{
+		get => Volatile.Read(ref _hasOutgoingCommands) != 0;
+		private set => Volatile.Write(ref _hasOutgoingCommands, value ? 1 : 0);
+	}
 
     public string IP
     {
@@ -430,13 +451,14 @@ public class PlayerConnection : IPlayerConnection
 
     private void EnqueueCommand(Encoding encoding, List<byte> bytes)
     {
-        if (bytes.Take(SupportsBytes.Length).SequenceEqual(SupportsBytes))
+		var byteSpan = CollectionsMarshal.AsSpan(bytes);
+        if (byteSpan.StartsWith(SupportsBytes))
         {
-            MXPSupport.SetSupport(Encoding.ASCII.GetString(bytes.ToArray()));
+			MXPSupport.SetSupport(Encoding.ASCII.GetString(byteSpan));
             return;
         }
 
-        string command = bytes.Count > 0 ? encoding.GetString(bytes.ToArray()) : "";
+		string command = bytes.Count > 0 ? encoding.GetString(byteSpan) : "";
 #if DEBUG
         Console.WriteLine($"Player Command: {command}");
 #endif
@@ -451,6 +473,11 @@ public class PlayerConnection : IPlayerConnection
     }
 
     private void SendAll(byte[] bytes)
+	{
+		SendAll(bytes.AsSpan());
+	}
+
+	private void SendAll(ReadOnlySpan<byte> bytes)
     {
         if (bytes.Length == 0)
         {
@@ -460,7 +487,7 @@ public class PlayerConnection : IPlayerConnection
         var offset = 0;
         while (offset < bytes.Length)
         {
-            var sent = _client.Client.Send(bytes, offset, bytes.Length - offset, SocketFlags.None);
+			var sent = _client.Client.Send(bytes[offset..], SocketFlags.None);
             if (sent <= 0)
             {
                 throw new SocketException((int)SocketError.ConnectionReset);
@@ -675,14 +702,11 @@ public class PlayerConnection : IPlayerConnection
                 return;
             }
 
-            Encoding encoding = ControlPuppet?.Account?.UseUnicode ?? false
-                ? Encoding.UTF8
-                : Encoding.GetEncoding("iso-8859-1");
+            Encoding encoding = ControlPuppet?.Account?.UseUnicode ?? false ? Encoding.UTF8 : Latin1Encoding;
 
-            byte[] byteArray = _inputBuffer.Take(bytes).ToArray();
-            for (int i = 0; i < byteArray.Length; i++)
+            for (int i = 0; i < bytes; i++)
             {
-                ProcessIncomingByte(encoding, byteArray[i]);
+				ProcessIncomingByte(encoding, _inputBuffer[i]);
                 if (State == ConnectionState.Closing)
                 {
                     return;
@@ -690,7 +714,7 @@ public class PlayerConnection : IPlayerConnection
             }
 
             if (_incomingCommandBuffer.Count >= SupportsBytes.Length &&
-                _incomingCommandBuffer.Take(SupportsBytes.Length).SequenceEqual(SupportsBytes))
+                CollectionsMarshal.AsSpan(_incomingCommandBuffer).StartsWith(SupportsBytes))
             {
                 EnqueueCommand(encoding, _incomingCommandBuffer);
                 _incomingCommandBuffer.Clear();
@@ -731,11 +755,11 @@ public class PlayerConnection : IPlayerConnection
             {
                 if (ControlPuppet.Account?.UseUnicode ?? false)
                 {
-                    SendAll(Encoding.UTF8.GetBytes(_outgoingCommands.ToString()));
+					SendEncoded(Encoding.UTF8, _outgoingCommands.ToString());
                 }
                 else
                 {
-                    SendAll(Encoding.GetEncoding("iso-8859-1").GetBytes(_outgoingCommands.ToString().ConvertToLatin1()));
+					SendEncoded(Latin1Encoding, _outgoingCommands.ToString());
                 }
 
                 SendAll(_useAlternatePrompt ? AlternatePrompt : Prompt);
@@ -779,6 +803,32 @@ public class PlayerConnection : IPlayerConnection
 
         return command.TrimEnd('\n');
     }
+
+	private void SendEncoded(Encoding encoding, string text)
+	{
+		if (text.Length == 0)
+		{
+			return;
+		}
+
+		var byteCount = encoding.GetByteCount(text);
+		if (byteCount > MaximumPooledOutputBytes)
+		{
+			SendAll(encoding.GetBytes(text));
+			return;
+		}
+
+		var buffer = ArrayPool<byte>.Shared.Rent(byteCount);
+		try
+		{
+			var bytesWritten = encoding.GetBytes(text.AsSpan(), buffer);
+			SendAll(buffer.AsSpan(0, bytesWritten));
+		}
+		finally
+		{
+			ArrayPool<byte>.Shared.Return(buffer);
+		}
+	}
 
     private bool HasTimedOut()
     {

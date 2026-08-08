@@ -38,7 +38,7 @@ using CharacteristicValue = MudSharp.Form.Characteristics.CharacteristicValue;
 
 namespace MudSharp.GameItems;
 
-public partial class GameItem : PerceiverItem, IGameItem, IDisposable
+public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostCharacterLoadFinalisable
 {
     #region IGameItem Related Code
 
@@ -930,6 +930,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         LoadEffects(XElement.Parse(item.EffectData.IfNullOrWhiteSpace("<Effects/>")));
         LoadSurfaceLiquidState(item.SurfaceLiquidData);
         LoadHooks(item.HooksPerceivables, "GameItem");
+		_overridingWoundBehaviourComponent = _components.OfType<IOverrideItemWoundBehaviour>().FirstOrDefault();
         LoadWounds(item.WoundsGameItem);
         LoadMagic(item);
         if (Prototype.Morphs)
@@ -951,7 +952,6 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             }
         }
 
-        _overridingWoundBehaviourComponent = _components.OfType<IOverrideItemWoundBehaviour>().FirstOrDefault();
         _noSave = false;
     }
 
@@ -962,6 +962,24 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             _wounds.Add(WoundFactory.LoadWound(wound, this, Gameworld));
         }
 
+        if (_overridingWoundBehaviourComponent is IBodyRemains && Gameworld.SaveManager.MudBootingMode)
+        {
+            _deferredInitialHealthTick = true;
+            Gameworld.RegisterPostCharacterLoadFinalisable(this);
+            return;
+        }
+
+        StartHealthTick();
+    }
+
+    void IPostCharacterLoadFinalisable.FinaliseLoading()
+    {
+        if (!_deferredInitialHealthTick)
+        {
+            return;
+        }
+
+        _deferredInitialHealthTick = false;
         StartHealthTick();
     }
 
@@ -1876,10 +1894,16 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
         // Scheduled effects will call Login() when they become scheduled
         ScheduleCachedEffects();
+
+		if (_overridingWoundBehaviourComponent is null && Wounds.Any() && !HealthStrategy.RequiresPeriodicHealthTick)
+		{
+			CheckHealthStatus();
+		}
     }
 
     public void Quit()
     {
+		EndHealthTick();
         EffectsChanged = true;
         if (Changed || Components.Any(x => x.Changed))
         {

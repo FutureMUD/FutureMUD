@@ -87,5 +87,12 @@
         void ManuallyFireHeartbeat10Second();
         void ManuallyFireHeartbeat5Second();
         void ManuallyFireHeartbeatSecond();
+
+		/// <summary>
+		/// Appends implementation-specific heartbeat diagnostic information, if available.
+		/// </summary>
+		void AppendPerformanceReport(System.Text.StringBuilder sb)
+		{
+		}
     }
 }

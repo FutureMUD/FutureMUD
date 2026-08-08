@@ -8,6 +8,7 @@ public sealed class TCPServer : IServer
 {
     private AddConnectionCallback _addConnection;
     private IEnumerable<IPlayerConnection> _connections;
+	private ConnectionSnapshotRegistry _connectionRegistry;
 
     private TcpListener _listener;
     private Task _listeningThread;
@@ -29,6 +30,7 @@ public sealed class TCPServer : IServer
     public void Bind(IEnumerable<IPlayerConnection> connectionList, AddConnectionCallback addConnection)
     {
         _connections = connectionList;
+		_connectionRegistry = connectionList as ConnectionSnapshotRegistry;
         _addConnection = addConnection;
     }
 
@@ -55,15 +57,9 @@ public sealed class TCPServer : IServer
     /// </summary>
     public void ProcessAllOutgoing()
     {
-        IEnumerable<IPlayerConnection> connections;
-        lock (_connections)
+		foreach (var connection in ConnectionSnapshot)
         {
-            connections = _connections.Where(x => x.State != ConnectionState.Closed).ToList();
-        }
-
-        foreach (IPlayerConnection connection in connections)
-        {
-            if (connection.HasOutgoingCommands)
+			if (connection.State != ConnectionState.Closed && connection.HasOutgoingCommands)
             {
                 connection.SendOutgoing();
             }
@@ -111,14 +107,14 @@ public sealed class TCPServer : IServer
             ConsoleUtilities.WriteLine("Successfully started listening on #2{0}#0.", IPAddress);
             while (!_listeningThreadCancellationToken.IsCancellationRequested)
             {
-                IEnumerable<IPlayerConnection> connections;
-                lock (_connections)
+				var connections = ConnectionSnapshot;
+				foreach (var connection in connections)
                 {
-                    connections = _connections.Where(x => x.State != ConnectionState.Closed).ToList();
-                }
+					if (connection.State == ConnectionState.Closed)
+					{
+						continue;
+					}
 
-                foreach (IPlayerConnection connection in connections)
-                {
                     try
                     {
                         if (connection.HasOutgoingCommands)
@@ -135,14 +131,12 @@ public sealed class TCPServer : IServer
                     }
                 }
 
-                lock (_connections)
+				foreach (var connection in connections)
                 {
-                    connections = _connections.Where(x => x.State == ConnectionState.Closing).ToList();
-                }
-
-                foreach (IPlayerConnection connection in connections)
-                {
-                    connection.Dispose();
+					if (connection.State == ConnectionState.Closing)
+					{
+						connection.Dispose();
+					}
                 }
 
                 while (tcp.Pending())
@@ -196,4 +190,7 @@ public sealed class TCPServer : IServer
             }
         }
     }
+
+	private IReadOnlyList<IPlayerConnection> ConnectionSnapshot =>
+		_connectionRegistry?.Snapshot ?? _connections.ToArray();
 }

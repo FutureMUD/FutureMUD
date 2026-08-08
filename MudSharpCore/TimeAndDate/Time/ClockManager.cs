@@ -1,76 +1,102 @@
-﻿
 namespace MudSharp.TimeAndDate.Time;
 
 public class ClockManager : IClockManager
 {
-    private readonly Dictionary<IClock, DateTime> _clocks = new();
+	private readonly List<ClockState> _clocks = [];
+	private readonly TimeProvider _timeProvider;
+	private DateTime _nextUpdateUtc = DateTime.MaxValue;
+	private bool _timeIsFrozen;
 
-    public ClockManager(IFuturemud game)
-    {
-        Gameworld = game;
-    }
+	public ClockManager(IFuturemud game, TimeProvider timeProvider = null)
+	{
+		Gameworld = game;
+		_timeProvider = timeProvider ?? TimeProvider.System;
+	}
 
-    #region IHaveFuturemud Members
+	public IFuturemud Gameworld { get; protected set; }
 
-    public IFuturemud Gameworld { get; protected set; }
+	public void UpdateClocks()
+	{
+		if (_timeIsFrozen)
+		{
+			return;
+		}
 
-    #endregion
+		var now = UtcNow;
+		if (now < _nextUpdateUtc)
+		{
+			return;
+		}
 
-    public void UpdateClocks()
-    {
-        if (_timeIsFrozen)
-        {
-            return;
-        }
+		_nextUpdateUtc = DateTime.MaxValue;
+		foreach (var state in _clocks)
+		{
+			var iterations = 0;
+			while (state.NextUpdateUtc <= now)
+			{
+				iterations++;
+				state.Clock.CurrentTime.AddSeconds(1);
+				state.NextUpdateUtc = state.NextUpdateUtc.AddMilliseconds(1000.0 / state.Clock.InGameSecondsPerRealSecond);
+			}
 
-        foreach (IClock clock in _clocks.Keys.ToList())
-        {
-            int iterations = 0;
-            while (_clocks[clock] <= DateTime.UtcNow)
-            {
-                iterations++;
-                clock.CurrentTime.AddSeconds(1);
-                _clocks[clock] = _clocks[clock].AddMilliseconds(1000.0 / clock.InGameSecondsPerRealSecond);
-            }
+			if (state.NextUpdateUtc < _nextUpdateUtc)
+			{
+				_nextUpdateUtc = state.NextUpdateUtc;
+			}
+			if (iterations > 10)
+			{
+				Console.WriteLine($"The clock ended up taking {iterations:N0} iterations to update.");
+			}
+		}
+	}
 
-            if (iterations > 10)
-            {
-                Console.WriteLine($"The clock ended up taking {iterations:N0} iterations to update.");
-            }
-        }
-    }
+	public void Initialise()
+	{
+		_timeIsFrozen = Gameworld.GetStaticBool("TimeIsFrozen");
+		if (_timeIsFrozen)
+		{
+			return;
+		}
 
-    public void Initialise()
-    {
-        _timeIsFrozen = Gameworld.GetStaticBool("TimeIsFrozen");
-        if (_timeIsFrozen)
-        {
-            return;
-        }
+		PopulateClocks();
+	}
 
-        foreach (IClock clock in Gameworld.Clocks)
-        {
-            _clocks.Add(clock, DateTime.UtcNow.AddMilliseconds(1000.0 / clock.InGameSecondsPerRealSecond));
-        }
-    }
+	public void FreezeTime()
+	{
+		_timeIsFrozen = true;
+		Gameworld.UpdateStaticConfiguration("TimeIsFrozen", "true");
+		_clocks.Clear();
+		_nextUpdateUtc = DateTime.MaxValue;
+	}
 
-    private bool _timeIsFrozen = false;
+	public void UnfreezeTime()
+	{
+		_timeIsFrozen = false;
+		Gameworld.UpdateStaticConfiguration("TimeIsFrozen", "false");
+		PopulateClocks();
+	}
 
-    public void FreezeTime()
-    {
-        _timeIsFrozen = true;
-        Gameworld.UpdateStaticConfiguration("TimeIsFrozen", "true");
-        _clocks.Clear();
-    }
+	private void PopulateClocks()
+	{
+		_clocks.Clear();
+		_nextUpdateUtc = DateTime.MaxValue;
+		var now = UtcNow;
+		foreach (var clock in Gameworld.Clocks)
+		{
+			var next = now.AddMilliseconds(1000.0 / clock.InGameSecondsPerRealSecond);
+			_clocks.Add(new ClockState(clock, next));
+			if (next < _nextUpdateUtc)
+			{
+				_nextUpdateUtc = next;
+			}
+		}
+	}
 
-    public void UnfreezeTime()
-    {
-        _timeIsFrozen = false;
-        Gameworld.UpdateStaticConfiguration("TimeIsFrozen", "false");
-        _clocks.Clear();
-        foreach (IClock clock in Gameworld.Clocks)
-        {
-            _clocks.Add(clock, DateTime.UtcNow.AddMilliseconds(1000.0 / clock.InGameSecondsPerRealSecond));
-        }
-    }
+	private DateTime UtcNow => _timeProvider.GetUtcNow().UtcDateTime;
+
+	private sealed class ClockState(IClock clock, DateTime nextUpdateUtc)
+	{
+		public IClock Clock { get; } = clock;
+		public DateTime NextUpdateUtc { get; set; } = nextUpdateUtc;
+	}
 }

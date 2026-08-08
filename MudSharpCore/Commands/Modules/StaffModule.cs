@@ -2546,6 +2546,7 @@ The following options are available:
 	#3debug healing#0 - attaches the healing logger (writes to file)
 	#3debug skills#0 - attaches the skill check logger (writes to file)
 	#3debug scheduler#0 - shows all things in the scheduler
+	#3debug performance [on|off|reset]#0 - shows or controls runtime performance diagnostics
 	#3debug listeners#0 - shows all listeners
 	#3debug fixmorph#0 - resets all morph timers of shop stocked items
 	#3debug fixbites#0 - resets all bite counts of shop stocked items
@@ -2571,6 +2572,10 @@ The following options are available:
             case "scheduler":
             case "schedules":
                 DebugScheduler(actor);
+                return;
+            case "performance":
+            case "perf":
+                DebugPerformance(actor, ss);
                 return;
 
             case "listeners":
@@ -2691,6 +2696,43 @@ The following options are available:
         actor.Gameworld.EffectScheduler.DebugOutputForScheduler(sb);
         actor.OutputHandler.Send(sb.ToString());
     }
+
+	private static void DebugPerformance(ICharacter actor, StringStack ss)
+	{
+		if (actor.Gameworld is not MudSharp.Framework.Diagnostics.IRuntimePerformanceMonitorProvider provider)
+		{
+			actor.Send("This gameworld does not provide runtime performance diagnostics.");
+			return;
+		}
+
+		var monitor = provider.RuntimePerformanceMonitor;
+		switch (ss.PopForSwitch())
+		{
+			case "on":
+			case "enable":
+				monitor.Enable();
+				actor.Send("Runtime performance diagnostics are now enabled and counters have been reset.");
+				return;
+			case "off":
+			case "disable":
+				monitor.Disable();
+				actor.Send("Runtime performance diagnostics are now disabled; the last counters have been retained.");
+				return;
+			case "reset":
+				monitor.Reset();
+				actor.Send("Runtime performance diagnostic counters have been reset.");
+				return;
+			case "":
+				var sb = new StringBuilder();
+				monitor.AppendReport(sb, actor);
+				actor.Gameworld.HeartbeatManager.AppendPerformanceReport(sb);
+				actor.OutputHandler.Send(sb.ToString());
+				return;
+			default:
+				actor.Send("The valid options are #3on#0, #3off#0 and #3reset#0.");
+				return;
+		}
+	}
 
     private static void DebugListeners(ICharacter actor)
     {

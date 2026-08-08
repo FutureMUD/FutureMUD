@@ -449,7 +449,7 @@ When a live item is loaded:
 - component `FinaliseLoad()` hooks run after broader object availability is established
 - `FinaliseLoad()` restores structural scaffolding only: references, pending ids, mount relationships, routed cable metadata, and similar non-live state
 - after structural restoration completes, the world login pass logs in world-root items that are actually active in the world, while inventory-rooted item trees remain dormant until their owning body or character logs in
-- `Login()` is the point where live runtime behaviour begins: power drawdown, heartbeats, signal subscriptions, timers, retries, ringing, and comparable active behaviour
+- `Login()` is the point where live runtime behaviour begins: power drawdown, heartbeats, signal subscriptions, timers, retries, ringing, and comparable active behaviour. Static item health is reconciled here from persisted wounds without retaining a recurring heartbeat; body-backed and overriding components retain their own health ticks.
 - item-level late initialisation and effect restoration complete
 
 ### Saving live items

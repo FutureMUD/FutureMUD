@@ -16,6 +16,8 @@ public partial class GameItem : IHaveWounds
 
     private IOverrideItemWoundBehaviour _overridingWoundBehaviourComponent;
 
+    private bool _deferredInitialHealthTick;
+
     private readonly List<IWound> _wounds = new();
 
     public IEnumerable<IWound> Wounds =>
@@ -472,7 +474,13 @@ public partial class GameItem : IHaveWounds
             return;
         }
 
-        if (Wounds.Any())
+        if (!HealthStrategy.RequiresPeriodicHealthTick)
+        {
+            Gameworld.HeartbeatManager.TenSecondHeartbeat -= HealthTick_TenSecondHeartbeat;
+            return;
+        }
+
+		if (Wounds.Any())
         {
             Gameworld.HeartbeatManager.TenSecondHeartbeat += HealthTick_TenSecondHeartbeat;
         }

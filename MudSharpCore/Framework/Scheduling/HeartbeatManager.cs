@@ -24,51 +24,51 @@ public class HeartbeatManager : IHaveFuturemud, IHeartbeatManager
 
     public void ManuallyFireHeartbeatHour()
     {
-        _hourHeartbeat?.Invoke();
-        _FuzzyHourGeneration1?.Invoke();
-        _FuzzyHourGeneration2?.Invoke();
-        _FuzzyHourGeneration3?.Invoke();
-        _FuzzyHourGeneration4?.Invoke();
-        _FuzzyHourGeneration5?.Invoke();
+        InvokeHeartbeat(_hourHeartbeat, "Hour");
+        InvokeHeartbeat(_FuzzyHourGeneration1, "FuzzyHour1");
+        InvokeHeartbeat(_FuzzyHourGeneration2, "FuzzyHour2");
+        InvokeHeartbeat(_FuzzyHourGeneration3, "FuzzyHour3");
+        InvokeHeartbeat(_FuzzyHourGeneration4, "FuzzyHour4");
+        InvokeHeartbeat(_FuzzyHourGeneration5, "FuzzyHour5");
     }
     public void ManuallyFireHeartbeatMinute()
     {
-        _minuteHeartbeat?.Invoke();
-        _FuzzyMinuteGeneration1?.Invoke();
-        _FuzzyMinuteGeneration2?.Invoke();
-        _FuzzyMinuteGeneration3?.Invoke();
-        _FuzzyMinuteGeneration4?.Invoke();
-        _FuzzyMinuteGeneration5?.Invoke();
+        InvokeHeartbeat(_minuteHeartbeat, "Minute");
+        InvokeHeartbeat(_FuzzyMinuteGeneration1, "FuzzyMinute1");
+        InvokeHeartbeat(_FuzzyMinuteGeneration2, "FuzzyMinute2");
+        InvokeHeartbeat(_FuzzyMinuteGeneration3, "FuzzyMinute3");
+        InvokeHeartbeat(_FuzzyMinuteGeneration4, "FuzzyMinute4");
+        InvokeHeartbeat(_FuzzyMinuteGeneration5, "FuzzyMinute5");
     }
     public void ManuallyFireHeartbeat30Second()
     {
-        _thirtySecondHeartbeat?.Invoke();
-        _FuzzyThirtySecondGeneration1?.Invoke();
-        _FuzzyThirtySecondGeneration2?.Invoke();
-        _FuzzyThirtySecondGeneration3?.Invoke();
-        _FuzzyThirtySecondGeneration4?.Invoke();
-        _FuzzyThirtySecondGeneration5?.Invoke();
+        InvokeHeartbeat(_thirtySecondHeartbeat, "ThirtySecond");
+        InvokeHeartbeat(_FuzzyThirtySecondGeneration1, "FuzzyThirtySecond1");
+        InvokeHeartbeat(_FuzzyThirtySecondGeneration2, "FuzzyThirtySecond2");
+        InvokeHeartbeat(_FuzzyThirtySecondGeneration3, "FuzzyThirtySecond3");
+        InvokeHeartbeat(_FuzzyThirtySecondGeneration4, "FuzzyThirtySecond4");
+        InvokeHeartbeat(_FuzzyThirtySecondGeneration5, "FuzzyThirtySecond5");
     }
     public void ManuallyFireHeartbeat10Second()
     {
-        _tenSecondHeartbeat?.Invoke();
-        _FuzzyTenSecondGeneration1?.Invoke();
-        _FuzzyTenSecondGeneration2?.Invoke();
-        _FuzzyTenSecondGeneration3?.Invoke();
-        _FuzzyTenSecondGeneration4?.Invoke();
-        _FuzzyTenSecondGeneration5?.Invoke();
+        InvokeHeartbeat(_tenSecondHeartbeat, "TenSecond");
+        InvokeHeartbeat(_FuzzyTenSecondGeneration1, "FuzzyTenSecond1");
+        InvokeHeartbeat(_FuzzyTenSecondGeneration2, "FuzzyTenSecond2");
+        InvokeHeartbeat(_FuzzyTenSecondGeneration3, "FuzzyTenSecond3");
+        InvokeHeartbeat(_FuzzyTenSecondGeneration4, "FuzzyTenSecond4");
+        InvokeHeartbeat(_FuzzyTenSecondGeneration5, "FuzzyTenSecond5");
     }
     public void ManuallyFireHeartbeat5Second()
     {
-        _FuzzyFiveSecondGeneration1?.Invoke();
-        _FuzzyFiveSecondGeneration2?.Invoke();
-        _FuzzyFiveSecondGeneration3?.Invoke();
-        _FuzzyFiveSecondGeneration4?.Invoke();
-        _FuzzyFiveSecondGeneration5?.Invoke();
+        InvokeHeartbeat(_FuzzyFiveSecondGeneration1, "FuzzyFiveSecond1");
+        InvokeHeartbeat(_FuzzyFiveSecondGeneration2, "FuzzyFiveSecond2");
+        InvokeHeartbeat(_FuzzyFiveSecondGeneration3, "FuzzyFiveSecond3");
+        InvokeHeartbeat(_FuzzyFiveSecondGeneration4, "FuzzyFiveSecond4");
+        InvokeHeartbeat(_FuzzyFiveSecondGeneration5, "FuzzyFiveSecond5");
     }
     public void ManuallyFireHeartbeatSecond()
     {
-        _secondHeartbeat?.Invoke();
+        InvokeHeartbeat(_secondHeartbeat, "Second");
     }
 
     #region IHaveGame Members
@@ -548,179 +548,241 @@ public class HeartbeatManager : IHaveFuturemud, IHeartbeatManager
         heartbeatCount++;
 
         // Hard set
-        _secondHeartbeat?.Invoke();
+        InvokeHeartbeat(_secondHeartbeat, "Second");
 
         if (heartbeatCount % 10 == 0)
         {
-            _tenSecondHeartbeat?.Invoke();
+            InvokeHeartbeat(_tenSecondHeartbeat, "TenSecond");
         }
 
         if (heartbeatCount % 30 == 0)
         {
-            _thirtySecondHeartbeat?.Invoke();
+            InvokeHeartbeat(_thirtySecondHeartbeat, "ThirtySecond");
         }
 
         if (heartbeatCount % 60 == 0)
         {
-            _minuteHeartbeat?.Invoke();
+            InvokeHeartbeat(_minuteHeartbeat, "Minute");
         }
 
         if (heartbeatCount % 3600 == 0)
         {
-            _hourHeartbeat?.Invoke();
+            InvokeHeartbeat(_hourHeartbeat, "Hour");
         }
 
         // Fuzzy
         switch (heartbeatCount % 5)
         {
             case 0:
-                _FuzzyFiveSecondGeneration1?.Invoke();
+                InvokeHeartbeat(_FuzzyFiveSecondGeneration1, "FuzzyFiveSecond1");
                 break;
             case 1:
-                _FuzzyFiveSecondGeneration2?.Invoke();
+                InvokeHeartbeat(_FuzzyFiveSecondGeneration2, "FuzzyFiveSecond2");
                 break;
             case 2:
-                _FuzzyFiveSecondGeneration3?.Invoke();
+                InvokeHeartbeat(_FuzzyFiveSecondGeneration3, "FuzzyFiveSecond3");
                 break;
             case 3:
-                _FuzzyFiveSecondGeneration4?.Invoke();
+                InvokeHeartbeat(_FuzzyFiveSecondGeneration4, "FuzzyFiveSecond4");
                 break;
             case 4:
-                _FuzzyFiveSecondGeneration5?.Invoke();
+                InvokeHeartbeat(_FuzzyFiveSecondGeneration5, "FuzzyFiveSecond5");
                 break;
         }
 
         switch (heartbeatCount % 10)
         {
             case 0:
-                _FuzzyTenSecondGeneration1?.Invoke();
+                InvokeHeartbeat(_FuzzyTenSecondGeneration1, "FuzzyTenSecond1");
                 break;
             case 2:
-                _FuzzyTenSecondGeneration2?.Invoke();
+                InvokeHeartbeat(_FuzzyTenSecondGeneration2, "FuzzyTenSecond2");
                 break;
             case 4:
-                _FuzzyTenSecondGeneration3?.Invoke();
+                InvokeHeartbeat(_FuzzyTenSecondGeneration3, "FuzzyTenSecond3");
                 break;
             case 6:
-                _FuzzyTenSecondGeneration4?.Invoke();
+                InvokeHeartbeat(_FuzzyTenSecondGeneration4, "FuzzyTenSecond4");
                 break;
             case 8:
-                _FuzzyTenSecondGeneration5?.Invoke();
+                InvokeHeartbeat(_FuzzyTenSecondGeneration5, "FuzzyTenSecond5");
                 break;
         }
 
         switch (heartbeatCount % 30)
         {
             case 0:
-                _FuzzyThirtySecondGeneration1?.Invoke();
+                InvokeHeartbeat(_FuzzyThirtySecondGeneration1, "FuzzyThirtySecond1");
                 break;
             case 6:
-                _FuzzyThirtySecondGeneration2?.Invoke();
+                InvokeHeartbeat(_FuzzyThirtySecondGeneration2, "FuzzyThirtySecond2");
                 break;
             case 12:
-                _FuzzyThirtySecondGeneration3?.Invoke();
+                InvokeHeartbeat(_FuzzyThirtySecondGeneration3, "FuzzyThirtySecond3");
                 break;
             case 18:
-                _FuzzyThirtySecondGeneration4?.Invoke();
+                InvokeHeartbeat(_FuzzyThirtySecondGeneration4, "FuzzyThirtySecond4");
                 break;
             case 24:
-                _FuzzyThirtySecondGeneration5?.Invoke();
+                InvokeHeartbeat(_FuzzyThirtySecondGeneration5, "FuzzyThirtySecond5");
                 break;
         }
 
         switch (heartbeatCount % 60)
         {
             case 0:
-                _FuzzyMinuteGeneration1?.Invoke();
+                InvokeHeartbeat(_FuzzyMinuteGeneration1, "FuzzyMinute1");
                 break;
             case 12:
-                _FuzzyMinuteGeneration2?.Invoke();
+                InvokeHeartbeat(_FuzzyMinuteGeneration2, "FuzzyMinute2");
                 break;
             case 24:
-                _FuzzyMinuteGeneration3?.Invoke();
+                InvokeHeartbeat(_FuzzyMinuteGeneration3, "FuzzyMinute3");
                 break;
             case 36:
-                _FuzzyMinuteGeneration4?.Invoke();
+                InvokeHeartbeat(_FuzzyMinuteGeneration4, "FuzzyMinute4");
                 break;
             case 48:
-                _FuzzyMinuteGeneration5?.Invoke();
+                InvokeHeartbeat(_FuzzyMinuteGeneration5, "FuzzyMinute5");
                 break;
         }
 
         switch (heartbeatCount % 300)
         {
             case 0:
-                _Fuzzy5mGeneration1?.Invoke();
+                InvokeHeartbeat(_Fuzzy5mGeneration1, "FuzzyFiveMinute1");
                 break;
             case 60:
-                _Fuzzy5mGeneration2?.Invoke();
+                InvokeHeartbeat(_Fuzzy5mGeneration2, "FuzzyFiveMinute2");
                 break;
             case 120:
-                _Fuzzy5mGeneration3?.Invoke();
+                InvokeHeartbeat(_Fuzzy5mGeneration3, "FuzzyFiveMinute3");
                 break;
             case 180:
-                _Fuzzy5mGeneration4?.Invoke();
+                InvokeHeartbeat(_Fuzzy5mGeneration4, "FuzzyFiveMinute4");
                 break;
             case 240:
-                _Fuzzy5mGeneration5?.Invoke();
+                InvokeHeartbeat(_Fuzzy5mGeneration5, "FuzzyFiveMinute5");
                 break;
         }
 
         switch (heartbeatCount % 600)
         {
             case 0:
-                _Fuzzy10mGeneration1?.Invoke();
+                InvokeHeartbeat(_Fuzzy10mGeneration1, "FuzzyTenMinute1");
                 break;
             case 120:
-                _Fuzzy10mGeneration2?.Invoke();
+                InvokeHeartbeat(_Fuzzy10mGeneration2, "FuzzyTenMinute2");
                 break;
             case 240:
-                _Fuzzy10mGeneration3?.Invoke();
+                InvokeHeartbeat(_Fuzzy10mGeneration3, "FuzzyTenMinute3");
                 break;
             case 360:
-                _Fuzzy10mGeneration4?.Invoke();
+                InvokeHeartbeat(_Fuzzy10mGeneration4, "FuzzyTenMinute4");
                 break;
             case 480:
-                _Fuzzy10mGeneration5?.Invoke();
+                InvokeHeartbeat(_Fuzzy10mGeneration5, "FuzzyTenMinute5");
                 break;
         }
 
         switch (heartbeatCount % 1800)
         {
             case 0:
-                _Fuzzy30mGeneration1?.Invoke();
+                InvokeHeartbeat(_Fuzzy30mGeneration1, "FuzzyThirtyMinute1");
                 break;
             case 360:
-                _Fuzzy30mGeneration2?.Invoke();
+                InvokeHeartbeat(_Fuzzy30mGeneration2, "FuzzyThirtyMinute2");
                 break;
             case 720:
-                _Fuzzy30mGeneration3?.Invoke();
+                InvokeHeartbeat(_Fuzzy30mGeneration3, "FuzzyThirtyMinute3");
                 break;
             case 1080:
-                _Fuzzy30mGeneration4?.Invoke();
+                InvokeHeartbeat(_Fuzzy30mGeneration4, "FuzzyThirtyMinute4");
                 break;
             case 1440:
-                _Fuzzy30mGeneration5?.Invoke();
+                InvokeHeartbeat(_Fuzzy30mGeneration5, "FuzzyThirtyMinute5");
                 break;
         }
 
         switch (heartbeatCount % 3600)
         {
             case 0:
-                _FuzzyHourGeneration1?.Invoke();
+                InvokeHeartbeat(_FuzzyHourGeneration1, "FuzzyHour1");
                 break;
             case 720:
-                _FuzzyHourGeneration2?.Invoke();
+                InvokeHeartbeat(_FuzzyHourGeneration2, "FuzzyHour2");
                 break;
             case 1440:
-                _FuzzyHourGeneration3?.Invoke();
+                InvokeHeartbeat(_FuzzyHourGeneration3, "FuzzyHour3");
                 break;
             case 2160:
-                _FuzzyHourGeneration4?.Invoke();
+                InvokeHeartbeat(_FuzzyHourGeneration4, "FuzzyHour4");
                 break;
             case 2880:
-                _FuzzyHourGeneration5?.Invoke();
+                InvokeHeartbeat(_FuzzyHourGeneration5, "FuzzyHour5");
                 break;
         }
     }
+
+	public void AppendPerformanceReport(System.Text.StringBuilder sb)
+	{
+		sb.AppendLine("Heartbeat subscribers:");
+		AppendSubscriberCount(sb, "Second", _secondHeartbeat);
+		AppendSubscriberCount(sb, "Ten Second", _tenSecondHeartbeat);
+		AppendSubscriberCount(sb, "Thirty Second", _thirtySecondHeartbeat);
+		AppendSubscriberCount(sb, "Minute", _minuteHeartbeat);
+		AppendSubscriberCount(sb, "Hour", _hourHeartbeat);
+		AppendSubscriberCount(sb, "Fuzzy Five Second", _FuzzyFiveSecondGeneration1, _FuzzyFiveSecondGeneration2,
+			_FuzzyFiveSecondGeneration3, _FuzzyFiveSecondGeneration4, _FuzzyFiveSecondGeneration5);
+		AppendSubscriberCount(sb, "Fuzzy Ten Second", _FuzzyTenSecondGeneration1, _FuzzyTenSecondGeneration2,
+			_FuzzyTenSecondGeneration3, _FuzzyTenSecondGeneration4, _FuzzyTenSecondGeneration5);
+		AppendSubscriberCount(sb, "Fuzzy Thirty Second", _FuzzyThirtySecondGeneration1, _FuzzyThirtySecondGeneration2,
+			_FuzzyThirtySecondGeneration3, _FuzzyThirtySecondGeneration4, _FuzzyThirtySecondGeneration5);
+		AppendSubscriberCount(sb, "Fuzzy Minute", _FuzzyMinuteGeneration1, _FuzzyMinuteGeneration2,
+			_FuzzyMinuteGeneration3, _FuzzyMinuteGeneration4, _FuzzyMinuteGeneration5);
+	}
+
+	private void InvokeHeartbeat(HeartbeatManagerDelegate callbacks, string cadence)
+	{
+		if (callbacks is null)
+		{
+			return;
+		}
+
+		var monitor = (Gameworld as MudSharp.Framework.Diagnostics.IRuntimePerformanceMonitorProvider)
+			?.RuntimePerformanceMonitor;
+		if (monitor?.Enabled != true)
+		{
+			callbacks();
+			return;
+		}
+
+		foreach (var callback in Delegate.EnumerateInvocationList(callbacks))
+		{
+			var started = System.Diagnostics.Stopwatch.GetTimestamp();
+			callback();
+			monitor.RecordHeartbeatCallback(cadence, callback,
+				System.Diagnostics.Stopwatch.GetTimestamp() - started);
+		}
+	}
+
+	private static void AppendSubscriberCount(System.Text.StringBuilder sb, string name,
+		params HeartbeatManagerDelegate[] callbacks)
+	{
+		var count = 0;
+		foreach (var callbackList in callbacks)
+		{
+			if (callbackList is null)
+			{
+				continue;
+			}
+
+			foreach (var _ in Delegate.EnumerateInvocationList(callbackList))
+			{
+				count++;
+			}
+		}
+
+		sb.AppendLine($"\t{name}: {count:N0}");
+	}
 }

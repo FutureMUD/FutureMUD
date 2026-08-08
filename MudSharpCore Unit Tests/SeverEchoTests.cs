@@ -12,32 +12,41 @@ namespace MudSharp_Unit_Tests;
 public class SeverEchoTests
 {
 	[TestMethod]
-	public void SeverEchoText_PartDoesNotRemoveLimbRoot_NamesActualPart()
+	public void SeverEchoText_LocalisedPart_NamesActualPart()
 	{
-		var eye = CreatePart("Right Eye", "right eye", true);
-		var headRoot = CreatePart("Head", "head", true);
-		headRoot.Setup(x => x.DownstreamOfPart(eye.Object)).Returns(false);
+		var eye = CreatePart("Right Eye", "right eye", true, false);
+		var headRoot = CreatePart("Neck", "neck", true, true);
 		var limb = CreateLimb("Head", headRoot.Object);
 
 		Assert.AreEqual("$0's right eye is severed!", Body.SeverEchoText(eye.Object, limb.Object));
 	}
 
 	[TestMethod]
-	public void SeverEchoText_PartRemovesLimbRoot_RetainsLimbAtPartForm()
+	public void SeverEchoText_LimbPart_NamesContainingLimb()
 	{
-		var elbow = CreatePart("Elbow", "elbow", true);
-		var armRoot = CreatePart("Upper Arm", "upper arm", true);
-		armRoot.Setup(x => x.DownstreamOfPart(elbow.Object)).Returns(true);
-		var limb = CreateLimb("Arm", armRoot.Object);
+		var elbow = CreatePart("Right Elbow", "right elbow", true, true);
+		var armRoot = CreatePart("Right Upper Arm", "right upper arm", true, true);
+		var limb = CreateLimb("Right Arm", armRoot.Object);
 
-		Assert.AreEqual("$0's arm is severed at the elbow!", Body.SeverEchoText(elbow.Object, limb.Object));
+		Assert.AreEqual("$0's right arm is severed at the right elbow!", Body.SeverEchoText(elbow.Object, limb.Object));
 	}
 
-	private static Mock<IBodypart> CreatePart(string name, string description, bool significant)
+	[TestMethod]
+	public void SeverEchoText_NeckPart_NamesContainingHead()
+	{
+		var neck = CreatePart("Neck", "neck", true, true);
+		var limb = CreateLimb("Head", neck.Object);
+
+		Assert.AreEqual("$0's head is severed at the neck!", Body.SeverEchoText(neck.Object, limb.Object));
+	}
+
+	private static Mock<IBodypart> CreatePart(string name, string description, bool significant,
+		bool useLimbSeverDescription)
 	{
 		var part = new Mock<IBodypart>();
 		part.SetupGet(x => x.Name).Returns(name);
 		part.SetupGet(x => x.Significant).Returns(significant);
+		part.SetupGet(x => x.UseLimbSeverDescription).Returns(useLimbSeverDescription);
 		part.Setup(x => x.FullDescription(It.IsAny<bool>(), It.IsAny<PermissionLevel>())).Returns(description);
 		return part;
 	}

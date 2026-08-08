@@ -161,9 +161,8 @@ public partial class Body
 
 	internal static string SeverEchoText(IBodypart bodypart, ILimb limb)
 	{
-		var removesLimbRoot = limb is not null &&
-			(limb.RootBodypart == bodypart || limb.RootBodypart.DownstreamOfPart(bodypart));
-		return removesLimbRoot && bodypart.Significant && !limb.Name.EqualTo(bodypart.Name)
+		return limb is not null && bodypart.Significant && bodypart.UseLimbSeverDescription &&
+		       !limb.Name.EqualTo(bodypart.Name)
 			? $"$0's {limb.Name.ToLowerInvariant()} is severed at the {bodypart.FullDescription()}!"
 			: $"$0's {bodypart.FullDescription().ToLowerInvariant()} is severed!";
 	}

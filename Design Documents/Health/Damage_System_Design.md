@@ -89,7 +89,7 @@ Severing now has two runtime paths, both evaluated after the struck-bodypart wou
 - Formula path: if `damage.Bodypart.SeverFormula` is present, `BodyBiology` evaluates it through `ExpressionEngine` with `damage` and numeric `damagetype` parameters. A result of `>= 1` severs the part; `< 1` does not.
 - Legacy path: if no sever formula is present, severing still requires a severable bodypart, the final struck-bodypart packet meeting the modified sever threshold, and a damage type that `CanSever()`.
 
-The sever echo names the containing limb only when the sever point removes that limb's root. Localised severs such as an eye name the actual severed bodypart rather than overstating the loss as the whole head.
+Each bodypart has a `UseLimbSeverDescription` setting. When it is enabled, a significant part with a containing limb uses the traditional `limb is severed at the bodypart` echo; when disabled, the echo names the severed bodypart directly. It defaults to enabled for compatibility. Stock ears and eyes disable it, while parts such as necks, arms and legs retain limb wording. Builders can toggle the setting with `bodypart set limbsever`.
 
 Legacy runtime sever threshold:
 

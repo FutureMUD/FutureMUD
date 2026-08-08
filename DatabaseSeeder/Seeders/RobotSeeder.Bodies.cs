@@ -124,6 +124,7 @@ private static readonly string[] HumanoidRobotOrganAliases = ["powercore", "posi
         bodies["Tracked Utility Robot"] = GetOrCreateBody("Tracked Utility Robot", CreateTrackedUtilityBody, summary);
         bodies["Robot Dog"] = GetOrCreateBody("Robot Dog", CreateRobotDogBody, summary);
         bodies["Robot Cockroach"] = GetOrCreateBody("Robot Cockroach", CreateRobotCockroachBody, summary);
+		SeederBodyUtilities.RefreshLimbSeverDescriptionFlags(_context, bodies.Values);
 
         return bodies;
     }

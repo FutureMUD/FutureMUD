@@ -1961,6 +1961,10 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.Significant).HasColumnType("bit(1)");
 
+				entity.Property(e => e.UseLimbSeverDescription)
+					.HasColumnType("bit(1)")
+					.HasDefaultValueSql("b'1'");
+
                 entity.Property(e => e.Size)
                     .HasColumnType("int(11)")
                     .HasDefaultValueSql("'5'");

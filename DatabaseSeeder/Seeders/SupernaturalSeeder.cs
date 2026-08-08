@@ -75,6 +75,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 
 		var summary = new SupernaturalSeedSummary();
 		Dictionary<string, BodyProto> bodyLookup = BuildBodyCatalogue(summary);
+		SeederBodyUtilities.RefreshLimbSeverDescriptionFlags(_context, bodyLookup.Values);
 		EnsureSupernaturalSupport(summary);
 
 		foreach (SupernaturalRaceTemplate template in Templates.Values)

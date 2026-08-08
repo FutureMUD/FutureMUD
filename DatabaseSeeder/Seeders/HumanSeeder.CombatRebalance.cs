@@ -121,6 +121,9 @@ public partial class HumanSeeder
 		ConfigureHumanNaturalArmours();
 		RefreshExistingHumanBodyparts("Humanoid");
 		RefreshExistingHumanBodyparts("Organic Humanoid");
+		SeederBodyUtilities.RefreshLimbSeverDescriptionFlags(_context, _context.BodyProtos
+			.Where(x => x.Name == "Humanoid" || x.Name == "Organic Humanoid")
+			.ToList());
 
 		foreach (Race race in _context.Races
 			         .Where(x => x.Name == "Humanoid" || x.Name == "Organic Humanoid" || x.Name == "Human")

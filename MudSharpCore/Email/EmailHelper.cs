@@ -1,329 +1,457 @@
-﻿using MailKit.Net.Smtp;
+#nullable enable
+
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Threading;
 using MimeKit;
 using MimeKit.Text;
 using MudSharp.Database;
-using System.IO;
-using System.Threading;
 
 namespace MudSharp.Email;
 
 public class EmailHelper
 {
-    private readonly Dictionary<EmailTemplateTypes, EmailTemplate> _emailTemplates =
-        new();
+	private static readonly TimeSpan[] RetryDelays =
+	[
+		TimeSpan.FromSeconds(10),
+		TimeSpan.FromSeconds(30),
+		TimeSpan.FromMinutes(2),
+		TimeSpan.FromMinutes(5),
+		TimeSpan.FromMinutes(15)
+	];
 
-    private record QueuedMessage(MimeMessage Message, int NumberOfTries = 0);
-
-    public void TestFailSendEmail()
-    {
-        MimeMessage message = new();
-        message.From.Add(new MailboxAddress(Futuremud.Games.First().Name, "fake@email.com"));
-        message.To.Add(new MailboxAddress("Dummy Email", "dummy@email.com"));
-        message.Subject = "This is a test email";
-        message.Body = new TextPart(TextFormat.Html)
-        {
-            Text =
-                "This is a test email which was automatically generated to test failure of the email system. Hopefully, you are reading this email from the directory where it was written to."
-        };
-        FailSendEmail(message);
-    }
-
-    private void FailSendEmail(MimeMessage message)
-    {
-        try
-        {
-            DirectoryInfo info = Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "FailedEmails"));
-            using FileStream file = new(
-                Path.Combine(info.FullName, $"{DateTime.UtcNow:yyyyMMddhhmmss} {message.Subject}.eml"),
-                FileMode.Create);
-            message.WriteTo(file);
-        }
-        catch
-        {
-            // Swallow the exception
-        }
-    }
-
-    private readonly Queue<QueuedMessage> _messageQueue = new();
-    private Task _emailThread;
-    private CancellationTokenSource _emailThreadCancellation;
-
-    private bool _emailThreadStarted;
-
-    private string _host;
-    private int _port;
-    private bool _ssl;
-    private bool _defaultCredentials;
-    private string _username;
-    private string _password;
-
-    private EmailHelper()
-    {
-    }
-
-    public static EmailHelper Instance { get; } = new();
-
-    private bool LoadFromXml(XElement root)
-    {
-        XElement element = root.Element("Host");
-        if (element == null)
-        {
-            return false;
-        }
-
-        _host = element.Value;
-
-        element = root.Element("Port");
-        if (element == null)
-        {
-            return false;
-        }
-
-        _port = int.Parse(element.Value);
-
-        element = root.Element("EnableSSL");
-        if (element == null)
-        {
-            return false;
-        }
-
-        _ssl = bool.Parse(element.Value);
-
-        element = root.Element("UseDefaultCredentials");
-        if (element == null)
-        {
-            return false;
-        }
-
-        _defaultCredentials = bool.Parse(element.Value);
-
-
-        element = root.Element("Credentials");
-        if (element == null)
-        {
-            return false;
-        }
-
-        _username = element.Attribute("Username").Value;
-        _password = element.Attribute("Password").Value;
-
-        return true;
-    }
-
-    public static bool SetupEmailClient()
-    {
-        try
-        {
-            using (new FMDB())
-            {
-                if (
-                    !Instance.LoadFromXml(
-                        XElement.Parse(
-                            FMDB.Context.StaticConfigurations.First(x => x.SettingName == "EmailServer").Definition)))
-                {
-                    return false;
-                }
-
-                foreach (Models.EmailTemplate item in FMDB.Context.EmailTemplates)
-                {
-                    Instance._emailTemplates[(EmailTemplateTypes)item.TemplateType] = new EmailTemplate(item);
-                }
-            }
-
-            return true;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("Exception in SetupEmailClient: " + e.Message);
-        }
-
-        return false;
-    }
-
-    public void SendEmail(EmailTemplateTypes type, string email, params string[] arguments)
-    {
+	private readonly object _sync = new();
+	private readonly SemaphoreSlim _queueSignal = new(0);
+	private readonly SemaphoreSlim _transportGate = new(1, 1);
+	private readonly PriorityQueue<QueuedMessage, DateTimeOffset> _messageQueue = new();
+	private IReadOnlyDictionary<EmailTemplateTypes, EmailTemplate> _emailTemplates =
+		new ReadOnlyDictionary<EmailTemplateTypes, EmailTemplate>(new Dictionary<EmailTemplateTypes, EmailTemplate>());
+	private EmailConfiguration _configuration = new(false, EmailTransportKind.Smtp, null, null,
+		EmailFailureHandling.Default);
+	private IOutboundEmailTransport? _transport;
+	private Task? _emailThread;
+	private CancellationTokenSource? _emailThreadCancellation;
+	private bool _emailThreadStarted;
+	private static bool SuppressDeliveryInCurrentBuild
+	{
+		get
+		{
 #if DEBUG
-        return;
+			return true;
 #else
-        if (string.IsNullOrWhiteSpace(email))
-        {
-            return;
-        }
-
-        if (!_emailTemplates.ContainsKey(type))
-        {
-            Console.WriteLine($"Warning: Had no email template for type {type.DescribeEnum()}.");
-            return;
-        }
-
-        EmailTemplate template = _emailTemplates[type];
-        lock (_messageQueue)
-        {
-            MimeMessage message = new();
-            message.From.Add(new MailboxAddress(Futuremud.Games.First().Name, template.ReturnAddress));
-            message.To.Add(new MailboxAddress(email, email));
-            message.Subject = template.Subject;
-            message.Body = new TextPart(TextFormat.Html)
-            {
-                Text = string.Format(template.Content, arguments)
-            };
-            _messageQueue.Enqueue(new QueuedMessage(message, 0));
-        }
+			return false;
 #endif
-    }
+		}
+	}
 
-    public void ProcessEmails()
-    {
-#if DEBUG
-        // Don't process emails on debug
-        return;
-#else
-        lock (_messageQueue)
-        {
-            if (_messageQueue.Count <= 0)
-            {
-                return;
-            }
-        }
+	private sealed record QueuedMessage(Guid CorrelationId, EmailTemplateTypes TemplateType, MimeMessage Message,
+		int Attempt);
 
-		using SmtpClient client = new();
+	private EmailHelper()
+	{
+	}
+
+	public static EmailHelper Instance { get; } = new();
+
+	public void TestFailSendEmail()
+	{
+		var message = new MimeMessage();
+		message.From.Add(new MailboxAddress(Futuremud.Games.FirstOrDefault()?.Name ?? "FutureMUD", "fake@email.com"));
+		message.To.Add(new MailboxAddress("Dummy Email", "dummy@email.com"));
+		message.Subject = "This is a test email";
+		message.Body = new TextPart(TextFormat.Html)
+		{
+			Text = "This message was generated to test configured email dead-letter storage."
+		};
+
+		EmailFailureHandling failureHandling;
+		lock (_sync)
+		{
+			failureHandling = _configuration.FailureHandling;
+		}
+
+		if (!failureHandling.StoreFailedMessages)
+		{
+			Log("Email dead-letter test skipped because StoreFailedMessages is disabled.");
+			return;
+		}
+
+		var result = FailedEmailStore.TryWriteAsync(message, Guid.NewGuid(), failureHandling, CancellationToken.None)
+			.GetAwaiter().GetResult();
+		Log(result is null
+			? "Email dead-letter test completed."
+			: $"Email dead-letter test did not write a message: {result}.");
+	}
+
+	public static bool SetupEmailClient()
+	{
+		XElement definition;
+		Dictionary<EmailTemplateTypes, EmailTemplate> templates;
 		try
 		{
-			client.Connect(_host, _port, _ssl);
-			if (!_defaultCredentials)
+			using (new FMDB())
 			{
-				client.Authenticate(_username, _password);
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("WARNING: Exception while connecting to the email server: {0}", e.Message);
-            return;
-        }
+				var staticConfiguration = FMDB.Context.StaticConfigurations
+					.FirstOrDefault(x => x.SettingName == "EmailServer");
+				if (staticConfiguration is null)
+				{
+					Log("Email configuration is missing. Outbound email configuration was not changed.");
+					return false;
+				}
 
-        lock (_messageQueue)
-        {
-            while (_messageQueue.Any())
-            {
-                QueuedMessage queued = _messageQueue.Dequeue();
-                MimeMessage message = queued.Message;
-                try
-                {
-                    client.Send(message);
-                }
-                catch (MailKit.ServiceNotAuthenticatedException e)
-                {
-                    Console.WriteLine("WARNING: Email service was not authenticated: {0}", e.Message);
-                    Console.WriteLine();
-                    Console.WriteLine($"To: {message.To}");
-                    Console.WriteLine($"Subject: {message.Subject}");
+				definition = XElement.Parse(staticConfiguration.Definition);
+				templates = FMDB.Context.EmailTemplates
+					.ToDictionary(x => (EmailTemplateTypes)x.TemplateType, x => new EmailTemplate(x));
+			}
+		}
+		catch (Exception exception)
+		{
+			Log($"Email configuration could not be loaded. Outbound email configuration was not changed: {exception.GetType().Name}.");
+			return false;
+		}
 
-                    Console.WriteLine();
-                    Console.WriteLine("Message:");
-                    Console.WriteLine(message.Body.ToString());
-                    Console.WriteLine();
-                    FailSendEmail(message);
-                }
-                catch (MailKit.ServiceNotConnectedException e)
-                {
-                    Console.WriteLine("WARNING: Email service was not connected: {0}", e.Message);
-                    Console.WriteLine();
-                    Console.WriteLine($"To: {message.To}");
-                    Console.WriteLine($"Subject: {message.Subject}");
+		var parseResult = EmailConfigurationParser.Parse(definition, new EnvironmentEmailSecretResolver());
+		if (!parseResult.Success)
+		{
+			Log($"Email configuration is invalid. Outbound email configuration was not changed: {parseResult.Error}");
+			return false;
+		}
 
-                    Console.WriteLine();
-                    Console.WriteLine("Message:");
-                    Console.WriteLine(message.Body.ToString());
-                    Console.WriteLine();
-                    if (queued.NumberOfTries >= 5)
-                    {
-                        FailSendEmail(message);
-                    }
-                    else
-                    {
-                        _messageQueue.Enqueue(queued with { NumberOfTries = queued.NumberOfTries + 1 });
-                    }
-                }
-                catch (MailKit.ProtocolException e)
-                {
-                    Console.WriteLine("WARNING: Protocol exception in email service: {0}", e.Message);
-                    Console.WriteLine();
-                    Console.WriteLine($"To: {message.To}");
-                    Console.WriteLine($"Subject: {message.Subject}");
+		IOutboundEmailTransport? transport = null;
+		try
+		{
+			if (parseResult.Configuration!.Enabled)
+			{
+				transport = new EmailTransportFactory().Create(parseResult.Configuration);
+			}
+		}
+		catch (Exception exception)
+		{
+			Log($"Email transport could not be created. Outbound email configuration was not changed: {exception.GetType().Name}.");
+			return false;
+		}
 
-                    Console.WriteLine();
-                    Console.WriteLine("Message:");
-                    Console.WriteLine(message.Body.ToString());
-                    Console.WriteLine();
-                    if (queued.NumberOfTries >= 5)
-                    {
-                        FailSendEmail(message);
-                    }
-                    else
-                    {
-                        _messageQueue.Enqueue(queued with { NumberOfTries = queued.NumberOfTries + 1 });
-                    }
-                }
-                catch (MailKit.CommandException e)
-                {
-                    Console.WriteLine("WARNING: Command exception in email service: {0}", e);
-                    Console.WriteLine();
-                    Console.WriteLine($"To: {message.To}");
-                    Console.WriteLine($"Subject: {message.Subject}");
+		try
+		{
+			Instance.ApplyConfiguration(parseResult.Configuration!, templates, transport);
+		}
+		catch (Exception exception)
+		{
+			transport?.DisposeAsync().AsTask().GetAwaiter().GetResult();
+			Log($"Email configuration could not be activated. Outbound email configuration was not changed: {exception.GetType().Name}.");
+			return false;
+		}
 
-                    Console.WriteLine();
-                    Console.WriteLine("Message:");
-                    Console.WriteLine(message.Body.ToString());
-                    Console.WriteLine();
-                    if (queued.NumberOfTries >= 5)
-                    {
-                        FailSendEmail(message);
-                    }
-                    else
-                    {
-                        _messageQueue.Enqueue(queued with { NumberOfTries = queued.NumberOfTries + 1 });
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("WARNING: Unknown Exception in Email Send: {0}", e);
-                }
-            }
-        }
+		foreach (var warning in parseResult.Warnings)
+		{
+			Log($"WARNING: {warning}");
+		}
 
-        client.Disconnect(true);
-#endif
-    }
+		Log(parseResult.Configuration!.Enabled
+			? $"Outbound email configured with {parseResult.Configuration.Transport} transport."
+			: "Outbound email is disabled by configuration.");
+		return true;
+	}
 
-    public void StartEmailThread()
-    {
-        if (_emailThreadStarted)
-        {
-            return;
-        }
+	public void SendEmail(EmailTemplateTypes type, string email, params string[] arguments)
+	{
+		if (SuppressDeliveryInCurrentBuild)
+		{
+			return;
+		}
 
-        ConsoleUtilities.WriteLine("#EStarting email handling thread...#0");
-        _emailThreadCancellation = new CancellationTokenSource();
-        _emailThread = Task.Factory.StartNew(EmailDelegate, _emailThreadCancellation.Token);
-        ConsoleUtilities.WriteLine("#ASuccessfully started email handling thread.#0");
-    }
+		var correlationId = Guid.NewGuid();
+		if (string.IsNullOrWhiteSpace(email))
+		{
+			LogDelivery(correlationId, type, 0, "None", "InvalidRecipient", "EmptyRecipient");
+			return;
+		}
 
-    public void EndEmailThread()
-    {
-        if (_emailThread != null)
-        {
-            _emailThreadCancellation.Cancel();
-            _emailThread = null;
-            _emailThreadStarted = false;
-        }
-    }
+		EmailTemplate? template;
+		EmailConfiguration configuration;
+		lock (_sync)
+		{
+			_emailTemplates.TryGetValue(type, out template);
+			configuration = _configuration;
+		}
 
-    private void EmailDelegate()
-    {
-        while (true)
-        {
-            ProcessEmails();
-            Thread.Sleep(10000);
-        }
-    }
+		if (template is null)
+		{
+			LogDelivery(correlationId, type, 0, "None", "MissingTemplate", "TemplateNotFound");
+			return;
+		}
+
+		if (!configuration.Enabled)
+		{
+			LogDelivery(correlationId, type, 0, "None", "Disabled", "TransportDisabled");
+			return;
+		}
+
+		try
+		{
+			var message = new MimeMessage();
+			message.From.Add(new MailboxAddress(Futuremud.Games.FirstOrDefault()?.Name ?? "FutureMUD", template.ReturnAddress));
+			message.To.Add(new MailboxAddress(email, email));
+			message.Subject = template.Subject;
+			message.Body = new TextPart(TextFormat.Html)
+			{
+				Text = string.Format(CultureInfo.InvariantCulture, template.Content, arguments)
+			};
+			Enqueue(new QueuedMessage(correlationId, type, message, 0), DateTimeOffset.UtcNow);
+		}
+		catch (Exception exception) when (exception is FormatException or ParseException or ArgumentException)
+		{
+			LogDelivery(correlationId, type, 0, configuration.Transport.ToString(), "InvalidMessage",
+				exception.GetType().Name);
+		}
+	}
+
+	public void ProcessEmails()
+	{
+		ProcessOneDueMessageAsync(CancellationToken.None).GetAwaiter().GetResult();
+	}
+
+	public void StartEmailThread()
+	{
+		lock (_sync)
+		{
+			if (_emailThread is { IsCompleted: false })
+			{
+				return;
+			}
+
+			_emailThreadCancellation?.Dispose();
+			_emailThreadCancellation = new CancellationTokenSource();
+			_emailThreadStarted = true;
+			_emailThread = Task.Run(() => EmailDelegateAsync(_emailThreadCancellation.Token));
+		}
+
+		ConsoleUtilities.WriteLine("#EStarting email handling thread...#0");
+		ConsoleUtilities.WriteLine("#ASuccessfully started email handling thread.#0");
+	}
+
+	public void EndEmailThread()
+	{
+		Task? emailThread;
+		CancellationTokenSource? cancellation;
+		lock (_sync)
+		{
+			if (!_emailThreadStarted)
+			{
+				return;
+			}
+
+			_emailThreadStarted = false;
+			emailThread = _emailThread;
+			cancellation = _emailThreadCancellation;
+			cancellation?.Cancel();
+			_queueSignal.Release();
+		}
+
+		if (emailThread is null)
+		{
+			return;
+		}
+
+		try
+		{
+			emailThread.Wait(TimeSpan.FromSeconds(10));
+		}
+		catch (AggregateException)
+		{
+			// The worker records delivery failures itself; shutdown remains bounded.
+		}
+
+		if (!emailThread.IsCompleted)
+		{
+			Log("Email worker did not finish within the 10 second shutdown window.");
+		}
+	}
+
+	private void ApplyConfiguration(EmailConfiguration configuration,
+		Dictionary<EmailTemplateTypes, EmailTemplate> templates, IOutboundEmailTransport? transport)
+	{
+		_transportGate.Wait();
+		try
+		{
+			IOutboundEmailTransport? oldTransport;
+			lock (_sync)
+			{
+				oldTransport = _transport;
+				_transport = transport;
+				_configuration = configuration;
+				_emailTemplates = new ReadOnlyDictionary<EmailTemplateTypes, EmailTemplate>(templates);
+			}
+
+			oldTransport?.DisposeAsync().AsTask().GetAwaiter().GetResult();
+		}
+		finally
+		{
+			_transportGate.Release();
+		}
+
+		_queueSignal.Release();
+	}
+
+	private async Task EmailDelegateAsync(CancellationToken cancellationToken)
+	{
+		try
+		{
+			while (!cancellationToken.IsCancellationRequested)
+			{
+				var processed = await ProcessOneDueMessageAsync(cancellationToken);
+				if (processed)
+				{
+					continue;
+				}
+
+				var delay = GetDelayUntilNextMessage();
+				if (delay is null)
+				{
+					await _queueSignal.WaitAsync(cancellationToken);
+				}
+				else
+				{
+					await _queueSignal.WaitAsync(delay.Value, cancellationToken);
+				}
+			}
+		}
+		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+		{
+		}
+		finally
+		{
+			lock (_sync)
+			{
+				if (_emailThreadCancellation?.Token == cancellationToken)
+				{
+					_emailThreadStarted = false;
+				}
+			}
+		}
+	}
+
+	private async Task<bool> ProcessOneDueMessageAsync(CancellationToken cancellationToken)
+	{
+		QueuedMessage? queuedMessage = null;
+		lock (_sync)
+		{
+			if (_messageQueue.TryPeek(out var nextMessage, out var dueAt) && dueAt <= DateTimeOffset.UtcNow)
+			{
+				_messageQueue.Dequeue();
+				queuedMessage = nextMessage;
+			}
+		}
+
+		if (queuedMessage is null)
+		{
+			return false;
+		}
+
+		IOutboundEmailTransport? transport;
+		EmailConfiguration configuration;
+		await _transportGate.WaitAsync(cancellationToken);
+		try
+		{
+			lock (_sync)
+			{
+				transport = _transport;
+				configuration = _configuration;
+			}
+
+			if (!configuration.Enabled || transport is null)
+			{
+				Enqueue(queuedMessage, DateTimeOffset.UtcNow + TimeSpan.FromSeconds(10));
+				return true;
+			}
+
+			try
+			{
+				await transport.SendAsync(queuedMessage.Message, cancellationToken);
+			}
+			catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+			{
+				Enqueue(queuedMessage, DateTimeOffset.UtcNow);
+				throw;
+			}
+			catch (Exception exception)
+			{
+				await HandleDeliveryFailureAsync(queuedMessage, configuration, transport.Name, exception, cancellationToken);
+			}
+		}
+		finally
+		{
+			_transportGate.Release();
+		}
+
+		return true;
+	}
+
+	private async Task HandleDeliveryFailureAsync(QueuedMessage queuedMessage, EmailConfiguration configuration,
+		string transportName, Exception exception, CancellationToken cancellationToken)
+	{
+		var failureKind = EmailDeliveryFailureClassifier.Classify(exception);
+		var completedAttempt = queuedMessage.Attempt + 1;
+		if (failureKind == EmailDeliveryFailureKind.Transient && completedAttempt < configuration.FailureHandling.MaxAttempts)
+		{
+			var retryDelay = RetryDelays[Math.Min(completedAttempt - 1, RetryDelays.Length - 1)];
+			Enqueue(queuedMessage with { Attempt = completedAttempt }, DateTimeOffset.UtcNow + retryDelay);
+			LogDelivery(queuedMessage.CorrelationId, queuedMessage.TemplateType, completedAttempt, transportName, "RetryScheduled",
+				EmailDeliveryFailureClassifier.DescribeSafely(exception));
+			return;
+		}
+
+		var category = failureKind == EmailDeliveryFailureKind.Permanent ? "PermanentFailure" : "AttemptsExhausted";
+		LogDelivery(queuedMessage.CorrelationId, queuedMessage.TemplateType, completedAttempt, transportName, category,
+			EmailDeliveryFailureClassifier.DescribeSafely(exception));
+		var deadLetterResult = await FailedEmailStore.TryWriteAsync(queuedMessage.Message, queuedMessage.CorrelationId,
+			configuration.FailureHandling, cancellationToken);
+		if (deadLetterResult is not null)
+		{
+			LogDelivery(queuedMessage.CorrelationId, queuedMessage.TemplateType, completedAttempt, transportName,
+				"DeadLetterWriteFailed", deadLetterResult);
+		}
+	}
+
+	private void Enqueue(QueuedMessage message, DateTimeOffset dueAt)
+	{
+		lock (_sync)
+		{
+			_messageQueue.Enqueue(message, dueAt);
+		}
+
+		_queueSignal.Release();
+	}
+
+	private TimeSpan? GetDelayUntilNextMessage()
+	{
+		lock (_sync)
+		{
+			if (!_messageQueue.TryPeek(out _, out var dueAt))
+			{
+				return null;
+			}
+
+			var delay = dueAt - DateTimeOffset.UtcNow;
+			return delay > TimeSpan.Zero ? delay : TimeSpan.Zero;
+		}
+	}
+
+	private static void LogDelivery(Guid correlationId, EmailTemplateTypes templateType, int attempt, string transport,
+		string category, string error)
+	{
+		Log($"Email delivery id={correlationId:N} template={templateType} attempt={attempt} transport={transport} " +
+			$"category={category} error={BoundedSingleLine(error)}");
+	}
+
+	private static string BoundedSingleLine(string value)
+	{
+		var singleLine = value.Replace('\r', ' ').Replace('\n', ' ').Trim();
+		return singleLine.Length <= 240 ? singleLine : singleLine[..240];
+	}
+
+	private static void Log(string message)
+	{
+		Console.WriteLine(message);
+	}
 }

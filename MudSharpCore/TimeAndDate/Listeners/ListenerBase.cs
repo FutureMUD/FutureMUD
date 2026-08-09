@@ -1,12 +1,14 @@
 ﻿
+using System.Threading;
+
 namespace MudSharp.TimeAndDate.Listeners;
 
 public abstract class ListenerBase : FrameworkItem, ITemporalListener
 {
-    private static long _nextId = 1;
-    private static readonly Queue<long> ReturnedIdsList = new();
+    private static long _nextId;
 
     private int _repeatTimes;
+    private int _cancelled;
     protected object[] Objects;
     protected string DebuggerReference;
 
@@ -23,6 +25,11 @@ public abstract class ListenerBase : FrameworkItem, ITemporalListener
 
     protected void TriggerPayload()
     {
+        if (Volatile.Read(ref _cancelled) != 0)
+        {
+            return;
+        }
+
         Payload?.Invoke(Objects);
         RepeatTimes--;
     }
@@ -35,8 +42,7 @@ public abstract class ListenerBase : FrameworkItem, ITemporalListener
             _repeatTimes = value;
             if (_repeatTimes <= 0)
             {
-                UnSubscribe();
-                Futuremud.Games.FirstOrDefault()?.Destroy(this);
+                CancelListener();
             }
         }
     }
@@ -50,7 +56,13 @@ public abstract class ListenerBase : FrameworkItem, ITemporalListener
 
     public void CancelListener()
     {
+        if (Interlocked.Exchange(ref _cancelled, 1) != 0)
+        {
+            return;
+        }
+
         UnSubscribe();
+        Payload = null;
         Futuremud.Games.FirstOrDefault()?.Destroy(this);
     }
 
@@ -58,12 +70,7 @@ public abstract class ListenerBase : FrameworkItem, ITemporalListener
 
     private static long GetNextId()
     {
-        return ReturnedIdsList.Any() ? ReturnedIdsList.Dequeue() : _nextId++;
-    }
-
-    ~ListenerBase()
-    {
-        ReturnedIdsList.Enqueue(Id);
+        return Interlocked.Increment(ref _nextId);
     }
 
     public abstract void UnSubscribe();

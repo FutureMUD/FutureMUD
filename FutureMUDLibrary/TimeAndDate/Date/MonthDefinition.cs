@@ -15,6 +15,10 @@ namespace MudSharp.TimeAndDate.Date
                 throw new XmlException("Root without any elements in MonthDefinition LoadFromXML.");
             }
 
+            SpecialDayNames.Clear();
+            NonWeekdays.Clear();
+            _intercalaries.Clear();
+
             // Alias
             XElement element = root.Element("alias");
             if ((element == null) || (element.Value.Length == 0))
@@ -58,6 +62,11 @@ namespace MudSharp.TimeAndDate.Date
                 throw new XmlException("Value for normaldays in MonthDefinition LoadFromXML is not a valid Integer");
             }
 
+            if (NormalDays <= 0)
+            {
+                throw new XmlException("Month definitions must have at least one normal day.");
+            }
+
             // Nominal Order
             element = root.Element("nominalorder");
             if ((element == null) || (element.Value.Length == 0))
@@ -75,7 +84,7 @@ namespace MudSharp.TimeAndDate.Date
             }
 
             // Special Day Names
-            (from sd in root.Element("specialdays").Elements("specialday")
+            (from sd in root.Element("specialdays")?.Elements("specialday") ?? Enumerable.Empty<XElement>()
              where (sd.Attribute("day") != null) &&
                    (sd.Attribute("short") != null) &&
                    (sd.Attribute("long") != null)
@@ -88,7 +97,7 @@ namespace MudSharp.TimeAndDate.Date
                 );
 
             // Non Weekdays
-            (from nwd in root.Element("nonweekdays").Elements("nonweekday")
+            (from nwd in root.Element("nonweekdays")?.Elements("nonweekday") ?? Enumerable.Empty<XElement>()
              select nwd)
                 .ToList()
                 .ForEach(x => NonWeekdays.Add(int.Parse(x.Value)));
@@ -103,6 +112,13 @@ namespace MudSharp.TimeAndDate.Date
                     intercalary.LoadFromXml(subElement);
                     _intercalaries.Add(intercalary);
                 }
+            }
+
+            var maximumPossibleDays = checked(NormalDays + Intercalaries.Sum(x => x.InsertNumnewDays));
+            if (SpecialDayNames.Keys.Any(x => x < 1 || x > maximumPossibleDays) ||
+                NonWeekdays.Any(x => x < 1 || x > maximumPossibleDays))
+            {
+                throw new XmlException("Month special-day and non-weekday values must be within the possible day range.");
             }
         }
 

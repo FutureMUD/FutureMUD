@@ -123,7 +123,7 @@ public class WeekdayTimeListener : ListenerBase
     public void TimeUpdated()
     {
         if (WatchCalendar.CurrentDate.WeekdayIndex != -1 &&
-            Weekdays.Contains(WatchCalendar.CurrentDate.Weekday) &&
+            Weekdays.Any(x => x.EqualTo(WatchCalendar.CurrentDate.Weekday)) &&
             TimeIsRight()
            )
         {
@@ -133,6 +133,6 @@ public class WeekdayTimeListener : ListenerBase
 
     public override string ToString()
     {
-        return $"Weekday Time Listener: {Weekdays.ToList()} {WatchForHour}h {WatchForMinute}m {WatchForSecond}s";
+        return $"Weekday Time Listener: {Weekdays.ListToString()} {WatchForHour}h {WatchForMinute}m {WatchForSecond}s";
     }
 }

@@ -19,6 +19,13 @@ public class Clock : SaveableItem, IClock
             throw new XmlException("Root without any elements in Clock LoadFromXML.");
         }
 
+        HourIntervalNames.Clear();
+        HourIntervalLongNames.Clear();
+        while (CrudeTimeIntervals.Ranges.Any())
+        {
+            CrudeTimeIntervals.RemoveAt(0);
+        }
+
         // Alias
         XElement element = root.Element("Alias");
         if (element == null || element.Value.Length == 0)
@@ -170,12 +177,13 @@ public class Clock : SaveableItem, IClock
 
         try
         {
-            InGameSecondsPerRealSecond = int.Parse(element.Value);
+            InGameSecondsPerRealSecond = double.Parse(element.Value, System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture);
         }
         catch
         {
             throw new XmlException(
-                "Value for ingamesecondsperrealsecond in Clock LoadFromXML is not a valid Integer");
+                "Value for ingamesecondsperrealsecond in Clock LoadFromXML is not a valid number");
         }
 
         // NumerOfHourIntervals
@@ -192,6 +200,14 @@ public class Clock : SaveableItem, IClock
         catch
         {
             throw new XmlException("Value for numberofhourintervals in Clock LoadFromXML is not a valid Integer");
+        }
+
+        if (SecondsPerMinute <= 0 || MinutesPerHour <= 0 || HoursPerDay <= 0 ||
+            !double.IsFinite(InGameSecondsPerRealSecond) || InGameSecondsPerRealSecond <= 0.0 ||
+            NumberOfHourIntervals <= 0 || HoursPerDay % NumberOfHourIntervals != 0 ||
+            SecondFixedDigits < 0 || MinuteFixedDigits < 0 || HourFixedDigits < 0)
+        {
+            throw new XmlException("Clock time units, speed, display widths and hour intervals must be valid positive values.");
         }
 
         // NoZeroHour
@@ -244,6 +260,11 @@ public class Clock : SaveableItem, IClock
             HourIntervalLongNames.Add(subElement.Value);
         }
 
+        if (HourIntervalNames.Count != NumberOfHourIntervals || HourIntervalLongNames.Count != NumberOfHourIntervals)
+        {
+            throw new XmlException("Clock hour interval names must match NumberOfHourIntervals.");
+        }
+
         // Crude Hour Intervals
         element = root.Element("CrudeTimeIntervals");
         if (element?.HasElements != true)
@@ -253,9 +274,18 @@ public class Clock : SaveableItem, IClock
 
         foreach (XElement subElement in element.Elements("CrudeTimeInterval"))
         {
-            CrudeTimeIntervals.Add(new BoundRange<string>(CrudeTimeIntervals, subElement.Attribute("text").Value,
-                Convert.ToDouble(subElement.Attribute("Lower").Value),
-                Convert.ToDouble(subElement.Attribute("Upper").Value)));
+            var text = subElement.Attribute("text")?.Value;
+            var lowerText = subElement.Attribute("Lower")?.Value;
+            var upperText = subElement.Attribute("Upper")?.Value;
+            if (string.IsNullOrWhiteSpace(text) ||
+                !double.TryParse(lowerText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lower) ||
+                !double.TryParse(upperText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var upper) ||
+                !double.IsFinite(lower) || !double.IsFinite(upper) || upper <= lower)
+            {
+                throw new XmlException("Clock crude time intervals must have text and a finite increasing range.");
+            }
+
+            CrudeTimeIntervals.Add(new BoundRange<string>(CrudeTimeIntervals, text, lower, upper));
         }
 
         CrudeTimeIntervals.Sort();
@@ -268,7 +298,7 @@ public class Clock : SaveableItem, IClock
             new XElement("SuperDisplayString", SuperDisplayString),
             new XElement("LongDisplayString", LongDisplayString), new XElement("SecondsPerMinute", SecondsPerMinute),
             new XElement("MinutesPerHour", MinutesPerHour), new XElement("HoursPerDay", HoursPerDay),
-            new XElement("InGameSecondsPerRealSecond", InGameSecondsPerRealSecond),
+            new XElement("InGameSecondsPerRealSecond", InGameSecondsPerRealSecond.ToString(System.Globalization.CultureInfo.InvariantCulture)),
             new XElement("SecondFixedDigits", SecondFixedDigits),
             new XElement("MinuteFixedDigits", MinuteFixedDigits), new XElement("HourFixedDigits", HourFixedDigits),
             new XElement("NoZeroHour", NoZeroHour), new XElement("NumberOfHourIntervals", NumberOfHourIntervals),
@@ -287,7 +317,8 @@ public class Clock : SaveableItem, IClock
                     from range in CrudeTimeIntervals.Ranges
                     select
                         new XElement("CrudeTimeInterval", new XAttribute("text", range.Value),
-                            new XAttribute("Lower", range.LowerLimit), new XAttribute("Upper", range.UpperLimit))
+                            new XAttribute("Lower", range.LowerLimit.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+                            new XAttribute("Upper", range.UpperLimit.ToString(System.Globalization.CultureInfo.InvariantCulture)))
                 }
             ));
     }
@@ -532,6 +563,17 @@ public class Clock : SaveableItem, IClock
 
     public void AddTimezone(IMudTimeZone timezone)
     {
+        ArgumentNullException.ThrowIfNull(timezone);
+        if (timezone.Clock is not null && timezone.Clock != this)
+        {
+            throw new ArgumentException("That timezone belongs to a different clock.", nameof(timezone));
+        }
+
+        if (_timezones.Contains(timezone))
+        {
+            return;
+        }
+
         _timezones.Add(timezone);
         if (PrimaryTimezone is null)
         {
@@ -821,7 +863,7 @@ public class Clock : SaveableItem, IClock
         return (fraction <= 0.33 ? "early " : fraction >= 0.67 ? "late " : "") + interval;
     }
 
-    public static Regex timeRegex = new(@"\$([a-zA-Z])");
+    private static readonly Regex TimeTokenRegex = new(@"\$(?<variable>[\w])", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>
     ///	Some examples of Display times and their expected outputs:
@@ -833,7 +875,7 @@ public class Clock : SaveableItem, IClock
     /// <returns></returns>
     public string DisplayTime(MudTime theTime, string timeString)
     {
-        return Regex.Replace(timeString, @"\$(?<variable>[\w])", m =>
+        return TimeTokenRegex.Replace(timeString, m =>
         {
             switch (m.Groups["variable"].Value)
             {
@@ -861,13 +903,12 @@ public class Clock : SaveableItem, IClock
                     return theTime.Hours.ToWordyNumber();
                 case "j":
                     // Period-specific hours as digits
+                    var periodHour = theTime.Hours % (HoursPerDay / NumberOfHourIntervals) == 0 && NoZeroHour
+                        ? HoursPerDay / NumberOfHourIntervals
+                        : theTime.Hours % (HoursPerDay / NumberOfHourIntervals);
                     return HourFixedDigits > 0
-                        ? (theTime.Hours % (HoursPerDay / NumberOfHourIntervals) == 0 && NoZeroHour
-                            ? HoursPerDay / NumberOfHourIntervals
-                            : theTime.Hours % (HoursPerDay / NumberOfHourIntervals)).ToString()
-                        : (theTime.Hours % (HoursPerDay / NumberOfHourIntervals) == 0 && NoZeroHour
-                            ? HoursPerDay / NumberOfHourIntervals
-                            : theTime.Hours % (HoursPerDay / NumberOfHourIntervals)).ToString("D" + HourFixedDigits);
+                        ? periodHour.ToString("D" + HourFixedDigits)
+                        : periodHour.ToString();
                 case "J":
                     // Period-specific hours as word
                     return (theTime.Hours % (HoursPerDay / NumberOfHourIntervals) == 0 && NoZeroHour
@@ -940,7 +981,21 @@ public class Clock : SaveableItem, IClock
 
     public void SetTime(MudTime time)
     {
-        _currentTime = time;
+        ArgumentNullException.ThrowIfNull(time);
+        if (time.Clock != this)
+        {
+            throw new ArgumentException("The supplied time belongs to a different clock.", nameof(time));
+        }
+
+        var timezone = PrimaryTimezone ?? ResolvePrimaryTimezone(time.Timezone);
+        var primaryTime = time.Timezone == timezone ? time : time.GetTimeByTimezone(timezone);
+        if (primaryTime.DaysOffsetFromDatum != 0)
+        {
+            throw new ArgumentException("A clock time cannot include a date offset.", nameof(time));
+        }
+
+        _currentTime = MudTime.CreatePrimaryTime(primaryTime.Seconds, primaryTime.Minutes, primaryTime.Hours, timezone,
+            this);
     }
 
     #endregion
@@ -1167,7 +1222,8 @@ public class Clock : SaveableItem, IClock
 
     private bool BuildingCommandSpeed(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !double.TryParse(command.PopSpeech(), out double value) || value <= 0.0)
+        if (command.IsFinished || !double.TryParse(command.PopSpeech(), out double value) ||
+            !double.IsFinite(value) || value <= 0.0)
         {
             actor.OutputHandler.Send("You must specify a positive number of in-game seconds per real second.");
             return false;

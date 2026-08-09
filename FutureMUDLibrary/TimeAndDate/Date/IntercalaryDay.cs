@@ -63,6 +63,11 @@ namespace MudSharp.TimeAndDate.Date
                 throw new XmlException("Empty IntercalaryDay in LoadFromXML.");
             }
 
+            _specialDayNames.Clear();
+            _nonWeekdays.Clear();
+            _removeNonWeekdays.Clear();
+            _removeSpecialDayNames.Clear();
+
             // Normal Days
             XElement element = root.Element("insertdays");
             if ((element == null) || (element.Value.Length == 0))
@@ -79,8 +84,13 @@ namespace MudSharp.TimeAndDate.Date
                 throw new XmlException("Value for normaldays in IntercalaryDay LoadFromXML is not a valid Integer");
             }
 
+            if (InsertNumnewDays < 0)
+            {
+                throw new XmlException("Intercalary day insert counts cannot be negative.");
+            }
+
             // Special Day Names
-            if (root.Element("specialdays").HasElements)
+            if (root.Element("specialdays")?.HasElements == true)
             {
                 (from sd in root.Element("specialdays").Elements("specialday")
                  where (sd.Attribute("day") != null) &&
@@ -95,7 +105,7 @@ namespace MudSharp.TimeAndDate.Date
             }
 
             // Remove Special Day Names
-            if (root.Element("removespecialdays").HasElements)
+            if (root.Element("removespecialdays")?.HasElements == true)
             {
                 (from nwd in root.Element("removespecialdays").Elements("removespecialday")
                  select nwd)
@@ -104,7 +114,7 @@ namespace MudSharp.TimeAndDate.Date
             }
 
             // Non Weekdays
-            if (root.Element("nonweekdays").HasElements)
+            if (root.Element("nonweekdays")?.HasElements == true)
             {
                 (from nwd in root.Element("nonweekdays").Elements("nonweekday")
                  select nwd)
@@ -113,7 +123,7 @@ namespace MudSharp.TimeAndDate.Date
             }
 
             // Remove Non Weekdays
-            if (root.Element("removenonweekdays").HasElements)
+            if (root.Element("removenonweekdays")?.HasElements == true)
             {
                 (from nwd in root.Element("removenonweekdays").Elements("removenonweekday")
                  select nwd)
@@ -131,6 +141,12 @@ namespace MudSharp.TimeAndDate.Date
             IntercalaryRule rule = new();
             rule.LoadFromXml(element);
             Rule = rule;
+
+            if (SpecialDayNames.Keys.Any(x => x < 1) || NonWeekdays.Any(x => x < 1) ||
+                RemoveNonWeekdays.Any(x => x < 1) || RemoveSpecialDayNames.Any(x => x < 1))
+            {
+                throw new XmlException("Intercalary day numbers must be positive.");
+            }
         }
 
         public XElement SaveToXml()

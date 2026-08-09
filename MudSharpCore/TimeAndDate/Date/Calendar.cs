@@ -23,6 +23,11 @@ public class Calendar : SaveableItem, ICalendar
             throw new XmlException("Root without any elements in Calendar LoadFromXML.");
         }
 
+        Weekdays.Clear();
+        _months.Clear();
+        _intercalaries.Clear();
+        ClearDateCaches();
+
         // Alias
         XElement element = root.Element("alias");
         if (element == null || element.Value.Length == 0)
@@ -178,6 +183,12 @@ public class Calendar : SaveableItem, ICalendar
             Weekdays.Add(subElement.Value);
         }
 
+        if (Weekdays.Count == 0 || FirstWeekdayAtEpoch < 0 || FirstWeekdayAtEpoch >= Weekdays.Count ||
+            Weekdays.GroupBy(x => x, StringComparer.InvariantCultureIgnoreCase).Any(x => x.Count() > 1))
+        {
+            throw new XmlException("Calendar weekdays must be unique and weekdayatepoch must reference a valid weekday.");
+        }
+
         // Months
         element = root.Element("months");
         if (element?.HasElements != true)
@@ -189,6 +200,11 @@ public class Calendar : SaveableItem, ICalendar
         {
             MonthDefinition month = new();
             month.LoadFromXml(subElement);
+            if (month.NormalDays <= 0 || string.IsNullOrWhiteSpace(month.Alias) ||
+                month.NominalOrder < 1 || _months.Any(x => x.Alias.EqualTo(month.Alias)))
+            {
+                throw new XmlException("Calendar months must have unique aliases, positive order values, and at least one day.");
+            }
             _months.Add(month);
         }
 
@@ -200,6 +216,27 @@ public class Calendar : SaveableItem, ICalendar
             {
                 IntercalaryMonth intercalary = new();
                 intercalary.LoadFromXml(subElement);
+                if (intercalary.Month.NormalDays <= 0 || string.IsNullOrWhiteSpace(intercalary.Month.Alias) ||
+                    _months.Any(x => x.Alias.EqualTo(intercalary.Month.Alias)) ||
+                    _intercalaries.Any(x => x.Month.Alias.EqualTo(intercalary.Month.Alias)))
+                {
+                    throw new XmlException("Intercalary months must have unique aliases and at least one day.");
+                }
+
+                if (int.TryParse(intercalary.InsertPosition, out var insertPosition))
+                {
+                    if (insertPosition < 1 || insertPosition > _months.Count + 1)
+                    {
+                        throw new XmlException($"Intercalary month {intercalary.Month.Alias} has an invalid numeric insertion position.");
+                    }
+                }
+                else if (!_months.Any(x => x.Alias.EqualTo(intercalary.InsertPosition)))
+                {
+                    Gameworld?.SystemMessage(
+                        $"Calendar {ShortName} intercalary month {intercalary.Month.Alias} has an unknown insertion alias {intercalary.InsertPosition}; using its nominal-order fallback.",
+                        true);
+                }
+
                 _intercalaries.Add(intercalary);
             }
         }
@@ -261,6 +298,11 @@ public class Calendar : SaveableItem, ICalendar
         if (!string.IsNullOrWhiteSpace(typeText) &&
             Enum.TryParse(typeText.Replace("-", string.Empty), true, out CalendarDayBoundaryType type))
         {
+            if (type == CalendarDayBoundaryType.AstronomicalEvent)
+            {
+                throw new XmlException("Generic astronomical-event day boundaries are not configured or supported. Use sunrise or sunset instead.");
+            }
+
             DayBoundary = type;
         }
 
@@ -896,7 +938,8 @@ public class Calendar : SaveableItem, ICalendar
         _cachedYears.Clear();
         _cachedWeekdaysInYear.Clear();
         _cachedDaysInYear.Clear();
-        _cachedDaysBetweenYears.Clear();
+        _cachedDaysAtStartOfYear.Clear();
+        _cachedWeekdaysAtStartOfYear.Clear();
         _cachedFirstWeekday.Clear();
     }
 
@@ -976,7 +1019,7 @@ public class Calendar : SaveableItem, ICalendar
         return sum;
     }
 
-    private Dictionary<(int, int), int> _cachedDaysBetweenYears = new();
+    private Dictionary<int, int> _cachedDaysAtStartOfYear = new();
     /// <summary>
     ///     This function returns the number of days between two years exclusive of the endYear
     /// </summary>
@@ -995,23 +1038,83 @@ public class Calendar : SaveableItem, ICalendar
             (startYear, endYear) = (endYear, startYear);
         }
 
-        var cacheKey = (startYear, endYear);
-        if (_cachedDaysBetweenYears.TryGetValue(cacheKey, out int count))
-        {
-            return count;
-        }
-
-        count = 0;
-        while (startYear < endYear)
-        {
-            count += CountDaysInYear(startYear++);
-        }
-
-        _cachedDaysBetweenYears[cacheKey] = count;
-        return count;
+        return checked(GetDaysAtStartOfYear(endYear) - GetDaysAtStartOfYear(startYear));
     }
 
+    private int GetDaysAtStartOfYear(int year)
+    {
+        if (_cachedDaysAtStartOfYear.TryGetValue(year, out var days))
+        {
+            return days;
+        }
+
+        _cachedDaysAtStartOfYear[EpochYear] = 0;
+        var direction = year > EpochYear ? 1 : -1;
+        var anchor = new KeyValuePair<int, int>(EpochYear, 0);
+        foreach (var candidate in _cachedDaysAtStartOfYear)
+        {
+            if (direction > 0 && candidate.Key <= year && candidate.Key > anchor.Key)
+            {
+                anchor = candidate;
+            }
+            else if (direction < 0 && candidate.Key >= year && candidate.Key < anchor.Key)
+            {
+                anchor = candidate;
+            }
+        }
+        var runningDays = anchor.Value;
+        for (var currentYear = anchor.Key; currentYear != year; currentYear += direction)
+        {
+            if (direction > 0)
+            {
+                runningDays = checked(runningDays + CountDaysInYear(currentYear));
+            }
+            else
+            {
+                runningDays = checked(runningDays - CountDaysInYear(currentYear - 1));
+            }
+        }
+
+        _cachedDaysAtStartOfYear[year] = runningDays;
+        return runningDays;
+    }
+
+    private Dictionary<int, int> _cachedWeekdaysAtStartOfYear = new();
     private Dictionary<int, int> _cachedFirstWeekday = new();
+
+    private int GetWeekdaysAtStartOfYear(int year)
+    {
+        if (_cachedWeekdaysAtStartOfYear.TryGetValue(year, out var weekdays))
+        {
+            return weekdays;
+        }
+
+        _cachedWeekdaysAtStartOfYear[EpochYear] = 0;
+        var direction = year > EpochYear ? 1 : -1;
+        var anchor = new KeyValuePair<int, int>(EpochYear, 0);
+        foreach (var candidate in _cachedWeekdaysAtStartOfYear)
+        {
+            if (direction > 0 && candidate.Key <= year && candidate.Key > anchor.Key)
+            {
+                anchor = candidate;
+            }
+            else if (direction < 0 && candidate.Key >= year && candidate.Key < anchor.Key)
+            {
+                anchor = candidate;
+            }
+        }
+
+        var runningWeekdays = anchor.Value;
+        for (var currentYear = anchor.Key; currentYear != year; currentYear += direction)
+        {
+            runningWeekdays = direction > 0
+                ? checked(runningWeekdays + CountWeekdaysInYear(currentYear))
+                : checked(runningWeekdays - CountWeekdaysInYear(currentYear - 1));
+        }
+
+        _cachedWeekdaysAtStartOfYear[year] = runningWeekdays;
+        return runningWeekdays;
+    }
     /// <summary>
     ///     Returns the index of the first weekday of the year for the specified year. This may not be the first day of the
     ///     year if the first day is excluded from weekdays.
@@ -1030,18 +1133,7 @@ public class Calendar : SaveableItem, ICalendar
             return count;
         }
 
-        int daysBetween = 0;
-        int lowerYear = Math.Min(whichYear, EpochYear);
-        int upperYear = Math.Max(whichYear, EpochYear);
-
-        for (int i = lowerYear; i < upperYear; i++)
-        {
-            daysBetween += CountWeekdaysInYear(i);
-        }
-
-        int day = whichYear > EpochYear
-            ? (FirstWeekdayAtEpoch + daysBetween).Modulus(Weekdays.Count)
-            : (FirstWeekdayAtEpoch - daysBetween).Modulus(Weekdays.Count);
+        int day = (FirstWeekdayAtEpoch + GetWeekdaysAtStartOfYear(whichYear)).Modulus(Weekdays.Count);
         _cachedFirstWeekday[whichYear] = day;
         return day;
     }
@@ -1088,29 +1180,55 @@ public class Calendar : SaveableItem, ICalendar
 
     public MudDate GetBirthday(int day, string month, int age)
     {
-        MudDate date = null;
-        try
+        foreach (var year in new[] { CurrentDate.Year - age, CurrentDate.Year - age - 1 })
         {
-            date = GetDateInYear(day, month, CurrentDate.Year - age);
-        }
-        catch (MUDDateException)
-        {
+            try
+            {
+                var candidate = GetDateInYear(day, month, year);
+                if (CurrentDate.YearsDifference(candidate) == age)
+                {
+                    return candidate;
+                }
+            }
+            catch (MUDDateException)
+            {
+                // Try the adjacent year in case an intercalary date does not occur in this year.
+            }
         }
 
-        if (date == null || date.YearsDifference(CurrentDate) > age)
-        {
-            date = GetDateInYear(day, month, CurrentDate.Year - age + 1);
-        }
-
-        return date;
+        throw new MUDDateException("That birthday does not occur in a year that produces the requested age.");
     }
 
     public MudDate GetRandomBirthday(int age)
     {
-        // TODO - This isn't 100% correct, only nearly correct.
-        Year year = CreateYear(CurrentDate.Year - age);
-        Month month = year.Months.GetWeightedRandom(x => x.Days);
-        return new MudDate(this, Constants.Random.Next(1, month.Days + 1), year.YearName, month, year, false);
+        if (age < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(age), "An age cannot be negative.");
+        }
+
+        var candidates = new List<MudDate>();
+        foreach (var yearNumber in new[] { CurrentDate.Year - age, CurrentDate.Year - age - 1 })
+        {
+            var year = CreateYear(yearNumber);
+            foreach (var month in year.Months)
+            {
+                for (var day = 1; day <= month.Days; day++)
+                {
+                    var candidate = new MudDate(this, day, year.YearName, month, year, false);
+                    if (CurrentDate.YearsDifference(candidate) == age)
+                    {
+                        candidates.Add(candidate);
+                    }
+                }
+            }
+        }
+
+        if (candidates.Count == 0)
+        {
+            throw new MUDDateException("No valid birthday produces the requested age.");
+        }
+
+        return candidates[Constants.Random.Next(candidates.Count)];
     }
 
     public MudDateTime StartOfCalendarDay(MudDate date, IMudTimeZone timezone = null)
@@ -1125,7 +1243,15 @@ public class Calendar : SaveableItem, ICalendar
             !string.IsNullOrWhiteSpace(_fixedDayBoundaryTimeText) &&
             MudTime.TryParseLocalTime(_fixedDayBoundaryTimeText, FeedClock, out var fixedTime, out _))
         {
-            return new MudDateTime(date, fixedTime.GetTimeByTimezone(timezone), timezone);
+            var boundaryDate = new MudDate(date);
+            var localTime = fixedTime.GetTimeByTimezone(timezone);
+            if (localTime.DaysOffsetFromDatum != 0)
+            {
+                boundaryDate.AdvanceDays(localTime.DaysOffsetFromDatum);
+                localTime.DaysOffsetFromDatum = 0;
+            }
+
+            return new MudDateTime(boundaryDate, localTime, timezone);
         }
 
         if (DayBoundary.In(CalendarDayBoundaryType.SunriseAtAuthorityLocation,
@@ -1871,20 +1997,20 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
                                     return theDate.Month.NonWeekdays.Contains(theDate.Day) ? "" : theDate.Weekday;
                                 case "cc":
                                     return theDate.Year < 1
-                                        ? ((theDate.Year * -1 + 1) / 100 + 1).ToOrdinal()
-                                        : (theDate.Year / 100 + 1).ToOrdinal();
+                                        ? ((theDate.Year * -1) / 100 + 1).ToOrdinal()
+                                        : ((theDate.Year - 1) / 100 + 1).ToOrdinal();
                                 case "CC":
                                     return theDate.Year < 1
-                                        ? ((theDate.Year * -1 + 1) / 100 + 1).ToWordyOrdinal()
-                                        : (theDate.Year / 100 + 1).ToWordyOrdinal();
+                                        ? ((theDate.Year * -1) / 100 + 1).ToWordyOrdinal()
+                                        : ((theDate.Year - 1) / 100 + 1).ToWordyOrdinal();
                                 case "mi":
                                     return theDate.Year < 1
-                                        ? ((theDate.Year * -1 + 1) / 1000 + 1).ToOrdinal()
-                                        : (theDate.Year / 1000 + 1).ToOrdinal();
+                                        ? ((theDate.Year * -1) / 1000 + 1).ToOrdinal()
+                                        : ((theDate.Year - 1) / 1000 + 1).ToOrdinal();
                                 case "MI":
                                     return theDate.Year < 1
-                                        ? ((theDate.Year * -1 + 1) / 1000 + 1).ToWordyOrdinal()
-                                        : (theDate.Year / 1000 + 1).ToWordyOrdinal();
+                                        ? ((theDate.Year * -1) / 1000 + 1).ToWordyOrdinal()
+                                        : ((theDate.Year - 1) / 1000 + 1).ToWordyOrdinal();
                                 case "my":
                                     return theDate.Year < 1
                                         ? ((theDate.Year * -1 + 1) % 1000).ToOrdinal()
@@ -2349,7 +2475,7 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("Which day boundary should this calendar use? Options are midnight, fixed, sunset, sunrise and event.");
+            actor.OutputHandler.Send("Which day boundary should this calendar use? Options are midnight, fixed, sunset and sunrise.");
             return false;
         }
 
@@ -2370,10 +2496,6 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
                 break;
             case "sunrise":
                 boundary = CalendarDayBoundaryType.SunriseAtAuthorityLocation;
-                break;
-            case "event":
-            case "astronomical":
-                boundary = CalendarDayBoundaryType.AstronomicalEvent;
                 break;
             default:
                 actor.OutputHandler.Send("That is not a valid day-boundary type.");

@@ -19,6 +19,7 @@ namespace MudSharp_Unit_Tests;
 public class FutureProgDateTimeFunctionTests
 {
 	private static IFuturemud _gameworld = null!;
+	private static IFuturemud _timeGameworld = null!;
 	private static ICalendar _calendar = null!;
 	private static IClock _clock = null!;
 	private static IMudTimeZone _timezone = null!;
@@ -38,6 +39,7 @@ public class FutureProgDateTimeFunctionTests
 		gameworld.SetupGet(x => x.Clocks).Returns(clocks);
 		gameworld.SetupGet(x => x.Calendars).Returns(calendars);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
+		_timeGameworld = gameworld.Object;
 
 		_clock = new Clock(XElement.Parse(
 			@"<Clock><Alias>UTC</Alias><Description>Universal Time Clock</Description><ShortDisplayString>$j:$m:$s $i</ShortDisplayString><SuperDisplayString>$j:$m:$s $i $t</SuperDisplayString><LongDisplayString>$c $i</LongDisplayString><SecondsPerMinute>60</SecondsPerMinute><MinutesPerHour>60</MinutesPerHour><HoursPerDay>24</HoursPerDay><InGameSecondsPerRealSecond>1</InGameSecondsPerRealSecond><SecondFixedDigits>2</SecondFixedDigits><MinuteFixedDigits>2</MinuteFixedDigits><HourFixedDigits>0</HourFixedDigits><NoZeroHour>true</NoZeroHour><NumberOfHourIntervals>2</NumberOfHourIntervals><HourIntervalNames><HourIntervalName>a.m</HourIntervalName><HourIntervalName>p.m</HourIntervalName></HourIntervalNames><HourIntervalLongNames><HourIntervalLongName>in the morning</HourIntervalLongName><HourIntervalLongName>in the afternoon</HourIntervalLongName></HourIntervalLongNames><CrudeTimeIntervals><CrudeTimeInterval text=""day"" Lower=""0"" Upper=""24"" /></CrudeTimeIntervals></Clock>"),
@@ -321,6 +323,80 @@ return @duration");
 				Tuple.Create(ProgVariableTypes.Calendar, "calendar")
 			],
 			"return NextVisibleCrescent(@zone, 1, 2, @calendar, 2)");
+	}
+
+	[TestMethod]
+	public void MudCalendarFunctions_ExecuteSignedDistanceAndMonthBoundaries()
+	{
+		var daysBetween = Compile<decimal>(
+			"MudCalendarDaysBetween",
+			ProgVariableTypes.Number,
+			[
+				Tuple.Create(ProgVariableTypes.MudDateTime, "start"),
+				Tuple.Create(ProgVariableTypes.MudDateTime, "end")
+			],
+			"return daysbetween(@start, @end)");
+		var monthStart = Compile<MudDateTime>(
+			"MudCalendarMonthStart",
+			ProgVariableTypes.MudDateTime,
+			[Tuple.Create(ProgVariableTypes.MudDateTime, "date")],
+			"return monthstart(@date)");
+		var monthEnd = Compile<MudDateTime>(
+			"MudCalendarMonthEnd",
+			ProgVariableTypes.MudDateTime,
+			[Tuple.Create(ProgVariableTypes.MudDateTime, "date")],
+			"return monthend(@date)");
+
+		var start = new MudDateTime(_calendar.GetDate("10/apr/2026"),
+			MudTime.FromLocalTime(0, 0, 3, _timezone, _clock), _timezone);
+		var end = new MudDateTime(_calendar.GetDate("13/apr/2026"),
+			MudTime.FromLocalTime(0, 0, 22, _timezone, _clock), _timezone);
+
+		Assert.AreEqual(3M, daysBetween.Execute<decimal>(start, end));
+		var otherCalendar = new Calendar(2, _timeGameworld);
+		otherCalendar.SetupTestData();
+		otherCalendar.Id = 2;
+		otherCalendar.FeedClock = _clock;
+		otherCalendar.SetDate("1/jan/2026");
+		var crossCalendarEnd = new MudDateTime(otherCalendar.GetDate("3/jan/2026"),
+			MudTime.FromLocalTime(0, 0, 0, _timezone, _clock), _timezone);
+		var anchoredStart = new MudDateTime(_calendar.GetDate("1/jan/2026"),
+			MudTime.FromLocalTime(0, 0, 0, _timezone, _clock), _timezone);
+		Assert.AreEqual(2M, daysBetween.Execute<decimal>(anchoredStart, crossCalendarEnd));
+		Assert.AreEqual("1/april/2026", monthStart.Execute<MudDateTime>(end).Date.GetDateString());
+		var finalMoment = monthEnd.Execute<MudDateTime>(end);
+		Assert.AreEqual("30/april/2026", finalMoment.Date.GetDateString());
+		Assert.AreEqual(23, finalMoment.Time.Hours);
+		Assert.AreEqual(59, finalMoment.Time.Minutes);
+		Assert.AreEqual(59, finalMoment.Time.Seconds);
+	}
+
+	[TestMethod]
+	public void MudCalendarFunctions_ExecuteWeekdayAndRejectNeverDayDistances()
+	{
+		var weekdayName = Compile<string>(
+			"MudCalendarWeekdayName",
+			ProgVariableTypes.Text,
+			[Tuple.Create(ProgVariableTypes.MudDateTime, "date")],
+			"return weekdayname(@date)");
+		var date = new MudDateTime(_calendar.GetDate("10/apr/2026"),
+			MudTime.FromLocalTime(0, 0, 0, _timezone, _clock), _timezone);
+
+		Assert.AreEqual(date.Date.Weekday, weekdayName.Execute<string>(date));
+		Assert.AreEqual(string.Empty, weekdayName.Execute<string>(MudDateTime.Never));
+
+		var compiler = MudSharp.FutureProg.FutureProg.GetFunctionCompilerInformations()
+			.Single(x => x.FunctionName == "daysbetween" && x.Parameters.SequenceEqual([
+				ProgVariableTypes.MudDateTime,
+				ProgVariableTypes.MudDateTime
+			]));
+		var function = compiler.CompilerFunction([
+			new ConstantFunction(MudDateTime.Never),
+			new ConstantFunction(date)
+		], _gameworld);
+
+		Assert.AreEqual(StatementResult.Error, function.Execute(null!));
+		StringAssert.Contains(function.ErrorMessage, "Never");
 	}
 
 	private static FutureProg Compile<T>(string name, ProgVariableTypes returnType,

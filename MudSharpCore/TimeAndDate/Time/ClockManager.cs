@@ -31,21 +31,37 @@ public class ClockManager : IClockManager
 		_nextUpdateUtc = DateTime.MaxValue;
 		foreach (var state in _clocks)
 		{
-			var iterations = 0;
-			while (state.NextUpdateUtc <= now)
+			if (!double.IsFinite(state.Clock.InGameSecondsPerRealSecond) ||
+			    state.Clock.InGameSecondsPerRealSecond <= 0.0)
 			{
-				iterations++;
-				state.Clock.CurrentTime.AddSeconds(1);
-				state.NextUpdateUtc = state.NextUpdateUtc.AddMilliseconds(1000.0 / state.Clock.InGameSecondsPerRealSecond);
+				Gameworld.SystemMessage($"Clock {state.Clock.Name} has an invalid in-game speed and was skipped.", true);
+				continue;
 			}
+
+			if (now < state.NextUpdateUtc)
+			{
+				if (state.NextUpdateUtc < _nextUpdateUtc)
+				{
+					_nextUpdateUtc = state.NextUpdateUtc;
+				}
+
+				continue;
+			}
+
+			var overdueTicks = 1L + (now.Ticks - state.NextUpdateUtc.Ticks) / state.UpdateInterval.Ticks;
+			for (var iteration = 0L; iteration < overdueTicks; iteration++)
+			{
+				state.Clock.CurrentTime.AddSeconds(1);
+			}
+			state.NextUpdateUtc = state.NextUpdateUtc.AddTicks(checked(state.UpdateInterval.Ticks * overdueTicks));
 
 			if (state.NextUpdateUtc < _nextUpdateUtc)
 			{
 				_nextUpdateUtc = state.NextUpdateUtc;
 			}
-			if (iterations > 10)
+			if (overdueTicks > 10)
 			{
-				Console.WriteLine($"The clock ended up taking {iterations:N0} iterations to update.");
+				Gameworld.SystemMessage($"Clock {state.Clock.Name} replayed {overdueTicks:N0} overdue in-game seconds.", true);
 			}
 		}
 	}
@@ -83,8 +99,30 @@ public class ClockManager : IClockManager
 		var now = UtcNow;
 		foreach (var clock in Gameworld.Clocks)
 		{
-			var next = now.AddMilliseconds(1000.0 / clock.InGameSecondsPerRealSecond);
-			_clocks.Add(new ClockState(clock, next));
+			if (!double.IsFinite(clock.InGameSecondsPerRealSecond) || clock.InGameSecondsPerRealSecond <= 0.0)
+			{
+				Gameworld.SystemMessage($"Clock {clock.Name} has an invalid in-game speed and was not started.", true);
+				continue;
+			}
+
+			TimeSpan interval;
+			try
+			{
+				interval = TimeSpan.FromSeconds(1.0 / clock.InGameSecondsPerRealSecond);
+			}
+			catch (OverflowException)
+			{
+				Gameworld.SystemMessage($"Clock {clock.Name} has an in-game speed outside the scheduler range and was not started.", true);
+				continue;
+			}
+			if (interval.Ticks <= 0)
+			{
+				Gameworld.SystemMessage($"Clock {clock.Name} advances too quickly for the scheduler resolution and was not started.", true);
+				continue;
+			}
+
+			var next = now.AddTicks(interval.Ticks);
+			_clocks.Add(new ClockState(clock, next, interval));
 			if (next < _nextUpdateUtc)
 			{
 				_nextUpdateUtc = next;
@@ -94,9 +132,10 @@ public class ClockManager : IClockManager
 
 	private DateTime UtcNow => _timeProvider.GetUtcNow().UtcDateTime;
 
-	private sealed class ClockState(IClock clock, DateTime nextUpdateUtc)
+	private sealed class ClockState(IClock clock, DateTime nextUpdateUtc, TimeSpan updateInterval)
 	{
 		public IClock Clock { get; } = clock;
 		public DateTime NextUpdateUtc { get; set; } = nextUpdateUtc;
+		public TimeSpan UpdateInterval { get; } = updateInterval;
 	}
 }

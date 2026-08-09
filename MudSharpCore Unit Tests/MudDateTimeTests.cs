@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace MudSharp_Unit_Tests;
@@ -141,6 +142,32 @@ public class MudDateTimeTests
 
         Assert.IsTrue(clock.BuildingCommand(actor.Object, new StringStack("crude add 6 12 morningish")));
         Assert.IsTrue(clock.Show(actor.Object).Contains("morningish"));
+    }
+
+    [TestMethod]
+    public void Clock_LoadFromXmlRoundTripsFractionalSpeedAndClearsReloadedCollections()
+    {
+        var xml = new XElement(_testClock.SaveToXml());
+        xml.Element("InGameSecondsPerRealSecond")!.Value = "1.25";
+        var clock = new Clock(xml, _gameworld) { Id = 505 };
+
+        clock.LoadFromXml(new XElement(xml));
+
+        Assert.AreEqual(1.25, clock.InGameSecondsPerRealSecond, 0.000001);
+        Assert.AreEqual(2, clock.HourIntervalNames.Count);
+        Assert.AreEqual(2, clock.HourIntervalLongNames.Count);
+        Assert.AreEqual("12:00:00 a.m", clock.DisplayTime(clock.CurrentTime, TimeDisplayTypes.Short));
+    }
+
+    [TestMethod]
+    public void Calendar_LoadFromXmlRejectsUnconfiguredGenericAstronomicalBoundary()
+    {
+        var xml = new XElement(_testCalendar.SaveToXml());
+        xml.Element("dayboundary")!.SetAttributeValue("type", "AstronomicalEvent");
+
+        var exception = Assert.ThrowsException<XmlException>(() => new Calendar(xml, _gameworld));
+
+        StringAssert.Contains(exception.Message, "not configured");
     }
 
     [TestMethod]
@@ -348,6 +375,18 @@ public class MudDateTimeTests
         Assert.AreEqual(target.CurrentDate.GetDateString(), converted.Date.GetDateString());
         Assert.AreEqual(12, converted.Time.Hours);
         Assert.AreEqual(30, converted.Time.Minutes);
+    }
+
+    [TestMethod]
+    public void MudInstant_RejectsUnresolvedSourceContext()
+    {
+        var instant = new MudInstant(MudInstant.CurrentEpoch, 12345, 999001, 999002);
+        var partialContext = new MudInstant(MudInstant.CurrentEpoch, 12345, 999001, 0);
+
+        var result = instant.ToMudDateTime(_testCalendar, _testClock, _utcTimezone);
+
+        Assert.IsTrue(result.Equals(MudDateTime.Never));
+        Assert.IsTrue(partialContext.ToMudDateTime(_testCalendar, _testClock, _utcTimezone).Equals(MudDateTime.Never));
     }
 
     [TestMethod]
@@ -852,8 +891,8 @@ public class MudDateTimeTests
         Assert.AreEqual<TimeSpan>(TimeSpan.FromMinutes(3), mts);
 
         result = MudTimeSpan.TryParse("3.000s", System.Globalization.CultureInfo.CreateSpecificCulture("de-DE"), out mts);
-        Assert.IsTrue(result, "Was not valid using german text - 3.000s.");
-        Assert.AreEqual<TimeSpan>(TimeSpan.FromSeconds(3000), mts);
+        Assert.IsTrue(result, "MudTimeSpan text parsing should accept invariant decimal syntax.");
+        Assert.AreEqual<TimeSpan>(TimeSpan.FromSeconds(3), mts);
 
         Assert.AreEqual(3, MudTimeSpan.FromDays(3).DayComponentOnly);
         Assert.AreEqual(10, MudTimeSpan.FromMinutes(10).MinuteComponentOnly);
@@ -870,6 +909,62 @@ public class MudDateTimeTests
         Assert.AreEqual(120, MudTimeSpan.FromMinutes(2).Seconds);
         Assert.AreEqual(2, MudTimeSpan.FromMinutes(2).Minutes);
         Assert.AreEqual(2, MudTimeSpan.FromHours(2).Hours);
+    }
+
+    [TestMethod]
+    public void MudDate_SignedDaysDifferenceAndCompletedYearsAreCalendarAware()
+    {
+        var birthday = _testCalendar.GetDate("20/jung/20");
+        var dayBeforeBirthday = _testCalendar.GetDate("19/jung/34");
+        var birthdayThisYear = _testCalendar.GetDate("20/jung/34");
+
+        Assert.AreEqual(-1, dayBeforeBirthday.SignedDaysDifference(birthdayThisYear));
+        Assert.AreEqual(1, birthdayThisYear.SignedDaysDifference(dayBeforeBirthday));
+        Assert.AreEqual(13, dayBeforeBirthday.YearsDifference(birthday));
+        Assert.AreEqual(14, birthdayThisYear.YearsDifference(birthday));
+    }
+
+    [TestMethod]
+    public void MudDate_AdvanceMonthsCanSkipConfiguredIntercalaryMonths()
+    {
+        var includingIntercalaries = _testCalendar.GetDate("1/mendel/34");
+        var skippingIntercalaries = new MudDate(includingIntercalaries);
+
+        includingIntercalaries.AdvanceMonths(1, false, true);
+        skippingIntercalaries.AdvanceMonths(1, true, true);
+
+        Assert.AreEqual("tranquility", includingIntercalaries.Month.Alias);
+        Assert.AreEqual(34, includingIntercalaries.Year);
+        Assert.AreEqual("archimedes", skippingIntercalaries.Month.Alias);
+        Assert.AreEqual(35, skippingIntercalaries.Year);
+    }
+
+    [TestMethod]
+    public void Calendar_RandomBirthdayAlwaysProducesTheRequestedCompletedAge()
+    {
+        _testCalendar.SetDate("19/jung/34");
+        for (var i = 0; i < 20; i++)
+        {
+            var birthday = _testCalendar.GetRandomBirthday(14);
+            Assert.AreEqual(14, _testCalendar.CurrentDate.YearsDifference(birthday));
+        }
+    }
+
+    [TestMethod]
+    public void MudDateTime_MonthBoundariesRespectCalendarDayBoundary()
+    {
+        var value = new MudDateTime(_testCalendar.GetDate("14/jung/34"),
+            MudTime.FromLocalTime(0, 0, 12, _utcTimezone, _testClock), _utcTimezone);
+
+        var start = value.StartOfMonth();
+        var end = value.EndOfMonth();
+
+        Assert.AreEqual("1/jung/34", start.Date.GetDateString());
+        Assert.AreEqual(0, start.Time.Hours);
+        Assert.AreEqual("28/jung/34", end.Date.GetDateString());
+        Assert.AreEqual(23, end.Time.Hours);
+        Assert.AreEqual(59, end.Time.Minutes);
+        Assert.AreEqual(59, end.Time.Seconds);
     }
 
     [TestMethod]
@@ -1321,6 +1416,62 @@ public class MudDateTimeTests
     }
 
     [TestMethod]
+    public void MudDateAndDateTime_CompareByContextWhenValuesAreOtherwiseEquivalent()
+    {
+        var otherCalendar = new Calendar(XElement.Parse(_testCalendar.SaveToXml().ToString()), _gameworld)
+        {
+            Id = 2,
+            FeedClock = _testClock
+        };
+        otherCalendar.SetDate("27/jun/34");
+
+        var leftDate = _testCalendar.GetDate("14/jung/34");
+        var rightDate = otherCalendar.GetDate("14/jung/34");
+        Assert.IsFalse(leftDate.Equals(rightDate));
+        Assert.IsTrue(leftDate.CompareTo(rightDate) < 0);
+
+        var left = new MudDateTime(leftDate, MudTime.FromLocalTime(0, 0, 12, _utcTimezone, _testClock),
+            _utcTimezone);
+        var right = new MudDateTime(rightDate, MudTime.FromLocalTime(0, 0, 12, _utcTimezone, _testClock),
+            _utcTimezone);
+        Assert.IsFalse(left.Equals(right));
+        Assert.IsTrue(left.CompareTo(right) < 0);
+
+        var otherClock = CreateTestClock(_gameworld, 2, out var otherTimezone);
+        var differentClock = new MudDateTime(leftDate,
+            MudTime.FromLocalTime(0, 0, 12, otherTimezone, otherClock), otherTimezone);
+        Assert.IsFalse(left.Equals(differentClock));
+        Assert.IsTrue(left.CompareTo(differentClock) < 0);
+    }
+
+    [TestMethod]
+    public void RecurringInterval_FastForwardHandlesLargeIntervalAmountsWithoutOverflow()
+    {
+        var reference = new MudDateTime(_testCalendar.GetDate("1/archimedes/34"),
+            MudTime.FromLocalTime(0, 0, 0, _utcTimezone, _testClock), _utcTimezone);
+        var interval = new RecurringInterval
+        {
+            IntervalAmount = int.MaxValue,
+            Type = IntervalType.Minutely
+        };
+        var referenceInstant = MudInstant.FromMudDateTime(reference);
+        var intervalSeconds = checked((long)interval.IntervalAmount * _testClock.SecondsPerMinute);
+        var current = referenceInstant
+            .AddSeconds(checked(intervalSeconds * 2))
+            .ToMudDateTime(_testCalendar, _testClock, _utcTimezone);
+        _testCalendar.SetDate(current.Date.GetDateString());
+        _testClock.SetTime(MudTime.CreatePrimaryTime(current.Time.Seconds, current.Time.Minutes, current.Time.Hours,
+            _utcTimezone, _testClock));
+
+        var result = interval.GetNextDateTime(reference);
+        var expected = referenceInstant
+            .AddSeconds(checked(intervalSeconds * 3))
+            .ToMudDateTime(_testCalendar, _testClock, _utcTimezone);
+
+        Assert.IsTrue(result.Equals(expected));
+    }
+
+    [TestMethod]
     public void RecurringInterval_SpecificWeekday_BackwardReturnsPriorWeekday()
     {
         _testCalendar.SetDate("7/jung/34");
@@ -1388,6 +1539,30 @@ public class MudDateTimeTests
             out _, out _));
         Assert.IsFalse(MudDateTime.TryParse("27/jung/34 3:00:00zz", _testCalendar, _testClock, null,
             out _, out _));
+    }
+
+    [TestMethod]
+    public void ClockManager_ReplaysOverdueTicksWithoutAdvancingFutureDeadlines()
+    {
+        All<IClock> clocks = new();
+        Mock<IFuturemud> gameworld = new();
+        Mock<ISaveManager> saveManager = new();
+        saveManager.Setup(x => x.Add(It.IsAny<ISaveable>()));
+        gameworld.SetupGet(x => x.Clocks).Returns(clocks);
+        gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
+        gameworld.Setup(x => x.GetStaticBool("TimeIsFrozen")).Returns(false);
+        var clock = CreateTestClock(gameworld.Object, 990, out _);
+        clocks.Add(clock);
+        var provider = new ManualTimeProvider(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        var manager = new ClockManager(gameworld.Object, provider);
+
+        manager.Initialise();
+        provider.UtcNow = provider.UtcNow.AddSeconds(5);
+        manager.UpdateClocks();
+
+        Assert.AreEqual(10, clock.CurrentTime.Seconds);
+        manager.UpdateClocks();
+        Assert.AreEqual(10, clock.CurrentTime.Seconds);
     }
 
     [TestMethod]
@@ -1676,5 +1851,15 @@ public class MudDateTimeTests
 
         // Testing the incorrect one
         Assert.AreEqual("twelve o'clock p.m", _testClock.DisplayTime(MudTime.FromLocalTime(59, 59, 23, _utcTimezone, _testClock), "$c $i"));
+    }
+
+    private sealed class ManualTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public DateTimeOffset UtcNow { get; set; } = utcNow;
+
+        public override DateTimeOffset GetUtcNow()
+        {
+            return UtcNow;
+        }
     }
 }

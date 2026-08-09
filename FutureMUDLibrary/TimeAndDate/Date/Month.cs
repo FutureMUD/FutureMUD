@@ -148,7 +148,7 @@ namespace MudSharp.TimeAndDate.Date
 
         public override int GetHashCode()
         {
-            return Alias.GetHashCode() * Days.GetHashCode();
+            return HashCode.Combine(StringComparer.InvariantCultureIgnoreCase.GetHashCode(Alias), Days);
         }
 
         #endregion

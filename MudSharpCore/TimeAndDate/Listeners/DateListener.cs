@@ -95,6 +95,10 @@ public class DateListener : ListenerBase
         if (DateIsRight())
         {
             TriggerPayload();
+            if (_watchDate is not null)
+            {
+                CancelListener();
+            }
         }
     }
 

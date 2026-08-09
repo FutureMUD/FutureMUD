@@ -16,7 +16,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MudSharp.TimeAndDate
 {
-    public class MudDateTime : IProgVariable, IComparable, IComparable<MudDateTime>
+    public class MudDateTime : IProgVariable, IComparable, IComparable<MudDateTime>, IEquatable<MudDateTime>
     {
         private static readonly Regex PlayerParseRegex = new(@"^(?<date>\d+[/-][a-z]+[/-]\d+) (?:(?<timezone>\w+)\s+){0,1}(?<time>\d+:\d+:\d+(?:\s*\w+)*)$", RegexOptions.IgnoreCase);
 
@@ -483,8 +483,45 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
             if (newTime.DaysOffsetFromDatum != 0)
             {
                 newDate.AdvanceDays(newTime.DaysOffsetFromDatum);
+                newTime.DaysOffsetFromDatum = 0;
             }
             return new MudDateTime(newDate, newTime, timezone);
+        }
+
+        /// <summary>
+        /// Returns the exact opening boundary of this date's month using the calendar's feed clock.
+        /// </summary>
+        public MudDateTime StartOfMonth()
+        {
+            if (Date is null || Calendar?.FeedClock is null)
+            {
+                return Never;
+            }
+
+            var firstDate = Calendar.GetDateInYear(1, Date.Month.Alias, Date.Year);
+            var timezone = TimeZone?.Clock?.Id == Calendar.FeedClock.Id
+                ? TimeZone
+                : Calendar.FeedClock.PrimaryTimezone;
+            return Calendar.StartOfCalendarDay(firstDate, timezone);
+        }
+
+        /// <summary>
+        /// Returns the final representable in-game second before the next month begins.
+        /// </summary>
+        public MudDateTime EndOfMonth()
+        {
+            if (Date is null || Calendar?.FeedClock is null)
+            {
+                return Never;
+            }
+
+            var nextMonth = new MudDate(Date);
+            nextMonth.AdvanceMonths(1, false, false);
+            var timezone = TimeZone?.Clock?.Id == Calendar.FeedClock.Id
+                ? TimeZone
+                : Calendar.FeedClock.PrimaryTimezone;
+            var nextBoundary = Calendar.StartOfCalendarDay(nextMonth, timezone);
+            return nextBoundary - new MudTimeSpan(0, 0, 0, 0, 0, 0, 1, 0);
         }
 
         public MudDateTime ConvertToOtherCalendar(ICalendar convert)
@@ -607,17 +644,13 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 return false;
             }
 
-            if (dt1.TimeZone != dt2.TimeZone)
+            if (dt1.Calendar?.Id != dt2.Calendar?.Id || dt1.Clock?.Id != dt2.Clock?.Id)
             {
-                MudTime newTime = dt2.Time.GetTimeByTimezone(dt1.TimeZone);
-                MudDate newDate = new(dt2.Date);
-                if (newTime.DaysOffsetFromDatum != 0)
-                {
-                    newDate.AdvanceDays(newTime.DaysOffsetFromDatum);
-                }
-                dt2 = new MudDateTime(newDate, newTime, dt1.TimeZone);
+                return false;
             }
 
+            dt1 = dt1.GetByTimeZone(dt1.Clock.PrimaryTimezone);
+            dt2 = dt2.GetByTimeZone(dt2.Clock.PrimaryTimezone);
             return dt2.Date.Equals(dt1.Date) && dt2.Time.Equals(dt1.Time);
         }
 
@@ -628,17 +661,18 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
 
         public override bool Equals(object obj)
         {
-            if (obj is MudDateTime objAsDateTime)
-            {
-                return Equals(this, objAsDateTime);
-            }
-
-            return obj is MudDate objAsDate && Date?.Equals(objAsDate) == true;
+            return obj is MudDateTime dateTime && Equals(this, dateTime);
         }
 
         public override int GetHashCode()
         {
-            return Date?.GetHashCode() + Time?.GetHashCode() + TimeZone?.GetHashCode() ?? 0;
+            if (Date is null)
+            {
+                return 0;
+            }
+
+            var primary = GetByTimeZone(Clock.PrimaryTimezone);
+            return HashCode.Combine(primary.Date, primary.Time);
         }
 
         public static MudDateTime operator +(MudDateTime dt, MudTimeSpan ts)
@@ -649,6 +683,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
             }
 
             MudTime newTime = MudTime.CopyOf(dt.Time);
+            newTime.DaysOffsetFromDatum = 0;
             newTime.AddSeconds(ts.SecondComponentOnly);
             newTime.AddMinutes(ts.MinuteComponentOnly);
             newTime.AddHours(ts.HourComponentOnly);
@@ -672,6 +707,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
             }
 
             MudTime newTime = MudTime.CopyOf(dt.Time);
+            newTime.DaysOffsetFromDatum = 0;
             newTime.AddSeconds(-1 * ts.SecondComponentOnly);
             newTime.AddMinutes(-1 * ts.MinuteComponentOnly);
             newTime.AddHours(-1 * ts.HourComponentOnly);
@@ -710,122 +746,22 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
 
         public static bool operator <(MudDateTime dt1, MudDateTime dt2)
         {
-            // Null datetime or null date is never. Never is less than all datetimes except itself
-            if ((dt1?.Date == null) && (dt2?.Date == null))
-            {
-                return false;
-            }
-            if (dt2?.Date == null)
-            {
-                return false;
-            }
-            if (dt1?.Date == null)
-            {
-                return true;
-            }
-
-            if (dt1.TimeZone != dt2.TimeZone)
-            {
-                dt1 = dt1.GetByTimeZone(dt1.Clock.PrimaryTimezone);
-                dt2 = dt2.GetByTimeZone(dt2.Clock.PrimaryTimezone);
-            }
-
-            if (dt1.Date.Equals(dt2.Date))
-            {
-                return dt1.Time < dt2.Time;
-            }
-
-            return dt1.Date < dt2.Date;
+            return CompareTo(dt1, dt2) < 0;
         }
 
         public static bool operator <=(MudDateTime dt1, MudDateTime dt2)
         {
-            // Null datetime or null date is never. Never is less than all datetimes except itself
-            if ((dt1?.Date == null) && (dt2?.Date == null))
-            {
-                return true;
-            }
-            if (dt2?.Date == null)
-            {
-                return false;
-            }
-            if (dt1?.Date == null)
-            {
-                return true;
-            }
-
-            if (dt1.TimeZone != dt2.TimeZone)
-            {
-                dt1 = dt1.GetByTimeZone(dt1.Clock.PrimaryTimezone);
-                dt2 = dt2.GetByTimeZone(dt2.Clock.PrimaryTimezone);
-            }
-
-            if (dt1.Date.Equals(dt2.Date))
-            {
-                return dt1.Time <= dt2.Time;
-            }
-
-            return dt1.Date < dt2.Date;
+            return CompareTo(dt1, dt2) <= 0;
         }
 
         public static bool operator >(MudDateTime dt1, MudDateTime dt2)
         {
-            // Null datetime or null date is never. Never is less than all datetimes except itself
-            if ((dt1?.Date == null) && (dt2?.Date == null))
-            {
-                return false;
-            }
-            if (dt2?.Date == null)
-            {
-                return true;
-            }
-            if (dt1?.Date == null)
-            {
-                return false;
-            }
-
-            if (dt1.TimeZone != dt2.TimeZone)
-            {
-                dt1 = dt1.GetByTimeZone(dt1.Clock.PrimaryTimezone);
-                dt2 = dt2.GetByTimeZone(dt2.Clock.PrimaryTimezone);
-            }
-
-            if (dt1.Date.Equals(dt2.Date))
-            {
-                return dt1.Time > dt2.Time;
-            }
-
-            return dt1.Date > dt2.Date;
+            return CompareTo(dt1, dt2) > 0;
         }
 
         public static bool operator >=(MudDateTime dt1, MudDateTime dt2)
         {
-            // Null datetime or null date is never. Never is less than all datetimes except itself
-            if ((dt1?.Date == null) && (dt2?.Date == null))
-            {
-                return true;
-            }
-            if (dt2?.Date == null)
-            {
-                return true;
-            }
-            if (dt1?.Date == null)
-            {
-                return false;
-            }
-
-            if (dt1.TimeZone != dt2.TimeZone)
-            {
-                dt1 = dt1.GetByTimeZone(dt1.Clock.PrimaryTimezone);
-                dt2 = dt2.GetByTimeZone(dt2.Clock.PrimaryTimezone);
-            }
-
-            if (dt1.Date.Equals(dt2.Date))
-            {
-                return dt1.Time >= dt2.Time;
-            }
-
-            return dt1.Date > dt2.Date;
+            return CompareTo(dt1, dt2) >= 0;
         }
 
         #endregion
@@ -975,6 +911,18 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
             if (right?.Date == null)
             {
                 return 1;
+            }
+
+            var calendarComparison = left.Calendar.Id.CompareTo(right.Calendar.Id);
+            if (calendarComparison != 0)
+            {
+                return calendarComparison;
+            }
+
+            var clockComparison = left.Clock.Id.CompareTo(right.Clock.Id);
+            if (clockComparison != 0)
+            {
+                return clockComparison;
             }
 
             MudDateTime rTz = right.GetByTimeZone(left.TimeZone);

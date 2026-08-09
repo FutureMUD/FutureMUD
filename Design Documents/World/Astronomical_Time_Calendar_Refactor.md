@@ -111,7 +111,8 @@ Suggested enum:
 - `FixedClockTime`
 - `SunsetAtAuthorityLocation`
 - `SunriseAtAuthorityLocation`
-- `AstronomicalEvent`
+
+`AstronomicalEvent` is reserved for a future parameterised design only. It is not valid persisted or builder input today because the calendar schema has no configured event, celestial, location, or fallback policy. Current definitions must use midnight, fixed clock time, sunrise, or sunset.
 
 All existing calendars default to `ClockMidnight`.
 
@@ -244,6 +245,8 @@ Suggested functions:
 - `nextvisiblecrescent(...)`
 
 Support nth-next via overload or occurrence parameter. Return `MudInstant` if a FutureProg MudInstant type is added; otherwise return `MudDateTime` using supplied calendar/clock/timezone. Invalid celestials, missing ephemeris support, bad occurrence counts, or bounded-search failure must fail cleanly.
+
+The Date/Time FutureProg surface also includes calendar utility functions: `daysbetween(MudDateTime start, MudDateTime end)` returns signed calendar days (with live-current-date anchoring for different calendars and an execution error for `Never`); `monthstart(value)` and `monthend(value)` return exact calendar-feed-clock month bounds; and `weekdayname(value)` returns the weekday or empty text for `Never` and non-weekday intercalary dates.
 
 ## Tests
 

@@ -492,7 +492,9 @@ Celestial event FutureProg functions return `MudDateTime` values projected from 
 
 The optional `occurrence` parameter is the nth next matching event. These functions return `MudDateTime.Never` when the zone, calendar, celestial ephemeris, or bounded event search cannot produce a deterministic result.
 
-FutureProg schedules persist a recurrence, a reference `MudDateTime`, and the target FutureProg. On load, a schedule advances the persisted reference to the next future occurrence and creates an in-memory listener. When the listener fires, the schedule executes the FutureProg, computes the next reference time, creates the next listener, and marks itself changed.
+FutureProg schedules persist a recurrence, a reference `MudDateTime`, and the target FutureProg. Boot preserves that persisted reference, so a due occurrence remains due after a restart; newly created schedules explicitly advance their supplied reference to their first occurrence. When a listener fires, the schedule executes the FutureProg, computes the next future reference time, creates the next listener, and marks itself changed.
+
+Before deciding whether a target is already due or creating a clock `TimeListener`, `ListenerFactory.CreateDateTimeListener(MudDateTime, ...)` normalises the target to its clock's primary time zone. This makes non-primary local targets compare against the advancing clock in the same time zone and prevents a future local time from firing immediately just because its wall-clock hour is numerically earlier than the primary clock's hour.
 
 ## Player And Builder Surfaces
 ### Player-Facing
@@ -619,6 +621,7 @@ These are important rules to preserve when changing the system:
 - Intercalary non-weekday additions and removals must match both generated month behavior and yearly weekday counts.
 - `MudDate` copies must preserve generated-year weekday state.
 - `MudTime` construction should go through the named factories so datum conversion and local wall-time construction remain explicit.
+- Temporal listener target values must be normalised to the clock's primary time zone before due-time comparisons or clock listener creation.
 - Temporal listeners consume repeat counts only after successful payload firing.
 - Ordinal recurrence calculations must use generated calendar data rather than Gregorian month/week assumptions.
 - Persistent scheduling should store recurrence/reference data and recreate listeners rather than expecting listeners themselves to persist.
@@ -638,7 +641,7 @@ The normal unit-test suites now include focused coverage for:
 - `MudTime` factory validation, parsing, copy behavior, and primary-time day rollover
 - `MudDate`, `MudDateTime`, `MudTimeSpan`, calendar weekday math, intercalary weekday edits, and `Never` safety
 - recurring interval parsing, descriptions, round-trip text, forward/backward search, high ordinal weekdays, exact-month skipping, and "or last" fallback
-- runtime listeners, interval extension helpers, and FutureProg date/time helper functions
+- runtime listeners, including future non-primary-timezone targets, interval extension helpers, and FutureProg date/time helper functions
 - clock, time-zone, and calendar builder command paths for high-value edits
 - `MudInstant` storage, ordering, conversion, and legacy backfill
 - legacy calendar XML loading without an algorithm element

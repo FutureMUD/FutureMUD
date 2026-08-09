@@ -189,6 +189,21 @@ public class MudDateTimeTests
     }
 
     [TestMethod]
+    public void ListenerFactory_FutureNonPrimaryTimezone_DoesNotExecuteImmediately()
+    {
+        _testClock.SetTime(MudTime.CreatePrimaryTime(34, 23, 13, _utcTimezone, _testClock));
+        var target = new MudDateTime(_testCalendar.CurrentDate,
+            MudTime.FromLocalTime(0, 0, 8, _cstTimezone, _testClock), _cstTimezone);
+        var executed = false;
+
+        var listener = ListenerFactory.CreateDateTimeListener(target, _ => executed = true, [], "Timezone test");
+
+        Assert.IsFalse(executed);
+        Assert.IsNotNull(listener);
+        listener.CancelListener();
+    }
+
+    [TestMethod]
     public void CalendarBuilder_CanEditWeekdaysMonthsAndPreview()
     {
         var actor = CreateBuilder();

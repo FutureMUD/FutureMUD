@@ -17,6 +17,7 @@ public static class DefaultStaticSettings
         new Dictionary<string, string>
         {
             { "CPRAllowed", "true" },
+            { "EngineUpdateBinariesPath", "Binaries" },
             { "AutomaticGreviousBodilyHarmMinimumSeverity", "Grievous" },
             { "AutomaticMurderMinimumWoundSeverity", "Severe" },
             { "AutomaticMurderWoundAttributionWindowSeconds", "7200" },

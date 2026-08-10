@@ -156,21 +156,28 @@ public static class SignalComponentUtilities
 			return true;
 		}
 
-		if (origin.AttachedAndConnectedItems.Contains(target) || target.AttachedAndConnectedItems.Contains(origin))
+		if (origin.AttachedAndConnectedItems.Any(x => SameRuntimeItem(x, target)) ||
+		    target.AttachedAndConnectedItems.Any(x => SameRuntimeItem(x, origin)))
 		{
 			return true;
 		}
 
 		var originCells = EnumerateSignalAccessibilityCells(origin).ToList();
 		var targetCells = EnumerateSignalAccessibilityCells(target).ToList();
-		return originCells.Intersect(targetCells).Any();
+		return originCells.Any(originCell => targetCells.Any(targetCell =>
+			ReferenceEquals(originCell, targetCell) || originCell.Id > 0 && originCell.Id == targetCell.Id));
+	}
+
+	private static bool SameRuntimeItem(IGameItem lhs, IGameItem rhs)
+	{
+		return ReferenceEquals(lhs, rhs) || lhs.Id > 0 && lhs.Id == rhs.Id;
 	}
 
 	public static ISignalSourceComponent? FindSignalSource(IGameItem parent, LocalSignalBinding binding,
-		IGameItemComponent? excludedComponent = null)
+		IGameItemComponent? excludedComponent = null, bool strictSourceItemId = false)
 	{
 		return FindSignalSource(parent, binding.SourceItemId, binding.SourceItemName, binding.SourceComponentId,
-			binding.SourceComponentName, binding.SourceEndpointKey, excludedComponent);
+			binding.SourceComponentName, binding.SourceEndpointKey, excludedComponent, strictSourceItemId);
 	}
 
 	public static ISignalSourceComponent? FindSignalSourceOnItem(IGameItem item, long sourceComponentId,
@@ -195,7 +202,7 @@ public static class SignalComponentUtilities
 
 	public static ISignalSourceComponent? FindSignalSource(IGameItem parent, long sourceItemId, string sourceItemName,
 		long sourceComponentId, string sourceComponentName, string? sourceEndpointKey = null,
-		IGameItemComponent? excludedComponent = null)
+		IGameItemComponent? excludedComponent = null, bool strictSourceItemId = false)
 	{
 		if (sourceComponentId <= 0 && string.IsNullOrWhiteSpace(sourceComponentName))
 		{
@@ -214,6 +221,13 @@ public static class SignalComponentUtilities
 				{
 					return itemMatch;
 				}
+			}
+
+			if (strictSourceItemId)
+			{
+				// Safety-sensitive live bindings can require the exact runtime item instead of silently
+				// substituting another nearby item merely because it has the same component prototype.
+				return null;
 			}
 		}
 

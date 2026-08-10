@@ -4,7 +4,7 @@ using MudSharp.GameItems.Prototypes;
 namespace MudSharp.GameItems.Components;
 
 public class RadioDetonatorGameItemComponent : GameItemComponent, IReceive, IConsumePower, IOnOff, ISelectable,
-    ISwitchable
+    ISwitchable, IArmableExplosiveTrigger
 {
     protected RadioDetonatorGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
@@ -129,6 +129,70 @@ public class RadioDetonatorGameItemComponent : GameItemComponent, IReceive, ICon
     #region IOnOff Implementation
 
     private bool _switchedOn;
+
+	public bool Armed => SwitchedOn;
+
+	public bool CanArm(ICharacter actor, string argument)
+	{
+		return !Armed && string.IsNullOrWhiteSpace(argument) && Parent.IsItemType<IDetonatable>();
+	}
+
+	public string WhyCannotArm(ICharacter actor, string argument)
+	{
+		if (Armed)
+		{
+			return $"{Parent.HowSeen(actor, true)} is already armed.";
+		}
+
+		if (!Parent.IsItemType<IDetonatable>())
+		{
+			return $"{Parent.HowSeen(actor, true)} has no explosive payload to detonate.";
+		}
+
+		return !string.IsNullOrWhiteSpace(argument)
+			? "A radio detonator does not take an arming duration or datetime."
+			: $"{Parent.HowSeen(actor, true)} cannot be armed at this time.";
+	}
+
+	public bool Arm(ICharacter actor, string argument, IEmote playerEmote = null)
+	{
+		if (!CanArm(actor, argument))
+		{
+			actor.Send(WhyCannotArm(actor, argument));
+			return false;
+		}
+
+		actor.OutputHandler.Handle(new MixedEmoteOutput(
+			new Emote("@ arm|arms $1's radio detonator.", actor, actor, Parent)).Append(playerEmote));
+		SwitchedOn = true;
+		return true;
+	}
+
+	public bool CanDisarm(ICharacter actor)
+	{
+		return Armed;
+	}
+
+	public string WhyCannotDisarm(ICharacter actor)
+	{
+		return Armed
+			? $"{Parent.HowSeen(actor, true)} cannot be disarmed at this time."
+			: $"{Parent.HowSeen(actor, true)} is not armed.";
+	}
+
+	public bool Disarm(ICharacter actor, IEmote playerEmote = null)
+	{
+		if (!CanDisarm(actor))
+		{
+			actor.Send(WhyCannotDisarm(actor));
+			return false;
+		}
+
+		actor.OutputHandler.Handle(new MixedEmoteOutput(
+			new Emote("@ disarm|disarms $1's radio detonator.", actor, actor, Parent)).Append(playerEmote));
+		SwitchedOn = false;
+		return true;
+	}
 
     public bool SwitchedOn
     {
@@ -271,12 +335,19 @@ public class RadioDetonatorGameItemComponent : GameItemComponent, IReceive, ICon
         switch (type)
         {
             case DescriptionType.Full:
+                var state = !SwitchedOn
+                    ? "disarmed".Colour(Telnet.Yellow)
+                    : _powered
+                        ? "armed and powered".Colour(Telnet.BoldRed)
+                        : $"{"armed".Colour(Telnet.BoldRed)} but {"unpowered".ColourError()}";
                 return
-                    $"{description}\n\nThis item has a radio detonator.\nIt is currently {(SwitchedOn && _powered ? "armed".Colour(Telnet.BoldRed) : "disarmed".Colour(Telnet.Yellow))}.\nYou can {"switch".ColourCommand()} to arm or disarm it (see {"help switch".FluentTagMXP("send", "href='help switch' hint='show the helpfile for the switch command'")}).\nYou can use {"select".ColourCommand()} to set the detonation code (see {"help select".FluentTagMXP("send", "href='help select' hint='show the helpfile for the select command'")}).";
+                    $"{description}\n\nThis item has a radio detonator.\nIt is currently {state}.\nYou can {"arm".ColourCommand()} or {"disarm".ColourCommand()} it; the existing {"switch".ColourCommand()} on/off controls are equivalent.\nYou can use {"select".ColourCommand()} to set the detonation code (see {"help select".FluentTagMXP("send", "href='help select' hint='show the helpfile for the select command'")}).";
             case DescriptionType.Short:
-                if (_switchedOn && _powered)
+                if (_switchedOn)
                 {
-                    return $"{description} {"(armed)".Colour(Telnet.BoldRed)}";
+                    return _powered
+                        ? $"{description} {"(armed)".Colour(Telnet.BoldRed)}"
+                        : $"{description} {"(armed, unpowered)".Colour(Telnet.BoldRed)}";
                 }
 
                 break;

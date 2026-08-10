@@ -205,6 +205,14 @@ public interface IImpactDetonatorPrototype : IExclusiveGameItemComponentPrototyp
 {
 }
 
+public interface IArmableExplosiveTriggerPrototype : IExclusiveGameItemComponentPrototype<IArmableExplosiveTrigger>
+{
+}
+
+public interface IPinPullExplosiveTriggerPrototype : IExclusiveGameItemComponentPrototype<IPinPullExplosiveTrigger>
+{
+}
+
 public interface IDicePrototype : IExclusiveGameItemComponentPrototype<IDice>
 {
 }

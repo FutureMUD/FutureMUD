@@ -21,23 +21,23 @@ internal sealed class LocalSignalSinkSubscription
 
 	public ISignalSource? UpstreamSource => _source;
 
-	public void Reconnect(LocalSignalBinding binding)
+	public void Reconnect(LocalSignalBinding binding, bool strictSourceItemId = false)
 	{
 		Reconnect(binding.SourceItemId, binding.SourceItemName, binding.SourceComponentId, binding.SourceComponentName,
-			binding.SourceEndpointKey);
+			binding.SourceEndpointKey, strictSourceItemId);
 	}
 
 	public void Reconnect(long sourceIdentifier, string sourceComponentName, string? sourceEndpointKey)
 	{
-		Reconnect(0L, string.Empty, sourceIdentifier, sourceComponentName, sourceEndpointKey);
+		Reconnect(0L, string.Empty, sourceIdentifier, sourceComponentName, sourceEndpointKey, false);
 	}
 
 	public void Reconnect(long sourceItemId, string sourceItemName, long sourceIdentifier, string sourceComponentName,
-		string? sourceEndpointKey)
+		string? sourceEndpointKey, bool strictSourceItemId = false)
 	{
 		Detach();
 		_source = SignalComponentUtilities.FindSignalSource(_parent, sourceItemId, sourceItemName, sourceIdentifier, sourceComponentName,
-			sourceEndpointKey, _owner);
+			sourceEndpointKey, _owner, strictSourceItemId);
 		if (_source is null)
 		{
 			return;

@@ -12,9 +12,17 @@ using MudSharp.GameItems.Components;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class RadioDetonatorGameItemComponentProto : GameItemComponentProto, IReceivePrototype, IConsumePowerPrototype, IOnOffPrototype, ISelectablePrototype, ISwitchablePrototype
+public class RadioDetonatorGameItemComponentProto : GameItemComponentProto, IReceivePrototype, IConsumePowerPrototype,
+	IOnOffPrototype, ISelectablePrototype, ISwitchablePrototype, IArmableExplosiveTriggerPrototype,
+	IGameItemComponentPrototypeRequirementProvider
 {
+	private static readonly IReadOnlyCollection<GameItemComponentPrototypeRequirement> Requirements =
+	[
+		new(typeof(IDetonatable), "it needs an explosive payload to detonate when the radio code is received")
+	];
+
     public override string TypeDescription => "RadioDetonator";
+	public IReadOnlyCollection<GameItemComponentPrototypeRequirement> RequiredSiblingComponents => Requirements;
 
     #region Constructors
 
@@ -174,7 +182,7 @@ public class RadioDetonatorGameItemComponentProto : GameItemComponentProto, IRec
         PowerConsumptionInWatts = value;
         Changed = true;
         actor.Send($"This radio detonator now uses {PowerConsumptionInWatts:N5} watts of power when armed.");
-        return false;
+        return true;
     }
 
     #endregion

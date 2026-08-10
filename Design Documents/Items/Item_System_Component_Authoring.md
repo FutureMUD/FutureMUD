@@ -139,6 +139,17 @@ Use `IGameItemComponentPrototypeRequirementProvider` when a component prototype 
 
 The seeded modern bayonet mount requires `IMeleeWeapon`; the underbarrel launcher mount requires `IRangedWeapon`; and the weapon-light mount requires both `IProduceLight` and `IProducePower`. `ImpactDetonator` has a fixed requirement for `IDetonatable`, because it is only a trigger policy and cannot supply an explosive payload itself.
 
+The other explosive trigger prototypes use the same fixed sibling requirement. Use `countdowndetonator`, `clockdetonator`, `signaldetonator`, or `pinpulldetonator` for the trigger and attach a `Bomb` component separately for the payload. `CountdownDetonator`, `ClockDetonator`, `SignalDetonator`, and `RadioDetonator` advertise the exclusive `IArmableExplosiveTriggerPrototype` role, so an item prototype can have only one authoritative `arm` / `disarm` target. `PinPullDetonator` advertises its separate exclusive pin-pull role.
+
+The principal builder settings are:
+
+- `CountdownDetonator`: `default`, `minimum`, `maximum`, `playerdelay`, `disarmable`, `armemote`, and `disarmemote`.
+- `ClockDetonator`: `calendar`, `clock`, `timezone`, `disarmable`, `armemote`, and `disarmemote`. The selected clock must drive a calendar.
+- `SignalDetonator`: `source <component> [<endpoint>]`, `threshold`, `mode <above|below>`, `activation <edge|level>`, `power`, `watts`, `disarmable`, and the arm/disarm emotes. Edge is the safe default because an already-active input does not detonate merely because the item was armed or repowered.
+- `PinPullDetonator`: `delay` and `emote`. Its deadline cannot be cancelled once started.
+
+Do not introduce a second physical-only detonator API for future traps. A tripwire, pressure plate, opening trigger, or similar component should expose an `ISignalSourceComponent` numeric endpoint: a momentary mechanism emits a pulse suitable for edge activation, while a maintained mechanism exposes a level. The signal detonator remains deliberately agnostic about the source's physical or electronic implementation.
+
 ### Opt-in condition maintenance
 Use `IConditionDegradingComponent` when a component should optionally consume `IGameItem.Condition` as it is used. The interface extends `IAffectQuality`, and the matching `IConditionDegradingComponentPrototype` marker is aggregate, so a component can contribute a maintenance quality penalty without becoming the item's only quality-affecting component.
 

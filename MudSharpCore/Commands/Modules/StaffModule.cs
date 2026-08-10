@@ -58,6 +58,8 @@ namespace MudSharp.Commands.Modules;
 
 internal class StaffModule : Module<ICharacter>
 {
+	internal const string EngineUpdateBinariesPathStaticConfiguration = "EngineUpdateBinariesPath";
+
     private StaffModule()
         : base("Staff")
     {
@@ -2778,11 +2780,22 @@ The following options are available:
             : StringComparison.Ordinal;
         if (!destination.StartsWith(rootWithSeparator, comparison))
         {
-            throw new InvalidDataException($"The update archive entry {entryName} escapes the Binaries directory.");
+            throw new InvalidDataException($"The update archive entry {entryName} escapes the configured binary directory.");
         }
 
         return destination;
     }
+
+	internal static string ResolveEngineUpdateBinariesPath(string configuredPath, string applicationBaseDirectory)
+	{
+		if (string.IsNullOrWhiteSpace(configuredPath))
+		{
+			throw new InvalidDataException(
+				$"The {EngineUpdateBinariesPathStaticConfiguration} static configuration must not be empty.");
+		}
+
+		return System.IO.Path.GetFullPath(configuredPath, applicationBaseDirectory);
+	}
 
     private static void Debug_Update(ICharacter actor)
     {
@@ -2792,7 +2805,9 @@ The following options are available:
 
         string root = AppContext.BaseDirectory;
         string updatePath = System.IO.Path.Combine(root, "FutureMUD Update.zip");
-        string extractionPath = System.IO.Path.Combine(root, "Binaries");
+        string extractionPath = ResolveEngineUpdateBinariesPath(
+            actor.Gameworld.GetStaticConfiguration(EngineUpdateBinariesPathStaticConfiguration),
+            root);
         try
         {
             using HttpClient client = new();
@@ -2881,7 +2896,7 @@ The following options are available:
             }
 
             actor.OutputHandler.Send(
-                "The update has been placed in the Binaries directory and will be applied by the restart script.");
+                $"The update has been placed in {extractionPath.ColourValue()} and will be applied by the restart script.");
         }
         catch (Exception exception)
         {

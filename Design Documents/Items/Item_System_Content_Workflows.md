@@ -69,6 +69,15 @@ Signal-automation examples now include:
 - `comp edit new relayswitch`
 - `comp edit new alarmsiren`
 
+Explosive-trigger examples include:
+
+- `comp edit new countdowndetonator`
+- `comp edit new clockdetonator`
+- `comp edit new signaldetonator`
+- `comp edit new pinpulldetonator`
+
+Each of these must be attached to an item prototype with a sibling `Bomb` component before the item can be submitted. Countdown, clock, signal, and radio detonators are mutually exclusive armable roles; the pin-pull role is separate.
+
 Power, telecom, and modern medical examples also include:
 - `comp edit new electricgridoutlet`
 - `comp edit new gridpowersupply`
@@ -178,6 +187,14 @@ These matter because many component features only make sense in combination with
 - morph and destroyed settings affect component replacement behaviour
 - registers and on-load progs can feed variable-style components
 - skinnability affects how content can be customised by players
+
+### Explosive trigger runtime workflow
+
+Use `arm <item> [<duration|in-game datetime>] [(<emote>)]` for countdown, clock, signal, and radio triggers. A countdown uses its authored default when no duration is supplied and accepts a player duration only when enabled; a clock trigger requires an exact future in-game date and time interpreted in the component's authored timezone; a signal or radio trigger takes no trigger argument. Use `disarm <item> [(<emote>)]` only when the component profile permits it. Existing `switch <radio detonator> on|off` aliases remain available for compatibility.
+
+Use `pullpin <item> [(<emote>)]` (or `pinpull`) for a pin-pull trigger. This begins its authored fixed delay and cannot be reversed. Countdown and pin-pull deadlines continue against UTC while unloaded or during server downtime and fire on the next load if overdue. Clock triggers follow their authored in-game calendar and clock instead.
+
+For a signal detonator, author a default source component and endpoint, then use the ordinary `electrical` inspection and binding workflow when a live item needs rewiring. A live binding to a specific source item remains tied to that item and becomes inactive when the source is disconnected or moved out of signal range; it never substitutes another item merely because the component prototype matches. Test both inactive and active starting states, source disconnection and reconnection, power loss and restoration when power is required, threshold direction, and the selected activation policy. Edge mode must require a fresh inactive-to-active transition after arming or repowering; level mode may detonate as soon as an active level is observed. A microcontroller can provide arbitrary electronic logic now, and later mechanical trap sources can use the same endpoint contract.
 - unique names give builders, scripts, and content references a stable lookup key that is not the item noun
 - builder comments preserve design intent, associations, and maintenance notes without changing runtime behaviour
 

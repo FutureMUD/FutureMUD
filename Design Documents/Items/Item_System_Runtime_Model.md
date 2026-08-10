@@ -125,6 +125,14 @@ Component protos also advertise their runtime capability contracts through marke
 
 Prototype composition is checked in both directions. `IGameItemComponentPrototypeRequirementProvider` declares the inverse relationship: a component can require one or more runtime capabilities from other siblings. Requirements are advisory while a builder is assembling an item, but unresolved requirements make `CanSubmit()` false and therefore block both submission and review approval.
 
+### Explosive trigger composition and persistence
+
+Explosive payload and trigger policy are separate capabilities. `Bomb` supplies `IDetonatable`; `CountdownDetonator`, `ClockDetonator`, `SignalDetonator`, `PinPullDetonator`, `RadioDetonator`, and `ImpactDetonator` only decide when that sibling payload should detonate. Their prototypes use `IGameItemComponentPrototypeRequirementProvider` to prevent approval without an `IDetonatable` sibling.
+
+Countdown and pin-pull components persist an absolute UTC deadline rather than a remaining duration. They subscribe to the second heartbeat only while loaded and active, compare inclusively, and detonate immediately on the next `Login()` when a persisted deadline expired while the item or server was offline. Builder submission and runtime arming both reject durations that cannot be represented as a future UTC `DateTime`. Clock detonators persist a `MudInstant`, subscribe to their authored clock, and likewise use an inclusive `current >= target` comparison so skipped or accelerated clock ticks cannot miss the event. Applying a component revision that changes the calendar or clock safely disarms an already-armed clock trigger because ticks from different clock systems are not interchangeable.
+
+Signal detonators are `IRuntimeConfigurableSignalSinkComponent` implementations. Edge mode establishes the current source state as a baseline when armed, connected, or repowered and fires only on the next inactive-to-active transition. Level mode fires whenever the armed, operational sink observes an active level. Optional power draw is active only while armed, and a signal observed while unpowered is not replayed later as a synthetic edge. Runtime source bindings, endpoint keys, thresholds, above/below mode, and armed state persist in component XML. A runtime binding with a source item id is strict: it never falls through to another nearby item with the same component prototype. Signal detonators re-resolve bindings when their parent or source moves or their physical connection topology changes, and reject events from sources that are no longer locally accessible.
+
 ## Composition Model
 ### Components define capabilities
 The item system is intentionally interface-first and component-driven.

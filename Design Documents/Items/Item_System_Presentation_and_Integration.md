@@ -51,6 +51,10 @@ Examples include:
 - stable tickets showing the lodged mount, stable, lodger, and current outstanding fees when the ticket still points at an active stay
 - effects such as glow adding descriptive layers through adjacent systems
 
+Explosive trigger components decorate their parent item rather than replacing its authored descriptions. Armed countdown and pin-pull triggers add a conspicuous armed marker to the short description and report the localised remaining duration in the full description. Clock triggers report their exact target through the authored calendar, clock, and timezone. Signal and radio triggers report their armed state without exposing hidden controller logic to an ordinary look. `evaluate` presents the stable authored trigger facts, including permitted delay range, clock basis, signal threshold/activation mode/power requirement, fixed pin delay, and whether disarming is possible.
+
+The commands that change this state accept optional parenthesised player emotes and emit an explicit action echo. New trigger profiles let builders author that echo. `pullpin` must always communicate that its countdown is irreversible; `disarm` must fail clearly when the trigger profile forbids it.
+
 ### Decoration ordering
 Decoration ordering matters:
 - non-negative priorities are applied before colour processing

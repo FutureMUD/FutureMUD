@@ -544,8 +544,12 @@ public partial class Character
 
     public void JoinParty(IParty party)
     {
+		ArgumentNullException.ThrowIfNull(party);
+		using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Party);
+		proximityChange?.TrackParty(party.CharacterMembers.Append(this));
         Party = party;
         Party.Join(this);
+		proximityChange.Complete();
     }
 
     public void LeaveParty(bool echo = true)
@@ -555,9 +559,12 @@ public partial class Character
             return;
         }
 
-        if (Party.Leave(this) && echo)
+		var party = Party;
+		using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Party);
+		proximityChange?.TrackParty(party.CharacterMembers);
+		if (party.Leave(this) && echo)
         {
-            foreach (IMove ch in Party.Members.ToList())
+			foreach (IMove ch in party.Members.ToList())
             {
                 ch.OutputHandler.Send("Your party is disbanded.");
                 ch.LeaveParty();
@@ -565,6 +572,7 @@ public partial class Character
         }
 
         Party = null;
+		proximityChange.Complete();
     }
 
     public IParty Party { get; protected set; }

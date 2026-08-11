@@ -1,0 +1,105 @@
+LabMUD Proximity Event Retest
+Date: 11 August 2026
+Database: labmud_dbo
+Method: local FutureMUD raw-socket/telnet harness. Existing administrator account and NPC template #77 were used; credentials were redacted by the harness.
+
+Purpose
+=======
+
+Validate the replacement proximity-event system after the historical item-proximity workaround was removed. The test uses a real item anchor, an ordinary cell (where the correct co-located proximity band is Distant), and a non-administrator NPC that crosses into the anchor's cell.
+
+Automated preconditions
+========================
+
+    dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510
+    Build succeeded. 0 Warning(s), 0 Error(s).
+
+    dotnet test "MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj" -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510
+    Passed: 2207 / 2207.
+
+The focused ProximityEventServiceTests additionally cover movement delivery, unchanged-state suppression, registration disposal, persisted-position hydration suppression, and a destination with 1,000 unregistered local perceivables.
+
+Server-restart/hydration check
+==============================
+
+An initial restart exposed a real defect: loading a persisted position called SetTarget and therefore published a live proximity event before the target character's body and traits were fully reconstructed. The trap's spot check then threw a NullReferenceException during startup.
+
+After adding load-hydration suppression, the local LabMUD process reached its ready line, the existing administrator connected to character 1, and `look` completed successfully in Cell #2669. No trap fired and no startup exception was logged.
+
+Builder and layer transcript
+============================
+
+The retained LabMUD bear-trap template's prior explicit `Immediate` band was suitable only for route/position targets; ordinary co-location is deliberately reported as `Distant`. The builder revised the disposable fixture accordingly:
+
+    > traptemplate edit 2
+    You open Trap Template LabMUD Test Bear Trap (2r1) for editing.
+
+    > traptemplate set trigger 1 parameter maximumproximity Distant
+    You set the maximumproximity parameter on that trigger.
+
+    > traptemplate set validate
+    This trap template is ready for review.
+
+    > traptemplate edit submit Proximity event ordinary-cell distance verification
+    You submit Trap Template LabMUD Test Bear Trap (2r1) for review, with the comment: Proximity event ordinary-cell distance verification
+
+    > traptemplate review 2
+    You are reviewing Trap Template LabMUD Test Bear Trap (2r1).
+    Triggers:
+      1. Proximity
+    Payloads:
+      1. DirectDamage after nil targeting Triggerer
+      2. Restraint after nil targeting Triggerer
+
+    > accept edit
+    You approve Trap Template LabMUD Test Bear Trap (2r1).
+
+For a deterministic NPC movement assertion, the same disposable fixture was given an Impossible avoidance check, validated, submitted, reviewed, and approved. The builder then deployed a fresh anchor:
+
+    > item load 812
+    You load a cranial bomb with a long fuse cord.
+
+    > drop bomb
+    You drop a cranial bomb with a long fuse cord.
+
+    > trap create 2 on 7.bomb
+    You set LabMUD Test Bear Trap on a cranial bomb with a long fuse cord.
+
+    > trap debug 7.bomb
+    a cranial bomb with a long fuse cord - LabMUD Test Bear Trap
+    State: Armed  Charges: 1
+    Source: Mechanical  Template: 2r1
+    Triggers: Proximity
+    Payloads: DirectDamage and Restraint
+    Disarm: Risky  Lifecycle: Indefinite
+
+Triggerer transcript
+===================
+
+The administrator moved to the origin Cell #2668, loaded NPC template #77, and directed the non-administrator NPC across the north exit:
+
+    > npc load 77
+    A black-afro-haired adolescent (Japheth) has entered the area.
+
+    > as 1.adolescent north
+    You force a black-afro-haired adolescent (Japheth) to do the command 'north'
+    You begin walking away towards the North.
+
+    A black-afro-haired adolescent (Japheth) begins walking away towards the North.
+
+Result transcript
+=================
+
+After the NPC's normal move completed, a clean server restart and admin inspection in destination Cell #2669 reported:
+
+    > trap debug 7.bomb
+    a cranial bomb with a long fuse cord - LabMUD Test Bear Trap
+    State: Spent  Charges: 0
+    Source: Mechanical  Template: 2r1
+    Triggers: Proximity
+    Payloads: DirectDamage and Restraint
+    Disarm: Risky  Lifecycle: Indefinite
+
+Result: PASS. The item-anchored trap received the NPC's ordinary-cell outside-to-Distant proximity transition, executed its direct-damage and restraint payloads, and consumed its only charge. The persisted Spent/0 state also survived the intervening server restart.
+
+No fixtures were deleted. A terminal screenshot is not included because the raw-socket harness has no authentic terminal-rendering surface; this redacted transcript is the captured verification record.

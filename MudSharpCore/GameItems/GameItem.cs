@@ -1458,8 +1458,15 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         get => _containedIn;
         set
         {
+			if (ReferenceEquals(_containedIn, value))
+			{
+				return;
+			}
+
+			using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Containment, this);
             _containedIn = value;
             Changed = true;
+			proximityChange?.Complete();
         }
     }
 
@@ -2386,6 +2393,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem Get(IBody getter)
     {
+		using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Containment, this);
         IHoldable holdable = GetItemType<IHoldable>();
         holdable?.HeldBy = getter;
 
@@ -2403,6 +2411,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         PositionModifier = PositionModifier.None;
         PositionTarget = null;
         PositionEmote = null;
+		proximityChange?.Complete();
         return this;
     }
 

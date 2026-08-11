@@ -90,6 +90,7 @@ public readonly struct ProgVariableTypes : IEquatable<ProgVariableTypes>
 	public static readonly ProgVariableTypes VehicleRoute = FromLegacyBitIndex(65);
 	public static readonly ProgVariableTypes VehicleService = FromLegacyBitIndex(66);
 	public static readonly ProgVariableTypes VehicleJourney = FromLegacyBitIndex(67);
+	public static readonly ProgVariableTypes Trap = FromLegacyBitIndex(68);
 
     public static readonly ProgVariableTypes CollectionItem =
         Number | Boolean | Gender | Text | DateTime | TimeSpan | Character | Item | Chargen | Location | Zone |
@@ -98,7 +99,7 @@ public readonly struct ProgVariableTypes : IEquatable<ProgVariableTypes>
 		WeatherEvent | Shop | Merchandise | Outfit | OutfitItem | OverlayPackage | Terrain | Project | Solid |
 		Liquid | Gas | MagicSchool | MagicCapability | MagicSpell | Bank | BankAccount | BankAccountType |
 		LegalAuthority | Law | Crime | Market | MarketCategory | LiquidMixture | Script | Writing | Area |
-		LegalClass | AgricultureField | VehicleRoute | VehicleService | VehicleJourney;
+		LegalClass | AgricultureField | VehicleRoute | VehicleService | VehicleJourney | Trap;
 
     public static readonly ProgVariableTypes Perceivable = Item | Character | Location | Zone | Shard;
     public static readonly ProgVariableTypes Perceiver = Item | Character;

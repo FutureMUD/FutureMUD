@@ -104,6 +104,7 @@ public static class ProgVariableTypeRegistry
 		RegisterExact(ProgTypeKind.VehicleRoute, ProgVariableTypes.VehicleRoute, "VehicleRoute", "vehicleroute", "route");
 		RegisterExact(ProgTypeKind.VehicleService, ProgVariableTypes.VehicleService, "VehicleService", "vehicleservice", "service");
 		RegisterExact(ProgTypeKind.VehicleJourney, ProgVariableTypes.VehicleJourney, "VehicleJourney", "vehiclejourney", "journey");
+		RegisterExact(ProgTypeKind.Trap, ProgVariableTypes.Trap, "Trap", "trap");
 
         RegisterNamed(ProgVariableTypes.CollectionItem, "CollectionItem", false, "collectionitem");
         RegisterNamed(ProgVariableTypes.Perceivable, "Perceivable", false, "perceivable");

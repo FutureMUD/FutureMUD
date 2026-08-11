@@ -1,0 +1,218 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.5.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+A Room Packed Full of Machinery
+ID[267] | Terrain[Indoors] | [SafeQuit] | Overlay[Dread Zone (#16r0)] | Coordinates[5,-10,1]
+Exits: North (open gate)
+
+  This room is packed to the rafters (or would be, if there were any) with
+machinery. It looks like a production plant for something at least in part
+chemical. The air has a slightly burnt, sharp tang to it, and an acrid smell.
+Long conveyor belts stretch from one end of the room to the other, feeding into
+strange, boxy shapes like nightmarish tongues.
+
+  Currently, the lighting is very bright here.
+
+A bulky triple-A battery charging unit sits at the end of one conveyor belt.
+A bulky C battery charging unit sits at the end of another conveyor belt.
+A massive, complicated-looking machine takes up space here.
+A caged light bulb has been mounted to the wall here.
+Tacked onto the machinery here is a red button.
+A sheet of unlined white paper is here, tacked up on that crazy big machine.
+The corpse of a bulky killer robot (Shieldbot) is here.
+A bundle of jerrycans is here.
+A small, dense, and spongy cube is here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate list
+âââââââ¦âââââââ¦âââââââ¦âââââââââ¦âââââââââââ¦âââââââââââ¦âââââââââ
+â ID# â Rev# â Name â Source â Triggers â Payloads â Status â
+â ââââââ¬âââââââ¬âââââââ¬âââââââââ¬âââââââââââ¬âââââââââââ¬âââââââââ£
+â     â      â      â        â          â          â        â
+âââââââ©âââââââ©âââââââ©âââââââââ©âââââââââââ©âââââââââââ©âââââââââ
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> trap list
+You do not know of any traps here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> help traptemplate
+ââââââââ£ Help on Traptemplate â âââââââââââââââââââââââââââââââââââââââââââââââââ
+
+Category: Commands
+Subcategory: Built-In
+Keywords: traptemplate
+Tagline: Automatically generated help for the traptemplate command
+
+This command creates reusable templates for mechanical, magical, and natural
+traps. A template contains one or more triggers and payloads. A deployed trap
+pins the approved template revision that it was created from.
+
+Use the following options:
+
+  traptemplate list [+keyword, -keyword] - lists trap templates
+  traptemplate show <which> - shows a template
+  traptemplate edit <which>|new - edits a revision or creates a template
+  traptemplate edit submit|close|delete|obsolete - manages the edited revision
+  traptemplate review all|mine|<which> - reviews a template
+  traptemplate set name <name> - renames this template
+  traptemplate set domain mechanical|magical|natural - selects its source domain
+  traptemplate set trigger add <type> - adds an OR trigger; use trigger remove
+<number> or trigger <number> parameter <name> <value> to configure it
+  traptemplate set payload add <type> - adds an ordered payload; use payload
+remove <number>, payload <number> delay <timespan>, payload <number> target
+<selector>, or payload <number> parameter <name> <value> to configure it
+  traptemplate set charges <number> - sets uses before the trap is spent
+  traptemplate set cooldown <timespan> - sets reset time between successful
+triggers
+  traptemplate set disarm impossible|safe|risky|dispellable - sets disarm policy
+  traptemplate set lifecycle indefinite|fixedexpiry <timespan>|unstable
+<timespan> - sets lifecycle policy
+  traptemplate set validate - reports readiness errors
+
+Each trigger and payload accepts named parameters. The builder display records
+all configured parameter names and values, allowing source-specific runtime
+services to evolve without changing the editable revision workflow.
+
+Lasted edited by System on 11/8/2026 10:59:00 am.
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> look north
+This gate is made from steel bars. These steel bars have been welded to other
+steel bars running horizontal across the tops and bottoms of the original
+vertical pairs, forming a grated gate. It looks relatively heavy, quite a bit
+unwieldy, and very sturdy.
+
+
+The hinges of this door have been installed on this side. It would be Very Hard
+to remove with the right tools.
+
+HP: 447.19/500.00
+
+A steel-barred gate has a horrifying dent.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> examine red button
+Wat?
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> examine gate
+Wat?
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> help gas
+ââââââââ£ Help on Gas â ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+Category: Commands
+Subcategory: Built-In
+Keywords: gas
+Tagline: Automatically generated help for the gas command
+
+The gas command allows you to create and edit gases and their properties. These
+gases in turn can be used by items, characters and other effects.
+
+The syntax for this command is as follows:
+
+  gas list - Lists all gases
+  gas show <which> - shows information about a gases
+  gas edit <which> - begins editing a gas
+  gas edit - same as material show for your currently edited gas
+  gas clone <which> <new name> <new description> - clones a gas
+  gas new <name> - creates a new gas
+  gas set organic - toggles counting as organic
+  gas set description <description> - sets the description
+  gas set density <value> - sets density in kg/m3
+  gas set electrical <value> - sets electrical conductivity in siemens
+  gas set thermal <value> - sets the thermal conductivity in watts/kelvin
+  gas set specificheat <value> - sets the specific heat capacity in J/Kg.Kelvin
+  gas set colour <ansi> - sets the display colour
+  gas set drug <which> - sets the contained drug
+  gas set drug none - clears the drug
+  gas set drugvolume <amount> - sets the drug volume
+  gas set viscosity <viscosity> - sets the viscosity in cSt
+  gas set smell <intensity> <smell> [<vague smell>] - sets the smell
+  gas set countsas <gas> - sets a gas that this counts as
+  gas set countsas none - clears a counts-as gas
+  gas set quality <quality> - sets the maximum quality of the gas when
+counting-as
+  gas set condensation <temp>|none - sets or clears the temperature at which
+this gas becomes a liquid
+  gas set liquid <liquid>|none - sets or clears the liquid form of this gas
+
+Lasted edited by System on 11/8/2026 10:59:05 am.
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

@@ -83,6 +83,7 @@ namespace MudSharp.RPG.Law
         AnimalCruelty,
         UnlawfulUseOfMagic,
         UnlawfulUseOfPsionics,
-        IllegalConsumption
+        IllegalConsumption,
+        BoobyTrapping
     }
 }

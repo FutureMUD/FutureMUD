@@ -1,0 +1,118 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.5.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Trap Test Origin Final
+ID[2,668] | Terrain[Indoors] | [SafeQuit] | Overlay[Trap Live Test August 2026 (#98r0)] | Coordinates[0,0,0]
+Exits: North
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, the lighting is very bright here.
+
+A black-afro-haired adolescent (Japheth) is standing here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> comp edit new electroniclock
+You create a new item component prototype with ID 473.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> comp set name LabMUD Electronic Lock
+You change the name of this component to: LabMUD Electronic Lock
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> comp set description Retained LabMUD trap-test electronic lock component.
+You change the description of this component to: Retained LabMUD trap-test electronic lock component.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> comp set source 472
+This electronic lock is now driven by the signal endpoint on signal source component prototype LabMUD Trap Signal Source (#472).
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> comp edit
+You are currently editing Electronic   Lock: [LabMUD Electronic Lock] (#473r0)
+
+Electronic Lock Prototype #473 - Revision 0                                               Status: Under Design
+Name: LabMUD Electronic Lock
+Description: Retained LabMUD trap-test electronic lock component.
+
+Electronic Lock Game Item Component (#473r0, LabMUD Electronic Lock)
+
+This is a signal-driven lock using keys of type Programmable.
+Source Endpoint: LabMUD Trap Signal Source:signal (#472)
+Threshold: 0.50
+Mode: Locks at or above threshold
+Lock (No Actor): $0$?1| on $1||$ lock|locks
+Unlock (No Actor): $0$?1| on $1||$ unlock|unlocks
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

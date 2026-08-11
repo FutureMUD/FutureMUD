@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.1.0.0",
-  "LatestMigrationId": "20260808112940_AddBodypartLimbSeverDescription",
-  "GeneratedUtc": "2026-08-08T11:47:43.6916953Z"
+  "LatestMigrationId": "20260810130800_AddTrapTemplates",
+  "GeneratedUtc": "2026-08-10T21:49:01.9765493Z"
 }

@@ -141,8 +141,10 @@ public class ProgLockGameItemComponentProto : GameItemComponentProto, IHaveSimpl
     {
         ForceDifficulty = Difficulty.Normal;
         PickDifficulty = Difficulty.Normal;
-        LockEmoteNoActor = "$0$?1| on $1||$ lock|locks";
-        UnlockEmoteNoActor = "$0$?1| on $1||$ unlock|unlocks";
+		// No-actor lock transitions create an emote with the lock itself as the source only.
+		// They must not reference a second perceivable (for example, the installed item).
+		LockEmoteNoActor = "@ lock|locks";
+		UnlockEmoteNoActor = "@ unlock|unlocks";
         LockEmoteOtherSide = "$0$?3| on $3||$ is locked from the other side.";
         UnlockEmoteOtherSide = "$0$?3| on $3||$ is unlocked from the other side.";
         LockType = "Programmable";

@@ -49,6 +49,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Outbound Email Delivery](./Core/Outbound_Email_Delivery.md)
 - [Patch Notes Authoring Guide](./Core/Patch_Notes_Authoring_Guide.md)
 - [Unit Test Suite Quality and Maintenance](./Core/Unit_Test_Suite_Quality_and_Maintenance.md)
+- [Trap System](./Core/Trap_System.md)
 
 ## Crafting
 - [Antiquity Crafting Catalogue Audit](./Seeding/Antiquity_Crafting_Audit.md)

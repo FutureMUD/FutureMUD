@@ -1,0 +1,115 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.5.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Login name does not exist or [REDACTED] was incorrect.
+
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.5.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> c
+Welcome to LabMUD!
+
+Participating in this game requires that you create an account. This is
+separate to any characters you might create on the game, and helps us keep
+track of your history, which is important in an RPI MUD. You will now be guided
+through a series of questions that will help us create your account for you.
+You must complete all steps to successfully create an account. If at any time
+you make a mistake or want to go back, you can type "quit" to be returned to
+the front menu.
+
+Account Name Selection
+
+Your account name will be what you use to log in to LabMUD in the future, as
+well as being a general identifier of you as a player, and potentially used as
+a forum account. Account names are not the same thing as character names, and
+you should not pick an account name that will be the same as a character you
+will make. Account names must be unique, at least 2 letters long, and contain
+only letters, numbers and underscores.
+
+Please enter an account name for your new account:
+> 1
+
+Account names must be at least 2 letters long. Please select another:
+> look
+Password Selection
+
+Your [REDACTED] will be used to access your account, and will be stored securely
+on the FutureMUD servers as an encrypted, salted hash. Passwords must be at
+least 8 characters long and can use any combination of letters, numbers and
+symbols. Please enter a [REDACTED] for your new account:
+> traptemplate list
+
+Please reenter your [REDACTED]:
+> help goto
+> help room
+
+The [REDACTED]s do not match - please try again.
+Password Selection
+
+Your [REDACTED] will be used to access your account, and will be stored securely
+on the FutureMUD servers as an encrypted, salted hash. Passwords must be at
+least 8 characters long and can use any combination of letters, numbers and
+symbols. Please enter a [REDACTED] for your new account:
+Please reenter your [REDACTED]:
+> help item
+
+The [REDACTED]s do not match - please try again.
+Password Selection
+
+Your [REDACTED] will be used to access your account, and will be stored securely
+on the FutureMUD servers as an encrypted, salted hash. Passwords must be at
+least 8 characters long and can use any combination of letters, numbers and
+symbols. Please enter a [REDACTED] for your new account:

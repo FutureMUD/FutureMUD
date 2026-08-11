@@ -1,0 +1,180 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.5.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+An Unnamed Location
+ID[2,666] | Terrain[Indoors] | [SafeQuit] | Overlay[Trap Live Test August 2026 (#98r0)] | Coordinates[0,0,0]
+Exits: 
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, the lighting is very bright here.
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> drug list
+ââââââ¦ââââââââââââââââ¦âââââââââââââââââââââââââââââââââ¦ââââââââââââ¦âââââââââââââ¦ââââââââââââââââââââââââââââââââââ
+â Id â Name          â Vectors                        â Intensity â Metabolism â Effects                         â
+â âââââ¬ââââââââââââââââ¬âââââââââââââââââââââââââââââââââ¬ââââââââââââ¬âââââââââââââ¬ââââââââââââââââââââââââââââââââââ£
+â 1  â Yudozene      â Injected or Ingested           â 25.00%    â 4.50%      â Anesthesia                      â
+â 2  â Nopainex      â Injected or Ingested           â 50.00%    â 3.50%      â Analgesic and BodypartDamage    â
+â 3  â Bactkiladril  â Injected or Ingested           â 100.00%   â 3.50%      â Antibiotic                      â
+â 4  â Immunoprez    â Injected or Ingested           â 175.00%   â 3.50%      â Immunosuppressive               â
+â 5  â Chuteslepan   â Injected, Ingested, or Inhaled â 200.00%   â 3.50%      â Anesthesia                      â
+â 6  â Injectosoothe â Injected, Ingested, or Inhaled â 50.00%    â 3.50%      â Analgesic and BodypartDamage    â
+â 7  â Peacemaker    â Injected or Ingested           â 50.00%    â 3.50%      â Pacifism                        â
+â 8  â Ragahol       â Injected or Ingested           â 50.00%    â 3.50%      â Rage                            â
+â 9  â Adrenaline    â Injected                       â 100.00%   â 100.00%    â Adrenaline                      â
+â 10 â Staminex      â Injected or Ingested           â 100.00%   â 10.00%     â BodypartDamage and StaminaRegen â
+â 11 â Wakeyuwup     â Injected, Ingested, or Inhaled â 25.00%    â 3.50%      â NeutraliseDrugEffect and Nausea â
+â 12 â Shyallapan    â Injected, Ingested, or Inhaled â 200.00%   â 0.60%      â Pacifism and HealingRate        â
+â 13 â Technodrine   â Injected, Ingested, or Inhaled â 200.00%   â 1.25%      â MagicAbility                    â
+ââââââ©ââââââââââââââââ©âââââââââââââââââââââââââââââââââ©ââââââââââââ©âââââââââââââ©ââââââââââââââââââââââââââââââââââ
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> gas show 5
+Gas #5 - Sour Gas
+Description: sour gas
+
+ââââââââ£ Material Properties â ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+Density: 0.001205000 kg/m3                                  Viscosity: 15.00                                            Organic: False
+Condensation Temp: 5.000Â°                                   Liquid Form: None                                           Display Colour: Blue
+Oxidation Factor: 1.000
+Thermal Conductivity: 0.025700000 Watts/Kelvin
+Specific Heat Capacity: 1.005000000 J/Â°C/kg
+Electrical Conductivity: 0.000005000 Siemens
+
+ââââââââ£ Fluid Properties â âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+Smell Intensity: 1,500.0
+Smell Text: It smells like satan's asshole after chowing down on rotten eggs
+Vague Smell Text: It has no smell
+Counts As: None
+Drug: None
+
+ââââââââ£ Tags â âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+  None
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> cell show
+Showing Cell ID 2,666
+Cell ID: 2,666                                                                            Room ID: 2,666
+Zone: The Lab - Dread Zone (#5)                                                           Shard: The Lab (#1)
+Current Name: An Unnamed Location
+Current Description:
+
+  This is a newly built location that has not yet been described. It should not
+  be approved for use in game.
+Terrain: Indoors                                                                          Outdoors: Indoors (With View of Outside)
+Ambient Light Factor: 0.35000                                                             Added Light: 0.00000 lux
+Noise Profile: None
+Private Property: None
+Overlays:
+
++-----+------+----------------------------+--------------+---------+
+| ID# | Rev# | Package                    | Status       | Current |
++-----+------+----------------------------+--------------+---------+
+| 98  | 0    | Trap Live Test August 2026 | Under Design | Yes     |
++-----+------+----------------------------+--------------+---------+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> cell exit list all
+This Cell has the following exits:
+
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item list +electronic
+âââââââ¦âââââââ¦ââââââââââââââ¦âââââââââââââ¦âââââââââââââââââââââââââââââââââââââââ¦ââââââââââ
+â ID# â Rev# â Unique Name â Name       â Short Description                    â Status  â
+â ââââââ¬âââââââ¬ââââââââââââââ¬âââââââââââââ¬âââââââââââââââââââââââââââââââââââââââ¬ââââââââââ£
+â 374 â 0    â             â Whiteboard â an electronic book-sized whiteboard  â Current â
+â 772 â 1    â             â Shrapnel   â a pile of fried, electronic shrapnel â Current â
+âââââââ©âââââââ©ââââââââââââââ©âââââââââââââ©âââââââââââââââââââââââââââââââââââââââ©ââââââââââ
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item list +gate
+âââââââ¦âââââââ¦ââââââââââââââ¦âââââââ¦âââââââââââââââââââââââââââ¦ââââââââââ
+â ID# â Rev# â Unique Name â Name â Short Description        â Status  â
+â ââââââ¬âââââââ¬ââââââââââââââ¬âââââââ¬âââââââââââââââââââââââââââ¬ââââââââââ£
+â 77  â 3    â             â Gate â a steel-barred gate      â Current â
+â 849 â 0    â             â Gate â a massive roll-down gate â Current â
+âââââââ©âââââââ©ââââââââââââââ©âââââââ©âââââââââââââââââââââââââââ©ââââââââââ
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

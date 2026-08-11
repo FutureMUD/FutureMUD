@@ -33,7 +33,9 @@ public class BlankDatabaseSnapshotTests
 		string snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(assetDirectory));
 		string latestMigrationId = GetLatestMigrationIdFromSource();
 
-		StringAssert.Contains(snapshot, $"VALUES('{latestMigrationId}',");
+		// The maintained MySQL dump writes migration history in a batched INSERT, so the
+		// newest migration is usually not the first tuple after VALUES.
+		StringAssert.Contains(snapshot, $"('{latestMigrationId}',");
 	}
 
 	[TestMethod]

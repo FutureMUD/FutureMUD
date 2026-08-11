@@ -7,6 +7,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine;
+using MudSharp.Traps;
 
 namespace MudSharp_Unit_Tests;
 
@@ -79,6 +80,32 @@ public class EditableItemReviewProposalTests
 			Times.Once);
 	}
 
+	[TestMethod]
+	public void Accept_SubmittedTrapTemplate_ApprovesAndObsoletesCurrentRevision()
+	{
+		var current = CreateTrapTemplate(10, 0, RevisionStatus.Current, canSubmit: true, "current trap", "");
+		var pending = CreateTrapTemplate(10, 1, RevisionStatus.PendingRevision, canSubmit: true, "pending trap", "");
+		var templates = new RevisableAll<ITrapTemplate>();
+		templates.Add(current.Object);
+		templates.Add(pending.Object);
+
+		var output = new Mock<IOutputHandler>();
+		var actor = new Mock<ICharacter>();
+		var account = new Mock<IAccount>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.TrapTemplates).Returns(templates);
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		actor.SetupGet(x => x.Account).Returns(account.Object);
+
+		var proposal = new EditableItemReviewProposal<ITrapTemplate>(actor.Object, [pending.Object]);
+
+		proposal.Accept("approval");
+
+		current.Verify(x => x.ChangeStatus(RevisionStatus.Obsolete, "", account.Object), Times.Once);
+		pending.Verify(x => x.ChangeStatus(RevisionStatus.Current, "approval", account.Object), Times.Once);
+	}
+
 	private static Mock<IGameItemProto> CreateProto(long id, int revision, RevisionStatus status, bool canSubmit,
 		string editHeader, string whyCannotSubmit)
 	{
@@ -97,6 +124,20 @@ public class EditableItemReviewProposalTests
 		string editHeader, string whyCannotSubmit)
 	{
 		var template = new Mock<INPCTemplate>();
+		template.SetupGet(x => x.Id).Returns(id);
+		template.SetupGet(x => x.RevisionNumber).Returns(revision);
+		template.SetupGet(x => x.Status).Returns(status);
+		template.SetupGet(x => x.Name).Returns(editHeader);
+		template.Setup(x => x.CanSubmit()).Returns(canSubmit);
+		template.Setup(x => x.WhyCannotSubmit()).Returns(whyCannotSubmit);
+		template.Setup(x => x.EditHeader()).Returns(editHeader);
+		return template;
+	}
+
+	private static Mock<ITrapTemplate> CreateTrapTemplate(long id, int revision, RevisionStatus status, bool canSubmit,
+		string editHeader, string whyCannotSubmit)
+	{
+		var template = new Mock<ITrapTemplate>();
 		template.SetupGet(x => x.Id).Returns(id);
 		template.SetupGet(x => x.RevisionNumber).Returns(revision);
 		template.SetupGet(x => x.Status).Returns(status);

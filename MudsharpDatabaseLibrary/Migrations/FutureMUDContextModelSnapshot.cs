@@ -21382,6 +21382,40 @@ namespace MudSharp.Migrations
                     b.ToTable("TraitExpressionParameters");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.TrapTemplate", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("RevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8mb4");
+
+                    b.Property<long>("EditableItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8mb4");
+
+                    b.HasKey("Id", "RevisionNumber")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EditableItemId")
+                        .HasDatabaseName("FK_TrapTemplates_EditableItems_idx");
+
+                    b.ToTable("TrapTemplates");
+                });
+
             modelBuilder.Entity("MudSharp.Models.UnitOfMeasure", b =>
                 {
                     b.Property<long>("Id")
@@ -33707,6 +33741,18 @@ namespace MudSharp.Migrations
                     b.Navigation("TraitExpression");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.TrapTemplate", b =>
+                {
+                    b.HasOne("MudSharp.Models.EditableItem", "EditableItem")
+                        .WithMany("TrapTemplates")
+                        .HasForeignKey("EditableItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_TrapTemplates_EditableItems");
+
+                    b.Navigation("EditableItem");
+                });
+
             modelBuilder.Entity("MudSharp.Models.Vehicle", b =>
                 {
                     b.HasOne("MudSharp.Models.VehiclePropulsionProfileProto", "ActivePropulsionProfileProto")
@@ -35990,6 +36036,8 @@ namespace MudSharp.Migrations
                     b.Navigation("Npctemplates");
 
                     b.Navigation("Projects");
+
+                    b.Navigation("TrapTemplates");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Election", b =>

@@ -1,0 +1,172 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.5.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Trap Test Destination Final
+ID[2,669] | Terrain[Indoors] | [SafeQuit] | Overlay[Trap Live Test August 2026 (#98r0)] | Coordinates[0,0,0]
+Exits: South (open door)
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, the lighting is very bright here.
+
+A cranial bomb with a long fuse cord is here.
+A cranial bomb with a long fuse cord is here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> trap debug here
+Trap Test Destination Final - LabMUD Test Bear Trap
+State: Spent  Charges: 0
+Source: Mechanical  Template: 2r0
+Triggers: Proximity
+Payloads: DirectDamage and Restraint
+Disarm: Risky  Lifecycle: Indefinite
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> trap debug bomb
+a cranial bomb with a long fuse cord - LabMUD Test Magical Drug Mist
+State: Spent  Charges: 0
+Source: Magical  Template: 3r0
+Triggers: Proximity
+Payloads: GasCloud
+Disarm: Risky  Lifecycle: Indefinite
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> trap debug 2.bomb
+a cranial bomb with a long fuse cord - LabMUD Test Magical Drug Mist
+State: Spent  Charges: 0
+Source: Magical  Template: 3r0
+Triggers: Proximity
+Payloads: GasCloud
+Disarm: Risky  Lifecycle: Indefinite
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> goto 2668
+You open a swirling vortex of magical energies, stepping through and emerging somewhere new.
+
+Trap Test Origin Final
+ID[2,668] | Terrain[Indoors] | [SafeQuit] | Overlay[Trap Live Test August 2026 (#98r0)] | Coordinates[0,0,0]
+Exits: North (open door)
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, the lighting is very bright here.
+
+A retained trap-test electronic gate is here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> trap debug retained
+a retained trap-test electronic gate - LabMUD Test Tripwire Signal Lockdown
+State: Spent  Charges: 0
+Source: Mechanical  Template: 4r0
+Triggers: ExitTraversal
+Payloads: EmitSignal
+Disarm: Risky  Lifecycle: Indefinite
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> look gate
+This gate is made from steel bars. These steel bars have been welded to other
+steel bars running horizontal across the tops and bottoms of the original
+vertical pairs, forming a grated gate. It looks relatively heavy, quite a bit
+unwieldy, and very sturdy.
+
+It is currently locked.
+
+It has a push button that responds to select  button and is currently inactive.
+
+HP: 500.00/500.00
+
+A retained trap-test electronic gate has no visible signs of damage.
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate list +LabMUD
+âââââââ¦âââââââ¦âââââââââââââââââââââââââââââââââââââââ¦âââââââââââââ¦âââââââââââ¦âââââââââââ¦âââââââââââââââ
+â ID# â Rev# â Name                                 â Source     â Triggers â Payloads â Status       â
+â ââââââ¬âââââââ¬âââââââââââââââââââââââââââââââââââââââ¬âââââââââââââ¬âââââââââââ¬âââââââââââ¬âââââââââââââââ£
+â 1   â 0    â LabMUD Test Tripwire Explosion       â Mechanical â 1        â 1        â Under Design â
+â 2   â 0    â LabMUD Test Bear Trap                â Mechanical â 1        â 2        â Under Design â
+â 3   â 0    â LabMUD Test Magical Drug Mist        â Magical    â 1        â 1        â Under Design â
+â 4   â 0    â LabMUD Test Tripwire Signal Lockdown â Mechanical â 1        â 1        â Under Design â
+âââââââ©âââââââ©âââââââââââââââââââââââââââââââââââââââ©âââââââââââââ©âââââââââââ©âââââââââââ©âââââââââââââââ
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

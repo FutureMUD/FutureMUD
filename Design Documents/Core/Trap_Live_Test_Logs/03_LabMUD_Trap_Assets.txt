@@ -1,0 +1,182 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.5.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+A Room Packed Full of Machinery
+ID[267] | Terrain[Indoors] | [SafeQuit] | Overlay[Dread Zone (#16r0)] | Coordinates[5,-10,1]
+Exits: North (open gate)
+
+  This room is packed to the rafters (or would be, if there were any) with
+machinery. It looks like a production plant for something at least in part
+chemical. The air has a slightly burnt, sharp tang to it, and an acrid smell.
+Long conveyor belts stretch from one end of the room to the other, feeding into
+strange, boxy shapes like nightmarish tongues.
+
+  Currently, the lighting is very bright here.
+
+A bulky triple-A battery charging unit sits at the end of one conveyor belt.
+A bulky C battery charging unit sits at the end of another conveyor belt.
+A massive, complicated-looking machine takes up space here.
+A caged light bulb has been mounted to the wall here.
+Tacked onto the machinery here is a red button.
+A sheet of unlined white paper is here, tacked up on that crazy big machine.
+The corpse of a bulky killer robot (Shieldbot) is here.
+A bundle of jerrycans is here.
+A small, dense, and spongy cube is here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item list +bomb
+âââââââ¦âââââââ¦ââââââââââââââ¦âââââââ¦âââââââââââââââââââââââââââââââââââââââ¦ââââââââââ
+â ID# â Rev# â Unique Name â Name â Short Description                    â Status  â
+â ââââââ¬âââââââ¬ââââââââââââââ¬âââââââ¬âââââââââââââââââââââââââââââââââââââââ¬ââââââââââ£
+â 812 â 0    â             â Bomb â a cranial bomb with a long fuse cord â Current â
+â 867 â 0    â             â Bomb â a radio detonated bomb               â Current â
+âââââââ©âââââââ©ââââââââââââââ©âââââââ©âââââââââââââââââââââââââââââââââââââââ©ââââââââââ
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item list +grenade
+âââââââ¦âââââââ¦ââââââââââââââ¦ââââââââââ¦ââââââââââââââââââââââââââââââ¦ââââââââââ
+â ID# â Rev# â Unique Name â Name    â Short Description           â Status  â
+â ââââââ¬âââââââ¬ââââââââââââââ¬ââââââââââ¬ââââââââââââââââââââââââââââââ¬ââââââââââ£
+â 809 â 1    â             â Grenade â a steel-cased stick grenade â Current â
+âââââââ©âââââââ©ââââââââââââââ©ââââââââââ©ââââââââââââââââââââââââââââââ©ââââââââââ
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item list +signal
+âââââââ¦âââââââ¦ââââââââââââââ¦âââââââ¦ââââââââââââââââââââ¦âââââââââ
+â ID# â Rev# â Unique Name â Name â Short Description â Status â
+â ââââââ¬âââââââ¬ââââââââââââââ¬âââââââ¬ââââââââââââââââââââ¬âââââââââ£
+â     â      â             â      â                   â        â
+âââââââ©âââââââ©ââââââââââââââ©âââââââ©ââââââââââââââââââââ©âââââââââ
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> gas list
+ââââââ¦ââââââââââââââââââââââââ¦ââââââââââââââââââââââââ¦ââââââââââââââââââââââââââââââ¦âââââââ
+â Id â Name                  â Description           â Count As                    â Drug â
+â âââââ¬ââââââââââââââââââââââââ¬ââââââââââââââââââââââââ¬ââââââââââââââââââââââââââââââ¬âââââââ£
+â 1  â Earth Atmosphere      â breathable air        â                             â      â
+â 2  â Vacuum                â near total vacuum     â                             â      â
+â 3  â Choking Smoke         â choking smoke         â                             â      â
+â 4  â Pure Oxygen           â pure oxygen           â                             â      â
+â 5  â Sour Gas              â sour gas              â                             â      â
+â 6  â breathable atmosphere â breathable atmosphere â Earth Atmosphere @ Standard â      â
+ââââââ©ââââââââââââââââââââââââ©ââââââââââââââââââââââââ©ââââââââââââââââââââââââââââââ©âââââââ
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> look red button
+This is a circular red button that reads: "POWER ON". It is fixed to the machinery here.
+
+
+A button that reads: "POWER ON" has no visible signs of damage.
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> look machine
+This machine is absolutely massive, and takes up much of the floor space in a
+room already packed to the gills with machinery. It seems needlessly
+complicated, with all sorts of belts and gears and pistons, cogs - metal
+things, plastic things, rubbery things. At one end, there is a control console.
+At the other end, the far end, there is a built-in basket and a large
+rectangular slot. Things might fall out of that slot and be caught in the
+basket handily.
+It is 35.22% full.
+
+
+A massive, complicated-looking machine has no visible signs of damage.
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> look triple-a battery
+You do not see that to look at.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> look north
+This gate is made from steel bars. These steel bars have been welded to other
+steel bars running horizontal across the tops and bottoms of the original
+vertical pairs, forming a grated gate. It looks relatively heavy, quite a bit
+unwieldy, and very sturdy.
+
+
+The hinges of this door have been installed on this side. It would be Very Hard
+to remove with the right tools.
+
+HP: 447.19/500.00
+
+A steel-barred gate has a horrifying dent.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

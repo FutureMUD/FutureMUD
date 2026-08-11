@@ -214,7 +214,14 @@ namespace MudSharp.RPG.Checks
 		BoatStabilityCheck = 205, // Called when an occupant may be knocked from a surface-water vehicle
 		AimArtillery = 206,
 		LoadArtillery = 207,
-		FireArtillery = 208
+		FireArtillery = 208,
+		SetTrapCheck = 209,
+		SpotTrapCheck = 210,
+		SearchForTrapCheck = 211,
+		AvoidTrapCheck = 212,
+		DisarmTrapCheck = 213,
+		DispelTrapCheck = 214,
+		EscapeTrapCheck = 215
     }
 
     public enum FailIfTraitMissingType

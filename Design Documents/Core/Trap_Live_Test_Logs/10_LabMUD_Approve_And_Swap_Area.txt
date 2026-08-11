@@ -1,0 +1,129 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.5.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Trap Test Origin Final
+ID[2,668] | Terrain[Indoors] | [SafeQuit] | Overlay[Trap Live Test August 2026 (#98r0)] | Coordinates[0,0,0]
+Exits: North
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, the lighting is very bright here.
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> cell package review 98
+You are reviewing Cell Overlay Package: "Trap Live Test August 2026" (ID #98 Rev 0)
+
+====================================================================================================================================================================================
+Cell Overlay Package: "Trap Live Test August 2026" (ID #98 Rev 0)Status: Pending Review                                      
+====================================================================================================================================================================================
+Built On: 11/8/2026 11:12:27 am                             Built By: Japheth                                           
+====================================================================================================================================================================================
+
+Overlays (4 of 4 live):
+
+Cell #2,666 (The Lab - Dread Zone): An Unnamed Location
+Cell #2,667 (The Lab - Dread Zone): An Unnamed Location
+Cell #2,668 (The Lab - Dread Zone): Trap Test Origin Final
+Cell #2,669 (The Lab - Dread Zone): Trap Test Destination Final
+
+
+To approve this Cell Overlay Package, type accept edit <your comments> or decline edit <your comments> to reject.
+If you do not wish to approve or decline, your request will time out in 120 seconds.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> accept edit 98
+You approve Cell Overlay Package: "Trap Live Test August 2026" (ID #98 Rev 0), with the comment "98"
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> cell package swap 98
+Swapped Cell Overlay Package "Trap Live Test August 2026" into 4 cells.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> cell package show 98
+====================================================================================================================================================================================
+Cell Overlay Package: "Trap Live Test August 2026" (ID #98 Rev 0)Status: Current                                             
+====================================================================================================================================================================================
+Built On: 11/8/2026 11:12:27 am                             Built By: Japheth                                           
+====================================================================================================================================================================================
+Approved On: 11/8/2026 11:14:55 am                          Approved By: Japheth                                        
+====================================================================================================================================================================================
+
+Overlays (4 of 4 live):
+
+Cell #2,666 (The Lab - Dread Zone): An Unnamed Location
+Cell #2,667 (The Lab - Dread Zone): An Unnamed Location
+Cell #2,668 (The Lab - Dread Zone): Trap Test Origin Final
+Cell #2,669 (The Lab - Dread Zone): Trap Test Destination Final
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

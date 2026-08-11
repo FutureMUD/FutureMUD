@@ -37,6 +37,7 @@ using MudSharp.Form.Audio;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Colour;
 using MudSharp.Form.Material;
+using MudSharp.Traps;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Framework.Diagnostics;
@@ -138,6 +139,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         ArenaCommandService = new ArenaCommandService(this);
         SaveManager = new SaveManager();
         HeartbeatManager = new HeartbeatManager(this);
+        ProximityEventService = new ProximityEventService();
         ComputerHelpService = new ComputerHelpService();
         ComputerNetworkIdentityService = new ComputerNetworkIdentityService(this);
         ComputerNetworkTunnelService = new ComputerNetworkTunnelService(this);
@@ -1245,6 +1247,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         _foragableProfiles.Add(foragableProfile);
     }
 
+    public void Add(ITrapTemplate trapTemplate)
+    {
+        _trapTemplates.Add(trapTemplate);
+    }
+
     public void Add(IForagable foragable)
     {
         _foragables.Add(foragable);
@@ -2281,6 +2288,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Destroy(IForagableProfile foragableProfile)
     {
         _foragableProfiles.Remove(foragableProfile);
+    }
+
+    public void Destroy(ITrapTemplate trapTemplate)
+    {
+        _trapTemplates.Remove(trapTemplate);
     }
 
     public void Destroy(IForagable foragable)

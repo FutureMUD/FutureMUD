@@ -1063,5 +1063,55 @@ You can use the following options with this command:
         }
     }
 
+    public const string TrapTemplateHelpText = @"This command creates reusable templates for mechanical, magical, and natural traps. A template contains one or more triggers and payloads. A deployed trap pins the approved template revision that it was created from.
+
+Use the following options:
+
+	#3traptemplate list [+keyword, -keyword]#0 - lists trap templates
+	#3traptemplate show <which>#0 - shows a template
+	#3traptemplate edit <which>|new#0 - edits a revision or creates a template
+	#3traptemplate edit submit|close|delete|obsolete#0 - manages the edited revision
+	#3traptemplate review all|mine|<which>#0 - reviews a template
+	#3traptemplate set name <name>#0 - renames this template
+	#3traptemplate set domain mechanical|magical|natural#0 - selects its source domain
+	#3traptemplate set trigger add <type>#0 - adds an OR trigger; use #3trigger remove <number>#0 or #3trigger <number> parameter <name> <value>#0 to configure it
+	#3traptemplate set payload add <type>#0 - adds an ordered payload; use #3payload remove <number>#0, #3payload <number> delay <timespan>#0, #3payload <number> target <selector>#0, or #3payload <number> parameter <name> <value>#0 to configure it
+	#3traptemplate set charges <number>#0 - sets uses before the trap is spent
+	#3traptemplate set cooldown <timespan>#0 - sets reset time between successful triggers
+	#3traptemplate set disarm impossible|safe|risky|dispellable#0 - sets disarm policy
+	#3traptemplate set lifecycle indefinite|fixedexpiry <timespan>|unstable <timespan>#0 - sets lifecycle policy
+	#3traptemplate set validate#0 - reports readiness errors
+
+Each trigger and payload accepts named parameters. The builder display records all configured parameter names and values, allowing source-specific runtime services to evolve without changing the editable revision workflow.";
+
+    [PlayerCommand("TrapTemplate", "traptemplate", "trapt")]
+    [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("traptemplate", TrapTemplateHelpText, AutoHelp.HelpArgOrNoArg)]
+    protected static void TrapTemplate(ICharacter actor, string input)
+    {
+        StringStack ss = new(input.RemoveFirstWord());
+        switch (ss.PopForSwitch())
+        {
+            case "review":
+                GenericReview(actor, ss, EditableRevisableItemHelper.TrapTemplateHelper);
+                break;
+            case "edit":
+                GenericRevisableEdit(actor, ss, EditableRevisableItemHelper.TrapTemplateHelper);
+                break;
+            case "set":
+                GenericRevisableSet(actor, ss, EditableRevisableItemHelper.TrapTemplateHelper);
+                break;
+            case "list":
+                GenericRevisableList(actor, ss, EditableRevisableItemHelper.TrapTemplateHelper);
+                break;
+            case "show":
+                GenericRevisableShow(actor, ss, EditableRevisableItemHelper.TrapTemplateHelper);
+                break;
+            default:
+                actor.OutputHandler.Send(TrapTemplateHelpText.SubstituteANSIColour());
+                break;
+        }
+    }
+
     #endregion
 }

@@ -10,6 +10,7 @@ using MudSharp.NPC.Templates;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
+using MudSharp.Traps;
 
 namespace MudSharp.Commands.Helpers;
 
@@ -463,6 +464,90 @@ internal class EditableRevisableItemHelper
                         new EditableItemReviewProposal<IForagableProfile>(character,
                             protos.Cast<IForagableProfile>().ToList())),
             CastToType = typeof(IForagableProfile),
+            CustomSearch = (protos, keyword, gameworld) => protos
+        };
+
+        TrapTemplateHelper = new EditableRevisableItemHelper
+        {
+            ItemName = "Trap Template",
+            ItemNamePlural = "Trap Templates",
+            DeleteEditableItemAction = item =>
+            {
+                using (new FMDB())
+                {
+					var dbitem = FMDB.Context.TrapTemplates.Find(item.Id, item.RevisionNumber);
+					if (dbitem is not null)
+					{
+						FMDB.Context.TrapTemplates.Remove(dbitem);
+						var editableItem = FMDB.Context.EditableItems.Find(dbitem.EditableItemId);
+						if (editableItem is not null)
+						{
+							FMDB.Context.EditableItems.Remove(editableItem);
+						}
+						FMDB.Context.SaveChanges();
+					}
+                }
+
+                item.Gameworld.Destroy((ITrapTemplate)item);
+            },
+            SetEditableItemAction = (character, item) =>
+            {
+                character.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<ITrapTemplate>>());
+                if (item is not null)
+                {
+                    character.AddEffect(new BuilderEditingEffect<ITrapTemplate>(character)
+                    {
+                        EditingItem = (ITrapTemplate)item
+                    });
+                }
+            },
+            GetEditableItemFunc = character =>
+                character.EffectsOfType<BuilderEditingEffect<ITrapTemplate>>().FirstOrDefault()?.EditingItem,
+            EditableNewAction = (actor, input) =>
+            {
+                var item = new TrapTemplate(actor.Account);
+                actor.Gameworld.Add(item);
+                actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<ITrapTemplate>>());
+                actor.AddEffect(new BuilderEditingEffect<ITrapTemplate>(actor) { EditingItem = item });
+                actor.Send($"You create a new trap template with ID {item.Id.ToString("N0", actor)}, which you are now editing.");
+            },
+            AddItemToGameWorldAction = item => item.Gameworld.Add((ITrapTemplate)item),
+            GetAllEditableItems = character => character.Gameworld.TrapTemplates,
+            GetAllEditableItemsByIdFunc = (character, id) => character.Gameworld.TrapTemplates.GetAll(id),
+            GetEditableItemByIdFunc = (character, id) => character.Gameworld.TrapTemplates.Get(id),
+            GetEditableItemByIdRevNumFunc = (character, id, revision) => character.Gameworld.TrapTemplates.Get(id, revision),
+            GetReviewTableContentsFunc = (actor, protos) =>
+            {
+                using (new FMDB())
+                {
+                    return from proto in protos.OfType<ITrapTemplate>()
+                           select new[]
+                           {
+                               proto.Id.ToString("N0", actor),
+                               proto.RevisionNumber.ToString("N0", actor),
+                               proto.Name,
+                               proto.SourceKind.DescribeEnum(),
+                               FMDB.Context.Accounts.Find(proto.BuilderAccountID)?.Name ?? "Unknown",
+                               proto.BuilderComment ?? string.Empty
+                           };
+                }
+            },
+            GetReviewTableHeaderFunc = character => new[] { "ID#", "Rev#", "Name", "Source", "Builder", "Comment" },
+            GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<ITrapTemplate>()
+                                                              select new[]
+                                                              {
+                                                                  proto.Id.ToString("N0", character),
+                                                                  proto.RevisionNumber.ToString("N0", character),
+                                                                  proto.Name,
+                                                                  proto.SourceKind.DescribeEnum(),
+                                                                  proto.Triggers.Count.ToString("N0", character),
+                                                                  proto.Payloads.Count.ToString("N0", character),
+                                                                  proto.Status.Describe()
+                                                              },
+            GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Name", "Source", "Triggers", "Payloads", "Status" },
+            GetReviewProposalEffectFunc = (protos, character) =>
+                new Accept(character, new EditableItemReviewProposal<ITrapTemplate>(character, protos.Cast<ITrapTemplate>().ToList())),
+            CastToType = typeof(ITrapTemplate),
             CustomSearch = (protos, keyword, gameworld) => protos
         };
 
@@ -989,6 +1074,7 @@ internal class EditableRevisableItemHelper
     public static EditableRevisableItemHelper NpcTemplateHelper { get; }
     public static EditableRevisableItemHelper ForagableHelper { get; }
     public static EditableRevisableItemHelper ForagableProfileHelper { get; }
+    public static EditableRevisableItemHelper TrapTemplateHelper { get; }
     public static EditableRevisableItemHelper CraftHelper { get; }
     public static EditableRevisableItemHelper ProjectHelper { get; }
     public static EditableRevisableItemHelper TattooHelper { get; }

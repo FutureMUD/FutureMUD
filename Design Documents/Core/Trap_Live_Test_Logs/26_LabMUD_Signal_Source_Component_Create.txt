@@ -1,0 +1,122 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.5.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Trap Test Origin Final
+ID[2,668] | Terrain[Indoors] | [SafeQuit] | Overlay[Trap Live Test August 2026 (#98r0)] | Coordinates[0,0,0]
+Exits: North
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, the lighting is very bright here.
+
+A black-afro-haired adolescent (Japheth) is standing here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> comp edit new pushbutton
+You create a new item component prototype with ID 472.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> comp set name LabMUD Trap Signal Source
+You change the name of this component to: LabMUD Trap Signal Source
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> comp set description Retained LabMUD trap-test signal source.
+You change the description of this component to: Retained LabMUD trap-test signal source.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> comp edit submit Retained LabMUD trap test signal source
+You submit Push   Button: [LabMUD Trap Signal Source] (#472r0) for review, with the comment: Retained LabMUD trap test signal source
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> comp review 472
+You are reviewing Push   Button: [LabMUD Trap Signal Source] (#472r0)
+
+Push Button Prototype #472 - Revision 0                                                 Status: Pending Review
+Name: LabMUD Trap Signal Source
+Description: Retained LabMUD trap-test signal source.
+
+Push Button Game Item Component (#472r0, LabMUD Trap Signal Source)
+
+This component emits a signal value of 1.00 for 1 second whenever someone uses select button on the item.
+Press Emote: @ press|presses $1
+
+
+To approve this item component, type accept edit <your comments> or decline edit <your comments> to reject.
+If you do not wish to approve or decline, your request will time out in 60 seconds.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> accept edit 472
+You approve Push   Button: [LabMUD Trap Signal Source] (#472r0), with the comment "472"
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

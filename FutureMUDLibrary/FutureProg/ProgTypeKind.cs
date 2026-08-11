@@ -69,5 +69,6 @@ public enum ProgTypeKind
 	AgricultureField,
 	VehicleRoute,
 	VehicleService,
-	VehicleJourney
+	VehicleJourney,
+	Trap
 }

@@ -398,6 +398,15 @@ return @togglevalue");
 	}
 
 	[TestMethod]
+	public void ElectronicDoorControlEvaluator_EvaluateAutomatic_ClosesAPlayerLockedDoor()
+	{
+		var outcome = ElectronicDoorControlEvaluator.EvaluateAutomatic(false, DoorState.Open, false);
+
+		Assert.AreEqual(ElectronicDoorControlAction.Close, outcome.Action);
+		Assert.IsFalse(outcome.RequiresRetry);
+	}
+
+	[TestMethod]
 	public void AutomationMountHost_InstallAndRemoveModule_TracksMountedSeparateItem()
 	{
 		var gameworld = CreateGameworld();
@@ -1324,6 +1333,33 @@ return @togglevalue");
 			.Invoke(door, []);
 
 		Assert.IsTrue(door.IsOpen);
+	}
+
+	[TestMethod]
+	public void ElectronicDoor_SourceSignal_ClosesAnOpenDoorWhenConfiguredBelowThreshold()
+	{
+		var gameworld = CreateGameworld();
+		var sharedCell = CreateCell(9064L);
+		var doorItem = CreateBasicItem(gameworld.Object, 9065L, "Electronic Door", sharedCell.Object);
+		doorItem.SetupGet(x => x.TrueLocations).Returns([sharedCell.Object]);
+		doorItem.SetupGet(x => x.AttachedAndConnectedItems).Returns(Array.Empty<IGameItem>());
+
+		var sourceItem = CreateBasicItem(gameworld.Object, 9066L, "Airlock Controller Module", sharedCell.Object);
+		var source = CreateSignalSourceMock(1L, "DoorController", parent: sourceItem.Object, componentId: 1L);
+		sourceItem.Setup(x => x.GetItemTypes<ISignalSourceComponent>()).Returns([source.Object]);
+		sourceItem.SetupGet(x => x.Components).Returns([source.Object]);
+		sharedCell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([doorItem.Object, sourceItem.Object]);
+
+		var door = new ElectronicDoorGameItemComponent(CreateElectronicDoorProto(gameworld.Object), doorItem.Object, true)
+		{
+			State = DoorState.Open
+		};
+		door.SetActiveWhenAboveThreshold(false);
+		door.Login();
+
+		source.Raise(x => x.SignalChanged += null, source.Object, new ComputerSignal(1.0, null, null));
+
+		Assert.IsFalse(door.IsOpen);
 	}
 
 	[TestMethod]

@@ -744,6 +744,12 @@ namespace MudSharp.Events
         LiquidOfferingReceivedWitness = 142,
 
         [EventInfo("Fires once on the origin cell when a non-silent noise is emitted. This event exposes sound to FutureProg hooks without prescribing game-specific reactions.", ["location", "perceivable", "number", "text", "text"], ["origin", "source", "volume", "type", "echo"], [ProgVariableTypeCode.Location, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
-        NoiseEmitted = 143
+        NoiseEmitted = 143,
+
+        [EventInfo("Fires on a trap when an automation signal addresses it. Parameters are the trap owner, signal value and source.", ["perceivable", "number", "perceivable"], ["owner", "value", "source"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Number, ProgVariableTypeCode.Perceivable])]
+        TrapSignalReceived = 144,
+
+        [EventInfo("Fires on a registered perceivable when its proximity to another perceivable changes. Parameters are the receiver, counterpart, previous proximity, current proximity and change cause.", ["perceivable", "perceivable", "number", "number", "text"], ["receiver", "counterpart", "previousproximity", "currentproximity", "cause"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        PerceivableProximityChanged = 145
     }
 }

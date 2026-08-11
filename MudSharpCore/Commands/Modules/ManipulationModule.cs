@@ -7241,6 +7241,19 @@ The syntax is:
 			return;
 		}
 
+		var trap = target.EffectsOfType<TrapEffect>().FirstOrDefault();
+		if (trap is not null)
+		{
+			if (!trap.Arm())
+			{
+				actor.Send("That trap cannot be armed in its current state.");
+				return;
+			}
+
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ arm|arms a trap on $0.", actor, target)));
+			return;
+		}
+
 		var trigger = target.GetItemType<IArmableExplosiveTrigger>();
 		if (trigger is null)
 		{
@@ -7297,6 +7310,13 @@ The syntax is:
 		if (target is null)
 		{
 			actor.Send("You do not see any such explosive item to disarm.");
+			return;
+		}
+
+		var trap = target.EffectsOfType<TrapEffect>().FirstOrDefault();
+		if (trap is not null)
+		{
+			actor.Send("Use trap disarm <item> to identify and safely disarm a trap.");
 			return;
 		}
 

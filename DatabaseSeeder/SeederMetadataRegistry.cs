@@ -452,6 +452,21 @@ public static class SeederMetadataRegistry
                 ],
                 DependencySeederTypes: [typeof(CoreDataSeeder), typeof(CurrencySeeder)]
             ),
+            nameof(TrapSeeder) => new SeederMetadata(
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.RepairExisting,
+                [
+                    Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
+                    Requirement("Skill templates, trait decorators, improvers, and stock FutureProgs must already exist.", context =>
+                        context.CheckTemplates.Any() && context.TraitDecorators.Any() && context.Improvers.Any() && context.FutureProgs.Any()),
+                    Requirement("Core liquid and gas catalogues must already exist.", context =>
+                        context.Liquids.Any() && context.Gases.Any())
+                ],
+                RerunSummary: "Reruns reconcile the dedicated Traps skill, seven trap checks, and Stock Trap templates without overwriting builder-owned templates.",
+                UpdateSummary: "Stock trap definitions use the Stock Trap prefix; other templates are never modified.",
+                OwnershipSummary: "The package owns only the Traps skill/check mappings and Stock Trap prefixed templates.",
+                DependencySeederTypes: [typeof(CoreDataSeeder)]
+            ),
             _ => SeederMetadata.Default
         };
     }

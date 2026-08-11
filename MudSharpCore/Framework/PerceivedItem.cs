@@ -62,9 +62,16 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         get => _roomLayer;
         set
         {
+			if (_roomLayer == value)
+			{
+				return;
+			}
+
+			using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Layer, this);
             _roomLayer = value;
             Changed = true;
 			RouteSpatialService.Instance.TrackPerceivable(this);
+			proximityChange?.Complete();
         }
     }
 
@@ -94,6 +101,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     public virtual void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false)
     {
+		using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Movement, this);
 		var previousLocation = SpatialLocation;
 		var routePosition = default(double?);
 		if (location?.RouteDefinition is { } routeDefinition)
@@ -117,6 +125,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 		_roomLayer = layer;
 		_routePositionMetres = routePosition;
 		RouteSpatialService.Instance.TrackPerceivable(this);
+		proximityChange?.Complete();
 		if (ReferenceEquals(previousLocation.Cell, location) &&
 			previousLocation.Layer == layer &&
 			previousLocation.RoutePositionMetres != routePosition)
@@ -163,6 +172,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 			return true;
 		}
 
+		using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.RoutePosition, this);
 		var previousLocation = SpatialLocation;
 		_routePositionMetres = metres;
 		if (!noSave)
@@ -171,6 +181,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 		}
 
 		RouteSpatialService.Instance.TrackPerceivable(this);
+		proximityChange?.Complete();
 		OnSpatialPositionChanged?.Invoke(this, previousLocation, SpatialLocation);
 		return true;
 	}
@@ -653,6 +664,25 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     public virtual void SetTarget(IPerceivable target)
     {
+		if (ReferenceEquals(PositionTarget, target))
+		{
+			return;
+		}
+
+		using var proximityChange = IsLoadingPosition
+			? null
+			: Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Positioning);
+		if (PositionTarget is not null)
+		{
+			proximityChange?.TrackPair(this, PositionTarget);
+			proximityChange?.TrackPair(PositionTarget, this);
+		}
+		if (target is not null)
+		{
+			proximityChange?.TrackPair(this, target);
+			proximityChange?.TrackPair(target, this);
+		}
+
         if (PositionTarget != null)
         {
             PositionTarget.InvalidPositionTargets -= Target_InvalidPositionTargets;
@@ -667,6 +697,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         }
 
         PositionChanged = true;
+		proximityChange?.Complete();
     }
 
     /// <summary>
@@ -727,6 +758,13 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     private bool _positionChanged;
 
+	/// <summary>
+	/// Prevents persisted position restoration from being observed as a live proximity transition. At this point in
+	/// startup a character's body, traits and effects can still be incomplete, so handlers must only see the fully
+	/// restored spatial state.
+	/// </summary>
+	protected bool IsLoadingPosition { get; private set; }
+
     public bool PositionChanged
     {
         get => _positionChanged;
@@ -772,36 +810,43 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
             removeNoSave = true;
         }
 
-        _noSave = true;
-        PositionState = Body.Position.PositionState.GetState(positionState);
-        PositionModifier = (PositionModifier)modifier;
-        if (targetid.HasValue)
-        {
-            IPerceivable target = Gameworld.GetPerceivable(targettype, targetid.Value);
-            if (target?.CanBePositionedAgainst(PositionState, PositionModifier) == false)
-            {
-                SetTarget(null);
-                SetModifier(PositionModifier.None);
-            }
-            else
-            {
-                SetTarget(target);
-            }
-        }
+		_noSave = true;
+		IsLoadingPosition = true;
+		try
+		{
+			PositionState = Body.Position.PositionState.GetState(positionState);
+			PositionModifier = (PositionModifier)modifier;
+			if (targetid.HasValue)
+			{
+				IPerceivable target = Gameworld.GetPerceivable(targettype, targetid.Value);
+				if (target?.CanBePositionedAgainst(PositionState, PositionModifier) == false)
+				{
+					SetTarget(null);
+					SetModifier(PositionModifier.None);
+				}
+				else
+				{
+					SetTarget(target);
+				}
+			}
 
-        if (!string.IsNullOrEmpty(stremote))
-        {
-            Emote emote = Emote.LoadEmote(XElement.Parse(stremote), Gameworld, this as IPerceiver);
-            if (emote.Valid)
-            {
-                SetEmote(emote);
-            }
-        }
-
-        if (removeNoSave)
-        {
-            _noSave = false;
-        }
+			if (!string.IsNullOrEmpty(stremote))
+			{
+				Emote emote = Emote.LoadEmote(XElement.Parse(stremote), Gameworld, this as IPerceiver);
+				if (emote.Valid)
+				{
+					SetEmote(emote);
+				}
+			}
+		}
+		finally
+		{
+			IsLoadingPosition = false;
+			if (removeNoSave)
+			{
+				_noSave = false;
+			}
+		}
     }
 
     #endregion
@@ -825,6 +870,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     protected readonly List<IHook> _installedHooks = new();
     protected ILookup<EventType, Func<EventType, object[], bool>> _hookedFunctions;
+	private IProximityEventRegistration _proximityHookRegistration;
 
     public IEnumerable<IHook> Hooks => _installedHooks;
 
@@ -882,6 +928,10 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
         _installedHooks.Add(hook);
         _hookedFunctions = _installedHooks.ToLookup(x => x.Type, x => x.Function);
+		if (hook.Type == EventType.PerceivableProximityChanged)
+		{
+			_proximityHookRegistration ??= Gameworld?.ProximityEventService?.Register(this);
+		}
         foreach (EventType type in SubscribingEvents)
         {
             if (hook.Type == type)
@@ -920,6 +970,12 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
         _installedHooks.Remove(hook);
         _hookedFunctions = _installedHooks.ToLookup(x => x.Type, x => x.Function);
+		if (hook.Type == EventType.PerceivableProximityChanged &&
+			!_installedHooks.Any(x => x.Type == EventType.PerceivableProximityChanged))
+		{
+			_proximityHookRegistration?.Dispose();
+			_proximityHookRegistration = null;
+		}
         foreach (EventType type in SubscribingEvents)
         {
             if (type != hook.Type)

@@ -16,6 +16,7 @@ namespace MudSharp.Models
             GameItemProtos = new HashSet<GameItemProto>();
             Npctemplates = new HashSet<NpcTemplate>();
             Projects = new HashSet<Project>();
+            TrapTemplates = new HashSet<TrapTemplate>();
         }
 
         public long Id { get; set; }
@@ -38,5 +39,6 @@ namespace MudSharp.Models
         public virtual ICollection<GameItemProto> GameItemProtos { get; set; }
         public virtual ICollection<NpcTemplate> Npctemplates { get; set; }
         public virtual ICollection<Project> Projects { get; set; }
+        public virtual ICollection<TrapTemplate> TrapTemplates { get; set; }
     }
 }

@@ -16,6 +16,7 @@ namespace MudSharp.Framework
         void LoadCurrencies();
         void LoadMaterials();
         void LoadForagables();
+        void LoadTrapTemplates();
         void LoadCharacteristics();
         void LoadBodies();
         void LoadBodypartShapes();

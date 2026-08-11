@@ -1980,6 +1980,19 @@ return true",
                             PenaltyUnitMultiplier = 5
                         });
                     break;
+                case CrimeTypes.BoobyTrapping:
+                    CreateLaw(crime.DescribeEnum(true), crime, EnforcementStrategy.ArrestAndDetain, sophontVictims,
+                        sophontPerps, crimeContext with
+                        {
+                            Automatic = true,
+                            CanBeArrested = true,
+                            CanBeOfferedBail = true,
+                            BondLength = MudTimeSpan.FromMonths(6),
+                            MinimumImprisonmentLength = MudTimeSpan.FromWeeks(1),
+                            MaximumImprisonmentLength = MudTimeSpan.FromMonths(3),
+                            PenaltyUnitMultiplier = 10
+                        });
+                    break;
                 case CrimeTypes.Loitering:
                 case CrimeTypes.Littering:
                 case CrimeTypes.Trespassing:

@@ -1661,6 +1661,104 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		}
 	}
 
+	/// <summary>
+	/// Resolves a prepared magical trap payload. This deliberately bypasses the casting action, material
+	/// components, resource cost and caster lockout: those costs belong to laying the trap. It retains the
+	/// spell's normal effects, target resistance, duration expression and persistent parent-effect model.
+	/// </summary>
+	public void ResolveTriggeredSpell(ICharacter magician, IPerceivable target, SpellPower power)
+	{
+		if (target is null && _spellEffects.Any(x => x.RequiresTarget))
+		{
+			return;
+		}
+
+		var duration = TimeSpan.Zero;
+		if (EffectDurationExpression is not null)
+		{
+			EffectDurationExpression.Formula.Parameters["degrees"] = 1;
+			EffectDurationExpression.Formula.Parameters["success"] = 1;
+			EffectDurationExpression.Formula.Parameters["power"] = (int)power;
+			duration = TimeSpan.FromSeconds(
+				EffectDurationExpression.Evaluate(magician, CastingTrait, TraitBonusContext.SpellDuration));
+		}
+
+		var effectOutcome = OpposedOutcomeDegree.None;
+		if (OpposedTrait is not null && target is ICharacter targetCharacter && targetCharacter != magician)
+		{
+			var resistance = Gameworld.GetCheck(CheckType.ResistMagicSpellCheck)
+				.CheckAgainstAllDifficulties(targetCharacter, OpposedDifficulty ?? Difficulty.Normal, OpposedTrait, magician);
+			var opposed = new OpposedOutcome(Outcome.Pass, resistance[OpposedDifficulty ?? Difficulty.Normal].Outcome);
+			if (opposed.Outcome == OpposedOutcomeDirection.Opponent)
+			{
+				if (!string.IsNullOrEmpty(TargetResistedEmote))
+				{
+					targetCharacter.OutputHandler.Handle(new EmoteOutput(
+						new Emote(TargetResistedEmote, magician, magician, targetCharacter), flags: TargetEmoteFlags));
+				}
+
+				return;
+			}
+
+			effectOutcome = opposed.Degree;
+		}
+
+		if (target is not null)
+		{
+			if (!string.IsNullOrEmpty(TargetEmote))
+			{
+				target.OutputHandler.Handle(new EmoteOutput(
+					new Emote(TargetEmote, magician, magician, target), flags: TargetEmoteFlags));
+			}
+
+			var head = new MagicSpellParent(target, this, magician, power, effectOutcome);
+			foreach (var effect in _spellEffects)
+			{
+				var child = effect.GetOrApplyEffect(magician, target, effectOutcome, power, head, []);
+				if (child is null)
+				{
+					continue;
+				}
+
+				target.AddEffect(child);
+				head.AddSpellEffect(child);
+			}
+
+			if (AppliedEffectsAreExclusive)
+			{
+				target.RemoveAllEffects<MagicSpellParent>(x => x.Spell == this);
+			}
+
+			if (head.SpellEffects.Any())
+			{
+				target.AddEffect(head, duration);
+			}
+		}
+
+		if (!_casterSpellEffects.Any())
+		{
+			return;
+		}
+
+		var casterHead = new MagicSpellParent(magician, this, magician, power, OpposedOutcomeDegree.None);
+		foreach (var effect in _casterSpellEffects)
+		{
+			var child = effect.GetOrApplyEffect(magician, magician, OpposedOutcomeDegree.None, power, casterHead, []);
+			if (child is null)
+			{
+				continue;
+			}
+
+			magician.AddEffect(child);
+			casterHead.AddSpellEffect(child);
+		}
+
+		if (casterHead.SpellEffects.Any())
+		{
+			magician.AddEffect(casterHead, duration);
+		}
+	}
+
     public bool ReadyForGame =>
         Trigger != null &&
         !string.IsNullOrEmpty(CastingEmote) &&

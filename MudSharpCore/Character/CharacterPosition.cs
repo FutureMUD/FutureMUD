@@ -96,16 +96,33 @@ public partial class Character
     public override IPerceivable PositionTarget
     {
         get => Body.PositionTarget;
-        set
-        {
-            Body.PositionTarget = value;
-            PositionChanged = true;
-        }
+        set => SetTarget(value);
     }
 
     public override void SetTarget(IPerceivable target)
     {
+		if (ReferenceEquals(PositionTarget, target))
+		{
+			return;
+		}
+
+		using var proximityChange = IsLoadingPosition
+			? null
+			: Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Positioning);
+		if (PositionTarget is not null)
+		{
+			proximityChange?.TrackPair(this, PositionTarget);
+			proximityChange?.TrackPair(PositionTarget, this);
+		}
+		if (target is not null)
+		{
+			proximityChange?.TrackPair(this, target);
+			proximityChange?.TrackPair(target, this);
+		}
+
         Body.SetTarget(target);
+		PositionChanged = true;
+		proximityChange?.Complete();
     }
 
     public void ResetPositionTarget(IEmote playerEmote, IEmote playerPmote)

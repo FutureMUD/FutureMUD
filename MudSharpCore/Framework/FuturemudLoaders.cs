@@ -39,6 +39,7 @@ using MudSharp.Email;
 using MudSharp.Events.Hooks;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
+using MudSharp.Traps;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Framework.Units;
@@ -170,6 +171,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
     public IClockManager ClockManager { get; private set; }
     public IUnitManager UnitManager { get; private set; }
     public IHeartbeatManager HeartbeatManager { get; private set; }
+    public IProximityEventService ProximityEventService { get; private set; }
     public IComputerExecutionService ComputerExecutionService { get; private set; }
     public IComputerHelpService ComputerHelpService { get; private set; }
     public IComputerNetworkIdentityService ComputerNetworkIdentityService { get; private set; }
@@ -364,6 +366,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
             game.LoadUnits();
             game.LoadMagic(); // Needs to come before LoadMerits
+            game.LoadTrapTemplates(); // Needs traits, magic and item prototypes, and must precede world-item effects
             game.LoadManualCombatCommands(); // Needs weapon attacks, auxiliary actions, FutureProgs, and dynamic magic verbs loaded first
             game.LoadMerits(); // ToDO - where should this be loaded?
             game.LoadAIs(); // Needs to come after LoadFutureProgs and LoadBodies
@@ -2266,6 +2269,29 @@ For information on the syntax to use in emotes (such as those included in bracke
 #endif
         count = foragableProfiles.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Foragable Profile" : "Foragable Profiles");
+    }
+
+    void IFuturemudLoader.LoadTrapTemplates()
+    {
+        ConsoleUtilities.WriteLine("\nLoading #5Trap Templates#0...");
+#if DEBUG
+        var sw = new Stopwatch();
+        sw.Start();
+#endif
+        var templates = FMDB.Context.TrapTemplates
+            .Include(x => x.EditableItem)
+            .AsNoTracking()
+            .ToList();
+        foreach (var template in templates)
+        {
+            _trapTemplates.Add(new MudSharp.Traps.TrapTemplate(template, this));
+        }
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+        var count = templates.Count;
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Trap Template" : "Trap Templates");
     }
 
     void IFuturemudLoader.LoadCorpseModels()

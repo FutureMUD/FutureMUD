@@ -170,7 +170,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRunti
 	private void EvaluateDoorState()
 	{
 		var previousState = IsOpen;
-		var outcome = ElectronicDoorControlEvaluator.Evaluate(_desiredOpen, IsOpen, CanOpen(null), CanClose(null));
+		var outcome = ElectronicDoorControlEvaluator.EvaluateAutomatic(_desiredOpen, State, IsOpeningBlocked(null));
 		switch (outcome.Action)
 		{
 			case ElectronicDoorControlAction.Open:

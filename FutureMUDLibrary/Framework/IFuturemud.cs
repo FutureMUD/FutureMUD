@@ -48,6 +48,7 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Size;
 using MudSharp.Health;
+using MudSharp.Traps;
 using MudSharp.Help;
 using MudSharp.Logging;
 using MudSharp.Magic;
@@ -188,6 +189,7 @@ namespace MudSharp.Framework
         IUneditableAll<ICrime> Crimes { get; }
         IUneditableRevisableAll<IForagable> Foragables { get; }
         IUneditableRevisableAll<IForagableProfile> ForagableProfiles { get; }
+        IUneditableRevisableAll<ITrapTemplate> TrapTemplates { get; }
         IUneditableAll<IFutureProg> FutureProgs { get; }
         IUneditableAll<IGas> Gases { get; }
         IUneditableAll<IGrid> Grids { get; }
@@ -349,6 +351,7 @@ namespace MudSharp.Framework
         IClockManager ClockManager { get; }
         IUnitManager UnitManager { get; }
         IHeartbeatManager HeartbeatManager { get; }
+        IProximityEventService ProximityEventService { get; }
         IEnumerable<IPlayerConnection> Connections { get; }
 
         string GetStaticConfiguration(string whichConfiguration);
@@ -519,6 +522,7 @@ namespace MudSharp.Framework
         void Add(IHealthStrategy strategy);
         void Add(IBodypart proto);
         void Add(IForagableProfile foragableProfile);
+        void Add(ITrapTemplate trapTemplate);
         void Add(IForagable foragable);
         void Add(IGameItemGroup group);
         void Add(ICorpseModel model);
@@ -670,6 +674,7 @@ namespace MudSharp.Framework
         void Destroy(IHealthStrategy strategy);
         void Destroy(IBodypart proto);
         void Destroy(IForagableProfile foragableProfile);
+        void Destroy(ITrapTemplate trapTemplate);
         void Destroy(IForagable foragable);
         void Destroy(ICorpseModel model);
         void Destroy(IGameItemGroup group);

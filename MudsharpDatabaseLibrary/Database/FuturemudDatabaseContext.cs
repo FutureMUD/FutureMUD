@@ -456,6 +456,7 @@ namespace MudSharp.Database
         public virtual DbSet<SurgicalProcedurePhase> SurgicalProcedurePhases { get; set; }
         public virtual DbSet<SurgicalProcedure> SurgicalProcedures { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
+		public virtual DbSet<TrapTemplate> TrapTemplates { get; set; }
         public virtual DbSet<Terrain> Terrains { get; set; }
         public virtual DbSet<TerrainsRangedCovers> TerrainsRangedCovers { get; set; }
         public virtual DbSet<Models.TimeZoneInfo> TimeZoneInfos { get; set; }

@@ -1016,12 +1016,12 @@ public partial class Cell : Location, IDisposable, ICell
                 member.HandleEvent(EventType.CharacterBeginMovement, member, this, move.Exit);
                 foreach (IHandleEvents witness in SpatialEventHandlersFor(member, move.Exit).Except(member))
                 {
-                    witness.HandleEvent(EventType.CharacterBeginMovementWitness, member, this, move.Exit, witness);
+                    witness.HandleEvent(EventType.CharacterBeginMovementWitness, member, this, move.Exit, witness, move);
                 }
 
                 foreach (IGameItem witness in member.Body.ExternalItems)
                 {
-                    witness.HandleEvent(EventType.CharacterBeginMovementWitness, member, this, move.Exit, witness);
+                    witness.HandleEvent(EventType.CharacterBeginMovementWitness, member, this, move.Exit, witness, move);
                 }
             }
         }

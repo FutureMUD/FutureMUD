@@ -1,5 +1,7 @@
 #nullable enable
 
+using System;
+
 namespace MudSharp.Traps;
 
 /// <summary>
@@ -75,4 +77,13 @@ public enum TrapTargetSelector
 	Triggerer,
 	AnchorOccupants,
 	SnapshotTarget
+}
+
+[Flags]
+public enum TrapComponentRole
+{
+	None = 0,
+	Trigger = 1,
+	Payload = 2,
+	TriggerAndPayload = Trigger | Payload
 }

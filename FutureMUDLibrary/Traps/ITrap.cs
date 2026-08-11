@@ -2,6 +2,8 @@
 
 using MudSharp.Effects;
 using MudSharp.Character;
+using MudSharp.GameItems;
+using System.Collections.Generic;
 using System;
 
 namespace MudSharp.Traps;
@@ -18,5 +20,17 @@ public interface ITrap : IEffect
 	int TemplateRevisionNumber { get; }
 	long CreatorId { get; }
 	int RemainingCharges { get; }
+	long? BoundExitId { get; }
+	long? BoundExitOriginId { get; }
+	IReadOnlyList<ITrapComponentBinding> Components { get; }
 	bool IsKnownBy(ICharacter character);
+}
+
+public interface ITrapComponentBinding
+{
+	long ItemId { get; }
+	IGameItem? Item { get; }
+	TrapComponentRole Role { get; }
+	double SpentRecoveryChance { get; }
+	double QualityWeight { get; }
 }

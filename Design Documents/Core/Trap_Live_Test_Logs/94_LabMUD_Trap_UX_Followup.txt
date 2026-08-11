@@ -1,0 +1,41 @@
+LabMUD trap UX follow-up - 2026-08-11
+Database: labmud_dbo
+Build: current codex/trap-ux-followup worktree, isolated listener 127.0.0.1:4001
+
+> trap types
+Id  Trap                                  Source      Setup       Triggers
+2   LabMUD Test Bear Trap                 Mechanical  10 seconds  Proximity
+3   LabMUD Test Magical Drug Mist         Magical     10 seconds  Proximity
+1   LabMUD Test Tripwire Explosion        Mechanical  10 seconds  ExitTraversal
+4   LabMUD Test Tripwire Signal Lockdown  Mechanical  10 seconds  ExitTraversal
+
+> traptemplate edit 4
+You open Trap Template LabMUD Test Tripwire Signal Lockdown (4r1) for editing.
+
+> traptemplate set trigger 1
+Trigger 1: ExitTraversal
+Parameters:
+  chance = 100 - percentage chance that this trigger fires (0-100)
+  spotdifficulty = Hard - difficulty to notice the trap when it triggers
+  avoiddifficulty = Normal - difficulty to avoid the trap once triggered
+  filterprog = none - optional boolean FutureProg ID used to filter targets
+  triggerecho = none - optional emote shown when this trigger fires
+  movementtypes = All - comma-separated movement types (Upright, Crawling, Prostrate, Climbing, Swimming, Flying, Floating)
+  minimumsize = Miniscule - smallest character size that can trigger it
+  maximumsize = Titanic - largest character size that can trigger it
+
+Use trigger <number> parameter <name> <value> to change a value.
+
+> proximity
+Visible proximities relative to you:
+
+[Distant]
+  a retained trap-test electronic gate
+  a retained trap-test electronic gate
+
+> select north test
+That is not a valid control to press.
+
+Result: PASS. The player template catalogue, contextual builder parameter help,
+grouped proximity output, and direction-aware selectable resolution all reached
+their intended runtime handlers.

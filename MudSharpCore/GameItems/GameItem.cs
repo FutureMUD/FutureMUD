@@ -2191,6 +2191,12 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 PerceiveIgnoreFlags.None));
         }
 
+		foreach (var effect in EffectsOfType<IEvaluateDescriptionAdditionEffect>()
+		         .Where(x => x.DescriptionAdditionApplies(actor)))
+		{
+			sb.AppendLine(effect.GetAdditionalText(actor, true));
+		}
+
         return sb.ToString();
     }
 

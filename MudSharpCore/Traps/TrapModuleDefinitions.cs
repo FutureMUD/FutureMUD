@@ -1,8 +1,55 @@
 #nullable enable
 
+using System.Globalization;
 using MudSharp.Traps;
+using MudSharp.Movement;
+using MudSharp.Framework;
 
 namespace MudSharp.Traps;
+
+public sealed class TrapComponentRequirementDefinition : ITrapComponentRequirement
+{
+	private readonly IFuturemud _gameworld;
+
+	public TrapComponentRequirementDefinition(IFuturemud gameworld, long tagId, TrapComponentRole role,
+		double spentRecoveryChance = 75.0, double qualityWeight = 1.0)
+	{
+		_gameworld = gameworld;
+		TagId = tagId;
+		Role = role;
+		SpentRecoveryChance = spentRecoveryChance;
+		QualityWeight = qualityWeight;
+	}
+
+	public long TagId { get; }
+	public ITag? Tag => _gameworld.Tags.Get(TagId);
+	public TrapComponentRole Role { get; }
+	public double SpentRecoveryChance { get; }
+	public double QualityWeight { get; }
+
+	public static TrapComponentRequirementDefinition LoadFromXml(XElement root, IFuturemud gameworld)
+	{
+		return new TrapComponentRequirementDefinition(
+			gameworld,
+			long.Parse(root.Attribute("tag")?.Value ?? "0"),
+			Enum.TryParse(root.Attribute("role")?.Value, true, out TrapComponentRole role)
+				? role
+				: TrapComponentRole.None,
+			double.TryParse(root.Attribute("recovery")?.Value, NumberStyles.Float, CultureInfo.InvariantCulture,
+				out var recovery) ? recovery : 75.0,
+			double.TryParse(root.Attribute("qualityweight")?.Value, NumberStyles.Float,
+				CultureInfo.InvariantCulture, out var qualityWeight) ? qualityWeight : 1.0);
+	}
+
+	public XElement SaveToXml()
+	{
+		return new XElement("Component",
+			new XAttribute("tag", TagId),
+			new XAttribute("role", Role),
+			new XAttribute("recovery", SpentRecoveryChance),
+			new XAttribute("qualityweight", QualityWeight));
+	}
+}
 
 /// <summary>
 /// The persisted, builder-configurable implementation shared by the first-party trap modules.
@@ -10,6 +57,42 @@ namespace MudSharp.Traps;
 /// </summary>
 public sealed class TrapTriggerDefinition : ITrapTrigger
 {
+	public sealed record ParameterHelp(string Name, string Description, string DefaultValue);
+
+	private static readonly IReadOnlyList<ParameterHelp> CommonParameters =
+	[
+		new("chance", "percentage chance that this trigger fires (0-100)", "100"),
+		new("spotdifficulty", "difficulty to notice the trap when it triggers", "Hard"),
+		new("avoiddifficulty", "difficulty to avoid the trap once triggered", "Normal"),
+		new("filterprog", "optional boolean FutureProg ID used to filter targets", "none"),
+		new("triggerecho", "optional emote shown when this trigger fires", "none")
+	];
+
+	private static readonly IReadOnlyDictionary<TrapTriggerType, IReadOnlyList<ParameterHelp>> TypeParameters =
+		new Dictionary<TrapTriggerType, IReadOnlyList<ParameterHelp>>
+		{
+			[TrapTriggerType.ExitTraversal] =
+			[
+				new("movementtypes", $"comma-separated movement types ({string.Join(", ", Enum.GetNames<MovementType>().Where(x => x is not "None" and not "All"))})", "All"),
+				new("minimumsize", "smallest character size that can trigger it", "Miniscule"),
+				new("maximumsize", "largest character size that can trigger it", "Titanic")
+			],
+			[TrapTriggerType.Proximity] =
+			[
+				new("maximumproximity", "proximity threshold crossed to fire the trap", "Immediate")
+			],
+			[TrapTriggerType.Signal] =
+			[
+				new("minimumvalue", "minimum signal value that fires the trap", "unbounded"),
+				new("maximumvalue", "maximum signal value that fires the trap", "unbounded")
+			]
+		};
+
+	public static IEnumerable<ParameterHelp> ParametersFor(TrapTriggerType type) =>
+		CommonParameters.Concat(TypeParameters.GetValueOrDefault(type) ?? []);
+
+	public static bool IsSupportedParameter(TrapTriggerType type, string name) =>
+		ParametersFor(type).Any(x => x.Name.EqualTo(name));
 	private static readonly IReadOnlySet<TrapSourceKind> AllDomains = new HashSet<TrapSourceKind>(Enum.GetValues<TrapSourceKind>());
 	private static readonly IReadOnlySet<TrapSourceKind> MechanicalOnly = new HashSet<TrapSourceKind> { TrapSourceKind.Mechanical };
 	private static readonly IReadOnlyDictionary<TrapTriggerType, IReadOnlySet<TrapSourceKind>> Compatibility =

@@ -452,6 +452,17 @@ Scissors	Shearing	Functions / Separation / Shearing / Scissors
 Shears	Shearing	Functions / Separation / Shearing / Shears
 Sharpening	Functions	Functions / Sharpening
 Shiny	Functions	Functions / Shiny
+Trap Components	Functions	Functions / Trap Components
+Bear Trap Mechanism	Trap Components	Functions / Trap Components / Bear Trap Mechanism
+Explosive Trap Payload	Trap Components	Functions / Trap Components / Explosive Trap Payload
+Gas Trap Payload	Trap Components	Functions / Trap Components / Gas Trap Payload
+Liquid Trap Payload	Trap Components	Functions / Trap Components / Liquid Trap Payload
+Needle Trap Mechanism	Trap Components	Functions / Trap Components / Needle Trap Mechanism
+Openable Trap Trigger	Trap Components	Functions / Trap Components / Openable Trap Trigger
+Pressure Trap Mechanism	Trap Components	Functions / Trap Components / Pressure Trap Mechanism
+Signal Trap Trigger	Trap Components	Functions / Trap Components / Signal Trap Trigger
+Signal Trap Payload	Trap Components	Functions / Trap Components / Signal Trap Payload
+Tripwire Trigger	Trap Components	Functions / Trap Components / Tripwire Trigger
 Tools	Functions	Functions / Tools
 Access Equipment	Tools	Functions / Tools / Access Equipment
 Ladder	Access Equipment	Functions / Tools / Access Equipment / Ladder

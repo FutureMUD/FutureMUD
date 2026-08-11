@@ -7138,7 +7138,7 @@ The syntax is:
 The syntax is:
 
 	#3select <option> [(<emote>)]#0
-	#3select <item> <option> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
+	#3select <item|exit direction> <option> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Select(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -7171,9 +7171,13 @@ The syntax is:
         ISelectable selectable;
         if (argSS.Memory.Count() > 1)
         {
-            IGameItem selectableItem =
-                actor.ContextualItems.WhereNotNull(x => x.GetItemType<ISelectable>())
-                     .GetFromItemListByKeyword(argSS.Memory.ElementAt(0), actor);
+            var targetText = argSS.Memory.ElementAt(0);
+            IGameItem selectableItem = actor.TargetItem(targetText);
+            if (selectableItem?.GetItemType<ISelectable>() is null)
+            {
+	            selectableItem = actor.ContextualItems.WhereNotNull(x => x.GetItemType<ISelectable>())
+	                .GetFromItemListByKeyword(targetText, actor);
+            }
             if (selectableItem == null)
             {
                 actor.Send("You do not see anything by that keyword that you can select things with.");
@@ -7503,8 +7507,8 @@ The syntax is:
 
 The syntax is as follows:
 
-	#3switch <item>#0 - see a list of possible switch options for an item
-	#3switch <item> <option>#0 - switch an item to the specified option (e.g. on, off, safe, etc.)", AutoHelp.HelpArgOrNoArg)]
+	#3switch <item|exit direction>#0 - see a list of possible switch options for an item
+	#3switch <item|exit direction> <option>#0 - switch an item to the specified option (e.g. on, off, safe, etc.)", AutoHelp.HelpArgOrNoArg)]
     protected static void Switch(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

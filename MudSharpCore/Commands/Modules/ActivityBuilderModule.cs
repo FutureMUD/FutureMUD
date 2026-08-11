@@ -1076,13 +1076,19 @@ Use the following options:
 	#3traptemplate set domain mechanical|magical|natural#0 - selects its source domain
 	#3traptemplate set trigger add <type>#0 - adds an OR trigger; use #3trigger remove <number>#0 or #3trigger <number> parameter <name> <value>#0 to configure it
 	#3traptemplate set payload add <type>#0 - adds an ordered payload; use #3payload remove <number>#0, #3payload <number> delay <timespan>#0, #3payload <number> target <selector>#0, or #3payload <number> parameter <name> <value>#0 to configure it
+	#3traptemplate set component add <trigger|payload|both> <tag> [spent recovery %] [quality weight]#0 - adds a tagged physical requirement to a mechanical trap
+	#3traptemplate set component remove <number>#0 - removes a physical requirement
 	#3traptemplate set charges <number>#0 - sets uses before the trap is spent
 	#3traptemplate set cooldown <timespan>#0 - sets reset time between successful triggers
+	#3traptemplate set setuptime <timespan>#0 - sets non-admin mechanical laying time
+	#3traptemplate set disarmtime <timespan>#0 - sets non-admin disarming time
+	#3traptemplate set recoverytime <timespan>#0 - sets non-admin recovery time
+	#3traptemplate set knowprog <prog|none>#0 - controls which characters know the template
 	#3traptemplate set disarm impossible|safe|risky|dispellable#0 - sets disarm policy
 	#3traptemplate set lifecycle indefinite|fixedexpiry <timespan>|unstable <timespan>#0 - sets lifecycle policy
 	#3traptemplate set validate#0 - reports readiness errors
 
-Each trigger and payload accepts named parameters. The builder display records all configured parameter names and values, allowing source-specific runtime services to evolve without changing the editable revision workflow.";
+Use #3traptemplate set trigger <number>#0 to see the supported trigger parameters and their current values. The same command also shows syntax help when an argument is invalid.";
 
     [PlayerCommand("TrapTemplate", "traptemplate", "trapt")]
     [CommandPermission(PermissionLevel.Admin)]

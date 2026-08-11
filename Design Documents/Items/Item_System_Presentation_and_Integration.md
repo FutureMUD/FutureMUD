@@ -50,6 +50,9 @@ Examples include:
 - connector-driven items showing their current grid membership and physical links
 - stable tickets showing the lodged mount, stable, lodger, and current outstanding fees when the ticket still points at an active stay
 - effects such as glow adding descriptive layers through adjacent systems
+- known installed traps adding a warning to full descriptions and evaluations; administrators always see this warning, while ordinary characters see it only after spotting, searching for, or being shown that specific trap
+
+Mechanical trap parts remain ordinary items with ordinary authored descriptions and tags. While installed, a runtime reservation prevents `get` and other inventory-plan acquisition from detaching them behind the trap system's back. `trap inspect` lists the matched item and whether it serves the trigger, payload, or both; safe recovery releases all parts, while spent recovery reports each successful salvage or breakage. The trap itself, rather than the tag, controls secrecy: component tags are builder/crafting metadata and do not reveal an otherwise unseen trap.
 
 Explosive trigger components decorate their parent item rather than replacing its authored descriptions. Armed countdown and pin-pull triggers add a conspicuous armed marker to the short description and report the localised remaining duration in the full description. Clock triggers report their exact target through the authored calendar, clock, and timezone. Signal and radio triggers report their armed state without exposing hidden controller logic to an ordinary look. `evaluate` presents the stable authored trigger facts, including permitted delay range, clock basis, signal threshold/activation mode/power requirement, fixed pin delay, and whether disarming is possible.
 

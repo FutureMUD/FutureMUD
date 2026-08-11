@@ -1,0 +1,49 @@
+LabMUD exit signal and non-admin setup delay - 2026-08-11
+Database: labmud_dbo
+Build: current codex/trap-ux-followup worktree, isolated listener 127.0.0.1:4001
+
+> trap create 4 on north using gate
+You finish setting LabMUD Test Tripwire Signal Lockdown on a retained
+trap-test electronic gate at the North exit.
+
+> trap debug north
+State: Armed  Charges: 1
+Triggers: ExitTraversal
+Payloads: EmitSignal
+
+> npc load 77
+A black-afro-haired adolescent (Japheth) has entered the area.
+
+> as 1.adolescent north
+You force a black-afro-haired adolescent (Japheth) to do the command 'north'
+You begin walking away towards the North.
+
+> trap debug north
+State: Spent  Charges: 0
+Triggers: ExitTraversal
+Payloads: EmitSignal
+
+A retained trap-test electronic gate locks.
+
+> npc load 77
+A black-afro-haired adolescent (Japheth) has entered the area.
+
+> as 1.adolescent trap lay 2 on 2.gate
+You force a black-afro-haired adolescent (Japheth) to do the command
+'trap lay 2 on 2.gate'
+You begin setting a trap.
+
+> trap debug 2.gate
+You do not see a trap on that anchor.
+
+[After the configured ten-second setup action]
+
+> trap debug 2.gate
+a retained trap-test electronic gate - LabMUD Test Bear Trap
+State: Armed  Charges: 1
+Triggers: Proximity
+Payloads: DirectDamage and Restraint
+
+Result: PASS. ExitTraversal fired only for the bound exit, the delayed signal
+reached the automation, and non-admin setup was neither instantaneous nor
+created before action completion.

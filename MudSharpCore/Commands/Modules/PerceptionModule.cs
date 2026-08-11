@@ -403,6 +403,60 @@ The syntax is either:
         actor.OutputHandler.Send(sb.ToString());
     }
 
+	[PlayerCommand("Proximity", "proximity", "proximities")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("Proximity", @"The #3proximity#0 command shows visible characters and items ordered by their spatial relationship to you or another target.
+
+	#3proximity#0 - shows how close visible things are to you
+	#3proximity <target>#0 - shows how close visible things are to that target", AutoHelp.HelpArg)]
+	protected static void Proximity(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		IPerceivable target = actor;
+		if (!ss.IsFinished)
+		{
+			target = actor.TargetLocal(ss.SafeRemainingArgument);
+			if (target is null)
+			{
+				actor.Send("You do not see anything like that here.");
+				return;
+			}
+		}
+
+		if (target is not MudSharp.Body.Position.IPositionable positionable)
+		{
+			actor.Send("That thing does not have a meaningful spatial proximity.");
+			return;
+		}
+
+		var things = positionable.LocalThingsAndProximities()
+			.Where(x => !ReferenceEquals(x.Thing, target) && x.Proximity < MudSharp.Construction.Proximity.Unapproximable &&
+			            actor.CanSee(x.Thing))
+			.DistinctBy(x => x.Thing)
+			.OrderBy(x => x.Proximity)
+			.ThenBy(x => x.Thing.Name)
+			.ToList();
+		if (things.Count == 0)
+		{
+			actor.Send("You cannot see anything with a meaningful proximity to that target.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Visible proximities relative to {(ReferenceEquals(target, actor) ? "you" : target.HowSeen(actor))}:");
+		foreach (var group in things.GroupBy(x => x.Proximity))
+		{
+			sb.AppendLine();
+			sb.AppendLine($"[{group.Key.Describe().ColourValue()}]");
+			foreach (var entry in group)
+			{
+				sb.AppendLine($"\t{entry.Thing.HowSeen(actor)}");
+			}
+		}
+
+		actor.Send(sb.ToString());
+	}
+
     [PlayerCommand("Look", "look", "l", "lo", "loo")]
     [RequiredCharacterState(CharacterState.Conscious)]
     [HelpInfo("look",

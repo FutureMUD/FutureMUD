@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using ProgVariableTypes = MudSharp.FutureProg.ProgVariableTypes;
+using MudSharp.Traps;
 
 namespace MudSharp_Unit_Tests;
 
@@ -123,6 +124,20 @@ public class TrapSeederTests
 		Assert.AreEqual(1, context.TraitDefinitions.Count(x => x.Name == "Traps"));
 		Assert.AreEqual(7, context.Checks.Count(x => trapCheckTypes.Contains(x.Type)));
 		Assert.AreEqual(9, context.TrapTemplates.Count(x => x.Name.StartsWith("Stock Trap - ")));
+		Assert.AreEqual(11, context.Tags.Count(x => x.Name == "Trap Components" || x.Parent != null && x.Parent.Name == "Trap Components"));
+		Assert.AreEqual("Functions", context.Tags.Single(x => x.Name == "Trap Components").Parent?.Name);
+
+		foreach (var mechanical in context.TrapTemplates
+			         .Where(x => x.Name.StartsWith("Stock Trap - "))
+			         .AsEnumerable()
+			         .Where(x => XElement.Parse(x.Definition).Attribute("source")?.Value == "Mechanical"))
+		{
+			var roles = XElement.Parse(mechanical.Definition).Element("Components")!.Elements("Component")
+				.Select(x => Enum.Parse<TrapComponentRole>(x.Attribute("role")!.Value))
+				.ToList();
+			Assert.IsTrue(roles.Any(x => x.HasFlag(TrapComponentRole.Trigger)), mechanical.Name);
+			Assert.IsTrue(roles.Any(x => x.HasFlag(TrapComponentRole.Payload)), mechanical.Name);
+		}
 
 		var natural = context.TrapTemplates.Single(x => x.Name == "Stock Trap - Spider Web");
 		var magical = context.TrapTemplates.Single(x => x.Name == "Stock Trap - Magical Glyph");

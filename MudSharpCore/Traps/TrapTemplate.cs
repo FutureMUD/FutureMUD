@@ -5,7 +5,9 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
+using MudSharp.GameItems;
 using MudSharp.Health;
+using MudSharp.Movement;
 using MudSharp.RPG.Checks;
 using MudSharp.Traps;
 using ModelTrapTemplate = MudSharp.Models.TrapTemplate;
@@ -20,6 +22,7 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 {
 	private readonly List<ITrapTrigger> _triggers = [];
 	private readonly List<ITrapPayload> _payloads = [];
+	private readonly List<ITrapComponentRequirement> _componentRequirements = [];
 
 	public TrapTemplate(ModelTrapTemplate template, IFuturemud gameworld) : base(template.EditableItem)
 	{
@@ -37,6 +40,9 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		LifecyclePolicy = TrapLifecyclePolicy.Indefinite;
 		Charges = 1;
 		Cooldown = TimeSpan.Zero;
+		SetupTime = TimeSpan.FromSeconds(10);
+		DisarmTime = TimeSpan.FromSeconds(10);
+		RecoveryTime = TimeSpan.FromSeconds(5);
 		_name = "Unnamed Trap Template";
 
 		using (new FMDB())
@@ -71,6 +77,14 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 	public int Charges { get; private set; }
 	public TimeSpan Cooldown { get; private set; }
 	public TimeSpan? Lifespan { get; private set; }
+	public TimeSpan SetupTime { get; private set; }
+	public TimeSpan DisarmTime { get; private set; }
+	public TimeSpan RecoveryTime { get; private set; }
+	public IFutureProg? KnowledgeProg => _knowledgeProgId.HasValue
+		? Gameworld.FutureProgs.Get(_knowledgeProgId.Value)
+		: null;
+	private long? _knowledgeProgId;
+	public IReadOnlyList<ITrapComponentRequirement> ComponentRequirements => _componentRequirements;
 
 	public override string EditHeader() => $"Trap Template {Name} ({Id:N0}r{RevisionNumber:N0})";
 
@@ -108,6 +122,59 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		if (Cooldown < TimeSpan.Zero)
 		{
 			return "A trap template cannot have a negative cooldown.";
+		}
+
+		if (SetupTime < TimeSpan.Zero || DisarmTime < TimeSpan.Zero || RecoveryTime < TimeSpan.Zero)
+		{
+			return "Trap interaction times cannot be negative.";
+		}
+
+		if (SourceKind == TrapSourceKind.Mechanical && SetupTime <= TimeSpan.Zero)
+		{
+			return "Mechanical traps require a positive setup time for player deployment.";
+		}
+
+		if (SourceKind == TrapSourceKind.Mechanical &&
+		    DisarmPolicy is TrapDisarmPolicy.Safe or TrapDisarmPolicy.Risky && DisarmTime <= TimeSpan.Zero)
+		{
+			return "Disarmable mechanical traps require a positive disarm time.";
+		}
+
+		if (SourceKind == TrapSourceKind.Mechanical && RecoveryTime <= TimeSpan.Zero)
+		{
+			return "Mechanical traps require a positive recovery time.";
+		}
+
+		if (SourceKind == TrapSourceKind.Mechanical &&
+		    !_componentRequirements.Any(x => x.Role.HasFlag(TrapComponentRole.Trigger)))
+		{
+			return "Mechanical traps require at least one physical trigger component.";
+		}
+
+		if (SourceKind == TrapSourceKind.Mechanical &&
+		    !_componentRequirements.Any(x => x.Role.HasFlag(TrapComponentRole.Payload)))
+		{
+			return "Mechanical traps require at least one physical payload component.";
+		}
+
+		if (SourceKind != TrapSourceKind.Mechanical && _componentRequirements.Any())
+		{
+			return "Only mechanical traps may require physical components.";
+		}
+
+		var invalidComponent = _componentRequirements.FirstOrDefault(x => x.Tag is null ||
+			x.Role == TrapComponentRole.None || x.SpentRecoveryChance is < 0.0 or > 100.0 ||
+			x.QualityWeight is < 0.0 or > 10.0);
+		if (invalidComponent is not null)
+		{
+			return "Trap component requirements need a valid tag and role, a recovery chance from 0 to 100, and a quality weight from 0 to 10.";
+		}
+
+		if (_knowledgeProgId.HasValue && (KnowledgeProg is null ||
+		    !KnowledgeProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
+		    !KnowledgeProg.MatchesParameters([ProgVariableTypes.Character])))
+		{
+			return "The knowledge prog must be a boolean FutureProg accepting one character.";
 		}
 
 		if (LifecyclePolicy != TrapLifecyclePolicy.Indefinite && (!Lifespan.HasValue || Lifespan <= TimeSpan.Zero))
@@ -180,6 +247,35 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 			return $"{trigger.TriggerType.DescribeEnum()} trigger maximumproximity must be a proximity.";
 		}
 
+		if (trigger.TriggerType == TrapTriggerType.ExitTraversal)
+		{
+			if (trigger.Parameters.TryGetValue("movementtypes", out var movementTypes) &&
+			    !TryParseMovementTypes(movementTypes, out _))
+			{
+				return "Exit Traversal movementtypes must be a comma-separated list of movement types or All.";
+			}
+
+			if (trigger.Parameters.TryGetValue("minimumsize", out var minimumSize) &&
+			    !minimumSize.TryParseEnum<SizeCategory>(out _))
+			{
+				return "Exit Traversal minimumsize must be a valid size category.";
+			}
+
+			if (trigger.Parameters.TryGetValue("maximumsize", out var maximumSize) &&
+			    !maximumSize.TryParseEnum<SizeCategory>(out _))
+			{
+				return "Exit Traversal maximumsize must be a valid size category.";
+			}
+
+			if (trigger.Parameters.TryGetValue("minimumsize", out minimumSize) &&
+			    trigger.Parameters.TryGetValue("maximumsize", out maximumSize) &&
+			    minimumSize.TryParseEnum<SizeCategory>(out var minimumCategory) &&
+			    maximumSize.TryParseEnum<SizeCategory>(out var maximumCategory) && minimumCategory > maximumCategory)
+			{
+				return "Exit Traversal minimumsize cannot exceed maximumsize.";
+			}
+		}
+
 		if (!trigger.Parameters.TryGetValue("filterprog", out var filterProg))
 		{
 			return null;
@@ -204,6 +300,22 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		return supportedParameters
 			? null
 			: $"{trigger.TriggerType.DescribeEnum()} trigger filterprog has no supported parameter signature.";
+	}
+
+	public static bool TryParseMovementTypes(string text, out MovementType movementTypes)
+	{
+		movementTypes = MovementType.None;
+		foreach (var value in text.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+		{
+			if (!Enum.TryParse(value, true, out MovementType parsed) || parsed == MovementType.None)
+			{
+				return false;
+			}
+
+			movementTypes |= parsed;
+		}
+
+		return movementTypes != MovementType.None;
 	}
 
 	private string? ValidatePayload(ITrapPayload payload)
@@ -314,14 +426,25 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		sb.AppendLine($"Source: {SourceKind.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Charges: {Charges.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Cooldown: {Cooldown.Describe(actor).ColourValue()}");
+		sb.AppendLine($"Interaction Times: setup {SetupTime.Describe(actor).ColourValue()}, disarm {DisarmTime.Describe(actor).ColourValue()}, recover {RecoveryTime.Describe(actor).ColourValue()}");
+		sb.AppendLine($"Known When: {(KnowledgeProg is null ? "everyone" : $"{KnowledgeProg.FunctionName} (#{KnowledgeProg.Id.ToString("N0", actor)})").ColourValue()}");
 		sb.AppendLine($"Disarm: {DisarmPolicy.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Lifecycle: {LifecyclePolicy.DescribeEnum().ColourValue()}{(Lifespan.HasValue ? $" ({Lifespan.Value.Describe(actor)})" : string.Empty)}");
+		if (_componentRequirements.Any())
+		{
+			sb.AppendLine("Physical Components:");
+			for (var index = 0; index < _componentRequirements.Count; index++)
+			{
+				var requirement = _componentRequirements[index];
+				sb.AppendLine($"\t{(index + 1).ToString("N0", actor).ColourValue()}. {requirement.Role.DescribeEnum().ColourName()}: {(requirement.Tag?.Name ?? $"missing tag #{requirement.TagId}").ColourValue()} - spent recovery {requirement.SpentRecoveryChance.ToString("N0", actor).ColourValue()}%, quality weight {requirement.QualityWeight.ToString("N2", actor).ColourValue()}");
+			}
+		}
 		sb.AppendLine();
 		sb.AppendLine("Triggers:");
 		for (var index = 0; index < _triggers.Count; index++)
 		{
 			var trigger = _triggers[index];
-			sb.AppendLine($"\t{(index + 1).ToString("N0", actor).ColourValue()}. {trigger.TriggerType.DescribeEnum().ColourName()}");
+			sb.AppendLine($"\t{(index + 1).ToString("N0", actor).ColourValue()}. {trigger.TriggerType.DescribeEnum().ColourName()} - {trigger.Parameters.Select(x => $"{x.Key}={x.Value}").ListToString()}");
 		}
 
 		sb.AppendLine("Payloads:");
@@ -415,10 +538,24 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 				return BuildingCommandTrigger(actor, command);
 			case "payload":
 				return BuildingCommandPayload(actor, command);
+			case "component":
+			case "components":
+				return BuildingCommandComponent(actor, command);
 			case "charges":
 				return BuildingCommandCharges(actor, command);
 			case "cooldown":
 				return BuildingCommandCooldown(actor, command);
+			case "setuptime":
+			case "setup":
+				return BuildingCommandTime(actor, command, "setup", value => SetupTime = value);
+			case "disarmtime":
+				return BuildingCommandTime(actor, command, "disarm", value => DisarmTime = value);
+			case "recoverytime":
+			case "recovertime":
+				return BuildingCommandTime(actor, command, "recovery", value => RecoveryTime = value);
+			case "knowledgeprog":
+			case "knowprog":
+				return BuildingCommandKnowledgeProg(actor, command);
 			case "disarm":
 				return BuildingCommandDisarm(actor, command);
 			case "lifecycle":
@@ -454,7 +591,8 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 			return false;
 		}
 
-		if (_triggers.Any(x => !x.CompatibleSourceKinds.Contains(sourceKind)) || _payloads.Any(x => !x.CompatibleSourceKinds.Contains(sourceKind)))
+		if (_triggers.Any(x => !x.CompatibleSourceKinds.Contains(sourceKind)) || _payloads.Any(x => !x.CompatibleSourceKinds.Contains(sourceKind)) ||
+		    sourceKind != TrapSourceKind.Mechanical && _componentRequirements.Any())
 		{
 			actor.Send("That source kind is incompatible with one or more existing modules. Remove or replace them first.");
 			return false;
@@ -466,11 +604,86 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		return true;
 	}
 
+	private bool BuildingCommandComponent(ICharacter actor, StringStack command)
+	{
+		const string syntax = "Use component add <trigger|payload|both> <tag> [spent recovery %] [quality weight], or component remove <number>.";
+		if (SourceKind != TrapSourceKind.Mechanical)
+		{
+			actor.Send("Only mechanical trap templates use physical component requirements.");
+			return false;
+		}
+
+		switch (command.PopForSwitch())
+		{
+			case "remove":
+			case "delete":
+				if (!int.TryParse(command.PopSpeech(), out var index) || index < 1 || index > _componentRequirements.Count)
+				{
+					actor.Send("There is no such component requirement.");
+					return false;
+				}
+				_componentRequirements.RemoveAt(index - 1);
+				Changed = true;
+				actor.Send("You remove that physical component requirement.");
+				return true;
+			case "add":
+			case "new":
+				break;
+			default:
+				actor.Send(syntax);
+				return false;
+		}
+
+		var roleText = command.PopSpeech();
+		var role = roleText.CollapseString() switch
+		{
+			"trigger" => TrapComponentRole.Trigger,
+			"payload" => TrapComponentRole.Payload,
+			"both" or "triggerandpayload" => TrapComponentRole.TriggerAndPayload,
+			_ => TrapComponentRole.None
+		};
+		if (role == TrapComponentRole.None || command.IsFinished)
+		{
+			actor.Send(syntax);
+			return false;
+		}
+
+		var tag = Gameworld.Tags.GetByIdOrName(command.PopSpeech());
+		if (tag is null)
+		{
+			actor.Send("There is no such item tag.");
+			return false;
+		}
+
+		var recoveryChance = 75.0;
+		var qualityWeight = 1.0;
+		if (!command.IsFinished && (!double.TryParse(command.PopSpeech().TrimEnd('%'), actor, out recoveryChance) || recoveryChance is < 0.0 or > 100.0))
+		{
+			actor.Send("The spent recovery chance must be a percentage from 0 to 100.");
+			return false;
+		}
+		if (!command.IsFinished && (!double.TryParse(command.PopSpeech(), actor, out qualityWeight) || qualityWeight is < 0.0 or > 10.0))
+		{
+			actor.Send("The quality weight must be a number from 0 to 10.");
+			return false;
+		}
+		if (!command.IsFinished)
+		{
+			actor.Send(syntax);
+			return false;
+		}
+
+		_componentRequirements.Add(new TrapComponentRequirementDefinition(Gameworld, tag.Id, role, recoveryChance, qualityWeight));
+		Changed = true;
+		actor.Send($"You add a {role.DescribeEnum().ColourName()} component requiring the {tag.Name.ColourName()} tag, with {recoveryChance.ToString("N0", actor).ColourValue()}% spent recovery and {qualityWeight.ToString("N2", actor).ColourValue()} quality weight.");
+		return true;
+	}
+
 	private bool BuildingCommandTrigger(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
 		{
-			actor.Send("Use trigger add <type>, trigger remove <number>, or trigger <number> parameter <name> <value>.");
+			actor.Send(TriggerBuildingHelp(actor));
 			return false;
 		}
 
@@ -509,22 +722,105 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 			return true;
 		}
 
-		if (!int.TryParse(command.PopSpeech(), out var triggerIndex) || triggerIndex < 1 || triggerIndex > _triggers.Count || command.PopForSwitch() is not ("parameter" or "param"))
+		if (!int.TryParse(command.PopSpeech(), out var triggerIndex) || triggerIndex < 1 || triggerIndex > _triggers.Count)
 		{
-			actor.Send("Use trigger <number> parameter <name> <value>.");
+			actor.Send(TriggerBuildingHelp(actor));
 			return false;
 		}
 
-		if (_triggers[triggerIndex - 1] is not TrapTriggerDefinition triggerDefinition || command.IsFinished)
+		if (_triggers[triggerIndex - 1] is not TrapTriggerDefinition triggerDefinition)
 		{
-			actor.Send("You must specify a parameter name and value.");
+			actor.Send(TriggerBuildingHelp(actor, triggerIndex));
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.Send(TriggerBuildingHelp(actor, triggerIndex));
+			return false;
+		}
+
+		if (command.PopForSwitch() is not ("parameter" or "param"))
+		{
+			actor.Send(TriggerBuildingHelp(actor, triggerIndex));
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.Send(TriggerBuildingHelp(actor, triggerIndex));
 			return false;
 		}
 
 		var parameterName = command.PopSpeech();
+		if (!TrapTriggerDefinition.IsSupportedParameter(triggerDefinition.TriggerType, parameterName) || command.IsFinished)
+		{
+			actor.Send(TriggerBuildingHelp(actor, triggerIndex));
+			return false;
+		}
 		triggerDefinition.SetParameter(parameterName, command.SafeRemainingArgument);
 		Changed = true;
 		actor.Send($"You set the {parameterName.ColourName()} parameter on that trigger.");
+		return true;
+	}
+
+	private string TriggerBuildingHelp(ICharacter actor, int? triggerIndex = null)
+	{
+		if (!triggerIndex.HasValue)
+		{
+			return "Use trigger add <type>, trigger remove <number>, trigger <number>, or trigger <number> parameter <name> <value>.\n" +
+			       $"Trigger types are {Enum.GetValues<TrapTriggerType>().Select(x => x.DescribeEnum().ColourCommand()).ListToString()}.";
+		}
+
+		var trigger = _triggers[triggerIndex.Value - 1];
+		var sb = new StringBuilder();
+		sb.AppendLine($"Trigger {triggerIndex.Value.ToString("N0", actor).ColourValue()}: {trigger.TriggerType.DescribeEnum().ColourName()}");
+		sb.AppendLine("Parameters:");
+		foreach (var parameter in TrapTriggerDefinition.ParametersFor(trigger.TriggerType))
+		{
+			var value = trigger.Parameters.GetValueOrDefault(parameter.Name) ?? parameter.DefaultValue;
+			sb.AppendLine($"\t{parameter.Name.ColourCommand()} = {value.ColourValue()} - {parameter.Description}");
+		}
+		sb.AppendLine();
+		sb.AppendLine($"Use {"trigger <number> parameter <name> <value>".ColourCommand()} to change a value.");
+		return sb.ToString();
+	}
+
+	private bool BuildingCommandTime(ICharacter actor, StringStack command, string name, Action<TimeSpan> setter)
+	{
+		if (!TimeSpan.TryParse(command.SafeRemainingArgument, actor, out var value) || value < TimeSpan.Zero)
+		{
+			actor.Send($"You must specify a non-negative timespan for the {name} time.");
+			return false;
+		}
+
+		setter(value);
+		Changed = true;
+		actor.Send($"The {name} time is now {value.Describe(actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandKnowledgeProg(ICharacter actor, StringStack command)
+	{
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			_knowledgeProgId = null;
+			Changed = true;
+			actor.Send("Everyone will now know this trap template.");
+			return true;
+		}
+
+		var prog = Gameworld.FutureProgs.GetByIdOrName(command.SafeRemainingArgument);
+		if (prog is null || !prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
+		    !prog.MatchesParameters([ProgVariableTypes.Character]))
+		{
+			actor.Send("You must specify a boolean FutureProg accepting one character, or none.");
+			return false;
+		}
+
+		_knowledgeProgId = prog.Id;
+		Changed = true;
+		actor.Send($"This trap is now known when {prog.MXPClickableFunctionName().ColourName()} returns true.");
 		return true;
 	}
 
@@ -578,7 +874,7 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 
 		switch (command.PopForSwitch())
 		{
-			case "delay" when TimeSpan.TryParse(command.SafeRemainingArgument, out var delay) && delay >= TimeSpan.Zero:
+			case "delay" when TimeSpan.TryParse(command.SafeRemainingArgument, actor, out var delay) && delay >= TimeSpan.Zero:
 				payloadDefinition.SetDelay(delay);
 				Changed = true;
 				actor.Send($"That payload will now wait {delay.Describe(actor).ColourValue()}.");
@@ -620,7 +916,7 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 
 	private bool BuildingCommandCooldown(ICharacter actor, StringStack command)
 	{
-		if (!TimeSpan.TryParse(command.SafeRemainingArgument, out var cooldown) || cooldown < TimeSpan.Zero)
+		if (!TimeSpan.TryParse(command.SafeRemainingArgument, actor, out var cooldown) || cooldown < TimeSpan.Zero)
 		{
 			actor.Send("You must specify a non-negative timespan.");
 			return false;
@@ -661,7 +957,7 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		TimeSpan? lifespan = null;
 		if (!command.IsFinished)
 		{
-			if (!TimeSpan.TryParse(command.SafeRemainingArgument, out var parsedLifespan) || parsedLifespan <= TimeSpan.Zero)
+			if (!TimeSpan.TryParse(command.SafeRemainingArgument, actor, out var parsedLifespan) || parsedLifespan <= TimeSpan.Zero)
 			{
 				actor.Send("You must specify a positive lifespan.");
 				return false;
@@ -694,9 +990,15 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 			: TrapLifecyclePolicy.Indefinite;
 		Charges = int.TryParse(root.Attribute("charges")?.Value, out var charges) ? Math.Max(1, charges) : 1;
 		Cooldown = TimeSpan.TryParse(root.Attribute("cooldown")?.Value, out var cooldown) ? cooldown : TimeSpan.Zero;
+		SetupTime = TimeSpan.TryParse(root.Attribute("setuptime")?.Value, out var setupTime) ? setupTime : TimeSpan.FromSeconds(10);
+		DisarmTime = TimeSpan.TryParse(root.Attribute("disarmtime")?.Value, out var disarmTime) ? disarmTime : TimeSpan.FromSeconds(10);
+		RecoveryTime = TimeSpan.TryParse(root.Attribute("recoverytime")?.Value, out var recoveryTime) ? recoveryTime : TimeSpan.FromSeconds(5);
+		_knowledgeProgId = long.TryParse(root.Attribute("knowledgeprog")?.Value, out var knowledgeProgId) ? knowledgeProgId : null;
 		Lifespan = TimeSpan.TryParse(root.Attribute("lifespan")?.Value, out var lifespan) ? lifespan : null;
 		_triggers.AddRange(root.Element("Triggers")?.Elements("Trigger").Select(TrapTriggerDefinition.LoadFromXml) ?? Enumerable.Empty<TrapTriggerDefinition>());
 		_payloads.AddRange(root.Element("Payloads")?.Elements("Payload").Select(TrapPayloadDefinition.LoadFromXml) ?? Enumerable.Empty<TrapPayloadDefinition>());
+		_componentRequirements.AddRange(root.Element("Components")?.Elements("Component")
+			.Select(x => TrapComponentRequirementDefinition.LoadFromXml(x, Gameworld)) ?? []);
 	}
 
 	private XElement SaveDefinition()
@@ -707,9 +1009,18 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 			new XAttribute("lifecycle", LifecyclePolicy),
 			new XAttribute("charges", Charges),
 			new XAttribute("cooldown", Cooldown.ToString("c")),
+			new XAttribute("setuptime", SetupTime.ToString("c")),
+			new XAttribute("disarmtime", DisarmTime.ToString("c")),
+			new XAttribute("recoverytime", RecoveryTime.ToString("c")),
+			_knowledgeProgId.HasValue ? new XAttribute("knowledgeprog", _knowledgeProgId.Value) : null,
 			Lifespan.HasValue ? new XAttribute("lifespan", Lifespan.Value.ToString("c")) : null,
 			new XElement("Triggers", _triggers.Select(x => XElement.Parse(x.SaveToXml()))),
-			new XElement("Payloads", _payloads.Select(x => XElement.Parse(x.SaveToXml()))));
+			new XElement("Payloads", _payloads.Select(x => XElement.Parse(x.SaveToXml()))),
+			new XElement("Components", _componentRequirements.Select(x => new XElement("Component",
+				new XAttribute("tag", x.TagId),
+				new XAttribute("role", x.Role),
+				new XAttribute("recovery", x.SpentRecoveryChance),
+				new XAttribute("qualityweight", x.QualityWeight)))));
 	}
 
 	private const string BuildingHelpText = @"You can use the following options with this command:
@@ -724,8 +1035,14 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 	#3payload <number> delay <timespan>#0 - sets its delay
 	#3payload <number> target <selector>#0 - sets its target selector
 	#3payload <number> parameter <name> <value>#0 - configures a payload
+	#3component add <trigger|payload|both> <tag> [spent recovery %] [quality weight]#0 - requires a tagged physical part
+	#3component remove <number>#0 - removes a physical component requirement
 	#3charges <number>#0 - sets the number of activations
 	#3cooldown <timespan>#0 - sets the delay before rearming
+	#3setuptime <timespan>#0 - sets the mundane trap laying time
+	#3disarmtime <timespan>#0 - sets the mundane disarming time
+	#3recoverytime <timespan>#0 - sets the mundane recovery time
+	#3knowprog <prog|none>#0 - controls which characters know this template
 	#3disarm <policy>#0 - sets disarm behaviour
 	#3lifecycle <policy> [lifespan]#0 - sets expiry behaviour
 	#3validate#0 - reports whether the template can be submitted

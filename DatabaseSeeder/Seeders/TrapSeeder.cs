@@ -21,6 +21,7 @@ namespace DatabaseSeeder.Seeders;
 public sealed class TrapSeeder : IDatabaseSeeder
 {
 	private const string StockPrefix = "Stock Trap - ";
+	private const string TrapComponentRoot = "Trap Components";
 
 	public bool SafeToRunMoreThanOnce => true;
 	public IEnumerable<(string Id, string Question,
@@ -29,9 +30,9 @@ public sealed class TrapSeeder : IDatabaseSeeder
 
 	public int SortOrder => 205;
 	public string Name => "Trap System Starter Pack";
-	public string Tagline => "Adds trap checks, a Traps skill, and safe example templates";
+	public string Tagline => "Adds trap checks, component tags, a Traps skill, and safe example templates";
 	public string FullDescription =>
-		"Installs the Traps skill, all trap-specific checks, and idempotent stock templates for mechanical, magical, and natural traps. The templates are conservative examples and can be copied and tuned by builders.";
+		"Installs the Traps skill, all trap-specific checks, physical component tags, and idempotent stock templates for mechanical, magical, and natural traps. The templates are conservative examples and can be copied and tuned by builders.";
 
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
 	{
@@ -53,10 +54,11 @@ public sealed class TrapSeeder : IDatabaseSeeder
 		{
 			var traps = EnsureTrapsSkill(context);
 			EnsureChecks(context, traps);
-			EnsureTemplates(context);
+			var tags = EnsureComponentTags(context);
+			EnsureTemplates(context, tags);
 			context.SaveChanges();
 			transaction.Commit();
-			return "Installed or refreshed the stock trap skill, checks, and templates.";
+			return "Installed or refreshed the stock trap skill, checks, physical component tags, and templates.";
 		}
 		catch
 		{
@@ -165,7 +167,39 @@ public sealed class TrapSeeder : IDatabaseSeeder
 		context.SaveChanges();
 	}
 
-	private static void EnsureTemplates(FuturemudDatabaseContext context)
+	private static IReadOnlyDictionary<string, Tag> EnsureComponentTags(FuturemudDatabaseContext context)
+	{
+		var names = new[]
+		{
+			"Tripwire Trigger", "Signal Trap Trigger", "Signal Trap Payload", "Explosive Trap Payload", "Pressure Trap Mechanism",
+			"Openable Trap Trigger", "Liquid Trap Payload", "Needle Trap Mechanism", "Bear Trap Mechanism",
+			"Gas Trap Payload"
+		};
+		var functions = EnsureTag(context, "Functions", null);
+		var root = EnsureTag(context, TrapComponentRoot, functions);
+		foreach (var name in names)
+		{
+			EnsureTag(context, name, root);
+		}
+		context.SaveChanges();
+		return context.Tags.Where(x => names.Contains(x.Name)).ToDictionary(x => x.Name);
+	}
+
+	private static Tag EnsureTag(FuturemudDatabaseContext context, string name, Tag? parent)
+	{
+		var tag = context.Tags.FirstOrDefault(x => x.Name == name);
+		if (tag is null)
+		{
+			tag = new Tag { Name = name, Parent = parent };
+			context.Tags.Add(tag);
+			context.SaveChanges();
+			return tag;
+		}
+		tag.Parent = parent;
+		return tag;
+	}
+
+	private static void EnsureTemplates(FuturemudDatabaseContext context, IReadOnlyDictionary<string, Tag> tags)
 	{
 		var accountId = context.Accounts.OrderBy(x => x.Id).First().Id;
 		var now = DateTime.UtcNow;
@@ -181,41 +215,50 @@ public sealed class TrapSeeder : IDatabaseSeeder
 		EnsureTemplate(context, ref nextId, accountId, now, "Tripwire Alarm",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Safe,
 				Trigger(TrapTriggerType.ExitTraversal),
+				[Component(tags["Tripwire Trigger"], TrapComponentRole.Trigger, 85.0), Component(tags["Signal Trap Payload"], TrapComponentRole.Payload, 95.0)],
 				Payload(TrapPayloadType.EmitSignal, ("targetitem", "0"), ("value", "1"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Tripwire Explosive",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Risky,
 				Trigger(TrapTriggerType.ExitTraversal),
+				[Component(tags["Tripwire Trigger"], TrapComponentRole.Trigger, 85.0), Component(tags["Explosive Trap Payload"], TrapComponentRole.Payload, 0.0)],
 				Payload(TrapPayloadType.DetonateItem)));
 		EnsureTemplate(context, ref nextId, accountId, now, "Pressure Plate",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Risky,
 				Trigger(TrapTriggerType.CellEntry),
+				[Component(tags["Pressure Trap Mechanism"], TrapComponentRole.TriggerAndPayload, 70.0)],
 				Payload(TrapPayloadType.DirectDamage, ("damage", "8"), ("damagetype", "Crushing"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Trapped Chest Liquid Splash",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Safe,
 				Trigger(TrapTriggerType.Openable),
+				[Component(tags["Openable Trap Trigger"], TrapComponentRole.Trigger, 90.0), Component(tags["Liquid Trap Payload"], TrapComponentRole.Payload, 60.0)],
 				Payload(TrapPayloadType.LiquidDischarge, ("liquid", liquidId.ToString()), ("amount", "0.25"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Trapped Chest Needle",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Risky,
 				Trigger(TrapTriggerType.Openable),
+				[Component(tags["Needle Trap Mechanism"], TrapComponentRole.TriggerAndPayload, 65.0)],
 				Payload(TrapPayloadType.DirectDamage, ("damage", "3"), ("damagetype", "Piercing"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Bear Trap",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Risky,
 				Trigger(TrapTriggerType.Proximity),
+				[Component(tags["Bear Trap Mechanism"], TrapComponentRole.TriggerAndPayload, 80.0)],
 				Payload(TrapPayloadType.DirectDamage, ("damage", "10"), ("damagetype", "Piercing")),
 				Payload(TrapPayloadType.Restraint, ("duration", "00:00:30"), ("description", "caught in a bear trap"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Spider Web",
 			Definition(TrapSourceKind.Natural, TrapDisarmPolicy.Safe,
 				Trigger(TrapTriggerType.Proximity),
+				[],
 				Payload(TrapPayloadType.Restraint, ("duration", "00:00:20"), ("description", "entangled in sticky webbing"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Magical Glyph",
 			Definition(TrapSourceKind.Magical, TrapDisarmPolicy.Dispellable,
 				Trigger(TrapTriggerType.CellEntry),
+				[],
 				spellId > 0
 					? Payload(TrapPayloadType.CastSpell, ("spell", spellId.ToString()), ("power", "Standard"))
 					: Payload(TrapPayloadType.DirectDamage, ("damage", "5"), ("damagetype", "Electrical"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Gas Release",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Safe,
 				Trigger(TrapTriggerType.Openable),
+				[Component(tags["Openable Trap Trigger"], TrapComponentRole.Trigger, 90.0), Component(tags["Gas Trap Payload"], TrapComponentRole.Payload, 50.0)],
 				Payload(TrapPayloadType.GasCloud, ("gas", gasId.ToString()), ("duration", "00:00:30"), ("dose", "0.01"))));
 	}
 
@@ -257,6 +300,7 @@ public sealed class TrapSeeder : IDatabaseSeeder
 	}
 
 	private static string Definition(TrapSourceKind source, TrapDisarmPolicy disarm, XElement trigger,
+		IEnumerable<XElement> components,
 		params XElement[] payloads)
 	{
 		return new XElement("TrapTemplate",
@@ -266,7 +310,8 @@ public sealed class TrapSeeder : IDatabaseSeeder
 			new XAttribute("charges", 1),
 			new XAttribute("cooldown", TimeSpan.Zero),
 			new XElement("Triggers", trigger),
-			new XElement("Payloads", payloads)).ToString();
+			new XElement("Payloads", payloads),
+			new XElement("Components", components)).ToString();
 	}
 
 	private static XElement Trigger(TrapTriggerType type, params (string Name, string Value)[] parameters) =>
@@ -280,4 +325,11 @@ public sealed class TrapSeeder : IDatabaseSeeder
 			new XAttribute("delay", TimeSpan.Zero),
 			new XAttribute("target", TrapTargetSelector.Triggerer),
 			parameters.Select(x => new XElement("Parameter", new XAttribute("name", x.Name), new XCData(x.Value))));
+
+	private static XElement Component(Tag tag, TrapComponentRole role, double recoveryChance) =>
+		new("Component",
+			new XAttribute("tag", tag.Id),
+			new XAttribute("role", role),
+			new XAttribute("recovery", recoveryChance),
+			new XAttribute("qualityweight", 1.0));
 }

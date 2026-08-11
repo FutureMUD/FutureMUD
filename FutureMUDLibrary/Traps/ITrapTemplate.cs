@@ -1,6 +1,8 @@
 #nullable enable
 
 using MudSharp.Framework.Revision;
+using MudSharp.FutureProg;
+using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -19,4 +21,18 @@ public interface ITrapTemplate : IEditableRevisableItem
 	int Charges { get; }
 	TimeSpan Cooldown { get; }
 	TimeSpan? Lifespan { get; }
+	TimeSpan SetupTime { get; }
+	TimeSpan DisarmTime { get; }
+	TimeSpan RecoveryTime { get; }
+	IFutureProg? KnowledgeProg { get; }
+	IReadOnlyList<ITrapComponentRequirement> ComponentRequirements { get; }
+}
+
+public interface ITrapComponentRequirement
+{
+	long TagId { get; }
+	ITag? Tag { get; }
+	TrapComponentRole Role { get; }
+	double SpentRecoveryChance { get; }
+	double QualityWeight { get; }
 }

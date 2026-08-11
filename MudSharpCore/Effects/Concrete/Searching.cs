@@ -137,8 +137,7 @@ public class Searching : CharacterAction
 			}
 
 			trap.MarkKnownBy(CharacterOwner);
-			CharacterOwner.OutputHandler.Handle(
-				new EmoteOutput(new Emote("You find evidence of a trap on $0.", CharacterOwner, trap.Owner)));
+			CharacterOwner.Send($"You find evidence of a trap on {trap.DescribeAnchor(CharacterOwner)}.");
 		}
 
         Difficulty newDifficulty = CurrentDifficulty.StageDown(1);

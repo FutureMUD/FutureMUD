@@ -1,0 +1,40 @@
+LabMUD exit-bound explosive tripwire - 2026-08-11
+Database: labmud_dbo
+Build: current codex/trap-ux-followup worktree, isolated listener 127.0.0.1:4001
+
+> item load 812
+You load a cranial bomb with a long fuse cord.
+
+> drop bomb
+You drop a cranial bomb with a long fuse cord.
+
+> trap create 1 on north using bomb
+You finish setting LabMUD Test Tripwire Explosion on a cranial bomb with a long
+fuse cord at the North exit.
+
+> trap debug north
+a cranial bomb with a long fuse cord at the North exit - LabMUD Test Tripwire Explosion
+State: Armed  Charges: 1
+Source: Mechanical  Template: 1r0
+Triggers: ExitTraversal
+Payloads: DetonateItem
+Disarm: Risky  Lifecycle: Indefinite
+
+> look bomb
+You can see LabMUD Test Tripwire Explosion installed on it (armed).
+
+> evaluate bomb
+You can see LabMUD Test Tripwire Explosion installed on it (armed).
+
+> npc load 77
+A black-afro-haired adolescent (Japheth) has entered the area.
+
+> as 1.adolescent north
+
+The explosive resolved during traversal and reset the connected admin socket.
+The server console contained no unhandled exception after the detonation; the
+test helper then stopped the isolated server normally.
+
+Result: PASS. The exit and physical explosive are independently represented:
+the movement event is bound to the north exit side and DetonateItem retains the
+bomb as its physical owner.

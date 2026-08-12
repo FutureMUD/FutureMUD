@@ -108,9 +108,10 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
         IBodyPrototype parent = Gameworld.BodyPrototypes.Get(_countsAsId ?? 0);
         if (parent != null)
         {
+            var locallyDefinedPositions = _speeds.Select(x => x.Position).ToHashSet();
             foreach (IMoveSpeed speed in parent.Speeds)
             {
-                if (!_speeds.Has(speed))
+                if (!locallyDefinedPositions.Contains(speed.Position) && !_speeds.Has(speed))
                 {
                     _speeds.Add(speed);
                 }

@@ -159,6 +159,36 @@ public class TrapModuleDefinitionTests
 	}
 
 	[TestMethod]
+	public void CellTrapInitialisation_DefersItemResolutionUntilWorldItemsAreLoaded()
+	{
+		var templates = new RevisableAll<ITrapTemplate>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.TrapTemplates).Returns(templates);
+		var cell = new Mock<ICell>();
+		cell.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(123L);
+		var template = new Mock<ITrapTemplate>();
+		template.SetupGet(x => x.Id).Returns(300L);
+		template.SetupGet(x => x.RevisionNumber).Returns(4);
+		template.SetupGet(x => x.Charges).Returns(1);
+		template.SetupGet(x => x.Triggers).Returns([]);
+		var binding = new TrapComponentBinding(gameworld.Object, item.Object,
+			TrapComponentRole.TriggerAndPayload, 80.0, 2.0);
+		var trap = new TrapEffect(cell.Object, template.Object, components: [binding]);
+
+		trap.InitialEffect();
+		trap.Login();
+
+		gameworld.Verify(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()), Times.Never);
+
+		templates.Add(template.Object);
+		trap.InitialiseAfterWorldItems();
+
+		gameworld.Verify(x => x.TryGetItem(123L, true), Times.Once);
+	}
+
+	[TestMethod]
 	public void ComponentMatcher_AllowsOneItemToServeTriggerAndPayloadButNotDuplicateRoles()
 	{
 		var gameworld = new Mock<IFuturemud>();

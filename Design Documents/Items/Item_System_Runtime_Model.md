@@ -599,6 +599,8 @@ When documenting or extending the system, treat these as framework-level special
 
 Mechanical traps bind ordinary live `IGameItem` instances to tagged trigger and payload requirements. The deployed saving effect persists item IDs, roles, spent-recovery chances, and quality weights in its existing effect XML. It recreates a non-saving `INoGetEffect` reservation on initialisation/login and removes that reservation when the trap is dismantled or deleted. This avoids a second item type or relational ownership table while ensuring an installed wire, charge, signal device, reservoir, or dual-role bear trap cannot be picked up independently.
 
+Cell-owned trap effects are parsed with their cells but defer item-dependent runtime initialisation until the startup world-item pass has completed. This is required because cells precede item groups and prototypes in the established boot dependency graph. The post-world-item trap pass then restores interrupted-resolution state, trigger subscriptions, and component reservations before NPCs load or gameplay begins; unrelated cell effects retain their existing load timing.
+
 The trap effect is the lifecycle owner. Safe dismantling releases every extant component. Spent dismantling makes one recovery decision per distinct item even when that item satisfies two requirements, and failed recovery calls the ordinary item deletion path. If a spent trap has no component with any recovery opportunity, it removes its effect and deletes zero-chance remnants after the last delayed payload. Item quality remains the standard live `IGameItem.Quality`; trap calculations read it through configured requirement weights rather than duplicating quality state.
 
 ## Runtime Integration: Thermal Sources

@@ -97,7 +97,12 @@ chmod +x "$release/proxy/MudWebSocketProxy" "$release/tools/MudClientDeployment"
 if ! id -u mudclient >/dev/null 2>&1; then
 	useradd --system --home "$install_root" --shell /usr/sbin/nologin mudclient
 fi
-chown -R mudclient:mudclient "$install_root/releases" "$config_root/proxy"
+# Release scripts and verification tools are invoked by root during upgrades, so the
+# unprivileged proxy account must never be able to replace them.
+chown root:root "$install_root"
+chown -R root:root "$install_root/releases"
+chmod -R go-w "$install_root/releases"
+chown -R mudclient:mudclient "$config_root/proxy"
 install -m 0644 "$release/deploy/linux/mudclient-proxy.service" /etc/systemd/system/mudclient-proxy.service
 
 if [[ -n "$domain" ]]; then

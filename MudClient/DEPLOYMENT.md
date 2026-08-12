@@ -31,7 +31,7 @@ Linux additionally requires systemd, bash, curl, unzip, and Caddy v2 managed by 
 
 ## One-time migration and automated upgrades
 
-MudClient 1.2.0 is the first release with a safe upgrade layout. Its release files are immutable under `releases/<version>`; `current`, `web`, and `proxy` stay at stable paths so an upgrade does not alter Caddy, DNS, TLS, firewall, MUD, or database configuration. Operator settings are moved to `/etc/mudclient` on Linux and `%ProgramData%\FutureMUD\MudClient` on Windows.
+MudClient 1.2.0 is the first release with a safe upgrade layout. Its release files are immutable under `releases/<version>`; on Linux they remain root-owned and are not writable by the `mudclient` proxy account because root invokes the updater and verification tools from the active release. `current`, `web`, and `proxy` stay at stable paths so an upgrade does not alter Caddy, DNS, TLS, firewall, MUD, or database configuration. Operator settings are moved to `/etc/mudclient` on Linux and `%ProgramData%\FutureMUD\MudClient` on Windows.
 
 To migrate an existing 1.0.1 or 1.1.0 Linux installation, download and extract the 1.3.1 archive once, then run the installer with the original archive:
 

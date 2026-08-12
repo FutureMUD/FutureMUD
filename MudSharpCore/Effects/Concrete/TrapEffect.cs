@@ -28,11 +28,14 @@ namespace MudSharp.Effects.Concrete;
 public sealed class TrapComponentBinding : ITrapComponentBinding
 {
 	private readonly IFuturemud _gameworld;
+	private IGameItem? _item;
+	private readonly IGameItem? _fallbackItem;
 
 	public TrapComponentBinding(IFuturemud gameworld, IGameItem item, TrapComponentRole role,
 		double spentRecoveryChance, double qualityWeight)
 	{
 		_gameworld = gameworld;
+		_fallbackItem = item;
 		ItemId = item.Id;
 		Role = role;
 		SpentRecoveryChance = spentRecoveryChance;
@@ -64,7 +67,19 @@ public sealed class TrapComponentBinding : ITrapComponentBinding
 	}
 
 	public long ItemId { get; }
-	public IGameItem? Item => _gameworld.TryGetItem(ItemId, true) is { Deleted: false } item ? item : null;
+	public IGameItem? Item
+	{
+		get
+		{
+			if (_item is not null)
+			{
+				return _item.Deleted ? null : _item;
+			}
+
+			_item = _gameworld.TryGetItem(ItemId, true) ?? _fallbackItem;
+			return _item is { Deleted: false } ? _item : null;
+		}
+	}
 	public TrapComponentRole Role { get; }
 	public double SpentRecoveryChance { get; }
 	public double QualityWeight { get; }
@@ -84,7 +99,6 @@ public sealed class TrapComponentBinding : ITrapComponentBinding
 	public static TrapComponentBinding LoadFromXml(XElement root, IFuturemud gameworld)
 	{
 		var itemId = long.Parse(root.Attribute("item")?.Value ?? "0");
-		var item = gameworld.TryGetItem(itemId, true);
 		return new TrapComponentBinding(
 			gameworld,
 			itemId,
@@ -97,11 +111,11 @@ public sealed class TrapComponentBinding : ITrapComponentBinding
 				CultureInfo.InvariantCulture, out var qualityWeight) ? qualityWeight : 1.0,
 			Enum.TryParse(root.Attribute("layer")?.Value, true, out RoomLayer layer)
 				? layer
-				: item?.RoomLayer ?? RoomLayer.GroundLevel,
+				: RoomLayer.GroundLevel,
 			double.TryParse(root.Attribute("routeposition")?.Value, NumberStyles.Float,
 				CultureInfo.InvariantCulture, out var routePosition)
 				? routePosition
-				: item?.RoutePositionMetres);
+				: null);
 	}
 }
 
@@ -240,17 +254,32 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	public override void InitialEffect()
 	{
 		base.InitialEffect();
-		RecoverInterruptedResolution();
-		SubscribeSignalTriggers();
-		SubscribeProximityTriggers();
-		SubscribeOwnerLifecycle();
-		ReserveComponents();
-		DetachInstalledComponents();
+		InitialiseRuntime(deferCellInitialisation: true);
 	}
 
 	public override void Login()
 	{
 		base.Login();
+		InitialiseRuntime(deferCellInitialisation: true);
+	}
+
+	/// <summary>
+	/// Cell effects are hydrated with the world, before trap templates and game item prototypes. Complete their
+	/// dependency-sensitive initialisation once world items have loaded. Item- and character-owned traps already
+	/// load after those dependencies and use the ordinary effect lifecycle.
+	/// </summary>
+	internal void InitialiseAfterWorldItems()
+	{
+		InitialiseRuntime(deferCellInitialisation: false);
+	}
+
+	private void InitialiseRuntime(bool deferCellInitialisation)
+	{
+		if (deferCellInitialisation && Owner is ICell && Template is null)
+		{
+			return;
+		}
+
 		RecoverInterruptedResolution();
 		SubscribeSignalTriggers();
 		SubscribeProximityTriggers();

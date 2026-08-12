@@ -16,9 +16,30 @@ namespace MudSharp.FutureProg.Variables
 
         public CollectionVariable(IList underlyingList, ProgVariableTypes underlyingType)
         {
-            _underlyingList = underlyingList?.Cast<object>().Select(x => NormaliseCollectionItem(x, underlyingType)).ToList() ?? new List<IProgVariable>();
+			if (underlyingList is null)
+			{
+				_underlyingList = new List<IProgVariable>();
+			}
+			else
+			{
+				var items = new List<IProgVariable>(underlyingList.Count);
+				foreach (var item in underlyingList)
+				{
+					items.Add(NormaliseCollectionItem(item, underlyingType));
+				}
+
+				_underlyingList = items;
+			}
+
             _underlyingType = underlyingType;
         }
+
+		private CollectionVariable(IList<IProgVariable> underlyingList, ProgVariableTypes underlyingType,
+			bool takeOwnership)
+		{
+			_underlyingList = underlyingList;
+			_underlyingType = underlyingType;
+		}
 
         public override ProgVariableTypes Type => ProgVariableTypes.Collection | _underlyingType;
 
@@ -114,7 +135,7 @@ namespace MudSharp.FutureProg.Variables
 
         public override IProgVariable GetProperty(string property)
         {
-            switch (property.ToLowerInvariant())
+			switch (CanonicalProperty(property))
             {
                 case "count":
                     return new NumberVariable(_underlyingList.Count);
@@ -133,10 +154,26 @@ namespace MudSharp.FutureProg.Variables
                         list.Add(_underlyingList[i]);
                     }
 
-                    return new CollectionVariable(list, _underlyingType);
+					return new CollectionVariable(list, _underlyingType, true);
 
             }
             throw new NotSupportedException("Invalid property requested in CollectionVariable.GetProperty");
         }
+
+		private static string CanonicalProperty(string property)
+		{
+			if (property is "count" or "any" or "empty" or "first" or "last" or "reverse")
+			{
+				return property;
+			}
+
+			if (property.Equals("count", StringComparison.OrdinalIgnoreCase)) return "count";
+			if (property.Equals("any", StringComparison.OrdinalIgnoreCase)) return "any";
+			if (property.Equals("empty", StringComparison.OrdinalIgnoreCase)) return "empty";
+			if (property.Equals("first", StringComparison.OrdinalIgnoreCase)) return "first";
+			if (property.Equals("last", StringComparison.OrdinalIgnoreCase)) return "last";
+			if (property.Equals("reverse", StringComparison.OrdinalIgnoreCase)) return "reverse";
+			return property;
+		}
     }
 }

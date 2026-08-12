@@ -105,11 +105,15 @@ See also #3+=#0, #3-=#0, #3*=#0, #3/=#0, #3%=#0 and #3^=#0 for other ways of ass
 
     public override StatementResult Execute(IVariableSpace variables)
     {
-        if (variables.HasVariable(NameToSet) && !TypeToSet.CompatibleWith(variables.GetVariable(NameToSet).Type))
+		if (variables.HasVariable(NameToSet))
         {
-            ErrorMessage =
-                $"Set Variable Statement tried to set variable {NameToSet} to type {TypeToSet}, but is defined as {variables.GetVariable(NameToSet).Type}";
-            return StatementResult.Error;
+			var existingType = variables.GetVariable(NameToSet).Type;
+			if (TypeToSet != existingType && !TypeToSet.CompatibleWith(existingType))
+			{
+				ErrorMessage =
+					$"Set Variable Statement tried to set variable {NameToSet} to type {TypeToSet}, but is defined as {existingType}";
+				return StatementResult.Error;
+			}
         }
 
         StatementResult result = ValueFunction.Execute(variables);

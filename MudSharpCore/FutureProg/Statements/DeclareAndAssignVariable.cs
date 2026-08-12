@@ -31,29 +31,6 @@ internal class DeclareAndAssignVariable : Statement
             return StatementResult.Error;
         }
 
-        if (TypeToDeclare.HasFlag(ProgVariableTypes.Collection))
-        {
-            variables.SetVariable(NameToDeclare,
-                new CollectionVariable(new List<IProgVariable>(),
-                    TypeToDeclare ^ ProgVariableTypes.Collection));
-        }
-        else if (TypeToDeclare.HasFlag(ProgVariableTypes.Dictionary))
-        {
-            variables.SetVariable(NameToDeclare,
-                new DictionaryVariable(new Dictionary<string, IProgVariable>(),
-                    TypeToDeclare ^ ProgVariableTypes.Dictionary));
-        }
-        else if (TypeToDeclare.HasFlag(ProgVariableTypes.CollectionDictionary))
-        {
-            variables.SetVariable(NameToDeclare,
-                new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(),
-                    TypeToDeclare ^ ProgVariableTypes.CollectionDictionary));
-        }
-        else
-        {
-            variables.SetVariable(NameToDeclare, new NullVariable(TypeToDeclare));
-        }
-
         StatementResult result = ValueFunction.Execute(variables);
         if (result == StatementResult.Error)
         {

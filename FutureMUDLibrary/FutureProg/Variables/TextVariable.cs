@@ -48,7 +48,7 @@ namespace MudSharp.FutureProg.Variables
 
         public override IProgVariable GetProperty(string property)
         {
-            switch (property.ToLowerInvariant())
+			switch (CanonicalProperty(property))
             {
                 case "length":
                     return new NumberVariable(UnderlyingString.Length);
@@ -63,6 +63,21 @@ namespace MudSharp.FutureProg.Variables
             }
             throw new NotSupportedException();
         }
+
+		private static string CanonicalProperty(string property)
+		{
+			if (property is "length" or "upper" or "lower" or "proper" or "title")
+			{
+				return property;
+			}
+
+			if (property.Equals("length", StringComparison.OrdinalIgnoreCase)) return "length";
+			if (property.Equals("upper", StringComparison.OrdinalIgnoreCase)) return "upper";
+			if (property.Equals("lower", StringComparison.OrdinalIgnoreCase)) return "lower";
+			if (property.Equals("proper", StringComparison.OrdinalIgnoreCase)) return "proper";
+			if (property.Equals("title", StringComparison.OrdinalIgnoreCase)) return "title";
+			return property;
+		}
 
         #region Overrides of Object
 

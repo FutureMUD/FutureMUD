@@ -4,6 +4,8 @@
 
 FutureProg no longer uses a `long`-backed enum as its runtime type model. The engine now uses a `readonly struct` named `ProgVariableTypes` that preserves the existing flags-style programming model while removing the 64-bit ceiling for new types.
 
+Invocation frames, lexical scopes, static caching, recursion, allocation ownership, and benchmark invariants are documented in [FutureProg Execution Runtime](./FutureProg_Execution_Runtime.md).
+
 The following usage patterns are intentionally preserved:
 
 - `ProgVariableTypes.Character`

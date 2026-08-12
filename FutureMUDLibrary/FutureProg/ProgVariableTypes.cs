@@ -243,9 +243,10 @@ public readonly struct ProgVariableTypes : IEquatable<ProgVariableTypes>
         if (IsLegacyRepresentable())
         {
             long raw = (long)_mask;
-            if (Enum.IsDefined(typeof(ProgVariableTypeCode), raw))
+            var candidate = (ProgVariableTypeCode)raw;
+            if (Enum.IsDefined(candidate))
             {
-                code = (ProgVariableTypeCode)raw;
+                code = candidate;
                 return true;
             }
         }

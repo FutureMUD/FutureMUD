@@ -20,6 +20,7 @@ using Org.BouncyCastle.Asn1.X509.Qualified;
 using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
@@ -29,6 +30,8 @@ public class FutureProg : SaveableItem, IFutureProg
 {
     protected static List<FunctionCompilerInformation> BuiltInFunctionCompilers =
         new();
+	private static readonly Dictionary<string, List<FunctionCompilerInformation>> BuiltInFunctionCompilersByName =
+		new(StringComparer.OrdinalIgnoreCase);
 
     protected static List<Tuple<Regex, Func<string, string>>> StatementColourisers =
         new();
@@ -69,6 +72,9 @@ public class FutureProg : SaveableItem, IFutureProg
     private static readonly Regex _commentRegex = new(@"^\s*(?:--|//|').*$", RegexOptions.IgnoreCase);
 
     private readonly List<IStatement> _statements = new();
+	private IStatement[] _compiledStatements = [];
+	private ExecutionParameter[] _executionParameters = [];
+	private readonly object _staticCacheLock = new();
 
     private string _functionText;
 	private readonly FutureProgCompilationContext _compilationContext;
@@ -83,6 +89,7 @@ public class FutureProg : SaveableItem, IFutureProg
         _name = functionName;
         ReturnType = returnType;
         NamedParameters = parameters.ToList();
+		RefreshExecutionParameters();
         FunctionText = text;
 		_compilationContext = compilationContext;
         ColouriseFunctionText();
@@ -105,6 +112,7 @@ public class FutureProg : SaveableItem, IFutureProg
             prog.FutureProgsParameters.OrderBy(x => x.ParameterIndex)
                 .Select(x => Tuple.Create(ProgVariableTypes.FromStorageString(x.ParameterTypeDefinition), x.ParameterName))
                 .ToList();
+		RefreshExecutionParameters();
         Public = prog.Public;
         ColouriseFunctionText();
         AcceptsAnyParameters = prog.AcceptsAnyParameters;
@@ -123,7 +131,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
     public string FunctionComment { get; set; }
 
-	internal IReadOnlyList<IStatement> Statements => _statements;
+	internal IReadOnlyList<IStatement> Statements => _compiledStatements;
 	internal IFuturemud InternalGameworld => Gameworld;
 
     private string _functionName;
@@ -173,8 +181,7 @@ public class FutureProg : SaveableItem, IFutureProg
         {
             _staticType = value;
             Changed = true;
-            _staticReturnValue = null;
-            _staticValueSet = false;
+			ResetStaticCache();
         }
     }
 
@@ -185,14 +192,15 @@ public class FutureProg : SaveableItem, IFutureProg
             return true;
         }
 
-        if (NamedParameters.Count != parameters.Count())
+		var suppliedParameters = parameters as IReadOnlyList<ProgVariableTypes> ?? parameters.ToArray();
+		if (NamedParameters.Count != suppliedParameters.Count)
         {
             return false;
         }
 
         for (int i = 0; i < NamedParameters.Count; i++)
         {
-            if (!parameters.ElementAt(i).CompatibleWith(Parameters.ElementAt(i)))
+			if (!suppliedParameters[i].CompatibleWith(NamedParameters[i].Item1))
             {
                 return false;
             }
@@ -209,9 +217,10 @@ public class FutureProg : SaveableItem, IFutureProg
 		{
 #endif
         CompileError = null;
-        _staticReturnValue = null;
-        _staticValueSet = false;
+		ResetStaticCache();
         _statements.Clear();
+		_compiledStatements = [];
+		RefreshExecutionParameters();
 
 		if (!ComputerCompilationRestrictions.TryValidateTypeForContext(ReturnType, _compilationContext,
 			    out var returnTypeError))
@@ -243,11 +252,6 @@ public class FutureProg : SaveableItem, IFutureProg
         // Split the raw text into lines
         List<string> lines = FunctionText.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        if (!lines.Any())
-        {
-            return true;
-        }
-
         // Create the initial variable space from the parameters
         Dictionary<string, ProgVariableTypes> variableSpace = NamedParameters.ToDictionary(
 			x => x.Item2.ToLowerInvariant(),
@@ -258,6 +262,11 @@ public class FutureProg : SaveableItem, IFutureProg
         {
             variableSpace.Add("return", ReturnType);
         }
+
+		if (!lines.Any())
+		{
+			return true;
+		}
 
 		using (new CompilationContextScope(_compilationContext))
 		{
@@ -313,7 +322,8 @@ public class FutureProg : SaveableItem, IFutureProg
 
         sw.Stop();
         CompileError = string.Empty;
-        CompileTime = TimeSpan.FromTicks(sw.ElapsedTicks);
+		CompileTime = TimeSpan.FromTicks(sw.ElapsedTicks);
+		_compiledStatements = _statements.ToArray();
         return true;
 #if DEBUG
 #else
@@ -351,10 +361,16 @@ public class FutureProg : SaveableItem, IFutureProg
                 return new CollectionDictionary<string, T>().AsReadOnlyCollectionDictionary();
             }
 
-            CollectionDictionary<string, T> dictionary = new();
+			CollectionDictionary<string, T> dictionary = new();
             foreach ((string key, List<IProgVariable> value) in result)
             {
-                dictionary.AddRange(value.OfType<T>().Select(x => (key, x)));
+				foreach (var item in value)
+				{
+					if (TryUnwrap(item, out T unwrapped))
+					{
+						dictionary.Add(key, unwrapped);
+					}
+				}
             }
             return dictionary.AsReadOnlyCollectionDictionary();
         }
@@ -372,10 +388,10 @@ public class FutureProg : SaveableItem, IFutureProg
                 return new Dictionary<string, T>();
             }
 
-            Dictionary<string, T> dictionary = new();
+			Dictionary<string, T> dictionary = new(result.Count);
             foreach ((string key, IProgVariable value) in result)
             {
-                if (value is not T tvalue)
+				if (!TryUnwrap(value, out T tvalue))
                 {
                     continue;
                 }
@@ -398,10 +414,7 @@ public class FutureProg : SaveableItem, IFutureProg
                 return Enumerable.Empty<T>();
             }
 
-            return result
-                   .OfType<object>()
-                   .Select(x => x is IProgVariable pv ? (object)pv.GetObject : x)
-                   .OfType<T>();
+			return UnwrapValues<T>(result);
         }
 
         if (ReturnType.HasFlag(ProgVariableTypes.CollectionDictionary))
@@ -412,10 +425,7 @@ public class FutureProg : SaveableItem, IFutureProg
                 return Enumerable.Empty<T>();
             }
 
-            return result.SelectMany(x => x.Value)
-                         .OfType<object>()
-                         .Select(x => x is IProgVariable pv ? (object)pv.GetObject : x)
-                         .OfType<T>();
+			return UnwrapValues<T>(result.SelectMany(x => x.Value));
         }
 
         if (ReturnType.HasFlag(ProgVariableTypes.Dictionary))
@@ -426,10 +436,7 @@ public class FutureProg : SaveableItem, IFutureProg
                 return Enumerable.Empty<T>();
             }
 
-            return result.Values
-                         .OfType<object>()
-                         .Select(x => x is IProgVariable pv ? (object)pv.GetObject : x)
-                         .OfType<T>();
+			return UnwrapValues<T>(result.Values);
         }
 
         return Enumerable.Empty<T>();
@@ -546,99 +553,126 @@ public class FutureProg : SaveableItem, IFutureProg
     }
 
     private object _staticReturnValue;
-    private bool _staticValueSet;
+	private volatile bool _staticValueSet;
 
-    private static int RecursionDepth { get; set; }
+	[ThreadStatic]
+	private static int _recursionDepth;
 
     public object ExecuteWithRecursionProtection(params object[] variables)
     {
-        if (StaticType == FutureProgStaticType.FullyStatic && _staticValueSet)
+		_recursionDepth++;
+		if (_recursionDepth > 250)
         {
-            return _staticReturnValue;
+			try
+			{
+				Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was a termination due to excessive recursion in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}");
+				return null;
+			}
+			finally
+			{
+				_recursionDepth--;
+			}
         }
 
-        Dictionary<string, IProgVariable> variableSpaceDict = new();
-        for (int i = 0; i < NamedParameters.Count; i++)
-        {
-            try
-            {
-                variableSpaceDict.Add(NamedParameters[i].Item2.ToLowerInvariant(), GetVariable(NamedParameters[i].Item1, variables.ElementAtOrDefault(i)));
-            }
-            catch (Exception e)
-            {
-                Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was an exception while assigning parameter #{i} ({NamedParameters[i].Item2}) in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nException:\n\n{e}");
-                variableSpaceDict.Add(NamedParameters[i].Item2.ToLowerInvariant(), new NullVariable(NamedParameters[i].Item1));
-            }
-
-        }
-
-        VariableSpace variableSpace = new(variableSpaceDict);
-        if (ReturnType != ProgVariableTypes.Void)
-        {
-            variableSpace.SetVariable("return", new NullVariable(ReturnType));
-        }
-
-        if (RecursionDepth++ > 250)
-        {
-            Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was a termination due to excessive recursion in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}");
-            return null;
-        }
-
-        return InternalExecute(variables, variableSpace);
+		try
+		{
+			return Execute(variables);
+		}
+		finally
+		{
+			_recursionDepth--;
+		}
     }
 
     public object Execute(params object[] variables)
     {
-        if (StaticType == FutureProgStaticType.FullyStatic && _staticValueSet)
+		if (StaticType != FutureProgStaticType.FullyStatic)
+		{
+			return ExecuteUncached(variables, out _);
+		}
+
+		if (_staticValueSet)
         {
             return _staticReturnValue;
         }
 
-        Dictionary<string, IProgVariable> variableSpaceDict = new();
-        for (int i = 0; i < NamedParameters.Count; i++)
+		lock (_staticCacheLock)
+		{
+			if (_staticValueSet)
+			{
+				return _staticReturnValue;
+			}
+
+			var value = ExecuteUncached(variables, out var success);
+			if (success)
+			{
+				_staticReturnValue = value;
+				_staticValueSet = true;
+			}
+
+			return value;
+		}
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private object ExecuteUncached(object[] variables, out bool success)
+	{
+		if (_executionParameters.Length == 0)
+		{
+			VariableSpace parameterlessSpace = ReturnType == ProgVariableTypes.Void
+				? new VariableSpace()
+				: new VariableSpace(new NullVariable(ReturnType));
+			return InternalExecute(variables, parameterlessSpace, out success);
+		}
+
+		Dictionary<string, IProgVariable> variableSpaceDict = new(
+			_executionParameters.Length + (ReturnType == ProgVariableTypes.Void ? 0 : 1));
+		for (int i = 0; i < _executionParameters.Length; i++)
         {
+			var parameter = _executionParameters[i];
+			var value = i < variables.Length ? variables[i] : null;
             try
             {
-                variableSpaceDict.Add(NamedParameters[i].Item2.ToLowerInvariant(), GetVariable(NamedParameters[i].Item1, variables.ElementAtOrDefault(i)));
+				variableSpaceDict.Add(parameter.Name, GetVariable(parameter.Type, value));
             }
             catch (Exception e)
             {
-                Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was an exception while assigning parameter #{i} ({NamedParameters[i].Item2}) in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nException:\n\n{e}");
-                variableSpaceDict.Add(NamedParameters[i].Item2.ToLowerInvariant(), new NullVariable(NamedParameters[i].Item1));
+				Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was an exception while assigning parameter #{i} ({NamedParameters[i].Item2}) in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nException:\n\n{e}");
+				variableSpaceDict.Add(parameter.Name, new NullVariable(parameter.Type));
             }
-
         }
 
-        VariableSpace variableSpace = new(variableSpaceDict);
+		VariableSpace variableSpace = new(variableSpaceDict);
         if (ReturnType != ProgVariableTypes.Void)
         {
-            variableSpace.SetVariable("return", new NullVariable(ReturnType));
+			variableSpace.SetVariable("return", new NullVariable(ReturnType));
         }
 
-        RecursionDepth = 0;
-
-        return InternalExecute(variables, variableSpace);
+		return InternalExecute(variables, variableSpace, out success);
     }
 
-    private object InternalExecute(object[] variables, VariableSpace variableSpace)
+	private object InternalExecute(object[] variables, VariableSpace variableSpace, out bool success)
     {
 #if DEBUG
 #else
 		try
 		{
 #endif
-        foreach (IStatement statement in _statements)
+		for (var i = 0; i < _compiledStatements.Length; i++)
         {
+			var statement = _compiledStatements[i];
             StatementResult result = statement.Execute(variableSpace);
             switch (result)
             {
                 case StatementResult.Return:
-                    return ReturnType != ProgVariableTypes.Void
-                        ? variableSpace.GetVariable("return")?.GetObject
-                        : null;
+					success = true;
+					return ReturnType != ProgVariableTypes.Void
+						? variableSpace.GetVariable("return")?.GetObject
+						: null;
                 case StatementResult.Error:
                     Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was a prog error in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nError:\n\n{statement.ErrorMessage}");
-                    return null;
+					success = false;
+					return null;
             }
         }
 #if DEBUG
@@ -647,19 +681,65 @@ public class FutureProg : SaveableItem, IFutureProg
 		catch (Exception e)
 		{
 			Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was an unhandled exception in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nException:\n\n{e.ToString()}");
+			success = false;
 			return null;
 		}
 #endif
 
-        if (StaticType == FutureProgStaticType.FullyStatic)
-        {
-            _staticReturnValue = variableSpace.GetVariable("return")?.GetObject;
-            _staticValueSet = true;
-            return _staticReturnValue;
-        }
-
-        return ReturnType != ProgVariableTypes.Void ? variableSpace.GetVariable("return")?.GetObject : null;
+		success = true;
+		return ReturnType != ProgVariableTypes.Void ? variableSpace.GetVariable("return")?.GetObject : null;
     }
+
+	private void RefreshExecutionParameters()
+	{
+		_executionParameters = NamedParameters
+			.Select(x => new ExecutionParameter(x.Item1, x.Item2.ToLowerInvariant()))
+			.ToArray();
+	}
+
+	private void ResetStaticCache()
+	{
+		lock (_staticCacheLock)
+		{
+			_staticReturnValue = null;
+			_staticValueSet = false;
+		}
+	}
+
+	private static bool TryUnwrap<T>(IProgVariable variable, out T value)
+	{
+		if (variable?.GetObject is T objectValue)
+		{
+			value = objectValue;
+			return true;
+		}
+
+		if (variable is T variableValue)
+		{
+			value = variableValue;
+			return true;
+		}
+
+		value = default;
+		return false;
+	}
+
+	private static IEnumerable<T> UnwrapValues<T>(IEnumerable values)
+	{
+		foreach (var item in values)
+		{
+			if (item is IProgVariable variable && TryUnwrap(variable, out T value))
+			{
+				yield return value;
+			}
+			else if (item is T directValue)
+			{
+				yield return directValue;
+			}
+		}
+	}
+
+	private readonly record struct ExecutionParameter(ProgVariableTypes Type, string Name);
 
     public override void Save()
     {
@@ -709,12 +789,25 @@ public class FutureProg : SaveableItem, IFutureProg
             return CompileInfo.GetFactory().CreateComment(variableSpace, lines.Skip(1), lineNumber);
         }
 
-        var matchingCompilers = StatementCompilers.Where(x => x.Regex.IsMatch(line)).ToList();
-		StatementCompilerInformation compiler = matchingCompilers.FirstOrDefault(x =>
-			x.SupportsContext(CurrentCompilationContext));
+		StatementCompilerInformation compiler = null;
+		var matchedStatement = false;
+		foreach (var candidate in StatementCompilers)
+		{
+			if (!candidate.Regex.IsMatch(line))
+			{
+				continue;
+			}
+
+			matchedStatement = true;
+			if (candidate.SupportsContext(CurrentCompilationContext))
+			{
+				compiler = candidate;
+				break;
+			}
+		}
         if (compiler == null)
         {
-			if (matchingCompilers.Any())
+			if (matchedStatement)
 			{
 				return CompileInfo.GetFactory().CreateError(
 					$"The statement on this line is not valid in {CurrentCompilationContext.Describe()} compilation.",
@@ -762,32 +855,44 @@ public class FutureProg : SaveableItem, IFutureProg
     public static FunctionCompilerResult GetBuiltInFunctionCompiler(string functionName, IList<IFunction> parameters,
         IFuturemud gameworld)
     {
-        var compilers =
-			BuiltInFunctionCompilers.Where(
-					x =>
-						x.FunctionName == functionName.ToLowerInvariant() &&
-						x.Parameters.SequenceEqual(parameters.Select(y => y.ReturnType),
-							FutureProgVariableComparer.Instance) &&
-						x.CompilerFilterFunction(parameters.Select(y => y.ReturnType), gameworld))
-				.ToList();
-		FunctionCompilerInformation compiler = compilers.FirstOrDefault(x =>
-			ComputerCompilationRestrictions.TryValidateBuiltInFunction(x, parameters, CurrentCompilationContext, out _));
-        if (compiler != null)
+		if (!BuiltInFunctionCompilersByName.TryGetValue(functionName, out var namedCompilers))
+		{
+			return new FunctionCompilerResult(false, $"\"{functionName}\" is not a valid built in function", null);
+		}
+
+		var parameterTypes = new ProgVariableTypes[parameters.Count];
+		for (var i = 0; i < parameters.Count; i++)
+		{
+			parameterTypes[i] = parameters[i].ReturnType;
+		}
+
+		FunctionCompilerInformation firstRestrictedCompiler = null;
+		foreach (var candidate in namedCompilers)
         {
-            return compiler.Compile(parameters, gameworld);
+			if (!candidate.Parameters.SequenceEqual(parameterTypes, FutureProgVariableComparer.Instance) ||
+				!candidate.CompilerFilterFunction(parameterTypes, gameworld))
+			{
+				continue;
+			}
+
+			firstRestrictedCompiler ??= candidate;
+			if (ComputerCompilationRestrictions.TryValidateBuiltInFunction(candidate, parameters,
+					CurrentCompilationContext, out _))
+			{
+				return candidate.Compile(parameters, gameworld);
+			}
         }
 
-		if (compilers.Any())
+		if (firstRestrictedCompiler != null)
 		{
-			ComputerCompilationRestrictions.TryValidateBuiltInFunction(compilers.First(), parameters,
+			ComputerCompilationRestrictions.TryValidateBuiltInFunction(firstRestrictedCompiler, parameters,
 				CurrentCompilationContext, out var errorMessage);
 			return new FunctionCompilerResult(false, errorMessage, null);
 		}
 
         return new FunctionCompilerResult(false,
-            BuiltInFunctionCompilers.Any(x => x.FunctionName.ToLowerInvariant() == functionName)
-                ? $"No built in function named \"{functionName}\" with matching parameters {parameters.Select(y => y.ReturnType.Describe()).ListToCommaSeparatedValues()}."
-                : $"\"{functionName}\" is not a valid built in function", null);
+			$"No built in function named \"{functionName}\" with matching parameters {parameterTypes.Select(x => x.Describe()).ListToCommaSeparatedValues()}.",
+			null);
     }
 
 	public static IProgVariable GetVariable(ProgVariableTypes type, object value)
@@ -805,10 +910,22 @@ public class FutureProg : SaveableItem, IFutureProg
                 return new CollectionVariable(stack.Memory.ToList(), ProgVariableTypes.Text);
             }
 
-            ProgVariableTypes underlyingType = type ^ ProgVariableTypes.Collection;
-            List<IProgVariable> list = (from object item in value as IEnumerable ?? Enumerable.Empty<object>()
-                                        select GetVariable(underlyingType, item)).ToList();
-            return new CollectionVariable(list, underlyingType);
+			ProgVariableTypes underlyingType = type ^ ProgVariableTypes.Collection;
+			if (value is IList list)
+			{
+				return new CollectionVariable(list, underlyingType);
+			}
+
+			List<object> materialised = [];
+			if (value is IEnumerable enumerable)
+			{
+				foreach (var item in enumerable)
+				{
+					materialised.Add(item);
+				}
+			}
+
+			return new CollectionVariable(materialised, underlyingType);
         }
 
         if (type.HasFlag(ProgVariableTypes.Dictionary))
@@ -820,7 +937,7 @@ public class FutureProg : SaveableItem, IFutureProg
                 return new DictionaryVariable(new Dictionary<string, IProgVariable>(), underlyingType);
             }
 
-            Dictionary<string, IProgVariable> ndict = new();
+			Dictionary<string, IProgVariable> ndict = new(idict.Count);
             foreach (DictionaryEntry entry in idict)
             {
                 if (entry.Key is string keyString)
@@ -829,7 +946,7 @@ public class FutureProg : SaveableItem, IFutureProg
                 }
             }
 
-            return new DictionaryVariable(new Dictionary<string, IProgVariable>(ndict), underlyingType);
+			return new DictionaryVariable(ndict, underlyingType);
 
         }
 
@@ -841,8 +958,16 @@ public class FutureProg : SaveableItem, IFutureProg
                 return new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(), underlyingType);
             }
 
-			IEnumerable<KeyValuePair<string, List<IProgVariable>>> values = cdString.KeysAndValues.Select(x => new KeyValuePair<string, List<IProgVariable>>(x.Key, x.Value.Select(y => GetVariable(underlyingType, y)).ToList()));
-			return new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(values), underlyingType);
+			CollectionDictionary<string, IProgVariable> values = new();
+			foreach (var pair in cdString.KeysAndValues)
+			{
+				foreach (var item in pair.Value)
+				{
+					values.Add(pair.Key, GetVariable(underlyingType, item));
+				}
+			}
+
+			return new CollectionDictionaryVariable(values, underlyingType);
 		}
 
 		if (type == ProgVariableTypes.LegalClass)
@@ -910,6 +1035,13 @@ public class FutureProg : SaveableItem, IFutureProg
     public static void RegisterBuiltInFunctionCompiler(FunctionCompilerInformation information)
     {
         BuiltInFunctionCompilers.Add(information);
+		if (!BuiltInFunctionCompilersByName.TryGetValue(information.FunctionName, out var compilers))
+		{
+			compilers = new List<FunctionCompilerInformation>();
+			BuiltInFunctionCompilersByName[information.FunctionName] = compilers;
+		}
+
+		compilers.Add(information);
     }
 
     public static void RegisterStatementColouriser(Tuple<Regex, Func<string, string>> colouriser, bool darkMode = false)

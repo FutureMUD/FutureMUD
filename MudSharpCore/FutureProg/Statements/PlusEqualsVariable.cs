@@ -157,7 +157,7 @@ See also #3=#0, #3-=#0, #3*=#0, #3/=#0, #3%=#0 and #3^=#0 for other ways of assi
             return StatementResult.Normal;
         }
 
-        if (TypeToSet.CompatibleWith(ProgVariableTypes.TimeSpan))
+		if (TypeToSet == ProgVariableTypes.TimeSpan)
         {
             TimeSpan? current = variables.GetVariable(NameToSet)?.GetObject as TimeSpan?;
             if (current is null)
@@ -171,7 +171,7 @@ See also #3=#0, #3-=#0, #3*=#0, #3/=#0, #3%=#0 and #3^=#0 for other ways of assi
             return StatementResult.Normal;
         }
 
-        if (TypeToSet.CompatibleWith(ProgVariableTypes.DateTime))
+		if (TypeToSet == ProgVariableTypes.DateTime)
         {
             DateTime? current = variables.GetVariable(NameToSet)?.GetObject as DateTime?;
             if (current is null)
@@ -185,7 +185,7 @@ See also #3=#0, #3-=#0, #3*=#0, #3/=#0, #3%=#0 and #3^=#0 for other ways of assi
             return StatementResult.Normal;
         }
 
-        if (TypeToSet.CompatibleWith(ProgVariableTypes.MudDateTime))
+		if (TypeToSet == ProgVariableTypes.MudDateTime)
         {
             MudDateTime current = variables.GetVariable(NameToSet)?.GetObject as MudDateTime;
             if (current is null)
@@ -202,7 +202,7 @@ See also #3=#0, #3-=#0, #3*=#0, #3/=#0, #3%=#0 and #3^=#0 for other ways of assi
         else
         {
             IProgVariable current = variables.GetVariable(NameToSet);
-            if (TypeToSet.CompatibleWith(ProgVariableTypes.Number))
+			if (TypeToSet == ProgVariableTypes.Number)
             {
                 decimal? number = (decimal?)current?.GetObject;
                 if (number is null)
@@ -215,7 +215,7 @@ See also #3=#0, #3-=#0, #3*=#0, #3/=#0, #3%=#0 and #3^=#0 for other ways of assi
                 return StatementResult.Normal;
             }
 
-            if (TypeToSet.CompatibleWith(ProgVariableTypes.Text))
+			if (TypeToSet == ProgVariableTypes.Text)
             {
                 string text = current?.GetObject?.ToString();
                 if (text is null)

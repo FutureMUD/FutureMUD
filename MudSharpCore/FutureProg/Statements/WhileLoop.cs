@@ -160,6 +160,7 @@ For example:
     public override StatementResult Execute(IVariableSpace variables)
     {
         int iterationCount = 0;
+		LocalVariableSpace localVariables = new(variables);
         while (WhileFunction.Execute(variables) != StatementResult.Error &&
                ((bool?)WhileFunction.Result.GetObject ?? false))
         {
@@ -168,7 +169,7 @@ For example:
                 ErrorMessage = "While loop of greater than 10,000 iterations detected, aborting...";
                 return StatementResult.Error;
             }
-            LocalVariableSpace localVariables = new(variables);
+			localVariables.ClearLocalVariables();
             foreach (IStatement statement in ContainedBlock)
             {
                 StatementResult result = statement.Execute(localVariables);

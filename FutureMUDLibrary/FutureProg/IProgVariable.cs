@@ -27,37 +27,40 @@ namespace MudSharp.FutureProg
 
         public override bool Equals(ProgVariableTypes x, ProgVariableTypes y)
         {
-            if (x.HasFlag(ProgVariableTypes.Collection) != y.HasFlag(ProgVariableTypes.Collection))
+			if (x.IsCollection != y.IsCollection)
             {
                 return false;
             }
 
-            if (x.HasFlag(ProgVariableTypes.Collection))
+			if (x.IsCollection)
             {
-                return Equals(x & ~ProgVariableTypes.Collection, y & ~ProgVariableTypes.Collection) || x == ProgVariableTypes.Collection;
+				return Equals(x ^ ProgVariableTypes.Collection, y ^ ProgVariableTypes.Collection) ||
+				       x == ProgVariableTypes.Collection;
             }
 
-            if (x.HasFlag(ProgVariableTypes.Dictionary) != y.HasFlag(ProgVariableTypes.Dictionary))
-            {
-                return false;
-            }
-
-            if (x.HasFlag(ProgVariableTypes.Dictionary))
-            {
-                return Equals(x & ~ProgVariableTypes.Dictionary, y & ~ProgVariableTypes.Dictionary) || x == ProgVariableTypes.Dictionary;
-            }
-
-            if (x.HasFlag(ProgVariableTypes.CollectionDictionary) != y.HasFlag(ProgVariableTypes.CollectionDictionary))
+			if (x.IsDictionary != y.IsDictionary)
             {
                 return false;
             }
 
-            if (x.HasFlag(ProgVariableTypes.CollectionDictionary))
+			if (x.IsDictionary)
             {
-                return Equals(x & ~ProgVariableTypes.CollectionDictionary, y & ~ProgVariableTypes.CollectionDictionary) || x == ProgVariableTypes.CollectionDictionary;
+				return Equals(x ^ ProgVariableTypes.Dictionary, y ^ ProgVariableTypes.Dictionary) ||
+				       x == ProgVariableTypes.Dictionary;
             }
 
-            return x.HasFlag(ProgVariableTypes.Literal) ? x.HasFlag(y) : x.HasFlag(y & ~ProgVariableTypes.Literal);
+			if (x.IsCollectionDictionary != y.IsCollectionDictionary)
+            {
+                return false;
+            }
+
+			if (x.IsCollectionDictionary)
+            {
+				return Equals(x ^ ProgVariableTypes.CollectionDictionary, y ^ ProgVariableTypes.CollectionDictionary) ||
+				       x == ProgVariableTypes.CollectionDictionary;
+            }
+
+			return x.IsLiteral ? x.HasFlag(y) : x.HasFlag(y.WithoutLiteral());
         }
 
         public override int GetHashCode(ProgVariableTypes obj)

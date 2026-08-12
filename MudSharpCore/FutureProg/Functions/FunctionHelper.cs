@@ -873,13 +873,15 @@ public static class FunctionHelper
             IEnumerable<string> parameters = parameterSplit.ParameterStrings ?? Enumerable.Empty<string>();
 
             // Compile each of the function strings and check for errors
-            IEnumerable<ICompileInfo> parameterCompileResults =
-                parameters.Select(x => CompileFunction(x, variableSpace, lineNumber, gameworld));
-            if (parameterCompileResults.Any(x => x.IsError))
+			var parameterCompileResults = parameters
+				.Select(x => CompileFunction(x, variableSpace, lineNumber, gameworld))
+				.ToList();
+			var parameterError = parameterCompileResults.FirstOrDefault(x => x.IsError);
+            if (parameterError != null)
             {
                 return
                     compileInfoFactory.CreateError(
-                        $"Parameter error: {parameterCompileResults.First(x => x.IsError).ErrorMessage}", lineNumber);
+						$"Parameter error: {parameterError.ErrorMessage}", lineNumber);
             }
 
             List<IFunction> parameterFunctions = parameterCompileResults.Select(x => (IFunction)x.CompiledStatement).ToList();

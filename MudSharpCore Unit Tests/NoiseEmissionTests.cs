@@ -1,16 +1,21 @@
 #nullable enable
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Events;
+using MudSharp.Events.Hooks;
 using MudSharp.Form.Audio;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Functions;
 using MudSharp.FutureProg.Variables;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
 
 namespace MudSharp_Unit_Tests;
 
@@ -98,5 +103,148 @@ public class NoiseEmissionTests
 			RoomLayer.GroundLevel,
 			true,
 			"impact"), Times.Once);
+	}
+
+	[TestMethod]
+	public void HandleEvent_SelfRecursiveHook_ExecutesOnlyOnce()
+	{
+		var target = new TestPerceivedItem(1);
+		var calls = 0;
+		var hook = CreateHook(EventType.NoiseEmitted, (type, arguments) =>
+		{
+			calls++;
+			target.HandleEvent(type, arguments);
+			return true;
+		});
+		target.InstallHook(hook.Object);
+
+		target.HandleEvent(EventType.NoiseEmitted, target);
+
+		Assert.AreEqual(1, calls);
+	}
+
+	[TestMethod]
+	public void HandleEvent_MutuallyRecursiveHooks_ExecuteOnceEach()
+	{
+		var target = new TestPerceivedItem(1);
+		var firstCalls = 0;
+		var secondCalls = 0;
+		var first = CreateHook(EventType.NoiseEmitted, (type, arguments) =>
+		{
+			firstCalls++;
+			target.HandleEvent(type, arguments);
+			return true;
+		});
+		var second = CreateHook(EventType.NoiseEmitted, (type, arguments) =>
+		{
+			secondCalls++;
+			target.HandleEvent(type, arguments);
+			return true;
+		});
+		target.InstallHook(first.Object);
+		target.InstallHook(second.Object);
+
+		target.HandleEvent(EventType.NoiseEmitted, target);
+
+		Assert.AreEqual(1, firstCalls);
+		Assert.AreEqual(1, secondCalls);
+	}
+
+	[TestMethod]
+	public void HandleEvent_SameHookOnDifferentTargets_CanRunReentrantly()
+	{
+		var firstTarget = new TestPerceivedItem(1);
+		var secondTarget = new TestPerceivedItem(2);
+		var calls = 0;
+		var hook = CreateHook(EventType.NoiseEmitted, (type, arguments) =>
+		{
+			calls++;
+			if (ReferenceEquals(arguments[0], firstTarget))
+			{
+				secondTarget.HandleEvent(type, secondTarget);
+			}
+
+			return true;
+		});
+		firstTarget.InstallHook(hook.Object);
+		secondTarget.InstallHook(hook.Object);
+
+		firstTarget.HandleEvent(EventType.NoiseEmitted, firstTarget);
+
+		Assert.AreEqual(2, calls);
+	}
+
+	[TestMethod]
+	public void HandleEvent_SequentialHookCalls_ExecuteEachTime()
+	{
+		var target = new TestPerceivedItem(1);
+		var calls = 0;
+		var hook = CreateHook(EventType.NoiseEmitted, (_, _) =>
+		{
+			calls++;
+			return true;
+		});
+		target.InstallHook(hook.Object);
+
+		target.HandleEvent(EventType.NoiseEmitted, target);
+		target.HandleEvent(EventType.NoiseEmitted, target);
+
+		Assert.AreEqual(2, calls);
+	}
+
+	[TestMethod]
+	public void HandleEvent_ThrowingHook_ReleasesReentrancyGuard()
+	{
+		var target = new TestPerceivedItem(1);
+		var calls = 0;
+		var hook = CreateHook(EventType.NoiseEmitted, (_, _) =>
+		{
+			calls++;
+			if (calls == 1)
+			{
+				throw new InvalidOperationException();
+			}
+
+			return true;
+		});
+		target.InstallHook(hook.Object);
+
+		Assert.ThrowsException<InvalidOperationException>(() => target.HandleEvent(EventType.NoiseEmitted, target));
+		target.HandleEvent(EventType.NoiseEmitted, target);
+
+		Assert.AreEqual(2, calls);
+	}
+
+	private static Mock<IHook> CreateHook(EventType type, Func<EventType, object[], bool> function)
+	{
+		var hook = new Mock<IHook>();
+		hook.SetupGet(x => x.Type).Returns(type);
+		hook.SetupGet(x => x.Function).Returns(function);
+		return hook;
+	}
+
+	private sealed class TestPerceivedItem : PerceivedItem
+	{
+		public TestPerceivedItem(long id) : base(id)
+		{
+			_name = $"test item {id}";
+			_keywords = new Lazy<List<string>>(() => ["test", "item"]);
+		}
+
+		public override string FrameworkItemType => "TestPerceivedItem";
+		public override ProgVariableTypes Type => ProgVariableTypes.Perceivable;
+
+		public override void Register(IOutputHandler handler)
+		{
+		}
+
+		public override object DatabaseInsert()
+		{
+			return this;
+		}
+
+		public override void SetIDFromDatabase(object dbitem)
+		{
+		}
 	}
 }

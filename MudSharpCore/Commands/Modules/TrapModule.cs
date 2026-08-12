@@ -10,6 +10,8 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
@@ -255,25 +257,19 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 			actor.Send("That temporary exit cannot hold a persistent trap.");
 			return;
 		}
-		var componentItems = suppliedComponents
-			.Append(anchor as IGameItem)
-			.Where(x => x is not null)
-			.Cast<IGameItem>()
-			.Distinct()
-			.ToList();
-		foreach (var item in componentItems)
-		{
-			var (canUse, error) = CanUsePhysicalTrapItem(actor, item);
-			if (!canUse)
-			{
-				actor.Send(error);
-				return;
-			}
-		}
-
-		var bindings = MatchComponents(actor, template, componentItems);
+		var componentCandidates = GetTrapComponentCandidates(actor, anchor, suppliedComponents);
+		var bindings = MatchComponents(actor, template, componentCandidates);
 		if (bindings is null)
 		{
+			return;
+		}
+		var componentItems = bindings
+			.SelectNotNull(x => x?.Item)
+			.Distinct()
+			.ToList();
+		if (!CanPrepareTrapComponents(actor, componentItems, out var componentPreparationError))
+		{
+			actor.Send(componentPreparationError);
 			return;
 		}
 		if (template.SourceKind == TrapSourceKind.Mechanical &&
@@ -315,17 +311,14 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 
 		void Complete(IPerceivable _)
 		{
-			var componentAccessFailure = componentItems
-				.Select(x => CanUsePhysicalTrapItem(actor, x))
-				.Where(x => !x.Truth)
-				.Select(x => ((bool Truth, string Message)?)x)
-				.FirstOrDefault();
-			if (!AnchorStillAvailable(actor, anchor, exit) || componentAccessFailure.HasValue || anchor.EffectsOfType<TrapEffect>()
+			if (!AnchorStillAvailable(actor, anchor, exit) ||
+			    !CanPrepareTrapComponents(actor, componentItems, out componentPreparationError) ||
+			    anchor.EffectsOfType<TrapEffect>()
 			    .Any(x => x.State is not TrapState.Spent and not TrapState.Expired && SameBinding(x, exit)))
 			{
-				actor.Send(string.IsNullOrEmpty(componentAccessFailure?.Message)
+				actor.Send(string.IsNullOrEmpty(componentPreparationError)
 					? "You can no longer finish setting that trap there."
-					: $"You can no longer finish setting that trap: {componentAccessFailure.Value.Message}");
+					: $"You can no longer finish setting that trap: {componentPreparationError}");
 				return;
 			}
 
@@ -339,8 +332,26 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 				}
 			}
 
-			PlaceHeldTrapAnchor(actor, anchor);
-			var trap = new TrapEffect(anchor, template, actor, exit, bindings);
+			var componentPlan = CreateTrapComponentInventoryPlan(actor, componentItems);
+			var componentResults = componentPlan.ExecuteWholePlan().ToList();
+			if (componentResults.Count != componentItems.Count ||
+			    componentResults.Any(x => x.ActionState != DesiredItemState.InRoom) ||
+			    componentItems.Any(x => x.InInventoryOf is not null || x.ContainedIn is not null ||
+			                            !ReferenceEquals(x.Location, actor.Location)))
+			{
+				componentPlan.FinalisePlan();
+				actor.Send("You can no longer arrange those components to set the trap.");
+				return;
+			}
+			if (!TrapEffect.TryBindComponents(template, componentItems, out var installedBindings))
+			{
+				componentPlan.FinalisePlan();
+				actor.Send("You can no longer arrange those components to set the trap.");
+				return;
+			}
+			componentPlan.FinalisePlanNoRestore();
+
+			var trap = new TrapEffect(anchor, template, actor, exit, installedBindings);
 			if (TrapEffect.HasTimedLifetime(template))
 			{
 				anchor.AddEffect(trap, template.Lifespan!.Value);
@@ -616,6 +627,59 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 		return bindings;
 	}
 
+	private static List<IGameItem> GetTrapComponentCandidates(ICharacter actor, IPerceivable anchor,
+		IReadOnlyList<IGameItem> suppliedComponents)
+	{
+		var candidates = suppliedComponents.Any()
+			? suppliedComponents.AsEnumerable()
+			: actor.Body.ItemsInHands.Concat(actor.Location.LayerGameItems(actor.RoomLayer));
+		return candidates
+			.Append(anchor as IGameItem)
+			.Where(x => x is not null)
+			.Cast<IGameItem>()
+			.Where(x => suppliedComponents.Any() || CanUsePhysicalTrapItem(actor, x).Truth)
+			.Distinct()
+			.ToList();
+	}
+
+	private static bool CanPrepareTrapComponents(ICharacter actor, IReadOnlyList<IGameItem> components,
+		out string error)
+	{
+		var accessFailures = components
+			.Select(x => CanUsePhysicalTrapItem(actor, x))
+			.Where(x => !x.Truth)
+			.ToList();
+		if (accessFailures.Any())
+		{
+			error = accessFailures[0].Message;
+			return false;
+		}
+
+		var plan = CreateTrapComponentInventoryPlan(actor, components);
+		var feasible = plan.PlanIsFeasible();
+		plan.FinalisePlanNoRestore();
+		if (feasible == InventoryPlanFeasibility.Feasible)
+		{
+			error = string.Empty;
+			return true;
+		}
+
+		error = "You cannot arrange those components to set the trap.";
+		return false;
+	}
+
+	private static IInventoryPlan CreateTrapComponentInventoryPlan(ICharacter actor,
+		IReadOnlyList<IGameItem> components)
+	{
+		return new InventoryPlanTemplate(actor.Gameworld,
+			components.Select(item => new InventoryPlanActionDrop(actor.Gameworld, 0, 0,
+				x => ReferenceEquals(x, item), null)
+			{
+				ItemsAlreadyInPlaceOverrideFitnessScore = true,
+				OriginalReference = item
+			})).CreatePlan(actor);
+	}
+
 	private static (bool Truth, string Message) CanUsePhysicalTrapItem(ICharacter actor, IGameItem item)
 	{
 		if (item.Id <= 0 || item.Deleted)
@@ -643,25 +707,12 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 			return (false, manipulationError);
 		}
 
-		if (heldByActor && !actor.Body.CanRemoveItem(item))
+		if (heldByActor && !actor.Body.CanDrop(item, 0))
 		{
-			return (false, actor.Body.WhyCannotRemove(item));
+			return (false, actor.Body.WhyCannotDrop(item, 0));
 		}
 
 		return (true, string.Empty);
-	}
-
-	private static void PlaceHeldTrapAnchor(ICharacter actor, IPerceivable anchor)
-	{
-		if (anchor is not IGameItem item ||
-		    !actor.Body.ItemsInHands.Any(x => ReferenceEquals(x, item)))
-		{
-			return;
-		}
-
-		actor.Body.Take(item);
-		item.RoomLayer = actor.RoomLayer;
-		item.InsertAtSource(actor, true);
 	}
 
 	private static (IPerceivable Anchor, ICellExit? Exit, List<IGameItem> Components)? ResolveAnchor(ICharacter actor, StringStack command)

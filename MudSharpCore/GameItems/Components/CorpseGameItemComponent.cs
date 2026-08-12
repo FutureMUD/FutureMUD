@@ -136,7 +136,10 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         _prototype = proto;
         _noSave = true;
         LoadFromXml(XElement.Parse(component.Definition));
-        Gameworld.SaveManager.AddLazyLoad(this);
+        if (RepresentsFinalCharacterDeath)
+        {
+            Gameworld.SaveManager.AddLazyLoad(this);
+        }
         _noSave = false;
         SetupDecayListener();
     }

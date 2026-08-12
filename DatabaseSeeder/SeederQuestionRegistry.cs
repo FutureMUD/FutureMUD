@@ -12,7 +12,8 @@ internal sealed record SeederQuestionEnhancement(
     string? SharedAnswerKey = null,
     Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, string?>? DefaultAnswerResolver = null,
     Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, ConsoleQuestionDisplay>? DisplayResolver = null,
-    bool AutoReuseLastAnswer = false);
+    bool AutoReuseLastAnswer = false,
+    bool? PersistAnswer = null);
 
 public static class SeederQuestionRegistry
 {
@@ -75,6 +76,9 @@ public static class SeederQuestionRegistry
             [BuildKey(nameof(HumanSeeder), "model")] = new(
                 SharedAnswerKey: "human-health-model",
                 AutoReuseLastAnswer: true
+            ),
+            [BuildKey(nameof(CoreDataSeeder), "password")] = new(
+                PersistAnswer: false
             ),
             [BuildKey(nameof(EconomySeeder), "era")] = new(
                 SharedAnswerKey: "economy-era",
@@ -157,7 +161,8 @@ public static class SeederQuestionRegistry
             SharedAnswerKey = enhancement.SharedAnswerKey,
             DefaultAnswerResolver = enhancement.DefaultAnswerResolver,
             DisplayResolver = enhancement.DisplayResolver,
-            AutoReuseLastAnswer = enhancement.AutoReuseLastAnswer
+            AutoReuseLastAnswer = enhancement.AutoReuseLastAnswer,
+            PersistAnswer = enhancement.PersistAnswer ?? question.PersistAnswer
         };
     }
 

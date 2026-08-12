@@ -37,7 +37,7 @@ The system is composed from five layers:
 - `IProjectMaterialRequirement` owns item matching, supply logic, preview logic, quantity description, inventory-plan generation, builder commands, and submit validation.
 - `IProjectAction` owns phase-completion side effects plus builder commands, duplication, and submit validation.
 - `ILabourImpact` owns builder editing, duplication, apply gating via minimum hours, minimum-hours scope, and presentation for the `projects` command.
-- `IProjectLabourQueueEntry` owns a queued project labour assignment, its queue order, queued timestamp, and readiness state.
+- `IProjectLabourQueueEntry` owns a durable scheduler entry: join-versus-start kind, stable template id, optional linked active project, labour preference, completion mode, duration/phase state, physical-instance claimant, queue order, timestamp, and readiness state.
 
 ### Project FutureProg surface
 Active projects register `ProgVariableTypes.Project` and currently expose these dot references:
@@ -186,15 +186,26 @@ This means the system models:
 - many active projects existing at once
 - exactly one currently selected labour role per character
 
-### Queueing next labour
-`project queue` is now implemented as a conservative character-owned FIFO queue.
+### Queueing and launching project labour
+`project queue` is a persistent character-identity scheduler. It can join a live project or launch a new instance from a stable project definition id.
 
-The shipped behavior is:
-- queue entries target an existing active project plus one current-phase labour requirement
-- queue entries are evaluated only when the character is idle
-- only the first queued entry is considered at a time
-- blocked entries stay queued with a status such as `Waiting For Slot`, `Waiting For Qualification`, or `Waiting For Location`
-- stale entries are removed automatically if the project disappears or the labour is no longer in the current phase
+The player command forms are:
+- `project queue join <active-project> [<labour>] [once|for <hours>|until phase|until completion]`
+- `project queue start <template> [<labour>] [once|for <hours>|until phase|until completion]`
+- `project queue <active-project> [<labour>]`, retained as the compatibility alias for a one-shot join
+- `project queue mode`, `labour`, `move`, `remove`, `clear`, and `loop` for management
+
+Start entries require catalogue visibility when they are added, but initiation is deliberately deferred. On activation the scheduler resolves the current approved revision and rechecks catalogue visibility, `CanInitiateProject`, personal-project duplication, labour qualification, location, capacity, and funding. An unavailable template or a temporarily ineligible character therefore blocks that entry without dropping it, while later ready entries can still run in the same activation pass.
+
+Each entry records one completion mode:
+- `once` leaves the entry immediately after a successful join and preserves historical FIFO behaviour
+- `for <hours>` counts only successfully funded project-labour time; the tick reaching the limit contributes normally, then the worker leaves and the queue advances
+- `until phase` records the claimed phase and advances when that phase changes, completes, or is cancelled
+- `until completion` remains attached across phase changes and advances only when the active project completes or is cancelled
+
+Looping requires every entry to use a repeatable mode. Completed looping entries reset their per-cycle duration/phase state and move to the tail. A looping start entry clears its old active-project link and launches a fresh instance on its next turn. Join entries retain their live-project link until that project disappears, at which point they become stale.
+
+Labour names are preferences rather than permanent phase ids. `automatic` is used when no preference is set and activates only when exactly one qualified, joinable role exists. A missing preference falls back only to that same unambiguous case after a phase changes.
 
 Queue activation is re-evaluated when it matters, including:
 - after `project quit`
@@ -204,7 +215,7 @@ Queue activation is re-evaluated when it matters, including:
 - on login
 - when an idle character enters a cell
 
-A queued player assignment is considered ready when the labour has a genuinely free slot or when the slot is full only because an NPC worker can be displaced. NPC queue entries still require a genuinely free slot.
+A queued player assignment is considered ready when the labour has a genuinely free slot or when the slot is full only because an NPC worker can be displaced. NPC queue entries still require a genuinely free slot. The queue is identity-owned but its claim is persisted against one `CharacterInstance`, so two simultaneous bodies cannot claim the same scheduler entry.
 
 ### Material supply
 Material supply is driven by `IProjectMaterialRequirement.GetPlanForCharacter`.
@@ -226,9 +237,12 @@ The current tick path is:
 2. Each active project runs `DoProjectsTick()`.
 3. Every active labour entry contributes progress using `HourlyProgress(actor) * ProjectProgressMultiplier`.
 4. Supervision-style multipliers are folded in through `ProgressMultiplierForOtherLabourPerPercentageComplete`.
-5. If that labour requirement has an hourly payment, the project reserves the tick's fraction of hourly pay as a project payable before recording skill use or progress.
-6. After progress, each worker gains both `CurrentProjectHours += ProjectProgressMultiplier` and `CurrentProjectProjectHours += ProjectProgressMultiplier`.
-7. Any `ILabourImpactActionAtTick` impacts execute.
+5. Applicable `Project Labour Contribution` merits multiply that progress with a numeric `number(character, project)` FutureProg. Results stack multiplicatively; negative results clamp to zero and invalid results use `1.0` with an administrator diagnostic.
+6. If that labour requirement has an hourly payment, the project reserves the tick's fraction of hourly pay as a project payable before recording skill use or progress.
+7. After progress, each worker gains both `CurrentProjectHours += ProjectProgressMultiplier` and `CurrentProjectProjectHours += ProjectProgressMultiplier`.
+8. Any `ILabourImpactActionAtTick` impacts execute.
+
+Contribution merits affect project progress and progress estimates only. They do not alter pay, elapsed queue time, continuity hours, labour impacts, or skill-check frequency.
 
 The default static settings currently include:
 - `ProjectTickMinutes = 15`

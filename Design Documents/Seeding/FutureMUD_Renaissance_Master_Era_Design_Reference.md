@@ -6,7 +6,7 @@
 
 This reference covers `Renaissance`, the Renaissance period roughly 1400-1600 CE. It remains a standalone era reference rather than a combined Renaissance/EarlyModern document.
 
-The shared pre-industrial baseline is now live and is automatically installed when the Renaissance era is selected. `SeedRenaissanceItems()` now seeds the full documented clothing and household catalogues plus the writing/administration and art/science/navigation foundations. The remaining Renaissance military/firearm branch is deliberately engine-gated: matchlock/wheellock ignition, attachment, ammunition, and artillery claims must not be simulated by misleading item rows. Consequently, this reference should not re-author ordinary cross-era tools, writing goods, trade containers, military supports, time/water fixtures, or the dedicated shared print/navigation/gunpowder-support/trade-packaging stock already supplied by the baseline.
+The shared pre-industrial baseline is now live and is automatically installed when the Renaissance era is selected. `SeedRenaissanceItems()` now seeds the full documented clothing and household catalogues plus the writing/administration and art/science/navigation foundations. The Renaissance military/firearm branch is now live as a source-backed 176-row catalogue, including 98 armour/barding rows and 62 generated stock armour templates: FutureMUD/FutureMUD#575 supplied the matchlock/wheellock, artillery, ammunition, carrier, armour, shield, melee, and ranged component profiles it needs. The Item seeder validates that Combat's weapons, ranged weapons, and early-gun packages plus the UsefulSeeder material/tag foundation are present before any Renaissance item stage writes. Consequently, this reference should not re-author ordinary cross-era tools, writing goods, trade containers, military supports, time/water fixtures, or the dedicated shared print/navigation/gunpowder-support/trade-packaging stock already supplied by the baseline.
 
 The Renaissance-specific seeder should emphasize:
 
@@ -14,9 +14,11 @@ The Renaissance-specific seeder should emphasize:
 - Fitted court and urban clothing in western and central Europe, plus distinct contemporary clothing systems elsewhere.
 - Classical-revival, humanist, artistic, civic, and court material culture.
 - Culture-specific print production, printed documents, maps, music, engraving, and book-trade goods beyond the shared print baseline.
-- Transitional armour, pike-and-shot warfare, actual matchlock/wheellock firearms, and ammunition mechanics beyond the shared support objects.
+- Transitional armour, pike-and-shot warfare, matchlock/wheellock firearms, compatible ammunition, and early field artillery through the canonical military catalogue.
 - Expanding maritime trade, first-contact goods, and early colonial/contact-zone material culture, without treating shared packaging as universally prevalent.
 - Strong coverage of Ottoman, Safavid, Mughal/Timurid/Deccan, Ming, Joseon, Japanese, South-east Asian, African, and American contemporaries rather than treating the period as Europe-only.
+
+The jewellery/devotional and doors/locks/gates slice is now live. It adds 60/90 four-era `preindustrial_*` prototypes, 220/240 Renaissance-owned forms explicitly admitted by Early Modern, and 720/670 Renaissance culture-admitted forms. This gives the Renaissance exactly 1,000 new available prototypes in each report family without cloning the common layer. The canonical row contracts are [Renaissance Jewellery and Devotional Goods](./FutureMUD_Renaissance_Jewellery_Devotional_Seeder_Design_Reference.md), [Renaissance Doors, Locks, and Gates](./FutureMUD_Renaissance_Doors_Locks_Gates_Seeder_Design_Reference.md), and the [cross-era admission ledger](./FutureMUD_Renaissance_EarlyModern_Jewellery_Doors_Admission_Ledger.md).
 
 ## Scope and era model
 
@@ -254,19 +256,14 @@ Avoid making every national style a new base item. Most colour, trim, local name
 
 Do not recreate the live shared gunpowder-support rows: `preindustrial_firearms_powder_horn`, `preindustrial_firearms_powder_flask`, `preindustrial_firearms_priming_flask`, `preindustrial_firearms_shot_pouch`, `preindustrial_firearms_match_cord_bundle`, `preindustrial_firearms_musket_wadding_packet`, `preindustrial_firearms_bullet_mould`, `preindustrial_firearms_ramrod`, `preindustrial_firearms_touchhole_pick`, and `preindustrial_firearms_cleaning_rod`. The baseline also supplies 52 `preindustrial_military_support_*` aliases for sheaths, scabbards, quivers, belts, racks, and armour displays.
 
-Renaissance military goods should add the combat systems and period-specific forms served by that shared support layer:
+The canonical source is `FutureMUD_Renaissance_Military_Firearms_Armour_Design_Reference.md`. It seeds 176 new stable-reference rows: 14 melee weapons, 11 ranged weapons, 15 firearms/ammunition rows, 17 artillery/mount/compatible-shot rows, 98 armour/barding rows, 8 shields, and 13 field-gear rows. The armour section also generates 56 personal and 6 mount templates from wearable armour only, retaining shields and weapons as separate equipment. The catalogue uses #575's actual matchlock and wheellock muzzleloader profiles, artillery pieces/ammunition/mounts, weapon carriers, and expanded armour, shield, melee, and ranged profiles. Finished arms, armour, shields, artillery, and field goods are skinnable; fungible ammunition is not.
 
-- Actual matchlock arquebus, caliver, early musket, handgonne-like survival, and wheellock pistol families where components allow.
-- Musket balls, loose shot, and historically suitable paper-cartridge or charge-packet forms once ammunition and consumable mechanics are settled.
-- Bandoliers or apostle-style charge sets, gun rests, firearm slings, worms, vent tools not already covered, and specialist gunsmithing equipment.
-- Pike, bill, halberd, partisan, glaive, spear, lance, rapier, sidesword, main-gauche, and complex-hilt sword precursors where component-safe.
-- Transitional armour: full or partial plate harness, breastplate/backplate, faulds, tassets, gorgets, burgonets, morions, cabassets, armets, and close-helmet variants where component and period policy permit.
-- Tournament, pageant, ceremonial, and display armour as skinnable finished goods, without implying superior mechanics merely from decoration.
-- Bucklers, rotella-like round shields, target/targe variants, pavises, dhal/adarga continuities, and regional hide/wicker shields.
+The military table makes an explicit new-item, admission, skin, or not-applicable decision for every Renaissance culture cluster. It adds only forms with a real silhouette, material, component, institutional, or production distinction; existing `preindustrial_*` or earlier references remain the route for ordinary cross-era forms.
 
 Boundary:
 
-- Keep modern firearms, metallic cartridges, percussion caps, revolvers, rifles, machine guns, grenades, modern ballistic armour, and modern explosives out of this branch.
+- Keep flintlock dominance, percussion systems, revolvers, metallic cartridges, modern explosives, Coehorn-era equipment, post-1600-default patterns, modern ballistic armour, and modern naval ordnance out of this branch.
+- Unsupported handgonnes remain excluded. Rifle is not a default row; the supported wheellock long-gun profile is reserved for a specifically justified form.
 - Do not claim explosive, armour-piercing, attachment, loading, or firing behaviour without components.
 
 ### Writing, print, books, documents, and administration
@@ -357,7 +354,7 @@ The foundational gap patch now supplies exact type metal, printing ink, glass bl
 
 - Papermaking: rag bales, pulp, mould-and-deckle, press felts, paper reams, sizing, and paper-production crafts.
 - Printing: movable type item stock, type moulds, formes/tympan/frisket where distinct, and functional printing crafts using the live type-metal and printing-ink materials.
-- Gunpowder: saltpetre/nitre, brimstone/sulfur, charcoal grades, blackpowder commodity/craft stock, lead shot, and safe production chains.
+- Gunpowder: ingredient refining and powder grades beyond the stock physical commodity craft, lead-shot production, and expanded safety chains.
 - Firearms and armour: barrels, locks, springs, screws, stock blanks, actual weapon components, ammunition, and period-specific armour manufacture.
 - Glass and optics: clear/lens/mirror glass stock, lens grinding and polishing, and any functional optical component work.
 - Ceramics: porcelain, faience/majolica/stoneware/earthenware/glaze production and cobalt-pigment support.
@@ -435,6 +432,9 @@ The shared baseline reference and alias catalogue already exist and should be tr
 7. `FutureMUD_Renaissance_Agriculture_Food_Drink_Commodities_Design_Reference.md`
 8. `FutureMUD_Renaissance_PrimaryIndustry_UsefulSeeder_Impact_Reference.md`
 9. `FutureMUD_Renaissance_Culture_Manifest_Reference.md`
+10. `FutureMUD_Renaissance_Jewellery_Devotional_Seeder_Design_Reference.md` (implemented)
+11. `FutureMUD_Renaissance_Doors_Locks_Gates_Seeder_Design_Reference.md` (implemented)
+12. `FutureMUD_Renaissance_EarlyModern_Medical_Repair_Design_Reference.md` (implemented: 366 Renaissance medical-and-repair rows)
 
 The admission manifest is complete and maps all 385 live shared rows to cultures/contact scopes, date anchors, institutions, professions, shops, crafts, prevalence, trade status, and component reality. It does not clone item prototypes.
 
@@ -451,6 +451,16 @@ Exclude by default:
 - Mature Enlightenment scientific apparatus unless explicitly admitted as late-c.1600 edge cases.
 - Industrial gases and modern chemical apparatus.
 - Universal use of shared telescope, coffee, tea, cacao, tobacco, sugar, or gunpowder-support stock without culture/date admission.
+
+## Finished-item craft catalogue
+
+Renaissance-owned item prototypes have a complete product-focused craft layer. The generated jewellery and door routes retain their specialist material, tool, and knowledge paths. Every other `renaissance_*` prototype is routed by `SeedRenaissanceFinishedItemCrafts` using its configured material as a commodity input and an existing shared workshop tool.
+
+The layer deliberately uses only the shared Hammer, Saw, Sewing Needle, Shears, Awl Punch, Anvil, Forge Tongs, and Hot Fire tags. Their providers are seeded shared items admitted to both Medieval and Renaissance installs, and the shared historic/primary craft routes are installed whenever either era is selected. This keeps all craft inputs tied to primary commodities, agriculture, butchery, or an earlier craft route without inventing era-specific tool tags.
+
+The executable `Seeded_Item_Manifest.json` records every simple craft product as an `item:<stable reference>` dependency. The DatabaseSeeder coverage gate measures all direct `medieval_*` and `renaissance_*` items against those craft-product dependencies and requires more than 98% coverage; the intended current result is complete coverage.
+
+For offline maintenance, `DatabaseSeeder --capture-item-manifest-in-memory` rebuilds the complete generated manifest in an isolated in-memory context. It is suitable for catalogue verification and never connects to or alters a game database.
 
 ## Open implementation decisions
 
@@ -478,6 +488,8 @@ Before implementation, each Renaissance-specific row or manifest should confirm:
 - Materials, tags, and components exactly match maintained seeded data.
 - Portable items include `Holdable`; fixtures omit it.
 - Component-dependent claims are backed by actual components.
+- The implemented jewellery/door slice retains its generated 1,000-per-family availability contract, literal `CreateItem(...)` rows, and direct workshop-craft coverage.
+- The finished-item craft catalogue uses natural per-family phases, an `an in-progress <product> craft` active description, pre-failure echo parity, and only shared tool tags with seeded providers.
 - Culture-specific prototypes are justified by form, material, component, institution, or production technology.
 - Skins, not prototypes, handle most local names, colours, motifs, heraldry, inscriptions, and status variation.
 - Shared baseline verification tests continue to pass, including idempotency, stable-reference uniqueness, valid dependencies, portability rules, lifecycle rewrites, no firearm/explosive components in support rows, and clean medieval-writing strings.

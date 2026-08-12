@@ -139,6 +139,28 @@ namespace DatabaseSeeder.Seeders
 				AddTag(context, name, "Culture / Renaissance / Shared");
 			}
 
+			AddTag(context, "Early Modern", "Culture");
+			AddTag(context, "Shared", "Culture / Early Modern");
+			foreach (var name in new[]
+			         {
+				         "Andean Colonial Indigenous", "Caribbean Atlantic Plantation",
+				         "Dutch Republic Low Countries", "Edo Japan", "English British Stuart Georgian",
+				         "English French Dutch Colonial North America", "Ethiopian Red Sea",
+				         "French Baroque Court Urban", "German HRE Austrian", "Global Maritime Chartered Company Trade",
+				         "Indigenous North American Regional Families", "Inner Asian Steppe Frontier", "Italian States",
+				         "Iberian Portuguese Spanish Empires", "Joseon Korea", "Kongo Angola West Central Africa",
+				         "Late Ming Survival Transition", "Mainland South-east Asian Courts",
+				         "Maghrebi North African", "Maratha Rajput Deccan", "Maritime South-east Asian Trade Worlds",
+				         "Mesoamerican Colonial Indigenous", "Mughal Indo-Persian", "Ottoman",
+				         "Polish Lithuanian Hungarian Frontier", "Portuguese Brazil Atlantic Plantation",
+			         "Qing China", "Russian Petrine Post-Petrine", "Ryukyu Maritime East Asia", "Safavid Post-Safavid Persianate",
+				         "Sahelian Hausa Islamic West Africa", "Scandinavian Baltic", "South Indian Coastal Trade",
+			         "Spanish Colonial Americas", "Swahili Coast Indian Ocean Africa", "West African Court Atlantic Trade"
+			         })
+			{
+				AddTag(context, name, "Culture / Early Modern / Shared");
+			}
+
 			AddTag(context, "Institution", "");
 			foreach (var name in new[] { "Court", "Religious", "Guild", "Maritime", "Performance", "Service Household" })
 			{
@@ -164,6 +186,9 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Ignition Source", "Material Functions");
             AddTag(context, "Fire", "Material Functions");
             AddTag(context, "Musket Wadding", "Material Functions");
+			AddTag(context, "Artillery Wadding", "Material Functions");
+			AddTag(context, "Artillery Fuse", "Material Functions");
+			AddTag(context, "Match Cord", "Material Functions");
             AddTag(context, "Textile Commodity", "Material Functions");
             AddTag(context, "Raw Textile Fibre", "Textile Commodity");
             AddTag(context, "Prepared Textile Fibre", "Textile Commodity");
@@ -236,6 +261,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Saltpeter Deposit", "Visible Resource Deposit");
             AddTag(context, "Vitriol Copperas Deposit", "Visible Resource Deposit");
             AddTag(context, "Primary Production Commodity", "Primary Production");
+			AddTag(context, "Gunpowder Commodity", "Primary Production Commodity");
             AddTag(context, "Raw Ore Commodity", "Primary Production Commodity");
             AddTag(context, "Low Grade Ore Commodity", "Raw Ore Commodity");
             AddTag(context, "Medium Grade Ore Commodity", "Raw Ore Commodity");
@@ -405,6 +431,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Sulfur Deposit Resource", "Sulfur Resource");
 
             AddTag(context, "Primary Production Commodity", "Primary Production");
+			AddTag(context, "Gunpowder Commodity", "Primary Production Commodity");
             AddTag(context, "Sample Ore Commodity", "Primary Production Commodity");
             AddTag(context, "Raw Ore Commodity", "Primary Production Commodity");
             AddTag(context, "Broken Ore Commodity", "Primary Production Commodity");
@@ -451,6 +478,12 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Lacquerware", "Repairing");
             AddTag(context, "Cordage", "Repairing");
             AddTag(context, "Composite Bow", "Repairing");
+            AddTag(context, "Clockwork", "Repairing");
+            AddTag(context, "Firearm", "Repairing");
+            AddTag(context, "Medical Instrument", "Repairing");
+            AddTag(context, "Optical Instrument", "Repairing");
+            AddTag(context, "Printing Equipment", "Repairing");
+            AddTag(context, "Scientific Instrument", "Repairing");
             AddTag(context, "Sharpening", "Functions");
 
             AddTag(context, "Medical Treatment", "Functions");
@@ -466,6 +499,16 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Fumigation", "Medical Treatment");
             AddTag(context, "Styptic", "Medical Treatment");
             AddTag(context, "Antidote", "Medical Treatment");
+            AddTag(context, "Chemical Remedy", "Medical Treatment");
+            AddTag(context, "Bloodletting", "Medical Treatment");
+            AddTag(context, "Cupping", "Medical Treatment");
+            AddTag(context, "Dental Treatment", "Medical Treatment");
+            AddTag(context, "Diagnostic Prop", "Medical Treatment");
+            AddTag(context, "Inoculation Prop", "Medical Treatment");
+            AddTag(context, "Obstetric Aid", "Medical Treatment");
+            AddTag(context, "Public Health", "Medical Treatment");
+            AddTag(context, "Quarantine", "Medical Treatment");
+            AddTag(context, "Veterinary Treatment", "Medical Treatment");
 
             // Functional catalogue roles distinct from market/pricing categories
             AddTag(context, "Military Equipment", "Functions");
@@ -647,6 +690,15 @@ namespace DatabaseSeeder.Seeders
 
             // Tools
             AddTag(context, "Tools", "Functions");
+			AddTag(context, "Firearm Tools", "Tools");
+			AddTag(context, "Musket Ramrod", "Firearm Tools");
+			AddTag(context, "Musket Cleaning Rod", "Firearm Tools");
+			AddTag(context, "Musket Unjamming Tool", "Firearm Tools");
+			AddTag(context, "Artillery Tools", "Tools");
+			AddTag(context, "Artillery Sponge", "Artillery Tools");
+			AddTag(context, "Artillery Rammer", "Artillery Tools");
+			AddTag(context, "Artillery Vent Tool", "Artillery Tools");
+			AddTag(context, "Artillery Linstock", "Artillery Tools");
             AddTag(context, "Timekeeping Tools", "Tools");
 
             AddTag(context, "Mining Tool", "Tools");
@@ -1868,8 +1920,12 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "High-Quality Tools", "Professional Tools");
 
             AddTag(context, "Repair Supplies", "Market");
+			AddTag(context, "Chemical Medicine", "Medicine");
+			AddTag(context, "Public Health", "Medicine");
+			AddTag(context, "Veterinary Medicine", "Medicine");
             AddTag(context, "General Repair Supplies", "Repair Supplies");
             AddTag(context, "Specialist Repair Supplies", "Repair Supplies");
+            AddTag(context, "Precision Repair Supplies", "Repair Supplies");
             AddTag(context, "Weapon and Armour Repair Supplies", "Repair Supplies");
 
             AddTag(context, "Raw Materials", "Market");
@@ -2011,7 +2067,32 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Mould Brick", "Consumables");
             #endregion
 
-            context.SaveChanges();
+			context.SaveChanges();
+
+			void SetStaticId(string settingName, long id)
+			{
+				var setting = context.StaticConfigurations.Find(settingName);
+				if (setting is null)
+				{
+					setting = new StaticConfiguration { SettingName = settingName };
+					context.StaticConfigurations.Add(setting);
+				}
+				setting.Definition = id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+			}
+
+			SetStaticId("MusketRamrodTag", _tags["Musket Ramrod"].Id);
+			SetStaticId("MusketCleaningRamrodTag", _tags["Musket Cleaning Rod"].Id);
+			SetStaticId("MusketUnjammingToolTag", _tags["Musket Unjamming Tool"].Id);
+			SetStaticId("MusketMatchCordTag", _tags["Match Cord"].Id);
+			SetStaticId("MusketIgnitionSourceTag", _tags["Ignition Source"].Id);
+			SetStaticId("WadItemTagId", _tags["Musket Wadding"].Id);
+			var gunpowder = context.Materials.AsEnumerable()
+				.FirstOrDefault(x => x.Name.Equals("gunpowder", StringComparison.OrdinalIgnoreCase));
+			if (gunpowder is not null)
+			{
+				SetStaticId("GunpowderMaterialId", gunpowder.Id);
+			}
+			context.SaveChanges();
         }
 
         internal void SeedTagsForTesting(FuturemudDatabaseContext context)

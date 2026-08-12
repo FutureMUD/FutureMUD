@@ -15,12 +15,17 @@ namespace MudSharp.Server;
 
 internal class MudSharp
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         if (TryRunDocumentationExport(args))
         {
             return;
         }
+
+		if (TryRunGoogleEmailAuthorization(args))
+		{
+			return;
+		}
 
         ConfigureConsoleHost();
 
@@ -113,8 +118,15 @@ internal class MudSharp
 
             // Post Shutdown Sequence
 
-            Thread.Sleep(500);
-            mud.Server.Stop();
+			await Task.Delay(500);
+			if (mud.Server is IAsyncServer asyncServer)
+			{
+				await asyncServer.StopAsync();
+			}
+			else
+			{
+				mud.Server.Stop();
+			}
             EmailHelper.Instance.EndEmailThread();
         }
 #if DEBUG
@@ -193,6 +205,33 @@ internal class MudSharp
 		catch (Exception exception)
 		{
 			Console.Error.WriteLine($"Documentation export failed: {exception.Message}");
+			Environment.ExitCode = 1;
+		}
+
+		return true;
+	}
+
+	private static bool TryRunGoogleEmailAuthorization(string[] args)
+	{
+		if (args.Length == 0 || !args[0].Equals("--authorize-google-email", StringComparison.OrdinalIgnoreCase))
+		{
+			return false;
+		}
+
+		if (args.Length != 3 || !GoogleEmailAuthorization.TryGetScope(args[1], out _))
+		{
+			Console.Error.WriteLine("Usage: MudSharp --authorize-google-email <gmail-api|smtp> <client-secrets.json>");
+			Environment.ExitCode = 2;
+			return true;
+		}
+
+		try
+		{
+			GoogleEmailAuthorization.AuthorizeAsync(args[1], args[2], CancellationToken.None).GetAwaiter().GetResult();
+		}
+		catch (Exception exception)
+		{
+			Console.Error.WriteLine($"Google email authorization failed: {exception.GetType().Name}.");
 			Environment.ExitCode = 1;
 		}
 

@@ -11,6 +11,12 @@ The focus is not general builder onboarding. The focus is the minimum command su
 
 Use `comp edit new artillery`, `artilleryammo`, `artillerychamber`, `artillerymount`, or `weaponcarrier` to author the corresponding component. Artillery pieces require an artillery ranged type, profile, loading mechanism, crew range, emplacement setting, and arcs; ammunition and chambers use matching profile strings (a `|`-separated list is valid for a deliberately compatible family). At runtime, use `artillery <piece> join [role]`, then the documented loading drill, `aim` or `aimpath`, and `fire`; use `emplace` / `artillery ... limber` and `mount` / `unmount` to manage physical installation.
 
+Author the piece's `powder` and `primer` masses and its `spongetag`, `wadtag`, `rammertag`, `venttag`, `linstocktag`, and `fusetag` before approval. The stock catalogue uses `Artillery Sponge`, `Artillery Wadding`, `Artillery Rammer`, `Artillery Vent Tool`, `Artillery Linstock`, and `Artillery Fuse`. A full drill needs a real gunpowder commodity with enough mass, all appropriate tagged tools/consumables, and an `ArtilleryAmmunition` item (or a compatible preloaded `ArtilleryChamber`). Shell and carcass rounds must receive a physical fuse with `artillery <piece> fuse <seconds>` before readying.
+
+For muskets, stock `Musket Cleaning Rod`, `Musket Ramrod`, `Musket Unjamming Tool`, `Match Cord`, and `Musket Wadding` tags alongside a gunpowder commodity and typed musket balls or cartridges. A cleaning rod or ramrod intended to ride on the firearm also needs `Beltable`; use `attach <rod> <musket>` to install it. The loading drill preferentially uses the attached tool and restores it to that same musket after cleaning or tamping. `load <musket> blank` consumes powder and a wad but no projectile; `noclean` and `tapnoclean` deliberately preserve the dirty-load penalty. A musket cannot be readied until every selected loading phase has completed. Validate dry, heavy-rain, underwater, liquid-atmosphere, and vacuum cases when shipping a black-powder profile.
+
+On an established database, the Items seeder offers a `blackpowder` repair scope in addition to the normal `all` scope. The focused scope reconciles only the shared physical ammunition and tools, selected-era firearms and artillery, and the physical black-powder craft. It deliberately skips retirement of unrelated managed catalogue records, so it is safe to use when repairing this dependency slice without waiting for the complete multi-era catalogue pass. For older stock that has subsequently been customized, the focused migration adds only missing functional tags and preserves all other item fields and relationships.
+
 Weapon carriers use `attach` and `detach` to establish or remove the relation and ordinary `sheathe` / `draw` to stow or retrieve an attached weapon. A retained dropped weapon is hanging, so `recover <weapon>` returns it to inventory and `release <weapon>` drops it deliberately.
 
 ## Working with Component Prototypes
@@ -62,6 +68,15 @@ Signal-automation examples now include:
 - `comp edit new electroniclock`
 - `comp edit new relayswitch`
 - `comp edit new alarmsiren`
+
+Explosive-trigger examples include:
+
+- `comp edit new countdowndetonator`
+- `comp edit new clockdetonator`
+- `comp edit new signaldetonator`
+- `comp edit new pinpulldetonator`
+
+Each of these must be attached to an item prototype with a sibling `Bomb` component before the item can be submitted. Countdown, clock, signal, and radio detonators are mutually exclusive armable roles; the pin-pull role is separate.
 
 Power, telecom, and modern medical examples also include:
 - `comp edit new electricgridoutlet`
@@ -124,9 +139,11 @@ The match expression is case-sensitive by default and operates only on nonblank 
 
 The command first displays the complete proposed old-to-new map. It checks the virtual final state against untouched active prototypes as well as other entries in the batch, so swaps and rename chains are safe. If the expression is invalid or times out, a result is entirely numeric, or distinct prototype IDs would share a case-insensitive name, no prototype is changed. A successful preflight applies all actual changes immediately and marks those revisions for normal persistence.
 
-Stock rework items seeded by `ItemSeeder` use their stable seeder reference as `UniqueName`. Their builder comments also carry stock-only metadata such as the stable reference, culture context when the catalogue item belongs to a culture-specific slice, and broad seeder package notes. Stable references identify the era, domain, optional culture, and product; they do not include implementation provenance such as `expansion`, `rework`, `pass`, or `content_pass`, and must not repeat an adjacent package/category segment (for example, use `medieval_door_east_asian_bamboo_lattice_gate`, not `medieval_door_east_asian_east_asian_bamboo_lattice_gate`). Keep numeric suffixes only where they distinguish genuine product variants.
+Stock rework items seeded by `ItemSeeder` use their stable seeder reference as `UniqueName`. Stock-only metadata such as the stable reference, culture context, source profile, and package notes remains in the seeder definitions and maintained manifest rather than being copied into builder comments. Reruns remove previously seeded note lines while preserving unrelated builder-authored comments. Stable references identify the era, domain, optional culture, and product; they do not include implementation provenance such as `expansion`, `rework`, `pass`, or `content_pass`, and must not repeat an adjacent package/category segment (for example, use `medieval_door_east_asian_bamboo_lattice_gate`, not `medieval_door_east_asian_east_asian_bamboo_lattice_gate`). Keep numeric suffixes only where they distinguish genuine product variants.
 
-The shared pre-industrial rework package uses `preindustrial_*` unique names for selected cross-era aliases and new stock. It never renames the source `antiquity_*` or `medieval_*` prototype. Alias builder comments name the source stable reference, while public descriptions remain in-world and do not mention aliases or seeder mechanics. Builders selecting Antiquity, Medieval, Renaissance, or Early Modern receive the same `historic_*`, `primary_production_*`, and shared pre-industrial foundation without duplicate prototypes on rerun.
+Stock tag lists persist only the most-specific tag from any single hierarchy branch. A leaf such as `Market / Military Goods / Weapons / Spears` already implies its `Weapons` and `Military Goods` ancestors; independent leaves from other branches, such as era and function, remain attached.
+
+The shared pre-industrial rework package uses `preindustrial_*` unique names for selected cross-era aliases and new stock. It never renames the source `antiquity_*` or `medieval_*` prototype. Alias source references remain in the seeder definition rather than the persisted builder comment, while public descriptions remain in-world and do not mention aliases or seeder mechanics. Builders selecting Antiquity, Medieval, Renaissance, or Early Modern receive the same `historic_*`, `primary_production_*`, and shared pre-industrial foundation without duplicate prototypes on rerun.
 
 ### Attach or detach components
 Use:
@@ -170,6 +187,14 @@ These matter because many component features only make sense in combination with
 - morph and destroyed settings affect component replacement behaviour
 - registers and on-load progs can feed variable-style components
 - skinnability affects how content can be customised by players
+
+### Explosive trigger runtime workflow
+
+Use `arm <item> [<duration|in-game datetime>] [(<emote>)]` for countdown, clock, signal, and radio triggers. A countdown uses its authored default when no duration is supplied and accepts a player duration only when enabled; a clock trigger requires an exact future in-game date and time interpreted in the component's authored timezone; a signal or radio trigger takes no trigger argument. Use `disarm <item> [(<emote>)]` only when the component profile permits it. Existing `switch <radio detonator> on|off` aliases remain available for compatibility.
+
+Use `pullpin <item> [(<emote>)]` (or `pinpull`) for a pin-pull trigger. This begins its authored fixed delay and cannot be reversed. Countdown and pin-pull deadlines continue against UTC while unloaded or during server downtime and fire on the next load if overdue. Clock triggers follow their authored in-game calendar and clock instead.
+
+For a signal detonator, author a default source component and endpoint, then use the ordinary `electrical` inspection and binding workflow when a live item needs rewiring. A live binding to a specific source item remains tied to that item and becomes inactive when the source is disconnected or moved out of signal range; it never substitutes another item merely because the component prototype matches. Test both inactive and active starting states, source disconnection and reconnection, power loss and restoration when power is required, threshold direction, and the selected activation policy. Edge mode must require a fresh inactive-to-active transition after arming or repowering; level mode may detonate as soon as an active level is observed. A microcontroller can provide arbitrary electronic logic now, and later mechanical trap sources can use the same endpoint contract.
 - unique names give builders, scripts, and content references a stable lookup key that is not the item noun
 - builder comments preserve design intent, associations, and maintenance notes without changing runtime behaviour
 
@@ -190,7 +215,7 @@ Commodity piles can also be governed by builder-owned `commodityspoilage` rules.
 ### Outfit template workflow
 Outfit templates are admin-only global editable data for creating full equipment sets from item prototypes. They are not revisable: changing a template only affects future loads, not any character outfits it has already created.
 
-The ItemSeeder also installs documented stock clothing manifests for selected eras after their item phases finish. Stock templates use deterministic names, stable prototype references as template-local keys, document order as wear order, and default-profile `Worn` placement. A stock ownership marker is kept in the description so reruns can reconcile seeder-owned templates without silently overwriting an unrelated builder-authored template with the same name; an unmarked name collision stops the seed operation for builder review.
+The ItemSeeder also installs documented stock clothing manifests for selected eras after their item phases finish. Stock templates use concise deterministic names, stable prototype references as template-local keys, document order as wear order, and default-profile `Worn` placement. Their builder-facing descriptions retain useful grouping and purpose context but omit source filenames. A stock ownership marker is kept in the description so reruns can reconcile seeder-owned templates without silently overwriting an unrelated builder-authored template with the same name; an unmarked name collision stops the seed operation for builder review. Renaissance military armour manifests use the same ownership and update path, but are generated from their canonical military table and contain only wearable armour or barding. They validate every reference and wearable profile before generation, so shields and handheld weapons remain separately equipped rather than being incorrectly loaded as worn items.
 
 Use:
 - `outfittemplate list [<filters>]`

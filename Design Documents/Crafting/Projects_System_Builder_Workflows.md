@@ -149,16 +149,30 @@ Use `project queue` to manage what labour role you want to auto-join next.
 
 Current syntax:
 - `project queue`
-- `project queue <project> [labour]`
+- `project queue <project> [labour]` (compatibility alias for `join ... once`)
+- `project queue join <active-project> [labour] [once|for <hours>|until phase|until completion]`
+- `project queue start <template> [labour] [once|for <hours>|until phase|until completion]`
+- `project queue mode <index> once|for <hours>|until phase|until completion`
+- `project queue labour <index> <labour|automatic>`
+- `project queue move <index> <new-index>`
 - `project queue remove <index>`
 - `project queue clear`
+- `project queue loop`
 
 Current behavior:
-- entries only target the active project's current phase
-- only the first queued entry is considered when you become idle
-- blocked entries remain queued and show statuses such as `Waiting For Slot`, `Waiting For Qualification`, or `Waiting For Location`
+- `join` entries target an existing active project; `start` entries store the project definition id and use the then-current approved revision only when they activate
+- adding a start entry requires current catalogue visibility but deliberately does not require initiation eligibility yet
+- blocked entries remain queued and show statuses such as `Waiting For Initiation`, `Waiting For Labour Selection`, `Waiting For Slot`, `Waiting For Qualification`, `Waiting For Location`, or `Waiting For Funding`; later ready entries are still considered once per activation pass
+- automatic labour selection only proceeds when exactly one qualified role can be joined; otherwise set a labour preference explicitly
+- duration entries count successfully funded labour time only; phase and completion entries retain their linked active instance across phase changes
 - a player queue entry can become `Ready` when the only occupied slot is held by an NPC who can be displaced
-- stale entries are removed automatically when the project disappears or the queued labour is no longer part of the current phase
+- stale join entries are removed automatically when their project disappears
+- cancelling an active project satisfies the current queue cycle, including `until completion`
+
+Looping is intentionally opt-in and is rejected while any `once` entry remains. Completed repeatable entries move to the tail; a looping start entry launches a new live project on its next cycle rather than reusing an unrelated project.
+
+### Project labour contribution merit
+Builders can create the `Project Labour Contribution` character merit. Its `prog` setting accepts only a numeric FutureProg with the signature `number(character, project)`. The resulting number multiplies project progress after ordinary labour and supervision calculations. More than one applicable merit stacks multiplicatively. This changes neither payment, time worked, impacts nor skill-check cadence.
 
 ## Admin And Revision Workflow
 ### List and inspect definitions

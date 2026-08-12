@@ -24,6 +24,9 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 			["FutureMUD_Renaissance_Art_Craft_Science_Navigation_Design_Reference.md"] = "SeedRenaissanceArtCraftScienceAndNavigation",
 			["FutureMUD_Renaissance_Agriculture_Food_Drink_Commodities_Design_Reference.md"] = "SeedRenaissanceAgricultureFoodDrinkAndCommodities",
 			["FutureMUD_Renaissance_PrimaryIndustry_UsefulSeeder_Impact_Reference.md"] = "SeedRenaissancePrimaryIndustryAndUsefulSeederImpacts",
+			["FutureMUD_Renaissance_Jewellery_Devotional_Seeder_Design_Reference.md"] = "SeedRenaissanceJewelleryAndDevotionalGoods",
+			["FutureMUD_Renaissance_Doors_Locks_Gates_Seeder_Design_Reference.md"] = "SeedRenaissanceDoorsLocksAndGates",
+			["FutureMUD_Renaissance_EarlyModern_Medical_Repair_Design_Reference.md"] = "SeedRenaissanceMedicalAndRepair",
 			["FutureMUD_Renaissance_Culture_Manifest_Reference.md"] = "SeedRenaissanceCultureManifest"
 		};
 
@@ -38,6 +41,9 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 			["FutureMUD_EarlyModern_Science_Navigation_Optics_Measurement_Design_Reference.md"] = "SeedEarlyModernScienceNavigationOpticsAndMeasurement",
 			["FutureMUD_EarlyModern_Agriculture_Food_Drink_Commodities_Design_Reference.md"] = "SeedEarlyModernAgricultureFoodDrinkAndCommodities",
 			["FutureMUD_EarlyModern_PrimaryIndustry_UsefulSeeder_Impact_Reference.md"] = "SeedEarlyModernPrimaryIndustryAndUsefulSeederImpacts",
+			["FutureMUD_EarlyModern_Jewellery_Devotional_Seeder_Design_Reference.md"] = "SeedEarlyModernJewelleryAndDevotionalGoods",
+			["FutureMUD_EarlyModern_Doors_Locks_Gates_Seeder_Design_Reference.md"] = "SeedEarlyModernDoorsLocksAndGates",
+			["FutureMUD_Renaissance_EarlyModern_Medical_Repair_Design_Reference.md"] = "SeedEarlyModernMedicalAndRepair",
 			["FutureMUD_EarlyModern_Culture_Manifest_Reference.md"] = "SeedEarlyModernCultureManifest"
 		};
 
@@ -65,6 +71,58 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 		Assert.IsFalse(earlyModernReferences.Any(x => x.Contains("_naval_naval_", StringComparison.OrdinalIgnoreCase)));
 		CollectionAssert.Contains(renaissanceReferences, "renaissance_furniture_nac_lamp_table_02");
 		CollectionAssert.Contains(earlyModernReferences, "earlymodern_military_naval_rope_coil_issue");
+	}
+
+	[TestMethod]
+	public void GeneratedEarlyModernMilitaryItems_HaveSubstantiveAppearanceProseAndLeafTags()
+	{
+		var items = ItemSeeder.EarlyModernSupportedMilitaryItemSpecsForTesting.ToArray();
+		Assert.AreEqual(1664, items.Length);
+
+		foreach (var item in items)
+		{
+			Assert.IsTrue(item.FullDescription.Length >= 160,
+				$"{item.StableReference} needs a substantive full description.");
+			Assert.AreEqual(4, Regex.Matches(item.FullDescription, @"[.!?](?:\s|$)").Count,
+				$"{item.StableReference} should have four appearance-focused sentences.");
+			Assert.IsFalse(item.FullDescription.Contains("documented Early Modern", StringComparison.OrdinalIgnoreCase));
+			Assert.IsFalse(item.Tags.Any(tag => item.Tags.Any(other =>
+				other.StartsWith($"{tag} / ", StringComparison.OrdinalIgnoreCase))),
+				$"{item.StableReference} has a redundant parent tag.");
+		}
+	}
+
+	[TestMethod]
+	public void EarlyModernBlackPowderSupportItems_HaveRuntimeFunctionalTags()
+	{
+		var items = ItemSeeder.EarlyModernSupportedMilitaryItemSpecsForTesting
+			.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
+
+		CollectionAssert.Contains(items["earlymodern_military_naval_cannon_sponge"].Tags.ToArray(),
+			"Functions / Tools / Artillery Tools / Artillery Sponge");
+		CollectionAssert.Contains(items["earlymodern_military_naval_artillery_linstock"].Tags.ToArray(),
+			"Functions / Tools / Artillery Tools / Artillery Linstock");
+		foreach (var reference in new[]
+		         {
+			         "earlymodern_military_firearm_gunflint_packet",
+			         "earlymodern_military_firearm_pyrite_packet"
+		         })
+		{
+			CollectionAssert.Contains(items[reference].Tags.ToArray(),
+				"Functions / Material Functions / Ignition Source");
+		}
+		CollectionAssert.Contains(items["earlymodern_military_naval_peterero_chamber"].Tags.ToArray(),
+			"Functions / Military Equipment / Military Ammunition");
+		CollectionAssert.AreEquivalent(
+			new[]
+			{
+				"earlymodern_military_naval_cannon_sponge",
+				"earlymodern_military_naval_artillery_linstock",
+				"earlymodern_military_firearm_gunflint_packet",
+				"earlymodern_military_firearm_pyrite_packet",
+				"earlymodern_military_naval_peterero_chamber"
+			},
+			ItemSeeder.EarlyModernBlackPowderSupportStableReferencesForTesting.ToArray());
 	}
 
 	[TestMethod]

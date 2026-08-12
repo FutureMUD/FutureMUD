@@ -9,10 +9,15 @@
 @inject ILogger<Index> Logger
 @inject IConfiguration Configuration
 
+<PageTitle>@Branding.Title</PageTitle>
+<HeadContent>
+	<link rel="icon" type="image/png" href="@Branding.IconUrl" />
+</HeadContent>
+
 <div class="app-root" style="@GetClientStyle()">
 	<div class="app-grid">
 		<div class="play-surface">
-			<div class="message-container" @ref="MessageContainer">
+			<div class="@GetMessageContainerClass()" @ref="MessageContainer" tabindex="0" role="region" aria-label="MUD output">
 				@foreach (var message in _transcript.RenderedEntries)
 				{
 					<div @key="message.Id">@(new MarkupString(message.Html))</div>
@@ -148,6 +153,14 @@
 							<span>Wrap width (px)</span>
 							<input class="settings-input" type="number" min="0" max="3000" step="10" value="@ClientSettingsDraft.MessageWrapWidthPx" @oninput="args => UpdateMessageWrapWidth(args.Value?.ToString())" aria-label="Manual message wrap width in pixels" />
 							<small>0 uses the available width.</small>
+						</label>
+						<label>
+							<span>Wide text</span>
+							<select class="settings-input" value="@ClientSettingsDraft.OutputWidthBehavior.ToString()" @onchange="args => UpdateOutputWidthBehavior(args.Value?.ToString())" aria-label="Wide text behavior">
+								<option value="Wrap">Wrap to window</option>
+								<option value="HorizontalScroll">Scroll horizontally</option>
+							</select>
+							<small>Horizontal scrolling preserves MUD-formatted line widths on narrow screens.</small>
 						</label>
 						<label>
 							<span>Left offset (px)</span>
@@ -312,6 +325,22 @@
 			</section>
 		}
 		
+		@if (_aboutOpen)
+		{
+			<section class="about-panel" role="region" aria-labelledby="about-title">
+				<img class="about-icon" src="@Branding.IconUrl" alt="" />
+				<div class="about-copy">
+					<h2 id="about-title">@Branding.Title</h2>
+					<p>@Branding.AboutText</p>
+					<dl class="about-details">
+						<div><dt>Client</dt><dd>@ProductInformation.Name</dd></div>
+						<div><dt>Version</dt><dd>@ProductInformation.Version</dd></div>
+					</dl>
+				</div>
+				<button type="button" class="client-button secondary-button about-close" @onclick="ToggleAbout">Close</button>
+			</section>
+		}
+
 		<div class="status-footer">
 			<div class="connection-status" aria-live="polite">
 				<span class="connection-dot @(isConnected ? "is-connected" : "is-disconnected")" aria-hidden="true"></span>
@@ -327,6 +356,7 @@
 				<button type="button" class="client-button primary-button" @onclick="ToggleConnection">@connectionButtonText</button>
 				<button type="button" class="client-button secondary-button" @onclick="SaveLog">Save Log</button>
 				<button type="button" class="client-button secondary-button" @onclick="ToggleHotkeySettings">Settings</button>
+				<button type="button" class="client-button secondary-button" title="@AboutButtonTitle" aria-expanded="@_aboutOpen" @onclick="ToggleAbout">About</button>
 			</div>
 		</div>
 	</div>
@@ -405,6 +435,7 @@
 		};
 
 	private string UserInput { get; set; } = string.Empty;
+	private string _commandHistoryDraft = string.Empty;
 	private readonly ClientTranscript _transcript = new();
 	private ClientWebSocket? _clientWebSocket;
 	private CancellationTokenSource _cancellationTokenSource = new();
@@ -426,10 +457,13 @@
 	private QuickAliasSettings QuickAliasDraft { get; set; } = QuickAliasSettings.CreateDefault();
 	private ClientSettings CurrentClientSettings { get; set; } = ClientSettings.CreateDefault();
 	private ClientSettings ClientSettingsDraft { get; set; } = ClientSettings.CreateDefault();
+	private ClientBrandingOptions Branding { get; set; } = new();
+	private static ClientProductInformation ProductInformation => ClientProductInformation.Current;
 	private IReadOnlyList<string> HotkeyDraftErrors { get; set; } = [];
 	private IReadOnlyList<string> ClientSettingsDraftErrors { get; set; } = [];
 	private string? HotkeySettingsError { get; set; }
 	private bool _hotkeySettingsOpen;
+	private bool _aboutOpen;
 	private bool _isSendingBatch;
 	private string _batchProgressText = string.Empty;
 
@@ -445,13 +479,14 @@
 
 	protected override async Task OnInitializedAsync()
 	{
+		Branding = ClientBrandingOptions.FromConfiguration(Configuration);
+
 		// Create the object reference
 		_objectReference = DotNetObjectReference.Create(this);
 
 		// Pass the object reference to JavaScript
 		await JSRuntime.InvokeVoidAsync("registerSendCommandHandler", _objectReference);
 		await JSRuntime.InvokeVoidAsync("mudClientHotkeys.register", _objectReference);
-		await JSRuntime.InvokeVoidAsync("mudClientInput.register", "userInput");
 		await LoadClientSettingsAsync();
 		await LoadHotkeySettingsAsync();
 		await LoadQuickAliasSettingsAsync();
@@ -471,6 +506,17 @@
 		await ConnectToWebSocketAsync(_webSocketEndpoint);
 	}
 
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender)
+		{
+			return;
+		}
+
+		await JSRuntime.InvokeVoidAsync("mudClientInput.register", "userInput", _objectReference);
+		await JSRuntime.InvokeVoidAsync("mudClientTranscript.register", MessageContainer);
+	}
+
 	private IEnumerable<HotkeyBinding> DesktopHotkeyBindings => GetOrderedActiveHotkeyBindings(DesktopHotkeySortOrder);
 
 	private IEnumerable<HotkeyBinding> MobileHotkeyBindings => GetOrderedActiveHotkeyBindings(MobileHotkeySortOrder, includeNoOpButtons: false);
@@ -484,6 +530,14 @@
 		 !string.IsNullOrEmpty(CurrentQuickAliasSettings.Login.Password));
 
 	private bool CanSaveHotkeySettings => HotkeyDraftErrors.Count == 0 && ClientSettingsDraftErrors.Count == 0;
+	private string AboutButtonTitle => $"About {ProductInformation.Name} {ProductInformation.Version}";
+
+	private string GetMessageContainerClass()
+	{
+		return CurrentClientSettings.OutputWidthBehavior == OutputWidthBehavior.HorizontalScroll
+			? "message-container output-scroll-horizontal"
+			: "message-container output-wrap";
+	}
 
 	private string GetClientStyle()
 	{
@@ -699,6 +753,16 @@
 		if (int.TryParse(value, out var parsed))
 		{
 			ClientSettingsDraft.MessageWrapWidthPx = parsed;
+		}
+
+		ValidateClientSettingsDraft();
+	}
+
+	private void UpdateOutputWidthBehavior(string? value)
+	{
+		if (Enum.TryParse<OutputWidthBehavior>(value, out var behavior))
+		{
+			ClientSettingsDraft.OutputWidthBehavior = behavior;
 		}
 
 		ValidateClientSettingsDraft();
@@ -1063,7 +1127,7 @@
 			_pendingServerText.Clear();
 			await _clientWebSocket.ConnectAsync(endpoint, _cancellationTokenSource.Token);
 			isConnected = true;
-			AddMessage($"Connected to WebSocket proxy at {EscapeHtml(endpoint.ToString())}.");
+			AddMessage(_ansiMxpParser.Parse("\x1B[92mConnected to the MUD.\x1B[0m\n"));
 			_ = ReceiveMessagesAsync(_clientWebSocket);
 			return true;
 		}
@@ -1193,7 +1257,6 @@
 
 		AddMessage(parsedMessage);
 		await InvokeAsync(StateHasChanged);
-		await JSRuntime.InvokeVoidAsync("scrollToBottomIfNearBottom", MessageContainer);
 	}
 
 	private async Task HandleTelnetNegotiationAsync(byte command, byte option)
@@ -1508,7 +1571,6 @@
 		}
 
 		await InvokeAsync(StateHasChanged);
-		await JSRuntime.InvokeVoidAsync("scrollToBottomIfNearBottom", MessageContainer);
 		return completed;
 	}
 
@@ -1582,66 +1644,51 @@
 			}
 
 			CommandHistoryIndex = CommandHistory.Count;
+			_commandHistoryDraft = UserInput;
+		}
+	}
+
+	[JSInvokable]
+	public async Task NavigateCommandHistory(string direction, bool jumpToBoundary, string currentInput)
+	{
+		var historyDirection = direction.ToLowerInvariant() switch
+		{
+			"up" => CommandHistoryDirection.Up,
+			"down" => CommandHistoryDirection.Down,
+			_ => (CommandHistoryDirection?)null
+		};
+
+		if (historyDirection is null)
+		{
 			return;
 		}
 
-		if (e.Key == "ArrowUp")
+		UserInput = currentInput;
+		if (historyDirection == CommandHistoryDirection.Up && CommandHistoryIndex >= CommandHistory.Count)
 		{
-			if (e.CtrlKey && CommandHistory.Count > 0)
-			{
-				CommandHistoryIndex = 0;
-				UserInput = CommandHistory[CommandHistoryIndex];
-			}
-			else if (CommandHistory.Count > 0 && CommandHistoryIndex > 0)
-			{
-				CommandHistoryIndex--;
-				UserInput = CommandHistory[CommandHistoryIndex];
-			}
+			_commandHistoryDraft = currentInput;
+		}
 
-			await InvokeAsync(StateHasChanged);
-			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+		var navigation = CommandHistoryNavigator.Navigate(
+			CommandHistory,
+			CommandHistoryIndex,
+			historyDirection.Value,
+			jumpToBoundary,
+			_commandHistoryDraft);
+		if (!navigation.HasChanged)
+		{
 			return;
 		}
 
-		if (e.Key == "ArrowDown")
-		{
-			if (e.CtrlKey && CommandHistory.Count > 0)
-			{
-				CommandHistoryIndex = CommandHistory.Count - 1;
-				UserInput = CommandHistory[CommandHistoryIndex];
-			}
-			else if (CommandHistoryIndex < CommandHistory.Count - 1)
-			{
-				CommandHistoryIndex++;
-				UserInput = CommandHistory[CommandHistoryIndex];
-			}
-			else
-			{
-				CommandHistoryIndex = CommandHistory.Count;
-				UserInput = string.Empty;
-			}
+		CommandHistoryIndex = navigation.Index;
+		UserInput = navigation.Input!;
+		await InvokeAsync(StateHasChanged);
+		await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
+	}
 
-			await InvokeAsync(StateHasChanged);
-			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
-			return;
-		}
-
-		if (e.Key == "Home" && e.CtrlKey && CommandHistory.Count > 0)
-		{
-			CommandHistoryIndex = 0;
-			UserInput = CommandHistory[CommandHistoryIndex];
-			await InvokeAsync(StateHasChanged);
-			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", UserInput.Length);
-			return;
-		}
-
-		if (e.Key == "End" && e.CtrlKey)
-		{
-			CommandHistoryIndex = CommandHistory.Count;
-			UserInput = string.Empty;
-			await InvokeAsync(StateHasChanged);
-			await JSRuntime.InvokeVoidAsync("setSelectionRange", "userInput", 0);
-		}
+	private void ToggleAbout()
+	{
+		_aboutOpen = !_aboutOpen;
 	}
 
 	private async Task LoadTextFileAsync(InputFileChangeEventArgs args)
@@ -1678,6 +1725,7 @@
 		{
 			await JSRuntime.InvokeVoidAsync("mudClientHotkeys.dispose");
 			await JSRuntime.InvokeVoidAsync("mudClientInput.dispose");
+			await JSRuntime.InvokeVoidAsync("mudClientTranscript.dispose");
 			await JSRuntime.InvokeVoidAsync("disposeSendCommandHandler");
 		}
 		catch (JSDisconnectedException)
@@ -1780,9 +1828,9 @@
 				AddMessage("Cannot reconnect because the WebSocket proxy endpoint is not configured.");
 				isConnected = false;
 			}
-			else if (await ConnectToWebSocketAsync(_webSocketEndpoint))
+			else
 			{
-				AddMessage("Reconnected to the MUD.");
+				await ConnectToWebSocketAsync(_webSocketEndpoint);
 			}
 
 			await InvokeAsync(StateHasChanged);

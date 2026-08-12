@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace MudSharp.TimeAndDate.Time
 {
-    public class MudTime : IComparable, IComparable<MudTime>
+    public class MudTime : IComparable, IComparable<MudTime>, IEquatable<MudTime>
     {
         #region Properties
 
@@ -58,49 +58,73 @@ namespace MudSharp.TimeAndDate.Time
             }
         }
 
-        protected void UpdateTime(int days, int hours, int minutes, int seconds)
+        private void ApplyTimeDelta(long seconds, bool notifySeconds, bool notifyMinutes, bool notifyHours)
         {
-            int oldHours = Hours, oldMinutes = Minutes, oldSeconds = Seconds;
-            _seconds = seconds;
-            if (_seconds == Clock.SecondsPerMinute)
-            {
-                _seconds = 0;
-            }
-            _minutes = minutes;
-            if (_minutes == Clock.MinutesPerHour)
-            {
-                _minutes = 0;
-            }
+            var secondsPerHour = (long)Clock.SecondsPerMinute * Clock.MinutesPerHour;
+            var secondsPerDay = secondsPerHour * Clock.HoursPerDay;
+            var currentSeconds = ((long)Hours * Clock.MinutesPerHour + Minutes) * Clock.SecondsPerMinute + Seconds;
+            var totalSeconds = checked(currentSeconds + seconds);
+            var days = FloorDivide(totalSeconds, secondsPerDay);
+            var timeOfDay = totalSeconds - days * secondsPerDay;
+            var hours = (int)(timeOfDay / secondsPerHour);
+            timeOfDay %= secondsPerHour;
+            var minutes = (int)(timeOfDay / Clock.SecondsPerMinute);
+            var newSeconds = (int)(timeOfDay % Clock.SecondsPerMinute);
+
+            ApplyNormalisedTime(checked((int)days), hours, minutes, newSeconds, notifySeconds, notifyMinutes,
+                notifyHours);
+        }
+
+        private void ApplyNormalisedTime(int days, int hours, int minutes, int seconds, bool notifySeconds,
+            bool notifyMinutes, bool notifyHours)
+        {
+            var oldHours = _hours;
+            var oldMinutes = _minutes;
+            var oldSeconds = _seconds;
             _hours = hours;
-            if (_hours == Clock.HoursPerDay)
+            _minutes = minutes;
+            _seconds = seconds;
+
+            if (!IsPrimaryTime)
             {
-                _hours = 0;
-            }
-            if (days != 0)
-            {
-                if (IsPrimaryTime)
-                {
-                    Clock.AdvanceDays(1);
-                }
-                else
-                {
-                    DaysOffsetFromDatum += 1;
-                }
-            }
-            if (oldHours != hours || oldMinutes != minutes || oldSeconds != seconds)
-            {
-                Clock.UpdateSeconds();
-                if (oldHours != hours || oldMinutes != minutes)
-                {
-                    Clock.UpdateMinutes();
-                    if (oldHours != hours)
-                    {
-                        Clock.UpdateHours();
-                    }
-                }
+                DaysOffsetFromDatum = checked(DaysOffsetFromDatum + days);
+                return;
             }
 
-            Clock.Changed = true;
+            if (days != 0)
+            {
+                Clock.AdvanceDays(days);
+            }
+
+            var secondsChanged = oldSeconds != seconds;
+            var minutesChanged = oldMinutes != minutes;
+            var hoursChanged = oldHours != hours;
+            if (notifySeconds && (secondsChanged || minutesChanged || hoursChanged))
+            {
+                Clock.UpdateSeconds();
+            }
+
+            if (notifyMinutes && (minutesChanged || hoursChanged))
+            {
+                Clock.UpdateMinutes();
+            }
+
+            if (notifyHours && hoursChanged)
+            {
+                Clock.UpdateHours();
+            }
+
+            if (days != 0 || secondsChanged || minutesChanged || hoursChanged)
+            {
+                Clock.Changed = true;
+            }
+        }
+
+        private static long FloorDivide(long value, long divisor)
+        {
+            var quotient = value / divisor;
+            var remainder = value % divisor;
+            return remainder < 0 ? quotient - 1 : quotient;
         }
 
         protected IMudTimeZone _timezone;
@@ -395,12 +419,31 @@ namespace MudSharp.TimeAndDate.Time
 
         public bool Equals(MudTime compareTime)
         {
-            return
-                (Seconds == compareTime.Seconds) &&
-                (Minutes == compareTime.Minutes) &&
-                (Hours == compareTime.Hours) &&
-                (DaysOffsetFromDatum == compareTime.DaysOffsetFromDatum) &&
-                (Clock.Id == compareTime.Clock.Id);
+            if (compareTime is null || Clock?.Id != compareTime.Clock?.Id)
+            {
+                return false;
+            }
+
+            var left = Timezone == Clock.PrimaryTimezone ? this : GetTimeByTimezone(Clock.PrimaryTimezone);
+            var right = compareTime.Timezone == compareTime.Clock.PrimaryTimezone
+                ? compareTime
+                : compareTime.GetTimeByTimezone(compareTime.Clock.PrimaryTimezone);
+            return left.Seconds == right.Seconds &&
+                   left.Minutes == right.Minutes &&
+                   left.Hours == right.Hours &&
+                   left.DaysOffsetFromDatum == right.DaysOffsetFromDatum;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is MudTime time && Equals(time);
+        }
+
+        public override int GetHashCode()
+        {
+            var primary = Timezone == Clock?.PrimaryTimezone ? this : GetTimeByTimezone(Clock.PrimaryTimezone);
+            return HashCode.Combine(Clock?.Id ?? 0L, primary.Hours, primary.Minutes, primary.Seconds,
+                primary.DaysOffsetFromDatum);
         }
 
         /// <summary>
@@ -431,9 +474,22 @@ namespace MudSharp.TimeAndDate.Time
 
         public void SetTime(int hours, int minutes, int seconds)
         {
-            Hours = hours;
-            Minutes = minutes;
-            Seconds = seconds;
+            if (hours < 0 || hours >= Clock.HoursPerDay)
+            {
+                throw new ArgumentOutOfRangeException(nameof(hours));
+            }
+
+            if (minutes < 0 || minutes >= Clock.MinutesPerHour)
+            {
+                throw new ArgumentOutOfRangeException(nameof(minutes));
+            }
+
+            if (seconds < 0 || seconds >= Clock.SecondsPerMinute)
+            {
+                throw new ArgumentOutOfRangeException(nameof(seconds));
+            }
+
+            ApplyNormalisedTime(0, hours, minutes, seconds, true, true, true);
         }
 
         public void AddSeconds(int seconds)
@@ -443,69 +499,7 @@ namespace MudSharp.TimeAndDate.Time
                 return;
             }
 
-            if (seconds > 0)
-            {
-                if (seconds < Clock.SecondsPerMinute - Seconds)
-                {
-                    Seconds += seconds;
-                    return;
-                }
-
-                int oldSeconds = Seconds;
-                int newSeconds = (seconds + Seconds) % Clock.SecondsPerMinute;
-                int minutes = (seconds + oldSeconds) / Clock.SecondsPerMinute;
-                if (minutes < Clock.MinutesPerHour - Minutes)
-                {
-                    UpdateTime(0, Hours, Minutes + minutes, newSeconds);
-                    return;
-                }
-
-                int oldMinutes = Minutes;
-                int newMinutes = (minutes + Minutes) % Clock.MinutesPerHour;
-                int hours = (minutes + oldMinutes) / Clock.MinutesPerHour;
-                if (hours < Clock.HoursPerDay - Hours)
-                {
-                    UpdateTime(0, Hours + hours, newMinutes, newSeconds);
-                    return;
-                }
-
-                int oldHours = Hours;
-                int newHours = (hours + Hours) % Clock.HoursPerDay;
-                int days = (hours + oldHours) / Clock.HoursPerDay;
-                UpdateTime(days, newHours, newMinutes, newSeconds);
-                return;
-            }
-            else
-            {
-                if (Math.Abs(seconds) <= Seconds)
-                {
-                    Seconds += seconds;
-                    return;
-                }
-
-                int newSeconds = Clock.SecondsPerMinute - Math.Abs((seconds + Seconds) % Clock.SecondsPerMinute);
-                int minutes = ((seconds + Seconds) / Clock.SecondsPerMinute -
-                               ((seconds + Seconds) % Clock.SecondsPerMinute == 0 ? 0 : 1));
-                if (Math.Abs(minutes) <= Minutes)
-                {
-                    UpdateTime(0, Hours, Minutes + minutes, newSeconds);
-                    return;
-
-                }
-
-                int hours = ((minutes + Minutes) / Clock.MinutesPerHour -
-                         ((Minutes + minutes) % Clock.MinutesPerHour == 0 ? 0 : 1));
-                int newMinutes = Clock.MinutesPerHour - Math.Abs((minutes + Minutes) % Clock.MinutesPerHour);
-                if (Math.Abs(hours) <= Hours)
-                {
-                    UpdateTime(0, Hours + hours, newMinutes, newSeconds);
-                    return;
-                }
-
-                int days = ((hours + Hours) / Clock.HoursPerDay - ((Hours + hours) % Clock.HoursPerDay == 0 ? 0 : 1));
-                int newHours = Clock.HoursPerDay - Math.Abs((hours + Hours) % Clock.HoursPerDay);
-                UpdateTime(days, newHours, newMinutes, newSeconds);
-            }
+            ApplyTimeDelta(seconds, true, true, true);
         }
 
         public void AddMinutes(int minutes)
@@ -515,41 +509,7 @@ namespace MudSharp.TimeAndDate.Time
                 return;
             }
 
-            if (minutes > 0) // Positive Numbers
-            {
-                if (minutes >= Clock.MinutesPerHour - Minutes)
-                {
-                    int oldMinutes = Minutes;
-                    Minutes = (minutes + Minutes) % Clock.MinutesPerHour;
-                    AddHours((minutes + oldMinutes) / Clock.MinutesPerHour);
-                }
-                else
-                {
-                    Minutes += minutes;
-                }
-            }
-            else // Negative Numbers
-            {
-                if (Math.Abs(minutes) > Minutes)
-                {
-                    AddHours((minutes + Minutes) / Clock.MinutesPerHour -
-                             ((Minutes + minutes) % Clock.MinutesPerHour == 0 ? 0 : 1));
-                    Minutes = Clock.MinutesPerHour - Math.Abs((minutes + Minutes) % Clock.MinutesPerHour);
-                    if (Minutes == Clock.MinutesPerHour)
-                    {
-                        Minutes = 0;
-                    }
-                }
-                else
-                {
-                    Minutes += minutes;
-                }
-            }
-
-            if (IsPrimaryTime)
-            {
-                Clock.Changed = true;
-            }
+            ApplyTimeDelta((long)minutes * Clock.SecondsPerMinute, false, true, true);
         }
 
         public void AddHours(int hours)
@@ -559,40 +519,7 @@ namespace MudSharp.TimeAndDate.Time
                 return;
             }
 
-            if (hours > 0) // Positive Numbers
-            {
-                if (hours >= Clock.HoursPerDay - Hours)
-                {
-                    int oldHours = Hours;
-                    Hours = (hours + Hours) % Clock.HoursPerDay;
-                    AdvanceDays((hours + oldHours) / Clock.HoursPerDay);
-                }
-                else
-                {
-                    Hours += hours;
-                }
-            }
-            else // Negative Numbers
-            {
-                if (Math.Abs(hours) > Hours)
-                {
-                    AdvanceDays((hours + Hours) / Clock.HoursPerDay - ((Hours + hours) % Clock.HoursPerDay == 0 ? 0 : 1));
-                    Hours = Clock.HoursPerDay - Math.Abs((hours + Hours) % Clock.HoursPerDay);
-                    if (Hours == Clock.HoursPerDay)
-                    {
-                        Hours = 0;
-                    }
-                }
-                else
-                {
-                    Hours += hours;
-                }
-            }
-
-            if (IsPrimaryTime)
-            {
-                Clock.Changed = true;
-            }
+            ApplyTimeDelta((long)hours * Clock.MinutesPerHour * Clock.SecondsPerMinute, false, false, true);
         }
 
         protected void AdvanceDays(int days)
@@ -614,17 +541,23 @@ namespace MudSharp.TimeAndDate.Time
 
         public MudTime GetTimeByTimezone(IMudTimeZone timezone)
         {
-            int newMinutes = Minutes + timezone.OffsetMinutes - Timezone.OffsetMinutes;
-            // Integer division is towards zero not -infinity, so we need to add -1 if newMinutes is less than zero
-            int newHours = Hours - Timezone.OffsetHours + timezone.OffsetHours + newMinutes / Clock.MinutesPerHour -
-                           (newMinutes < 0 ? 1 : 0);
-            // Integer division is towards zero not -infinity, so we need to add -1 if newHours is less than zero
-            int daysOffset = newHours / Clock.HoursPerDay - (newHours < 0 ? 1 : 0);
-            // C# % operator is simple remainder not actual modulus. Hence the extension method.
-            newMinutes = newMinutes.Modulus(Clock.MinutesPerHour);
-            newHours = newHours.Modulus(Clock.HoursPerDay);
-            return FromLocalTime(Seconds, newMinutes, newHours, timezone, Clock,
-                daysOffset);
+            ArgumentNullException.ThrowIfNull(timezone);
+            if (timezone.Clock is not null && !ReferenceEquals(timezone.Clock, Clock) && !Clock.Timezones.Contains(timezone))
+            {
+                throw new ArgumentException("The timezone does not belong to this clock.", nameof(timezone));
+            }
+
+            var minutesPerDay = (long)Clock.HoursPerDay * Clock.MinutesPerHour;
+            var sourceMinutes = (long)DaysOffsetFromDatum * minutesPerDay +
+                                (long)Hours * Clock.MinutesPerHour + Minutes;
+            var targetMinutes = sourceMinutes +
+                                (long)(timezone.OffsetHours - Timezone.OffsetHours) * Clock.MinutesPerHour +
+                                timezone.OffsetMinutes - Timezone.OffsetMinutes;
+            var daysOffset = FloorDivide(targetMinutes, minutesPerDay);
+            var timeOfDayMinutes = targetMinutes - daysOffset * minutesPerDay;
+            var newHours = (int)(timeOfDayMinutes / Clock.MinutesPerHour);
+            var newMinutes = (int)(timeOfDayMinutes % Clock.MinutesPerHour);
+            return FromLocalTime(Seconds, newMinutes, newHours, timezone, Clock, checked((int)daysOffset));
         }
 
         public static bool operator <(MudTime t1, MudTime t2)
@@ -698,6 +631,7 @@ namespace MudSharp.TimeAndDate.Time
         public static TimeSpan operator -(MudTime t1, MudTime t2)
         {
             return TimeSpan.FromSeconds(
+                (t1.DaysOffsetFromDatum - t2.DaysOffsetFromDatum) * t1.Clock.HoursPerDay * t1.Clock.MinutesPerHour * t1.Clock.SecondsPerMinute +
                 (t1.Hours - t2.Hours) * t1.Clock.MinutesPerHour * t1.Clock.SecondsPerMinute +
                 (t1.Minutes - t2.Minutes) * t1.Clock.SecondsPerMinute +
                 (t1.Seconds - t2.Seconds)
@@ -707,6 +641,7 @@ namespace MudSharp.TimeAndDate.Time
         public static MudTime operator +(MudTime time, TimeSpan ts)
         {
             time = CopyOf(time, true);
+            time.AdvanceDays(ts.Days);
             time.AddSeconds(ts.Seconds);
             time.AddMinutes(ts.Minutes);
             time.AddHours(ts.Hours);
@@ -716,6 +651,7 @@ namespace MudSharp.TimeAndDate.Time
         public static MudTime operator -(MudTime time, TimeSpan ts)
         {
             time = CopyOf(time, true);
+            time.AdvanceDays(-ts.Days);
             time.AddSeconds(-1 * ts.Seconds);
             time.AddMinutes(-1 * ts.Minutes);
             time.AddHours(-1 * ts.Hours);

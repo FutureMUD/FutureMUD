@@ -187,9 +187,10 @@ The scope of the variable declared as the item variable is limited to being used
             return StatementResult.Error;
         }
 
-        foreach (object item in (IList)CollectionFunction.Result.GetObject)
+		LocalVariableSpace localVariables = new(variables);
+		foreach (object item in (IList)CollectionFunction.Result.GetObject)
         {
-            LocalVariableSpace localVariables = new(variables);
+			localVariables.ClearLocalVariables();
             localVariables.SetVariable(VarName, (IProgVariable)item);
             foreach (IStatement statement in ContainedBlock)
             {

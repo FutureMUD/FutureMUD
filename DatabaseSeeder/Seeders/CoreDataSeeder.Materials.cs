@@ -304,6 +304,24 @@ public partial class CoreDataSeeder
 			"Herb");
 		AddMaterial("yarrow", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
 			"Herb");
+		AddMaterial("benzoin resin", MaterialBehaviourType.Paste, 1.1, true, 1000, 1000, 0.1, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("camphor", MaterialBehaviourType.Powder, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("cinchona bark", MaterialBehaviourType.Plant, 0.8, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("guaiacum wood", MaterialBehaviourType.Wood, 1.1, true, 40000, 10000, 0.05, 0.14, 0.0001, 500, "Hardwood");
+		AddMaterial("ipecacuanha root", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("opium gum", MaterialBehaviourType.Paste, 1.1, true, 1000, 1000, 0.1, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("Peruvian balsam", MaterialBehaviourType.Paste, 1.1, true, 1000, 1000, 0.1, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("rhubarb root", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("senna leaf", MaterialBehaviourType.Plant, 0.6, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("sarsaparilla root", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("sassafras bark", MaterialBehaviourType.Plant, 0.8, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("turpentine resin", MaterialBehaviourType.Paste, 0.9, true, 1000, 1000, 0.1, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("Epsom salts", MaterialBehaviourType.Powder, 1.7, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Stone");
+		AddMaterial("calomel", MaterialBehaviourType.Powder, 6.3, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Stone");
+		AddMaterial("tartar emetic", MaterialBehaviourType.Powder, 2.0, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Stone");
+		AddMaterial("bezoar", MaterialBehaviourType.Stone, 2.0, true, 60000000, 200000, 0.0, 0.14, 0.0001, 500, "Animal Product");
+		AddMaterial("ergot", MaterialBehaviourType.Plant, 0.7, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Herb");
+		AddMaterial("green vitriol", MaterialBehaviourType.Powder, 1.9, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Stone");
 		EnsureTag(materials["alum"], "Textile Mordant");
 		EnsureTag(materials["ephedra"], "Herb");
 		EnsureTag(materials["foxglove"], "Herb");
@@ -1086,14 +1104,22 @@ public partial class CoreDataSeeder
     {
         #region Tags
 
-        Dictionary<string, Tag> tags = new(StringComparer.InvariantCultureIgnoreCase);
+        Dictionary<string, Tag> tags = context.Tags
+            .ToDictionary(x => x.Name, x => x, StringComparer.InvariantCultureIgnoreCase);
 
         void AddTag(string name, string? parent)
         {
-            Tag tag = new()
+            if (tags.TryGetValue(name, out var existing))
             {
-                Name = name
-            };
+                if (parent is not null && existing.ParentId is null && tags.TryGetValue(parent, out var existingParent))
+                {
+                    existing.Parent = existingParent;
+                }
+
+                return;
+            }
+
+            Tag tag = new() { Name = name };
             if (parent != null)
             {
                 tag.Parent = tags[parent];
@@ -1275,7 +1301,10 @@ public partial class CoreDataSeeder
 
         #endregion
 
-        Dictionary<string, Material> materials = new(StringComparer.InvariantCultureIgnoreCase);
+        Dictionary<string, Material> materials = context.Materials
+            .Include(x => x.MaterialAliases)
+            .Include(x => x.MaterialsTags)
+            .ToDictionary(x => x.Name, x => x, StringComparer.InvariantCultureIgnoreCase);
         Dictionary<Material, string> solvents = new();
 
         void AddMaterial(string name, MaterialBehaviourType type, double relativeDensity, bool organic,
@@ -1283,6 +1312,19 @@ public partial class CoreDataSeeder
             double electricalConductivity, double specificHeatCapacity, ResidueInformation? residue = null,
             params string[] materialTags)
         {
+            if (materials.TryGetValue(name, out var existing))
+            {
+                foreach (string tag in materialTags)
+                {
+                    if (!existing.MaterialsTags.Any(x => x.TagId == tags[tag].Id || x.Tag?.Id == tags[tag].Id))
+                    {
+                        existing.MaterialsTags.Add(new MaterialsTags { Material = existing, Tag = tags[tag] });
+                    }
+                }
+
+                return;
+            }
+
             Material material = new()
             {
                 Name = name,
@@ -1330,6 +1372,11 @@ public partial class CoreDataSeeder
             Material material = materials[materialName];
             foreach (string? alias in aliases.Select(x => x.ToLowerInvariant()).Distinct())
             {
+                if (material.MaterialAliases.Any(x => x.Alias.Equals(alias, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    continue;
+                }
+
                 material.MaterialAliases.Add(new MaterialAlias
                 {
                     Material = material,
@@ -2527,7 +2574,9 @@ public partial class CoreDataSeeder
 
         context.SaveChanges();
 
-        Dictionary<string, Liquid> liquids = new(StringComparer.InvariantCultureIgnoreCase);
+        Dictionary<string, Liquid> liquids = context.Liquids
+            .Include(x => x.LiquidsTags)
+            .ToDictionary(x => x.Name, x => x, StringComparer.InvariantCultureIgnoreCase);
         Dictionary<Liquid, string> liquidCountsAs = new();
         Dictionary<Liquid, string> liquidSolvents = new();
 
@@ -2541,6 +2590,19 @@ public partial class CoreDataSeeder
             double electricalConductivity = 0.005, double specificHeatCapacity = 4181, string? solvent = null,
             params string[] materialTags)
         {
+            if (liquids.TryGetValue(name, out var existing))
+            {
+                foreach (string tag in materialTags)
+                {
+                    if (!existing.LiquidsTags.Any(x => x.TagId == tags[tag].Id || x.Tag?.Id == tags[tag].Id))
+                    {
+                        existing.LiquidsTags.Add(new LiquidsTags { Liquid = existing, Tag = tags[tag] });
+                    }
+                }
+
+                return;
+            }
+
             Liquid liquid = new()
             {
                 Name = name,
@@ -2684,7 +2746,9 @@ public partial class CoreDataSeeder
 
         #region Biofluids
 
-        Material driedBlood = new()
+        Material driedBlood = materials.TryGetValue("dried blood", out var existingDriedBlood)
+            ? existingDriedBlood
+            : new()
         {
             Name = "dried blood",
             MaterialDescription = "dried blood",
@@ -2710,8 +2774,15 @@ public partial class CoreDataSeeder
             ResidueColour = "red",
             Absorbency = 0
         };
-        context.Materials.Add(driedBlood);
-        Liquid blood = new()
+        if (!materials.ContainsKey("dried blood"))
+        {
+            context.Materials.Add(driedBlood);
+            materials[driedBlood.Name] = driedBlood;
+        }
+
+        Liquid blood = liquids.TryGetValue("blood", out var existingBlood)
+            ? existingBlood
+            : new()
         {
             Name = "blood",
             Description = "blood",
@@ -2747,9 +2818,15 @@ public partial class CoreDataSeeder
             ResidueVolumePercentage = 0.05,
             DriedResidue = driedBlood
         };
-        context.Liquids.Add(blood);
+        if (!liquids.ContainsKey("blood"))
+        {
+            context.Liquids.Add(blood);
+            liquids[blood.Name] = blood;
+        }
 
-        Material driedSweat = new()
+        Material driedSweat = materials.TryGetValue("dried Sweat", out var existingDriedSweat)
+            ? existingDriedSweat
+            : new()
         {
             Name = "dried Sweat",
             MaterialDescription = "dried sweat",
@@ -2775,8 +2852,15 @@ public partial class CoreDataSeeder
             ResidueColour = "yellow",
             Absorbency = 0
         };
-        context.Materials.Add(driedSweat);
-        Liquid sweat = new()
+        if (!materials.ContainsKey("dried Sweat"))
+        {
+            context.Materials.Add(driedSweat);
+            materials[driedSweat.Name] = driedSweat;
+        }
+
+        Liquid sweat = liquids.TryGetValue("sweat", out var existingSweat)
+            ? existingSweat
+            : new()
         {
             Name = "sweat",
             Description = "sweat",
@@ -2812,9 +2896,15 @@ public partial class CoreDataSeeder
             ResidueVolumePercentage = 0.05,
             DriedResidue = driedSweat
         };
-        context.Liquids.Add(sweat);
+        if (!liquids.ContainsKey("sweat"))
+        {
+            context.Liquids.Add(sweat);
+            liquids[sweat.Name] = sweat;
+        }
 
-        Material driedVomit = new()
+        Material driedVomit = materials.TryGetValue("dried vomit", out var existingDriedVomit)
+            ? existingDriedVomit
+            : new()
         {
             Name = "dried vomit",
             MaterialDescription = "dried vomit",
@@ -2840,8 +2930,15 @@ public partial class CoreDataSeeder
             ResidueColour = "yellow",
             Absorbency = 0
         };
-        context.Materials.Add(driedVomit);
-        Liquid vomit = new()
+        if (!materials.ContainsKey("dried vomit"))
+        {
+            context.Materials.Add(driedVomit);
+            materials[driedVomit.Name] = driedVomit;
+        }
+
+        Liquid vomit = liquids.TryGetValue("vomit", out var existingVomit)
+            ? existingVomit
+            : new()
         {
             Name = "vomit",
             Description = "vomit",
@@ -2877,7 +2974,11 @@ public partial class CoreDataSeeder
             ResidueVolumePercentage = 0.05,
             DriedResidue = driedVomit
         };
-        context.Liquids.Add(vomit);
+        if (!liquids.ContainsKey("vomit"))
+        {
+            context.Liquids.Add(vomit);
+            liquids[vomit.Name] = vomit;
+        }
 
         #endregion
 

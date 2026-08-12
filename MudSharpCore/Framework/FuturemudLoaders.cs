@@ -27,6 +27,7 @@ using MudSharp.Construction.Grids;
 using MudSharp.Database;
 using MudSharp.Discord;
 using MudSharp.Economy;
+using MudSharp.Framework.Diagnostics;
 using MudSharp.Economy.Auctions;
 using MudSharp.Economy.Employment;
 using MudSharp.Economy.Hospitals;
@@ -38,6 +39,7 @@ using MudSharp.Email;
 using MudSharp.Events.Hooks;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
+using MudSharp.Traps;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Framework.Units;
@@ -149,8 +151,10 @@ namespace MudSharp.Framework;
 public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposable
 {
     private List<ICharacterCommandTree> _actorCommandTrees = new();
-    private List<IPlayerConnection> _connections = new();
+    private readonly ConnectionSnapshotRegistry _connections = new();
+	private readonly List<IPlayerConnection> _pendingCommandConnections = [];
     public IServer Server { get; private set; }
+	public IRuntimePerformanceMonitor RuntimePerformanceMonitor { get; }
     public IScheduler Scheduler { get; private set; }
     public IArenaLifecycleService ArenaLifecycleService { get; private set; }
     public IArenaScheduler ArenaScheduler { get; private set; }
@@ -167,6 +171,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
     public IClockManager ClockManager { get; private set; }
     public IUnitManager UnitManager { get; private set; }
     public IHeartbeatManager HeartbeatManager { get; private set; }
+    public IProximityEventService ProximityEventService { get; private set; }
     public IComputerExecutionService ComputerExecutionService { get; private set; }
     public IComputerHelpService ComputerHelpService { get; private set; }
     public IComputerNetworkIdentityService ComputerNetworkIdentityService { get; private set; }
@@ -174,7 +179,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
     public IComputerBoardService ComputerBoardService { get; private set; }
     public IComputerMailService ComputerMailService { get; private set; }
     public IComputerFileTransferService ComputerFileTransferService { get; private set; }
-    public IEnumerable<IPlayerConnection> Connections => _connections;
+    public IEnumerable<IPlayerConnection> Connections => _connections.Snapshot;
 
     void IFuturemudLoader.LoadFromDatabase()
     {
@@ -361,6 +366,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
             game.LoadUnits();
             game.LoadMagic(); // Needs to come before LoadMerits
+            game.LoadTrapTemplates(); // Needs traits, magic and item prototypes, and must precede world-item effects
             game.LoadManualCombatCommands(); // Needs weapon attacks, auxiliary actions, FutureProgs, and dynamic magic verbs loaded first
             game.LoadMerits(); // ToDO - where should this be loaded?
             game.LoadAIs(); // Needs to come after LoadFutureProgs and LoadBodies
@@ -2265,6 +2271,29 @@ For information on the syntax to use in emotes (such as those included in bracke
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Foragable Profile" : "Foragable Profiles");
     }
 
+    void IFuturemudLoader.LoadTrapTemplates()
+    {
+        ConsoleUtilities.WriteLine("\nLoading #5Trap Templates#0...");
+#if DEBUG
+        var sw = new Stopwatch();
+        sw.Start();
+#endif
+        var templates = FMDB.Context.TrapTemplates
+            .Include(x => x.EditableItem)
+            .AsNoTracking()
+            .ToList();
+        foreach (var template in templates)
+        {
+            _trapTemplates.Add(new MudSharp.Traps.TrapTemplate(template, this));
+        }
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+        var count = templates.Count;
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Trap Template" : "Trap Templates");
+    }
+
     void IFuturemudLoader.LoadCorpseModels()
     {
         ConsoleUtilities.WriteLine("\nLoading #5Corpse Models#0...");
@@ -2752,6 +2781,9 @@ For information on the syntax to use in emotes (such as those included in bracke
                                      .ToList();
         var activeStableMountIds = ActiveStablePrimaryMountIdentityIds(activeStableMounts,
             FMDB.Context.CharacterInstances.AsNoTracking());
+#if DEBUG
+        sw.Restart();
+#endif
         List<Npc> npcs = (from npc in FMDB.Context.Npcs
                                     .Include(x => x.NpcsArtificialIntelligences)
                                     .Include(x => x.Character)
@@ -2780,6 +2812,11 @@ For information on the syntax to use in emotes (such as those included in bracke
                           */
                           where !((CharacterState)npc.Character.State).HasFlag(CharacterState.Dead)
                           select npc).ToList();
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"#E...Queried {npcs.Count:N0} NPC records in #2{sw.ElapsedMilliseconds:N0}ms#0");
+        sw.Restart();
+#endif
         List<Npc> loadableNpcs = npcs
                                  .Where(x => ShouldLoadNpcAtBoot(x.CharacterId,
                                      (CharacterState)x.Character.State, activeStableMountIds))
@@ -2814,7 +2851,7 @@ For information on the syntax to use in emotes (such as those included in bracke
         }
 #if DEBUG
         sw.Stop();
-        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+        ConsoleUtilities.WriteLine($"#E...Materialised {loadableNpcs.Count:N0} NPCs in #2{sw.ElapsedMilliseconds:N0}ms#0");
 #endif
         int count = loadableNpcs.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0}#0 NPC{1}.", count, count == 1 ? "" : "s");
@@ -3098,13 +3135,35 @@ For information on the syntax to use in emotes (such as those included in bracke
         int count = progs.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0}#0 FutureProg{1}...Compiling...", count, count == 1 ? "" : "s");
 
+#if DEBUG
+        sw.Restart();
+        List<(IFutureProg Prog, long Milliseconds)> compilationTimes = new();
+#endif
         foreach (IFutureProg prog in _futureProgs)
         {
+#if DEBUG
+            Stopwatch compilationStopwatch = Stopwatch.StartNew();
+#endif
             if (!prog.Compile())
             {
                 ConsoleUtilities.WriteLine("#9FutureProg {0} ({2}) failed to compile: \n{1}#0", prog.Id, prog.CompileError, prog.FunctionName);
             }
+#if DEBUG
+            compilationStopwatch.Stop();
+            compilationTimes.Add((prog, compilationStopwatch.ElapsedMilliseconds));
+#endif
         }
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"#ECompiled {count:N0} FutureProgs in #2{sw.ElapsedMilliseconds:N0}ms#0.");
+        foreach ((IFutureProg prog, long milliseconds) in compilationTimes
+                     .OrderByDescending(x => x.Milliseconds)
+                     .Take(10))
+        {
+            ConsoleUtilities.WriteLine(
+                $"#E...Slow FutureProg #{prog.Id:N0} ({prog.FunctionName}) #2{milliseconds:N0}ms#0");
+        }
+#endif
     }
 
     void IFuturemudLoader.LoadScriptedEvents()

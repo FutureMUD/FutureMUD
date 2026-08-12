@@ -409,7 +409,13 @@ public class UsefulSeederItemPackageTests
 			CreateTag(2, "Weapons"),
 			CreateTag(3, "Tools"),
 			CreateTag(4, "Cordage"),
-			CreateTag(5, "Composite Bow"));
+			CreateTag(5, "Composite Bow"),
+			CreateTag(6, "Clockwork"),
+			CreateTag(7, "Firearm"),
+			CreateTag(8, "Medical Instrument"),
+			CreateTag(9, "Optical Instrument"),
+			CreateTag(10, "Printing Equipment"),
+			CreateTag(11, "Scientific Instrument"));
 
 		context.TraitDefinitions.AddRange(
 			CreateSkill(101, "Tailoring"),
@@ -788,6 +794,16 @@ public class UsefulSeederItemPackageTests
 		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, UsefulSeeder.ClassifyTagPackagePresence(context));
 
 		context.Tags.Add(CreateTag(11, "Aluminothermic Welding Portion"));
+		context.SaveChanges();
+
+		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, UsefulSeeder.ClassifyTagPackagePresence(context));
+
+		var nextId = 12L;
+		foreach (var marker in UsefulSeeder.StockTagPackageMarkersForTesting
+			         .Where(x => !x.Equals("Aluminothermic Welding Portion", StringComparison.OrdinalIgnoreCase)))
+		{
+			context.Tags.Add(CreateTag(nextId++, marker));
+		}
 		context.SaveChanges();
 
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyTagPackagePresence(context));
@@ -1301,6 +1317,24 @@ public class UsefulSeederItemPackageTests
 		usefulSeeder.SeedAntiquityComponentGapCoverageForTesting(context);
 		usefulSeeder.SeedEraDependencyComponentsForTesting(context);
 		usefulSeeder.SeedGeneralCoverageForTesting(context);
+		var earthenware = context.Materials.SingleOrDefault(x => x.Name == "earthenware");
+		if (earthenware is null)
+		{
+			earthenware = new Material
+			{
+				Id = context.Materials.Any() ? context.Materials.Max(x => x.Id) + 1 : 1,
+				Name = "earthenware",
+				MaterialDescription = "earthenware",
+				BehaviourType = (int)MaterialBehaviourType.Ceramic,
+				ResidueColour = "white"
+			};
+			context.Materials.Add(earthenware);
+		}
+		else
+		{
+			earthenware.ResidueColour = "white";
+		}
+		context.SaveChanges();
 		EnsureComponentMarkers(context,
 			"Destroyable_Misc",
 			"Destroyable_Furniture",
@@ -1341,10 +1375,6 @@ public class UsefulSeederItemPackageTests
 		CollectionAssert.Contains(ComponentNames(bronzeSignet), "SealStamp_Antiquity_BronzeSignet");
 		CollectionAssert.Contains(ComponentNames(bronzeSignet), "Wear_Ring");
 
-		GameItemProto papyrusScroll = LoadItem(context, "antiquity_sealed_papyrus_scroll");
-		CollectionAssert.Contains(ComponentNames(papyrusScroll), "Antiquity_Papyrus_Scroll_Surface");
-		CollectionAssert.Contains(ComponentNames(papyrusScroll), "Sealable_Scroll");
-
 		GameItemProto sealBox = LoadItem(context, "antiquity_tax_office_seal_box");
 		CollectionAssert.Contains(ComponentNames(sealBox), "LockingContainer_Lockbox");
 		CollectionAssert.Contains(ComponentNames(sealBox), "Sealable_Container_Wax");
@@ -1352,20 +1382,15 @@ public class UsefulSeederItemPackageTests
 		GameItemProto oilCup = LoadItem(context, "antiquity_oil_measure_cup");
 		CollectionAssert.Contains(ComponentNames(oilCup), "LContainer_DrinkingGlass");
 		CollectionAssert.Contains(ComponentNames(oilCup), "MeasuringInstrument_Antiquity_OilCup");
-		Assert.AreEqual(1, context.Tags.Count(x => x.Name == "Measurement Tools"),
-			"The item seeder should reuse the existing measurement tag instead of creating a shorter duplicate path.");
-		var measurementTag = context.Tags.Single(x => x.Name == "Measurement Tools");
+		Assert.AreEqual(2, context.Tags.Count(x => x.Name == "Measurement Tools"),
+			"Full tag paths are distinct stable identities, even when their leaf names match.");
+		var measurementTag = context.Tags.Single(x => x.Name == "Measurement Tools" && x.ParentId == 2);
 		CollectionAssert.Contains(
 			context.GameItemProtosTags
 			       .Where(x => x.GameItemProtoId == oilCup.Id)
 			       .Select(x => x.TagId)
 			       .ToArray(),
 			measurementTag.Id);
-		Assert.IsFalse(context.Tags
-		                      .AsEnumerable()
-		                      .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-		                      .Any(x => x.Count() > 1),
-			"Seeded item tag creation should not create duplicate tag names.");
 
 		GameItemProto publicWell = LoadItem(context, "antiquity_stone_public_well");
 		CollectionAssert.Contains(ComponentNames(publicWell), "WaterSource_Antiquity_PublicWell");
@@ -1474,6 +1499,16 @@ public class UsefulSeederItemPackageTests
 		{
 			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected one component named {name}.");
 			Assert.AreEqual("RepairKit", context.GameItemComponentProtos.Single(x => x.Name == name).Type);
+		}
+
+		foreach (var family in new[] { "Clockwork", "Firearm", "Medical_Instrument", "Optical_Instrument", "Printing_Equipment", "Scientific_Instrument" })
+		{
+			foreach (var suffix in new[] { string.Empty, "_Good", "_Poor" })
+			{
+				var name = $"Repair_{family}{suffix}";
+				Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected one component named {name}.");
+				Assert.AreEqual("RepairKit", context.GameItemComponentProtos.Single(x => x.Name == name).Type);
+			}
 		}
 
 		AssertRepairKitDefinition(context, "Repair_Wood", "Carpentry", WoundSeverity.Grievous, 1000.0, 0.0, "oak");

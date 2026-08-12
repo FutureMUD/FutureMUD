@@ -1,0 +1,15 @@
+/*
+ * Per-deployment styles load after the standard MudClient theme.
+ * Operators can edit this durable file and place referenced images beside it.
+ *
+ * Example:
+ * :root {
+ *     --page-bg: #101820;
+ *     --accent: #d9a441;
+ * }
+ *
+ * .app-root {
+ *     background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
+ *         url("background.jpg") center / cover fixed;
+ * }
+ */

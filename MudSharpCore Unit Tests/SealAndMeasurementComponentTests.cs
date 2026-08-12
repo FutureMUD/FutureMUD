@@ -584,6 +584,9 @@ public class SealAndMeasurementComponentTests
 		var musket = (MusketGameItemComponent)proto.CreateNew(musketParent.Object, temporary: true);
 		musket.LoadStage = 4;
 		musket.IsReadied = true;
+		typeof(MusketGameItemComponent)
+			.GetProperty(nameof(MusketGameItemComponent.IgnitionStrikesRemaining))!
+			.SetValue(musket, 100);
 
 		var attachment = new Mock<IBayonetAttachment>();
 		attachment.SetupGet(x => x.Style).Returns(BayonetAttachmentStyle.Plug);

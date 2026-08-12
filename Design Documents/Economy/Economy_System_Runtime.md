@@ -36,6 +36,7 @@ The economy system is loaded late in the boot sequence, after the world, future 
 - `LoadJobs()` runs after `LoadEconomy()`.
 - new character materialisation is explicitly blocked during boot until `LoadNPCs()` begins, so pre-NPC loaders must not force a fresh `TryGetCharacter(...)` from the database.
 - economy or other pre-NPC loaders that genuinely need character-dependent resolution must defer that work through `IPostCharacterLoadFinalisable.FinaliseLoading()`, which now runs immediately after `LoadNPCs()`.
+- bank accounts load their durable balance and owner references during `LoadEconomy()`, but transaction history remains demand-loaded by `Transactions`. Startup must not prewarm every open account's transaction history; account commands and transaction operations already call the same one-shot loader when history is actually required.
 
 ### Verified current scheduled runtime hooks
 - market populations receive an hourly heartbeat through the scheduler

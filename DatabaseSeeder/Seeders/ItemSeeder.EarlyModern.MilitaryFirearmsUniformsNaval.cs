@@ -9,6 +9,16 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ItemSeeder
 {
+	private static readonly IReadOnlySet<string> EarlyModernBlackPowderSupportStableReferences =
+		new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"earlymodern_military_naval_cannon_sponge",
+			"earlymodern_military_naval_artillery_linstock",
+			"earlymodern_military_firearm_gunflint_packet",
+			"earlymodern_military_firearm_pyrite_packet",
+			"earlymodern_military_naval_peterero_chamber"
+		};
+
 	private sealed record EarlyModernMilitaryItemSpec(
 		string StableReference,
 		string Noun,
@@ -26,6 +36,7 @@ public partial class ItemSeeder
 	internal sealed record EarlyModernMilitaryItemSpecTestData(
 		string StableReference,
 		string Material,
+		string FullDescription,
 		IReadOnlyCollection<string> Tags,
 		IReadOnlyCollection<string> Components);
 
@@ -41,14 +52,63 @@ public partial class ItemSeeder
 			.Select(x => new EarlyModernMilitaryItemSpecTestData(
 				x.StableReference,
 				x.Material,
+				x.FullDescription,
 				x.Tags,
 				x.Components))
 			.ToArray();
 
+	internal static IReadOnlySet<string> EarlyModernBlackPowderSupportStableReferencesForTesting =>
+		EarlyModernBlackPowderSupportStableReferences;
+
+	private static string BuildEarlyModernMilitaryDescription(
+		string stableReference,
+		string shortDescription,
+		string noun,
+		string material,
+		ItemQuality quality)
+	{
+		var omittedWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"accessory", "armour", "armor", "artillery", "firearm", "melee", "military", "naval", "ranged",
+			"tool", "issue", "reinforced", "ornate", "service"
+		};
+		var form = string.Join(" ", stableReference
+			.Remove(0, "earlymodern_military_".Length)
+			.Split('_')
+			.Where(word => !omittedWords.Contains(word)));
+		string profile;
+		if (stableReference.Contains("armor", StringComparison.OrdinalIgnoreCase) || stableReference.Contains("armour", StringComparison.OrdinalIgnoreCase))
+			profile = $"The {form} arrangement is shaped to overlap and follow the body, leaving the edges and fastenings plainly visible.";
+		else if (stableReference.Contains("shield", StringComparison.OrdinalIgnoreCase))
+			profile = $"The {form} arrangement gives it a broad face, clear rim, and readily visible hand fittings.";
+		else if (stableReference.Contains("melee", StringComparison.OrdinalIgnoreCase) || stableReference.Contains("boarding", StringComparison.OrdinalIgnoreCase))
+			profile = $"The {form} arrangement balances the working end against a firm grip or shaft, giving the weapon a direct, martial line.";
+		else if (stableReference.Contains("firearm", StringComparison.OrdinalIgnoreCase) || stableReference.Contains("ranged", StringComparison.OrdinalIgnoreCase))
+			profile = $"The {form} arrangement sets its stock, barrel, and small fittings in a compact, deliberate line.";
+		else if (stableReference.Contains("artillery", StringComparison.OrdinalIgnoreCase) || stableReference.Contains("cannon", StringComparison.OrdinalIgnoreCase) || stableReference.Contains("gun", StringComparison.OrdinalIgnoreCase))
+			profile = $"The {form} arrangement uses heavy fittings and reinforced working surfaces for a stout, service-built appearance.";
+		else if (stableReference.Contains("uniform", StringComparison.OrdinalIgnoreCase) || stableReference.Contains("coat", StringComparison.OrdinalIgnoreCase) || stableReference.Contains("sash", StringComparison.OrdinalIgnoreCase))
+			profile = $"The {form} cut is defined by its seams and visible fastenings, giving the garment a disciplined, formal appearance.";
+		else
+			profile = $"The {form} arrangement sets its fittings and working surfaces in a clear, practical pattern.";
+
+		var qualityDetail = quality switch
+		{
+			ItemQuality.Substandard => "workmanlike but spare, with a few coarse marks in the finish",
+			ItemQuality.Standard => "plainly finished, with practical edges and uncomplicated fittings",
+			ItemQuality.Good => "carefully finished, with clean joins and a restrained, even surface",
+			ItemQuality.VeryGood => "finely finished, with crisp details and a deliberately polished surface",
+			ItemQuality.Great => "expertly finished, with precise joins and a richly maintained surface",
+			_ => "carefully finished, with clean joins and an even surface"
+		};
+		var article = char.ToUpperInvariant(shortDescription[0]) + shortDescription[1..];
+		return $"{article} is fashioned chiefly from {material}, with the {noun} kept clear in its silhouette. {profile} The {material} is {qualityDetail}. Close inspection picks out the proportions and joinery of this {form} pattern.";
+	}
+
 	private void SeedEarlyModernMilitaryFirearmsUniformsAndNaval()
 	{
 		var dependencyIssues = ValidateEarlyModernMilitaryDependencies(EarlyModernSupportedMilitaryItemSpecs);
-		if (dependencyIssues.Count > 0)
+		if (!_manifestCaptureOnly && dependencyIssues.Count > 0)
 		{
 			throw new InvalidOperationException(
 				"Supported Early Modern military catalogue cannot be seeded because required dependencies are missing:" +
@@ -81,6 +141,35 @@ public partial class ItemSeeder
 		}
 
 		SeedEarlyModernCrossbowSpanningTools();
+	}
+
+	private void SeedEarlyModernBlackPowderSupportItems()
+	{
+		foreach (var spec in EarlyModernSupportedMilitaryItemSpecs.Where(x =>
+			         EarlyModernBlackPowderSupportStableReferences.Contains(x.StableReference)))
+		{
+			CreateItem(
+				spec.StableReference,
+				spec.Noun,
+				spec.ShortDescription,
+				null,
+				spec.FullDescription,
+				spec.Size,
+				spec.Quality,
+				spec.WeightInGrams,
+				spec.Cost,
+				false,
+				false,
+				spec.Material,
+				spec.Tags,
+				spec.Components,
+				null,
+				null,
+				null,
+				null,
+				spec.BuilderNotes,
+				allowLegacyShortDescriptionMatch: false);
+		}
 	}
 
 	private void SeedEarlyModernCrossbowSpanningTools()

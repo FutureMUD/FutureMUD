@@ -15,11 +15,12 @@ public static class SeederMetadataRegistry
         return seeder.GetType().Name switch
         {
             nameof(CoreDataSeeder) => new SeederMetadata(
-                SeederRepeatabilityMode.OneShot,
-                SeederUpdateCapability.None,
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.RepairExisting,
                 Array.Empty<SeederPrerequisite>(),
-                RerunSummary: "This foundational package does not yet have stock-owned reconciliation rules.",
-                OwnershipSummary: "Creates accounts and core world records that are not yet tracked for safe repeatability."
+                RerunSummary: "Reruns reconcile only the stock foundation catalogues and do not recreate bootstrap-world data.",
+                UpdateSummary: "Materials, fluids, gases, terrain foundations, units, colours, planes and hearing profiles are repaired or completed by stable stock identities.",
+                OwnershipSummary: "Core bootstrap accounts, world records, progs and settings remain one-shot; only the documented foundation catalogues are repeatable."
             ),
             nameof(TimeSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -43,12 +44,12 @@ public static class SeederMetadataRegistry
                 DependencySeederTypes: [typeof(CoreDataSeeder)]
             ),
             nameof(AttributeSeeder) => new SeederMetadata(
-                SeederRepeatabilityMode.OneShot,
-                SeederUpdateCapability.None,
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.FullReconcile,
                 [
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any())
                 ],
-                RerunSummary: "Attribute setup is intentionally treated as a one-shot design choice unless a later plan approves repeatability.",
+                RerunSummary: "Reruns retain the selected attribute shape and reconcile its stock traits, decorators, improver and expressions.",
                 DependencySeederTypes: [typeof(CoreDataSeeder)]
             ),
             nameof(SkillPackageSeeder) => new SeederMetadata(
@@ -112,19 +113,19 @@ public static class SeederMetadataRegistry
                 DependencySeederTypes: [typeof(CoreDataSeeder), typeof(CurrencySeeder), typeof(TimeSeeder)]
             ),
             nameof(HumanSeeder) => new SeederMetadata(
-                SeederRepeatabilityMode.OneShot,
-                SeederUpdateCapability.None,
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.FullReconcile,
                 [
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
                     Requirement("Skills must already be seeded.", context => context.TraitDefinitions.Any(x => x.Type == 0)),
                     Requirement("The Time seeder must have installed at least one calendar.", context => context.Calendars.Any())
                 ],
-                RerunSummary: "Currently treated as a one-shot humanoid race and anatomy bootstrap.",
+                RerunSummary: "Reruns retain the installed humanoid shape and reconcile stock body, race, health, culture and wear foundations.",
                 DependencySeederTypes: [typeof(CoreDataSeeder), typeof(TimeSeeder)]
             ),
             nameof(CombatSeeder) => new SeederMetadata(
-                SeederRepeatabilityMode.OneShot,
-                SeederUpdateCapability.None,
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.FullReconcile,
                 [
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
                     Requirement("Attributes must already be seeded for combat formulas.", context => context.TraitDefinitions.Any(x => x.Type == 1)),
@@ -140,7 +141,7 @@ public static class SeederMetadataRegistry
                         new[] { "Cranequin", "Goat's Foot", "Lever", "Spanning Hook", "Windlass" }
                             .All(tag => context.Tags.Any(x => x.Name == tag)))
                 ],
-                RerunSummary: "Currently treated as a one-shot combat bootstrap pending modular reconciliation work.",
+                RerunSummary: "Reruns reconcile installed combat modules by their stable stock identities without removing builder content.",
                 DependencySeederTypes: [typeof(CoreDataSeeder), typeof(AttributeSeeder), typeof(HumanSeeder), typeof(UsefulSeeder)]
             ),
             nameof(ChargenSeeder) => new SeederMetadata(
@@ -289,12 +290,13 @@ public static class SeederMetadataRegistry
                 DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder), typeof(UsefulSeeder)]
             ),
             nameof(AnimalSeeder) => new SeederMetadata(
-                SeederRepeatabilityMode.OneShot,
-                SeederUpdateCapability.None,
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.FullReconcile,
                 [
                     Requirement("The Human seeder must have installed the Humanoid body.", context => context.BodyProtos.Any(x => x.Name == "Humanoid")),
                     Requirement("The Core seeder must have installed the Simple name culture.", context => context.NameCultures.Any(x => x.Name == "Simple"))
                 ],
+                RerunSummary: "Reruns retain the installed animal package choices and reconcile stock bodies, races, attacks and supporting content.",
                 DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder)]
             ),
             nameof(MythicalAnimalSeeder) => new SeederMetadata(
@@ -396,17 +398,26 @@ public static class SeederMetadataRegistry
                 DependencySeederTypes: [typeof(HumanSeeder), typeof(AnimalSeeder), typeof(CombatSeeder), typeof(UsefulSeeder)]
             ),
             nameof(ItemSeeder) => new SeederMetadata(
-                SeederRepeatabilityMode.OneShot,
-                SeederUpdateCapability.None,
+				SeederRepeatabilityMode.Idempotent,
+				SeederUpdateCapability.FullReconcile,
                 [
                     Requirement("Useful item component prerequisites must already exist.", context =>
                         context.GameItemComponentProtos.Any(x => x.Name == "Container_Table") &&
                         context.GameItemComponentProtos.Any(x => x.Name == "Insulation_Minor") &&
                         context.GameItemComponentProtos.Any(x => x.Name == "Destroyable_Misc") &&
                         context.GameItemComponentProtos.Any(x => x.Name == "Torch_Infinite") &&
-                        context.Tags.Any(x => x.Name == "Functions"))
-                ],
-                DependencySeederTypes: [typeof(UsefulSeeder)]
+						context.Tags.Any(x => x.Name == "Functions")),
+					Requirement("Animal-mounted gear wear-profile components must already exist.", context =>
+						new[]
+						{
+							"Wear_Saddle", "Wear_Bridle", "Wear_Chanfron", "Wear_Criniere", "Wear_Croupiere",
+							"Wear_Flanchards", "Wear_Peytral", "Wear_Caparison"
+						}.All(name => context.GameItemComponentProtos.Any(x => x.Name == name)))
+				],
+				RerunSummary: "Reruns reconcile the installed ItemSeeder eras and can add newly selected implemented eras without removing prior content.",
+				UpdateSummary: "Manifest-owned stock aggregates are repaired when untouched; builder-customized aggregates are preserved and reported.",
+				OwnershipSummary: "Durable SeederManagedRecords provenance owns stock aggregate definitions and required stock links. Builder additions and customized aggregate graphs are retained; ambiguous untracked identities block before mutation.",
+                DependencySeederTypes: [typeof(UsefulSeeder), typeof(AnimalSeeder)]
             ),
             nameof(AnimalButcherySeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -440,6 +451,21 @@ public static class SeederMetadataRegistry
                     Requirement("The Currency seeder must have installed at least one currency.", context => context.Currencies.Any())
                 ],
                 DependencySeederTypes: [typeof(CoreDataSeeder), typeof(CurrencySeeder)]
+            ),
+            nameof(TrapSeeder) => new SeederMetadata(
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.RepairExisting,
+                [
+                    Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
+                    Requirement("Skill templates, trait decorators, improvers, and stock FutureProgs must already exist.", context =>
+                        context.CheckTemplates.Any() && context.TraitDecorators.Any() && context.Improvers.Any() && context.FutureProgs.Any()),
+                    Requirement("Core liquid and gas catalogues must already exist.", context =>
+                        context.Liquids.Any() && context.Gases.Any())
+                ],
+                RerunSummary: "Reruns reconcile the dedicated Traps skill, seven trap checks, and Stock Trap templates without overwriting builder-owned templates.",
+                UpdateSummary: "Stock trap definitions use the Stock Trap prefix; other templates are never modified.",
+                OwnershipSummary: "The package owns only the Traps skill/check mappings and Stock Trap prefixed templates.",
+                DependencySeederTypes: [typeof(CoreDataSeeder)]
             ),
             _ => SeederMetadata.Default
         };

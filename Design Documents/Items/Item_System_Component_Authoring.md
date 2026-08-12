@@ -39,6 +39,8 @@ The runtime component in `MudSharpCore` should then implement that interface.
 
 Crew-served artillery is the reference for a shared capability that must not inherit an unrelated interaction model. Add `IRangedWeaponPlatform` for common load/aim/fire callers, retain `IRangedWeapon` for wieldable weapons, and implement `IArtilleryPiece` directly for a local-cell platform. The paired `ArtilleryAmmunition`, `ArtilleryChamber`, `ArtilleryMount`, and `WeaponCarrierAttachment` prototypes must each have a matching exclusivity marker in `GameItemComponentPrototypeInterfaces.cs`, a database loader, a builder loader, type help, version-tolerant XML defaults, and lifecycle handling for contained or connected items.
 
+Do not represent a black-powder loading step as a stage flag alone. Consumables must be real contained `IGameItem`s and tools must be real inventory-plan targets. Split measured powder through the selected `ICommodity` item so material, tag, characteristics, owner, and spoilage provenance are retained; never create a replacement commodity independently of the located source. Use typed ammunition components for projectiles and stable functional tags for tools, wadding, cord, ignition sources, and fuses; a flintlock or wheellock may additionally distinguish the tagged ignition source by physical material. Persist, log in, quit, delete, weigh, float, unload, and copy these children through the ordinary component lifecycle.
+
 If the feature also needs shared immutable value objects rather than only a query surface, place those models in `FutureMUDLibrary` too. The recorded-audio implementation is the reference pattern:
 - immutable playback data lives in `MudSharp.Form.Audio`
 - gameplay-facing item queries live behind interfaces such as `IAudioStorageTape` and `IAnsweringMachine`
@@ -136,6 +138,17 @@ Use `IGameItemComponentPrototypeRequirementProvider` when a component prototype 
 - `require clear`
 
 The seeded modern bayonet mount requires `IMeleeWeapon`; the underbarrel launcher mount requires `IRangedWeapon`; and the weapon-light mount requires both `IProduceLight` and `IProducePower`. `ImpactDetonator` has a fixed requirement for `IDetonatable`, because it is only a trigger policy and cannot supply an explosive payload itself.
+
+The other explosive trigger prototypes use the same fixed sibling requirement. Use `countdowndetonator`, `clockdetonator`, `signaldetonator`, or `pinpulldetonator` for the trigger and attach a `Bomb` component separately for the payload. `CountdownDetonator`, `ClockDetonator`, `SignalDetonator`, and `RadioDetonator` advertise the exclusive `IArmableExplosiveTriggerPrototype` role, so an item prototype can have only one authoritative `arm` / `disarm` target. `PinPullDetonator` advertises its separate exclusive pin-pull role.
+
+The principal builder settings are:
+
+- `CountdownDetonator`: `default`, `minimum`, `maximum`, `playerdelay`, `disarmable`, `armemote`, and `disarmemote`.
+- `ClockDetonator`: `calendar`, `clock`, `timezone`, `disarmable`, `armemote`, and `disarmemote`. The selected clock must drive a calendar.
+- `SignalDetonator`: `source <component> [<endpoint>]`, `threshold`, `mode <above|below>`, `activation <edge|level>`, `power`, `watts`, `disarmable`, and the arm/disarm emotes. Edge is the safe default because an already-active input does not detonate merely because the item was armed or repowered.
+- `PinPullDetonator`: `delay` and `emote`. Its deadline cannot be cancelled once started.
+
+Do not introduce a second physical-only detonator API for future traps. A tripwire, pressure plate, opening trigger, or similar component should expose an `ISignalSourceComponent` numeric endpoint: a momentary mechanism emits a pulse suitable for edge activation, while a maintained mechanism exposes a level. The signal detonator remains deliberately agnostic about the source's physical or electronic implementation.
 
 ### Opt-in condition maintenance
 Use `IConditionDegradingComponent` when a component should optionally consume `IGameItem.Condition` as it is used. The interface extends `IAffectQuality`, and the matching `IConditionDegradingComponentPrototype` marker is aggregate, so a component can contribute a maintenance quality penalty without becoming the item's only quality-affecting component.

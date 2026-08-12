@@ -52,6 +52,13 @@ Ranged cover is independently authored for attacks from the same level, above, a
 - clinch attempts, break-clinch attempts, grapples, and magic attack powers;
 - movement into melee by allowing the move unless a derived strategy overrides it.
 
+The racial `CanDefend` flag suppresses ordinary defensive reactions but does not bypass strategy-specific
+responses to an opponent's `BreakClinchMove`. A standard melee strategy still answers that move with a
+helpless defense, preserving the former uncontested escape behaviour, while a clinch strategy may contest
+the escape when its existing posture, stamina, mounting, consciousness, and blocking-effect checks allow it.
+The contest continues to use the normal `ResistBreakClinch` check, so a low or zero defensive trait makes the
+holder weak without being an absolute substitute for the standard strategy's helpless response.
+
 `RangeBaseStrategy` handles ranged defenses, receive-charge opportunities, and ranged-natural defenses. It delegates magic power attack defense to `StandardMeleeStrategy` so ranged-mode combatants still use ordinary ward/block/parry/dodge coverage against magic. Ranged strategies normally rely on the melee-range setter to switch them to their preferred melee strategy once melee range is established.
 
 `WardStrategy` extends melee defense by trying a ward defense before falling back to standard defense. Wards are available against start-clinch, weapon attacks, and magic attack powers when the defender is not ward-beaten, has stamina, the assailant is upright, and the defender has a usable warding weapon or unarmed ward attack.
@@ -65,7 +72,7 @@ Melee-family strategies select active attacks through this order:
 3. Weighted attack-mode roll: weapon, natural weapon, magic, psychic, then auxiliary.
 4. Weapon/natural/magic attack selection constrained by combat settings, allowed classifications, preferred/forbidden intentions, stamina, target type, and current melee or clinch state.
 
-Natural attacks use their authored required position states as the authority for whether they are usable. The automatic melee strategy does not add an upright-only eligibility restriction, so a prone or sprawled combatant can use attacks explicitly authored for that position. Whether that attack is preferred over first standing is controlled by `PreferToStandOverAttacking`; the default preserves upright-first combat while attack-first settings support creatures that are intended to fight effectively from the ground.
+Natural attacks use their authored required position states as the authority for whether they are usable. The configured attack bodypart must also still be present on the current body and usable; severing a limb therefore removes attacks bound to its downstream parts. The automatic melee strategy does not add an upright-only eligibility restriction, so a prone or sprawled combatant can use attacks explicitly authored for that position. Whether that attack is preferred over first standing is controlled by `PreferToStandOverAttacking`; the default preserves upright-first combat while attack-first settings support creatures that are intended to fight effectively from the ground.
 
 A weapon-associated attack may optionally specify a target bodypart shape. Such an attack is usable only against a body with an externally hittable part of that shape, and attack resolution selects one of those matching parts. Attack and defense checks, armour, damage, and recovery otherwise resolve normally.
 
@@ -131,6 +138,8 @@ Expected active no-move cases mirror `StandardMelee`.
 ### Clinch
 
 A melee strategy that tries to enter and fight in clinch range. It starts a clinch when upright, not cooling down, and able to clinch the target. Once clinching, it rolls between clinch weapon attacks and unarmed clinch attacks. It suppresses the base clinch-breaking behaviour because clinch is the desired state.
+
+Each pairwise clinch expires when either linked participant leaves combat, including departure caused by death or incapacitation. Other clinches in a multi-holder combat remain independent.
 
 If it discovers it has no viable clinch attacks but has viable normal melee attacks, it switches back to `StandardMelee`.
 

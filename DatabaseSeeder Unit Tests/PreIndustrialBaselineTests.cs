@@ -49,6 +49,11 @@ public class PreIndustrialBaselineTests
 		"preindustrial_firearms_ramrod",
 		"preindustrial_firearms_touchhole_pick",
 		"preindustrial_firearms_cleaning_rod",
+		"preindustrial_artillery_sponge",
+		"preindustrial_artillery_rammer",
+		"preindustrial_artillery_linstock",
+		"preindustrial_artillery_wadding_packet",
+		"preindustrial_artillery_fuse_bundle",
 		"preindustrial_trade_tea_chest",
 		"preindustrial_trade_coffee_sack",
 		"preindustrial_trade_cacao_sack",
@@ -72,6 +77,18 @@ public class PreIndustrialBaselineTests
 		Assert.IsFalse(ItemSeeder.ShouldSeedSharedPreIndustrialBaselineForTesting(null));
 		Assert.IsFalse(ItemSeeder.ShouldSeedSharedPreIndustrialBaselineForTesting(string.Empty));
 		Assert.IsFalse(ItemSeeder.ShouldSeedSharedPreIndustrialBaselineForTesting("modern"));
+	}
+
+	[TestMethod]
+	public void ItemSeederScope_OnlySelectsTheExplicitBlackPowderRepair()
+	{
+		Assert.IsTrue(ItemSeeder.IsBlackPowderOnlyScopeForTesting(
+			new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["scope"] = "blackpowder" }));
+		Assert.IsTrue(ItemSeeder.IsBlackPowderOnlyScopeForTesting(
+			new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["scope"] = "BLACKPOWDER" }));
+		Assert.IsFalse(ItemSeeder.IsBlackPowderOnlyScopeForTesting(
+			new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["scope"] = "all" }));
+		Assert.IsFalse(ItemSeeder.IsBlackPowderOnlyScopeForTesting(null));
 	}
 
 	[TestMethod]
@@ -123,6 +140,61 @@ public class PreIndustrialBaselineTests
 		{
 			Assert.IsTrue(all.Contains(stableReference), $"Missing required new row {stableReference}.");
 		}
+	}
+
+	[TestMethod]
+	public void BlackPowderSupportRows_ExposeCanonicalPhysicalFunctionTags()
+	{
+		var specs = ItemSeeder.PreIndustrialNewItemSpecsForTesting
+			.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
+		var expectedTags = new Dictionary<string, string>
+		{
+			["preindustrial_firearms_match_cord_bundle"] = "Functions / Material Functions / Match Cord",
+			["preindustrial_firearms_musket_wadding_packet"] = "Functions / Material Functions / Musket Wadding",
+			["preindustrial_firearms_ramrod"] = "Functions / Tools / Firearm Tools / Musket Ramrod",
+			["preindustrial_firearms_cleaning_rod"] = "Functions / Tools / Firearm Tools / Musket Cleaning Rod",
+			["preindustrial_firearms_touchhole_pick"] = "Functions / Tools / Firearm Tools / Musket Unjamming Tool",
+			["preindustrial_artillery_sponge"] = "Functions / Tools / Artillery Tools / Artillery Sponge",
+			["preindustrial_artillery_rammer"] = "Functions / Tools / Artillery Tools / Artillery Rammer",
+			["preindustrial_artillery_linstock"] = "Functions / Tools / Artillery Tools / Artillery Linstock",
+			["preindustrial_artillery_wadding_packet"] = "Functions / Material Functions / Artillery Wadding",
+			["preindustrial_artillery_fuse_bundle"] = "Functions / Material Functions / Artillery Fuse"
+		};
+
+		foreach (var (stableReference, tag) in expectedTags)
+		{
+			Assert.IsTrue(specs.TryGetValue(stableReference, out var spec), $"Missing {stableReference}.");
+			Assert.IsTrue(spec!.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase),
+				$"{stableReference} is missing {tag}.");
+		}
+	}
+
+	[TestMethod]
+	public void BlackPowderSupportRods_AreAttachableToCompatibleMuskets()
+	{
+		var specs = ItemSeeder.PreIndustrialNewItemSpecsForTesting
+			.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
+
+		foreach (var stableReference in new[]
+		         {
+			         "preindustrial_firearms_ramrod",
+			         "preindustrial_firearms_cleaning_rod"
+		         })
+		{
+			CollectionAssert.Contains(specs[stableReference].Components.ToList(), "Beltable", stableReference);
+		}
+	}
+
+	[TestMethod]
+	public void FocusedBlackPowderRepair_AddsRodAttachmentComponentsToCustomizedStock()
+	{
+		var itemSeederSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
+
+		StringAssert.Contains(itemSeederSource,
+			"EnsureFocusedItemComponent(\"preindustrial_firearms_ramrod\", \"Beltable\")");
+		StringAssert.Contains(itemSeederSource,
+			"EnsureFocusedItemComponent(\"preindustrial_firearms_cleaning_rod\", \"Beltable\")");
+		StringAssert.Contains(itemSeederSource, "GameItemProtosGameItemComponentProtos.Add");
 	}
 
 	[TestMethod]

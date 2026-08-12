@@ -3439,7 +3439,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
             Definition = @$"<calendar>
   <alias>gregorian</alias>
   <shortname>Gregorian Calendar (EN-{(useImperial ? "US" : "UK")})</shortname>
-  <fullname>The Gregorian Calendar, in English with {(useImperial ? "British" : "American")} Date Display</fullname>
+  <fullname>The Gregorian Calendar, in English with {(useImperial ? "American" : "British")} Date Display</fullname>
   <description><![CDATA[The calendar created by pope Gregory to replace the Julian calendar. English edition.]]></description>
   <shortstring>{(useImperial ? "$mo/$dd/$yy" : "$dd/$mo/$yy")}</shortstring>
   <longstring>$nz$ww {(useImperial ? "$mf $dt" : "the $dt of $mf")}, $yy {(useCE ? "C.E" : "A.D")}</longstring>

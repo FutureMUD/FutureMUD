@@ -103,6 +103,12 @@ Runtime item behaviour is usually discovered by interface lookup on components. 
 `IRangedWeaponPlatform` is the shared load, ready, aim, fire, and ammunition-containment contract. Handheld launchers continue to implement `IRangedWeapon : IRangedWeaponPlatform, IWieldable`; a crew-served `IArtilleryPiece` implements the platform directly and is found in the local cell rather than a character's hands. Its mutable XML records the loading drill, loaded ammunition or removable chamber, emplacement/readied state, and an optional spatial firing solution. Crew assignments are intentionally transient: they are released when a crew member leaves the cell, becomes unable, logs out, or the piece is limbered.
 
 `IArtilleryAmmunition`, `IArtilleryChamber`, and `IArtilleryMount` keep calibre-profile compatibility, contained ammunition, installation, and movement vetoes local to their live components. `IWeaponCarrierAttachment` similarly persists its attached item and `Detached`, `Carried`, `Wielded`, or `Hanging` state. A retained weapon is contained by the carrier while hanging; it is never silently re-equipped after a drop or disarm.
+
+The artillery loading stage is backed by persisted physical contents: a measured gunpowder commodity charge, tagged wad, typed ammunition or loaded removable chamber, measured primer, and (for shells or carcasses) a tagged fuse. Sponge, rammer, vent tool, and linstock stages execute inventory plans against tagged real tools and restore those tools after use; firing performs a fresh linstock inventory plan so a merely remembered ready flag can never replace the physical ignition tool. `artillery <piece> fire air` deliberately discharges without a target, while a configured indirect path resolves its terminal cell. A partial unload returns every inserted object, but a readied piece must first be stood down. Muskets follow the same rule for loose powder, wad, ball, match cord, and ignition stone; paper cartridges remain physical packaged ammunition. A jammed musket cannot accept another load, and a readied musket must be un-readied before unloading. Legacy stage XML that claims a later stage without the required child objects is normalised back to the last physically supported stage.
+
+Musket loading is one continuous timed action across its remaining stages. Its action effect blocks other general commands and movement until the next stage has completed, preventing a second manual `load` from moving the weapon out from under the active inventory plan. Asking to load an already completed weapon returns an ordinary state message rather than treating the player command as an unreachable engine state.
+
+Black powder contains its own oxidiser, so a closed flint- or wheel-ignited musket charge may discharge without an atmosphere, but no firearm audio propagates in vacuum. Underwater layers and liquid atmospheres block loading, readying, and firing. Heavy precipitation blocks exposed loose-powder handling and open match/linstock ignition; null weather is treated as zero precipitation. Matchlocks and the current linstock-fired artillery implementation require a gaseous atmosphere.
 - does this item have an `IImplant`?
 
 ### `IGameItemComponentProto`
@@ -118,6 +124,14 @@ It owns:
 Component protos also advertise their runtime capability contracts through marker interfaces such as `IContainerPrototype`, `IWearablePrototype`, or `ILiquidContainerPrototype`. Item prototypes use these markers to reject duplicate exclusive capabilities when builders attach components or submit an item prototype for review. Aggregate markers remain intentionally stackable; for example, multiple worn trait-change components on the same item all contribute their bonuses or penalties while the item is worn.
 
 Prototype composition is checked in both directions. `IGameItemComponentPrototypeRequirementProvider` declares the inverse relationship: a component can require one or more runtime capabilities from other siblings. Requirements are advisory while a builder is assembling an item, but unresolved requirements make `CanSubmit()` false and therefore block both submission and review approval.
+
+### Explosive trigger composition and persistence
+
+Explosive payload and trigger policy are separate capabilities. `Bomb` supplies `IDetonatable`; `CountdownDetonator`, `ClockDetonator`, `SignalDetonator`, `PinPullDetonator`, `RadioDetonator`, and `ImpactDetonator` only decide when that sibling payload should detonate. Their prototypes use `IGameItemComponentPrototypeRequirementProvider` to prevent approval without an `IDetonatable` sibling.
+
+Countdown and pin-pull components persist an absolute UTC deadline rather than a remaining duration. They subscribe to the second heartbeat only while loaded and active, compare inclusively, and detonate immediately on the next `Login()` when a persisted deadline expired while the item or server was offline. Builder submission and runtime arming both reject durations that cannot be represented as a future UTC `DateTime`. Clock detonators persist a `MudInstant`, subscribe to their authored clock, and likewise use an inclusive `current >= target` comparison so skipped or accelerated clock ticks cannot miss the event. Applying a component revision that changes the calendar or clock safely disarms an already-armed clock trigger because ticks from different clock systems are not interchangeable.
+
+Signal detonators are `IRuntimeConfigurableSignalSinkComponent` implementations. Edge mode establishes the current source state as a baseline when armed, connected, or repowered and fires only on the next inactive-to-active transition. Level mode fires whenever the armed, operational sink observes an active level. Optional power draw is active only while armed, and a signal observed while unpowered is not replayed later as a synthetic edge. Runtime source bindings, endpoint keys, thresholds, above/below mode, and armed state persist in component XML. A runtime binding with a source item id is strict: it never falls through to another nearby item with the same component prototype. Signal detonators re-resolve bindings when their parent or source moves or their physical connection topology changes, and reject events from sources that are no longer locally accessible.
 
 ## Composition Model
 ### Components define capabilities
@@ -443,7 +457,7 @@ When a live item is loaded:
 - component `FinaliseLoad()` hooks run after broader object availability is established
 - `FinaliseLoad()` restores structural scaffolding only: references, pending ids, mount relationships, routed cable metadata, and similar non-live state
 - after structural restoration completes, the world login pass logs in world-root items that are actually active in the world, while inventory-rooted item trees remain dormant until their owning body or character logs in
-- `Login()` is the point where live runtime behaviour begins: power drawdown, heartbeats, signal subscriptions, timers, retries, ringing, and comparable active behaviour
+- `Login()` is the point where live runtime behaviour begins: power drawdown, heartbeats, signal subscriptions, timers, retries, ringing, and comparable active behaviour. Static item health is reconciled here from persisted wounds without retaining a recurring heartbeat; body-backed and overriding components retain their own health ticks.
 - item-level late initialisation and effect restoration complete
 
 ### Saving live items
@@ -581,6 +595,12 @@ When documenting or extending the system, treat these as framework-level special
 - Put configuration on the component proto and runtime state on the component.
 - Expect update, morph, and destruction flows to matter for any non-trivial item behaviour.
 
+## Runtime Integration: Mechanical Trap Components
+
+Mechanical traps bind ordinary live `IGameItem` instances to tagged trigger and payload requirements. The deployed saving effect persists item IDs, roles, spent-recovery chances, and quality weights in its existing effect XML. It recreates a non-saving `INoGetEffect` reservation on initialisation/login and removes that reservation when the trap is dismantled or deleted. This avoids a second item type or relational ownership table while ensuring an installed wire, charge, signal device, reservoir, or dual-role bear trap cannot be picked up independently.
+
+The trap effect is the lifecycle owner. Safe dismantling releases every extant component. Spent dismantling makes one recovery decision per distinct item even when that item satisfies two requirements, and failed recovery calls the ordinary item deletion path. If a spent trap has no component with any recovery opportunity, it removes its effect and deletes zero-chance remnants after the last delayed payload. Item quality remains the standard live `IGameItem.Quality`; trap calculations read it through configured requirement weights rather than duplicating quality state.
+
 ## Runtime Integration: Thermal Sources
 Thermal-source components now integrate with room temperature through `IProduceHeat`.
 
@@ -614,7 +634,7 @@ Standard containers apply prototype tag rules before size and weight admission. 
 
 `IMusketCartridge` extends ordinary ammunition with a nullable measured powder mass and an included-wad flag. Missing powder mass means the legacy weapon-defined charge; missing wad data means `true`. Muskets validate ammunition type, grade, bore, and any explicit charge before loading.
 
-Musket attachments have distinct persisted bayonet, ramrod, and sight slots. `IBayonetAttachment` supplies style and bore compatibility. Plug styles block firing; socket and sword styles do not. While attached, the firearm delegates melee weapon type to the bayonet item's existing `IMeleeWeapon`. Matchlock firing is blocked when current precipitation exceeds its gunpowder threshold; a cell without a weather controller has no precipitation and does not block firing.
+Musket attachments have distinct persisted bayonet, ramrod, cleaning-rod, and sight slots. The ramrod and cleaning rod must be `Beltable` items carrying the weapon's configured functional tag. Loading detaches an attached tool only for the drill and restores it to the same musket afterwards; loose tools return to their prior location. `IBayonetAttachment` supplies style and bore compatibility. Plug styles block firing; socket and sword styles do not. While attached, the firearm delegates melee weapon type to the bayonet item's existing `IMeleeWeapon`.
 
 Crossbows may author a required spanning-tool tag. The inventory plan must acquire a matching tool before readying, while ready delays and stamina remain properties of the ranged weapon type. `IsReadied` is runtime XML state and defaults to false for legacy component definitions.
 

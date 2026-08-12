@@ -17,6 +17,7 @@ public static class DefaultStaticSettings
         new Dictionary<string, string>
         {
             { "CPRAllowed", "true" },
+            { "EngineUpdateBinariesPath", "Binaries" },
             { "AutomaticGreviousBodilyHarmMinimumSeverity", "Grievous" },
             { "AutomaticMurderMinimumWoundSeverity", "Severe" },
             { "AutomaticMurderWoundAttributionWindowSeconds", "7200" },
@@ -329,7 +330,7 @@ public static class DefaultStaticSettings
             { "ConcentrationToCheckBonusPenaltyForConnectMind", "1.0" },
             { "DefaultBombDamageExpressionBurning", "quality*(1+rand(1,4))" },
             { "DefaultBombDamageExpressionShockwave", "quality*(1+rand(2,6))" },
-            { "DefaultBombDamageExpressionShrapnel", "max(0, rand(1,4)-3))*quality*(1+rand(2,6)" },
+            { "DefaultBombDamageExpressionShrapnel", "max(0, rand(1,4)-3)*quality*(1+rand(2,6))" },
             { "DefaultBombStunExpressionBurning", "0" },
             { "DefaultBombStunExpressionShockwave", "1.5*quality*(1+rand(2,6))" },
             { "DefaultBombStunExpressionShrapnel", "0" },
@@ -645,7 +646,16 @@ public static class DefaultStaticSettings
             { "DrawingTraitId", "0" },
             {
                 "EmailServer",
-                @"<Definition>  <Host>mail.yourserver.com</Host>  <Port>26</Port>  <EnableSSL>false</EnableSSL><UseDefaultCredentials>false</UseDefaultCredentials>  <Credentials Username=""staff@yoursever.com"" Password=""password""/></Definition>"
+                @"<Definition>
+  <Version>2</Version>
+  <Enabled>false</Enabled>
+  <Transport>Smtp</Transport>
+  <FailureHandling>
+    <MaxAttempts>6</MaxAttempts>
+    <StoreFailedMessages>false</StoreFailedMessages>
+    <Directory>FailedEmails</Directory>
+  </FailureHandling>
+</Definition>"
             },
             { "ForgerySkillId", "0" },
             { "HandwritingSkillId", "0" },
@@ -959,7 +969,9 @@ public static class DefaultStaticSettings
             { "MusketCleaningRamrodTag", "0"},
             { "GunpowderMaterialId", "0"},
             { "WadItemTagId", "0"},
-            { "MusketUnjammingToolTag", "0"},
+			{ "MusketUnjammingToolTag", "0"},
+			{ "MusketMatchCordTag", "0"},
+			{ "MusketIgnitionSourceTag", "0"},
             { "UnjammingGunDurationExpression", "20 - (degrees * 3)"},
             { "MaximumMoveTimeMilliseconds", "60000"}
         };

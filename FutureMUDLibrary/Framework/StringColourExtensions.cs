@@ -141,7 +141,7 @@ namespace MudSharp.Framework
                     throw new ApplicationException("Unknown basic colour in Colour extension.");
             }
 
-            return $"{background.BackgroundColour}{colour.Name}{input}{Telnet.RESETALL}";
+            return $"{background.BackgroundColour}{colour.Colour}{input}{Telnet.RESETALL}";
         }
 
         public static string Colour(this string input, ANSIColour colour)
@@ -156,7 +156,7 @@ namespace MudSharp.Framework
 
         public static string ColourBold(this string input, ANSIColour colour)
         {
-            return colour == null ? input : colour.Bold + input + colour.Reset();
+            return colour == null ? input : colour.Bold + input + Telnet.RESETBOLD + colour.Reset();
         }
 
         public static string ColourBackground(this string input, ANSIColour colour)
@@ -171,12 +171,16 @@ namespace MudSharp.Framework
 
         public static string Colour(this string input, ANSIColour colour, ANSIColour resetcolour)
         {
-            return (colour == null) || (resetcolour == null) ? input : colour.Colour + input + resetcolour.Colour;
+            return (colour == null) || (resetcolour == null)
+                ? input
+                : colour.Colour + input + Telnet.RESETBOLD + resetcolour.Colour;
         }
 
         public static string ColourBold(this string input, ANSIColour colour, ANSIColour resetcolour)
         {
-            return (colour == null) || (resetcolour == null) ? input : colour.Bold + input + resetcolour.Colour;
+            return (colour == null) || (resetcolour == null)
+                ? input
+                : colour.Bold + input + Telnet.RESETBOLD + resetcolour.Colour;
         }
 
         public static string Colour(this string input, string foreground, string background)
@@ -201,8 +205,7 @@ namespace MudSharp.Framework
 
         public static string ColourIfNotColoured(this string input, ANSIColour colour)
         {
-            // TODO - if for some reason input starts with a TELNET.RESET this will incorrectly identify it as coloured. This seems like an unlikely scenario but eventually I should fix that in an efficient way.
-            if (!string.IsNullOrEmpty(input) && !input.StartsWith("\x1B[", StringComparison.InvariantCulture))
+            if (!string.IsNullOrEmpty(input) && !input.Contains("\x1B[", StringComparison.Ordinal))
             {
                 return input.Colour(colour);
             }

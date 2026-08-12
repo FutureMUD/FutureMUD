@@ -116,20 +116,50 @@ public partial class ItemSeeder
 	private void EnsureAntiquityComponentGapWritingComponents()
 	{
 		EnsureAntiquityPaperSheetComponent("Antiquity_Papyrus_Scroll_Surface",
-			"Allows an antiquity papyrus scroll to be written on as a long sheet", 12000);
+			"Allows a papyrus scroll to be written on as a long sheet", 12000);
 		EnsureAntiquityPaperSheetComponent("Antiquity_Papyrus_Sheet_Surface",
 			"Allows an antiquity papyrus sheet to be written on", 2400);
 		EnsureAntiquityInscribableSurfaceComponent("Antiquity_Clay_Tablet_Surface",
 			"Allows clay tablets to take stylus writing", 1600, WritingImplementType.Stylus);
 		EnsureAntiquityInscribableSurfaceComponent("Antiquity_Wooden_Block_Surface",
-			"Allows wooden boards and blocks to take incised or charcoal writing", 2200,
+			"Allows wooden writing blocks to take incised or charcoal writing", 2200,
 			WritingImplementType.Stylus, WritingImplementType.Chisel, WritingImplementType.Charcoal);
 	}
 
 	private Material EnsureAntiquityComponentGapMaterial(string name, MaterialBehaviourType behaviourType)
 	{
+		var definition = new MaterialManifestDefinition(
+			name,
+			name.ToLowerInvariant(),
+			(int)behaviourType,
+			string.Empty,
+			string.Empty,
+			string.Empty);
+		var manifestEntry = RegisterManifestAggregate("material", name, definition);
 		if (_materials.TryGetValue(name, out var existing))
 		{
+			if (FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey) is null)
+			{
+				return existing;
+			}
+
+			var liveDefinition = new MaterialManifestDefinition(
+				existing.Name,
+				existing.MaterialDescription,
+				existing.BehaviourType ?? 0,
+				existing.ResidueSdesc,
+				existing.ResidueDesc,
+				existing.ResidueColour);
+			var disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
+			if (disposition == ManifestAggregateDisposition.Update)
+			{
+				existing.MaterialDescription = definition.MaterialDescription;
+				existing.BehaviourType = definition.BehaviourType;
+				existing.ResidueSdesc = definition.ResidueSdesc;
+				existing.ResidueDesc = definition.ResidueDesc;
+				existing.ResidueColour = definition.ResidueColour;
+				CompleteManifestAggregate(manifestEntry, existing.Id, definition, disposition);
+			}
 			return existing;
 		}
 
@@ -140,6 +170,19 @@ public partial class ItemSeeder
 		if (existing is not null)
 		{
 			_materials[name] = existing;
+			if (FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey) is null)
+			{
+				return existing;
+			}
+
+			var liveDefinition = new MaterialManifestDefinition(
+				existing.Name,
+				existing.MaterialDescription,
+				existing.BehaviourType ?? 0,
+				existing.ResidueSdesc,
+				existing.ResidueDesc,
+				existing.ResidueColour);
+			var disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
 			return existing;
 		}
 
@@ -155,6 +198,7 @@ public partial class ItemSeeder
 		};
 		_context.Materials.Add(material);
 		_materials[name] = material;
+		CompleteManifestAggregate(manifestEntry, material.Id, definition, ManifestAggregateDisposition.Insert);
 		return material;
 	}
 
@@ -201,7 +245,7 @@ public partial class ItemSeeder
 				[ToolTag, TimeTag], ["Holdable", "TimePiece_Antiquity_MarkedCandle", "Destroyable_Misc"]),
 			new("antiquity_temple_water_clock", "clock", "a clay temple water clock",
 				"This clay water clock has a marked inner wall and a narrow drain hole. Its weathered basin is suited to temple, court, or watch-house timekeeping.",
-				SizeCategory.Large, ItemQuality.Standard, 18500.0, 48.0m, "clay", MaterialBehaviourType.Ceramic,
+				SizeCategory.Large, ItemQuality.Standard, 18500.0, 48.0m, "clay", MaterialBehaviourType.Soil,
 				[ToolTag, TimeTag, ReligiousTag], ["TimePiece_Antiquity_WaterClock", "Destroyable_Misc"]),
 			new("antiquity_watchman_hour_board", "board", "a painted watchman's hour board",
 				"This wooden board lists the night watches in painted bands, with room for fresh marks or duty notes beside each hour.",
@@ -367,7 +411,7 @@ public partial class ItemSeeder
 				[ToolTag, MeasureTag], ["Holdable", "MeasuringInstrument_Antiquity_BalanceScale", "Destroyable_HeavyMetal"]),
 			new("antiquity_merchant_tax_tablet", "tablet", "a merchant tax tablet",
 				"This clay tablet is ruled for taxable goods and standard portions, with room for fresh stylus marks beside common market categories.",
-				SizeCategory.Small, ItemQuality.Standard, 650.0, 10.0m, "clay", MaterialBehaviourType.Ceramic,
+				SizeCategory.Small, ItemQuality.Standard, 650.0, 10.0m, "clay", MaterialBehaviourType.Soil,
 				[WritingTag, ToolTag, MeasureTag], ["Holdable", "Antiquity_Clay_Tablet_Surface", "MarketGoodWeight_Antiquity_StapleFood", "Destroyable_Misc"]),
 			new("antiquity_armoury_supply_counter", "counter", "an armoury supply counter",
 				"This rugged armoury counter has a secured trade surface for issuing weapons, shields, arrows, and repair gear under official oversight.",
@@ -422,19 +466,15 @@ public partial class ItemSeeder
 				[ToolTag, SecurityTag], ["Holdable", "SealStamp_Antiquity_CylinderSeal", "Destroyable_Misc"]),
 			new("antiquity_clay_bulla", "bulla", "a clay document bulla",
 				"This small clay bulla is shaped for cord impressions and a sealing mark, ready to authenticate a tied document or packet.",
-				SizeCategory.Tiny, ItemQuality.Standard, 85.0, 3.0m, "clay", MaterialBehaviourType.Ceramic,
+				SizeCategory.Tiny, ItemQuality.Standard, 85.0, 3.0m, "clay", MaterialBehaviourType.Soil,
 				[WritingTag, SecurityTag], ["Holdable", "Antiquity_Clay_Tablet_Surface", "Sealable_Document_Clay", "Destroyable_Misc"]),
 			new("antiquity_wax_seal_cake", "cake", "a wax seal cake",
 				"This cake of dark wax is wrapped in a scrap of cloth and kept ready for melting into a document, scroll, or container seal.",
 				SizeCategory.Tiny, ItemQuality.Standard, 55.0, 4.0m, "wax", MaterialBehaviourType.Wax,
 				[WritingTag, SecurityTag], ["Holdable", "Destroyable_Misc"]),
-			new("antiquity_sealed_papyrus_scroll", "scroll", "a sealable papyrus scroll",
-				"This papyrus scroll is rolled with enough overlap for wax or clay to secure the tie and leave tamper evidence when broken.",
-				SizeCategory.Small, ItemQuality.Standard, 95.0, 12.0m, "papyrus", MaterialBehaviourType.Plant,
-				[WritingTag, SecurityTag], ["Holdable", "Antiquity_Papyrus_Scroll_Surface", "Sealable_Scroll", "Destroyable_Paper"]),
 			new("antiquity_sealed_clay_tablet", "tablet", "a sealable clay tablet",
 				"This clay tablet has a smoothed writing face and an edge left ready to take a bulla, clay seal, or official impression.",
-				SizeCategory.Small, ItemQuality.Standard, 750.0, 8.0m, "clay", MaterialBehaviourType.Ceramic,
+				SizeCategory.Small, ItemQuality.Standard, 750.0, 8.0m, "clay", MaterialBehaviourType.Soil,
 				[WritingTag, SecurityTag], ["Holdable", "Antiquity_Clay_Tablet_Surface", "Sealable_Document_Clay", "Destroyable_Misc"]),
 			new("antiquity_tax_office_seal_box", "box", "a tax office seal box",
 				"This compact tax office box has a built-in lock and sealing points for wax or clay, meant to carry tokens, receipts, and official tablets.",

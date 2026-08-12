@@ -78,19 +78,19 @@ namespace MudSharp.TimeAndDate.Intervals
             }
 
             text = text.Trim();
-            if (TryParseOrdinalDay(text, out interval, out error))
+            if (OrdinalDayParseRegex.IsMatch(text))
             {
-                return true;
+                return TryParseOrdinalDay(text, out interval, out error);
             }
 
-            if (TryParseLastWeekday(text, calendar, out interval, out error))
+            if (LastWeekdayParseRegex.IsMatch(text))
             {
-                return true;
+                return TryParseLastWeekday(text, calendar, out interval, out error);
             }
 
-            if (TryParseOrdinalWeekday(text, calendar, out interval, out error))
+            if (OrdinalWeekdayParseRegex.IsMatch(text))
             {
-                return true;
+                return TryParseOrdinalWeekday(text, calendar, out interval, out error);
             }
 
             return TryParseLegacy(text, out interval, out error);
@@ -294,7 +294,13 @@ namespace MudSharp.TimeAndDate.Intervals
 
             if (int.TryParse(text, out weekday))
             {
-                if (calendar == null || weekday >= 0 && weekday < calendar.Weekdays.Count)
+                if (weekday < 0)
+                {
+                    error = "The weekday index cannot be negative.";
+                    return false;
+                }
+
+                if (calendar is null && weekday < 7 || calendar is not null && weekday < calendar.Weekdays.Count)
                 {
                     return true;
                 }
@@ -332,6 +338,11 @@ namespace MudSharp.TimeAndDate.Intervals
                 case IntervalType.Monthly:
                     return IntervalAmount == 1 ? "every month" : $"every {IntervalAmount} months";
                 case IntervalType.SpecificWeekday:
+                    if (whichCalendar is null || Modifier < 0 || Modifier >= whichCalendar.Weekdays.Count)
+                    {
+                        return $"every {IntervalAmount} weekdays ({Modifier})";
+                    }
+
                     return IntervalAmount == 1
                         ? $"every {whichCalendar.Weekdays[Modifier]}"
                         : $"every {IntervalAmount} {whichCalendar.Weekdays[Modifier].Pluralise()}";
@@ -368,6 +379,11 @@ namespace MudSharp.TimeAndDate.Intervals
                 ? AlignOrdinalDateTime(referenceDateTime, -1)
                 : new MudDateTime(referenceDateTime);
             MudDateTime currentDateTime = CurrentDateTimeFor(referenceDateTime);
+
+            if (TryFastForwardFixedInterval(newDate, currentDateTime, false, out var fastForwardedDate))
+            {
+                return fastForwardedDate;
+            }
 
             while (newDate > currentDateTime)
             {
@@ -419,11 +435,88 @@ namespace MudSharp.TimeAndDate.Intervals
                 : new MudDateTime(referenceDateTime);
             MudDateTime currentDateTime = CurrentDateTimeFor(referenceDateTime);
 
+            if (TryFastForwardFixedInterval(newDate, currentDateTime, true, out var fastForwardedDate))
+            {
+                return fastForwardedDate;
+            }
+
             while (newDate <= currentDateTime)
             {
                 newDate = MoveDateTimeByInterval(newDate, 1);
             }
             return newDate;
+        }
+
+        private bool TryFastForwardFixedInterval(MudDateTime referenceDateTime, MudDateTime currentDateTime,
+            bool forwards, out MudDateTime result)
+        {
+            result = null;
+            if (Type is not (IntervalType.Minutely or IntervalType.Hourly or IntervalType.Daily or IntervalType.Weekly))
+            {
+                return false;
+            }
+
+            var intervalSeconds = Type switch
+            {
+                IntervalType.Minutely => (long)IntervalAmount * referenceDateTime.Clock.SecondsPerMinute,
+                IntervalType.Hourly => (long)IntervalAmount * referenceDateTime.Clock.MinutesPerHour * referenceDateTime.Clock.SecondsPerMinute,
+                IntervalType.Daily => (long)IntervalAmount * referenceDateTime.Clock.HoursPerDay *
+                                      referenceDateTime.Clock.MinutesPerHour * referenceDateTime.Clock.SecondsPerMinute,
+                IntervalType.Weekly => (long)IntervalAmount * referenceDateTime.Calendar.Weekdays.Count *
+                                       referenceDateTime.Clock.HoursPerDay * referenceDateTime.Clock.MinutesPerHour *
+                                       referenceDateTime.Clock.SecondsPerMinute,
+                _ => 0L
+            };
+            if (intervalSeconds <= 0)
+            {
+                return false;
+            }
+
+            var referenceInstant = MudInstant.FromMudDateTime(referenceDateTime);
+            var currentInstant = MudInstant.FromMudDateTime(currentDateTime);
+            if (referenceInstant.IsNever || currentInstant.IsNever)
+            {
+                return false;
+            }
+
+            long steps;
+            if (forwards)
+            {
+                if (referenceInstant > currentInstant)
+                {
+                    result = referenceDateTime;
+                    return true;
+                }
+
+                steps = checked((currentInstant.Ticks - referenceInstant.Ticks) / intervalSeconds + 1);
+            }
+            else
+            {
+                if (referenceInstant <= currentInstant)
+                {
+                    result = referenceDateTime;
+                    return true;
+                }
+
+                var difference = referenceInstant.Ticks - currentInstant.Ticks;
+                steps = checked((difference + intervalSeconds - 1) / intervalSeconds);
+            }
+
+            var secondsToMove = checked(intervalSeconds * steps);
+            if (!forwards)
+            {
+                secondsToMove = checked(-secondsToMove);
+            }
+
+            result = referenceInstant
+                .AddSeconds(secondsToMove)
+                .ToMudDateTime(referenceDateTime.Calendar, referenceDateTime.Clock, referenceDateTime.TimeZone);
+            if (result.Date is null)
+            {
+                throw new InvalidOperationException("The recurring interval could not be converted back to its source calendar and clock.");
+            }
+
+            return true;
         }
 
         public MudDateTime GetNextDateTimeAfter(MudDateTime referenceDateTime)
@@ -555,6 +648,7 @@ namespace MudSharp.TimeAndDate.Intervals
             {
                 case IntervalType.Minutely:
                 case IntervalType.Hourly:
+                    break;
                 case IntervalType.Daily:
                     newDate.AdvanceDays(direction * IntervalAmount);
                     break;

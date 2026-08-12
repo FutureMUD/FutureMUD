@@ -24,7 +24,7 @@ public class WeatherController : SaveableItem, IWeatherController
         OppositeHemisphere = controller.OppositeHemisphere;
         CurrentTemperatureFluctuation = controller.CurrentTemperatureFluctuation;
         ConsecutiveUnchangedPeriods = controller.ConsecutiveUnchangedPeriods;
-        MinuteCounter = controller.MinutesCounter;
+        _minuteCounter = controller.MinutesCounter;
         CurrentSeason = gameworld.Seasons.Get(controller.CurrentSeasonId);
         CurrentWeatherEvent = gameworld.WeatherEvents.Get(controller.CurrentWeatherEventId);
         HighestRecentPrecipitationLevel = (PrecipitationLevel)controller.HighestRecentPrecipitationLevel;

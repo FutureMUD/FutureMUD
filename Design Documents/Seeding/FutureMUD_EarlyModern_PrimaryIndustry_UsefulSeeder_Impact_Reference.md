@@ -32,7 +32,7 @@ Live crops and outputs cover maize/corn, potatoes, sweet potatoes, cassava, suga
 
 The shared dispatcher already installs `SeedPrimaryProductionToolsAndProps()`. Live resource/item references include `primary_production_saltpeter_deposit`, `primary_production_sulfur_deposit`, `primary_production_kaolin_deposit`, ore and lead deposits, clay banks, charcoal tools/sites, glass furnaces, and the common prospecting/mining/quarrying/smelting apparatus. Live materials/tags support gunpowder ingredients, lead, glass, ceramics, common metals, tar/pitch, rope/canvas inputs, and pigments.
 
-The named skills, materials, crop definitions, and generic primary-production commodity references now resolve. Still missing are complete gun-lock/barrel/stock/spring production projects, safe powder manufacture, cartridge and shot chains, functional publishing, lens/mirror-glass production, clock/watch parts, porcelain/glaze specialisation, finished textile/dye crafts, cash-crop processing crafts, and complete maritime-store projects.
+The named skills, materials, crop definitions, and generic primary-production commodity references now resolve. The era-gated `mill and corn black powder` craft consumes measured physical saltpeter, charcoal, sulfur, and water with a tagged mortar and pestle and outputs material-backed `gunpowder` commodity stock. Still missing are ingredient-refining and powder-grade variants, complete gun-lock/barrel/stock/spring production projects, cartridge and shot chains, functional publishing, lens/mirror-glass production, clock/watch parts, porcelain/glaze specialisation, finished textile/dye crafts, cash-crop processing crafts, and complete maritime-store projects.
 
 ## Gate for future implementation
 

@@ -716,14 +716,14 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
         if (!IsOpen)
         {
             sb.AppendLine(
-                $"This item is a book{(string.IsNullOrEmpty(Title) ? ", which is not currently titled" : $"titled as \"{Title.Colour(Telnet.BoldWhite)}\"")}."
+                $"This item is a book{(string.IsNullOrEmpty(Title) ? ", which is not currently titled" : $"titled as {$"\"{Title}\"".ColourBold(Telnet.White)}")}."
                     .Colour(Telnet.Yellow));
             sb.AppendLine("It is not currently open.".Colour(Telnet.Yellow));
         }
         else if (TornPages.Count >= _prototype.PageCount)
         {
             sb.AppendLine("This item is a book, but all of the pages have been torn out.".Colour(Telnet.Red));
-            sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as \"{Title.Colour(Telnet.BoldWhite)}\"")}."
+            sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as {$"\"{Title}\"".ColourBold(Telnet.White)}")}."
                 .Colour(Telnet.Yellow));
         }
         else
@@ -734,7 +734,7 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
             sb.AppendLine(
                 $"Each page can contain {MaximumCharacterLengthOfText.ToString("N0", voyeur).ColourValue()} characters of written text."
                     .Colour(Telnet.Yellow));
-            sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as \"{Title.Colour(Telnet.BoldWhite)}\"")}."
+            sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as {$"\"{Title}\"".ColourBold(Telnet.White)}")}."
                 .Colour(Telnet.Yellow));
             if (!Readables.Any())
             {
@@ -775,7 +775,7 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
             case "desc":
                 return description;
             case "desc+title":
-                return $"{description} titled \"{Title.ColourBold(Telnet.White)}\"";
+                return $"{description} titled {$"\"{Title}\"".ColourBold(Telnet.White)}";
             default:
                 throw new ApplicationException(
                     $"Invalid option for WrittenItemSDescStyle: '{titleSetting}'. Valid options are 'title', 'desc' and 'desc+title'");

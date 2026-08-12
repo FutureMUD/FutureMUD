@@ -2,6 +2,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Commands.Modules;
+using MudSharp.Framework;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -11,6 +12,41 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class EngineUpdateTests
 {
+	[TestMethod]
+	public void EngineUpdateBinariesPath_DefaultConfiguration_PreservesExistingBinariesDirectory()
+	{
+		Assert.AreEqual(
+			"Binaries",
+			DefaultStaticSettings.DefaultStaticConfigurations[StaffModule.EngineUpdateBinariesPathStaticConfiguration]);
+	}
+
+	[TestMethod]
+	public void ResolveEngineUpdateBinariesPath_RelativeConfiguration_UsesApplicationDirectory()
+	{
+		var applicationDirectory = Path.Combine(Path.GetTempPath(), "futuremud-update-tests", "application");
+
+		Assert.AreEqual(
+			Path.GetFullPath(Path.Combine(applicationDirectory, "Update Staging")),
+			StaffModule.ResolveEngineUpdateBinariesPath("Update Staging", applicationDirectory));
+	}
+
+	[TestMethod]
+	public void ResolveEngineUpdateBinariesPath_AbsoluteConfiguration_UsesConfiguredDirectory()
+	{
+		var configuredDirectory = Path.Combine(Path.GetTempPath(), "futuremud-update-tests", "external-staging");
+
+		Assert.AreEqual(
+			Path.GetFullPath(configuredDirectory),
+			StaffModule.ResolveEngineUpdateBinariesPath(configuredDirectory, AppContext.BaseDirectory));
+	}
+
+	[TestMethod]
+	public void ResolveEngineUpdateBinariesPath_EmptyConfiguration_Throws()
+	{
+		Assert.ThrowsException<InvalidDataException>(() =>
+			StaffModule.ResolveEngineUpdateBinariesPath(" ", AppContext.BaseDirectory));
+	}
+
 	[TestMethod]
 	public void EngineUpdateDownloadUrl_UsesFutureMudLatestRuntimeRoutes()
 	{

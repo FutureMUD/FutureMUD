@@ -1,5 +1,5 @@
 {
-  "ProductVersion": "3.0.1.0",
-  "LatestMigrationId": "20260730053720_FirearmAttachmentsAndProjectileAmmunition",
-  "GeneratedUtc": "2026-07-30T05:37:20.0000000Z"
+  "ProductVersion": "3.1.0.0",
+  "LatestMigrationId": "20260810130800_AddTrapTemplates",
+  "GeneratedUtc": "2026-08-10T21:49:01.9765493Z"
 }

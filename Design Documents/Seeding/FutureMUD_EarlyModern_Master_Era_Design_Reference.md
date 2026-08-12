@@ -18,6 +18,8 @@ The Early Modern-specific seeder should emphasize:
 - Intensified Atlantic, Indian Ocean, Pacific, and Eurasian trade, colonial/contact-zone objects, plantation commodities, and export systems, while keeping sensitive historical contexts intentional.
 - Ottoman, Safavid/post-Safavid, Mughal, Qing, Edo, Joseon, South-east Asian, African, Indigenous American, and colonial American material cultures as active contemporaries.
 
+The jewellery/devotional and doors/locks/gates slice is now live. Early Modern receives 60/90 four-era `preindustrial_*` prototypes, the 220/240 Renaissance-owned common forms by explicit admission, and 720/670 Early Modern culture-admitted forms. This gives Early Modern exactly 1,000 new available prototypes in each report family without invoking the whole Renaissance branch. The canonical row contracts are [Early Modern Jewellery and Devotional Goods](./FutureMUD_EarlyModern_Jewellery_Devotional_Seeder_Design_Reference.md), [Early Modern Doors, Locks, and Gates](./FutureMUD_EarlyModern_Doors_Locks_Gates_Seeder_Design_Reference.md), and the [cross-era admission ledger](./FutureMUD_Renaissance_EarlyModern_Jewellery_Doors_Admission_Ledger.md).
+
 ## Scope and era model
 
 - Era token: `EarlyModern`.
@@ -282,7 +284,9 @@ Boundary:
 
 The shared layer already supplies 147 non-regional `preindustrial_trade_*` container/lockbox aliases, promoted ordinary doors, and global packaging for tea, coffee, cacao, tobacco, sugar, spices, indigo, porcelain, glass bottles, silk, and cotton. Use those stable references for the package itself. It does not supply the consumption/service complex or a general household-furniture catalogue.
 
-Early Modern-specific additions should include:
+This slice is now implemented as 1,000 direct household records: 520 furniture/fixed fixtures and 480 container/service forms. The earlier 25-row coffeehouse/tavern foundation is preserved within that total; 36 culture families each receive at least 15 culture-tagged forms. See `FutureMUD_EarlyModern_Household_Furniture_Container_Design_Reference.md` for the generated allocation, quality policy, and component boundary.
+
+Remaining Early Modern-specific additions should include:
 
 - Coffee cups, coffee pots, grinders/roasters, serving trays, coffeehouse benches/tables, account boxes, and newspaper/pamphlet display.
 - Teapots, tea bowls/cups, tea caddies distinct from the shared shipping chest, sugar bowls, strainers, and porcelain table services.
@@ -344,7 +348,7 @@ The foundational gap patch now supplies exact type metal, printing ink, glass bl
 
 ### Still required or subject to audit
 
-- Blackpowder, saltpetre/nitre, brimstone/sulfur, charcoal grades, lead shot, cartridge paper, gunflints, and production/safety chains.
+- Blackpowder ingredient refining and grading beyond the stock physical commodity craft, lead-shot and cartridge-paper production, gunflint shaping, and expanded production/safety chains.
 - Gunsmithing: barrels, locks, springs, screws, stock blanks, actual firearm components, repair tools, and ammunition manufacture.
 - Printing: movable type item stock, composing/locking materials, press hardware, paper reams, and functional publishing crafts using the live type-metal and printing-ink materials.
 - Glass and optics: clear/lens/mirror glass, telescope and microscope lens systems, polishing powders, and optician crafts.
@@ -423,6 +427,9 @@ The shared baseline reference and alias catalogue already exist and should be tr
 7. `FutureMUD_EarlyModern_Agriculture_Food_Drink_Commodities_Design_Reference.md`
 8. `FutureMUD_EarlyModern_PrimaryIndustry_UsefulSeeder_Impact_Reference.md`
 9. `FutureMUD_EarlyModern_Culture_Manifest_Reference.md`
+10. `FutureMUD_EarlyModern_Jewellery_Devotional_Seeder_Design_Reference.md` (implemented)
+11. `FutureMUD_EarlyModern_Doors_Locks_Gates_Seeder_Design_Reference.md` (implemented)
+12. `FutureMUD_Renaissance_EarlyModern_Medical_Repair_Design_Reference.md` (implemented: 732 Early Modern medical-and-repair rows)
 
 The admission manifest is complete and maps all 385 live shared rows to cultures/contact scopes, date anchors, institutions, professions, shops, military systems, crafts, prevalence, trade status, and component reality. It does not clone item prototypes.
 
@@ -467,6 +474,7 @@ Before implementation, each Early Modern-specific row or manifest should confirm
 - Materials, tags, and components exactly match maintained seeded data.
 - Portable items include `Holdable`; fixtures omit it.
 - Component-dependent claims are backed by actual components.
+- The implemented jewellery/door slice retains its generated 1,000-per-family availability contract, literal `CreateItem(...)` rows, and direct workshop-craft coverage.
 - Culture-specific prototypes are justified by form, material, component, institution, production technology, or historically significant contact-zone role.
 - Skins, not prototypes, handle most local names, colours, motifs, heraldry, inscriptions, company marks, regimental marks, and status variation.
 - Sensitive contact-zone, plantation, enslavement, mission, and colonial objects are intentionally included rather than casually implied.

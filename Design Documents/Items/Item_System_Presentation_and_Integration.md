@@ -4,6 +4,10 @@ Firearm attachments appear through the host item's attached-item aggregation and
 
 Artillery is deliberately visible and targetable as a local-cell object, not as an invisible extension of a crew member. Its status reports emplacement, load/readiness, and active crew; an installed piece is addressed through its mount. Weapon-carrier attachments retain their relationship across normal description and connected-item traversal. A hanging retained weapon remains visibly on its carrier until recovered or released.
 
+Black-powder loading echoes name the physical tool or consumable used at that stage. Inserted powder, wads, ammunition, primers, match cord, ignition stones, and fuses participate in containment, weight, buoyancy, persistence, deletion, and unloading even when they are not separately listed in a room description. Environmental failure messages distinguish submersion, heavy precipitation, and an atmosphere that cannot sustain a match; vacuum suppresses propagated gunshot and artillery audio.
+
+Firing into the air is a completed ranged action: musket and artillery paths consume their real physical load, return to an empty/unreadied state, and clear any out-of-combat aiming effect rather than leaving a character aiming an empty weapon.
+
 ## Scope
 This document explains how item behaviour is presented to players and how items integrate with adjacent runtime systems.
 
@@ -41,11 +45,18 @@ This is how components add behavioural presentation without forcing all descript
 
 Examples include:
 - containers showing fullness, open state, and contents
-- commodity piles replacing the generated short/full description with quantity, commodity characteristics, material, and optional tag
+- commodity piles replacing the generated short/full description with quantity, commodity characteristics, material, and optional tag; when a functional tag already begins with the material name, the decorator presents it once (`gunpowder commodities`, not `gunpowder gunpowder commodities`)
 - locks or connections contributing extra information
 - connector-driven items showing their current grid membership and physical links
 - stable tickets showing the lodged mount, stable, lodger, and current outstanding fees when the ticket still points at an active stay
 - effects such as glow adding descriptive layers through adjacent systems
+- known installed traps adding a warning to full descriptions and evaluations; administrators always see this warning, while ordinary characters see it only after spotting, searching for, or being shown that specific trap
+
+Mechanical trap parts remain ordinary items with ordinary authored descriptions and tags. While installed, a runtime reservation prevents `get` and other inventory-plan acquisition from detaching them behind the trap system's back. `trap inspect` lists the matched item and whether it serves the trigger, payload, or both; safe recovery releases all parts, while spent recovery reports each successful salvage or breakage. The trap itself, rather than the tag, controls secrecy: component tags are builder/crafting metadata and do not reveal an otherwise unseen trap.
+
+Explosive trigger components decorate their parent item rather than replacing its authored descriptions. Armed countdown and pin-pull triggers add a conspicuous armed marker to the short description and report the localised remaining duration in the full description. Clock triggers report their exact target through the authored calendar, clock, and timezone. Signal and radio triggers report their armed state without exposing hidden controller logic to an ordinary look. `evaluate` presents the stable authored trigger facts, including permitted delay range, clock basis, signal threshold/activation mode/power requirement, fixed pin delay, and whether disarming is possible.
+
+The commands that change this state accept optional parenthesised player emotes and emit an explicit action echo. New trigger profiles let builders author that echo. `pullpin` must always communicate that its countdown is irreversible; `disarm` must fail clearly when the trigger profile forbids it.
 
 ### Decoration ordering
 Decoration ordering matters:
@@ -162,6 +173,8 @@ This means item features often have consequences for:
 - breathing
 - body-state modelling
 
+The ordinary static item health strategy is demand-gated: it evaluates damage synchronously and reconciles persisted wounds during item login, but does not subscribe the item to a recurring heartbeat. Components that override item wound behaviour, and body-backed items such as corpses, retain their own periodic health semantics.
+
 Generated remains are a special integration point:
 - corpse and severed-bodypart components preserve the source body that created them
 - presentation and medical logic should read anatomy and inventory from that stored source body rather than `OriginalCharacter.Body`
@@ -179,6 +192,12 @@ Any new component that changes item descriptions, energy state, or visibility ma
 Items and components can be discovered and manipulated through FutureProg-facing systems, while item prototypes can execute on-load progs and hold default register values.
 
 Variable-driven items are a common integration point between item content and scripting.
+
+The `wound(perceiver, type, amount|formula)` FutureProg overloads accept damageable items without body-bearing components as well as characters and body-backed items. Bodyless items receive damage with no bodypart so their normal item health strategy resolves it; the function returns true when damage dispatch succeeds, even when material resistance prevents a visible wound. Null or non-mortal perceivers and invalid damage types or formulas return false.
+
+`exposetoliquid(item, liquidId, volume[, driedPercentage])` accepts numeric base-unit or unit-bearing text volumes. The optional percentage ranges from 0 to 100 and splits the supplied volume between normal fresh exposure and the liquid's configured dried residue; 0 preserves the original behaviour and 100 adds residue without wetting, flowing or filling. Dry requests fail without mutation when the liquid has no usable dried-residue definition.
+
+Surface residue descriptions receive the seeded quantity token with its expected trailing space and render as separate description lines, avoiding joined output such as `somedried` or `and It is ...`.
 
 Commodity piles participate in the same characteristic scripting surface once they have characteristic values. A FutureProg can call `loadcommodity(...)` to create the pile, then apply colour-like metadata with `setcharacteristic(item, definition, value)`. `characteristicvalue`, `characteristicid`, and item `.variables` read those commodity-owned values, and the description decorator renders values in stable definition-name order before the material/tag text.
 

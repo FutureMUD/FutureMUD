@@ -78,7 +78,7 @@ namespace MudSharp.FutureProg.Variables
 
         public override IProgVariable GetProperty(string property)
         {
-            switch (property.ToLowerInvariant())
+			switch (CanonicalProperty(property))
             {
                 case "count":
                     return new NumberVariable(_underlyingDictionary.Count);
@@ -93,6 +93,21 @@ namespace MudSharp.FutureProg.Variables
             }
             throw new NotSupportedException("Invalid property requested in DictionaryVariable.GetProperty");
         }
+
+		private static string CanonicalProperty(string property)
+		{
+			if (property is "count" or "any" or "empty" or "values" or "keys")
+			{
+				return property;
+			}
+
+			if (property.Equals("count", StringComparison.OrdinalIgnoreCase)) return "count";
+			if (property.Equals("any", StringComparison.OrdinalIgnoreCase)) return "any";
+			if (property.Equals("empty", StringComparison.OrdinalIgnoreCase)) return "empty";
+			if (property.Equals("values", StringComparison.OrdinalIgnoreCase)) return "values";
+			if (property.Equals("keys", StringComparison.OrdinalIgnoreCase)) return "keys";
+			return property;
+		}
 
         public bool Add(string key, IProgVariable item)
         {

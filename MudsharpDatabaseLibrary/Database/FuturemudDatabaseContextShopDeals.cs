@@ -23,6 +23,7 @@ namespace MudSharp.Database
 			ConfigureWritingCollections(modelBuilder);
 			ConfigureRouteCells(modelBuilder);
 			ConfigureVehicleRoutesAndServices(modelBuilder);
+			ConfigureSeederManagedRecords(modelBuilder);
 
 			modelBuilder.Entity<ShopDeal>(entity =>
             {

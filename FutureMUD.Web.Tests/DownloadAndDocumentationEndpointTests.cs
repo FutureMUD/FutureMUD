@@ -119,6 +119,43 @@ public sealed class DownloadAndDocumentationEndpointTests
 	}
 
 	[TestMethod]
+	public async Task LatestMudClientUpdateManifestIsServedWithoutCaching()
+	{
+		var live = Path.Combine(_root, "releases", "live", "mudclient");
+		Directory.CreateDirectory(live);
+		var artifact = new ReleaseArtifactRequest
+		{
+			ArtifactId = "win-x64",
+			Runtime = "win-x64",
+			FileName = "mudclient-1.2.0-win-x64.zip",
+			Size = 1,
+			Sha256 = new string('a', 64)
+		};
+		await File.WriteAllBytesAsync(Path.Combine(live, "update-manifest.json"), "signed-manifest"u8.ToArray());
+		await File.WriteAllBytesAsync(Path.Combine(live, "update-manifest.sig"), new byte[64]);
+		await File.WriteAllTextAsync(Path.Combine(live, "release.json"), JsonSerializer.Serialize(new PublicRelease
+		{
+			Product = "mudclient",
+			Version = "1.2.0",
+			SourceCommit = new string('a', 40),
+			PublishedAtUtc = DateTimeOffset.UtcNow,
+			Artifacts = [artifact],
+			HasUpdateManifest = true
+		}, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+
+		await using var factory = CreateFactory();
+		var client = factory.CreateClient();
+		var manifest = await client.GetAsync("/downloads/mudclient/latest/update-manifest.json");
+		var signature = await client.GetAsync("/downloads/mudclient/latest/update-manifest.sig");
+
+		Assert.AreEqual(HttpStatusCode.OK, manifest.StatusCode);
+		StringAssert.Contains(manifest.Headers.CacheControl?.ToString(), "no-store");
+		Assert.AreEqual("signed-manifest", await manifest.Content.ReadAsStringAsync());
+		Assert.AreEqual(HttpStatusCode.OK, signature.StatusCode);
+		StringAssert.Contains(signature.Headers.CacheControl?.ToString(), "no-store");
+	}
+
+	[TestMethod]
 	public async Task DocumentationSearchFiltersAndDetailEncodesHelpText()
 	{
 		var documentation = Path.Combine(_root, "documentation", "live");

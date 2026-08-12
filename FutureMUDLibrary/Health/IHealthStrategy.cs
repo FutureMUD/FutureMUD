@@ -70,6 +70,11 @@ namespace MudSharp.Health
 
     public interface IHealthStrategy : IEditableItem
     {
+		/// <summary>
+		/// Whether owners using this strategy require periodic health processing after wound changes.
+		/// Static item-health strategies can opt out because their status is evaluated synchronously.
+		/// </summary>
+		bool RequiresPeriodicHealthTick => true;
         string HealthStrategyType { get; }
         HealthStrategyOwnerType OwnerType { get; }
         HealthStateModel HealthStateModel { get; }

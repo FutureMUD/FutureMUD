@@ -16,10 +16,14 @@ internal abstract class BuiltInFunction : Function
 
     public override StatementResult Execute(IVariableSpace variables)
     {
-        foreach (IFunction par in ParameterFunctions.Where(par => par.Execute(variables) == StatementResult.Error))
+		for (var i = 0; i < ParameterFunctions.Count; i++)
         {
-            ErrorMessage = par.ErrorMessage;
-            return StatementResult.Error;
+			var parameter = ParameterFunctions[i];
+			if (parameter.Execute(variables) == StatementResult.Error)
+			{
+				ErrorMessage = parameter.ErrorMessage;
+				return StatementResult.Error;
+			}
         }
 
         return StatementResult.Normal;

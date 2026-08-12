@@ -190,7 +190,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
         }
 
         OutstandingTaxesOwed = zone.OutstandingTaxesOwed;
-        TotalRevenueHeld = zone.TotalRevenueHeld;
+        _totalRevenueHeld = zone.TotalRevenueHeld;
         PreviousFinancialPeriodsToKeep = zone.PreviousFinancialPeriodsToKeep;
         ZoneForTimePurposes = gameworld.Zones.Get(zone.ZoneForTimePurposesId);
         PermitTaxableLosses = zone.PermitTaxableLosses;

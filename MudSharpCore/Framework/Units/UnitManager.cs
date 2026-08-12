@@ -21,6 +21,12 @@ public class UnitManager : IUnitManager
         InitialiseUnitManager(game);
     }
 
+	internal UnitManager(IEnumerable<IUnit> units)
+	{
+		_units.AddRange(units);
+		RecalculateAllUnits();
+	}
+
     public IEnumerable<IUnit> Units => _units;
 
     public IEnumerable<string> Systems => _unitSystems.Keys;
@@ -59,14 +65,14 @@ public class UnitManager : IUnitManager
     {
         foreach (string system in _unitSystems.Keys)
         {
+			_unitSystems[system].Sort((u1, u2) => u2.MultiplierFromBase.CompareTo(u1.MultiplierFromBase));
+			foreach (IUnit unit in _unitSystems[system])
+			{
+				unit.LastDescriber = false;
+			}
+
             foreach (UnitType value in Enum.GetValues(typeof(UnitType)))
             {
-                _unitSystems[system].Sort((u1, u2) => u2.MultiplierFromBase.CompareTo(u1.MultiplierFromBase));
-                foreach (IUnit unit in _unitSystems[system])
-                {
-                    unit.LastDescriber = false;
-                }
-
                 IUnit last = _unitSystems[system].LastOrDefault(x => x.DescriberUnit && x.Type == value);
                 last?.LastDescriber = true;
             }

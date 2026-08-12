@@ -121,7 +121,7 @@ public class DripGameItemComponent : GameItemComponent, IDrip, ISelectable
                     continue;
                 }
 
-                Connect(null, connectable);
+                RestorePersistedConnection(connectable, () => Connect(null, connectable));
                 break;
             }
         }
@@ -155,13 +155,12 @@ public class DripGameItemComponent : GameItemComponent, IDrip, ISelectable
                     continue;
                 }
 
-                Connect(null, connectable);
+                RestorePersistedConnection(connectable, () => Connect(null, connectable));
                 break;
             }
         }
 
         _pendingDependentLoadTimeConnections.Clear();
-        Changed = true;
     }
 
     public override bool HandleDieOrMorph(IGameItem newItem, ICell location)

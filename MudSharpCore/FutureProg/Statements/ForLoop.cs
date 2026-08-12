@@ -221,9 +221,10 @@ The scope of the variable declared as the iteration variable is limited to being
 			return StatementResult.Normal;
 		}
 
+		LocalVariableSpace localVariables = new(variables);
 		for (int i = 1; i <= repetitions; i++)
 		{
-			LocalVariableSpace localVariables = new(variables);
+			localVariables.ClearLocalVariables();
 			localVariables.SetVariable(LoopVarName, new NumberVariable(i));
 
 			foreach (IStatement statement in ContainedBlock)

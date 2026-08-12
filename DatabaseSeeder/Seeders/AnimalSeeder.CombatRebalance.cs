@@ -400,6 +400,10 @@ public partial class AnimalSeeder
 			}
 		}
 
+		SeederBodyUtilities.RefreshLimbSeverDescriptionFlags(_context, _context.BodyProtos
+			.Where(x => AnimalCombatRebalanceBodyNames.Contains(x.Name))
+			.ToList());
+
 		ApplyDefaultCombatSettingsToSeededRaces();
 		_context.SaveChanges();
 	}

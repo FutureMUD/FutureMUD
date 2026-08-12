@@ -67,14 +67,14 @@ public partial class CombatSeeder : IDatabaseSeeder
         {
             ("installmuskets",
                 "Do you want to install some early gunpowder weapon types?\n\nPlease answer #3yes#f or #3no#f: ",
-                (context, answers) => true,
+                (context, answers) => !HasEarlyFirearms(context),
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("yes", "y", "no", "n"), "You must answer yes or no.");
                 }),
             ("installguns",
                 "Do you want to install some modern firearm types?\n\nPlease answer #3yes#f or #3no#f: ",
-                (context, answers) => true,
+                (context, answers) => !HasModernFirearms(context),
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("yes", "y", "no", "n"), "You must answer yes or no.");
@@ -91,7 +91,7 @@ There are three options that you can choose for randomness:
 #BPartial#F: In this option 30% of the damage will be random - this adds a little bit of uncertainty and variety but still makes hits /largely/ a function of relative success
 #BRandom#F: In this option damage can be 20-100% of the maximum. This means outcomes will vary wildly.
 Which option do you want to use for random results in your weapon damage formulas?",
-                (context, answers) => !CombatBalanceProfileHelper.UsesCombatRebalance(context, answers),
+                (context, answers) => !HasCombatFoundation(context) && !CombatBalanceProfileHelper.UsesCombatRebalance(context, answers),
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("static", "partial", "random"),
@@ -100,7 +100,7 @@ Which option do you want to use for random results in your weapon damage formula
             ("parryoption",
                 @"Do you want to use a separate skill called 'parry' as the skill for parrying with weapons? If you answer no, the weapon will use its attacking trait for parrying instead.
 
-Please answer #3yes#f or #3no#f: ", (context, answers) => true,
+Please answer #3yes#f or #3no#f: ", (context, answers) => !HasCombatFoundation(context),
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("yes", "y", "no", "n"), "You must answer yes or no.");
@@ -114,7 +114,7 @@ There are many different ways that you could set up combat skills. A few options
 #BSOI#f: This option sets up skills like old SOI had, with 9 combinations of light, medium, heavy and edged, bludgeon and piercing (e.g. medium-edge etc)
 
 Which option do you want to choose for weapon skills? ",
-                (context, answers) => true,
+                (context, answers) => !HasCombatFoundation(context),
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("weapons", "broad", "soi"),
@@ -141,7 +141,7 @@ Combat messages can be presented in a number of different styles. Fundamentally,
 You can change your decision later, you're just going to have to go and edit your combat messages (mostly the defenses) to match the style you want. One advantage to doing Sentences or Sparse is that you can easily colour whole elements if you prefer (some people prefer not to of course).
 
 You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
-                (context, answers) => true,
+                (context, answers) => !HasCombatFoundation(context),
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("compact", "sentences", "sparse"),
@@ -163,9 +163,10 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         IReadOnlyDictionary<string, string> effectiveAnswers =
             CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
         effectiveAnswers = CombatSeederMessageStyleHelper.MergeQuestionAnswersWithRecordedChoice(context, effectiveAnswers);
+		effectiveAnswers = MergeRecordedCombatAnswers(context, effectiveAnswers);
 
         context.Database.BeginTransaction();
-        if (context.WeaponAttacks.Any())
+        if (HasCombatFoundation(context))
         {
             string updateSummary = RefreshExistingCombatSeederContent(context, effectiveAnswers);
             context.Database.CommitTransaction();
@@ -203,87 +204,150 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
     private string RefreshExistingCombatSeederContent(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> questionAnswers)
     {
-        int updatedExpressionCount = 0;
-        CombatStockExpansionResult expandedStockResult = CombatStockExpansionResult.Empty;
-        if (questionAnswers["installweapons"].EqualToAny("yes", "y"))
-        {
-            TraitDefinition strength = GetStrengthAttribute(context);
-            foreach (KeyValuePair<string, string> formula in BuildWeaponDamageExpressions(strength.Id, questionAnswers))
-            {
-                UpsertTraitExpression(context, formula.Key, formula.Value);
-                updatedExpressionCount++;
-            }
+		var updates = ReconcileCombatModules(context, questionAnswers)
+			.Where(x => x.HasChanges)
+			.Select(x => $"{x.DisplayName} ({x.Changes})")
+			.ToList();
+		context.SaveChanges();
+		return updates.Count > 0
+			? $"Reconciled combat modules: {updates.ListToString()}."
+			: "Combat modules are already current.";
+    }
 
-            expandedStockResult = EnsureExpandedStockCombatContent(context, questionAnswers);
-        }
-
-        if (questionAnswers["installunarmed"].EqualToAny("yes", "y"))
-        {
-            TraitDefinition strength = GetStrengthAttribute(context);
-            foreach (KeyValuePair<string, string> formula in BuildUnarmedDamageExpressions(strength.Id, questionAnswers))
-            {
-                UpsertTraitExpression(context, formula.Key, formula.Value);
-                updatedExpressionCount++;
-            }
-        }
-
-        int primitiveRangedCount = 0;
-        if (questionAnswers["installranged"].EqualToAny("yes", "y"))
-        {
-            primitiveRangedCount = EnsurePrimitiveRangedContent(context);
-        }
-
-        var modernFirearmSampleCount = questionAnswers["installguns"].EqualToAny("yes", "y")
-            ? EnsureModernFirearmSamples(context)
-            : 0;
-
-		var eraDependencyCount = EnsureEraDependencyCombatContent(context, questionAnswers);
-
-        context.SaveChanges();
-        List<string> updates = new();
-        if (updatedExpressionCount > 0)
-        {
-            updates.Add($"updated {updatedExpressionCount} stock combat damage expressions");
-        }
-
-        if (primitiveRangedCount > 0)
-        {
-            updates.Add($"added {primitiveRangedCount} missing sling/blowgun stock entries");
-        }
-
-        if (modernFirearmSampleCount > 0)
-        {
-            updates.Add($"added or repaired {modernFirearmSampleCount} modular firearm sample definitions");
-        }
-
-		if (eraDependencyCount > 0)
+	private IReadOnlyCollection<CombatSeederModuleResult> ReconcileCombatModules(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		var modules = new ICombatSeederModule[]
 		{
-			updates.Add($"added or repaired {eraDependencyCount} Renaissance and Early Modern combat dependencies");
+			new CombatSeederModule("foundations", "foundations", Array.Empty<string>(), (_, _) => true,
+				(_, moduleAnswers) => ReconcileCombatFoundations(context, moduleAnswers)),
+			new CombatSeederModule("melee", "melee weapons and shields", ["foundations"], (_, _) => true,
+				(_, moduleAnswers) => ReconcileExpandedCombatContent(context, moduleAnswers)),
+			new CombatSeederModule("ranged", "ranged weapons", ["foundations"], (_, _) => true,
+				(_, _) => new CombatSeederModuleResult("ranged weapons", EnsurePrimitiveRangedContent(context))),
+			new CombatSeederModule("early-firearms", "early firearms", ["ranged", "melee"],
+				(_, moduleAnswers) => HasEarlyFirearms(context) || moduleAnswers["installmuskets"].EqualToAny("yes", "y"),
+				(_, moduleAnswers) => ReconcileEarlyFirearms(context, moduleAnswers)),
+			new CombatSeederModule("modern-firearms", "modern firearms", ["ranged"],
+				(_, moduleAnswers) => HasModernFirearms(context) || moduleAnswers["installguns"].EqualToAny("yes", "y"),
+				(_, moduleAnswers) => ReconcileModernFirearms(context, moduleAnswers)),
+			new CombatSeederModule("auxiliary", "auxiliary combat", ["foundations"], (_, _) => true,
+				(_, _) => ReconcileAuxiliaryCombatContent(context))
+		};
+
+		var selected = modules.Where(x => x.IsSelected(context, answers)).ToDictionary(x => x.Key);
+		var ordered = new List<ICombatSeederModule>();
+		while (selected.Count > 0)
+		{
+			var next = selected.Values.FirstOrDefault(x => x.Dependencies.All(dependency =>
+				ordered.Any(y => y.Key == dependency) || !selected.ContainsKey(dependency)));
+			if (next is null)
+			{
+				throw new InvalidOperationException("Combat seeder modules contain an unresolved dependency cycle.");
+			}
+
+			ordered.Add(next);
+			selected.Remove(next.Key);
 		}
 
-        if (expandedStockResult.HasChanges)
-        {
-            updates.Add(
-                $"added expanded stock combat content ({expandedStockResult.ShieldTypes} shields, {expandedStockResult.WeaponTypes} weapon types, {expandedStockResult.WeaponAttacks} attacks, {expandedStockResult.Components} components)");
-        }
+		return ordered.Select(x => x.Reconcile(context, answers)).ToList();
+	}
 
-        CombatAuxiliarySeedResult auxiliaryResult = CombatAuxiliarySeederHelper.EnsureStockAuxiliaryContent(context);
-        if (auxiliaryResult.HasChanges)
-        {
-            updates.Add(
-                $"refreshed auxiliary combat stock ({auxiliaryResult.Actions} actions, {auxiliaryResult.Messages} messages, {auxiliaryResult.RaceLinks} race links, {auxiliaryResult.Strategies} strategies)");
-        }
+	private CombatSeederModuleResult ReconcileCombatFoundations(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		var strength = GetStrengthAttribute(context);
+		var count = 0;
+		foreach (var formula in BuildWeaponDamageExpressions(strength.Id, answers)
+			.Concat(BuildUnarmedDamageExpressions(strength.Id, answers)))
+		{
+			UpsertTraitExpression(context, formula.Key, formula.Value);
+			count++;
+		}
 
-        int manualCombatCommands = ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context);
-        if (manualCombatCommands > 0)
-        {
-            updates.Add($"refreshed {manualCombatCommands} stock manual combat command bindings");
-        }
+		return new CombatSeederModuleResult("foundations", count);
+	}
 
-        return updates.Count > 0
-            ? $"{updates.ListToString()}."
-            : "Combat content already exists. No stock damage expressions, expanded weapon stock, or ranged additions were selected for update.";
-    }
+	private CombatSeederModuleResult ReconcileExpandedCombatContent(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		var result = EnsureExpandedStockCombatContent(context, answers);
+		return new CombatSeederModuleResult("melee weapons and shields",
+			result.ShieldTypes + result.WeaponTypes + result.WeaponAttacks + result.Components);
+	}
+
+	private CombatSeederModuleResult ReconcileEarlyFirearms(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		var changes = 0;
+		if (!HasEarlyFirearms(context) && answers["installmuskets"].EqualToAny("yes", "y"))
+		{
+			var before = context.WeaponTypes.Count() + context.RangedWeaponTypes.Count() + context.TraitDefinitions.Count();
+			SeedDataMuskets(context, answers);
+			changes += context.WeaponTypes.Count() + context.RangedWeaponTypes.Count() + context.TraitDefinitions.Count() - before;
+		}
+
+		changes += EnsureEraDependencyCombatContent(context, answers);
+		return new CombatSeederModuleResult("early firearms", changes);
+	}
+
+	private CombatSeederModuleResult ReconcileModernFirearms(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		var changes = 0;
+		if (!HasModernFirearms(context) && answers["installguns"].EqualToAny("yes", "y"))
+		{
+			var before = context.WeaponTypes.Count() + context.RangedWeaponTypes.Count() + context.TraitDefinitions.Count();
+			SeedDataGuns(context, answers);
+			changes += context.WeaponTypes.Count() + context.RangedWeaponTypes.Count() + context.TraitDefinitions.Count() - before;
+		}
+
+		changes += EnsureModernFirearmSamples(context);
+		return new CombatSeederModuleResult("modern firearms", changes);
+	}
+
+	private static CombatSeederModuleResult ReconcileAuxiliaryCombatContent(FuturemudDatabaseContext context)
+	{
+		var auxiliary = CombatAuxiliarySeederHelper.EnsureStockAuxiliaryContent(context);
+		var manual = ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context);
+		return new CombatSeederModuleResult("auxiliary combat",
+			auxiliary.Actions + auxiliary.Messages + auxiliary.RaceLinks + auxiliary.Strategies + manual);
+	}
+
+	private static bool HasCombatFoundation(FuturemudDatabaseContext context) => context.WeaponAttacks.Any();
+
+	private static bool HasEarlyFirearms(FuturemudDatabaseContext context) =>
+		context.RangedWeaponTypes.Any(x => x.Name == "Flintlock Musket");
+
+	private static bool HasModernFirearms(FuturemudDatabaseContext context) =>
+		context.RangedWeaponTypes.Any(x => x.Name.Contains("Shotgun") || x.Name.Contains("Rifle"));
+
+	private IReadOnlyDictionary<string, string> MergeRecordedCombatAnswers(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> currentAnswers)
+	{
+		var answers = new Dictionary<string, string>(currentAnswers, StringComparer.OrdinalIgnoreCase);
+		foreach (var question in ((IDatabaseSeeder)this).Questions)
+		{
+			if (answers.ContainsKey(question.Id))
+			{
+				continue;
+			}
+
+			var remembered = SeederAnswerMemory.GetLatestSeederAnswer(context, Name, question.Id);
+			if (!string.IsNullOrWhiteSpace(remembered))
+			{
+				answers[question.Id] = remembered;
+			}
+		}
+
+		answers.TryAdd("random", "static");
+		answers.TryAdd("parryoption", "no");
+		answers.TryAdd("skilloption", "broad");
+		answers.TryAdd("messagestyle", "compact");
+		answers.TryAdd("installmuskets", "no");
+		answers.TryAdd("installguns", "no");
+		return answers;
+	}
 
     private readonly record struct CombatStockExpansionResult(int ShieldTypes, int WeaponTypes, int WeaponAttacks,
         int Components)
@@ -1699,6 +1763,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
     }
 
     public int SortOrder => 90;
+    public bool SafeToRunMoreThanOnce => true;
     public string Name => "Combat";
     public string Tagline => "Attacks, Echoes, Weapon Types and all the fun stuff";
 

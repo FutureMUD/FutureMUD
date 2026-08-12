@@ -72,12 +72,17 @@ public partial class ItemSeeder
 		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_powder_flask", "flask", "a brass powder flask", "This flattened brass flask has a narrow spring-capped spout and a pair of small carrying loops at its shoulders.", SizeCategory.Small, ItemQuality.Good, 650.0, 36.0m, "brass", ["Era / Pre-Industrial Era", "Functions / Container", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Container_Pouch"]),
 		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_priming_flask", "flask", "a small priming flask", "This palm-sized brass flask has a fine pouring neck, a close cap, and a short suspension loop.", SizeCategory.VerySmall, ItemQuality.Good, 260.0, 24.0m, "brass", ["Era / Pre-Industrial Era", "Functions / Container", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Container_Pouch"]),
 		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_shot_pouch", "pouch", "a leather shot pouch", "This stout leather pouch has a rounded bottom, a close-fitting flap, and a broad loop sewn across its back.", SizeCategory.Small, ItemQuality.Standard, 380.0, 14.0m, "leather", ["Era / Pre-Industrial Era", "Functions / Container", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Container_Pouch"]),
-		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_match_cord_bundle", "cord", "a bundle of match cord", "Several lengths of thick hemp cord are wound into a compact bundle and tied through the middle with thinner twine.", SizeCategory.Small, ItemQuality.Standard, 620.0, 8.0m, "hemp", ["Era / Pre-Industrial Era", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Stack_Number"]),
+		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_match_cord_bundle", "cord", "a bundle of match cord", "Several lengths of thick hemp cord are wound into a compact bundle and tied through the middle with thinner twine.", SizeCategory.Small, ItemQuality.Standard, 620.0, 8.0m, "hemp", ["Era / Pre-Industrial Era", "Functions / Material Functions / Match Cord", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Stack_Number"]),
 		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_musket_wadding_packet", "packet", "a packet of musket wadding", "This folded paper packet holds many small, evenly cut discs of coarse fibre and cloth.", SizeCategory.Tiny, ItemQuality.Standard, 90.0, 5.0m, "paper", ["Era / Pre-Industrial Era", "Functions / Material Functions / Musket Wadding", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Stack_Number"]),
 		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_bullet_mould", "mould", "a hinged brass bullet mould", "Two brass jaws meet around a small rounded cavity and close on long, plain wooden handles.", SizeCategory.Small, ItemQuality.Good, 760.0, 42.0m, "brass", ["Era / Pre-Industrial Era", "Functions / Tools", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable"]),
-		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_ramrod", "ramrod", "a straight wooden ramrod", "This long straight oak rod has a rounded grip at one end and a narrow brass cap at the other.", SizeCategory.Normal, ItemQuality.Standard, 360.0, 10.0m, "oak", ["Era / Pre-Industrial Era", "Functions / Tools", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable"]),
-		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_touchhole_pick", "pick", "a fine brass touchhole pick", "This slender brass pick narrows to a fine point and ends in a small finger ring.", SizeCategory.Tiny, ItemQuality.Standard, 28.0, 8.0m, "brass", ["Era / Pre-Industrial Era", "Functions / Tools", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable"]),
-		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_cleaning_rod", "rod", "a brass-tipped cleaning rod", "This narrow oak rod carries a grooved brass tip and a small turned handle at the opposite end.", SizeCategory.Normal, ItemQuality.Standard, 420.0, 12.0m, "oak", ["Era / Pre-Industrial Era", "Functions / Tools", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable"]),
+		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_ramrod", "ramrod", "a straight wooden ramrod", "This long straight oak rod has a rounded grip at one end and a narrow brass cap at the other.", SizeCategory.Normal, ItemQuality.Standard, 360.0, 10.0m, "oak", ["Era / Pre-Industrial Era", "Functions / Tools / Firearm Tools / Musket Ramrod", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Beltable"]),
+		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_touchhole_pick", "pick", "a fine brass touchhole pick", "This slender brass pick narrows to a fine point and ends in a small finger ring.", SizeCategory.Tiny, ItemQuality.Standard, 28.0, 8.0m, "brass", ["Era / Pre-Industrial Era", "Functions / Tools / Firearm Tools / Musket Unjamming Tool", "Functions / Tools / Artillery Tools / Artillery Vent Tool", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable"]),
+		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_firearms_cleaning_rod", "rod", "a brass-tipped cleaning rod", "This narrow oak rod carries a grooved brass tip and a small turned handle at the opposite end.", SizeCategory.Normal, ItemQuality.Standard, 420.0, 12.0m, "oak", ["Era / Pre-Industrial Era", "Functions / Tools / Firearm Tools / Musket Cleaning Rod", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Beltable"]),
+		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_artillery_sponge", "sponge", "a long-handled artillery sponge", "A dense wool head is bound around one end of this long ash pole, sized to swab embers and fouling from a cannon bore.", SizeCategory.Large, ItemQuality.Standard, 3400.0, 44.0m, "ash", ["Era / Pre-Industrial Era", "Functions / Tools / Artillery Tools / Artillery Sponge", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Tool_Artillery_General"]),
+		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_artillery_rammer", "rammer", "a long artillery rammer", "This long ash pole ends in a broad cylindrical wooden head made to drive wadding and shot firmly down a cannon bore.", SizeCategory.Large, ItemQuality.Standard, 3600.0, 42.0m, "ash", ["Era / Pre-Industrial Era", "Functions / Tools / Artillery Tools / Artillery Rammer", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Tool_Artillery_General"]),
+		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_artillery_linstock", "linstock", "a fork-headed artillery linstock", "A forked iron head at the end of this ash staff grips a length of slow match at a safe distance from a cannon vent.", SizeCategory.Large, ItemQuality.Standard, 2200.0, 38.0m, "ash", ["Era / Pre-Industrial Era", "Functions / Tools / Artillery Tools / Artillery Linstock", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Tool_Artillery_General"]),
+		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_artillery_wadding_packet", "packet", "a packet of artillery wadding", "This stout paper wrapping holds thick fibre plugs cut to seal a cannon charge and keep its projectile seated.", SizeCategory.Small, ItemQuality.Standard, 850.0, 12.0m, "paper", ["Era / Pre-Industrial Era", "Functions / Material Functions / Artillery Wadding", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Stack_Number"]),
+		new(PreIndustrialItemGroup.GunpowderSupport, "preindustrial_artillery_fuse_bundle", "fuse", "a bundle of artillery fuses", "Several prepared lengths of tightly wound, powder-treated cord are tied into a dry paper bundle for shell fusing.", SizeCategory.VerySmall, ItemQuality.Standard, 180.0, 16.0m, "hemp", ["Era / Pre-Industrial Era", "Functions / Material Functions / Artillery Fuse", "Market / Military Goods / Ammunition / Blackpowder"], ["Holdable", "Stack_Number"]),
 
 		new(PreIndustrialItemGroup.GlobalTradePackaging, "preindustrial_trade_tea_chest", "chest", "a lined tea chest", "This stout oak chest has a close lid, reinforced corners, and a pale lining fitted neatly against its inner walls.", SizeCategory.Large, ItemQuality.Good, 11500.0, 52.0m, "oak", ["Era / Pre-Industrial Era", "Functions / Container", "Market / Household Goods / Standard Wares"], ["Holdable", "Destroyable_Furniture", "Container_Archive_Chest"]),
 		new(PreIndustrialItemGroup.GlobalTradePackaging, "preindustrial_trade_coffee_sack", "sack", "a coarse coffee sack", "This large linen sack has a gathered mouth, doubled seams, and dark handling marks across its tightly woven body.", SizeCategory.Large, ItemQuality.Standard, 680.0, 12.0m, "linen", ["Era / Pre-Industrial Era", "Functions / Container", "Functions / Container / Porous Container", "Market / Household Goods / Standard Wares"], ["Holdable", "Container_Sack"]),
@@ -142,6 +147,7 @@ public partial class ItemSeeder
 		SeedPreIndustrialWritingAdministrationAndDocuments();
 		SeedPreIndustrialTradeContainers();
 		SeedPreIndustrialDoorsLocksAndBasicHardware();
+		SeedSharedPreIndustrialJewelleryAndDoorHardware();
 		SeedPreIndustrialCommonToolsAndWorkshopFixtures();
 		SeedPreIndustrialMilitarySupportGoods();
 	}
@@ -156,6 +162,10 @@ public partial class ItemSeeder
 		SeedRenaissanceArtCraftScienceAndNavigation();
 		SeedRenaissanceAgricultureFoodDrinkAndCommodities();
 		SeedRenaissancePrimaryIndustryAndUsefulSeederImpacts();
+		SeedRenaissanceEarlyModernCommonJewelleryAndDoors();
+		SeedRenaissanceJewelleryAndDevotionalGoods();
+		SeedRenaissanceDoorsLocksAndGates();
+		SeedRenaissanceMedicalAndRepair();
 		SeedRenaissanceCultureManifest();
 	}
 
@@ -169,6 +179,10 @@ public partial class ItemSeeder
 		SeedEarlyModernScienceNavigationOpticsAndMeasurement();
 		SeedEarlyModernAgricultureFoodDrinkAndCommodities();
 		SeedEarlyModernPrimaryIndustryAndUsefulSeederImpacts();
+		SeedRenaissanceEarlyModernCommonJewelleryAndDoors();
+		SeedEarlyModernJewelleryAndDevotionalGoods();
+		SeedEarlyModernDoorsLocksAndGates();
+		SeedEarlyModernMedicalAndRepair();
 		SeedEarlyModernCultureManifest();
 	}
 

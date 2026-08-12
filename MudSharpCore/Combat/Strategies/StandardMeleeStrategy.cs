@@ -404,7 +404,7 @@ public class StandardMeleeStrategy : StrategyBase
         IWeaponAttackMove moveAsWeaponAttack = move as IWeaponAttackMove;
         IRangedWeaponAttackMove moveAsRangedAttack = move as IRangedWeaponAttackMove;
 
-        if (!defenseCharacter.Race.CombatSettings.CanDefend)
+        if (!defenseCharacter.Race.CombatSettings.CanDefend && move is not BreakClinchMove)
         {
             return new HelplessDefenseMove { Assailant = defenseCharacter };
         }

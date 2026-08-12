@@ -11,7 +11,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BlankDatabaseSnapshotTests
 {
-	private const string LatestMigrationId = "20260701122720_ClanHallCellsForEmploymentHosts";
+	private const string LatestMigrationId = "20260805124030_ProjectQueueSchedulingAndLaunchEntries";
 
     [TestMethod]
     public void CommittedBlankSnapshotManifest_TracksLatestMigration()
@@ -25,6 +25,18 @@ public class BlankDatabaseSnapshotTests
         string latestMigrationId = GetLatestMigrationIdFromSource();
         Assert.AreEqual(latestMigrationId, manifest!.LatestMigrationId);
     }
+
+	[TestMethod]
+	public void CommittedBlankSnapshot_RecordsLatestMigrationInHistory()
+	{
+		string assetDirectory = GetDatabaseSeederProjectDirectory();
+		string snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(assetDirectory));
+		string latestMigrationId = GetLatestMigrationIdFromSource();
+
+		// The maintained MySQL dump writes migration history in a batched INSERT, so the
+		// newest migration is usually not the first tuple after VALUES.
+		StringAssert.Contains(snapshot, $"('{latestMigrationId}',");
+	}
 
 	[TestMethod]
 	public void CommittedBlankSnapshot_AppendedDeltasUseDumpTableCasing()

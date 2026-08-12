@@ -12,6 +12,32 @@ namespace DatabaseSeeder.Seeders;
 
 internal static class SeederBodyUtilities
 {
+	public static bool UseLimbSeverDescription(BodypartTypeEnum type, string alias)
+	{
+		// Stock external ears are wearable parts, rather than Ear bodypart types.
+		return type is not (BodypartTypeEnum.Eye or BodypartTypeEnum.Ear) &&
+		       !alias.Equals("rear", StringComparison.OrdinalIgnoreCase) &&
+		       !alias.Equals("lear", StringComparison.OrdinalIgnoreCase);
+	}
+
+	public static void RefreshLimbSeverDescriptionFlags(FuturemudDatabaseContext context,
+		IEnumerable<BodyProto> bodies)
+	{
+		HashSet<long> bodyIds = bodies.Select(x => x.Id).ToHashSet();
+		if (bodyIds.Count == 0)
+		{
+			return;
+		}
+
+		foreach (BodypartProto bodypart in context.BodypartProtos
+			         .Where(x => bodyIds.Contains(x.BodyId))
+			         .ToList())
+		{
+			bodypart.UseLimbSeverDescription = UseLimbSeverDescription((BodypartTypeEnum)bodypart.BodypartType,
+				bodypart.Name);
+		}
+	}
+
     public static void CloneBodyDefinition(
         FuturemudDatabaseContext context,
         BodyProto source,
@@ -617,6 +643,7 @@ internal static class SeederBodyUtilities
             DisplayOrder = sourcePart.DisplayOrder,
             MaxLife = sourcePart.MaxLife,
             SeveredThreshold = sourcePart.SeveredThreshold,
+			SeverFormula = sourcePart.SeverFormula,
             PainModifier = sourcePart.PainModifier,
             BleedModifier = sourcePart.BleedModifier,
             RelativeHitChance = sourcePart.RelativeHitChance,
@@ -631,6 +658,7 @@ internal static class SeederBodyUtilities
             DamageModifier = sourcePart.DamageModifier,
             DefaultMaterial = sourcePart.DefaultMaterial,
             Significant = sourcePart.Significant,
+			UseLimbSeverDescription = sourcePart.UseLimbSeverDescription,
             RelativeInfectability = sourcePart.RelativeInfectability,
             HypoxiaDamagePerTick = sourcePart.HypoxiaDamagePerTick,
             IsVital = sourcePart.IsVital,
@@ -1118,6 +1146,7 @@ internal sealed class SeedBodyBuilder
             DisplayOrder = displayOrder,
             DefaultMaterial = _context.Materials.First(x => x.Name == materialName),
             Size = (int)size,
+			UseLimbSeverDescription = SeederBodyUtilities.UseLimbSeverDescription(type, alias),
             IsVital = isVital,
             IsCore = isCore,
             IsOrgan = isOrgan ? 1 : 0,

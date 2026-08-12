@@ -98,6 +98,8 @@ namespace MudSharp.Body
 
         bool Significant { get; }
 
+		bool UseLimbSeverDescription { get; }
+
         [NotNull]
         IBodypartShape Shape { get; }
 

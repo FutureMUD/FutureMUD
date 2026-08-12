@@ -120,6 +120,26 @@ public class Searching : CharacterAction
             }
         }
 
+		var localTraps = nearby
+			.OfType<IPerceivable>()
+			.Append(CharacterOwner.Location)
+			.Distinct()
+			.SelectMany(x => x.EffectsOfType<TrapEffect>())
+			.Where(x => !x.IsKnownBy(CharacterOwner))
+			.ToList();
+		var trapCheck = Gameworld.GetCheck(CheckType.SearchForTrapCheck);
+		foreach (var trap in localTraps)
+		{
+			var trapResult = trapCheck.Check(CharacterOwner, trap.SearchDifficulty, CharacterOwner);
+			if (!trapResult.Outcome.IsPass())
+			{
+				continue;
+			}
+
+			trap.MarkKnownBy(CharacterOwner);
+			CharacterOwner.Send($"You find evidence of a trap on {trap.DescribeAnchor(CharacterOwner)}.");
+		}
+
         Difficulty newDifficulty = CurrentDifficulty.StageDown(1);
         if (newDifficulty >= CharacterOwner.Location.SpotDifficulty(CharacterOwner))
         {

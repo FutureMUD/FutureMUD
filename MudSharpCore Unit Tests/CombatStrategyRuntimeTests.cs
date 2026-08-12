@@ -83,7 +83,7 @@ public class CombatStrategyRuntimeTests
 		return gameworld;
 	}
 
-	private static Mock<ICharacter> CreateDefendingCharacter(IFuturemud gameworld)
+	private static Mock<ICharacter> CreateDefendingCharacter(IFuturemud gameworld, bool canDefend = true)
 	{
 		Mock<IBody> body = new();
 		body.SetupGet(x => x.WieldedItems).Returns(Array.Empty<IGameItem>());
@@ -92,7 +92,7 @@ public class CombatStrategyRuntimeTests
 		race.SetupGet(x => x.CombatSettings).Returns(new RacialCombatSettings
 		{
 			CanAttack = true,
-			CanDefend = true,
+			CanDefend = canDefend,
 			CanUseWeapons = true
 		});
 
@@ -130,6 +130,46 @@ public class CombatStrategyRuntimeTests
 		ICombatMove response = StandardMeleeStrategy.Instance.ResponseToMove(move, defender.Object, attacker.Object);
 
 		Assert.IsInstanceOfType(response, typeof(DodgeMove));
+	}
+
+	[TestMethod]
+	public void StandardMelee_ResponseToWeaponAttack_CanDefendFalseRemainsHelpless()
+	{
+		Mock<IFuturemud> gameworld = CreateGameworld();
+		Mock<ICharacter> defender = CreateDefendingCharacter(gameworld.Object, false);
+		Mock<ICharacter> attacker = CreateDefendingCharacter(gameworld.Object);
+		Mock<IWeaponAttackMove> move = new();
+
+		ICombatMove response = StandardMeleeStrategy.Instance.ResponseToMove(move.Object, defender.Object,
+			attacker.Object);
+
+		Assert.IsInstanceOfType(response, typeof(HelplessDefenseMove));
+	}
+
+	[TestMethod]
+	public void StandardMelee_ResponseToBreakClinch_CanDefendFalseRetainsHelplessStrategyResponse()
+	{
+		Mock<IFuturemud> gameworld = CreateGameworld();
+		Mock<ICharacter> defender = CreateDefendingCharacter(gameworld.Object, false);
+		Mock<ICharacter> attacker = CreateDefendingCharacter(gameworld.Object);
+		BreakClinchMove move = new(attacker.Object, defender.Object);
+
+		ICombatMove response = StandardMeleeStrategy.Instance.ResponseToMove(move, defender.Object, attacker.Object);
+
+		Assert.IsInstanceOfType(response, typeof(HelplessDefenseMove));
+	}
+
+	[TestMethod]
+	public void Clinch_ResponseToBreakClinch_CanDefendFalseContestsEscape()
+	{
+		Mock<IFuturemud> gameworld = CreateGameworld();
+		Mock<ICharacter> defender = CreateDefendingCharacter(gameworld.Object, false);
+		Mock<ICharacter> attacker = CreateDefendingCharacter(gameworld.Object);
+		BreakClinchMove move = new(attacker.Object, defender.Object);
+
+		ICombatMove response = ClinchStrategy.Instance.ResponseToMove(move, defender.Object, attacker.Object);
+
+		Assert.IsInstanceOfType(response, typeof(StartClinchMove));
 	}
 
 	[TestMethod]

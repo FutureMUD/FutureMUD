@@ -15,6 +15,10 @@ play.example.com {
 		reverse_proxy 127.0.0.1:5000
 	}
 
-	try_files {path} {path}/ /index.html
-	file_server
+	# Keep the Blazor fallback separate from /ws. Otherwise a non-upgrade
+	# request for /ws can be rewritten to index.html before it reaches the proxy.
+	handle {
+		try_files {path} {path}/ /index.html
+		file_server
+	}
 }

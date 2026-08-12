@@ -16,11 +16,15 @@ namespace MudSharp.TimeAndDate.Date
                 throw new XmlException("Missing or empty Intercalary Rule in LoadFromXml.");
             }
 
+            _exceptions.Clear();
+            _andConditions.Clear();
+            _orConditions.Clear();
+
             // Offset
             XElement element = root.Element("offset");
             if ((element == null) || (element.Value.Length == 0))
             {
-                throw new XmlException("Missing nominalorder value in IntercalaryRule LoadFromXML.");
+                throw new XmlException("Missing offset value in IntercalaryRule LoadFromXML.");
             }
 
             try
@@ -29,7 +33,7 @@ namespace MudSharp.TimeAndDate.Date
             }
             catch
             {
-                throw new XmlException("Value for nominalorder in IntercalaryRule LoadFromXML is not a valid Integer");
+                throw new XmlException("Value for offset in IntercalaryRule LoadFromXML is not a valid Integer");
             }
 
             // Divisor
@@ -46,6 +50,11 @@ namespace MudSharp.TimeAndDate.Date
             catch
             {
                 throw new XmlException("Value for divisor in IntercalaryRule LoadFromXML is not a valid Integer");
+            }
+
+            if (DivisibleBy <= 0)
+            {
+                throw new XmlException("Intercalary rules must have a positive divisor.");
             }
 
             // Exceptions
@@ -118,6 +127,11 @@ namespace MudSharp.TimeAndDate.Date
         /// <returns>Returns true is the intercalary year should be applied for year whichYear</returns>
         public bool IsIntercalaryYear(int whichYear)
         {
+            if (DivisibleBy <= 0)
+            {
+                return false;
+            }
+
             return (((whichYear - Offset).Modulus(DivisibleBy) == 0) &&
                     !_exceptions.Any(x => x.IsIntercalaryYear(whichYear)) &&
                     (!_andConditions.Any() || _andConditions.All(x => x.IsIntercalaryYear(whichYear)))) ||

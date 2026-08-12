@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using MudSharp.Database;
 using MudSharp.Framework;
+using MudSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,7 +57,17 @@ internal class Program
             return;
         }
 
-        string password = "", user = "", database = "";
+		if (TryCaptureItemManifest(args))
+		{
+			return;
+		}
+
+		if (ItemSeederManifestCatalogue.TryHandleCommand(args))
+		{
+			return;
+		}
+
+        string user = "", database = "";
 
         Console.ForegroundColor = ConsoleColor.Magenta;
 
@@ -105,53 +116,29 @@ Please press enter to begin.".WriteLineConsole();
 #endif
         try
         {
+            string installationDirectory = AppContext.BaseDirectory.TrimEnd(
+                Path.DirectorySeparatorChar,
+                Path.AltDirectorySeparatorChar);
             using StreamWriter config =
-                new(new FileStream("Connection.config", FileMode.OpenOrCreate, FileAccess.Write));
-            config.WriteLine("127.0.0.1");
+                new(new FileStream(Path.Combine(installationDirectory, "Connection.config"), FileMode.Create,
+                    FileAccess.Write));
+            config.WriteLine("0.0.0.0");
             config.WriteLine("4000");
-            config.Close();
 
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            StartupScriptGenerationResult scriptResult = StartupScriptGenerator.EnsureStartScript(
+                installationDirectory,
+                ConnectionString ?? string.Empty,
+                OperatingSystem.IsWindows());
+            if (scriptResult == StartupScriptGenerationResult.PreservedCustom)
             {
-                Directory.CreateDirectory(AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + "\\Binaries");
+                Console.WriteLine(
+                    "An existing custom startup script was preserved. Remove or rename it before rerunning the seeder to replace it with the current generated launcher.");
+            }
 
-                #region Start-MUD.bat
-                FileStream fs = new("Start-MUD.bat", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                using StreamReader reader = new(fs);
-                if (reader.ReadToEnd().Length == 0)
-                {
-                    using StreamWriter shortcut = new(fs);
-
-                    shortcut.Write($@"set MUDDIR={AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)}
-set CODEDIR=%MUDDIR%\Binaries
-set SERVER=localhost
-set loopcount=100
-cd /D %MUDDIR%
-del %MUDDIR%\STOP-REBOOTING
-del %MUDDIR%\BOOTING
-:loop
-xcopy %CODEDIR%\*.exe %MUDDIR%\ /C /Y
-xcopy %CODEDIR%\*.dll %MUDDIR%\ /C /Y
-xcopy %CODEDIR%\*.pdb %MUDDIR%\ /C /Y
-xcopy %CODEDIR%\*.json %MUDDIR%\ /C /Y
-%MUDDIR%\MudSharp.exe ""MySql.Data.MySqlClient"" ""{ConnectionString}""
-if exist %MUDDIR%\STOP-REBOOTING goto :endloop
-if exist %MUDDIR%\BOOTING goto :crashed
-echo MUD Crashed - will attempt to reboot %loopcount%0 more times.
-set /a loopcount=%loopcount%-1
-if %loopcount%==0 goto exitloop
-goto loop
-:crashed
-echo Mud crashed during boot up sequence, will not attempt to restart
-goto :exitloop
-:endloop
-echo Mud was shut down and requested boot loop to end.
-:exitloop");
-                }
-                #endregion
-
+            if (OperatingSystem.IsWindows())
+            {
                 #region Backup-MUD.bat
-                Directory.CreateDirectory(AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + "\\Backups");
+                Directory.CreateDirectory(Path.Combine(installationDirectory, "Backups"));
                 Regex regex = new(@"(?<option>[^;=]+)=(?<value>[^;=]+)");
                 foreach (Match match in regex.Matches(ConnectionString ?? string.Empty))
                 {
@@ -163,15 +150,12 @@ echo Mud was shut down and requested boot loop to end.
                         case "uid":
                             user = match.Groups["value"].Value;
                             break;
-                        case "password":
-                            password = match.Groups["value"].Value;
-                            break;
                     }
                 }
 
-                if (!string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(database))
+                if (!string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(database))
                 {
-                    FileStream bfs = new("Backup-MUD.bat", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    FileStream bfs = new(Path.Combine(installationDirectory, "Backup-MUD.bat"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
                     using StreamReader breader = new(bfs);
                     if (breader.ReadToEnd().Length == 0)
                     {
@@ -188,61 +172,19 @@ set CUR_NN=%time:~3,2%
 set CUR_SS=%time:~6,2%
 set CUR_MS=%time:~9,2%
 
-SET backupdir={AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + "\\Backups"}
+SET backupdir={Path.Combine(installationDirectory, "Backups")}
 SET mysqluername={user}
-SET mysqlpassword={password}
 SET database={database}
 
-""C:\Program Files\MySQL\MySQL Workbench 8.0\mysqldump.exe"" -u%mysqluername% -p%mysqlpassword% %database% > %backupdir%\%database%_%CUR_YYYY%%CUR_MM%%CUR_DD%-%CUR_HH%%CUR_NN%%CUR_SS%.sql");
+""C:\Program Files\MySQL\MySQL Workbench 8.0\mysqldump.exe"" -u%mysqluername% -p %database% > %backupdir%\%database%_%CUR_YYYY%%CUR_MM%%CUR_DD%-%CUR_HH%%CUR_NN%%CUR_SS%.sql");
                     }
                 #endregion
                 }
             }
-            else
-            {
-                FileStream sfs = new("Start-MUD.sh", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                using StreamReader sreader = new(sfs);
-                if (sreader.ReadToEnd().Length == 0)
-                {
-                    using StreamWriter shortcut = new(sfs);
-                    shortcut.Write(
-                        $@"#!/bin/sh
-
-SERVER_PORT_BASEDIR="".""
-cd $SERVER_PORT_BASEDIR
-echo ""The working directory is now"" `pwd`
-echo ""Starting the game engine. Will attempt 100 restarts.""
-rm -r ""$SERVER_PORT_BASEDIR/BOOTING""
-rm -r ""$SERVER_PORT_BASEDIR/STOP-REBOOTING""
-for i in 'seq 1 100'
-do
-  if [ -d ""$SERVER_PORT_BASEDIR/Binaries"" ]
-  then
-    cp -Rf ""$SERVER_PORT_BASEDIR/Binaries/."" ""$SERVER_PORT_BASEDIR/""
-    chmod +x ""$SERVER_PORT_BASEDIR/MudSharp""
-  fi
-  $SERVER_PORT_BASEDIR/MudSharp ""MySql.Data.MySqlClient"" ""{ConnectionString}""
-  
-  if [ -f ""$SERVER_PORT_BASEDIR/BOOTING"" ]
-  then
-	echo ""Server quit during boot sequence.""
-	break;
-  fi
-  
-  if [ -f ""$SERVER_PORT_BASEDIR/STOP-REBOOTING"" ]
-  then
-	echo ""Server was shut down with a request to end the boot loop.""
-	break;
-  fi
-wait
-done
-
-echo ""The game engine has shut down.""");
-                }
-            }
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Console.WriteLine($"Warning: could not create FutureMUD support files: {e.Message}");
         }
 
 #if DEBUG
@@ -273,6 +215,73 @@ The exception details were as follows:
 		}
 #endif
     }
+
+	private static bool TryCaptureItemManifest(string[] args)
+	{
+		var captureIndex = Array.FindIndex(args,
+			x => x.Equals("--capture-item-manifest", StringComparison.OrdinalIgnoreCase));
+		var captureInMemory = args.Any(x =>
+			x.Equals("--capture-item-manifest-in-memory", StringComparison.OrdinalIgnoreCase));
+		if (captureIndex < 0 && !captureInMemory)
+		{
+			return false;
+		}
+
+		if (!captureInMemory)
+		{
+			ConnectionString = captureIndex + 1 < args.Length &&
+			                   !args[captureIndex + 1].StartsWith("--", StringComparison.Ordinal)
+				? args[captureIndex + 1]
+				: Environment.GetEnvironmentVariable("FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING");
+#if DEBUG
+			ConnectionString ??=
+				"server=localhost;port=3307;database=demo_dbo;uid=futuremud;password=rpiengine2020;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
+#endif
+			if (string.IsNullOrWhiteSpace(ConnectionString))
+			{
+				throw new InvalidOperationException(
+					"--capture-item-manifest requires FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING or a connection string argument.");
+			}
+		}
+
+		var repositoryRoot = ItemSeederManifestCatalogue.FindRepositoryRoot();
+		var outputPath = Path.Combine(repositoryRoot,
+			ItemSeederManifestCatalogue.DefaultRelativePath.Replace('/', Path.DirectorySeparatorChar));
+		using var context = captureInMemory ? CreateItemManifestCaptureContext() : CreateContext();
+		var document = new Seeders.ItemSeeder().CaptureManifest(context, repositoryRoot);
+		Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+		File.WriteAllText(outputPath, ItemSeederManifestCatalogue.Serialize(document));
+		Console.WriteLine($"Captured {document.Entries.Count:N0} ItemSeeder aggregates to {outputPath}.");
+		return true;
+	}
+
+	private static FuturemudDatabaseContext CreateItemManifestCaptureContext()
+	{
+		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase($"ItemSeederManifestCapture-{Guid.NewGuid():N}")
+			.Options;
+		var context = new FuturemudDatabaseContext(options);
+		context.Accounts.Add(new Account
+		{
+			Id = 1,
+			Name = "ItemSeeder Manifest Capture",
+			CultureName = "en-AU",
+			TimeZoneId = "UTC",
+			UnitPreference = "Metric"
+		});
+		context.TraitDefinitions.Add(new TraitDefinition
+		{
+			Id = 1,
+			Name = "Crafting",
+			Type = 0,
+			OwnerScope = 0,
+			TraitGroup = "Crafting",
+			ChargenBlurb = string.Empty,
+			ValueExpression = string.Empty
+		});
+		context.SaveChanges();
+		return context;
+	}
 
     private static void RefreshBlankDatabaseSnapshot(Version version)
     {
@@ -561,7 +570,12 @@ The exception details were as follows:
 
             Console.WriteLine();
             Console.Write("Your choice: ");
-            string choice = Console.ReadLine() ?? string.Empty;
+            string? choice = Console.ReadLine();
+            if (choice is null)
+            {
+                return;
+            }
+
             if (choice.EqualToAny("quit", "q", "exit", "stop"))
             {
                 return;
@@ -682,6 +696,11 @@ The exception details were as follows:
             "Please type #3yes#F or #3no#F: ".WriteLineConsole();
             Console.WriteLine();
             string? answer = Console.ReadLine();
+            if (answer is null)
+            {
+                return;
+            }
+
             if (answer.EqualToAny("yes", "y"))
             {
                 DoSeederQuestions(context, seeder);
@@ -785,7 +804,12 @@ The exception details were as follows:
 
                 Console.WriteLine();
                 Console.Write("> ");
-                string answer = Console.ReadLine() ?? string.Empty;
+                string? answer = Console.ReadLine();
+                if (answer is null)
+                {
+                    return;
+                }
+
                 if (answer.EqualToAny("quit", "back", "exit"))
                 {
                     return;
@@ -807,12 +831,23 @@ The exception details were as follows:
 
         SafeClear();
         $"Applying the data from the #2{seeder.Name}#F seeder...".WriteLineConsole();
-        string result = seeder.SeedData(context, answers);
-        Console.WriteLine(result);
-        string version = (Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0)).ToString();
-        DateTime now = DateTime.UtcNow;
-        SeederAnswerMemory.PersistAnswers(context, seeder, questions, answers, version, now);
-        context.SaveChanges();
+        try
+        {
+            string result = seeder.SeedData(context, answers);
+            Console.WriteLine(result);
+            string version = (Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0)).ToString();
+            DateTime now = DateTime.UtcNow;
+            SeederAnswerMemory.PersistAnswers(context, seeder, questions, answers, version, now);
+            context.SaveChanges();
+        }
+        catch (Exception exception)
+        {
+            context.Database.CurrentTransaction?.Rollback();
+            context.ChangeTracker.Clear();
+            Console.ForegroundColor = ConsoleColor.Red;
+            ConsoleLayoutHelper.WriteWrapped($"The {seeder.Name} seeder failed: {exception.Message}");
+            Console.ForegroundColor = ConsoleColor.White;
+        }
     }
 
     internal static string ResolveQuestionAnswer(string answer, string? defaultAnswer)

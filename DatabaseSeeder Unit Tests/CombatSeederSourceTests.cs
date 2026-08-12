@@ -286,7 +286,7 @@ public class CombatSeederSourceTests
 		string combatSeeder = GetCombatSeederSource();
 
 		StringAssert.Contains(combatSeeder, "EnsureStockAuxiliaryContent(context)");
-		StringAssert.Contains(combatSeeder, "auxiliaryResult");
+		StringAssert.Contains(combatSeeder, "ReconcileAuxiliaryCombatContent");
 		StringAssert.Contains(helper, "EnsureTag(context, \"Shiny\", functions)");
 		StringAssert.Contains(helper, "EnsureTag(context, \"Reflective\", functions)");
 		StringAssert.Contains(helper, "\"Auxiliary_CanThrowSandOrDirt\"");
@@ -366,6 +366,51 @@ public class CombatSeederSourceTests
 	}
 
 	[TestMethod]
+	public void ArtilleryProfiles_UseCompatibleTypedAmmunitionAndScaledPhysicalPowderCharges()
+	{
+		var namedPairs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Artillery_FieldGun3lb"] = "ArtilleryShot_3lb",
+			["Artillery_FieldGun6lb"] = "ArtilleryShot_6lb",
+			["Artillery_FieldGun9lb"] = "ArtilleryShot_9lb",
+			["Artillery_FieldGun12lb"] = "ArtilleryShot_12lb",
+			["Artillery_NavalGun18lb"] = "ArtilleryShot_18lb",
+			["Artillery_NavalGun24lb"] = "ArtilleryShot_24lb",
+			["Artillery_NavalGun32lb"] = "ArtilleryShot_32lb",
+			["Artillery_CoehornMortar"] = "ArtilleryShell_Light",
+			["Artillery_FieldMortar"] = "ArtilleryShell_Light",
+			["Artillery_SiegeMortar"] = "ArtilleryShell_Heavy"
+		};
+
+		foreach (var (piece, ammunition) in namedPairs)
+		{
+			Assert.AreEqual(
+				CombatSeeder.ArtilleryProfileForPieceForTesting(piece),
+				CombatSeeder.ArtilleryAmmunitionProfileForTesting(ammunition),
+				$"{piece} must accept its named typed ammunition {ammunition}.");
+		}
+
+		var pieceNames = CombatSeeder.EarlyModernMilitaryCompletionComponentNames
+			.Where(x => x.StartsWith("Artillery_", StringComparison.Ordinal))
+			.ToArray();
+		Assert.AreEqual(20, pieceNames.Length);
+		Assert.IsTrue(pieceNames.All(x => CombatSeeder.ArtilleryPowderMassForPieceForTesting(x) > 0.0));
+		Assert.AreEqual(350.0, CombatSeeder.ArtilleryPowderMassForPieceForTesting("Artillery_SwivelGun"));
+		Assert.AreEqual(700.0, CombatSeeder.ArtilleryPowderMassForPieceForTesting("Artillery_FieldGun3lb"));
+		Assert.AreEqual(7300.0, CombatSeeder.ArtilleryPowderMassForPieceForTesting("Artillery_NavalGun32lb"));
+
+		var source = SeederSourceTestHelper.ReadPartialFamily("CombatSeeder");
+		foreach (var element in new[]
+		         {
+			         "PowderMass", "PrimingPowderMass", "SpongeTag", "WaddingTag", "RammerTag",
+			         "VentToolTag", "LinstockTag", "FuseTag"
+		         })
+		{
+			StringAssert.Contains(source, $"new XElement(\"{element}\"");
+		}
+	}
+
+	[TestMethod]
 	public void EarlyModernLowComplexityStockItems_HaveStableReferencesAndExactFunctionalCompositions()
 	{
 		string source = SeederSourceTestHelper.ReadPartialFamily("ItemSeeder");
@@ -409,7 +454,7 @@ public class CombatSeederSourceTests
 		string combatSeeder = GetCombatSeederSource();
 
 		StringAssert.Contains(combatSeeder, "ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context)");
-		StringAssert.Contains(combatSeeder, "stock manual combat command bindings");
+		StringAssert.Contains(combatSeeder, "ReconcileAuxiliaryCombatContent");
 		StringAssert.Contains(helper, "EnsureStockManualCombatCommands");
 		StringAssert.Contains(helper, "primaryVerb: \"bash\"");
 		StringAssert.Contains(helper, "ManualCombatActionKind.AuxiliaryAction");
@@ -510,7 +555,8 @@ public class CombatSeederSourceTests
 		string source = GetCombatSeederSource();
 
 		StringAssert.Contains(source, "EnsurePrimitiveRangedContent(context, skills);");
-		StringAssert.Contains(source, "primitiveRangedCount = EnsurePrimitiveRangedContent(context);");
+		StringAssert.Contains(source, "new CombatSeederModule(\"ranged\"");
+		StringAssert.Contains(source, "EnsurePrimitiveRangedContent(context)");
 		StringAssert.Contains(source, "EnsureVariableCheck(CheckType.FireBlowgun);");
 		StringAssert.Contains(source, "EnsureRangedType(");
 		StringAssert.Contains(source, "\"Sling\"");
@@ -603,9 +649,23 @@ public class CombatSeederSourceTests
 		}
 
 		StringAssert.Contains(source, "EnsureExpandedStockCombatContent(context, effectiveAnswers, skills);");
-		StringAssert.Contains(source, "expandedStockResult = EnsureExpandedStockCombatContent(context, questionAnswers);");
+		StringAssert.Contains(source, "ReconcileExpandedCombatContent");
 		StringAssert.Contains(source, "CombatStockExpansionResult");
 		StringAssert.Contains(source, "EnsureMeleeWeaponComponent(created);");
+	}
+
+	[TestMethod]
+	public void CombatSeederSource_EarlyFirearmRerunsUseTheCanonicalMusketCartridgeComponent()
+	{
+		string source = SeederSourceTestHelper.ReadPartialFamily("CombatSeeder");
+
+		StringAssert.Contains(source, "context.RangedWeaponTypes.Any(x => x.Name == \"Flintlock Musket\")");
+		StringAssert.Contains(source, "\"Musket\", \"Flintlock Musket\"");
+		StringAssert.Contains(source, "\"ArtilleryPiece\", \"Flintlock Musket\"");
+		StringAssert.Contains(source, "OrderByDescending(x => x.Id)");
+		Assert.IsFalse(source.Contains(
+			".Single(x => x.Name == $\"MusketCartridge_{boreName}\" && x.EditableItem.RevisionStatus == 4)",
+			StringComparison.Ordinal));
 	}
 
 	[TestMethod]

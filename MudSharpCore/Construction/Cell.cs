@@ -1016,12 +1016,12 @@ public partial class Cell : Location, IDisposable, ICell
                 member.HandleEvent(EventType.CharacterBeginMovement, member, this, move.Exit);
                 foreach (IHandleEvents witness in SpatialEventHandlersFor(member, move.Exit).Except(member))
                 {
-                    witness.HandleEvent(EventType.CharacterBeginMovementWitness, member, this, move.Exit, witness);
+                    witness.HandleEvent(EventType.CharacterBeginMovementWitness, member, this, move.Exit, witness, move);
                 }
 
                 foreach (IGameItem witness in member.Body.ExternalItems)
                 {
-                    witness.HandleEvent(EventType.CharacterBeginMovementWitness, member, this, move.Exit, witness);
+                    witness.HandleEvent(EventType.CharacterBeginMovementWitness, member, this, move.Exit, witness, move);
                 }
             }
         }
@@ -2269,13 +2269,22 @@ public partial class Cell : Location, IDisposable, ICell
             visualReduction = Gameworld.GetStaticDouble($"VisualTrackReductionPerTick{weather.Precipitation.DescribeEnum()}");
         }
 
+        List<ITrack> toDeleteTracks = null;
         foreach (ITrack track in _tracks)
         {
             track.TrackIntensityOlfactory -= olfactoryReduction;
             track.TrackIntensityVisual -= visualReduction;
+            if (track.TrackIntensityOlfactory <= 0.0 && track.TrackIntensityVisual <= 0.0)
+            {
+                (toDeleteTracks ??= []).Add(track);
+            }
         }
 
-        ITrack[] toDeleteTracks = _tracks.Where(x => x.TrackIntensityOlfactory <= 0.0 && x.TrackIntensityVisual <= 0.0).ToArray();
+		if (toDeleteTracks is null)
+		{
+			return;
+		}
+
         HashSet<long> toDelete = toDeleteTracks.Select(x => x.Id).ToHashSet();
         using (new FMDB())
         {

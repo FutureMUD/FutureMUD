@@ -445,8 +445,12 @@ public class SeederRepeatabilityHelperTests
 
         Law murderLaw = context.Laws.Single(x => x.Name == "Murder");
         FutureProg murderApplicabilityProg = context.FutureProgs.Single(x => x.Id == murderLaw.LawAppliesProgId);
+		Law boobyTrappingLaw = context.Laws.Single(x => x.CrimeType == (int)CrimeTypes.BoobyTrapping);
 
         Assert.AreEqual("return true", murderApplicabilityProg.FunctionText);
+		Assert.IsTrue(boobyTrappingLaw.CanBeAppliedAutomatically);
+		Assert.IsTrue(boobyTrappingLaw.CanBeArrested);
+		Assert.IsTrue(boobyTrappingLaw.CanBeOfferedBail);
     }
 
     [TestMethod]

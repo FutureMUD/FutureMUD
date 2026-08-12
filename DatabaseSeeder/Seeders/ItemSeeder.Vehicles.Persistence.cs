@@ -23,6 +23,45 @@ public partial class ItemSeeder
 {
 	private void UpsertVehiclePrototype(VehicleSeedSpec spec)
 	{
+		var vehicleManifestEntry = RegisterManifestAggregate(
+			"vehicle",
+			spec.StableReference,
+			spec,
+			module: "vehicles",
+			eraAdmissions: spec.SupportedEraKeys);
+		if (_manifestCaptureOnly)
+		{
+			return;
+		}
+
+		var priorExterior = FindItemByStableReference($"{spec.StableReference}_exterior");
+		var priorVehicle = priorExterior is null ? null : FindVehiclePrototypeByExterior(priorExterior);
+		string? priorFingerprint = null;
+		if (priorVehicle is not null && !_manifestCaptureOnly)
+		{
+			priorFingerprint = ItemSeederManifestCatalogue.Fingerprint(
+				BuildLiveVehicleGraphManifestDefinition(priorVehicle));
+			var managedRecord = FindManagedRecord(vehicleManifestEntry.EntityType, vehicleManifestEntry.StableKey);
+			if (managedRecord is null)
+			{
+				IncrementManifestResult(vehicleManifestEntry.Module, x => x with { Blocked = x.Blocked + 1 });
+				throw new InvalidOperationException(
+					$"Unmanaged vehicle conflict for '{spec.StableReference}'. The existing legacy graph cannot be proven stock-identical and will not be claimed or overwritten.");
+			}
+			if (managedRecord.LogicalId is not null && managedRecord.LogicalId != priorVehicle.Id)
+			{
+				IncrementManifestResult(vehicleManifestEntry.Module, x => x with { Blocked = x.Blocked + 1 });
+				throw new InvalidOperationException(
+					$"ItemSeeder ownership conflict for vehicle:{spec.StableReference}: provenance names ID {managedRecord.LogicalId:N0}, but the stable exterior resolves to vehicle {priorVehicle.Id:N0}.");
+			}
+			if (!priorFingerprint.Equals(managedRecord.AppliedFingerprint, StringComparison.OrdinalIgnoreCase))
+			{
+				MarkManifestAggregateCustomized(vehicleManifestEntry.EntityType, vehicleManifestEntry.StableKey);
+				IncrementManifestResult(vehicleManifestEntry.Module, x => x with { Customized = x.Customized + 1 });
+				return;
+			}
+		}
+
 		var eraTags = spec.SupportedEraKeys
 			.Select(x => VehicleEraTags[x])
 			.ToArray();
@@ -196,6 +235,25 @@ public partial class ItemSeeder
 		}
 
 		_context.SaveChanges();
+		var appliedFingerprint = ItemSeederManifestCatalogue.Fingerprint(
+			BuildLiveVehicleGraphManifestDefinition(vehicle));
+		RecordAppliedManifestEntry(
+			vehicleManifestEntry,
+			vehicle.Id,
+			vehicle.RevisionNumber,
+			appliedFingerprint);
+		if (priorVehicle is null)
+		{
+			IncrementManifestResult(vehicleManifestEntry.Module, x => x with { Inserted = x.Inserted + 1 });
+		}
+		else if (priorFingerprint!.Equals(appliedFingerprint, StringComparison.OrdinalIgnoreCase))
+		{
+			IncrementManifestResult(vehicleManifestEntry.Module, x => x with { Unchanged = x.Unchanged + 1 });
+		}
+		else
+		{
+			IncrementManifestResult(vehicleManifestEntry.Module, x => x with { Updated = x.Updated + 1 });
+		}
 	}
 
 	private GameItemProto UpsertVehicleProjectionItem(
@@ -251,6 +309,15 @@ public partial class ItemSeeder
 			null,
 			builderNotes,
 			false) ?? throw new InvalidOperationException($"Unable to create vehicle item {stableReference}.");
+		if (_manifestCaptureOnly)
+		{
+			return item;
+		}
+
+		if (IsManifestAggregateCustomized("item", stableReference))
+		{
+			return item;
+		}
 
 		item.Name = spec.Noun.ToLowerInvariant();
 		item.Keywords = new ExplodedString(spec.ShortDescription.Strip_A_An()).Words.Distinct().ListToCommaSeparatedValues(" ");
@@ -279,6 +346,8 @@ public partial class ItemSeeder
 
 	private GameItemComponentProto EnsureVehicleComponent(string name, string type, string description, string definition)
 	{
+		var manifestDefinition = new ComponentManifestDefinition(name, description, type, 0, definition);
+		var manifestEntry = RegisterManifestAggregate("component", name, manifestDefinition);
 		var component = _components.TryGetValue(name, out var cached)
 			? cached
 			: _context!.GameItemComponentProtos.Local.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ??
@@ -297,6 +366,7 @@ public partial class ItemSeeder
 				EditableItem = NewReworkEditableItem()
 			};
 			_context!.GameItemComponentProtos.Add(component);
+			CompleteManifestAggregate(manifestEntry, component.Id, manifestDefinition, ManifestAggregateDisposition.Insert);
 		}
 		else
 		{
@@ -305,8 +375,20 @@ public partial class ItemSeeder
 				throw new InvalidOperationException(
 					$"Vehicle component {name} already exists as type {component.Type}, not {type}.");
 			}
+			var liveDefinition = new ComponentManifestDefinition(
+				component.Name, component.Description, component.Type, component.RevisionNumber, component.Definition);
+			var disposition = InspectManifestAggregate(manifestEntry, component.Id, liveDefinition);
+			if (disposition == ManifestAggregateDisposition.Customized)
+			{
+				_components[name] = component;
+				return component;
+			}
 			component.Description = description;
 			component.Definition = definition;
+			if (disposition == ManifestAggregateDisposition.Update)
+			{
+				CompleteManifestAggregate(manifestEntry, component.Id, manifestDefinition, disposition);
+			}
 		}
 		_components[name] = component;
 		return component;

@@ -404,6 +404,13 @@ public partial class UsefulSeeder
         AddRepairKitType("Universal", "a repair kit that repairs anything", WoundSeverity.Severe, 250, (skills["Salvaging"] ?? skills["Salvage"])?.Id, -1.0, [], []);
         AddRepairKitType("Universal_Good", "a good-quality repair kit that repairs anything", WoundSeverity.VerySevere, 350, (skills["Salvaging"] ?? skills["Salvage"])?.Id, 0.0, [], []);
         AddRepairKitType("Universal_Poor", "a poor-quality repair kit that repairs anything", WoundSeverity.Moderate, 150, (skills["Salvaging"] ?? skills["Salvage"])?.Id, -2.0, [], []);
+        foreach (var family in new[] { "Clockwork", "Firearm", "Medical_Instrument", "Optical_Instrument", "Printing_Equipment", "Scientific_Instrument" })
+        {
+            var tag = family.Replace('_', ' ');
+            AddRepairKitType(family, $"a specialist repair kit for {tag.ToLowerInvariant()} items", WoundSeverity.Grievous, 900, (skills["Blacksmithing"] ?? skills["Metalcraft"] ?? skills["Crafting"])?.Id, 0.0, ["Metal", "Wood", "Glass"], [tag]);
+            AddRepairKitType($"{family}_Good", $"a good specialist repair kit for {tag.ToLowerInvariant()} items", WoundSeverity.Horrifying, 1350, (skills["Blacksmithing"] ?? skills["Metalcraft"] ?? skills["Crafting"])?.Id, 1.0, ["Metal", "Wood", "Glass"], [tag]);
+            AddRepairKitType($"{family}_Poor", $"a poor specialist repair kit for {tag.ToLowerInvariant()} items", WoundSeverity.Severe, 540, (skills["Blacksmithing"] ?? skills["Metalcraft"] ?? skills["Crafting"])?.Id, -1.0, ["Metal", "Wood", "Glass"], [tag]);
+        }
         nextId = currentId;
         #endregion
     }

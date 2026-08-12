@@ -182,6 +182,8 @@ public partial class CoreDataSeeder
 
 			Gas("Ammonia", "ammonia gas", 0.000769, -33.3, "green", smell: "It has a sharp ammonia smell", vagueSmell: "It smells sharply alkaline", smellIntensity: 5.0, tags: ["Industrial Gases"]),
 			Gas("Nitrous Oxide", "nitrous oxide gas", 0.001978, -88.5, "blue", oxidationFactor: 1.4, tags: ["Industrial Gases", "Medical Gases"]),
+			Gas("Benzoin Fumigation Smoke", "benzoin fumigation smoke", 0.0017, 120.0, "white", smell: "It smells warmly resinous", vagueSmell: "It smells resinous", smellIntensity: 3.0, organic: true, tags: ["Industrial Gases", "Medical Gases"]),
+			Gas("Hartshorn Vapour", "sharp hartshorn vapour", 0.0008, -33.0, "white", smell: "It has a sharp ammoniacal smell", vagueSmell: "It smells sharply alkaline", smellIntensity: 5.0, tags: ["Industrial Gases", "Medical Gases"]),
 			Gas("Nitric Oxide", "nitric oxide gas", 0.00134, -151.8, "green", oxidationFactor: 0.5, tags: ["Industrial Gases"]),
 			Gas("Nitrogen Dioxide", "nitrogen dioxide gas", 0.00205, 21.2, "red", smell: "It has a sharp acrid smell", vagueSmell: "It smells acrid", smellIntensity: 4.0, oxidationFactor: 0.7, tags: ["Industrial Gases"]),
 			Gas("Sulfur Dioxide", "sulfur dioxide gas", 0.002927, -10.0, "green", smell: "It smells like burnt matches", vagueSmell: "It smells sharply sulfurous", smellIntensity: 4.0, tags: ["Industrial Gases"]),

@@ -7,6 +7,7 @@ using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
+using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Size;
@@ -228,6 +229,12 @@ public partial class Body
             }
 
             loadedItems.Add(gitem);
+            var originalSaveStates = gitem.Components
+                                         .Cast<ISaveable>()
+                                         .Append(gitem)
+                                         .Distinct()
+                                         .Select(x => (Item: x, WasChanged: x.Changed))
+                                         .ToList();
 
             gitem.Get(this);
             if (item.WearProfile.HasValue)
@@ -248,6 +255,17 @@ public partial class Body
                     gitem.Get(null);
                     gitem.RoomLayer = RoomLayer;
                     gitem.InsertAtSource(Actor);
+                }
+                else
+                {
+                    foreach (var (saveable, wasChanged) in originalSaveStates)
+                    {
+                        saveable.Changed = wasChanged;
+                        if (!wasChanged)
+                        {
+                            Gameworld.SaveManager.Abort(saveable);
+                        }
+                    }
                 }
             }
             else

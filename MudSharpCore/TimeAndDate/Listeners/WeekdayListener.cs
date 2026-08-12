@@ -43,7 +43,7 @@ public class WeekdayListener : ListenerBase
     public void DateUpdated()
     {
         if (WatchCalendar.CurrentDate.WeekdayIndex != -1 &&
-            Weekdays.Contains(WatchCalendar.CurrentDate.Weekday))
+            Weekdays.Any(x => x.EqualTo(WatchCalendar.CurrentDate.Weekday)))
         {
             TriggerPayload();
         }

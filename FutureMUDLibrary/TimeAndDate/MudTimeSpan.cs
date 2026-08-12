@@ -10,7 +10,7 @@ using TimeSpanParserUtil;
 
 namespace MudSharp.TimeAndDate
 {
-    public class MudTimeSpan
+    public class MudTimeSpan : IComparable, IComparable<MudTimeSpan>, IEquatable<MudTimeSpan>
     {
         public const long MillisecondsPerSecond = 1000;
         private const double SecondsPerMillisecond = 1.0 / MillisecondsPerSecond;
@@ -45,7 +45,7 @@ namespace MudSharp.TimeAndDate
                     (_years * MillisecondsPerYear)
                     ;
 
-        public int MillisecondComponentOnly => (int)_milliseconds;
+        public int MillisecondComponentOnly => (int)(_milliseconds % MillisecondsPerSecond);
 
         public int Seconds => (int)(Milliseconds / MillisecondsPerSecond);
 
@@ -85,7 +85,7 @@ namespace MudSharp.TimeAndDate
 
         public MudTimeSpan Inverse()
         {
-            return new MudTimeSpan(_years * -1, _months * -1, _weeks * -1, _milliseconds * -1);
+            return new MudTimeSpan(checked(-_years), checked(-_months), checked(-_weeks), checked(-_milliseconds));
         }
 
         public static implicit operator TimeSpan(MudTimeSpan mts)
@@ -136,7 +136,8 @@ namespace MudSharp.TimeAndDate
 
         public MudTimeSpan(int years, int months, int weeks, long days, long hours, long minutes, long seconds, long milliseconds)
         {
-            _milliseconds = (days * 3600 * 24 + hours * 3600 + minutes * 60 + seconds) * 1000 + milliseconds;
+            _milliseconds = checked((checked(days * 3600 * 24) + checked(hours * 3600) + checked(minutes * 60) +
+                                     seconds) * 1000 + milliseconds);
             _months = months;
             _years = years;
             _weeks = weeks;
@@ -213,21 +214,24 @@ namespace MudSharp.TimeAndDate
             return new MudTimeSpan(years, 0, 0, days);
         }
 
-        private static Regex UnitRegex = new(@"(?<quantity>\d+)\s*(?<unit>millisecond|millisecondssecond|seconds|sec|secs|minute|minutes|hour|hours|hr|hrs|day|days|week|weeks|month|months|mon|mons|year|years|min|mins|s|ms|m|h|d|w|mo|y)", RegexOptions.IgnoreCase);
+        private static readonly Regex UnitRegex = new(@"\G\s*(?<quantity>[+-]?\d+)\s*(?<unit>milliseconds?|ms|seconds?|secs?|s|months?|mons?|mo|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|y)\s*", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         public static bool TryParse(string text, IFormatProvider format, out MudTimeSpan timespan)
         {
-            if (string.IsNullOrEmpty(text))
+			// Persisted round-trip text is intentionally culture-invariant. Retain the format
+			// parameter for source compatibility with the historic parser overload.
+			_ = format;
+            if (string.IsNullOrWhiteSpace(text))
             {
                 timespan = Zero;
                 return false;
             }
 
-            StringStack ss = new(text);
-            if (ss.Peek().EqualToAny("zero", "none", "nothing"))
+            var trimmedText = text.Trim();
+            if (trimmedText.EqualToAny("zero", "none", "nothing"))
             {
                 timespan = Zero;
-                return false;
+                return true;
             }
 
             int years = 0;
@@ -239,94 +243,101 @@ namespace MudSharp.TimeAndDate
             long seconds = 0L;
             long milliseconds = 0L;
 
-            string subtext = string.Empty;
-            while (!ss.IsFinished)
+            var position = 0;
+            while (position < trimmedText.Length)
             {
-                subtext += ss.Pop();
-                if (!int.TryParse(subtext, out _) && TimeSpanParser.TryParse(subtext, new TimeSpanParserOptions { FormatProvider = format, AllowUnitlessZero = true, ColonedDefault = Units.Days }, out TimeSpan ts))
+                var match = UnitRegex.Match(trimmedText, position);
+                if (!match.Success || match.Index != position)
                 {
-                    days += ts.Days;
-                    hours += ts.Hours;
-                    minutes += ts.Minutes;
-                    seconds += ts.Seconds;
-                    milliseconds += ts.Milliseconds;
-                    subtext = string.Empty;
-                    continue;
+                    if (position == 0 && TimeSpanParser.TryParse(trimmedText,
+                            new TimeSpanParserOptions
+                            {
+                                FormatProvider = CultureInfo.InvariantCulture,
+                                AllowUnitlessZero = true,
+                                ColonedDefault = Units.Days
+                            }, out TimeSpan parsedSpan))
+                    {
+                        timespan = new MudTimeSpan(parsedSpan);
+                        return true;
+                    }
+
+                    timespan = Zero;
+                    return false;
                 }
 
-                if (UnitRegex.IsMatch(subtext))
+                position += match.Length;
+                try
                 {
-                    Match match = UnitRegex.Match(subtext);
+                    var quantity = long.Parse(match.Groups["quantity"].Value, CultureInfo.InvariantCulture);
                     switch (match.Groups["unit"].Value.ToLowerInvariant())
                     {
                         case "ms":
                         case "millisecond":
                         case "milliseconds":
-                            milliseconds += long.Parse(match.Groups["quantity"].Value);
-                            subtext = string.Empty;
+                            milliseconds = checked(milliseconds + quantity);
                             continue;
                         case "s":
                         case "second":
                         case "seconds":
                         case "sec":
                         case "secs":
-                            seconds += long.Parse(match.Groups["quantity"].Value);
-                            subtext = string.Empty;
+                            seconds = checked(seconds + quantity);
                             continue;
                         case "m":
                         case "min":
                         case "mins":
                         case "minute":
                         case "minutes":
-                            minutes += long.Parse(match.Groups["quantity"].Value);
-                            subtext = string.Empty;
+                            minutes = checked(minutes + quantity);
                             continue;
                         case "h":
                         case "hr":
                         case "hrs":
                         case "hour":
                         case "hours":
-                            hours += long.Parse(match.Groups["quantity"].Value);
-                            subtext = string.Empty;
+                            hours = checked(hours + quantity);
                             continue;
                         case "d":
                         case "day":
                         case "days":
-                            days += long.Parse(match.Groups["quantity"].Value);
-                            subtext = string.Empty;
+                            days = checked(days + quantity);
                             continue;
                         case "w":
                         case "week":
                         case "weeks":
-                            weeks += int.Parse(match.Groups["quantity"].Value);
-                            subtext = string.Empty;
+                            weeks = checked(weeks + (int)quantity);
                             continue;
                         case "mo":
                         case "mon":
                         case "mons":
                         case "month":
                         case "months":
-                            months += int.Parse(match.Groups["quantity"].Value);
-                            subtext = string.Empty;
+                            months = checked(months + (int)quantity);
                             continue;
                         case "y":
                         case "year":
                         case "years":
-                            years += int.Parse(match.Groups["quantity"].Value);
-                            subtext = string.Empty;
+                            years = checked(years + (int)quantity);
                             continue;
                     }
                 }
+                catch (OverflowException)
+                {
+                    timespan = Zero;
+                    return false;
+                }
             }
 
-            if (!string.IsNullOrEmpty(subtext))
+            try
+            {
+                timespan = new MudTimeSpan(years, months, weeks, days, hours, minutes, seconds, milliseconds);
+                return true;
+            }
+            catch (OverflowException)
             {
                 timespan = Zero;
                 return false;
             }
-
-            timespan = new MudTimeSpan(years, months, weeks, days, hours, minutes, seconds, milliseconds);
-            return true;
         }
 
         public static bool TryParse(string text, out MudTimeSpan timespan)
@@ -349,21 +360,21 @@ namespace MudSharp.TimeAndDate
             get
             {
                 List<string> strings = new();
-                if (_years > 0)
+                if (_years != 0)
                 {
-                    strings.Add($"{_years:F0} years");
+                    strings.Add($"{_years.ToString(CultureInfo.InvariantCulture)} years");
                 }
-                if (_months > 0)
+                if (_months != 0)
                 {
-                    strings.Add($"{_months:F0} months");
+                    strings.Add($"{_months.ToString(CultureInfo.InvariantCulture)} months");
                 }
-                if (_weeks > 0)
+                if (_weeks != 0)
                 {
-                    strings.Add($"{_weeks:F0} weeks");
+                    strings.Add($"{_weeks.ToString(CultureInfo.InvariantCulture)} weeks");
                 }
-                if (_milliseconds > 0)
+                if (_milliseconds != 0)
                 {
-                    strings.Add($"{_milliseconds:F0}ms");
+                    strings.Add($"{_milliseconds.ToString(CultureInfo.InvariantCulture)}ms");
                 }
                 return strings.DefaultIfEmpty("zero").ListToString(separator: " ", conjunction: "");
             }
@@ -397,30 +408,16 @@ namespace MudSharp.TimeAndDate
 
         public MudTimeSpan Add(MudTimeSpan ts)
         {
-            long result = Ticks + ts.Ticks;
-            // Overflow if signs of operands was identical and result's
-            // sign was opposite.
-            // >> 63 gives the sign bit (either 64 1's or 64 0's).
-            if ((Ticks >> 63 == ts.Ticks >> 63) && (Ticks >> 63 != result >> 63))
-            {
-                throw new OverflowException();
-            }
-
-            return new MudTimeSpan(result);
+            ArgumentNullException.ThrowIfNull(ts);
+            return new MudTimeSpan(checked(_years + ts._years), checked(_months + ts._months),
+                checked(_weeks + ts._weeks), checked(_milliseconds + ts._milliseconds));
         }
 
         public MudTimeSpan Subtract(MudTimeSpan ts)
         {
-            long result = Ticks - ts.Ticks;
-            // Overflow if signs of operands was different and result's
-            // sign was opposite from the first argument's sign.
-            // >> 63 gives the sign bit (either 64 1's or 64 0's).
-            if ((Ticks >> 63 != ts.Ticks >> 63) && (Ticks >> 63 != result >> 63))
-            {
-                throw new OverflowException();
-            }
-
-            return new MudTimeSpan(result);
+            ArgumentNullException.ThrowIfNull(ts);
+            return new MudTimeSpan(checked(_years - ts._years), checked(_months - ts._months),
+                checked(_weeks - ts._weeks), checked(_milliseconds - ts._milliseconds));
         }
 
         // Compares two MudTimeSpan values, returning an integer that indicates their
@@ -428,17 +425,7 @@ namespace MudSharp.TimeAndDate
         //
         public static int Compare(MudTimeSpan t1, MudTimeSpan t2)
         {
-            if (t1.Ticks > t2.Ticks)
-            {
-                return 1;
-            }
-
-            if (t1.Ticks < t2.Ticks)
-            {
-                return -1;
-            }
-
-            return 0;
+            return t1.CompareTo(t2);
         }
 
         // Compares two MudTimeSpan values, returning an integer that indicates their
@@ -446,46 +433,51 @@ namespace MudSharp.TimeAndDate
         //
         public static int Compare(MudTimeSpan t1, TimeSpan t2)
         {
-            if (t1.Ticks > t2.Ticks)
-            {
-                return 1;
-            }
-
-            if (t1.Ticks < t2.Ticks)
-            {
-                return -1;
-            }
-
-            return 0;
+            return t1.Ticks.CompareTo(t2.Ticks);
         }
 
         // Returns a value less than zero if this  object
-        public int CompareTo(object value)
+        public int CompareTo(MudTimeSpan ts)
         {
-            if (value == null)
+            if (ts is null)
             {
                 return 1;
             }
 
-            if (value is not MudTimeSpan ts)
+            var approximateComparison = Milliseconds.CompareTo(ts.Milliseconds);
+            if (approximateComparison != 0)
+            {
+                return approximateComparison;
+            }
+
+            var yearsComparison = _years.CompareTo(ts._years);
+            if (yearsComparison != 0) return yearsComparison;
+            var monthsComparison = _months.CompareTo(ts._months);
+            if (monthsComparison != 0) return monthsComparison;
+            var weeksComparison = _weeks.CompareTo(ts._weeks);
+            if (weeksComparison != 0) return weeksComparison;
+            return _milliseconds.CompareTo(ts._milliseconds);
+        }
+
+        public int CompareTo(object value)
+        {
+            if (value is null)
+            {
+                return 1;
+            }
+
+            if (value is not MudTimeSpan timeSpan)
             {
                 throw new ArgumentException(nameof(value));
             }
 
-            long ms = ts.Milliseconds;
-            if (Milliseconds > ms) { return 1; }
-            if (Milliseconds < ms) { return -1; }
-            return 0;
+            return CompareTo(timeSpan);
         }
 
         public static MudTimeSpan operator -(MudTimeSpan t)
         {
-            if (t.Ticks == TimeSpan.MinValue.Ticks)
-            {
-                throw new OverflowException();
-            }
-
-            return new TimeSpan(-t.Ticks);
+            ArgumentNullException.ThrowIfNull(t);
+            return t.Inverse();
         }
 
         public static MudTimeSpan operator -(MudTimeSpan t1, MudTimeSpan t2)
@@ -505,47 +497,51 @@ namespace MudSharp.TimeAndDate
 
         public static bool operator ==(MudTimeSpan t1, MudTimeSpan t2)
         {
-            return t1.Ticks == t2.Ticks;
+            return Equals(t1, t2);
         }
 
         public static bool operator !=(MudTimeSpan t1, MudTimeSpan t2)
         {
-            return t1.Ticks != t2.Ticks;
+            return !Equals(t1, t2);
         }
 
         public static bool operator <(MudTimeSpan t1, MudTimeSpan t2)
         {
-            return t1.Ticks < t2.Ticks;
+            return Compare(t1, t2) < 0;
         }
 
         public static bool operator <=(MudTimeSpan t1, MudTimeSpan t2)
         {
-            return t1.Ticks <= t2.Ticks;
+            return Compare(t1, t2) <= 0;
         }
 
         public static bool operator >(MudTimeSpan t1, MudTimeSpan t2)
         {
-            return t1.Ticks > t2.Ticks;
+            return Compare(t1, t2) > 0;
         }
 
         public static bool operator >=(MudTimeSpan t1, MudTimeSpan t2)
         {
-            return t1.Ticks >= t2.Ticks;
+            return Compare(t1, t2) >= 0;
         }
 
         public override int GetHashCode()
         {
-            return Ticks.GetHashCode();
+            return HashCode.Combine(_years, _months, _weeks, _milliseconds);
+        }
+
+        public bool Equals(MudTimeSpan ts)
+        {
+            return ts is not null &&
+                   _years == ts._years &&
+                   _months == ts._months &&
+                   _weeks == ts._weeks &&
+                   _milliseconds == ts._milliseconds;
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is MudTimeSpan ts)
-            {
-                return ts.Ticks.Equals(Ticks);
-            }
-
-            return base.Equals(obj);
+            return obj is MudTimeSpan ts && Equals(ts);
         }
     }
 }

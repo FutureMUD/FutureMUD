@@ -1,0 +1,171 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.5.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Trap Test Destination Final
+ID[2,669] | Terrain[Indoors] | [SafeQuit] | Overlay[Trap Live Test August 2026 (#98r0)] | Coordinates[0,0,0]
+Exits: South (open door)
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, the lighting is very bright here.
+
+A foam-padded metal dagger is here.
+A cranial bomb with a long fuse cord is here.
+A cranial bomb with a long fuse cord is here.
+A cranial bomb with a long fuse cord is here.
+A cranial bomb with a long fuse cord is here.
+A cranial bomb with a long fuse cord is here.
+A cranial bomb with a long fuse cord is here.
+A stick of dynamite is here.
+A stick of dynamite is here.
+A cranial bomb with a long fuse cord is here.
+A tagged trap-test bomb is here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> trap debug south
+You do not see a trap on that anchor.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> trap create 6 on south using tagged
+You finish setting Stock Trap - Tripwire Explosive on the South exit.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> trap debug south
+the South exit - Stock Trap - Tripwire Explosive
+State: Armed  Charges: 1
+Source: Mechanical  Template: 6r0
+Triggers: ExitTraversal
+Payloads: DetonateItem
+Disarm: Risky  Lifecycle: Indefinite
+Components: a tagged trap-test bomb (TriggerAndPayload)
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> get tagged
+You cannot get a tagged trap-test bomb at the moment.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> npc load 77
+A black-afro-haired adolescent (Japheth) has entered the area.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> as 1.adolescent south
+You force a black-afro-haired adolescent (Japheth) to do the command 'south'
+A tagged trap-test bomb detonates, the explosion scattering a cloud of metal
+shrapnel and heat in all directions.
+A tagged trap-test bomb detonates, the explosion scattering a cloud of metal
+shrapnel and heat in all directions.
+You begin walking away towards the South.
+
+A black-afro-haired adolescent (Japheth) begins walking away towards the South.
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> time
+You know the following things about time:
+
+  It is currently Morning.
+  The MechaSun is high in the painted sky, flat orange on matte blue. (Asc: 35.092Â° Azi: -1.725Â° DN: 320.68 Ephem: solar)
+  It is a quarter past twelve p.m on Laundry Day the 8th of Einstein, year 53
+  after Tranquility.
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> trap debug south
+You do not see a trap on that anchor.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

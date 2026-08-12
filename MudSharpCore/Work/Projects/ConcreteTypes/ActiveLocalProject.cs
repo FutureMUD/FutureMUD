@@ -53,16 +53,22 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
 		LocalProjectSpatialRules.HandleAtSite(SpatialLocation, text);
 	}
 
-    public override void Cancel(ICharacter actor)
-    {
+	public override void Cancel(ICharacter actor)
+	{
 		var locationCharacters = CharactersAtProjectSite();
+		var workers = _activeLabour.Select(x => x.Character).DistinctBy(x => x.InstanceId).ToList();
+		var queueParticipants = workers.Append(CharacterOwner).DistinctBy(x => x.InstanceId).ToList();
         actor.OutputHandler.Handle(new EmoteOutput(new Emote(
             $"@ cancel|cancels the {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project.", actor, actor)));
         ProjectDefinition.OnCancelProg?.Execute(this);
         ClearWorkersFromProject();
+		foreach (var worker in queueParticipants)
+		{
+			worker.HandleProjectQueueProjectEnd(this);
+		}
         Location.RemoveProject(this);
         Delete();
-        TryJoinQueuedProjectLabourFor(locationCharacters);
+		TryJoinQueuedProjectLabourFor(locationCharacters.Concat(queueParticipants));
     }
 
     private void ClearWorkersFromProject()
@@ -92,12 +98,17 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
                                                             1);
             if (nextPhase != null)
             {
+				var phaseWorkers = _activeLabour.Select(x => x.Character).DistinctBy(x => x.InstanceId).ToList();
                 CurrentPhase = nextPhase;
                 _labourProgress.Clear();
                 _materialProgress.Clear();
                 _labourPaymentRates.Clear();
                 _materialPaymentRates.Clear();
                 ClearWorkersFromProject();
+				foreach (var worker in phaseWorkers)
+				{
+					worker.HandleProjectQueuePhaseChange(this);
+				}
                 Changed = true;
 				HandleAtProjectSite(
                     $"The {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project has entered the {CurrentPhase.Name.ColourBold(Telnet.White)} phase.");
@@ -106,13 +117,19 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
             }
 
 			var locationCharacters = CharactersAtProjectSite();
+			var workers = _activeLabour.Select(x => x.Character).DistinctBy(x => x.InstanceId).ToList();
+			var queueParticipants = workers.Append(CharacterOwner).DistinctBy(x => x.InstanceId).ToList();
 			HandleAtProjectSite(
                 $"The {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project has been completed.");
             ProjectDefinition.OnFinishProg?.Execute(this);
             ClearWorkersFromProject();
+			foreach (var worker in queueParticipants)
+			{
+				worker.HandleProjectQueueProjectEnd(this);
+			}
             Location.RemoveProject(this);
             Delete();
-            TryJoinQueuedProjectLabourFor(locationCharacters);
+			TryJoinQueuedProjectLabourFor(locationCharacters.Concat(queueParticipants));
             return true;
         }
 
@@ -195,6 +212,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
 			         .ToList())
 		{
 			_activeLabour.Remove(worker);
+			worker.Character.ReleaseQueuedProjectLabourClaim(this);
 			if (worker.Character.CurrentProject.Project == this)
 			{
 				worker.Character.CurrentProject = (null, null);
@@ -202,6 +220,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
 
 			worker.Character.OutputHandler.Send(
 				$"You stop working on the {worker.Labour.Name.ColourName()} task because you have moved away from the local project.");
+			worker.Character.TryJoinQueuedProjectLabour();
 		}
 
 		base.DoProjectsTick();

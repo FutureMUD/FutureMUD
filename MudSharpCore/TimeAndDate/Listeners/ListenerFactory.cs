@@ -108,6 +108,9 @@ public static class ListenerFactory
     public static ITemporalListener? CreateDateTimeListener(MudDateTime watchForTime, Action<object[]> payload,
         object[] objects, string debuggerReference)
     {
+        ArgumentNullException.ThrowIfNull(watchForTime);
+        watchForTime = watchForTime.GetByTimeZone(watchForTime.Clock.PrimaryTimezone);
+
         if (watchForTime <= watchForTime.Calendar.CurrentDateTime)
         {
             payload(objects);

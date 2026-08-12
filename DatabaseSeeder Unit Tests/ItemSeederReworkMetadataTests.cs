@@ -102,7 +102,7 @@ public class ItemSeederReworkMetadataTests
 	}
 
 	[TestMethod]
-	public void InferReworkFunctionalTags_MirrorsMarketTagsWithoutRemovingThem()
+	public void InferReworkFunctionalTags_MirrorsMarketTags()
 	{
 		var inferredTags = ItemSeeder.InferReworkFunctionalTagsForTesting(
 			[
@@ -123,6 +123,28 @@ public class ItemSeederReworkMetadataTests
 	}
 
 	[TestMethod]
+	public void RemoveRedundantParentTags_KeepsOnlyMostSpecificTagPerHierarchyBranch()
+	{
+		var tags = ItemSeeder.RemoveRedundantParentTagsForTesting(
+		[
+			"Era / Early Modern Era",
+			"Functions / Military Equipment",
+			"Functions / Military Equipment / Military Weapons",
+			"Market / Military Goods",
+			"Market / Military Goods / Weapons",
+			"Market / Military Goods / Weapons / Spears"
+		]);
+
+		CollectionAssert.AreEquivalent(
+		new[]
+		{
+			"Era / Early Modern Era",
+			"Functions / Military Equipment / Military Weapons",
+			"Market / Military Goods / Weapons / Spears"
+		}, tags.ToArray());
+	}
+
+	[TestMethod]
 	public void CreateReworkItem_AssignsStableReferenceAsUniqueName()
 	{
 		using var context = BuildContext();
@@ -137,12 +159,11 @@ public class ItemSeederReworkMetadataTests
 
 		Assert.IsNotNull(item);
 		Assert.AreEqual("antiquity_short_wool_chiton", item!.UniqueName);
-		StringAssert.Contains(item.BuilderNotes, "Stock unique reference: antiquity_short_wool_chiton.");
-		StringAssert.Contains(item.BuilderNotes, "Cultures: Hellenic.");
+		Assert.IsNull(item.BuilderNotes);
 	}
 
 	[TestMethod]
-	public void CreateReworkItem_BackfillsExistingItemMetadataWithoutReplacingBuilderNotes()
+	public void CreateReworkItem_DriftedLegacyShortDescriptionBlocksWithoutOverwritingBuilderNotes()
 	{
 		using var context = BuildContext();
 		SeedPrerequisites(context);
@@ -155,40 +176,32 @@ public class ItemSeederReworkMetadataTests
 			"Existing builder-maintained note."));
 		context.SaveChanges();
 
-		var item = new ItemSeeder().CreateReworkItemForTesting(
-			context,
-			"antiquity_short_wool_chiton",
-			"chiton",
-			"a reused wool chiton",
-			"wool");
+		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+			new ItemSeeder().CreateReworkItemForTesting(
+				context,
+				"antiquity_short_wool_chiton",
+				"chiton",
+				"a reused wool chiton",
+				"wool"));
 
-		Assert.IsNotNull(item);
-		Assert.AreEqual(10, item!.Id);
-		Assert.AreEqual("antiquity_short_wool_chiton", item.UniqueName);
-		StringAssert.Contains(item.BuilderNotes, "Existing builder-maintained note.");
-		StringAssert.Contains(item.BuilderNotes, "Stock unique reference: antiquity_short_wool_chiton.");
-		StringAssert.Contains(item.BuilderNotes, "Cultures: Hellenic.");
+		StringAssert.Contains(exception.Message, "Unmanaged legacy item conflict");
+		var legacyItem = context.GameItemProtos.Single(x => x.Id == 10);
+		Assert.IsNull(legacyItem.UniqueName);
+		Assert.AreEqual("Existing builder-maintained note.", legacyItem.BuilderNotes);
+		Assert.AreEqual(2, context.GameItemProtos.Count());
 	}
 
 	[TestMethod]
-	public void CreateReworkItem_BackfillsInferredFunctionalTagsOntoExistingItems()
+	public void CreateReworkItem_AddsInferredFunctionalTagsOntoNewStockItems()
 	{
 		using var context = BuildContext();
 		SeedPrerequisites(context);
-		context.GameItemProtos.Add(Item(
-			11,
-			"hammer",
-			"a reused workshop hammer",
-			"wool",
-			null,
-			null));
-		context.SaveChanges();
 
 		var item = new ItemSeeder().CreateReworkItemForTesting(
 			context,
-			"antiquity_reused_workshop_hammer",
+			"antiquity_workshop_hammer",
 			"hammer",
-			"a reused workshop hammer",
+			"a workshop hammer",
 			"wool",
 			tags: ["Market / Professional Tools / Standard Tools"]);
 
@@ -198,6 +211,78 @@ public class ItemSeederReworkMetadataTests
 			.ToList();
 		CollectionAssert.Contains(tagNames, "Standard Tools");
 		CollectionAssert.Contains(tagNames, "Tools");
+	}
+
+	[TestMethod]
+	public void CreateReworkItem_AdoptsUniqueExactLegacySignature()
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		var original = new ItemSeeder().CreateReworkItemForTesting(
+			context,
+			"antiquity_exact_legacy_hammer",
+			"hammer",
+			"an exact legacy hammer",
+			"wool");
+		Assert.IsNotNull(original);
+		context.SaveChanges();
+
+		context.SeederManagedRecords.RemoveRange(context.SeederManagedRecords);
+		original!.UniqueName = null;
+		context.SaveChanges();
+
+		var adopted = new ItemSeeder().CreateReworkItemForTesting(
+			context,
+			"antiquity_exact_legacy_hammer",
+			"hammer",
+			"an exact legacy hammer",
+			"wool");
+		context.SaveChanges();
+
+		Assert.IsNotNull(adopted);
+		Assert.AreEqual(original.Id, adopted!.Id);
+		Assert.AreEqual("antiquity_exact_legacy_hammer", adopted.UniqueName);
+		Assert.AreEqual(1, context.GameItemProtos.Count(x => x.ShortDescription == "an exact legacy hammer"));
+		Assert.AreEqual(1, context.SeederManagedRecords.Count());
+	}
+
+	[TestMethod]
+	public void CreateReworkItem_AmbiguousLegacyShortDescriptionBlocksEvenWithOneExactSignature()
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		var exactCandidate = new ItemSeeder().CreateReworkItemForTesting(
+			context,
+			"antiquity_ambiguous_legacy_hammer",
+			"hammer",
+			"an ambiguous legacy hammer",
+			"wool");
+		Assert.IsNotNull(exactCandidate);
+		context.SaveChanges();
+
+		context.SeederManagedRecords.RemoveRange(context.SeederManagedRecords);
+		exactCandidate!.UniqueName = null;
+		context.GameItemProtos.Add(Item(
+			20,
+			"other hammer",
+			"an ambiguous legacy hammer",
+			"wool",
+			null,
+			"Builder-owned candidate."));
+		context.SaveChanges();
+
+		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+			new ItemSeeder().CreateReworkItemForTesting(
+				context,
+				"antiquity_ambiguous_legacy_hammer",
+				"hammer",
+				"an ambiguous legacy hammer",
+				"wool"));
+
+		StringAssert.Contains(exception.Message, "Legacy item adoption");
+		StringAssert.Contains(exception.Message, "ambiguous");
+		Assert.AreEqual(2, context.GameItemProtos.Count(x => x.ShortDescription == "an ambiguous legacy hammer"));
+		Assert.AreEqual(0, context.SeederManagedRecords.Count());
 	}
 
 	[TestMethod]
@@ -225,8 +310,40 @@ public class ItemSeederReworkMetadataTests
 		Assert.AreNotEqual(roman!.Id, hellenic!.Id);
 		Assert.AreEqual("antiquity_roman_bronze_greaves", roman.UniqueName);
 		Assert.AreEqual("antiquity_hellenic_bronze_greaves", hellenic.UniqueName);
-		StringAssert.Contains(roman.BuilderNotes, "Cultures: Roman.");
-		StringAssert.Contains(hellenic.BuilderNotes, "Cultures: Hellenic.");
+		Assert.IsNull(roman.BuilderNotes);
+		Assert.IsNull(hellenic.BuilderNotes);
+	}
+
+	[TestMethod]
+	public void CreateReworkItem_RerunRemovesSeederNotesButPreservesBuilderNotes()
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		var seeder = new ItemSeeder();
+		var item = seeder.CreateReworkItemForTesting(
+			context,
+			"preindustrial_test_noted_item",
+			"item",
+			"a shared noted item",
+			"wool",
+			"Seeder-only source note.");
+		Assert.IsNotNull(item);
+		item!.BuilderNotes = "Stock unique reference: preindustrial_test_noted_item.\n" +
+		                     "Cultures: Shared Pre-Industrial.\n" +
+		                     "Seeder-only source note.\n" +
+		                     "Builder-authored note.";
+		context.SaveChanges();
+
+		var rerun = seeder.CreateReworkItemForTesting(
+			context,
+			"preindustrial_test_noted_item",
+			"item",
+			"a shared noted item",
+			"wool",
+			"Seeder-only source note.");
+
+		Assert.AreSame(item, rerun);
+		Assert.AreEqual("Builder-authored note.", rerun!.BuilderNotes);
 	}
 
 	[TestMethod]

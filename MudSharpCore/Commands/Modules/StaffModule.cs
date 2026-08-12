@@ -58,6 +58,8 @@ namespace MudSharp.Commands.Modules;
 
 internal class StaffModule : Module<ICharacter>
 {
+	internal const string EngineUpdateBinariesPathStaticConfiguration = "EngineUpdateBinariesPath";
+
     private StaffModule()
         : base("Staff")
     {
@@ -1575,7 +1577,14 @@ Plane lists accept IDs, aliases, quoted names, or comma-separated tokens, e.g. #
                 connection?.AddOutgoing($"Your account has been banned by {newNote.Author.Name.TitleCase()}.\n");
                 connection?.PrepareOutgoing();
                 connection?.SendOutgoing();
-                connection?.Dispose();
+				if (connection is IAsyncPlayerConnection asyncConnection)
+				{
+					asyncConnection.RequestClose(ConnectionCloseMode.Drain);
+				}
+				else
+				{
+					connection?.Dispose();
+				}
             }
 
             handler.Send($"You ban account {dbaccount.Name.TitleCase()}.");
@@ -2546,6 +2555,7 @@ The following options are available:
 	#3debug healing#0 - attaches the healing logger (writes to file)
 	#3debug skills#0 - attaches the skill check logger (writes to file)
 	#3debug scheduler#0 - shows all things in the scheduler
+	#3debug performance [on|off|reset]#0 - shows or controls runtime performance diagnostics
 	#3debug listeners#0 - shows all listeners
 	#3debug fixmorph#0 - resets all morph timers of shop stocked items
 	#3debug fixbites#0 - resets all bite counts of shop stocked items
@@ -2571,6 +2581,10 @@ The following options are available:
             case "scheduler":
             case "schedules":
                 DebugScheduler(actor);
+                return;
+            case "performance":
+            case "perf":
+                DebugPerformance(actor, ss);
                 return;
 
             case "listeners":
@@ -2692,6 +2706,43 @@ The following options are available:
         actor.OutputHandler.Send(sb.ToString());
     }
 
+	private static void DebugPerformance(ICharacter actor, StringStack ss)
+	{
+		if (actor.Gameworld is not MudSharp.Framework.Diagnostics.IRuntimePerformanceMonitorProvider provider)
+		{
+			actor.Send("This gameworld does not provide runtime performance diagnostics.");
+			return;
+		}
+
+		var monitor = provider.RuntimePerformanceMonitor;
+		switch (ss.PopForSwitch())
+		{
+			case "on":
+			case "enable":
+				monitor.Enable();
+				actor.Send("Runtime performance diagnostics are now enabled and counters have been reset.");
+				return;
+			case "off":
+			case "disable":
+				monitor.Disable();
+				actor.Send("Runtime performance diagnostics are now disabled; the last counters have been retained.");
+				return;
+			case "reset":
+				monitor.Reset();
+				actor.Send("Runtime performance diagnostic counters have been reset.");
+				return;
+			case "":
+				var sb = new StringBuilder();
+				monitor.AppendReport(sb, actor);
+				actor.Gameworld.HeartbeatManager.AppendPerformanceReport(sb);
+				actor.OutputHandler.Send(sb.ToString());
+				return;
+			default:
+				actor.Send("The valid options are #3on#0, #3off#0 and #3reset#0.");
+				return;
+		}
+	}
+
     private static void DebugListeners(ICharacter actor)
     {
         StringBuilder sb = new();
@@ -2729,11 +2780,22 @@ The following options are available:
             : StringComparison.Ordinal;
         if (!destination.StartsWith(rootWithSeparator, comparison))
         {
-            throw new InvalidDataException($"The update archive entry {entryName} escapes the Binaries directory.");
+            throw new InvalidDataException($"The update archive entry {entryName} escapes the configured binary directory.");
         }
 
         return destination;
     }
+
+	internal static string ResolveEngineUpdateBinariesPath(string configuredPath, string applicationBaseDirectory)
+	{
+		if (string.IsNullOrWhiteSpace(configuredPath))
+		{
+			throw new InvalidDataException(
+				$"The {EngineUpdateBinariesPathStaticConfiguration} static configuration must not be empty.");
+		}
+
+		return System.IO.Path.GetFullPath(configuredPath, applicationBaseDirectory);
+	}
 
     private static void Debug_Update(ICharacter actor)
     {
@@ -2743,7 +2805,9 @@ The following options are available:
 
         string root = AppContext.BaseDirectory;
         string updatePath = System.IO.Path.Combine(root, "FutureMUD Update.zip");
-        string extractionPath = System.IO.Path.Combine(root, "Binaries");
+        string extractionPath = ResolveEngineUpdateBinariesPath(
+            actor.Gameworld.GetStaticConfiguration(EngineUpdateBinariesPathStaticConfiguration),
+            root);
         try
         {
             using HttpClient client = new();
@@ -2832,7 +2896,7 @@ The following options are available:
             }
 
             actor.OutputHandler.Send(
-                "The update has been placed in the Binaries directory and will be applied by the restart script.");
+                $"The update has been placed in {extractionPath.ColourValue()} and will be applied by the restart script.");
         }
         catch (Exception exception)
         {

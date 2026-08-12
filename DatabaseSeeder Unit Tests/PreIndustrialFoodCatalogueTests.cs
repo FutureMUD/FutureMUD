@@ -98,6 +98,24 @@ public class PreIndustrialFoodCatalogueTests
 	}
 
 	[TestMethod]
+	public void Catalogue_NounsAreConciseGrammaticalHeads()
+	{
+		var items = ItemSeeder.PreIndustrialFoodItemsForTesting;
+		Assert.IsTrue(items.All(x => Regex.IsMatch(x.Noun, @"^[\p{L}]+(?:['-][\p{L}]+)*$")),
+			"Food catalogue nouns must be single lexical head nouns rather than phrases or stable-reference slugs.");
+		Assert.AreEqual("pottage", items.Single(x =>
+			x.StableReference == "preindustrial_food_root_and_fish_pottage").Noun);
+		Assert.AreEqual("cluster", items.Single(x =>
+			x.StableReference == "preindustrial_food_fresh_date_cluster").Noun);
+		Assert.AreEqual("bowl", items.Single(x =>
+			x.StableReference == "preindustrial_food_jellied_eel_bowl").Noun);
+
+		var normalizer = ReadSource("scripts", "normalise-preindustrial-food-nouns.py");
+		StringAssert.Contains(normalizer, "def head_noun(short_description: str)");
+		StringAssert.Contains(normalizer, "--check");
+	}
+
+	[TestMethod]
 	public void Catalogue_UsesMaintainedMaterialsAndStandardNutritionQualityPolicies()
 	{
 		var materials = ReadMaterialCatalogue();
@@ -207,6 +225,17 @@ public class PreIndustrialFoodCatalogueTests
 			"Seeders",
 			"ItemSeeder.EarlyModern.AgricultureFoodDrinkCommodities.cs");
 		StringAssert.Contains(earlyModern, "SeedEarlyModernFoodCatalogue();");
+	}
+
+	[TestMethod]
+	public void ExistingStockFoodLiquids_AreReusedWithoutTakingOwnership()
+	{
+		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialFoodCatalogue.cs");
+		StringAssert.Contains(source, "var hasExistingLiquid = _liquids.TryGetValue(entry.Name, out var existingLiquid);");
+		StringAssert.Contains(source, "if (hasExistingLiquid)");
+		StringAssert.Contains(source,
+			"FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey) is null");
+		StringAssert.Contains(source, "Core and Kickstart seeders own their stock liquids.");
 	}
 
 	[TestMethod]

@@ -13,6 +13,7 @@ public partial class ItemSeeder
 		string StableReference,
 		string Noun,
 		string ShortDescription,
+		string? LongDescription,
 		string FullDescription,
 		SizeCategory Size,
 		ItemQuality Quality,
@@ -25,6 +26,11 @@ public partial class ItemSeeder
 
 	internal sealed record RenaissanceHouseholdItemSpecTestData(
 		string StableReference,
+		string ShortDescription,
+		string? LongDescription,
+		string FullDescription,
+		string Size,
+		string Quality,
 		string Material,
 		IReadOnlyCollection<string> Tags,
 		IReadOnlyCollection<string> Components);
@@ -33,6 +39,11 @@ public partial class ItemSeeder
 		RenaissanceHouseholdItemSpecs
 			.Select(x => new RenaissanceHouseholdItemSpecTestData(
 				x.StableReference,
+				x.ShortDescription,
+				x.LongDescription,
+				x.FullDescription,
+				x.Size.ToString(),
+				x.Quality.ToString(),
 				x.Material,
 				x.Tags,
 				x.Components))
@@ -41,7 +52,7 @@ public partial class ItemSeeder
 	private void SeedRenaissanceHouseholdUrbanAndTrade()
 	{
 		var dependencyIssues = ValidateRenaissanceHouseholdDependencies(RenaissanceHouseholdItemSpecs);
-		if (dependencyIssues.Count > 0)
+		if (!_manifestCaptureOnly && dependencyIssues.Count > 0)
 		{
 			throw new InvalidOperationException(
 				"Renaissance household catalogue cannot be seeded because required dependencies are missing:" +
@@ -54,7 +65,7 @@ public partial class ItemSeeder
 				spec.StableReference,
 				spec.Noun,
 				spec.ShortDescription,
-				null,
+				spec.LongDescription,
 				spec.FullDescription,
 				spec.Size,
 				spec.Quality,

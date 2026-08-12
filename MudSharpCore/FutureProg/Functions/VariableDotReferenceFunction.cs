@@ -10,7 +10,7 @@ internal class VariableDotReferenceFunction : UnaryFunction
     public VariableDotReferenceFunction(IFunction lhs, string targetProperty, ProgVariableTypes returnType)
         : base(lhs)
     {
-        TargetProperty = targetProperty;
+		TargetProperty = targetProperty.ToLowerInvariant();
         ReturnType = returnType;
     }
 

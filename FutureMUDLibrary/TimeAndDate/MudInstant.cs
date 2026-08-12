@@ -4,6 +4,7 @@ using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using System;
 using System.Globalization;
+using System.Linq;
 
 namespace MudSharp.TimeAndDate;
 
@@ -170,12 +171,33 @@ public readonly struct MudInstant : IComparable<MudInstant>, IEquatable<MudInsta
 		}
 
 		timezone ??= clock.PrimaryTimezone;
-		if (TryResolveSourceContext(calendar, clock, out var sourceCalendar, out var sourceClock) &&
-		    (sourceCalendar.Id != calendar.Id || sourceClock.Id != clock.Id) &&
-		    sourceClock.Id == clock.Id)
+		if (timezone is null || (timezone.Clock is not null && !ReferenceEquals(timezone.Clock, clock) &&
+		                         !clock.Timezones.Contains(timezone)))
 		{
-			var sourceDateTime = ToMudDateTimeInCalendar(sourceCalendar, sourceClock, timezone);
-			return sourceDateTime.ConvertToOtherCalendar(calendar);
+			return MudDateTime.Never;
+		}
+		var hasAnySourceContext = SourceCalendarId > 0 || SourceClockId > 0;
+		var sourceResolved = TryResolveSourceContext(calendar, clock, out var sourceCalendar, out var sourceClock);
+		if (hasAnySourceContext && (!HasSourceContext || !sourceResolved))
+		{
+			return MudDateTime.Never;
+		}
+
+		if (sourceResolved)
+		{
+			if (sourceClock.Id != clock.Id)
+			{
+				return MudDateTime.Never;
+			}
+
+			if (sourceCalendar.Id != calendar.Id)
+			{
+				var sourceTimezone = sourceClock.Timezones.FirstOrDefault(x =>
+					string.Equals(x.Alias, timezone.Alias, StringComparison.InvariantCultureIgnoreCase)) ??
+					sourceClock.PrimaryTimezone;
+				var sourceDateTime = ToMudDateTimeInCalendar(sourceCalendar, sourceClock, sourceTimezone);
+				return sourceDateTime.ConvertToOtherCalendar(calendar);
+			}
 		}
 
 		return ToMudDateTimeInCalendar(calendar, clock, timezone);
@@ -183,12 +205,12 @@ public readonly struct MudInstant : IComparable<MudInstant>, IEquatable<MudInsta
 
 	public MudInstant WithTicks(long ticks)
 	{
-		return new MudInstant(Epoch, ticks, SourceCalendarId, SourceClockId, IsNever);
+		return IsNever ? Never : new MudInstant(Epoch, ticks, SourceCalendarId, SourceClockId, false);
 	}
 
 	public MudInstant AddSeconds(long seconds)
 	{
-		return WithTicks(checked(Ticks + seconds));
+		return IsNever ? Never : WithTicks(checked(Ticks + seconds));
 	}
 
 	private MudDateTime ToMudDateTimeInCalendar(ICalendar calendar, IClock clock, IMudTimeZone timezone)
@@ -208,6 +230,7 @@ public readonly struct MudInstant : IComparable<MudInstant>, IEquatable<MudInsta
 		if (localTime.DaysOffsetFromDatum != 0)
 		{
 			date.AdvanceDays(localTime.DaysOffsetFromDatum);
+			localTime.DaysOffsetFromDatum = 0;
 		}
 
 		return new MudDateTime(date, localTime, timezone);

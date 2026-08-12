@@ -1,0 +1,244 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.5.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Trap Test Destination Final
+ID[2,669] | Terrain[Indoors] | [SafeQuit] | Overlay[Trap Live Test August 2026 (#98r0)] | Coordinates[0,0,0]
+Exits: South (open door)
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, the lighting is very bright here.
+
+A foam-padded metal dagger is here.
+A cranial bomb with a long fuse cord is here.
+A cranial bomb with a long fuse cord is here.
+A cranial bomb with a long fuse cord is here.
+A cranial bomb with a long fuse cord is here.
+A cranial bomb with a long fuse cord is here.
+A cranial bomb with a long fuse cord is here.
+A cranial bomb with a long fuse cord is here.
+A stick of dynamite is here.
+A stick of dynamite is here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+A black-afro-haired adolescent (Japheth) is standing here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item edit 812
+You open Item Proto #812r1 (a cranial bomb with a long fuse cord) for editing.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item set tag "Tripwire Trigger"
+You add the Trap Components / Tripwire Trigger tag to this item prototype.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item set tag "Explosive Trap Payload"
+You add the Trap Components / Explosive Trap Payload tag to this item prototype.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item set tag "Bear Trap Mechanism"
+You add the Trap Components / Bear Trap Mechanism tag to this item prototype.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item set quality good
+This item will now have a base quality of Good.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item edit submit
+You submit Item Proto #812r1 (a cranial bomb with a long fuse cord) for review.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item review 812
+You are reviewing Item Proto #812r1 (a cranial bomb with a long fuse cord).
+
+ââââââââ£ Item Prototype #812 - Revision 1 / 1 â âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+Status: Pending Review
+Unique Name: None
+Noun: Bomb
+Short Description: a cranial bomb with a long fuse cord
+Long Description: Default
+Preserve Register Variables: False
+Prevent Manual Load: False
+Permit Player Skins: False
+Hidden From Players: False
+Planar Presence: present on Prime Material, visible to Prime Material, perceives Prime Material
+Item Group: Default
+Health Strategy: Game Item Default (#1)
+Size: Tiny
+Weight: 56.7 grams
+Material: steel
+Base Quality: Good
+Base Cost: nothing
+
+Full Description:
+
+  Whoever designed this bomb clearly did not care for subtlety. It is a small,
+  very dense explosive packed into a metal casing - with a long fuse cord
+  attached. Presumably meant for installing into someone's brainpan, it is also
+  bewilderingly evident that the fuse cord is meant to remain outside the skull
+  and be lit in such a fashion.
+
+Builder Comment:
+
+  None
+
+Tags:
+
+  Trap Components / Tripwire Trigger
+  Trap Components / Explosive Trap Payload
+  Trap Components / Bear Trap Mechanism
+
+Components:
+
+  Holdable: [Holdable] (#1r0)
+  Destroyable: [Destroyable_Implant] (#384r0)
+  Bomb: [Bomb_Grenade_Small_Frag] (#397r0)
+  Fuse: [Fuse_Long_Timer] (#398r1)
+  Implant Base: [Cranial Bomb] (#411r0)
+
+
+To approve this Item Prototype, type accept edit or decline edit to reject.
+If you do not wish to approve or decline, you may type abort edit.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> accept
+You approve Item Proto #812r1 (a cranial bomb with a long fuse cord).
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> item show 812
+ââââââââ£ Item Prototype #812 - Revision 1 / 1 â âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+Status: Current
+Unique Name: None
+Noun: Bomb
+Short Description: a cranial bomb with a long fuse cord
+Long Description: Default
+Preserve Register Variables: False
+Prevent Manual Load: False
+Permit Player Skins: False
+Hidden From Players: False
+Planar Presence: present on Prime Material, visible to Prime Material, perceives Prime Material
+Item Group: Default
+Health Strategy: Game Item Default (#1)
+Size: Tiny
+Weight: 56.7 grams
+Material: steel
+Base Quality: Good
+Base Cost: nothing
+
+Full Description:
+
+  Whoever designed this bomb clearly did not care for subtlety. It is a small,
+  very dense explosive packed into a metal casing - with a long fuse cord
+  attached. Presumably meant for installing into someone's brainpan, it is also
+  bewilderingly evident that the fuse cord is meant to remain outside the skull
+  and be lit in such a fashion.
+
+Builder Comment:
+
+  None
+
+Tags:
+
+  Trap Components / Tripwire Trigger
+  Trap Components / Explosive Trap Payload
+  Trap Components / Bear Trap Mechanism
+
+Components:
+
+  Holdable: [Holdable] (#1r0)
+  Destroyable: [Destroyable_Implant] (#384r0)
+  Bomb: [Bomb_Grenade_Small_Frag] (#397r0)
+  Fuse: [Fuse_Long_Timer] (#398r1)
+  Implant Base: [Cranial Bomb] (#411r0)
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

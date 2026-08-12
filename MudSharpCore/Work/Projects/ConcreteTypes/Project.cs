@@ -262,7 +262,7 @@ public abstract class Project : EditableItem, IProject
 
     public abstract string ShowToPlayer(ICharacter actor);
 
-    public abstract void InitiateProject(ICharacter actor);
+	public abstract IActiveProject InitiateProject(ICharacter actor);
 
     public bool CanCancelProject(ICharacter actor, IActiveProject local)
     {

@@ -15,7 +15,7 @@ public class MUDDateException : Exception
     }
 }
 
-public class MudDate : IComparable
+public class MudDate : IComparable, IEquatable<MudDate>
 {
     /// <summary>
     ///     The alias of the calendar in which this date resides
@@ -152,7 +152,15 @@ public class MudDate : IComparable
 
     public bool IsIntercalaryDay()
     {
-        return false; // TODO
+        if (Calendar.Intercalaries.Any(x =>
+                x.Month.Alias.EqualTo(Month.Alias) &&
+                x.Rule.IsIntercalaryYear(Year)))
+        {
+            return true;
+        }
+
+        var baseMonth = Calendar.Months.FirstOrDefault(x => x.Alias.EqualTo(Month.Alias));
+        return baseMonth is not null && Day > baseMonth.NormalDays;
     }
 
     #region IComparable Members
@@ -172,7 +180,13 @@ public class MudDate : IComparable
         {
             return -1;
         }
-        return 0;
+
+        if (Equals(dateObject))
+        {
+            return 0;
+        }
+
+        return Calendar.Id.CompareTo(dateObject.Calendar.Id);
     }
 
     #endregion
@@ -193,11 +207,12 @@ public class MudDate : IComparable
         }
         else
         {
-            _weekdayIndex = (_thisYear.FirstWeekdayIndex +
-                             _thisYear.Months.FindAll(x => x.TrueOrder < _month.TrueOrder)
-                                 .ToList()
-                                 .Sum(x => x.CountWeekdays()) + _day -
-                             _month.NonWeekdays.FindAll(x => x <= _day).Count - 1) % _calendar.Weekdays.Count;
+            var precedingWeekdays = _thisYear.Months
+                .Where(x => x.TrueOrder < _month.TrueOrder)
+                .Sum(x => x.CountWeekdays());
+            var excludedDays = _month.NonWeekdays.Count(x => x <= _day);
+            _weekdayIndex = (_thisYear.FirstWeekdayIndex + precedingWeekdays + _day - excludedDays - 1) %
+                            _calendar.Weekdays.Count;
             _weekday = _calendar.Weekdays[_weekdayIndex];
         }
     }
@@ -327,10 +342,31 @@ public class MudDate : IComparable
             _thisYear = Calendar.CreateYear(--_year);
             _month = _thisYear.Months.Last();
             _day = _month.Days;
-            if (InternalSubtractDays(ref numberOfDays))
+            if (Day > numberOfDays)
             {
+                Day -= numberOfDays;
                 return true;
             }
+
+            var previousMonths = ThisYear.Months.TakeWhile(x => x != Month).Reverse();
+            var daysInPreviousMonths = previousMonths.Sum(x => x.Days) + Day;
+            if (numberOfDays < daysInPreviousMonths)
+            {
+                numberOfDays -= Day;
+                foreach (var month in previousMonths)
+                {
+                    if (numberOfDays <= month.Days)
+                    {
+                        _month = month;
+                        _day = month.Days - numberOfDays;
+                        return true;
+                    }
+
+                    numberOfDays -= month.Days;
+                }
+            }
+
+            numberOfDays -= daysInPreviousMonths;
         }
     }
 
@@ -366,10 +402,31 @@ public class MudDate : IComparable
             _thisYear = Calendar.CreateYear(++_year);
             _month = _thisYear.Months.First();
             _day = 0;
-            if (InternalAdvanceDays(ref numberOfDays))
+            if (Day + numberOfDays <= Month.Days)
             {
+                Day += numberOfDays;
                 return true;
             }
+
+            var followingMonths = ThisYear.Months.SkipWhile(x => x != Month).Skip(1);
+            var daysRemainingInYear = followingMonths.Sum(x => x.Days) + (Month.Days - Day);
+            if (numberOfDays <= daysRemainingInYear)
+            {
+                numberOfDays -= Month.Days - Day;
+                foreach (var month in followingMonths)
+                {
+                    if (numberOfDays <= month.Days)
+                    {
+                        _month = month;
+                        _day = numberOfDays;
+                        return true;
+                    }
+
+                    numberOfDays -= month.Days;
+                }
+            }
+
+            numberOfDays -= daysRemainingInYear;
         }
     }
 
@@ -416,43 +473,44 @@ public class MudDate : IComparable
     /// </param>
     public void AdvanceMonths(int numberOfMonths, bool ignoreIntercalaries, bool preserveDay)
     {
-
         if (numberOfMonths == 0)
         {
             return;
         }
 
-        bool yearsChanged = false;
-        while (numberOfMonths != 0)
+        var yearsChanged = false;
+        var direction = Math.Sign(numberOfMonths);
+        var remaining = Math.Abs(numberOfMonths);
+        while (remaining > 0)
         {
-            if (numberOfMonths < 0)
+            var currentIndex = _thisYear.Months.IndexOf(_month);
+            if (direction > 0)
             {
-                int targetCount = Math.Abs(numberOfMonths);
-                List<Month> previousMonths = _thisYear.Months.TakeWhile(x => x != Month).ToList();
-                if (previousMonths.Count >= targetCount)
+                currentIndex++;
+                if (currentIndex >= _thisYear.Months.Count)
                 {
-                    _month = previousMonths[Index.FromEnd(targetCount)];
-                    break;
+                    _thisYear = Calendar.CreateYear(++_year);
+                    currentIndex = 0;
+                    yearsChanged = true;
                 }
-
-                numberOfMonths += previousMonths.Count + 1;
-                _thisYear = Calendar.CreateYear(--_year);
-                _month = _thisYear.Months.Last();
-                yearsChanged = true;
-                continue;
             }
-
-            List<Month> remainingMonths = _thisYear.Months.SkipWhile(x => x != Month).Skip(1).ToList();
-            if (remainingMonths.Count >= numberOfMonths)
+            else
             {
-                _month = remainingMonths.ElementAt(numberOfMonths - 1);
-                break;
+                currentIndex--;
+                if (currentIndex < 0)
+                {
+                    _thisYear = Calendar.CreateYear(--_year);
+                    currentIndex = _thisYear.Months.Count - 1;
+                    yearsChanged = true;
+                }
             }
 
-            numberOfMonths -= remainingMonths.Count + 1;
-            _thisYear = Calendar.CreateYear(++_year);
-            yearsChanged = true;
-            _month = _thisYear.Months[0];
+            _month = _thisYear.Months[currentIndex];
+            var isIntercalaryMonth = Calendar.Intercalaries.Any(x => x.Month.Alias.EqualTo(_month.Alias));
+            if (!ignoreIntercalaries || !isIntercalaryMonth)
+            {
+                remaining--;
+            }
         }
 
         if (!preserveDay)
@@ -482,11 +540,11 @@ public class MudDate : IComparable
 
     public bool Equals(MudDate compareDate)
     {
-        return
-            (Day == compareDate.Day) &&
-            (Month.Alias == compareDate.Month.Alias) &&
-            (Year == compareDate.Year) &&
-            (Calendar.Id == compareDate.Calendar.Id);
+        return compareDate is not null &&
+               Day == compareDate.Day &&
+               Month?.Equals(compareDate.Month) == true &&
+               Year == compareDate.Year &&
+               Calendar?.Id == compareDate.Calendar?.Id;
     }
 
     public MudDate ConvertToOtherCalendar(ICalendar convert)
@@ -526,6 +584,34 @@ public class MudDate : IComparable
     {
         return DaysDifference(this, compareDate);
     }
+
+    /// <summary>
+    /// Returns the signed number of calendar days between this date and another date. A positive result means this date is later.
+    /// </summary>
+    public int SignedDaysDifference(MudDate compareDate)
+    {
+        ArgumentNullException.ThrowIfNull(compareDate);
+        if (Calendar.Id == compareDate.Calendar.Id)
+        {
+            if (Year == compareDate.Year)
+            {
+                return DayNumberInYear() - compareDate.DayNumberInYear();
+            }
+
+            if (Year > compareDate.Year)
+            {
+                return checked(Calendar.CountDaysBetweenYears(compareDate.Year, Year) + DayNumberInYear() -
+                               compareDate.DayNumberInYear());
+            }
+
+            return checked(-(Calendar.CountDaysBetweenYears(Year, compareDate.Year) +
+                             compareDate.DayNumberInYear() - DayNumberInYear()));
+        }
+
+        var thisOffset = SignedDaysDifference(Calendar.CurrentDate);
+        var compareOffset = compareDate.SignedDaysDifference(compareDate.Calendar.CurrentDate);
+        return checked(thisOffset - compareOffset);
+    }
     public int DayNumberInYear()
     {
         return Day + ThisYear.Months.Where(x => x.TrueOrder < Month.TrueOrder).Sum(x => x.Days);
@@ -541,7 +627,10 @@ public class MudDate : IComparable
         if (date1.Calendar.Id == date2.Calendar.Id)
         {
             return date1.Year - date2.Year +
-                   ((date1.Month.TrueOrder > date2.Month.TrueOrder) || (date1.Month.TrueOrder == date2.Month.TrueOrder && (date1.Day >= date2.Day)) ? 1 : 0);
+                   ((date1.Month.TrueOrder < date2.Month.TrueOrder) ||
+                    (date1.Month.TrueOrder == date2.Month.TrueOrder && date1.Day < date2.Day)
+                       ? -1
+                       : 0);
         }
 
         return YearsDifference(date1.Calendar.CurrentDate, date1) -
@@ -552,11 +641,16 @@ public class MudDate : IComparable
     {
         if (Calendar.Id == compareDate.Calendar.Id)
         {
-            return Year - compareDate.Year +
-                   ((Month.TrueOrder > compareDate.Month.TrueOrder) || (Month.TrueOrder == compareDate.Month.TrueOrder && (Day >= compareDate.Day)) ? 1 : 0);
+            if (this >= compareDate)
+            {
+                return YearsDifference(this, compareDate);
+            }
+
+            return -YearsDifference(compareDate, this);
         }
-        return YearsDifference(Calendar.CurrentDate) -
-               compareDate.YearsDifference(compareDate.Calendar.CurrentDate);
+
+        return Calendar.CurrentDate.YearsDifference(this) -
+               compareDate.Calendar.CurrentDate.YearsDifference(compareDate);
     }
 
     /// <summary>
@@ -774,23 +868,17 @@ public class MudDate : IComparable
 
     public static TimeSpan operator -(MudDate d1, MudDate d2)
     {
-        return TimeSpan.FromDays(d2.DaysDifference(d1));
+        return TimeSpan.FromDays(d1.SignedDaysDifference(d2));
     }
 
     public override bool Equals(object obj)
     {
-        if (obj is not MudDate objAsDate)
-        {
-            return false;
-        }
-
-        return Calendar.Equals(objAsDate.Calendar) && (Year == objAsDate.Year) && _month.Equals(objAsDate.Month) &&
-               (Day == objAsDate.Day);
+        return obj is MudDate date && Equals(date);
     }
 
     public override int GetHashCode()
     {
-        return Calendar.GetHashCode() + Year.GetHashCode() + Month.GetHashCode() + Day.GetHashCode();
+        return HashCode.Combine(Calendar?.Id ?? 0L, Year, Month, Day);
     }
 
     public MudDateTime ToDateTime()

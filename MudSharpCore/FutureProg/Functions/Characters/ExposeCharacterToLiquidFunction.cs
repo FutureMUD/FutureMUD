@@ -39,19 +39,46 @@ internal class ExposeCharacterToLiquidFunction : BuiltInFunction
 
 		var liquidId = (long)((decimal?)ParameterFunctions[1].Result?.GetObject ?? 0.0M);
 		var volume = GetVolume();
+		var driedPercentage = GetDriedPercentage();
 		var liquid = _gameworld.Liquids.Get(liquidId);
 		var bodypartText = ParameterFunctions[3].Result?.GetObject?.ToString() ?? string.Empty;
 		var bodypart = character.Body.GetTargetBodypart(bodypartText);
-		if (liquid is null || volume <= 0.0 || bodypart is not IExternalBodypart)
+		if (liquid is null || volume <= 0.0 || bodypart is not IExternalBodypart externalBodypart ||
+		    driedPercentage is < 0.0 or > 100.0 ||
+		    driedPercentage > 0.0 &&
+		    (liquid.DriedResidue is null || liquid.ResidueVolumePercentage <= 0.0 ||
+		     !double.IsFinite(liquid.ResidueVolumePercentage)))
 		{
 			Result = new BooleanVariable(false);
 			return StatementResult.Normal;
 		}
 
-		character.Body.ExposeToLiquid(
-			new LiquidMixture(liquid, volume, _gameworld),
-			bodypart,
-			LiquidExposureDirection.Irrelevant);
+		var driedVolume = volume * driedPercentage / 100.0;
+		var freshVolume = volume - driedVolume;
+		if (freshVolume > 0.0)
+		{
+			character.Body.ExposeToLiquid(
+				new LiquidMixture(liquid, freshVolume, _gameworld),
+				externalBodypart,
+				LiquidExposureDirection.Irrelevant);
+		}
+
+		if (driedVolume > 0.0)
+		{
+			var driedLiquid = new LiquidMixture(liquid, driedVolume, _gameworld);
+			var wornItem = character.Body.WornItemsFor(externalBodypart).LastOrDefault();
+			if (wornItem is not null)
+			{
+				wornItem.SurfaceLiquidState.TryAddDriedLiquid(driedLiquid);
+				LiquidExposureStrategies.SurfaceReactions.Dry(wornItem, driedLiquid);
+			}
+			else
+			{
+				character.Body.SurfaceLiquidState.TryAddDriedLiquid(driedLiquid);
+				LiquidExposureStrategies.SurfaceReactions.Dry(character.Body, driedLiquid, [externalBodypart]);
+			}
+		}
+
 		Result = new BooleanVariable(true);
 		return StatementResult.Normal;
 	}
@@ -68,35 +95,67 @@ internal class ExposeCharacterToLiquidFunction : BuiltInFunction
 		return success ? volume : 0.0;
 	}
 
+	private double GetDriedPercentage()
+	{
+		return ParameterFunctions.Count > 4
+			? (double)((decimal?)ParameterFunctions[4].Result?.GetObject ?? -1.0M)
+			: 0.0;
+	}
+
 	public static void RegisterFunctionCompiler()
 	{
 		RegisterOverload(
 			ProgVariableTypes.Number,
 			"The volume of liquid to apply in base fluid units.",
-			"Exposes a named external bodypart on a character to a base-unit volume of liquid");
+			false);
 		RegisterOverload(
 			ProgVariableTypes.Text,
 			"The volume of liquid to apply, including its fluid-volume unit.",
-			"Exposes a named external bodypart on a character to a text-specified volume of liquid");
+			false);
+		RegisterOverload(
+			ProgVariableTypes.Number,
+			"The volume of liquid to apply in base fluid units.",
+			true);
+		RegisterOverload(
+			ProgVariableTypes.Text,
+			"The volume of liquid to apply, including its fluid-volume unit.",
+			true);
 	}
 
 	private static void RegisterOverload(
 		ProgVariableTypes volumeType,
 		string volumeHelp,
-		string functionHelp)
+		bool includeDriedPercentage)
 	{
+		var parameterTypes = includeDriedPercentage
+			? new[]
+			{
+				ProgVariableTypes.Character, ProgVariableTypes.Number, volumeType, ProgVariableTypes.Text,
+				ProgVariableTypes.Number
+			}
+			: new[] { ProgVariableTypes.Character, ProgVariableTypes.Number, volumeType, ProgVariableTypes.Text };
+		var parameterNames = includeDriedPercentage
+			? new[] { "character", "liquidId", "volume", "bodypart", "driedPercentage" }
+			: new[] { "character", "liquidId", "volume", "bodypart" };
+		var parameterHelp = new List<string>
+		{
+			"The character whose bodypart should be exposed to the liquid.",
+			"The ID of the liquid to apply.",
+			volumeHelp,
+			"The keyword or name of the external bodypart to expose."
+		};
+		if (includeDriedPercentage)
+		{
+			parameterHelp.Add("The percentage of the supplied volume to add as dried residue, from 0 to 100.");
+		}
+
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"exposecharactertoliquid",
-			[ProgVariableTypes.Character, ProgVariableTypes.Number, volumeType, ProgVariableTypes.Text],
+			parameterTypes,
 			(parameters, gameworld) => new ExposeCharacterToLiquidFunction(parameters, gameworld),
-			["character", "liquidId", "volume", "bodypart"],
-			[
-				"The character whose bodypart should be exposed to the liquid.",
-				"The ID of the liquid to apply.",
-				volumeHelp,
-				"The keyword or name of the external bodypart to expose."
-			],
-			$"{functionHelp}, using the normal worn-item, held-item, cleaning, contamination, drying and residue rules. Returns false for a null character, unknown liquid, invalid bodypart, invalid unit expression or non-positive volume.",
+			parameterNames,
+			parameterHelp,
+			"Exposes a named external bodypart on a character to liquid. An optional dried percentage splits the supplied volume between normal exposure and residue placed on the outermost covering garment, or on the body when uncovered. Returns false for invalid inputs or a dry request whose liquid has no configured residue.",
 			"Characters",
 			ProgVariableTypes.Boolean));
 	}

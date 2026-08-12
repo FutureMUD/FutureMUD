@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Form.Colour;
 using MudSharp.Framework;
+using System.Linq;
 
 namespace MudSharp_Unit_Tests;
 
@@ -30,7 +31,7 @@ public class StringColourExtensionsTests
     {
         const string text = "test";
         string result = text.Colour(BasicColour.Red);
-        string expected = $"{Telnet.Black.BackgroundColour}{Telnet.Red.Name}{text}{Telnet.RESETALL}";
+        string expected = $"{Telnet.Black.BackgroundColour}{Telnet.Red.Colour}{text}{Telnet.RESETALL}";
         Assert.AreEqual(expected, result);
     }
 
@@ -125,7 +126,7 @@ public class StringColourExtensionsTests
     {
         const string text = "bold";
         string result = text.ColourBold(Telnet.Blue);
-        Assert.AreEqual($"{Telnet.Blue.Bold}{text}{Telnet.RESET}", result);
+        Assert.AreEqual($"{Telnet.Blue.Bold}{text}{Telnet.RESETBOLD}{Telnet.RESET}", result);
     }
 
     [TestMethod]
@@ -149,7 +150,7 @@ public class StringColourExtensionsTests
     {
         const string text = "resetcolour";
         string result = text.Colour(Telnet.Red, Telnet.Green);
-        Assert.AreEqual($"{Telnet.Red.Colour}{text}{Telnet.Green.Colour}", result);
+        Assert.AreEqual($"{Telnet.Red.Colour}{text}{Telnet.RESETBOLD}{Telnet.Green.Colour}", result);
     }
 
     [TestMethod]
@@ -157,7 +158,7 @@ public class StringColourExtensionsTests
     {
         const string text = "boldreset";
         string result = text.ColourBold(Telnet.Blue, Telnet.Green);
-        Assert.AreEqual($"{Telnet.Blue.Bold}{text}{Telnet.Green.Colour}", result);
+        Assert.AreEqual($"{Telnet.Blue.Bold}{text}{Telnet.RESETBOLD}{Telnet.Green.Colour}", result);
     }
 
     [TestMethod]
@@ -211,6 +212,35 @@ public class StringColourExtensionsTests
         const string text = "plain";
         string result = text.ColourIfNotColoured(Telnet.Red);
         Assert.AreEqual($"{Telnet.Red}{text}{Telnet.RESET}", result);
+    }
+
+    [TestMethod]
+    public void ColourIfNotColoured_LeavesTextWithEmbeddedAnsiSequence()
+    {
+        string coloured = $"pre{Telnet.Blue}coloured{Telnet.RESET}";
+        string result = coloured.ColourIfNotColoured(Telnet.Red);
+        Assert.AreEqual(coloured, result);
+    }
+
+    [TestMethod]
+    public void Colour_WithBoldColourAndResetColour_ResetsBoldBeforeRestoringForeground()
+    {
+        const string text = "boldcolour";
+        string result = text.Colour(Telnet.BoldRed, Telnet.Green);
+        Assert.AreEqual($"{Telnet.BoldRed.Colour}{text}{Telnet.RESETBOLD}{Telnet.Green.Colour}", result);
+    }
+
+    [TestMethod]
+    public void Telnet_ColourDefinitionsUseTheCorrectBoldBackgrounds()
+    {
+        Assert.AreEqual(Telnet.BOLDBLACKBACKGROUND, Telnet.Black.BoldBackgroundColour);
+        Assert.AreEqual(Telnet.VARIABLEGREENBACKGROUND, Telnet.VariableGreen.BoldBackgroundColour);
+    }
+
+    [TestMethod]
+    public void Telnet_ColourOptionsIncludeEveryNamedBoldColour()
+    {
+        CollectionAssert.Contains(Telnet.GetColourOptions.Select(x => x.StripANSIColour()).ToList(), "bold orange");
     }
 
     [TestMethod]

@@ -45,6 +45,31 @@ public class DateUtilitiesTests
 	}
 
 	[TestMethod]
+	public void MudTimeSpan_RoundTripsMixedSignStructuralComponentsInvariantly()
+	{
+		var original = new MudTimeSpan(2, -3, 4, -5, 6, -7, 8, -9);
+		var text = original.GetRoundTripParseText;
+
+		Assert.IsTrue(MudTimeSpan.TryParse(text, out var parsed));
+		Assert.AreEqual(original, parsed);
+		Assert.AreEqual(original.GetHashCode(), parsed.GetHashCode());
+		Assert.IsFalse(MudTimeSpan.TryParse("1 day trailing-text", out _));
+		Assert.IsTrue(MudTimeSpan.TryParse("3.000s", CultureInfo.GetCultureInfo("de-DE"), out var invariantValue));
+		Assert.AreEqual(MudTimeSpan.FromSeconds(3), invariantValue);
+	}
+
+	[TestMethod]
+	public void MudTimeSpan_UsesStructuralEqualityWhenApproximateDurationsCoincide()
+	{
+		var month = MudTimeSpan.FromMonths(1);
+		var thirtyDays = MudTimeSpan.FromDays(30);
+
+		Assert.AreNotEqual(month, thirtyDays);
+		Assert.AreNotEqual(0, month.CompareTo(thirtyDays));
+		Assert.AreEqual(0, month.Milliseconds.CompareTo(thirtyDays.Milliseconds));
+	}
+
+	[TestMethod]
 	public void TryParseDateTimeOrRelative_DstInvalidLocalTime_ReturnsFalse()
 	{
 		TimeZoneInfo? timezone = ResolveNewYorkTimeZone();

@@ -11,4 +11,6 @@ public sealed class FutureMudWebOptions
 	public long MinimumFreeBytes { get; set; } = 2L * 1024 * 1024 * 1024;
 	public TimeSpan DraftLifetime { get; set; } = TimeSpan.FromHours(24);
 	public TimeSpan PreviousReleaseLifetime { get; set; } = TimeSpan.FromHours(24);
+	public string MudClientUpdateSigningKeyId { get; set; } = "futuremud-mudclient-2026-08";
+	public string MudClientUpdateSigningPublicKey { get; set; } = "48R7fiHwdW6CTBW1DP4aK2qcgSvNsb59hSiNK72lyu0=";
 }

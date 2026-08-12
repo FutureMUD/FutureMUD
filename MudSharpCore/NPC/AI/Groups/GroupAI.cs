@@ -16,15 +16,15 @@ public class GroupAI : LateInitialisingItem, IGroupAI
         IdInitialised = true;
         _name = ai.Name;
         XElement root = XElement.Parse(ai.Definition);
-        CurrentAction = (GroupAction)int.Parse(root.Element("Action").Value);
-        Alertness = (GroupAlertness)int.Parse(root.Element("Alertness").Value);
+        _currentAction = (GroupAction)int.Parse(root.Element("Action").Value);
+        _alertness = (GroupAlertness)int.Parse(root.Element("Alertness").Value);
         foreach (var reference in LoadMemberReferences(root.Element("Members")))
         {
             _groupMemberReferences.Add(reference);
         }
 
         Template = Gameworld.GroupAITemplates.Get(ai.GroupAiTemplateId);
-        Data = Template.GroupAIType.LoadData(XElement.Parse(ai.Data), Gameworld);
+        _data = Template.GroupAIType.LoadData(XElement.Parse(ai.Data), Gameworld);
         Gameworld.HeartbeatManager.FuzzyTenSecondHeartbeat += TenSecondTick;
         Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += MinuteTick;
     }

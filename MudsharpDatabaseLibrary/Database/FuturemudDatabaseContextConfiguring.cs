@@ -17,6 +17,7 @@ namespace MudSharp.Database
             OnModelCreatingFour(modelBuilder);
             OnModelCreatingFive(modelBuilder);
             OnModelCreatingSix(modelBuilder);
+			OnModelCreatingSeven(modelBuilder);
 
             OnModelCreatingPartial(modelBuilder);
         }

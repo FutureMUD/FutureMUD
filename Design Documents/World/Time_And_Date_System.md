@@ -199,13 +199,13 @@ The first weekday of a year is computed from:
 This is what allows calendars with five-day, six-day, eight-day, or other custom week lengths to work correctly.
 
 ## MudInstant And Calendar Algorithms
-`MudInstant` is the absolute mud-time value used when a caller needs an ordered, storage-safe instant rather than a calendar-relative string. It stores a versioned epoch plus clock-second ticks from the owning calendar's epoch year and round-trips as:
+`MudInstant` is the absolute mud-time value used when a caller needs an ordered, storage-safe instant rather than a calendar-relative string. It stores a versioned epoch plus clock-second ticks from the owning calendar's epoch year and, when available, its source calendar and clock identity. It round-trips as:
 
 ```text
-mudinstant:v1:<ticks>
+mudinstant:v1:<calendar-id>:<clock-id>:<ticks>
 ```
 
-`MudInstant.FromLegacyState(calendar, clock)` back-calculates the current absolute instant from an existing calendar's current date and feed clock time. This is the boot/backfill path for existing worlds: no database migration or seeder rerun is required, and old `MudDate`, `MudTime`, `MudDateTime`, recurring intervals, and stored strings remain authoritative. `MudInstant.ToMudDateTime(calendar, clock, timezone)` projects an instant back through the selected calendar algorithm and clock.
+`MudInstant.FromLegacyState(calendar, clock)` back-calculates the current absolute instant from an existing calendar's current date and feed clock time. This is the boot/backfill path for existing worlds: no database migration or seeder rerun is required, and old `MudDate`, `MudTime`, `MudDateTime`, recurring intervals, and stored strings remain authoritative. `MudInstant.ToMudDateTime(calendar, clock, timezone)` projects an instant back through the selected calendar algorithm and clock. A source-context instant is never reinterpreted through a different clock; that incompatible conversion returns `MudDateTime.Never`. `MudInstant.Never` is canonical and remains `Never` under arithmetic helpers.
 
 Calendar XML now has optional algorithm and day-boundary metadata:
 
@@ -234,7 +234,8 @@ Supported boundary types are:
 - `FixedClockTime`
 - `SunsetAtAuthorityLocation`
 - `SunriseAtAuthorityLocation`
-- `AstronomicalEvent`
+
+`AstronomicalEvent` remains a reserved enum value, but generic astronomical-event boundaries are deliberately not a persisted or builder-selectable mode: no event parameter schema exists. Use the supported sunrise or sunset modes instead.
 
 Legacy calendars default to `ClockMidnight`. Sunrise and sunset boundaries use the calendar's authority location and the first available solar ephemeris when present; otherwise they fall back to clock midnight so old worlds keep booting. Authority locations are stored as `GeographicCoordinate` values in calendar XML and can be inspected or edited by builders.
 
@@ -289,6 +290,8 @@ Primary dates update the owning calendar when advanced. Copied or parsed dates a
 
 `MudDate.AdvanceToNextWeekday` is exclusive of the current date. A positive occurrence count moves forward; a negative count moves backward; zero is a no-op.
 
+`DaysDifference` remains the legacy absolute day-distance API. `SignedDaysDifference` returns a signed result, positive when the receiver is later. Date subtraction uses that signed contract. `YearsDifference` counts completed calendar years (and is signed when its receiver is earlier); this is the age calculation contract used by birthday selection.
+
 ## MudDateTime
 `MudDateTime` combines a `MudDate`, `MudTime`, and `IMudTimeZone`.
 
@@ -301,6 +304,7 @@ It is the main value type for in-game scheduling and FutureProg mud date/time op
 - calendar conversion
 - comparison across time zones
 - addition and subtraction of `MudTimeSpan` or `TimeSpan`
+- non-mutating `StartOfMonth()` and `EndOfMonth()` month boundaries
 - FutureProg dot references
 
 ### Never
@@ -341,6 +345,8 @@ Regnal parsing accepts the canonical `RY<number> @key` form for unambiguous roun
 - milliseconds
 
 Years and months are calendar-like duration components. Weeks are interpreted relative to the target calendar's weekday count when applying a span to `MudDateTime`. Smaller components are stored as milliseconds.
+
+Years, months, weeks, and milliseconds are structural components: addition, subtraction, negation, equality, hashing, and `GetRoundTripParseText` preserve them rather than collapsing them into approximate days. Conversion to `TimeSpan` and ordering use the documented 365-day year, 30-day month, and 7-day week projection; a structural tie-breaker prevents two non-equal spans from comparing equal. Text parsing is anchored, checked, and invariant-culture. Mixed-sign values and zero round-trip exactly.
 
 Important property conventions:
 
@@ -401,6 +407,8 @@ Recurring intervals can:
 
 Weekday intervals use the owning calendar's weekday list and support both forward and backward movement.
 
+Fixed-length minutely, hourly, daily, and weekly recurrences fast-forward from the current instant arithmetically. Variable calendar recurrences retain generated-calendar correction around months, years, weekday cycles, and ordinal occurrences, preserving the existing next/last and `ProgSchedule` restart semantics without replaying every historical interval.
+
 ### Interval Persistence
 Persistent recurring interval owners store the primary recurrence type, amount, modifier, secondary modifier, fallback mode, and reference date/time needed to recreate runtime listeners.
 
@@ -431,6 +439,8 @@ Listener repeat counts follow the existing one-shot convention:
 - values above one fire that many successful payloads.
 
 The shared listener trigger path invokes the payload, decrements the repeat count, unsubscribes when exhausted, and removes the listener from the gameworld.
+
+Listener IDs are monotonic and thread-safe. Cancellation and completion are idempotent, including when a payload cancels its own listener. Clock catch-up calculates overdue ticks from a deadline, replays listener-visible second updates in order, and reports slow catch-up through game logging rather than standard output.
 
 Listeners are not themselves the long-term persistence model. Persistent behaviors such as FutureProg schedules store their recurrence/reference data and recreate listeners on load or after each fire.
 
@@ -465,6 +475,9 @@ Important built-in Date/Time functions include:
 - `totext(...)` overloads for date/time text output
 - `nextweekday(...)` and `lastweekday(...)` for real-world and mud date/time values
 - `between(...)` for `TimeSpan`, `DateTime`, and `MudDateTime`
+- `daysbetween(start, end)` for signed mud calendar-day distance; cross-calendar values use the live current-date anchor and `Never` is an execution error
+- `monthstart(value)` and `monthend(value)` for the opening boundary and final representable in-game second of a mud month
+- `weekdayname(value)` for a calendar weekday name, or empty text for `Never` and non-weekday intercalary dates
 - arithmetic operators for date/time plus or minus spans
 - `GameSecondsPerRealSeconds(clock)` for clock speed introspection
 
@@ -479,7 +492,9 @@ Celestial event FutureProg functions return `MudDateTime` values projected from 
 
 The optional `occurrence` parameter is the nth next matching event. These functions return `MudDateTime.Never` when the zone, calendar, celestial ephemeris, or bounded event search cannot produce a deterministic result.
 
-FutureProg schedules persist a recurrence, a reference `MudDateTime`, and the target FutureProg. On load, a schedule advances the persisted reference to the next future occurrence and creates an in-memory listener. When the listener fires, the schedule executes the FutureProg, computes the next reference time, creates the next listener, and marks itself changed.
+FutureProg schedules persist a recurrence, a reference `MudDateTime`, and the target FutureProg. Boot preserves that persisted reference, so a due occurrence remains due after a restart; newly created schedules explicitly advance their supplied reference to their first occurrence. When a listener fires, the schedule executes the FutureProg, computes the next future reference time, creates the next listener, and marks itself changed.
+
+Before deciding whether a target is already due or creating a clock `TimeListener`, `ListenerFactory.CreateDateTimeListener(MudDateTime, ...)` normalises the target to its clock's primary time zone. This makes non-primary local targets compare against the advancing clock in the same time zone and prevents a future local time from firing immediately just because its wall-clock hour is numerically earlier than the primary clock's hour.
 
 ## Player And Builder Surfaces
 ### Player-Facing
@@ -606,6 +621,7 @@ These are important rules to preserve when changing the system:
 - Intercalary non-weekday additions and removals must match both generated month behavior and yearly weekday counts.
 - `MudDate` copies must preserve generated-year weekday state.
 - `MudTime` construction should go through the named factories so datum conversion and local wall-time construction remain explicit.
+- Temporal listener target values must be normalised to the clock's primary time zone before due-time comparisons or clock listener creation.
 - Temporal listeners consume repeat counts only after successful payload firing.
 - Ordinal recurrence calculations must use generated calendar data rather than Gregorian month/week assumptions.
 - Persistent scheduling should store recurrence/reference data and recreate listeners rather than expecting listeners themselves to persist.
@@ -625,7 +641,7 @@ The normal unit-test suites now include focused coverage for:
 - `MudTime` factory validation, parsing, copy behavior, and primary-time day rollover
 - `MudDate`, `MudDateTime`, `MudTimeSpan`, calendar weekday math, intercalary weekday edits, and `Never` safety
 - recurring interval parsing, descriptions, round-trip text, forward/backward search, high ordinal weekdays, exact-month skipping, and "or last" fallback
-- runtime listeners, interval extension helpers, and FutureProg date/time helper functions
+- runtime listeners, including future non-primary-timezone targets, interval extension helpers, and FutureProg date/time helper functions
 - clock, time-zone, and calendar builder command paths for high-value edits
 - `MudInstant` storage, ordering, conversion, and legacy backfill
 - legacy calendar XML loading without an algorithm element

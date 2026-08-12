@@ -4,6 +4,8 @@ Modern `Gun`, `InternalMagazineGun`, and `BoltAction` components can opt into na
 
 Crew-served artillery follows the same composition model without treating a cannon as a wieldable gun: `ArtilleryPiece` implements the shared ranged-platform contract, with sibling `ArtilleryAmmunition`, `ArtilleryChamber`, and `ArtilleryMount` components for payload, removable chamber, and host state. `WeaponCarrierAttachment` is likewise a physical retention relationship, not cosmetic clothing.
 
+Black-powder weapon drills are physical item workflows. A musket or artillery piece never manufactures or virtualises its powder, wad, projectile, match, ignition stone, fuse, or primer: inventory plans locate real items, measured charges split from a gunpowder commodity, and inserted items remain persisted children until firing consumes them or unloading returns them. One-use stackable consumables are acquired as exactly one item, while measured commodities retain their required mass. A musket bundles its selected ball and wad before taking that single physical bundle in hand, so a held musket is never dropped merely to make room for its charge. Every weapon plan is bound to the exact firearm being operated, rather than another item sharing its prototype. Cleaning rods, ramrods, unjamming tools, sponges, vent tools, and linstocks are selected by functional tags rather than nouns.
+
 ## Purpose
 This document set explains how the FutureMUD item system is structured, how item behaviour is composed through components, and how developers should add or extend item functionality.
 
@@ -38,6 +40,7 @@ Component-prototype markers protect this composition in both directions: exclusi
 - The fastest way to add a new item capability is usually to add a new component prototype and component pair, not a new `GameItem` subclass.
 - Telecommunications items follow the same composition model: a wired telephone handset, a telecommunications outlet, a telecommunications feeder, a cell tower, a cellular handset, and an implant telephone are all ordinary item capabilities expressed through components and public interfaces.
 - Computer and signal automation work should follow the same pattern. Shared interfaces such as `IComputerHost`, `IComputerFileSystem`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary`, while concrete behaviour should be delivered through distinct item component families rather than one generic "automation item" component.
+- Explosive triggers follow the same composition rule. `Bomb` remains the `IDetonatable` payload, while impact, fuse, radio, countdown, clock, signal, and pin-pull components supply independent trigger policies. Every trigger component requires a sibling explosive payload rather than implementing blast behaviour itself.
 - Riding and hitching gear also follow the composition model. `RidingGear` and `HitchGear` components give ordinary wearable or holdable items semantic roles such as saddle, bridle, reins, yoke, rope, chain, or tow bar, and the riding/vehicle systems query those interfaces rather than special item classes.
 - Ritual foci follow the same composition model. `OfferingReceiver` owns item-offering and consumptive liquid-libation policy and history summary, while independent capabilities such as the oil-lamp shrine's lighting remain ordinary sibling components such as `Lantern`.
 - Not every thematic item needs a mechanical family. The stock wooden measuring rod is intentionally a holdable static prop; builders can use descriptions and FutureProgs without introducing a dimension system solely to support it.
@@ -117,6 +120,19 @@ Computer-network visibility is now intentionally scoped rather than globally fla
 This keeps `Directory` and related tools from flooding players with every private sensor on the broader linked-grid graph, supports isolated exchange-local operational networks, and leaves space for future authorised tunnelling or hacking flows without changing the underlying addressing model.
 
 Those verbs currently use staged delayed actions, inventory plans for tool handling, configurable static-string echoes, and dedicated checks rather than instant state changes.
+
+## Explosive Triggers
+
+The explosive system now has four additional component families:
+
+- `CountdownDetonator` arms for a relative real-time duration. Builders set the default, minimum, maximum, whether players may choose the duration, and whether the trigger can be disarmed.
+- `ClockDetonator` arms for an exact future in-game date and time interpreted through an authored calendar, feed clock, and timezone.
+- `SignalDetonator` listens to a local numeric `ISignalSourceComponent` endpoint. It supports above/below threshold tests, edge or level activation, live `electrical bind` reconfiguration, and optional electrical power consumption.
+- `PinPullDetonator` starts a fixed irreversible countdown when its pin is pulled.
+
+`IArmableExplosiveTrigger` supplies the common `arm` and `disarm` interaction shared by countdown, clock, signal, and radio detonators. `IPinPullExplosiveTrigger` stays separate because pulling a pin is deliberately irreversible. Only one armable trigger component may be attached to an item prototype, while a pin-pull trigger remains a distinct capability.
+
+The signal contract does not encode whether a source is electronic or mechanical. Microcontrollers and current electronic sources can drive a `SignalDetonator` today; future pressure plates, tripwires, opening sensors, or other trap components can use the same numeric pulse or maintained-level contract without changing the detonator.
 
 ## Thermal Sources
 Room temperature now includes three layers:

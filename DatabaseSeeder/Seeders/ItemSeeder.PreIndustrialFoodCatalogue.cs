@@ -114,6 +114,11 @@ public partial class ItemSeeder
 
 	private void ValidatePreIndustrialFoodCatalogue()
 	{
+		if (_manifestCaptureOnly)
+		{
+			return;
+		}
+
 		if (_preIndustrialFoodCatalogueValidated)
 		{
 			return;
@@ -370,12 +375,7 @@ public partial class ItemSeeder
 			componentNames.Add("Stack_Number");
 		}
 
-		_items.TryGetValue(entry.StableReference, out var item);
-		item ??= _context!.GameItemProtos.Local
-			         .FirstOrDefault(x => x.UniqueName == entry.StableReference) ??
-		         _context.GameItemProtos
-			         .FirstOrDefault(x => x.UniqueName == entry.StableReference);
-		item ??= CreateItem(
+		var item = CreateItem(
 			entry.StableReference,
 			entry.Noun,
 			entry.ShortDescription,
@@ -401,6 +401,10 @@ public partial class ItemSeeder
 		{
 			throw new InvalidOperationException($"Could not create food catalogue item {entry.StableReference}.");
 		}
+		if (_manifestCaptureOnly)
+		{
+			return;
+		}
 
 		item.Name = entry.Noun.ToLowerInvariant();
 		item.Keywords = new ExplodedString(entry.ShortDescription.Strip_A_An())
@@ -418,10 +422,6 @@ public partial class ItemSeeder
 		item.IsHiddenFromPlayers = false;
 		item.PermitPlayerSkins = false;
 		item.UniqueName = entry.StableReference;
-		item.BuilderNotes = MergeBuilderNotes(
-			RemovePriorFoodBuilderNotes(item.BuilderNotes),
-			BuildFoodBuilderNotes(entry));
-
 		ReconcileFoodItemTags(item, tags);
 		ReconcileFoodItemComponents(item, componentNames, preparedComponent);
 		CacheReworkItem(entry.StableReference, item);
@@ -431,11 +431,33 @@ public partial class ItemSeeder
 	{
 		var name = $"{PreparedFoodComponentPrefix}{entry.StableReference}";
 		var definition = BuildPreparedFoodDefinition(entry);
+		var manifestDefinition = new ComponentManifestDefinition(
+			name,
+			$"Stock prepared-food profile for {entry.StableReference}.",
+			"PreparedFood",
+			0,
+			definition);
+		var manifestEntry = RegisterManifestAggregate("component", name, manifestDefinition);
 		if (_components.TryGetValue(name, out var existing))
 		{
+			var liveDefinition = new ComponentManifestDefinition(
+				existing.Name,
+				existing.Description,
+				existing.Type,
+				existing.RevisionNumber,
+				existing.Definition);
+			var disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
+			if (disposition == ManifestAggregateDisposition.Customized)
+			{
+				return existing;
+			}
 			existing.Type = "PreparedFood";
 			existing.Description = $"Stock prepared-food profile for {entry.StableReference}.";
 			existing.Definition = definition;
+			if (disposition == ManifestAggregateDisposition.Update)
+			{
+				CompleteManifestAggregate(manifestEntry, existing.Id, manifestDefinition, disposition);
+			}
 			return existing;
 		}
 
@@ -451,6 +473,7 @@ public partial class ItemSeeder
 		};
 		_context!.GameItemComponentProtos.Add(component);
 		_components[name] = component;
+		CompleteManifestAggregate(manifestEntry, component.Id, manifestDefinition, ManifestAggregateDisposition.Insert);
 		return component;
 	}
 
@@ -592,7 +615,31 @@ public partial class ItemSeeder
 
 	private void UpsertPreIndustrialFoodLiquid(PreIndustrialFoodLiquidCatalogueEntry entry)
 	{
-		if (!_liquids.TryGetValue(entry.Name, out var liquid))
+		var viscosity = entry.Family switch
+		{
+			FoodCatalogueFamily.Oil => 1.8,
+			FoodCatalogueFamily.Syrup => 2.0,
+			FoodCatalogueFamily.Sauce => 1.5,
+			_ => 1.0
+		};
+		var density = entry.Family is FoodCatalogueFamily.Oil ? 0.92 : 1.02;
+		var tagPaths = BuildFoodLiquidTags(entry)
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.ToArray();
+		var manifestDefinition = new LiquidManifestDefinition(
+			entry.Name, entry.Description, entry.LongDescription, entry.Taste, entry.Smell, 500.0, 200.0,
+			entry.AlcoholLitresPerLitre, entry.WaterLitresPerLitre, entry.FoodSatiatedHoursPerLitre,
+			entry.DrinkSatiatedHoursPerLitre, viscosity, density, true, 0.6, 0.0001, 4184.0, entry.Colour,
+			1.0, 0, 0.01, 1.0, false, string.Empty, tagPaths);
+		var manifestEntry = RegisterManifestAggregate("liquid", entry.Name, manifestDefinition);
+		var disposition = ManifestAggregateDisposition.Insert;
+		var hasExistingLiquid = _liquids.TryGetValue(entry.Name, out var existingLiquid);
+		Liquid liquid;
+		if (hasExistingLiquid)
+		{
+			liquid = existingLiquid!;
+		}
+		else
 		{
 			liquid = new Liquid
 			{
@@ -601,6 +648,25 @@ public partial class ItemSeeder
 			};
 			_context!.Liquids.Add(liquid);
 			_liquids[entry.Name] = liquid;
+		}
+		if (IsManifestAggregateCustomized("item", entry.StableReference))
+		{
+			return;
+		}
+		if (hasExistingLiquid)
+		{
+			if (FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey) is null)
+			{
+				// Core and Kickstart seeders own their stock liquids. Reuse an existing liquid without
+				// claiming it or overwriting its tailored properties.
+				return;
+			}
+
+			disposition = InspectManifestAggregate(manifestEntry, liquid.Id, BuildLiveLiquidManifestDefinition(liquid));
+			if (disposition is ManifestAggregateDisposition.Customized or ManifestAggregateDisposition.Unchanged)
+			{
+				return;
+			}
 		}
 
 		liquid.Description = entry.Description;
@@ -615,14 +681,8 @@ public partial class ItemSeeder
 		liquid.WaterLitresPerLitre = entry.WaterLitresPerLitre;
 		liquid.FoodSatiatedHoursPerLitre = entry.FoodSatiatedHoursPerLitre;
 		liquid.DrinkSatiatedHoursPerLitre = entry.DrinkSatiatedHoursPerLitre;
-		liquid.Viscosity = entry.Family switch
-		{
-			FoodCatalogueFamily.Oil => 1.8,
-			FoodCatalogueFamily.Syrup => 2.0,
-			FoodCatalogueFamily.Sauce => 1.5,
-			_ => 1.0
-		};
-		liquid.Density = entry.Family is FoodCatalogueFamily.Oil ? 0.92 : 1.02;
+		liquid.Viscosity = viscosity;
+		liquid.Density = density;
 		liquid.Organic = true;
 		liquid.ThermalConductivity = 0.6;
 		liquid.ElectricalConductivity = 0.0001;
@@ -642,6 +702,7 @@ public partial class ItemSeeder
 		liquid.SurfaceReactionInfo = string.Empty;
 
 		ReconcileFoodLiquidTags(liquid, BuildFoodLiquidTags(entry));
+		CompleteManifestAggregate(manifestEntry, liquid.Id, manifestDefinition, disposition);
 	}
 
 	private void ReconcileFoodLiquidTags(Liquid liquid, IReadOnlyCollection<string> tagPaths)
@@ -726,66 +787,9 @@ public partial class ItemSeeder
 			$"Admission profile: {entry.AdmissionProfile}. Nutrition band: {entry.Nutrition}.";
 	}
 
-	private static string? RemovePriorFoodBuilderNotes(string? builderNotes)
-	{
-		if (string.IsNullOrWhiteSpace(builderNotes))
-		{
-			return builderNotes;
-		}
-
-		var retained = builderNotes
-			.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries)
-			.Where(x => !x.TrimStart().StartsWith(
-				"Hand-authored pre-industrial food catalogue row.",
-				StringComparison.OrdinalIgnoreCase))
-			.ToArray();
-		return retained.Length == 0 ? null : string.Join(Environment.NewLine, retained);
-	}
-
 	private Tag EnsurePreIndustrialFoodTagPath(string path)
 	{
-		if (_tagsByFullPath.TryGetValue(path, out var existing))
-		{
-			return existing;
-		}
-
-		var parts = path.Split('/', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-		Tag? parent = null;
-		var fullPath = string.Empty;
-		foreach (var part in parts)
-		{
-			fullPath = string.IsNullOrWhiteSpace(fullPath) ? part : $"{fullPath} / {part}";
-			if (_tagsByFullPath.TryGetValue(fullPath, out existing))
-			{
-				parent = existing;
-				continue;
-			}
-
-			var parentId = parent?.Id;
-			existing = _context!.Tags.Local
-				           .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase) &&
-				                                x.ParentId == parentId) ??
-			           _context.Tags
-				           .AsEnumerable()
-				           .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase) &&
-				                                x.ParentId == parentId);
-			if (existing is null)
-			{
-				existing = new Tag
-				{
-					Id = NextPreIndustrialFoodTagId(),
-					Name = part,
-					Parent = parent,
-					ParentId = parent?.Id
-				};
-				_context.Tags.Add(existing);
-			}
-
-			_tagsByFullPath[fullPath] = existing;
-			parent = existing;
-		}
-
-		return parent!;
+		return EnsureAntiquityTagPath(path);
 	}
 
 	private long NextPreIndustrialFoodTagId()

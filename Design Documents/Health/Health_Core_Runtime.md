@@ -83,6 +83,8 @@ The body runtime continuously tracks more than visible wounds:
 - internal bleeding and other hidden trauma
 - consequences of low circulation for prompts, health checks, and death
 
+Unit descriptions retain a smallest describer independently for every measurement type, so zero or sub-unit internal bleeding quantities remain explicit rather than leaving blanks in diagnostics.
+
 Surface-liquid persistence permits blood records whose source race or blood type is no longer available. Those optional references serialize as zero rather than aborting the owning body's save; this is important because a failed body save would also lose unrelated inventory, implant, and cannula state from the same transaction.
 
 Temperature imbalance now participates in this same layer. Mild and moderate stages remain mostly symptomatic, but severe and especially critical hypothermia or hyperthermia apply organ-function penalties through the effect system. That means thermal injury is reversible while exposure is corrected, but can still become fatal if a body is left in critical extremes for long enough.

@@ -1,0 +1,311 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.5.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> Japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+An Unnamed Location
+ID[2,666] | Terrain[Indoors] | [SafeQuit] | Overlay[Trap Live Test August 2026 (#98r0)] | Coordinates[0,0,0]
+Exits: 
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, the lighting is very bright here.
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> goto 2666
+You are already there!
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate edit new
+You create a new trap template with ID 1, which you are now editing.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set name LabMUD Test Tripwire Explosion
+> traptemplate set trigger add ExitTraversal
+This trap template is now named LabMUD Test Tripwire Explosion.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+
+You add a ExitTraversal trigger.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set trigger 1 parameter chance 100
+You set the chance parameter on that trigger.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set payload add DetonateItem
+You add a DetonateItem payload.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set validate
+This trap template is ready for review.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate edit
+You are currently editing Trap Template LabMUD Test Tripwire Explosion (1r0)
+
+Trap Template #1r0 - LabMUD Test Tripwire Explosion - Under Design
+Source: Mechanical
+Charges: 1
+Cooldown: nil
+Disarm: Risky
+Lifecycle: Indefinite
+
+Triggers:
+  1. ExitTraversal
+Payloads:
+  1. DetonateItem after nil targeting Triggerer
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate edit close
+You close your current edited Trap Template.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate edit new
+You create a new trap template with ID 2, which you are now editing.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set name LabMUD Test Bear Trap
+This trap template is now named LabMUD Test Bear Trap.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set trigger add Proximity
+You add a Proximity trigger.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set trigger 1 parameter chance 100
+You set the chance parameter on that trigger.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set trigger 1 parameter maximumproximity Immediate
+You set the maximumproximity parameter on that trigger.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set payload add DirectDamage
+You add a DirectDamage payload.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set payload 1 parameter damage 1
+You set the damage parameter on that payload.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set payload 1 parameter damagetype Piercing
+You set the damagetype parameter on that payload.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set payload add Restraint
+You add a Restraint payload.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set payload 2 parameter duration 00:00:05
+You set the duration parameter on that payload.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set payload 2 parameter description caught in the LabMUD test bear trap
+You set the description parameter on that payload.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set validate
+This trap template is ready for review.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate edit
+You are currently editing Trap Template LabMUD Test Bear Trap (2r0)
+
+Trap Template #2r0 - LabMUD Test Bear Trap - Under Design
+Source: Mechanical
+Charges: 1
+Cooldown: nil
+Disarm: Risky
+Lifecycle: Indefinite
+
+Triggers:
+  1. Proximity
+Payloads:
+  1. DirectDamage after nil targeting Triggerer
+  2. Restraint after nil targeting Triggerer
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate edit close
+You close your current edited Trap Template.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate edit new
+You create a new trap template with ID 3, which you are now editing.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set name LabMUD Test Magical Drug Mist
+This trap template is now named LabMUD Test Magical Drug Mist.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set domain Magical
+This is now a Magical trap template.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set trigger add Proximity
+You add a Proximity trigger.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set trigger 1 parameter chance 100
+You set the chance parameter on that trigger.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set payload add GasCloud
+You add a GasCloud payload.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set payload 1 parameter gas 5
+You set the gas parameter on that payload.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set payload 1 parameter duration 00:00:10
+You set the duration parameter on that payload.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set payload 1 parameter dose 0.0001
+You set the dose parameter on that payload.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set payload 1 parameter cloudecho a coloured drug mist spreads through the room
+You set the cloudecho parameter on that payload.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate set validate
+This trap template is ready for review.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate edit
+You are currently editing Trap Template LabMUD Test Magical Drug Mist (3r0)
+
+Trap Template #3r0 - LabMUD Test Magical Drug Mist - Under Design
+Source: Magical
+Charges: 1
+Cooldown: nil
+Disarm: Risky
+Lifecycle: Indefinite
+
+Triggers:
+  1. Proximity
+Payloads:
+  1. GasCloud after nil targeting Triggerer
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate edit close
+You close your current edited Trap Template.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> traptemplate list
+âââââââ¦âââââââ¦âââââââââââââââââââââââââââââââââ¦âââââââââââââ¦âââââââââââ¦âââââââââââ¦âââââââââââââââ
+â ID# â Rev# â Name                           â Source     â Triggers â Payloads â Status       â
+â ââââââ¬âââââââ¬âââââââââââââââââââââââââââââââââ¬âââââââââââââ¬âââââââââââ¬âââââââââââ¬âââââââââââââââ£
+â 1   â 0    â LabMUD Test Tripwire Explosion â Mechanical â 1        â 1        â Under Design â
+â 2   â 0    â LabMUD Test Bear Trap          â Mechanical â 1        â 2        â Under Design â
+â 3   â 0    â LabMUD Test Magical Drug Mist  â Magical    â 1        â 1        â Under Design â
+âââââââ©âââââââ©âââââââââââââââââââââââââââââââââ©âââââââââââââ©âââââââââââ©âââââââââââ©âââââââââââââââ
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

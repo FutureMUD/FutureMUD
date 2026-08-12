@@ -101,23 +101,49 @@
 	window.mudClientInput = (function () {
 		let element = null;
 		let handler = null;
+		let dotNetHelper = null;
+
+		function isAtHistoryBoundary(direction) {
+			if (!element || element.selectionStart !== element.selectionEnd) {
+				return false;
+			}
+
+			const input = element.value || '';
+			if (direction === 'up') {
+				return input.lastIndexOf('\n', element.selectionStart - 1) === -1;
+			}
+
+			return input.indexOf('\n', element.selectionEnd) === -1;
+		}
+
+		function requestHistoryNavigation(event, direction) {
+			if (!isAtHistoryBoundary(direction) || !dotNetHelper) {
+				return;
+			}
+
+			event.preventDefault();
+			const jumpToBoundary = event.ctrlKey;
+			dotNetHelper.invokeMethodAsync('NavigateCommandHistory', direction, jumpToBoundary, element.value || '');
+		}
 
 		return {
-			register: function (elementId) {
+			register: function (elementId, helper) {
 				this.dispose();
 				element = document.getElementById(elementId);
 				if (!element) {
 					return;
 				}
+				dotNetHelper = helper;
 
 				handler = function (event) {
-					const shouldPrevent =
-						(event.key === 'Enter' && !event.shiftKey) ||
-						event.key === 'ArrowUp' ||
-						event.key === 'ArrowDown' ||
-						(event.ctrlKey && (event.key === 'Home' || event.key === 'End'));
-					if (shouldPrevent) {
+					if (event.key === 'Enter' && !event.shiftKey) {
 						event.preventDefault();
+						return;
+					}
+
+					if (!event.shiftKey && !event.altKey && !event.metaKey &&
+						(event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+						requestHistoryNavigation(event, event.key === 'ArrowUp' ? 'up' : 'down');
 					}
 				};
 				element.addEventListener('keydown', handler);
@@ -129,26 +155,183 @@
 
 				element = null;
 				handler = null;
+				dotNetHelper = null;
 			}
 		};
 	})();
 
-	window.scrollToBottomIfNearBottom = function (element) {
-		if (!element) {
-			return;
+	window.mudClientTranscript = (function () {
+		let element = null;
+		let mutationObserver = null;
+		let scrollHandler = null;
+		let keydownHandler = null;
+		let interactionHandler = null;
+		let contentLoadHandler = null;
+		let isPinnedToBottom = true;
+		let scrollFrame = null;
+		let observedScrollHeight = 0;
+		let hasUserScrollIntent = false;
+
+		function isAtBottom() {
+			return !!element && element.scrollTop + element.clientHeight >= element.scrollHeight - 4;
 		}
 
-		const previousHeight = Number.parseFloat(element.dataset.previousScrollHeight || '0');
-		const referenceHeight = previousHeight > 0 ? previousHeight : element.scrollHeight;
-		const wasNearBottom = referenceHeight - element.clientHeight - element.scrollTop < 160;
-		element.dataset.previousScrollHeight = String(element.scrollHeight);
-		if (wasNearBottom || previousHeight === 0) {
-			window.requestAnimationFrame(function () {
-				element.scrollTop = element.scrollHeight;
-				element.dataset.previousScrollHeight = String(element.scrollHeight);
+		function updatePinnedState() {
+			if (!element) {
+				return;
+			}
+
+			const currentScrollHeight = element.scrollHeight;
+			if (!hasUserScrollIntent && isPinnedToBottom && currentScrollHeight !== observedScrollHeight) {
+				scheduleScrollToBottom();
+				return;
+			}
+
+			isPinnedToBottom = isAtBottom();
+			observedScrollHeight = currentScrollHeight;
+			hasUserScrollIntent = false;
+		}
+
+		function noteUserScrollIntent() {
+			hasUserScrollIntent = true;
+			if (scrollFrame !== null) {
+				window.cancelAnimationFrame(scrollFrame);
+				scrollFrame = null;
+			}
+		}
+
+		function scrollToBottom() {
+			if (!element) {
+				return;
+			}
+
+			element.scrollTop = element.scrollHeight;
+			isPinnedToBottom = true;
+			observedScrollHeight = element.scrollHeight;
+			hasUserScrollIntent = false;
+		}
+
+		function scheduleScrollToBottom() {
+			if (scrollFrame !== null || !isPinnedToBottom) {
+				return;
+			}
+
+			scrollFrame = window.requestAnimationFrame(function () {
+				scrollFrame = null;
+				if (isPinnedToBottom) {
+					scrollToBottom();
+				}
 			});
 		}
-	};
+
+		function scrollBy(amount) {
+			if (!element) {
+				return;
+			}
+
+			noteUserScrollIntent();
+			element.scrollTop += amount;
+			updatePinnedState();
+		}
+
+		function handleKeydown(event) {
+			if (!element || event.altKey || event.metaKey) {
+				return;
+			}
+
+			switch (event.key) {
+				case 'Home':
+					event.preventDefault();
+					noteUserScrollIntent();
+					element.scrollTop = 0;
+					updatePinnedState();
+					break;
+				case 'End':
+					event.preventDefault();
+					scrollToBottom();
+					break;
+				case 'PageUp':
+					event.preventDefault();
+					scrollBy(-element.clientHeight);
+					break;
+				case 'PageDown':
+					event.preventDefault();
+					scrollBy(element.clientHeight);
+					break;
+				case 'ArrowUp':
+					event.preventDefault();
+					scrollBy(-Math.max(24, parseFloat(getComputedStyle(element).lineHeight) || 24));
+					break;
+				case 'ArrowDown':
+					event.preventDefault();
+					scrollBy(Math.max(24, parseFloat(getComputedStyle(element).lineHeight) || 24));
+					break;
+			}
+		}
+
+		return {
+			register: function (outputElement) {
+				this.dispose();
+				element = outputElement;
+				if (!element) {
+					return;
+				}
+
+				updatePinnedState();
+				scrollToBottom();
+				scrollHandler = updatePinnedState;
+				keydownHandler = handleKeydown;
+				interactionHandler = noteUserScrollIntent;
+				contentLoadHandler = scheduleScrollToBottom;
+				element.addEventListener('scroll', scrollHandler, { passive: true });
+				element.addEventListener('keydown', keydownHandler);
+				element.addEventListener('wheel', interactionHandler, { passive: true });
+				element.addEventListener('touchstart', interactionHandler, { passive: true });
+				element.addEventListener('pointerdown', interactionHandler, { passive: true });
+				element.addEventListener('load', contentLoadHandler, true);
+				mutationObserver = new MutationObserver(scheduleScrollToBottom);
+				mutationObserver.observe(element, { childList: true, subtree: true });
+			},
+			dispose: function () {
+				if (element && scrollHandler) {
+					element.removeEventListener('scroll', scrollHandler);
+				}
+
+				if (element && keydownHandler) {
+					element.removeEventListener('keydown', keydownHandler);
+				}
+
+				if (element && interactionHandler) {
+					element.removeEventListener('wheel', interactionHandler);
+					element.removeEventListener('touchstart', interactionHandler);
+					element.removeEventListener('pointerdown', interactionHandler);
+				}
+
+				if (element && contentLoadHandler) {
+					element.removeEventListener('load', contentLoadHandler, true);
+				}
+
+				if (mutationObserver) {
+					mutationObserver.disconnect();
+				}
+
+				if (scrollFrame !== null) {
+					window.cancelAnimationFrame(scrollFrame);
+				}
+
+				element = null;
+				mutationObserver = null;
+				scrollHandler = null;
+				keydownHandler = null;
+				interactionHandler = null;
+				contentLoadHandler = null;
+				isPinnedToBottom = true;
+				scrollFrame = null;
+				observedScrollHeight = 0;
+				hasUserScrollIntent = false;
+			}
+		};
+	})();
 
 	window.getSelectionStart = function (elementId) {
 		const element = document.getElementById(elementId);

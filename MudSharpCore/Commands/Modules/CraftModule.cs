@@ -773,7 +773,13 @@ You can use the following player options with this command:
 	#3join <project>#0 - joins an active project
 	#3quit <project>#0 - quits an active project you are working on
 	#3queue#0 - shows your queued project labour assignments
-	#3queue <project> [<labour>]#0 - queues a project labour assignment for when you are next idle
+	#3queue <project> [<labour>]#0 - compatibility alias for #3queue join <project> [<labour>] once#0
+	#3queue join <project> [<labour>] [once|for <hours>|until phase|until completion]#0 - queues an active project
+	#3queue start <template> [<labour>] [once|for <hours>|until phase|until completion]#0 - queues a new project launch
+	#3queue mode <index> once|for <hours>|until phase|until completion#0 - changes when an entry advances
+	#3queue labour <index> <labour|automatic>#0 - changes a queued labour preference
+	#3queue move <index> <new-index>#0 - reorders an assignment
+	#3queue loop#0 - toggles repeating the queue (all entries must use a repeatable mode)
 	#3queue remove <index>#0 - removes a queued assignment
 	#3queue clear#0 - clears your queued assignments
 	#3cancel <project>#0 - cancels an active project
@@ -1596,6 +1602,31 @@ Note: See the closely related #3projects#0 command for information about your cu
                 ss.PopSpeech();
                 ProjectQueueClear(actor);
                 return;
+			case "join":
+				ss.PopSpeech();
+				ProjectQueueAdd(actor, ss, false);
+				return;
+			case "start":
+				ss.PopSpeech();
+				ProjectQueueStart(actor, ss);
+				return;
+			case "mode":
+				ss.PopSpeech();
+				ProjectQueueMode(actor, ss);
+				return;
+			case "labour":
+			case "labor":
+				ss.PopSpeech();
+				ProjectQueueLabour(actor, ss);
+				return;
+			case "move":
+				ss.PopSpeech();
+				ProjectQueueMove(actor, ss);
+				return;
+			case "loop":
+				ss.PopSpeech();
+				ProjectQueueLoop(actor);
+				return;
             case "remove":
             case "delete":
             case "rem":
@@ -1606,10 +1637,10 @@ Note: See the closely related #3projects#0 command for information about your cu
             case "?":
             case "help":
                 actor.OutputHandler.Send(
-                    "The syntax is PROJECT QUEUE, PROJECT QUEUE <project> [<labour>], PROJECT QUEUE REMOVE <index>, or PROJECT QUEUE CLEAR.");
+					"The syntax is PROJECT QUEUE [JOIN] <project> [<labour>] [once|for <hours>|until phase|until completion], PROJECT QUEUE START <template> ..., PROJECT QUEUE MODE, LABOUR, MOVE, REMOVE, CLEAR or LOOP.");
                 return;
             default:
-                ProjectQueueAdd(actor, ss);
+			ProjectQueueAdd(actor, ss, true);
                 return;
         }
     }
@@ -1725,6 +1756,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
+        actor.CompleteQueuedProjectLabour(project);
         project.Leave(actor);
         actor.TryJoinQueuedProjectLabour();
     }
@@ -1746,12 +1778,18 @@ Note: See the closely related #3projects#0 command for information about your cu
                 queue.Select(x => new[]
                 {
                     x.QueueOrder.ToString("N0", actor),
-                    x.Project?.Name ?? $"Project #{x.ProjectId.ToString("N0", actor)}",
-                    x.Labour?.Name ?? $"Labour #{x.LabourId.ToString("N0", actor)}",
+					x.EntryType.DescribeEnum(),
+					x.Project?.Name ?? (x.ProjectDefinitionId.HasValue ? $"Template #{x.ProjectDefinitionId.Value.ToString("N0", actor)}" : "Unknown"),
+					x.LabourPreference ?? "Automatic",
+					x.CompletionMode == ProjectLabourQueueCompletionMode.Duration
+						? $"for {x.ElapsedHours.ToString("N1", actor)}/{x.TargetHours.ToString("N1", actor)}h"
+						: x.CompletionMode.DescribeEnum(),
+					x.WatchedPhaseId?.ToString("N0", actor) ?? "-",
+					x.ClaimingCharacterInstanceId?.ToString("N0", actor) ?? "-",
                     x.Status.DescribeEnum(),
                     x.QueuedAt.ToString("g", actor)
                 }),
-                new[] { "#", "Project", "Labour", "Status", "Queued" },
+				new[] { "#", "Kind", "Project", "Labour", "Mode", "Phase", "Claim", "Status", "Queued" },
                 actor.LineFormatLength,
                 colour: Telnet.Green,
                 unicodeTable: actor.Account.UseUnicode)
@@ -1794,6 +1832,11 @@ Note: See the closely related #3projects#0 command for information about your cu
     }
 
     private static void ProjectQueueAdd(ICharacter actor, StringStack ss)
+	{
+		ProjectQueueAdd(actor, ss, true);
+	}
+
+	private static void ProjectQueueAdd(ICharacter actor, StringStack ss, bool compatibilityAlias)
     {
         if (ss.IsFinished)
         {
@@ -1809,67 +1852,166 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        IProjectLabourRequirement labour = null;
-        if (ss.IsFinished)
-        {
-            List<IProjectLabourRequirement> potentiallyQueueable = project.CurrentPhase.LabourRequirements
-                .Where(x => x.CharacterIsQualified(actor))
-                .ToList();
-            if (potentiallyQueueable.Count == 0)
-            {
-                actor.OutputHandler.Send(
-                    "You are not qualified to queue any of the labour requirements for that project.");
-                return;
-            }
+		if (!TryParseQueueOptions(actor, ss, compatibilityAlias, out var labourPreference, out var mode, out var targetHours))
+		{
+			return;
+		}
 
-            if (potentiallyQueueable.Count > 1)
-            {
-                actor.OutputHandler.Send(
-                    $"You are qualified for more than one of the labour requirements for that project, so you must specify which one you want to queue. Your options are {potentiallyQueueable.Select(x => x.Name.ColourValue()).ListToString()}.");
-                return;
-            }
-
-            labour = potentiallyQueueable.Single();
-        }
-        else
-        {
-            string labourText = ss.PopSpeech();
-            labour = project.CurrentPhase.LabourRequirements.FirstOrDefault(x => x.Name.EqualTo(labourText)) ??
-                     project.CurrentPhase.LabourRequirements.FirstOrDefault(x =>
-                         x.Name.StartsWith(labourText, StringComparison.InvariantCultureIgnoreCase));
-            if (labour == null)
-            {
-                actor.OutputHandler.Send(
-                    "The current phase of that project does not have any such labour requirement.");
-                return;
-            }
-
-            if (!labour.CharacterIsQualified(actor))
-            {
-                actor.OutputHandler.Send(
-                    $"You are not qualified to do the {labour.Name.ColourValue()} labour requirement for that project.");
-                return;
-            }
-        }
-
-        var existing = actor.ProjectLabourQueue
-            .OfType<ProjectLabourQueueEntry>()
-            .FirstOrDefault(x => x.ProjectId == project.Id && x.LabourId == labour.Id);
-        if (existing != null)
-        {
-            actor.OutputHandler.Send(
-                $"You already have {labour.Name.ColourValue()} on {project.Name.ColourName()} queued at position #{existing.QueueOrder.ToString("N0", actor).ColourValue()}.");
-            return;
-        }
-
-        var entry = actor.QueueProjectLabour(project, labour);
-        actor.OutputHandler.Send(
-            $"You queue {labour.Name.ColourValue()} on {project.Name.ColourName()} at position #{entry.QueueOrder.ToString("N0", actor).ColourValue()}. It is currently {entry.Status.DescribeEnum().ColourValue()}.");
+		var entry = actor.QueueProjectLabour(project, labourPreference, mode, targetHours);
+		actor.OutputHandler.Send(
+			$"You queue {(labourPreference ?? "automatic labour").ColourValue()} on {project.Name.ColourName()} at position #{entry.QueueOrder.ToString("N0", actor).ColourValue()}. It is currently {entry.Status.DescribeEnum().ColourValue()}.");
         if (actor.CurrentProject.Project == null)
         {
             actor.TryJoinQueuedProjectLabour();
         }
     }
+
+	private static void ProjectQueueStart(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which visible project template do you want to queue to start?");
+			return;
+		}
+
+		var project = actor.Gameworld.Projects.Where(x => x.AppearInProjectList(actor))
+			.GetFromItemListByKeyword(ss.PopSpeech(), actor);
+		if (project is null)
+		{
+			actor.OutputHandler.Send("You are not aware of any project template like that.");
+			return;
+		}
+
+		if (!TryParseQueueOptions(actor, ss, false, out var labourPreference, out var mode, out var targetHours))
+		{
+			return;
+		}
+
+		var entry = actor.QueueProjectStart(project, labourPreference, mode, targetHours);
+		actor.OutputHandler.Send($"You queue {project.Name.ColourName()} to start at position #{entry.QueueOrder.ToString("N0", actor).ColourValue()}. Eligibility will be checked when it reaches the queue.");
+		if (actor.CurrentProject.Project is null)
+		{
+			actor.TryJoinQueuedProjectLabour();
+		}
+	}
+
+	private static bool TryParseQueueOptions(ICharacter actor, StringStack ss, bool compatibilityAlias,
+		out string labourPreference, out ProjectLabourQueueCompletionMode mode, out double targetHours)
+	{
+		labourPreference = null;
+		mode = ProjectLabourQueueCompletionMode.JoinOnce;
+		targetHours = 0.0;
+		if (ss.IsFinished)
+		{
+			return true;
+		}
+
+		var first = ss.PopSpeech();
+		if (!first.EqualToAny("once", "for", "until"))
+		{
+			labourPreference = first.EqualTo("automatic") ? null : first;
+			if (ss.IsFinished)
+			{
+				return true;
+			}
+
+			first = ss.PopSpeech();
+		}
+
+		if (first.EqualTo("once"))
+		{
+			return ss.IsFinished;
+		}
+
+		if (first.EqualTo("for"))
+		{
+			if (ss.IsFinished || !double.TryParse(ss.PopSpeech(), actor, out targetHours) || targetHours <= 0.0 || !ss.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a positive number of hours after FOR.");
+				return false;
+			}
+
+			mode = ProjectLabourQueueCompletionMode.Duration;
+			return true;
+		}
+
+		if (!first.EqualTo("until") || ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Queue modes are ONCE, FOR <hours>, UNTIL PHASE, or UNTIL COMPLETION.");
+			return false;
+		}
+
+		var until = ss.PopSpeech();
+		if (!ss.IsFinished || !until.EqualToAny("phase", "completion"))
+		{
+			actor.OutputHandler.Send("Queue modes are UNTIL PHASE or UNTIL COMPLETION.");
+			return false;
+		}
+
+		mode = until.EqualTo("phase")
+			? ProjectLabourQueueCompletionMode.PhaseCompletion
+			: ProjectLabourQueueCompletionMode.ProjectCompletion;
+		return true;
+	}
+
+	private static void ProjectQueueMode(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var position))
+		{
+			actor.OutputHandler.Send("Which queue position do you want to change?");
+			return;
+		}
+
+		if (!TryParseQueueOptions(actor, ss, false, out _, out var mode, out var targetHours) ||
+			!actor.SetProjectLabourQueueMode(position, mode, targetHours))
+		{
+			actor.OutputHandler.Send("There is no such queue entry, or the duration was invalid.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You update the completion mode for queue entry #{position.ToString("N0", actor).ColourValue()}.");
+	}
+
+	private static void ProjectQueueLabour(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var position) || ss.IsFinished)
+		{
+			actor.OutputHandler.Send("The syntax is PROJECT QUEUE LABOUR <index> <labour|automatic>.");
+			return;
+		}
+
+		var labour = ss.SafeRemainingArgument;
+		if (!actor.SetProjectLabourQueueLabour(position, labour.EqualTo("automatic") ? null : labour))
+		{
+			actor.OutputHandler.Send("There is no such queue entry.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You update the labour preference for queue entry #{position.ToString("N0", actor).ColourValue()}.");
+	}
+
+	private static void ProjectQueueMove(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var position) || ss.IsFinished ||
+			!int.TryParse(ss.PopSpeech(), out var newPosition) || !actor.MoveProjectQueueEntry(position, newPosition))
+		{
+			actor.OutputHandler.Send("The syntax is PROJECT QUEUE MOVE <index> <new-index>, using existing positions.");
+			return;
+		}
+
+		actor.OutputHandler.Send("You reorder your queued project labour assignments.");
+	}
+
+	private static void ProjectQueueLoop(ICharacter actor)
+	{
+		if (!actor.SetProjectLabourQueueLooping(!actor.ProjectLabourQueueLooping))
+		{
+			actor.OutputHandler.Send("Every entry must use FOR or UNTIL before you can enable looping.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"Your project queue will {(actor.ProjectLabourQueueLooping ? "now" : "no longer")} loop.");
+	}
 
     private static void ProjectStart(ICharacter actor, StringStack ss)
     {

@@ -130,7 +130,8 @@ public sealed partial class ReleaseStore
 				SourceCommit = request.SourceCommit.ToLowerInvariant(),
 				CreatedAtUtc = DateTimeOffset.UtcNow,
 				Artifacts = request.Artifacts,
-				DocumentationCatalogue = request.DocumentationCatalogue
+				DocumentationCatalogue = request.DocumentationCatalogue,
+				UpdateManifest = request.UpdateManifest
 			};
 			Directory.CreateDirectory(GetDraftPath(release.UploadId));
 			Directory.CreateDirectory(GetChunksPath(release.UploadId));
@@ -344,9 +345,15 @@ public sealed partial class ReleaseStore
 				Version = staged.Version,
 				SourceCommit = staged.SourceCommit,
 				PublishedAtUtc = DateTimeOffset.UtcNow,
-				Artifacts = staged.Artifacts
+				Artifacts = staged.Artifacts,
+				HasUpdateManifest = staged.UpdateManifest is not null
 			};
 			var candidate = Path.Combine(GetDraftPath(uploadId), "release");
+			if (staged.UpdateManifest is not null)
+			{
+				await File.WriteAllBytesAsync(Path.Combine(candidate, "update-manifest.json"), Convert.FromBase64String(staged.UpdateManifest.ContentBase64), cancellationToken);
+				await File.WriteAllBytesAsync(Path.Combine(candidate, "update-manifest.sig"), Convert.FromBase64String(staged.UpdateManifest.SignatureBase64), cancellationToken);
+			}
 			await WriteJsonAsync(Path.Combine(candidate, "release.json"), publicRelease, cancellationToken);
 
 			string? documentationTemporary = null;
@@ -1019,6 +1026,16 @@ public sealed partial class ReleaseStore
 		{
 			throw new ReleaseStoreException("The documentation catalogue requirement is not satisfied.", StatusCodes.Status400BadRequest);
 		}
+		if (request.UpdateManifest is not null)
+		{
+			MudClientUpdateManifestVerifier.Verify(
+				request.UpdateManifest,
+				_options,
+				request.Product,
+				request.Version,
+				request.SourceCommit,
+				request.Artifacts);
+		}
 		var ids = new HashSet<string>(StringComparer.Ordinal);
 		foreach (var artifact in request.Artifacts.Append(request.DocumentationCatalogue).Where(artifact => artifact is not null).Cast<ReleaseArtifactRequest>())
 		{
@@ -1066,6 +1083,13 @@ public sealed partial class ReleaseStore
 			{
 				(null, null) => true,
 				(not null, not null) => Key(existing.DocumentationCatalogue) == Key(request.DocumentationCatalogue),
+				_ => false
+			} && (existing.UpdateManifest, request.UpdateManifest) switch
+			{
+				(null, null) => true,
+				(not null, not null) => existing.UpdateManifest.ContentBase64 == request.UpdateManifest.ContentBase64 &&
+											existing.UpdateManifest.SignatureBase64 == request.UpdateManifest.SignatureBase64 &&
+											existing.UpdateManifest.KeyId == request.UpdateManifest.KeyId,
 				_ => false
 			};
 	}

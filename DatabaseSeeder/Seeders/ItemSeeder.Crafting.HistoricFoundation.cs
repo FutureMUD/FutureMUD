@@ -17,8 +17,7 @@ public partial class ItemSeeder
 	private bool ShouldSeedHistoricCrafts()
 	{
 		return _questionAnswers?.TryGetValue("eras", out var eras) == true &&
-		       (eras.Contains("antiquity", StringComparison.InvariantCultureIgnoreCase) ||
-		        eras.Contains("medieval", StringComparison.InvariantCultureIgnoreCase));
+		       HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern");
 	}
 
 	private Craft? AddHistoricCraft(
@@ -56,7 +55,7 @@ public partial class ItemSeeder
 			tools,
 			products,
 			failProducts ?? [],
-			knowledgeSubtype: knowledgeSubtype,
+			knowledgeSubtype: "Foundations",
 			knowledgeDescription: "Shared historic workshop foundations for antiquity and medieval installs.",
 			knowledgeLongDescription: "Shared historic workshop foundations for cross-era stock such as hearths, looms, kilns, shears, awls, querns, and general apparatus.");
 	}

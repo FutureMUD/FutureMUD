@@ -82,6 +82,44 @@ South Asian	Shared	Culture / Renaissance / Shared / South Asian
 South-east Asian Mainland	Shared	Culture / Renaissance / Shared / South-east Asian Mainland
 Steppe and Caravan	Shared	Culture / Renaissance / Shared / Steppe and Caravan
 Western European Renaissance	Shared	Culture / Renaissance / Shared / Western European Renaissance
+Early Modern	Culture	Culture / Early Modern
+Shared	Early Modern	Culture / Early Modern / Shared
+Andean Colonial Indigenous	Shared	Culture / Early Modern / Shared / Andean Colonial Indigenous
+Caribbean Atlantic Plantation	Shared	Culture / Early Modern / Shared / Caribbean Atlantic Plantation
+Dutch Republic Low Countries	Shared	Culture / Early Modern / Shared / Dutch Republic Low Countries
+Edo Japan	Shared	Culture / Early Modern / Shared / Edo Japan
+English British Stuart Georgian	Shared	Culture / Early Modern / Shared / English British Stuart Georgian
+English French Dutch Colonial North America	Shared	Culture / Early Modern / Shared / English French Dutch Colonial North America
+Ethiopian Red Sea	Shared	Culture / Early Modern / Shared / Ethiopian Red Sea
+French Baroque Court Urban	Shared	Culture / Early Modern / Shared / French Baroque Court Urban
+German HRE Austrian	Shared	Culture / Early Modern / Shared / German HRE Austrian
+Global Maritime Chartered Company Trade	Shared	Culture / Early Modern / Shared / Global Maritime Chartered Company Trade
+Indigenous North American Regional Families	Shared	Culture / Early Modern / Shared / Indigenous North American Regional Families
+Inner Asian Steppe Frontier	Shared	Culture / Early Modern / Shared / Inner Asian Steppe Frontier
+Italian States	Shared	Culture / Early Modern / Shared / Italian States
+Iberian Portuguese Spanish Empires	Shared	Culture / Early Modern / Shared / Iberian Portuguese Spanish Empires
+Joseon Korea	Shared	Culture / Early Modern / Shared / Joseon Korea
+Kongo Angola West Central Africa	Shared	Culture / Early Modern / Shared / Kongo Angola West Central Africa
+Late Ming Survival Transition	Shared	Culture / Early Modern / Shared / Late Ming Survival Transition
+Mainland South-east Asian Courts	Shared	Culture / Early Modern / Shared / Mainland South-east Asian Courts
+Maghrebi North African	Shared	Culture / Early Modern / Shared / Maghrebi North African
+Maratha Rajput Deccan	Shared	Culture / Early Modern / Shared / Maratha Rajput Deccan
+Maritime South-east Asian Trade Worlds	Shared	Culture / Early Modern / Shared / Maritime South-east Asian Trade Worlds
+Mesoamerican Colonial Indigenous	Shared	Culture / Early Modern / Shared / Mesoamerican Colonial Indigenous
+Mughal Indo-Persian	Shared	Culture / Early Modern / Shared / Mughal Indo-Persian
+Ottoman	Shared	Culture / Early Modern / Shared / Ottoman
+Polish Lithuanian Hungarian Frontier	Shared	Culture / Early Modern / Shared / Polish Lithuanian Hungarian Frontier
+Portuguese Brazil Atlantic Plantation	Shared	Culture / Early Modern / Shared / Portuguese Brazil Atlantic Plantation
+Qing China	Shared	Culture / Early Modern / Shared / Qing China
+Russian Petrine Post-Petrine	Shared	Culture / Early Modern / Shared / Russian Petrine Post-Petrine
+Ryukyu Maritime East Asia	Shared	Culture / Early Modern / Shared / Ryukyu Maritime East Asia
+Safavid Post-Safavid Persianate	Shared	Culture / Early Modern / Shared / Safavid Post-Safavid Persianate
+Sahelian Hausa Islamic West Africa	Shared	Culture / Early Modern / Shared / Sahelian Hausa Islamic West Africa
+Scandinavian Baltic	Shared	Culture / Early Modern / Shared / Scandinavian Baltic
+South Indian Coastal Trade	Shared	Culture / Early Modern / Shared / South Indian Coastal Trade
+Spanish Colonial Americas	Shared	Culture / Early Modern / Shared / Spanish Colonial Americas
+Swahili Coast Indian Ocean Africa	Shared	Culture / Early Modern / Shared / Swahili Coast Indian Ocean Africa
+West African Court Atlantic Trade	Shared	Culture / Early Modern / Shared / West African Court Atlantic Trade
 Era		Era
 Antiquity Era	Era	Era / Antiquity Era
 Bronze Age Era	Era	Era / Bronze Age Era
@@ -325,6 +363,9 @@ Splint Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft 
 Surgical Tool Blank	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Surgical Tool Blank
 Suture Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Suture Stock
 Meltable	Material Functions	Functions / Material Functions / Meltable
+Artillery Fuse	Material Functions	Functions / Material Functions / Artillery Fuse
+Artillery Wadding	Material Functions	Functions / Material Functions / Artillery Wadding
+Match Cord	Material Functions	Functions / Material Functions / Match Cord
 Musket Wadding	Material Functions	Functions / Material Functions / Musket Wadding
 Ore Deposit	Material Functions	Functions / Material Functions / Ore Deposit
 Padding	Material Functions	Functions / Material Functions / Padding
@@ -332,6 +373,7 @@ Primary Production	Material Functions	Functions / Material Functions / Primary P
 Primary Production Clay	Primary Production	Functions / Material Functions / Primary Production / Primary Production Clay
 Primary Production Commodity	Primary Production	Functions / Material Functions / Primary Production / Primary Production Commodity
 Charcoal Fuel Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Charcoal Fuel Commodity
+Gunpowder Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Gunpowder Commodity
 Dressed Stone Block Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Dressed Stone Block Commodity
 Fired Brick Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Fired Brick Commodity
 Metal Bar Stock Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Metal Bar Stock Commodity
@@ -410,6 +452,17 @@ Scissors	Shearing	Functions / Separation / Shearing / Scissors
 Shears	Shearing	Functions / Separation / Shearing / Shears
 Sharpening	Functions	Functions / Sharpening
 Shiny	Functions	Functions / Shiny
+Trap Components	Functions	Functions / Trap Components
+Bear Trap Mechanism	Trap Components	Functions / Trap Components / Bear Trap Mechanism
+Explosive Trap Payload	Trap Components	Functions / Trap Components / Explosive Trap Payload
+Gas Trap Payload	Trap Components	Functions / Trap Components / Gas Trap Payload
+Liquid Trap Payload	Trap Components	Functions / Trap Components / Liquid Trap Payload
+Needle Trap Mechanism	Trap Components	Functions / Trap Components / Needle Trap Mechanism
+Openable Trap Trigger	Trap Components	Functions / Trap Components / Openable Trap Trigger
+Pressure Trap Mechanism	Trap Components	Functions / Trap Components / Pressure Trap Mechanism
+Signal Trap Trigger	Trap Components	Functions / Trap Components / Signal Trap Trigger
+Signal Trap Payload	Trap Components	Functions / Trap Components / Signal Trap Payload
+Tripwire Trigger	Trap Components	Functions / Trap Components / Tripwire Trigger
 Tools	Functions	Functions / Tools
 Access Equipment	Tools	Functions / Tools / Access Equipment
 Ladder	Access Equipment	Functions / Tools / Access Equipment / Ladder
@@ -461,6 +514,11 @@ Planishing Hammer	Armouring Tools	Functions / Tools / Armouring Tools / Planishi
 Plate Snips	Armouring Tools	Functions / Tools / Armouring Tools / Plate Snips
 Raising Hammer	Armouring Tools	Functions / Tools / Armouring Tools / Raising Hammer
 T-Stake	Armouring Tools	Functions / Tools / Armouring Tools / T-Stake
+Artillery Tools	Tools	Functions / Tools / Artillery Tools
+Artillery Linstock	Artillery Tools	Functions / Tools / Artillery Tools / Artillery Linstock
+Artillery Rammer	Artillery Tools	Functions / Tools / Artillery Tools / Artillery Rammer
+Artillery Sponge	Artillery Tools	Functions / Tools / Artillery Tools / Artillery Sponge
+Artillery Vent Tool	Artillery Tools	Functions / Tools / Artillery Tools / Artillery Vent Tool
 Bookbinding Tools	Tools	Functions / Tools / Bookbinding Tools
 Backing Hammer	Bookbinding Tools	Functions / Tools / Bookbinding Tools / Backing Hammer
 Book Plough	Bookbinding Tools	Functions / Tools / Bookbinding Tools / Book Plough
@@ -711,6 +769,10 @@ Engraver's Burin	Engraving Tools	Functions / Tools / Engraving Tools / Engraver'
 Etcher's Needle	Engraving Tools	Functions / Tools / Engraving Tools / Etcher's Needle
 Etching Ground Dauber	Engraving Tools	Functions / Tools / Engraving Tools / Etching Ground Dauber
 Plate Warming Brazier	Engraving Tools	Functions / Tools / Engraving Tools / Plate Warming Brazier
+Firearm Tools	Tools	Functions / Tools / Firearm Tools
+Musket Cleaning Rod	Firearm Tools	Functions / Tools / Firearm Tools / Musket Cleaning Rod
+Musket Ramrod	Firearm Tools	Functions / Tools / Firearm Tools / Musket Ramrod
+Musket Unjamming Tool	Firearm Tools	Functions / Tools / Firearm Tools / Musket Unjamming Tool
 Fastening Tools	Tools	Functions / Tools / Fastening Tools
 Rivet Gun	Fastening Tools	Functions / Tools / Fastening Tools / Rivet Gun
 Riveter	Fastening Tools	Functions / Tools / Fastening Tools / Riveter
@@ -2217,3 +2279,23 @@ Space	Extraterrestrial	Terrain / Wild / Extraterrestrial / Space
 Littoral	Wild	Terrain / Wild / Littoral
 Riparian	Wild	Terrain / Wild / Riparian
 Terrestrial	Wild	Terrain / Wild / Terrestrial
+Chemical Remedy	Medical Treatment	Functions / Medical Treatment / Chemical Remedy
+Bloodletting	Medical Treatment	Functions / Medical Treatment / Bloodletting
+Cupping	Medical Treatment	Functions / Medical Treatment / Cupping
+Dental Treatment	Medical Treatment	Functions / Medical Treatment / Dental Treatment
+Diagnostic Prop	Medical Treatment	Functions / Medical Treatment / Diagnostic Prop
+Inoculation Prop	Medical Treatment	Functions / Medical Treatment / Inoculation Prop
+Obstetric Aid	Medical Treatment	Functions / Medical Treatment / Obstetric Aid
+Public Health	Medical Treatment	Functions / Medical Treatment / Public Health
+Quarantine	Medical Treatment	Functions / Medical Treatment / Quarantine
+Veterinary Treatment	Medical Treatment	Functions / Medical Treatment / Veterinary Treatment
+Clockwork	Repairing	Functions / Repairing / Clockwork
+Firearm	Repairing	Functions / Repairing / Firearm
+Medical Instrument	Repairing	Functions / Repairing / Medical Instrument
+Optical Instrument	Repairing	Functions / Repairing / Optical Instrument
+Printing Equipment	Repairing	Functions / Repairing / Printing Equipment
+Scientific Instrument	Repairing	Functions / Repairing / Scientific Instrument
+Chemical Medicine	Medicine	Market / Medicine / Chemical Medicine
+Public Health	Medicine	Market / Medicine / Public Health
+Veterinary Medicine	Medicine	Market / Medicine / Veterinary Medicine
+Precision Repair Supplies	Repair Supplies	Market / Repair Supplies / Precision Repair Supplies

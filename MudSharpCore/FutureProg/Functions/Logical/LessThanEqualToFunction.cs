@@ -5,9 +5,12 @@ namespace MudSharp.FutureProg.Functions.Logical;
 
 internal class LessThanEqualToFunction : BinaryFunction
 {
+	private readonly ProgVariableTypeCode _comparisonType;
+
     public LessThanEqualToFunction(IFunction lhs, IFunction rhs)
         : base(lhs, rhs)
     {
+		_comparisonType = (lhs.ReturnType & ~ProgVariableTypes.Literal).LegacyCode;
     }
 
     public override ProgVariableTypes ReturnType
@@ -23,7 +26,7 @@ internal class LessThanEqualToFunction : BinaryFunction
             return StatementResult.Error;
         }
 
-        switch ((LHS.ReturnType & ~ProgVariableTypes.Literal).LegacyCode)
+		switch (_comparisonType)
         {
             case ProgVariableTypeCode.Number:
                 Result = new BooleanVariable((decimal)LHS.Result.GetObject <= (decimal)RHS.Result.GetObject);

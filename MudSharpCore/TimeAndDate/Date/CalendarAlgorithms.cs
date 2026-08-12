@@ -91,12 +91,29 @@ public sealed class FixedMonthCalendarAlgorithm : IFixedMonthCalendarAlgorithm
 
 	private static List<Month> CreateMonths(ICalendar calendar, int whichYear)
 	{
-		var months = new List<Month>();
-		months.AddRange(calendar.Months.Select(x => new Month(x, whichYear)));
-		months.AddRange(calendar.Intercalaries
-		                   .Where(x => x.Rule.IsIntercalaryYear(whichYear))
-		                   .Select(x => new Month(x.Month, whichYear)));
-		return months.OrderBy(x => x.NominalOrder).ToList();
+		var months = calendar.Months
+		                     .OrderBy(x => x.NominalOrder)
+		                     .Select(x => new Month(x, whichYear))
+		                     .ToList();
+		foreach (var intercalary in calendar.Intercalaries.Where(x => x.Rule.IsIntercalaryYear(whichYear)))
+		{
+			var index = int.TryParse(intercalary.InsertPosition, NumberStyles.Integer,
+				CultureInfo.InvariantCulture, out var numericPosition)
+				? Math.Clamp(numericPosition - 1, 0, months.Count)
+				: months.FindIndex(x => x.Alias.EqualTo(intercalary.InsertPosition));
+			if (index < 0)
+			{
+				index = months.FindIndex(x => x.NominalOrder >= intercalary.Month.NominalOrder);
+				if (index < 0)
+				{
+					index = months.Count;
+				}
+			}
+
+			months.Insert(index, new Month(intercalary.Month, whichYear));
+		}
+
+		return months;
 	}
 
 	public XElement SaveToXml()
@@ -147,11 +164,12 @@ public sealed class TabularLunarCalendarAlgorithm : ICalculatedCalendarAlgorithm
 		                     .ToList();
 		if (IsLeapYear(whichYear) && months.Count > 0)
 		{
-			var index = string.IsNullOrWhiteSpace(LeapMonthAlias)
+			var requestedIndex = string.IsNullOrWhiteSpace(LeapMonthAlias)
 				? months.Count - 1
-				: Math.Max(0, months.FindIndex(x => x.Alias.EqualTo(LeapMonthAlias)));
-			var source = calendar.Months[Math.Min(index < 0 ? months.Count - 1 : index, calendar.Months.Count - 1)];
-			months[index < 0 ? months.Count - 1 : index] = BuildMonth(source, whichYear, months[index < 0 ? months.Count - 1 : index].Days + 1);
+				: months.FindIndex(x => x.Alias.EqualTo(LeapMonthAlias));
+			var index = requestedIndex < 0 ? months.Count - 1 : requestedIndex;
+			var source = calendar.Months[Math.Min(index, calendar.Months.Count - 1)];
+			months[index] = BuildMonth(source, whichYear, months[index].Days + 1);
 		}
 
 		return months;

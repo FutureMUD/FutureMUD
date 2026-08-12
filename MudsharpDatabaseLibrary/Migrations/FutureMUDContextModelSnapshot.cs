@@ -3989,6 +3989,11 @@ namespace MudSharp.Migrations
                     b.Property<ulong?>("Unary")
                         .HasColumnType("bit(1)");
 
+                    b.Property<ulong>("UseLimbSeverDescription")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValueSql("b'1'");
+
                     b.Property<double>("WeightLimit")
                         .HasColumnType("double");
 
@@ -4896,6 +4901,9 @@ namespace MudSharp.Migrations
 
                     b.Property<int>("PreferredDefenseType")
                         .HasColumnType("int(11)");
+
+                    b.Property<bool>("ProjectLabourQueueLooping")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<ulong>("RoomBrief")
                         .ValueGeneratedOnAdd()
@@ -17243,13 +17251,38 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("ActiveProjectId")
+                    b.Property<long?>("ActiveProjectId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("ProjectLabourRequirementId")
+                    b.Property<long?>("ClaimingCharacterInstanceId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("CompletionMode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(0);
+
+                    b.Property<double>("ElapsedHours")
+                        .HasColumnType("double");
+
+                    b.Property<int>("EntryType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("LabourPreference")
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("LabourPreference"), "utf8");
+
+                    b.Property<long?>("ProjectId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ProjectLabourRequirementId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<int>("QueueOrder")
@@ -17258,6 +17291,12 @@ namespace MudSharp.Migrations
                     b.Property<DateTime>("QueuedAt")
                         .HasColumnType("datetime");
 
+                    b.Property<double>("TargetHours")
+                        .HasColumnType("double");
+
+                    b.Property<long?>("WatchedPhaseId")
+                        .HasColumnType("bigint(20)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ActiveProjectId")
@@ -17265,6 +17304,9 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("CharacterId")
                         .HasDatabaseName("FK_ProjectLabourQueues_Characters_idx");
+
+                    b.HasIndex("ClaimingCharacterInstanceId")
+                        .HasDatabaseName("FK_ProjectLabourQueues_CharacterInstances_idx");
 
                     b.HasIndex("ProjectLabourRequirementId")
                         .HasDatabaseName("FK_ProjectLabourQueues_ProjectLabourRequirements_idx");
@@ -19600,6 +19642,65 @@ namespace MudSharp.Migrations
                     b.ToTable("SeederChoices");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.SeederManagedRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("AppliedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("AppliedFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<long?>("LogicalId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("ManifestVersion")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<ulong>("Retired")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<int?>("RevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Seeder")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("StableKey")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Seeder", "EntityType", "StableKey")
+                        .IsUnique()
+                        .HasDatabaseName("UX_SeederManagedRecords_Identity");
+
+                    b.ToTable("SeederManagedRecords", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.Shard", b =>
                 {
                     b.Property<long>("Id")
@@ -21279,6 +21380,40 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_TraitExpressionParameters_TraitExpression");
 
                     b.ToTable("TraitExpressionParameters");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.TrapTemplate", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("RevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8mb4");
+
+                    b.Property<long>("EditableItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8mb4");
+
+                    b.HasKey("Id", "RevisionNumber")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EditableItemId")
+                        .HasDatabaseName("FK_TrapTemplates_EditableItems_idx");
+
+                    b.ToTable("TrapTemplates");
                 });
 
             modelBuilder.Entity("MudSharp.Models.UnitOfMeasure", b =>
@@ -31767,8 +31902,7 @@ namespace MudSharp.Migrations
                     b.HasOne("MudSharp.Models.ActiveProject", "ActiveProject")
                         .WithMany("ProjectLabourQueues")
                         .HasForeignKey("ActiveProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
+                        .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_ProjectLabourQueues_ActiveProjects");
 
                     b.HasOne("MudSharp.Models.Character", "Character")
@@ -31778,16 +31912,23 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_ProjectLabourQueues_Characters");
 
+                    b.HasOne("MudSharp.Models.CharacterInstance", "ClaimingCharacterInstance")
+                        .WithMany("ClaimedProjectLabourQueues")
+                        .HasForeignKey("ClaimingCharacterInstanceId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_ProjectLabourQueues_CharacterInstances");
+
                     b.HasOne("MudSharp.Models.ProjectLabourRequirement", "ProjectLabourRequirement")
                         .WithMany("ProjectLabourQueues")
                         .HasForeignKey("ProjectLabourRequirementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
+                        .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_ProjectLabourQueues_ProjectLabourRequirements");
 
                     b.Navigation("ActiveProject");
 
                     b.Navigation("Character");
+
+                    b.Navigation("ClaimingCharacterInstance");
 
                     b.Navigation("ProjectLabourRequirement");
                 });
@@ -33598,6 +33739,18 @@ namespace MudSharp.Migrations
                     b.Navigation("TraitDefinition");
 
                     b.Navigation("TraitExpression");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.TrapTemplate", b =>
+                {
+                    b.HasOne("MudSharp.Models.EditableItem", "EditableItem")
+                        .WithMany("TrapTemplates")
+                        .HasForeignKey("EditableItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_TrapTemplates_EditableItems");
+
+                    b.Navigation("EditableItem");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Vehicle", b =>
@@ -35549,6 +35702,8 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.CharacterInstance", b =>
                 {
                     b.Navigation("AnchoredInstances");
+
+                    b.Navigation("ClaimedProjectLabourQueues");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacteristicDefinition", b =>
@@ -35881,6 +36036,8 @@ namespace MudSharp.Migrations
                     b.Navigation("Npctemplates");
 
                     b.Navigation("Projects");
+
+                    b.Navigation("TrapTemplates");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Election", b =>

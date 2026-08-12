@@ -81,14 +81,25 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 		string surveyDescription,
 		string definition)
 	{
-		var profile = new HearingProfile
+		var profiles = context.HearingProfiles
+			.Where(x => x.Name == name)
+			.Take(2)
+			.ToList();
+		if (profiles.Count > 1)
 		{
-			Name = name,
-			Type = type,
-			SurveyDescription = surveyDescription,
-			Definition = definition
-		};
-		context.HearingProfiles.Add(profile);
+			throw new InvalidOperationException($"Unable to reconcile the stock hearing profile '{name}' because multiple profiles use that name.");
+		}
+
+		var profile = profiles.SingleOrDefault();
+		if (profile is null)
+		{
+			profile = new HearingProfile { Name = name };
+			context.HearingProfiles.Add(profile);
+		}
+
+		profile.Type = type;
+		profile.SurveyDescription = surveyDescription;
+		profile.Definition = definition;
 		return profile;
 	}
 
@@ -329,6 +340,11 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
+		if (IsCoreBootstrapInstalled(context))
+		{
+			return ReconcileFoundationCatalogues(context);
+		}
+
 		DateTime now = DateTime.UtcNow;
 
 		IDbContextTransaction transaction = context.Database.BeginTransaction();
@@ -1404,11 +1420,11 @@ public partial class CoreDataSeeder : IDatabaseSeeder
         return "Package successfully applied.";
     }
 
-    public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
-    {
-        if (context.Accounts.Any())
-        {
-            return ShouldSeedResult.MayAlreadyBeInstalled;
+	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
+	{
+		if (IsCoreBootstrapInstalled(context))
+		{
+			return ShouldSeedResult.ExtraPackagesAvailable;
         }
 
         return ShouldSeedResult.ReadyToInstall;
@@ -1420,27 +1436,49 @@ public partial class CoreDataSeeder : IDatabaseSeeder
         new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
             Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
         {
-            ("gamename", "What is the name of the MUD which you are setting up? ", (context, answers) => true,
+			("gamename", "What is the name of the MUD which you are setting up? ", (context, answers) => !IsCoreBootstrapInstalled(context),
                 (text, context) =>
                 {
                     if (text.Length < 2) { return (false, "You must enter an name with at least 2 characters."); } return (true, string.Empty);
                 }),
-            ("account", "What name do you want to use for your implementor account? ", (context, answers) => true,
+			("account", "What name do you want to use for your implementor account? ", (context, answers) => !IsCoreBootstrapInstalled(context),
                 (text, context) =>
                 {
                     if (text.Length < 2) { return (false, "You must enter an account name with at least 2 characters."); } return (true, string.Empty);
                 }),
-            ("password", "What password do you want to use for your implementor account? ", (context, answers) => true,
+			("password", "What password do you want to use for your implementor account? ", (context, answers) => !IsCoreBootstrapInstalled(context),
                 (text, context) =>
                 {
                     if (text.Length < 8) { return (false, "Your password must be at least 8 characters long."); } return (true, string.Empty);
                 }),
-            ("email", "What email address do you want to use for your implementor account? ",
-                (context, answers) => true, (text, context) =>
+			("email", "What email address do you want to use for your implementor account? ",
+				(context, answers) => !IsCoreBootstrapInstalled(context), (text, context) =>
                 {
                     if (!EmailRegex.IsMatch(text)) { return (false, "That is not a valid email address."); } return (true, string.Empty);
                 })
-        };
+		};
+
+	public bool SafeToRunMoreThanOnce => true;
+
+	private bool IsCoreBootstrapInstalled(FuturemudDatabaseContext context)
+	{
+		return context.Accounts.Any() ||
+		       context.SeederChoices.Any(x => x.Seeder == Name);
+	}
+
+	private string ReconcileFoundationCatalogues(FuturemudDatabaseContext context)
+	{
+		using var transaction = context.Database.BeginTransaction();
+		SeedMaterials(context);
+		SeedTerrainFoundations(context);
+		SeedUnitsOfMeasure(context);
+		SeedColours(context);
+		SeedDefaultPlanes(context);
+		SeedDefaultHearingProfiles(context);
+		context.SaveChanges();
+		transaction.Commit();
+		return "Reconciled the repeatable Core foundation catalogues. Bootstrap accounts, world records and settings were not changed.";
+	}
 
     public int SortOrder => 0;
     public string Name => "Core";

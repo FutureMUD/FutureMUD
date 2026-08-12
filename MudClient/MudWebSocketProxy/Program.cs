@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.WebSockets;
 using Microsoft.AspNetCore.HttpOverrides;
+using System.Runtime.Versioning;
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,10 +15,16 @@ public class Program
 {
 	public static void Main(string[] args)
 	{
+		var settingsPath = GetSettingsPath(args);
+		var validateSettingsOnly = args.Contains("--validate-settings", StringComparer.Ordinal);
 		var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 		{
 			Args = args,
 			ContentRootPath = AppContext.BaseDirectory
+		});
+		builder.Services.AddWindowsService(options =>
+		{
+			options.ServiceName = "MudClientProxy";
 		});
 
 		// Add WebSocket support
@@ -29,9 +36,20 @@ public class Program
 		// Add configuration support
 		builder.Configuration
 			.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-			.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+			.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+		if (settingsPath is not null)
+		{
+			builder.Configuration.AddJsonFile(settingsPath, optional: false, reloadOnChange: true);
+		}
+		builder.Configuration
 			.AddEnvironmentVariables()
 			.AddCommandLine(args);
+		ProxyConfigurationValidator.Validate(builder.Configuration);
+		if (validateSettingsOnly)
+		{
+			Console.WriteLine("MudClient proxy settings are valid.");
+			return;
+		}
 
 		builder.Services.AddCors(options =>
 		{
@@ -50,6 +68,10 @@ public class Program
 
 		builder.Logging.ClearProviders();
 		builder.Logging.AddConsole();
+		if (OperatingSystem.IsWindows())
+		{
+			ConfigureWindowsEventLogging(builder.Logging);
+		}
 
 		var app = builder.Build();
 		var forwardedHeadersOptions = new ForwardedHeadersOptions
@@ -109,6 +131,15 @@ public class Program
 		app.Run();
 	}
 
+	[SupportedOSPlatform("windows")]
+	private static void ConfigureWindowsEventLogging(ILoggingBuilder logging)
+	{
+		logging.AddEventLog(options =>
+		{
+			options.SourceName = "MudClientProxy";
+		});
+	}
+
 	private static bool IsRequestOriginAllowed(HttpContext context, IConfiguration configuration)
 	{
 		var origin = context.Request.Headers.Origin.ToString();
@@ -131,5 +162,23 @@ public class Program
 				.GetSection("WebSocketServer:AllowedOrigins")
 				.GetChildren()
 				.Select(section => section.Value));
+	}
+
+	private static string? GetSettingsPath(IReadOnlyList<string> args)
+	{
+		string? path = null;
+		for (var index = 0; index < args.Count; index++)
+		{
+			if (!string.Equals(args[index], "--settings", StringComparison.Ordinal))
+			{
+				continue;
+			}
+			if (path is not null || index + 1 >= args.Count || !Path.IsPathFullyQualified(args[index + 1]))
+			{
+				throw new InvalidOperationException("--settings must occur once and use an absolute path.");
+			}
+			path = args[++index];
+		}
+		return path;
 	}
 }

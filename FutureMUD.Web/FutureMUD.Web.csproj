@@ -18,6 +18,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<!--
 			The website only consumes the database-free documentation transport types.
 			Linking their canonical source keeps the wire contract single-sourced without

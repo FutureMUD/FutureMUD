@@ -49,7 +49,6 @@ public class ClanMembership : SaveableItem, IClanMembership, ILazyLoadDuringIdle
         }
 
         IsArchivedMembership = membership.ArchivedMembership;
-        Gameworld.SaveManager.AddLazyLoad(this);
     }
 
     public long MemberId { get; set; }

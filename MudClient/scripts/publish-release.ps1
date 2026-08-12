@@ -55,9 +55,10 @@ $packageName = "mudclient-$RuntimeIdentifier"
 $packageRoot = Join-Path $OutputRoot $packageName
 $webPublish = Join-Path $OutputRoot "_web"
 $proxyPublish = Join-Path $OutputRoot "_proxy-$RuntimeIdentifier"
+$deploymentPublish = Join-Path $OutputRoot "_deployment-$RuntimeIdentifier"
 $zipPath = Join-Path $OutputRoot "$packageName.zip"
 
-foreach ($path in @($packageRoot, $webPublish, $proxyPublish)) {
+foreach ($path in @($packageRoot, $webPublish, $proxyPublish, $deploymentPublish)) {
 	if (Test-Path $path) {
 		Remove-Item -LiteralPath $path -Recurse -Force
 	}
@@ -73,10 +74,13 @@ if (-not $SkipTests) {
 
 Invoke-DotNet @("publish", "MudClientBlazor/MudClientBlazor.csproj", "-c", $Configuration, "--no-restore", "-o", $webPublish)
 Invoke-DotNet @("publish", "MudWebSocketProxy/MudWebSocketProxy.csproj", "-c", $Configuration, "-r", $RuntimeIdentifier, "--self-contained", "true", "-p:PublishSingleFile=true", "-p:IncludeNativeLibrariesForSelfExtract=true", "-p:DebugType=embedded", "-o", $proxyPublish)
+Invoke-DotNet @("restore", "MudClientDeployment/MudClientDeployment.csproj", "-r", $RuntimeIdentifier)
+Invoke-DotNet @("publish", "MudClientDeployment/MudClientDeployment.csproj", "-c", $Configuration, "-r", $RuntimeIdentifier, "--self-contained", "true", "-p:PublishSingleFile=true", "-p:IncludeNativeLibrariesForSelfExtract=true", "-p:DebugType=embedded", "-o", $deploymentPublish)
 
-New-Item -ItemType Directory -Force -Path (Join-Path $packageRoot "web"), (Join-Path $packageRoot "proxy") | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $packageRoot "web"), (Join-Path $packageRoot "proxy"), (Join-Path $packageRoot "tools") | Out-Null
 Copy-Item -Path (Join-Path $webPublish "*") -Destination (Join-Path $packageRoot "web") -Recurse -Force
 Copy-Item -Path (Join-Path $proxyPublish "*") -Destination (Join-Path $packageRoot "proxy") -Recurse -Force
+Copy-Item -Path (Join-Path $deploymentPublish "*") -Destination (Join-Path $packageRoot "tools") -Recurse -Force
 Copy-Item -Path "deploy" -Destination $packageRoot -Recurse -Force
 Copy-Item -Path "DEPLOYMENT.md" -Destination $packageRoot -Force
 Set-Content -Path (Join-Path $packageRoot "README.txt") -Value "Start with DEPLOYMENT.md. The Blazor static site is in web/wwwroot and the websocket proxy is in proxy/."

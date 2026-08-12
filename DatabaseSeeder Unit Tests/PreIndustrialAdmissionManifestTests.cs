@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PreIndustrialAdmissionManifestTests
 {
-	private const int ExpectedAdmissionCount = 385;
+	private const int ExpectedAdmissionCount = 390;
 
 	private static readonly IReadOnlyDictionary<string, string> ManifestFiles =
 		new Dictionary<string, string>
@@ -89,6 +89,20 @@ public class PreIndustrialAdmissionManifestTests
 		Assert.IsTrue(medievalFirearms.All(x =>
 			x.Availability == "Not admitted" &&
 			x.DateWindow == "Not before 1450 CE for this firearm-support suite"));
+
+		var medievalArtillery = medieval.Values
+			.Where(x => x.StableReference.StartsWith("preindustrial_artillery_", StringComparison.Ordinal))
+			.ToArray();
+		Assert.AreEqual(5, medievalArtillery.Length);
+		Assert.IsTrue(medievalArtillery.All(x =>
+			x.Availability == "Not admitted" &&
+			x.DateWindow == "Not before 1450 CE for this firearm-support suite"));
+		Assert.IsTrue(renaissance.Values
+			.Where(x => x.StableReference.StartsWith("preindustrial_artillery_", StringComparison.Ordinal))
+			.All(x => x.Availability == "Restricted military"));
+		Assert.IsTrue(earlyModern.Values
+			.Where(x => x.StableReference.StartsWith("preindustrial_artillery_", StringComparison.Ordinal))
+			.All(x => x.Availability == "Restricted military"));
 
 		Assert.AreEqual("Not admitted", medieval["preindustrial_optics_telescope"].Availability);
 		StringAssert.Contains(medieval["preindustrial_optics_telescope"].DateWindow, "1608");

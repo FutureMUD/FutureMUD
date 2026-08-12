@@ -1,6 +1,6 @@
 # FutureMUD Early Modern Military, Firearms, Armour, Ammunition, Accessories, and Naval Seeder Design Reference
 
-> Complete catalogue for the 1600-1750 Early Modern branch. Full descriptions are intentionally deferred; this document fixes stable references, short descriptions, nouns, materials, physical values, exact or planned component prototypes, tag profiles, reuse policy, and dependency requirements.
+> Complete catalogue for the 1600-1750 Early Modern branch. The generated manifest derives substantive appearance-focused full descriptions from each row's stable product/form, material, and quality; this document fixes those source fields alongside stable references, short descriptions, nouns, physical values, exact or planned component prototypes, tag profiles, reuse policy, and dependency requirements.
 
 ## Executive summary
 
@@ -8,7 +8,7 @@
 - **New Early Modern item prototypes:** **1,664**.
 - **Live shared or earlier-era admissions:** **200**: 52 shared military-support aliases, 10 shared gunpowder-support rows, and 138 direct Medieval combat-equipment admissions.
 - **New-domain distribution:** 420 melee weapons; 480 ranged weapons, firearms, artillery, ammunition, and operating tools; 501 armour and shield items; and 260 accessories, standards, field-equipment, and naval-store items.
-- **Descriptions:** `sdesc` only in this catalogue. Ordinary portable rows should use `ldesc = null`; full descriptions remain a later implementation stage.
+- **Descriptions:** every generated row has a four-sentence, appearance-focused full description derived from its source fields. Ordinary portable rows use `ldesc = null`.
 - **Uniform authority:** worn uniforms, civilian garments, footwear, hats, rank sashes, badges, epaulettes, and generic dress sword-belts remain owned by `FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md`. This reference owns combat weapons, functional weapon carriers, firearm ammunition systems, armour, shields, artillery, standards, signal equipment, and naval weapon support.
 - **Dependency posture:** no new solid material is required. All 156 requested named component profiles are now supported and seeded; the three consumable/chamber support rows bring the canonical catalogue to 1,864 references.
 - **Implemented dependency tranche:** all 156 named profiles are seeded, including artillery, carrier, repeating/emplaced crossbow, ignition-specific musket, and paired-holster support.
@@ -105,29 +105,27 @@ Functional carrying gear belongs here when it directly carries weapons, ammuniti
 
 ## Current CombatSeeder integration audit
 
-The complete catalogue records the intended content surface, but the live firearm seeder and runtime do not yet implement that whole surface. The following audit preserves the implementation constraints developed alongside the clothing and uniform work and has been checked against the current repository.
+The implemented firearm package is rerunnable and profile-driven. `CombatSeeder` supplies ignition-specific matchlock, wheellock, snaphaunce, doglock, miquelet, and flintlock component profiles; compatible loose ball, paper cartridge, buckshot, and buck-and-ball ammunition; physical bayonet, sight, ramrod, weapon-carrier, artillery, ammunition, chamber, and mount components; and the corresponding ranged and operation traits.
 
-### Live seeded baseline
+### Physical black-powder contract
 
-`CombatSeeder.SeedDataMuskets()` currently creates only the `Flintlock Pistol` and `Flintlock Musket` ranged weapon types. When the optional musket package is selected, it creates three pistol components (`Pistol_Flintlock65`, `Pistol_Flintlock55`, and `Pistol_Flintlock45`), four musket components (`Musket_Flintlock80`, `Musket_Flintlock75`, `Musket_Flintlock70`, and `Musket_Flintlock60`), seven `Musket Ball` ammunition grades from 0.80 to 0.45 bore, loose-ball and preassembled-cartridge components, and the `Flintlocks`, `Pistols`, and `Muskets` skills.
+Loose musket loads locate a real gunpowder commodity through an inventory plan and split the weapon's configured mass from that source. The physical charge, tagged `Musket Wadding`, and typed `MusketBall` item remain contained in the barrel until unloading or firing. Blank mode contains powder and wad without a projectile. A cartridge remains a physical packaged item and declares its measured charge and whether it contains wadding.
 
-The current seed is not safe to extend as-is. Component XML embeds numeric ranged and melee weapon identifiers instead of the newly seeded `RangedWeaponTypes.Id` and corresponding melee type ID, the firearm rows use `AmmunitionLoadType.Magazine` for a single muzzle-loaded charge, several records are created without idempotent lookup or repair, and the preassembled musket cartridge is assigned a lead case material rather than paper.
+Cleaning, ramming, and unjamming require `Musket Cleaning Rod`, `Musket Ramrod`, and `Musket Unjamming Tool` tags. Matchlocks install a physical `Match Cord` item rather than matching an item noun; flint- and wheel-family locks install and persist one physical flint or pyrite stack unit. Copying or loading a component never creates a virtual replacement for these children, and legacy state unsupported by physical children is normalised safe.
 
-### Live runtime coverage and remaining gaps
+Artillery uses the complete physical drill: tagged sponge, measured main powder charge, tagged wad, typed shot or compatible loaded chamber, tagged rammer, tagged vent tool, measured primer, tagged fuse for shell/carcass payloads, and tagged linstock. Partial unload returns every inserted object. The stock shared pre-industrial catalogue supplies canonical support examples for each functional tag.
 
-The `Musket` component already models loose powder, ball, optional wad, cartridge loading, ramrod or tap loading, cleaning, jamming, misfire, wet powder, condition-sensitive failure, and catastrophic failure. It also persists a bayonet slot, but the connection methods still leave bayonet attachment behaviour as a TODO.
+CombatSeeder writes an explicit main-charge mass and every functional tag ID into each artillery component definition. Charge masses scale from 350 grams for swivel guns, petereros, and falconets to 7.3 kilograms for 32-pound and full-cannon profiles; 3/6-pound pieces use the light ammunition family, 9/12-pound pieces use medium ammunition, and 18/24/32-pound pieces use heavy ammunition. This keeps named guns compatible with their named typed shot instead of relying on one default charge and mismatched broad profiles.
 
-The runtime does not yet provide ignition-family state for burning match, wheel winding, pyrite or flint readiness, frizzen condition, or ignition-specific weather exposure. It also lacks complete plug/socket/sword-bayonet attachment rules, buckshot and buck-and-ball payload or spread behaviour, match-cord consumption, gunflint wear, lock-quality behaviour, and firearm-specific repair assemblies.
+Renaissance and Early Modern ItemSeeder selections also install `mill and corn black powder`. The craft consumes physical 750-gram saltpeter, 150-gram charcoal, 100-gram sulfur, and water inputs, requires a real item tagged `Mortar and Pestle`, and produces 900 grams of `gunpowder` commodity tagged `Gunpowder Commodity`. It never creates an item prototype with an unset commodity material.
 
-### Implementation priorities
+### Environmental coverage
 
-1. Make the existing firearm package rerunnable and repair-capable; resolve newly seeded ranged and melee weapon identifiers into component XML instead of embedding database IDs; and replace the misleading single-charge `Magazine` model when a clearer muzzle-loading model is available.
-2. Add matchlock and wheellock operating traits and ignition-appropriate emotes, then add snaphaunce, doglock, miquelet, and flintlock variants through reusable helpers rather than bore-only component copies.
-3. Add arquebus, caliver, early musket, later musket, carbine, fowling-piece, blunderbuss, and period pistol distinctions where range, handling, bore, ignition, or spread differs.
-4. Represent paper cartridges as paper-cased ammunition and add measured-charge helpers, then implement shot, buckshot, and buck-and-ball payload semantics.
-5. Implement bayonet attachment or document a separate-weapon fallback; then add match-cord consumption, weather exposure, gunflint wear, lock quality, proofing, repair stock, and barrel-failure semantics.
+Underwater layers and liquid atmospheres block black-powder loading, readying, and firing. Heavy precipitation blocks exposed loose-powder handling and match/linstock ignition; missing weather is dry rather than an error. A closed black-powder charge retains self-oxidising vacuum behavior for non-match muskets, while matchlocks and linstock-fired artillery require a gaseous atmosphere. Propagated firearm and artillery audio is suppressed in vacuum.
 
-The catalogue already materializes the formerly planned firearm, ammunition, bayonet, sidearm, polearm, signal, field-equipment, naval-store, cuirass, buff-coat, helmet, and regional-shield rows. Section 5.6 standards and signal instruments are now live; other rows remain design targets until their declared component dependencies and runtime semantics are live.
+### Remaining boundaries
+
+Frizzen wear, ingredient refining and grading beyond the stock black-powder craft, proof-house workflows, detailed recoil movement, and specialist firearm-repair assemblies remain separate content or runtime slices. They must preserve this physical-item contract rather than reintroducing virtual charges or noun-based tool detection.
 
 ### Dependency and acceptance contract
 
@@ -224,6 +222,9 @@ Every new row uses the exact tags in its named profile. `SOURCE` means retain th
 | `EM-SUPPORT-CONTAINER` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Military Goods`<br>`Functions / Container` |
 | `EM-SUPPORT-CANTEEN` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Military Goods`<br>`Functions / Container`<br>`Functions / Container / Watertight Container` |
 | `EM-SUPPORT-TOOL` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Market / Military Goods`<br>`Functions / Tools` |
+| `EM-SUPPORT-IGNITION` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Material Functions / Ignition Source`<br>`Market / Military Goods / Ammunition / Blackpowder` |
+| `EM-SUPPORT-ARTILLERY-SPONGE` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Tools / Artillery Tools / Artillery Sponge`<br>`Market / Military Goods / Ammunition / Blackpowder` |
+| `EM-SUPPORT-ARTILLERY-LINSTOCK` | `Era / Early Modern Era`<br>`Functions / Military Equipment`<br>`Functions / Tools / Artillery Tools / Artillery Linstock`<br>`Market / Military Goods / Ammunition / Blackpowder` |
 
 ## Catalogue distribution
 
@@ -280,7 +281,7 @@ Every new row uses the exact tags in its named profile. `SOURCE` means retain th
 
 ## Item catalogue
 
-Full descriptions are deferred. Rows marked `SOURCE` or `SHARED` are dependencies, not new Early Modern clones.
+Rows marked `SOURCE` or `SHARED` are dependencies, not new Early Modern clones. Generated rows receive their full descriptions from the canonical product/form, material, and quality fields rather than from builder notes or implementation provenance.
 
 ### 1. Shared and direct admissions — 200
 
@@ -2360,16 +2361,16 @@ Implementation status: all thirty rows are seeded. Standards begin unowned, uncl
 | `earlymodern_military_naval_swivel_gun_carriage` | a compact swivel-gun carriage | `carriage` | `oak` | `Large` / `Good` | 36,000g / 360.0m | `Holdable`<br>`ArtilleryMount_Swivel`<br>`Destroyable_WoodenHeavy` | `EM-SUPPORT` |
 | `earlymodern_military_naval_gun_tackle_block` | a double-sheaved gun-tackle block | `block` | `oak` | `Normal` / `Good` | 4,200g / 78.0m | `Holdable`<br>`Tool_Artillery_General`<br>`Destroyable_WoodenHeavy` | `EM-SUPPORT-TOOL` |
 | `earlymodern_military_naval_shot_garland` | an oak shot garland | `garland` | `oak` | `Large` / `Standard` | 11,000g / 85.0m | `Holdable`<br>`Container_Open_Bin`<br>`Destroyable_WoodenHeavy` | `EM-SUPPORT-CONTAINER` |
-| `earlymodern_military_naval_cannon_sponge` | a long-handled cannon sponge | `sponge` | `ash` | `Large` / `Standard` | 3,600g / 52.0m | `Holdable`<br>`Tool_Artillery_General`<br>`Destroyable_Misc` | `EM-SUPPORT-TOOL` |
+| `earlymodern_military_naval_cannon_sponge` | a long-handled cannon sponge | `sponge` | `ash` | `Large` / `Standard` | 3,600g / 52.0m | `Holdable`<br>`Tool_Artillery_General`<br>`Destroyable_Misc` | `EM-SUPPORT-ARTILLERY-SPONGE` |
 | `earlymodern_military_naval_cannon_worm` | a double-spiral cannon worm | `worm` | `carbon steel` | `Large` / `Good` | 4,200g / 95.0m | `Holdable`<br>`Tool_Artillery_General`<br>`Destroyable_HeavyMetal` | `EM-SUPPORT-TOOL` |
 | `earlymodern_military_naval_gun_handspike` | an iron-shod gun handspike | `handspike` | `ash` | `Large` / `Standard` | 5,200g / 48.0m | `Holdable`<br>`Tool_Artillery_General`<br>`Destroyable_WoodenHeavy` | `EM-SUPPORT-TOOL` |
-| `earlymodern_military_naval_artillery_linstock` | a fork-headed artillery linstock | `linstock` | `ash` | `Large` / `Standard` | 2,200g / 38.0m | `Holdable`<br>`Tool_Artillery_General`<br>`Destroyable_Misc` | `EM-SUPPORT-TOOL` |
+| `earlymodern_military_naval_artillery_linstock` | a fork-headed artillery linstock | `linstock` | `ash` | `Large` / `Standard` | 2,200g / 38.0m | `Holdable`<br>`Tool_Artillery_General`<br>`Destroyable_Misc` | `EM-SUPPORT-ARTILLERY-LINSTOCK` |
 | `earlymodern_military_naval_touchhole_vent_cover` | a brass cannon vent cover | `cover` | `brass` | `Small` / `Good` | 420g / 32.0m | `Holdable`<br>`Destroyable_Misc` | `EM-SUPPORT` |
 | `earlymodern_military_naval_boarding_plank` | a cleated boarding plank | `plank` | `oak` | `Large` / `Standard` | 18,000g / 72.0m | `Holdable`<br>`Destroyable_WoodenHeavy` | `EM-SUPPORT` |
 | `earlymodern_military_naval_powder_carriers_box` | a powder carrier's cartridge box | `box` | `cow leather` | `Small` / `Good` | 850g / 74.0m | `Holdable`<br>`Container_Pouch`<br>`Beltable`<br>`Destroyable_Clothing` | `EM-SUPPORT-CONTAINER` |
-| `earlymodern_military_firearm_gunflint_packet` | a packet of shaped gunflints | `packet` | `flint` | `Tiny` / `Standard` | 90g / 18.0m | `Holdable`<br>`Stack_Number` | `EM-SUPPORT` |
-| `earlymodern_military_firearm_pyrite_packet` | a packet of wheellock pyrite pieces | `packet` | `pyrite` | `Tiny` / `Standard` | 90g / 24.0m | `Holdable`<br>`Stack_Number` | `EM-SUPPORT` |
-| `earlymodern_military_naval_peterero_chamber` | a removable peterero firing chamber | `chamber` | `bronze` | `Normal` / `Good` | 8,500g / 360.0m | `Holdable`<br>`ArtilleryChamber_Peterero`<br>`Destroyable_HeavyMetal` | `EM-SUPPORT` |
+| `earlymodern_military_firearm_gunflint_packet` | a packet of shaped gunflints | `packet` | `flint` | `Tiny` / `Standard` | 90g / 18.0m | `Holdable`<br>`Stack_Number` | `EM-SUPPORT-IGNITION` |
+| `earlymodern_military_firearm_pyrite_packet` | a packet of wheellock pyrite pieces | `packet` | `pyrite` | `Tiny` / `Standard` | 90g / 24.0m | `Holdable`<br>`Stack_Number` | `EM-SUPPORT-IGNITION` |
+| `earlymodern_military_naval_peterero_chamber` | a removable peterero firing chamber | `chamber` | `bronze` | `Normal` / `Good` | 8,500g / 360.0m | `Holdable`<br>`ArtilleryChamber_Peterero`<br>`Destroyable_HeavyMetal` | `EM-AMMO-BLACKPOWDER` |
 
 ## Validation record
 
@@ -2382,8 +2383,8 @@ Implementation status: all thirty rows are seeded. Standards begin unowned, uncl
 - Named component requests: exactly **156**, partitioned into **156 supported and seeded** and **0 unresolved** in the companion dependency ledger.
 - New solid materials: **0**.
 - New tags: **0**.
-- Full descriptions: intentionally **0** in this catalogue.
+- Full descriptions: **1,664** generated, each with four appearance-focused sentences derived from canonical source fields.
 
 ## Implementation handoff
 
-The supported-row manifest now creates all 1,664 new rows whose exact component dependencies are live, with idempotent stable-reference lookup and a neutral generated full-description baseline. Shared dependencies and direct admissions remain source-owned and are never cloned solely to change an era prefix or presentation.
+The supported-row manifest now creates all 1,664 new rows whose exact component dependencies are live, with idempotent stable-reference lookup, substantive generated full descriptions, and leaf-only hierarchical tags. Shared dependencies and direct admissions remain source-owned and are never cloned solely to change an era prefix or presentation.

@@ -20,6 +20,7 @@ namespace MudSharp.Health.Strategies;
 
 public abstract class BaseHealthStrategy : SaveableItem, IHealthStrategy
 {
+	public virtual bool RequiresPeriodicHealthTick => true;
     private static readonly Dictionary<string, Func<HealthStrategy, IFuturemud, IHealthStrategy>> _databaseLoaders = new(StringComparer.InvariantCultureIgnoreCase);
     private static readonly Dictionary<string, Func<IFuturemud, string, IHealthStrategy>> _builderLoaders = new(StringComparer.InvariantCultureIgnoreCase);
     private static readonly Dictionary<string, string> _typeHelps = new(StringComparer.InvariantCultureIgnoreCase);

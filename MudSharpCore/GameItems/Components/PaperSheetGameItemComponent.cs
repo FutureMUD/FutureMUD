@@ -440,7 +440,7 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
         sb.AppendLine();
         sb.AppendLine(
             $"This item can contain {_prototype.MaximumCharacterLengthOfText.ToString("N0", voyeur).ColourValue()} characters of written text.");
-        sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as \"{Title.Colour(Telnet.BoldWhite)}\"")}.");
+        sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as {$"\"{Title}\"".ColourBold(Telnet.White)}")}.");
         if (!Readables.Any())
         {
             sb.AppendLine("It does not presently have anything written or drawn on it.");
@@ -480,7 +480,7 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
             case "desc":
                 return description;
             case "desc+title":
-                return $"{description} titled {"\"".ColourBold(Telnet.White)}{Title.ColourBold(Telnet.White)}\"";
+                return $"{description} titled {$"\"{Title}\"".ColourBold(Telnet.White)}";
             default:
                 throw new ApplicationException(
                     $"Invalid option for WrittenItemSDescStyle: '{titleSetting}'. Valid options are 'title', 'desc' and 'desc+title'");

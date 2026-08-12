@@ -29,6 +29,7 @@ namespace MudSharp.Magic
         bool CharacterCanCast(ICharacter magician, IPerceivable target);
         bool CharacterCanCast(ICharacter magician, IPerceivable target, SpellPower power);
         void CastSpell(ICharacter magician, IPerceivable target, SpellPower power, params SpellAdditionalParameter[] additionalParameters);
+        void ResolveTriggeredSpell(ICharacter magician, IPerceivable target, SpellPower power);
         bool ReadyForGame { get; }
         string WhyNotReadyForGame(ICharacter builder);
         string ShowPlayerHelp(ICharacter actor);

@@ -99,6 +99,7 @@ public partial class Character
     public long? CurrentProjectId { get; set; }
     public double CurrentProjectHours { get; set; }
     public double CurrentProjectProjectHours { get; set; }
+	public bool ProjectLabourQueueLooping { get; set; }
     public string NameInfo { get; set; }
     public int RoomLayer { get; set; }
     public decimal? RoutePosition { get; set; }

@@ -422,6 +422,7 @@ namespace MudSharp.Database
         public virtual DbSet<ScriptedEventMultipleChoiceQuestionAnswer> ScriptedEventMultipleChoiceQuestionAnswers { get; set; }
         public virtual DbSet<Season> Seasons { get; set; }
         public virtual DbSet<SeederChoice> SeederChoices { get; set; }
+        public virtual DbSet<SeederManagedRecord> SeederManagedRecords { get; set; }
         public virtual DbSet<Shard> Shards { get; set; }
         public virtual DbSet<ShardsCalendars> ShardsCalendars { get; set; }
         public virtual DbSet<ShardsCelestials> ShardsCelestials { get; set; }
@@ -455,6 +456,7 @@ namespace MudSharp.Database
         public virtual DbSet<SurgicalProcedurePhase> SurgicalProcedurePhases { get; set; }
         public virtual DbSet<SurgicalProcedure> SurgicalProcedures { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
+		public virtual DbSet<TrapTemplate> TrapTemplates { get; set; }
         public virtual DbSet<Terrain> Terrains { get; set; }
         public virtual DbSet<TerrainsRangedCovers> TerrainsRangedCovers { get; set; }
         public virtual DbSet<Models.TimeZoneInfo> TimeZoneInfos { get; set; }

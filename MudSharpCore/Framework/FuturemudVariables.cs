@@ -34,6 +34,7 @@ using MudSharp.Form.Audio;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Colour;
 using MudSharp.Form.Material;
+using MudSharp.Traps;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Decorators;
@@ -166,6 +167,7 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<IEthnicity> _ethnicities = new();
     private readonly RevisableAll<IForagable> _foragables = new();
     private readonly RevisableAll<IForagableProfile> _foragableProfiles = new();
+    private readonly RevisableAll<ITrapTemplate> _trapTemplates = new();
     private readonly All<IFutureProg> _futureProgs = new();
     private readonly All<IGrid> _grids = new();
     private readonly All<IHealthStrategy> _healthStrategies = new();
@@ -431,6 +433,7 @@ public sealed partial class Futuremud : IDisposable
     public IUneditableRevisableAll<IForagable> Foragables => _foragables;
 
     public IUneditableRevisableAll<IForagableProfile> ForagableProfiles => _foragableProfiles;
+    public IUneditableRevisableAll<ITrapTemplate> TrapTemplates => _trapTemplates;
 
     public IUneditableAll<IFutureProg> FutureProgs => _futureProgs;
 

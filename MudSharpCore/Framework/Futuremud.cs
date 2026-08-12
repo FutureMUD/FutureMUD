@@ -37,8 +37,10 @@ using MudSharp.Form.Audio;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Colour;
 using MudSharp.Form.Material;
+using MudSharp.Traps;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
+using MudSharp.Framework.Diagnostics;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Size;
@@ -77,7 +79,7 @@ using System.Threading;
 
 namespace MudSharp.Framework;
 
-public sealed partial class Futuremud : IFuturemud, IDisposable
+public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerformanceMonitorProvider
 {
     public static IEnumerable<Type> GetAllTypes()
     {
@@ -101,6 +103,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public Futuremud(IServer server)
     {
         Server = server;
+		RuntimePerformanceMonitor = new RuntimePerformanceMonitor(server as IRuntimeNetworkPerformanceSource);
         EffectScheduler = new EffectScheduler(this);
 
         _allgames.Add(this);
@@ -124,7 +127,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
         ClockManager = new ClockManager(this);
         GameItemComponentManager = new GameItemComponentManager();
-        Scheduler = new Scheduler();
+        Scheduler = new Scheduler(performanceMonitor: RuntimePerformanceMonitor);
         ArenaLifecycleService = new ArenaLifecycleService(this);
         ArenaScheduler = new ArenaScheduler(this, ArenaLifecycleService);
         ArenaObservationService = new ArenaObservationService(this);
@@ -136,6 +139,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         ArenaCommandService = new ArenaCommandService(this);
         SaveManager = new SaveManager();
         HeartbeatManager = new HeartbeatManager(this);
+        ProximityEventService = new ProximityEventService();
         ComputerHelpService = new ComputerHelpService();
         ComputerNetworkIdentityService = new ComputerNetworkIdentityService(this);
         ComputerNetworkTunnelService = new ComputerNetworkTunnelService(this);
@@ -306,21 +310,39 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
             Stopwatch sw = new();
             Stopwatch saveStopWatch = new();
             saveStopWatch.Start();
-            while (!_needsToHalt)
-            {
-                totalTime.Restart();
+			while (!_needsToHalt)
+			{
+				totalTime.Restart();
+				var collectPerformance = RuntimePerformanceMonitor.Enabled;
+				var loopStartedTimestamp = collectPerformance ? Stopwatch.GetTimestamp() : 0L;
+				var loopAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
+				var phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
 
-                sw.Restart();
-                ProcessPendingCommands();
+				sw.Restart();
+				ProcessNetwork();
+				RecordLoopPhase(RuntimeLoopPhase.Network, sw, collectPerformance, phaseAllocatedBefore);
+				if (sw.ElapsedMilliseconds > 250)
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine($"[PERF] - ProcessNetwork took {sw.ElapsedMilliseconds}ms");
+					Console.ResetColor();
+				}
+
+				phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
+				sw.Restart();
+				ProcessPendingCommands();
+				RecordLoopPhase(RuntimeLoopPhase.PendingCommands, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"[PERF] - ProcessPendingCommands took {sw.ElapsedMilliseconds}ms");
+					Console.WriteLine($"[PERF] - ProcessPendingCommands took {sw.ElapsedMilliseconds}ms");
                     Console.ResetColor();
                 }
 
+                phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
                 WarnIdlers();
+				RecordLoopPhase(RuntimeLoopPhase.IdlerWarnings, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -328,17 +350,21 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                     Console.ResetColor();
                 }
 
+                phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
                 ClockManager.UpdateClocks();
+				RecordLoopPhase(RuntimeLoopPhase.Clocks, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"[PERF] - ProcessPendingCommands took {sw.ElapsedMilliseconds}ms");
+					Console.WriteLine($"[PERF] - ClockManager.UpdateClocks() took {sw.ElapsedMilliseconds}ms");
                     Console.ResetColor();
                 }
 
+                phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
                 Scheduler.CheckSchedules();
+				RecordLoopPhase(RuntimeLoopPhase.Scheduler, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -346,8 +372,10 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                     Console.ResetColor();
                 }
 
+                phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
                 EffectScheduler.CheckSchedules();
+				RecordLoopPhase(RuntimeLoopPhase.EffectScheduler, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -355,8 +383,10 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                     Console.ResetColor();
                 }
 
+                phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
                 LogManager.FlushLog();
+				RecordLoopPhase(RuntimeLoopPhase.LogFlush, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -364,8 +394,10 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                     Console.ResetColor();
                 }
 
+                phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
                 ClearDeadConnections();
+				RecordLoopPhase(RuntimeLoopPhase.DeadConnections, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -373,6 +405,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                     Console.ResetColor();
                 }
 
+                phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
                 if (GetStaticBool("UseDiscordBot"))
                 {
@@ -386,11 +419,14 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                         Console.ResetColor();
                     }
                 }
+				RecordLoopPhase(RuntimeLoopPhase.Discord, sw, collectPerformance, phaseAllocatedBefore);
 
                 if (saveStopWatch.ElapsedMilliseconds > 10000)
                 {
+                    phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                     sw.Restart();
                     SaveManager.Flush();
+					RecordLoopPhase(RuntimeLoopPhase.SaveFlush, sw, collectPerformance, phaseAllocatedBefore);
                     if (sw.ElapsedMilliseconds > 250)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -410,6 +446,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                     long milliseconds = 250 - totalTime.ElapsedMilliseconds;
                     totalTime.Start();
                     TimeSpan pathfindingBudget = TimeSpan.FromMilliseconds(Math.Min(milliseconds, 3));
+					phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                     sw.Restart();
                     ExitManager.PathfindingService.DoIdleWork(pathfindingBudget);
                     if (sw.ElapsedMilliseconds > 50)
@@ -420,14 +457,26 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                     }
 
                     milliseconds = Math.Max(0, milliseconds - sw.ElapsedMilliseconds);
+					RecordLoopPhase(RuntimeLoopPhase.Pathfinding, sw, collectPerformance, phaseAllocatedBefore);
+					phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
+					sw.Restart();
                     SaveManager.FlushLazyLoad(TimeSpan.FromMilliseconds(milliseconds));
+					RecordLoopPhase(RuntimeLoopPhase.LazyLoad, sw, collectPerformance, phaseAllocatedBefore);
                 }
 
                 totalTime.Stop();
+				if (collectPerformance)
+				{
+					RuntimePerformanceMonitor.RecordLoopIteration(
+						Stopwatch.GetTimestamp() - loopStartedTimestamp,
+						GC.GetAllocatedBytesForCurrentThread() - loopAllocatedBefore,
+						totalTime.ElapsedMilliseconds >= 250);
+				}
                 //#endif
                 Thread.Sleep(Math.Max(1, 250 - (int)totalTime.ElapsedMilliseconds));
-            }
+			}
 
+			ForceOutgoingMessages();
 			LinearRouteMovement.MaterialiseAllForShutdown(this);
 			RouteVehicleMovementStrategy.MaterialiseAllForShutdown(this);
             SaveManager.Flush();
@@ -446,6 +495,18 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
             }
         }
     }
+
+	private void RecordLoopPhase(RuntimeLoopPhase phase, Stopwatch stopwatch, bool collectPerformance,
+		long allocatedBefore)
+	{
+		if (!collectPerformance)
+		{
+			return;
+		}
+
+		RuntimePerformanceMonitor.RecordLoopPhase(phase, stopwatch.ElapsedTicks,
+			GC.GetAllocatedBytesForCurrentThread() - allocatedBefore);
+	}
 
     public IAccount TryAccount(long accountid)
     {
@@ -627,10 +688,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
             return;
         }
 
-        lock (_connections)
-        {
-            _connections.Add(connection);
-        }
+		_connections.Add(connection);
     }
 
     ~Futuremud()
@@ -1187,6 +1245,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Add(IForagableProfile foragableProfile)
     {
         _foragableProfiles.Add(foragableProfile);
+    }
+
+    public void Add(ITrapTemplate trapTemplate)
+    {
+        _trapTemplates.Add(trapTemplate);
     }
 
     public void Add(IForagable foragable)
@@ -2227,6 +2290,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         _foragableProfiles.Remove(foragableProfile);
     }
 
+    public void Destroy(ITrapTemplate trapTemplate)
+    {
+        _trapTemplates.Remove(trapTemplate);
+    }
+
     public void Destroy(IForagable foragable)
     {
         _foragables.Remove(foragable);
@@ -2314,10 +2382,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
     public void Destroy(IPlayerConnection connection)
     {
-        lock (_connections)
-        {
-            _connections.Remove(connection);
-        }
+		_connections.Remove(connection);
     }
 
     public void Destroy(INonCardinalExitTemplate template)
@@ -2600,36 +2665,57 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
     private void ProcessPendingCommands()
     {
-        List<IPlayerConnection> playersWithCommands;
-        List<IPlayerConnection> connections;
-        lock (_connections)
-        {
-            playersWithCommands = _connections
-                                  .Where(player => player.HasIncomingCommands && player.State == ConnectionState.Open)
-                                  .ToList();
-            connections = _connections.ToList();
-        }
+		var connections = _connections.Snapshot;
+		_pendingCommandConnections.Clear();
+		foreach (var connection in connections)
+		{
+			if (connection.HasIncomingCommands && connection.State == ConnectionState.Open)
+			{
+				_pendingCommandConnections.Add(connection);
+			}
+		}
 
-        foreach (IPlayerConnection player in playersWithCommands.Shuffle())
-        {
-            player?.AttemptCommand();
-        }
+		for (var index = _pendingCommandConnections.Count - 1; index > 0; index--)
+		{
+			var swapIndex = Random.Shared.Next(index + 1);
+			(_pendingCommandConnections[index], _pendingCommandConnections[swapIndex]) =
+				(_pendingCommandConnections[swapIndex], _pendingCommandConnections[index]);
+		}
 
-        foreach (IPlayerConnection connection in connections)
-        {
-            connection?.PrepareOutgoing();
-        }
+		foreach (var player in _pendingCommandConnections)
+		{
+			player.AttemptCommand();
+		}
+
+		foreach (var connection in connections)
+		{
+			connection.PrepareOutgoing();
+			if (connection is IAsyncPlayerConnection && connection.HasOutgoingCommands)
+			{
+				connection.SendOutgoing();
+			}
+		}
     }
+
+	private void ProcessNetwork()
+	{
+		if (Server is IAsyncServer asyncServer)
+		{
+			asyncServer.ProcessPendingConnections();
+		}
+
+		foreach (var connection in _connections.Snapshot)
+		{
+			if (connection is IAsyncPlayerConnection asyncConnection)
+			{
+				asyncConnection.ProcessPendingTransportEvents();
+			}
+		}
+	}
 
     public void ForceOutgoingMessages()
     {
-        List<IPlayerConnection> connections;
-        lock (_connections)
-        {
-            connections = _connections.ToList();
-        }
-
-        foreach (IPlayerConnection connection in connections)
+		foreach (var connection in _connections.Snapshot)
         {
             connection.PrepareOutgoing();
             connection.SendOutgoing();
@@ -2638,24 +2724,27 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
     private void WarnIdlers()
     {
-        List<IPlayerConnection> connections;
-        lock (_connections)
+		foreach (var connection in _connections.Snapshot)
         {
-            connections = _connections.Where(x => x.State == ConnectionState.Open).ToList();
-        }
-
-        foreach (IPlayerConnection connection in connections)
-        {
-            connection.WarnTimeout();
+			if (connection.State == ConnectionState.Open)
+			{
+				connection.WarnTimeout();
+			}
         }
     }
 
     private void ClearDeadConnections()
     {
-        lock (_connections)
-        {
-            _connections.RemoveAll(c => c.State == ConnectionState.Closed);
-        }
+		foreach (var connection in _connections.Snapshot)
+		{
+			if (connection.State == ConnectionState.Closing &&
+			    connection is IAsyncPlayerConnection { IsReadyForDisposal: true })
+			{
+				connection.Dispose();
+			}
+		}
+
+		_connections.RemoveClosed();
     }
 
     public override string ToString()
@@ -2666,21 +2755,18 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     private void Dispose(bool disposed)
     {
         _allgames.Remove(this);
-        lock (_connections)
-        {
-            _connections.ForEach(t => t.Dispose());
-        }
+		foreach (var connection in _connections.Snapshot)
+		{
+			connection.Dispose();
+		}
     }
 
     public void Broadcast(string text)
     {
-        lock (_connections)
-        {
-            foreach (IPlayerConnection connection in _connections)
-            {
-                connection.AddOutgoing(text);
-            }
-        }
+		foreach (var connection in _connections.Snapshot)
+		{
+			connection.AddOutgoing(text);
+		}
     }
 
     public ICharacterCommandTree RetrieveAppropriateCommandTree(ICharacter character)

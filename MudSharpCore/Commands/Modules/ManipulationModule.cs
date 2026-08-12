@@ -5542,7 +5542,11 @@ The syntax is as follows:
 			return;
 		}
 
-		if (!ss.IsFinished && actor.TargetItem(ss.PopSpeech())?.GetItemType<MusketGameItemComponent>() is { } musket)
+		var targetAsBeltable = targetItem.GetItemType<IBeltable>();
+		if (!ss.IsFinished &&
+		    actor.TargetItem(ss.PeekSpeech())?.GetItemType<MusketGameItemComponent>() is { } musket &&
+		    (targetAsBeltable is null ||
+		     musket.CanAttachBeltable(targetAsBeltable) == IBeltCanAttachBeltableResult.NotValidType))
 		{
 			if (!musket.TryInstallIgnitionStone(actor, targetItem, out var ignitionReason))
 			{
@@ -5553,7 +5557,6 @@ The syntax is as follows:
 			return;
 		}
 
-        IBeltable targetAsBeltable = targetItem.GetItemType<IBeltable>();
         if (targetAsBeltable == null)
         {
             if (targetItem.IsItemType<IProsthetic>())
@@ -7135,7 +7138,7 @@ The syntax is:
 The syntax is:
 
 	#3select <option> [(<emote>)]#0
-	#3select <item> <option> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
+	#3select <item|exit direction> <option> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Select(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -7168,9 +7171,13 @@ The syntax is:
         ISelectable selectable;
         if (argSS.Memory.Count() > 1)
         {
-            IGameItem selectableItem =
-                actor.ContextualItems.WhereNotNull(x => x.GetItemType<ISelectable>())
-                     .GetFromItemListByKeyword(argSS.Memory.ElementAt(0), actor);
+            var targetText = argSS.Memory.ElementAt(0);
+            IGameItem selectableItem = actor.TargetItem(targetText);
+            if (selectableItem?.GetItemType<ISelectable>() is null)
+            {
+	            selectableItem = actor.ContextualItems.WhereNotNull(x => x.GetItemType<ISelectable>())
+	                .GetFromItemListByKeyword(targetText, actor);
+            }
             if (selectableItem == null)
             {
                 actor.Send("You do not see anything by that keyword that you can select things with.");
@@ -7214,6 +7221,213 @@ The syntax is:
 
         selectable.Select(actor, argumentText, emote);
     }
+
+	[PlayerCommand("Arm", "arm")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("arm", @"The #3arm#0 command arms an explosive trigger. Countdown triggers accept a duration, clock triggers accept an exact in-game date and time, and signal triggers need no additional argument.
+
+The syntax is:
+
+	#3arm <item> [<duration|in-game datetime>] [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
+	protected static void Arm(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.Send("What explosive item do you want to arm?");
+			return;
+		}
+
+		var target = actor.TargetItem(ss.PopSpeech());
+		if (target is null)
+		{
+			actor.Send("You do not see any such explosive item to arm.");
+			return;
+		}
+
+		var trap = target.EffectsOfType<TrapEffect>().FirstOrDefault();
+		if (trap is not null)
+		{
+			if (!trap.Arm())
+			{
+				actor.Send("That trap cannot be armed in its current state.");
+				return;
+			}
+
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ arm|arms a trap on $0.", actor, target)));
+			return;
+		}
+
+		var trigger = target.GetItemType<IArmableExplosiveTrigger>();
+		if (trigger is null)
+		{
+			actor.Send($"{target.HowSeen(actor, true)} does not have an armable explosive trigger.");
+			return;
+		}
+
+		var (truth, error) = actor.CanManipulateItem(target);
+		if (!truth)
+		{
+			actor.Send(error);
+			return;
+		}
+
+		var match = ArgumentsAndEmoteRegex.Match(ss.SafeRemainingArgument ?? string.Empty);
+		var argument = match.Success ? match.Groups["arguments"].Value.Trim() : ss.SafeRemainingArgument;
+		PlayerEmote? emote = null;
+		if (match.Success && match.Groups["emote"].Success)
+		{
+			emote = new PlayerEmote(match.Groups["emote"].Value, actor);
+			if (!emote.Valid)
+			{
+				actor.Send(emote.ErrorMessage);
+				return;
+			}
+		}
+
+		if (!trigger.CanArm(actor, argument))
+		{
+			actor.Send(trigger.WhyCannotArm(actor, argument));
+			return;
+		}
+
+		trigger.Arm(actor, argument, emote);
+	}
+
+	[PlayerCommand("Disarm", "disarm")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("disarm", @"The #3disarm#0 command stops an armed explosive trigger when its design permits disarming.
+
+The syntax is:
+
+	#3disarm <item> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
+	protected static void Disarm(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.Send("What explosive item do you want to disarm?");
+			return;
+		}
+
+		var target = actor.TargetItem(ss.PopSpeech());
+		if (target is null)
+		{
+			actor.Send("You do not see any such explosive item to disarm.");
+			return;
+		}
+
+		var trap = target.EffectsOfType<TrapEffect>().FirstOrDefault();
+		if (trap is not null)
+		{
+			actor.Send("Use trap disarm <item> to identify and safely disarm a trap.");
+			return;
+		}
+
+		var trigger = target.GetItemType<IArmableExplosiveTrigger>();
+		if (trigger is null)
+		{
+			actor.Send($"{target.HowSeen(actor, true)} does not have an armable explosive trigger.");
+			return;
+		}
+
+		var (truth, error) = actor.CanManipulateItem(target);
+		if (!truth)
+		{
+			actor.Send(error);
+			return;
+		}
+
+		PlayerEmote? emote = null;
+		var emoteText = ss.PopParentheses();
+		if (!string.IsNullOrWhiteSpace(emoteText))
+		{
+			emote = new PlayerEmote(emoteText, actor);
+			if (!emote.Valid)
+			{
+				actor.Send(emote.ErrorMessage);
+				return;
+			}
+		}
+
+		if (!ss.IsFinished)
+		{
+			actor.Send("The disarm command takes only an item and an optional parenthesised emote.");
+			return;
+		}
+
+		if (!trigger.CanDisarm(actor))
+		{
+			actor.Send(trigger.WhyCannotDisarm(actor));
+			return;
+		}
+
+		trigger.Disarm(actor, emote);
+	}
+
+	[PlayerCommand("PullPin", "pullpin", "pinpull")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("pullpin", @"The #3pullpin#0 command irreversibly starts the countdown on a pin-pull explosive trigger.
+
+The syntax is:
+
+	#3pullpin <item> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
+	protected static void PullPin(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.Send("What explosive item do you want to pull the pin from?");
+			return;
+		}
+
+		var target = actor.TargetItem(ss.PopSpeech());
+		if (target is null)
+		{
+			actor.Send("You do not see any such explosive item here.");
+			return;
+		}
+
+		var trigger = target.GetItemType<IPinPullExplosiveTrigger>();
+		if (trigger is null)
+		{
+			actor.Send($"{target.HowSeen(actor, true)} does not have a pin-pull explosive trigger.");
+			return;
+		}
+
+		var (truth, error) = actor.CanManipulateItem(target);
+		if (!truth)
+		{
+			actor.Send(error);
+			return;
+		}
+
+		PlayerEmote? emote = null;
+		var emoteText = ss.PopParentheses();
+		if (!string.IsNullOrWhiteSpace(emoteText))
+		{
+			emote = new PlayerEmote(emoteText, actor);
+			if (!emote.Valid)
+			{
+				actor.Send(emote.ErrorMessage);
+				return;
+			}
+		}
+
+		if (!ss.IsFinished)
+		{
+			actor.Send("The pullpin command takes only an item and an optional parenthesised emote.");
+			return;
+		}
+
+		if (!trigger.CanPullPin(actor))
+		{
+			actor.Send(trigger.WhyCannotPullPin(actor));
+			return;
+		}
+
+		trigger.PullPin(actor, emote);
+	}
 
     [PlayerCommand("Insert", "insert")]
     [RequiredCharacterState(CharacterState.Able)]
@@ -7293,8 +7507,8 @@ The syntax is:
 
 The syntax is as follows:
 
-	#3switch <item>#0 - see a list of possible switch options for an item
-	#3switch <item> <option>#0 - switch an item to the specified option (e.g. on, off, safe, etc.)", AutoHelp.HelpArgOrNoArg)]
+	#3switch <item|exit direction>#0 - see a list of possible switch options for an item
+	#3switch <item|exit direction> <option>#0 - switch an item to the specified option (e.g. on, off, safe, etc.)", AutoHelp.HelpArgOrNoArg)]
     protected static void Switch(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());

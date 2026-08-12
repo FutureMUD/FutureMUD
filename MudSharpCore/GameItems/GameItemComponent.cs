@@ -66,6 +66,39 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
 
     public override string FrameworkItemType => "GameItemComponent";
 
+    /// <summary>
+    /// Replays a connection recorded in component XML without turning the replay itself into a save.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A normal connection updates both components and their parent items. During load those updates merely
+    /// reconstruct the already-persisted graph, so retaining their <see cref="ISaveable.Changed"/> state causes an
+    /// otherwise unnecessary first-save spike after boot.
+    /// </para>
+    /// <para>
+    /// Any change that pre-dated the replay is retained. This is important for genuine repair paths that have
+    /// already deliberately marked an item for saving.
+    /// </para>
+    /// </remarks>
+    protected void RestorePersistedConnection(IConnectable other, Action restoreAction)
+    {
+        var affectedItems = new ISaveable[] { this, other, Parent, other.Parent }
+            .Distinct()
+            .Select(x => (Item: x, WasChanged: x.Changed))
+            .ToList();
+
+        restoreAction();
+
+        foreach (var (item, wasChanged) in affectedItems)
+        {
+            item.Changed = wasChanged;
+            if (!wasChanged)
+            {
+                Gameworld.SaveManager.Abort(item);
+            }
+        }
+    }
+
     public abstract IGameItemComponent Copy(IGameItem newParent, bool temporary = false);
 
     public virtual bool PreventsMerging(IGameItemComponent component)

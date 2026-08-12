@@ -231,7 +231,7 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
                     continue;
                 }
 
-                Connect(null, connectable);
+                RestorePersistedConnection(connectable, () => Connect(null, connectable));
                 break;
             }
         }
@@ -265,13 +265,12 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
                     continue;
                 }
 
-                Connect(null, connectable);
+                RestorePersistedConnection(connectable, () => Connect(null, connectable));
                 break;
             }
         }
 
         _pendingDependentLoadTimeConnections.Clear();
-        Changed = true;
         _connectedPowerSource = Parent.Components.Except(this).OfType<IProducePower>()
                                       .First(x => x.PrimaryLoadTimePowerProducer);
         _connectedPowerSource.BeginDrawdown(this);

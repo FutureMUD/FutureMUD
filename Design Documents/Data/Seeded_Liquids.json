@@ -2119,5 +2119,22 @@
                      "Food and Drink / Food Liquids / Pre-Industrial Catalogue / Scope / Shared",
                      "Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Sauce"
                  ]
-    }
+    },
+    { "Liquid Name": "opium tincture", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "antimony wine", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "guaiacum decoction", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "sarsaparilla syrup", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "sassafras tonic", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "laudanum", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "jesuit bark tonic", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "ipecacuanha syrup", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "dover's powder draught", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "paregoric elixir", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "tartar emetic solution", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "calomel draught", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "senna infusion", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "rhubarb tincture", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "epsom salts draught", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "daffy's elixir", "Tags": ["Materials / Liquids / Medicine"] },
+    { "Liquid Name": "godfrey's cordial", "Tags": ["Materials / Liquids / Medicine"] }
 ]

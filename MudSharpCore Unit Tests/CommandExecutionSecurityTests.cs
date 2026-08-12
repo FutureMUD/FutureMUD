@@ -25,6 +25,8 @@ using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Magic;
 using MudSharp.Magic.SpellEffects;
@@ -338,7 +340,7 @@ public class CommandExecutionSecurityTests
 	}
 
 	[TestMethod]
-	public void TrapLay_HeldRemovableComponent_IsAllowed()
+	public void TrapLay_HeldDroppableComponent_IsAllowed()
 	{
 		var actor = Character(PermissionLevel.Player);
 		var body = new Mock<IBody>();
@@ -350,7 +352,7 @@ public class CommandExecutionSecurityTests
 		item.SetupGet(x => x.InInventoryOf).Returns(body.Object);
 		item.SetupGet(x => x.Effects).Returns([]);
 		body.SetupGet(x => x.ItemsInHands).Returns([item.Object]);
-		body.Setup(x => x.CanRemoveItem(item.Object, ItemCanGetIgnore.None)).Returns(true);
+		body.Setup(x => x.CanDrop(item.Object, 0)).Returns(true);
 		actor.Setup(x => x.CanManipulateItem(item.Object)).Returns((true, string.Empty));
 
 		var result = InvokeStatic<(bool Truth, string Message)>(typeof(TrapModule), "CanUsePhysicalTrapItem",
@@ -358,7 +360,79 @@ public class CommandExecutionSecurityTests
 
 		Assert.IsTrue(result.Truth, result.Message);
 		Assert.AreEqual(string.Empty, result.Message);
-		body.Verify(x => x.CanRemoveItem(item.Object, ItemCanGetIgnore.None), Times.Once);
+		body.Verify(x => x.CanDrop(item.Object, 0), Times.Once);
+		body.Verify(x => x.CanRemoveItem(It.IsAny<IGameItem>(), It.IsAny<ItemCanGetIgnore>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void TrapLay_HeldComponentThatCannotBeDropped_IsRejected()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var body = new Mock<IBody>();
+		var cell = new Mock<ICell>();
+		actor.SetupGet(x => x.Body).Returns(body.Object);
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(1L);
+		item.SetupGet(x => x.InInventoryOf).Returns(body.Object);
+		item.SetupGet(x => x.Effects).Returns([]);
+		body.SetupGet(x => x.ItemsInHands).Returns([item.Object]);
+		body.Setup(x => x.CanDrop(item.Object, 0)).Returns(false);
+		body.Setup(x => x.WhyCannotDrop(item.Object, 0)).Returns("You cannot drop that component.");
+		actor.Setup(x => x.CanManipulateItem(item.Object)).Returns((true, string.Empty));
+
+		var result = InvokeStatic<(bool Truth, string Message)>(typeof(TrapModule), "CanUsePhysicalTrapItem",
+			actor.Object, item.Object);
+
+		Assert.IsFalse(result.Truth);
+		Assert.AreEqual("You cannot drop that component.", result.Message);
+		body.Verify(x => x.CanDrop(item.Object, 0), Times.Once);
+	}
+
+	[TestMethod]
+	public void TrapLay_AutomaticComponentCandidates_UseHeldItemsBeforeLooseRoomItems()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var body = new Mock<IBody>();
+		var cell = new Mock<ICell>();
+		actor.SetupGet(x => x.Body).Returns(body.Object);
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var held = new Mock<IGameItem>();
+		held.SetupGet(x => x.Id).Returns(1L);
+		held.SetupGet(x => x.InInventoryOf).Returns(body.Object);
+		held.SetupGet(x => x.Effects).Returns([]);
+		var loose = new Mock<IGameItem>();
+		loose.SetupGet(x => x.Id).Returns(2L);
+		loose.SetupGet(x => x.Location).Returns(cell.Object);
+		loose.SetupGet(x => x.Effects).Returns([]);
+		body.SetupGet(x => x.ItemsInHands).Returns([held.Object]);
+		body.Setup(x => x.CanDrop(held.Object, 0)).Returns(true);
+		cell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([loose.Object]);
+		actor.Setup(x => x.CanManipulateItem(held.Object)).Returns((true, string.Empty));
+		actor.Setup(x => x.CanManipulateItem(loose.Object)).Returns((true, string.Empty));
+
+		var candidates = InvokeStatic<List<IGameItem>>(typeof(TrapModule), "GetTrapComponentCandidates",
+			actor.Object, cell.Object, new List<IGameItem>());
+
+		CollectionAssert.AreEqual(new List<IGameItem> { held.Object, loose.Object }, candidates);
+	}
+
+	[TestMethod]
+	public void TrapLay_ComponentPlacement_UsesAnInRoomInventoryPlan()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var gameworld = new Mock<IFuturemud>();
+		var item = new Mock<IGameItem>();
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+
+		var plan = InvokeStatic<IInventoryPlan>(typeof(TrapModule), "CreateTrapComponentInventoryPlan",
+			actor.Object, new List<IGameItem> { item.Object });
+
+		Assert.IsInstanceOfType(plan, typeof(InventoryPlan));
+		var action = ((InventoryPlan)plan).Template.FirstPhase.Actions.Single();
+		Assert.IsInstanceOfType(action, typeof(InventoryPlanActionDrop));
+		Assert.AreEqual(DesiredItemState.InRoom, action.DesiredState);
 	}
 
 	[TestMethod]
@@ -422,26 +496,6 @@ public class CommandExecutionSecurityTests
 
 		cell.Verify(x => x.Extract(item.Object), Times.Once);
 		item.Verify(x => x.Get(null), Times.Once);
-	}
-
-	[TestMethod]
-	public void TrapLay_HeldAnchor_IsPlacedInCurrentLocation()
-	{
-		var actor = Character(PermissionLevel.Player);
-		var body = new Mock<IBody>();
-		var cell = new Mock<ICell>();
-		var item = new Mock<IGameItem>();
-		actor.SetupGet(x => x.Body).Returns(body.Object);
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
-		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
-		body.SetupGet(x => x.ItemsInHands).Returns([item.Object]);
-		item.SetupProperty(x => x.RoomLayer);
-
-		InvokeStatic(typeof(TrapModule), "PlaceHeldTrapAnchor", actor.Object, item.Object);
-
-		body.Verify(x => x.Take(item.Object), Times.Once);
-		cell.Verify(x => x.Insert(item.Object, true), Times.Once);
-		Assert.AreEqual(RoomLayer.GroundLevel, item.Object.RoomLayer);
 	}
 
 	[TestMethod]

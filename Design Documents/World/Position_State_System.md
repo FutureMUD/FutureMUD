@@ -65,6 +65,12 @@ Current registered IDs:
 
 `BodyPrototype` loads valid positions from `BodyProtosPositions`. If an older prototype has no position rows, it falls back to a broad default set. Move speeds load from `MoveSpeeds` and point to a position ID. `Body.CurrentSpeeds` is then keyed by `IPositionState`, so a body can only move in positions for which it has speed rows.
 
+### Derived Body Speed Inheritance
+
+`CountsAs` inherits the parent body's effective movement speeds only for positions that the derived body does not define locally. Defining one or more local speeds for a position replaces the entire inherited set for that position; it does not add another selectable gait alongside the parent speeds. Other positions continue to inherit normally.
+
+This makes position-specific speed rows an intentional override boundary. A centaur, for example, owns its standing quadruped gait set and does not inherit humanoid standing speeds, while it can still inherit the humanoid climbing, swimming, and other unmodified movement modes. Seeders and future body-editing tools must define the complete desired set whenever they override a position.
+
 The zero-gravity bootstrap path ensures every body prototype has a zero-gravity floating move speed, copying flying, standing, or any available speed as a template.
 
 ## Command Flow

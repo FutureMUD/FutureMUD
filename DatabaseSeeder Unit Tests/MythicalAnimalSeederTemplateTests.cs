@@ -977,7 +977,7 @@ public class MythicalAnimalSeederTemplateTests
         CollectionAssert.AreEquivalent(
             new[] { "stalk", "amble", "pace", "trot", "gallop" },
             MythicalAnimalSeeder.GetHybridMovementAliasesForTesting("Centaur").ToArray(),
-            "Centaurs should inherit quadruped gait options rather than only humanoid walking verbs.");
+            "Centaurs should own a quadruped gait set that replaces inherited humanoid standing speeds.");
         CollectionAssert.AreEquivalent(
             new[] { "slowfly", "fly", "franticfly" },
             MythicalAnimalSeeder.GetHybridMovementAliasesForTesting("Eastern Dragon").ToArray(),

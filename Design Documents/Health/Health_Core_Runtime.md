@@ -55,8 +55,6 @@ Stock seeded body layouts now use two distinct patterns:
 - additive `CountsAs` layering when a derived body should inherit all parent anatomy unchanged
 - flattened cloned anatomy when a seeder-built variant needs to remove, replace, or reroute parent bodyparts and limbs
 
-Movement speeds use position-specific replacement within additive layering. If a derived body defines one or more speeds for a position, those local speeds are the complete effective set for that position; speeds for positions with no local definitions continue to inherit through `CountsAs`. This lets a derived body replace standing gaits while retaining inherited anatomy and movement modes such as crawling or swimming.
-
 That flattening step must copy the full ancestor chain's bodyparts, organ relationships, limb definitions, and movement data into the concrete body prototype so every external bodypart still resolves to a limb at runtime.
 Direct cloned bodies also need to preserve bodypart upstream links so later subtree removals in hybrid seed templates delete the full branch rather than leaving uncovered descendants behind.
 - default health strategy

@@ -159,6 +159,26 @@ public class TrapModuleDefinitionTests
 	}
 
 	[TestMethod]
+	public void ComponentBinding_PersistsInstalledLayerAndRoutePosition()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var cell = new Mock<ICell>();
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		item.SetupGet(x => x.Id).Returns(123L);
+		item.SetupGet(x => x.LocationLevelPerceivable).Returns(item.Object);
+		item.SetupGet(x => x.SpatialLocation).Returns(new SpatialLocation(cell.Object, RoomLayer.InAir, 4_250.5));
+		gameworld.Setup(x => x.TryGetItem(123L, true)).Returns(item.Object);
+		var binding = new TrapComponentBinding(gameworld.Object, item.Object,
+			TrapComponentRole.Payload, 25.0, 1.0);
+
+		var loaded = TrapComponentBinding.LoadFromXml(binding.SaveToXml(), gameworld.Object);
+
+		Assert.AreEqual(RoomLayer.InAir, loaded.InstalledLayer);
+		Assert.AreEqual(4_250.5, loaded.InstalledRoutePositionMetres);
+	}
+
+	[TestMethod]
 	public void ComponentMatcher_AllowsOneItemToServeTriggerAndPayloadButNotDuplicateRoles()
 	{
 		var gameworld = new Mock<IFuturemud>();

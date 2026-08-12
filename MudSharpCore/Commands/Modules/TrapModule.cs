@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Accounts;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Commands.Trees;
 using MudSharp.Computers;
@@ -36,7 +37,7 @@ internal class TrapModule : Module<ICharacter>
 	#3trap list#0 - lists traps you know at this location
 	#3trap types#0 - lists the trap templates your character knows
 	#3trap inspect <item|exit|here>#0 - inspects a known trap
-	#3trap lay <template> on <item|exit|here> [using <item> ...]#0 - deploys a known current trap template; repeat using for tagged mechanical parts
+	#3trap lay <template> on <item|exit|here> [using <item> ...]#0 - deploys a known current trap template; repeat using for tagged mechanical parts you hold or can manipulate loose in the room (held parts are preferred)
 	#3trap pointout <person> <item|exit|here>#0 - shares knowledge of a trap
 	#3trap disarm <item|exit|here>#0 - attempts to disarm a known trap
 	#3trap recover <item|exit|here>#0 - removes a safely disarmed trap
@@ -260,15 +261,14 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 			.Cast<IGameItem>()
 			.Distinct()
 			.ToList();
-		if (componentItems.Any(x => x.Id <= 0 || x.Deleted || x.InInventoryOf is not null || !ReferenceEquals(x.Location, actor.Location)))
+		foreach (var item in componentItems)
 		{
-			actor.Send("Every physical trap component must be a persistent item placed in your current location, rather than carried or contained.");
-			return;
-		}
-		if (componentItems.Any(x => x.EffectsOfType<TrapComponentReservationEffect>().Any()))
-		{
-			actor.Send("One of those items is already installed as part of another trap.");
-			return;
+			var (canUse, error) = CanUsePhysicalTrapItem(actor, item);
+			if (!canUse)
+			{
+				actor.Send(error);
+				return;
+			}
 		}
 
 		var bindings = MatchComponents(actor, template, componentItems);
@@ -315,11 +315,17 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 
 		void Complete(IPerceivable _)
 		{
-			if (!AnchorStillAvailable(actor, anchor, exit) || componentItems.Any(x => x.Deleted || x.InInventoryOf is not null ||
-			    !ReferenceEquals(x.Location, actor.Location) || x.EffectsOfType<TrapComponentReservationEffect>().Any()) || anchor.EffectsOfType<TrapEffect>()
+			var componentAccessFailure = componentItems
+				.Select(x => CanUsePhysicalTrapItem(actor, x))
+				.Where(x => !x.Truth)
+				.Select(x => ((bool Truth, string Message)?)x)
+				.FirstOrDefault();
+			if (!AnchorStillAvailable(actor, anchor, exit) || componentAccessFailure.HasValue || anchor.EffectsOfType<TrapEffect>()
 			    .Any(x => x.State is not TrapState.Spent and not TrapState.Expired && SameBinding(x, exit)))
 			{
-				actor.Send("You can no longer finish setting that trap there.");
+				actor.Send(string.IsNullOrEmpty(componentAccessFailure?.Message)
+					? "You can no longer finish setting that trap there."
+					: $"You can no longer finish setting that trap: {componentAccessFailure.Value.Message}");
 				return;
 			}
 
@@ -333,6 +339,7 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 				}
 			}
 
+			PlaceHeldTrapAnchor(actor, anchor);
 			var trap = new TrapEffect(anchor, template, actor, exit, bindings);
 			if (TrapEffect.HasTimedLifetime(template))
 			{
@@ -609,6 +616,54 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 		return bindings;
 	}
 
+	private static (bool Truth, string Message) CanUsePhysicalTrapItem(ICharacter actor, IGameItem item)
+	{
+		if (item.Id <= 0 || item.Deleted)
+		{
+			return (false, "Every physical trap component must be a persistent item.");
+		}
+
+		if (item.EffectsOfType<TrapComponentReservationEffect>().Any())
+		{
+			return (false, $"{item.HowSeen(actor, true)} is already installed as part of another trap.");
+		}
+
+		var heldByActor = actor.Body.ItemsInHands.Any(x => ReferenceEquals(x, item));
+		var looseInRoom = item.InInventoryOf is null && item.ContainedIn is null &&
+		                  ReferenceEquals(item.Location, actor.Location);
+		if (!heldByActor && !looseInRoom)
+		{
+			return (false,
+				$"You must be holding {item.HowSeen(actor, true)}, or it must be loose in your current location, to install it in a trap.");
+		}
+
+		var (canManipulate, manipulationError) = actor.CanManipulateItem(item);
+		if (!canManipulate)
+		{
+			return (false, manipulationError);
+		}
+
+		if (heldByActor && !actor.Body.CanRemoveItem(item))
+		{
+			return (false, actor.Body.WhyCannotRemove(item));
+		}
+
+		return (true, string.Empty);
+	}
+
+	private static void PlaceHeldTrapAnchor(ICharacter actor, IPerceivable anchor)
+	{
+		if (anchor is not IGameItem item ||
+		    !actor.Body.ItemsInHands.Any(x => ReferenceEquals(x, item)))
+		{
+			return;
+		}
+
+		actor.Body.Take(item);
+		item.RoomLayer = actor.RoomLayer;
+		item.InsertAtSource(actor, true);
+	}
+
 	private static (IPerceivable Anchor, ICellExit? Exit, List<IGameItem> Components)? ResolveAnchor(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -643,7 +698,7 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 			{
 				return null;
 			}
-			var item = actor.TargetItem(command.PopSpeech());
+			var item = actor.TargetLocalOrHeldItem(command.PopSpeech());
 			if (item is null)
 			{
 				return null;
@@ -666,7 +721,7 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 			return (actor.Location, exit);
 		}
 
-		var item = actor.TargetItem(text);
+		var item = actor.TargetLocalOrHeldItem(text);
 		return item is null ? null : (item, null);
 	}
 
@@ -732,7 +787,8 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 				.Any(x => x.Exit.Id == exit.Exit.Id && x.Origin.Id == exit.Origin.Id);
 		}
 
-		return ReferenceEquals(anchor, actor.Location) || ReferenceEquals(anchor.Location, actor.Location);
+		return ReferenceEquals(anchor, actor.Location) || ReferenceEquals(anchor.Location, actor.Location) ||
+		       anchor is IGameItem item && actor.Body.ItemsInHands.Any(x => ReferenceEquals(x, item));
 	}
 
 	private static string DescribeAnchor(ICharacter actor, IPerceivable anchor, ICellExit? exit) => exit is null

@@ -13,6 +13,7 @@ using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Events.Hooks;
 using MudSharp.Form.Characteristics;
@@ -52,9 +53,23 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 		       .FirstOrDefault(x => x is not null && !ReferenceEquals(x, parent));
 	}
 
+	internal static IPerceivable? ResolveEffectSpatialHost(IEnumerable<IEffect> effects, IGameItem? parent = null)
+	{
+		return effects
+		       .OfType<IProvideItemSpatialHostEffect>()
+		       .Select(x => x.SpatialHost)
+		       .FirstOrDefault(x => x is not null && !ReferenceEquals(x, parent));
+	}
+
 	private bool IsSpatiallyHosted => _components.Any(x => x is IProvideItemSpatialHost);
 	private IGameItem? SpatialHost => ResolveSpatialHost(_components, this);
-	private double? PersistedRoutePositionMetres => IsSpatiallyHosted ? null : RoutePositionMetres;
+	private IProvideItemSpatialHostEffect? EffectSpatialHostProvider => Effects
+		.OfType<IProvideItemSpatialHostEffect>()
+		.FirstOrDefault(x => x.SpatialHost is not null && !ReferenceEquals(x.SpatialHost, this));
+	private IPerceivable? EffectSpatialHost => EffectSpatialHostProvider?.SpatialHost;
+	private ICell? EffectSpatialHostLocation => EffectSpatialHost as ICell ?? EffectSpatialHost?.Location;
+	private bool HasEffectiveSpatialHost => IsSpatiallyHosted || EffectSpatialHost is not null;
+	private double? PersistedRoutePositionMetres => HasEffectiveSpatialHost ? null : RoutePositionMetres;
 
     #endregion
 
@@ -446,7 +461,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         dbitem.OwnerId = _ownerReference?.Id;
         dbitem.OwnerType = _ownerReference?.FrameworkItemType;
         dbitem.Condition = Condition;
-        dbitem.RoomLayer = (int)(IsSpatiallyHosted ? _roomLayer : RoomLayer);
+		dbitem.RoomLayer = (int)(HasEffectiveSpatialHost ? _roomLayer : RoomLayer);
 		dbitem.RoutePosition = PersistedRoutePositionMetres.HasValue
 			? (decimal)PersistedRoutePositionMetres.Value
 			: null;
@@ -662,7 +677,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             Size = (int)Size,
             PositionId = (int)PositionUndefined.Instance.Id,
             PositionModifier = (int)PositionModifier.None,
-			RoomLayer = (int)(IsSpatiallyHosted ? _roomLayer : RoomLayer),
+			RoomLayer = (int)(HasEffectiveSpatialHost ? _roomLayer : RoomLayer),
 			RoutePosition = PersistedRoutePositionMetres.HasValue
 				? (decimal)PersistedRoutePositionMetres.Value
 				: null,
@@ -1473,9 +1488,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     /// <summary>
     /// This returns an IPerceivable (which may be this item) that represents the perceivable "thing" that is actually in the room, for purposes of working out proximity of this item irrespestive of whether it is sitting in the room, being carried, in a container, attached to something etc.
     /// </summary>
-    public IPerceivable LocationLevelPerceivable => SpatialHost?.LocationLevelPerceivable ??
+	public IPerceivable LocationLevelPerceivable => SpatialHost?.LocationLevelPerceivable ??
                    ContainedIn?.LocationLevelPerceivable ??
                    InInventoryOf?.Actor ??
+	               (EffectSpatialHost is not null ? this : null) ??
                    GetItemType<IChair>()?.Table?.Parent.LocationLevelPerceivable ??
                    (GetItemType<IDoor>()?.InstalledExit != null ? this : null) ??
                    GetItemType<IBeltable>()?.ConnectedTo?.Parent.LocationLevelPerceivable ??
@@ -1562,17 +1578,19 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public override ICell Location
     {
-        get => SpatialHost?.Location ?? base.Location ?? TrueLocations?.FirstOrDefault();
+		get => SpatialHost?.Location ?? EffectSpatialHostLocation ?? base.Location ?? TrueLocations?.FirstOrDefault();
         protected set => base.Location = value;
     }
 
 	public override RoomLayer RoomLayer
 	{
-		get => SpatialHost?.RoomLayer ?? base.RoomLayer;
+		get => SpatialHost?.RoomLayer ?? EffectSpatialHostProvider?.SpatialLayer ?? base.RoomLayer;
 		set => base.RoomLayer = value;
 	}
 
-	public override double? RoutePositionMetres => SpatialHost?.RoutePositionMetres ?? base.RoutePositionMetres;
+	public override double? RoutePositionMetres => SpatialHost?.RoutePositionMetres ??
+	                                              EffectSpatialHostProvider?.SpatialRoutePositionMetres ??
+	                                              base.RoutePositionMetres;
 
     #endregion
 
@@ -1583,6 +1601,20 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 		{
 			itemsConsidered.Add(spatialHost);
 			return spatialHost.TrueLocationsExcept(itemsConsidered);
+		}
+		var effectSpatialHost = EffectSpatialHost;
+		if (effectSpatialHost is IGameItem effectHostItem && !itemsConsidered.Contains(effectHostItem))
+		{
+			itemsConsidered.Add(effectHostItem);
+			return effectHostItem.TrueLocationsExcept(itemsConsidered);
+		}
+		if (effectSpatialHost is ICell effectHostCell)
+		{
+			return [effectHostCell];
+		}
+		if (effectSpatialHost?.Location is { } effectHostLocation)
+		{
+			return [effectHostLocation];
 		}
 
         if (base.Location != null)
@@ -1649,6 +1681,19 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 			if (spatialHost is not null)
 			{
 				return spatialHost.TrueLocationsExcept([this, spatialHost]);
+			}
+			var effectSpatialHost = EffectSpatialHost;
+			if (effectSpatialHost is IGameItem effectHostItem)
+			{
+				return effectHostItem.TrueLocationsExcept([this, effectHostItem]);
+			}
+			if (effectSpatialHost is ICell effectHostCell)
+			{
+				return [effectHostCell];
+			}
+			if (effectSpatialHost?.Location is { } effectHostLocation)
+			{
+				return [effectHostLocation];
 			}
 
             if (base.Location != null)

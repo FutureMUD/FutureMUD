@@ -9,6 +9,7 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Accounts;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
 using MudSharp.Commands;
@@ -16,6 +17,8 @@ using MudSharp.Commands.Trees;
 using MudSharp.Communication;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
@@ -313,6 +316,167 @@ public class CommandExecutionSecurityTests
 	}
 
 	[TestMethod]
+	public void TrapLay_RoomComponentWithoutManipulationPermission_IsRejected()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var body = new Mock<IBody>();
+		var cell = new Mock<ICell>();
+		actor.SetupGet(x => x.Body).Returns(body.Object);
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(1L);
+		item.SetupGet(x => x.Location).Returns(cell.Object);
+		item.SetupGet(x => x.Effects).Returns([]);
+		actor.Setup(x => x.CanManipulateItem(item.Object)).Returns((false, "You cannot reach that."));
+
+		var result = InvokeStatic<(bool Truth, string Message)>(typeof(TrapModule), "CanUsePhysicalTrapItem",
+			actor.Object, item.Object);
+
+		Assert.IsFalse(result.Truth);
+		Assert.AreEqual("You cannot reach that.", result.Message);
+		actor.Verify(x => x.CanManipulateItem(item.Object), Times.Once);
+	}
+
+	[TestMethod]
+	public void TrapLay_HeldRemovableComponent_IsAllowed()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var body = new Mock<IBody>();
+		var cell = new Mock<ICell>();
+		actor.SetupGet(x => x.Body).Returns(body.Object);
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(1L);
+		item.SetupGet(x => x.InInventoryOf).Returns(body.Object);
+		item.SetupGet(x => x.Effects).Returns([]);
+		body.SetupGet(x => x.ItemsInHands).Returns([item.Object]);
+		body.Setup(x => x.CanRemoveItem(item.Object, ItemCanGetIgnore.None)).Returns(true);
+		actor.Setup(x => x.CanManipulateItem(item.Object)).Returns((true, string.Empty));
+
+		var result = InvokeStatic<(bool Truth, string Message)>(typeof(TrapModule), "CanUsePhysicalTrapItem",
+			actor.Object, item.Object);
+
+		Assert.IsTrue(result.Truth, result.Message);
+		Assert.AreEqual(string.Empty, result.Message);
+		body.Verify(x => x.CanRemoveItem(item.Object, ItemCanGetIgnore.None), Times.Once);
+	}
+
+	[TestMethod]
+	public void TrapLay_ItemInAnotherInventory_IsRejected()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var body = new Mock<IBody>();
+		var otherBody = new Mock<IBody>();
+		var cell = new Mock<ICell>();
+		actor.SetupGet(x => x.Body).Returns(body.Object);
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(1L);
+		item.SetupGet(x => x.InInventoryOf).Returns(otherBody.Object);
+		item.SetupGet(x => x.Effects).Returns([]);
+
+		var result = InvokeStatic<(bool Truth, string Message)>(typeof(TrapModule), "CanUsePhysicalTrapItem",
+			actor.Object, item.Object);
+
+		Assert.IsFalse(result.Truth);
+		StringAssert.Contains(result.Message, "You must be holding");
+		actor.Verify(x => x.CanManipulateItem(It.IsAny<IGameItem>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void TrapLay_ComponentParser_UsesHeldPreferredLocalResolver()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var cell = new Mock<ICell>();
+		var item = new Mock<IGameItem>();
+		actor.Setup(x => x.TargetLocalOrHeldItem("wire")).Returns(item.Object);
+
+		InvokeStatic(typeof(TrapModule), "ParseSuppliedComponents", actor.Object,
+			new StringStack("using wire"), cell.Object, null!);
+
+		actor.Verify(x => x.TargetLocalOrHeldItem("wire"), Times.Once);
+		actor.Verify(x => x.TargetItem(It.IsAny<string>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void TrapLay_HeldComponent_IsRemovedFromInventoryWhenInstalled()
+	{
+		var body = new Mock<IBody>();
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.InInventoryOf).Returns(body.Object);
+
+		TrapEffect.DetachInstalledComponent(item.Object);
+
+		body.Verify(x => x.Take(item.Object), Times.Once);
+		item.Verify(x => x.Get(null), Times.Once);
+	}
+
+	[TestMethod]
+	public void TrapLay_RoomComponent_IsExtractedWhenInstalled()
+	{
+		var cell = new Mock<ICell>();
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Location).Returns(cell.Object);
+
+		TrapEffect.DetachInstalledComponent(item.Object);
+
+		cell.Verify(x => x.Extract(item.Object), Times.Once);
+		item.Verify(x => x.Get(null), Times.Once);
+	}
+
+	[TestMethod]
+	public void TrapLay_HeldAnchor_IsPlacedInCurrentLocation()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var body = new Mock<IBody>();
+		var cell = new Mock<ICell>();
+		var item = new Mock<IGameItem>();
+		actor.SetupGet(x => x.Body).Returns(body.Object);
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		body.SetupGet(x => x.ItemsInHands).Returns([item.Object]);
+		item.SetupProperty(x => x.RoomLayer);
+
+		InvokeStatic(typeof(TrapModule), "PlaceHeldTrapAnchor", actor.Object, item.Object);
+
+		body.Verify(x => x.Take(item.Object), Times.Once);
+		cell.Verify(x => x.Insert(item.Object, true), Times.Once);
+		Assert.AreEqual(RoomLayer.GroundLevel, item.Object.RoomLayer);
+	}
+
+	[TestMethod]
+	public void TrapComponentReservation_UsesTrapAnchorAsSpatialHost()
+	{
+		var item = new Mock<IGameItem>();
+		var anchor = new Mock<ICell>();
+		var reservation = new TrapComponentReservationEffect(item.Object, Guid.NewGuid(), anchor.Object,
+			RoomLayer.InTrees, 4_500.0);
+
+		Assert.AreSame(anchor.Object, ((IProvideItemSpatialHostEffect)reservation).SpatialHost);
+		Assert.AreSame(anchor.Object, GameItem.ResolveEffectSpatialHost([reservation], item.Object));
+		Assert.AreEqual(RoomLayer.InTrees, reservation.SpatialLayer);
+		Assert.AreEqual(4_500.0, reservation.SpatialRoutePositionMetres);
+	}
+
+	[TestMethod]
+	public void TrapComponentRecovery_RestoresCapturedSpatialLocation()
+	{
+		var routeDefinition = new Mock<IRouteCellDefinition>();
+		routeDefinition.SetupGet(x => x.LengthMetres).Returns(10_000.0);
+		var cell = new Mock<ICell>();
+		cell.SetupGet(x => x.RouteDefinition).Returns(routeDefinition.Object);
+		var item = new Mock<IGameItem>();
+		item.SetupProperty(x => x.RoomLayer);
+		var location = new SpatialLocation(cell.Object, RoomLayer.InAir, 4_500.0);
+
+		TrapEffect.RestoreInstalledComponent(item.Object, location);
+
+		Assert.AreEqual(RoomLayer.InAir, item.Object.RoomLayer);
+		item.Verify(x => x.MoveTo(location, null, false), Times.Once);
+		cell.Verify(x => x.Insert(item.Object, true), Times.Once);
+	}
+
+	[TestMethod]
 	public void ExportCraftCsvCell_QuotesAndNeutralisesSpreadsheetFormulae()
 	{
 		Assert.AreEqual("\"'=1+1\"", SpreadsheetSafeCsv.EncodeCell("=1+1"));
@@ -340,6 +504,12 @@ public class CommandExecutionSecurityTests
 	{
 		var method = type.GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)!;
 		method.Invoke(null, arguments);
+	}
+
+	private static T InvokeStatic<T>(Type type, string methodName, params object[] arguments)
+	{
+		var method = type.GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)!;
+		return (T)method.Invoke(null, arguments)!;
 	}
 
 	private static Mock<IUneditableRevisableAll<T>> RevisableRepository<T>(IEnumerable<T> items) where T : class, IRevisableItem

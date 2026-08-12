@@ -28,47 +28,95 @@ namespace MudSharp.Effects.Concrete;
 public sealed class TrapComponentBinding : ITrapComponentBinding
 {
 	private readonly IFuturemud _gameworld;
+	private IGameItem? _item;
+	private readonly IGameItem? _fallbackItem;
 
 	public TrapComponentBinding(IFuturemud gameworld, IGameItem item, TrapComponentRole role,
 		double spentRecoveryChance, double qualityWeight)
 	{
 		_gameworld = gameworld;
+		_fallbackItem = item;
 		ItemId = item.Id;
 		Role = role;
 		SpentRecoveryChance = spentRecoveryChance;
 		QualityWeight = qualityWeight;
+		if (item.LocationLevelPerceivable is { } locationSource)
+		{
+			var effectiveLocation = RouteSpatialService.Instance.GetEffectiveLocation(locationSource);
+			InstalledLayer = effectiveLocation.Layer;
+			InstalledRoutePositionMetres = effectiveLocation.RoutePositionMetres;
+		}
+		else
+		{
+			InstalledLayer = item.RoomLayer;
+			InstalledRoutePositionMetres = item.RoutePositionMetres;
+		}
 	}
 
 	private TrapComponentBinding(IFuturemud gameworld, long itemId, TrapComponentRole role,
-		double spentRecoveryChance, double qualityWeight)
+		double spentRecoveryChance, double qualityWeight, RoomLayer installedLayer,
+		double? installedRoutePositionMetres)
 	{
 		_gameworld = gameworld;
 		ItemId = itemId;
 		Role = role;
 		SpentRecoveryChance = spentRecoveryChance;
 		QualityWeight = qualityWeight;
+		InstalledLayer = installedLayer;
+		InstalledRoutePositionMetres = installedRoutePositionMetres;
 	}
 
 	public long ItemId { get; }
-	public IGameItem? Item => _gameworld.TryGetItem(ItemId, true) is { Deleted: false } item ? item : null;
+	public IGameItem? Item
+	{
+		get
+		{
+			if (_item is not null)
+			{
+				return _item.Deleted ? null : _item;
+			}
+
+			_item = _gameworld.TryGetItem(ItemId, true) ?? _fallbackItem;
+			return _item is { Deleted: false } ? _item : null;
+		}
+	}
 	public TrapComponentRole Role { get; }
 	public double SpentRecoveryChance { get; }
 	public double QualityWeight { get; }
+	public RoomLayer InstalledLayer { get; }
+	public double? InstalledRoutePositionMetres { get; }
 
 	public XElement SaveToXml() => new("Component",
 		new XAttribute("item", ItemId),
 		new XAttribute("role", Role),
 		new XAttribute("recovery", SpentRecoveryChance),
-		new XAttribute("qualityweight", QualityWeight));
+		new XAttribute("qualityweight", QualityWeight),
+		new XAttribute("layer", InstalledLayer),
+		InstalledRoutePositionMetres.HasValue
+			? new XAttribute("routeposition", InstalledRoutePositionMetres.Value.ToString(CultureInfo.InvariantCulture))
+			: null);
 
-	public static TrapComponentBinding LoadFromXml(XElement root, IFuturemud gameworld) => new(
-		gameworld,
-		long.Parse(root.Attribute("item")?.Value ?? "0"),
-		Enum.TryParse(root.Attribute("role")?.Value, true, out TrapComponentRole role) ? role : TrapComponentRole.None,
-		double.TryParse(root.Attribute("recovery")?.Value, NumberStyles.Float, CultureInfo.InvariantCulture,
-			out var recovery) ? recovery : 0.0,
-		double.TryParse(root.Attribute("qualityweight")?.Value, NumberStyles.Float,
-			CultureInfo.InvariantCulture, out var qualityWeight) ? qualityWeight : 1.0);
+	public static TrapComponentBinding LoadFromXml(XElement root, IFuturemud gameworld)
+	{
+		var itemId = long.Parse(root.Attribute("item")?.Value ?? "0");
+		return new TrapComponentBinding(
+			gameworld,
+			itemId,
+			Enum.TryParse(root.Attribute("role")?.Value, true, out TrapComponentRole role)
+				? role
+				: TrapComponentRole.None,
+			double.TryParse(root.Attribute("recovery")?.Value, NumberStyles.Float, CultureInfo.InvariantCulture,
+				out var recovery) ? recovery : 0.0,
+			double.TryParse(root.Attribute("qualityweight")?.Value, NumberStyles.Float,
+				CultureInfo.InvariantCulture, out var qualityWeight) ? qualityWeight : 1.0,
+			Enum.TryParse(root.Attribute("layer")?.Value, true, out RoomLayer layer)
+				? layer
+				: RoomLayer.GroundLevel,
+			double.TryParse(root.Attribute("routeposition")?.Value, NumberStyles.Float,
+				CultureInfo.InvariantCulture, out var routePosition)
+				? routePosition
+				: null);
+	}
 }
 
 /// <summary>
@@ -80,6 +128,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	private readonly List<ISignalSourceComponent> _signalSources = [];
 	private readonly List<TrapComponentBinding> _components = [];
 	private IProximityEventRegistration? _proximityRegistration;
+	private bool _ownerLifecycleSubscribed;
 
 	public static void InitialiseEffectType()
 	{
@@ -234,13 +283,17 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		RecoverInterruptedResolution();
 		SubscribeSignalTriggers();
 		SubscribeProximityTriggers();
+		SubscribeOwnerLifecycle();
 		ReserveComponents();
+		DetachInstalledComponents();
 	}
 
 	public override void RemovalEffect()
 	{
 		UnsubscribeSignalTriggers();
 		UnsubscribeProximityTriggers();
+		UnsubscribeOwnerLifecycle();
+		RestoreInstalledComponents();
 		ReleaseComponentReservations();
 		base.RemovalEffect();
 	}
@@ -1209,13 +1262,98 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 	private void ReserveComponents()
 	{
-		foreach (var item in _components.Select(x => x.Item).Where(x => x is not null).Cast<IGameItem>().Distinct())
+		foreach (var binding in _components
+		         .Where(x => x.Item is not null)
+		         .GroupBy(x => x.ItemId)
+		         .Select(x => x.First()))
 		{
+			var item = binding.Item!;
 			if (item.EffectsOfType<TrapComponentReservationEffect>().All(x => x.TrapInstanceId != InstanceId))
 			{
-				item.AddEffect(new TrapComponentReservationEffect(item, InstanceId));
+				item.AddEffect(new TrapComponentReservationEffect(item, InstanceId, Owner,
+					binding.InstalledLayer, binding.InstalledRoutePositionMetres));
 			}
 		}
+	}
+
+	private void DetachInstalledComponents()
+	{
+		foreach (var item in _components
+		         .Select(x => x.Item)
+		         .Where(x => x is not null && !ReferenceEquals(x, Owner))
+		         .Cast<IGameItem>()
+		         .Distinct())
+		{
+			DetachInstalledComponent(item);
+		}
+	}
+
+	internal static void DetachInstalledComponent(IGameItem item)
+	{
+		var containingItem = item.ContainedIn;
+		var inventory = item.InInventoryOf;
+		var directLocation = containingItem is null && inventory is null ? item.Location : null;
+		containingItem?.Take(item);
+		inventory?.Take(item);
+		directLocation?.Extract(item);
+		item.Get(null);
+	}
+
+	private void RestoreInstalledComponents()
+	{
+		if ((Owner as ICell ?? Owner.Location) is not { } location)
+		{
+			return;
+		}
+
+		foreach (var item in _components
+		         .Select(x => x.Item)
+		         .Where(x => x is not null && !x.Deleted && !ReferenceEquals(x, Owner))
+		         .Cast<IGameItem>()
+		         .Distinct()
+		         .Where(x => !location.GameItems.Contains(x)))
+		{
+			var reservation = item.EffectsOfType<TrapComponentReservationEffect>()
+				.FirstOrDefault(x => x.TrapInstanceId == InstanceId);
+			var spatialLocation = new SpatialLocation(
+				location,
+				reservation?.SpatialLayer ?? Owner.RoomLayer,
+				reservation?.SpatialRoutePositionMetres);
+			RestoreInstalledComponent(item, spatialLocation);
+		}
+	}
+
+	internal static void RestoreInstalledComponent(IGameItem item, SpatialLocation spatialLocation)
+	{
+		item.RoomLayer = spatialLocation.Layer;
+		item.InsertAtSpatialLocation(spatialLocation, true);
+	}
+
+	private void SubscribeOwnerLifecycle()
+	{
+		if (_ownerLifecycleSubscribed)
+		{
+			return;
+		}
+
+		Owner.OnDeleted += OwnerDeleted;
+		_ownerLifecycleSubscribed = true;
+	}
+
+	private void UnsubscribeOwnerLifecycle()
+	{
+		if (!_ownerLifecycleSubscribed)
+		{
+			return;
+		}
+
+		Owner.OnDeleted -= OwnerDeleted;
+		_ownerLifecycleSubscribed = false;
+	}
+
+	private void OwnerDeleted(IPerceivable _)
+	{
+		RestoreInstalledComponents();
 	}
 
 	private void ReleaseComponentReservations()
@@ -1288,14 +1426,26 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	}
 }
 
-public sealed class TrapComponentReservationEffect : Effect, INoGetEffect
+public sealed class TrapComponentReservationEffect : Effect, INoGetEffect, IProvideItemSpatialHostEffect
 {
-	public TrapComponentReservationEffect(IPerceivable owner, Guid trapInstanceId) : base(owner)
+	private readonly RoomLayer _installedLayer;
+	private readonly double? _installedRoutePositionMetres;
+
+	public TrapComponentReservationEffect(IPerceivable owner, Guid trapInstanceId, IPerceivable spatialHost,
+		RoomLayer installedLayer, double? installedRoutePositionMetres) : base(owner)
 	{
 		TrapInstanceId = trapInstanceId;
+		SpatialHost = spatialHost;
+		_installedLayer = installedLayer;
+		_installedRoutePositionMetres = installedRoutePositionMetres;
 	}
 
 	public Guid TrapInstanceId { get; }
+	public IPerceivable SpatialHost { get; }
+	public RoomLayer SpatialLayer => SpatialHost is ICell ? _installedLayer : SpatialHost.RoomLayer;
+	public double? SpatialRoutePositionMetres => SpatialHost is ICell
+		? _installedRoutePositionMetres
+		: SpatialHost.RoutePositionMetres;
 	public bool CombatRelated => false;
 	public override bool SavingEffect => false;
 	protected override string SpecificEffectType => "TrapComponentReservation";

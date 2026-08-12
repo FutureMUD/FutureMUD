@@ -8,6 +8,7 @@ using MudSharp.Combat;
 using MudSharp.Combat.Moves;
 using MudSharp.Construction;
 using MudSharp.Framework;
+using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,6 +41,40 @@ public class MultiTargetCombatMoveTests
 			_ => singleMove.Object);
 
 		Assert.AreSame(singleMove.Object, move);
+	}
+
+	[TestMethod]
+	public void WrapWeaponAttack_TargetFailsTargetSpecificUsability_DoesNotAddSecondaryTarget()
+	{
+		Mock<ICombat> combat = new();
+		Mock<ICharacter> assailant = new();
+		Mock<ICharacter> primary = new();
+		Mock<ICharacter> secondary = new();
+		Mock<IWeaponAttack> attack = new();
+		Mock<IGameItem> weapon = new();
+		Mock<ICombatMove> primaryMove = new();
+
+		assailant.SetupGet(x => x.Combat).Returns(combat.Object);
+		assailant.Setup(x => x.ColocatedWith(secondary.Object)).Returns(true);
+		assailant.Setup(x => x.IsAlly(It.IsAny<ICharacter>())).Returns(false);
+		primary.SetupGet(x => x.Combat).Returns(combat.Object);
+		secondary.SetupGet(x => x.Combat).Returns(combat.Object);
+		secondary.SetupGet(x => x.CombatTarget).Returns(assailant.Object);
+		secondary.SetupGet(x => x.MeleeRange).Returns(true);
+		attack.SetupGet(x => x.MoveType).Returns(BuiltInCombatMoveType.UseWeaponAttack);
+		attack.SetupGet(x => x.MaximumTargets).Returns(2);
+		attack.Setup(x => x.UsableAttack(assailant.Object, weapon.Object, secondary.Object,
+				AttackHandednessOptions.Any, true, BuiltInCombatMoveType.UseWeaponAttack))
+		      .Returns(false);
+		combat.SetupGet(x => x.Combatants)
+		      .Returns(new IPerceiver[] { assailant.Object, primary.Object, secondary.Object });
+
+		var move = MultiTargetCombatMove.WrapWeaponAttack(assailant.Object, primary.Object, attack.Object,
+			weapon.Object, _ => primaryMove.Object);
+
+		Assert.AreSame(primaryMove.Object, move);
+		attack.Verify(x => x.UsableAttack(assailant.Object, weapon.Object, secondary.Object,
+			AttackHandednessOptions.Any, true, BuiltInCombatMoveType.UseWeaponAttack), Times.Once);
 	}
 
 	[TestMethod]

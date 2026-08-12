@@ -614,7 +614,7 @@ Standard containers apply prototype tag rules before size and weight admission. 
 
 `IMusketCartridge` extends ordinary ammunition with a nullable measured powder mass and an included-wad flag. Missing powder mass means the legacy weapon-defined charge; missing wad data means `true`. Muskets validate ammunition type, grade, bore, and any explicit charge before loading.
 
-Musket attachments have distinct persisted bayonet, ramrod, and sight slots. `IBayonetAttachment` supplies style and bore compatibility. Plug styles block firing; socket and sword styles do not. While attached, the firearm delegates melee weapon type to the bayonet item's existing `IMeleeWeapon`.
+Musket attachments have distinct persisted bayonet, ramrod, and sight slots. `IBayonetAttachment` supplies style and bore compatibility. Plug styles block firing; socket and sword styles do not. While attached, the firearm delegates melee weapon type to the bayonet item's existing `IMeleeWeapon`. Matchlock firing is blocked when current precipitation exceeds its gunpowder threshold; a cell without a weather controller has no precipitation and does not block firing.
 
 Crossbows may author a required spanning-tool tag. The inventory plan must acquire a matching tool before readying, while ready delays and stamina remain properties of the ranged weapon type. `IsReadied` is runtime XML state and defaults to false for legacy component definitions.
 

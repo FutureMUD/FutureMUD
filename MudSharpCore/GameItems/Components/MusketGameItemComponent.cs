@@ -896,7 +896,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 			   (!_prototype.RequiresRest || IsEmplaced) &&
 			   (_prototype.IgnitionFamily != MusketIgnitionFamily.Matchlock || MatchLit) &&
 			   (_prototype.IgnitionFamily != MusketIgnitionFamily.Matchlock ||
-				actor.Location.CurrentWeather(actor)?.Precipitation.PrecipitationIntensityForGunpowder() <= 0.5) &&
+				(actor.Location.CurrentWeather(actor)?.Precipitation.PrecipitationIntensityForGunpowder() ?? 0) <= 0.5) &&
 			   (_prototype.IgnitionFamily != MusketIgnitionFamily.Wheellock || WheelWound) &&
 			   (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock || IgnitionStrikesRemaining > 0) &&
                _bayonet?.Parent.GetItemType<IBayonetAttachment>()?.BlocksFiring != true;

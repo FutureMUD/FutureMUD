@@ -102,7 +102,8 @@ public class MultiTargetCombatMove : CombatMoveBase
 		}
 
 		var targets = SelectTargets(assailant, primaryTarget, attack.MaximumTargets, IsRangedAttack(attack), attack,
-			candidate => attack.UsabilityProg?.ExecuteBool(assailant, weapon, candidate) ?? true)
+			candidate => attack.UsableAttack(assailant, weapon, candidate, AttackHandednessOptions.Any, true,
+				attack.MoveType))
 			.ToList();
 		if (targets.Count == 1)
 		{

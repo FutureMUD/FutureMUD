@@ -394,6 +394,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			DatabaseRouteMotionPersistence.FreezeInterruptedCharacterMotions();
 			DatabaseVehicleRouteMotionPersistence.FreezeInterruptedVehicleMotions();
             game.LoadWorldItems(); // Depends on LoadWorld and LoadGameItemProtos and LoadRaces
+			InitialiseCellTrapEffects(); // Needs trap templates and bound world items to be loaded
             SetCharacterMaterialisationBootPhase(CharacterMaterialisationBootPhase.Allowed);
             game.LoadNPCs(); // Needs to come after InitialiseCharacterClass and LightModel loading
             game.LoadVehicles(); // Needs world items and characters available for exterior/occupant recovery
@@ -562,6 +563,21 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
         ConsoleUtilities.WriteLine("\n#ECreating listening server thread...#0");
     }
+
+	private void InitialiseCellTrapEffects()
+	{
+		ConsoleUtilities.WriteLine("#EInitialising Cell Traps...#0");
+		var traps = _cells
+			.SelectMany(x => x.EffectsOfType<TrapEffect>())
+			.ToList();
+		foreach (var trap in traps)
+		{
+			trap.InitialiseAfterWorldItems();
+		}
+
+		ConsoleUtilities.WriteLine("Initialised #2{0:N0}#0 cell {1}.", traps.Count,
+			traps.Count == 1 ? "trap" : "traps");
+	}
 
     private void EnsureCoreHelpfiles()
     {

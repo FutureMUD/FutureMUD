@@ -205,15 +205,32 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	public override void InitialEffect()
 	{
 		base.InitialEffect();
-		RecoverInterruptedResolution();
-		SubscribeSignalTriggers();
-		SubscribeProximityTriggers();
-		ReserveComponents();
+		InitialiseRuntime(deferCellInitialisation: true);
 	}
 
 	public override void Login()
 	{
 		base.Login();
+		InitialiseRuntime(deferCellInitialisation: true);
+	}
+
+	/// <summary>
+	/// Cell effects are hydrated with the world, before trap templates and game item prototypes. Complete their
+	/// dependency-sensitive initialisation once world items have loaded. Item- and character-owned traps already
+	/// load after those dependencies and use the ordinary effect lifecycle.
+	/// </summary>
+	internal void InitialiseAfterWorldItems()
+	{
+		InitialiseRuntime(deferCellInitialisation: false);
+	}
+
+	private void InitialiseRuntime(bool deferCellInitialisation)
+	{
+		if (deferCellInitialisation && Owner is ICell && Template is null)
+		{
+			return;
+		}
+
 		RecoverInterruptedResolution();
 		SubscribeSignalTriggers();
 		SubscribeProximityTriggers();

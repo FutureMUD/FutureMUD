@@ -25,7 +25,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     protected PerceivedItem()
     {
-        _hookedFunctions = _installedHooks.ToLookup(x => x.Type, x => x.Function);
+		_hookedFunctions = _installedHooks.ToLookup(x => x.Type, x => new HookFunction(x, x.Function));
         EffectHandler = new EffectHandler(this);
     }
 
@@ -868,8 +868,11 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         }
     }
 
+	protected readonly record struct HookFunction(IHook Hook, Func<EventType, object[], bool> Function);
+
     protected readonly List<IHook> _installedHooks = new();
-    protected ILookup<EventType, Func<EventType, object[], bool>> _hookedFunctions;
+	protected ILookup<EventType, HookFunction> _hookedFunctions;
+	[ThreadStatic] private static Dictionary<PerceivedItem, HashSet<IHook>> _activeHookDispatches;
 	private IProximityEventRegistration _proximityHookRegistration;
 
     public IEnumerable<IHook> Hooks => _installedHooks;
@@ -883,8 +886,36 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         }
 
         // Hooks cannot have exclusive "right to fire". Even if one hook handles the event, we want others to keep handling it.
-        return truth || _hookedFunctions[type].Select(x => x(type, arguments)).Any(x => x);
+        return truth || _hookedFunctions[type].Select(x => ExecuteHook(x, type, arguments)).Any(x => x);
     }
+
+	private bool ExecuteHook(HookFunction hook, EventType type, object[] arguments)
+	{
+		_activeHookDispatches ??= new Dictionary<PerceivedItem, HashSet<IHook>>(ReferenceEqualityComparer.Instance);
+		if (!_activeHookDispatches.TryGetValue(this, out var activeHooks))
+		{
+			activeHooks = new HashSet<IHook>(ReferenceEqualityComparer.Instance);
+			_activeHookDispatches[this] = activeHooks;
+		}
+
+		if (!activeHooks.Add(hook.Hook))
+		{
+			return false;
+		}
+
+		try
+		{
+			return hook.Function(type, arguments);
+		}
+		finally
+		{
+			activeHooks.Remove(hook.Hook);
+			if (activeHooks.Count == 0)
+			{
+				_activeHookDispatches.Remove(this);
+			}
+		}
+	}
 
     public virtual bool HandlesEvent(params EventType[] types)
     {
@@ -927,7 +958,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         }
 
         _installedHooks.Add(hook);
-        _hookedFunctions = _installedHooks.ToLookup(x => x.Type, x => x.Function);
+		_hookedFunctions = _installedHooks.ToLookup(x => x.Type, x => new HookFunction(x, x.Function));
 		if (hook.Type == EventType.PerceivableProximityChanged)
 		{
 			_proximityHookRegistration ??= Gameworld?.ProximityEventService?.Register(this);
@@ -969,7 +1000,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         }
 
         _installedHooks.Remove(hook);
-        _hookedFunctions = _installedHooks.ToLookup(x => x.Type, x => x.Function);
+		_hookedFunctions = _installedHooks.ToLookup(x => x.Type, x => new HookFunction(x, x.Function));
 		if (hook.Type == EventType.PerceivableProximityChanged &&
 			!_installedHooks.Any(x => x.Type == EventType.PerceivableProximityChanged))
 		{

@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Effects.Concrete;
+using MudSharp.Construction.Boundary;
 using MudSharp.GameItems;
 using MudSharp.Framework.Revision;
 using MudSharp.RPG.Checks;
@@ -120,7 +121,7 @@ public sealed class CreateTrapSpellEffect : IMagicSpellEffectTemplate
 
 	private static bool IsCompatibleTargetType(string targetTypes)
 	{
-		return targetTypes is "item" or "room";
+		return targetTypes is "item" or "room" or "exit";
 	}
 
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target,
@@ -128,21 +129,25 @@ public sealed class CreateTrapSpellEffect : IMagicSpellEffectTemplate
 		SpellAdditionalParameter[] additionalParameters)
 	{
 		var template = TrapTemplate;
-		if (target is null || template is null || template.SourceKind != TrapSourceKind.Magical ||
-		    template.Status != RevisionStatus.Current || !template.CanSubmit() || !TrapEffect.IsValidAnchor(template, target) ||
-		    target.EffectsOfType<TrapEffect>().Any(x => x.State is not TrapState.Spent and not TrapState.Expired))
+		var boundExit = additionalParameters
+			.FirstOrDefault(x => x.ParameterName.EqualTo("exit"))?.Item as ICellExit;
+		var anchor = boundExit?.Origin ?? target;
+		if (anchor is null || template is null || template.SourceKind != TrapSourceKind.Magical ||
+		    template.Status != RevisionStatus.Current || !template.CanSubmit() || !TrapEffect.IsValidAnchor(template, anchor) ||
+		    anchor.EffectsOfType<TrapEffect>().Any(x => x.State is not TrapState.Spent and not TrapState.Expired &&
+		                                           HasSameBinding(x, boundExit)))
 		{
 			return null;
 		}
 
-		var trap = new TrapEffect(target, template, caster);
+		var trap = new TrapEffect(anchor, template, caster, boundExit);
 		if (TrapEffect.HasTimedLifetime(template))
 		{
-			target.AddEffect(trap, template.Lifespan!.Value);
+			anchor.AddEffect(trap, template.Lifespan!.Value);
 		}
 		else
 		{
-			target.AddEffect(trap);
+			anchor.AddEffect(trap);
 		}
 
 		if (!caster.IsAdministrator())
@@ -151,12 +156,16 @@ public sealed class CreateTrapSpellEffect : IMagicSpellEffectTemplate
 				caster,
 				CrimeTypes.BoobyTrapping,
 				null,
-				target as IGameItem,
+				anchor as IGameItem,
 				template.Name);
 		}
 
 		return null;
 	}
+
+	private static bool HasSameBinding(TrapEffect trap, ICellExit? exit) => exit is null
+		? !trap.BoundExitId.HasValue
+		: trap.BoundExitId == exit.Exit.Id && trap.BoundExitOriginId == exit.Origin.Id;
 
 	public IMagicSpellEffectTemplate Clone()
 	{

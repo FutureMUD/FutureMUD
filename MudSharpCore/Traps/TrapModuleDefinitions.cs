@@ -4,6 +4,8 @@ using System.Globalization;
 using MudSharp.Traps;
 using MudSharp.Movement;
 using MudSharp.Framework;
+using MudSharp.Health;
+using MudSharp.Magic;
 
 namespace MudSharp.Traps;
 
@@ -150,6 +152,54 @@ public sealed class TrapTriggerDefinition : ITrapTrigger
 
 public sealed class TrapPayloadDefinition : ITrapPayload
 {
+	public sealed record ParameterHelp(string Name, string Description, string DefaultValue);
+
+	private static readonly IReadOnlyList<ParameterHelp> CommonParameters =
+	[
+		new("echo", "optional emote shown to each target when this payload resolves", "none")
+	];
+
+	private static readonly IReadOnlyDictionary<TrapPayloadType, IReadOnlyList<ParameterHelp>> TypeParameters =
+		new Dictionary<TrapPayloadType, IReadOnlyList<ParameterHelp>>
+		{
+			[TrapPayloadType.CastSpell] =
+			[
+				new("spell", "required ready magic spell ID to resolve when the trap fires", "required"),
+				new("power", $"spell power ({string.Join(", ", Enum.GetNames<SpellPower>())})", "Standard")
+			],
+			[TrapPayloadType.EmitSignal] =
+			[
+				new("targetitem", "optional item ID with a signal sink; defaults to a matched payload component", "matched payload component"),
+				new("value", "numeric signal value sent to the signal sink", "1")
+			],
+			[TrapPayloadType.ExecuteProg] =
+			[
+				new("prog", "required FutureProg ID with a supported target and/or anchor signature", "required")
+			],
+			[TrapPayloadType.DirectDamage] =
+			[
+				new("damage", "required positive damage, pain and stun amount", "required"),
+				new("damagetype", $"damage type ({string.Join(", ", Enum.GetNames<DamageType>())})", "Piercing")
+			],
+			[TrapPayloadType.LiquidDischarge] =
+			[
+				new("liquid", "required liquid ID to expose targets to", "required"),
+				new("amount", "positive liquid amount in litres", "0.1")
+			],
+			[TrapPayloadType.GasCloud] =
+			[
+				new("gas", "required gas ID to release", "required"),
+				new("dose", "positive inhaled drug dose per unit volume when applicable", "the gas default"),
+				new("duration", "positive cloud duration as a timespan", "00:00:30"),
+				new("cloudecho", "room text shown when the cloud is created", "A cloud of gas billows out.")
+			],
+			[TrapPayloadType.Restraint] =
+			[
+				new("duration", "positive restraint duration as a timespan", "00:00:30"),
+				new("description", "description used for the target's restraint", "caught by a trap")
+			]
+		};
+
 	private static readonly IReadOnlySet<TrapSourceKind> AllDomains = new HashSet<TrapSourceKind>(Enum.GetValues<TrapSourceKind>());
 	private static readonly IReadOnlySet<TrapSourceKind> MechanicalOnly = new HashSet<TrapSourceKind> { TrapSourceKind.Mechanical };
 	private static readonly IReadOnlySet<TrapSourceKind> MagicalOnly = new HashSet<TrapSourceKind> { TrapSourceKind.Magical };
@@ -182,6 +232,12 @@ public sealed class TrapPayloadDefinition : ITrapPayload
 	public IReadOnlyDictionary<string, string> Parameters => _parameters;
 
 	public void SetParameter(string name, string value) => _parameters[name] = value;
+
+	public static IEnumerable<ParameterHelp> ParametersFor(TrapPayloadType type) =>
+		CommonParameters.Concat(TypeParameters.GetValueOrDefault(type) ?? []);
+
+	public static bool IsSupportedParameter(TrapPayloadType type, string name) =>
+		ParametersFor(type).Any(x => x.Name.EqualTo(name));
 
 	public void SetDelay(TimeSpan delay) => Delay = delay;
 	public void SetTargetSelector(TrapTargetSelector selector) => TargetSelector = selector;

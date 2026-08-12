@@ -34,29 +34,42 @@ internal class TrapModule : Module<ICharacter>
 
 	public static TrapModule Instance { get; } = new();
 
-	private const string HelpText = @"The #3trap#0 command lets you set, inspect, reveal and deal with traps. Templates are authored separately with #3traptemplate#0 by builders.
+	private const string PlayerHelpText = @"The #3trap#0 command lets you set, inspect, reveal and deal with traps. Builders author templates separately with #3traptemplate#0.
 
-	#3trap list#0 - lists traps you know at this location
+	#3traps#0 - lists the traps you know at this location
 	#3trap types#0 - lists the trap templates your character knows
 	#3trap inspect <item|exit|here>#0 - inspects a known trap
-	#3trap lay <template> on <item|exit|here> [using <item> ...]#0 - deploys a known current trap template; repeat using for tagged mechanical parts you hold or can manipulate loose in the room (held parts are preferred)
-	#3trap pointout <person> <item|exit|here>#0 - shares knowledge of a trap
+	#3trap lay <template> on <item|exit|here> [using <item> ...]#0 - deploys a known current mechanical trap with its required physical parts
+	#3trap pointout <person> <item|exit|here>#0 - shares your knowledge of a trap
 	#3trap disarm <item|exit|here>#0 - attempts to disarm a known trap
-	#3trap recover <item|exit|here>#0 - removes a safely disarmed trap
-	#3trap struggle#0 - attempts to escape a trap restraint
+	#3trap recover <item|exit|here>#0 - dismantles a safely disarmed or spent trap
+	#3trap struggle#0 - attempts to escape a trap restraint";
 
-Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reveal|delete#0 for verification and world maintenance.";
+	private const string AdminHelpText = @"The #3trap#0 administrator command includes all player trap controls plus these immediate diagnostic and maintenance operations:
+
+	#3trap list#0 - lists every active trap in the game, including its anchor, template, state, charges and creator
+	#3trap create <template> on <item|exit|here> [using <item> ...]#0 - immediately deploys a template without player knowledge, timing or skill checks
+	#3trap debug <item|exit|here>#0 - inspects a local trap whether or not it has been identified
+	#3trap arm <item|exit|here>#0 - arms a local trap when its current state permits it
+	#3trap trigger <item|exit|here>#0 - immediately forces a local trap to resolve
+	#3trap reset <item|exit|here>#0 - ends the cooldown of a local trap with charges remaining
+	#3trap reveal <item|exit|here> <character>#0 - grants a character knowledge of a local trap
+	#3trap delete <item|exit|here>#0 - immediately removes a local trap and releases its components";
+
+	private const string TrapsHelpText = @"The #3traps#0 command lists the traps your character knows at the current location.
+
+	#3traps#0 - lists known local traps";
 
 	[PlayerCommand("Trap", "trap")]
 	[RequiredCharacterState(CharacterState.Able)]
-	[HelpInfo("trap", HelpText, AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("trap", PlayerHelpText, AutoHelp.HelpArgOrNoArg, AdminHelpText)]
 	protected static void Trap(ICharacter actor, string input)
 	{
 		var command = new StringStack(input.RemoveFirstWord());
 		switch (command.PopForSwitch())
 		{
-			case "list":
-				ListTraps(actor);
+			case "list" when actor.IsAdministrator():
+				ListActiveTraps(actor);
 				return;
 			case "types":
 			case "known":
@@ -105,9 +118,24 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 				DeleteTrap(actor, command);
 				return;
 			default:
-				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+				actor.OutputHandler.Send((actor.IsAdministrator() ? AdminHelpText : PlayerHelpText).SubstituteANSIColour());
 				return;
 		}
+	}
+
+	[PlayerCommand("Traps", "traps")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("traps", TrapsHelpText, AutoHelp.HelpArg)]
+	protected static void Traps(ICharacter actor, string input)
+	{
+		var command = new StringStack(input.RemoveFirstWord());
+		if (!command.IsFinished)
+		{
+			actor.OutputHandler.Send(TrapsHelpText.SubstituteANSIColour());
+			return;
+		}
+
+		ListKnownTraps(actor);
 	}
 
 	private static bool KnowsTemplate(ICharacter actor, ITrapTemplate template)
@@ -147,7 +175,7 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 			new[] { "Id", "Trap", "Source", "Setup", "Deployment", "Triggers" }, actor, Telnet.Green));
 	}
 
-	private static void ListTraps(ICharacter actor)
+	private static void ListKnownTraps(ICharacter actor)
 	{
 		var traps = EnumerateLocalTraps(actor)
 			.Where(x => x.Trap.IsKnownBy(actor))
@@ -169,6 +197,83 @@ Administrators additionally have #3trap create|show|debug|arm|trigger|reset|reve
 			},
 			new[] { "Anchor", "Template", "State", "Charges" },
 			actor, Telnet.Green));
+	}
+
+	private static void ListActiveTraps(ICharacter actor)
+	{
+		var traps = AllTraps(actor.Gameworld, activeOnly: true);
+		if (!traps.Any())
+		{
+			actor.Send("There are no active traps in the game.");
+			return;
+		}
+
+		actor.Send(StringUtilities.GetTextTable(
+			from entry in traps
+			let trap = entry.Trap
+			let template = trap.Template
+			select new[]
+			{
+				trap.InstanceId.ToString(),
+				trap.DescribeAnchor(actor),
+				template?.Name ?? $"orphaned template {trap.TemplateId:N0}r{trap.TemplateRevisionNumber:N0}",
+				trap.SourceKind.DescribeEnum(),
+				trap.State.DescribeEnum(),
+				trap.RemainingCharges.ToString("N0", actor),
+				trap.CreatorId > 0 ? trap.CreatorId.ToString("N0", actor) : "none"
+			},
+			new[] { "Instance", "Anchor", "Template", "Source", "State", "Charges", "Creator" },
+			actor, Telnet.Green));
+	}
+
+	internal static IReadOnlyList<(IPerceivable Anchor, TrapEffect Trap)> AllTraps(IFuturemud gameworld,
+		bool activeOnly = false, bool includeOfflineCharacters = false)
+	{
+		var traps = AllTrapAnchors(gameworld, includeOfflineCharacters)
+			.SelectMany(anchor => anchor.EffectsOfType<TrapEffect>().Select(trap => (Anchor: anchor, Trap: trap)));
+		return (activeOnly
+			? traps.Where(x => x.Trap.State is not TrapState.Spent and not TrapState.Expired)
+			: traps)
+			.ToList();
+	}
+
+	internal static int DeleteAllTraps(IFuturemud gameworld)
+	{
+		var anchors = AllTrapAnchors(gameworld, includeOfflineCharacters: true);
+		var traps = anchors
+			.SelectMany(anchor => anchor.EffectsOfType<TrapEffect>().Select(trap => (Anchor: anchor, Trap: trap)))
+			.ToList();
+		foreach (var (anchor, trap) in traps)
+		{
+			anchor.RemoveEffect(trap, true);
+		}
+
+		foreach (var anchor in anchors)
+		{
+			anchor.RemoveAllEffects<TrapPayloadScheduleEffect>(null, true);
+			anchor.RemoveAllEffects<TrapResetEffect>(null, true);
+			anchor.RemoveAllEffects<TrapSpentCleanupEffect>(null, true);
+		}
+
+		return traps.Count;
+	}
+
+	private static IReadOnlyList<IPerceivable> AllTrapAnchors(IFuturemud gameworld, bool includeOfflineCharacters)
+	{
+		var characters = gameworld.Actors
+			.Concat(gameworld.CachedActors)
+			.Concat(gameworld.Characters);
+		if (includeOfflineCharacters)
+		{
+			characters = characters.Concat(gameworld.LoadAllPlayerCharacters());
+		}
+
+		return gameworld.Cells
+			.Cast<IPerceivable>()
+			.Concat(gameworld.Items)
+			.Concat(characters)
+			.Distinct()
+			.ToList();
 	}
 
 	private static void InspectTrap(ICharacter actor, StringStack command, bool debug)

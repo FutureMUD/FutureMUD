@@ -132,13 +132,15 @@ public class ChargeToMeleeMove : CombatMoveBase
 			return null;
 		}
 
-		return Assailant.Body.WieldedItems
+		var couch = Assailant.Body.WieldedItems
 			.SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
 			.SelectMany(weapon => weapon.WeaponType.Attacks
 				.Where(attack => CouchedLanceMove.CanCouch(Assailant, weapon, attack, target))
 				.Select(attack => (Weapon: weapon, Attack: attack)))
 			.OrderByDescending(x => x.Weapon.WeaponType.Reach)
 			.FirstOrDefault();
+
+		return couch.Weapon is null || couch.Attack is null ? null : couch;
 	}
 
 	private void ResolveCouchedLance((IMeleeWeapon Weapon, IWeaponAttack Attack)? couch, ICharacter target,

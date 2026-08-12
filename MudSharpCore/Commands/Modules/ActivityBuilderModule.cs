@@ -1075,7 +1075,7 @@ Use the following options:
 	#3traptemplate set name <name>#0 - renames this template
 	#3traptemplate set domain mechanical|magical|natural#0 - selects its source domain
 	#3traptemplate set trigger add <type>#0 - adds an OR trigger; use #3trigger remove <number>#0 or #3trigger <number> parameter <name> <value>#0 to configure it
-	#3traptemplate set payload add <type>#0 - adds an ordered payload; use #3payload remove <number>#0, #3payload <number> delay <timespan>#0, #3payload <number> target <selector>#0, or #3payload <number> parameter <name> <value>#0 to configure it
+	#3traptemplate set payload add <type>#0 - adds an ordered payload; use #3payload <number>#0 to see every valid setting, parameter, current value, and guidance
 	#3traptemplate set component add <trigger|payload|both> <tag> [spent recovery %] [quality weight]#0 - adds a tagged physical requirement to a mechanical trap
 	#3traptemplate set component remove <number>#0 - removes a physical requirement
 	#3traptemplate set charges <number>#0 - sets uses before the trap is spent
@@ -1088,9 +1088,9 @@ Use the following options:
 	#3traptemplate set lifecycle indefinite|fixedexpiry <timespan>|unstable <timespan>#0 - sets lifecycle policy
 	#3traptemplate set validate#0 - reports readiness errors
 
-Use #3traptemplate set trigger <number>#0 to see the supported trigger parameters and their current values. The same command also shows syntax help when an argument is invalid.";
+Use #3traptemplate set trigger <number>#0 or #3traptemplate set payload <number>#0 to see the supported settings and parameters with their current values. The same commands also show contextual help when an argument is invalid.";
 
-    [PlayerCommand("TrapTemplate", "traptemplate", "trapt")]
+    [PlayerCommand("TrapTemplate", "traptemplate", "trapt", "tt")]
     [CommandPermission(PermissionLevel.Admin)]
     [HelpInfo("traptemplate", TrapTemplateHelpText, AutoHelp.HelpArgOrNoArg)]
     protected static void TrapTemplate(ICharacter actor, string input)

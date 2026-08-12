@@ -9,7 +9,7 @@ Version 1 uses a gated domain model:
 | Domain | Anchor | Intended fiction | Prohibited v1 hybrid |
 |---|---|---|---|
 | Mechanical | Item or cell | Tripwires, pressure plates, trapped containers, bear traps, automation | Mechanical template plus magical payload |
-| Magical | Item or cell | Glyphs, wards, delayed spell effects | Spell template plus mechanical payload |
+| Magical | Item, cell, or exit side | Glyphs, wards, delayed spell effects | Spell template plus mechanical payload |
 | Natural | Cell, item, or NPC-created anchor | Spider webs, burrow snares, environmental hazards | Natural template plus foreign payload |
 
 An item may anchor a magical or natural trap, but its template still has exactly one domain. This avoids ambiguous costs, detection rules, law attribution, and builder support. Cross-domain combinations can be introduced later as a deliberate composite feature.
@@ -24,7 +24,7 @@ Version 1 therefore permits broad reuse within a domain but gates combinations a
 
 Mechanical traps use existing items and cells rather than a Trap game-item component. Every mechanical template declares at least one tagged trigger component and one tagged payload component. A single requirement may be both roles, and one item carrying two applicable tags may satisfy separate trigger and payload requirements; this is the bear-trap case. The requirement also configures spent recovery chance and quality weight. IDetonatable and existing automation components are still required for detonation and owner-routed signal payloads. A character may install parts they are holding or loose parts in the current cell; held/wielded matches are selected before room matches. Every selected part must pass the normal manipulation/access gate, held parts must also be removable from the character's inventory, and both checks are repeated when timed setup completes. Successful placement extracts non-anchor components from their former inventory or cell collection and gives their reservation effect the trap anchor as an effective spatial host. They therefore cease to be loose targetable objects while their effective `Location`, `TrueLocations`, layer, and RouteCell position continue to resolve through the trap for explosions, signals, and other spatial behavior; the component remains its own `LocationLevelPerceivable` so layer-sensitive payload code uses that effective context. The captured install layer and RouteCell coordinate are persisted with the trap binding so this remains stable across reboot. Removal restores extant components at the captured anchor position before releasing their reservations. Contained items, worn items, and items in another character's inventory are not eligible. This keeps crafting free to produce ordinary physical items while making the actual parts, their quality, their authorization, and their fate explicit.
 
-Magical traps are authored as magical templates, then placed by the createtrap/placetrap magic spell effect. Their payload can resolve another prepared spell. removetrap/dispeltrap is the corresponding magical countermeasure. This keeps casting costs with placement and makes dispelling a clear, configurable interaction rather than an item-only disarm exception.
+Magical traps are authored as magical templates, then placed by the createtrap/placetrap magic spell effect. An `exit` spell trigger creates the trap on the selected origin-side exit binding, rather than on the underlying shared exit object, so it responds only to traversal in that direction. Their payload can resolve another prepared spell. removetrap/dispeltrap is the corresponding magical countermeasure. This keeps casting costs with placement and makes dispelling a clear, configurable interaction rather than an item-only disarm exception.
 
 Natural hazards use the same template/effect model. NaturalTrap AI gives an NPC a current natural template plus enabled/site FutureProgs; on its minute tick it anchors a proximity hazard to that NPC and other hazards to the suitable current cell. FutureProg createtrap is the complementary option for scripted world events. These approaches are preferred to a special spider-web object because they preserve the same detection, persistence, layer, restraint, and payload rules as all other traps.
 
@@ -84,7 +84,7 @@ New check types are SetTrapCheck, SpotTrapCheck, SearchForTrapCheck, AvoidTrapCh
 
 The default seeder setup uses a dedicated Traps skill, while individual templates may use difficulty and FutureProg filters to model specialist domains. Existing Spot, Search, Survival, and magic traits remain valid template/campaign overrides.
 
-Disarm policy is Impossible, Safe, Risky, or Dispellable. Risky failure manually triggers the trap. Magical deployment is supplied by the builder spell effect createtrap (alias placetrap), which accepts a current magical traptemplate and targets an item, cell, or character; a proximity template cannot target a cell. Magical dispelling is supplied by removetrap (alias dispeltrap), which targets a character, item, or cell and uses DispelTrapCheck after the spell's normal casting checks; trap disarm does not silently remove a magical trap.
+Disarm policy is Impossible, Safe, Risky, or Dispellable. Risky failure manually triggers the trap. Magical deployment is supplied by the builder spell effect createtrap (alias placetrap), which accepts a current magical traptemplate and targets an item, cell, or selected exit side; a proximity template cannot target a cell. Magical dispelling is supplied by removetrap (alias dispeltrap), which targets a character, item, or cell and uses DispelTrapCheck after the spell's normal casting checks; trap disarm does not silently remove a magical trap.
 
 Mechanical templates require positive setup, disarm (when disarmable), and recovery times before review. `trap lay`, `trap disarm`, and `trap recover` use cancellable general/movement actions for non-administrators and revalidate the anchor and trap state at completion. With no `using` clauses, `trap lay` first matches usable held or wielded parts, then loose parts at the actor's current layer; explicit clauses constrain that choice. Before the trap is installed, an inventory plan validates and moves each matched component to the current location using normal drop rules, then captures its installed spatial position. This includes persistence, reservation, custody/location, drop feasibility, and the ordinary `CanManipulateItem` access decision for every selected physical item. Administrative operations remain immediate. Magical and natural deployment continue to use their spell, AI, or FutureProg action timing rather than the mundane setup timer.
 
@@ -94,7 +94,7 @@ Component quality is averaged by configured quality weight relative to Standard.
 
 Player surface:
 
-- trap list
+- traps
 - trap types (aliases: trap known, trap templates)
 - trap inspect item|exit|here
 - trap lay template on item|exit|here [using item ...] (held/wielded items are preferred; otherwise each item must be loose and manipulable in the current cell)
@@ -107,9 +107,9 @@ Player surface:
 
 arm item recognises an item-anchored trap. disarm item directs players to the safer trap disarm workflow.
 
-Administrators additionally use trap create, trap debug, trap arm, trap trigger, trap reset, trap reveal, and trap delete.
+Administrators additionally use `trap list` for every active trap in the game, plus trap create, trap debug, trap arm, trap trigger, trap reset, trap reveal, and trap delete. `impdebug cleartraps` deletes every installed trap and its pending trap payload/cooldown effects after an explicit ACCEPT confirmation.
 
-Builders author revisions through traptemplate, with list, show, edit, set, and review lifecycle. set domain, set trigger, set payload, set component, set charges, set cooldown, set setuptime, set disarmtime, set recoverytime, set knowprog, set disarm, set lifecycle, and set validate are the first-party builder surface. `component add <trigger|payload|both> <tag> [spent recovery %] [quality weight]` and `component remove <number>` manage physical requirements. `traptemplate set trigger <number>` displays every supported parameter with its current or default value. Invalid trigger editing syntax returns this contextual help rather than a generic parameter error.
+Builders author revisions through traptemplate (aliases `trapt` and `tt`), with list, show, edit, set, and review lifecycle. set domain, set trigger, set payload, set component, set charges, set cooldown, set setuptime, set disarmtime, set recoverytime, set knowprog, set disarm, set lifecycle, and set validate are the first-party builder surface. `component add <trigger|payload|both> <tag> [spent recovery %] [quality weight]` and `component remove <number>` manage physical requirements. `traptemplate set trigger <number>` and `traptemplate set payload <number>` display every supported setting and parameter with its current or default value, valid values, and guidance. Invalid trigger or payload editing syntax returns this contextual help rather than a generic parameter error.
 
 ## FutureProg and automation integration
 

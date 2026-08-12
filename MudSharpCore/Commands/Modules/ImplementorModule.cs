@@ -395,6 +395,7 @@ The syntax is:
 	#3employment legacy#0 - reports legacy job/new employment-host contract divergence
 	#3freezetime#0 - freezes all in game clocks
 	#3unfreezetime#0 - resumes all in game clocks
+	#3cleartraps#0 - permanently deletes every installed trap and cancels its delayed payloads after confirmation
 	#3weatherstats <controller> [years <n>] [burnin <n>] [seed <n>] [file <basename>]#0 - runs a non-destructive Monte Carlo weather analysis and writes multiple CSVs", AutoHelp.HelpArgOrNoArg)]
     [CommandPermission(PermissionLevel.Founder)]
     protected static void ImpDebug(ICharacter actor, string input)
@@ -407,6 +408,10 @@ The syntax is:
                 return;
             case "unfreezetime":
                 DebugUnfreezeTime(actor);
+                return;
+            case "cleartraps":
+            case "deletetraps":
+                DebugClearTraps(actor, ss);
                 return;
             case "weatherstats":
                 DebugWeatherStats(actor, ss);
@@ -531,6 +536,36 @@ The syntax is:
                 actor.Send("That's not a known debug routine.");
                 return;
         }
+    }
+
+    private static void DebugClearTraps(ICharacter actor, StringStack ss)
+    {
+        if (!ss.IsFinished)
+        {
+            actor.OutputHandler.Send($"The syntax is {"impdebug cleartraps".ColourCommand()}.");
+            return;
+        }
+
+        var count = TrapModule.AllTraps(actor.Gameworld, includeOfflineCharacters: true).Count;
+        if (count == 0)
+        {
+            actor.OutputHandler.Send("There are no installed traps to delete.");
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"This will permanently delete {count.ToString("N0", actor).ColourValue()} installed traps throughout the game and cancel their delayed payloads and cooldowns. This cannot be undone.\n{Accept.StandardAcceptPhrasing}");
+        actor.AddEffect(new Accept(actor, new GenericProposal
+        {
+            DescriptionString = "Deleting all traps",
+            AcceptAction = _ =>
+            {
+                var deleted = TrapModule.DeleteAllTraps(actor.Gameworld);
+                actor.OutputHandler.Send($"You delete {deleted.ToString("N0", actor).ColourValue()} traps and cancel their pending trap effects.");
+            },
+            RejectAction = _ => actor.OutputHandler.Send("You decide not to delete the traps."),
+            ExpireAction = () => actor.OutputHandler.Send("You decide not to delete the traps.")
+        }), TimeSpan.FromSeconds(120));
     }
 
     private const int MaximumEmploymentPayrollDebugDays = 31;

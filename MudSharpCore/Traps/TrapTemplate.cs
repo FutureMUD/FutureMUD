@@ -828,7 +828,7 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 	{
 		if (command.IsFinished)
 		{
-			actor.Send("Use payload add <type>, payload remove <number>, payload <number> delay <time>, payload <number> target <selector>, or payload <number> parameter <name> <value>.");
+			actor.Send("Use payload add <type>, payload remove <number>, or payload <number> to inspect and configure a payload.");
 			return false;
 		}
 
@@ -872,6 +872,12 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 			return false;
 		}
 
+		if (command.IsFinished)
+		{
+			actor.Send(PayloadBuildingHelp(actor, payloadIndex));
+			return false;
+		}
+
 		switch (command.PopForSwitch())
 		{
 			case "delay" when TimeSpan.TryParse(command.SafeRemainingArgument, actor, out var delay) && delay >= TimeSpan.Zero:
@@ -887,18 +893,41 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 			case "parameter":
 				if (command.IsFinished)
 				{
-					actor.Send("You must specify a parameter name and value.");
+					actor.Send(PayloadBuildingHelp(actor, payloadIndex));
 					return false;
 				}
 				var parameterName = command.PopSpeech();
+				if (!TrapPayloadDefinition.IsSupportedParameter(payloadDefinition.PayloadType, parameterName) || command.IsFinished)
+				{
+					actor.Send(PayloadBuildingHelp(actor, payloadIndex));
+					return false;
+				}
 				payloadDefinition.SetParameter(parameterName, command.SafeRemainingArgument);
 				Changed = true;
 				actor.Send($"You set the {parameterName.ColourName()} parameter on that payload.");
 				return true;
 			default:
-				actor.Send("Use payload <number> delay <time>, target <selector>, or parameter <name> <value>.");
+				actor.Send(PayloadBuildingHelp(actor, payloadIndex));
 				return false;
 		}
+	}
+
+	private string PayloadBuildingHelp(ICharacter actor, int payloadIndex)
+	{
+		var payload = _payloads[payloadIndex - 1];
+		var sb = new StringBuilder();
+		sb.AppendLine($"Payload {payloadIndex.ToString("N0", actor).ColourValue()}: {payload.PayloadType.DescribeEnum().ColourName()}");
+		sb.AppendLine($"Delay: {payload.Delay.Describe(actor).ColourValue()} - use {"payload <number> delay <timespan>".ColourCommand()} to change it.");
+		sb.AppendLine($"Target: {payload.TargetSelector.DescribeEnum().ColourValue()} - valid selectors are {Enum.GetValues<TrapTargetSelector>().Select(x => x.DescribeEnum().ColourCommand()).ListToString()}. Use {"payload <number> target <selector>".ColourCommand()} to change it.");
+		sb.AppendLine("Parameters:");
+		foreach (var parameter in TrapPayloadDefinition.ParametersFor(payload.PayloadType))
+		{
+			var value = payload.Parameters.GetValueOrDefault(parameter.Name) ?? parameter.DefaultValue;
+			sb.AppendLine($"\t{parameter.Name.ColourCommand()} = {value.ColourValue()} - {parameter.Description}");
+		}
+		sb.AppendLine();
+		sb.AppendLine($"Use {"payload <number> parameter <name> <value>".ColourCommand()} to change a parameter.");
+		return sb.ToString();
 	}
 
 	private bool BuildingCommandCharges(ICharacter actor, StringStack command)

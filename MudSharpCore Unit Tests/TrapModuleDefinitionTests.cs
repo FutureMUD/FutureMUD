@@ -15,11 +15,14 @@ using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Magic;
+using MudSharp.Magic.SpellEffects;
 using MudSharp.Movement;
 using MudSharp.Traps;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Linq;
 
 namespace MudSharp_Unit_Tests;
@@ -116,6 +119,60 @@ public class TrapModuleDefinitionTests
 		Assert.AreEqual(TrapTargetSelector.AnchorOccupants, loaded.TargetSelector);
 		Assert.AreEqual("entangled in webbing", loaded.Parameters["description"]);
 		Assert.IsTrue(loaded.CompatibleSourceKinds.Contains(TrapSourceKind.Natural));
+	}
+
+	[TestMethod]
+	public void PayloadDefinitions_AdvertiseOnlySupportedParametersWithGuidance()
+	{
+		var damageParameters = TrapPayloadDefinition.ParametersFor(TrapPayloadType.DirectDamage)
+			.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+		CollectionAssert.AreEquivalent(
+			new[] { "echo", "damage", "damagetype" },
+			damageParameters.Keys.ToList());
+		Assert.AreEqual("required", damageParameters["damage"].DefaultValue);
+		StringAssert.Contains(damageParameters["damagetype"].Description, "damage type");
+		Assert.IsTrue(TrapPayloadDefinition.IsSupportedParameter(TrapPayloadType.DirectDamage, "damage"));
+		Assert.IsFalse(TrapPayloadDefinition.IsSupportedParameter(TrapPayloadType.DirectDamage, "liquid"));
+
+		var gasParameters = TrapPayloadDefinition.ParametersFor(TrapPayloadType.GasCloud)
+			.Select(x => x.Name)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		CollectionAssert.IsSubsetOf(
+			new[] { "echo", "gas", "dose", "duration", "cloudecho" },
+			gasParameters.ToList());
+	}
+
+	[TestMethod]
+	public void CreateTrapSpellEffect_AcceptsExitTriggers()
+	{
+		var spell = new Mock<IMagicSpell>();
+		var effect = (CreateTrapSpellEffect)Activator.CreateInstance(
+			typeof(CreateTrapSpellEffect),
+			BindingFlags.Instance | BindingFlags.NonPublic,
+			null,
+			[new XElement("Effect"), spell.Object],
+			null)!;
+		var exitTrigger = new Mock<IMagicTrigger>();
+		exitTrigger.SetupGet(x => x.TargetTypes).Returns("exit");
+
+		Assert.IsTrue(effect.IsCompatibleWithTrigger(exitTrigger.Object));
+	}
+
+	[TestMethod]
+	public void TrapCommandSurface_SeparatesPlayerListingAndAdministratorMaintenance()
+	{
+		var trapModuleSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Commands", "Modules", "TrapModule.cs"));
+		StringAssert.Contains(trapModuleSource, "[PlayerCommand(\"Traps\", \"traps\")]");
+		StringAssert.Contains(trapModuleSource, "case \"list\" when actor.IsAdministrator():");
+		StringAssert.Contains(trapModuleSource, "internal static int DeleteAllTraps");
+		StringAssert.Contains(trapModuleSource, "TrapPayloadScheduleEffect");
+
+		var builderSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Commands", "Modules", "ActivityBuilderModule.cs"));
+		StringAssert.Contains(builderSource, "[PlayerCommand(\"TrapTemplate\", \"traptemplate\", \"trapt\", \"tt\")]");
+
+		var implementorSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Commands", "Modules", "ImplementorModule.cs"));
+		StringAssert.Contains(implementorSource, "case \"cleartraps\":");
+		StringAssert.Contains(implementorSource, "TrapModule.DeleteAllTraps(actor.Gameworld)");
 	}
 
 	[TestMethod]
@@ -317,5 +374,20 @@ public class TrapModuleDefinitionTests
 		Assert.IsTrue(SpellEffectFactory.MagicEffectTypes.Contains("dispeltrap"));
 		Assert.IsTrue(SpellEffectFactory.MagicEffectTypes.Contains("createtrap"));
 		Assert.IsTrue(SpellEffectFactory.MagicEffectTypes.Contains("placetrap"));
+	}
+
+	private static string GetSourcePath(params string[] segments)
+	{
+		for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
+		{
+			if (!File.Exists(Path.Combine(directory.FullName, "MudSharp.sln")))
+			{
+				continue;
+			}
+
+			return Path.Combine([directory.FullName, .. segments]);
+		}
+
+		throw new DirectoryNotFoundException("Could not locate the FutureMUD repository root.");
 	}
 }

@@ -330,7 +330,7 @@ public static class DefaultStaticSettings
             { "ConcentrationToCheckBonusPenaltyForConnectMind", "1.0" },
             { "DefaultBombDamageExpressionBurning", "quality*(1+rand(1,4))" },
             { "DefaultBombDamageExpressionShockwave", "quality*(1+rand(2,6))" },
-            { "DefaultBombDamageExpressionShrapnel", "max(0, rand(1,4)-3))*quality*(1+rand(2,6)" },
+            { "DefaultBombDamageExpressionShrapnel", "max(0, rand(1,4)-3)*quality*(1+rand(2,6))" },
             { "DefaultBombStunExpressionBurning", "0" },
             { "DefaultBombStunExpressionShockwave", "1.5*quality*(1+rand(2,6))" },
             { "DefaultBombStunExpressionShrapnel", "0" },

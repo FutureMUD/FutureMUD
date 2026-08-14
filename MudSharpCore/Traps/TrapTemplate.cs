@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Accounts;
+using MudSharp.Computers;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
@@ -203,77 +204,9 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 
 	private string? ValidateTrigger(ITrapTrigger trigger)
 	{
-		if (trigger.Parameters.TryGetValue("chance", out var chance) &&
-		    (!double.TryParse(chance, out var chanceValue) || chanceValue is < 0.0 or > 100.0))
+		if (!TrapTriggerDefinition.TryValidateParameters(trigger.TriggerType, trigger.Parameters, out var parameterError))
 		{
-			return $"{trigger.TriggerType.DescribeEnum()} trigger chance must be a percentage from 0 to 100.";
-		}
-
-		if (trigger.Parameters.TryGetValue("minimumvalue", out var minimumValue) &&
-		    !double.TryParse(minimumValue, out _))
-		{
-			return $"{trigger.TriggerType.DescribeEnum()} trigger minimumvalue must be numeric.";
-		}
-
-		if (trigger.Parameters.TryGetValue("maximumvalue", out var maximumValue) &&
-		    !double.TryParse(maximumValue, out _))
-		{
-			return $"{trigger.TriggerType.DescribeEnum()} trigger maximumvalue must be numeric.";
-		}
-
-		if (trigger.Parameters.TryGetValue("minimumvalue", out minimumValue) &&
-		    trigger.Parameters.TryGetValue("maximumvalue", out maximumValue) &&
-		    double.TryParse(minimumValue, out var minimum) && double.TryParse(maximumValue, out var maximum) &&
-		    minimum > maximum)
-		{
-			return $"{trigger.TriggerType.DescribeEnum()} trigger minimumvalue cannot exceed maximumvalue.";
-		}
-
-		if (trigger.Parameters.TryGetValue("spotdifficulty", out var spotDifficulty) &&
-		    !Enum.TryParse(spotDifficulty, true, out Difficulty _))
-		{
-			return $"{trigger.TriggerType.DescribeEnum()} trigger spotdifficulty must be a difficulty.";
-		}
-
-		if (trigger.Parameters.TryGetValue("avoiddifficulty", out var avoidDifficulty) &&
-		    !Enum.TryParse(avoidDifficulty, true, out Difficulty _))
-		{
-			return $"{trigger.TriggerType.DescribeEnum()} trigger avoiddifficulty must be a difficulty.";
-		}
-
-		if (trigger.Parameters.TryGetValue("maximumproximity", out var maximumProximity) &&
-		    !Enum.TryParse(maximumProximity, true, out Proximity _))
-		{
-			return $"{trigger.TriggerType.DescribeEnum()} trigger maximumproximity must be a proximity.";
-		}
-
-		if (trigger.TriggerType == TrapTriggerType.ExitTraversal)
-		{
-			if (trigger.Parameters.TryGetValue("movementtypes", out var movementTypes) &&
-			    !TryParseMovementTypes(movementTypes, out _))
-			{
-				return "Exit Traversal movementtypes must be a comma-separated list of movement types or All.";
-			}
-
-			if (trigger.Parameters.TryGetValue("minimumsize", out var minimumSize) &&
-			    !minimumSize.TryParseEnum<SizeCategory>(out _))
-			{
-				return "Exit Traversal minimumsize must be a valid size category.";
-			}
-
-			if (trigger.Parameters.TryGetValue("maximumsize", out var maximumSize) &&
-			    !maximumSize.TryParseEnum<SizeCategory>(out _))
-			{
-				return "Exit Traversal maximumsize must be a valid size category.";
-			}
-
-			if (trigger.Parameters.TryGetValue("minimumsize", out minimumSize) &&
-			    trigger.Parameters.TryGetValue("maximumsize", out maximumSize) &&
-			    minimumSize.TryParseEnum<SizeCategory>(out var minimumCategory) &&
-			    maximumSize.TryParseEnum<SizeCategory>(out var maximumCategory) && minimumCategory > maximumCategory)
-			{
-				return "Exit Traversal minimumsize cannot exceed maximumsize.";
-			}
+			return $"{trigger.TriggerType.DescribeEnum()} trigger {parameterError}";
 		}
 
 		if (!trigger.Parameters.TryGetValue("filterprog", out var filterProg))
@@ -305,40 +238,45 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 	public static bool TryParseMovementTypes(string text, out MovementType movementTypes)
 	{
 		movementTypes = MovementType.None;
+		if (!TrapParameterValidation.TryParseMovementTypes(text))
+		{
+			return false;
+		}
+
 		foreach (var value in text.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
 		{
-			if (!Enum.TryParse(value, true, out MovementType parsed) || parsed == MovementType.None)
-			{
-				return false;
-			}
-
+			Enum.TryParse(value, true, out MovementType parsed);
 			movementTypes |= parsed;
 		}
 
-		return movementTypes != MovementType.None;
+		return true;
 	}
 
 	private string? ValidatePayload(ITrapPayload payload)
 	{
-		static bool RequiresPositiveNumber(IReadOnlyDictionary<string, string> parameters, string name) =>
-			parameters.TryGetValue(name, out var value) && double.TryParse(value, out var number) && number > 0.0;
-
-		static bool RequiresPositiveId(IReadOnlyDictionary<string, string> parameters, string name) =>
-			parameters.TryGetValue(name, out var value) && long.TryParse(value, out var id) && id > 0L;
-
 		if (payload.Delay < TimeSpan.Zero)
 		{
 			return $"{payload.PayloadType.DescribeEnum()} payload delay cannot be negative.";
 		}
 
+		if (!Enum.IsDefined(payload.TargetSelector))
+		{
+			return $"{payload.PayloadType.DescribeEnum()} payload target selector is invalid.";
+		}
+
+		if (!TrapPayloadDefinition.TryValidateParameters(payload.PayloadType, payload.Parameters, out var parameterError))
+		{
+			return $"{payload.PayloadType.DescribeEnum()} payload {parameterError}";
+		}
+
 		if (payload.PayloadType == TrapPayloadType.CastSpell)
 		{
-			if (!RequiresPositiveId(payload.Parameters, "spell"))
+			if (!payload.Parameters.TryGetValue("spell", out var spellText))
 			{
-				return "Cast Spell payloads require a positive spell parameter.";
+				return "Cast Spell payloads require a spell parameter.";
 			}
 
-			var spell = Gameworld.MagicSpells.Get(long.Parse(payload.Parameters["spell"]));
+			var spell = Gameworld.MagicSpells.Get(long.Parse(spellText));
 			return spell is null
 				? "Cast Spell payload references an unknown spell."
 				: !spell.ReadyForGame
@@ -348,12 +286,12 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 
 		if (payload.PayloadType == TrapPayloadType.ExecuteProg)
 		{
-			if (!RequiresPositiveId(payload.Parameters, "prog"))
+			if (!payload.Parameters.TryGetValue("prog", out var progText))
 			{
-				return "Execute Prog payloads require a positive prog parameter.";
+				return "Execute Prog payloads require a prog parameter.";
 			}
 
-			var prog = Gameworld.FutureProgs.Get(long.Parse(payload.Parameters["prog"]));
+			var prog = Gameworld.FutureProgs.Get(long.Parse(progText));
 			if (prog is null)
 			{
 				return "Execute Prog payload references an unknown FutureProg.";
@@ -368,21 +306,21 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 
 		if (payload.PayloadType == TrapPayloadType.LiquidDischarge)
 		{
-			return !RequiresPositiveId(payload.Parameters, "liquid")
-				? "Liquid Discharge payloads require a positive liquid parameter."
-				: Gameworld.Liquids.Get(long.Parse(payload.Parameters["liquid"])) is null
+			return !payload.Parameters.TryGetValue("liquid", out var liquidText)
+				? "Liquid Discharge payloads require a liquid parameter."
+				: Gameworld.Liquids.Get(long.Parse(liquidText)) is null
 					? "Liquid Discharge payload references an unknown liquid."
 					: null;
 		}
 
 		if (payload.PayloadType == TrapPayloadType.GasCloud)
 		{
-			if (!RequiresPositiveId(payload.Parameters, "gas"))
+			if (!payload.Parameters.TryGetValue("gas", out var gasText))
 			{
-				return "Gas Cloud payloads require a positive gas parameter.";
+				return "Gas Cloud payloads require a gas parameter.";
 			}
 
-			var gas = Gameworld.Gases.Get(long.Parse(payload.Parameters["gas"]));
+			var gas = Gameworld.Gases.Get(long.Parse(gasText));
 			if (gas is null)
 			{
 				return "Gas Cloud payload references an unknown gas.";
@@ -393,28 +331,19 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 				return "Gas Cloud payloads with a drug require a gas whose drug can be inhaled.";
 			}
 
-			if (payload.Parameters.TryGetValue("dose", out var dose) &&
-			    (!double.TryParse(dose, out var doseValue) || doseValue <= 0.0))
-			{
-				return "Gas Cloud payload dose must be a positive number when supplied.";
-			}
-
-			if (payload.Parameters.TryGetValue("duration", out var duration) &&
-			    (!TimeSpan.TryParse(duration, out var durationValue) || durationValue <= TimeSpan.Zero))
-			{
-				return "Gas Cloud payload duration must be a positive timespan when supplied.";
-			}
-
 			return null;
 		}
 
 		return payload.PayloadType switch
 		{
 			TrapPayloadType.EmitSignal when payload.Parameters.TryGetValue("targetitem", out var targetItem) &&
-			                                  (!long.TryParse(targetItem, out var targetItemId) || targetItemId < 0L) =>
-				"Emit Signal targetitem must be a non-negative item ID when supplied.",
-			TrapPayloadType.DirectDamage when !RequiresPositiveNumber(payload.Parameters, "damage") =>
-				"Direct Damage payloads require a positive damage parameter.",
+			                                  (Gameworld.TryGetItem(long.Parse(targetItem), true) is not { } item ||
+			                                   !item.Components.OfType<ISignalSink>().Any()) =>
+				"Emit Signal targetitem must refer to an existing item with a signal sink.",
+			TrapPayloadType.DirectDamage when !payload.Parameters.ContainsKey("damage") =>
+				"Direct Damage payloads require a damage parameter.",
+			TrapPayloadType.ExplosiveDamage when !payload.Parameters.ContainsKey("damage") =>
+				"Explosive Damage payloads require a damage parameter.",
 			_ => null
 		};
 	}
@@ -679,6 +608,143 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		return true;
 	}
 
+	private bool TrySetTriggerParameter(TrapTriggerDefinition trigger, string parameterName, string value,
+		out string error)
+	{
+		if (!TrapTriggerDefinition.TryValidateParameter(trigger.TriggerType, parameterName, value, out error))
+		{
+			return false;
+		}
+
+		var parameters = trigger.Parameters.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
+		if (TrapTriggerDefinition.ParameterFor(trigger.TriggerType, parameterName)?.Optional == true && value.EqualTo("none"))
+		{
+			parameters.Remove(parameterName);
+		}
+		else
+		{
+			parameters[parameterName] = value;
+		}
+
+		if (!TrapTriggerDefinition.TryValidateParameters(trigger.TriggerType, parameters, out error))
+		{
+			return false;
+		}
+
+		if (parameterName.EqualTo("filterprog") && !value.EqualTo("none"))
+		{
+			var prog = Gameworld.FutureProgs.Get(long.Parse(value));
+			if (prog is null || !prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
+			{
+				error = "The filterprog parameter must refer to a boolean FutureProg.";
+				return false;
+			}
+
+			var supportedParameters = trigger.TriggerType == TrapTriggerType.Signal
+				? prog.MatchesParameters([ProgVariableTypes.Perceivable]) ||
+				  prog.MatchesParameters([ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable])
+				: prog.MatchesParameters([ProgVariableTypes.Character]) ||
+				  prog.MatchesParameters([ProgVariableTypes.Character, ProgVariableTypes.Perceivable]);
+			if (!supportedParameters)
+			{
+				error = "The filterprog FutureProg has no supported parameter signature for this trigger.";
+				return false;
+			}
+		}
+
+		trigger.SetParameter(parameterName, value);
+		error = string.Empty;
+		return true;
+	}
+
+	private bool TrySetPayloadParameter(TrapPayloadDefinition payload, string parameterName, string value,
+		out string error)
+	{
+		if (!TrapPayloadDefinition.TryValidateParameter(payload.PayloadType, parameterName, value, out error))
+		{
+			return false;
+		}
+
+		var parameters = payload.Parameters.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
+		if (TrapPayloadDefinition.ParameterFor(payload.PayloadType, parameterName)?.Optional == true && value.EqualTo("none"))
+		{
+			parameters.Remove(parameterName);
+		}
+		else
+		{
+			parameters[parameterName] = value;
+		}
+
+		if (!TrapPayloadDefinition.TryValidateParameters(payload.PayloadType, parameters, out error))
+		{
+			return false;
+		}
+
+		if (value.EqualTo("none"))
+		{
+			payload.SetParameter(parameterName, value);
+			error = string.Empty;
+			return true;
+		}
+
+		switch (parameterName.CollapseString())
+		{
+			case "spell":
+				var spell = Gameworld.MagicSpells.Get(long.Parse(value));
+				if (spell is null || !spell.ReadyForGame)
+				{
+					error = "The spell parameter must refer to a ready magic spell.";
+					return false;
+				}
+				break;
+			case "prog":
+				var prog = Gameworld.FutureProgs.Get(long.Parse(value));
+				if (prog is null)
+				{
+					error = "The prog parameter must refer to a FutureProg.";
+					return false;
+				}
+
+				if (!prog.MatchesParameters([ProgVariableTypes.Character, ProgVariableTypes.Perceivable]) &&
+				    !prog.MatchesParameters([ProgVariableTypes.Character]) &&
+				    !prog.MatchesParameters([ProgVariableTypes.Perceivable]))
+				{
+					error = "The prog FutureProg must accept character, character and anchor, or anchor parameters.";
+					return false;
+				}
+				break;
+			case "liquid" when Gameworld.Liquids.Get(long.Parse(value)) is null:
+				error = "The liquid parameter must refer to an existing liquid.";
+				return false;
+			case "gas":
+				var gas = Gameworld.Gases.Get(long.Parse(value));
+				if (gas is null)
+				{
+					error = "The gas parameter must refer to an existing gas.";
+					return false;
+				}
+
+				if (gas.Drug is not null && !gas.Drug.DrugVectors.HasFlag(DrugVector.Inhaled))
+				{
+					error = "A gas with a drug must use an inhalable drug.";
+					return false;
+				}
+				break;
+			case "targetitem":
+				var item = Gameworld.TryGetItem(long.Parse(value), true);
+				if (item is null || !item.Components.OfType<ISignalSink>().Any())
+				{
+					error = "The targetitem parameter must refer to an existing item with a signal sink.";
+					return false;
+				}
+				break;
+		}
+
+		payload.SetParameter(parameterName, value);
+		error = string.Empty;
+		return true;
+	}
+
 	private bool BuildingCommandTrigger(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -758,7 +824,14 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 			actor.Send(TriggerBuildingHelp(actor, triggerIndex));
 			return false;
 		}
-		triggerDefinition.SetParameter(parameterName, command.SafeRemainingArgument);
+
+		if (!TrySetTriggerParameter(triggerDefinition, parameterName, command.SafeRemainingArgument, out var error))
+		{
+			actor.Send(error.ColourError());
+			actor.Send(TriggerBuildingHelp(actor, triggerIndex));
+			return false;
+		}
+
 		Changed = true;
 		actor.Send($"You set the {parameterName.ColourName()} parameter on that trigger.");
 		return true;
@@ -779,10 +852,10 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		foreach (var parameter in TrapTriggerDefinition.ParametersFor(trigger.TriggerType))
 		{
 			var value = trigger.Parameters.GetValueOrDefault(parameter.Name) ?? parameter.DefaultValue;
-			sb.AppendLine($"\t{parameter.Name.ColourCommand()} = {value.ColourValue()} - {parameter.Description}");
+			sb.AppendLine($"\t{parameter.Name.ColourCommand()} {parameter.Syntax.ColourCommand()} = {value.ColourValue()} - {parameter.Description}");
 		}
 		sb.AppendLine();
-		sb.AppendLine($"Use {"trigger <number> parameter <name> <value>".ColourCommand()} to change a value.");
+		sb.AppendLine($"Use {"trigger <number> parameter <name> <value>".ColourCommand()} to change a value. Use {"none".ColourCommand()} to restore an optional value's default.");
 		return sb.ToString();
 	}
 
@@ -885,11 +958,19 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 				Changed = true;
 				actor.Send($"That payload will now wait {delay.Describe(actor).ColourValue()}.");
 				return true;
-			case "target" when Enum.TryParse(command.PopSpeech(), true, out TrapTargetSelector selector):
+			case "target" when TrapParameterValidation.TryParseDefinedEnum(command.PopSpeech(), out TrapTargetSelector selector) && command.IsFinished:
 				payloadDefinition.SetTargetSelector(selector);
 				Changed = true;
 				actor.Send($"That payload will now target {selector.DescribeEnum().ColourValue()}.");
 				return true;
+			case "delay":
+				actor.Send("The payload delay must be a non-negative timespan, such as 30 seconds or 00:00:30.".ColourError());
+				actor.Send(PayloadBuildingHelp(actor, payloadIndex));
+				return false;
+			case "target":
+				actor.Send($"The payload target must be one of {Enum.GetValues<TrapTargetSelector>().Select(x => x.DescribeEnum().ColourCommand()).ListToString()}, with no trailing text.".ColourError());
+				actor.Send(PayloadBuildingHelp(actor, payloadIndex));
+				return false;
 			case "parameter":
 				if (command.IsFinished)
 				{
@@ -902,7 +983,13 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 					actor.Send(PayloadBuildingHelp(actor, payloadIndex));
 					return false;
 				}
-				payloadDefinition.SetParameter(parameterName, command.SafeRemainingArgument);
+				if (!TrySetPayloadParameter(payloadDefinition, parameterName, command.SafeRemainingArgument, out var error))
+				{
+					actor.Send(error.ColourError());
+					actor.Send(PayloadBuildingHelp(actor, payloadIndex));
+					return false;
+				}
+
 				Changed = true;
 				actor.Send($"You set the {parameterName.ColourName()} parameter on that payload.");
 				return true;
@@ -923,10 +1010,10 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		foreach (var parameter in TrapPayloadDefinition.ParametersFor(payload.PayloadType))
 		{
 			var value = payload.Parameters.GetValueOrDefault(parameter.Name) ?? parameter.DefaultValue;
-			sb.AppendLine($"\t{parameter.Name.ColourCommand()} = {value.ColourValue()} - {parameter.Description}");
+			sb.AppendLine($"\t{parameter.Name.ColourCommand()} {parameter.Syntax.ColourCommand()} = {value.ColourValue()} - {parameter.Description}");
 		}
 		sb.AppendLine();
-		sb.AppendLine($"Use {"payload <number> parameter <name> <value>".ColourCommand()} to change a parameter.");
+		sb.AppendLine($"Use {"payload <number> parameter <name> <value>".ColourCommand()} to change a parameter. Use {"none".ColourCommand()} to restore an optional value's default.");
 		return sb.ToString();
 	}
 
@@ -1077,5 +1164,5 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 	#3validate#0 - reports whether the template can be submitted
 
 	Common trigger parameters are #3chance#0, #3spotdifficulty#0, #3avoiddifficulty#0, #3filterprog#0 and #3triggerEcho#0.
-	Common payload parameters are #3echo#0, #3spell#0, #3targetitem#0, #3prog#0, #3damage#0, #3damagetype#0, #3liquid#0, #3gas#0, #3amount#0, #3dose#0 and #3duration#0.";
+	Common payload parameters are #3echo#0, #3spell#0, #3targetitem#0, #3prog#0, #3damage#0, #3pain#0, #3stun#0, #3damagetype#0, #3explosionsize#0, #3maximumproximity#0, #3elevation#0, #3liquid#0, #3gas#0, #3amount#0, #3dose#0 and #3duration#0. Direct and Explosive Damage formulas may use #3quality#0 and #3power#0; pain and stun may also use #3damage#0.";
 }

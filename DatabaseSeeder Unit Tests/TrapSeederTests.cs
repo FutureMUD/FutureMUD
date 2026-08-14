@@ -123,7 +123,7 @@ public class TrapSeederTests
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
 		Assert.AreEqual(1, context.TraitDefinitions.Count(x => x.Name == "Traps"));
 		Assert.AreEqual(7, context.Checks.Count(x => trapCheckTypes.Contains(x.Type)));
-		Assert.AreEqual(9, context.TrapTemplates.Count(x => x.Name.StartsWith("Stock Trap - ")));
+		Assert.AreEqual(10, context.TrapTemplates.Count(x => x.Name.StartsWith("Stock Trap - ")));
 		Assert.AreEqual(11, context.Tags.Count(x => x.Name == "Trap Components" || x.Parent != null && x.Parent.Name == "Trap Components"));
 		Assert.AreEqual("Functions", context.Tags.Single(x => x.Name == "Trap Components").Parent?.Name);
 
@@ -141,7 +141,48 @@ public class TrapSeederTests
 
 		var natural = context.TrapTemplates.Single(x => x.Name == "Stock Trap - Spider Web");
 		var magical = context.TrapTemplates.Single(x => x.Name == "Stock Trap - Magical Glyph");
+		var magicalExplosion = context.TrapTemplates.Single(x => x.Name == "Stock Trap - Magical Explosion Glyph");
 		Assert.AreEqual("Natural", XElement.Parse(natural.Definition).Attribute("source")?.Value);
 		Assert.AreEqual("Magical", XElement.Parse(magical.Definition).Attribute("source")?.Value);
+		var explosivePayload = XElement.Parse(magicalExplosion.Definition).Element("Payloads")!.Element("Payload")!;
+		Assert.AreEqual(TrapPayloadType.ExplosiveDamage.ToString(), explosivePayload.Attribute("type")?.Value);
+		var explosiveParameters = explosivePayload.Elements("Parameter")
+			.ToDictionary(x => x.Attribute("name")!.Value, x => x.Value, StringComparer.OrdinalIgnoreCase);
+		CollectionAssert.IsSubsetOf(
+			new[] { "damage", "pain", "stun", "damagetype", "explosionsize", "maximumproximity", "elevation" },
+			explosiveParameters.Keys.ToList());
+
+		foreach (var directDamage in context.TrapTemplates
+			         .Where(x => x.Name.StartsWith("Stock Trap - "))
+			         .AsEnumerable()
+			         .SelectMany(x => XElement.Parse(x.Definition).Element("Payloads")!.Elements("Payload"))
+			         .Where(x => x.Attribute("type")?.Value == TrapPayloadType.DirectDamage.ToString()))
+		{
+			var parameters = directDamage.Elements("Parameter")
+				.ToDictionary(x => x.Attribute("name")!.Value, x => x.Value, StringComparer.OrdinalIgnoreCase);
+			Assert.IsTrue(parameters.ContainsKey("damage"));
+			Assert.IsTrue(parameters.ContainsKey("pain"));
+			Assert.IsTrue(parameters.ContainsKey("stun"));
+		}
+
+		foreach (var stockTemplate in context.TrapTemplates
+			         .Where(x => x.Name.StartsWith("Stock Trap - "))
+			         .AsEnumerable())
+		{
+			var definition = XElement.Parse(stockTemplate.Definition);
+			foreach (var trigger in definition.Element("Triggers")!.Elements("Trigger")
+			         .Select(TrapTriggerDefinition.LoadFromXml))
+			{
+				Assert.IsTrue(TrapTriggerDefinition.TryValidateParameters(trigger.TriggerType, trigger.Parameters, out _),
+					stockTemplate.Name);
+			}
+
+			foreach (var payload in definition.Element("Payloads")!.Elements("Payload")
+			         .Select(TrapPayloadDefinition.LoadFromXml))
+			{
+				Assert.IsTrue(TrapPayloadDefinition.TryValidateParameters(payload.PayloadType, payload.Parameters, out _),
+					stockTemplate.Name);
+			}
+		}
 	}
 }

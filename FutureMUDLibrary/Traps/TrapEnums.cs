@@ -52,6 +52,7 @@ public enum TrapPayloadType
 	EmitSignal,
 	ExecuteProg,
 	DirectDamage,
+	ExplosiveDamage,
 	LiquidDischarge,
 	GasCloud,
 	Restraint
